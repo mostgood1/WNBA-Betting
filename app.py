@@ -1458,40 +1458,65 @@ def api_cron_reconcile_games():
                 last_err = e
                 tries += 1
                 time.sleep(3)
+        out_rows: list[dict[str, object]] = []
+        finals = pd.DataFrame()
         if last_err is not None and (gh.empty or ls.empty):
-            return jsonify({"error": f"scoreboard fetch failed: {last_err}"}), 502
-        out_rows = []
-        if not gh.empty and not ls.empty:
-            cgh = {c.upper(): c for c in gh.columns}
-            cls = {c.upper(): c for c in ls.columns}
-            # Build TEAM_ID -> (TRI, PTS)
-            team_rows = {}
-            for _, r in ls.iterrows():
-                try:
-                    tid = int(r[cls["TEAM_ID"]])
-                    tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
-                    pts = None
-                    # PTS sometimes available directly
-                    if "PTS" in cls:
+            # Fallback to NBA CDN scoreboard JSON when stats API is unavailable
+            try:
+                ymd = d.replace('-', '')
+                cdn_url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
+                import requests as _rq  # type: ignore
+                r = _rq.get(cdn_url, timeout=20)
+                if r.status_code == 200:
+                    jd = r.json()
+                    games = jd.get('games', []) if isinstance(jd, dict) else []
+                    for g in games:
                         try:
-                            pts = int(r[cls["PTS"]])
+                            htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
+                            vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
+                            hs = (g.get('hTeam') or {}).get('score')
+                            vs = (g.get('vTeam') or {}).get('score')
+                            hpts = int(hs) if (hs not in (None, '')) else None
+                            vpts = int(vs) if (vs not in (None, '')) else None
+                            out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
                         except Exception:
-                            pts = None
-                    # Try sum of quarters/OT if needed (optional)
-                    team_rows[tid] = {"tri": tri, "pts": pts}
-                except Exception:
-                    continue
-            # For each game, find home/away IDs and map to tri/pts
-            for _, g in gh.iterrows():
-                try:
-                    hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
-                    h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
-                    htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
-                    hpts = h.get("pts"); vpts = v.get("pts")
-                    out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
-                except Exception:
-                    continue
-        finals = pd.DataFrame(out_rows)
+                            continue
+                    finals = pd.DataFrame(out_rows)
+                else:
+                    return jsonify({"error": f"scoreboard fetch failed: {last_err}"}), 502
+            except Exception:
+                return jsonify({"error": f"scoreboard fetch failed: {last_err}"}), 502
+        else:
+            if not gh.empty and not ls.empty:
+                cgh = {c.upper(): c for c in gh.columns}
+                cls = {c.upper(): c for c in ls.columns}
+                # Build TEAM_ID -> (TRI, PTS)
+                team_rows: dict[int, dict[str, object]] = {}
+                for _, r in ls.iterrows():
+                    try:
+                        tid = int(r[cls["TEAM_ID"]])
+                        tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
+                        pts = None
+                        # PTS sometimes available directly
+                        if "PTS" in cls:
+                            try:
+                                pts = int(r[cls["PTS"]])
+                            except Exception:
+                                pts = None
+                        team_rows[tid] = {"tri": tri, "pts": pts}
+                    except Exception:
+                        continue
+                # For each game, find home/away IDs and map to tri/pts
+                for _, g in gh.iterrows():
+                    try:
+                        hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
+                        h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
+                        htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
+                        hpts = h.get("pts"); vpts = v.get("pts")
+                        out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+                    except Exception:
+                        continue
+                finals = pd.DataFrame(out_rows)
         # Join predictions to finals by tri pairs
         if finals.empty:
             return jsonify({"date": d, "rows": 0, "output": None})
