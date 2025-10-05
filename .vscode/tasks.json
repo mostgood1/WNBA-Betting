@@ -5,7 +5,9 @@
 			"label": "Run Flask app",
 			"type": "shell",
 			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
-			"args": ["app.py"],
+			"args": [
+				"app.py"
+			],
 			"isBackground": true,
 			"problemMatcher": []
 		},
@@ -15,21 +17,24 @@
 			"command": "powershell",
 			"args": [
 				"-NoProfile",
-				"-ExecutionPolicy","Bypass",
-				"-File","${workspaceFolder}\\scripts\\run_cron.ps1"
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\run_cron.ps1"
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Daily: local update (props + predictions)",
 			"type": "shell",
 			"command": "powershell",
 			"args": [
 				"-NoProfile",
-				"-ExecutionPolicy","Bypass",
-				"-File","${workspaceFolder}\\scripts\\daily_update.ps1",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\daily_update.ps1",
 				"-GitPush"
 			],
 			"isBackground": false,
@@ -40,7 +45,10 @@
 			"type": "shell",
 			"command": "powershell",
 			"args": [
-				"-NoProfile","-ExecutionPolicy","Bypass","-Command",
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
 				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli props-edges --date $d --source auto"
 			],
 			"isBackground": false,
@@ -51,9 +59,13 @@
 			"type": "shell",
 			"command": "powershell",
 			"args": [
-				"-NoProfile","-ExecutionPolicy","Bypass",
-				"-File","${workspaceFolder}\\scripts\\register_daily_task.ps1",
-				"-Time","10:00",
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_daily_task.ps1",
+				"-Time",
+				"10:00",
 				"-GitPush"
 			],
 			"isBackground": false,
@@ -64,11 +76,24 @@
 			"type": "shell",
 			"command": "powershell",
 			"args": [
-				"-NoProfile","-ExecutionPolicy","Bypass",
-				"-File","${workspaceFolder}\\scripts\\unregister_daily_task.ps1"
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_daily_task.ps1"
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "Run Flask locally on port 5051",
+			"type": "shell",
+			"command": "set PORT=5051; python app.py",
+			"isBackground": true,
+			"problemMatcher": [
+				"$eslint-stylish"
+			],
+			"group": "build"
 		}
 	]
 }

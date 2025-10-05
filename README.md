@@ -233,6 +233,32 @@ Notes:
 - The app serves JSON/CSV artifacts directly from `/data/...` for the client to render.
 - Prefer hitting cron endpoints or CLI to regenerate predictions/odds artifacts; the page will reflect updates without redeploy.
 
+### New pages and APIs for player props parity
+
+Frontend pages (under `web/`):
+- `/props` – existing props-by-day table
+- `/props/recommendations` – per-player cards of best edges (NFL-style)
+- `/props/reconciliation` – table view of reconciled props/actuals
+
+APIs:
+- `GET /api/props?date=YYYY-MM-DD[&home_team=...&away_team=...&min_edge=...&min_ev=...]`
+	- Returns raw props rows (edges or predictions) with optional collapse to best-of-book.
+- `GET /api/props/recommendations?date=YYYY-MM-DD[&market=pts|reb|ast|threes][&onlyEV=1][&minEV=1.0][&home_team=...&away_team=...]`
+	- Aggregates props edges into player cards with plays sorted by EV% then edge. `minEV` is percent.
+	- Includes `games` array built from the day’s predictions when available.
+- `GET /api/props/reconciliation?date=YYYY-MM-DD[&team=...][&player=...]`
+	- Serves reconciled props rows for the date (built from nbastatR logs), filterable by team/player.
+
+Examples (PowerShell):
+
+```powershell
+# Cards aggregation with min EV filter
+Invoke-RestMethod 'http://localhost:5050/api/props/recommendations?date=2025-10-05&onlyEV=1&minEV=10'
+
+# Reconciliation table for a past date
+Invoke-RestMethod 'http://localhost:5050/api/props/reconciliation?date=2025-10-04'
+```
+
 ## Admin endpoints (optional)
 
 For parity with NFL-Betting, the Flask server exposes lightweight admin endpoints:

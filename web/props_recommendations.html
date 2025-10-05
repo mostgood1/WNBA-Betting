@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Props Recommendations</title>
+  <link rel="stylesheet" href="/web/styles.css" />
+  <style>
+    .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 12px}
+    .pill{display:inline-block;border:1px solid var(--br);border-radius:999px;padding:2px 6px;font-size:12px;margin-left:6px}
+    .play{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--br);border-radius:10px;padding:8px 10px;background:var(--pill-bg, #111827);margin-top:6px}
+    .edge{color:#facc15}
+    .ev{color:#86efac}
+    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+    @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+  </style>
+  <script>
+  function fmt(x){ if(x==null||isNaN(x)) return '—'; return Number(x).toFixed(1) }
+    function qs(name){ const u=new URL(window.location); return u.searchParams.get(name) }
+    async function loadData(){
+  const d = document.getElementById('datePicker').value || qs('date');
+  const market = document.getElementById('market').value;
+  const g = document.getElementById('game').value;
+      const onlyEV = document.getElementById('onlyEV').checked;
+      const minEV = document.getElementById('minEV').value;
+      const params = new URLSearchParams();
+      if(d) params.set('date', d);
+      if(market) params.set('market', market);
+      if(onlyEV) params.set('onlyEV','1');
+      if(minEV) params.set('minEV', String(minEV));
+  if(g){ const [home,away] = g.split('|'); if(home) params.set('home_team', home); if(away) params.set('away_team', away); }
+      const res = await fetch('/api/props/recommendations?'+params.toString(), {cache:'no-store'});
+      const js = await res.json();
+      document.getElementById('status').textContent = js.rows? (js.rows+" players") : (js.note || 'No props yet.');
+      renderGames(js.games||[]);
+      renderCards(js.data||[]);
+    }
+    function renderGames(games){
+      const sel = document.getElementById('game'); const cur = sel.value;
+      sel.innerHTML = '<option value="">All games</option>';
+      games.forEach(g=>{ const opt=document.createElement('option'); opt.value=`${g.home_team||''}|${g.away_team||''}`; opt.textContent=`${g.away_team||'?'} @ ${g.home_team||'?'}`; sel.appendChild(opt); });
+      if(cur) sel.value = cur;
+    }
+    function renderCards(items){
+      const root = document.getElementById('cards'); root.innerHTML='';
+      items.forEach(it=>{
+        const div = document.createElement('div'); div.className='card';
+        const matchup = ((it.away_team||'') && (it.home_team||''))? `${it.away_team} @ ${it.home_team}` : '';
+        const head = document.createElement('div'); head.className='card-header';
+        head.innerHTML = `<div style="font-weight:600">${it.player||''} <span class="muted">${it.team? '• '+it.team : ''}</span></div><div class="muted" style="font-size:12px">${matchup}</div>`;
+        const plays = document.createElement('div');
+        (it.plays||[]).forEach(p=>{
+          const row = document.createElement('div'); row.className='play';
+          const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
+          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class="edge">Δ ${fmt(p.edge)}</span>` : '';
+          row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class="pill">${p.price!=null? p.price: ''}</span> <span class="pill">${p.book||''}</span></div>`;
+          plays.appendChild(row);
+        });
+        div.appendChild(head); div.appendChild(plays); root.appendChild(div);
+      });
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const today = new Date().toISOString().slice(0,10);
+      const inp = document.getElementById('datePicker'); if(!inp.value) inp.value = today;
+      ['datePicker','market','onlyEV','minEV','game'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', loadData); });
+      loadData();
+    });
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Props Recs</h1>
+      <nav class="site-nav">
+        <a href="/">Games</a>
+        <a href="/recommendations">Recommendations</a>
+        <a href="/props">Props</a>
+        <a href="/props/recommendations" aria-current="page">Props Recs</a>
+        <a href="/reconciliation">Reconciliation</a>
+        <a href="/odds-coverage">Odds Coverage</a>
+      </nav>
+      <div class="controls">
+        <label for="datePicker">Date</label>
+        <input id="datePicker" type="date" title="Select date" />
+        <label for="game">Game</label>
+        <select id="game" title="Filter by game">
+          <option value="">All games</option>
+        </select>
+        <label for="market">Market</label>
+        <select id="market" title="Filter by market">
+          <option value="">All markets</option>
+          <option value="pts">Points</option>
+          <option value="reb">Rebounds</option>
+          <option value="ast">Assists</option>
+          <option value="threes">3PM</option>
+        </select>
+        <label><input id="onlyEV" type="checkbox" /> Only EV</label>
+        <label for="minEV">Min EV%</label> <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" />
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <div id="status" class="summary muted">Loading…</div>
+    <div id="cards" class="grid"></div>
+  </main>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Props Reconciliation</title>
+  <link rel="stylesheet" href="/web/styles.css" />
+  <script>
+    function fmt(x){ if(x==null||isNaN(x)) return '—'; return Number(x).toFixed(2) }
+    async function loadRecon(){
+      const d = document.getElementById('datePicker').value;
+      const team = document.getElementById('team').value;
+      const player = document.getElementById('player').value;
+      const p = new URLSearchParams(); if(d) p.set('date', d); if(team) p.set('team', team); if(player) p.set('player', player);
+      const r = await fetch('/api/props/reconciliation?'+p.toString(), {cache:'no-store'});
+      const js = await r.json();
+      document.getElementById('meta').textContent = `${js.rows||0} rows` + (js.note? ' • '+js.note : '');
+      render(js.data||[]);
+    }
+    function render(rows){
+      const tb = document.querySelector('#tbl tbody'); tb.innerHTML='';
+      rows.forEach(r=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${r.team||''}</td><td>${r.player||''}</td><td>${r.market||r.stat||''}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${fmt(r.proj)}</td><td>${fmt(r.actual)}</td><td>${fmt(r.error)}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const today = new Date().toISOString().slice(0,10);
+      const inp = document.getElementById('datePicker'); if(!inp.value) inp.value = today;
+      ['datePicker','team','player'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', loadRecon); });
+      loadRecon();
+    });
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Props Reconciliation</h1>
+      <nav class="site-nav">
+        <a href="/">Games</a>
+        <a href="/recommendations">Recommendations</a>
+        <a href="/props">Props</a>
+        <a href="/props/recommendations">Props Recs</a>
+        <a href="/props/reconciliation" aria-current="page">Props Recon</a>
+        <a href="/odds-coverage">Odds Coverage</a>
+      </nav>
+      <div class="controls">
+        <label>Date <input id="datePicker" type="date" /></label>
+        <label>Team <input id="team" type="text" placeholder="e.g., GSW" /></label>
+        <label>Player <input id="player" type="text" placeholder="search" /></label>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <div id="meta" class="summary"></div>
+    <div class="table-wrap">
+      <table id="tbl" class="data-table">
+        <thead><tr><th>Team</th><th>Player</th><th>Market</th><th>Side</th><th>Line</th><th>Odds</th><th>Proj</th><th>Actual</th><th>Error</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </main>
+</body>
+</html>

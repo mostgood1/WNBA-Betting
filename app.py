@@ -92,6 +92,14 @@ def route_recommendations():
 def route_props():
     return send_from_directory(str(WEB_DIR), "props.html")
 
+@app.route("/props/recommendations")
+def route_props_recommendations():
+    return send_from_directory(str(WEB_DIR), "props_recommendations.html")
+
+@app.route("/props/reconciliation")
+def route_props_reconciliation():
+    return send_from_directory(str(WEB_DIR), "props_reconciliation.html")
+
 @app.route("/reconciliation")
 def route_reconciliation():
     return send_from_directory(str(WEB_DIR), "reconciliation.html")
@@ -841,6 +849,13 @@ def api_props():
             df = df[pd.to_numeric(df["edge"], errors="coerce").fillna(0) >= min_edge]
         if "ev" in df.columns:
             df = df[pd.to_numeric(df["ev"], errors="coerce").fillna(0) >= min_ev]
+        # Optional: narrow to a specific game by team names
+        home_q = (request.args.get("home_team") or "").strip()
+        away_q = (request.args.get("away_team") or "").strip()
+        if (home_q or away_q) and ("team" in df.columns):
+            keep = set([t for t in (home_q, away_q) if t])
+            if keep:
+                df = df[df.get("team").astype(str).isin(keep)]
         # Collapse to best-of-book per player/stat/side/line by default (disable with collapse=0)
         collapse_q = (request.args.get("collapse", "1") or "1").strip().lower()
         do_collapse = collapse_q not in ("0", "false", "no")
@@ -861,6 +876,173 @@ def api_props():
                 pass
         rows = df.fillna("").to_dict(orient="records")
         return jsonify({"date": d, "source": src, "rows": rows, "collapsed": collapsed})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/props/recommendations")
+def api_props_recommendations():
+    """Aggregate props edges into player cards for the given date, NFL-style.
+
+    Query params:
+      - date: YYYY-MM-DD
+      - market: optional filter (e.g., 'pts','reb','ast','threes')
+      - minEV: minimum EV percent (e.g., 1.5). We compute ev_pct = ev*100 when ev present.
+      - onlyEV: 1 to hide plays without EV
+      - home_team/away_team: optional filter to a specific game
+    Response:
+      { date, rows, games: [{home_team,away_team}], data: [{player,team,home_team,away_team,plays:[...] }]}.
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    try:
+        edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+        preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
+        df = _read_csv_if_exists(edges_p)
+        if not isinstance(df, pd.DataFrame) or df is None or df.empty:
+            # Fall back to predictions-only props if available (older format)
+            return jsonify({"date": d, "rows": 0, "data": [], "games": [], "note": "no props edges for date"})
+        # Normalize and compute ev_pct for convenience
+        df = df.copy()
+        if "ev" in df.columns:
+            try:
+                df["ev"] = pd.to_numeric(df["ev"], errors="coerce")
+                df["ev_pct"] = df["ev"] * 100.0
+            except Exception:
+                df["ev_pct"] = None
+        for c in ("edge","line","price"):
+            if c in df.columns:
+                df[c] = pd.to_numeric(df[c], errors="coerce")
+        # Filter by market if requested
+        market = (request.args.get("market") or "").strip().lower()
+        if market and ("stat" in df.columns):
+            mk = market
+            df = df[df["stat"].astype(str).str.lower() == mk]
+        # Filter by EV threshold (percent)
+        try:
+            minEV = float(request.args.get("minEV", "0") or 0)
+        except Exception:
+            minEV = 0.0
+        onlyEV = str(request.args.get("onlyEV", "0")).lower() in {"1","true","yes"}
+        if df is not None and ("ev_pct" in df.columns):
+            if onlyEV:
+                df = df[pd.to_numeric(df["ev_pct"], errors="coerce").notna()]
+            if minEV and minEV > 0:
+                df = df[pd.to_numeric(df["ev_pct"], errors="coerce").fillna(-1e9) >= minEV]
+        elif (onlyEV or (minEV and minEV > 0)):
+            # If we don't have EVs, nothing qualifies
+            df = df.iloc[0:0]
+        # Optionally narrow to a game (home_team/away_team)
+        home_q = (request.args.get("home_team") or "").strip()
+        away_q = (request.args.get("away_team") or "").strip()
+        games_df = _read_csv_if_exists(preds_p)
+        if not isinstance(games_df, pd.DataFrame) or games_df is None:
+            games_df = pd.DataFrame()
+        games: list[dict] = []
+        if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
+            try:
+                g = games_df[["home_team","visitor_team"]].dropna()
+                for _, r in g.iterrows():
+                    games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
+                # Filter rows by game if requested: keep only players whose team appears in that matchup
+                if home_q or away_q:
+                    keep_teams = set()
+                    for _, r in g.iterrows():
+                        h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                        if (not home_q or h == home_q) and (not away_q or a == away_q):
+                            keep_teams.update({h, a})
+                    if keep_teams and ("team" in df.columns):
+                        df = df[df["team"].astype(str).isin(keep_teams)]
+            except Exception:
+                pass
+        # Build cards grouped by player/team
+        player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
+        team_col = "team" if "team" in df.columns else None
+        cards: list[dict] = []
+        if player_col:
+            # Optional enrichment: derive matchup per card from predictions
+            matchup_map: dict[str, tuple[str,str]] = {}
+            if not games_df.empty:
+                try:
+                    for _, r in games_df.iterrows():
+                        h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                        matchup_map[h.upper()] = (a, h)
+                        matchup_map[a.upper()] = (a, h)
+                except Exception:
+                    pass
+            # Group and assemble plays
+            group_cols = [player_col] + ([team_col] if team_col else [])
+            # Ensure columns exist for grouping
+            group_cols = [c for c in group_cols if c]
+            for keys, grp in df.groupby(group_cols, dropna=False):
+                if not isinstance(keys, tuple):
+                    keys = (keys,)
+                player = keys[0] if len(keys) > 0 else None
+                team = keys[1] if len(keys) > 1 else (grp[team_col].iloc[0] if team_col and (team_col in grp.columns) and (len(grp) > 0) else None)
+                plays: list[dict] = []
+                g2 = grp.copy()
+                # Prefer descending by ev_pct then by absolute edge
+                if "ev_pct" in g2.columns:
+                    g2 = g2.sort_values(["ev_pct", "edge"], ascending=[False, False])
+                for _, r in g2.iterrows():
+                    plays.append({
+                        "market": r.get("stat"),
+                        "side": r.get("side"),
+                        "line": r.get("line"),
+                        "price": r.get("price"),
+                        "edge": r.get("edge"),
+                        "ev": r.get("ev"),
+                        "ev_pct": r.get("ev_pct"),
+                        "book": r.get("bookmaker"),
+                    })
+                away, home = (None, None)
+                try:
+                    away, home = matchup_map.get(str(team or "").upper(), (None, None))
+                except Exception:
+                    away, home = (None, None)
+                cards.append({
+                    "player": player,
+                    "team": team,
+                    "home_team": home,
+                    "away_team": away,
+                    "plays": plays,
+                })
+        return jsonify({
+            "date": d,
+            "rows": len(cards),
+            "games": games,
+            "data": cards,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/props/reconciliation")
+@app.route("/api/player-props-reconciliation")
+def api_props_reconciliation():
+    """Return reconciled props rows for a date if available.
+
+    Reads data/processed/recon_props_YYYY-MM-DD.csv and supports optional filtering:
+      - team: limit to a specific team code/name
+      - player: substring match on player name
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    try:
+        p = BASE_DIR / "data" / "processed" / f"recon_props_{d}.csv"
+        if not p.exists():
+            return jsonify({"date": d, "rows": 0, "data": [], "note": "no recon props for date"})
+        df = pd.read_csv(p)
+        team_q = (request.args.get("team") or "").strip()
+        player_q = (request.args.get("player") or "").strip().lower()
+        if team_q and "team" in df.columns:
+            df = df[df.get("team").astype(str).str.strip() == team_q]
+        if player_q and "player" in df.columns:
+            df = df[df.get("player").astype(str).str.lower().str.contains(player_q)]
+        rows = df.fillna("").to_dict(orient="records")
+        return jsonify({"date": d, "rows": len(rows), "data": rows})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
