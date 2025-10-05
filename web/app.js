@@ -28,6 +28,23 @@ const state = {
   }
 };
 
+// --- Persistence helpers (odds) ---
+function persistOdds(dateStr, map){
+  try{
+    const obj = { ts: Date.now(), items: Array.from(map.entries()) };
+    localStorage.setItem(`odds:${dateStr}`, JSON.stringify(obj));
+  }catch(_){/* ignore */}
+}
+function restoreOdds(dateStr, maxAgeMs=6*60*60*1000){
+  try{
+    const raw = localStorage.getItem(`odds:${dateStr}`);
+    if (!raw) return new Map();
+    const obj = JSON.parse(raw);
+    if (!obj || !obj.items || (obj.ts && (Date.now() - obj.ts) > maxAgeMs)) return new Map();
+    return new Map(obj.items);
+  }catch(_){ return new Map(); }
+}
+
 function getQueryParam(name){
   try{
     const url = new URL(window.location.href);
@@ -139,8 +156,11 @@ async function loadTeams(){
 }
 
 async function maybeLoadOdds(dateStr){
-  // Preserve prior odds for this date in case latest snapshot has fewer rows (books drop lines)
-  const prev = new Map(state.oddsByKey);
+  // Preserve prior odds for this date in case latest snapshot has fewer rows (books drop lines).
+  // Also restore persisted odds across page reloads for continuity.
+  const prevSession = new Map(state.oddsByKey);
+  const prevPersisted = restoreOdds(dateStr);
+  const prev = new Map([...prevPersisted, ...prevSession]);
   const next = new Map();
   // Load from multiple sources and merge per-game, preferring Bovada entries
   const sources = [
@@ -264,6 +284,8 @@ async function maybeLoadOdds(dateStr){
     }
   }
   state.oddsByKey = next;
+  // Persist for continuity across reloads
+  persistOdds(dateStr, next);
 }
 
 async function loadSchedule() {
@@ -631,7 +653,7 @@ function renderDate(dateStr){
   const totalModel = pred && Number.isFinite(Number(pred.pred_total)) ? Number(pred.pred_total) : null;
   const totalActual = (actualHome!=null && actualAway!=null) ? (actualHome + actualAway) : null;
   const diffLine = (totalModel!=null && totalActual!=null) ? `Diff: ${(totalActual - totalModel).toFixed(2)}` : '';
-    const projLine = (projHome!=null && projAway!=null) ? `Projected: ${away} ${fmtNum(projAway,0)} — ${home} ${fmtNum(projHome,0)}` : '';
+  const projLine = (projHome!=null && projAway!=null) ? `Projected: ${away} ${fmtNum(projAway,1)} — ${home} ${fmtNum(projHome,1)}` : '';
     const actualLine = (actualHome!=null && actualAway!=null) ? `Final: ${away} ${fmtNum(actualAway,0)} — ${home} ${fmtNum(actualHome,0)}` : '';
     // Props edges badges for the teams
     const tA = String(away||'').toUpperCase();
@@ -1064,7 +1086,7 @@ function renderDate(dateStr){
           <div class="team-line">${teamLineHTML(away)}</div>
           <div class="score-block">
             <div class="live-score js-live-away">${(actualAway!=null? fmtNum(actualAway,0) : '—')}</div>
-            <div class="sub proj-score">${(projAway!=null? fmtNum(projAway,0) : '—')}</div>
+            <div class="sub proj-score">${(projAway!=null? fmtNum(projAway,1) : '—')}</div>
           </div>
         </div>
         <div style="text-align:center; font-weight:700;">@</div>
@@ -1072,7 +1094,7 @@ function renderDate(dateStr){
           <div class="team-line">${teamLineHTML(home)}</div>
           <div class="score-block">
             <div class="live-score js-live-home">${(actualHome!=null? fmtNum(actualHome,0) : '—')}</div>
-            <div class="sub proj-score">${(projHome!=null? fmtNum(projHome,0) : '—')}</div>
+            <div class="sub proj-score">${(projHome!=null? fmtNum(projHome,1) : '—')}</div>
           </div>
         </div>
       </div>
