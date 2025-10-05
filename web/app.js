@@ -64,6 +64,15 @@ function localYMD(d){
   }
 }
 
+// Parse YYYY-MM-DD into a Date at local midnight to avoid ISO UTC interpretation
+function parseYMDLocal(s){
+  try{
+    const [y,m,d] = String(s||'').split('-').map(Number);
+    if (!y || !m || !d) return new Date('invalid');
+    return new Date(y, m-1, d, 0, 0, 0, 0);
+  }catch(_){ return new Date('invalid'); }
+}
+
 function teamLogoUrl(tri){
   const t = String(tri||'').toUpperCase();
   // This returns a local path, but we'll try CDN first in teamLineHTML.
@@ -1317,11 +1326,11 @@ function setupControls(){
     const arr = sched;
     if (!arr || arr.length === 0) return null;
     if (arr.includes(target)) return target;
-    const t = new Date(target);
+    const t = parseYMDLocal(target);
     let best = arr[0];
-    let bestDiff = Math.abs(new Date(arr[0]) - t);
+    let bestDiff = Math.abs(parseYMDLocal(arr[0]) - t);
     for (let i=1;i<arr.length;i++){
-      const diff = Math.abs(new Date(arr[i]) - t);
+      const diff = Math.abs(parseYMDLocal(arr[i]) - t);
       if (diff < bestDiff){ bestDiff = diff; best = arr[i]; }
     }
     return best;
@@ -1389,12 +1398,12 @@ function setupControls(){
       picker.value = today;
     } else {
       const near = (function(){
-        const t = new Date(today);
+        const t = parseYMDLocal(today);
         const arr = sched;
         if (!arr || arr.length === 0) return dates[0];
-        let best = arr[0]; let bestDiff = Math.abs(new Date(arr[0]) - t);
+        let best = arr[0]; let bestDiff = Math.abs(parseYMDLocal(arr[0]) - t);
         for (let i=1;i<arr.length;i++){
-          const diff = Math.abs(new Date(arr[i]) - t);
+          const diff = Math.abs(parseYMDLocal(arr[i]) - t);
           if (diff < bestDiff){ bestDiff = diff; best = arr[i]; }
         }
         return best;
