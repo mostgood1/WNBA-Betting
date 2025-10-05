@@ -1425,9 +1425,125 @@ def api_cron_reconcile_games():
         preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
-    # Fetch finals from ScoreboardV2
+    # Helper: build finals from NBA CDN (with optional ±1 day) limited to prediction pairs
+    def _finals_from_cdn(date_str: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = True) -> pd.DataFrame:
+        try:
+            import requests as _rq  # type: ignore
+        except Exception:
+            return pd.DataFrame()
+        def _rows_for(ds: str) -> list[dict[str, object]]:
+            try:
+                ymd = ds.replace('-', '')
+                url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
+                r = _rq.get(url, timeout=20)
+                out: list[dict[str, object]] = []
+                if r.status_code == 200:
+                    jd = r.json()
+                    games = jd.get('games', []) if isinstance(jd, dict) else []
+                    for g in games:
+                        try:
+                            htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
+                            vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
+                            if (htri, vtri) not in pred_pairs:
+                                continue
+                            hs = (g.get('hTeam') or {}).get('score'); vs = (g.get('vTeam') or {}).get('score')
+                            hpts = int(hs) if (hs not in (None, '')) else None
+                            vpts = int(vs) if (vs not in (None, '')) else None
+                            out.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+                        except Exception:
+                            continue
+                return out
+            except Exception:
+                return []
+        rows = _rows_for(date_str)
+        if include_adjacent and not rows:
+            try:
+                from datetime import datetime as _dt, timedelta as _td
+                base = _dt.strptime(date_str, "%Y-%m-%d").date()
+                for off in (-1, 1):
+                    rows += _rows_for((base + _td(days=off)).isoformat())
+            except Exception:
+                pass
+        return pd.DataFrame(rows)
+
+    # Fetch finals from ScoreboardV2 if available, else use CDN fallback
+    pred_pairs: set[tuple[str, str]] = set(zip(
+        preds.get("home_tri").astype(str).str.upper(),
+        preds.get("away_tri").astype(str).str.upper()
+    ))
     if _scoreboardv2 is None:
-        return jsonify({"error": "nba_api not installed"}), 500
+        finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
+        # Proceed to join even if empty; caller will handle zero rows
+    else:
+        # Attempt stats API, then fallback to CDN if needed
+        try:
+            # Harden headers for reliability
+            try:
+                if _nba_http is not None:
+                    _nba_http.STATS_HEADERS.update({
+                        'Accept': 'application/json, text/plain, */*',
+                        'Accept-Language': 'en-US,en;q=0.9',
+                        'Origin': 'https://www.nba.com',
+                        'Referer': 'https://www.nba.com/stats/',
+                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                        'Connection': 'keep-alive',
+                    })
+            except Exception:
+                pass
+            # Simple retry/backoff on ScoreboardV2 due to occasional timeouts
+            tries = 0
+            last_err: Optional[Exception] = None
+            gh = pd.DataFrame(); ls = pd.DataFrame()
+            while tries < 2:
+                try:
+                    sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=45)
+                    nd = sb.get_normalized_dict()
+                    gh = pd.DataFrame(nd.get("GameHeader", []))
+                    ls = pd.DataFrame(nd.get("LineScore", []))
+                    last_err = None
+                    break
+                except Exception as e:
+                    last_err = e
+                    tries += 1
+                    time.sleep(3)
+            out_rows: list[dict[str, object]] = []
+            finals = pd.DataFrame()
+            if not (gh.empty or ls.empty):
+                cgh = {c.upper(): c for c in gh.columns}
+                cls = {c.upper(): c for c in ls.columns}
+                # Build TEAM_ID -> (TRI, PTS)
+                team_rows: dict[int, dict[str, object]] = {}
+                for _, r in ls.iterrows():
+                    try:
+                        tid = int(r[cls["TEAM_ID"]])
+                        tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
+                        pts = None
+                        if "PTS" in cls:
+                            try:
+                                pts = int(r[cls["PTS"]])
+                            except Exception:
+                                pts = None
+                        team_rows[tid] = {"tri": tri, "pts": pts}
+                    except Exception:
+                        continue
+                for _, g in gh.iterrows():
+                    try:
+                        hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
+                        h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
+                        htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
+                        hpts = h.get("pts"); vpts = v.get("pts")
+                        # Limit to predicted matchups
+                        if (htri, vtri) not in pred_pairs:
+                            continue
+                        out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+                    except Exception:
+                        continue
+                finals = pd.DataFrame(out_rows)
+            if finals.empty and last_err is not None:
+                # Fallback to CDN if stats API failed
+                finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
+        except Exception:
+            finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
     try:
         # Harden headers for reliability
         try:
