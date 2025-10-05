@@ -139,7 +139,9 @@ async function loadTeams(){
 }
 
 async function maybeLoadOdds(dateStr){
-  state.oddsByKey.clear();
+  // Preserve prior odds for this date in case latest snapshot has fewer rows (books drop lines)
+  const prev = new Map(state.oddsByKey);
+  const next = new Map();
   // Load from multiple sources and merge per-game, preferring Bovada entries
   const sources = [
     { path: `../data/processed/closing_lines_${dateStr}.csv`, label: 'closing' },
@@ -250,10 +252,18 @@ async function maybeLoadOdds(dateStr){
         commence_time: commenceCol ? r[idx[commenceCol]] : null,
         source: f.label,
       };
-      const prev = state.oddsByKey.get(key);
-      state.oddsByKey.set(key, mergeOdds(prev, rec));
+      const prevRec = next.get(key) || prev.get(key);
+      next.set(key, mergeOdds(prevRec, rec));
     }
   }
+  // Fill forward: keep previous entries for this date that weren’t present in this snapshot
+  const prefix = `${dateStr}|`;
+  for (const [k,v] of prev.entries()){
+    if (k.startsWith(prefix) && !next.has(k)){
+      next.set(k, v);
+    }
+  }
+  state.oddsByKey = next;
 }
 
 async function loadSchedule() {

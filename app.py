@@ -1517,9 +1517,50 @@ def api_cron_reconcile_games():
                     except Exception:
                         continue
                 finals = pd.DataFrame(out_rows)
-        # Join predictions to finals by tri pairs
-        if finals.empty:
-            return jsonify({"date": d, "rows": 0, "output": None})
+                # If no finals found yet, try NBA CDN on adjacent days (±1) to handle intl/UTC quirks
+                if finals.empty:
+                    try:
+                        # Build allowed matchup set from predictions to avoid pulling unrelated games
+                        pred_pairs = set(zip(preds.get("home_tri").astype(str).str.upper(), preds.get("away_tri").astype(str).str.upper()))
+                        def _cdn_rows_for(date_str: str) -> list[dict[str, object]]:
+                            try:
+                                ymd = date_str.replace('-', '')
+                                url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
+                                import requests as _rq  # type: ignore
+                                r = _rq.get(url, timeout=20)
+                                rows: list[dict[str, object]] = []
+                                if r.status_code == 200:
+                                    jd = r.json()
+                                    games = jd.get('games', []) if isinstance(jd, dict) else []
+                                    for g in games:
+                                        try:
+                                            htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
+                                            vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
+                                            if (htri, vtri) not in pred_pairs:
+                                                continue
+                                            hs = (g.get('hTeam') or {}).get('score'); vs = (g.get('vTeam') or {}).get('score')
+                                            hpts = int(hs) if (hs not in (None, '')) else None
+                                            vpts = int(vs) if (vs not in (None, '')) else None
+                                            rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+                                        except Exception:
+                                            continue
+                                return rows
+                            except Exception:
+                                return []
+                        # Compute ±1 dates
+                        from datetime import datetime as _dt, timedelta as _td
+                        base = _dt.strptime(d, "%Y-%m-%d").date()
+                        alt = []
+                        for off in (-1, 1):
+                            alt_d = (base + _td(days=off)).isoformat()
+                            alt += _cdn_rows_for(alt_d)
+                        if alt:
+                            finals = pd.DataFrame(alt)
+                    except Exception:
+                        pass
+                # Join predictions to finals by tri pairs
+                if finals.empty:
+                    return jsonify({"date": d, "rows": 0, "output": None})
         merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
         # Compute errors
         def to_float(x):
