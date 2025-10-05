@@ -1221,6 +1221,14 @@ async function pollScoreboardOnce(dateStr){
         if (!/final/i.test(c.querySelector('.row.head .state')?.textContent||'')) {
           anyFinalized = true;
         }
+        // Inject into recon map so results/accuracy can render without waiting for CSV
+        try{
+          const fullKey = `${dateStr}|${home}|${away}`;
+          const recon = state.reconByKey.get(fullKey) || {};
+          const hp = (g.home_pts!=null? Number(g.home_pts) : recon.home_pts);
+          const ap = (g.away_pts!=null? Number(g.away_pts) : recon.visitor_pts);
+          state.reconByKey.set(fullKey, { ...recon, home_pts: hp, visitor_pts: ap });
+        }catch(_){/* ignore */}
         // If results toggle is on, re-render this card’s results details by forcing minimal refresh
         try{
           const showResults = document.getElementById('resultsToggle')?.checked;
