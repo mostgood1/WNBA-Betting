@@ -12,16 +12,18 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
-# Resolve repo root from this script
-$Root = Split-Path -Parent $MyInvocation.MyCommand.Path
-Set-Location -Path $Root
+# Resolve paths
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# Repo root is the parent of the scripts folder
+$RepoRoot = (Resolve-Path (Join-Path $ScriptDir '..')).Path
+Set-Location -Path $RepoRoot
 
-# Python resolution (prefer venv)
-$VenvPy = Join-Path $Root '.venv\Scripts\python.exe'
+# Python resolution (prefer venv at repo root)
+$VenvPy = Join-Path $RepoRoot '.venv\Scripts\python.exe'
 $Python = if (Test-Path $VenvPy) { $VenvPy } else { 'python' }
 
-# Logs
-$LogPath = Join-Path $Root $LogDir
+# Logs (under repo root)
+$LogPath = Join-Path $RepoRoot $LogDir
 if (-not (Test-Path $LogPath)) { New-Item -ItemType Directory -Path $LogPath | Out-Null }
 $Stamp = (Get-Date).ToString('yyyyMMdd_HHmmss')
 $LogFile = Join-Path $LogPath ("local_daily_update_{0}.log" -f $Stamp)
@@ -96,10 +98,15 @@ if (-not $UseServer) {
     $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday"
     $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
     ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
-  } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
+  } catch {
+    Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message)
+    # Fallback: run reconcile via CLI
+    $rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
+    Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
+  }
 
   # 3) Props actuals upsert for yesterday (CLI)
-  $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-actuals','--date', $yesterday)
+  $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
   Write-Log ("props-actuals exit code: {0}" -f $rc3)
 
   # 4) Props edges for today (auto source: OddsAPI if available else Bovada)
