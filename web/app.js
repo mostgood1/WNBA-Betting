@@ -51,6 +51,19 @@ function fmtLocalDate(iso){
   }catch(_){ return ''; }
 }
 
+// Return local calendar date as YYYY-MM-DD (user timezone), avoiding UTC-based day rollover
+function localYMD(d){
+  try{
+    const dt = d instanceof Date ? d : new Date();
+    const y = dt.getFullYear();
+    const m = String(dt.getMonth()+1).padStart(2,'0');
+    const day = String(dt.getDate()).padStart(2,'0');
+    return `${y}-${m}-${day}`;
+  }catch(_){
+    try { return new Date().toLocaleDateString('en-CA'); } catch(__){ return new Date().toISOString().slice(0,10); }
+  }
+}
+
 function teamLogoUrl(tri){
   const t = String(tri||'').toUpperCase();
   // This returns a local path, but we'll try CDN first in teamLineHTML.
@@ -1281,7 +1294,7 @@ function startOddsReload(dateStr){
   try{
     if (state.poll.oddsTimer) clearInterval(state.poll.oddsTimer);
     // Only auto-reload for today's date, to avoid thrashing historical views
-    const today = new Date().toISOString().slice(0,10);
+    const today = localYMD();
     if (dateStr !== today) return;
     // Kick once immediately, then every 60s
     reloadOddsIfChanged(dateStr);
@@ -1297,7 +1310,7 @@ function setupControls(){
   const refreshBtn = document.getElementById('refreshOddsBtn');
   const dates = Array.from(state.byDate.keys()).sort();
   const sched = Array.isArray(state.scheduleDates) ? state.scheduleDates : dates;
-  const today = new Date().toISOString().slice(0,10);
+  const today = localYMD();
   picker.min = dates[0]; picker.max = dates[dates.length-1];
   // Default to the nearest scheduled date to 'today'
   const nearestScheduled = (target)=>{
@@ -1320,11 +1333,8 @@ function setupControls(){
   try {
     const resToggleInit = document.getElementById('resultsToggle');
     if (resToggleInit) {
-      const todayDate = new Date(today);
-      const chosen = new Date(defaultDate);
-      if (!Number.isNaN(chosen.getTime()) && chosen < todayDate) {
-        resToggleInit.checked = true;
-      }
+      // Compare as YYYY-MM-DD strings (lex order matches date order) using local calendar date
+      if (defaultDate < today) resToggleInit.checked = true;
     }
   } catch(_) { /* ignore */ }
   const go = async ()=>{
