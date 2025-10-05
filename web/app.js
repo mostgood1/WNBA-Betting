@@ -23,6 +23,8 @@ const state = {
     timer: null,
     date: null,
     lastPayload: null,
+    oddsTimer: null,
+    oddsHash: '',
   }
 };
 
@@ -1073,6 +1075,7 @@ function renderDate(dateStr){
   // Start or refresh live polling for this date
   try {
     startScoreboardPolling(dateStr);
+    startOddsReload(dateStr);
   } catch(_){}
   // Format all game dates into the user's local timezone similar to NHL
   try{
@@ -1246,6 +1249,43 @@ function startScoreboardPolling(dateStr){
     // Poll every 20s
     pollScoreboardOnce(dateStr);
     state.poll.timer = setInterval(()=> pollScoreboardOnce(dateStr), 20000);
+  }catch(_){/* ignore */}
+}
+
+// Periodically reload odds CSVs for the selected date (client-only) so cards update when
+// the server writes new lines; avoids requiring manual "Refresh Odds" clicks.
+async function reloadOddsIfChanged(dateStr){
+  try{
+    // Build a tiny hash from the concatenation of text contents of available odds files
+    const sources = [
+      `/data/processed/closing_lines_${dateStr}.csv`,
+      `/data/processed/odds_${dateStr}.csv`,
+      `/data/processed/market_${dateStr}.csv`,
+      `/data/processed/game_odds_${dateStr}.csv`,
+    ];
+    let agg = '';
+    await Promise.all(sources.map(async (u)=>{
+      try{ const r = await fetch(`${u}?v=${Date.now()}`, { cache: 'no-store' }); if (r.ok){ const t = await r.text(); if (t && t.trim()) agg += `\n# ${u}\n` + t.split(/\r?\n/).slice(0,5).join('\n'); } }catch(_){/* ignore */}
+    }));
+    const hash = (typeof btoa === 'function') ? btoa(unescape(encodeURIComponent(agg))).slice(0,64) : String(agg.length);
+    if (hash && hash !== state.poll.oddsHash){
+      state.poll.oddsHash = hash;
+      // Reload odds and re-render
+      await maybeLoadOdds(dateStr);
+      renderDate(dateStr);
+    }
+  }catch(_){/* ignore */}
+}
+
+function startOddsReload(dateStr){
+  try{
+    if (state.poll.oddsTimer) clearInterval(state.poll.oddsTimer);
+    // Only auto-reload for today's date, to avoid thrashing historical views
+    const today = new Date().toISOString().slice(0,10);
+    if (dateStr !== today) return;
+    // Kick once immediately, then every 60s
+    reloadOddsIfChanged(dateStr);
+    state.poll.oddsTimer = setInterval(()=> reloadOddsIfChanged(dateStr), 60000);
   }catch(_){/* ignore */}
 }
 }
