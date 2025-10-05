@@ -1787,7 +1787,8 @@ def api_cron_run_all():
             results["reconcile_games_error"] = str(e)
         # 4) props actuals upsert for yesterday via CLI
         try:
-            rc4 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-actuals", "--date", d_yest], log_file, cwd=BASE_DIR, env=env)
+            # Updated CLI subcommand name: fetch-prop-actuals
+            rc4 = _run_to_file([str(py), "-m", "nba_betting.cli", "fetch-prop-actuals", "--date", d_yest], log_file, cwd=BASE_DIR, env=env)
             results["props_actuals"] = int(rc4)
         except Exception as e:
             results["props_actuals_error"] = str(e)
