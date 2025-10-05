@@ -1090,9 +1090,19 @@ async function pollScoreboardOnce(dateStr){
   try{
     const url = new URL('/api/scoreboard', window.location.origin);
     url.searchParams.set('date', dateStr);
-    const r = await fetch(url.toString(), { cache: 'no-store' });
-    if (!r.ok) throw new Error('scoreboard fetch failed');
-    const j = await r.json();
+    let j = null;
+    try{
+      const r = await fetch(url.toString(), { cache: 'no-store' });
+      if (r.ok) j = await r.json();
+    }catch(_){ /* ignore */ }
+    // If backend failed or returned empty, fallback to CDN directly
+    if (!j || j.error || !Array.isArray(j.games) || j.games.length === 0){
+      try{
+        const alt = await fetchCdnScoreboard(dateStr);
+        if (alt) j = alt;
+      }catch(_){ /* ignore */ }
+    }
+    if (!j) throw new Error('no scoreboard payload');
     state.poll.lastPayload = j;
     // Heartbeat UI
     try{
@@ -1185,6 +1195,45 @@ async function pollScoreboardOnce(dateStr){
   }catch(e){
     // soft-fail
   }
+}
+
+async function fetchCdnScoreboard(dateStr){
+  try{
+    const ymd = String(dateStr||'').replaceAll('-', '');
+    const u = `https://data.nba.com/data/10s/prod/v1/${ymd}/scoreboard.json`;
+    const r = await fetch(u, { cache: 'no-store' });
+    if (!r.ok) return null;
+    const j = await r.json();
+    const games = [];
+    const arr = Array.isArray(j?.games) ? j.games : [];
+    for (const g of arr){
+      try{
+        const home = String(g?.hTeam?.triCode||'').toUpperCase();
+        const away = String(g?.vTeam?.triCode||'').toUpperCase();
+        const sc_h = g?.hTeam?.score; const sc_a = g?.vTeam?.score;
+        const hp = (sc_h!==undefined && sc_h!==null && sc_h!=='') ? Number(sc_h) : null;
+        const ap = (sc_a!==undefined && sc_a!==null && sc_a!=='') ? Number(sc_a) : null;
+        const statusNum = Number(g?.statusNum||0);
+        const clock = String(g?.clock||'');
+        const period = Number(g?.period?.current||0);
+        const is_ht = !!g?.period?.isHalftime;
+        const is_eop = !!g?.period?.isEndOfPeriod;
+        let status_txt = 'Scheduled'; let is_final = false;
+        if (statusNum === 3){ status_txt = 'Final'; is_final = true; }
+        else if (statusNum === 2){
+          if (is_ht) status_txt = 'Half';
+          else if (is_eop && period) status_txt = `End Q${period}`;
+          else if (period && clock) status_txt = `Q${period} ${clock}`;
+          else if (period) status_txt = `Q${period}`;
+          else status_txt = 'LIVE';
+        } else {
+          status_txt = g?.startTimeUTC || 'Scheduled';
+        }
+        games.push({ home, away, status: status_txt, game_id: g?.gameId, home_pts: hp, away_pts: ap, final: is_final });
+      }catch(_){ /* ignore */ }
+    }
+    return { date: dateStr, games };
+  }catch(_){ return null; }
 }
 
 function startScoreboardPolling(dateStr){
