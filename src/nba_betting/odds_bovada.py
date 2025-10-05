@@ -503,9 +503,15 @@ def fetch_bovada_odds_current(date: datetime | str, verbose: bool = False) -> pd
                 if not vals.empty:
                     best[col] = vals.iloc[0]
         return best
-    # Pandas 2.2+ deprecation: ensure grouping columns are included in the object passed to apply
-    # to maintain current behavior and avoid FutureWarning.
-    df = df.groupby(["date","home_team","visitor_team"], as_index=False, sort=False).apply(pick_best, include_groups=True)
+    # Avoid pandas FutureWarning by explicitly excluding grouping columns from the object
+    # passed to apply; then restore the keys with reset_index.
+    group_keys = ["date","home_team","visitor_team"]
+    value_cols = [c for c in keep_cols if c not in group_keys]
+    df = (
+        df.groupby(group_keys, sort=False)[value_cols]
+          .apply(pick_best)
+          .reset_index()
+    )
     # The groupby-apply can produce a multi-index in older pandas; ensure clean DataFrame
     if not isinstance(df, pd.DataFrame):
         df = pd.DataFrame(df)
