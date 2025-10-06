@@ -1559,6 +1559,12 @@ def api_cron_refresh_bovada():
                     env["PYTHONPATH"] = str(SRC_DIR)
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     log_file = logs_dir / f"cron_props_edges_from_bovada_{d}_{stamp}.log"
+                    # Ensure props models exist; if missing, build features and train
+                    props_feat_cols = BASE_DIR / "models" / "props_feature_columns.joblib"
+                    props_models_file = BASE_DIR / "models" / "props_models.joblib"
+                    if (not props_feat_cols.exists()) or (not props_models_file.exists()):
+                        _ = _run_to_file([str(py), "-m", "nba_betting.cli", "build-props-features"], log_file, cwd=BASE_DIR, env=env)
+                        _ = _run_to_file([str(py), "-m", "nba_betting.cli", "train-props"], log_file, cwd=BASE_DIR, env=env)
                     _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved"], log_file, cwd=BASE_DIR, env=env)
                     pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
                     if pe.exists():
