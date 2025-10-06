@@ -421,7 +421,9 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                     without_scheme = url[len("https://"):]
                     if "@" in without_scheme:
                         without_scheme = without_scheme.split("@", 1)[1]
-                    url = f"https://x-access-token:{token}@{without_scheme}"
+                    # Prefer username:token for PATs (fine-grained or classic)
+                    gh_user = os.environ.get("GH_NAME") or os.environ.get("GIT_NAME") or "oauth2"
+                    url = f"https://{gh_user}:{token}@{without_scheme}"
                     try:
                         subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
                         push_url_set = True
@@ -471,10 +473,12 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                 low = stderr_all.lower()
                 if any(x in low for x in ["permission", "denied", "auth", "forbidden", "not allowed"]):
                     hint = "; hint=auth/permission-denied"
+                # Truncate stderr to avoid verbosity and accidental leakage
+                err_snip = (stderr_all.strip().splitlines() or [""])[-1][:160]
                 detail = (
                     f"pushed to {branch if rc_main.returncode==0 else alt_branch} (fallback={'yes' if rc_main.returncode!=0 else 'no'}); "
                     f"remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}; "
-                    f"rc_main={rc_main.returncode}; rc_alt={(rc_alt.returncode if 'rc_alt' in locals() else 'n/a')}{hint}"
+                    f"rc_main={rc_main.returncode}; rc_alt={(rc_alt.returncode if 'rc_alt' in locals() else 'n/a')}{hint}; err='{err_snip}'"
                 )
         else:
             detail = f"pushed to {branch}; remote=missing; push_url={'set' if push_url_set else 'default'}"
