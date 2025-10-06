@@ -1121,6 +1121,81 @@ def api_odds_coverage():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/debug/models")
+def api_debug_models():
+    """Inspect presence and loadability of saved model artifacts on the server.
+
+    Returns a JSON object with paths, existence flags, and load errors if any.
+    """
+    try:
+        try:
+            from nba_betting.config import paths as _paths  # type: ignore
+        except Exception:
+            class _P:
+                class _Paths:
+                    models = BASE_DIR / "models"
+                paths = _Paths()
+            _paths = _P.paths  # type: ignore
+        model_names = [
+            "win_prob.joblib",
+            "spread_margin.joblib",
+            "totals.joblib",
+            "halves_models.joblib",
+            "quarters_models.joblib",
+            "feature_columns.joblib",
+        ]
+        out: dict[str, dict[str, object]] = {}
+        for name in model_names:
+            p = (_paths.models / name) if hasattr(_paths, "models") else (BASE_DIR / "models" / name)
+            info: dict[str, object] = {"path": str(p), "exists": bool(p.exists())}
+            if p.exists():
+                try:
+                    import joblib as _joblib  # type: ignore
+                    _ = _joblib.load(p)
+                    info["load_ok"] = True
+                except Exception as e:
+                    info["load_ok"] = False
+                    info["error"] = str(e)
+            out[name] = info
+        return jsonify({"models": out})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cron/train-games", methods=["POST", "GET"])
+def api_cron_train_games():
+    """Train game models on the server using existing features.parquet.
+
+    Auth: CRON_TOKEN or ADMIN_KEY. Writes models into models/.
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+    # Choose python exe
+    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+    if not py or not Path(str(py)).exists():
+        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+        py = str(py_win) if py_win.exists() else "python"
+    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_train_games_{stamp}.log"
+    try:
+        env = {"PYTHONPATH": str(SRC_DIR)}
+        # Minimal sequence: build-features (if needed) then train
+        feats = BASE_DIR / "data" / "processed" / "features.parquet"
+        rc_build = 0
+        if not feats.exists():
+            rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], log_file, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train"], log_file, cwd=BASE_DIR, env=env)
+        ok = (int(rc_build) == 0 and int(rc_train) == 0)
+        # Optional push
+        pushed = None; push_detail = None
+        if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
+            okp, detail = _git_commit_and_push(msg="train games")
+            pushed = bool(okp); push_detail = detail
+        return jsonify({"rc_build": int(rc_build), "rc_train": int(rc_train), "ok": bool(ok), "log_file": str(log_file), "pushed": pushed, "push_detail": push_detail})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 # Simple in-memory cache for scoreboard (to limit API calls)
 _scoreboard_cache: Dict[str, Tuple[float, Any]] = {}
 
