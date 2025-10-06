@@ -359,7 +359,7 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         env = {**os.environ}
         # Configure identity if provided
         name = os.environ.get("GH_NAME") or os.environ.get("GIT_NAME")
-        email = os.environ.get("GH_EMAIL") or os.environ.get("GIT_EMAIL")
+        email = os.environ.get("GH_EMAIL") or os.environ.get("GIT_EMAIL") or "github-actions[bot]@users.noreply.github.com"
         if name:
             subprocess.run(["git", "config", "user.name", name], cwd=str(BASE_DIR), check=False)
         if email:
@@ -377,14 +377,31 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         if token:
             try:
                 origin = subprocess.check_output(["git", "remote", "get-url", "origin"], cwd=str(BASE_DIR), text=True).strip()
-                # Expect https URL; fall back to origin if parsing fails
                 url = origin
-                if origin.startswith("https://") and "@" not in origin:
-                    # Insert token; use x-access-token as username to avoid leaking real usernames
-                    url = origin.replace("https://", f"https://x-access-token:{token}@")
-                # Set push URL only
-                subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
-                push_url_set = True
+                # Normalize SSH origin to HTTPS for token auth
+                # e.g., git@github.com:owner/repo.git -> https://github.com/owner/repo.git
+                if origin.startswith("git@github.com:"):
+                    path = origin.split(":", 1)[1]
+                    if not path.endswith(".git"):
+                        path += ".git"
+                    url = f"https://github.com/{path}"
+                elif origin.startswith("ssh://git@github.com/"):
+                    path = origin.split("github.com/", 1)[1]
+                    if not path.endswith(".git"):
+                        path += ".git"
+                    url = f"https://github.com/{path}"
+                elif origin.startswith("https://"):
+                    # already https
+                    url = origin
+                # Embed token if https and not already credentialed
+                if url.startswith("https://"):
+                    # Strip any existing creds
+                    without_scheme = url[len("https://"):]
+                    if "@" in without_scheme:
+                        without_scheme = without_scheme.split("@", 1)[1]
+                    url = f"https://x-access-token:{token}@{without_scheme}"
+                    subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
+                    push_url_set = True
             except Exception:
                 push_url_set = False
         # Stage and commit (allow empty to create a heartbeat commit if needed)
@@ -422,6 +439,44 @@ def _run_to_file(cmd: list[str] | str, log_fp: Path, cwd: Path | None = None, en
         out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Exited with code {proc.returncode}\n")
         out.flush()
         return int(proc.returncode)
+
+
+def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
+    """Ensure core game models exist; if missing, build features (if needed) and train.
+
+    Returns (ok, info) where info includes rc_build/rc_train and paths.
+    """
+    try:
+        models_dir = BASE_DIR / "models"
+        need = [
+            models_dir / "win_prob.joblib",
+            models_dir / "spread_margin.joblib",
+            models_dir / "totals.joblib",
+            models_dir / "halves_models.joblib",
+            models_dir / "quarters_models.joblib",
+            models_dir / "feature_columns.joblib",
+        ]
+        have_all = all(p.exists() for p in need)
+        if have_all:
+            return True, {"skipped": True}
+        # Choose python exe
+        py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+        if not py or not Path(str(py)).exists():
+            py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+            py = str(py_win) if py_win.exists() else "python"
+        env = {"PYTHONPATH": str(SRC_DIR)}
+        logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        lf = Path(log_fp) if log_fp else (logs_dir / f"cron_train_autofix_{stamp}.log")
+        # Build features only if missing
+        feats = BASE_DIR / "data" / "processed" / "features.parquet"
+        rc_build = 0
+        if not feats.exists():
+            rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], lf, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train"], lf, cwd=BASE_DIR, env=env)
+        ok = (int(rc_build) == 0 and int(rc_train) == 0)
+        return ok, {"rc_build": int(rc_build), "rc_train": int(rc_train), "log_file": str(lf)}
+    except Exception as e:
+        return False, {"error": str(e)}
 
 
 def _admin_auth_ok(req) -> bool:
@@ -1703,6 +1758,11 @@ def api_cron_predict_date():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_predict_date_{d}_{stamp}.log"
     try:
+        # Ensure models exist (fresh deploys may not have models volume)
+        ok_models, info = _ensure_game_models(log_file)
+        if not ok_models:
+            # Proceed anyway; CLI will fail clearly if models missing
+            pass
         env = {"PYTHONPATH": str(SRC_DIR)}
         if do_async:
             # Background job to avoid Render timeouts
@@ -1720,6 +1780,7 @@ def api_cron_predict_date():
                 "date": d,
                 "log_file": str(log_file),
                 "push": do_push,
+                "models": info,
             }), 202
         # Synchronous mode (original behavior)
         rc = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
@@ -1743,6 +1804,7 @@ def api_cron_predict_date():
             "log_file": str(log_file),
             "pushed": pushed,
             "push_detail": push_detail,
+            "models": info,
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -2004,6 +2066,9 @@ def api_cron_run_all():
         if not base_url:
             port_env = os.environ.get("PORT", "5000")
             base_url = f"http://127.0.0.1:{port_env}"
+        # Ensure models exist before predictions
+        ok_models, info = _ensure_game_models(log_file)
+        results["models"] = info
         # 1) predict-date today
         rc1 = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d_today], log_file, cwd=BASE_DIR, env=env)
         results["predict_date"] = int(rc1)
