@@ -445,16 +445,33 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         # Push if we have a remote
         ok = False
         if origin:
-            rc = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], cwd=str(BASE_DIR), check=False)
-            if rc.returncode == 0:
+            rc_main = subprocess.run([
+                "git", "push", "origin", f"HEAD:{branch}"
+            ], cwd=str(BASE_DIR), check=False, capture_output=True, text=True)
+            if rc_main.returncode == 0:
                 ok = True
-                detail = f"pushed to {branch}; remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
+                detail = (
+                    f"pushed to {branch}; remote={'ok' if bool(origin) else 'missing'}; "
+                    f"push_url={'set' if push_url_set else 'default'}; rc_main={rc_main.returncode}"
+                )
             else:
-                # Fallback: push to a artifacts branch (for repos with protected main)
+                # Fallback: push to an artifacts branch (for repos with protected main)
                 alt_branch = os.environ.get("GIT_BRANCH_ALT", "data-artifacts")
-                _ = subprocess.run(["git", "push", "origin", f"HEAD:{alt_branch}"], cwd=str(BASE_DIR), check=False)
-                ok = (_.returncode == 0)
-                detail = f"pushed to {branch if rc.returncode==0 else alt_branch} (fallback={'yes' if rc.returncode!=0 else 'no'}); remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
+                rc_alt = subprocess.run([
+                    "git", "push", "origin", f"HEAD:{alt_branch}"
+                ], cwd=str(BASE_DIR), check=False, capture_output=True, text=True)
+                ok = (rc_alt.returncode == 0)
+                # Heuristic error hint
+                stderr_all = (rc_main.stderr or "") + "\n" + (rc_alt.stderr or "")
+                hint = ""
+                low = stderr_all.lower()
+                if any(x in low for x in ["permission", "denied", "auth", "forbidden", "not allowed"]):
+                    hint = "; hint=auth/permission-denied"
+                detail = (
+                    f"pushed to {branch if rc_main.returncode==0 else alt_branch} (fallback={'yes' if rc_main.returncode!=0 else 'no'}); "
+                    f"remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}; "
+                    f"rc_main={rc_main.returncode}; rc_alt={(rc_alt.returncode if 'rc_alt' in locals() else 'n/a')}{hint}"
+                )
         else:
             detail = f"pushed to {branch}; remote=missing; push_url={'set' if push_url_set else 'default'}"
         return ok, detail
