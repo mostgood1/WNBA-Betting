@@ -1672,16 +1672,17 @@ def api_cron_reconcile_games():
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
 
     # Helper: finals from NBA CDN (with optional ±1 day) limited to prediction pairs
-    def _finals_from_cdn(date_str_local: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = True) -> pd.DataFrame:
+    def _finals_from_cdn(date_str_local: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = False) -> pd.DataFrame:
         try:
             import requests as _rq  # type: ignore
         except Exception:
             return pd.DataFrame()
+
         def _rows_for(ds: str) -> list[dict[str, object]]:
             try:
                 ymd = ds.replace('-', '')
                 url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-                r = _rq.get(url, timeout=20)
+                r = _rq.get(url, timeout=4)
                 out: list[dict[str, object]] = []
                 if r.status_code == 200:
                     jd = r.json()
@@ -1701,6 +1702,7 @@ def api_cron_reconcile_games():
                 return out
             except Exception:
                 return []
+
         rows = _rows_for(date_str_local)
         if include_adjacent and not rows:
             try:
@@ -1717,11 +1719,11 @@ def api_cron_reconcile_games():
         preds.get("home_tri").astype(str).str.upper(),
         preds.get("away_tri").astype(str).str.upper()
     ))
-    if _scoreboardv2 is None:
-        finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
-    else:
-        try:
-            # Harden headers for reliability
+    try:
+        if _scoreboardv2 is None:
+            finals = _finals_from_cdn(d, pred_pairs, include_adjacent=False)
+        else:
+            # Try stats API once
             try:
                 if _nba_http is not None:
                     _nba_http.STATS_HEADERS.update({
@@ -1734,11 +1736,10 @@ def api_cron_reconcile_games():
                     })
             except Exception:
                 pass
-            # Single attempt with lower timeout to avoid proxy timeouts
             last_err: Optional[Exception] = None
             gh = pd.DataFrame(); ls = pd.DataFrame()
             try:
-                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=15)
+                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=10)
                 nd = sb.get_normalized_dict()
                 gh = pd.DataFrame(nd.get("GameHeader", []))
                 ls = pd.DataFrame(nd.get("LineScore", []))
@@ -1749,7 +1750,6 @@ def api_cron_reconcile_games():
             if not (gh.empty or ls.empty):
                 cgh = {c.upper(): c for c in gh.columns}
                 cls = {c.upper(): c for c in ls.columns}
-                # Build TEAM_ID -> (TRI, PTS)
                 team_rows: dict[int, dict[str, object]] = {}
                 for _, r in ls.iterrows():
                     try:
@@ -1777,23 +1777,26 @@ def api_cron_reconcile_games():
                         continue
                 finals = pd.DataFrame(out_rows)
             if finals.empty and last_err is not None:
-                finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
-        except Exception:
-            finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
+                finals = _finals_from_cdn(d, pred_pairs, include_adjacent=False)
 
-    # Join and compute errors
-    merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
-    for col in ("pred_margin", "pred_total", "home_pts", "visitor_pts"):
-        if col not in merged.columns:
+        # Join and compute errors
+        merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
+        for col in ("pred_margin", "pred_total", "home_pts", "visitor_pts"):
+            if col not in merged.columns:
+                merged[col] = pd.NA
+            try:
+                merged[col] = pd.to_numeric(merged[col], errors="coerce")
+            except Exception:
+                merged[col] = pd.NA
+        merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
+        merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
+        merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
+        merged["total_error"] = merged["pred_total"] - merged["total_actual"]
+    except Exception:
+        # Fallback to minimal recon if any step fails
+        merged = preds.copy()
+        for col in ("home_pts","visitor_pts","actual_margin","total_actual","margin_error","total_error"):
             merged[col] = pd.NA
-        try:
-            merged[col] = pd.to_numeric(merged[col], errors="coerce")
-        except Exception:
-            merged[col] = pd.NA
-    merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
-    merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
-    merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
-    merged["total_error"] = merged["pred_total"] - merged["total_actual"]
 
     keep = [
         "date","home_team","visitor_team","home_tri","away_tri",
