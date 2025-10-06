@@ -1272,34 +1272,66 @@ async function fetchCdnScoreboard(dateStr){
     const ymd = String(dateStr||'').replaceAll('-', '');
     const u = `https://data.nba.com/data/10s/prod/v1/${ymd}/scoreboard.json`;
     const r = await fetch(u, { cache: 'no-store' });
-    if (!r.ok) return null;
-    const j = await r.json();
-    const games = [];
-    const arr = Array.isArray(j?.games) ? j.games : [];
-    for (const g of arr){
+    let ok = false; let games = [];
+    if (r.ok){
       try{
-        const home = String(g?.hTeam?.triCode||'').toUpperCase();
-        const away = String(g?.vTeam?.triCode||'').toUpperCase();
-        const sc_h = g?.hTeam?.score; const sc_a = g?.vTeam?.score;
-        const hp = (sc_h!==undefined && sc_h!==null && sc_h!=='') ? Number(sc_h) : null;
-        const ap = (sc_a!==undefined && sc_a!==null && sc_a!=='') ? Number(sc_a) : null;
-        const statusNum = Number(g?.statusNum||0);
-        const clock = String(g?.clock||'');
-        const period = Number(g?.period?.current||0);
-        const is_ht = !!g?.period?.isHalftime;
-        const is_eop = !!g?.period?.isEndOfPeriod;
-        let status_txt = 'Scheduled'; let is_final = false;
-        if (statusNum === 3){ status_txt = 'Final'; is_final = true; }
-        else if (statusNum === 2){
-          if (is_ht) status_txt = 'Half';
-          else if (is_eop && period) status_txt = `End Q${period}`;
-          else if (period && clock) status_txt = `Q${period} ${clock}`;
-          else if (period) status_txt = `Q${period}`;
-          else status_txt = 'LIVE';
-        } else {
-          status_txt = g?.startTimeUTC || 'Scheduled';
+        const j = await r.json();
+        const arr = Array.isArray(j?.games) ? j.games : [];
+        for (const g of arr){
+          try{
+            const home = String(g?.hTeam?.triCode||'').toUpperCase();
+            const away = String(g?.vTeam?.triCode||'').toUpperCase();
+            const sc_h = g?.hTeam?.score; const sc_a = g?.vTeam?.score;
+            const hp = (sc_h!==undefined && sc_h!==null && sc_h!=='') ? Number(sc_h) : null;
+            const ap = (sc_a!==undefined && sc_a!==null && sc_a!=='') ? Number(sc_a) : null;
+            const statusNum = Number(g?.statusNum||0);
+            const clock = String(g?.clock||'');
+            const period = Number(g?.period?.current||0);
+            const is_ht = !!g?.period?.isHalftime;
+            const is_eop = !!g?.period?.isEndOfPeriod;
+            let status_txt = 'Scheduled'; let is_final = false;
+            if (statusNum === 3){ status_txt = 'Final'; is_final = true; }
+            else if (statusNum === 2){
+              if (is_ht) status_txt = 'Half';
+              else if (is_eop && period) status_txt = `End Q${period}`;
+              else if (period && clock) status_txt = `Q${period} ${clock}`;
+              else if (period) status_txt = `Q${period}`;
+              else status_txt = 'LIVE';
+            } else {
+              status_txt = g?.startTimeUTC || 'Scheduled';
+            }
+            games.push({ home, away, status: status_txt, game_id: g?.gameId, home_pts: hp, away_pts: ap, final: is_final });
+          }catch(_){ /* ignore */ }
         }
-        games.push({ home, away, status: status_txt, game_id: g?.gameId, home_pts: hp, away_pts: ap, final: is_final });
+        ok = true;
+      }catch(_){ /* ignore */ }
+    }
+    // If prod/v1 empty or not ok, try liveData today's scoreboard (works for ET "today").
+    if (!ok || games.length === 0){
+      try{
+        const u2 = 'https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json';
+        const r2 = await fetch(u2, { cache: 'no-store' });
+        if (r2.ok){
+          const j2 = await r2.json();
+          const sb = j2?.scoreboard || {};
+          const arr2 = Array.isArray(sb.games) ? sb.games : [];
+          const out = [];
+          for (const g of arr2){
+            try{
+              const home = String(g?.homeTeam?.teamTricode||'').toUpperCase();
+              const away = String(g?.awayTeam?.teamTricode||'').toUpperCase();
+              const sc_h = g?.homeTeam?.score; const sc_a = g?.awayTeam?.score;
+              const hp = (sc_h!==undefined && sc_h!==null && sc_h!=='') ? Number(sc_h) : null;
+              const ap = (sc_a!==undefined && sc_a!==null && sc_a!=='') ? Number(sc_a) : null;
+              const txt = String(g?.gameStatusText||'').trim();
+              const is_final = /^final/i.test(txt);
+              out.push({ home, away, status: txt||'Scheduled', game_id: g?.gameId, home_pts: hp, away_pts: ap, final: is_final });
+            }catch(_){/* ignore */}
+          }
+          if (out.length){
+            return { date: dateStr, games: out };
+          }
+        }
       }catch(_){ /* ignore */ }
     }
     return { date: dateStr, games };
