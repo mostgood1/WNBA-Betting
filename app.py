@@ -383,12 +383,15 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
             try:
                 # If origin missing, try to add it from environment
                 if not origin:
-                    # Prefer GIT_REMOTE_URL, else construct from GITHUB_REPOSITORY
+                    # Prefer GIT_REMOTE_URL, else construct from GITHUB_REPOSITORY; finally project-specific default
                     env_url = os.environ.get("GIT_REMOTE_URL") or None
                     if not env_url:
                         gh_repo = os.environ.get("GITHUB_REPOSITORY")  # e.g., owner/repo
                         if gh_repo and "/" in gh_repo:
                             env_url = f"https://github.com/{gh_repo}.git"
+                    # Project-specific fallback (safe for this deployment)
+                    if not env_url:
+                        env_url = "https://github.com/mostgood1/NBA-Betting.git"
                     if env_url:
                         subprocess.run(["git", "remote", "add", "origin", env_url], cwd=str(BASE_DIR), check=False)
                         origin = env_url
