@@ -37,10 +37,12 @@ try:
     # local package for odds fetching (now importable due to early sys.path insert)
     from nba_betting.odds_bovada import (
         fetch_bovada_odds_current as _fetch_bovada_odds_current,
+        fetch_bovada_player_props_current as _fetch_bovada_player_props_current,
         probe_bovada as _probe_bovada,
     )  # type: ignore
 except Exception:  # pragma: no cover
     _fetch_bovada_odds_current = None  # type: ignore
+    _fetch_bovada_player_props_current = None  # type: ignore
     _probe_bovada = None  # type: ignore
 
 # Optional: load environment variables from a .env file if present
@@ -1504,6 +1506,11 @@ def api_cron_refresh_bovada():
         out = BASE_DIR / "data" / "processed" / f"game_odds_{d}.csv"
         used_fallback = False
         fallback_path = None
+        # For props: we'll attempt to fetch Bovada player props and compute edges if present
+        props_raw_rows = 0
+        props_raw_path = None
+        props_edges_rows = 0
+        props_edges_path = None
         if df is not None and not df.empty:
             out.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(out, index=False)
@@ -1521,6 +1528,49 @@ def api_cron_refresh_bovada():
                         fallback_path = str(fb)
                 except Exception:
                     pass
+        # Attempt Bovada player props for this date and run props-edges if any lines found
+        try:
+            if _fetch_bovada_player_props_current is not None:  # type: ignore[name-defined]
+                props_df = _fetch_bovada_player_props_current(d)
+            else:
+                try:
+                    from nba_betting.odds_bovada import fetch_bovada_player_props_current as _fbppc  # type: ignore
+                    props_df = _fbppc(d)
+                except Exception:
+                    props_df = None
+            if props_df is not None and not props_df.empty:
+                raw_dir = BASE_DIR / "data" / "raw"
+                raw_dir.mkdir(parents=True, exist_ok=True)
+                props_raw = raw_dir / f"odds_bovada_player_props_{d}.csv"
+                try:
+                    props_df.to_csv(props_raw, index=False)
+                    props_raw_rows = int(len(props_df))
+                    props_raw_path = str(props_raw)
+                except Exception:
+                    pass
+                # Compute props edges from Bovada source for this date
+                try:
+                    # Choose python executable
+                    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+                    if not py or not Path(str(py)).exists():
+                        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+                        py = str(py_win) if py_win.exists() else "python"
+                    env = dict(os.environ)
+                    env["PYTHONPATH"] = str(SRC_DIR)
+                    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+                    log_file = logs_dir / f"cron_props_edges_from_bovada_{d}_{stamp}.log"
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved"], log_file, cwd=BASE_DIR, env=env)
+                    pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+                    if pe.exists():
+                        try:
+                            props_edges_rows = int(len(pd.read_csv(pe)))
+                            props_edges_path = str(pe)
+                        except Exception:
+                            props_edges_rows = 0
+                except Exception:
+                    pass
+        except Exception:
+            pass
         # Record cron meta best-effort
         try:
             meta = {
@@ -1530,6 +1580,10 @@ def api_cron_refresh_bovada():
             }
             if used_fallback:
                 meta.update({"used_fallback": True, "fallback_path": fallback_path})
+            if props_raw_path:
+                meta.update({"props_raw_rows": int(props_raw_rows), "props_raw_path": props_raw_path})
+            if props_edges_path:
+                meta.update({"props_edges_rows": int(props_edges_rows), "props_edges_path": props_edges_path})
             _cron_meta_update("refresh_bovada", meta)
         except Exception:
             pass
@@ -1541,6 +1595,8 @@ def api_cron_refresh_bovada():
         return jsonify({
             "date": d, "rows": int(rows), "output": str(out),
             "used_fallback": used_fallback, "fallback_path": fallback_path,
+            "props_raw_rows": int(props_raw_rows), "props_raw_path": props_raw_path,
+            "props_edges_rows": int(props_edges_rows), "props_edges_path": props_edges_path,
             "pushed": pushed, "push_detail": push_detail,
         })
     except Exception as e:
