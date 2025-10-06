@@ -364,35 +364,50 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
             subprocess.run(["git", "config", "user.name", name], cwd=str(BASE_DIR), check=False)
         if email:
             subprocess.run(["git", "config", "user.email", email], cwd=str(BASE_DIR), check=False)
-        # Determine current branch
+        # Determine current branch (detached HEAD -> use env/default)
         try:
             branch = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
-            if not branch or branch == "HEAD":
-                branch = os.environ.get("GIT_BRANCH", "main")
         except Exception:
+            branch = "HEAD"
+        if not branch or branch == "HEAD":
             branch = os.environ.get("GIT_BRANCH", "main")
         # Set push URL with token if present
         token = os.environ.get("GH_TOKEN") or os.environ.get("GIT_PAT")
         push_url_set = False
+        origin = None
         if token:
             try:
                 origin = subprocess.check_output(["git", "remote", "get-url", "origin"], cwd=str(BASE_DIR), text=True).strip()
-                url = origin
+            except Exception:
+                origin = None
+            try:
+                # If origin missing, try to add it from environment
+                if not origin:
+                    # Prefer GIT_REMOTE_URL, else construct from GITHUB_REPOSITORY
+                    env_url = os.environ.get("GIT_REMOTE_URL") or None
+                    if not env_url:
+                        gh_repo = os.environ.get("GITHUB_REPOSITORY")  # e.g., owner/repo
+                        if gh_repo and "/" in gh_repo:
+                            env_url = f"https://github.com/{gh_repo}.git"
+                    if env_url:
+                        subprocess.run(["git", "remote", "add", "origin", env_url], cwd=str(BASE_DIR), check=False)
+                        origin = env_url
+                url = origin or ""
                 # Normalize SSH origin to HTTPS for token auth
                 # e.g., git@github.com:owner/repo.git -> https://github.com/owner/repo.git
-                if origin.startswith("git@github.com:"):
-                    path = origin.split(":", 1)[1]
+                if url.startswith("git@github.com:"):
+                    path = url.split(":", 1)[1]
                     if not path.endswith(".git"):
                         path += ".git"
                     url = f"https://github.com/{path}"
-                elif origin.startswith("ssh://git@github.com/"):
-                    path = origin.split("github.com/", 1)[1]
+                elif url.startswith("ssh://git@github.com/"):
+                    path = url.split("github.com/", 1)[1]
                     if not path.endswith(".git"):
                         path += ".git"
                     url = f"https://github.com/{path}"
-                elif origin.startswith("https://"):
+                elif url.startswith("https://"):
                     # already https
-                    url = origin
+                    url = url
                 # Embed token if https and not already credentialed
                 if url.startswith("https://"):
                     # Strip any existing creds
@@ -400,18 +415,36 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                     if "@" in without_scheme:
                         without_scheme = without_scheme.split("@", 1)[1]
                     url = f"https://x-access-token:{token}@{without_scheme}"
-                    subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
-                    push_url_set = True
+                    try:
+                        subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
+                        push_url_set = True
+                    except Exception:
+                        push_url_set = False
             except Exception:
                 push_url_set = False
-        # Stage and commit (allow empty to create a heartbeat commit if needed)
-        subprocess.run(["git", "add", "-A"], cwd=str(BASE_DIR), check=False)
+        # Stage only data artifacts to avoid committing runtime files or secrets
+        try:
+            subprocess.run(["git", "add", "data/processed"], cwd=str(BASE_DIR), check=False)
+            # Legacy root CSVs
+            for pat in ("predictions_*.csv", "props_*.csv", "recon_*.csv"):
+                subprocess.run(["bash", "-lc", f"git add -- {pat} 2>/dev/null || true"], cwd=str(BASE_DIR), check=False)
+        except Exception:
+            # Fallback to add -A only if selective add failed
+            subprocess.run(["git", "add", "-A"], cwd=str(BASE_DIR), check=False)
+        # Commit (allow empty to create a heartbeat commit if needed)
         subprocess.run(["git", "commit", "-m", msg, "--allow-empty"], cwd=str(BASE_DIR), check=False)
-        # Rebase then push
-        subprocess.run(["git", "pull", "--rebase"], cwd=str(BASE_DIR), check=False)
-        rc = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], cwd=str(BASE_DIR), check=False)
-        ok = (rc.returncode == 0)
-        detail = f"pushed to {branch}; push_url={'set' if push_url_set else 'default'}"
+        # Optional pull --rebase only if on a real branch and remote exists
+        try:
+            if origin and branch and branch not in ("HEAD", ""):
+                subprocess.run(["git", "pull", "--rebase", "origin", branch], cwd=str(BASE_DIR), check=False)
+        except Exception:
+            pass
+        # Push if we have a remote
+        ok = False
+        if origin:
+            rc = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], cwd=str(BASE_DIR), check=False)
+            ok = (rc.returncode == 0)
+        detail = f"pushed to {branch}; remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
         return ok, detail
     except Exception as e:
         return False, f"git push error: {e}"
