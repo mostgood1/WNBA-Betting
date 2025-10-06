@@ -1790,15 +1790,18 @@ def api_cron_reconcile_games():
     # At this point, finals is defined (possibly empty). Proceed to join.
     merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
     # Compute errors
-    def to_float(x):
+    # Ensure required numeric columns exist, then coerce safely
+    for col in ("pred_margin", "pred_total", "home_pts", "visitor_pts"):
+        if col not in merged.columns:
+            merged[col] = pd.NA
         try:
-            return float(x)
+            merged[col] = pd.to_numeric(merged[col], errors="coerce")
         except Exception:
-            return None
-    merged["pred_margin"] = pd.to_numeric(merged.get("pred_margin"), errors="coerce")
-    merged["pred_total"] = pd.to_numeric(merged.get("pred_total"), errors="coerce")
-    merged["home_pts"] = pd.to_numeric(merged.get("home_pts"), errors="coerce")
-    merged["visitor_pts"] = pd.to_numeric(merged.get("visitor_pts"), errors="coerce")
+            # If coercion fails for any reason, fall back to NA column
+            try:
+                merged[col] = pd.NA
+            except Exception:
+                pass
     merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
     merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
     merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
@@ -1812,7 +1815,9 @@ def api_cron_reconcile_games():
     # Ensure date column present
     if "date" not in merged.columns:
         merged["date"] = d
-    out_df = merged[keep]
+    # Select only present columns to avoid KeyError if predictions lacked some fields
+    keep_present = [c for c in keep if c in merged.columns]
+    out_df = merged[keep_present]
     out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(out, index=False)
