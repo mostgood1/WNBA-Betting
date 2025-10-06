@@ -1140,71 +1140,137 @@ def api_scoreboard():
     def _fallback_cdn(date_str: str) -> Optional[Dict[str, Any]]:
         """Fallback to public CDN scoreboard JSON for the given date (UTC).
 
-        Uses https://data.nba.com/data/10s/prod/v1/YYYYMMDD/scoreboard.json
+        Tries, in order:
+          1) https://data.nba.com/data/10s/prod/v1/YYYYMMDD/scoreboard.json
+          2) https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json (today only)
         Returns payload in same shape as primary handler.
         """
         try:
             import requests as _rq
             ymd = date_str.replace("-", "")
-            url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-            r = _rq.get(url, timeout=6, headers={
-                'User-Agent': 'Mozilla/5.0',
-                'Accept': 'application/json, text/plain, */*',
-            })
-            if r.status_code != 200:
-                return None
-            j = r.json()
-            games: list[dict] = []
-            for g in j.get('games', []) or []:
-                try:
-                    home = (g.get('hTeam') or {}).get('triCode')
-                    away = (g.get('vTeam') or {}).get('triCode')
-                    sc_h = (g.get('hTeam') or {}).get('score')
-                    sc_a = (g.get('vTeam') or {}).get('score')
+            def _parse_prod_v1(j: dict) -> list[dict]:
+                out: list[dict] = []
+                for g in j.get('games', []) or []:
                     try:
-                        hp = int(sc_h) if sc_h not in (None, "") else None
-                    except Exception:
-                        hp = None
-                    try:
-                        ap = int(sc_a) if sc_a not in (None, "") else None
-                    except Exception:
-                        ap = None
-                    status_num = int(g.get('statusNum') or 0)
-                    clock = str(g.get('clock') or '')
-                    period = (g.get('period') or {}).get('current')
-                    is_ht = (g.get('period') or {}).get('isHalftime')
-                    is_eop = (g.get('period') or {}).get('isEndOfPeriod')
-                    if status_num == 3:
-                        status_txt = 'Final'
-                        is_final = True
-                    elif status_num == 2:
-                        if is_ht:
-                            status_txt = 'Half'
-                        elif is_eop and period:
-                            status_txt = f'End Q{period}'
-                        elif period and clock:
-                            status_txt = f'Q{period} {clock}'
-                        elif period:
-                            status_txt = f'Q{period}'
+                        home = (g.get('hTeam') or {}).get('triCode')
+                        away = (g.get('vTeam') or {}).get('triCode')
+                        sc_h = (g.get('hTeam') or {}).get('score')
+                        sc_a = (g.get('vTeam') or {}).get('score')
+                        try:
+                            hp = int(sc_h) if sc_h not in (None, "") else None
+                        except Exception:
+                            hp = None
+                        try:
+                            ap = int(sc_a) if sc_a not in (None, "") else None
+                        except Exception:
+                            ap = None
+                        status_num = int(g.get('statusNum') or 0)
+                        clock = str(g.get('clock') or '')
+                        period = (g.get('period') or {}).get('current')
+                        is_ht = (g.get('period') or {}).get('isHalftime')
+                        is_eop = (g.get('period') or {}).get('isEndOfPeriod')
+                        if status_num == 3:
+                            status_txt = 'Final'
+                            is_final = True
+                        elif status_num == 2:
+                            if is_ht:
+                                status_txt = 'Half'
+                            elif is_eop and period:
+                                status_txt = f'End Q{period}'
+                            elif period and clock:
+                                status_txt = f'Q{period} {clock}'
+                            elif period:
+                                status_txt = f'Q{period}'
+                            else:
+                                status_txt = 'LIVE'
+                            is_final = False
                         else:
-                            status_txt = 'LIVE'
-                        is_final = False
-                    else:
-                        # Scheduled
-                        status_txt = g.get('startTimeUTC') or 'Scheduled'
-                        is_final = False
-                    games.append({
-                        'home': home,
-                        'away': away,
-                        'status': status_txt,
-                        'game_id': g.get('gameId'),
-                        'home_pts': hp,
-                        'away_pts': ap,
-                        'final': bool(is_final),
+                            status_txt = g.get('startTimeUTC') or 'Scheduled'
+                            is_final = False
+                        out.append({
+                            'home': home,
+                            'away': away,
+                            'status': status_txt,
+                            'game_id': g.get('gameId'),
+                            'home_pts': hp,
+                            'away_pts': ap,
+                            'final': bool(is_final),
+                        })
+                    except Exception:
+                        continue
+                return out
+
+            def _parse_live_today(j: dict) -> list[dict]:
+                out: list[dict] = []
+                sb = (j.get('scoreboard') or {})
+                games = sb.get('games') or []
+                for g in games:
+                    try:
+                        homeTeam = g.get('homeTeam') or {}
+                        awayTeam = g.get('awayTeam') or {}
+                        home = str(homeTeam.get('teamTricode') or '').upper() or None
+                        away = str(awayTeam.get('teamTricode') or '').upper() or None
+                        sc_h = homeTeam.get('score')
+                        sc_a = awayTeam.get('score')
+                        try:
+                            hp = int(sc_h) if sc_h not in (None, "", "-", 0) else None
+                        except Exception:
+                            hp = None
+                        try:
+                            ap = int(sc_a) if sc_a not in (None, "", "-", 0) else None
+                        except Exception:
+                            ap = None
+                        txt = str(g.get('gameStatusText') or '').strip()
+                        is_final = txt.upper().startswith('FINAL')
+                        out.append({
+                            'home': home,
+                            'away': away,
+                            'status': txt or 'Scheduled',
+                            'game_id': g.get('gameId'),
+                            'home_pts': hp,
+                            'away_pts': ap,
+                            'final': bool(is_final),
+                        })
+                    except Exception:
+                        continue
+                return out
+
+            # Try prod/v1 first
+            url1 = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
+            try:
+                r1 = _rq.get(url1, timeout=6, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/json, text/plain, */*',
+                    'Origin': 'https://www.nba.com',
+                    'Referer': 'https://www.nba.com/',
+                })
+                if r1.status_code == 200:
+                    g1 = _parse_prod_v1(r1.json())
+                    if g1:
+                        return {'date': date_str, 'games': g1}
+            except Exception:
+                pass
+            # If same calendar date as today (UTC), try liveData today's scoreboard
+            try:
+                today_utc = datetime.utcnow().date().isoformat()
+            except Exception:
+                today_utc = date_str
+            if date_str == today_utc:
+                url2 = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
+                try:
+                    r2 = _rq.get(url2, timeout=6, headers={
+                        'User-Agent': 'Mozilla/5.0',
+                        'Accept': 'application/json, text/plain, */*',
+                        'Origin': 'https://www.nba.com',
+                        'Referer': 'https://www.nba.com/',
                     })
+                    if r2.status_code == 200:
+                        g2 = _parse_live_today(r2.json())
+                        if g2:
+                            return {'date': date_str, 'games': g2}
                 except Exception:
-                    continue
-            return { 'date': date_str, 'games': games }
+                    pass
+            return {'date': date_str, 'games': []}
         except Exception:
             return None
 
