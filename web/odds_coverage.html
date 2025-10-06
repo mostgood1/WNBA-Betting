@@ -20,8 +20,11 @@
     document.getElementById('summary').textContent = `Date ${js.date||d} — ${(js.rows||[]).length} games`;
   }
   window.addEventListener('DOMContentLoaded', ()=>{
-    const today = new Date().toISOString().slice(0,10);
-    const inp = document.getElementById('datePicker'); inp.value = today; inp.addEventListener('change', fetchCoverage);
+    function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+    const params = new URLSearchParams(window.location.search);
+    const paramDate = params.get('date');
+    const today = localYMD();
+    const inp = document.getElementById('datePicker'); inp.value = (paramDate || today); inp.addEventListener('change', fetchCoverage);
     fetchCoverage();
   });
   </script>
