@@ -1657,7 +1657,7 @@ def api_cron_reconcile_games():
         finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
         # Proceed to join even if empty; caller will handle zero rows
     else:
-        # Attempt stats API, then fallback to CDN if needed
+        # Attempt stats API once (short timeout), then fallback to CDN if needed
         try:
             # Harden headers for reliability
             try:
@@ -1672,22 +1672,16 @@ def api_cron_reconcile_games():
                     })
             except Exception:
                 pass
-            # Simple retry/backoff on ScoreboardV2 due to occasional timeouts
-            tries = 0
+            # Single attempt with lower timeout to avoid proxy timeouts
             last_err: Optional[Exception] = None
             gh = pd.DataFrame(); ls = pd.DataFrame()
-            while tries < 2:
-                try:
-                    sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=45)
-                    nd = sb.get_normalized_dict()
-                    gh = pd.DataFrame(nd.get("GameHeader", []))
-                    ls = pd.DataFrame(nd.get("LineScore", []))
-                    last_err = None
-                    break
-                except Exception as e:
-                    last_err = e
-                    tries += 1
-                    time.sleep(3)
+            try:
+                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=15)
+                nd = sb.get_normalized_dict()
+                gh = pd.DataFrame(nd.get("GameHeader", []))
+                ls = pd.DataFrame(nd.get("LineScore", []))
+            except Exception as e:
+                last_err = e
             out_rows: list[dict[str, object]] = []
             finals = pd.DataFrame()
             if not (gh.empty or ls.empty):
@@ -1726,179 +1720,45 @@ def api_cron_reconcile_games():
                 finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
         except Exception:
             finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
-    try:
-        # Harden headers for reliability
+    # At this point, finals is defined (possibly empty). Proceed to join.
+    merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
+    # Compute errors
+    def to_float(x):
         try:
-            if _nba_http is not None:
-                _nba_http.STATS_HEADERS.update({
-                    'Accept': 'application/json, text/plain, */*',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Origin': 'https://www.nba.com',
-                    'Referer': 'https://www.nba.com/stats/',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-                    'Connection': 'keep-alive',
-                })
+            return float(x)
         except Exception:
-            pass
-        # Simple retry/backoff on ScoreboardV2 due to occasional timeouts
-        tries = 0
-        last_err: Optional[Exception] = None
-        gh = pd.DataFrame(); ls = pd.DataFrame()
-        while tries < 2:
-            try:
-                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=45)
-                nd = sb.get_normalized_dict()
-                gh = pd.DataFrame(nd.get("GameHeader", []))
-                ls = pd.DataFrame(nd.get("LineScore", []))
-                last_err = None
-                break
-            except Exception as e:
-                last_err = e
-                tries += 1
-                time.sleep(3)
-        out_rows: list[dict[str, object]] = []
-        finals = pd.DataFrame()
-        if last_err is not None and (gh.empty or ls.empty):
-            # Fallback to NBA CDN scoreboard JSON when stats API is unavailable
-            try:
-                ymd = d.replace('-', '')
-                cdn_url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-                import requests as _rq  # type: ignore
-                r = _rq.get(cdn_url, timeout=20)
-                if r.status_code == 200:
-                    jd = r.json()
-                    games = jd.get('games', []) if isinstance(jd, dict) else []
-                    for g in games:
-                        try:
-                            htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
-                            vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
-                            hs = (g.get('hTeam') or {}).get('score')
-                            vs = (g.get('vTeam') or {}).get('score')
-                            hpts = int(hs) if (hs not in (None, '')) else None
-                            vpts = int(vs) if (vs not in (None, '')) else None
-                            out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
-                        except Exception:
-                            continue
-                    finals = pd.DataFrame(out_rows)
-                else:
-                    return jsonify({"error": f"scoreboard fetch failed: {last_err}"}), 502
-            except Exception:
-                return jsonify({"error": f"scoreboard fetch failed: {last_err}"}), 502
-        else:
-            if not gh.empty and not ls.empty:
-                cgh = {c.upper(): c for c in gh.columns}
-                cls = {c.upper(): c for c in ls.columns}
-                # Build TEAM_ID -> (TRI, PTS)
-                team_rows: dict[int, dict[str, object]] = {}
-                for _, r in ls.iterrows():
-                    try:
-                        tid = int(r[cls["TEAM_ID"]])
-                        tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
-                        pts = None
-                        # PTS sometimes available directly
-                        if "PTS" in cls:
-                            try:
-                                pts = int(r[cls["PTS"]])
-                            except Exception:
-                                pts = None
-                        team_rows[tid] = {"tri": tri, "pts": pts}
-                    except Exception:
-                        continue
-                # For each game, find home/away IDs and map to tri/pts
-                for _, g in gh.iterrows():
-                    try:
-                        hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
-                        h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
-                        htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
-                        hpts = h.get("pts"); vpts = v.get("pts")
-                        out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
-                    except Exception:
-                        continue
-                finals = pd.DataFrame(out_rows)
-                # If no finals found yet, try NBA CDN on adjacent days (±1) to handle intl/UTC quirks
-                if finals.empty:
-                    try:
-                        # Build allowed matchup set from predictions to avoid pulling unrelated games
-                        pred_pairs = set(zip(preds.get("home_tri").astype(str).str.upper(), preds.get("away_tri").astype(str).str.upper()))
-                        def _cdn_rows_for(date_str: str) -> list[dict[str, object]]:
-                            try:
-                                ymd = date_str.replace('-', '')
-                                url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-                                import requests as _rq  # type: ignore
-                                r = _rq.get(url, timeout=20)
-                                rows: list[dict[str, object]] = []
-                                if r.status_code == 200:
-                                    jd = r.json()
-                                    games = jd.get('games', []) if isinstance(jd, dict) else []
-                                    for g in games:
-                                        try:
-                                            htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
-                                            vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
-                                            if (htri, vtri) not in pred_pairs:
-                                                continue
-                                            hs = (g.get('hTeam') or {}).get('score'); vs = (g.get('vTeam') or {}).get('score')
-                                            hpts = int(hs) if (hs not in (None, '')) else None
-                                            vpts = int(vs) if (vs not in (None, '')) else None
-                                            rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
-                                        except Exception:
-                                            continue
-                                return rows
-                            except Exception:
-                                return []
-                        # Compute ±1 dates
-                        from datetime import datetime as _dt, timedelta as _td
-                        base = _dt.strptime(d, "%Y-%m-%d").date()
-                        alt = []
-                        for off in (-1, 1):
-                            alt_d = (base + _td(days=off)).isoformat()
-                            alt += _cdn_rows_for(alt_d)
-                        if alt:
-                            finals = pd.DataFrame(alt)
-                    except Exception:
-                        pass
-                # Join predictions to finals by tri pairs
-                if finals.empty:
-                    return jsonify({"date": d, "rows": 0, "output": None})
-        merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
-        # Compute errors
-        def to_float(x):
-            try:
-                return float(x)
-            except Exception:
-                return None
-        merged["pred_margin"] = pd.to_numeric(merged.get("pred_margin"), errors="coerce")
-        merged["pred_total"] = pd.to_numeric(merged.get("pred_total"), errors="coerce")
-        merged["home_pts"] = pd.to_numeric(merged.get("home_pts"), errors="coerce")
-        merged["visitor_pts"] = pd.to_numeric(merged.get("visitor_pts"), errors="coerce")
-        merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
-        merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
-        merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
-        merged["total_error"] = merged["pred_total"] - merged["total_actual"]
-        # Output tidy columns
-        keep = [
+            return None
+    merged["pred_margin"] = pd.to_numeric(merged.get("pred_margin"), errors="coerce")
+    merged["pred_total"] = pd.to_numeric(merged.get("pred_total"), errors="coerce")
+    merged["home_pts"] = pd.to_numeric(merged.get("home_pts"), errors="coerce")
+    merged["visitor_pts"] = pd.to_numeric(merged.get("visitor_pts"), errors="coerce")
+    merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
+    merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
+    merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
+    merged["total_error"] = merged["pred_total"] - merged["total_actual"]
+    # Output tidy columns
+    keep = [
             "date","home_team","visitor_team","home_tri","away_tri",
             "home_pts","visitor_pts","pred_margin","pred_total",
             "actual_margin","total_actual","margin_error","total_error"
         ]
-        # Ensure date column present
-        if "date" not in merged.columns:
-            merged["date"] = d
-        out_df = merged[keep]
-        out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
-        out.parent.mkdir(parents=True, exist_ok=True)
-        out_df.to_csv(out, index=False)
-        # Optional push
-        pushed = None; push_detail = None
-        if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
-            ok, detail = _git_commit_and_push(msg=f"reconcile games {d}")
-            pushed = bool(ok); push_detail = detail
-        try:
-            _cron_meta_update("reconcile_games", {"date": d, "rows": int(len(out_df)), "output": str(out), "pushed": pushed})
-        except Exception:
-            pass
-        return jsonify({"date": d, "rows": int(len(out_df)), "output": str(out), "pushed": pushed, "push_detail": push_detail})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
+    # Ensure date column present
+    if "date" not in merged.columns:
+        merged["date"] = d
+    out_df = merged[keep]
+    out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out_df.to_csv(out, index=False)
+    # Optional push
+    pushed = None; push_detail = None
+    if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
+        ok, detail = _git_commit_and_push(msg=f"reconcile games {d}")
+        pushed = bool(ok); push_detail = detail
+    try:
+        _cron_meta_update("reconcile_games", {"date": d, "rows": int(len(out_df)), "output": str(out), "pushed": pushed})
+    except Exception:
+        pass
+    return jsonify({"date": d, "rows": int(len(out_df)), "output": str(out), "pushed": pushed, "push_detail": push_detail})
 
 @app.route("/api/cron/daily-update", methods=["POST", "GET"])
 def api_cron_daily_update():
