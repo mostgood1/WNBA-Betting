@@ -1250,26 +1250,27 @@ def api_scoreboard():
                         return {'date': date_str, 'games': g1}
             except Exception:
                 pass
-            # If same calendar date as today (UTC), try liveData today's scoreboard
+            # Try liveData today's scoreboard; if its gameDate matches the requested date, use it
+            url2 = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
             try:
-                today_utc = datetime.utcnow().date().isoformat()
+                r2 = _rq.get(url2, timeout=6, headers={
+                    'User-Agent': 'Mozilla/5.0',
+                    'Accept': 'application/json, text/plain, */*',
+                    'Origin': 'https://www.nba.com',
+                    'Referer': 'https://www.nba.com/',
+                })
+                if r2.status_code == 200:
+                    j2 = r2.json()
+                    gd = None
+                    try:
+                        gd = str(((j2 or {}).get('scoreboard') or {}).get('gameDate') or '')[:10]
+                    except Exception:
+                        gd = None
+                    g2 = _parse_live_today(j2)
+                    if g2 and (gd == date_str or gd is None):
+                        return {'date': date_str, 'games': g2}
             except Exception:
-                today_utc = date_str
-            if date_str == today_utc:
-                url2 = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
-                try:
-                    r2 = _rq.get(url2, timeout=6, headers={
-                        'User-Agent': 'Mozilla/5.0',
-                        'Accept': 'application/json, text/plain, */*',
-                        'Origin': 'https://www.nba.com',
-                        'Referer': 'https://www.nba.com/',
-                    })
-                    if r2.status_code == 200:
-                        g2 = _parse_live_today(r2.json())
-                        if g2:
-                            return {'date': date_str, 'games': g2}
-                except Exception:
-                    pass
+                pass
             return {'date': date_str, 'games': []}
         except Exception:
             return None
