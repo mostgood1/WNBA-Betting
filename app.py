@@ -1629,7 +1629,6 @@ def api_cron_reconcile_games():
     pred_path = _find_predictions_for_date(d)
     if pred_path is None:
         # Gracefully return rows=0 so cron runs don't fail on off days or missed predictions
-        out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
         try:
             _cron_meta_update("reconcile_games", {"date": d, "rows": 0, "output": None, "reason": "predictions missing"})
         except Exception:
@@ -1639,12 +1638,12 @@ def api_cron_reconcile_games():
         preds = pd.read_csv(pred_path)
     except Exception as e:
         return jsonify({"error": f"failed to read predictions: {e}"}), 500
-    # Normalize prediction keys to tricodes using nba_api static teams map
+
+    # Normalize prediction team names to tricodes
     try:
         from nba_api.stats.static import teams as _static_teams  # type: ignore
         team_list = _static_teams.get_teams()
         full_to_abbr = {str(t.get('full_name')).upper(): str(t.get('abbreviation')).upper() for t in team_list}
-        # Some common alternate name aliases
         alt = {
             "LOS ANGELES CLIPPERS": "LAC",
             "LA CLIPPERS": "LAC",
@@ -1663,10 +1662,7 @@ def api_cron_reconcile_games():
                 return full_to_abbr[s]
             if s in alt:
                 return alt[s]
-            # Already a tri?
-            if len(s) <= 4:
-                return s
-            return s
+            return s if len(s) <= 4 else s
         preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").apply(to_tri)
         preds["away_tri"] = preds.get("visitor_team").apply(to_tri)
@@ -1674,8 +1670,9 @@ def api_cron_reconcile_games():
         preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
-    # Helper: build finals from NBA CDN (with optional ±1 day) limited to prediction pairs
-    def _finals_from_cdn(date_str: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = True) -> pd.DataFrame:
+
+    # Helper: finals from NBA CDN (with optional ±1 day) limited to prediction pairs
+    def _finals_from_cdn(date_str_local: str, pred_pairs: set[tuple[str, str]], include_adjacent: bool = True) -> pd.DataFrame:
         try:
             import requests as _rq  # type: ignore
         except Exception:
@@ -1704,11 +1701,11 @@ def api_cron_reconcile_games():
                 return out
             except Exception:
                 return []
-        rows = _rows_for(date_str)
+        rows = _rows_for(date_str_local)
         if include_adjacent and not rows:
             try:
                 from datetime import datetime as _dt, timedelta as _td
-                base = _dt.strptime(date_str, "%Y-%m-%d").date()
+                base = _dt.strptime(date_str_local, "%Y-%m-%d").date()
                 for off in (-1, 1):
                     rows += _rows_for((base + _td(days=off)).isoformat())
             except Exception:
@@ -1722,9 +1719,7 @@ def api_cron_reconcile_games():
     ))
     if _scoreboardv2 is None:
         finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
-        # Proceed to join even if empty; caller will handle zero rows
     else:
-        # Attempt stats API once (short timeout), then fallback to CDN if needed
         try:
             # Harden headers for reliability
             try:
@@ -1775,7 +1770,6 @@ def api_cron_reconcile_games():
                         h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
                         htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
                         hpts = h.get("pts"); vpts = v.get("pts")
-                        # Limit to predicted matchups
                         if (htri, vtri) not in pred_pairs:
                             continue
                         out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
@@ -1783,45 +1777,37 @@ def api_cron_reconcile_games():
                         continue
                 finals = pd.DataFrame(out_rows)
             if finals.empty and last_err is not None:
-                # Fallback to CDN if stats API failed
                 finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
         except Exception:
             finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
-    # At this point, finals is defined (possibly empty). Proceed to join.
+
+    # Join and compute errors
     merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
-    # Compute errors
-    # Ensure required numeric columns exist, then coerce safely
     for col in ("pred_margin", "pred_total", "home_pts", "visitor_pts"):
         if col not in merged.columns:
             merged[col] = pd.NA
         try:
             merged[col] = pd.to_numeric(merged[col], errors="coerce")
         except Exception:
-            # If coercion fails for any reason, fall back to NA column
-            try:
-                merged[col] = pd.NA
-            except Exception:
-                pass
+            merged[col] = pd.NA
     merged["actual_margin"] = merged["home_pts"] - merged["visitor_pts"]
     merged["total_actual"] = merged[["home_pts","visitor_pts"]].sum(axis=1)
     merged["margin_error"] = merged["pred_margin"] - merged["actual_margin"]
     merged["total_error"] = merged["pred_total"] - merged["total_actual"]
-    # Output tidy columns
+
     keep = [
-            "date","home_team","visitor_team","home_tri","away_tri",
-            "home_pts","visitor_pts","pred_margin","pred_total",
-            "actual_margin","total_actual","margin_error","total_error"
-        ]
-    # Ensure date column present
+        "date","home_team","visitor_team","home_tri","away_tri",
+        "home_pts","visitor_pts","pred_margin","pred_total",
+        "actual_margin","total_actual","margin_error","total_error"
+    ]
     if "date" not in merged.columns:
         merged["date"] = d
-    # Select only present columns to avoid KeyError if predictions lacked some fields
-    keep_present = [c for c in keep if c in merged.columns]
-    out_df = merged[keep_present]
+    out_df = merged[[c for c in keep if c in merged.columns]]
+
     out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(out, index=False)
-    # Optional push
+
     pushed = None; push_detail = None
     if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
         ok, detail = _git_commit_and_push(msg=f"reconcile games {d}")
