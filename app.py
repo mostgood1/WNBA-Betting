@@ -446,8 +446,17 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         ok = False
         if origin:
             rc = subprocess.run(["git", "push", "origin", f"HEAD:{branch}"], cwd=str(BASE_DIR), check=False)
-            ok = (rc.returncode == 0)
-        detail = f"pushed to {branch}; remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
+            if rc.returncode == 0:
+                ok = True
+                detail = f"pushed to {branch}; remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
+            else:
+                # Fallback: push to a artifacts branch (for repos with protected main)
+                alt_branch = os.environ.get("GIT_BRANCH_ALT", "data-artifacts")
+                _ = subprocess.run(["git", "push", "origin", f"HEAD:{alt_branch}"], cwd=str(BASE_DIR), check=False)
+                ok = (_.returncode == 0)
+                detail = f"pushed to {branch if rc.returncode==0 else alt_branch} (fallback={'yes' if rc.returncode!=0 else 'no'}); remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}"
+        else:
+            detail = f"pushed to {branch}; remote=missing; push_url={'set' if push_url_set else 'default'}"
         return ok, detail
     except Exception as e:
         return False, f"git push error: {e}"
