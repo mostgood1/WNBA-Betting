@@ -371,8 +371,12 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
             branch = "HEAD"
         if not branch or branch == "HEAD":
             branch = os.environ.get("GIT_BRANCH", "main")
-        # Set push URL with token if present
-        token = os.environ.get("GH_TOKEN") or os.environ.get("GIT_PAT")
+        # Set push URL with token if present (support multiple env var names)
+        token = (
+            os.environ.get("GH_TOKEN")
+            or os.environ.get("GIT_PAT")
+            or os.environ.get("GITHUB_TOKEN")
+        )
         push_url_set = False
         origin = None
         if token:
