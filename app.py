@@ -2055,6 +2055,9 @@ def api_cron_props_edges():
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=True)
     source = (request.args.get("source") or "auto").strip()
+    mode = (request.args.get("mode") or "auto").strip()
+    use_saved_q = (request.args.get("use_saved") or request.args.get("use-saved") or "1").strip().lower()
+    use_saved = (use_saved_q in {"1","true","yes"})
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
     # Choose python executable
     py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
@@ -2064,8 +2067,14 @@ def api_cron_props_edges():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_edges_{d}_{stamp}.log"
     try:
-        env = {"PYTHONPATH": str(SRC_DIR)}
-        rc = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", source], log_file, cwd=BASE_DIR, env=env)
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
+        cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", source]
+        if mode:
+            cmd += ["--mode", mode]
+        if not use_saved:
+            cmd += ["--no-use-saved"]
+        rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         rows = 0
         if out.exists():
