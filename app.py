@@ -1147,7 +1147,7 @@ def api_scoreboard():
             import requests as _rq
             ymd = date_str.replace("-", "")
             url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-            r = _rq.get(url, timeout=10, headers={
+            r = _rq.get(url, timeout=6, headers={
                 'User-Agent': 'Mozilla/5.0',
                 'Accept': 'application/json, text/plain, */*',
             })
@@ -1226,9 +1226,10 @@ def api_scoreboard():
         tries = 0
         last_err: Optional[Exception] = None
         gh = pd.DataFrame(); ls = pd.DataFrame()
-        while tries < 2:
+        # Keep this snappy: one short attempt, then fallback to CDN
+        while tries < 1:
             try:
-                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=35)
+                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=8)
                 nd = sb.get_normalized_dict()
                 gh = pd.DataFrame(nd.get("GameHeader", []))
                 ls = pd.DataFrame(nd.get("LineScore", []))
@@ -1237,7 +1238,6 @@ def api_scoreboard():
             except Exception as e:
                 last_err = e
                 tries += 1
-                time.sleep(3)
         games = []
         if not gh.empty and not ls.empty:
             cgh = {c.upper(): c for c in gh.columns}

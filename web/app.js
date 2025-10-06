@@ -1149,8 +1149,13 @@ async function pollScoreboardOnce(dateStr){
     url.searchParams.set('date', dateStr);
     let j = null;
     try{
-      const r = await fetch(url.toString(), { cache: 'no-store' });
-      if (r.ok) j = await r.json();
+      // Add a hard timeout to avoid hanging the UI if the server call stalls
+      const ac = new AbortController();
+      const t = setTimeout(()=> ac.abort(), 7000);
+      try{
+        const r = await fetch(url.toString(), { cache: 'no-store', signal: ac.signal });
+        if (r.ok) j = await r.json();
+      } finally { clearTimeout(t); }
     }catch(_){ /* ignore */ }
     // If backend failed or returned empty, fallback to CDN directly
     if (!j || j.error || !Array.isArray(j.games) || j.games.length === 0){
