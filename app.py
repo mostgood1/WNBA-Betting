@@ -1380,7 +1380,7 @@ def api_props_recommendations():
         # Optionally narrow to a game (home_team/away_team)
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
-        # games_df already loaded above
+        # games_df already loaded above; build games list (optional)
         games: list[dict] = []
         if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
             try:
@@ -1398,47 +1398,49 @@ def api_props_recommendations():
                         df = df[df["team"].astype(str).isin(keep_teams)]
             except Exception:
                 pass
-            # Build cards grouped by player/team
-            sort_by = (request.args.get("sortBy") or "ev_desc").strip().lower()
-            player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
-            team_col = "team" if "team" in df.columns else None
-            cards: list[dict] = []
-            if player_col:
-                # Optional enrichment: derive matchup per card from predictions
-                matchup_map: dict[str, tuple[str,str]] = {}
-                if not games_df.empty:
-                    try:
-                        for _, r in games_df.iterrows():
-                            h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
-                            matchup_map[h.upper()] = (a, h)
-                            matchup_map[a.upper()] = (a, h)
-                    except Exception:
-                        pass
-                # Group and assemble plays
-                group_cols = [player_col] + ([team_col] if team_col else [])
-                # Ensure columns exist for grouping
-                group_cols = [c for c in group_cols if c]
-                # Prepare props predictions lookup per player/team for model baselines
-                pp_lookup: dict[tuple[str,str], dict[str,float]] = {}
-                if not pp.empty and ("player_name" in pp.columns) and (team_col is not None and team_col in pp.columns):
-                    try:
-                        tmp = pp.copy(); tmp["player_name"] = tmp["player_name"].astype(str)
-                        tmp[team_col] = tmp[team_col].astype(str).str.upper()
-                        for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
-                            model: dict[str,float] = {}
-                            for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
-                                if col in gpp.columns:
-                                    try:
-                                        v = pd.to_numeric(gpp[col], errors="coerce").dropna()
-                                        if not v.empty:
-                                            model[key] = float(v.iloc[0])
-                                    except Exception:
-                                        pass
-                            pp_lookup[(str(pname), str(tval).upper())] = model
-                    except Exception:
-                        pass
+        # Build cards grouped by player/team regardless of games_df presence
+        sort_by = (request.args.get("sortBy") or "ev_desc").strip().lower()
+        player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
+        team_col = "team" if "team" in df.columns else None
+        cards: list[dict] = []
+        if not player_col:
+            # No player column; return empty result set gracefully
+            return jsonify({"date": d, "rows": 0, "games": games, "data": []})
+        # Optional enrichment: derive matchup per card from predictions
+        matchup_map: dict[str, tuple[str,str]] = {}
+        if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
+            try:
+                for _, r in games_df.iterrows():
+                    h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                    matchup_map[h.upper()] = (a, h)
+                    matchup_map[a.upper()] = (a, h)
+            except Exception:
+                pass
+        # Group and assemble plays
+        group_cols = [player_col] + ([team_col] if team_col else [])
+        # Ensure columns exist for grouping
+        group_cols = [c for c in group_cols if c]
+        # Prepare props predictions lookup per player/team for model baselines
+        pp_lookup: dict[tuple[str,str], dict[str,float]] = {}
+        if not pp.empty and ("player_name" in pp.columns) and (team_col is not None and team_col in pp.columns):
+            try:
+                tmp = pp.copy(); tmp["player_name"] = tmp["player_name"].astype(str)
+                tmp[team_col] = tmp[team_col].astype(str).str.upper()
+                for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
+                    model: dict[str,float] = {}
+                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                        if col in gpp.columns:
+                            try:
+                                v = pd.to_numeric(gpp[col], errors="coerce").dropna()
+                                if not v.empty:
+                                    model[key] = float(v.iloc[0])
+                            except Exception:
+                                pass
+                    pp_lookup[(str(pname), str(tval).upper())] = model
+            except Exception:
+                pass
 
-            for keys, grp in df.groupby(group_cols, dropna=False):
+        for keys, grp in df.groupby(group_cols, dropna=False):
                 if not isinstance(keys, tuple):
                     keys = (keys,)
                 player = keys[0] if len(keys) > 0 else None
