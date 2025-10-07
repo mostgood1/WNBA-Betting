@@ -2267,6 +2267,7 @@ def api_cron_config():
                 "/api/cron/reconcile-games",
                 "/api/cron/daily-update",
                 "/api/cron/props-edges",
+                "/api/cron/props-predictions",
             ],
         })
     except Exception as e:
@@ -2355,6 +2356,68 @@ def api_cron_props_edges():
             pushed = bool(ok); push_detail = detail
         try:
             _cron_meta_update("props_edges", {"date": d, "rows": int(rows), "output": str(out)})
+        except Exception:
+            pass
+        return jsonify({
+            "date": d,
+            "rc": int(rc),
+            "output": str(out),
+            "rows": int(rows),
+            "log_file": str(log_file),
+            "pushed": pushed,
+            "push_detail": push_detail,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cron/props-predictions", methods=["POST", "GET"])
+def api_cron_props_predictions():
+    """Precompute player props predictions CSV for a given date via CLI.
+
+    Query params:
+      - date (optional): YYYY-MM-DD, defaults to today (UTC)
+      - slate_only (optional): '1' to limit to today's slate (default 1)
+      - push (optional): '1' to git commit/push artifacts
+
+    Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
+    Writes data/processed/props_predictions_YYYY-MM-DD.csv
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+    d = _parse_date_param(request, default_to_today=True)
+    slate_only_q = (request.args.get("slate_only") or request.args.get("slate-only") or "1").strip().lower()
+    slate_only = (slate_only_q in {"1", "true", "yes"})
+    do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+
+    # Choose python executable
+    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+    if not py or not Path(str(py)).exists():
+        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+        py = str(py_win) if py_win.exists() else "python"
+
+    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_props_predictions_{d}_{stamp}.log"
+    try:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
+        cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
+        if slate_only:
+            cmd += ["--slate-only"]
+        rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
+        out = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        rows = 0
+        if out.exists():
+            try:
+                rows = int(len(pd.read_csv(out)))
+            except Exception:
+                rows = 0
+        pushed = None; push_detail = None
+        if do_push:
+            ok, detail = _git_commit_and_push(msg=f"props-predictions {d}")
+            pushed = bool(ok); push_detail = detail
+        try:
+            _cron_meta_update("props_predictions", {"date": d, "rows": int(rows), "output": str(out)})
         except Exception:
             pass
         return jsonify({
