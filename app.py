@@ -184,26 +184,36 @@ def favicon():
 _player_id_cache: dict[tuple[str, str | None], int] = {}
 _rosters_df_cache: Optional[pd.DataFrame] = None
 _team_name_to_abbr: Optional[dict[str, str]] = None
+_team_abbr_to_id: Optional[dict[str, int]] = None
 
 def _load_team_maps() -> dict[str, str]:
-    global _team_name_to_abbr
+    global _team_name_to_abbr, _team_abbr_to_id
     if _team_name_to_abbr is not None:
         return _team_name_to_abbr
     mapping: dict[str, str] = {}
+    abbr_to_id: dict[str, int] = {}
     try:
         from nba_api.stats.static import teams as _static_teams  # type: ignore
         team_list = _static_teams.get_teams()  # list of dicts
         for t in team_list:
             full = str(t.get("full_name") or "").strip()
             abbr = str(t.get("abbreviation") or "").strip().upper()
+            tid = t.get("id")
             if full:
                 mapping[full.lower()] = abbr
             if abbr:
                 mapping[abbr.lower()] = abbr
+                try:
+                    if tid is not None:
+                        abbr_to_id[abbr] = int(tid)
+                except Exception:
+                    pass
     except Exception:
         # Fallback: empty map; callers should handle by uppercasing input
         mapping = {}
+        abbr_to_id = {}
     _team_name_to_abbr = mapping
+    _team_abbr_to_id = abbr_to_id
     return mapping
 
 def _get_tricode(team: str | None) -> str | None:
@@ -212,6 +222,21 @@ def _get_tricode(team: str | None) -> str | None:
     m = _load_team_maps()
     abbr = m.get(str(team).strip().lower())
     return (abbr or str(team).strip().upper() or None)
+
+def _get_team_id(team: str | None) -> Optional[int]:
+    if not team:
+        return None
+    try:
+        _ = _load_team_maps()  # ensures _team_abbr_to_id populated
+    except Exception:
+        pass
+    try:
+        tri = _get_tricode(team)
+        if tri and _team_abbr_to_id and tri.upper() in _team_abbr_to_id:
+            return int(_team_abbr_to_id[tri.upper()])
+    except Exception:
+        return None
+    return None
 
 def _ensure_rosters_loaded() -> pd.DataFrame:
     global _rosters_df_cache
@@ -1385,8 +1410,12 @@ def api_props_recommendations():
                         except Exception:
                             pid = None
                     photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
-                    team_tri = (str(team).upper() if isinstance(team, str) else None)
-                    team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
+                    team_id = _get_team_id(str(team)) if team is not None else None
+                    if team_id:
+                        team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
+                    else:
+                        team_tri = (str(team).upper() if isinstance(team, str) else None)
+                        team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
                     cards.append({
                         "player": player,
                         "team": team,
@@ -1612,11 +1641,18 @@ def api_props_recommendations():
                         pid = None
                 photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
                 try:
-                    team_tri = _get_tricode(str(team)) if team is not None else None
+                    team_id = _get_team_id(str(team)) if team is not None else None
                 except Exception:
-                    team_tri = (str(team).upper() if isinstance(team, str) else None)
-                # Prefer uppercase SVG path; UI will attempt lowercase or PNG fallback if 404s
-                team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
+                    team_id = None
+                if team_id:
+                    team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
+                else:
+                    try:
+                        team_tri = _get_tricode(str(team)) if team is not None else None
+                    except Exception:
+                        team_tri = (str(team).upper() if isinstance(team, str) else None)
+                    # Prefer uppercase SVG path; UI will attempt lowercase or PNG fallback if 404s
+                    team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
                 # Compute best metrics for sorting
                 best_ev = None
                 best_edge = None
