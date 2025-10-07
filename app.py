@@ -964,23 +964,66 @@ def api_props():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        # Prefer edges if available, fall back to predictions
+        # Prefer edges if available, fall back to predictions (unless source=predictions requested)
         edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
-        df = _read_csv_if_exists(edges_p)
-        src = "edges"
-        if df is None or df.empty:
-            df = _read_csv_if_exists(preds_p)
-            src = "predictions"
+        requested_source = (request.args.get("source") or "").strip().lower() or None
+        use_predictions_first = (requested_source == "predictions")
+        df = None
+        src = None
+        if not use_predictions_first:
+            df = _read_csv_if_exists(edges_p)
+            src = "edges" if (df is not None and not df.empty) else None
+        # Optionally auto-build edges for the date if not present
+        if (not use_predictions_first) and (df is None or df.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
+            try:
+                # Run the same CLI used by cron endpoint
+                py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+                if not py or not Path(str(py)).exists():
+                    py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+                    py = str(py_win) if py_win.exists() else "python"
+                env = {"PYTHONPATH": str(SRC_DIR)}
+                logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+                lf = logs_dir / f"props_edges_on_demand_{d}_{stamp}.log"
+                _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "auto"], lf, cwd=BASE_DIR, env=env)
+                if edges_p.exists():
+                    df = _read_csv_if_exists(edges_p)
+                    src = "edges"
+            except Exception:
+                pass
+        if (df is None or df.empty) or use_predictions_first:
+            # Load predictions and optionally auto-build
+            pdf = _read_csv_if_exists(preds_p)
+            if (pdf is None or pdf.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
+                try:
+                    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+                    if not py or not Path(str(py)).exists():
+                        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+                        py = str(py_win) if py_win.exists() else "python"
+                    env = {"PYTHONPATH": str(SRC_DIR)}
+                    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+                    lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only"], lf, cwd=BASE_DIR, env=env)
+                    pdf = _read_csv_if_exists(preds_p)
+                except Exception:
+                    pass
+            # If predictions loaded, and predictions requested or edges absent, use them
+            if isinstance(pdf, pd.DataFrame) and not pdf.empty and (use_predictions_first or df is None or df.empty):
+                df = pdf
+                src = "predictions"
         if df is None:
             return jsonify({"date": d, "rows": [], "source": None})
         # Optional filters
         min_edge = float(request.args.get("min_edge", "0"))
         min_ev = float(request.args.get("min_ev", "0"))
-        if "edge" in df.columns:
+        if src == "edges" and "edge" in df.columns:
             df = df[pd.to_numeric(df["edge"], errors="coerce").fillna(0) >= min_edge]
-        if "ev" in df.columns:
+        if src == "edges" and "ev" in df.columns:
             df = df[pd.to_numeric(df["ev"], errors="coerce").fillna(0) >= min_ev]
+        # Filter by market/stat if requested
+        market = (request.args.get("market") or "").strip().lower()
+        if market and ("stat" in df.columns):
+            df = df[df["stat"].astype(str).str.lower() == market]
         # Optional: narrow to a specific game by team names
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
@@ -988,19 +1031,41 @@ def api_props():
             keep = set([t for t in (home_q, away_q) if t])
             if keep:
                 df = df[df.get("team").astype(str).isin(keep)]
-        # Collapse to best-of-book per player/stat/side/line by default (disable with collapse=0)
+        collapsed = False
+        # If predictions mode, produce long format with one row per player/stat and predicted value
+        if src == "predictions":
+            try:
+                tmp = df.copy()
+                # Ensure player/team/opponent/home columns exist
+                for c in ("player_id","player_name","team","opponent","home"):
+                    if c not in tmp.columns:
+                        tmp[c] = None
+                # Identify prediction columns
+                pred_cols = [c for c in tmp.columns if c.startswith("pred_")]
+                rename_map = {"pred_pts":"pts","pred_reb":"reb","pred_ast":"ast","pred_threes":"threes","pred_pra":"pra"}
+                use = {c: rename_map.get(c, c.replace("pred_","")) for c in pred_cols}
+                long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
+                long["stat"] = long["stat_col"].map(use)
+                long.drop(columns=["stat_col"], inplace=True)
+                # Filter by market after melt if provided
+                if market:
+                    long = long[long["stat"].astype(str).str.lower() == market]
+                # Sort for stability: by stat, team, player
+                long = long.sort_values(["stat","team","player_name"], kind="stable")
+                rows = long.fillna("").to_dict(orient="records")
+                return jsonify({"date": d, "source": src, "rows": rows, "collapsed": False})
+            except Exception:
+                pass
+        # Otherwise, edges mode (default) with optional collapse to best-of-book
         collapse_q = (request.args.get("collapse", "1") or "1").strip().lower()
         do_collapse = collapse_q not in ("0", "false", "no")
-        collapsed = False
         if do_collapse and ("ev" in df.columns):
             try:
-                # Keys in order of preference
                 keys = [k for k in ["player_id", "player_name", "team", "stat", "side", "line"] if k in df.columns]
                 if len(keys) >= 4:
                     tmp = df.copy()
                     tmp["ev"] = pd.to_numeric(tmp["ev"], errors="coerce")
                     tmp["edge"] = pd.to_numeric(tmp.get("edge", 0), errors="coerce")
-                    # Sort to pick highest EV, then highest edge within group
                     tmp = tmp.sort_values(["stat", "ev", "edge"], ascending=[True, False, False])
                     df = tmp.groupby(keys, as_index=False, sort=False).head(1)
                     collapsed = True

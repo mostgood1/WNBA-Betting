@@ -3,30 +3,53 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NBA Props</title>
+  <title>NBA Player Props</title>
   <link rel="stylesheet" href="/web/styles.css" />
   <script>
   async function fetchProps(){
     const d = document.getElementById('datePicker').value;
+    const market = document.getElementById('market').value;
+    const mode = document.getElementById('mode').value; // edges|predictions
+    const build = document.getElementById('build').checked ? '1' : '0';
+    const params = new URLSearchParams(window.location.search);
+    const collapseParam = params.get('collapse');
+    const collapse = collapseParam===null ? 1 : collapseParam;
+    // Thresholds only apply to edges mode
     const minEdge = document.getElementById('minEdge').value;
     const minEV = document.getElementById('minEV').value;
-  const params = new URLSearchParams(window.location.search);
-  const collapseParam = params.get('collapse');
-  const collapse = collapseParam===null ? 1 : collapseParam;
-  const res = await fetch(`/api/props?date=${d}&min_edge=${minEdge}&min_ev=${minEV}&collapse=${collapse}`);
+    const qp = new URLSearchParams({ date: d, market, source: mode, build, collapse, min_edge: minEdge, min_ev: minEV });
+    const res = await fetch(`/api/props?${qp.toString()}`);
     const js = await res.json();
     const tbody = document.querySelector('#tbl tbody');
     tbody.innerHTML='';
     const rows = js.rows || [];
-    for (const r of rows){
-      const tr = document.createElement('tr');
-      const ev = r.ev!=null? Number(r.ev).toFixed(2) : '';
-      const edge = r.edge!=null? (Number(r.edge)*100).toFixed(1)+'%' : '';
-      tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${edge}</td><td>${ev}</td><td>${r.bookmaker||''}</td>`;
-      tbody.appendChild(tr);
+    const src = js.source || mode;
+    // Configure table header for mode
+    const thead = document.querySelector('#tbl thead');
+    if (src === 'predictions') {
+      thead.innerHTML = '<tr><th>Team</th><th>Player</th><th>Opp</th><th>H/A</th><th>Stat</th><th>Pred</th></tr>';
+      for (const r of rows){
+        const tr = document.createElement('tr');
+        const ha = r.home===true? 'H' : (r.home===false? 'A' : '');
+        tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${r.opponent||''}</td><td>${ha}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.pred!=null? Number(r.pred).toFixed(2):''}</td>`;
+        tbody.appendChild(tr);
+      }
+    } else {
+      thead.innerHTML = '<tr><th>Team</th><th>Player</th><th>Stat</th><th>Side</th><th>Line</th><th>Price</th><th>Edge</th><th>EV</th><th>Book</th></tr>';
+      for (const r of rows){
+        const tr = document.createElement('tr');
+        const ev = r.ev!=null? Number(r.ev).toFixed(2) : '';
+        const edge = r.edge!=null? (Number(r.edge)*100).toFixed(1)+'%' : '';
+        tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${edge}</td><td>${ev}</td><td>${r.bookmaker||''}</td>`;
+        tbody.appendChild(tr);
+      }
     }
-  const collapsed = js.collapsed ? 'best-of-book' : 'all books';
-  document.getElementById('summary').textContent = `Date ${js.date||d} — ${rows.length} props (${js.source||'n/a'}, ${collapsed})`;
+    const collapsed = js.collapsed ? 'best-of-book' : 'all books';
+    const srcLabel = src==='predictions' ? 'predictions' : `edges (${collapsed})`;
+    document.getElementById('summary').textContent = `Date ${js.date||d} — ${rows.length} rows • ${srcLabel}${market? ' • '+market.toUpperCase():''}`;
+    // Update CSV link
+    const csv = document.getElementById('downloadCsv');
+    csv.href = `/props_predictions_${d}.csv`;
   }
   window.addEventListener('DOMContentLoaded', ()=>{
     function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
@@ -34,6 +57,9 @@
     const paramDate = params.get('date');
     const today = localYMD();
     const inp = document.getElementById('datePicker'); inp.value = (paramDate || today); inp.addEventListener('change', fetchProps);
+    document.getElementById('market').addEventListener('change', fetchProps);
+    document.getElementById('mode').addEventListener('change', fetchProps);
+    document.getElementById('build').addEventListener('change', fetchProps);
     document.getElementById('minEdge').addEventListener('change', fetchProps);
     document.getElementById('minEV').addEventListener('change', fetchProps);
     fetchProps();
@@ -43,7 +69,7 @@
 <body>
   <header class="site-header">
     <div class="container">
-      <h1>Props</h1>
+  <h1>NFL-style Player Props (NBA)</h1>
       <nav class="site-nav">
         <a href="/">Games</a>
         <a href="/recommendations">Recommendations</a>
@@ -56,8 +82,26 @@
       <div class="controls">
         <label class="sr-only" for="datePicker">Select date</label>
         <input id="datePicker" type="date" />
+        <label>Market
+          <select id="market">
+            <option value="">All</option>
+            <option value="pts">PTS</option>
+            <option value="reb">REB</option>
+            <option value="ast">AST</option>
+            <option value="threes">3PM</option>
+            <option value="pra">PRA</option>
+          </select>
+        </label>
+        <label>Mode
+          <select id="mode">
+            <option value="predictions" selected>Predictions</option>
+            <option value="edges">Edges</option>
+          </select>
+        </label>
+        <label><input id="build" type="checkbox" checked /> Build if missing</label>
         <label>Min Edge<input id="minEdge" type="number" step="0.01" value="0.03" /></label>
         <label>Min EV<input id="minEV" type="number" step="0.01" value="0" /></label>
+        <a id="downloadCsv" class="button" href="#" download>Download CSV</a>
       </div>
     </div>
   </header>
@@ -65,7 +109,7 @@
     <section id="summary" class="summary"></section>
     <div class="table-wrap">
       <table id="tbl" class="data-table">
-        <thead><tr><th>Team</th><th>Player</th><th>Stat</th><th>Side</th><th>Line</th><th>Price</th><th>Edge</th><th>EV</th><th>Book</th></tr></thead>
+        <thead></thead>
         <tbody></tbody>
       </table>
     </div>
