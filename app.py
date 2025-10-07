@@ -55,6 +55,7 @@ except Exception:
 
 WEB_DIR = BASE_DIR / "web"
 CRON_META_PATH = BASE_DIR / "data" / "processed" / ".cron_meta.json"
+PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
@@ -178,6 +179,148 @@ def favicon():
 
 
 # ---------------- Shared helpers ---------------- #
+
+# In-memory caches
+_player_id_cache: dict[tuple[str, str | None], int] = {}
+_rosters_df_cache: Optional[pd.DataFrame] = None
+_team_name_to_abbr: Optional[dict[str, str]] = None
+
+def _load_team_maps() -> dict[str, str]:
+    global _team_name_to_abbr
+    if _team_name_to_abbr is not None:
+        return _team_name_to_abbr
+    mapping: dict[str, str] = {}
+    try:
+        from nba_api.stats.static import teams as _static_teams  # type: ignore
+        team_list = _static_teams.get_teams()  # list of dicts
+        for t in team_list:
+            full = str(t.get("full_name") or "").strip()
+            abbr = str(t.get("abbreviation") or "").strip().upper()
+            if full:
+                mapping[full.lower()] = abbr
+            if abbr:
+                mapping[abbr.lower()] = abbr
+    except Exception:
+        # Fallback: empty map; callers should handle by uppercasing input
+        mapping = {}
+    _team_name_to_abbr = mapping
+    return mapping
+
+def _get_tricode(team: str | None) -> str | None:
+    if not team:
+        return None
+    m = _load_team_maps()
+    abbr = m.get(str(team).strip().lower())
+    return (abbr or str(team).strip().upper() or None)
+
+def _ensure_rosters_loaded() -> pd.DataFrame:
+    global _rosters_df_cache
+    if _rosters_df_cache is not None:
+        return _rosters_df_cache
+    proc = BASE_DIR / "data" / "processed"
+    frames: list[pd.DataFrame] = []
+    try:
+        for p in sorted(proc.glob("rosters_*.csv")):
+            try:
+                df = pd.read_csv(p)
+                # Normalize expected columns
+                cols = {c.upper(): c for c in df.columns}
+                if ("PLAYER" in cols) and ("PLAYER_ID" in cols):
+                    # Ensure TEAM_ABBREVIATION if possible
+                    if "TEAM_ABBREVIATION" not in cols:
+                        df["TEAM_ABBREVIATION"] = None
+                    frames.append(df)
+            except Exception:
+                continue
+    except Exception:
+        frames = []
+    if frames:
+        _rosters_df_cache = pd.concat(frames, ignore_index=True)
+    else:
+        _rosters_df_cache = pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])  # empty
+    return _rosters_df_cache
+
+def _persist_player_id_cache_entry(name: str, team: str | None, pid: int) -> None:
+    try:
+        PLAYER_ID_CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        # Append if unique
+        rec = {"player_name": name, "team": (team or ""), "player_id": int(pid)}
+        if PLAYER_ID_CACHE_PATH.exists():
+            try:
+                df = pd.read_csv(PLAYER_ID_CACHE_PATH)
+            except Exception:
+                df = pd.DataFrame()
+            # If already present, skip append
+            try:
+                exists = False
+                if not df.empty:
+                    m = df[(df.get("player_name").astype(str) == str(name)) & (df.get("team").astype(str) == str(team or ""))]
+                    exists = (len(m) > 0)
+                if not exists:
+                    df = pd.concat([df, pd.DataFrame([rec])], ignore_index=True)
+                    df.to_csv(PLAYER_ID_CACHE_PATH, index=False)
+            except Exception:
+                # Fallback: append naive
+                with PLAYER_ID_CACHE_PATH.open("a", encoding="utf-8") as f:
+                    if PLAYER_ID_CACHE_PATH.stat().st_size == 0:
+                        f.write("player_name,team,player_id\n")
+                    f.write(f"{name},{team or ''},{pid}\n")
+        else:
+            pd.DataFrame([rec]).to_csv(PLAYER_ID_CACHE_PATH, index=False)
+    except Exception:
+        pass
+
+def _resolve_player_id(name: str | None, team: str | None = None) -> Optional[int]:
+    if not name:
+        return None
+    key = (str(name).strip(), (str(team).strip() if team else None))
+    if key in _player_id_cache:
+        return _player_id_cache[key]
+    # Check on-disk cache first
+    try:
+        if PLAYER_ID_CACHE_PATH.exists():
+            df = pd.read_csv(PLAYER_ID_CACHE_PATH)
+            if not df.empty:
+                m = df[(df.get("player_name").astype(str) == key[0]) & (df.get("team").astype(str) == (key[1] or ""))]
+                if len(m) > 0:
+                    pid = int(pd.to_numeric(m.iloc[0].get("player_id"), errors="coerce"))
+                    _player_id_cache[key] = pid
+                    return pid
+    except Exception:
+        pass
+    # Search rosters
+    roster = _ensure_rosters_loaded()
+    pid: Optional[int] = None
+    if not roster.empty and ("PLAYER" in roster.columns):
+        try:
+            cand = roster[roster["PLAYER"].astype(str).str.strip().str.lower() == key[0].lower()]
+            if not cand.empty:
+                if team and ("TEAM_ABBREVIATION" in cand.columns):
+                    tri = _get_tricode(team) or (team.strip().upper())
+                    cc = cand[cand["TEAM_ABBREVIATION"].astype(str).str.upper() == str(tri).upper()]
+                    if not cc.empty:
+                        pid = int(pd.to_numeric(cc.iloc[0].get("PLAYER_ID"), errors="coerce"))
+                if pid is None:
+                    pid = int(pd.to_numeric(cand.iloc[0].get("PLAYER_ID"), errors="coerce"))
+        except Exception:
+            pid = None
+    # Fallback to nba_api static players lookup by name
+    if pid is None:
+        try:
+            from nba_api.stats.static import players as _static_players  # type: ignore
+            hits = _static_players.find_players_by_full_name(key[0]) or []
+            if hits:
+                # Prefer exact case-insensitive full name match
+                exact = [h for h in hits if str(h.get("full_name","")).strip().lower() == key[0].lower()]
+                pick = exact[0] if exact else hits[0]
+                pid = int(pick.get("id")) if pick and pick.get("id") is not None else None
+        except Exception:
+            pid = None
+    if isinstance(pid, int):
+        _player_id_cache[key] = pid
+        _persist_player_id_cache_entry(key[0], key[1], pid)
+        return pid
+    return None
 
 def _parse_date_param(req, default_to_today: bool = True) -> str:
     val = (req.args.get("date") or req.args.get("d") or "").strip()
@@ -1047,6 +1190,19 @@ def api_props():
                 long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
                 long["stat"] = long["stat_col"].map(use)
                 long.drop(columns=["stat_col"], inplace=True)
+                # Resolve missing player_id via rosters/lookup to enable photos
+                try:
+                    if "player_id" in long.columns:
+                        mask = long["player_id"].isna() | (pd.to_numeric(long["player_id"], errors="coerce").isna())
+                        if mask.any():
+                            def _res_pid(row):
+                                try:
+                                    return _resolve_player_id(row.get("player_name"), row.get("team"))
+                                except Exception:
+                                    return None
+                            long.loc[mask, "player_id"] = long.loc[mask].apply(_res_pid, axis=1)
+                except Exception:
+                    pass
                 # Filter by market after melt if provided
                 if market:
                     long = long[long["stat"].astype(str).str.lower() == market]
@@ -1317,9 +1473,15 @@ def api_props_recommendations():
                     model = {}
                 # Photo and logo hints
                 pid = None
+                # Resolve from column or lookup if missing
                 if "player_id" in g2.columns:
                     try:
                         pid = int(pd.to_numeric(g2["player_id"], errors="coerce").dropna().iloc[0])
+                    except Exception:
+                        pid = None
+                if pid is None and player:
+                    try:
+                        pid = _resolve_player_id(player, team)
                     except Exception:
                         pid = None
                 photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
