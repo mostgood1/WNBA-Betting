@@ -1,4 +1,6 @@
-# Keep this directory but ignore its contents by default
+# Keep this directory but ignore its contents by default, except logo assets
 *
 !.gitignore
 !README.md
+!*.svg
+!*.png
