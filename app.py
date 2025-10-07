@@ -1167,6 +1167,11 @@ def api_props():
         market = (request.args.get("market") or "").strip().lower()
         if market and ("stat" in df.columns):
             df = df[df["stat"].astype(str).str.lower() == market]
+        # Direct team filter (applies to both modes when a team column exists)
+        team_q = (request.args.get("team") or "").strip()
+        if team_q and ("team" in df.columns):
+            tval = team_q.upper()
+            df = df[df.get("team").astype(str).str.strip().str.upper() == tval]
         # Optional: narrow to a specific game by team names
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
@@ -1206,8 +1211,23 @@ def api_props():
                 # Filter by market after melt if provided
                 if market:
                     long = long[long["stat"].astype(str).str.lower() == market]
-                # Sort for stability: by stat, team, player
-                long = long.sort_values(["stat","team","player_name"], kind="stable")
+                # Team filter after melt
+                if team_q:
+                    tval = team_q.upper()
+                    long = long[long["team"].astype(str).str.strip().str.upper() == tval]
+                # Optional sorting by prediction value
+                sort_by = (request.args.get("sortBy") or request.args.get("sort") or "pred_desc").strip().lower()
+                try:
+                    long["pred"] = pd.to_numeric(long["pred"], errors="coerce")
+                    if sort_by == "pred_asc":
+                        long = long.sort_values(["pred"], ascending=True, kind="stable")
+                    elif sort_by == "pred_desc":
+                        long = long.sort_values(["pred"], ascending=False, kind="stable")
+                except Exception:
+                    pass
+                # Secondary stable sort for grouping when pred sort not requested explicitly
+                if sort_by not in ("pred_asc","pred_desc"):
+                    long = long.sort_values(["stat","team","player_name"], kind="stable")
                 rows = long.fillna("").to_dict(orient="records")
                 return jsonify({"date": d, "source": src, "rows": rows, "collapsed": False})
             except Exception:
@@ -1439,27 +1459,60 @@ def api_props_recommendations():
                         "ev_pct": r.get("ev_pct"),
                         "book": r.get("bookmaker"),
                     })
-                # Build consolidated ladders per market/side with best offer per distinct line
+                # Build consolidated ladders per market/side with best offer per distinct line,
+                # and compute a 'base' line per group (price closest to +100)
                 ladders: list[dict] = []
                 try:
                     if {"stat","side","line"}.issubset(set(g2.columns)):
                         g3 = g2.copy()
                         g3["ev_pct"] = pd.to_numeric(g3.get("ev_pct"), errors="coerce")
                         g3["edge"] = pd.to_numeric(g3.get("edge"), errors="coerce")
+                        g3["price"] = pd.to_numeric(g3.get("price"), errors="coerce")
                         # Keep highest EV per (stat, side, line)
                         g3 = g3.sort_values(["stat","side","line","ev_pct","edge"], ascending=[True, True, True, False, False])
                         dedup = g3.drop_duplicates(subset=["stat","side","line"], keep="first")
                         for (mkt, side), sub in dedup.groupby(["stat","side"], dropna=False):
-                            sub = sub.sort_values(["line"], ascending=True)
+                            # Determine base row: price closest to +100; fallback to highest EV
+                            sub = sub.copy()
+                            base_row = None
+                            try:
+                                if "price" in sub.columns and sub["price"].notna().any():
+                                    idx = (sub["price"].astype(float).sub(100).abs()).idxmin()
+                                    base_row = sub.loc[idx]
+                            except Exception:
+                                base_row = None
+                            if base_row is None:
+                                # Fallback: choose the row with max ev_pct
+                                try:
+                                    idx = sub["ev_pct"].astype(float).idxmax()
+                                    base_row = sub.loc[idx]
+                                except Exception:
+                                    base_row = None
                             entries = []
-                            for _, rr in sub.head(6).iterrows():
+                            # Sort remaining entries by line asc, exclude base line
+                            try:
+                                sub_sorted = sub.sort_values(["line"], ascending=True)
+                            except Exception:
+                                sub_sorted = sub
+                            for _, rr in sub_sorted.head(12).iterrows():
+                                # Skip base line (match by exact line value)
+                                if base_row is not None and (rr.get("line") == base_row.get("line")):
+                                    continue
                                 entries.append({
                                     "line": rr.get("line"),
                                     "price": rr.get("price"),
                                     "ev_pct": rr.get("ev_pct"),
                                     "book": rr.get("bookmaker"),
                                 })
-                            ladders.append({"market": mkt, "side": side, "entries": entries})
+                            base_obj = None
+                            if base_row is not None:
+                                base_obj = {
+                                    "line": base_row.get("line"),
+                                    "price": base_row.get("price"),
+                                    "ev_pct": base_row.get("ev_pct"),
+                                    "book": base_row.get("bookmaker"),
+                                }
+                            ladders.append({"market": mkt, "side": side, "base": base_obj, "entries": entries})
                 except Exception:
                     pass
                 away, home = (None, None)
@@ -1488,7 +1541,10 @@ def api_props_recommendations():
                     except Exception:
                         pid = None
                 photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
-                team_tri = (str(team).upper() if isinstance(team, str) else None)
+                try:
+                    team_tri = _get_tricode(str(team)) if team is not None else None
+                except Exception:
+                    team_tri = (str(team).upper() if isinstance(team, str) else None)
                 team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
                 # Compute best metrics for sorting
                 best_ev = None

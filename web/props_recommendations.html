@@ -63,36 +63,47 @@
         head.appendChild(avatar); head.appendChild(title); head.appendChild(tlogo);
 
         const playsWrap = document.createElement('div'); playsWrap.className='plays';
-        (it.plays||[]).forEach(p=>{
-          const row = document.createElement('div'); row.className='play';
-          const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
-          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class="edge">Δ ${fmt(p.edge)}</span>` : '';
-          row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class="pill">${p.price!=null? p.price: ''}</span> <span class="pill">${p.book||''}</span></div>`;
-          playsWrap.appendChild(row);
-        });
-
-        // Consolidated ladders section
-        const ladders = it.ladders || [];
-        ladders.forEach(l => {
-          const sec = document.createElement('div'); sec.className='ladder';
-          const title = (l.market? l.market.toUpperCase() : '') + (l.side? ' '+l.side : '');
-          sec.innerHTML = `<h4>${title} Ladder</h4>`;
-          const inner = document.createElement('div'); inner.className='ladder-entries';
-          (l.entries||[]).forEach(e=>{
-            const pill = document.createElement('span'); pill.className='pill';
-            pill.textContent = `${e.line ?? ''} @ ${e.price ?? ''}${(e.ev_pct!=null && !isNaN(e.ev_pct))? ' • EV% '+fmt(e.ev_pct): ''}${e.book? ' • '+e.book: ''}`;
-            inner.appendChild(pill);
-          });
-          sec.appendChild(inner);
-          playsWrap.appendChild(sec);
-        });
-
-        // Model baseline row (if available)
+        // Model baseline row first
         if (it.model && Object.keys(it.model).length>0){
           const row = document.createElement('div'); row.className='play';
           row.innerHTML = `<div><span class="model-badge">MODEL</span></div><div class="muted">PTS ${fmt(it.model.pts)} • REB ${fmt(it.model.reb)} • AST ${fmt(it.model.ast)} • 3PM ${fmt(it.model.threes)} • PRA ${fmt(it.model.pra)}</div>`;
           playsWrap.appendChild(row);
         }
+        // Render base line per ladder group prominently, with collapsible ladders
+        const ladders = it.ladders || [];
+        ladders.forEach(l => {
+          // Base line
+          if (l.base){
+            const row = document.createElement('div'); row.className='play';
+            row.innerHTML = `<div>${(l.market||'').toUpperCase()} ${l.side||''} ${l.base.line ?? ''}</div><div><span class="pill">${l.base.price ?? ''}</span>${(l.base.ev_pct!=null && !isNaN(l.base.ev_pct))? ' <span class="ev">EV% '+fmt(l.base.ev_pct)+'</span>': ''} ${l.base.book? ' <span class="pill">'+l.base.book+'</span>':''}</div>`;
+            playsWrap.appendChild(row);
+          }
+          // Collapsible ladder entries
+          const sec = document.createElement('div'); sec.className='ladder';
+          const title = (l.market? l.market.toUpperCase() : '') + (l.side? ' '+l.side : '');
+          const btnId = `ladder-${(it.player||'').replace(/\W+/g,'-')}-${(l.market||'')}-${(l.side||'')}`;
+          sec.innerHTML = `<div id="${btnId}" class="ladder-entries" style="display:none"></div>`;
+          const inner = sec.querySelector('.ladder-entries');
+          (l.entries||[]).forEach(e=>{
+            const pill = document.createElement('span'); pill.className='pill';
+            pill.textContent = `${e.line ?? ''} @ ${e.price ?? ''}${(e.ev_pct!=null && !isNaN(e.ev_pct))? ' • EV% '+fmt(e.ev_pct): ''}${e.book? ' • '+e.book: ''}`;
+            inner.appendChild(pill);
+          });
+          // Toggle link
+          const toggle = document.createElement('a'); toggle.href = 'javascript:void(0)'; toggle.textContent = 'Show ladder'; toggle.style.marginLeft = '8px'; toggle.onclick = ()=>{
+            const el = document.getElementById(btnId); if(!el) return; const show = (el.style.display==='none'); el.style.display = show? 'flex':'none'; toggle.textContent = show? 'Hide ladder':'Show ladder';
+          };
+          const h4 = document.createElement('div'); h4.innerHTML = `<span class="muted">${title} Ladder</span>`; h4.appendChild(toggle); sec.prepend(h4);
+          playsWrap.appendChild(sec);
+        });
+        // Any remaining plays (non-ladder formatted) as fallback
+        (it.plays||[]).forEach(p=>{
+          const row = document.createElement('div'); row.className='play';
+          const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
+          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class="edge">Δ ${fmt(p.edge)}</span>` : '';
+          row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class=\"pill\">${p.price!=null? p.price: ''}</span> <span class=\"pill\">${p.book||''}</span></div>`;
+          playsWrap.appendChild(row);
+        });
 
         div.appendChild(head); div.appendChild(playsWrap); root.appendChild(div);
       });
