@@ -159,11 +159,11 @@ def api_version():
         branch = _subp.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=str(BASE_DIR), text=True).strip()
     except Exception:
         branch = None
-    return jsonify({
+    return jsonify(_to_jsonable({
         "sha": sha,
         "branch": branch,
         "time": datetime.utcnow().isoformat(timespec="seconds") + "Z",
-    })
+    }))
 
 
 @app.route("/favicon.ico")
@@ -967,7 +967,7 @@ def api_cron_meta():
                 }
         except Exception:
             pass
-        return jsonify(out)
+        return jsonify(_to_jsonable(out))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -1041,7 +1041,7 @@ def api_predictions():
         return jsonify({"error": "missing date"}), 400
     p = _find_predictions_for_date(d)
     if not p:
-        return jsonify({"date": d, "rows": []})
+        return jsonify(_to_jsonable({"date": d, "rows": []}))
     try:
         df = pd.read_csv(p)
         # Try to merge odds if available
@@ -1069,7 +1069,7 @@ def api_predictions():
                 pass
         # Return compact JSON
         rows = df.fillna("").to_dict(orient="records")
-        return jsonify({"date": d, "rows": rows})
+        return jsonify(_to_jsonable({"date": d, "rows": rows}))
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 
@@ -1711,7 +1711,7 @@ def api_reconciliation():
         else:
             out["games"] = 0
         out["props_rows"] = int(0 if pdf is None else len(pdf))
-        return jsonify(out)
+        return jsonify(_to_jsonable(out))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
