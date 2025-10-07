@@ -6,13 +6,21 @@
   <title>NBA Props Recommendations</title>
   <link rel="stylesheet" href="/web/styles.css" />
   <style>
-    .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:8px 0 12px}
-    .pill{display:inline-block;border:1px solid var(--br);border-radius:999px;padding:2px 6px;font-size:12px;margin-left:6px}
-    .play{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--br);border-radius:10px;padding:8px 10px;background:var(--pill-bg, #111827);margin-top:6px}
-    .edge{color:#facc15}
-    .ev{color:#86efac}
+    .pill{display:inline-block;border:1px solid #25316a;border-radius:999px;padding:2px 6px;font-size:12px;margin-left:6px}
     .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
     @media (max-width:760px){ .grid{grid-template-columns:1fr} }
+    .card-head{display:flex;align-items:center;gap:10px}
+    .avatar{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#0f1530;border:1px solid #25316a}
+    .team-logo{width:28px;height:28px}
+    .muted{color:#9fb0ff;font-size:12px}
+    .plays{display:grid;gap:6px}
+    .play{display:flex;justify-content:space-between;align-items:center;border:1px solid #25316a;border-radius:10px;padding:8px 10px;background:#0f1530}
+    .edge{color:#facc15}
+    .ev{color:#86efac}
+    .ladder{margin-top:6px;border:1px solid #25316a;border-radius:10px;padding:6px 8px;background:#101735}
+    .ladder h4{margin:0 0 6px 0;font-size:12px;color:#d5dbff}
+    .ladder-entries{display:flex;flex-wrap:wrap;gap:6px}
+    .ladder-entries .pill{background:#0f1530}
   </style>
   <script>
   function fmt(x){ if(x==null||isNaN(x)) return '—'; return Number(x).toFixed(1) }
@@ -46,17 +54,45 @@
       items.forEach(it=>{
         const div = document.createElement('div'); div.className='card';
         const matchup = ((it.away_team||'') && (it.home_team||''))? `${it.away_team} @ ${it.home_team}` : '';
-        const head = document.createElement('div'); head.className='card-header';
-        head.innerHTML = `<div style="font-weight:600">${it.player||''} <span class="muted">${it.team? '• '+it.team : ''}</span></div><div class="muted" style="font-size:12px">${matchup}</div>`;
-        const plays = document.createElement('div');
+        const head = document.createElement('div'); head.className='card-head';
+        const avatar = document.createElement('img'); avatar.className='avatar'; avatar.alt = it.player||''; if(it.photo){ avatar.src = it.photo; } else { avatar.style.display='none'; }
+        const tlogo = document.createElement('img'); tlogo.className='team-logo'; if(it.team_logo){ tlogo.src = it.team_logo; tlogo.alt = it.team||''; } else { tlogo.style.display='none'; }
+        const title = document.createElement('div'); title.innerHTML = `<div style="font-weight:700">${it.player||''}</div><div class="muted">${it.team? it.team : ''} ${matchup? '• '+matchup : ''}</div>`;
+        head.appendChild(avatar); head.appendChild(title); head.appendChild(tlogo);
+
+        const playsWrap = document.createElement('div'); playsWrap.className='plays';
         (it.plays||[]).forEach(p=>{
           const row = document.createElement('div'); row.className='play';
           const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
           const edge = (p.edge!=null && !isNaN(p.edge))? `<span class="edge">Δ ${fmt(p.edge)}</span>` : '';
           row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class="pill">${p.price!=null? p.price: ''}</span> <span class="pill">${p.book||''}</span></div>`;
-          plays.appendChild(row);
+          playsWrap.appendChild(row);
         });
-        div.appendChild(head); div.appendChild(plays); root.appendChild(div);
+
+        // Consolidated ladders section
+        const ladders = it.ladders || [];
+        ladders.forEach(l => {
+          const sec = document.createElement('div'); sec.className='ladder';
+          const title = (l.market? l.market.toUpperCase() : '') + (l.side? ' '+l.side : '');
+          sec.innerHTML = `<h4>${title} Ladder</h4>`;
+          const inner = document.createElement('div'); inner.className='ladder-entries';
+          (l.entries||[]).forEach(e=>{
+            const pill = document.createElement('span'); pill.className='pill';
+            pill.textContent = `${e.line ?? ''} @ ${e.price ?? ''}${(e.ev_pct!=null && !isNaN(e.ev_pct))? ' • EV% '+fmt(e.ev_pct): ''}${e.book? ' • '+e.book: ''}`;
+            inner.appendChild(pill);
+          });
+          sec.appendChild(inner);
+          playsWrap.appendChild(sec);
+        });
+
+        // Model baseline row (if available)
+        if (it.model && Object.keys(it.model).length>0){
+          const row = document.createElement('div'); row.className='play';
+          row.innerHTML = `<div><span class="model-badge">MODEL</span></div><div class="muted">PTS ${fmt(it.model.pts)} • REB ${fmt(it.model.reb)} • AST ${fmt(it.model.ast)} • 3PM ${fmt(it.model.threes)} • PRA ${fmt(it.model.pra)}</div>`;
+          playsWrap.appendChild(row);
+        }
+
+        div.appendChild(head); div.appendChild(playsWrap); root.appendChild(div);
       });
     }
     window.addEventListener('DOMContentLoaded', ()=>{

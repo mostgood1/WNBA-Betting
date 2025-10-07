@@ -1096,10 +1096,79 @@ def api_props_recommendations():
     try:
         edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
+        props_preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         df = _read_csv_if_exists(edges_p)
-        if not isinstance(df, pd.DataFrame) or df is None or df.empty:
-            # Fall back to predictions-only props if available (older format)
-            return jsonify({"date": d, "rows": 0, "data": [], "games": [], "note": "no props edges for date"})
+        # Load game predictions (for matchup context)
+        games_df = _read_csv_if_exists(preds_p)
+        if not isinstance(games_df, pd.DataFrame) or games_df is None:
+            games_df = pd.DataFrame()
+        # Load props predictions (model baselines) if present
+        pp = _read_csv_if_exists(props_preds_p)
+        if not isinstance(pp, pd.DataFrame) or pp is None:
+            pp = pd.DataFrame()
+        # If no edges, still return cards built from model predictions so the UI has content
+        if (df is None) or (not isinstance(df, pd.DataFrame)) or df.empty:
+            # Build minimal cards from model predictions
+            cards: list[dict] = []
+            if not pp.empty:
+                # Ensure consistent columns
+                for c in ("player_name","team"):
+                    if c not in pp.columns:
+                        pp[c] = None
+                # Group by player/team
+                for (player, team), grp in pp.groupby(["player_name","team"], dropna=False):
+                    # Gather model stats
+                    model: dict[str, float] = {}
+                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                        if col in grp.columns:
+                            try:
+                                v = pd.to_numeric(grp[col], errors="coerce").dropna()
+                                if not v.empty:
+                                    model[key] = float(v.iloc[0])
+                            except Exception:
+                                pass
+                    # Try to infer matchup
+                    away, home = (None, None)
+                    if not games_df.empty and team is not None:
+                        try:
+                            for _, r in games_df.iterrows():
+                                h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                                if str(team).strip() in {h, a}:
+                                    away, home = (a, h)
+                                    break
+                        except Exception:
+                            pass
+                    # Photo and logo hints
+                    # If player_id present in pp, use it; otherwise None
+                    pid = None
+                    if "player_id" in grp.columns:
+                        try:
+                            pid = int(pd.to_numeric(grp["player_id"], errors="coerce").dropna().iloc[0])
+                        except Exception:
+                            pid = None
+                    photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                    team_tri = (str(team).upper() if isinstance(team, str) else None)
+                    team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
+                    cards.append({
+                        "player": player,
+                        "team": team,
+                        "home_team": home,
+                        "away_team": away,
+                        "plays": [],  # no edges available
+                        "ladders": [],
+                        "model": model,
+                        "photo": photo,
+                        "team_logo": team_logo,
+                    })
+            games: list[dict] = []
+            if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
+                try:
+                    g = games_df[["home_team","visitor_team"]].dropna()
+                    for _, r in g.iterrows():
+                        games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
+                except Exception:
+                    pass
+            return jsonify({"date": d, "rows": len(cards), "data": cards, "games": games, "note": "no props edges for date; showing model predictions only"})
         # Normalize and compute ev_pct for convenience
         df = df.copy()
         if "ev" in df.columns:
@@ -1133,9 +1202,7 @@ def api_props_recommendations():
         # Optionally narrow to a game (home_team/away_team)
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
-        games_df = _read_csv_if_exists(preds_p)
-        if not isinstance(games_df, pd.DataFrame) or games_df is None:
-            games_df = pd.DataFrame()
+        # games_df already loaded above
         games: list[dict] = []
         if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
             try:
@@ -1172,6 +1239,26 @@ def api_props_recommendations():
             group_cols = [player_col] + ([team_col] if team_col else [])
             # Ensure columns exist for grouping
             group_cols = [c for c in group_cols if c]
+            # Prepare props predictions lookup per player/team for model baselines
+            pp_lookup: dict[tuple[str,str], dict[str,float]] = {}
+            if not pp.empty and ("player_name" in pp.columns) and (team_col is not None and team_col in pp.columns):
+                try:
+                    tmp = pp.copy(); tmp["player_name"] = tmp["player_name"].astype(str)
+                    tmp[team_col] = tmp[team_col].astype(str).str.upper()
+                    for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
+                        model: dict[str,float] = {}
+                        for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                            if col in gpp.columns:
+                                try:
+                                    v = pd.to_numeric(gpp[col], errors="coerce").dropna()
+                                    if not v.empty:
+                                        model[key] = float(v.iloc[0])
+                                except Exception:
+                                    pass
+                        pp_lookup[(str(pname), str(tval).upper())] = model
+                except Exception:
+                    pass
+
             for keys, grp in df.groupby(group_cols, dropna=False):
                 if not isinstance(keys, tuple):
                     keys = (keys,)
@@ -1193,17 +1280,61 @@ def api_props_recommendations():
                         "ev_pct": r.get("ev_pct"),
                         "book": r.get("bookmaker"),
                     })
+                # Build consolidated ladders per market/side with best offer per distinct line
+                ladders: list[dict] = []
+                try:
+                    if {"stat","side","line"}.issubset(set(g2.columns)):
+                        g3 = g2.copy()
+                        g3["ev_pct"] = pd.to_numeric(g3.get("ev_pct"), errors="coerce")
+                        g3["edge"] = pd.to_numeric(g3.get("edge"), errors="coerce")
+                        # Keep highest EV per (stat, side, line)
+                        g3 = g3.sort_values(["stat","side","line","ev_pct","edge"], ascending=[True, True, True, False, False])
+                        dedup = g3.drop_duplicates(subset=["stat","side","line"], keep="first")
+                        for (mkt, side), sub in dedup.groupby(["stat","side"], dropna=False):
+                            sub = sub.sort_values(["line"], ascending=True)
+                            entries = []
+                            for _, rr in sub.head(6).iterrows():
+                                entries.append({
+                                    "line": rr.get("line"),
+                                    "price": rr.get("price"),
+                                    "ev_pct": rr.get("ev_pct"),
+                                    "book": rr.get("bookmaker"),
+                                })
+                            ladders.append({"market": mkt, "side": side, "entries": entries})
+                except Exception:
+                    pass
                 away, home = (None, None)
                 try:
                     away, home = matchup_map.get(str(team or "").upper(), (None, None))
                 except Exception:
                     away, home = (None, None)
+                # Optional model predictions attached to card
+                model: dict[str,float] = {}
+                try:
+                    key = (str(player), str(team).upper() if isinstance(team, str) else str(team))
+                    model = pp_lookup.get(key, {})
+                except Exception:
+                    model = {}
+                # Photo and logo hints
+                pid = None
+                if "player_id" in g2.columns:
+                    try:
+                        pid = int(pd.to_numeric(g2["player_id"], errors="coerce").dropna().iloc[0])
+                    except Exception:
+                        pid = None
+                photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                team_tri = (str(team).upper() if isinstance(team, str) else None)
+                team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
                 cards.append({
                     "player": player,
                     "team": team,
                     "home_team": home,
                     "away_team": away,
                     "plays": plays,
+                    "ladders": ladders,
+                    "model": model,
+                    "photo": photo,
+                    "team_logo": team_logo,
                 })
         return jsonify({
             "date": d,
