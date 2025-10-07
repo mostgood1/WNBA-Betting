@@ -39,11 +39,24 @@
   const sortBy = document.getElementById('sortBy') ? document.getElementById('sortBy').value : '';
   if (sortBy) params.set('sortBy', sortBy);
   if(g){ const [home,away] = g.split('|'); if(home) params.set('home_team', home); if(away) params.set('away_team', away); }
-      const res = await fetch('/api/props/recommendations?'+params.toString(), {cache:'no-store'});
-      const js = await res.json();
-      document.getElementById('status').textContent = js.rows? (js.rows+" players") : (js.note || 'No props yet.');
-      renderGames(js.games||[]);
-      renderCards(js.data||[]);
+      try {
+        const res = await fetch('/api/props/recommendations?'+params.toString(), {cache:'no-store'});
+        if (!res.ok) {
+          const text = await res.text();
+          document.getElementById('status').textContent = `Error ${res.status}: ${text.slice(0,160)}`;
+          return;
+        }
+        const js = await res.json();
+        if (js.error) {
+          document.getElementById('status').textContent = `Error: ${js.error}`;
+          return;
+        }
+        document.getElementById('status').textContent = js.rows? (js.rows+" players") : (js.note || 'No props yet.');
+        renderGames(js.games||[]);
+        renderCards(js.data||[]);
+      } catch (e) {
+        document.getElementById('status').textContent = `Network error: ${e}`;
+      }
     }
     function renderGames(games){
       const sel = document.getElementById('game'); const cur = sel.value;
