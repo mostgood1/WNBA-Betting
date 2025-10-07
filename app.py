@@ -1455,7 +1455,15 @@ def api_props_recommendations():
                         if (not home_q or h == home_q) and (not away_q or a == away_q):
                             keep_teams.update({h, a})
                     if keep_teams and ("team" in df.columns):
-                        df = df[df["team"].astype(str).isin(keep_teams)]
+                        # Normalize both sides to tricodes to avoid full-name vs abbr mismatches
+                        try:
+                            keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
+                            tmp = df.copy()
+                            tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                            df = tmp[tmp["_team_tri"].isin(keep_tris)].drop(columns=["_team_tri"], errors="ignore")
+                        except Exception:
+                            # Fallback to original behavior if anything goes wrong
+                            df = df[df["team"].astype(str).isin(keep_teams)]
             except Exception:
                 pass
         # Build cards grouped by player/team regardless of games_df presence

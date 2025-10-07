@@ -61,7 +61,7 @@
     function renderGames(games){
       const sel = document.getElementById('game'); const cur = sel.value;
       sel.innerHTML = '<option value="">All games</option>';
-      games.forEach(g=>{ const opt=document.createElement('option'); opt.value=`${g.home_team||''}|${g.away_team||''}`; opt.textContent=`${g.away_team||'?'} @ ${g.home_team||'?'}`; sel.appendChild(opt); });
+  games.forEach(g=>{ const opt=document.createElement('option'); const h=g.home_team||''; const a=g.away_team||''; opt.value=`${h}|${a}`; opt.textContent=`${a||'?'} @ ${h||'?'}`; sel.appendChild(opt); });
       if(cur) sel.value = cur;
     }
     function renderCards(items){
