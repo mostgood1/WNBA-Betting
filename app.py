@@ -594,6 +594,14 @@ def _cron_auth_ok(req) -> bool:
         return True
     return False
 
+@app.route("/api/cron/push-test", methods=["POST"])  # lightweight diagnostics
+def api_cron_push_test():
+    if not _cron_auth_ok(request):
+        return jsonify({"error": "unauthorized"}), 401
+    # Stage a no-op commit and attempt push (allow-empty)
+    ok, detail = _git_commit_and_push(msg="push-test heartbeat")
+    return jsonify({"pushed": bool(ok), "detail": detail})
+
 
 def _daily_update_job(do_push: bool) -> None:
     _job_state["running"] = True
