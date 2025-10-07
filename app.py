@@ -1607,7 +1607,8 @@ def api_props_recommendations():
                     team_tri = _get_tricode(str(team)) if team is not None else None
                 except Exception:
                     team_tri = (str(team).upper() if isinstance(team, str) else None)
-                team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
+                # Prefer uppercase SVG path; UI will attempt lowercase or PNG fallback if 404s
+                team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
                 # Compute best metrics for sorting
                 best_ev = None
                 best_edge = None

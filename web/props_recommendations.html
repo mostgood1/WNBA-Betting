@@ -71,7 +71,24 @@
         const matchup = ((it.away_team||'') && (it.home_team||''))? `${it.away_team} @ ${it.home_team}` : '';
         const head = document.createElement('div'); head.className='card-head';
         const avatar = document.createElement('img'); avatar.className='avatar'; avatar.alt = it.player||''; if(it.photo){ avatar.src = it.photo; } else { avatar.style.display='none'; }
-        const tlogo = document.createElement('img'); tlogo.className='team-logo'; if(it.team_logo){ tlogo.src = it.team_logo; tlogo.alt = it.team||''; } else { tlogo.style.display='none'; }
+        const tlogo = document.createElement('img'); tlogo.className='team-logo';
+        if(it.team_logo){
+          tlogo.src = it.team_logo; tlogo.alt = it.team||'';
+          tlogo.onerror = () => {
+            // Fallbacks: lowercase svg, then png, else hide
+            const abbr = (it.team||'').toString().toUpperCase();
+            const tried = tlogo.getAttribute('data-tried') || '';
+            if (!tried.includes('lower')){
+              tlogo.setAttribute('data-tried', tried+' lower');
+              tlogo.src = `/web/assets/logos/${abbr.toLowerCase()}.svg`;
+            } else if (!tried.includes('png')){
+              tlogo.setAttribute('data-tried', tried+' png');
+              tlogo.src = `/web/assets/logos/${abbr}.png`;
+            } else {
+              tlogo.style.display='none';
+            }
+          };
+        } else { tlogo.style.display='none'; }
         const title = document.createElement('div'); title.innerHTML = `<div style="font-weight:700">${it.player||''}</div><div class="muted">${it.team? it.team : ''} ${matchup? '• '+matchup : ''}</div>`;
         head.appendChild(avatar); head.appendChild(title); head.appendChild(tlogo);
 
@@ -84,12 +101,15 @@
         }
         // Render base line per ladder group prominently, with collapsible ladders
         const ladders = it.ladders || [];
+        // Track which (market,side,line) are already represented by ladder base/entries to avoid duplicates
+        const usedKeys = new Set();
         ladders.forEach(l => {
           // Base line
           if (l.base){
             const row = document.createElement('div'); row.className='play';
             row.innerHTML = `<div>${(l.market||'').toUpperCase()} ${l.side||''} ${l.base.line ?? ''}</div><div><span class="pill">${l.base.price ?? ''}</span>${(l.base.ev_pct!=null && !isNaN(l.base.ev_pct))? ' <span class="ev">EV% '+fmt(l.base.ev_pct)+'</span>': ''} ${l.base.book? ' <span class="pill">'+l.base.book+'</span>':''}</div>`;
             playsWrap.appendChild(row);
+            usedKeys.add(`${(l.market||'').toLowerCase()}|${(l.side||'').toLowerCase()}|${l.base.line}`);
           }
           // Collapsible ladder entries
           const sec = document.createElement('div'); sec.className='ladder';
@@ -101,6 +121,7 @@
             const pill = document.createElement('span'); pill.className='pill';
             pill.textContent = `${e.line ?? ''} @ ${e.price ?? ''}${(e.ev_pct!=null && !isNaN(e.ev_pct))? ' • EV% '+fmt(e.ev_pct): ''}${e.book? ' • '+e.book: ''}`;
             inner.appendChild(pill);
+            usedKeys.add(`${(l.market||'').toLowerCase()}|${(l.side||'').toLowerCase()}|${e.line}`);
           });
           // Toggle link
           const toggle = document.createElement('a'); toggle.href = 'javascript:void(0)'; toggle.textContent = 'Show ladder'; toggle.style.marginLeft = '8px'; toggle.onclick = ()=>{
@@ -109,11 +130,16 @@
           const h4 = document.createElement('div'); h4.innerHTML = `<span class="muted">${title} Ladder</span>`; h4.appendChild(toggle); sec.prepend(h4);
           playsWrap.appendChild(sec);
         });
-        // Any remaining plays (non-ladder formatted) as fallback
+        // Any remaining plays (non-ladder formatted) as fallback, skipping duplicates already shown
+        const seenFallback = new Set();
         (it.plays||[]).forEach(p=>{
+          const key = `${(p.market||'').toString().toLowerCase()}|${(p.side||'').toString().toLowerCase()}|${p.line}`;
+          if (usedKeys.has(key)) return; // already shown in ladder/base
+          if (seenFallback.has(key)) return; // dedupe
+          seenFallback.add(key);
           const row = document.createElement('div'); row.className='play';
           const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
-          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class="edge">Δ ${fmt(p.edge)}</span>` : '';
+          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class=\"edge\">Δ ${fmt(p.edge)}</span>` : '';
           row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class=\"pill\">${p.price!=null? p.price: ''}</span> <span class=\"pill\">${p.book||''}</span></div>`;
           playsWrap.appendChild(row);
         });
