@@ -357,6 +357,66 @@ def _number(x):
         return None
 
 
+def _json_primitive(x):
+    """Convert numpy/pandas scalars and datetimes to native JSON-serializable types."""
+    try:
+        # None/str/bool/int/float already fine
+        if x is None or isinstance(x, (str, bool, int, float)):
+            return x
+        # pandas NaN/NA
+        try:
+            if pd.isna(x):
+                return None
+        except Exception:
+            pass
+        # numpy scalar -> python scalar
+        if isinstance(x, np.generic):
+            try:
+                return x.item()
+            except Exception:
+                pass
+        # datetime-like -> ISO string
+        if isinstance(x, (datetime,)):
+            try:
+                return x.isoformat()
+            except Exception:
+                return str(x)
+        # pandas timestamp
+        try:
+            import pandas as _pd  # local alias
+            if isinstance(x, _pd.Timestamp):
+                return x.to_pydatetime().isoformat()
+        except Exception:
+            pass
+        # numpy datetime64
+        try:
+            if isinstance(x, (np.datetime64,)):
+                return str(x)
+        except Exception:
+            pass
+        return x
+    except Exception:
+        return x
+
+
+def _to_jsonable(obj):
+    """Recursively convert container of dict/list/tuple/numpy/pandas scalars to JSONable primitives."""
+    try:
+        if isinstance(obj, dict):
+            return {str(k): _to_jsonable(v) for k, v in obj.items()}
+        if isinstance(obj, (list, tuple, set)):
+            return [ _to_jsonable(v) for v in obj ]
+        # numpy arrays -> lists
+        try:
+            if isinstance(obj, np.ndarray):
+                return [ _to_jsonable(v) for v in obj.tolist() ]
+        except Exception:
+            pass
+        return _json_primitive(obj)
+    except Exception:
+        return obj
+
+
 def _normalize_team_str(x: str) -> str:
     # Best effort normalization: uppercase tricode if given, else strip
     try:
@@ -1592,12 +1652,8 @@ def api_props_recommendations():
         # Strip internal fields
         for c in cards:
             c.pop('_best_ev', None); c.pop('_best_edge', None)
-        return jsonify({
-            "date": d,
-            "rows": len(cards),
-            "games": games,
-            "data": cards,
-        })
+        payload = {"date": d, "rows": len(cards), "games": games, "data": cards}
+        return jsonify(_to_jsonable(payload))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
