@@ -31,11 +31,13 @@
   const g = document.getElementById('game').value;
       const onlyEV = document.getElementById('onlyEV').checked;
       const minEV = document.getElementById('minEV').value;
-      const params = new URLSearchParams();
+  const params = new URLSearchParams();
       if(d) params.set('date', d);
       if(market) params.set('market', market);
       if(onlyEV) params.set('onlyEV','1');
-      if(minEV) params.set('minEV', String(minEV));
+  if(minEV) params.set('minEV', String(minEV));
+  const sortBy = document.getElementById('sortBy') ? document.getElementById('sortBy').value : '';
+  if (sortBy) params.set('sortBy', sortBy);
   if(g){ const [home,away] = g.split('|'); if(home) params.set('home_team', home); if(away) params.set('away_team', away); }
       const res = await fetch('/api/props/recommendations?'+params.toString(), {cache:'no-store'});
       const js = await res.json();
@@ -100,7 +102,7 @@
       const paramDate = (new URL(window.location)).searchParams.get('date');
       const today = localYMD();
       const inp = document.getElementById('datePicker'); if(!inp.value) inp.value = (paramDate || today);
-      ['datePicker','market','onlyEV','minEV','game'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', loadData); });
+  ['datePicker','market','onlyEV','minEV','game','sortBy'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', loadData); });
       loadData();
     });
   </script>
@@ -134,6 +136,13 @@
         </select>
         <label><input id="onlyEV" type="checkbox" /> Only EV</label>
         <label for="minEV">Min EV%</label> <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" />
+        <label for="sortBy">Sort</label>
+        <select id="sortBy" title="Sort player cards">
+          <option value="ev_desc" selected>Best EV</option>
+          <option value="ev_asc">Worst EV</option>
+          <option value="edge_desc">Biggest Edge</option>
+          <option value="edge_asc">Smallest Edge</option>
+        </select>
       </div>
     </div>
   </header>

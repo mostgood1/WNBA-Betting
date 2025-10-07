@@ -78,6 +78,17 @@ def cli():
 
 
 @cli.command()
+@click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")
+def fetch_rosters_cmd(season: str):
+    """Fetch all team rosters for a season and save under data/processed/rosters_*.{csv,parquet}."""
+    console.rule("Fetch Rosters")
+    try:
+        df = fetch_rosters(season=season)
+        console.print({"rows": 0 if df is None else int(len(df)), "season": season})
+    except Exception as e:
+        console.print(f"Failed to fetch rosters: {e}", style="red")
+
+@cli.command()
 @click.option("--years", default=10, help="Number of past seasons to fetch")
 @click.option("--with-periods/--no-periods", default=True, help="Fetch quarter/OT line scores (slower)")
 @click.option("--verbose", is_flag=True, default=False, help="Print progress while fetching")

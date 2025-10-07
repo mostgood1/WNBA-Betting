@@ -2597,6 +2597,7 @@ def api_cron_config():
                 "/api/cron/daily-update",
                 "/api/cron/props-edges",
                 "/api/cron/props-predictions",
+                "/api/cron/fetch-rosters",
             ],
         })
     except Exception as e:
@@ -2696,6 +2697,44 @@ def api_cron_props_edges():
             "pushed": pushed,
             "push_detail": push_detail,
         })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cron/fetch-rosters", methods=["POST", "GET"])
+def api_cron_fetch_rosters():
+    """Fetch team rosters for a season and persist under data/processed.
+
+    Query params:
+      - season: NBA season string (e.g., 2025-26)
+      - push: 1 to commit/push artifacts
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+    season = (request.args.get("season") or "2025-26").strip()
+    # Choose python executable
+    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+    if not py or not Path(str(py)).exists():
+        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+        py = str(py_win) if py_win.exists() else "python"
+    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_fetch_rosters_{season}_{stamp}.log"
+    try:
+        env = dict(os.environ); env["PYTHONPATH"] = str(SRC_DIR)
+        cmd = [str(py), "-m", "nba_betting.cli", "fetch-rosters-cmd", "--season", season]
+        rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
+        out_csv = BASE_DIR / "data" / "processed" / f"rosters_{season.replace('/', '-')}.csv"
+        rows = 0
+        if out_csv.exists():
+            try:
+                rows = int(len(pd.read_csv(out_csv)))
+            except Exception:
+                rows = 0
+        pushed = None; push_detail = None
+        if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
+            ok, detail = _git_commit_and_push(msg=f"fetch-rosters {season}")
+            pushed = bool(ok); push_detail = detail
+        return jsonify({"season": season, "rc": int(rc), "rows": int(rows), "output": str(out_csv), "log_file": str(log_file), "pushed": pushed, "push_detail": push_detail})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
