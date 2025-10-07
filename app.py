@@ -376,6 +376,7 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
             os.environ.get("GH_TOKEN")
             or os.environ.get("GIT_PAT")
             or os.environ.get("GITHUB_TOKEN")
+            or os.environ.get("GH")
         )
         push_url_set = False
         origin = None
