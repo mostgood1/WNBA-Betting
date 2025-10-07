@@ -1243,8 +1243,10 @@ def api_props_recommendations():
       - minEV: minimum EV percent (e.g., 1.5). We compute ev_pct = ev*100 when ev present.
       - onlyEV: 1 to hide plays without EV
       - home_team/away_team: optional filter to a specific game
-    Response:
-      { date, rows, games: [{home_team,away_team}], data: [{player,team,home_team,away_team,plays:[...] }]}.
+        Response:
+            { date, rows, games: [{home_team,away_team}], data: [{player,team,home_team,away_team,plays:[...] }]}.
+        Sorting:
+            - sortBy: ev_desc (default), ev_asc, edge_desc, edge_asc
     """
     d = _parse_date_param(request)
     if not d:
@@ -1376,44 +1378,45 @@ def api_props_recommendations():
                         df = df[df["team"].astype(str).isin(keep_teams)]
             except Exception:
                 pass
-        # Build cards grouped by player/team
-        player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
-        team_col = "team" if "team" in df.columns else None
-        cards: list[dict] = []
-        if player_col:
-            # Optional enrichment: derive matchup per card from predictions
-            matchup_map: dict[str, tuple[str,str]] = {}
-            if not games_df.empty:
-                try:
-                    for _, r in games_df.iterrows():
-                        h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
-                        matchup_map[h.upper()] = (a, h)
-                        matchup_map[a.upper()] = (a, h)
-                except Exception:
-                    pass
-            # Group and assemble plays
-            group_cols = [player_col] + ([team_col] if team_col else [])
-            # Ensure columns exist for grouping
-            group_cols = [c for c in group_cols if c]
-            # Prepare props predictions lookup per player/team for model baselines
-            pp_lookup: dict[tuple[str,str], dict[str,float]] = {}
-            if not pp.empty and ("player_name" in pp.columns) and (team_col is not None and team_col in pp.columns):
-                try:
-                    tmp = pp.copy(); tmp["player_name"] = tmp["player_name"].astype(str)
-                    tmp[team_col] = tmp[team_col].astype(str).str.upper()
-                    for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
-                        model: dict[str,float] = {}
-                        for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
-                            if col in gpp.columns:
-                                try:
-                                    v = pd.to_numeric(gpp[col], errors="coerce").dropna()
-                                    if not v.empty:
-                                        model[key] = float(v.iloc[0])
-                                except Exception:
-                                    pass
-                        pp_lookup[(str(pname), str(tval).upper())] = model
-                except Exception:
-                    pass
+            # Build cards grouped by player/team
+            sort_by = (request.args.get("sortBy") or "ev_desc").strip().lower()
+            player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
+            team_col = "team" if "team" in df.columns else None
+            cards: list[dict] = []
+            if player_col:
+                # Optional enrichment: derive matchup per card from predictions
+                matchup_map: dict[str, tuple[str,str]] = {}
+                if not games_df.empty:
+                    try:
+                        for _, r in games_df.iterrows():
+                            h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                            matchup_map[h.upper()] = (a, h)
+                            matchup_map[a.upper()] = (a, h)
+                    except Exception:
+                        pass
+                # Group and assemble plays
+                group_cols = [player_col] + ([team_col] if team_col else [])
+                # Ensure columns exist for grouping
+                group_cols = [c for c in group_cols if c]
+                # Prepare props predictions lookup per player/team for model baselines
+                pp_lookup: dict[tuple[str,str], dict[str,float]] = {}
+                if not pp.empty and ("player_name" in pp.columns) and (team_col is not None and team_col in pp.columns):
+                    try:
+                        tmp = pp.copy(); tmp["player_name"] = tmp["player_name"].astype(str)
+                        tmp[team_col] = tmp[team_col].astype(str).str.upper()
+                        for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
+                            model: dict[str,float] = {}
+                            for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                                if col in gpp.columns:
+                                    try:
+                                        v = pd.to_numeric(gpp[col], errors="coerce").dropna()
+                                        if not v.empty:
+                                            model[key] = float(v.iloc[0])
+                                    except Exception:
+                                        pass
+                            pp_lookup[(str(pname), str(tval).upper())] = model
+                    except Exception:
+                        pass
 
             for keys, grp in df.groupby(group_cols, dropna=False):
                 if not isinstance(keys, tuple):
@@ -1487,6 +1490,21 @@ def api_props_recommendations():
                 photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
                 team_tri = (str(team).upper() if isinstance(team, str) else None)
                 team_logo = (f"/web/assets/logos/{team_tri}.svg" if team_tri else None)
+                # Compute best metrics for sorting
+                best_ev = None
+                best_edge = None
+                try:
+                    evs = pd.to_numeric(g2.get("ev_pct"), errors="coerce").dropna()
+                    if not evs.empty:
+                        best_ev = float(evs.max())
+                except Exception:
+                    pass
+                try:
+                    edges = pd.to_numeric(g2.get("edge"), errors="coerce").dropna()
+                    if not edges.empty:
+                        best_edge = float(edges.abs().max())
+                except Exception:
+                    pass
                 cards.append({
                     "player": player,
                     "team": team,
@@ -1497,7 +1515,25 @@ def api_props_recommendations():
                     "model": model,
                     "photo": photo,
                     "team_logo": team_logo,
+                    "_best_ev": best_ev,
+                    "_best_edge": best_edge,
                 })
+        # Apply sorting of cards
+        try:
+            if cards:
+                if sort_by == "ev_asc":
+                    cards.sort(key=lambda c: (float('inf') if c.get('_best_ev') is None else c.get('_best_ev')))
+                elif sort_by == "edge_desc":
+                    cards.sort(key=lambda c: (c.get('_best_edge') or -1e9), reverse=True)
+                elif sort_by == "edge_asc":
+                    cards.sort(key=lambda c: (float('inf') if c.get('_best_edge') is None else c.get('_best_edge')))
+                else:  # ev_desc default
+                    cards.sort(key=lambda c: (c.get('_best_ev') or -1e9), reverse=True)
+        except Exception:
+            pass
+        # Strip internal fields
+        for c in cards:
+            c.pop('_best_ev', None); c.pop('_best_edge', None)
         return jsonify({
             "date": d,
             "rows": len(cards),
