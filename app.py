@@ -642,13 +642,9 @@ def _daily_update_job(do_push: bool) -> None:
         # Optional: push updates back to Git if requested and configured
         if ok and do_push:
             try:
-                _append_log("Pushing changes (if any) to Git...")
-                # minimal push (requires git configured on Render and token/permissions)
-                subprocess.run(["git", "add", "-A"], cwd=str(BASE_DIR), check=False)
-                subprocess.run(["git", "commit", "-m", "chore: daily update"], cwd=str(BASE_DIR), check=False)
-                subprocess.run(["git", "pull", "--rebase"], cwd=str(BASE_DIR), check=False)
-                subprocess.run(["git", "push"], cwd=str(BASE_DIR), check=False)
-                _append_log("Git push attempted.")
+                _append_log("Committing and pushing daily update artifacts via _git_commit_and_push...")
+                okp, detail = _git_commit_and_push(msg="daily-update")
+                _append_log(f"Git push {'ok' if okp else 'failed'}: {detail}")
             except Exception as e:  # noqa: BLE001
                 _append_log(f"Git push error: {e}")
         _job_state["ok"] = ok
