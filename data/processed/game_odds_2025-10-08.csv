@@ -1,0 +1,6 @@
+date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
+2025-10-08,Miami Heat,San Antonio Spurs,2025-10-08T23:30:00+00:00,-130.0,110.0,-2.0,2.0,-110,-110,219.0,-110,-110,bovada
+2025-10-08,Memphis Grizzlies,Boston Celtics,2025-10-09T00:00:00+00:00,110.0,-130.0,2.0,-2.0,-115,-105,231.0,-110,-110,bovada
+2025-10-08,Houston Rockets,Utah Jazz,2025-10-09T00:00:00+00:00,-550.0,390.0,-11.5,11.5,-105,-115,223.0,-110,-110,bovada
+2025-10-08,Golden State Warriors,Portland Trail Blazers,2025-10-09T02:00:00+00:00,-300.0,250.0,-8.0,8.0,-110,-110,219.5,-110,-110,bovada
+2025-10-08,Sacramento Kings,Toronto Raptors,2025-10-09T02:00:00+00:00,700.0,800.0,-1.5,1.5,-110,-110,224.5,-110,-110,bovada
