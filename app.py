@@ -663,11 +663,18 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                     without_scheme = url[len("https://"):]
                     if "@" in without_scheme:
                         without_scheme = without_scheme.split("@", 1)[1]
-                    # Prefer username:token for PATs (fine-grained or classic)
-                    gh_user = os.environ.get("GH_NAME") or os.environ.get("GIT_NAME") or "oauth2"
-                    url = f"https://{gh_user}:{token}@{without_scheme}"
+                    # Use a safe username for token auth
+                    gh_user = (
+                        os.environ.get("GH_USERNAME")
+                        or os.environ.get("GH_NAME")
+                        or os.environ.get("GIT_NAME")
+                        or "x-access-token"
+                    )
+                    tokenized = f"https://{gh_user}:{token}@{without_scheme}"
                     try:
-                        subprocess.run(["git", "remote", "set-url", "--push", "origin", url], cwd=str(BASE_DIR), check=False)
+                        # Set both fetch and push URLs to ensure pulls work on private repos
+                        subprocess.run(["git", "remote", "set-url", "origin", tokenized], cwd=str(BASE_DIR), check=False)
+                        subprocess.run(["git", "remote", "set-url", "--push", "origin", tokenized], cwd=str(BASE_DIR), check=False)
                         push_url_set = True
                     except Exception:
                         push_url_set = False
@@ -713,10 +720,15 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
                 stderr_all = (rc_main.stderr or "") + "\n" + (rc_alt.stderr or "")
                 hint = ""
                 low = stderr_all.lower()
-                if any(x in low for x in ["permission", "denied", "auth", "forbidden", "not allowed"]):
-                    hint = "; hint=auth/permission-denied"
-                # Truncate stderr to avoid verbosity and accidental leakage
-                err_snip = (stderr_all.strip().splitlines() or [""])[-1][:160]
+                if any(x in low for x in ["permission", "denied", "auth", "forbidden", "not allowed", "sso", "requires authentication"]):
+                    hint = "; hint=auth/permission-denied-or-sso"
+                if any(x in low for x in ["protected branch", "gh006", "pre-receive hook declined", "require signed commits", "status checks"]):
+                    hint += "; hint=branch-protection"
+                if any(x in low for x in ["non-fast-forward", "fetch first", "update rejected"]):
+                    hint += "; hint=non-fast-forward (pull --rebase needed)"
+                # Truncate stderr to last few lines for context
+                lines = [ln for ln in (stderr_all.strip().splitlines() or [""]) if ln.strip()]
+                err_snip = "\n".join(lines[-3:])[:500]
                 detail = (
                     f"pushed to {branch if rc_main.returncode==0 else alt_branch} (fallback={'yes' if rc_main.returncode!=0 else 'no'}); "
                     f"remote={'ok' if bool(origin) else 'missing'}; push_url={'set' if push_url_set else 'default'}; "
@@ -727,6 +739,34 @@ def _git_commit_and_push(msg: str) -> tuple[bool, str]:
         return ok, detail
     except Exception as e:
         return False, f"git push error: {e}"
+
+
+@app.route("/api/cron/git-diag", methods=["POST", "GET"])
+def api_cron_git_diag():
+    """Return git diagnostics to help debug push issues.
+
+    Requires CRON_TOKEN or admin fallback. Does not expose secrets.
+    """
+    if not _cron_auth_ok(request):
+        return jsonify({"error": "unauthorized"}), 401
+    def _safe_run(cmd: list[str]) -> str:
+        try:
+            out = subprocess.check_output(cmd, cwd=str(BASE_DIR), text=True, stderr=subprocess.STDOUT)
+            return out.strip()
+        except Exception as e:
+            return f"(error running {' '.join(cmd)}: {e})"
+    data = {
+        "have_gh_token": bool(os.environ.get("GH_TOKEN") or os.environ.get("GIT_PAT") or os.environ.get("GITHUB_TOKEN") or os.environ.get("GH")),
+        "gh_name": os.environ.get("GH_NAME") or os.environ.get("GIT_NAME"),
+        "gh_email": os.environ.get("GH_EMAIL") or os.environ.get("GIT_EMAIL"),
+        "git_branch": _safe_run(["git", "rev-parse", "--abbrev-ref", "HEAD"]),
+        "git_head": _safe_run(["git", "rev-parse", "HEAD"]),
+        "remote_v": _safe_run(["git", "remote", "-v"]).splitlines()[-4:],
+        "status": _safe_run(["git", "status", "-sb"]).splitlines()[:10],
+        "branch_vv": _safe_run(["git", "branch", "-vv"]).splitlines()[-10:],
+        "ls_remote_heads": _safe_run(["git", "ls-remote", "--heads", "origin"]).splitlines()[-10:],
+    }
+    return jsonify(data)
 
 
 def _run_to_file(cmd: list[str] | str, log_fp: Path, cwd: Path | None = None, env: dict | None = None) -> int:
