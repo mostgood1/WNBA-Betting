@@ -2869,6 +2869,7 @@ def api_cron_props_edges():
     use_saved_q = (request.args.get("use_saved") or request.args.get("use-saved") or "1").strip().lower()
     use_saved = (use_saved_q in {"1","true","yes"})
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+    do_async = (str(request.args.get("async", "0")).lower() in {"1","true","yes"})
     # Choose python executable
     py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
     if not py or not Path(str(py)).exists():
@@ -2884,6 +2885,21 @@ def api_cron_props_edges():
             cmd += ["--mode", mode]
         if not use_saved:
             cmd += ["--no-use-saved"]
+        if do_async:
+            def _job():
+                try:
+                    _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
+                    if do_push:
+                        _git_commit_and_push(msg=f"props-edges {d}")
+                except Exception:
+                    pass
+            t = threading.Thread(target=_job, daemon=True)
+            t.start()
+            return jsonify({
+                "status": "started",
+                "date": d,
+                "log_file": str(log_file),
+            }), 202
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         rows = 0
