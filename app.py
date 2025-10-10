@@ -831,6 +831,37 @@ def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
         return False, {"error": str(e)}
 
 
+def _ensure_props_models(log_fp: Path | None = None) -> tuple[bool, dict]:
+    """Ensure props model artifacts exist; if missing, build features and train.
+
+    Returns (ok, info) where info includes rc_build/rc_train and paths.
+    """
+    try:
+        models_dir = BASE_DIR / "models"
+        need = [
+            models_dir / "props_models.joblib",
+            models_dir / "props_feature_columns.joblib",
+        ]
+        have_all = all(p.exists() for p in need)
+        if have_all:
+            return True, {"skipped": True}
+        # Choose python exe
+        py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+        if not py or not Path(str(py)).exists():
+            py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+            py = str(py_win) if py_win.exists() else "python"
+        env = {"PYTHONPATH": str(SRC_DIR)}
+        logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+        lf = Path(log_fp) if log_fp else (logs_dir / f"cron_props_train_autofix_{stamp}.log")
+        # Build props features first (uses player_logs)
+        rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-props-features"], lf, cwd=BASE_DIR, env=env)
+        rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train-props"], lf, cwd=BASE_DIR, env=env)
+        ok = (int(rc_build) == 0 and int(rc_train) == 0)
+        return ok, {"rc_build": int(rc_build), "rc_train": int(rc_train), "log_file": str(lf)}
+    except Exception as e:
+        return False, {"error": str(e)}
+
+
 def _admin_auth_ok(req) -> bool:
     key = os.environ.get("ADMIN_KEY")
     if not key:
@@ -2878,6 +2909,8 @@ def api_cron_props_edges():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_edges_{d}_{stamp}.log"
     try:
+        # Ensure props models exist; if not, build and train automatically
+        _okp, _info = _ensure_props_models(log_file)
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
         cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", source]
@@ -2999,6 +3032,8 @@ def api_cron_props_predictions():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_predictions_{d}_{stamp}.log"
     try:
+        # Ensure props models exist; if not, build and train automatically
+        _okp, _info = _ensure_props_models(log_file)
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
         cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
