@@ -2972,6 +2972,7 @@ def api_cron_props_predictions():
     do_calib = (calib_q in {"1","true","yes"})
     calib_window = request.args.get("calib_window") or request.args.get("calib-window") or "7"
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+    do_async = (str(request.args.get("async", "0")).lower() in {"1","true","yes"})
 
     # Choose python executable
     py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
@@ -2991,6 +2992,21 @@ def api_cron_props_predictions():
             cmd += ["--calibrate", "--calib-window", str(calib_window)]
         else:
             cmd += ["--no-calibrate"]
+        if do_async:
+            def _job():
+                try:
+                    _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
+                    if do_push:
+                        _git_commit_and_push(msg=f"props-predictions {d}")
+                except Exception:
+                    pass
+            t = threading.Thread(target=_job, daemon=True)
+            t.start()
+            return jsonify({
+                "status": "started",
+                "date": d,
+                "log_file": str(log_file),
+            }), 202
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         rows = 0
