@@ -57,10 +57,11 @@ function Invoke-PyMod {
 }
 
 # If local Flask app is running, prefer calling the composite cron endpoint (does props+predictions+recon)
-$BaseUrl = "http://127.0.0.1:5050"
+# Default to local; if RemoteBaseUrl is provided, try that first
+$BaseUrl = if ($RemoteBaseUrl) { $RemoteBaseUrl } else { "http://127.0.0.1:5050" }
 $UseServer = $false
 try {
-  $resp = Invoke-WebRequest -UseBasicParsing -Uri ($BaseUrl + '/health') -TimeoutSec 3
+  $resp = Invoke-WebRequest -UseBasicParsing -Uri ($BaseUrl + '/health') -TimeoutSec 5
   if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 500) { $UseServer = $true }
 } catch { $UseServer = $false }
 
@@ -70,12 +71,24 @@ if ($UseServer) {
     $token = $env:CRON_TOKEN
     $headers = @{}
     if ($token) { $headers['Authorization'] = "Bearer $token" }
-    $uri = "$BaseUrl/api/cron/run-all?date=$Date&push=0"
-    $r = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 180
-    ($r.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
-    Write-Log "run-all completed with status $($r.StatusCode)"
+    # Run predict-date first (async), then refresh-bovada, then props-predictions, then props-edges, then reconcile-yesterday
+    $u1 = "$BaseUrl/api/cron/predict-date?date=$Date&skip_if_no_games=1&async=1&push=0"
+    $u2 = "$BaseUrl/api/cron/refresh-bovada?date=$Date&push=0"
+    $u3 = "$BaseUrl/api/cron/props-predictions?date=$Date&slate_only=1&push=0"
+    $u4 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
+    try { $r1 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u1 -TimeoutSec 120; ($r1.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("predict-date call failed: {0}" -f $_.Exception.Message) }
+    try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("refresh-bovada call failed: {0}" -f $_.Exception.Message) }
+    try { $r3 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u3 -TimeoutSec 180; ($r3.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-predictions call failed: {0}" -f $_.Exception.Message) }
+    try { $r4 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u4 -TimeoutSec 240; ($r4.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-edges call failed: {0}" -f $_.Exception.Message) }
+    # Reconcile yesterday last
+    try {
+      $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
+    } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
+    $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
+    try { $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180; ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
+    Write-Log "Server-driven pipeline calls completed"
   } catch {
-    Write-Log ("run-all failed; falling back to CLI: {0}" -f $_.Exception.Message)
+    Write-Log ("server pipeline failed; falling back to CLI: {0}" -f $_.Exception.Message)
     $UseServer = $false
   }
 }

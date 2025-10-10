@@ -502,16 +502,29 @@ def _has_games_for_date(date_str: str, verbose: bool = False) -> bool:
     except Exception as e:
         if verbose:
             print(f"[_has_games_for_date] scoreboard error: {e}")
-    # Fallback to Bovada odds
+    # Fallback to Bovada odds (pass date string for consistency)
     try:
         if _fetch_bovada_odds_current is not None:
-            dt = pd.to_datetime(date_str).to_pydatetime()
-            o = _fetch_bovada_odds_current(dt, verbose=False)
+            # Prefer passing the canonical YYYY-MM-DD string to avoid timezone/type pitfalls
+            o = _fetch_bovada_odds_current(str(date_str), verbose=False)
             if isinstance(o, pd.DataFrame) and not o.empty:
                 return True
     except Exception as e:
         if verbose:
             print(f"[_has_games_for_date] bovada error: {e}")
+    # Last-resort: check processed schedule JSON (if present)
+    try:
+        sched = BASE_DIR / "data" / "processed" / "schedule_2025_26.json"
+        if sched.exists():
+            sdf = pd.read_json(sched)
+            if not sdf.empty:
+                if "date_utc" in sdf.columns:
+                    sdf["date_utc"] = pd.to_datetime(sdf["date_utc"], errors="coerce").dt.date.astype(str)
+                have = bool((sdf.get("date_utc") == str(date_str)).sum())
+                if have:
+                    return True
+    except Exception:
+        pass
     return False
 
 
