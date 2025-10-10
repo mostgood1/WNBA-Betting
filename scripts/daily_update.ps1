@@ -74,7 +74,7 @@ if ($UseServer) {
     # Run predict-date first (async), then refresh-bovada, then props-predictions, then props-edges, then reconcile-yesterday
     $u1 = "$BaseUrl/api/cron/predict-date?date=$Date&skip_if_no_games=1&async=1&push=0"
     $u2 = "$BaseUrl/api/cron/refresh-bovada?date=$Date&push=0"
-    $u3 = "$BaseUrl/api/cron/props-predictions?date=$Date&slate_only=1&push=0"
+  $u3 = "$BaseUrl/api/cron/props-predictions?date=$Date&slate_only=1&calibrate=1&calib_window=7&push=0"
     $u4 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
     try { $r1 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u1 -TimeoutSec 120; ($r1.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("predict-date call failed: {0}" -f $_.Exception.Message) }
     try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("refresh-bovada call failed: {0}" -f $_.Exception.Message) }

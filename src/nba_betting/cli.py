@@ -331,7 +331,9 @@ def train_props_cmd(alpha: float):
 @click.option("--date", "date_str", type=str, required=True, help="Prediction date YYYY-MM-DD (features built up to the day before)")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path (default props_predictions_YYYY-MM-DD.csv)")
 @click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Filter predictions to teams on the scoreboard slate and add opponent/home flags")
-def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool):
+@click.option("--calibrate/--no-calibrate", default=True, show_default=True, help="Apply rolling bias calibration from recent recon vs predictions")
+@click.option("--calib-window", type=int, default=7, show_default=True, help="Lookback days for calibration window (excludes today)")
+def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int):
     """Predict player props for a slate date using rolling-history models.
 
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
@@ -382,10 +384,20 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool):
         console.print("Props models not found. Run train-props first.", style="red"); return
     except Exception as e:
         console.print(f"Failed to predict props: {e}", style="red"); return
+    # Optional light calibration (rolling intercept per stat)
+    if calibrate:
+        try:
+            from .props_calibration import compute_biases, apply_biases, save_calibration
+            biases = compute_biases(anchor_date=date_str, window_days=int(calib_window))
+            preds = apply_biases(preds, biases)
+            save_calibration(biases, anchor_date=date_str, window_days=int(calib_window))
+            console.print({"calibration": biases})
+        except Exception as _e:
+            console.print(f"Calibration skipped due to error: {_e}", style="yellow")
     if not out_path:
         out_path = str(paths.data_processed / f"props_predictions_{date_str}.csv")
     preds.to_csv(out_path, index=False)
-    console.print(f"Saved props predictions to {out_path} (rows={len(preds)})")
+    console.print(f"Saved props predictions to {out_path} (rows={len(preds)}; calibrated={calibrate})")
 
 
 @cli.command("evaluate-props")

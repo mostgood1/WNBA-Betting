@@ -2968,6 +2968,9 @@ def api_cron_props_predictions():
     d = _parse_date_param(request, default_to_today=True)
     slate_only_q = (request.args.get("slate_only") or request.args.get("slate-only") or "1").strip().lower()
     slate_only = (slate_only_q in {"1", "true", "yes"})
+    calib_q = (request.args.get("calibrate") or "1").strip().lower()
+    do_calib = (calib_q in {"1","true","yes"})
+    calib_window = request.args.get("calib_window") or request.args.get("calib-window") or "7"
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
 
     # Choose python executable
@@ -2984,6 +2987,10 @@ def api_cron_props_predictions():
         cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
         if slate_only:
             cmd += ["--slate-only"]
+        if do_calib:
+            cmd += ["--calibrate", "--calib-window", str(calib_window)]
+        else:
+            cmd += ["--no-calibrate"]
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         rows = 0

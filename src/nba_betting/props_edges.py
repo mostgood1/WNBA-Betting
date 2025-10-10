@@ -8,6 +8,7 @@ from typing import Dict, Optional, Tuple
 
 from .config import paths
 from .props_train import predict_props
+from .props_calibration import compute_biases as _compute_biases, apply_biases as _apply_biases
 from .props_features import build_features_for_date
 from .props_train import _load_features as _load_props_features  # reuse saved features for sigma calibration
 from .odds_api import OddsApiConfig, backfill_player_props, fetch_player_props_current
@@ -151,6 +152,12 @@ def compute_props_edges(date: str, sigma: SigmaConfig, use_saved: bool = True, m
     # Predictions for slate (no odds filter yet)
     feats = build_features_for_date(target_date)
     preds = predict_props(feats)
+    # Light bias calibration based on recent recon (safe default)
+    try:
+        biases = _compute_biases(anchor_date=str(pd.to_datetime(target_date).date()), window_days=7)
+        preds = _apply_biases(preds, biases)
+    except Exception:
+        pass
     # Prepare prediction columns
     pred_map = {
         "pts": "pred_pts",
