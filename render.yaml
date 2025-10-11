@@ -41,9 +41,11 @@ services:
         sync: false
 
 # Optional: scheduled jobs to mirror NHL automation. These call the app's cron endpoints.
-cronJobs:
+jobs:
+  # Hourly predictions job (Blueprint jobs require type: cron)
+  - type: cron
   # Hourly: build predictions and odds for today's slate, commit artifacts
-  - name: nba-betting-predict-hourly
+    name: nba-betting-predict-hourly
     schedule: "15 * * * *"  # at minute 15 every hour (UTC)
     env: docker
     plan: free
@@ -63,7 +65,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Daily: capture yesterday's closing lines, commit artifact
-  - name: nba-betting-capture-closing-daily
+  - type: cron
+    name: nba-betting-capture-closing-daily
     schedule: "35 12 * * *"  # 12:35 UTC daily (~morning ET)
     env: docker
     plan: free
@@ -83,7 +86,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Daily: build reconciliation for yesterday, commit artifact
-  - name: nba-betting-reconcile-daily
+  - type: cron
+    name: nba-betting-reconcile-daily
     schedule: "5 13 * * *"  # 13:05 UTC daily
     env: docker
     plan: free
@@ -106,7 +110,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Daily: run the app's daily-update orchestration (lightweight; add push=1 to commit any outputs)
-  - name: nba-betting-daily-update
+  - type: cron
+    name: nba-betting-daily-update
     schedule: "0 12 * * *"  # 12:00 UTC daily
     env: docker
     plan: free
@@ -126,7 +131,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Daily: comprehensive chain (predict -> odds -> reconcile -> props actuals -> props edges)
-  - name: nba-betting-run-all-daily
+  - type: cron
+    name: nba-betting-run-all-daily
     schedule: "15 12 * * *"  # 12:15 UTC daily
     env: docker
     plan: free
@@ -146,7 +152,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Weekly: refresh rosters for current season to improve player ID resolution
-  - name: nba-betting-refresh-rosters-weekly
+  - type: cron
+    name: nba-betting-refresh-rosters-weekly
     schedule: "0 6 * * 1"  # Mondays 06:00 UTC
     env: docker
     plan: free
@@ -166,7 +173,8 @@ cronJobs:
           envVarKey: CRON_TOKEN
 
   # Daily: precompute props predictions for today's slate so /props loads instantly
-  - name: nba-betting-props-predictions-daily
+  - type: cron
+    name: nba-betting-props-predictions-daily
     schedule: "5 12 * * *"  # 12:05 UTC daily
     env: docker
     plan: free

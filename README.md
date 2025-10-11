@@ -214,10 +214,30 @@ python app.py  # http://127.0.0.1:5050
 ```
 
 Deploy on Render (Blueprint):
-1) Push to GitHub (done if you’re viewing this there).
-2) In Render: New → Blueprint → paste repo URL. It will detect `render.yaml` and create a Python Web Service.
-3) Build Command: `pip install -r requirements.txt` (from render.yaml)
-4) Start Command: `bash start.sh` (from render.yaml)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mostgood1/NBA-Betting)
+
+1) Click the button above (or in Render: New → Blueprint → paste this repo URL). Render will detect `render.yaml`.
+2) Review resources to be created:
+	- Web Service: Python (serves the app and APIs)
+	- Cron Jobs: calls the app’s `/api/cron/*` endpoints on a schedule
+3) Configure Environment Variables for the Web Service (recommended):
+	- `CRON_TOKEN` (required to authorize cron calls)
+	- `ODDS_API_KEY` (required for player-props odds to compute edges)
+	- `GH_TOKEN` or `GIT_PAT` (optional, for server-side git pushes of artifacts)
+	- `GH_NAME` and `GH_EMAIL` (optional, git identity for commits)
+4) Click “Apply” to create the Blueprint resources. First deploy will build and start the web service; cron jobs then start firing on the configured schedule.
+5) Verify:
+	- `GET /api/version` returns a SHA
+	- `GET /api/cron/config` shows `have_cron_token=true`
+	- After the first overnight window (or run manually), `GET /api/data-status?date=YYYY-MM-DD` shows row counts > 0
+
+Notes:
+- The cron jobs in `render.yaml` already include Authorization headers and use `async=1` where appropriate to avoid timeouts.
+- If you prefer not to use Render cron jobs, this repo also includes a GitHub Actions scheduler (`.github/workflows/nbabetting-scheduler.yml`). Add two repo secrets to enable it:
+  - `NBA_BETTING_BASE_URL` → your Render service URL
+  - `NBA_BETTING_CRON_TOKEN` → the same `CRON_TOKEN` value
+  The workflow will call the same cron endpoints on an overnight + midday cadence.
 
 Environment variables (optional but consistent with NFL app):
 - `FLASK_ENV=production`
