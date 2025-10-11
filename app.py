@@ -566,6 +566,28 @@ def _ensure_logs_dir() -> Path:
     return p
 
 
+def _count_csv_rows_quick(p: Optional[Path]) -> int:
+    """Return number of data rows in a CSV quickly without loading via pandas.
+
+    Counts newline characters and subtracts 1 for header if present. Returns 0 on error.
+    """
+    try:
+        if not p or (not p.exists()) or (not p.is_file()):
+            return 0
+        # Fast newline count in chunks
+        nl = 0
+        with p.open('rb') as f:
+            while True:
+                chunk = f.read(1024 * 1024)
+                if not chunk:
+                    break
+                nl += chunk.count(b"\n")
+        # If file has at least one line, subtract header
+        return max(0, nl - 1)
+    except Exception:
+        return 0
+
+
 def _find_fallback_odds_for_date(date_str: str) -> Optional[Path]:
     """Return best available non-Bovada odds file for the given date, if any.
 
@@ -1116,28 +1138,28 @@ def api_data_status():
         # Predictions
         p = _find_predictions_for_date(d)
         out["predictions_path"] = str(p) if p else None
-        out["predictions_rows"] = int(len(pd.read_csv(p))) if p else 0
+        out["predictions_rows"] = _count_csv_rows_quick(p) if p else 0
     except Exception:
         out["predictions_rows"] = 0
     try:
         # Game odds
         go = _find_game_odds_for_date(d)
         out["game_odds_path"] = str(go) if go else None
-        out["game_odds_rows"] = int(len(pd.read_csv(go))) if go else 0
+        out["game_odds_rows"] = _count_csv_rows_quick(go) if go else 0
     except Exception:
         out["game_odds_rows"] = 0
     try:
         # Props
         pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         out["props_edges_path"] = str(pe) if pe.exists() else None
-        out["props_edges_rows"] = int(len(pd.read_csv(pe))) if pe.exists() else 0
+        out["props_edges_rows"] = _count_csv_rows_quick(pe) if pe.exists() else 0
     except Exception:
         out["props_edges_rows"] = 0
     try:
         # Recon
         rg = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
         out["recon_games_path"] = str(rg) if rg.exists() else None
-        out["recon_games_rows"] = int(len(pd.read_csv(rg))) if rg.exists() else 0
+        out["recon_games_rows"] = _count_csv_rows_quick(rg) if rg.exists() else 0
     except Exception:
         out["recon_games_rows"] = 0
     return jsonify(out)
