@@ -1,0 +1,64 @@
+name: NBA Betting Scheduler
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # Overnight initialization window (UTC) – adjust as desired
+    - cron: '0 12 * * *'   # daily-update kick
+    - cron: '5 12 * * *'   # props-predictions (calibrated)
+    - cron: '15 12 * * *'  # run-all composite
+    - cron: '35 12 * * *'  # capture closing for yesterday
+    - cron: '5 13 * * *'   # reconcile yesterday
+    # Midday refreshes
+    - cron: '30 17 * * *'  # refresh props edges
+    - cron: '0 21 * * *'   # late refresh props edges
+    # Hourly predictions to keep odds/preds warm
+    - cron: '15 * * * *'
+
+jobs:
+  call-crons:
+    runs-on: ubuntu-latest
+    env:
+      BASE_URL: ${{ secrets.NBA_BETTING_BASE_URL }}
+      CRON_TOKEN: ${{ secrets.NBA_BETTING_CRON_TOKEN }}
+    steps:
+      - name: Validate config
+        run: |
+          test -n "$BASE_URL" || (echo 'Missing secret NBA_BETTING_BASE_URL' && exit 1)
+          test -n "$CRON_TOKEN" || (echo 'Missing secret NBA_BETTING_CRON_TOKEN' && exit 1)
+
+      - name: Health check
+        run: |
+          curl -fsS "$BASE_URL/health" || (echo 'Health check failed' && exit 1)
+
+      - name: Predict-date (async, hourly safe)
+        run: |
+          curl -fsS -X POST "$BASE_URL/api/cron/predict-date?skip_if_no_games=1&async=1&push=1" \
+            -H "Authorization: Bearer $CRON_TOKEN" || true
+
+      - name: Props predictions (calibrated)
+        run: |
+          curl -fsS -X POST "$BASE_URL/api/cron/props-predictions?slate_only=1&calibrate=1&calib_window=7&async=1&push=1" \
+            -H "Authorization: Bearer $CRON_TOKEN" || true
+
+      - name: Props edges (auto source)
+        run: |
+          curl -fsS -X POST "$BASE_URL/api/cron/props-edges?source=auto&async=1&push=1" \
+            -H "Authorization: Bearer $CRON_TOKEN" || true
+
+      - name: Capture closing (yesterday)
+        run: |
+          D=$(date -u -d yesterday +%F || date -u -v-1d +%F)
+          curl -fsS -X POST "$BASE_URL/api/cron/capture-closing?date=$D&push=1" \
+            -H "Authorization: Bearer $CRON_TOKEN" || true
+
+      - name: Reconcile games (yesterday)
+        run: |
+          D=$(date -u -d yesterday +%F || date -u -v-1d +%F)
+          curl -fsS -X POST "$BASE_URL/api/cron/reconcile-games?date=$D&push=1" \
+            -H "Authorization: Bearer $CRON_TOKEN" || true
+
+      - name: Data status (today)
+        run: |
+          T=$(date -u +%F)
+          curl -fsS "$BASE_URL/api/data-status?date=$T" || true
