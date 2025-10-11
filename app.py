@@ -2831,10 +2831,18 @@ def api_cron_run_all():
             results["props_actuals"] = int(rc4)
         except Exception as e:
             results["props_actuals_error"] = str(e)
-        # 5) compute props edges for today via CLI if available
+        # 5) ensure props models exist and precompute props predictions for today (calibrated)
         try:
-            rc5 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d_today, "--source", "auto"], log_file, cwd=BASE_DIR, env=env)
-            results["props_edges"] = int(rc5)
+            ok_props_models, info_props = _ensure_props_models(log_file)
+            results["props_models"] = info_props
+            rc5a = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d_today, "--slate-only", "--calibrate", "--calib-window", "7"], log_file, cwd=BASE_DIR, env=env)
+            results["props_predictions"] = int(rc5a)
+        except Exception as e:
+            results["props_predictions_error"] = str(e)
+        # 6) compute props edges for today via CLI if available
+        try:
+            rc6 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d_today, "--source", "auto"], log_file, cwd=BASE_DIR, env=env)
+            results["props_edges"] = int(rc6)
         except Exception as e:
             results["props_edges_error"] = str(e)
         if push:
