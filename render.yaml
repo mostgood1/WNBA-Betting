@@ -3,6 +3,10 @@ services:
     name: nba-betting
     env: python
     plan: free
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
     autoDeploy: true
     buildCommand: |
       pip install --upgrade pip
