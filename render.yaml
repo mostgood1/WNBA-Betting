@@ -168,7 +168,7 @@ cronJobs:
     plan: free
     image: alpine:3.19
     command: >-
-      sh -lc "apk add --no-cache curl; curl -fsS -X POST \"$BASE_URL/api/cron/props-predictions?push=1&slate_only=1\" -H \"Authorization: Bearer $CRON_TOKEN\""
+      sh -lc "apk add --no-cache curl; curl -fsS -X POST \"$BASE_URL/api/cron/props-predictions?push=1&slate_only=1&calibrate=1&calib_window=7&async=1\" -H \"Authorization: Bearer $CRON_TOKEN\""
     envVars:
       - key: BASE_URL
         fromService:
