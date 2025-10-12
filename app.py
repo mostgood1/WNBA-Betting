@@ -2939,8 +2939,13 @@ def api_cron_props_edges():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_edges_{d}_{stamp}.log"
     try:
-        # Ensure props models exist; if not, build and train automatically
-        _okp, _info = _ensure_props_models(log_file)
+        # Do not block request path on long training when async=1. We'll ensure in background job.
+        def _quick_have_props_models() -> bool:
+            try:
+                mdir = BASE_DIR / "models"
+                return (mdir / "props_models.joblib").exists() and (mdir / "props_feature_columns.joblib").exists()
+            except Exception:
+                return False
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
         cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", source]
@@ -2951,6 +2956,9 @@ def api_cron_props_edges():
         if do_async:
             def _job():
                 try:
+                    # Ensure props models exist before computing edges (can be slow on first run)
+                    if not _quick_have_props_models():
+                        _ensure_props_models(log_file)
                     _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
                     if do_push:
                         _git_commit_and_push(msg=f"props-edges {d}")
@@ -2963,6 +2971,8 @@ def api_cron_props_edges():
                 "date": d,
                 "log_file": str(log_file),
             }), 202
+        # Synchronous path: ensure models now, then run
+        _okp, _info = _ensure_props_models(log_file)
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         rows = 0
@@ -3062,8 +3072,13 @@ def api_cron_props_predictions():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_predictions_{d}_{stamp}.log"
     try:
-        # Ensure props models exist; if not, build and train automatically
-        _okp, _info = _ensure_props_models(log_file)
+        # Avoid blocking request thread on model build when async=1; do a quick existence check instead.
+        def _quick_have_props_models() -> bool:
+            try:
+                mdir = BASE_DIR / "models"
+                return (mdir / "props_models.joblib").exists() and (mdir / "props_feature_columns.joblib").exists()
+            except Exception:
+                return False
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
         cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
@@ -3076,6 +3091,8 @@ def api_cron_props_predictions():
         if do_async:
             def _job():
                 try:
+                    if not _quick_have_props_models():
+                        _ensure_props_models(log_file)
                     _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
                     if do_push:
                         _git_commit_and_push(msg=f"props-predictions {d}")
@@ -3088,6 +3105,8 @@ def api_cron_props_predictions():
                 "date": d,
                 "log_file": str(log_file),
             }), 202
+        # Synchronous: ensure models then run
+        _okp, _info = _ensure_props_models(log_file)
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
         out = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         rows = 0
