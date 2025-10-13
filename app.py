@@ -852,6 +852,24 @@ def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
     except Exception as e:
         return False, {"error": str(e)}
 
+def _quick_have_game_models() -> bool:
+    """Fast check for presence of required game model artifacts without training.
+
+    Used to decide whether to defer heavy training to background for async cron calls.
+    """
+    try:
+        models_dir = BASE_DIR / "models"
+        need = [
+            models_dir / "win_prob.joblib",
+            models_dir / "spread_margin.joblib",
+            models_dir / "totals.joblib",
+            models_dir / "halves_models.joblib",
+            models_dir / "quarters_models.joblib",
+            models_dir / "feature_columns.joblib",
+        ]
+        return all(p.exists() for p in need)
+    except Exception:
+        return False
 
 def _ensure_props_models(log_fp: Path | None = None) -> tuple[bool, dict]:
     """Ensure props model artifacts exist; if missing, build features and train.
@@ -2492,16 +2510,14 @@ def api_cron_predict_date():
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_predict_date_{d}_{stamp}.log"
     try:
-        # Ensure models exist (fresh deploys may not have models volume)
-        ok_models, info = _ensure_game_models(log_file)
-        if not ok_models:
-            # Proceed anyway; CLI will fail clearly if models missing
-            pass
         env = {"PYTHONPATH": str(SRC_DIR)}
         if do_async:
-            # Background job to avoid Render timeouts
+            # Background job to avoid Render timeouts. If models are missing, ensure them inside the job.
+            missing_models = (not _quick_have_game_models())
             def _job():
                 try:
+                    if missing_models:
+                        _ensure_game_models(log_file)
                     _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
                     if do_push:
                         _git_commit_and_push(msg=f"predict-date {d}")
@@ -2514,8 +2530,13 @@ def api_cron_predict_date():
                 "date": d,
                 "log_file": str(log_file),
                 "push": do_push,
-                "models": info,
+                "models": ({"skipped": True} if not missing_models else {"ensured_in_background": True}),
             }), 202
+        # Synchronous path: ensure models now, then run
+        ok_models, info = _ensure_game_models(log_file)
+        if not ok_models:
+            # Proceed anyway; CLI will fail clearly if models missing
+            pass
         # Synchronous mode (original behavior)
         rc = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d], log_file, cwd=BASE_DIR, env=env)
         # Locate predictions from either processed/ or legacy root
