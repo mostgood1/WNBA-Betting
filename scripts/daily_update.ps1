@@ -71,24 +71,17 @@ if ($UseServer) {
     $token = $env:CRON_TOKEN
     $headers = @{}
     if ($token) { $headers['Authorization'] = "Bearer $token" }
-    # Run predict-date first (async), then refresh-bovada, then props-predictions, then props-edges, then reconcile-yesterday
-    $u1 = "$BaseUrl/api/cron/predict-date?date=$Date&skip_if_no_games=1&async=1&push=0"
+    # Only refresh odds server-side and reconcile yesterday; all model work is local
     $u2 = "$BaseUrl/api/cron/refresh-bovada?date=$Date&push=0"
-  $u3 = "$BaseUrl/api/cron/props-predictions?date=$Date&slate_only=1&calibrate=1&calib_window=7&push=0"
-    $u4 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
-    try { $r1 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u1 -TimeoutSec 120; ($r1.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("predict-date call failed: {0}" -f $_.Exception.Message) }
     try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("refresh-bovada call failed: {0}" -f $_.Exception.Message) }
-    try { $r3 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u3 -TimeoutSec 180; ($r3.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-predictions call failed: {0}" -f $_.Exception.Message) }
-    try { $r4 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u4 -TimeoutSec 240; ($r4.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-edges call failed: {0}" -f $_.Exception.Message) }
-    # Reconcile yesterday last
     try {
       $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
     } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
     $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
     try { $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180; ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
-    Write-Log "Server-driven pipeline calls completed"
+    Write-Log "Server odds refresh + reconcile completed"
   } catch {
-    Write-Log ("server pipeline failed; falling back to CLI: {0}" -f $_.Exception.Message)
+    Write-Log ("server calls failed; running fully local: {0}" -f $_.Exception.Message)
     $UseServer = $false
   }
 }
@@ -118,13 +111,23 @@ if (-not $UseServer) {
     Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
   }
 
-  # 3) Props actuals upsert for yesterday (CLI)
+  # 3) Props predictions for today (calibrated) to CSV
+  $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
+  Write-Log ("props-predictions exit code: {0}" -f $rc3a)
+
+  # 4) Props actuals upsert for yesterday (CLI)
   $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
   Write-Log ("props-actuals exit code: {0}" -f $rc3)
 
-  # 4) Props edges for today (auto source: OddsAPI if available else Bovada)
-  $rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto')
+  # 5) Props edges for today (auto source: OddsAPI if available else Bovada), file-only to avoid any server runs
+  $rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto','--file-only')
   Write-Log ("props-edges exit code: {0}" -f $rc4)
+
+  # 6) Export recommendations CSVs for site consumption
+  $rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)
+  Write-Log ("export-recommendations exit code: {0}" -f $rc5)
+  $rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+  Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 }
 
 # Simple retention: keep last 21 local_daily_update_* logs

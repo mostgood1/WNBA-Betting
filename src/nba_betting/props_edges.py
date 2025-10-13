@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 import numpy as np
 from dataclasses import dataclass
+from pathlib import Path
 from datetime import datetime
 from typing import Dict, Optional, Tuple
 
@@ -143,21 +144,48 @@ def _fetch_odds_for_date(date: datetime, mode: str, api_key: Optional[str]) -> p
     return pd.DataFrame()
 
 
-def compute_props_edges(date: str, sigma: SigmaConfig, use_saved: bool = True, mode: str = "auto", api_key: Optional[str] = None, source: str = "auto") -> pd.DataFrame:
+def compute_props_edges(
+    date: str,
+    sigma: SigmaConfig,
+    use_saved: bool = True,
+    mode: str = "auto",
+    api_key: Optional[str] = None,
+    source: str = "auto",
+    predictions_path: Optional[str] = None,
+    from_file_only: bool = False,
+) -> pd.DataFrame:
     """Compute model edges/EV against OddsAPI player props for a given date.
 
     Returns a DataFrame with: date, player_name, stat, side, line, price, implied_prob, model_prob, edge, ev, bookmaker.
     """
     target_date = pd.to_datetime(date)
-    # Predictions for slate (no odds filter yet)
-    feats = build_features_for_date(target_date)
-    preds = predict_props(feats)
-    # Light bias calibration based on recent recon (safe default)
+    # Load predictions for slate, preferring precomputed CSV when available
+    preds: pd.DataFrame
+    if predictions_path is None:
+        # default location written by predict-props CLI
+        predictions_path = str(paths.data_processed / f"props_predictions_{pd.to_datetime(target_date).date()}.csv")
+    preds = pd.DataFrame()
     try:
-        biases = _compute_biases(anchor_date=str(pd.to_datetime(target_date).date()), window_days=7)
-        preds = _apply_biases(preds, biases)
+        p = Path(predictions_path)
+        if not p.is_absolute():
+            p = paths.root / p
+        if p.exists():
+            preds = pd.read_csv(p)
     except Exception:
-        pass
+        preds = pd.DataFrame()
+    if preds is None or preds.empty:
+        # If we are restricted to file-only mode, do NOT run models server-side
+        if from_file_only:
+            return pd.DataFrame()
+        # Otherwise compute predictions locally
+        feats = build_features_for_date(target_date)
+        preds = predict_props(feats)
+        # Light bias calibration based on recent recon (safe default)
+        try:
+            biases = _compute_biases(anchor_date=str(pd.to_datetime(target_date).date()), window_days=7)
+            preds = _apply_biases(preds, biases)
+        except Exception:
+            pass
     # Prepare prediction columns
     pred_map = {
         "pts": "pred_pts",

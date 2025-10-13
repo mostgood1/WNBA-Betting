@@ -307,39 +307,36 @@ $resp
 Invoke-RestMethod http://localhost:5050/api/admin/daily-update/status?tail=100 | Format-List
 ```
 
-## Cron endpoints (NHL parity)
+## Cron endpoints (simplified)
 
-For ops parity with the NHL app, token-gated cron endpoints are provided. Set an environment variable `CRON_TOKEN` in Render (or locally) and use one of:
+Render should not run any models. Cron endpoints are token-gated (set `CRON_TOKEN`). Use one of:
 
 - Header: `Authorization: Bearer <CRON_TOKEN>`
 - Header: `X-Cron-Token: <CRON_TOKEN>`
 - Query: `?token=<CRON_TOKEN>`
 
-Endpoints:
-- `POST /api/cron/predict-date?date=YYYY-MM-DD` – runs the CLI `predict-date` and writes `predictions_YYYY-MM-DD.csv` and `data/processed/game_odds_YYYY-MM-DD.csv`.
-- `POST /api/cron/refresh-bovada?date=YYYY-MM-DD` – fetches Bovada odds and writes `data/processed/game_odds_YYYY-MM-DD.csv`.
-- `POST /api/cron/capture-closing?date=YYYY-MM-DD` – exports `data/processed/closing_lines_YYYY-MM-DD.csv` from consensus data (build via `make-closing-lines`).
-- `POST /api/cron/daily-update` – triggers the same in-process daily update as `/api/admin/daily-update` (push disabled by default for cron).
-- `GET  /api/cron/config` – safe introspection of available cron/admin booleans.
+Endpoints to use:
+- `POST /api/cron/refresh-bovada?date=YYYY-MM-DD` – fetches game odds and, if props markets exist, computes props edges in file-only mode (expects `props_predictions_YYYY-MM-DD.csv` to be present from your local daily run).
+- `POST /api/cron/capture-closing?date=YYYY-MM-DD` – exports `data/processed/closing_lines_YYYY-MM-DD.csv` (if consensus data available).
+- `POST /api/cron/reconcile-games?date=YYYY-MM-DD` – writes reconciliation CSV for that date (defaults to yesterday if omitted).
+- `GET  /api/cron/config` – list of available cron endpoints.
 
-Render examples (PowerShell syntax equivalent using Invoke-RestMethod):
+Render examples (PowerShell syntax):
 
 ```powershell
 $base = "https://your-render-url.onrender.com"
 $token = "$(RenderEnv:CRON_TOKEN)"  # or paste token for local testing
 $date = (Get-Date).ToString('yyyy-MM-dd')
 
-# Predict slate and auto-attach odds (OddsAPI if configured, else Bovada fallback)
-Invoke-RestMethod -Method Post -Uri "$base/api/cron/predict-date?date=$date" -Headers @{ Authorization = "Bearer $token" }
-
-# Just refresh Bovada odds
+# Refresh Bovada odds (and compute props edges from Bovada if props present; file-only)
 Invoke-RestMethod -Method Post -Uri "$base/api/cron/refresh-bovada?date=$date" -Headers @{ Authorization = "Bearer $token" }
 
-# Capture consensus closing lines (requires closing_lines.parquet or raw odds)
+# Capture consensus closing lines (if configured)
 Invoke-RestMethod -Method Post -Uri "$base/api/cron/capture-closing?date=$date" -Headers @{ Authorization = "Bearer $token" }
 
-# Kick off daily update sequence (lightweight)
-Invoke-RestMethod -Method Post -Uri "$base/api/cron/daily-update" -Headers @{ Authorization = "Bearer $token" }
+# Reconcile yesterday
+$y = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd')
+Invoke-RestMethod -Method Post -Uri "$base/api/cron/reconcile-games?date=$y" -Headers @{ Authorization = "Bearer $token" }
 ```
 
 Scheduling on Render:

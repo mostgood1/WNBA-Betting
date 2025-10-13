@@ -30,6 +30,7 @@ from nba_api.stats.endpoints import boxscoretraditionalv3
 from nba_api.stats.library import http as nba_http
 from nba_api.stats.static import teams as static_teams
 import subprocess
+from pathlib import Path
 import sys
 import time
 
@@ -573,7 +574,9 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
 @click.option("--top", type=int, default=1000, show_default=False, help="Limit to top N edges after filtering")
 @click.option("--bookmakers", type=str, default=None, help="Comma-separated bookmaker keys to include (e.g., draftkings,fanduel,pinnacle)")
 @click.option("--calibrate-sigma/--no-calibrate-sigma", default=False, show_default=True, help="Estimate sigma per stat from recent residuals")
-def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool):
+@click.option("--predictions-csv", type=click.Path(exists=False, dir_okay=False), required=False, help="Use precomputed props_predictions_YYYY-MM-DD.csv from this path; defaults to data/processed")
+@click.option("--file-only/--no-file-only", default=False, show_default=True, help="Do not run props models; require predictions CSV to exist")
+def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool, predictions_csv: str | None, file_only: bool):
     """Compute player props edges (EV) by merging model predictions with OddsAPI lines for a date.
 
     Writes data/processed/props_edges_YYYY-MM-DD.csv
@@ -593,7 +596,16 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
         except Exception:
             pass
     try:
-        edges = compute_props_edges(date=date_str, sigma=sigma, use_saved=use_saved, mode=mode, api_key=api_key, source=source)
+        edges = compute_props_edges(
+            date=date_str,
+            sigma=sigma,
+            use_saved=use_saved,
+            mode=mode,
+            api_key=api_key,
+            source=source,
+            predictions_path=predictions_csv,
+            from_file_only=file_only,
+        )
     except FileNotFoundError as e:
         console.print(str(e), style="red"); return
     except Exception as e:
@@ -628,6 +640,154 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     out = paths.data_processed / f"props_edges_{date_str}.csv"
     edges.to_csv(out, index=False)
     console.print({"rows": int(len(edges)), "output": str(out)})
+
+
+@cli.command("export-recommendations")
+@click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; defaults to data/processed/recommendations_YYYY-MM-DD.csv")
+def export_recommendations_cmd(date_str: str, out_path: str | None):
+    """Export game recommendations (ML/ATS/TOTAL) to CSV from predictions + odds."""
+    import pandas as pd
+    from .config import paths
+    from .teams import _get_tricode as _tri  # type: ignore
+    try:
+        d = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+    pred = paths.data_processed / f"predictions_{date_str}.csv"
+    if not pred.exists():
+        console.print(f"Predictions not found: {pred}", style="red"); return
+    df = pd.read_csv(pred)
+    # Optional: try merge standardized game_odds CSV
+    odds_csv = paths.data_processed / f"game_odds_{date_str}.csv"
+    if odds_csv.exists():
+        try:
+            o = pd.read_csv(odds_csv)
+            if "date" in o.columns:
+                o["date"] = pd.to_datetime(o["date"], errors="coerce").dt.date
+            if "date" in df.columns:
+                df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
+            on = ["date","home_team","visitor_team"]
+            if all(c in df.columns for c in on) and all(c in o.columns for c in on):
+                df = df.merge(o, on=on, how="left", suffixes=("","_odds"))
+        except Exception:
+            pass
+    # Build recs
+    recs = []
+    def _num(x):
+        try:
+            return float(x)
+        except Exception:
+            return None
+    def _ev(prob, american):
+        try:
+            p = float(prob)
+        except Exception:
+            return None
+        try:
+            a = float(american)
+        except Exception:
+            return None
+        if a > 0:
+            return p * (a/100.0) - (1-p) * 1.0
+        else:
+            return p * (100.0/(-a)) - (1-p) * 1.0
+    for _, r in df.iterrows():
+        try:
+            home = r.get("home_team"); away = r.get("visitor_team")
+            # ML
+            p_home = _num(r.get("home_win_prob"))
+            ev_h = _ev(p_home, r.get("home_ml")) if p_home is not None else None
+            ev_a = _ev((1-p_home) if p_home is not None else None, r.get("away_ml"))
+            side_ml = None; ev_ml = None
+            if ev_h is not None or ev_a is not None:
+                side_ml = home if (ev_h or -1) >= (ev_a or -1) else away
+                ev_ml = ev_h if side_ml == home else ev_a
+                if ev_ml is not None and ev_ml > 0:
+                    recs.append({"market":"ML","side": side_ml, "home": home, "away": away, "ev": float(ev_ml), "date": str(d)})
+            # ATS
+            pm = _num(r.get("pred_margin")); hs = _num(r.get("home_spread"))
+            if pm is not None and hs is not None:
+                edge_spread = pm - (-hs)
+                if abs(edge_spread) >= 1.0:
+                    recs.append({"market":"ATS","side": home if edge_spread>0 else away, "home": home, "away": away, "edge": float(edge_spread), "date": str(d)})
+            # TOTAL
+            pt = _num(r.get("pred_total")); tot = _num(r.get("total"))
+            if pt is not None and tot is not None:
+                edge_total = pt - tot
+                if abs(edge_total) >= 1.5:
+                    recs.append({"market":"TOTAL","side": ("Over" if edge_total>0 else "Under"), "home": home, "away": away, "edge": float(edge_total), "date": str(d)})
+        except Exception:
+            continue
+    out = paths.data_processed / f"recommendations_{date_str}.csv" if not out_path else Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(recs).to_csv(out, index=False)
+    console.print({"rows": int(len(recs)), "output": str(out)})
+
+
+@cli.command("export-props-recommendations")
+@click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; defaults to data/processed/props_recommendations_YYYY-MM-DD.csv")
+def export_props_recommendations_cmd(date_str: str, out_path: str | None):
+    """Export props recommendation cards to CSV from edges (or model-only if edges missing)."""
+    import pandas as pd
+    from .config import paths
+    try:
+        d = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+    edges_p = paths.data_processed / f"props_edges_{date_str}.csv"
+    preds_p = paths.data_processed / f"props_predictions_{date_str}.csv"
+    games_p = paths.data_processed / f"predictions_{date_str}.csv"
+    df = pd.read_csv(edges_p) if edges_p.exists() else pd.DataFrame()
+    pp = pd.read_csv(preds_p) if preds_p.exists() else pd.DataFrame()
+    games_df = pd.read_csv(games_p) if games_p.exists() else pd.DataFrame()
+    cards: list[dict] = []
+    if df is None or df.empty:
+        # Model-only cards
+        if not pp.empty:
+            for (player, team), grp in pp.groupby(["player_name","team"], dropna=False):
+                model = {}
+                for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                    if col in grp.columns:
+                        try:
+                            v = pd.to_numeric(grp[col], errors="coerce").dropna()
+                            if not v.empty:
+                                model[key] = float(v.iloc[0])
+                        except Exception:
+                            pass
+                cards.append({"player": player, "team": team, "plays": [], "ladders": [], "model": model})
+    else:
+        # Build plays per player/team
+        def _num(x):
+            try:
+                return float(x)
+            except Exception:
+                return None
+        for keys, grp in df.groupby([c for c in ["player_name","team"] if c in df.columns], dropna=False):
+            if not isinstance(keys, tuple):
+                keys = (keys,)
+            player = keys[0] if len(keys)>0 else None
+            team = keys[1] if len(keys)>1 else None
+            g2 = grp.copy()
+            g2["ev_pct"] = pd.to_numeric(g2.get("ev"), errors="coerce") * 100.0 if "ev" in g2.columns else None
+            plays = []
+            for _, r in g2.iterrows():
+                plays.append({
+                    "market": r.get("stat"),
+                    "side": r.get("side"),
+                    "line": _num(r.get("line")),
+                    "price": _num(r.get("price")),
+                    "edge": _num(r.get("edge")),
+                    "ev": _num(r.get("ev")),
+                    "ev_pct": _num(r.get("ev"))*100.0 if _num(r.get("ev")) is not None else None,
+                    "book": r.get("bookmaker"),
+                })
+            cards.append({"player": player, "team": team, "plays": plays, "ladders": []})
+    out = paths.data_processed / f"props_recommendations_{date_str}.csv" if not out_path else Path(out_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(cards).to_csv(out, index=False)
+    console.print({"rows": int(len(cards)), "output": str(out)})
 
 
 @cli.command()

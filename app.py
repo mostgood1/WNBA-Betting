@@ -2366,13 +2366,8 @@ def api_cron_refresh_bovada():
                     env["PYTHONPATH"] = str(SRC_DIR)
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     log_file = logs_dir / f"cron_props_edges_from_bovada_{d}_{stamp}.log"
-                    # Ensure props models exist; if missing, build features and train
-                    props_feat_cols = BASE_DIR / "models" / "props_feature_columns.joblib"
-                    props_models_file = BASE_DIR / "models" / "props_models.joblib"
-                    if (not props_feat_cols.exists()) or (not props_models_file.exists()):
-                        _ = _run_to_file([str(py), "-m", "nba_betting.cli", "build-props-features"], log_file, cwd=BASE_DIR, env=env)
-                        _ = _run_to_file([str(py), "-m", "nba_betting.cli", "train-props"], log_file, cwd=BASE_DIR, env=env)
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved"], log_file, cwd=BASE_DIR, env=env)
+                    # Compute props edges without running models server-side
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved", "--file-only"], log_file, cwd=BASE_DIR, env=env)
                     pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
                     if pe.exists():
                         try:
@@ -2821,12 +2816,9 @@ def api_cron_run_all():
         if not base_url:
             port_env = os.environ.get("PORT", "5000")
             base_url = f"http://127.0.0.1:{port_env}"
-        # Ensure models exist before predictions
-        ok_models, info = _ensure_game_models(log_file)
-        results["models"] = info
-        # 1) predict-date today
-        rc1 = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-date", "--date", d_today], log_file, cwd=BASE_DIR, env=env)
-        results["predict_date"] = int(rc1)
+        # Server-side: do not run models. Assume predictions CSVs are precomputed locally and pushed.
+        results["models"] = {"note": "server no-op (local models only)"}
+        results["predict_date"] = 0
         # 2) refresh-bovada for today (HTTP to our own endpoint, to centralize logic/meta)
         try:
             import requests as _rq
@@ -2852,17 +2844,9 @@ def api_cron_run_all():
             results["props_actuals"] = int(rc4)
         except Exception as e:
             results["props_actuals_error"] = str(e)
-        # 5) ensure props models exist and precompute props predictions for today (calibrated)
+        # 5) compute props edges for today via CLI in file-only mode
         try:
-            ok_props_models, info_props = _ensure_props_models(log_file)
-            results["props_models"] = info_props
-            rc5a = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d_today, "--slate-only", "--calibrate", "--calib-window", "7"], log_file, cwd=BASE_DIR, env=env)
-            results["props_predictions"] = int(rc5a)
-        except Exception as e:
-            results["props_predictions_error"] = str(e)
-        # 6) compute props edges for today via CLI if available
-        try:
-            rc6 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d_today, "--source", "auto"], log_file, cwd=BASE_DIR, env=env)
+            rc6 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d_today, "--source", "auto", "--file-only"], log_file, cwd=BASE_DIR, env=env)
             results["props_edges"] = int(rc6)
         except Exception as e:
             results["props_edges_error"] = str(e)
@@ -2885,13 +2869,10 @@ def api_cron_config():
             "have_admin_key": bool(os.environ.get("ADMIN_KEY")),
             "endpoints": [
                 "/api/cron/refresh-bovada",
-                "/api/cron/predict-date",
-                "/api/cron/capture-closing",
                 "/api/cron/reconcile-games",
-                "/api/cron/daily-update",
-                "/api/cron/props-edges",
-                "/api/cron/props-predictions",
-                "/api/cron/fetch-rosters",
+                "/api/cron/capture-closing",
+                "/api/cron/probe-bovada",
+                "/api/cron/config",
             ],
         })
     except Exception as e:
