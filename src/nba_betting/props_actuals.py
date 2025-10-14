@@ -271,8 +271,13 @@ def fetch_prop_actuals_via_nbastatr(date: str | None = None, start: str | None =
 
 
 def upsert_props_actuals(df: pd.DataFrame) -> Path:
-    """Append/dedupe into data/processed/props_actuals.parquet & CSV keyed by (date, game_id, player_id)."""
-    out_csv = paths.data_processed / "props_actuals.csv"
+    """Append/dedupe into a consolidated Parquet store and per-day CSV snapshots.
+
+    Changes:
+    - Stop writing a single props_actuals.csv (overwritten daily) to avoid git churn.
+    - Write dated per-day CSVs: props_actuals_YYYY-MM-DD.csv (deduped by key per file).
+    - Maintain props_actuals.parquet as a consolidated local store for analytics.
+    """
     out_parq = paths.data_processed / "props_actuals.parquet"
     key_cols = ["date", "game_id", "player_id"]
     for c in key_cols:
@@ -286,12 +291,6 @@ def upsert_props_actuals(df: pd.DataFrame) -> Path:
             existing = pd.read_parquet(out_parq)
         except Exception:
             existing = None
-    if existing is None and out_csv.exists():
-        try:
-            existing = pd.read_csv(out_csv)
-            existing["date"] = pd.to_datetime(existing["date"]).dt.date
-        except Exception:
-            existing = None
     if existing is not None and not existing.empty:
         # Deduplicate by key, prefer new rows
         existing["_key"] = existing[key_cols].astype(str).agg("|".join, axis=1)
@@ -300,9 +299,29 @@ def upsert_props_actuals(df: pd.DataFrame) -> Path:
         out = pd.concat([keep_existing.drop(columns=["_key"]), df.drop(columns=["_key"])], ignore_index=True)
     else:
         out = df
-    out.to_csv(out_csv, index=False)
+    # Update consolidated parquet (local analytics store)
     try:
         out.to_parquet(out_parq, index=False)
     except Exception:
+        pass
+    # Write per-day CSV snapshots (deduped)
+    try:
+        for d, g in out.groupby("date"):
+            day_path = paths.data_processed / f"props_actuals_{d}.csv"
+            if day_path.exists():
+                try:
+                    old = pd.read_csv(day_path)
+                    old["date"] = pd.to_datetime(old["date"]).dt.date
+                except Exception:
+                    old = pd.DataFrame(columns=out.columns)
+                # Merge and dedupe
+                gg = pd.concat([old, g], ignore_index=True)
+                gg["_key"] = gg[key_cols].astype(str).agg("|".join, axis=1)
+                gg = gg.drop_duplicates(subset=["_key"]).drop(columns=["_key"]) if "_key" in gg.columns else gg
+                gg.to_csv(day_path, index=False)
+            else:
+                g.to_csv(day_path, index=False)
+    except Exception:
+        # non-fatal
         pass
     return out_parq

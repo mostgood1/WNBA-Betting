@@ -138,6 +138,16 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     # Save
     out_path = paths.data_processed / "props_features.parquet"
     out.to_parquet(out_path, index=False)
+    # Keep a dated CSV snapshot for reproducibility
+    try:
+        first_date = pd.to_datetime(out["date"].min()).date()
+        last_date = pd.to_datetime(out["date"].max()).date()
+        day_tag = f"{first_date}_{last_date}" if first_date != last_date else f"{first_date}"
+        out_csv_dated = paths.data_processed / f"props_features_{day_tag}.csv"
+        out.to_csv(out_csv_dated, index=False)
+    except Exception:
+        pass
+    # Also maintain a rolling convenience CSV
     out_csv = paths.data_processed / "props_features.csv"
     out.to_csv(out_csv, index=False)
     return out

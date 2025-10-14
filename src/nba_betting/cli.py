@@ -422,12 +422,9 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
     from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
     import numpy as np
     act_p = paths.data_processed / "props_actuals.parquet"
-    act_c = paths.data_processed / "props_actuals.csv"
     actuals = None
     if act_p.exists():
         actuals = pd.read_parquet(act_p)
-    elif act_c.exists():
-        actuals = pd.read_csv(act_c)
     else:
         # Fallback: combine any daily props_actuals_*.csv files in processed
         try:

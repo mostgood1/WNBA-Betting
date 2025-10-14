@@ -140,9 +140,16 @@ def save_calibration(biases: Dict[str, float], anchor_date: str, window_days: in
         "window_days": int(window_days),
         "biases": {k: float(v) for k, v in biases.items()},
     }
-    out = paths.data_processed / "props_calibration.json"
+    # Write dated calibration for reproducibility
+    out = paths.data_processed / f"props_calibration_{anchor_date}.json"
+    # Also write/update a latest pointer file for convenience
+    latest = paths.data_processed / "props_calibration.json"
     try:
         out.write_text(json.dumps(obj, indent=2), encoding="utf-8")
+        try:
+            latest.write_text(json.dumps(obj, indent=2), encoding="utf-8")
+        except Exception:
+            pass
     except Exception:
         pass
     return out
