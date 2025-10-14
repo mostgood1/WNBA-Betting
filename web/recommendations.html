@@ -1,65 +1,109 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NBA Recommendations</title>
-  <link rel="stylesheet" href="/web/styles.css" />
-  <script>
-  async function fetchRecs() {
-    const d = document.getElementById('datePicker').value;
-    const params = new URLSearchParams({ date: d, spread_edge: document.getElementById('minSpread').value, total_edge: document.getElementById('minTotal').value });
-    const res = await fetch(`/api/recommendations?${params}`);
-    const js = await res.json();
-    const tbody = document.querySelector('#tbl tbody');
-    tbody.innerHTML = '';
-    const rows = js.rows || [];
-    for (const r of rows){
-      const tr = document.createElement('tr');
-      tr.innerHTML = `<td>${r.market||''}</td><td>${r.home||''}</td><td>${r.away||''}</td><td>${r.side||''}</td><td>${r.edge!=null? Number(r.edge).toFixed(2): (r.ev!=null? (Number(r.ev)*100).toFixed(1)+'%':'')}</td>`;
-      tbody.appendChild(tr);
-    }
-    document.getElementById('summary').textContent = `Date ${js.date||d} — ${rows.length} picks`;
-  }
-  window.addEventListener('DOMContentLoaded', ()=>{
-    function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-    const params = new URLSearchParams(window.location.search);
-    const paramDate = params.get('date');
-    const today = localYMD();
-    const inp = document.getElementById('datePicker'); inp.value = (paramDate || today); inp.addEventListener('change', fetchRecs);
-    document.getElementById('minSpread').addEventListener('change', fetchRecs);
-    document.getElementById('minTotal').addEventListener('change', fetchRecs);
-    fetchRecs();
-  });
-  </script>
+  <title>NBA Betting – Recommendations</title>
+  <meta name="description" content="EV-based betting recommendations for NBA games." />
+  <link rel="icon" href="data:,">
+  <style>
+    :root{--bg:#080d1a;--card:#0d1426;--card2:#121b31;--text:#f5f7ff;--muted:#c3cee4;--border:#243356;--link:#b8d1ff;--pill-bg:#101a2e;--pill-br:#2a3a63;--badge-bg:#162247;--badge-br:#2a3a63}
+    body.light{--bg:#ffffff;--card:#f8fafc;--card2:#f1f5fb;--text:#0a1020;--muted:#475569;--border:#cbd5e1;--link:#1e3a8a;--pill-bg:#eef3fb;--pill-br:#94a3b8;--badge-bg:#e2e8f0;--badge-br:#94a3b8}
+    body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .container{max-width:1100px;margin:24px auto;padding:0 16px}
+    a{color:var(--link)} h1{margin:0 0 12px;font-size:26px}
+    .nav{font-size:14px;margin-bottom:10px} .nav a{color:var(--link);text-decoration:none;margin-right:10px}
+    .nav button.theme-toggle{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;cursor:pointer}
+    .cards-summary{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;align-items:stretch}
+    .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+    .card-summary{flex:1;min-width:240px;padding:10px;background:linear-gradient(180deg,#132a52,#0d1426)}
+    .card-tier{flex:1;min-width:200px;padding:10px}
+    .title-sm{font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+    .title-lg{font-size:20px;font-weight:600} .title-md{font-size:18px;font-weight:600}
+    .muted-small{font-size:12px;color:var(--muted)} .muted-tiny{font-size:11px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse} th,td{padding:8px} thead th{text-align:left;border-bottom:1px solid var(--border)} tbody tr{border-top:1px solid var(--border)}
+    .pill{display:inline-block;margin-left:6px;padding:2px 8px;border-radius:999px;border:1px solid var(--pill-br);background:var(--pill-bg);font-size:12px}
+    .pill-low{color:#fde68a;border-color:#854d0e} .pill-medium{color:#93c5fd;border-color:#1e3a8a} .pill-high{color:#9ae6b4;border-color:#2e8b57}
+    .res{display:inline-block;padding:2px 6px;border-radius:6px;border:1px solid var(--border)}
+    .res-win{border-color:#2e8b57;color:#9ae6b4} .res-loss{border-color:#8b2e2e;color:#fca5a5} .res-push{border-color:#2a3a63;color:#c3cee4}
+    form.filters{margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  form.filters input, form.filters select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px}
+  .w-70{width:70px}
+    form.filters button, form.filters a{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;text-decoration:none;font-size:13px;cursor:pointer}
+    .tar{text-align:right} .mt-1{margin-top:1rem} .mt-4{margin-top:4px} .lh-13{line-height:1.3}
+    .summary-note{font-size:12px;color:var(--muted);margin-top:8px}
+    @media (max-width:760px){ .container{padding:0 10px;margin:12px auto} h1{font-size:20px;margin-bottom:6px} .nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px} .nav a{display:inline-block;margin-right:6px} table{font-size:12px} th,td{padding:6px 4px} thead th{font-size:11px} form.filters input, form.filters select{padding:4px 6px;font-size:12px} form.filters button{padding:4px 8px;font-size:12px} .pill{font-size:10px;padding:2px 6px;margin-left:4px} }
+  </style>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1>Recommendations</h1>
-      <nav class="site-nav">
-        <a href="/">Games</a>
-        <a href="/recommendations" aria-current="page">Recommendations</a>
-        <a href="/props">Props</a>
-        <a href="/reconciliation">Reconciliation</a>
-        <a href="/odds-coverage">Odds Coverage</a>
-      </nav>
-      <div class="controls">
-        <label class="sr-only" for="datePicker">Select date</label>
-        <input id="datePicker" type="date" />
-        <label>Min ATS edge <input id="minSpread" type="number" step="0.1" value="1.0" /></label>
-        <label>Min Total edge <input id="minTotal" type="number" step="0.1" value="1.5" /></label>
-      </div>
-    </div>
-  </header>
-  <main class="container">
-    <section id="summary" class="summary"></section>
-    <div class="table-wrap">
-      <table id="tbl" class="data-table">
-        <thead><tr><th>Market</th><th>Home</th><th>Away</th><th>Pick</th><th>Edge/EV</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </main>
+  <div class="container">
+    <div class="nav"><a href="/">Cards</a> | <a href="/recommendations" aria-current="page">Recommendations</a> | <a href="/props">Props</a> | <a href="/props/recommendations">Props Recs</a> | <a href="/reconciliation">Reconciliation</a> | <a href="/odds-coverage">Odds Coverage</a> | <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button></div>
+    <h1>NBA Betting – Recommendations</h1>
+    <form class="filters" id="filters" onsubmit="event.preventDefault(); loadRecs();">
+      <label>Date: <input type="date" id="datePicker" /></label>
+  <label>Min ATS edge <input type="number" id="minSpread" step="0.1" value="1.0" class="w-70" /></label>
+  <label>Min Total edge <input type="number" id="minTotal" step="0.1" value="1.5" class="w-70" /></label>
+      <label>Sort by:
+        <select id="sortBy">
+          <option value="confidence">Confidence</option>
+          <option value="time">Game time</option>
+          <option value="type">Bet type</option>
+          <option value="ev">EV</option>
+          <option value="edge">Edge</option>
+        </select>
+      </label>
+      <button type="submit">Apply</button>
+      <button type="button" id="resetBtn">Reset</button>
+    </form>
+    <div id="cardsSummary" class="cards-summary"></div>
+    <div id="recsRoot"></div>
+    <p class="summary-note lh-13">Sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs both available. Theme choice persists locally.</p>
+  </div>
+  <script>
+    (function(){ try{ const body=document.body; const saved=localStorage.getItem('theme'); if(saved==='light') body.classList.add('light'); const t=document.getElementById('themeToggle'); if(t){ t.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); }}catch(e){} })();
+    function localYMD(){ const d=new Date(); return d.toISOString().slice(0,10); }
+    function qs(name){ try{ return new URL(window.location).searchParams.get(name); }catch(_){ return null; } }
+    function impliedConfidence(rec){ // heuristic bucket using edge / ev magnitudes
+      if(rec.market==='ML' && rec.ev!=null){ if(rec.ev>=0.04) return 'High'; if(rec.ev>=0.02) return 'Medium'; return 'Low'; }
+      if((rec.market==='ATS' || rec.market==='TOTAL') && rec.edge!=null){ const a=Math.abs(rec.edge); if(a>=4.0) return 'High'; if(a>=2.0) return 'Medium'; return 'Low'; }
+      return 'Low'; }
+    function pillClass(c){ return c==='High'?'pill-high': (c==='Medium'?'pill-medium':'pill-low'); }
+    function fmtEV(ev){ if(ev==null || isNaN(ev)) return ''; return (ev*100).toFixed(1)+'%'; }
+    function fmtEdge(e){ if(e==null || isNaN(e)) return ''; return Number(e).toFixed(2); }
+    function parseDateStr(d){ try{ return new Date(d+'T00:00:00'); }catch(_){ return null; } }
+    async function loadRecs(){
+      const date = document.getElementById('datePicker').value || localYMD();
+      const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
+      const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
+      const url = `/api/recommendations?date=${date}&spread_edge=${minSp}&total_edge=${minTot}`;
+      const res = await fetch(url, {cache:'no-store'}); const js = await res.json();
+      const rows = Array.isArray(js.rows)? js.rows: [];
+      // Derive confidence & normalized fields
+      rows.forEach(r=>{ r.confidence = impliedConfidence(r); });
+      renderSummary(rows);
+      renderTables(rows, date);
+    }
+    function renderSummary(rows){
+      const root=document.getElementById('cardsSummary'); root.innerHTML='';
+      if(!rows.length){ root.innerHTML='<div class="card">No recommendations available.</div>'; return; }
+      const tiers=['Overall','High','Medium','Low'];
+      const byTier = new Map();
+      tiers.forEach(t=>byTier.set(t,{wins:0,losses:0,pushes:0,resolved:0,total:0,evs:[],edges:[]}));
+      rows.forEach(r=>{ const t=r.confidence||'Low'; const rec=byTier.get('Overall'); rec.total++; const tierRec=byTier.get(t); tierRec.total++; if(r.ev!=null) { rec.evs.push(r.ev); tierRec.evs.push(r.ev); } if(r.edge!=null){ rec.edges.push(r.edge); tierRec.edges.push(r.edge); } });
+      function agg(m){ const evAvg = m.evs.length? (m.evs.reduce((a,b)=>a+b,0)/m.evs.length*100).toFixed(1)+'%': '—'; const edgeAvg = m.edges.length? (m.edges.reduce((a,b)=>a+Math.abs(b),0)/m.edges.length).toFixed(2): '—'; return { evAvg, edgeAvg, total:m.total }; }
+      const wrap=document.createElement('div'); wrap.className='cards-summary';
+      tiers.forEach(t=>{ const m=agg(byTier.get(t)); if(t!=='Overall' && m.total===0) return; const card=document.createElement('div'); card.className='card '+(t==='Overall'?'card-summary':'card-tier'); card.innerHTML=`<div class="title-sm">${t}</div><div class="mt-4 title-md">${m.total} Picks</div><div class="muted-small mt-4">Avg EV: ${m.evAvg}</div><div class="muted-small mt-4">Avg |Edge|: ${m.edgeAvg}</div>`; wrap.appendChild(card); });
+      root.innerHTML=''; root.appendChild(wrap);
+    }
+    function sortRows(rows){ const mode=document.getElementById('sortBy').value; return rows.slice().sort((a,b)=>{ if(mode==='confidence'){ const order={High:0,Medium:1,Low:2}; const ca=order[a.confidence]??9; const cb=order[b.confidence]??9; if(ca!==cb) return ca-cb; return (b.ev||0)-(a.ev||0); } if(mode==='time'){ return 0; } if(mode==='type'){ return String(a.market).localeCompare(String(b.market)) || (b.ev||0)-(a.ev||0); } if(mode==='ev'){ return (b.ev||0)-(a.ev||0); } if(mode==='edge'){ const ae=Math.abs(a.edge||0); const be=Math.abs(b.edge||0); if(be!==ae) return be-ae; return (b.ev||0)-(a.ev||0); } return 0; }); }
+    function renderTables(rows, date){
+      const root=document.getElementById('recsRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No recommendations available.</div>'; return; }
+      const sorted=sortRows(rows);
+      const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
+      sorted.forEach(r=>{ const t=r.confidence||'Low'; groups.get(t).push(r); });
+      groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds/Edge</th><th class="tar">EV</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = (r.market==='ML'? r.side : (r.side||'')) + (r.market==='TOTAL'?'': ''); const oddsEdge = r.market==='ML' ? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const ev = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? ( (Math.abs(r.edge)>=4)?'High': (Math.abs(r.edge)>=2?'Med':'Low') ): ''); tr.innerHTML=`<td>${game}</td><td>${r.market}</td><td>${sel} ${r.confidence? `<span class="pill ${pillClass(r.confidence)}">${r.confidence}</span>`:''}</td><td class="tar">${oddsEdge}</td><td class="tar">${r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): '')}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); loadRecs(); });
+  </script>
 </body>
 </html>
