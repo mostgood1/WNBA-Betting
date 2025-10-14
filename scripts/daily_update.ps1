@@ -127,6 +127,35 @@ Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 # 4) Props actuals upsert for yesterday (CLI)
 $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
 Write-Log ("props-actuals exit code: {0}" -f $rc3)
+# Safeguard: ensure a dated props_actuals_<yesterday>.csv snapshot exists; if missing but parquet updated, derive CSV
+try {
+  $snapPath = Join-Path $RepoRoot ("data/processed/props_actuals_{0}.csv" -f $yesterday)
+  if (-not (Test-Path $snapPath)) {
+    Write-Log "Snapshot $($snapPath) missing; attempting to derive from parquet store"
+    $parq = Join-Path $RepoRoot 'data/processed/props_actuals.parquet'
+    if (Test-Path $parq) {
+      try {
+        # Use python to extract rows for that date
+        $pycode = @"
+import pandas as pd, sys
+parq = r'$parq'
+date = '$yesterday'
+out = r'$snapPath'
+df = pd.read_parquet(parq)
+if not df.empty:
+    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
+    day = df[df['date'] == date]
+    if not day.empty:
+        day.to_csv(out, index=False)
+"@
+        $null = & $Python -c $pycode
+        if (Test-Path $snapPath) { Write-Log "Derived missing snapshot for $yesterday" } else { Write-Log "No rows found in parquet for $yesterday; snapshot not created" }
+      } catch { Write-Log ("Snapshot derive failed: {0}" -f $_.Exception.Message) }
+    } else {
+      Write-Log "Parquet store missing; cannot derive snapshot"
+    }
+  }
+} catch { Write-Log ("Snapshot safeguard error: {0}" -f $_.Exception.Message) }
 
 # 5) Props edges for today (auto source: OddsAPI if available else Bovada), file-only to avoid any server runs
 $rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto','--file-only')

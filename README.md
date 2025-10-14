@@ -138,8 +138,12 @@ python -m nba_betting.cli fetch-prop-actuals --date 2025-01-15
 python -m nba_betting.cli fetch-prop-actuals --start 2024-10-01 --end 2025-06-30
 ```
 
-Output is upserted to `data/processed/props_actuals.csv` and `.parquet` with columns:
-- date, game_id, team, player_id, player_name, pts, reb, ast, threes, pra
+Output is upserted to a consolidated Parquet store `data/processed/props_actuals.parquet` and immutable per-day CSV snapshots `data/processed/props_actuals_YYYY-MM-DD.csv` with columns:
+- date, game_id, player_id, player_name, team_abbr, pts, reb, ast, threes, pra
+
+Notes:
+- The old rolling `props_actuals.csv` file has been deprecated to avoid daily git diffs.
+- Each day’s snapshot is append/deduped by (date, game_id, player_id) so re-runs are idempotent.
 
 ### Build, train, predict, evaluate props
 
