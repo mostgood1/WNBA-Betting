@@ -66,69 +66,77 @@ try {
 } catch { $UseServer = $false }
 
 if ($UseServer) {
-  Write-Log "Local server detected at $BaseUrl; invoking /api/cron/run-all"
+  Write-Log "Server detected at $BaseUrl; will call refresh/reconcile, but all model CSVs will still be generated locally."
   try {
     $token = $env:CRON_TOKEN
     $headers = @{}
     if ($token) { $headers['Authorization'] = "Bearer $token" }
-    # Only refresh odds server-side and reconcile yesterday; all model work is local
+    # Ask server to refresh Bovada odds to keep server view warm
     $u2 = "$BaseUrl/api/cron/refresh-bovada?date=$Date&push=0"
     try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("refresh-bovada call failed: {0}" -f $_.Exception.Message) }
+    # Reconcile yesterday on server (best effort)
     try {
       $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
     } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
     $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
     try { $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180; ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
-    Write-Log "Server odds refresh + reconcile completed"
+    Write-Log "Server odds refresh + reconcile attempted"
   } catch {
-    Write-Log ("server calls failed; running fully local: {0}" -f $_.Exception.Message)
-    $UseServer = $false
+    Write-Log ("Server calls failed (non-fatal): {0}" -f $_.Exception.Message)
   }
 }
 
-if (-not $UseServer) {
-  Write-Log 'Running pipeline via CLI (no server or failed request)'
-  # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and attempts to save odds)
-  $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
-  Write-Log ("predict-date exit code: {0}" -f $rc1)
+# Always run local pipeline to produce site CSVs
+Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
+# 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
+$rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
+Write-Log ("predict-date exit code: {0}" -f $rc1)
 
-  # 2) Reconcile yesterday's games (best-effort; requires server endpoint for meta but CLI not needed)
+# Ensure we have standardized game odds CSV locally (fallback to Bovada script if missing)
+$GameOddsPath = Join-Path $RepoRoot ("data/processed/game_odds_{0}.csv" -f $Date)
+if (-not (Test-Path $GameOddsPath)) {
+  Write-Log "game_odds CSV missing locally; fetching Bovada odds as fallback"
   try {
-    $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
-  } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
-  Write-Log ("Reconcile games for {0} via server endpoint (if available)" -f $yesterday)
-  try {
-    $token = $env:CRON_TOKEN
-    $headers = @{}
-    if ($token) { $headers['Authorization'] = "Bearer $token" }
-    $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday"
-    $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
-    ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
-  } catch {
-    Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message)
-    # Fallback: run reconcile via CLI
-    $rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
-    Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
-  }
-
-  # 3) Props predictions for today (calibrated) to CSV
-  $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
-  Write-Log ("props-predictions exit code: {0}" -f $rc3a)
-
-  # 4) Props actuals upsert for yesterday (CLI)
-  $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
-  Write-Log ("props-actuals exit code: {0}" -f $rc3)
-
-  # 5) Props edges for today (auto source: OddsAPI if available else Bovada), file-only to avoid any server runs
-  $rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto','--file-only')
-  Write-Log ("props-edges exit code: {0}" -f $rc4)
-
-  # 6) Export recommendations CSVs for site consumption
-  $rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)
-  Write-Log ("export-recommendations exit code: {0}" -f $rc5)
-  $rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
-  Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
+    & $Python 'scripts/fetch_bovada_game_odds.py' $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+  } catch { Write-Log ("Bovada odds fetch failed: {0}" -f $_.Exception.Message) }
 }
+
+# 2) Reconcile yesterday's games (best-effort)
+try {
+  $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
+} catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
+Write-Log ("Reconcile games for {0} via server endpoint (if available), else CLI" -f $yesterday)
+try {
+  $token = $env:CRON_TOKEN
+  $headers = @{}
+  if ($token) { $headers['Authorization'] = "Bearer $token" }
+  $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday"
+  $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
+  ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
+} catch {
+  Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message)
+  # Fallback: run reconcile via CLI
+  $rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
+  Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
+}
+
+# 3) Props predictions for today (calibrated) to CSV
+$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
+Write-Log ("props-predictions exit code: {0}" -f $rc3a)
+
+# 4) Props actuals upsert for yesterday (CLI)
+$rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
+Write-Log ("props-actuals exit code: {0}" -f $rc3)
+
+# 5) Props edges for today (auto source: OddsAPI if available else Bovada), file-only to avoid any server runs
+$rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto','--file-only')
+Write-Log ("props-edges exit code: {0}" -f $rc4)
+
+# 6) Export recommendations CSVs for site consumption
+$rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)
+Write-Log ("export-recommendations exit code: {0}" -f $rc5)
+$rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 
 # Simple retention: keep last 21 local_daily_update_* logs
 Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object LastWriteTime -Descending | Select-Object -Skip 21 | ForEach-Object { Remove-Item $_.FullName -ErrorAction SilentlyContinue }
