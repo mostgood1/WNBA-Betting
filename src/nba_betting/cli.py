@@ -649,7 +649,7 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
     """Export game recommendations (ML/ATS/TOTAL) to CSV from predictions + odds."""
     import pandas as pd
     from .config import paths
-    from .teams import _get_tricode as _tri  # type: ignore
+    from .teams import to_tricode as _tri
     try:
         d = pd.to_datetime(date_str).date()
     except Exception:
