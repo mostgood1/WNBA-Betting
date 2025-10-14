@@ -73,6 +73,7 @@ def api_list_processed():
         if not pat:
             return jsonify({"error": "missing pattern"}), 400
         limit = request.args.get("limit", default=200, type=int)
+        offset = request.args.get("offset", default=0, type=int)
         base = BASE_DIR / "data" / "processed"
         from datetime import datetime as _dt
         items = []
@@ -89,9 +90,18 @@ def api_list_processed():
                 continue
         # Sort by mtime desc
         items.sort(key=lambda x: x["mtime"], reverse=True)
-        if limit and limit > 0:
-            items = items[:limit]
-        return jsonify({"pattern": pat, "count": len(items), "files": items})
+        total = len(items)
+        if offset < 0:
+            offset = 0
+        paged = items[offset: offset + limit] if limit and limit > 0 else items[offset:]
+        return jsonify({
+            "pattern": pat,
+            "total": total,
+            "offset": offset,
+            "limit": limit,
+            "returned": len(paged),
+            "files": paged
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -116,6 +126,65 @@ def api_list_props_features():
         with app.test_request_context(query_string={"pattern": "props_features_*.csv", "limit": request.args.get("limit", 200)}):
             return api_list_processed()
     return api_list_processed()
+
+@app.route("/api/processed/summary")
+def api_processed_summary():
+    """Return latest file name (and date if parseable) for key artifact patterns.
+
+    Patterns covered:
+    - predictions_YYYY-MM-DD.csv
+    - props_predictions_YYYY-MM-DD.csv
+    - game_odds_YYYY-MM-DD.csv
+    - props_edges_YYYY-MM-DD.csv
+    - recommendations_YYYY-MM-DD.csv
+    - props_recommendations_YYYY-MM-DD.csv
+    - props_actuals_YYYY-MM-DD.csv
+    - props_calibration_YYYY-MM-DD.json
+    - props_features_*.csv (range spans)
+    """
+    base = BASE_DIR / "data" / "processed"
+    patterns = {
+        "predictions": "predictions_*.csv",
+        "props_predictions": "props_predictions_*.csv",
+        "game_odds": "game_odds_*.csv",
+        "props_edges": "props_edges_*.csv",
+        "recommendations": "recommendations_*.csv",
+        "props_recommendations": "props_recommendations_*.csv",
+        "props_actuals": "props_actuals_*.csv",
+        "props_calibration": "props_calibration_*.json",
+        "props_features": "props_features_*.csv",
+    }
+    from datetime import datetime as _dt
+    def parse_date(name: str):
+        # Extract first YYYY-MM-DD occurrence
+        import re
+        m = re.search(r"(20\d{2}-\d{2}-\d{2})", name)
+        if m:
+            try:
+                return _dt.strptime(m.group(1), "%Y-%m-%d").date()
+            except Exception:
+                return None
+        return None
+    summary = {}
+    for key, pat in patterns.items():
+        files = []
+        for p in base.glob(pat):
+            try:
+                st = p.stat()
+                files.append((p.name, st.st_mtime))
+            except Exception:
+                continue
+        if not files:
+            summary[key] = None
+            continue
+        # pick newest by mtime
+        files.sort(key=lambda x: x[1], reverse=True)
+        latest_name = files[0][0]
+        summary[key] = {
+            "latest": latest_name,
+            "date": str(parse_date(latest_name) or "")
+        }
+    return jsonify(summary)
 
 
 

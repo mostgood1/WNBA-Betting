@@ -8,3 +8,4 @@ models/
 .DS_Store
 logs/
 *.log
+data/processed/props_actuals.csv  # deprecated rolling file; replaced by dated snapshots
