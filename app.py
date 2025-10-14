@@ -59,6 +59,64 @@ PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
+# ---- Processed files listing APIs ----
+@app.route("/api/list/processed")
+def api_list_processed():
+    """List files in data/processed matching a glob pattern.
+
+    Query params:
+    - pattern: glob like 'props_actuals_*.csv' (required)
+    - limit: max number of results (optional)
+    """
+    try:
+        pat = request.args.get("pattern", type=str)
+        if not pat:
+            return jsonify({"error": "missing pattern"}), 400
+        limit = request.args.get("limit", default=200, type=int)
+        base = BASE_DIR / "data" / "processed"
+        from datetime import datetime as _dt
+        items = []
+        for p in sorted(base.glob(pat)):
+            try:
+                st = p.stat()
+                items.append({
+                    "name": p.name,
+                    "size": int(st.st_size),
+                    "mtime": _dt.fromtimestamp(st.st_mtime).isoformat(),
+                    "path": f"/data/processed/{p.name}",
+                })
+            except Exception:
+                continue
+        # Sort by mtime desc
+        items.sort(key=lambda x: x["mtime"], reverse=True)
+        if limit and limit > 0:
+            items = items[:limit]
+        return jsonify({"pattern": pat, "count": len(items), "files": items})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/list/props-actuals")
+def api_list_props_actuals():
+    return api_list_processed()
+
+
+@app.route("/api/list/props-calibration")
+def api_list_props_calibration():
+    # force pattern if not provided
+    if not request.args.get("pattern"):
+        with app.test_request_context(query_string={"pattern": "props_calibration_*.json", "limit": request.args.get("limit", 200)}):
+            return api_list_processed()
+    return api_list_processed()
+
+
+@app.route("/api/list/props-features")
+def api_list_props_features():
+    if not request.args.get("pattern"):
+        with app.test_request_context(query_string={"pattern": "props_features_*.csv", "limit": request.args.get("limit", 200)}):
+            return api_list_processed()
+    return api_list_processed()
+
 
 
 @app.route("/")

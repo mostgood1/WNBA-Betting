@@ -147,9 +147,7 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
         out.to_csv(out_csv_dated, index=False)
     except Exception:
         pass
-    # Also maintain a rolling convenience CSV
-    out_csv = paths.data_processed / "props_features.csv"
-    out.to_csv(out_csv, index=False)
+    # Do not write a rolling convenience CSV to avoid overwrites
     return out
 
 
