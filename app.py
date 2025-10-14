@@ -60,6 +60,13 @@ PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
 # ---- Processed files listing APIs ----
+def _add_cache_headers(resp, seconds: int = 60):
+    try:
+        resp.headers["Cache-Control"] = f"public, max-age={seconds}"
+    except Exception:
+        pass
+    return resp
+
 @app.route("/api/list/processed")
 def api_list_processed():
     """List files in data/processed matching a glob pattern.
@@ -74,27 +81,47 @@ def api_list_processed():
             return jsonify({"error": "missing pattern"}), 400
         limit = request.args.get("limit", default=200, type=int)
         offset = request.args.get("offset", default=0, type=int)
+        start_date = request.args.get("start_date", type=str)
+        end_date = request.args.get("end_date", type=str)
         base = BASE_DIR / "data" / "processed"
         from datetime import datetime as _dt
         items = []
         for p in sorted(base.glob(pat)):
             try:
                 st = p.stat()
-                items.append({
+                rec = {
                     "name": p.name,
                     "size": int(st.st_size),
                     "mtime": _dt.fromtimestamp(st.st_mtime).isoformat(),
                     "path": f"/data/processed/{p.name}",
-                })
+                }
+                # Attempt date parse from filename (first YYYY-MM-DD)
+                import re
+                m = re.search(r"(20\d{2}-\d{2}-\d{2})", p.name)
+                if m:
+                    rec["date"] = m.group(1)
+                items.append(rec)
             except Exception:
                 continue
         # Sort by mtime desc
         items.sort(key=lambda x: x["mtime"], reverse=True)
+        # Date filtering if applicable
+        if start_date or end_date:
+            def _in_range(rec):
+                d = rec.get("date")
+                if not d:
+                    return False
+                if start_date and d < start_date:
+                    return False
+                if end_date and d > end_date:
+                    return False
+                return True
+            items = [r for r in items if _in_range(r)]
         total = len(items)
         if offset < 0:
             offset = 0
         paged = items[offset: offset + limit] if limit and limit > 0 else items[offset:]
-        return jsonify({
+        resp = jsonify({
             "pattern": pat,
             "total": total,
             "offset": offset,
@@ -102,8 +129,10 @@ def api_list_processed():
             "returned": len(paged),
             "files": paged
         })
+        return _add_cache_headers(resp)
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        resp = jsonify({"error": str(e)})
+        return _add_cache_headers(resp), 500
 
 
 @app.route("/api/list/props-actuals")
@@ -180,11 +209,65 @@ def api_processed_summary():
         # pick newest by mtime
         files.sort(key=lambda x: x[1], reverse=True)
         latest_name = files[0][0]
+        latest_mtime = files[0][1]
+        import time as _t
+        age_sec = int(_t.time() - latest_mtime)
         summary[key] = {
             "latest": latest_name,
-            "date": str(parse_date(latest_name) or "")
+            "date": str(parse_date(latest_name) or ""),
+            "mtime_iso": _dt.fromtimestamp(latest_mtime).isoformat(),
+            "age_seconds": age_sec,
         }
-    return jsonify(summary)
+    resp = jsonify(summary)
+    return _add_cache_headers(resp)
+
+@app.route("/api/processed/staleness")
+def api_processed_staleness():
+    """Check presence of expected processed files for a given date (default today).
+
+    Query params:
+    - date: YYYY-MM-DD (defaults to today in server's timezone)
+    - expect: comma list of keys (defaults to common set)
+    Returns missing list and ok boolean.
+    """
+    from datetime import datetime as _dt2
+    target = request.args.get("date")
+    if not target:
+        target = _dt2.now().strftime("%Y-%m-%d")
+    keys_param = request.args.get("expect")
+    default_keys = [
+        "predictions","props_predictions","game_odds","props_edges",
+        "recommendations","props_recommendations","props_actuals"
+    ]
+    keys = [k.strip() for k in (keys_param.split(',') if keys_param else default_keys) if k.strip()]
+    pattern_map = {
+        "predictions": f"predictions_{target}.csv",
+        "props_predictions": f"props_predictions_{target}.csv",
+        "game_odds": f"game_odds_{target}.csv",
+        "props_edges": f"props_edges_{target}.csv",
+        "recommendations": f"recommendations_{target}.csv",
+        "props_recommendations": f"props_recommendations_{target}.csv",
+        "props_actuals": f"props_actuals_{target}.csv",
+    }
+    base = BASE_DIR / "data" / "processed"
+    missing = []
+    present = {}
+    for k in keys:
+        fname = pattern_map.get(k)
+        if not fname:
+            continue
+        path = base / fname
+        if path.exists():
+            present[k] = fname
+        else:
+            missing.append(k)
+    resp = jsonify({
+        "date": target,
+        "missing": missing,
+        "present": present,
+        "ok": len(missing) == 0
+    })
+    return _add_cache_headers(resp, seconds=30)
 
 
 
