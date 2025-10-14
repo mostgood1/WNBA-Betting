@@ -175,16 +175,16 @@ async function maybeLoadOdds(dateStr){
   }
   if (!files.length) return;
   function mergeOdds(base, add){
+    // Merge by filling missing values only so earlier sources in `sources` list take precedence.
+    // This prioritizes closing/consensus (OddsAPI) over Bovada, aligning with desired behavior.
     if (!base) return add;
     const out = { ...base };
-    const addIsBovada = String(add.bookmaker||'').toLowerCase().includes('bovada') || String(add.source||'').toLowerCase().includes('bovada');
     const isNum = v => v!=='' && v!=null && !Number.isNaN(Number(v));
     const isSpread = v => isNum(v) && Math.abs(Number(v))<=50;
     const isTotal = v => isNum(v) && Number(v)>=100 && Number(v)<=330;
     const pickIf = (k, pred) => {
       const cur = out[k]; const nxt = add[k];
       const curOk = pred(cur); const nxtOk = pred(nxt);
-      if (addIsBovada && nxtOk) { out[k] = nxt; return; }
       if (!curOk && nxtOk) out[k] = nxt;
     };
     if (!out.bookmaker && add.bookmaker) out.bookmaker = add.bookmaker;
@@ -609,7 +609,20 @@ function renderDate(dateStr){
   const wrap = document.getElementById('cards');
   if (!wrap) return;
   wrap.innerHTML = '';
-  const list = state.byDate.get(dateStr) || [];
+  let list = state.byDate.get(dateStr) || [];
+  // Sort games by commence/start time: prefer odds.commence_time, else schedule timestamps
+  try{
+    const keyTime = (g)=>{
+      const home = g.home_tricode, away = g.away_tricode;
+      const odds = state.oddsByKey.get(`${dateStr}|${home}|${away}`);
+      const ct = odds && odds.commence_time ? new Date(odds.commence_time) : null;
+      if (ct && !isNaN(ct)) return ct.getTime();
+      const iso = g.datetime_utc || g.datetime_est || (g.date_utc?`${g.date_utc}T00:00:00Z`: (g.date_est?`${g.date_est}T00:00:00Z`: null));
+      const d = iso ? new Date(iso) : null;
+      return (d && !isNaN(d)) ? d.getTime() : Number.MAX_SAFE_INTEGER;
+    };
+    list = list.slice().sort((a,b)=> keyTime(a) - keyTime(b));
+  }catch(_){ /* ignore sort errors */ }
   const showResults = document.getElementById('resultsToggle')?.checked;
   const hideOdds = document.getElementById('hideOdds')?.checked;
   // Build simple filters
@@ -641,7 +654,7 @@ function renderDate(dateStr){
   const finals = showResults ? resultChips(recon) : '';
     // Projected / Actual scores
     let projHome=null, projAway=null;
-    if (pred && pred.pred_total && pred.pred_margin){
+    if (pred && Number.isFinite(Number(pred.pred_total)) && Number.isFinite(Number(pred.pred_margin))){
       const T = Number(pred.pred_total), M = Number(pred.pred_margin);
       if (Number.isFinite(T) && Number.isFinite(M)){
         projHome = (T + M) / 2;
@@ -900,7 +913,10 @@ function renderDate(dateStr){
       }
   totalDetailLine = `O/U: ${fmtNum(tot)}${side?` • Model: ${side} (Edge ${(T - tot>=0?'+':'')}${(T - tot).toFixed(2)})`:''}${totResult}`;
     }
+  // Expose sort-time for possible external sorting/debug
+  const sortIso = (odds && odds.commence_time) ? odds.commence_time : (dtIso || `${dateStr}T00:00:00Z`);
   node.setAttribute('data-game-date', dtIso || dateStr);
+  node.setAttribute('data-sort-time', sortIso);
   node.setAttribute('data-status', isFinal ? 'final' : (isLive ? 'live' : 'scheduled'));
     node.setAttribute('data-home-abbr', home);
     node.setAttribute('data-away-abbr', away);
