@@ -1,0 +1,11 @@
+{
+  "date": "2025-10-15",
+  "window_days": 7,
+  "biases": {
+    "pts": 0.0,
+    "reb": 0.0,
+    "ast": 0.0,
+    "threes": 0.0,
+    "pra": 0.0
+  }
+}
