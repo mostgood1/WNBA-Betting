@@ -9,8 +9,10 @@ src/nba_betting/odds_api.py
 src/nba_betting/odds_bovada.py
 src/nba_betting/player_logs.py
 src/nba_betting/props_actuals.py
+src/nba_betting/props_calibration.py
 src/nba_betting/props_edges.py
 src/nba_betting/props_features.py
+src/nba_betting/props_npu.py
 src/nba_betting/props_train.py
 src/nba_betting/rosters.py
 src/nba_betting/schedule.py

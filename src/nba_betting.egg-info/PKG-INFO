@@ -158,8 +158,12 @@ python -m nba_betting.cli fetch-prop-actuals --date 2025-01-15
 python -m nba_betting.cli fetch-prop-actuals --start 2024-10-01 --end 2025-06-30
 ```
 
-Output is upserted to `data/processed/props_actuals.csv` and `.parquet` with columns:
-- date, game_id, team, player_id, player_name, pts, reb, ast, threes, pra
+Output is upserted to a consolidated Parquet store `data/processed/props_actuals.parquet` and immutable per-day CSV snapshots `data/processed/props_actuals_YYYY-MM-DD.csv` with columns:
+- date, game_id, player_id, player_name, team_abbr, pts, reb, ast, threes, pra
+
+Notes:
+- The old rolling `props_actuals.csv` file has been deprecated to avoid daily git diffs.
+- Each day’s snapshot is append/deduped by (date, game_id, player_id) so re-runs are idempotent.
 
 ### Build, train, predict, evaluate props
 
@@ -214,9 +218,9 @@ This produces an edges CSV you can sort by EV or edge for actionable picks witho
 - Rscript not found: install R, add `Rscript.exe` to PATH, or set `RSCRIPT_PATH` to the full path.
 - OddsAPI 422 for player props: the API may not have props at your snapshot timestamp; re-run with `--mode current` near tip-off or try a different date.
 
-## Frontend & Render Deployment (mirrors NFL-Betting)
+## Frontend & Render Deployment (mirrors NHL-Betting)
 
-This repo now deploys exactly like `mostgood1/NFL-Betting`: a minimal Flask app serves the static frontend under `web/` and redirects `/` → `/web/index.html`. Gunicorn runs the Flask app on Render.
+This repo deploys like the NHL site: a minimal Flask app serves the cards at `/` using the static assets in `web/`. Gunicorn runs the Flask app on Render.
 
 What’s included for deploy:
 - `app.py` – Flask server that serves `web/` assets and a `/health` endpoint.
@@ -230,26 +234,74 @@ Run locally (Windows PowerShell):
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-python app.py  # http://localhost:5050
+python app.py  # http://127.0.0.1:5050
 ```
 
 Deploy on Render (Blueprint):
-1) Push to GitHub (done if you’re viewing this there).
-2) In Render: New → Blueprint → paste repo URL. It will detect `render.yaml` and create a Python Web Service.
-3) Build Command: `pip install -r requirements.txt` (from render.yaml)
-4) Start Command: `bash start.sh` (from render.yaml)
+
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/mostgood1/NBA-Betting)
+
+1) Click the button above (or in Render: New → Blueprint → paste this repo URL). Render will detect `render.yaml`.
+2) Review resources to be created:
+	- Web Service: Python (serves the app and APIs)
+	- Cron Jobs: calls the app’s `/api/cron/*` endpoints on a schedule
+3) Configure Environment Variables for the Web Service (recommended):
+	- `CRON_TOKEN` (required to authorize cron calls)
+	- `ODDS_API_KEY` (required for player-props odds to compute edges)
+	- `GH_TOKEN` or `GIT_PAT` (optional, for server-side git pushes of artifacts)
+	- `GH_NAME` and `GH_EMAIL` (optional, git identity for commits)
+4) Click “Apply” to create the Blueprint resources. First deploy will build and start the web service; cron jobs then start firing on the configured schedule.
+5) Verify:
+	- `GET /api/version` returns a SHA
+	- `GET /api/cron/config` shows `have_cron_token=true`
+	- After the first overnight window (or run manually), `GET /api/data-status?date=YYYY-MM-DD` shows row counts > 0
+
+Notes:
+- The cron jobs in `render.yaml` already include Authorization headers and use `async=1` where appropriate to avoid timeouts.
+- If you prefer not to use Render cron jobs, this repo also includes a GitHub Actions scheduler (`.github/workflows/nbabetting-scheduler.yml`). Add two repo secrets to enable it:
+  - `NBA_BETTING_BASE_URL` → your Render service URL
+  - `NBA_BETTING_CRON_TOKEN` → the same `CRON_TOKEN` value
+  The workflow will call the same cron endpoints on an overnight + midday cadence.
 
 Environment variables (optional but consistent with NFL app):
 - `FLASK_ENV=production`
 - `PYTHONUNBUFFERED=1`
 
 Routing:
-- `/` redirects to `/web/index.html`
-- Static assets are served under `/web/*` (e.g., `/web/assets/logos/BOS.svg`).
+- `/` serves the cards page directly
+- Static assets are under `/web/*` (e.g., `/web/assets/logos/BOS.svg`)
+- Legacy `/web/` and `/web/index.html` redirect to `/` for a single canonical entrypoint
 
 Notes:
-- The UI is static; all data files it reads (CSV/JSON) are bundled in the repo and served statically.
-- To update slate data/odds snapshots, commit updated files and push; Render will redeploy automatically.
+- Use the Flask app for both UI and APIs (no separate static http.server is needed).
+- The app serves JSON/CSV artifacts directly from `/data/...` for the client to render.
+- Prefer hitting cron endpoints or CLI to regenerate predictions/odds artifacts; the page will reflect updates without redeploy.
+
+### New pages and APIs for player props parity
+
+Frontend pages (under `web/`):
+- `/props` – existing props-by-day table
+- `/props/recommendations` – per-player cards of best edges (NFL-style)
+- `/props/reconciliation` – table view of reconciled props/actuals
+
+APIs:
+- `GET /api/props?date=YYYY-MM-DD[&home_team=...&away_team=...&min_edge=...&min_ev=...]`
+	- Returns raw props rows (edges or predictions) with optional collapse to best-of-book.
+- `GET /api/props/recommendations?date=YYYY-MM-DD[&market=pts|reb|ast|threes][&onlyEV=1][&minEV=1.0][&home_team=...&away_team=...]`
+	- Aggregates props edges into player cards with plays sorted by EV% then edge. `minEV` is percent.
+	- Includes `games` array built from the day’s predictions when available.
+- `GET /api/props/reconciliation?date=YYYY-MM-DD[&team=...][&player=...]`
+	- Serves reconciled props rows for the date (built from nbastatR logs), filterable by team/player.
+
+Examples (PowerShell):
+
+```powershell
+# Cards aggregation with min EV filter
+Invoke-RestMethod 'http://localhost:5050/api/props/recommendations?date=2025-10-05&onlyEV=1&minEV=10'
+
+# Reconciliation table for a past date
+Invoke-RestMethod 'http://localhost:5050/api/props/reconciliation?date=2025-10-04'
+```
 
 ## Admin endpoints (optional)
 
@@ -278,3 +330,39 @@ $resp
 # Poll status
 Invoke-RestMethod http://localhost:5050/api/admin/daily-update/status?tail=100 | Format-List
 ```
+
+## Cron endpoints (simplified)
+
+Render should not run any models. Cron endpoints are token-gated (set `CRON_TOKEN`). Use one of:
+
+- Header: `Authorization: Bearer <CRON_TOKEN>`
+- Header: `X-Cron-Token: <CRON_TOKEN>`
+- Query: `?token=<CRON_TOKEN>`
+
+Endpoints to use:
+- `POST /api/cron/refresh-bovada?date=YYYY-MM-DD` – fetches game odds and, if props markets exist, computes props edges in file-only mode (expects `props_predictions_YYYY-MM-DD.csv` to be present from your local daily run).
+- `POST /api/cron/capture-closing?date=YYYY-MM-DD` – exports `data/processed/closing_lines_YYYY-MM-DD.csv` (if consensus data available).
+- `POST /api/cron/reconcile-games?date=YYYY-MM-DD` – writes reconciliation CSV for that date (defaults to yesterday if omitted).
+- `GET  /api/cron/config` – list of available cron endpoints.
+
+Render examples (PowerShell syntax):
+
+```powershell
+$base = "https://your-render-url.onrender.com"
+$token = "$(RenderEnv:CRON_TOKEN)"  # or paste token for local testing
+$date = (Get-Date).ToString('yyyy-MM-dd')
+
+# Refresh Bovada odds (and compute props edges from Bovada if props present; file-only)
+Invoke-RestMethod -Method Post -Uri "$base/api/cron/refresh-bovada?date=$date" -Headers @{ Authorization = "Bearer $token" }
+
+# Capture consensus closing lines (if configured)
+Invoke-RestMethod -Method Post -Uri "$base/api/cron/capture-closing?date=$date" -Headers @{ Authorization = "Bearer $token" }
+
+# Reconcile yesterday
+$y = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd')
+Invoke-RestMethod -Method Post -Uri "$base/api/cron/reconcile-games?date=$y" -Headers @{ Authorization = "Bearer $token" }
+```
+
+Scheduling on Render:
+- Use Render Cron Jobs to hit these endpoints on your cadence. Include the Bearer header.
+- If you attach a Render Disk, ensure `data/` points to that disk path (default here is repo-relative). Update paths in `src/nba_betting/config.py` if needed.

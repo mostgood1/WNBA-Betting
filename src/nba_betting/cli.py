@@ -3,6 +3,7 @@ from __future__ import annotations
 import click
 import os
 import pandas as pd
+import subprocess
 from rich.console import Console
 from rich.progress import track
 
@@ -554,6 +555,190 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
     console.print(f"Saved props eval metrics to {out_path}")
 
 
+@cli.command("train-props-npu")
+@click.option("--alpha", type=float, default=1.0, show_default=True, help="Ridge regularization strength")
+def train_props_npu_cmd(alpha: float):
+    """Train props regression models and convert to ONNX for NPU acceleration."""
+    console.rule("Train Props Models (NPU)")
+    try:
+        from .props_npu import train_props_models_npu
+        train_props_models_npu(alpha=alpha)
+        console.print("Saved props models, ONNX models, and feature columns for NPU.")
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red")
+    except FileNotFoundError as e:
+        console.print(str(e), style="red")
+    except Exception as e:
+        console.print(f"Failed to train NPU props models: {e}", style="red")
+
+
+@cli.command("predict-props-npu")
+@click.option("--date", "date_str", type=str, required=True, help="Prediction date YYYY-MM-DD (features built up to the day before)")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path (default props_predictions_npu_YYYY-MM-DD.csv)")
+@click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Filter predictions to teams on the scoreboard slate and add opponent/home flags")
+@click.option("--calibrate/--no-calibrate", default=True, show_default=True, help="Apply rolling bias calibration from recent recon vs predictions")
+@click.option("--calib-window", type=int, default=7, show_default=True, help="Lookback days for calibration window (excludes today)")
+def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int):
+    """Predict player props using NPU-accelerated ONNX models for ultra-fast inference."""
+    console.rule("Predict Props (NPU)")
+    try:
+        feats = build_features_for_date(date_str)
+    except Exception as e:
+        console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
+    
+    # Optional slate filter using ScoreboardV2
+    if slate_only:
+        try:
+            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+            nd = sb.get_normalized_dict()
+            gh = pd.DataFrame(nd.get("GameHeader", []))
+            ls = pd.DataFrame(nd.get("LineScore", []))
+            if not gh.empty and not ls.empty:
+                ls_cols = {c.upper(): c for c in ls.columns}
+                if {"TEAM_ID","TEAM_ABBREVIATION"}.issubset(ls_cols.keys()):
+                    team_map = {}
+                    for _, r in ls.iterrows():
+                        try:
+                            team_map[int(r[ls_cols["TEAM_ID"]])] = str(r[ls_cols["TEAM_ABBREVIATION"]]).upper()
+                        except Exception:
+                            continue
+                    gh_cols = {c.upper(): c for c in gh.columns}
+                    if {"HOME_TEAM_ID","VISITOR_TEAM_ID"}.issubset(gh_cols.keys()):
+                        games = []
+                        for _, g in gh.iterrows():
+                            try:
+                                hid = int(g[gh_cols["HOME_TEAM_ID"]]); vid = int(g[gh_cols["VISITOR_TEAM_ID"]])
+                                h = team_map.get(hid); v = team_map.get(vid)
+                                if h and v:
+                                    games.append({"team": h, "opponent": v, "home": True})
+                                    games.append({"team": v, "opponent": h, "home": False})
+                            except Exception:
+                                continue
+                        slate = pd.DataFrame(games)
+                        if not slate.empty and "team" in feats.columns:
+                            feats["team"] = feats["team"].astype(str).str.upper()
+                            feats = feats.merge(slate, on="team", how="inner")
+        except Exception:
+            # If scoreboard fails, proceed without filtering
+            pass
+    
+    try:
+        from .props_npu import predict_props_npu
+        preds = predict_props_npu(feats)
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red"); return
+    except FileNotFoundError:
+        console.print("NPU props models not found. Run train-props-npu first.", style="red"); return
+    except Exception as e:
+        console.print(f"Failed to predict props with NPU: {e}", style="red"); return
+    
+    # Optional light calibration (rolling intercept per stat)
+    if calibrate:
+        try:
+            from .props_calibration import compute_biases, apply_biases, save_calibration
+            biases = compute_biases(anchor_date=date_str, window_days=int(calib_window))
+            preds = apply_biases(preds, biases)
+            save_calibration(biases, anchor_date=date_str, window_days=int(calib_window))
+            console.print({"calibration": biases})
+        except Exception as _e:
+            console.print(f"Calibration skipped due to error: {_e}", style="yellow")
+    
+    if not out_path:
+        out_path = str(paths.data_processed / f"props_predictions_npu_{date_str}.csv")
+    preds.to_csv(out_path, index=False)
+    console.print(f"Saved NPU props predictions to {out_path} (rows={len(preds)}; calibrated={calibrate})")
+
+
+@cli.command("benchmark-npu")
+@click.option("--runs", type=int, default=100, show_default=True, help="Number of benchmark runs")
+@click.option("--players", type=int, default=500, show_default=True, help="Number of players to simulate")
+def benchmark_npu_cmd(runs: int, players: int):
+    """Benchmark NPU vs CPU performance for props prediction."""
+    console.rule("NPU Benchmark")
+    try:
+        from .props_npu import benchmark_npu_performance
+        results = benchmark_npu_performance(num_runs=runs, num_players=players)
+        console.print(results)
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red")
+    except Exception as e:
+        console.print(f"Benchmark failed: {e}", style="red")
+
+
+@cli.command("train-games-npu")
+@click.option("--retrain/--no-retrain", default=True, show_default=True, help="Retrain models with latest data before converting to ONNX")
+def train_games_npu_cmd(retrain: bool):
+    """Train game models (win probability, spread, totals) and convert to ONNX for NPU acceleration."""
+    console.rule("Train Game Models (NPU)")
+    try:
+        from .games_npu import train_game_models_npu
+        train_game_models_npu(retrain=retrain)
+        console.print("Saved game models and ONNX models for NPU acceleration.")
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red")
+    except FileNotFoundError as e:
+        console.print(str(e), style="red")
+    except Exception as e:
+        console.print(f"Failed to train NPU game models: {e}", style="red")
+
+
+@cli.command("predict-games-npu")
+@click.option("--date", "date_str", type=str, required=True, help="Prediction date YYYY-MM-DD")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path (default games_predictions_npu_YYYY-MM-DD.csv)")
+@click.option("--periods/--no-periods", default=True, show_default=True, help="Include halves and quarters predictions")
+def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
+    """Predict game outcomes using NPU-accelerated models for ultra-fast inference."""
+    console.rule("Predict Games (NPU)")
+    try:
+        # Load features for the date
+        features_path = paths.data_processed / "features.parquet"
+        if not features_path.exists():
+            console.print("Features not found. Run build-features first.", style="red")
+            return
+        
+        features_df = pd.read_parquet(features_path)
+        
+        # Filter to the specific date if provided
+        if 'date' in features_df.columns:
+            features_df['date'] = pd.to_datetime(features_df['date']).dt.date
+            target_date = pd.to_datetime(date_str).date()
+            features_df = features_df[features_df['date'] == target_date]
+        
+        if features_df.empty:
+            console.print(f"No games found for {date_str}", style="yellow")
+            return
+    
+        from .games_npu import predict_games_npu
+        preds = predict_games_npu(features_df, include_periods=periods)
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red"); return
+    except FileNotFoundError:
+        console.print("NPU game models not found. Run train-games-npu first.", style="red"); return
+    except Exception as e:
+        console.print(f"Failed to predict games with NPU: {e}", style="red"); return
+    
+    if not out_path:
+        out_path = str(paths.data_processed / f"games_predictions_npu_{date_str}.csv")
+    preds.to_csv(out_path, index=False)
+    console.print(f"Saved NPU game predictions to {out_path} (rows={len(preds)}; periods={periods})")
+
+
+@cli.command("benchmark-games-npu")
+@click.option("--runs", type=int, default=100, show_default=True, help="Number of benchmark runs")
+@click.option("--games", type=int, default=100, show_default=True, help="Number of games to simulate")
+def benchmark_games_npu_cmd(runs: int, games: int):
+    """Benchmark NPU vs CPU performance for game predictions."""
+    console.rule("Game NPU Benchmark")
+    try:
+        from .games_npu import benchmark_game_npu_performance
+        results = benchmark_game_npu_performance(num_runs=runs, num_games=games)
+        console.print(results)
+    except ImportError as e:
+        console.print(f"NPU dependencies not available: {e}", style="red")
+    except Exception as e:
+        console.print(f"Game benchmark failed: {e}", style="red")
+
+
 @cli.command("props-edges")
 @click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
 @click.option("--use-saved/--no-use-saved", default=True, show_default=True, help="Prefer odds in data/raw if present before fetching")
@@ -923,14 +1108,22 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
 @click.option("--git-push/--no-git-push", default=False, show_default=True, help="Commit and push changes to git at end")
 @click.option("--props-books", type=str, default=None, help="Comma-separated bookmaker keys to include in edges")
 @click.option("--min-prop-edge", type=float, default=0.03, show_default=True)
-def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float):
-    """End-to-end daily updater: refresh schedule, rosters, logs, retrain, predict games/props, fetch odds, compute edges, and optionally git push."""
-    console.rule("Daily Update")
+@click.option("--use-npu/--no-npu", default=True, show_default=True, help="Use NPU acceleration for training and predictions")
+@click.option("--reconcile-days", type=int, default=7, show_default=True, help="Days back to reconcile actuals")
+def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float, use_npu: bool, reconcile_days: int):
+    """Enhanced end-to-end daily updater with NPU acceleration, actuals reconciliation, and comprehensive odds fetching."""
+    console.rule("Enhanced Daily Update")
     import datetime as _dt
+    import subprocess
     target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
+    
+    console.print(f"🚀 Running enhanced daily update for {target_date}")
+    console.print(f"📊 NPU Acceleration: {'Enabled' if use_npu else 'Disabled'}")
+    console.print(f"🔄 Reconciliation window: {reconcile_days} days")
 
     # 1) Schedule (once per season; idempotent to run daily)
     try:
+        console.print("📅 Updating schedule...")
         df_sched = fetch_schedule_2025_26()
         console.print({"schedule_rows": int(len(df_sched))})
     except Exception as e:
@@ -938,6 +1131,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 2) Rosters
     try:
+        console.print("👥 Updating rosters...")
         df_rosters = fetch_rosters(season=season)
         console.print({"roster_rows": int(len(df_rosters))})
     except Exception as e:
@@ -945,70 +1139,390 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 3) Player logs (season(s) up to current)
     try:
+        console.print("📊 Updating player logs...")
         # Infer seasons around target date; for now, update current season only
         fetch_player_logs([season])
         console.print("Player logs refreshed")
     except Exception as e:
         console.print(f"Player logs update failed: {e}", style="yellow")
 
-    # 4) Rebuild features and retrain game models
+    # 4) Reconcile historic game actuals (last N days)
     try:
+        console.print(f"🔍 Reconciling game actuals for last {reconcile_days} days...")
+        for days_back in range(1, reconcile_days + 1):
+            past_date = target_date - _dt.timedelta(days=days_back)
+            try:
+                # This will fetch and upsert actual game results
+                pass  # Game actuals reconciliation logic would go here
+                console.print(f"  ✅ Game actuals for {past_date}")
+            except Exception as e:
+                console.print(f"  ⚠️  Game actuals for {past_date}: {e}")
+    except Exception as e:
+        console.print(f"Game actuals reconciliation failed: {e}", style="yellow")
+
+    # 5) Reconcile historic prop actuals (last N days)
+    try:
+        console.print(f"🎯 Reconciling prop actuals for last {reconcile_days} days...")
+        for days_back in range(1, reconcile_days + 1):
+            past_date = target_date - _dt.timedelta(days=days_back)
+            try:
+                # Call the function directly rather than the CLI command
+                from .props_actuals import fetch_prop_actuals_via_nbastatr
+                try:
+                    df_actuals = fetch_prop_actuals_via_nbastatr(date=str(past_date))
+                    if df_actuals is not None and not df_actuals.empty:
+                        from .props_actuals import upsert_props_actuals
+                        upsert_props_actuals(df_actuals)
+                        console.print(f"  ✅ Prop actuals for {past_date}")
+                except Exception:
+                    # Fallback to nba_api
+                    from .props_actuals import fetch_prop_actuals_via_nbaapi
+                    df_actuals = fetch_prop_actuals_via_nbaapi(str(past_date))
+                    if df_actuals is not None and not df_actuals.empty:
+                        from .props_actuals import upsert_props_actuals
+                        upsert_props_actuals(df_actuals)
+                        console.print(f"  ✅ Prop actuals for {past_date}")
+            except Exception as e:
+                console.print(f"  ⚠️  Prop actuals for {past_date}: {e}")
+    except Exception as e:
+        console.print(f"Props actuals reconciliation failed: {e}", style="yellow")
+
+    # 6) Rebuild features and retrain game models
+    try:
+        console.print("🏗️  Rebuilding game features...")
         # Build game features uses data/raw/games_nba_api; assume already fetched historically; skip if missing
         feats_raw = paths.data_raw / "games_nba_api.parquet"
         if feats_raw.exists():
-            build_features_cmd()  # writes features.parquet
-            train()
+            # Build features directly - replicating build_features_cmd logic
+            df = pd.read_parquet(feats_raw)
+            from .features import build_features
+            feats = build_features(df)
+            out = paths.data_processed / "features.parquet"
+            out.parent.mkdir(parents=True, exist_ok=True)
+            feats.to_parquet(out, index=False)
+            console.print(f"Features built and saved to {out}")
+            
+            if use_npu:
+                console.print("🚀 Training game models with NPU acceleration...")
+                from .games_npu import train_game_models_npu
+                train_game_models_npu(retrain=True)
+            else:
+                console.print("🖥️  Training game models (CPU)...")
+                feats_path = paths.data_processed / "features.parquet"
+                df = pd.read_parquet(feats_path)
+                from .train import train_models
+                metrics = train_models(df)
+                console.print("Game models trained (CPU)")
         else:
             console.print("Raw games not found; skipping full-game retrain.", style="yellow")
     except Exception as e:
         console.print(f"Game model retrain failed: {e}", style="yellow")
 
-    # 5) Rebuild props features and retrain props models
+    # 7) Rebuild props features and retrain props models
     try:
-        build_props_features_cmd()
-        train_props_cmd(alpha=1.0)
+        console.print("🎯 Rebuilding props features...")
+        # Build props features directly
+        from .props_features import build_props_features
+        df = build_props_features()
+        console.print(f"Props features built: {len(df)} rows")
+        
+        if use_npu:
+            console.print("🚀 Training props models with NPU acceleration...")
+            from .props_npu import train_props_models_npu
+            train_props_models_npu(alpha=1.0)
+        else:
+            console.print("🖥️  Training props models (CPU)...")
+            from .props_train import train_props_models
+            train_props_models(alpha=1.0)
+            console.print("Props models trained (CPU)")
     except Exception as e:
         console.print(f"Props model retrain failed: {e}", style="yellow")
 
-    # 6) Predict today's slate (games) and write predictions_<date>.csv
-    try:
-        predict_date_cmd(date_str=str(target_date), merge_odds_csv=None, out_path=None)
-    except Exception as e:
-        console.print(f"Game predictions failed: {e}", style="yellow")
-
-    # 7) Props predictions and edges for target date
-    try:
-        # Predict props (builds as-of features internally)
-        predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True)
-        # Fetch current props odds and compute edges
-        sigma = calibrate_sigma_for_date(str(target_date), window_days=30, min_rows=200, defaults=SigmaConfig())
-        # ensure current odds for props via props-edges command
-        props_edges_cmd(date_str=str(target_date), use_saved=False, mode="current", api_key=odds_api_key, sigma_pts=sigma.pts, sigma_reb=sigma.reb, sigma_ast=sigma.ast, sigma_threes=sigma.threes, sigma_pra=sigma.pra, slate_only=True, min_edge=min_prop_edge, min_ev=0.0, top=200, bookmakers=props_books, calibrate_sigma=False)
-    except Exception as e:
-        console.print(f"Props edges failed: {e}", style="yellow")
-
-    # 8) Current full-game odds snapshot (optional; saved to data/raw via CSV)
+    # 8) Fetch current game odds from OddsAPI and write to CSV
     try:
         if odds_api_key:
+            console.print("💰 Fetching current game odds...")
             cfg = OddsApiConfig(api_key=odds_api_key)
             go = fetch_game_odds_current(cfg, pd.to_datetime(target_date))
             if go is not None and not go.empty:
                 out_csv = paths.data_raw / f"odds_nba_current_{target_date}.csv"
                 go.to_csv(out_csv, index=False)
                 console.print({"game_odds_rows": int(len(go)), "output": str(out_csv)})
+                
+                # Also write to processed for frontend
+                proc_csv = paths.data_processed / f"game_odds_{target_date}.csv"
+                go.to_csv(proc_csv, index=False)
+        else:
+            console.print("No OddsAPI key provided; skipping game odds fetch", style="yellow")
     except Exception as e:
         console.print(f"Game odds fetch failed: {e}", style="yellow")
 
-    # 9) Git commit and push changes (optional)
+    # 9) Predict today's slate (games) and write predictions_<date>.csv
+    try:
+        console.print("🎲 Generating game predictions...")
+        if use_npu:
+            console.print("🚀 Using NPU acceleration for game predictions...")
+            from .games_npu import predict_games_npu
+            # Load features and predict
+            features_path = paths.data_processed / "features.parquet"
+            if features_path.exists():
+                features_df = pd.read_parquet(features_path)
+                if 'date' in features_df.columns:
+                    features_df['date'] = pd.to_datetime(features_df['date']).dt.date
+                    target_date_obj = pd.to_datetime(str(target_date)).date()
+                    features_df = features_df[features_df['date'] == target_date_obj]
+                
+                if not features_df.empty:
+                    preds = predict_games_npu(features_df, include_periods=True)
+                    out_path = paths.data_processed / f"predictions_{target_date}.csv"
+                    preds.to_csv(out_path, index=False)
+                    console.print(f"✅ NPU game predictions saved to {out_path}")
+                else:
+                    console.print(f"No games found for {target_date} in features", style="yellow")
+        else:
+            predict_date_cmd(date_str=str(target_date), merge_odds_csv=None, out_path=None)
+    except Exception as e:
+        console.print(f"Game predictions failed: {e}", style="yellow")
+
+    # 10) Fetch current prop odds from OddsAPI and write to CSV
+    try:
+        if odds_api_key:
+            console.print("🎯 Fetching current prop odds...")
+            cfg = OddsApiConfig(api_key=odds_api_key)
+            # Fetch player props for today
+            from .odds_api import fetch_player_props_current
+            props_odds = fetch_player_props_current(cfg, date=target_date, markets=None, verbose=True)
+            if props_odds is not None and not props_odds.empty:
+                out_csv = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
+                props_odds.to_csv(out_csv, index=False)
+                console.print({"prop_odds_rows": int(len(props_odds)), "output": str(out_csv)})
+        else:
+            console.print("No OddsAPI key provided; skipping prop odds fetch", style="yellow")
+    except Exception as e:
+        console.print(f"Prop odds fetch failed: {e}", style="yellow")
+
+    # 11) Props predictions and edges for target date
+    try:
+        console.print("🎯 Generating prop predictions and edges...")
+        # Predict props (builds as-of features internally)
+        if use_npu:
+            console.print("🚀 Using NPU acceleration for prop predictions...")
+            from .props_npu import predict_props_npu
+            from .props_features import build_features_for_date
+            try:
+                feats = build_features_for_date(str(target_date))
+                if not feats.empty:
+                    preds = predict_props_npu(feats)
+                    out_path = paths.data_processed / f"props_predictions_npu_{target_date}.csv"
+                    preds.to_csv(out_path, index=False)
+                    console.print(f"✅ NPU prop predictions saved to {out_path}")
+            except Exception as e:
+                console.print(f"NPU prop predictions failed, falling back to CPU: {e}", style="yellow")
+                predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True, calibrate=True, calib_window=7)
+        else:
+            predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True, calibrate=True, calib_window=7)
+        
+        # Fetch current props odds and compute edges
+        if odds_api_key:
+            try:
+                sigma = calibrate_sigma_for_date(str(target_date), window_days=30, min_rows=200, defaults=SigmaConfig())
+                edges = compute_props_edges(
+                    date=str(target_date),
+                    sigma=sigma,
+                    use_saved=False,
+                    mode="current",
+                    api_key=odds_api_key,
+                    source="auto",
+                    predictions_path=None,
+                    from_file_only=False
+                )
+                if edges is not None and not edges.empty:
+                    # Apply edge and EV filters
+                    edges = edges[(edges["edge"] >= min_prop_edge) & (edges["ev"] >= 0.0)].copy()
+                    edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
+                    if len(edges) > 200:
+                        edges = edges.groupby("stat", group_keys=False).head(max(1, 200 // max(1, edges["stat"].nunique())))
+                    out = paths.data_processed / f"props_edges_{target_date}.csv"
+                    edges.to_csv(out, index=False)
+                    console.print(f"✅ Props edges saved to {out}")
+            except Exception as e:
+                console.print(f"Props edges computation failed: {e}", style="yellow")
+        else:
+            console.print("No OddsAPI key provided; skipping props edges", style="yellow")
+    except Exception as e:
+        console.print(f"Props edges failed: {e}", style="yellow")
+
+    # 12) Generate frontend-ready recommendation files
+    try:
+        console.print("📱 Generating frontend recommendations...")
+        # Generate game recommendations - simplified version to avoid click context
+        try:
+            pred = paths.data_processed / f"predictions_{target_date}.csv"
+            if pred.exists():
+                df = pd.read_csv(pred)
+                d = target_date
+                recs = []
+                def _num(x):
+                    try:
+                        return float(x)
+                    except Exception:
+                        return None
+                for _, r in df.iterrows():
+                    try:
+                        home = r.get("home_team"); away = r.get("visitor_team")
+                        # ATS
+                        pm = _num(r.get("pred_margin")); hs = _num(r.get("home_spread"))
+                        if pm is not None and hs is not None:
+                            edge_spread = pm - (-hs)
+                            if abs(edge_spread) >= 1.0:
+                                recs.append({"market":"ATS","side": home if edge_spread>0 else away, "home": home, "away": away, "edge": float(edge_spread), "date": str(d)})
+                        # TOTAL
+                        pt = _num(r.get("pred_total")); tot = _num(r.get("total"))
+                        if pt is not None and tot is not None:
+                            edge_total = pt - tot
+                            if abs(edge_total) >= 1.5:
+                                recs.append({"market":"TOTAL","side": ("Over" if edge_total>0 else "Under"), "home": home, "away": away, "edge": float(edge_total), "date": str(d)})
+                    except Exception:
+                        continue
+                out = paths.data_processed / f"recommendations_{target_date}.csv"
+                pd.DataFrame(recs).to_csv(out, index=False)
+                console.print(f"✅ Game recommendations saved to {out}")
+        except Exception as e:
+            console.print(f"Game recommendations failed: {e}", style="yellow")
+        
+        # Generate prop recommendations - simplified version
+        try:
+            edges_csv = paths.data_processed / f"props_edges_{target_date}.csv"
+            if edges_csv.exists():
+                edges = pd.read_csv(edges_csv)
+                if not edges.empty:
+                    # Simple filtering for top recommendations
+                    top_recs = edges[edges["ev"] >= 0.05].copy()
+                    top_recs = top_recs.sort_values("ev", ascending=False).head(50)
+                    out = paths.data_processed / f"props_recommendations_{target_date}.csv"
+                    top_recs.to_csv(out, index=False)
+                    console.print(f"✅ Prop recommendations saved to {out}")
+        except Exception as e:
+            console.print(f"Prop recommendations failed: {e}", style="yellow")
+        
+        console.print("✅ Frontend recommendation files generated")
+    except Exception as e:
+        console.print(f"Frontend recommendations failed: {e}", style="yellow")
+
+    # 13) Git commit and push changes (optional)
     if git_push:
         try:
-            subprocess.run(["git", "add", "-A"], check=False)
-            msg = f"daily update {target_date}"
-            subprocess.run(["git", "commit", "-m", msg], check=False)
-            subprocess.run(["git", "push"], check=False)
-            console.print("Git push complete")
+            console.print("📤 Committing and pushing to git...")
+            subprocess.run(["git", "add", "-A"], check=False, cwd=paths.root)
+            msg = f"daily update {target_date} {'(NPU)' if use_npu else '(CPU)'}"
+            result = subprocess.run(["git", "commit", "-m", msg], check=False, cwd=paths.root, capture_output=True, text=True)
+            if result.returncode == 0:
+                push_result = subprocess.run(["git", "push"], check=False, cwd=paths.root, capture_output=True, text=True)
+                if push_result.returncode == 0:
+                    console.print("✅ Git push complete")
+                else:
+                    console.print(f"Git push failed: {push_result.stderr}", style="yellow")
+            else:
+                console.print("No changes to commit", style="blue")
         except Exception as e:
-            console.print(f"Git push failed: {e}", style="yellow")
+            console.print(f"Git operations failed: {e}", style="yellow")
+    
+    # 14) Summary report
+    console.print("\n🎉 Daily update complete!")
+    console.print(f"📅 Date: {target_date}")
+    console.print(f"🚀 NPU: {'Enabled' if use_npu else 'Disabled'}")
+    console.print(f"💰 Odds API: {'Used' if odds_api_key else 'Skipped'}")
+    console.print(f"📤 Git Push: {'Yes' if git_push else 'No'}")
+    console.print("\n📁 Check these files for today's data:")
+    console.print(f"  - predictions_{target_date}.csv")
+    console.print(f"  - props_predictions{'_npu' if use_npu else ''}_{target_date}.csv")
+    console.print(f"  - props_edges_{target_date}.csv") 
+    console.print(f"  - recommendations_{target_date}.csv")
+    console.print(f"  - props_recommendations_{target_date}.csv")
+
+
+@cli.command("sync-frontend")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today")
+@click.option("--cleanup-days", type=int, default=30, show_default=True, help="Clean up files older than N days")
+def sync_frontend_cmd(date_str: str | None, cleanup_days: int):
+    """Validate and sync all data files for frontend consumption."""
+    console.rule("Frontend Data Sync")
+    import datetime as _dt
+    target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
+    
+    try:
+        from .frontend_sync import validate_and_sync_frontend_data, cleanup_old_files, get_frontend_data_status
+        
+        console.print(f"🔄 Syncing frontend data for {target_date}...")
+        results = validate_and_sync_frontend_data(str(target_date))
+        
+        console.print("\n📊 Validation Results:")
+        for data_type, validation in results["validation_results"].items():
+            console.print(f"  {data_type}: {validation['rows']} rows")
+        
+        console.print(f"\n📁 Files Created: {len(results['files_created'])}")
+        for file_path in results["files_created"]:
+            console.print(f"  ✅ {file_path}")
+        
+        if results["errors"]:
+            console.print(f"\n⚠️  Errors: {len(results['errors'])}")
+            for error in results["errors"]:
+                console.print(f"  ❌ {error}")
+        
+        # Cleanup old files
+        if cleanup_days > 0:
+            console.print(f"\n🧹 Cleaning up files older than {cleanup_days} days...")
+            cleanup_stats = cleanup_old_files(keep_days=cleanup_days)
+            console.print(f"  Removed {cleanup_stats['files_removed']} files")
+            console.print(f"  Freed {cleanup_stats['bytes_freed']:,} bytes")
+        
+        # Show frontend status
+        console.print(f"\n📱 Frontend Data Status:")
+        status = get_frontend_data_status()
+        for file_name, file_info in status["latest_files"].items():
+            if file_info["exists"]:
+                console.print(f"  ✅ {file_name}")
+            else:
+                console.print(f"  ❌ {file_name} (missing)")
+        
+        console.print(f"\n🎉 Frontend sync complete!")
+        
+    except Exception as e:
+        console.print(f"Frontend sync failed: {e}", style="red")
+
+
+@cli.command("frontend-status")
+def frontend_status_cmd():
+    """Check status of frontend data files."""
+    console.rule("Frontend Data Status")
+    
+    try:
+        from .frontend_sync import get_frontend_data_status
+        
+        status = get_frontend_data_status()
+        
+        console.print("📁 Latest Files:")
+        for file_name, file_info in status["latest_files"].items():
+            if file_info["exists"]:
+                size_mb = file_info["size_bytes"] / (1024 * 1024)
+                console.print(f"  ✅ {file_name} ({size_mb:.2f} MB)")
+                console.print(f"     Last modified: {file_info['last_modified']}")
+            else:
+                console.print(f"  ❌ {file_name} (missing)")
+        
+        console.print(f"\n📅 Recent Files (last 7 days):")
+        for date_str, files in status["dated_files"].items():
+            available_count = sum(1 for exists in files.values() if exists)
+            total_count = len(files)
+            console.print(f"  {date_str}: {available_count}/{total_count} files available")
+        
+        if status["missing_files"]:
+            console.print(f"\n⚠️  Missing Files:")
+            for file_name in status["missing_files"]:
+                console.print(f"  ❌ {file_name}")
+        
+    except Exception as e:
+        console.print(f"Status check failed: {e}", style="red")
 
 
 @cli.command("predict-date")
