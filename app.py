@@ -2995,41 +2995,39 @@ def api_cron_daily_update():
 
 @app.route("/api/cron/run-all", methods=["POST", "GET"])
 def api_cron_run_all():
-    """Composite daily cron mirroring NHL behavior: predict, fetch odds, reconcile, props actuals/edges.
+    """Minimal Render-safe daily cron: refresh odds (today) and reconcile games (yesterday).
 
+    Intent: Keep server-side work light. Models and props actuals/edges run locally only.
     Steps (best-effort, continue on failures):
-      1) Predict for today's slate
-      2) Refresh Bovada odds (or fallback to any available odds file)
-      3) Reconcile yesterday's games (to post finals)
-      4) Props actuals upsert for yesterday
-      5) Compute props edges for today (if supported)
+      1) Refresh Bovada odds for today
+      2) Reconcile yesterday's games
     """
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
+
     today = datetime.utcnow().date()
     yesterday = today - timedelta(days=1)
     d_today = request.args.get("date") or today.isoformat()
     d_yest = request.args.get("yesterday") or yesterday.isoformat()
-    push = (str(request.args.get("push", "0")).lower() in {"1","true","yes"})
-    # Choose python exe
-    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-    if not py or not Path(str(py)).exists():
-        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-        py = str(py_win) if py_win.exists() else "python"
-    env = {"PYTHONPATH": str(SRC_DIR)}
-    logdir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+
+    # Logging setup
+    logdir = _ensure_logs_dir()
+    stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logdir / f"web_daily_update_{stamp}.log"
     results: Dict[str, Any] = {"date": d_today, "yesterday": d_yest, "log_file": str(log_file)}
+
     try:
         # Resolve base URL for internal HTTP calls (Render-safe)
         base_url = os.environ.get("RENDER_EXTERNAL_URL") or os.environ.get("BASE_URL")
         if not base_url:
             port_env = os.environ.get("PORT", "5000")
             base_url = f"http://127.0.0.1:{port_env}"
-        # Server-side: do not run models. Assume predictions CSVs are precomputed locally and pushed.
-        results["models"] = {"note": "server no-op (local models only)"}
-        results["predict_date"] = 0
-        # 2) refresh-bovada for today (HTTP to our own endpoint, to centralize logic/meta)
+
+        # Server-side: do not run models or props jobs.
+        results["note"] = "server-only: odds refresh + game reconciliation"
+
+        # 1) refresh-bovada for today
         try:
             import requests as _rq
             token = os.environ.get("CRON_TOKEN")
@@ -3038,7 +3036,8 @@ def api_cron_run_all():
             results["refresh_bovada"] = (r.status_code, r.text[:200])
         except Exception as e:
             results["refresh_bovada_error"] = str(e)
-        # 3) reconcile-games for yesterday
+
+        # 2) reconcile-games for yesterday
         try:
             import requests as _rq
             token = os.environ.get("CRON_TOKEN")
@@ -3047,25 +3046,15 @@ def api_cron_run_all():
             results["reconcile_games"] = (r.status_code, r.text[:200])
         except Exception as e:
             results["reconcile_games_error"] = str(e)
-        # 4) props actuals upsert for yesterday via CLI
-        try:
-            # Updated CLI subcommand name: fetch-prop-actuals
-            rc4 = _run_to_file([str(py), "-m", "nba_betting.cli", "fetch-prop-actuals", "--date", d_yest], log_file, cwd=BASE_DIR, env=env)
-            results["props_actuals"] = int(rc4)
-        except Exception as e:
-            results["props_actuals_error"] = str(e)
-        # 5) compute props edges for today via CLI in file-only mode
-        try:
-            rc6 = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d_today, "--source", "auto", "--file-only"], log_file, cwd=BASE_DIR, env=env)
-            results["props_edges"] = int(rc6)
-        except Exception as e:
-            results["props_edges_error"] = str(e)
+
         if push:
             ok, detail = _git_commit_and_push(msg=f"daily-run-all {d_today}")
             results["pushed"] = bool(ok)
             results["push_detail"] = detail
+
         _cron_meta_update("run_all", {"date": d_today, "yesterday": d_yest, "log_file": str(log_file)})
         return jsonify(results)
+
     except Exception as e:
         return jsonify({"error": str(e), **results}), 500
 

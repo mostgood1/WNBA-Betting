@@ -40,3 +40,11 @@ services:
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
 # using this file, then create Cron Jobs via the Render UI (New → Cron Job) with the commands below.
 # Alternatively, use the provided GitHub Actions scheduler in .github/workflows/nbabetting-scheduler.yml.
+
+# Suggested Render Cron Jobs (create in Render UI):
+# - Name: refresh-odds-today (every 15 minutes 15:00–23:59 UTC on game days)
+#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-bovada?date=$(date -u +%F)"
+# - Name: reconcile-yesterday (daily at 10:00 UTC)
+#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/reconcile-games?date=$(date -u -d yesterday +%F)"
+# - Name: composite-run-all (optional, daily at 11:00 UTC)
+#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/run-all?push=1"
