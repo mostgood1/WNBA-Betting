@@ -1,12 +1,12 @@
-name: "NBA Betting: Refresh Odds"
+name: "NBA Betting: Reconcile"
 
 on:
   workflow_dispatch: {}
   schedule:
-    - cron: '*/15 15-23 * * *'  # 15:00–23:59 UTC, every 15min — adjust as needed
+    - cron: '5 10 * * *'
 
 jobs:
-  refresh-odds:
+  reconcile:
     runs-on: ubuntu-latest
     env:
       BASE_URL: ${{ secrets.NBA_BETTING_BASE_URL }}
@@ -21,7 +21,7 @@ jobs:
         run: |
           curl -fsS "$BASE_URL/health" || (echo 'Health check failed' && exit 1)
 
-      - name: Refresh odds (today)
+      - name: Reconcile games (yesterday)
         run: |
-          T=$(date -u +%F)
-          curl -fsS -X POST "$BASE_URL/api/cron/refresh-bovada?date=$T" -H "Authorization: Bearer $CRON_TOKEN"
+          D=$(date -u -d yesterday +%F || date -u -v-1d +%F)
+          curl -fsS -X POST "$BASE_URL/api/cron/reconcile-games?date=$D&push=1" -H "Authorization: Bearer $CRON_TOKEN"
