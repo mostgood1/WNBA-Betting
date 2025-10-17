@@ -1,0 +1,13 @@
+﻿{
+  "python.defaultInterpreterPath": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA NPU\\.venv-arm64\\Scripts\\python.exe",
+  "python.terminal.activateEnvironment": true,
+  "python.analysis.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "python.autoComplete.extraPaths": [
+    "${workspaceFolder}/src"
+  ],
+  "terminal.integrated.env.windows": {
+    "PYTHONPATH": "${workspaceFolder}\\src"
+  }
+}

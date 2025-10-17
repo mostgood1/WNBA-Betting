@@ -5,6 +5,8 @@ src/nba_betting/cli.py
 src/nba_betting/config.py
 src/nba_betting/elo.py
 src/nba_betting/features.py
+src/nba_betting/frontend_sync.py
+src/nba_betting/games_npu.py
 src/nba_betting/odds_api.py
 src/nba_betting/odds_bovada.py
 src/nba_betting/player_logs.py

@@ -8,10 +8,10 @@ from datetime import datetime
 from typing import Dict, Optional, Tuple
 
 from .config import paths
-from .props_train import predict_props
+# from .props_train import predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_calibration import compute_biases as _compute_biases, apply_biases as _apply_biases
 from .props_features import build_features_for_date
-from .props_train import _load_features as _load_props_features  # reuse saved features for sigma calibration
+# from .props_train import _load_features as _load_props_features  # MOVED TO CONDITIONAL - requires sklearn
 from .odds_api import OddsApiConfig, backfill_player_props, fetch_player_props_current
 from .odds_bovada import fetch_bovada_player_props_current
 
@@ -178,6 +178,7 @@ def compute_props_edges(
         if from_file_only:
             return pd.DataFrame()
         # Otherwise compute predictions locally
+        from .props_train import predict_props  # Import here to avoid sklearn dependency
         feats = build_features_for_date(target_date)
         preds = predict_props(feats)
         # Light bias calibration based on recent recon (safe default)
@@ -356,6 +357,7 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
     if defaults is None:
         defaults = SigmaConfig()
     try:
+        from .props_train import _load_features as _load_props_features  # Import here to avoid sklearn dependency
         df = _load_props_features().copy()
     except Exception:
         return defaults
@@ -369,6 +371,7 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
         return defaults
     # Predict on this window
     try:
+        from .props_train import predict_props  # Import here to avoid sklearn dependency
         preds = predict_props(hist)
     except Exception:
         return defaults

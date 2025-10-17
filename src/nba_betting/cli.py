@@ -10,7 +10,7 @@ from rich.progress import track
 from .config import paths
 # from .scrape_bref import scrape_games  # deprecated
 from .features import build_features
-from .train import train_models
+# from .train import train_models  # MOVED TO CONDITIONAL IMPORT - requires sklearn
 import joblib
 from .elo import Elo
 from .schedule import compute_rest_for_matchups, fetch_schedule_2025_26
@@ -24,7 +24,7 @@ from .odds_bovada import fetch_bovada_odds_current
 from .props_actuals import fetch_prop_actuals_via_nbastatr, upsert_props_actuals
 from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_via_nbaapi
 from .props_features import build_props_features, build_features_for_date
-from .props_train import train_props_models, predict_props
+# from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
 from nba_api.stats.endpoints import scoreboardv2
 from nba_api.stats.endpoints import boxscoretraditionalv3
@@ -128,6 +128,7 @@ def build_features_cmd():
 @cli.command()
 def train():
     """Train baseline models"""
+    from .train import train_models  # Import here to avoid sklearn dependency at module level
     console.rule("Train models")
     feats_path = paths.data_processed / "features.parquet"
     df = pd.read_parquet(feats_path)
@@ -319,6 +320,7 @@ def build_props_features_cmd():
 @click.option("--alpha", type=float, default=1.0, show_default=True, help="Ridge regularization strength")
 def train_props_cmd(alpha: float):
     """Train props regression models for PTS/REB/AST/3PM/PRA and save to models folder."""
+    from .props_train import train_props_models  # Import here to avoid sklearn dependency
     console.rule("Train Props Models")
     try:
         train_props_models(alpha=alpha)
@@ -335,16 +337,30 @@ def train_props_cmd(alpha: float):
 @click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Filter predictions to teams on the scoreboard slate and add opponent/home flags")
 @click.option("--calibrate/--no-calibrate", default=True, show_default=True, help="Apply rolling bias calibration from recent recon vs predictions")
 @click.option("--calib-window", type=int, default=7, show_default=True, help="Lookback days for calibration window (excludes today)")
-def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int):
+@click.option("--use-pure-onnx/--no-use-pure-onnx", default=True, show_default=True, help="Use pure ONNX models with NPU acceleration (no sklearn dependency)")
+def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int, use_pure_onnx: bool):
     """Predict player props for a slate date using rolling-history models.
 
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
     """
     console.rule("Predict Props")
-    try:
-        feats = build_features_for_date(date_str)
-    except Exception as e:
-        console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
+    
+    # Build features using pure or regular method based on flag
+    if use_pure_onnx:
+        try:
+            from .props_features_pure import build_features_for_date_pure
+            console.print("Building features with pure method (no sklearn)...", style="cyan")
+            feats = build_features_for_date_pure(date_str)
+        except Exception as e:
+            console.print(f"WARNING: Pure feature builder failed: {e}", style="yellow")
+            console.print("Falling back to regular feature builder...", style="yellow")
+            use_pure_onnx = False
+    
+    if not use_pure_onnx:
+        try:
+            feats = build_features_for_date(date_str)
+        except Exception as e:
+            console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
     # Optional slate filter using ScoreboardV2
     if slate_only:
         try:
@@ -380,12 +396,37 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         except Exception:
             # If scoreboard fails, proceed without filtering
             pass
-    try:
-        preds = predict_props(feats)
-    except FileNotFoundError:
-        console.print("Props models not found. Run train-props first.", style="red"); return
-    except Exception as e:
-        console.print(f"Failed to predict props: {e}", style="red"); return
+    
+    # Predict using pure ONNX or sklearn
+    if use_pure_onnx:
+        try:
+            from .props_onnx_pure import predict_props_pure_onnx
+            
+            console.print("Using pure ONNX models with NPU acceleration...", style="cyan")
+            
+            # Predict with pure ONNX
+            preds = predict_props_pure_onnx(feats)
+            
+            console.print(f"Pure ONNX predictions generated for {len(preds)} players", style="green")
+            
+        except ImportError as e:
+            console.print(f"WARNING: Pure ONNX not available: {e}", style="yellow")
+            console.print("Falling back to sklearn models...", style="yellow")
+            use_pure_onnx = False
+        except Exception as e:
+            console.print(f"WARNING: Pure ONNX failed: {e}", style="yellow")
+            console.print("Falling back to sklearn models...", style="yellow")
+            use_pure_onnx = False
+    
+    # Fallback to sklearn if pure ONNX disabled or failed
+    if not use_pure_onnx:
+        try:
+            from .props_train import predict_props  # Import here to avoid sklearn dependency
+            preds = predict_props(feats)
+        except FileNotFoundError:
+            console.print("Props models not found. Run train-props first.", style="red"); return
+        except Exception as e:
+            console.print(f"Failed to predict props: {e}", style="red"); return
     # Optional light calibration (rolling intercept per stat)
     if calibrate:
         try:
@@ -420,7 +461,7 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
     except Exception:
         console.print("Invalid --start/--end date. Use YYYY-MM-DD.", style="red"); return
     # Load actuals store
-    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+    from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score  # type: ignore
     import numpy as np
     act_p = paths.data_processed / "props_actuals.parquet"
     actuals = None
@@ -524,6 +565,7 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
                             feats = feats.merge(slate, on="team", how="inner")
                 except Exception:
                     pass
+            from .props_train import predict_props  # Import here to avoid sklearn dependency
             preds = predict_props(feats)
             preds["date"] = d
             # join to actuals by (date, player_id)
@@ -993,11 +1035,17 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     Returns a DataFrame with predictions for full game and periods.
     """
     # Load features history to bootstrap Elo and recent form
-    feats_path = paths.data_processed / "features.parquet"
-    if not feats_path.exists():
+    # Try CSV first (ARM64 compatible), fallback to parquet
+    feats_csv = paths.data_processed / "features.csv"
+    feats_parquet = paths.data_processed / "features.parquet"
+    
+    if feats_csv.exists():
+        hist = pd.read_csv(feats_csv).sort_values("date")
+    elif feats_parquet.exists():
+        hist = pd.read_parquet(feats_parquet).sort_values("date")
+    else:
         console.print("Features not found. Run build-features first.", style="red")
         raise SystemExit(1)
-    hist = pd.read_parquet(feats_path).sort_values("date")
     elo = Elo()
     # Roll through history to update Elo
     for _, row in track(hist.iterrows(), total=len(hist), description="Updating Elo"):
@@ -1074,21 +1122,45 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
 
     X = pd.DataFrame(enriched)[feat_cols].fillna(0)
 
-    # Load models
+    # Load models - Use pure ONNX for main game predictions
     try:
+        # Import pure ONNX game predictor
+        from .games_onnx_pure import create_pure_game_predictor
+        
+        # Create ONNX predictor (win, spread, total with NPU acceleration)
+        game_predictor = create_pure_game_predictor()
+        
+        # Run pure ONNX predictions
+        onnx_preds = game_predictor.predict(X)
+        
+        # Use ONNX predictions
+        res = pd.DataFrame(feat_rows)
+        res["home_win_prob"] = onnx_preds["home_win_prob"].values
+        res["pred_margin"] = onnx_preds["pred_margin"].values
+        res["pred_total"] = onnx_preds["pred_total"].values
+        
+    except (FileNotFoundError, ImportError) as e:
+        console.print(f"⚠️  Pure ONNX not available: {e}", style="yellow")
+        console.print("Falling back to sklearn models (requires sklearn installed)...", style="yellow")
+        # Fallback to sklearn models
         win_model = joblib.load(paths.models / "win_prob.joblib")
         spread_model = joblib.load(paths.models / "spread_margin.joblib")
         total_model = joblib.load(paths.models / "totals.joblib")
+        
+        res = pd.DataFrame(feat_rows)
+        res["home_win_prob"] = win_model.predict_proba(X)[:, 1]
+        res["pred_margin"] = spread_model.predict(X)
+        res["pred_total"] = total_model.predict(X)
+    
+    # Load period models (halves/quarters) - these still use joblib
+    # TODO: Create ONNX versions of period models
+    try:
         halves = joblib.load(paths.models / "halves_models.joblib")
         quarters = joblib.load(paths.models / "quarters_models.joblib")
-    except FileNotFoundError:
-        console.print("Models not found. Run train first.", style="red")
-        raise SystemExit(1)
-
-    res = pd.DataFrame(feat_rows)
-    res["home_win_prob"] = win_model.predict_proba(X)[:, 1]
-    res["pred_margin"] = spread_model.predict(X)
-    res["pred_total"] = total_model.predict(X)
+    except Exception as e:
+        console.print(f"⚠️  Period models not available: {e}", style="yellow")
+        halves = {}
+        quarters = {}
     for half in ("h1", "h2"):
         if half in halves:
             res[f"{half}_home_win_prob"] = halves[half]["win"].predict_proba(X)[:, 1]
@@ -1802,7 +1874,7 @@ def evaluate(holdout_season: int | None):
     y_total = test["target_total"].astype(float)
 
     import joblib
-    from sklearn.metrics import log_loss, mean_squared_error
+    from sklearn.metrics import log_loss, mean_squared_error  # type: ignore
     import numpy as np
 
     try:
@@ -1861,7 +1933,7 @@ def backtest(start: int | None, end: int | None, last_n: int | None):
         console.print("Models not found. Run train first.", style="red")
         return
 
-    from sklearn.metrics import log_loss, mean_squared_error
+    from sklearn.metrics import log_loss, mean_squared_error  # type: ignore
     import numpy as np
 
     try:
@@ -1940,7 +2012,7 @@ def backtest_periods(start: int | None, end: int | None, last_n: int | None):
         console.print("Models not found. Run train first.", style="red")
         return
 
-    from sklearn.metrics import log_loss, mean_squared_error
+    from sklearn.metrics import log_loss, mean_squared_error  # type: ignore
     import numpy as np
 
     results = []
@@ -2219,7 +2291,7 @@ def calibrate_win_cmd(season: int|None, bins: int):
     ).reset_index()
 
     # Log-loss
-    from sklearn.metrics import log_loss
+    from sklearn.metrics import log_loss  # type: ignore
     ll = float(log_loss(y, p, labels=[0, 1]))
     summary["log_loss_overall"] = ll
 

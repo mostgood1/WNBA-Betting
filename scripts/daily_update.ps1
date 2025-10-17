@@ -20,7 +20,16 @@ Set-Location -Path $RepoRoot
 
 # Python resolution (prefer venv at repo root)
 $VenvPy = Join-Path $RepoRoot '.venv\Scripts\python.exe'
-$Python = if (Test-Path $VenvPy) { $VenvPy } else { 'python' }
+$NpuPy = 'C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe'
+# Use NPU environment if local venv doesn't have sklearn
+if (Test-Path $NpuPy) {
+  $Python = $NpuPy
+  $env:PYTHONPATH = Join-Path $RepoRoot 'src'
+} elseif (Test-Path $VenvPy) {
+  $Python = $VenvPy
+} else {
+  $Python = 'python'
+}
 
 # Logs (under repo root)
 $LogPath = Join-Path $RepoRoot $LogDir
@@ -89,6 +98,7 @@ if ($UseServer) {
 # Always run local pipeline to produce site CSVs
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
+# NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
 Write-Log ("predict-date exit code: {0}" -f $rc1)
 
@@ -121,7 +131,9 @@ try {
 }
 
 # 3) Props predictions for today (calibrated) to CSV
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7')
+# NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
+# IMPORTANT: Remove --use-pure-onnx if you need sklearn-based models or if experiencing issues
+$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
 # 4) Props actuals upsert for yesterday (CLI)
