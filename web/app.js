@@ -35,7 +35,7 @@ function togglePeriods(cardId){
   if (!content) return;
   const isHidden = content.style.display === 'none';
   content.style.display = isHidden ? 'block' : 'none';
-  if (toggle) toggle.textContent = isHidden ? '▼ Model Line Score (by Quarter)' : '▶ Model Line Score (by Quarter)';
+  if (toggle) toggle.textContent = isHidden ? '▼ Projected Line Score' : '▶ Projected Line Score';
 }
 
 // --- Persistence helpers (odds) ---
@@ -1102,43 +1102,37 @@ function renderDate(dateStr){
       periodsHtml = `
         <div class="row details small">
           <div class="detail-col">
-            <div class="periods-toggle" onclick="togglePeriods('${cardId}')" style="cursor:pointer; font-weight:600; color:#4a90e2; margin-bottom:8px;">
-              ▶ Model Line Score (by Quarter)
+            <div class="periods-toggle" onclick="togglePeriods('${cardId}')" style="cursor:pointer; font-weight:600; color:#4a90e2; margin-bottom:6px;">
+              ▼ Projected Line Score
             </div>
-            <div id="${cardId}" class="periods-content" style="display:none; margin-top:4px;">
-              <table style="width:100%; font-size:0.85em; border-collapse:collapse; background:#f8f9fa; border-radius:4px; overflow:hidden;">
+            <div id="${cardId}" class="periods-content" style="display:block; margin-top:2px;">
+              <table style="width:100%; font-size:0.9em; border-collapse:separate; border-spacing:0; background:transparent;">
                 <thead>
-                  <tr style="background:#e9ecef; border-bottom:2px solid #dee2e6;">
-                    <th style="text-align:left; padding:6px 8px; font-weight:600;">Team</th>
-                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q1</th>
-                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q2</th>
-                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q3</th>
-                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q4</th>
-                    <th style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd; min-width:50px;">Total</th>
+                  <tr style="color:#8b92a8; font-size:0.75em; text-transform:uppercase; letter-spacing:0.5px;">
+                    <th style="text-align:left; padding:4px 8px; font-weight:600;">TEAM</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">1ST</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">2ND</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">3RD</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">TOTAL</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style="border-bottom:1px solid #dee2e6;">
-                    <td style="padding:6px 8px; font-weight:600;">${away}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q1.away, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q2.away, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q3.away, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q4.away, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd;">${fmtNum(awayTotal, 1)}</td>
+                  <tr style="background:rgba(139,146,168,0.05);">
+                    <td style="padding:8px; font-weight:600; color:#e8eaf0;">${away}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q1.away, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q2.away, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q3.away, 1)}</td>
+                    <td style="text-align:center; padding:8px; font-weight:700; color:#e8eaf0;">${fmtNum(awayTotal, 1)}</td>
                   </tr>
-                  <tr>
-                    <td style="padding:6px 8px; font-weight:600;">${home}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q1.home, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q2.home, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q3.home, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q4.home, 1)}</td>
-                    <td style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd;">${fmtNum(homeTotal, 1)}</td>
+                  <tr style="background:rgba(139,146,168,0.08);">
+                    <td style="padding:8px; font-weight:600; color:#e8eaf0;">${home}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q1.home, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q2.home, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q3.home, 1)}</td>
+                    <td style="text-align:center; padding:8px; font-weight:700; color:#e8eaf0;">${fmtNum(homeTotal, 1)}</td>
                   </tr>
                 </tbody>
               </table>
-              <div style="font-size:0.75em; color:#6c757d; margin-top:4px; text-align:center;">
-                Predicted scores by quarter from NPU model
-              </div>
             </div>
           </div>
         </div>`;
