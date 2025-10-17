@@ -1077,27 +1077,6 @@ function renderDate(dateStr){
         </div></div>`;
     }
 
-    let linesLine = '';
-    if (odds){
-      const hML = (odds.home_ml!=null)?fmtOddsAmerican(odds.home_ml):'—';
-      const aML = (odds.away_ml!=null)?fmtOddsAmerican(odds.away_ml):'—';
-      const tot = Number.isFinite(Number(odds.total)) ? Number(odds.total).toFixed(1) : '—';
-      const spr = Number.isFinite(Number(odds.home_spread)) ? fmtNum(Number(odds.home_spread)) : '—';
-  linesLine = `Lines: ML H ${hML} / A ${aML} · O/U ${tot} · Spread H ${spr}`;
-    }
-
-    let modelPickHtml = '';
-    if (pred && pred.home_win_prob!=null){
-      const pH = Number(pred.home_win_prob);
-      const pickLbl = pH>=0.5 ? 'Home ML' : 'Away ML';
-      const pct = (100*Math.max(pH,1-pH)).toFixed(1)+'%';
-      if (hasAnyOdds) {
-        modelPickHtml = `<div class=\"row details small\"><div class=\"detail-col\"><div class=\"model-pill\">Model Pick: <strong>${pickLbl}</strong> · ${pct}</div></div></div>`;
-      } else {
-        modelPickHtml = `<div class=\"row details small\"><div class=\"detail-col\">Model Pick: <strong>${pickLbl}</strong> · ${pct}</div></div>`;
-      }
-    }
-
     // Build quarters line score (traditional format)
     let periodsHtml = '';
     if (pred && pred.quarters_q1_total!=null){
@@ -1194,24 +1173,15 @@ function renderDate(dateStr){
       ${chipsTotals}
       ${chipsSpread}
       ${chipsMoney}
-      ${linesLine?`<div class=\"row details small\"><div class=\"detail-col\"><div>${linesLine}</div></div></div>`:''}
       <div class="row details">
         <div class="detail-col">
-          ${totalModel!=null && totalActual!=null? `<div>Total (model): <strong>${totalModel.toFixed(2)}</strong> | Total (actual): <strong>${totalActual.toFixed(2)}</strong> | Diff: <strong>${(totalActual >= totalModel ? '+' : '')}${(totalActual - totalModel).toFixed(2)}</strong></div>`: 
-            (totalModel!=null? `<div>Total (model): <strong>${totalModel.toFixed(2)}</strong></div>`: '')}
+          ${totalModel!=null? `<div>Model Total: <strong>${totalModel.toFixed(2)}</strong>${totalActual!=null? ` | Actual: <strong>${totalActual.toFixed(2)}</strong> | Diff: <strong>${(totalActual >= totalModel ? '+' : '')}${(totalActual - totalModel).toFixed(2)}</strong>`: ''}</div>`: ''}
           ${wpLine ? `<div>${wpLine}</div>` : ''}
           ${accuracyLine ? `<div>${accuracyLine}</div>` : ''}
         </div>
       </div>
       ${recHtml}
-      ${modelPickHtml}
       ${periodsHtml}
-      ${evWinnerLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evWinnerLine}</div></div>` : ''}
-      ${evSpreadLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evSpreadLine}</div></div>` : ''}
-      ${evTotalLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evTotalLine}</div></div>` : ''}
-      ${atsLine ? `<div class=\"row details small\"><div class=\"detail-col\">${atsLine}</div></div>` : ''}
-      ${totalDetailLine ? `<div class=\"row details small\"><div class=\"detail-col\">${totalDetailLine}</div></div>` : ''}
-      ${!hideOdds && oddsBlock ? `<div class=\"row details small\"><div class=\"detail-col\">${oddsBlock}</div></div>` : ''}
       
       ${propsBadges ? `<div class=\"row details small\"><div class=\"detail-col\">${propsBadges}</div></div>` : ''}
       
