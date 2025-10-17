@@ -1,9 +1,9 @@
 date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2025-10-17,Toronto Raptors,Brooklyn Nets,2025-10-17T23:00:00+00:00,-260,215,-6.5,6.5,-110,-110,223.5,-110,-110,bovada
-2025-10-17,Philadelphia 76ers,Minnesota Timberwolves,2025-10-17T23:00:00+00:00,-260,215,-6.0,6.0,-110,-110,220.5,-110,-110,bovada
-2025-10-17,New York Knicks,Charlotte Hornets,2025-10-17T23:30:00+00:00,-185,160,-5.0,5.0,-110,-110,228.0,-110,-110,bovada
-2025-10-17,Oklahoma City Thunder,Denver Nuggets,2025-10-18T00:00:00+00:00,-240,200,-6.5,6.5,-115,-105,230.0,-110,-110,bovada
-2025-10-17,San Antonio Spurs,Indiana Pacers,2025-10-18T00:00:00+00:00,-200,170,-5.0,5.0,-110,-110,234.5,-110,-110,bovada
-2025-10-17,Miami Heat,Memphis Grizzlies,2025-10-18T00:00:00+00:00,-180,155,-4.0,4.0,-110,-110,233.0,-110,-110,bovada
-2025-10-17,Golden State Warriors,Los Angeles Clippers,2025-10-18T02:00:00+00:00,-135,115,-2.5,2.5,-110,-110,225.0,-110,-110,bovada
-2025-10-17,Los Angeles Lakers,Sacramento Kings,2025-10-18T02:30:00+00:00,-275,225,-7.0,7.0,-110,-110,227.0,-110,-110,bovada
+2025-10-17,Toronto Raptors,Brooklyn Nets,2025-10-17T23:00:00+00:00,-235,195,-6.0,6.0,-110,-110,225.5,-110,-110,bovada
+2025-10-17,Philadelphia 76ers,Minnesota Timberwolves,2025-10-17T23:00:00+00:00,-270,220,-6.5,6.5,-115,-105,223.5,-110,-110,bovada
+2025-10-17,New York Knicks,Charlotte Hornets,2025-10-17T23:30:00+00:00,-250,210,-7.0,7.0,-110,-110,227.0,-110,-110,bovada
+2025-10-17,Oklahoma City Thunder,Denver Nuggets,2025-10-18T00:00:00+00:00,-250,210,-7.0,7.0,-110,-110,230.0,-110,-110,bovada
+2025-10-17,San Antonio Spurs,Indiana Pacers,2025-10-18T00:00:00+00:00,-200,170,-5.0,5.0,-110,-110,234.0,-110,-110,bovada
+2025-10-17,Miami Heat,Memphis Grizzlies,2025-10-18T00:00:00+00:00,-185,160,-4.0,4.0,-115,-105,232.5,-110,-110,bovada
+2025-10-17,Golden State Warriors,Los Angeles Clippers,2025-10-18T02:00:00+00:00,-175,150,-4.0,4.0,-110,-110,225.0,-110,-110,bovada
+2025-10-17,Los Angeles Lakers,Sacramento Kings,2025-10-18T02:30:00+00:00,-245,205,-6.5,6.5,-105,-115,227.5,-110,-110,bovada

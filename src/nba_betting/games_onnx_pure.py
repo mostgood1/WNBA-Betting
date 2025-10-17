@@ -204,12 +204,7 @@ class PureONNXGamePredictor:
         total_input_name = self.total_session.get_inputs()[0].name
         
         # Run inference on NPU
-        # Win probability (binary classification - get probability of class 1)
-        win_outputs = self.win_session.run(None, {win_input_name: X})
-        # Output format: [labels, probabilities] where probabilities is list of dicts {0: p0, 1: p1}
-        win_probs = np.array([p[1] for p in win_outputs[1]], dtype=np.float32)
-        
-        # Spread margin (regression)
+        # Spread margin (regression) - PRIMARY prediction
         spread_outputs = self.spread_session.run(None, {spread_input_name: X})
         spreads = spread_outputs[0].flatten()
         
@@ -217,9 +212,33 @@ class PureONNXGamePredictor:
         total_outputs = self.total_session.run(None, {total_input_name: X})
         totals = total_outputs[0].flatten()
         
+        # Win probability (binary classification - get probability of class 1)
+        win_outputs = self.win_session.run(None, {win_input_name: X})
+        # Output format: [labels, probabilities] where probabilities is list of dicts {0: p0, 1: p1}
+        win_probs_raw = np.array([p[1] for p in win_outputs[1]], dtype=np.float32)
+        
+        # ========================================================================
+        # CALIBRATED WIN PROBABILITY: Use spread predictions via sigmoid
+        # ========================================================================
+        # The spread model is well-calibrated, but the win_prob model is overconfident.
+        # Convert spread → win probability using logistic function:
+        #   P(home wins) = 1 / (1 + exp(-spread / σ))
+        # where σ ≈ 12 points (NBA historical spread standard deviation)
+        #
+        # This leverages the NN's spread predictions directly rather than
+        # relying on the overconfident binary classifier.
+        sigma = 12.0  # Standard deviation of NBA point spreads
+        win_probs_calibrated = 1.0 / (1.0 + np.exp(-spreads / sigma))
+        
+        # Blend: 80% spread-based (calibrated), 20% direct model
+        # This preserves any signal from the win model while fixing overconfidence
+        win_probs = 0.8 * win_probs_calibrated + 0.2 * win_probs_raw
+        
         # Build results DataFrame
         results = pd.DataFrame({
             'home_win_prob': win_probs,
+            'home_win_prob_raw': win_probs_raw,  # Keep raw for analysis
+            'home_win_prob_from_spread': win_probs_calibrated,  # Keep spread-based for comparison
             'pred_margin': spreads,
             'pred_total': totals
         })

@@ -8,7 +8,24 @@ from typing import Dict, List
 
 from .config import paths
 
-TARGETS = ["t_pts","t_reb","t_ast","t_threes","t_pra"]
+TARGETS = [
+    # Core stats (existing)
+    "t_pts", "t_reb", "t_ast", "t_threes", "t_pra",
+    # Defensive stats
+    "t_stl", "t_blk", "t_tov",
+    # Shooting stats
+    "t_fgm", "t_fga", "t_fg_pct",
+    "t_ftm", "t_fta", "t_ft_pct",
+    # Rebound breakdown
+    "t_oreb", "t_dreb",
+    # Other
+    "t_pf", "t_plus_minus",
+    # Combo stats
+    "t_stocks",  # STL + BLK
+    "t_pr",      # PTS + REB
+    "t_pa",      # PTS + AST
+    "t_ra",      # REB + AST
+]
 
 
 def _load_features() -> pd.DataFrame:

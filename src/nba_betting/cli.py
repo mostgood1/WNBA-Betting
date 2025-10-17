@@ -1076,71 +1076,82 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     except FileNotFoundError:
         feat_cols = ["elo_diff", "home_rest_days", "visitor_rest_days", "home_b2b", "visitor_b2b"]
 
-    # Recent form and schedule intensity from history
-    from collections import deque, defaultdict
+    # Use enhanced feature building for 45 features
     import numpy as np
-    hist = hist.sort_values("date")
-    pf_hist = defaultdict(lambda: deque(maxlen=5))
-    pa_hist = defaultdict(lambda: deque(maxlen=5))
-    recent_dates = defaultdict(lambda: deque(maxlen=20))
-    for _, row in hist.iterrows():
-        if pd.isna(row.get("home_pts")) or pd.isna(row.get("visitor_pts")):
-            continue
-        d = pd.to_datetime(row["date"]).normalize()
-        h = row["home_team"]; v = row["visitor_team"]
-        try:
-            pf_hist[h].append(int(row["home_pts"]))
-            pa_hist[h].append(int(row["visitor_pts"]))
-            pf_hist[v].append(int(row["visitor_pts"]))
-            pa_hist[v].append(int(row["home_pts"]))
-            recent_dates[h].append(d); recent_dates[v].append(d)
-        except Exception:
-            pass
+    from .features_enhanced import build_features_enhanced
+    
+    console.print("🔧 Building enhanced features (45 features)...", style="cyan")
+    
+    # Combine historical games with new matchups for feature generation
+    upcoming = pd.DataFrame(feat_rows)
+    upcoming["home_pts"] = np.nan  # No scores yet (future games)
+    upcoming["visitor_pts"] = np.nan
+    
+    # Ensure date columns have same type
+    hist["date"] = pd.to_datetime(hist["date"])
+    upcoming["date"] = pd.to_datetime(upcoming["date"])
+    
+    # Append upcoming to history
+    combined = pd.concat([hist, upcoming], ignore_index=True).sort_values("date")
+    
+    # Build all 45 enhanced features
+    features_df = build_features_enhanced(
+        combined, 
+        include_advanced_stats=True,
+        include_injuries=True
+    )
+    
+    # Extract only the upcoming games (last N rows)
+    enriched = features_df.tail(len(feat_rows))
+    
+    # Get feature matrix
+    X = enriched[feat_cols].fillna(0)
 
-    def mean_or_nan(dq):
-        return float(np.mean(dq)) if len(dq) > 0 else np.nan
-
-    enriched = []
-    for r in feat_rows:
-        d = pd.to_datetime(r.get("date")).normalize() if pd.notna(r.get("date")) else None
-        h = r["home_team"]; v = r["visitor_team"]
-        r["home_form_off_5"] = mean_or_nan(pf_hist[h])
-        r["home_form_def_5"] = mean_or_nan(pa_hist[h])
-        r["visitor_form_off_5"] = mean_or_nan(pf_hist[v])
-        r["visitor_form_def_5"] = mean_or_nan(pa_hist[v])
-        def count_recent(team, days):
-            if d is None:
-                return 0
-            return sum(1 for x in recent_dates[team] if 0 < (d - x).days <= days)
-        hg3 = count_recent(h, 3); vg3 = count_recent(v, 3)
-        hg5 = count_recent(h, 5); vg5 = count_recent(v, 5)
-        r["home_games_last3"] = hg3; r["visitor_games_last3"] = vg3
-        r["home_games_last5"] = hg5; r["visitor_games_last5"] = vg5
-        r["home_3in4"] = 1 if hg3 >= 2 else 0; r["visitor_3in4"] = 1 if vg3 >= 2 else 0
-        r["home_4in6"] = 1 if hg5 >= 3 else 0; r["visitor_4in6"] = 1 if vg5 >= 3 else 0
-        enriched.append(r)
-
-    X = pd.DataFrame(enriched)[feat_cols].fillna(0)
-
-    # Load models - Use pure ONNX for main game predictions
+    # Load models - Use NPU-accelerated predictions for ALL models (game + periods)
     try:
-        # Import pure ONNX game predictor
-        from .games_onnx_pure import create_pure_game_predictor
+        # Import NPU game predictor with period support
+        from .games_npu import NPUGamePredictor
         
-        # Create ONNX predictor (win, spread, total with NPU acceleration)
-        game_predictor = create_pure_game_predictor()
+        # Create NPU predictor (win, spread, total, quarters, halves with NPU acceleration)
+        console.print("🚀 Using NPU-accelerated predictions (ONNX + QNN)", style="green")
+        npu_predictor = NPUGamePredictor()
         
-        # Run pure ONNX predictions
-        onnx_preds = game_predictor.predict(X)
+        # Convert features to numpy array for NPU inference
+        X_np = X.values.astype(np.float32)
         
-        # Use ONNX predictions
-        res = pd.DataFrame(feat_rows)
-        res["home_win_prob"] = onnx_preds["home_win_prob"].values
-        res["pred_margin"] = onnx_preds["pred_margin"].values
-        res["pred_total"] = onnx_preds["pred_total"].values
+        # Run NPU predictions for all games with period breakdowns
+        # Create result dataframe with original matchup info
+        res = pd.DataFrame(feat_rows)[["date", "home_team", "visitor_team"]].copy()
+        npu_results = npu_predictor.predict_batch(X_np, include_periods=True)
+        
+        # Extract main game predictions
+        res["home_win_prob"] = [r["win_prob"] for r in npu_results]
+        res["pred_margin"] = [r["spread_margin"] for r in npu_results]
+        res["pred_total"] = [r["totals"] for r in npu_results]
+        
+        # Include calibration columns if available
+        if npu_results and "win_prob_raw" in npu_results[0]:
+            res["home_win_prob_raw"] = [r.get("win_prob_raw", r["win_prob"]) for r in npu_results]
+            res["home_win_prob_from_spread"] = [r.get("win_prob_from_spread", r["win_prob"]) for r in npu_results]
+        
+        # Extract period predictions (halves and quarters)
+        for i, r in enumerate(npu_results):
+            if "halves" in r:
+                for half in ("h1", "h2"):
+                    if half in r["halves"]:
+                        res.loc[i, f"halves_{half}_win"] = r["halves"][half].get("win", 0.5)
+                        res.loc[i, f"halves_{half}_margin"] = r["halves"][half].get("margin", 0.0)
+                        res.loc[i, f"halves_{half}_total"] = r["halves"][half].get("total", 100.0)
+            
+            if "quarters" in r:
+                for q in ("q1", "q2", "q3", "q4"):
+                    if q in r["quarters"]:
+                        res.loc[i, f"quarters_{q}_win"] = r["quarters"][q].get("win", 0.5)
+                        res.loc[i, f"quarters_{q}_margin"] = r["quarters"][q].get("margin", 0.0)
+                        res.loc[i, f"quarters_{q}_total"] = r["quarters"][q].get("total", 50.0)
         
     except (FileNotFoundError, ImportError) as e:
-        console.print(f"⚠️  Pure ONNX not available: {e}", style="yellow")
+        console.print(f"⚠️  NPU predictor not available: {e}", style="yellow")
         console.print("Falling back to sklearn models (requires sklearn installed)...", style="yellow")
         # Fallback to sklearn models
         win_model = joblib.load(paths.models / "win_prob.joblib")
@@ -1151,26 +1162,26 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
         res["home_win_prob"] = win_model.predict_proba(X)[:, 1]
         res["pred_margin"] = spread_model.predict(X)
         res["pred_total"] = total_model.predict(X)
-    
-    # Load period models (halves/quarters) - these still use joblib
-    # TODO: Create ONNX versions of period models
-    try:
-        halves = joblib.load(paths.models / "halves_models.joblib")
-        quarters = joblib.load(paths.models / "quarters_models.joblib")
-    except Exception as e:
-        console.print(f"⚠️  Period models not available: {e}", style="yellow")
-        halves = {}
-        quarters = {}
-    for half in ("h1", "h2"):
-        if half in halves:
-            res[f"{half}_home_win_prob"] = halves[half]["win"].predict_proba(X)[:, 1]
-            res[f"{half}_pred_margin"] = halves[half]["margin"].predict(X)
-            res[f"{half}_pred_total"] = halves[half]["total"].predict(X)
-    for q in ("q1", "q2", "q3", "q4"):
-        if q in quarters:
-            res[f"{q}_home_win_prob"] = quarters[q]["win"].predict_proba(X)[:, 1]
-            res[f"{q}_pred_margin"] = quarters[q]["margin"].predict(X)
-            res[f"{q}_pred_total"] = quarters[q]["total"].predict(X)
+        
+        # Load period models (halves/quarters) for fallback
+        try:
+            halves = joblib.load(paths.models / "halves_models.joblib")
+            quarters = joblib.load(paths.models / "quarters_models.joblib")
+        except Exception:
+            console.print("⚠️  Period models not available in fallback", style="yellow")
+            halves = {}
+            quarters = {}
+        
+        for half in ("h1", "h2"):
+            if half in halves:
+                res[f"halves_{half}_win"] = halves[half]["win"].predict_proba(X)[:, 1]
+                res[f"halves_{half}_margin"] = halves[half]["margin"].predict(X)
+                res[f"halves_{half}_total"] = halves[half]["total"].predict(X)
+        for q in ("q1", "q2", "q3", "q4"):
+            if q in quarters:
+                res[f"quarters_{q}_win"] = quarters[q]["win"].predict_proba(X)[:, 1]
+                res[f"quarters_{q}_margin"] = quarters[q]["margin"].predict(X)
+                res[f"quarters_{q}_total"] = quarters[q]["total"].predict(X)
     return res
 
 @cli.command("daily-update")
@@ -3196,6 +3207,161 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
     out.parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(out, index=False)
     console.print({"date": str(target_date), "rows": int(len(out_df)), "output": str(out)})
+
+
+# ============================================================================
+# IMPROVEMENT COMMANDS
+# ============================================================================
+
+@cli.command()
+@click.option("--season", type=int, default=2025, help="NBA season year (e.g., 2025 for 2024-25)")
+def fetch_advanced_stats(season: int):
+    """Fetch pace, efficiency, and Four Factors from Basketball Reference."""
+    console.rule("Fetch Advanced Stats")
+    try:
+        from .scrapers import BasketballReferenceScraper
+        
+        scraper = BasketballReferenceScraper()
+        
+        console.print(f"Fetching team stats for {season} season...")
+        stats = scraper.get_team_stats(season)
+        
+        if stats.empty:
+            console.print("No stats fetched", style="yellow")
+            return
+        
+        # Save to processed directory
+        output_path = paths.data_processed / f"team_advanced_stats_{season}.csv"
+        stats.to_csv(output_path, index=False)
+        
+        console.print(f"✅ Saved {len(stats)} teams to {output_path}", style="green")
+        console.print(stats.head(10))
+        
+    except Exception as e:
+        console.print(f"Error fetching advanced stats: {e}", style="red")
+
+
+@cli.command()
+def fetch_injuries():
+    """Fetch current injury reports from ESPN."""
+    console.rule("Fetch Injury Reports")
+    try:
+        from .scrapers import NBAInjuryDatabase
+        
+        db = NBAInjuryDatabase()
+        console.print("Fetching injury reports from ESPN...")
+        
+        injuries = db.update_injuries()
+        
+        if injuries.empty:
+            console.print("No injuries fetched", style="yellow")
+            return
+        
+        console.print(f"✅ Saved {len(injuries)} injury records", style="green")
+        
+        # Show summary by team
+        summary = injuries.groupby(['team', 'status']).size().reset_index(name='count')
+        console.print("\nInjury Summary:")
+        console.print(summary)
+        
+    except Exception as e:
+        console.print(f"Error fetching injuries: {e}", style="red")
+
+
+@cli.command()
+@click.option("--days", type=int, default=30, help="Number of days to analyze")
+def performance_report(days: int):
+    """Generate performance report for model predictions."""
+    console.rule(f"Performance Report (Last {days} Days)")
+    try:
+        from .performance import PerformanceTracker
+        
+        tracker = PerformanceTracker()
+        report = tracker.generate_performance_report(days_back=days)
+        
+        tracker.print_performance_summary(report)
+        
+    except Exception as e:
+        console.print(f"Error generating performance report: {e}", style="red")
+
+
+@cli.command()
+@click.option("--confidence", type=float, default=0.55, help="Minimum confidence threshold (0.5-1.0)")
+@click.option("--days", type=int, default=30, help="Number of days to analyze")
+def calculate_roi(confidence: float, days: int):
+    """Calculate ROI for betting strategy."""
+    console.rule(f"ROI Analysis (Last {days} Days, Confidence ≥ {confidence})")
+    try:
+        from .performance import PerformanceTracker
+        
+        tracker = PerformanceTracker()
+        df = tracker.load_predictions_and_results()
+        
+        if df.empty:
+            console.print("No data available for ROI calculation", style="yellow")
+            return
+        
+        # Calculate ROI for different bet types
+        for bet_type in ['moneyline']:
+            console.print(f"\n{bet_type.upper()} ROI:")
+            roi = tracker.calculate_roi(df, bet_type=bet_type, confidence_threshold=confidence)
+            
+            console.print(f"  Total Bets: {roi['total_bets']}")
+            console.print(f"  Win Rate: {roi['win_rate']:.1f}%")
+            console.print(f"  Total Profit: ${roi['total_profit']:.2f}")
+            console.print(f"  ROI: {roi['roi']:.1f}%", style="green" if roi['roi'] > 0 else "red")
+        
+    except Exception as e:
+        console.print(f"Error calculating ROI: {e}", style="red")
+
+
+@cli.command()
+def run_all_improvements():
+    """Run all improvement tasks: fetch stats, injuries, and generate performance report."""
+    console.rule("🚀 Running All Improvements")
+    
+    # 1. Fetch advanced stats
+    console.print("\n[1/3] Fetching advanced statistics...", style="cyan")
+    try:
+        from .scrapers import BasketballReferenceScraper
+        scraper = BasketballReferenceScraper()
+        stats = scraper.get_team_stats(2025)
+        if not stats.empty:
+            output_path = paths.data_processed / "team_advanced_stats_2025.csv"
+            stats.to_csv(output_path, index=False)
+            console.print(f"✅ Saved {len(stats)} teams to {output_path}", style="green")
+        else:
+            console.print("⚠️  No stats fetched", style="yellow")
+    except Exception as e:
+        console.print(f"❌ Error fetching stats: {e}", style="red")
+    
+    # 2. Fetch injury data
+    console.print("\n[2/3] Fetching injury reports...", style="cyan")
+    try:
+        from .scrapers import NBAInjuryDatabase
+        db = NBAInjuryDatabase()
+        injuries = db.update_injuries()
+        if not injuries.empty:
+            console.print(f"✅ Saved {len(injuries)} injury records", style="green")
+            summary = injuries.groupby(['team', 'status']).size().reset_index(name='count')
+            console.print(summary)
+        else:
+            console.print("⚠️  No injuries fetched", style="yellow")
+    except Exception as e:
+        console.print(f"❌ Error fetching injuries: {e}", style="red")
+    
+    # 3. Generate performance report
+    console.print("\n[3/3] Generating performance report...", style="cyan")
+    try:
+        from .performance import PerformanceTracker
+        tracker = PerformanceTracker()
+        report = tracker.generate_performance_report(days_back=30)
+        tracker.print_performance_summary(report)
+    except Exception as e:
+        console.print(f"❌ Error generating report: {e}", style="red")
+    
+    console.print("\n✅ All improvements completed!", style="green bold")
+
 
 if __name__ == "__main__":
     cli()

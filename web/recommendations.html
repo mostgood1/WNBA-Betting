@@ -6,6 +6,10 @@
   <title>NBA Betting – Recommendations</title>
   <meta name="description" content="EV-based betting recommendations for NBA games." />
   <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://a.espncdn.com">
+  <link rel="dns-prefetch" href="https://a.espncdn.com">
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="color-scheme" content="dark light" />
   <style>
     :root{--bg:#080d1a;--card:#0d1426;--card2:#121b31;--text:#f5f7ff;--muted:#c3cee4;--border:#243356;--link:#b8d1ff;--pill-bg:#101a2e;--pill-br:#2a3a63;--badge-bg:#162247;--badge-br:#2a3a63}
     body.light{--bg:#ffffff;--card:#f8fafc;--card2:#f1f5fb;--text:#0a1020;--muted:#475569;--border:#cbd5e1;--link:#1e3a8a;--pill-bg:#eef3fb;--pill-br:#94a3b8;--badge-bg:#e2e8f0;--badge-br:#94a3b8}
@@ -30,7 +34,9 @@
   form.filters input, form.filters select{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px}
   .w-70{width:70px}
     form.filters button, form.filters a{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;text-decoration:none;font-size:13px;cursor:pointer}
+    .ml-8{margin-left:8px}
     .tar{text-align:right} .mt-1{margin-top:1rem} .mt-4{margin-top:4px} .lh-13{line-height:1.3}
+    .table-wrap{overflow-x:auto}
     .summary-note{font-size:12px;color:var(--muted);margin-top:8px}
     @media (max-width:760px){ .container{padding:0 10px;margin:12px auto} h1{font-size:20px;margin-bottom:6px} .nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px} .nav a{display:inline-block;margin-right:6px} table{font-size:12px} th,td{padding:6px 4px} thead th{font-size:11px} form.filters input, form.filters select{padding:4px 6px;font-size:12px} form.filters button{padding:4px 8px;font-size:12px} .pill{font-size:10px;padding:2px 6px;margin-left:4px} }
   </style>

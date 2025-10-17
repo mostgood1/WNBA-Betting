@@ -23,7 +23,14 @@ except ImportError:
     ort = None
 
 from .config import paths
-from .train import train_models
+
+# Only import train when needed (requires sklearn)
+try:
+    from .train import train_models
+    SKLEARN_AVAILABLE = True
+except ImportError:
+    SKLEARN_AVAILABLE = False
+    train_models = None
 
 
 class NPUGamePredictor:
@@ -120,27 +127,89 @@ class NPUGamePredictor:
                 except Exception as e:
                     print(f"⚠️  {model_name.upper()} NPU failed, using CPU: {e}")
             
-            # Load sklearn fallback
+            # Load sklearn fallback (only if sklearn available)
             sklearn_path = self.models_dir / f"{model_name}.joblib"
-            if sklearn_path.exists():
-                self.fallback_models[model_name] = joblib.load(sklearn_path)
-                if model_name not in self.npu_sessions:
-                    print(f"✅ {model_name.upper()} loaded (CPU fallback)")
+            if sklearn_path.exists() and SKLEARN_AVAILABLE:
+                try:
+                    self.fallback_models[model_name] = joblib.load(sklearn_path)
+                    if model_name not in self.npu_sessions:
+                        print(f"✅ {model_name.upper()} loaded (CPU fallback)")
+                except (ImportError, ModuleNotFoundError):
+                    # Skip sklearn fallback if sklearn not available
+                    pass
         
-        # Load halves models
-        halves_path = self.models_dir / "halves_models.joblib"
-        if halves_path.exists():
-            self.period_models["halves"] = joblib.load(halves_path)
-            print(f"✅ Loaded halves models (h1, h2)")
+        # Load halves models (ONNX for NPU, fallback to joblib if needed)
+        halves_onnx_count = 0
+        halves_cpu_count = 0
+        self.period_models["halves"] = {}
+        for half in ["h1", "h2"]:
+            self.period_models["halves"][half] = {}
+            for model_type in ["win", "margin", "total"]:
+                # Try ONNX first
+                onnx_path = self.models_dir / f"halves_{half}_{model_type}.onnx"
+                if onnx_path.exists() and self.npu_available:
+                    try:
+                        session = self._create_npu_session(str(onnx_path))
+                        self.period_models["halves"][half][model_type] = ("onnx", session)
+                        halves_onnx_count += 1
+                    except Exception as e:
+                        print(f"⚠️  {half}_{model_type} ONNX failed, trying sklearn: {e}")
+                
+                # Fallback to sklearn joblib if ONNX not available
+                if model_type not in self.period_models["halves"][half]:
+                    halves_joblib_path = self.models_dir / "halves_models.joblib"
+                    if halves_joblib_path.exists() and SKLEARN_AVAILABLE:
+                        try:
+                            if "halves_joblib" not in self.__dict__:
+                                self.halves_joblib = joblib.load(halves_joblib_path)
+                            if half in self.halves_joblib and model_type in self.halves_joblib[half]:
+                                self.period_models["halves"][half][model_type] = ("sklearn", self.halves_joblib[half][model_type])
+                                halves_cpu_count += 1
+                        except (ImportError, ModuleNotFoundError):
+                            pass
         
-        # Load quarters models  
-        quarters_path = self.models_dir / "quarters_models.joblib"
-        if quarters_path.exists():
-            self.period_models["quarters"] = joblib.load(quarters_path)
-            print(f"✅ Loaded quarters models (q1-q4)")
+        if halves_onnx_count > 0:
+            print(f"✅ Loaded halves models: {halves_onnx_count} NPU, {halves_cpu_count} CPU")
+        elif halves_cpu_count > 0:
+            print(f"✅ Loaded halves models: {halves_cpu_count} CPU (ONNX not available)")
         
-        total_npu = len(self.npu_sessions)
-        total_cpu = len(self.fallback_models)
+        # Load quarters models (ONNX for NPU, fallback to joblib if needed)
+        quarters_onnx_count = 0
+        quarters_cpu_count = 0
+        self.period_models["quarters"] = {}
+        for quarter in ["q1", "q2", "q3", "q4"]:
+            self.period_models["quarters"][quarter] = {}
+            for model_type in ["win", "margin", "total"]:
+                # Try ONNX first
+                onnx_path = self.models_dir / f"quarters_{quarter}_{model_type}.onnx"
+                if onnx_path.exists() and self.npu_available:
+                    try:
+                        session = self._create_npu_session(str(onnx_path))
+                        self.period_models["quarters"][quarter][model_type] = ("onnx", session)
+                        quarters_onnx_count += 1
+                    except Exception as e:
+                        print(f"⚠️  {quarter}_{model_type} ONNX failed, trying sklearn: {e}")
+                
+                # Fallback to sklearn joblib if ONNX not available
+                if model_type not in self.period_models["quarters"][quarter]:
+                    quarters_joblib_path = self.models_dir / "quarters_models.joblib"
+                    if quarters_joblib_path.exists() and SKLEARN_AVAILABLE:
+                        try:
+                            if "quarters_joblib" not in self.__dict__:
+                                self.quarters_joblib = joblib.load(quarters_joblib_path)
+                            if quarter in self.quarters_joblib and model_type in self.quarters_joblib[quarter]:
+                                self.period_models["quarters"][quarter][model_type] = ("sklearn", self.quarters_joblib[quarter][model_type])
+                                quarters_cpu_count += 1
+                        except (ImportError, ModuleNotFoundError):
+                            pass
+        
+        if quarters_onnx_count > 0:
+            print(f"✅ Loaded quarters models: {quarters_onnx_count} NPU, {quarters_cpu_count} CPU")
+        elif quarters_cpu_count > 0:
+            print(f"✅ Loaded quarters models: {quarters_cpu_count} CPU (ONNX not available)")
+        
+        total_npu = len(self.npu_sessions) + halves_onnx_count + quarters_onnx_count
+        total_cpu = len(self.fallback_models) + halves_cpu_count + quarters_cpu_count
         print(f"🎯 Ready with {total_npu + total_cpu} models ({total_npu} NPU-accelerated)")
     
     def predict_game(self, features: np.ndarray, include_periods: bool = True) -> Dict[str, Any]:
@@ -169,6 +238,9 @@ class NPUGamePredictor:
                     else:
                         # Single probability in 2D array
                         predictions[model_name] = float(result[0][0])
+                        
+                    # Store raw win probability for analysis
+                    predictions["win_prob_raw"] = predictions[model_name]
                 else:
                     # Regression - handle 2D output
                     if len(result.shape) > 1:
@@ -185,24 +257,68 @@ class NPUGamePredictor:
                     # Get probability from sklearn classifier
                     proba = model.predict_proba(features)
                     predictions[model_name] = float(proba[0][1])
+                    predictions["win_prob_raw"] = predictions[model_name]
                 else:
                     predictions[model_name] = float(result[0])
             
             inference_times[model_name] = (time.perf_counter() - start_time) * 1000
         
-        # Period predictions (halves/quarters) using CPU for now
+        # ========================================================================
+        # CALIBRATED WIN PROBABILITY: Use spread predictions via sigmoid
+        # ========================================================================
+        # The spread model is well-calibrated, but the win_prob model is overconfident.
+        # Convert spread → win probability using logistic function:
+        #   P(home wins) = 1 / (1 + exp(-spread / σ))
+        # where σ ≈ 12 points (NBA historical spread standard deviation)
+        #
+        # This leverages the NN's spread predictions directly rather than
+        # relying on the overconfident binary classifier.
+        if "spread_margin" in predictions:
+            sigma = 12.0  # Standard deviation of NBA point spreads
+            spread_based_prob = 1.0 / (1.0 + np.exp(-predictions["spread_margin"] / sigma))
+            predictions["win_prob_from_spread"] = float(spread_based_prob)
+            
+            # Blend: 80% spread-based (calibrated), 20% direct model
+            # This preserves any signal from the win model while fixing overconfidence
+            if "win_prob" in predictions:
+                predictions["win_prob"] = 0.8 * spread_based_prob + 0.2 * predictions["win_prob"]
+        
+        # Period predictions (halves/quarters) using NPU ONNX or CPU fallback
         if include_periods:
             for period_type, models_dict in self.period_models.items():
                 predictions[period_type] = {}
                 for period_name, period_models in models_dict.items():
                     predictions[period_type][period_name] = {}
-                    for pred_type, model in period_models.items():
-                        if pred_type == "win":
-                            proba = model.predict_proba(features)
-                            predictions[period_type][period_name][pred_type] = float(proba[0][1])
-                        else:
-                            result = model.predict(features)
-                            predictions[period_type][period_name][pred_type] = float(result[0])
+                    for pred_type, model_tuple in period_models.items():
+                        model_type, model = model_tuple  # ("onnx", session) or ("sklearn", model)
+                        
+                        if model_type == "onnx":
+                            # NPU ONNX prediction
+                            input_name = model.get_inputs()[0].name
+                            result = model.run(None, {input_name: features})[0]
+                            
+                            if pred_type == "win":
+                                # Classification - get probability for class 1
+                                result = np.array(result)  # Ensure numpy array
+                                if result.ndim > 1 and result.shape[1] > 1:
+                                    predictions[period_type][period_name][pred_type] = float(result[0][1])
+                                elif result.ndim > 1:
+                                    predictions[period_type][period_name][pred_type] = float(result[0][0])
+                                else:
+                                    predictions[period_type][period_name][pred_type] = float(result[0])
+                            else:
+                                # Regression - extract single value
+                                result = np.array(result)  # Ensure numpy array
+                                predictions[period_type][period_name][pred_type] = float(result.flat[0])
+                        
+                        elif model_type == "sklearn":
+                            # sklearn fallback
+                            if pred_type == "win":
+                                proba = model.predict_proba(features)
+                                predictions[period_type][period_name][pred_type] = float(proba[0][1])
+                            else:
+                                result = model.predict(features)
+                                predictions[period_type][period_name][pred_type] = float(result[0])
         
         predictions["_inference_times_ms"] = inference_times
         return predictions

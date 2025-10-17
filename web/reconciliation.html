@@ -1,56 +1,80 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NBA Reconciliation</title>
-  <link rel="stylesheet" href="/web/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Reconciliation | NBA Betting</title>
+  <link rel="icon" href="/web/assets/nba-logo.svg" type="image/svg+xml" />
+  <style>
+    :root {
+      --bg:#080d1a; --text:#f5f7ff; --muted:#c3cee4; --link:#b8d1ff;
+      --input-bg:#121b31; --input-br:#243356; --button-bg:#1b2339; --button-br:#2a3a63; --button-hover:#2a3a63;
+      --card:#0d1426; --card2:#121b31; --border:#243356;
+      --green:#86efac; --blue:#93c5fd; --yellow:#fde047; --red:#fca5a5;
+    }
+    body.light {
+      --bg:#f0f4f8; --text:#0f1419; --muted:#5c6a7d; --link:#1e40af;
+      --input-bg:#fff; --input-br:#d1dce5; --button-bg:#e5e9ed; --button-br:#b8c4cf; --button-hover:#d1dce5;
+      --card:#fff; --card2:#f9fafb; --border:#d1dce5;
+      --green:#16a34a; --blue:#2563eb; --yellow:#ca8a04; --red:#dc2626;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:12px; transition:background 0.3s, color 0.3s; }
+    .container { max-width:1200px; margin:0 auto; }
+    .nav { display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:16px; }
+    .nav a { color:var(--link); text-decoration:none; font-size:14px; }
+    .nav a:hover { text-decoration:underline; }
+    .nav button { margin-left:auto; padding:6px 12px; background:var(--button-bg); color:var(--text); border:1px solid var(--button-br); border-radius:6px; cursor:pointer; font-size:13px; }
+    .nav button:hover { background:var(--button-hover); }
+    .controls { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; margin-bottom:16px; }
+    .controls label { font-size:13px; color:var(--muted); margin-right:4px; }
+    .controls input[type="date"] { padding:6px 10px; background:var(--input-bg); color:var(--text); border:1px solid var(--input-br); border-radius:6px; font-size:13px; }
+    .summary { font-size:14px; color:var(--muted); padding:12px; background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; margin-bottom:16px; }
+  </style>
   <script>
-  async function fetchRecon(){
-    const d = document.getElementById('datePicker').value;
-    const res = await fetch(`/api/reconciliation?date=${d}`);
-    const js = await res.json();
-    const out = document.getElementById('summary');
-    const parts = [];
-    if (js.games!=null) parts.push(`Games with results: ${js.games}`);
-    if (js.margin_error_mae!=null) parts.push(`MAE ΔMargin: ${Number(js.margin_error_mae).toFixed(2)}`);
-    if (js.total_error_mae!=null) parts.push(`MAE ΔTotal: ${Number(js.total_error_mae).toFixed(2)}`);
-    if (js.margin_error_rmse!=null) parts.push(`RMSE ΔMargin: ${Number(js.margin_error_rmse).toFixed(2)}`);
-    if (js.total_error_rmse!=null) parts.push(`RMSE ΔTotal: ${Number(js.total_error_rmse).toFixed(2)}`);
-    parts.push(`Props rows: ${js.props_rows||0}`)
-    out.textContent = parts.join(' • ');
-  }
-  window.addEventListener('DOMContentLoaded', ()=>{
-    function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-    const params = new URLSearchParams(window.location.search);
-    const paramDate = params.get('date');
-    const today = localYMD();
-    const inp = document.getElementById('datePicker'); inp.value = (paramDate || today); inp.addEventListener('change', fetchRecon);
-    fetchRecon();
-  });
+    async function fetchRecon(){
+      const d = document.getElementById('datePicker').value;
+      const res = await fetch(`/api/reconciliation?date=${d}`);
+      const js = await res.json();
+      const out = document.getElementById('summary');
+      const parts = [];
+      if (js.games!=null) parts.push(`Games with results: ${js.games}`);
+      if (js.margin_error_mae!=null) parts.push(`MAE ΔMargin: ${Number(js.margin_error_mae).toFixed(2)}`);
+      if (js.total_error_mae!=null) parts.push(`MAE ΔTotal: ${Number(js.total_error_mae).toFixed(2)}`);
+      if (js.margin_error_rmse!=null) parts.push(`RMSE ΔMargin: ${Number(js.margin_error_rmse).toFixed(2)}`);
+      if (js.total_error_rmse!=null) parts.push(`RMSE ΔTotal: ${Number(js.total_error_rmse).toFixed(2)}`);
+      parts.push(`Props rows: ${js.props_rows||0}`)
+      out.textContent = parts.join(' • ');
+    }
+    window.addEventListener('DOMContentLoaded', ()=>{
+      function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+      const params = new URLSearchParams(window.location.search);
+      const paramDate = params.get('date');
+      const today = localYMD();
+      const inp = document.getElementById('datePicker'); inp.value = (paramDate || today); inp.addEventListener('change', fetchRecon);
+      fetchRecon();
+      const theme=localStorage.getItem('theme')||'dark';
+      if(theme==='light') document.body.classList.add('light');
+    });
+    function toggleTheme(){ document.body.classList.toggle('light'); localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark'); }
   </script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1>Reconciliation</h1>
-      <nav class="site-nav">
-        <a href="/">Games</a>
-        <a href="/recommendations">Recommendations</a>
-  <a href="/props">Props</a>
-  <a href="/props/recommendations">Props Recs</a>
-  <a href="/props/reconciliation">Props Recon</a>
-        <a href="/reconciliation" aria-current="page">Reconciliation</a>
-        <a href="/odds-coverage">Odds Coverage</a>
-      </nav>
-      <div class="controls">
-        <label class="sr-only" for="datePicker">Select date</label>
-        <input id="datePicker" type="date" />
-      </div>
+  <div class="container">
+    <div class="nav">
+      <a href="/">Cards</a>
+      <a href="/recommendations">Recommendations</a>
+      <a href="/props">Props</a>
+      <a href="/props/recommendations">Props Recs</a>
+      <a href="/reconciliation" style="font-weight:600;">Reconciliation</a>
+      <a href="/odds-coverage">Odds Coverage</a>
+      <button onclick="toggleTheme()">Toggle Theme</button>
     </div>
-  </header>
-  <main class="container">
-    <section id="summary" class="summary"></section>
-  </main>
+    <div class="controls">
+      <label for="datePicker">Date</label>
+      <input id="datePicker" type="date" title="Select date" />
+    </div>
+    <div id="summary" class="summary">Loading...</div>
+  </div>
 </body>
 </html>

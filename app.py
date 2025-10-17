@@ -1673,6 +1673,7 @@ def api_props():
 
 
 @app.route("/api/props/recommendations")
+@app.route("/api/props-recommendations")  # Alias for frontend compatibility
 def api_props_recommendations():
     """Aggregate props edges into player cards for the given date, NFL-style.
 
@@ -1845,6 +1846,13 @@ def api_props_recommendations():
                     h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
                     matchup_map[h.upper()] = (a, h)
                     matchup_map[a.upper()] = (a, h)
+                    # Also map by tricode for props compatibility
+                    h_tri = _get_tricode(h)
+                    a_tri = _get_tricode(a)
+                    if h_tri:
+                        matchup_map[h_tri.upper()] = (a, h)
+                    if a_tri:
+                        matchup_map[a_tri.upper()] = (a, h)
             except Exception:
                 pass
         # Group and assemble plays
@@ -1953,6 +1961,23 @@ def api_props_recommendations():
                     away, home = matchup_map.get(str(team or "").upper(), (None, None))
                 except Exception:
                     away, home = (None, None)
+                
+                # Derive opponent from matchup
+                opponent = None
+                if away and home and team:
+                    team_tri = str(team).strip().upper()
+                    home_tri = _get_tricode(home)
+                    away_tri = _get_tricode(away)
+                    if team_tri == (home_tri or "").upper():
+                        opponent = away
+                    elif team_tri == (away_tri or "").upper():
+                        opponent = home
+                    # Also check full names
+                    elif str(team).strip().upper() == str(home).strip().upper():
+                        opponent = away
+                    elif str(team).strip().upper() == str(away).strip().upper():
+                        opponent = home
+                
                 # Optional model predictions attached to card
                 model: dict[str,float] = {}
                 try:
@@ -1960,6 +1985,27 @@ def api_props_recommendations():
                     model = pp_lookup.get(key, {})
                 except Exception:
                     model = {}
+                
+                # If no model data from props_predictions, infer from edges (find line closest to 50% prob)
+                if not model and not g2.empty:
+                    try:
+                        for stat_type in ['pts', 'reb', 'ast', 'threes', 'pra']:
+                            stat_rows = g2[g2['stat'] == stat_type]
+                            if not stat_rows.empty and 'model_prob' in stat_rows.columns and 'line' in stat_rows.columns:
+                                # Find line where model_prob is closest to 0.5
+                                stat_rows_clean = stat_rows.copy()
+                                stat_rows_clean['model_prob'] = pd.to_numeric(stat_rows_clean['model_prob'], errors='coerce')
+                                stat_rows_clean['line'] = pd.to_numeric(stat_rows_clean['line'], errors='coerce')
+                                stat_rows_clean = stat_rows_clean.dropna(subset=['model_prob', 'line'])
+                                if not stat_rows_clean.empty:
+                                    # Find row where prob is closest to 0.5
+                                    stat_rows_clean['dist_from_50'] = (stat_rows_clean['model_prob'] - 0.5).abs()
+                                    closest_idx = stat_rows_clean['dist_from_50'].idxmin()
+                                    predicted_line = float(stat_rows_clean.loc[closest_idx, 'line'])
+                                    model[stat_type] = predicted_line
+                    except Exception:
+                        pass
+                
                 # Photo and logo hints
                 pid = None
                 # Resolve from column or lookup if missing
@@ -2005,6 +2051,7 @@ def api_props_recommendations():
                 cards.append({
                     "player": player,
                     "team": team,
+                    "opponent": opponent,
                     "home_team": home,
                     "away_team": away,
                     "plays": plays,

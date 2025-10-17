@@ -9,11 +9,29 @@ from .config import paths
 
 
 NUM_COL_MAP = {
+    # Core stats (existing)
     "PTS": ["PTS", "pts"],
     "REB": ["REB", "reb", "TREB", "treb"],
     "AST": ["AST", "ast"],
     "FG3M": ["FG3M", "fg3m", "FG3M_A"],
     "MIN": ["MIN", "min"],
+    # Defensive stats
+    "STL": ["STL", "stl"],
+    "BLK": ["BLK", "blk"],
+    "TOV": ["TOV", "tov"],
+    # Shooting stats
+    "FGM": ["FGM", "fgm"],
+    "FGA": ["FGA", "fga"],
+    "FG_PCT": ["FG_PCT", "fg_pct"],
+    "FTM": ["FTM", "ftm"],
+    "FTA": ["FTA", "fta"],
+    "FT_PCT": ["FT_PCT", "ft_pct"],
+    # Rebound breakdown
+    "OREB": ["OREB", "oreb"],
+    "DREB": ["DREB", "dreb"],
+    # Other
+    "PF": ["PF", "pf"],
+    "PLUS_MINUS": ["PLUS_MINUS", "plus_minus"],
 }
 
 DATE_COLS = ["GAME_DATE", "GAME_DATE_EST", "dateGame", "GAME_DATE_PT"]
@@ -65,7 +83,7 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     """Compute per-player rolling features and targets from player logs.
 
     Outputs a row per player's game with lagged rolling stats up to previous game.
-    Targets: pts, reb, ast, threes (FG3M), pra for that game.
+    Targets: pts, reb, ast, threes, pra, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus
     """
     logs = load_player_logs().copy()
     # Identify columns
@@ -74,58 +92,155 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     gid = _find_col(logs, GAME_ID_COLS)
     tcol = _find_col(logs, TEAM_COLS)
     dcol = _find_col(logs, DATE_COLS)
-    pts = _find_col(logs, NUM_COL_MAP["PTS"]) ; reb = _find_col(logs, NUM_COL_MAP["REB"]) ; ast = _find_col(logs, NUM_COL_MAP["AST"]) ; fg3m = _find_col(logs, NUM_COL_MAP["FG3M"]) ; minc = _find_col(logs, NUM_COL_MAP["MIN"]) 
+    
+    # Core stats
+    pts = _find_col(logs, NUM_COL_MAP["PTS"])
+    reb = _find_col(logs, NUM_COL_MAP["REB"])
+    ast = _find_col(logs, NUM_COL_MAP["AST"])
+    fg3m = _find_col(logs, NUM_COL_MAP["FG3M"])
+    minc = _find_col(logs, NUM_COL_MAP["MIN"])
+    
+    # Defensive stats
+    stl = _find_col(logs, NUM_COL_MAP["STL"])
+    blk = _find_col(logs, NUM_COL_MAP["BLK"])
+    tov = _find_col(logs, NUM_COL_MAP["TOV"])
+    
+    # Shooting stats
+    fgm = _find_col(logs, NUM_COL_MAP["FGM"])
+    fga = _find_col(logs, NUM_COL_MAP["FGA"])
+    fg_pct = _find_col(logs, NUM_COL_MAP["FG_PCT"])
+    ftm = _find_col(logs, NUM_COL_MAP["FTM"])
+    fta = _find_col(logs, NUM_COL_MAP["FTA"])
+    ft_pct = _find_col(logs, NUM_COL_MAP["FT_PCT"])
+    
+    # Rebound breakdown
+    oreb = _find_col(logs, NUM_COL_MAP["OREB"])
+    dreb = _find_col(logs, NUM_COL_MAP["DREB"])
+    
+    # Other
+    pf = _find_col(logs, NUM_COL_MAP["PF"])
+    plus_minus = _find_col(logs, NUM_COL_MAP["PLUS_MINUS"])
+    
     for col in [pid, pname, gid, tcol, dcol, pts, reb, ast, fg3m]:
         if col is None:
             raise ValueError("Missing required columns in player_logs")
     logs[dcol] = pd.to_datetime(logs[dcol])
     logs.sort_values([pid, dcol], inplace=True)
-    # Numeric conversions
-    for c in [pts, reb, ast, fg3m]:
-        logs[c] = pd.to_numeric(logs[c], errors="coerce")
+    
+    # Numeric conversions for all stat columns
+    stat_cols = [pts, reb, ast, fg3m, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
+    for c in stat_cols:
+        if c is not None and c in logs.columns:
+            logs[c] = pd.to_numeric(logs[c], errors="coerce")
+    
     if minc is not None and minc in logs.columns:
         logs[minc] = logs[minc].apply(_to_minutes)
     else:
         logs[minc] = np.nan
 
-    # Create PRA
+    # Create combo stats
     logs["_PRA"] = logs[[pts, reb, ast]].sum(axis=1, skipna=True)
+    if stl and blk:
+        logs["_STOCKS"] = logs[[stl, blk]].sum(axis=1, skipna=True)  # Steals + Blocks
+    if pts and reb:
+        logs["_PR"] = logs[[pts, reb]].sum(axis=1, skipna=True)  # Points + Rebounds
+    if pts and ast:
+        logs["_PA"] = logs[[pts, ast]].sum(axis=1, skipna=True)  # Points + Assists
+    if reb and ast:
+        logs["_RA"] = logs[[reb, ast]].sum(axis=1, skipna=True)  # Rebounds + Assists
 
     feats = []
     # Group by player and compute rolling windows; then shift by 1 to avoid leakage
     grp = logs.groupby(pid, sort=False)
     base_cols = {"player_id": pid, "player_name": pname, "game_id": gid, "team": tcol, "date": dcol}
+    
+    # Define all stats to create rolling features for
+    stat_map = {
+        "pts": pts, "reb": reb, "ast": ast, "threes": fg3m,
+        "stl": stl, "blk": blk, "tov": tov,
+        "fgm": fgm, "fga": fga, "fg_pct": fg_pct,
+        "ftm": ftm, "fta": fta, "ft_pct": ft_pct,
+        "oreb": oreb, "dreb": dreb,
+        "pf": pf, "plus_minus": plus_minus
+    }
+    
     for p, g in grp:
         g = g.copy()
         g["minutes"] = g[minc]
-        # rolling for numeric stats
+        
+        # Rolling features for all stats
         for w in windows:
-            g[f"roll{w}_pts"] = g[pts].rolling(w, min_periods=1).mean().shift(1)
-            g[f"roll{w}_reb"] = g[reb].rolling(w, min_periods=1).mean().shift(1)
-            g[f"roll{w}_ast"] = g[ast].rolling(w, min_periods=1).mean().shift(1)
-            g[f"roll{w}_threes"] = g[fg3m].rolling(w, min_periods=1).mean().shift(1)
             g[f"roll{w}_min"] = g["minutes"].rolling(w, min_periods=1).mean().shift(1)
-        # simple last-game stats
-        g["lag1_pts"] = g[pts].shift(1)
-        g["lag1_reb"] = g[reb].shift(1)
-        g["lag1_ast"] = g[ast].shift(1)
-        g["lag1_threes"] = g[fg3m].shift(1)
+            for stat_name, stat_col in stat_map.items():
+                if stat_col is not None and stat_col in g.columns:
+                    g[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().shift(1)
+        
+        # Lag1 features for all stats
         g["lag1_min"] = g["minutes"].shift(1)
+        for stat_name, stat_col in stat_map.items():
+            if stat_col is not None and stat_col in g.columns:
+                g[f"lag1_{stat_name}"] = g[stat_col].shift(1)
+        
         # b2b indicator: played previous day
         g["b2b"] = (g[dcol].diff().dt.days == 1).shift(0).astype(float)
-        # targets for this game
+        
+        # Targets for this game
         g["t_pts"] = g[pts]
         g["t_reb"] = g[reb]
         g["t_ast"] = g[ast]
         g["t_threes"] = g[fg3m]
         g["t_pra"] = g[[pts, reb, ast]].sum(axis=1, skipna=True)
-        # append
-        keep = list(base_cols.values()) + [
-            "b2b",
-            "lag1_pts","lag1_reb","lag1_ast","lag1_threes","lag1_min",
-        ] + [f"roll{w}_{x}" for w in windows for x in ("pts","reb","ast","threes","min")] + [
-            "t_pts","t_reb","t_ast","t_threes","t_pra"
-        ]
+        
+        # Additional targets
+        if stl and stl in g.columns:
+            g["t_stl"] = g[stl]
+        if blk and blk in g.columns:
+            g["t_blk"] = g[blk]
+        if tov and tov in g.columns:
+            g["t_tov"] = g[tov]
+        if fgm and fgm in g.columns:
+            g["t_fgm"] = g[fgm]
+        if fga and fga in g.columns:
+            g["t_fga"] = g[fga]
+        if fg_pct and fg_pct in g.columns:
+            g["t_fg_pct"] = g[fg_pct]
+        if ftm and ftm in g.columns:
+            g["t_ftm"] = g[ftm]
+        if fta and fta in g.columns:
+            g["t_fta"] = g[fta]
+        if ft_pct and ft_pct in g.columns:
+            g["t_ft_pct"] = g[ft_pct]
+        if oreb and oreb in g.columns:
+            g["t_oreb"] = g[oreb]
+        if dreb and dreb in g.columns:
+            g["t_dreb"] = g[dreb]
+        if pf and pf in g.columns:
+            g["t_pf"] = g[pf]
+        if plus_minus and plus_minus in g.columns:
+            g["t_plus_minus"] = g[plus_minus]
+        
+        # Combo stat targets
+        if "_STOCKS" in g.columns:
+            g["t_stocks"] = g["_STOCKS"]
+        if "_PR" in g.columns:
+            g["t_pr"] = g["_PR"]
+        if "_PA" in g.columns:
+            g["t_pa"] = g["_PA"]
+        if "_RA" in g.columns:
+            g["t_ra"] = g["_RA"]
+        
+        # Build keep list dynamically
+        keep = list(base_cols.values()) + ["b2b"]
+        # Add all lag1 and rolling features that exist
+        for col in g.columns:
+            if col.startswith("lag1_") or col.startswith("roll"):
+                keep.append(col)
+        # Add all target columns
+        for col in g.columns:
+            if col.startswith("t_"):
+                keep.append(col)
+        
+        keep = [c for c in keep if c in g.columns]  # Filter to existing columns
         feats.append(g[keep].rename(columns={
             base_cols["player_id"]: "player_id",
             base_cols["player_name"]: "player_name",
@@ -161,7 +276,35 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     pid = _find_col(logs, PLAYER_ID_COLS)
     pname = _find_col(logs, PLAYER_NAME_COLS)
     tcol = _find_col(logs, TEAM_COLS)
-    pts = _find_col(logs, NUM_COL_MAP["PTS"]) ; reb = _find_col(logs, NUM_COL_MAP["REB"]) ; ast = _find_col(logs, NUM_COL_MAP["AST"]) ; fg3m = _find_col(logs, NUM_COL_MAP["FG3M"]) ; minc = _find_col(logs, NUM_COL_MAP["MIN"]) 
+    
+    # Core stats
+    pts = _find_col(logs, NUM_COL_MAP["PTS"])
+    reb = _find_col(logs, NUM_COL_MAP["REB"])
+    ast = _find_col(logs, NUM_COL_MAP["AST"])
+    fg3m = _find_col(logs, NUM_COL_MAP["FG3M"])
+    minc = _find_col(logs, NUM_COL_MAP["MIN"])
+    
+    # Defensive stats
+    stl = _find_col(logs, NUM_COL_MAP["STL"])
+    blk = _find_col(logs, NUM_COL_MAP["BLK"])
+    tov = _find_col(logs, NUM_COL_MAP["TOV"])
+    
+    # Shooting stats
+    fgm = _find_col(logs, NUM_COL_MAP["FGM"])
+    fga = _find_col(logs, NUM_COL_MAP["FGA"])
+    fg_pct = _find_col(logs, NUM_COL_MAP["FG_PCT"])
+    ftm = _find_col(logs, NUM_COL_MAP["FTM"])
+    fta = _find_col(logs, NUM_COL_MAP["FTA"])
+    ft_pct = _find_col(logs, NUM_COL_MAP["FT_PCT"])
+    
+    # Rebound breakdown
+    oreb = _find_col(logs, NUM_COL_MAP["OREB"])
+    dreb = _find_col(logs, NUM_COL_MAP["DREB"])
+    
+    # Other
+    pf = _find_col(logs, NUM_COL_MAP["PF"])
+    plus_minus = _find_col(logs, NUM_COL_MAP["PLUS_MINUS"])
+    
     for col in [pid, pname, tcol, dcol, pts, reb, ast, fg3m]:
         if col is None:
             raise ValueError("Missing required columns in player_logs")
@@ -171,14 +314,29 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     hist = logs[logs[dcol] < target_date].copy()
     if players is not None:
         hist = hist[hist[pid].isin(players)].copy()
-    # Convert numerics
-    for c in [pts, reb, ast, fg3m]:
-        hist[c] = pd.to_numeric(hist[c], errors="coerce")
+    
+    # Convert numerics for all stats
+    stat_cols = [pts, reb, ast, fg3m, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
+    for c in stat_cols:
+        if c is not None and c in hist.columns:
+            hist[c] = pd.to_numeric(hist[c], errors="coerce")
+    
     if minc is not None and minc in hist.columns:
         hist[minc] = hist[minc].apply(_to_minutes)
     else:
         hist[minc] = np.nan
     hist.sort_values([pid, dcol], inplace=True)
+    
+    # Define all stats to create features for
+    stat_map = {
+        "pts": pts, "reb": reb, "ast": ast, "threes": fg3m,
+        "stl": stl, "blk": blk, "tov": tov,
+        "fgm": fgm, "fga": fga, "fg_pct": fg_pct,
+        "ftm": ftm, "fta": fta, "ft_pct": ft_pct,
+        "oreb": oreb, "dreb": dreb,
+        "pf": pf, "plus_minus": plus_minus
+    }
+    
     rows = []
     grp = hist.groupby(pid, sort=False)
     for p, g in grp:
@@ -190,22 +348,29 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
             "team": g.iloc[-1][_find_col(hist, TEAM_COLS)] if _find_col(hist, TEAM_COLS) else None,
             "asof_date": target_date.date(),
         }
-        rec["lag1_pts"] = g[pts].iloc[-1] if len(g) > 0 else np.nan
-        rec["lag1_reb"] = g[reb].iloc[-1] if len(g) > 0 else np.nan
-        rec["lag1_ast"] = g[ast].iloc[-1] if len(g) > 0 else np.nan
-        rec["lag1_threes"] = g[fg3m].iloc[-1] if len(g) > 0 else np.nan
+        
+        # Lag1 features for all stats
+        for stat_name, stat_col in stat_map.items():
+            if stat_col is not None and stat_col in g.columns and len(g) > 0:
+                rec[f"lag1_{stat_name}"] = g[stat_col].iloc[-1]
+            else:
+                rec[f"lag1_{stat_name}"] = np.nan
         rec["lag1_min"] = g["minutes"].iloc[-1] if len(g) > 0 else np.nan
+        
         # b2b based on last two games
         if len(g) >= 2:
             d1 = g[dcol].iloc[-1]; d0 = g[dcol].iloc[-2]
             rec["b2b"] = float((d1 - d0).days == 1)
         else:
             rec["b2b"] = 0.0
+        
+        # Rolling features for all stats
         for w in windows:
-            rec[f"roll{w}_pts"] = g[pts].rolling(w, min_periods=1).mean().iloc[-1]
-            rec[f"roll{w}_reb"] = g[reb].rolling(w, min_periods=1).mean().iloc[-1]
-            rec[f"roll{w}_ast"] = g[ast].rolling(w, min_periods=1).mean().iloc[-1]
-            rec[f"roll{w}_threes"] = g[fg3m].rolling(w, min_periods=1).mean().iloc[-1]
             rec[f"roll{w}_min"] = g["minutes"].rolling(w, min_periods=1).mean().iloc[-1]
+            for stat_name, stat_col in stat_map.items():
+                if stat_col is not None and stat_col in g.columns:
+                    rec[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().iloc[-1]
+                else:
+                    rec[f"roll{w}_{stat_name}"] = np.nan
         rows.append(rec)
     return pd.DataFrame(rows)

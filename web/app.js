@@ -28,6 +28,16 @@ const state = {
   }
 };
 
+// Toggle periods breakdown visibility
+function togglePeriods(cardId){
+  const content = document.getElementById(cardId);
+  const toggle = document.querySelector(`[onclick="togglePeriods('${cardId}')"]`);
+  if (!content) return;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  if (toggle) toggle.textContent = isHidden ? '▼ Model Line Score (by Quarter)' : '▶ Model Line Score (by Quarter)';
+}
+
 // --- Persistence helpers (odds) ---
 function persistOdds(dateStr, map){
   try{
@@ -1088,6 +1098,73 @@ function renderDate(dateStr){
       }
     }
 
+    // Build quarters line score (traditional format)
+    let periodsHtml = '';
+    if (pred && pred.quarters_q1_total!=null){
+      const cardId = `periods-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
+      
+      // Calculate team scores per quarter based on margin and total
+      const calcQuarterScores = (qMargin, qTotal) => {
+        const homeQ = (qTotal + qMargin) / 2;
+        const awayQ = (qTotal - qMargin) / 2;
+        return { home: homeQ, away: awayQ };
+      };
+      
+      // Get quarter data
+      const q1 = calcQuarterScores(Number(pred.quarters_q1_margin||0), Number(pred.quarters_q1_total||0));
+      const q2 = calcQuarterScores(Number(pred.quarters_q2_margin||0), Number(pred.quarters_q2_total||0));
+      const q3 = calcQuarterScores(Number(pred.quarters_q3_margin||0), Number(pred.quarters_q3_total||0));
+      const q4 = calcQuarterScores(Number(pred.quarters_q4_margin||0), Number(pred.quarters_q4_total||0));
+      
+      // Calculate totals
+      const awayTotal = q1.away + q2.away + q3.away + q4.away;
+      const homeTotal = q1.home + q2.home + q3.home + q4.home;
+      
+      periodsHtml = `
+        <div class="row details small">
+          <div class="detail-col">
+            <div class="periods-toggle" onclick="togglePeriods('${cardId}')" style="cursor:pointer; font-weight:600; color:#4a90e2; margin-bottom:8px;">
+              ▶ Model Line Score (by Quarter)
+            </div>
+            <div id="${cardId}" class="periods-content" style="display:none; margin-top:4px;">
+              <table style="width:100%; font-size:0.85em; border-collapse:collapse; background:#f8f9fa; border-radius:4px; overflow:hidden;">
+                <thead>
+                  <tr style="background:#e9ecef; border-bottom:2px solid #dee2e6;">
+                    <th style="text-align:left; padding:6px 8px; font-weight:600;">Team</th>
+                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q1</th>
+                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q2</th>
+                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q3</th>
+                    <th style="text-align:center; padding:6px 8px; min-width:45px;">Q4</th>
+                    <th style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd; min-width:50px;">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="border-bottom:1px solid #dee2e6;">
+                    <td style="padding:6px 8px; font-weight:600;">${away}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q1.away, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q2.away, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q3.away, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q4.away, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd;">${fmtNum(awayTotal, 1)}</td>
+                  </tr>
+                  <tr>
+                    <td style="padding:6px 8px; font-weight:600;">${home}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q1.home, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q2.home, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q3.home, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px;">${fmtNum(q4.home, 1)}</td>
+                    <td style="text-align:center; padding:6px 8px; font-weight:600; background:#fff3cd;">${fmtNum(homeTotal, 1)}</td>
+                  </tr>
+                </tbody>
+              </table>
+              <div style="font-size:0.75em; color:#6c757d; margin-top:4px; text-align:center;">
+                Predicted scores by quarter from NPU model
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }
+
     node.innerHTML = `
       <div class="row head">
         <div class="game-date js-local-time">${dtIso || dateStr}</div>
@@ -1101,16 +1178,16 @@ function renderDate(dateStr){
         <div class="team side">
           <div class="team-line">${teamLineHTML(away)}</div>
           <div class="score-block">
-            <div class="live-score js-live-away">${(actualAway!=null? fmtNum(actualAway,0) : '—')}</div>
-            <div class="sub proj-score">${(projAway!=null? fmtNum(projAway,1) : '—')}</div>
+            <div class="live-score js-live-away">${(actualAway!=null? fmtNum(actualAway,0) : (projAway!=null ? fmtNum(projAway,1) : '—'))}</div>
+            <div class="sub proj-score">${(projAway!=null? `Model: ${fmtNum(projAway,2)}` : '')}</div>
           </div>
         </div>
         <div style="text-align:center; font-weight:700;">@</div>
         <div class="team side">
           <div class="team-line">${teamLineHTML(home)}</div>
           <div class="score-block">
-            <div class="live-score js-live-home">${(actualHome!=null? fmtNum(actualHome,0) : '—')}</div>
-            <div class="sub proj-score">${(projHome!=null? fmtNum(projHome,1) : '—')}</div>
+            <div class="live-score js-live-home">${(actualHome!=null? fmtNum(actualHome,0) : (projHome!=null ? fmtNum(projHome,1) : '—'))}</div>
+            <div class="sub proj-score">${(projHome!=null? `Model: ${fmtNum(projHome,2)}` : '')}</div>
           </div>
         </div>
       </div>
@@ -1120,15 +1197,15 @@ function renderDate(dateStr){
       ${linesLine?`<div class=\"row details small\"><div class=\"detail-col\"><div>${linesLine}</div></div></div>`:''}
       <div class="row details">
         <div class="detail-col">
-          ${totalModel!=null? `<div>Model Total: <strong>${totalModel.toFixed(2)}</strong></div>`: ''}
-          ${totalActual!=null? `<div>Actual Total: <strong>${totalActual.toFixed(2)}</strong></div>`: ''}
-          ${diffLine? `<div>Diff: <strong>${diffLine.split(': ')[1]}</strong></div>`: ''}
+          ${totalModel!=null && totalActual!=null? `<div>Total (model): <strong>${totalModel.toFixed(2)}</strong> | Total (actual): <strong>${totalActual.toFixed(2)}</strong> | Diff: <strong>${(totalActual >= totalModel ? '+' : '')}${(totalActual - totalModel).toFixed(2)}</strong></div>`: 
+            (totalModel!=null? `<div>Total (model): <strong>${totalModel.toFixed(2)}</strong></div>`: '')}
           ${wpLine ? `<div>${wpLine}</div>` : ''}
           ${accuracyLine ? `<div>${accuracyLine}</div>` : ''}
         </div>
       </div>
       ${recHtml}
       ${modelPickHtml}
+      ${periodsHtml}
       ${evWinnerLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evWinnerLine}</div></div>` : ''}
       ${evSpreadLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evSpreadLine}</div></div>` : ''}
       ${evTotalLine ? `<div class=\"row details small\"><div class=\"detail-col\">${evTotalLine}</div></div>` : ''}

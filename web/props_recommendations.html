@@ -1,204 +1,233 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>NBA Props Recommendations</title>
-  <link rel="stylesheet" href="/web/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Props Recs | NBA Betting</title>
+  <link rel="icon" href="/web/assets/nba-logo.svg" type="image/svg+xml" />
   <style>
-    .pill{display:inline-block;border:1px solid #25316a;border-radius:999px;padding:2px 6px;font-size:12px;margin-left:6px}
-    .grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-    @media (max-width:760px){ .grid{grid-template-columns:1fr} }
-    .card-head{display:flex;align-items:center;gap:10px}
-    .avatar{width:56px;height:56px;border-radius:8px;object-fit:cover;background:#0f1530;border:1px solid #25316a}
-    .team-logo{width:28px;height:28px}
-    .muted{color:#9fb0ff;font-size:12px}
-    .plays{display:grid;gap:6px}
-    .play{display:flex;justify-content:space-between;align-items:center;border:1px solid #25316a;border-radius:10px;padding:8px 10px;background:#0f1530}
-    .edge{color:#facc15}
-    .ev{color:#86efac}
-    .ladder{margin-top:6px;border:1px solid #25316a;border-radius:10px;padding:6px 8px;background:#101735}
-    .ladder h4{margin:0 0 6px 0;font-size:12px;color:#d5dbff}
-    .ladder-entries{display:flex;flex-wrap:wrap;gap:6px}
-    .ladder-entries .pill{background:#0f1530}
+    :root {
+      --bg:#080d1a; --text:#f5f7ff; --muted:#c3cee4; --link:#b8d1ff;
+      --input-bg:#121b31; --input-br:#243356; --button-bg:#1b2339; --button-br:#2a3a63; --button-hover:#2a3a63;
+      --card:#0d1426; --card2:#121b31; --border:#243356;
+      --green:#86efac; --blue:#93c5fd; --yellow:#fde047; --red:#fca5a5;
+    }
+    body.light {
+      --bg:#f0f4f8; --text:#0f1419; --muted:#5c6a7d; --link:#1e40af;
+      --input-bg:#fff; --input-br:#d1dce5; --button-bg:#e5e9ed; --button-br:#b8c4cf; --button-hover:#d1dce5;
+      --card:#fff; --card2:#f9fafb; --border:#d1dce5;
+      --green:#16a34a; --blue:#2563eb; --yellow:#ca8a04; --red:#dc2626;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:var(--bg); color:var(--text); line-height:1.6; padding:12px; transition:background 0.3s, color 0.3s; }
+    .container { max-width:1200px; margin:0 auto; }
+    .nav { display:flex; flex-wrap:wrap; gap:16px; align-items:center; padding:12px 0; border-bottom:1px solid var(--border); margin-bottom:16px; }
+    .nav a { color:var(--link); text-decoration:none; font-size:14px; }
+    .nav a:hover { text-decoration:underline; }
+    .nav button { margin-left:auto; padding:6px 12px; background:var(--button-bg); color:var(--text); border:1px solid var(--button-br); border-radius:6px; cursor:pointer; font-size:13px; }
+    .nav button:hover { background:var(--button-hover); }
+    .controls { display:flex; flex-wrap:wrap; gap:12px; align-items:center; padding:12px; background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; margin-bottom:16px; }
+    .controls label { font-size:13px; color:var(--muted); margin-right:4px; }
+    .controls input[type="date"], .controls input[type="number"], .controls select { padding:6px 10px; background:var(--input-bg); color:var(--text); border:1px solid var(--input-br); border-radius:6px; font-size:13px; }
+    .controls input[type="checkbox"] { width:16px; height:16px; cursor:pointer; }
+    .summary { font-size:14px; color:var(--muted); margin-bottom:12px; }
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(450px, 1fr)); gap:16px; }
+    @media(max-width:768px){ .grid{ grid-template-columns:1fr; } }
+    .card { background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .card-head { display:flex; align-items:center; gap:12px; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:12px; }
+    .avatar { width:56px; height:56px; border-radius:50%; object-fit:cover; background:var(--input-bg); }
+    .player-info { flex:1; }
+    .player-name { font-size:16px; font-weight:600; margin-bottom:2px; }
+    .player-team { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px; }
+    .team-logo { width:28px; height:28px; object-fit:contain; }
+    .plays { display:flex; flex-direction:column; gap:8px; }
+    .play { display:flex; justify-content:space-between; align-items:center; padding:8px; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; font-size:13px; }
+    .play > div:first-child { font-weight:500; }
+    .pill { display:inline-block; padding:3px 8px; background:var(--button-bg); border:1px solid var(--button-br); border-radius:12px; font-size:12px; margin-left:4px; }
+    .ev { color:var(--green); font-weight:600; margin-left:4px; }
+    .edge { color:var(--blue); font-weight:600; margin-left:4px; }
+    .model-baseline { font-size:12px; color:var(--muted); padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; margin-bottom:8px; }
+    .ladder { margin-top:8px; padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; }
+    .ladder > div:first-child { font-size:13px; color:var(--muted); margin-bottom:4px; display:flex; align-items:center; }
+    .ladder a { color:var(--link); text-decoration:none; font-size:12px; }
+    .ladder a:hover { text-decoration:underline; }
+    .ladder-entries { display:flex; flex-wrap:wrap; gap:6px; margin-top:4px; }
   </style>
   <script>
-  function fmt(x){ if(x==null||isNaN(x)) return '—'; return Number(x).toFixed(1) }
-    function qs(name){ const u=new URL(window.location); return u.searchParams.get(name) }
+    function fmt(x){ if(x==null||isNaN(x)) return ''; return Number(x).toFixed(1); }
+    function qs(name){ const u=new URL(window.location); return u.searchParams.get(name); }
     async function loadData(){
-  const d = document.getElementById('datePicker').value || qs('date');
-  const market = document.getElementById('market').value;
-  const g = document.getElementById('game').value;
+      const date = document.getElementById('datePicker').value || '';
+      const market = document.getElementById('market').value || '';
       const onlyEV = document.getElementById('onlyEV').checked;
-      const minEV = document.getElementById('minEV').value;
-  const params = new URLSearchParams();
-      if(d) params.set('date', d);
-      if(market) params.set('market', market);
-      if(onlyEV) params.set('onlyEV','1');
-  if(minEV) params.set('minEV', String(minEV));
-  const sortBy = document.getElementById('sortBy') ? document.getElementById('sortBy').value : '';
-  if (sortBy) params.set('sortBy', sortBy);
-  if(g){ const [home,away] = g.split('|'); if(home) params.set('home_team', home); if(away) params.set('away_team', away); }
+      const minEV = parseFloat(document.getElementById('minEV').value) || 0;
+      const game = document.getElementById('game').value || '';
+      const sortBy = document.getElementById('sortBy').value || 'ev_desc';
+      const params = new URLSearchParams({date, market, only_ev:onlyEV?'1':'0', min_ev_pct:minEV, game, sort:sortBy});
+      document.getElementById('status').textContent = 'Loading…';
       try {
-        const res = await fetch('/api/props/recommendations?'+params.toString(), {cache:'no-store'});
-        if (!res.ok) {
-          const text = await res.text();
-          document.getElementById('status').textContent = `Error ${res.status}: ${text.slice(0,160)}`;
-          return;
-        }
-        const js = await res.json();
-        if (js.error) {
-          document.getElementById('status').textContent = `Error: ${js.error}`;
-          return;
-        }
-        document.getElementById('status').textContent = js.rows? (js.rows+" players") : (js.note || 'No props yet.');
-        renderGames(js.games||[]);
-        renderCards(js.data||[]);
-      } catch (e) {
-        document.getElementById('status').textContent = `Network error: ${e}`;
+        const resp = await fetch(`/api/props-recommendations?${params}`);
+        if(!resp.ok) throw new Error('Failed to fetch');
+        const data = await resp.json();
+        renderGames(data.games||[]);
+        renderCards(data.data||[]);  // Fixed: API returns 'data', not 'items'
+        document.getElementById('status').textContent = `${(data.data||[]).length} players`;
+      } catch(err){
+        console.error(err);
+        document.getElementById('status').textContent = 'Error loading data';
       }
     }
     function renderGames(games){
-      const sel = document.getElementById('game'); const cur = sel.value;
+      const sel = document.getElementById('game');
+      const current = sel.value;
       sel.innerHTML = '<option value="">All games</option>';
-  games.forEach(g=>{ const opt=document.createElement('option'); const h=g.home_team||''; const a=g.away_team||''; opt.value=`${h}|${a}`; opt.textContent=`${a||'?'} @ ${h||'?'}`; sel.appendChild(opt); });
-      if(cur) sel.value = cur;
+      games.forEach(g=>{ const opt=document.createElement('option'); opt.value=g; opt.textContent=g; sel.appendChild(opt); });
+      sel.value = current;
     }
     function renderCards(items){
-      const root = document.getElementById('cards'); root.innerHTML='';
+      const root = document.getElementById('cards');
+      root.innerHTML = '';
       items.forEach(it=>{
         const div = document.createElement('div'); div.className='card';
-        const matchup = ((it.away_team||'') && (it.home_team||''))? `${it.away_team} @ ${it.home_team}` : '';
         const head = document.createElement('div'); head.className='card-head';
-        const avatar = document.createElement('img'); avatar.className='avatar'; avatar.alt = it.player||''; if(it.photo){ avatar.src = it.photo; } else { avatar.style.display='none'; }
-        const tlogo = document.createElement('img'); tlogo.className='team-logo';
+        const avatar = document.createElement('img'); avatar.className='avatar'; avatar.alt=it.player||''; avatar.src = it.photo || '/web/assets/player-placeholder.png';
+        avatar.onerror = ()=>{ avatar.src='/web/assets/player-placeholder.png'; };
+        head.appendChild(avatar);
+        const info = document.createElement('div'); info.className='player-info';
+        const name = document.createElement('div'); name.className='player-name'; name.textContent = it.player||'';
+        info.appendChild(name);
+        const team = document.createElement('div'); team.className='player-team';
         if(it.team_logo){
-          tlogo.src = it.team_logo; tlogo.alt = it.team||'';
-          tlogo.onerror = () => {
-            // Fallbacks: lowercase svg, then png, else hide
-            const abbr = (it.team||'').toString().toUpperCase();
-            const tried = tlogo.getAttribute('data-tried') || '';
-            if (!tried.includes('lower')){
-              tlogo.setAttribute('data-tried', tried+' lower');
-              tlogo.src = `/web/assets/logos/${abbr.toLowerCase()}.svg`;
-            } else if (!tried.includes('png')){
-              tlogo.setAttribute('data-tried', tried+' png');
-              tlogo.src = `/web/assets/logos/${abbr}.png`;
-            } else {
-              tlogo.style.display='none';
-            }
-          };
-        } else { tlogo.style.display='none'; }
-        const title = document.createElement('div'); title.innerHTML = `<div style="font-weight:700">${it.player||''}</div><div class="muted">${it.team? it.team : ''} ${matchup? '• '+matchup : ''}</div>`;
-        head.appendChild(avatar); head.appendChild(title); head.appendChild(tlogo);
-
-        const playsWrap = document.createElement('div'); playsWrap.className='plays';
-        // Model baseline row first
-        if (it.model && Object.keys(it.model).length>0){
-          const row = document.createElement('div'); row.className='play';
-          row.innerHTML = `<div><span class="model-badge">MODEL</span></div><div class="muted">PTS ${fmt(it.model.pts)} • REB ${fmt(it.model.reb)} • AST ${fmt(it.model.ast)} • 3PM ${fmt(it.model.threes)} • PRA ${fmt(it.model.pra)}</div>`;
-          playsWrap.appendChild(row);
+          const tlogo=document.createElement('img'); tlogo.className='team-logo'; tlogo.alt=it.team||''; tlogo.src=it.team_logo;
+          tlogo.onerror=()=>{ const t=(it.team||'').toLowerCase(); tlogo.src=`https://a.espncdn.com/i/teamlogos/nba/500/${t}.png`; tlogo.onerror=()=>{ tlogo.src=`https://a.espncdn.com/combiner/i?img=/i/teamlogos/nba/500/${t}.png&h=100&w=100`; tlogo.onerror=()=>{ tlogo.style.display='none'; }; }; };
+          team.appendChild(tlogo);
         }
-        // Render base line per ladder group prominently, with collapsible ladders
+        const vs=document.createElement('span'); 
+        if (it.opponent) {
+          vs.textContent=`${it.team||''} vs ${it.opponent}`;
+        } else if (it.home_team && it.away_team) {
+          vs.textContent=`${it.away_team} @ ${it.home_team}`;
+        } else {
+          vs.textContent=it.team||'';
+        }
+        team.appendChild(vs);
+        info.appendChild(team);
+        head.appendChild(info);
+        div.appendChild(head);
+        if(it.model && Object.keys(it.model).length>0){
+          const baseline=document.createElement('div'); baseline.className='model-baseline';
+          const parts=[];
+          // Show ALL available model stats
+          if(it.model.pts!=null) parts.push(`<strong>PTS</strong> ${fmt(it.model.pts)}`);
+          if(it.model.reb!=null) parts.push(`<strong>REB</strong> ${fmt(it.model.reb)}`);
+          if(it.model.ast!=null) parts.push(`<strong>AST</strong> ${fmt(it.model.ast)}`);
+          if(it.model.threes!=null) parts.push(`<strong>3PM</strong> ${fmt(it.model.threes)}`);
+          if(it.model.pra!=null) parts.push(`<strong>PRA</strong> ${fmt(it.model.pra)}`);
+          if(it.model.blk!=null) parts.push(`<strong>BLK</strong> ${fmt(it.model.blk)}`);
+          if(it.model.stl!=null) parts.push(`<strong>STL</strong> ${fmt(it.model.stl)}`);
+          if(it.model.to!=null) parts.push(`<strong>TO</strong> ${fmt(it.model.to)}`);
+          if(it.model.fg!=null) parts.push(`<strong>FG</strong> ${fmt(it.model.fg)}`);
+          if(it.model.fga!=null) parts.push(`<strong>FGA</strong> ${fmt(it.model.fga)}`);
+          if(it.model.fg_pct!=null) parts.push(`<strong>FG%</strong> ${fmt(it.model.fg_pct)}`);
+          if(it.model.ft!=null) parts.push(`<strong>FT</strong> ${fmt(it.model.ft)}`);
+          if(it.model.fta!=null) parts.push(`<strong>FTA</strong> ${fmt(it.model.fta)}`);
+          baseline.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">MODEL PROJECTIONS:</div><div>${parts.join(' • ')}</div>`;
+          div.appendChild(baseline);
+        }
+        const playsWrap = document.createElement('div'); playsWrap.className='plays';
         const ladders = it.ladders || [];
-        // Track which (market,side,line) are already represented by ladder base/entries to avoid duplicates
         const usedKeys = new Set();
-        ladders.forEach(l => {
-          // Base line
-          if (l.base){
-            const row = document.createElement('div'); row.className='play';
-            row.innerHTML = `<div>${(l.market||'').toUpperCase()} ${l.side||''} ${l.base.line ?? ''}</div><div><span class="pill">${l.base.price ?? ''}</span>${(l.base.ev_pct!=null && !isNaN(l.base.ev_pct))? ' <span class="ev">EV% '+fmt(l.base.ev_pct)+'</span>': ''} ${l.base.book? ' <span class="pill">'+l.base.book+'</span>':''}</div>`;
+        ladders.forEach(l=>{
+          if(l.base){
+            const row=document.createElement('div'); row.className='play';
+            row.innerHTML=`<div>${(l.market||'').toUpperCase()} ${l.side||''} ${l.base.line??''}</div><div><span class="pill">${l.base.price??''}</span>${(l.base.ev_pct!=null&&!isNaN(l.base.ev_pct))?' <span class="ev">EV% '+fmt(l.base.ev_pct)+'</span>':''}${l.base.book?' <span class="pill">'+l.base.book+'</span>':''}</div>`;
             playsWrap.appendChild(row);
             usedKeys.add(`${(l.market||'').toLowerCase()}|${(l.side||'').toLowerCase()}|${l.base.line}`);
           }
-          // Collapsible ladder entries
-          const sec = document.createElement('div'); sec.className='ladder';
-          const title = (l.market? l.market.toUpperCase() : '') + (l.side? ' '+l.side : '');
-          const btnId = `ladder-${(it.player||'').replace(/\W+/g,'-')}-${(l.market||'')}-${(l.side||'')}`;
-          sec.innerHTML = `<div id="${btnId}" class="ladder-entries" style="display:none"></div>`;
-          const inner = sec.querySelector('.ladder-entries');
+          const sec=document.createElement('div'); sec.className='ladder';
+          const title=(l.market?l.market.toUpperCase():'')+(l.side?' '+l.side:'');
+          const btnId=`ladder-${(it.player||'').replace(/\W+/g,'-')}-${(l.market||'')}-${(l.side||'')}`;
+          sec.innerHTML=`<div id="${btnId}" class="ladder-entries" style="display:none"></div>`;
+          const inner=sec.querySelector('.ladder-entries');
           (l.entries||[]).forEach(e=>{
-            const pill = document.createElement('span'); pill.className='pill';
-            pill.textContent = `${e.line ?? ''} @ ${e.price ?? ''}${(e.ev_pct!=null && !isNaN(e.ev_pct))? ' • EV% '+fmt(e.ev_pct): ''}${e.book? ' • '+e.book: ''}`;
+            const pill=document.createElement('span'); pill.className='pill';
+            pill.textContent=`${e.line??''} @ ${e.price??''}${(e.ev_pct!=null&&!isNaN(e.ev_pct))?' • EV% '+fmt(e.ev_pct):''}${e.book?' • '+e.book:''}`;
             inner.appendChild(pill);
             usedKeys.add(`${(l.market||'').toLowerCase()}|${(l.side||'').toLowerCase()}|${e.line}`);
           });
-          // Toggle link
-          const toggle = document.createElement('a'); toggle.href = 'javascript:void(0)'; toggle.textContent = 'Show ladder'; toggle.style.marginLeft = '8px'; toggle.onclick = ()=>{
-            const el = document.getElementById(btnId); if(!el) return; const show = (el.style.display==='none'); el.style.display = show? 'flex':'none'; toggle.textContent = show? 'Hide ladder':'Show ladder';
-          };
-          const h4 = document.createElement('div'); h4.innerHTML = `<span class="muted">${title} Ladder</span>`; h4.appendChild(toggle); sec.prepend(h4);
+          const toggle=document.createElement('a'); toggle.href='javascript:void(0)'; toggle.textContent='Show ladder'; toggle.style.marginLeft='8px';
+          toggle.onclick=()=>{ const el=document.getElementById(btnId); if(!el) return; const show=(el.style.display==='none'); el.style.display=show?'flex':'none'; toggle.textContent=show?'Hide ladder':'Show ladder'; };
+          const h4=document.createElement('div'); h4.innerHTML=`<span>${title} Ladder</span>`; h4.appendChild(toggle); sec.prepend(h4);
           playsWrap.appendChild(sec);
         });
-        // Any remaining plays (non-ladder formatted) as fallback, skipping duplicates already shown
-        const seenFallback = new Set();
+        const seenFallback=new Set();
         (it.plays||[]).forEach(p=>{
-          const key = `${(p.market||'').toString().toLowerCase()}|${(p.side||'').toString().toLowerCase()}|${p.line}`;
-          if (usedKeys.has(key)) return; // already shown in ladder/base
-          if (seenFallback.has(key)) return; // dedupe
+          const key=`${(p.market||'').toString().toLowerCase()}|${(p.side||'').toString().toLowerCase()}|${p.line}`;
+          if(usedKeys.has(key)) return;
+          if(seenFallback.has(key)) return;
           seenFallback.add(key);
-          const row = document.createElement('div'); row.className='play';
-          const ev = (p.ev!=null && !isNaN(p.ev))? `<span class=\"ev\">EV ${fmt(p.ev)}</span>` : '';
-          const edge = (p.edge!=null && !isNaN(p.edge))? `<span class=\"edge\">Δ ${fmt(p.edge)}</span>` : '';
-          row.innerHTML = `<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null? p.line: ''}</div><div>${edge} ${ev} <span class=\"pill\">${p.price!=null? p.price: ''}</span> <span class=\"pill\">${p.book||''}</span></div>`;
+          const row=document.createElement('div'); row.className='play';
+          const ev=(p.ev!=null&&!isNaN(p.ev))?`<span class="ev">EV ${fmt(p.ev)}</span>`:'';
+          const edge=(p.edge!=null&&!isNaN(p.edge))?`<span class="edge">Δ ${fmt(p.edge)}</span>`:'';
+          row.innerHTML=`<div>${(p.market||'').toUpperCase()} ${p.side||''} ${p.line!=null?p.line:''}</div><div>${edge} ${ev} <span class="pill">${p.price!=null?p.price:''}</span> <span class="pill">${p.book||''}</span></div>`;
           playsWrap.appendChild(row);
         });
-
-        div.appendChild(head); div.appendChild(playsWrap); root.appendChild(div);
+        div.appendChild(playsWrap);
+        root.appendChild(div);
       });
     }
-    window.addEventListener('DOMContentLoaded', ()=>{
+    window.addEventListener('DOMContentLoaded',()=>{
       function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
-      const paramDate = (new URL(window.location)).searchParams.get('date');
-      const today = localYMD();
-      const inp = document.getElementById('datePicker'); if(!inp.value) inp.value = (paramDate || today);
-  ['datePicker','market','onlyEV','minEV','game','sortBy'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change', loadData); });
+      const paramDate=(new URL(window.location)).searchParams.get('date');
+      const today=localYMD();
+      const inp=document.getElementById('datePicker'); if(!inp.value) inp.value=(paramDate||today);
+      ['datePicker','market','onlyEV','minEV','game','sortBy'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change',loadData); });
       loadData();
+      const theme=localStorage.getItem('theme')||'dark';
+      if(theme==='light') document.body.classList.add('light');
     });
+    function toggleTheme(){ document.body.classList.toggle('light'); localStorage.setItem('theme',document.body.classList.contains('light')?'light':'dark'); }
   </script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container">
-      <h1>Props Recs</h1>
-      <nav class="site-nav">
-        <a href="/">Games</a>
-        <a href="/recommendations">Recommendations</a>
-        <a href="/props">Props</a>
-        <a href="/props/recommendations" aria-current="page">Props Recs</a>
-        <a href="/reconciliation">Reconciliation</a>
-        <a href="/odds-coverage">Odds Coverage</a>
-      </nav>
-      <div class="controls">
-        <label for="datePicker">Date</label>
-        <input id="datePicker" type="date" title="Select date" />
-        <label for="game">Game</label>
-        <select id="game" title="Filter by game">
-          <option value="">All games</option>
-        </select>
-        <label for="market">Market</label>
-        <select id="market" title="Filter by market">
-          <option value="">All markets</option>
-          <option value="pts">Points</option>
-          <option value="reb">Rebounds</option>
-          <option value="ast">Assists</option>
-          <option value="threes">3PM</option>
-        </select>
-        <label><input id="onlyEV" type="checkbox" /> Only EV</label>
-        <label for="minEV">Min EV%</label> <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" />
-        <label for="sortBy">Sort</label>
-        <select id="sortBy" title="Sort player cards">
-          <option value="ev_desc" selected>Best EV</option>
-          <option value="ev_asc">Worst EV</option>
-          <option value="edge_desc">Biggest Edge</option>
-          <option value="edge_asc">Smallest Edge</option>
-        </select>
-      </div>
+  <div class="container">
+    <div class="nav">
+      <a href="/">Cards</a>
+      <a href="/recommendations">Recommendations</a>
+      <a href="/props">Props</a>
+      <a href="/props/recommendations" style="font-weight:600;">Props Recs</a>
+      <a href="/reconciliation">Reconciliation</a>
+      <a href="/odds-coverage">Odds Coverage</a>
+      <button onclick="toggleTheme()">Toggle Theme</button>
     </div>
-  </header>
-  <main class="container">
-    <div id="status" class="summary muted">Loading…</div>
+    <div class="controls">
+      <label for="datePicker">Date</label>
+      <input id="datePicker" type="date" title="Select date" />
+      <label for="game">Game</label>
+      <select id="game" title="Filter by game">
+        <option value="">All games</option>
+      </select>
+      <label for="market">Market</label>
+      <select id="market" title="Filter by market">
+        <option value="">All markets</option>
+        <option value="pts">Points</option>
+        <option value="reb">Rebounds</option>
+        <option value="ast">Assists</option>
+        <option value="threes">3PM</option>
+      </select>
+      <label><input id="onlyEV" type="checkbox" /> Only EV</label>
+      <label for="minEV">Min EV%</label>
+      <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" style="width:80px;" />
+      <label for="sortBy">Sort</label>
+      <select id="sortBy" title="Sort player cards">
+        <option value="ev_desc" selected>Best EV</option>
+        <option value="ev_asc">Worst EV</option>
+        <option value="edge_desc">Biggest Edge</option>
+        <option value="edge_asc">Smallest Edge</option>
+      </select>
+    </div>
+    <div id="status" class="summary">Loading…</div>
     <div id="cards" class="grid"></div>
-  </main>
+  </div>
 </body>
 </html>

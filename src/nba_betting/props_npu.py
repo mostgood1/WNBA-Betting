@@ -113,7 +113,9 @@ class NPUPropsPredictor:
                     except Exception as e:
                         print(f"⚠️  {target_clean.upper()} NPU failed, will use CPU fallback: {e}")
                 else:
-                    print(f"❌ ONNX model not found: {onnx_file}")
+                    # Don't error on missing combo stats, they'll be calculated
+                    if target not in ["t_stocks", "t_pr", "t_pa", "t_ra"]:
+                        print(f"⚠️  ONNX model not found: {onnx_file}")
         
         # Load sklearn models as fallback
         sklearn_models_path = self.models_dir / "props_models.joblib"
@@ -174,6 +176,16 @@ class NPUPropsPredictor:
         
         if total_inference_time > 0:
             print(f"⚡ NPU inference: {total_inference_time:.3f}ms for {predictions_made} props")
+        
+        # Calculate combo stats from predictions
+        if "pred_stl" in result_df.columns and "pred_blk" in result_df.columns:
+            result_df["pred_stocks"] = result_df["pred_stl"] + result_df["pred_blk"]
+        if "pred_pts" in result_df.columns and "pred_reb" in result_df.columns:
+            result_df["pred_pr"] = result_df["pred_pts"] + result_df["pred_reb"]
+        if "pred_pts" in result_df.columns and "pred_ast" in result_df.columns:
+            result_df["pred_pa"] = result_df["pred_pts"] + result_df["pred_ast"]
+        if "pred_reb" in result_df.columns and "pred_ast" in result_df.columns:
+            result_df["pred_ra"] = result_df["pred_reb"] + result_df["pred_ast"]
         
         return result_df
     
