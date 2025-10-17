@@ -1110,9 +1110,10 @@ function renderDate(dateStr){
                 <thead>
                   <tr style="color:#8b92a8; font-size:0.75em; text-transform:uppercase; letter-spacing:0.5px;">
                     <th style="text-align:left; padding:4px 8px; font-weight:600;">TEAM</th>
-                    <th style="text-align:center; padding:4px 8px; font-weight:600;">1ST</th>
-                    <th style="text-align:center; padding:4px 8px; font-weight:600;">2ND</th>
-                    <th style="text-align:center; padding:4px 8px; font-weight:600;">3RD</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">Q1</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">Q2</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">Q3</th>
+                    <th style="text-align:center; padding:4px 8px; font-weight:600;">Q4</th>
                     <th style="text-align:center; padding:4px 8px; font-weight:600;">TOTAL</th>
                   </tr>
                 </thead>
@@ -1122,6 +1123,7 @@ function renderDate(dateStr){
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q1.away, 1)}</td>
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q2.away, 1)}</td>
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q3.away, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q4.away, 1)}</td>
                     <td style="text-align:center; padding:8px; font-weight:700; color:#e8eaf0;">${fmtNum(awayTotal, 1)}</td>
                   </tr>
                   <tr style="background:rgba(139,146,168,0.08);">
@@ -1129,6 +1131,7 @@ function renderDate(dateStr){
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q1.home, 1)}</td>
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q2.home, 1)}</td>
                     <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q3.home, 1)}</td>
+                    <td style="text-align:center; padding:8px; color:#e8eaf0;">${fmtNum(q4.home, 1)}</td>
                     <td style="text-align:center; padding:8px; font-weight:700; color:#e8eaf0;">${fmtNum(homeTotal, 1)}</td>
                   </tr>
                 </tbody>
