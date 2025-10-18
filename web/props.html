@@ -28,6 +28,11 @@
     tr:nth-child(odd) td{ background:var(--row1); }
     tr:nth-child(even) td{ background:var(--row2); }
     .scroll-table{ overflow:auto; max-height:70vh; border:1px solid var(--table-br); border-radius:8px; }
+    /* utility */
+    .hidden{ display:none !important; }
+    .w160{ width:160px; } .w80{ width:80px; } .w60{ width:60px; } .w70{ width:70px; }
+    .mr4{ margin-right:4px; }
+    .justify-end{ justify-content:flex-end; }
     @media (max-width: 760px){ .container{ padding: 0 10px; margin: 12px auto; } h1{ font-size: 20px; } }
   </style>
 </head>
@@ -48,17 +53,24 @@
           <option value="pra">PRA</option>
         </select>
       </label>
-      <label>Team <input id="team" type="text" placeholder="e.g. BOS" style="width:80px" /></label>
+      <label>Team(s)
+        <input id="team" type="text" placeholder="e.g. BOS,LAL,OKC" class="w160" />
+      </label>
+      <label>Player
+        <input id="player" type="text" placeholder="search name" class="w160" />
+      </label>
       <label>Mode
         <select id="mode">
           <option value="edges">Edges</option>
-          <option value="predictions">Predictions</option>
+          <option value="predictions" selected>Predictions</option>
         </select>
       </label>
       <label title="Show only best line per player-stat"><input type="checkbox" id="collapse" checked> Collapse</label>
       <label title="Run build/refresh for this date"><input type="checkbox" id="build"> Build</label>
-      <label>Min Edge <input id="minEdge" type="number" step="1" value="0" style="width:60px"></label>
-      <label>Min EV <input id="minEV" type="number" step="0.1" value="0" style="width:60px"></label>
+  <label>Min Edge <input id="minEdge" type="number" step="1" value="0" class="w60"></label>
+  <label>Min EV <input id="minEV" type="number" step="0.1" value="0" class="w60"></label>
+  <label id="startersWrap" class="hidden" title="Only show projected starters"><input type="checkbox" id="onlyStarters"> Only starters</label>
+  <label id="minMinWrap" class="hidden" title="Filter by projected minutes"><span class="mr4">Min Minutes</span><input id="minMinutes" type="number" step="1" min="0" value="0" class="w70"></label>
       <label>Sort
         <select id="sortBy">
           <option value="">Default</option>
@@ -66,9 +78,23 @@
           <option value="pred_asc">Pred ↑</option>
         </select>
       </label>
+      <label>Page
+        <select id="pageSize">
+          <option value="50">50</option>
+          <option value="100" selected>100</option>
+          <option value="200">200</option>
+          <option value="500">500</option>
+          <option value="1000000">All</option>
+        </select>
+      </label>
       <button type="button" id="applyBtn">Apply</button>
       <button type="button" id="resetBtn">Reset</button>
       <a class="btn" href="#" id="downloadCsv" download>Download CSV</a>
+    </div>
+    <div class="filters justify-end" id="pager">
+      <button type="button" id="prevPage">Prev</button>
+      <span id="pageInfo" class="meta">Page 1/1</span>
+      <button type="button" id="nextPage">Next</button>
     </div>
     <div class="scroll-table">
       <table id="tbl">
@@ -82,17 +108,25 @@
     (function(){ try{ var body=document.body; var saved=localStorage.getItem('theme'); if(saved==='light'){ body.classList.add('light'); } var tbtn=document.getElementById('themeToggle'); if(tbtn){ tbtn.addEventListener('click', function(){ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); } }catch(e){} })();
     
     function localYMD(){ const d=new Date(); return d.toISOString().slice(0,10); }
+    function parseTeamsMulti(v){
+      return String(v||'').split(/[\s,]+/).map(s=>s.trim().toUpperCase()).filter(Boolean);
+    }
     
     async function fetchProps(){
       const d = document.getElementById('datePicker').value || localYMD();
       const market = document.getElementById('market').value;
-      const team = document.getElementById('team').value;
+  const team = document.getElementById('team').value;
+  const teamList = parseTeamsMulti(team);
+  const playerQ = (document.getElementById('player').value||'').toLowerCase();
       const mode = document.getElementById('mode').value;
       const build = document.getElementById('build').checked ? '1' : '0';
       const collapse = document.getElementById('collapse').checked ? '1' : '0';
       const minEdge = document.getElementById('minEdge').value;
       const minEV = document.getElementById('minEV').value;
       const sortBy = document.getElementById('sortBy').value;
+  const onlyStarters = document.getElementById('onlyStarters').checked;
+  const minMinutes = Number(document.getElementById('minMinutes').value||0);
+  const pageSize = Number(document.getElementById('pageSize').value||100);
       const qp = new URLSearchParams({ date: d, market, team, source: mode, build, collapse, min_edge: minEdge, min_ev: minEV });
       if (sortBy) qp.set('sortBy', sortBy);
       
@@ -107,12 +141,151 @@
       // Configure table header for mode
       const thead = document.querySelector('#tbl thead');
       if (src === 'predictions') {
-        thead.innerHTML = '<tr><th>Team</th><th>Player</th><th>Opp</th><th>H/A</th><th>Stat</th><th>Pred</th></tr>';
-        for (const r of rows){
-          const tr = document.createElement('tr');
+        // Build one row per player with projected stats columns
+        const TEAM = (document.getElementById('team').value||'').trim().toUpperCase();
+        const STATS = [
+          { key:'pts', label:'PTS' },
+          { key:'reb', label:'REB' },
+          { key:'ast', label:'AST' },
+          { key:'threes', label:'3PM' },
+          { key:'pra', label:'PRA' },
+        ];
+
+        // Pivot long rows (player, stat, pred) => wide rows (player, pts, reb, ast, 3pm, pra)
+        const byPlayer = new Map();
+        let hasStarterField = false; let hasMinutesField = false;
+        for (const r of rows) {
+          const team = (r.team||'').toString().toUpperCase();
+          const player = r.player_name || '';
+          const opp = r.opponent || '';
           const ha = r.home===true? 'H' : (r.home===false? 'A' : '');
-          tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${r.opponent||''}</td><td>${ha}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.pred!=null? Number(r.pred).toFixed(2):''}</td>`;
+          const stat = (r.stat||'').toLowerCase();
+          const pred = (r.pred!=null ? Number(r.pred) : null);
+          // Detect optional fields (if provided by backend)
+          if (r.starter !== undefined) hasStarterField = true;
+          if (r.minutes !== undefined || r.min !== undefined || r.proj_minutes !== undefined) hasMinutesField = true;
+          // Filter by team(s) if provided (multi)
+          if (teamList.length && !teamList.includes(team)) continue;
+          // Filter by player search if provided
+          if (playerQ && !player.toLowerCase().includes(playerQ)) continue;
+          // Compose key
+          const key = `${team}|${player}|${opp}|${ha}`;
+          if (!byPlayer.has(key)) {
+            byPlayer.set(key, { team, player, opp, ha });
+          }
+          const obj = byPlayer.get(key);
+          // carry optional fields
+          if (r.starter !== undefined) obj.starter = r.starter;
+          const mins = r.minutes ?? r.min ?? r.proj_minutes;
+          if (mins !== undefined && mins !== null && !isNaN(mins)) obj.minutes = Number(mins);
+          // Accept common aliases
+          if (stat === 'pts' || stat === 't_pts') obj.pts = pred;
+          else if (stat === 'reb' || stat === 't_reb') obj.reb = pred;
+          else if (stat === 'ast' || stat === 't_ast') obj.ast = pred;
+          else if (stat === 'threes' || stat === 't_threes' || stat === '3pm') obj.threes = pred;
+          else if (stat === 'pra' || stat === 't_pra') obj.pra = pred;
+        }
+        // Show/hide optional controls
+        document.getElementById('startersWrap').classList.toggle('hidden', !hasStarterField);
+        document.getElementById('minMinWrap').classList.toggle('hidden', !hasMinutesField);
+
+        // Sorting state (clickable headers)
+        let sortKey = window._propsSortKey || 'team';
+        let sortDir = window._propsSortDir || 'asc'; // 'asc' | 'desc'
+
+        // Render header with sortable columns
+        const makeTh = (label, key)=>`<th data-key="${key}" style="cursor:pointer">${label}${sortKey===key? (sortDir==='asc'?' ▲':' ▼'):''}</th>`;
+        thead.innerHTML = `<tr>
+          ${makeTh('Team','team')}
+          ${makeTh('Player','player')}
+          ${makeTh('Opp','opp')}
+          ${makeTh('H/A','ha')}
+          ${STATS.map(s=> makeTh(s.label, s.key)).join('')}
+        </tr>`;
+
+        // Sort rows
+  let items = Array.from(byPlayer.values());
+  // Apply optional filters
+  if (onlyStarters && items.length){ items = items.filter(p => p.starter === true); }
+  if (!isNaN(minMinutes) && minMinutes > 0){ items = items.filter(p => (p.minutes||0) >= minMinutes); }
+        const cmp = (a,b)=>{
+          const va = a[sortKey];
+          const vb = b[sortKey];
+          // Numeric sort for stat columns
+          const isNum = ['pts','reb','ast','threes','pra'].includes(sortKey);
+          if (isNum) {
+            const na = (typeof va === 'number')? va : -Infinity;
+            const nb = (typeof vb === 'number')? vb : -Infinity;
+            return sortDir==='asc' ? (na-nb) : (nb-na);
+          }
+          // String sort
+          const sa = (va||'').toString();
+          const sb = (vb||'').toString();
+          if (sa < sb) return sortDir==='asc' ? -1 : 1;
+          if (sa > sb) return sortDir==='asc' ? 1 : -1;
+          // tie-break by player name
+          const pa = (a.player||'');
+          const pb = (b.player||'');
+          if (pa < pb) return -1; if (pa > pb) return 1; return 0;
+        };
+        items.sort(cmp);
+
+        // Pagination
+        const totalItems = items.length;
+        const page = Math.max(1, Number(window._propsPage||1));
+        const pages = Math.max(1, Math.ceil(totalItems / pageSize));
+        const curPage = Math.min(page, pages);
+        const start = (curPage-1)*pageSize;
+        const end = Math.min(totalItems, start + pageSize);
+        const pageItems = items.slice(start, end);
+
+        // Render body
+        for (const p of pageItems) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = [
+            p.team||'',
+            p.player||'',
+            p.opp||'',
+            p.ha||'',
+            'pts' in p && p.pts!=null? Number(p.pts).toFixed(2):'',
+            'reb' in p && p.reb!=null? Number(p.reb).toFixed(2):'',
+            'ast' in p && p.ast!=null? Number(p.ast).toFixed(2):'',
+            'threes' in p && p.threes!=null? Number(p.threes).toFixed(2):'',
+            'pra' in p && p.pra!=null? Number(p.pra).toFixed(2):'',
+          ].map(v=>`<td>${v}</td>`).join('');
           tbody.appendChild(tr);
+        }
+
+        // Attach sort handlers
+        Array.from(thead.querySelectorAll('th[data-key]')).forEach(th=>{
+          th.addEventListener('click', ()=>{
+            const key = th.getAttribute('data-key');
+            if (sortKey === key) {
+              sortDir = (sortDir==='asc'?'desc':'asc');
+            } else {
+              sortKey = key; sortDir = 'asc';
+            }
+            window._propsSortKey = sortKey;
+            window._propsSortDir = sortDir;
+            // re-render by calling fetchProps again (keeps filters)
+            fetchProps();
+          });
+        });
+
+        // Update meta (with pagination)
+        const playersCount = totalItems;
+        const collapsed = js.collapsed ? 'best-of-book' : 'all books';
+        const srcLabel = 'predictions';
+        const sortLabel = ` • sort=${sortKey}${sortDir==='desc'?'(desc)':'(asc)'}`;
+        const teamLabel = TEAM? ` • team ${TEAM}`: '';
+        document.getElementById('meta').textContent = `Date ${js.date||d} — ${playersCount} players • ${srcLabel}${teamLabel}${sortLabel} • page ${curPage}/${pages}`;
+        const pi = document.getElementById('pageInfo'); if (pi) pi.textContent = `Page ${curPage}/${pages}`;
+        const prevBtn = document.getElementById('prevPage'); const nextBtn = document.getElementById('nextPage');
+        if (prevBtn && nextBtn){
+          prevBtn.disabled = (curPage<=1);
+          nextBtn.disabled = (curPage>=pages);
+          prevBtn.onclick = ()=>{ window._propsPage = Math.max(1, curPage-1); fetchProps(); };
+          nextBtn.onclick = ()=>{ window._propsPage = Math.min(pages, curPage+1); fetchProps(); };
         }
       } else {
         thead.innerHTML = '<tr><th>Team</th><th>Player</th><th>Stat</th><th>Side</th><th>Line</th><th>Price</th><th>Edge</th><th>EV</th><th>Book</th></tr>';
@@ -123,13 +296,13 @@
           tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${edge}</td><td>${ev}</td><td>${r.bookmaker||''}</td>`;
           tbody.appendChild(tr);
         }
+        const collapsed = js.collapsed ? 'best-of-book' : 'all books';
+        const srcLabel = `edges (${collapsed})`;
+        const sortLabel = (sortBy)? ` • sort=${sortBy}` : '';
+        const teamLabel = team? ` • team ${team}`: '';
+        document.getElementById('meta').textContent = `Date ${js.date||d} — ${rows.length} rows • ${srcLabel}${market? ' • '+market.toUpperCase():''}${teamLabel}${sortLabel}`;
       }
-      
-      const collapsed = js.collapsed ? 'best-of-book' : 'all books';
-      const srcLabel = src==='predictions' ? 'predictions' : `edges (${collapsed})`;
-      const sortLabel = (src==='predictions' && sortBy)? ` • sort=${sortBy}` : '';
-      const teamLabel = team? ` • team ${team}`: '';
-      document.getElementById('meta').textContent = `Date ${js.date||d} — ${rows.length} rows • ${srcLabel}${market? ' • '+market.toUpperCase():''}${teamLabel}${sortLabel}`;
+
       
       // Update CSV link
       document.getElementById('downloadCsv').href = `/props_predictions_${d}.csv`;
@@ -141,21 +314,35 @@
       const inp = document.getElementById('datePicker');
       inp.value = paramDate || localYMD();
       
-      document.getElementById('applyBtn').addEventListener('click', fetchProps);
+      document.getElementById('applyBtn').addEventListener('click', ()=>{ window._propsPage = 1; fetchProps(); });
       document.getElementById('resetBtn').addEventListener('click', ()=>{
         document.getElementById('market').value='';
         document.getElementById('team').value='';
+        const pl = document.getElementById('player'); if (pl) pl.value='';
         document.getElementById('mode').value='edges';
         document.getElementById('collapse').checked=true;
         document.getElementById('build').checked=false;
         document.getElementById('minEdge').value='0';
         document.getElementById('minEV').value='0';
         document.getElementById('sortBy').value='';
+        const os = document.getElementById('onlyStarters'); if (os) os.checked=false;
+        const mm = document.getElementById('minMinutes'); if (mm) mm.value='0';
+        const ps = document.getElementById('pageSize'); if (ps) ps.value='100';
+        window._propsPage = 1;
         fetchProps();
+      });
+      const ps = document.getElementById('pageSize'); if (ps) ps.addEventListener('change', ()=>{ window._propsPage = 1; fetchProps(); });
+      // When filters change, reset to first page
+      ['market','team','player','mode','collapse','minEdge','minEV','sortBy','onlyStarters','minMinutes'].forEach(id=>{
+        const el = document.getElementById(id);
+        if (!el) return;
+        const evt = (el.tagName==='SELECT' || el.type==='checkbox')? 'change' : 'input';
+        el.addEventListener(evt, ()=>{ window._propsPage = 1; });
       });
       
       fetchProps();
     });
   </script>
+  
 </body>
 </html>
