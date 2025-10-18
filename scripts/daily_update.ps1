@@ -18,17 +18,39 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = (Resolve-Path (Join-Path $ScriptDir '..')).Path
 Set-Location -Path $RepoRoot
 
-# Python resolution (prefer venv at repo root)
+# Python resolution (prefer local venv which has all dependencies)
 $VenvPy = Join-Path $RepoRoot '.venv\Scripts\python.exe'
 $NpuPy = 'C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe'
-# Use NPU environment if local venv doesn't have sklearn
-if (Test-Path $NpuPy) {
-  $Python = $NpuPy
-  $env:PYTHONPATH = Join-Path $RepoRoot 'src'
-} elseif (Test-Path $VenvPy) {
-  $Python = $VenvPy
-} else {
+
+# First try: use local venv if it exists and has pandas
+$Python = $null
+if (Test-Path $VenvPy) {
+  try {
+    & $VenvPy -c "import pandas" 2>$null
+    if ($LASTEXITCODE -eq 0) {
+      $Python = $VenvPy
+      $env:PYTHONPATH = Join-Path $RepoRoot 'src'
+      Write-Host "Using local venv with pandas"
+    }
+  } catch { }
+}
+
+# Second try: use NPU environment if local venv failed
+if (-not $Python -and (Test-Path $NpuPy)) {
+  try {
+    & $NpuPy -c "import pandas" 2>$null
+    if ($LASTEXITCODE -eq 0) {
+      $Python = $NpuPy
+      $env:PYTHONPATH = Join-Path $RepoRoot 'src'
+      Write-Host "Using NPU venv"
+    }
+  } catch { }
+}
+
+# Fallback to system python
+if (-not $Python) {
   $Python = 'python'
+  Write-Host "Using system python"
 }
 
 # Logs (under repo root)
