@@ -1,5 +1,6 @@
 // Global config and state
 const STRICT_SCHEDULE_DATES = false;
+const AUTO_ADVANCE_TO_NEXT_GAME = true; // Auto-advance to next game date if no games on current date
 const PIN_DATE = '';
 const TEAM_ALIASES = {
   'warriors': 'GSW', 'golden state': 'GSW', 'golden state warriors': 'GSW',
@@ -1472,6 +1473,18 @@ function setupControls(){
     }
     return best;
   };
+  // Find the next date with games (forward-looking only)
+  const nextGameDate = (fromDate)=>{
+    const arr = sched;
+    if (!arr || arr.length === 0) return null;
+    // Find the first date after fromDate that has games
+    for (let i = 0; i < arr.length; i++) {
+      if (arr[i] > fromDate && (state.byDate.get(arr[i]) || []).length > 0) {
+        return arr[i];
+      }
+    }
+    return null; // No future games found
+  };
   const paramDate = getQueryParam('date');
   const defaultDate = (paramDate || nearestScheduled(today) || (dates.includes(PIN_DATE) ? PIN_DATE : dates[0]));
   picker.value = defaultDate;
@@ -1492,6 +1505,16 @@ function setupControls(){
         const near = nearestScheduled(d);
         if (near && near !== d) {
           d = near; picker.value = near;
+        }
+      }
+    } else if (AUTO_ADVANCE_TO_NEXT_GAME) {
+      // Auto-advance to next game date if current date has no games
+      const hasGames = (state.byDate.get(d) || []).length > 0;
+      if (!hasGames) {
+        const next = nextGameDate(d);
+        if (next && next !== d) {
+          d = next;
+          picker.value = next;
         }
       }
     }
