@@ -1080,7 +1080,7 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     import numpy as np
     from .features_enhanced import build_features_enhanced
     
-    console.print("🔧 Building enhanced features (45 features)...", style="cyan")
+    console.print("[Building enhanced features (45 features)...]", style="cyan")
     
     # Combine historical games with new matchups for feature generation
     upcoming = pd.DataFrame(feat_rows)

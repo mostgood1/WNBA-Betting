@@ -77,19 +77,19 @@ class PureONNXGamePredictor:
         self.spread_session = self._create_npu_session("spread_margin.onnx")
         self.total_session = self._create_npu_session("totals.onnx")
         
-        print(f"✅ Pure ONNX Game Predictor initialized")
-        print(f"   Win model providers: {self.win_session.get_providers()}")
-        print(f"   Spread model providers: {self.spread_session.get_providers()}")
-        print(f"   Total model providers: {self.total_session.get_providers()}")
-        print(f"   Features: {len(self.feature_columns)}")
+        print(f"[OK]✅ Pure ONNX Game Predictor initialized")
+        print(f"[OK]   Win model providers: {self.win_session.get_providers()}")
+        print(f"[OK]   Spread model providers: {self.spread_session.get_providers()}")
+        print(f"[OK]   Total model providers: {self.total_session.get_providers()}")
+        print(f"[OK]   Features: {len(self.feature_columns)}")
     
     def _load_feature_columns(self) -> List[str]:
         """Load feature column names from pickle file (no sklearn)."""
         feature_path = self.models_dir / "feature_columns.joblib"
         
         if not feature_path.exists():
-            print(f"⚠️  Feature columns not found at {feature_path}")
-            print(f"   Using default 17 features")
+            print(f"[OK]⚠️  Feature columns not found at {feature_path}")
+            print(f"[OK]   Using default 17 features")
             return self.EXPECTED_FEATURES
         
         try:
@@ -97,14 +97,14 @@ class PureONNXGamePredictor:
                 columns = pickle.load(f)
             
             if len(columns) != 17:
-                print(f"⚠️  Expected 17 features, got {len(columns)}")
-                print(f"   Using default features")
+                print(f"[OK]⚠️  Expected 17 features, got {len(columns)}")
+                print(f"[OK]   Using default features")
                 return self.EXPECTED_FEATURES
             
             return columns
         except Exception as e:
-            print(f"⚠️  Error loading feature columns: {e}")
-            print(f"   Using default features")
+            print(f"[OK]⚠️  Error loading feature columns: {e}")
+            print(f"[OK]   Using default features")
             return self.EXPECTED_FEATURES
     
     def _setup_qnn_paths(self):
@@ -116,10 +116,10 @@ class PureONNXGamePredictor:
             current_path = os.environ.get('PATH', '')
             if qnn_sdk_path not in current_path:
                 os.environ['PATH'] = f"{qnn_sdk_path};{current_path}"
-            print(f"✅ QNN SDK path configured: {qnn_sdk_path}")
+            print(f"[OK]✅ QNN SDK path configured: {qnn_sdk_path}")
         else:
-            print(f"⚠️  QNN SDK not found at {qnn_sdk_path}")
-            print(f"   Will fall back to CPU execution")
+            print(f"[OK]⚠️  QNN SDK not found at {qnn_sdk_path}")
+            print(f"[OK]   Will fall back to CPU execution")
     
     def _create_npu_session(self, model_filename: str) -> "ort.InferenceSession":  # type: ignore
         """
@@ -165,8 +165,8 @@ class PureONNXGamePredictor:
             return session
             
         except Exception as e:
-            print(f"⚠️  QNN provider failed for {model_filename}: {e}")
-            print(f"   Falling back to CPU")
+            print(f"[OK]⚠️  QNN provider failed for {model_filename}: {e}")
+            print(f"[OK]   Falling back to CPU")
             
             # Fallback to CPU only
             return ort.InferenceSession(
@@ -322,18 +322,18 @@ if __name__ == "__main__":
     predictor = PureONNXGamePredictor(models_path)
     
     # Show model info
-    print("\nModel Information:")
+    print("\n[OK]Model Information:")
     info = predictor.get_model_info()
     for model_name, model_info in info.items():
         if model_name in ('features', 'num_features'):
             continue
-        print(f"\n{model_name}:")
-        print(f"  Providers: {model_info['providers']}")
-        print(f"  Input: {model_info['inputs']}")
-        print(f"  Output: {model_info['outputs']}")
+        print(f"[OK]\n{model_name}:")
+        print(f"[OK]  Providers: {model_info['providers']}")
+        print(f"[OK]  Input: {model_info['inputs']}")
+        print(f"[OK]  Output: {model_info['outputs']}")
     
     # Test with dummy data
-    print("\nTesting with dummy game data...")
+    print("\n[OK]Testing with dummy game data...")
     dummy_features = {
         'elo_diff': 50.0,
         'home_rest_days': 1.0,
@@ -355,9 +355,9 @@ if __name__ == "__main__":
     }
     
     prediction = predictor.predict_single(dummy_features)
-    print(f"\nPrediction:")
-    print(f"  Home Win Probability: {prediction['home_win_prob']:.1%}")
-    print(f"  Predicted Margin: {prediction['pred_margin']:+.1f}")
-    print(f"  Predicted Total: {prediction['pred_total']:.1f}")
+    print(f"[OK]\nPrediction:")
+    print(f"[OK]  Home Win Probability: {prediction['home_win_prob']:.1%}")
+    print(f"[OK]  Predicted Margin: {prediction['pred_margin']:+.1f}")
+    print(f"[OK]  Predicted Total: {prediction['pred_total']:.1f}")
     
-    print("\n✅ Pure ONNX Game Predictor test complete!")
+    print("\n[OK]✅ Pure ONNX Game Predictor test complete!")

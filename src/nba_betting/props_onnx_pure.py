@@ -40,9 +40,9 @@ class PureONNXPredictor:
         available_providers = ort.get_available_providers()
         self.has_qnn = 'QNNExecutionProvider' in available_providers
         
-        print(f"🔧 ONNX Runtime initialized")
+        print(f"[ONNX Runtime initialized]")
         print(f"   Providers: {available_providers}")
-        print(f"   NPU/QNN: {'✅ Available' if self.has_qnn else '❌ Not available'}")
+        print(f"   NPU/QNN: {'[Available]' if self.has_qnn else '[Not available]'}")
         
         self._load_feature_columns()
         self._load_onnx_models()
@@ -60,7 +60,7 @@ class PureONNXPredictor:
         with open(feature_cols_path, 'rb') as f:
             self.feature_columns = pickle.load(f)
         
-        print(f"✅ Loaded {len(self.feature_columns)} feature columns")
+        print(f"[OK] Loaded {len(self.feature_columns)} feature columns")
     
     def _create_npu_session(self, model_path: Path) -> ort.InferenceSession:
         """Create ONNX inference session with NPU acceleration"""
@@ -84,7 +84,7 @@ class PureONNXPredictor:
     
     def _load_onnx_models(self):
         """Load all ONNX models"""
-        print("🚀 Loading ONNX models...")
+        print("[Loading ONNX models...]")
         
         loaded = 0
         for target in TARGETS:
@@ -97,8 +97,8 @@ class PureONNXPredictor:
             try:
                 self.sessions[target] = self._create_npu_session(onnx_file)
                 active_provider = self.sessions[target].get_providers()[0]
-                npu_status = "🚀 NPU" if active_provider == "QNNExecutionProvider" else "💻 CPU"
-                print(f"✅ {target_clean.upper():7s} model loaded ({npu_status})")
+                npu_status = "[NPU]" if active_provider == "QNNExecutionProvider" else "[CPU]"
+                print(f"[OK] {target_clean.upper():7s} model loaded ({npu_status})")
                 loaded += 1
             except Exception as e:
                 raise RuntimeError(f"Failed to load {target}: {e}")
@@ -106,7 +106,7 @@ class PureONNXPredictor:
         if loaded != len(TARGETS):
             raise RuntimeError(f"Only loaded {loaded}/{len(TARGETS)} models")
         
-        print(f"🎯 All {loaded} ONNX models ready!")
+        print(f"[READY] All {loaded} ONNX models ready!")
     
     def predict(self, features_df: pd.DataFrame) -> pd.DataFrame:
         """
@@ -157,7 +157,7 @@ class PureONNXPredictor:
         if predictions_made > 0:
             avg_time = total_inference_time / predictions_made
             provider = "NPU" if self.has_qnn else "CPU"
-            print(f"⚡ {provider} inference: {total_inference_time:.2f}ms total, {avg_time:.2f}ms avg per model")
+            print(f"[PERF] {provider} inference: {total_inference_time:.2f}ms total, {avg_time:.2f}ms avg per model")
         
         return result_df
 
@@ -203,4 +203,4 @@ if __name__ == "__main__":
     pred_cols = [c for c in result.columns if c.startswith('pred_')]
     print(result[pred_cols].head())
     
-    print("\n✅ Pure ONNX predictor working!")
+    print("\n[OK] Pure ONNX predictor working!")

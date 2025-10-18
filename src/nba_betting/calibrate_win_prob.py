@@ -101,9 +101,9 @@ def apply_platt_scaling(predictions_df: pd.DataFrame, alpha: float = 0.15) -> pd
         df['home_win_prob_raw'] = original  # Keep original
         df['home_win_prob'] = original.apply(lambda p: platt_scaling_transform(p, alpha))
         
-        print(f"✅ Applied Platt scaling (alpha={alpha})")
-        print(f"   Before: {original.min():.3f} to {original.max():.3f}")
-        print(f"   After:  {df['home_win_prob'].min():.3f} to {df['home_win_prob'].max():.3f}")
+        print(f"[OK]✅ Applied Platt scaling (alpha={alpha})")
+        print(f"[OK]   Before: {original.min():.3f} to {original.max():.3f}")
+        print(f"[OK]   After:  {df['home_win_prob'].min():.3f} to {df['home_win_prob'].max():.3f}")
     
     # Also calibrate halves/quarters if present
     for col in df.columns:
@@ -145,7 +145,7 @@ def calibrate_predictions_file(
         output_path = p.parent / f"{p.stem}_calibrated{p.suffix}"
     
     df.to_csv(output_path, index=False)
-    print(f"✅ Saved calibrated predictions to: {output_path}")
+    print(f"[OK]✅ Saved calibrated predictions to: {output_path}")
     
     return Path(output_path)
 
@@ -185,7 +185,7 @@ if SKLEARN_AVAILABLE:
         )
         calibrated.fit(X_train, y_train)
         
-        print(f"✅ Trained model with {method} calibration ({cv}-fold CV)")
+        print(f"[OK]✅ Trained model with {method} calibration ({cv}-fold CV)")
         
         return calibrated
 
