@@ -1636,7 +1636,13 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
         feats_path = paths.data_processed / "features.parquet"
         if not feats_path.exists():
             return None
-        dfh = pd.read_parquet(feats_path)
+        try:
+            dfh = pd.read_parquet(feats_path)
+        except ImportError:
+            # pyarrow not available (e.g., on ARM64 Windows)
+            import sys
+            print("Warning: pyarrow not available, skipping parquet fallback", file=sys.stderr)
+            return None
         dfh = dfh.copy()
         dfh["date"] = pd.to_datetime(dfh["date"]).dt.date
         try:

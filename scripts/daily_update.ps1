@@ -83,8 +83,12 @@ function Invoke-PyMod {
   param([string[]]$plist)
   $cmd = @($Python) + $plist
   Write-Log ("Run: {0}" -f ($cmd -join ' '))
+  # Capture both stdout and stderr, but don't fail on stderr output
+  $ErrorActionPreference = 'Continue'
   & $Python @plist 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-  return $LASTEXITCODE
+  $exitCode = $LASTEXITCODE
+  $ErrorActionPreference = 'Stop'
+  return $exitCode
 }
 
 # If local Flask app is running, prefer calling the composite cron endpoint (does props+predictions+recon)
