@@ -72,202 +72,29 @@ def api_list_processed():
     """List files in data/processed matching a glob pattern.
 
     Query params:
-    - pattern: glob like 'props_actuals_*.csv' (required)
-    - limit: max number of results (optional)
+      - pattern: glob pattern (default '*.csv')
     """
     try:
-        pat = request.args.get("pattern", type=str)
-        if not pat:
-            return jsonify({"error": "missing pattern"}), 400
-        limit = request.args.get("limit", default=200, type=int)
-        offset = request.args.get("offset", default=0, type=int)
-        start_date = request.args.get("start_date", type=str)
-        end_date = request.args.get("end_date", type=str)
-        base = BASE_DIR / "data" / "processed"
         from datetime import datetime as _dt
+        pat = (request.args.get("pattern") or "*.csv").strip() or "*.csv"
+        base = BASE_DIR / "data" / "processed"
         items = []
-        for p in sorted(base.glob(pat)):
-            try:
-                st = p.stat()
-                rec = {
-                    "name": p.name,
-                    "size": int(st.st_size),
-                    "mtime": _dt.fromtimestamp(st.st_mtime).isoformat(),
-                    "path": f"/data/processed/{p.name}",
-                }
-                # Attempt date parse from filename (first YYYY-MM-DD)
-                import re
-                m = re.search(r"(20\d{2}-\d{2}-\d{2})", p.name)
-                if m:
-                    rec["date"] = m.group(1)
-                items.append(rec)
-            except Exception:
-                continue
-        # Sort by mtime desc
-        items.sort(key=lambda x: x["mtime"], reverse=True)
-        # Date filtering if applicable
-        if start_date or end_date:
-            def _in_range(rec):
-                d = rec.get("date")
-                if not d:
-                    return False
-                if start_date and d < start_date:
-                    return False
-                if end_date and d > end_date:
-                    return False
-                return True
-            items = [r for r in items if _in_range(r)]
-        total = len(items)
-        if offset < 0:
-            offset = 0
-        paged = items[offset: offset + limit] if limit and limit > 0 else items[offset:]
-        resp = jsonify({
-            "pattern": pat,
-            "total": total,
-            "offset": offset,
-            "limit": limit,
-            "returned": len(paged),
-            "files": paged
-        })
-        return _add_cache_headers(resp)
+        if base.exists():
+            for p in sorted(base.glob(pat)):
+                try:
+                    st = p.stat()
+                    items.append({
+                        "name": p.name,
+                        "size": int(st.st_size),
+                        "mtime": _dt.fromtimestamp(st.st_mtime).isoformat(),
+                        "path": f"/data/processed/{p.name}",
+                    })
+                except Exception:
+                    continue
+        resp = jsonify({"pattern": pat, "count": len(items), "items": items})
+        return _add_cache_headers(resp, seconds=30)
     except Exception as e:
-        resp = jsonify({"error": str(e)})
-        return _add_cache_headers(resp), 500
-
-
-@app.route("/api/list/props-actuals")
-def api_list_props_actuals():
-    return api_list_processed()
-
-
-@app.route("/api/list/props-calibration")
-def api_list_props_calibration():
-    # force pattern if not provided
-    if not request.args.get("pattern"):
-        with app.test_request_context(query_string={"pattern": "props_calibration_*.json", "limit": request.args.get("limit", 200)}):
-            return api_list_processed()
-    return api_list_processed()
-
-
-@app.route("/api/list/props-features")
-def api_list_props_features():
-    if not request.args.get("pattern"):
-        with app.test_request_context(query_string={"pattern": "props_features_*.csv", "limit": request.args.get("limit", 200)}):
-            return api_list_processed()
-    return api_list_processed()
-
-@app.route("/api/processed/summary")
-def api_processed_summary():
-    """Return latest file name (and date if parseable) for key artifact patterns.
-
-    Patterns covered:
-    - predictions_YYYY-MM-DD.csv
-    - props_predictions_YYYY-MM-DD.csv
-    - game_odds_YYYY-MM-DD.csv
-    - props_edges_YYYY-MM-DD.csv
-    - recommendations_YYYY-MM-DD.csv
-    - props_recommendations_YYYY-MM-DD.csv
-    - props_actuals_YYYY-MM-DD.csv
-    - props_calibration_YYYY-MM-DD.json
-    - props_features_*.csv (range spans)
-    """
-    base = BASE_DIR / "data" / "processed"
-    patterns = {
-        "predictions": "predictions_*.csv",
-        "props_predictions": "props_predictions_*.csv",
-        "game_odds": "game_odds_*.csv",
-        "props_edges": "props_edges_*.csv",
-        "recommendations": "recommendations_*.csv",
-        "props_recommendations": "props_recommendations_*.csv",
-        "props_actuals": "props_actuals_*.csv",
-        "props_calibration": "props_calibration_*.json",
-        "props_features": "props_features_*.csv",
-    }
-    from datetime import datetime as _dt
-    def parse_date(name: str):
-        # Extract first YYYY-MM-DD occurrence
-        import re
-        m = re.search(r"(20\d{2}-\d{2}-\d{2})", name)
-        if m:
-            try:
-                return _dt.strptime(m.group(1), "%Y-%m-%d").date()
-            except Exception:
-                return None
-        return None
-    summary = {}
-    for key, pat in patterns.items():
-        files = []
-        for p in base.glob(pat):
-            try:
-                st = p.stat()
-                files.append((p.name, st.st_mtime))
-            except Exception:
-                continue
-        if not files:
-            summary[key] = None
-            continue
-        # pick newest by mtime
-        files.sort(key=lambda x: x[1], reverse=True)
-        latest_name = files[0][0]
-        latest_mtime = files[0][1]
-        import time as _t
-        age_sec = int(_t.time() - latest_mtime)
-        summary[key] = {
-            "latest": latest_name,
-            "date": str(parse_date(latest_name) or ""),
-            "mtime_iso": _dt.fromtimestamp(latest_mtime).isoformat(),
-            "age_seconds": age_sec,
-        }
-    resp = jsonify(summary)
-    return _add_cache_headers(resp)
-
-@app.route("/api/processed/staleness")
-def api_processed_staleness():
-    """Check presence of expected processed files for a given date (default today).
-
-    Query params:
-    - date: YYYY-MM-DD (defaults to today in server's timezone)
-    - expect: comma list of keys (defaults to common set)
-    Returns missing list and ok boolean.
-    """
-    from datetime import datetime as _dt2
-    target = request.args.get("date")
-    if not target:
-        target = _dt2.now().strftime("%Y-%m-%d")
-    keys_param = request.args.get("expect")
-    default_keys = [
-        "predictions","props_predictions","game_odds","props_edges",
-        "recommendations","props_recommendations","props_actuals"
-    ]
-    keys = [k.strip() for k in (keys_param.split(',') if keys_param else default_keys) if k.strip()]
-    pattern_map = {
-        "predictions": f"predictions_{target}.csv",
-        "props_predictions": f"props_predictions_{target}.csv",
-        "game_odds": f"game_odds_{target}.csv",
-        "props_edges": f"props_edges_{target}.csv",
-        "recommendations": f"recommendations_{target}.csv",
-        "props_recommendations": f"props_recommendations_{target}.csv",
-        "props_actuals": f"props_actuals_{target}.csv",
-    }
-    base = BASE_DIR / "data" / "processed"
-    missing = []
-    present = {}
-    for k in keys:
-        fname = pattern_map.get(k)
-        if not fname:
-            continue
-        path = base / fname
-        if path.exists():
-            present[k] = fname
-        else:
-            missing.append(k)
-    resp = jsonify({
-        "date": target,
-        "missing": missing,
-        "present": present,
-        "ok": len(missing) == 0
-    })
-    return _add_cache_headers(resp, seconds=30)
+        return jsonify({"error": str(e)}), 500
 
 
 
@@ -578,6 +405,46 @@ def _read_csv_if_exists(path: Path) -> Optional[pd.DataFrame]:
     except Exception:
         return None
     return None
+
+
+def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
+    """Optionally fetch a processed artifact from GitHub raw if missing locally.
+
+    Controlled by env var ALLOW_REMOTE_ARTIFACTS in {"1","true","yes"}.
+    Saves to data/processed/<fname> on success and returns that Path.
+    """
+    try:
+        allow = str(os.environ.get("ALLOW_REMOTE_ARTIFACTS", "0")).strip().lower() in {"1", "true", "yes"}
+        if not allow:
+            return None
+        # Only allow safe filenames under processed/
+        if not fname or "/" in fname or ".." in fname:
+            return None
+        out = BASE_DIR / "data" / "processed" / fname
+        if out.exists():
+            return out
+        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
+        branch = os.environ.get("GIT_BRANCH") or os.environ.get("RENDER_GIT_BRANCH") or "main"
+        url = f"https://raw.githubusercontent.com/{repo}/{branch}/data/processed/{fname}"
+        try:
+            import requests as _rq  # type: ignore
+        except Exception:
+            return None
+        try:
+            r = _rq.get(url, timeout=8, headers={
+                "User-Agent": "NBA-Betting/props-backend",
+                "Accept": "text/csv,application/octet-stream,*/*",
+            })
+            if r.status_code != 200 or not r.content:
+                return None
+            out.parent.mkdir(parents=True, exist_ok=True)
+            with out.open("wb") as f:
+                f.write(r.content)
+            return out
+        except Exception:
+            return None
+    except Exception:
+        return None
 
 
 def _number(x):
@@ -1533,13 +1400,17 @@ def api_props():
         use_predictions_first = (requested_source == "predictions")
         df = None
         src = None
+        # If files are missing locally, optionally attempt remote fetch (historical on Render)
+        if not edges_p.exists():
+            _maybe_fetch_remote_processed(edges_p.name)
+        if not preds_p.exists():
+            _maybe_fetch_remote_processed(preds_p.name)
         if not use_predictions_first:
             df = _read_csv_if_exists(edges_p)
-            src = "edges" if (df is not None and not df.empty) else None
+            src = "edges" if (isinstance(df, pd.DataFrame) and not df.empty) else None
         # Optionally auto-build edges for the date if not present
-        if (not use_predictions_first) and (df is None or df.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
+        if (not use_predictions_first) and (df is None or (isinstance(df, pd.DataFrame) and df.empty)) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
             try:
-                # Run the same CLI used by cron endpoint
                 py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
                 if not py or not Path(str(py)).exists():
                     py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
@@ -1550,11 +1421,10 @@ def api_props():
                 _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "auto"], lf, cwd=BASE_DIR, env=env)
                 if edges_p.exists():
                     df = _read_csv_if_exists(edges_p)
-                    src = "edges"
+                    src = "edges" if (isinstance(df, pd.DataFrame) and not (df is None or df.empty)) else src
             except Exception:
                 pass
-        if (df is None or df.empty) or use_predictions_first:
-            # Load predictions and optionally auto-build
+        if (df is None) or (isinstance(df, pd.DataFrame) and df.empty) or use_predictions_first:
             pdf = _read_csv_if_exists(preds_p)
             if (pdf is None or pdf.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
                 try:
@@ -1565,17 +1435,16 @@ def api_props():
                     env = {"PYTHONPATH": str(SRC_DIR)}
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
-                    # Changed: --no-slate-only to predict ALL players (not just today's slate)
                     _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--no-slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
                     pdf = _read_csv_if_exists(preds_p)
                 except Exception:
                     pass
-            # If predictions loaded, and predictions requested or edges absent, use them
-            if isinstance(pdf, pd.DataFrame) and not pdf.empty and (use_predictions_first or df is None or df.empty):
+            if isinstance(pdf, pd.DataFrame) and not pdf.empty and (use_predictions_first or df is None or (isinstance(df, pd.DataFrame) and df.empty)):
                 df = pdf
                 src = "predictions"
         if df is None:
             return jsonify({"date": d, "rows": [], "source": None})
+
         # Optional filters
         min_edge = float(request.args.get("min_edge", "0"))
         min_ev = float(request.args.get("min_ev", "0"))
@@ -1583,39 +1452,66 @@ def api_props():
             df = df[pd.to_numeric(df["edge"], errors="coerce").fillna(0) >= min_edge]
         if src == "edges" and "ev" in df.columns:
             df = df[pd.to_numeric(df["ev"], errors="coerce").fillna(0) >= min_ev]
+
         # Filter by market/stat if requested
         market = (request.args.get("market") or "").strip().lower()
         if market and ("stat" in df.columns):
             df = df[df["stat"].astype(str).str.lower() == market]
-        # Direct team filter (applies to both modes when a team column exists)
+
+        # Team filters: single team or multi teams=NYK,BOS
         team_q = (request.args.get("team") or "").strip()
-        if team_q and ("team" in df.columns):
-            tval = team_q.upper()
-            df = df[df.get("team").astype(str).str.strip().str.upper() == tval]
-        # Optional: narrow to a specific game by team names
+        teams_q = (request.args.get("teams") or "").strip()
+        if (team_q or teams_q) and ("team" in df.columns):
+            want = set()
+            vals = []
+            if team_q:
+                vals.append(team_q)
+            if teams_q:
+                vals += [v for v in teams_q.replace(";", ",").split(",") if v.strip()]
+            for v in vals:
+                try:
+                    tri = _get_tricode(v)
+                except Exception:
+                    tri = None
+                want.add((tri or str(v).strip().upper()))
+            tmp = df.copy()
+            try:
+                tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                df = tmp[tmp["_team_tri"].isin(want)].drop(columns=["_team_tri"], errors="ignore")
+            except Exception:
+                df = df[df.get("team").astype(str).str.strip().str.upper().isin(want)]
+
+        # Player name filter (substring, case-insensitive)
+        player_q = (request.args.get("player") or "").strip().lower()
+        if player_q:
+            name_col = next((c for c in ("player_name","player") if c in df.columns), None)
+            if name_col:
+                df = df[df.get(name_col).astype(str).str.lower().str.contains(player_q)]
+
+        # Optional: narrow to a specific game by team names (simple filter)
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
         if (home_q or away_q) and ("team" in df.columns):
             keep = set([t for t in (home_q, away_q) if t])
             if keep:
                 df = df[df.get("team").astype(str).isin(keep)]
+
         collapsed = False
         # If predictions mode, produce long format with one row per player/stat and predicted value
         if src == "predictions":
             try:
                 tmp = df.copy()
-                # Ensure player/team/opponent/home columns exist
+                # Ensure columns exist
                 for c in ("player_id","player_name","team","opponent","home"):
                     if c not in tmp.columns:
                         tmp[c] = None
-                # Identify prediction columns
                 pred_cols = [c for c in tmp.columns if c.startswith("pred_")]
                 rename_map = {"pred_pts":"pts","pred_reb":"reb","pred_ast":"ast","pred_threes":"threes","pred_pra":"pra"}
                 use = {c: rename_map.get(c, c.replace("pred_","")) for c in pred_cols}
                 long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
                 long["stat"] = long["stat_col"].map(use)
                 long.drop(columns=["stat_col"], inplace=True)
-                # Resolve missing player_id via rosters/lookup to enable photos
+                # Resolve missing player_id via roster lookup
                 try:
                     if "player_id" in long.columns:
                         mask = long["player_id"].isna() | (pd.to_numeric(long["player_id"], errors="coerce").isna())
@@ -1628,14 +1524,30 @@ def api_props():
                             long.loc[mask, "player_id"] = long.loc[mask].apply(_res_pid, axis=1)
                 except Exception:
                     pass
-                # Filter by market after melt if provided
+                # Apply filters after melt
                 if market:
                     long = long[long["stat"].astype(str).str.lower() == market]
-                # Team filter after melt
-                if team_q:
-                    tval = team_q.upper()
-                    long = long[long["team"].astype(str).str.strip().str.upper() == tval]
-                # Optional sorting by prediction value
+                if team_q or teams_q:
+                    want = set()
+                    vals = []
+                    if team_q:
+                        vals.append(team_q)
+                    if teams_q:
+                        vals += [v for v in teams_q.replace(";", ",").split(",") if v.strip()]
+                    for v in vals:
+                        try:
+                            tri = _get_tricode(v)
+                        except Exception:
+                            tri = None
+                        want.add((tri or str(v).strip().upper()))
+                    try:
+                        long["_team_tri"] = long["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                        long = long[long["_team_tri"].isin(want)].drop(columns=["_team_tri"], errors="ignore")
+                    except Exception:
+                        long = long[long["team"].astype(str).str.strip().str.upper().isin(want)]
+                if player_q:
+                    long = long[long.get("player_name").astype(str).str.lower().str.contains(player_q)]
+                # Sorting
                 sort_by = (request.args.get("sortBy") or request.args.get("sort") or "pred_desc").strip().lower()
                 try:
                     long["pred"] = pd.to_numeric(long["pred"], errors="coerce")
@@ -1645,14 +1557,28 @@ def api_props():
                         long = long.sort_values(["pred"], ascending=False, kind="stable")
                 except Exception:
                     pass
-                # Secondary stable sort for grouping when pred sort not requested explicitly
                 if sort_by not in ("pred_asc","pred_desc"):
                     long = long.sort_values(["stat","team","player_name"], kind="stable")
+                # Pagination
+                try:
+                    offset = int(request.args.get("offset", "0") or 0)
+                except Exception:
+                    offset = 0
+                try:
+                    limit = request.args.get("limit")
+                    limit = int(limit) if (limit is not None and str(limit).strip() != "") else None
+                except Exception:
+                    limit = None
+                if offset or limit:
+                    if offset < 0:
+                        offset = 0
+                    long = long.iloc[offset: (offset + limit) if (limit is not None and limit >= 0) else None]
                 rows = long.fillna("").to_dict(orient="records")
                 return jsonify({"date": d, "source": src, "rows": rows, "collapsed": False})
             except Exception:
                 pass
-        # Otherwise, edges mode (default) with optional collapse to best-of-book
+
+        # Edges mode (default) with optional collapse to best-of-book
         collapse_q = (request.args.get("collapse", "1") or "1").strip().lower()
         do_collapse = collapse_q not in ("0", "false", "no")
         if do_collapse and ("ev" in df.columns):
@@ -1667,6 +1593,20 @@ def api_props():
                     collapsed = True
             except Exception:
                 pass
+        # Pagination for edges
+        try:
+            offset = int(request.args.get("offset", "0") or 0)
+        except Exception:
+            offset = 0
+        try:
+            limit = request.args.get("limit")
+            limit = int(limit) if (limit is not None and str(limit).strip() != "") else None
+        except Exception:
+            limit = None
+        if offset or limit:
+            if offset < 0:
+                offset = 0
+            df = df.iloc[offset: (offset + limit) if (limit is not None and limit >= 0) else None]
         rows = df.fillna("").to_dict(orient="records")
         return jsonify({"date": d, "source": src, "rows": rows, "collapsed": collapsed})
     except Exception as e:
@@ -1705,18 +1645,29 @@ def api_props_recommendations():
         pp = _read_csv_if_exists(props_preds_p)
         if not isinstance(pp, pd.DataFrame) or pp is None:
             pp = pd.DataFrame()
-        # If no edges, still return cards built from model predictions so the UI has content
-        if (df is None) or (not isinstance(df, pd.DataFrame)) or df.empty:
-            # Build minimal cards from model predictions
-            cards: list[dict] = []
-            if not pp.empty:
-                # Ensure consistent columns
-                for c in ("player_name","team"):
-                    if c not in pp.columns:
-                        pp[c] = None
-                # Group by player/team
+        # Accept aliases from frontend (only_ev, min_ev_pct, sort)
+        sort_by = (request.args.get("sortBy") or request.args.get("sort") or "ev_desc").strip().lower()
+        onlyEV = str(request.args.get("onlyEV", request.args.get("only_ev", "0"))).lower() in {"1","true","yes"}
+        try:
+            minEV = float(request.args.get("minEV", request.args.get("min_ev_pct", "0") ) or 0)
+        except Exception:
+            minEV = 0.0
+
+        # Build base cards from full model predictions if available
+        cards_map: dict[tuple[str,str], dict] = {}
+        if not pp.empty:
+            for c in ("player_name","team"):
+                if c not in pp.columns:
+                    pp[c] = None
+            try:
+                # Normalize team tricode for keys
+                def _tri(v):
+                    try:
+                        return (_get_tricode(v) or str(v).strip().upper())
+                    except Exception:
+                        return str(v).strip().upper()
                 for (player, team), grp in pp.groupby(["player_name","team"], dropna=False):
-                    # Gather model stats
+                    # Collect model stats
                     model: dict[str, float] = {}
                     for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
                         if col in grp.columns:
@@ -1726,7 +1677,7 @@ def api_props_recommendations():
                                     model[key] = float(v.iloc[0])
                             except Exception:
                                 pass
-                    # Try to infer matchup
+                    # Matchup hints
                     away, home = (None, None)
                     if not games_df.empty and team is not None:
                         try:
@@ -1737,8 +1688,6 @@ def api_props_recommendations():
                                     break
                         except Exception:
                             pass
-                    # Photo and logo hints
-                    # If player_id present in pp, use it; otherwise None
                     pid = None
                     if "player_id" in grp.columns:
                         try:
@@ -1752,26 +1701,35 @@ def api_props_recommendations():
                     else:
                         team_tri = (str(team).upper() if isinstance(team, str) else None)
                         team_logo = (f"/web/assets/logos/{(team_tri or '').upper()}.svg" if team_tri else None)
-                    cards.append({
+                    key = (str(player), _tri(team))
+                    cards_map[key] = {
                         "player": player,
-                        "team": team,
+                        "team": _tri(team),
                         "home_team": home,
                         "away_team": away,
-                        "plays": [],  # no edges available
+                        "opponent": None,
+                        "plays": [],
                         "ladders": [],
                         "model": model,
                         "photo": photo,
                         "team_logo": team_logo,
-                    })
-            games: list[dict] = []
-            if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
-                try:
-                    g = games_df[["home_team","visitor_team"]].dropna()
-                    for _, r in g.iterrows():
-                        games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
-                except Exception:
-                    pass
-            return jsonify({"date": d, "rows": len(cards), "data": cards, "games": games, "note": "no props edges for date; showing model predictions only"})
+                        "_best_ev": None,
+                        "_best_edge": None,
+                    }
+            except Exception:
+                pass
+
+        # Prepare games list (optional)
+        games: list[dict] = []
+        if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
+            try:
+                g = games_df[["home_team","visitor_team"]].dropna()
+                for _, r in g.iterrows():
+                    games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
+            except Exception:
+                pass
+
+        # Normalize and compute ev_pct for convenience on edges
         # Normalize and compute ev_pct for convenience
         df = df.copy()
         if "ev" in df.columns:
@@ -1788,12 +1746,7 @@ def api_props_recommendations():
         if market and ("stat" in df.columns):
             mk = market
             df = df[df["stat"].astype(str).str.lower() == mk]
-        # Filter by EV threshold (percent)
-        try:
-            minEV = float(request.args.get("minEV", "0") or 0)
-        except Exception:
-            minEV = 0.0
-        onlyEV = str(request.args.get("onlyEV", "0")).lower() in {"1","true","yes"}
+        # Filter by EV threshold (percent) and onlyEV flag
         if df is not None and ("ev_pct" in df.columns):
             if onlyEV:
                 df = df[pd.to_numeric(df["ev_pct"], errors="coerce").notna()]
@@ -2252,252 +2205,52 @@ def api_cron_train_games():
         if not feats.exists():
             rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], log_file, cwd=BASE_DIR, env=env)
         rc_train = _run_to_file([str(py), "-m", "nba_betting.cli", "train"], log_file, cwd=BASE_DIR, env=env)
-        ok = (int(rc_build) == 0 and int(rc_train) == 0)
-        # Optional push
-        pushed = None; push_detail = None
-        if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
-            okp, detail = _git_commit_and_push(msg="train games")
-            pushed = bool(okp); push_detail = detail
-        return jsonify({"rc_build": int(rc_build), "rc_train": int(rc_train), "ok": bool(ok), "log_file": str(log_file), "pushed": pushed, "push_detail": push_detail})
+        return jsonify({
+            "rc_build": int(rc_build),
+            "rc_train": int(rc_train),
+            "log_file": str(log_file),
+        })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
-# Simple in-memory cache for scoreboard (to limit API calls)
+# Simple in-memory cache for scoreboard (to limit repeated work)
 _scoreboard_cache: Dict[str, Tuple[float, Any]] = {}
 
 
 @app.route("/api/scoreboard")
 def api_scoreboard():
+    """Return a simple scoreboard for a date using local predictions as source.
+
+    Shape: { date, games: [{home, away, status, final}] }
+    """
     d = _parse_date_param(request)
     if not d:
         return jsonify({"error": "missing date"}), 400
-    # Serve from cache within 20 seconds
+    # Cache for 20 seconds
     now = time.time()
     ent = _scoreboard_cache.get(d)
-    if ent and now - ent[0] < 20:
+    if ent and (now - ent[0] < 20):
         return jsonify(ent[1])
-    if _scoreboardv2 is None:
-        return jsonify({"date": d, "error": "nba_api not installed"}), 500
-    def _fallback_cdn(date_str: str) -> Optional[Dict[str, Any]]:
-        """Fallback to public CDN scoreboard JSON for the given date (UTC).
-
-        Tries, in order:
-          1) https://data.nba.com/data/10s/prod/v1/YYYYMMDD/scoreboard.json
-          2) https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json (today only)
-        Returns payload in same shape as primary handler.
-        """
-        try:
-            import requests as _rq
-            ymd = date_str.replace("-", "")
-            def _parse_prod_v1(j: dict) -> list[dict]:
-                out: list[dict] = []
-                for g in j.get('games', []) or []:
-                    try:
-                        home = (g.get('hTeam') or {}).get('triCode')
-                        away = (g.get('vTeam') or {}).get('triCode')
-                        sc_h = (g.get('hTeam') or {}).get('score')
-                        sc_a = (g.get('vTeam') or {}).get('score')
-                        try:
-                            hp = int(sc_h) if sc_h not in (None, "") else None
-                        except Exception:
-                            hp = None
-                        try:
-                            ap = int(sc_a) if sc_a not in (None, "") else None
-                        except Exception:
-                            ap = None
-                        status_num = int(g.get('statusNum') or 0)
-                        clock = str(g.get('clock') or '')
-                        period = (g.get('period') or {}).get('current')
-                        is_ht = (g.get('period') or {}).get('isHalftime')
-                        is_eop = (g.get('period') or {}).get('isEndOfPeriod')
-                        if status_num == 3:
-                            status_txt = 'Final'
-                            is_final = True
-                        elif status_num == 2:
-                            if is_ht:
-                                status_txt = 'Half'
-                            elif is_eop and period:
-                                status_txt = f'End Q{period}'
-                            elif period and clock:
-                                status_txt = f'Q{period} {clock}'
-                            elif period:
-                                status_txt = f'Q{period}'
-                            else:
-                                status_txt = 'LIVE'
-                            is_final = False
-                        else:
-                            status_txt = g.get('startTimeUTC') or 'Scheduled'
-                            is_final = False
-                        out.append({
-                            'home': home,
-                            'away': away,
-                            'status': status_txt,
-                            'game_id': g.get('gameId'),
-                            'home_pts': hp,
-                            'away_pts': ap,
-                            'final': bool(is_final),
-                        })
-                    except Exception:
-                        continue
-                return out
-
-            def _parse_live_today(j: dict) -> list[dict]:
-                out: list[dict] = []
-                sb = (j.get('scoreboard') or {})
-                games = sb.get('games') or []
-                for g in games:
-                    try:
-                        homeTeam = g.get('homeTeam') or {}
-                        awayTeam = g.get('awayTeam') or {}
-                        home = str(homeTeam.get('teamTricode') or '').upper() or None
-                        away = str(awayTeam.get('teamTricode') or '').upper() or None
-                        sc_h = homeTeam.get('score')
-                        sc_a = awayTeam.get('score')
-                        try:
-                            hp = int(sc_h) if sc_h not in (None, "", "-", 0) else None
-                        except Exception:
-                            hp = None
-                        try:
-                            ap = int(sc_a) if sc_a not in (None, "", "-", 0) else None
-                        except Exception:
-                            ap = None
-                        txt = str(g.get('gameStatusText') or '').strip()
-                        is_final = txt.upper().startswith('FINAL')
-                        out.append({
-                            'home': home,
-                            'away': away,
-                            'status': txt or 'Scheduled',
-                            'game_id': g.get('gameId'),
-                            'home_pts': hp,
-                            'away_pts': ap,
-                            'final': bool(is_final),
-                        })
-                    except Exception:
-                        continue
-                return out
-
-            # Try prod/v1 first
-            url1 = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
-            try:
-                r1 = _rq.get(url1, timeout=6, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Accept': 'application/json, text/plain, */*',
-                    'Origin': 'https://www.nba.com',
-                    'Referer': 'https://www.nba.com/',
-                })
-                if r1.status_code == 200:
-                    g1 = _parse_prod_v1(r1.json())
-                    if g1:
-                        return {'date': date_str, 'games': g1}
-            except Exception:
-                pass
-            # Try liveData today's scoreboard; if its gameDate matches the requested date, use it
-            url2 = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
-            try:
-                r2 = _rq.get(url2, timeout=6, headers={
-                    'User-Agent': 'Mozilla/5.0',
-                    'Accept': 'application/json, text/plain, */*',
-                    'Origin': 'https://www.nba.com',
-                    'Referer': 'https://www.nba.com/',
-                })
-                if r2.status_code == 200:
-                    j2 = r2.json()
-                    gd = None
-                    try:
-                        gd = str(((j2 or {}).get('scoreboard') or {}).get('gameDate') or '')[:10]
-                    except Exception:
-                        gd = None
-                    g2 = _parse_live_today(j2)
-                    if g2 and (gd == date_str or gd is None):
-                        return {'date': date_str, 'games': g2}
-            except Exception:
-                pass
-            return {'date': date_str, 'games': []}
-        except Exception:
-            return None
-
+    games: list[dict] = []
     try:
-        # Harden headers
-        try:
-            if _nba_http is not None:
-                _nba_http.STATS_HEADERS.update({
-                    'Accept': 'application/json, text/plain, */*',
-                    'Accept-Language': 'en-US,en;q=0.9',
-                    'Origin': 'https://www.nba.com',
-                    'Referer': 'https://www.nba.com/stats/',
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-                    'Connection': 'keep-alive',
-                })
-        except Exception:
-            pass
-        # Primary: nba_api with a short retry
-        tries = 0
-        last_err: Optional[Exception] = None
-        gh = pd.DataFrame(); ls = pd.DataFrame()
-        # Keep this snappy: one short attempt, then fallback to CDN
-        while tries < 1:
-            try:
-                sb = _scoreboardv2.ScoreboardV2(game_date=d, day_offset=0, timeout=8)
-                nd = sb.get_normalized_dict()
-                gh = pd.DataFrame(nd.get("GameHeader", []))
-                ls = pd.DataFrame(nd.get("LineScore", []))
-                last_err = None
-                break
-            except Exception as e:
-                last_err = e
-                tries += 1
-        games = []
-        if not gh.empty and not ls.empty:
-            cgh = {c.upper(): c for c in gh.columns}
-            cls = {c.upper(): c for c in ls.columns}
-            # Map TEAM_ID -> (ABBR, PTS)
-            teams = {}
-            for _, r in ls.iterrows():
-                try:
-                    tid = int(r[cls["TEAM_ID"]])
-                    ab = str(r[cls["TEAM_ABBREVIATION"]]).upper()
-                    pts = None
-                    if "PTS" in cls:
-                        try:
-                            pts = int(r[cls["PTS"]])
-                        except Exception:
-                            pts = None
-                    teams[tid] = {"abbr": ab, "pts": pts}
-                except Exception:
-                    continue
-            for _, g in gh.iterrows():
-                try:
-                    hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
-                    home = teams.get(hid, {}); away = teams.get(vid, {})
-                    stat_txt = g.get(cgh.get("GAME_STATUS_TEXT", "GAME_STATUS_TEXT"))
+        pred_p = _find_predictions_for_date(d)
+        if pred_p is not None and pred_p.exists():
+            pdf = pd.read_csv(pred_p)
+            if {"home_team","visitor_team"}.issubset(set(pdf.columns)):
+                g = pdf[["home_team","visitor_team"]].dropna()
+                for _, r in g.iterrows():
                     games.append({
-                        "home": home.get("abbr"),
-                        "away": away.get("abbr"),
-                        "status": stat_txt,
-                        "game_id": g.get(cgh.get("GAME_ID", "GAME_ID")),
-                        "home_pts": home.get("pts"),
-                        "away_pts": away.get("pts"),
-                        "final": (str(stat_txt or "").strip().upper().startswith("FINAL")),
+                        "home": r.get("home_team"),
+                        "away": r.get("visitor_team"),
+                        "status": "Scheduled",
+                        "final": False,
                     })
-                except Exception:
-                    continue
-        # Fallback to CDN if primary is empty or failed
-        if not games:
-            alt = _fallback_cdn(d)
-            if alt is not None:
-                payload = alt
-                _scoreboard_cache[d] = (now, payload)
-                return jsonify(payload)
-            # If CDN also fails, return a safe empty payload
-            payload = {"date": d, "games": []}
-        else:
-            payload = {"date": d, "games": games}
-        _scoreboard_cache[d] = (now, payload)
-        return jsonify(payload)
-    except Exception as e:
-        # As a last resort, return an empty shape to avoid client errors
-        return jsonify({"date": d, "games": [], "error": str(e)}), 200
+    except Exception:
+        games = []
+    payload = {"date": d, "games": games}
+    _scoreboard_cache[d] = (now, payload)
+    return jsonify(payload)
 
 
 @app.route("/api/schedule")
