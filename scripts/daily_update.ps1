@@ -158,8 +158,9 @@ try {
 
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
-# IMPORTANT: Remove --use-pure-onnx if you need sklearn-based models or if experiencing issues
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
+# CHANGED: Removed --slate-only to predict for ALL players (not just today's slate)
+# This populates the full props table at /props, then edges are calculated separately
+$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--no-slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
 # 4) Props actuals upsert for yesterday (CLI)

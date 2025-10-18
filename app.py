@@ -1565,7 +1565,8 @@ def api_props():
                     env = {"PYTHONPATH": str(SRC_DIR)}
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only"], lf, cwd=BASE_DIR, env=env)
+                    # Changed: --no-slate-only to predict ALL players (not just today's slate)
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--no-slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
                     pdf = _read_csv_if_exists(preds_p)
                 except Exception:
                     pass
