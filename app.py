@@ -59,6 +59,42 @@ PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
+
+# Helper to reliably resolve the Python interpreter for subprocess tasks
+def _resolve_python() -> str:
+    """Return best Python executable path for running our CLI.
+
+    Priority:
+      1) Explicit PYTHON env var if it exists and is a valid file
+      2) Current process interpreter (sys.executable) if it exists
+      3) VIRTUAL_ENV/Scripts/python.exe (Windows) or VIRTUAL_ENV/bin/python (POSIX)
+      4) Workspace .venv/Scripts/python.exe or .venv/bin/python
+      5) Fallback to plain 'python'
+    """
+    try:
+        cand = os.environ.get("PYTHON")
+        if cand and Path(cand).exists():
+            return cand
+        if sys.executable and Path(sys.executable).exists():
+            return sys.executable
+        venv = os.environ.get("VIRTUAL_ENV")
+        if venv:
+            py_win = Path(venv) / "Scripts" / "python.exe"
+            py_posix = Path(venv) / "bin" / "python"
+            if py_win.exists():
+                return str(py_win)
+            if py_posix.exists():
+                return str(py_posix)
+        # Try workspace-local .venv
+        py_win = BASE_DIR / ".venv" / "Scripts" / "python.exe"
+        py_posix = BASE_DIR / ".venv" / "bin" / "python"
+        if py_win.exists():
+            return str(py_win)
+        if py_posix.exists():
+            return str(py_posix)
+    except Exception:
+        pass
+    return "python"
 # ---- Processed files listing APIs ----
 def _add_cache_headers(resp, seconds: int = 60):
     try:
@@ -1411,10 +1447,7 @@ def api_props():
         # Optionally auto-build edges for the date if not present
         if (not use_predictions_first) and (df is None or (isinstance(df, pd.DataFrame) and df.empty)) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
             try:
-                py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-                if not py or not Path(str(py)).exists():
-                    py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-                    py = str(py_win) if py_win.exists() else "python"
+                py = _resolve_python()
                 env = {"PYTHONPATH": str(SRC_DIR)}
                 logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                 lf = logs_dir / f"props_edges_on_demand_{d}_{stamp}.log"
@@ -1428,10 +1461,7 @@ def api_props():
             pdf = _read_csv_if_exists(preds_p)
             if (pdf is None or pdf.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
                 try:
-                    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-                    if not py or not Path(str(py)).exists():
-                        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-                        py = str(py_win) if py_win.exists() else "python"
+                    py = _resolve_python()
                     env = {"PYTHONPATH": str(SRC_DIR)}
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
@@ -2191,10 +2221,7 @@ def api_cron_train_games():
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
     # Choose python exe
-    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-    if not py or not Path(str(py)).exists():
-        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-        py = str(py_win) if py_win.exists() else "python"
+    py = _resolve_python()
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_train_games_{stamp}.log"
     try:
@@ -2454,10 +2481,7 @@ def api_cron_capture_closing():
     if not d:
         return jsonify({"error": "missing date"}), 400
     # Choose python executable
-    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-    if not py or not Path(str(py)).exists():
-        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-        py = str(py_win) if py_win.exists() else "python"
+    py = _resolve_python()
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_capture_closing_{d}_{stamp}.log"
     try:
@@ -2509,10 +2533,7 @@ def api_cron_predict_date():
             # On check failure, proceed to run to be safe
             pass
     # Choose python executable
-    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-    if not py or not Path(str(py)).exists():
-        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-        py = str(py_win) if py_win.exists() else "python"
+    py = _resolve_python()
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_predict_date_{d}_{stamp}.log"
     try:
@@ -2934,10 +2955,7 @@ def api_cron_props_edges():
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
     do_async = (str(request.args.get("async", "0")).lower() in {"1","true","yes"})
     # Choose python executable
-    py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
-    if not py or not Path(str(py)).exists():
-        py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-        py = str(py_win) if py_win.exists() else "python"
+    py = _resolve_python()
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     log_file = logs_dir / f"cron_props_edges_{d}_{stamp}.log"
     try:
@@ -3086,10 +3104,14 @@ def api_cron_props_predictions():
         cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
         if slate_only:
             cmd += ["--slate-only"]
+        else:
+            cmd += ["--no-slate-only"]
         if do_calib:
             cmd += ["--calibrate", "--calib-window", str(calib_window)]
         else:
             cmd += ["--no-calibrate"]
+        # Enforce pure ONNX path for ARM64/Render environments
+        cmd += ["--use-pure-onnx"]
         if do_async:
             def _job():
                 try:
