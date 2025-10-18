@@ -1113,7 +1113,7 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
         from .games_npu import NPUGamePredictor
         
         # Create NPU predictor (win, spread, total, quarters, halves with NPU acceleration)
-        console.print("🚀 Using NPU-accelerated predictions (ONNX + QNN)", style="green")
+        console.print("[NPU] Using NPU-accelerated predictions (ONNX + QNN)", style="green")
         npu_predictor = NPUGamePredictor()
         
         # Convert features to numpy array for NPU inference
@@ -1200,8 +1200,8 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     import subprocess
     target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
     
-    console.print(f"🚀 Running enhanced daily update for {target_date}")
-    console.print(f"📊 NPU Acceleration: {'Enabled' if use_npu else 'Disabled'}")
+    console.print(f"[NPU] Running enhanced daily update for {target_date}")
+    console.print(f"[INFO] NPU Acceleration: {'Enabled' if use_npu else 'Disabled'}")
     console.print(f"🔄 Reconciliation window: {reconcile_days} days")
 
     # 1) Schedule (once per season; idempotent to run daily)
@@ -1222,7 +1222,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 3) Player logs (season(s) up to current)
     try:
-        console.print("📊 Updating player logs...")
+        console.print("[INFO] Updating player logs...")
         # Infer seasons around target date; for now, update current season only
         fetch_player_logs([season])
         console.print("Player logs refreshed")
@@ -1231,13 +1231,13 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 4) Reconcile historic game actuals (last N days)
     try:
-        console.print(f"🔍 Reconciling game actuals for last {reconcile_days} days...")
+        console.print(f"[SEARCH] Reconciling game actuals for last {reconcile_days} days...")
         for days_back in range(1, reconcile_days + 1):
             past_date = target_date - _dt.timedelta(days=days_back)
             try:
                 # This will fetch and upsert actual game results
                 pass  # Game actuals reconciliation logic would go here
-                console.print(f"  ✅ Game actuals for {past_date}")
+                console.print(f"  [OK] Game actuals for {past_date}")
             except Exception as e:
                 console.print(f"  ⚠️  Game actuals for {past_date}: {e}")
     except Exception as e:
@@ -1245,7 +1245,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 5) Reconcile historic prop actuals (last N days)
     try:
-        console.print(f"🎯 Reconciling prop actuals for last {reconcile_days} days...")
+        console.print(f"[ACTION] Reconciling prop actuals for last {reconcile_days} days...")
         for days_back in range(1, reconcile_days + 1):
             past_date = target_date - _dt.timedelta(days=days_back)
             try:
@@ -1256,7 +1256,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     if df_actuals is not None and not df_actuals.empty:
                         from .props_actuals import upsert_props_actuals
                         upsert_props_actuals(df_actuals)
-                        console.print(f"  ✅ Prop actuals for {past_date}")
+                        console.print(f"  [OK] Prop actuals for {past_date}")
                 except Exception:
                     # Fallback to nba_api
                     from .props_actuals import fetch_prop_actuals_via_nbaapi
@@ -1264,7 +1264,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     if df_actuals is not None and not df_actuals.empty:
                         from .props_actuals import upsert_props_actuals
                         upsert_props_actuals(df_actuals)
-                        console.print(f"  ✅ Prop actuals for {past_date}")
+                        console.print(f"  [OK] Prop actuals for {past_date}")
             except Exception as e:
                 console.print(f"  ⚠️  Prop actuals for {past_date}: {e}")
     except Exception as e:
@@ -1286,7 +1286,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
             console.print(f"Features built and saved to {out}")
             
             if use_npu:
-                console.print("🚀 Training game models with NPU acceleration...")
+                console.print("[NPU] Training game models with NPU acceleration...")
                 from .games_npu import train_game_models_npu
                 train_game_models_npu(retrain=True)
             else:
@@ -1303,14 +1303,14 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 7) Rebuild props features and retrain props models
     try:
-        console.print("🎯 Rebuilding props features...")
+        console.print("[ACTION] Rebuilding props features...")
         # Build props features directly
         from .props_features import build_props_features
         df = build_props_features()
         console.print(f"Props features built: {len(df)} rows")
         
         if use_npu:
-            console.print("🚀 Training props models with NPU acceleration...")
+            console.print("[NPU] Training props models with NPU acceleration...")
             from .props_npu import train_props_models_npu
             train_props_models_npu(alpha=1.0)
         else:
@@ -1344,7 +1344,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     try:
         console.print("🎲 Generating game predictions...")
         if use_npu:
-            console.print("🚀 Using NPU acceleration for game predictions...")
+            console.print("[NPU] Using NPU acceleration for game predictions...")
             from .games_npu import predict_games_npu
             # Load features and predict
             features_path = paths.data_processed / "features.parquet"
@@ -1359,7 +1359,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     preds = predict_games_npu(features_df, include_periods=True)
                     out_path = paths.data_processed / f"predictions_{target_date}.csv"
                     preds.to_csv(out_path, index=False)
-                    console.print(f"✅ NPU game predictions saved to {out_path}")
+                    console.print(f"[OK] NPU game predictions saved to {out_path}")
                 else:
                     console.print(f"No games found for {target_date} in features", style="yellow")
         else:
@@ -1370,7 +1370,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     # 10) Fetch current prop odds from OddsAPI and write to CSV
     try:
         if odds_api_key:
-            console.print("🎯 Fetching current prop odds...")
+            console.print("[ACTION] Fetching current prop odds...")
             cfg = OddsApiConfig(api_key=odds_api_key)
             # Fetch player props for today
             from .odds_api import fetch_player_props_current
@@ -1386,10 +1386,10 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
     # 11) Props predictions and edges for target date
     try:
-        console.print("🎯 Generating prop predictions and edges...")
+        console.print("[ACTION] Generating prop predictions and edges...")
         # Predict props (builds as-of features internally)
         if use_npu:
-            console.print("🚀 Using NPU acceleration for prop predictions...")
+            console.print("[NPU] Using NPU acceleration for prop predictions...")
             from .props_npu import predict_props_npu
             from .props_features import build_features_for_date
             try:
@@ -1398,7 +1398,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     preds = predict_props_npu(feats)
                     out_path = paths.data_processed / f"props_predictions_npu_{target_date}.csv"
                     preds.to_csv(out_path, index=False)
-                    console.print(f"✅ NPU prop predictions saved to {out_path}")
+                    console.print(f"[OK] NPU prop predictions saved to {out_path}")
             except Exception as e:
                 console.print(f"NPU prop predictions failed, falling back to CPU: {e}", style="yellow")
                 predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True, calibrate=True, calib_window=7)
@@ -1427,7 +1427,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                         edges = edges.groupby("stat", group_keys=False).head(max(1, 200 // max(1, edges["stat"].nunique())))
                     out = paths.data_processed / f"props_edges_{target_date}.csv"
                     edges.to_csv(out, index=False)
-                    console.print(f"✅ Props edges saved to {out}")
+                    console.print(f"[OK] Props edges saved to {out}")
             except Exception as e:
                 console.print(f"Props edges computation failed: {e}", style="yellow")
         else:
@@ -1469,7 +1469,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                         continue
                 out = paths.data_processed / f"recommendations_{target_date}.csv"
                 pd.DataFrame(recs).to_csv(out, index=False)
-                console.print(f"✅ Game recommendations saved to {out}")
+                console.print(f"[OK] Game recommendations saved to {out}")
         except Exception as e:
             console.print(f"Game recommendations failed: {e}", style="yellow")
         
@@ -1484,11 +1484,11 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     top_recs = top_recs.sort_values("ev", ascending=False).head(50)
                     out = paths.data_processed / f"props_recommendations_{target_date}.csv"
                     top_recs.to_csv(out, index=False)
-                    console.print(f"✅ Prop recommendations saved to {out}")
+                    console.print(f"[OK] Prop recommendations saved to {out}")
         except Exception as e:
             console.print(f"Prop recommendations failed: {e}", style="yellow")
         
-        console.print("✅ Frontend recommendation files generated")
+        console.print("[OK] Frontend recommendation files generated")
     except Exception as e:
         console.print(f"Frontend recommendations failed: {e}", style="yellow")
 
@@ -1502,7 +1502,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
             if result.returncode == 0:
                 push_result = subprocess.run(["git", "push"], check=False, cwd=paths.root, capture_output=True, text=True)
                 if push_result.returncode == 0:
-                    console.print("✅ Git push complete")
+                    console.print("[OK] Git push complete")
                 else:
                     console.print(f"Git push failed: {push_result.stderr}", style="yellow")
             else:
@@ -1513,7 +1513,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     # 14) Summary report
     console.print("\n🎉 Daily update complete!")
     console.print(f"📅 Date: {target_date}")
-    console.print(f"🚀 NPU: {'Enabled' if use_npu else 'Disabled'}")
+    console.print(f"[NPU] NPU: {'Enabled' if use_npu else 'Disabled'}")
     console.print(f"💰 Odds API: {'Used' if odds_api_key else 'Skipped'}")
     console.print(f"📤 Git Push: {'Yes' if git_push else 'No'}")
     console.print("\n📁 Check these files for today's data:")
@@ -1539,18 +1539,18 @@ def sync_frontend_cmd(date_str: str | None, cleanup_days: int):
         console.print(f"🔄 Syncing frontend data for {target_date}...")
         results = validate_and_sync_frontend_data(str(target_date))
         
-        console.print("\n📊 Validation Results:")
+        console.print("\n[INFO] Validation Results:")
         for data_type, validation in results["validation_results"].items():
             console.print(f"  {data_type}: {validation['rows']} rows")
         
         console.print(f"\n📁 Files Created: {len(results['files_created'])}")
         for file_path in results["files_created"]:
-            console.print(f"  ✅ {file_path}")
+            console.print(f"  [OK] {file_path}")
         
         if results["errors"]:
             console.print(f"\n⚠️  Errors: {len(results['errors'])}")
             for error in results["errors"]:
-                console.print(f"  ❌ {error}")
+                console.print(f"  [ERROR] {error}")
         
         # Cleanup old files
         if cleanup_days > 0:
@@ -1564,9 +1564,9 @@ def sync_frontend_cmd(date_str: str | None, cleanup_days: int):
         status = get_frontend_data_status()
         for file_name, file_info in status["latest_files"].items():
             if file_info["exists"]:
-                console.print(f"  ✅ {file_name}")
+                console.print(f"  [OK] {file_name}")
             else:
-                console.print(f"  ❌ {file_name} (missing)")
+                console.print(f"  [ERROR] {file_name} (missing)")
         
         console.print(f"\n🎉 Frontend sync complete!")
         
@@ -1588,10 +1588,10 @@ def frontend_status_cmd():
         for file_name, file_info in status["latest_files"].items():
             if file_info["exists"]:
                 size_mb = file_info["size_bytes"] / (1024 * 1024)
-                console.print(f"  ✅ {file_name} ({size_mb:.2f} MB)")
+                console.print(f"  [OK] {file_name} ({size_mb:.2f} MB)")
                 console.print(f"     Last modified: {file_info['last_modified']}")
             else:
-                console.print(f"  ❌ {file_name} (missing)")
+                console.print(f"  [ERROR] {file_name} (missing)")
         
         console.print(f"\n📅 Recent Files (last 7 days):")
         for date_str, files in status["dated_files"].items():
@@ -1602,7 +1602,7 @@ def frontend_status_cmd():
         if status["missing_files"]:
             console.print(f"\n⚠️  Missing Files:")
             for file_name in status["missing_files"]:
-                console.print(f"  ❌ {file_name}")
+                console.print(f"  [ERROR] {file_name}")
         
     except Exception as e:
         console.print(f"Status check failed: {e}", style="red")
@@ -3240,7 +3240,7 @@ def fetch_advanced_stats(season: int):
         output_path = paths.data_processed / f"team_advanced_stats_{season}.csv"
         stats.to_csv(output_path, index=False)
         
-        console.print(f"✅ Saved {len(stats)} teams to {output_path}", style="green")
+        console.print(f"[OK] Saved {len(stats)} teams to {output_path}", style="green")
         console.print(stats.head(10))
         
     except Exception as e:
@@ -3263,7 +3263,7 @@ def fetch_injuries():
             console.print("No injuries fetched", style="yellow")
             return
         
-        console.print(f"✅ Saved {len(injuries)} injury records", style="green")
+        console.print(f"[OK] Saved {len(injuries)} injury records", style="green")
         
         # Show summary by team
         summary = injuries.groupby(['team', 'status']).size().reset_index(name='count')
@@ -3324,7 +3324,7 @@ def calculate_roi(confidence: float, days: int):
 @cli.command()
 def run_all_improvements():
     """Run all improvement tasks: fetch stats, injuries, and generate performance report."""
-    console.rule("🚀 Running All Improvements")
+    console.rule("[NPU] Running All Improvements")
     
     # 1. Fetch advanced stats
     console.print("\n[1/3] Fetching advanced statistics...", style="cyan")
@@ -3335,11 +3335,11 @@ def run_all_improvements():
         if not stats.empty:
             output_path = paths.data_processed / "team_advanced_stats_2025.csv"
             stats.to_csv(output_path, index=False)
-            console.print(f"✅ Saved {len(stats)} teams to {output_path}", style="green")
+            console.print(f"[OK] Saved {len(stats)} teams to {output_path}", style="green")
         else:
             console.print("⚠️  No stats fetched", style="yellow")
     except Exception as e:
-        console.print(f"❌ Error fetching stats: {e}", style="red")
+        console.print(f"[ERROR] Error fetching stats: {e}", style="red")
     
     # 2. Fetch injury data
     console.print("\n[2/3] Fetching injury reports...", style="cyan")
@@ -3348,13 +3348,13 @@ def run_all_improvements():
         db = NBAInjuryDatabase()
         injuries = db.update_injuries()
         if not injuries.empty:
-            console.print(f"✅ Saved {len(injuries)} injury records", style="green")
+            console.print(f"[OK] Saved {len(injuries)} injury records", style="green")
             summary = injuries.groupby(['team', 'status']).size().reset_index(name='count')
             console.print(summary)
         else:
             console.print("⚠️  No injuries fetched", style="yellow")
     except Exception as e:
-        console.print(f"❌ Error fetching injuries: {e}", style="red")
+        console.print(f"[ERROR] Error fetching injuries: {e}", style="red")
     
     # 3. Generate performance report
     console.print("\n[3/3] Generating performance report...", style="cyan")
@@ -3364,9 +3364,9 @@ def run_all_improvements():
         report = tracker.generate_performance_report(days_back=30)
         tracker.print_performance_summary(report)
     except Exception as e:
-        console.print(f"❌ Error generating report: {e}", style="red")
+        console.print(f"[ERROR] Error generating report: {e}", style="red")
     
-    console.print("\n✅ All improvements completed!", style="green bold")
+    console.print("\n[OK] All improvements completed!", style="green bold")
 
 
 if __name__ == "__main__":
