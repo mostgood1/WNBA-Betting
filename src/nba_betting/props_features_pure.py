@@ -14,68 +14,156 @@ from .config import paths
 
 def build_features_for_date_pure(date: str, player_logs_path: Path | None = None) -> pd.DataFrame:
     """
-    Build features for a specific date WITHOUT sklearn dependencies
-    
-    This replicates props_features.build_features_for_date but without any sklearn imports
-    
+    Build per-player features up to the day BEFORE the given date (no leakage),
+    WITHOUT sklearn dependencies and WITHOUT requiring same-day logs.
+
+    Mirrors props_features.build_features_for_date behavior so ONNX predictions
+    work for any future/past date even if player_logs lack rows on that day.
+
     Args:
-        date: Date string in format 'YYYY-MM-DD'
-        player_logs_path: Optional path to player_logs file
-    
+        date: 'YYYY-MM-DD' target slate date
+        player_logs_path: Optional explicit path to player_logs (.csv preferred)
+
     Returns:
-        DataFrame with features ready for ONNX inference
+        DataFrame with one row per player_id containing:
+          - b2b
+          - lag1_[pts|reb|ast|threes|min]
+          - roll{3,5,10}_[pts|reb|ast|threes|min]
+        Plus metadata columns: player_id, player_name (if available), team (if available), asof_date
     """
+    # Prefer CSV to avoid parquet engines on ARM64
     if player_logs_path is None:
-        # Try CSV first (works without pyarrow on ARM64 Windows)
-        player_logs_path = paths.data_processed / "player_logs.csv"
-        if not player_logs_path.exists():
-            # Fallback to parquet
-            player_logs_path = paths.data_processed / "player_logs.parquet"
-            if not player_logs_path.exists():
-                raise FileNotFoundError(f"player_logs not found (tried .csv and .parquet)")
-    
-    # Load player logs
-    if str(player_logs_path).endswith('.parquet'):
-        logs = pd.read_parquet(player_logs_path)
-    else:
-        logs = pd.read_csv(player_logs_path)
-    
-    # Identify columns (flexible column names)
+        csv_path = paths.data_processed / "player_logs.csv"
+        pq_path = paths.data_processed / "player_logs.parquet"
+        if csv_path.exists():
+            player_logs_path = csv_path
+        elif pq_path.exists():
+            player_logs_path = pq_path
+        else:
+            raise FileNotFoundError("player_logs not found (tried .csv and .parquet)")
+
+    # Load logs
+    try:
+        if str(player_logs_path).endswith('.parquet'):
+            logs = pd.read_parquet(player_logs_path)
+        else:
+            logs = pd.read_csv(player_logs_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read player_logs at {player_logs_path}: {e}")
+
+    # Identify columns
     date_col = _find_col(logs, ["GAME_DATE", "GAME_DATE_EST", "dateGame", "GAME_DATE_PT", "date"])
     player_id_col = _find_col(logs, ["PLAYER_ID", "player_id", "idPlayer"])
     player_name_col = _find_col(logs, ["PLAYER_NAME", "player_name", "namePlayer"])
     team_col = _find_col(logs, ["TEAM_ABBREVIATION", "team", "slugTeam"])
-    
-    # Ensure date column exists
-    if date_col is None:
-        raise ValueError("No date column found in player logs")
-    
-    # Convert date column to datetime
+
+    if date_col is None or player_id_col is None:
+        raise ValueError("player_logs missing required date/player_id columns")
+
+    # Normalize dates
     logs[date_col] = pd.to_datetime(logs[date_col])
     target_date = pd.to_datetime(date)
-    
-    # Get games for the target date
-    games_today = logs[logs[date_col] == target_date].copy()
-    
-    if games_today.empty:
-        print(f"⚠️  No games found for {date}")
-        return pd.DataFrame()
-    
-    print(f"📅 Found {len(games_today)} player entries for {date}")
-    
-    # Build rolling features for these players
-    features = _build_rolling_features(logs, games_today, date_col, player_id_col)
-    
-    # Add metadata columns
-    if player_name_col:
-        features['player_name'] = games_today[player_name_col].values
-    if team_col:
-        features['team'] = games_today[team_col].values
-    
-    features['date'] = date
-    
-    print(f"✅ Built features for {len(features)} players")
-    
+
+    # Use only history strictly before target_date
+    hist = logs[logs[date_col] < target_date].copy()
+    if hist.empty:
+        # No history at all => return empty features (no predictions possible)
+        return pd.DataFrame(columns=[
+            'player_id', 'b2b',
+            'lag1_pts','lag1_reb','lag1_ast','lag1_threes','lag1_min',
+            'roll3_pts','roll3_reb','roll3_ast','roll3_threes','roll3_min',
+            'roll5_pts','roll5_reb','roll5_ast','roll5_threes','roll5_min',
+            'roll10_pts','roll10_reb','roll10_ast','roll10_threes','roll10_min',
+            'player_name','team','asof_date'
+        ])
+
+    # Stat column detection
+    def _min_to_float(v):
+        try:
+            if pd.isna(v):
+                return 0.0
+            s = str(v)
+            if ":" in s:
+                mm, ss = s.split(":", 1)
+                return float(int(mm) + int(ss)/60.0)
+            return float(s)
+        except Exception:
+            return 0.0
+
+    col_pts = _find_col(hist, ['PTS','pts'])
+    col_reb = _find_col(hist, ['REB','reb','TREB','treb'])
+    col_ast = _find_col(hist, ['AST','ast'])
+    col_3m  = _find_col(hist, ['FG3M','fg3m','FG3M_A'])
+    col_min = _find_col(hist, ['MIN','min'])
+
+    # Coerce numerics; convert minutes
+    for col in [col_pts, col_reb, col_ast, col_3m]:
+        if col and col in hist.columns:
+            hist[col] = pd.to_numeric(hist[col], errors='coerce').fillna(0.0)
+    if col_min and col_min in hist.columns:
+        hist[col_min] = hist[col_min].apply(_min_to_float)
+    else:
+        hist['__min_fallback__'] = 0.0
+        col_min = '__min_fallback__'
+
+    # Sort for rolling
+    hist.sort_values([player_id_col, date_col], inplace=True)
+
+    # Build feature rows per player
+    rows = []
+    for pid, g in hist.groupby(player_id_col):
+        g = g.copy()
+        # Metadata from last row
+        pname = g.iloc[-1][player_name_col] if player_name_col else None
+        team = g.iloc[-1][team_col] if team_col else None
+
+        # Back-to-back: compare last two games
+        if len(g) >= 2:
+            d1 = g[date_col].iloc[-1]
+            d0 = g[date_col].iloc[-2]
+            b2b = 1.0 if (d1 - d0).days == 1 else 0.0
+        else:
+            b2b = 0.0
+
+        rec = {
+            'player_id': pid,
+            'player_name': pname,
+            'team': team,
+            'asof_date': target_date.date(),
+            'b2b': b2b,
+        }
+
+        # Helper to pull lag1 and rolling
+        def add_stats(stat_key: str, col_name: str):
+            vals = g[col_name].values if col_name in g.columns else np.array([])
+            rec[f'lag1_{stat_key}'] = float(vals[-1]) if len(vals) > 0 else 0.0
+            for w in (3,5,10):
+                window_vals = vals[-w:] if len(vals) >= w else vals
+                rec[f'roll{w}_{stat_key}'] = float(np.mean(window_vals)) if len(window_vals) > 0 else 0.0
+
+        # Add each stat
+        add_stats('pts', col_pts) if col_pts else rec.update({f'lag1_pts':0.0, 'roll3_pts':0.0, 'roll5_pts':0.0, 'roll10_pts':0.0})
+        add_stats('reb', col_reb) if col_reb else rec.update({f'lag1_reb':0.0, 'roll3_reb':0.0, 'roll5_reb':0.0, 'roll10_reb':0.0})
+        add_stats('ast', col_ast) if col_ast else rec.update({f'lag1_ast':0.0, 'roll3_ast':0.0, 'roll5_ast':0.0, 'roll10_ast':0.0})
+        add_stats('threes', col_3m) if col_3m else rec.update({f'lag1_threes':0.0, 'roll3_threes':0.0, 'roll5_threes':0.0, 'roll10_threes':0.0})
+        add_stats('min', col_min) if col_min else rec.update({f'lag1_min':0.0, 'roll3_min':0.0, 'roll5_min':0.0, 'roll10_min':0.0})
+
+        rows.append(rec)
+
+    features = pd.DataFrame(rows)
+
+    # Ensure expected ONNX feature columns exist
+    expected = [
+        'b2b',
+        'lag1_pts','lag1_reb','lag1_ast','lag1_threes','lag1_min',
+        'roll3_pts','roll3_reb','roll3_ast','roll3_threes','roll3_min',
+        'roll5_pts','roll5_reb','roll5_ast','roll5_threes','roll5_min',
+        'roll10_pts','roll10_reb','roll10_ast','roll10_threes','roll10_min'
+    ]
+    for col in expected:
+        if col not in features.columns:
+            features[col] = 0.0
+
     return features
 
 
@@ -95,102 +183,9 @@ def _build_rolling_features(
     player_id_col: str,
     windows: List[int] = [3, 5, 10]
 ) -> pd.DataFrame:
-    """
-    Build rolling average features WITHOUT sklearn - matches exact format expected by ONNX models
-    
-    Expected features (21 total):
-    - b2b: back-to-back games flag
-    - lag1_pts, lag1_reb, lag1_ast, lag1_threes, lag1_min: last game stats
-    - roll3_pts, roll3_reb, roll3_ast, roll3_threes, roll3_min: 3-game averages
-    - roll5_pts, roll5_reb, roll5_ast, roll5_threes, roll5_min: 5-game averages
-    - roll10_pts, roll10_reb, roll10_ast, roll10_threes, roll10_min: 10-game averages
-    """
-    # Stat columns to aggregate
-    stat_cols = {
-        'pts': _find_col(logs, ['PTS', 'pts']),
-        'reb': _find_col(logs, ['REB', 'reb', 'TREB', 'treb']),
-        'ast': _find_col(logs, ['AST', 'ast']),
-        'threes': _find_col(logs, ['FG3M', 'fg3m', 'FG3M_A']),
-        'min': _find_col(logs, ['MIN', 'min']),
-    }
-    
-    # Filter out None values
-    stat_cols = {k: v for k, v in stat_cols.items() if v is not None}
-    
-    if not stat_cols:
-        raise ValueError("No stat columns found in player logs")
-    
-    # Sort logs by player and date
-    logs_sorted = logs.sort_values([player_id_col, date_col])
-    
-    features_list = []
-    
-    # Process each player in target games
-    for idx, row in target_games.iterrows():
-        player_id = row[player_id_col]
-        game_date = row[date_col]
-        
-        # Get player's historical games before this date
-        player_history = logs_sorted[
-            (logs_sorted[player_id_col] == player_id) & 
-            (logs_sorted[date_col] < game_date)
-        ].copy()
-        
-        feature_dict = {'player_id': player_id}
-        
-        if player_history.empty:
-            # No history - use zeros
-            feature_dict['b2b'] = 0
-            for stat_name in stat_cols.keys():
-                feature_dict[f'lag1_{stat_name}'] = 0.0
-                for window in windows:
-                    feature_dict[f'roll{window}_{stat_name}'] = 0.0
-            features_list.append(feature_dict)
-            continue
-        
-        # Check for back-to-back games
-        if len(player_history) > 0:
-            last_game_date = player_history[date_col].iloc[-1]
-            days_since = (game_date - last_game_date).days
-            feature_dict['b2b'] = 1 if days_since == 1 else 0
-        else:
-            feature_dict['b2b'] = 0
-        
-        # Calculate lag1 (last game stats) and rolling averages
-        for stat_name, col_name in stat_cols.items():
-            stat_values = player_history[col_name].fillna(0).values
-            
-            # Lag1: last game
-            if len(stat_values) > 0:
-                feature_dict[f'lag1_{stat_name}'] = float(stat_values[-1])
-            else:
-                feature_dict[f'lag1_{stat_name}'] = 0.0
-            
-            # Rolling windows
-            for window in windows:
-                # Get last N games
-                recent = stat_values[-window:] if len(stat_values) >= window else stat_values
-                avg = np.mean(recent) if len(recent) > 0 else 0.0
-                feature_dict[f'roll{window}_{stat_name}'] = avg
-        
-        features_list.append(feature_dict)
-    
-    features_df = pd.DataFrame(features_list)
-    
-    # Ensure all expected columns exist in correct order
-    expected_features = [
-        'b2b',
-        'lag1_pts', 'lag1_reb', 'lag1_ast', 'lag1_threes', 'lag1_min',
-        'roll3_pts', 'roll3_reb', 'roll3_ast', 'roll3_threes', 'roll3_min',
-        'roll5_pts', 'roll5_reb', 'roll5_ast', 'roll5_threes', 'roll5_min',
-        'roll10_pts', 'roll10_reb', 'roll10_ast', 'roll10_threes', 'roll10_min'
-    ]
-    
-    for col in expected_features:
-        if col not in features_df.columns:
-            features_df[col] = 0.0
-    
-    return features_df
+    # Deprecated: The pure builder now computes features from history without requiring target_games.
+    # Keep function to avoid breaking imports if any, but delegate to new path.
+    raise NotImplementedError("_build_rolling_features is deprecated; use build_features_for_date_pure")
 
 
 def validate_features(features_df: pd.DataFrame, required_columns: List[str]) -> bool:

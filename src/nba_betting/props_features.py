@@ -73,7 +73,13 @@ def load_player_logs() -> pd.DataFrame:
     p = paths.data_processed / "player_logs.parquet"
     c = paths.data_processed / "player_logs.csv"
     if p.exists():
-        return pd.read_parquet(p)
+        try:
+            return pd.read_parquet(p)
+        except Exception as e:
+            # Fallback to CSV if parquet engine isn't available
+            if c.exists():
+                return pd.read_csv(c)
+            raise RuntimeError(f"Failed to read {p} and CSV fallback missing. Install pyarrow/fastparquet or provide player_logs.csv. Original error: {e}")
     if c.exists():
         return pd.read_csv(c)
     raise FileNotFoundError("player_logs not found; run fetch-player-logs")
@@ -252,7 +258,13 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     out["date"] = pd.to_datetime(out["date"]).dt.date
     # Save
     out_path = paths.data_processed / "props_features.parquet"
-    out.to_parquet(out_path, index=False)
+    try:
+        out.to_parquet(out_path, index=False)
+    except Exception as e:
+        # Parquet engine missing on some ARM64 setups; continue with CSV snapshot only
+        out_path = None
+        # Best-effort: ensure there's at least a CSV artifact
+        pass
     # Keep a dated CSV snapshot for reproducibility
     try:
         first_date = pd.to_datetime(out["date"].min()).date()
