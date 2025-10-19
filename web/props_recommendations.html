@@ -131,7 +131,7 @@
           if(it.model.fg_pct!=null) parts.push(`<strong>FG%</strong> ${fmt(it.model.fg_pct)}`);
           if(it.model.ft!=null) parts.push(`<strong>FT</strong> ${fmt(it.model.ft)}`);
           if(it.model.fta!=null) parts.push(`<strong>FTA</strong> ${fmt(it.model.fta)}`);
-          baseline.innerHTML=`<div style="font-size:12px;color:var(--muted);margin-bottom:4px;">MODEL PROJECTIONS:</div><div>${parts.join(' • ')}</div>`;
+          baseline.innerHTML=`<div class="fs-12 muted mb-4">MODEL PROJECTIONS:</div><div>${parts.join(' • ')}</div>`;
           div.appendChild(baseline);
         }
         const playsWrap = document.createElement('div'); playsWrap.className='plays';
@@ -147,7 +147,7 @@
           const sec=document.createElement('div'); sec.className='ladder';
           const title=(l.market?l.market.toUpperCase():'')+(l.side?' '+l.side:'');
           const btnId=`ladder-${(it.player||'').replace(/\W+/g,'-')}-${(l.market||'')}-${(l.side||'')}`;
-          sec.innerHTML=`<div id="${btnId}" class="ladder-entries" style="display:none"></div>`;
+          sec.innerHTML=`<div id="${btnId}" class="ladder-entries hidden"></div>`;
           const inner=sec.querySelector('.ladder-entries');
           (l.entries||[]).forEach(e=>{
             const pill=document.createElement('span'); pill.className='pill';
@@ -195,7 +195,7 @@
       <a href="/">Cards</a>
       <a href="/recommendations">Recommendations</a>
       <a href="/props">Props</a>
-      <a href="/props/recommendations" style="font-weight:600;">Props Recs</a>
+  <a href="/props/recommendations" class="fw-600">Props Recs</a>
       <a href="/reconciliation">Reconciliation</a>
       <a href="/odds-coverage">Odds Coverage</a>
       <button onclick="toggleTheme()">Toggle Theme</button>
@@ -217,7 +217,7 @@
       </select>
       <label><input id="onlyEV" type="checkbox" /> Only EV</label>
       <label for="minEV">Min EV%</label>
-      <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" style="width:80px;" />
+  <input id="minEV" type="number" step="0.1" placeholder="0.0" title="Minimum EV percent" class="w-80" />
       <label for="sortBy">Sort</label>
       <select id="sortBy" title="Sort player cards">
         <option value="ev_desc" selected>Best EV</option>

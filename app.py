@@ -3161,5 +3161,6 @@ def api_cron_props_predictions():
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", "5050"))
+    # Default to 5051 for local runs unless PORT is set
+    port = int(os.environ.get("PORT", "5051"))
     app.run(host="0.0.0.0", port=port, debug=False)

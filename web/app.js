@@ -1103,10 +1103,10 @@ function renderDate(dateStr){
       periodsHtml = `
         <div class="row details small">
           <div class="detail-col">
-            <div class="periods-toggle" onclick="togglePeriods('${cardId}')" style="cursor:pointer; font-weight:600; color:#4a90e2; margin-bottom:6px;">
+            <div class="periods-toggle cursor-pointer fw-600" onclick="togglePeriods('${cardId}')" style="color:#4a90e2; margin-bottom:6px;">
               ▼ Projected Line Score
             </div>
-            <div id="${cardId}" class="periods-content" style="display:block; margin-top:2px;">
+            <div id="${cardId}" class="periods-content d-block" style="margin-top:2px;">
               <table style="width:100%; font-size:0.9em; border-collapse:separate; border-spacing:0; background:transparent;">
                 <thead>
                   <tr style="color:#8b92a8; font-size:0.75em; text-transform:uppercase; letter-spacing:0.5px;">
@@ -1159,7 +1159,7 @@ function renderDate(dateStr){
             <div class="sub proj-score">${(projAway!=null? `Model: ${fmtNum(projAway,2)}` : '')}</div>
           </div>
         </div>
-        <div style="text-align:center; font-weight:700;">@</div>
+  <div class="text-center fw-700">@</div>
         <div class="team side">
           <div class="team-line">${teamLineHTML(home)}</div>
           <div class="score-block">

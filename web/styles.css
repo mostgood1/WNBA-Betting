@@ -118,6 +118,18 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 
 /* Utility */
 .hidden { display: none !important; }
+.fw-600 { font-weight: 600; }
+.fw-700 { font-weight: 700; }
+.cursor-pointer { cursor: pointer; }
+.mt-24 { margin-top: 24px; }
+.w-80 { width: 80px; }
+.text-center { text-align: center; }
+.mb-6 { margin-bottom: 6px; }
+.mb-4 { margin-bottom: 4px; }
+.fs-12 { font-size: 12px; }
+.fs-075 { font-size: 0.75rem; }
+.muted { color: var(--muted, #9fb0ff); }
+.d-block { display:block; }
 
 /* A11y utility */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
