@@ -106,16 +106,16 @@ if ($UseServer) {
     $token = $env:CRON_TOKEN
     $headers = @{}
     if ($token) { $headers['Authorization'] = "Bearer $token" }
-    # Ask server to refresh Bovada odds to keep server view warm
-    $u2 = "$BaseUrl/api/cron/refresh-bovada?date=$Date&push=0"
-    try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("refresh-bovada call failed: {0}" -f $_.Exception.Message) }
+    # Warm server props edges via auto source (OddsAPI first) without pushing
+    $u2 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
+    try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-edges warm call failed: {0}" -f $_.Exception.Message) }
     # Reconcile yesterday on server (best effort)
     try {
       $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
     } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
     $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
     try { $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180; ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
-    Write-Log "Server odds refresh + reconcile attempted"
+    Write-Log "Server props-edges warm + reconcile attempted"
   } catch {
     Write-Log ("Server calls failed (non-fatal): {0}" -f $_.Exception.Message)
   }
@@ -123,18 +123,75 @@ if ($UseServer) {
 
 # Always run local pipeline to produce site CSVs
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
+# 0) Ensure current season rosters are fetched/updated prior to projections
+try {
+  # Compute NBA season string like 2025-26 from the target date
+  $dt = [datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)
+  $yr = $dt.Year
+  $mo = $dt.Month
+  if ($mo -ge 7) {
+    $season = ('{0}-{1:00}' -f $yr, ($yr + 1) % 100)
+  } else {
+    $season = ('{0}-{1:00}' -f ($yr - 1), $yr % 100)
+  }
+  Write-Log ("Fetching team rosters for season {0}" -f $season)
+  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $season)
+  Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
+} catch {
+  Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
+}
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
 # NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
 Write-Log ("predict-date exit code: {0}" -f $rc1)
 
-# Ensure we have standardized game odds CSV locally (fallback to Bovada script if missing)
+# Ensure we have standardized game odds CSV locally; prefer OddsAPI, fall back to Bovada only if empty/missing
 $GameOddsPath = Join-Path $RepoRoot ("data/processed/game_odds_{0}.csv" -f $Date)
 if (-not (Test-Path $GameOddsPath)) {
-  Write-Log "game_odds CSV missing locally; fetching Bovada odds as fallback"
+  Write-Log "game_odds CSV missing; attempting OddsAPI first (fall back to Bovada if needed)"
   try {
-    & $Python 'scripts/fetch_bovada_game_odds.py' $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-  } catch { Write-Log ("Bovada odds fetch failed: {0}" -f $_.Exception.Message) }
+    $pyOdds = @"
+import os, pandas as pd
+from datetime import datetime
+from nba_betting.odds_api import OddsApiConfig, fetch_game_odds_current, consensus_lines_at_close
+date_str = os.environ.get('TARGET_DATE')
+api_key = os.environ.get('ODDS_API_KEY')
+out = os.environ.get('OUT_PATH')
+ok = False
+if api_key and date_str and out:
+    d = datetime.strptime(date_str, '%Y-%m-%d')
+    cfg = OddsApiConfig(api_key=api_key)
+    long_df = fetch_game_odds_current(cfg, d)
+    if long_df is not None and not long_df.empty:
+        wide = consensus_lines_at_close(long_df)
+        if wide is not None and not wide.empty:
+            tmp = wide.copy()
+            tmp['date'] = pd.to_datetime(tmp['commence_time']).dt.strftime('%Y-%m-%d')
+            tmp = tmp.rename(columns={'away_team':'visitor_team'})
+            if 'spread_point' in tmp.columns:
+                tmp['home_spread'] = tmp['spread_point']
+                tmp['away_spread'] = tmp['home_spread'].apply(lambda x: -x if pd.notna(x) else pd.NA)
+            if 'total_point' in tmp.columns:
+                tmp['total'] = tmp['total_point']
+            cols = [c for c in ['date','commence_time','home_team','visitor_team','home_ml','away_ml','home_spread','away_spread','total'] if c in tmp.columns]
+            out_df = tmp[cols].copy()
+            out_df['bookmaker'] = 'oddsapi_consensus'
+            out_df.to_csv(out, index=False)
+            ok = True
+print('OK' if ok else 'NO')
+"@
+    $env:TARGET_DATE = $Date
+    $env:OUT_PATH = $GameOddsPath
+    $out = & $Python -c $pyOdds 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($out -match 'OK' -and (Test-Path $GameOddsPath)) {
+      Write-Log "Saved game odds via OddsAPI -> $GameOddsPath"
+    } else {
+      Write-Log "OddsAPI produced no rows or key missing; trying Bovada fallback"
+      try {
+        & $Python 'scripts/fetch_bovada_game_odds.py' $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      } catch { Write-Log ("Bovada odds fetch failed: {0}" -f $_.Exception.Message) }
+    }
+  } catch { Write-Log ("Odds fetch block failed: {0}" -f $_.Exception.Message) }
 }
 
 # 2) Reconcile yesterday's games (best-effort)
@@ -196,9 +253,16 @@ if not df.empty:
   }
 } catch { Write-Log ("Snapshot safeguard error: {0}" -f $_.Exception.Message) }
 
-# 5) Props edges for today (auto source: OddsAPI if available else Bovada), file-only to avoid any server runs
-$rc4 = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','auto','--file-only')
-Write-Log ("props-edges exit code: {0}" -f $rc4)
+# 5) Props edges for today: Prefer OddsAPI, fall back to Bovada only if OddsAPI has no data
+$edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $Date)
+$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--file-only')
+Write-Log ("props-edges (oddsapi) exit code: {0}" -f $rc4a)
+function Test-File-NonEmpty($path){ if (-not (Test-Path $path)) { return $false }; try { return ((Get-Item $path).Length -gt 8) } catch { return $false } }
+if (-not (Test-File-NonEmpty $edgesPath)) {
+  Write-Log 'OddsAPI props edges empty; trying Bovada fallback'
+  $rc4b = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','bovada','--file-only')
+  Write-Log ("props-edges (bovada) exit code: {0}" -f $rc4b)
+}
 
 # 6) Export recommendations CSVs for site consumption
 $rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)

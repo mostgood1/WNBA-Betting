@@ -173,7 +173,8 @@ async function maybeLoadOdds(dateStr){
   const prevPersisted = restoreOdds(dateStr);
   const prev = new Map([...prevPersisted, ...prevSession]);
   const next = new Map();
-  // Load from multiple sources and merge per-game, preferring Bovada entries
+  // Load from multiple sources and merge per-game. Earlier sources take precedence,
+  // so we prefer closing/consensus (OddsAPI) over Bovada.
   const sources = [
     { path: `../data/processed/closing_lines_${dateStr}.csv`, label: 'closing' },
     { path: `../data/processed/odds_${dateStr}.csv`, label: 'consensus' },

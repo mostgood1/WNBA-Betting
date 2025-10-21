@@ -311,6 +311,94 @@ def _get_team_id(team: str | None) -> Optional[int]:
         return None
     return None
 
+def _get_slate_team_tricodes(date_str: str) -> set[str]:
+    """Return tricodes for teams playing on date_str.
+
+    Tries, in order:
+      1) processed game odds CSV (game_odds_<date>.csv)
+      2) processed predictions_<date>.csv (home/visitor teams)
+      3) nba_api ScoreboardV2 -> map TEAM_ID to tricode
+    Returns an empty set if none can be determined.
+    """
+    teams: set[str] = set()
+    # 1) Prefer standardized game odds
+    try:
+        p = _find_game_odds_for_date(date_str)
+    except Exception:
+        p = None
+    if p and p.exists():
+        try:
+            go = pd.read_csv(p)
+            for col in ("home_team","visitor_team","away_team"):
+                if col in go.columns:
+                    vals = go[col].dropna().astype(str).tolist()
+                    for v in vals:
+                        tri = _get_tricode(v)
+                        if tri:
+                            teams.add(tri.upper())
+            if teams:
+                return teams
+        except Exception:
+            pass
+    # 2) Fall back to predictions_<date>.csv
+    try:
+        pred_p = _find_predictions_for_date(date_str)
+    except Exception:
+        pred_p = None
+    if pred_p and pred_p.exists():
+        try:
+            df = pd.read_csv(pred_p)
+            for col in ("home_team","visitor_team","away_team"):
+                if col in df.columns:
+                    vals = df[col].dropna().astype(str).tolist()
+                    for v in vals:
+                        tri = _get_tricode(v)
+                        if tri:
+                            teams.add(tri.upper())
+            if teams:
+                return teams
+        except Exception:
+            pass
+    # 3) ScoreboardV2 (if nba_api available)
+    try:
+        if _scoreboardv2 is not None:
+            sb = _scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
+            nd = sb.get_normalized_dict()
+            gh = pd.DataFrame(nd.get("GameHeader", []))
+            if not gh.empty:
+                # Build id->abbr map from static teams
+                try:
+                    _ = _load_team_maps()  # ensures _team_abbr_to_id is set
+                except Exception:
+                    pass
+                inv: dict[int,str] = {}
+                try:
+                    if _team_abbr_to_id:
+                        inv = {int(v): k for k, v in _team_abbr_to_id.items() if v is not None}
+                except Exception:
+                    inv = {}
+                for _, r in gh.iterrows():
+                    hid = r.get("HOME_TEAM_ID"); vid = r.get("VISITOR_TEAM_ID")
+                    try:
+                        if pd.notna(hid):
+                            tri = inv.get(int(hid))
+                            if tri:
+                                teams.add(tri.upper())
+                    except Exception:
+                        pass
+                    try:
+                        if pd.notna(vid):
+                            tri = inv.get(int(vid))
+                            if tri:
+                                teams.add(tri.upper())
+                    except Exception:
+                        pass
+                if teams:
+                    return teams
+    except Exception:
+        pass
+    return teams
+
 def _ensure_rosters_loaded() -> pd.DataFrame:
     global _rosters_df_cache
     if _rosters_df_cache is not None:
@@ -1475,7 +1563,20 @@ def api_props():
         if df is None:
             return jsonify({"date": d, "rows": [], "source": None})
 
-        # Optional filters
+        # By default, show only players from today's slate; allow opt-out via slateOnly=0
+        slate_param = (request.args.get("slateOnly", request.args.get("slate-only", "1")) or "1").strip().lower()
+        slate_only = slate_param not in ("0","false","no")
+        if slate_only and ("team" in df.columns):
+            try:
+                tris = _get_slate_team_tricodes(d)
+                if tris:
+                    tmp = df.copy()
+                    tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                    df = tmp[tmp["_team_tri"].isin(tris)].drop(columns=["_team_tri"], errors="ignore")
+            except Exception:
+                pass
+
+    # Optional filters
         min_edge = float(request.args.get("min_edge", "0"))
         min_ev = float(request.args.get("min_ev", "0"))
         if src == "edges" and "edge" in df.columns:

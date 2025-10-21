@@ -8,7 +8,7 @@ if (-not $token) { Write-Host "CRON_TOKEN not set; requests will fall back to AD
 $headers = @{ }
 if ($token) { $headers["Authorization"] = "Bearer $token" }
 $pushVal = if ($Push) { '1' } else { '0' }
-$uri = "http://127.0.0.1:5000/api/cron/run-all?date=$Date&push=$pushVal"
+$uri = "http://127.0.0.1:5051/api/cron/run-all?date=$Date&push=$pushVal"
 try {
   $resp = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
   $resp.Content | Write-Output
