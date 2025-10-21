@@ -4,6 +4,10 @@ import os
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Iterable, Optional
+try:
+    from zoneinfo import ZoneInfo  # Python 3.9+
+except Exception:  # pragma: no cover
+    ZoneInfo = None  # type: ignore
 
 import pandas as pd
 import requests
@@ -74,34 +78,67 @@ def _flatten_bookmakers(row: dict, snapshot_ts: str) -> list[dict]:
 def fetch_game_odds_current(config: OddsApiConfig, date: datetime, markets: list[str] | None = None, verbose: bool = False) -> pd.DataFrame:
     """Fetch current game odds (h2h, spreads, totals) for events on a given calendar date.
 
-    Calls /v4/sports/{sport}/odds and filters events by commence_time date.
+    Uses the events list to filter by US/Eastern calendar day, then fetches per-event odds to ensure late games are included.
     """
     if markets is None:
         markets = [m.strip() for m in (config.markets.split(',') if config.markets else ["h2h","spreads","totals"])]
-    url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/odds"
-    params = {
+
+    # Fetch events and filter to the target ET calendar day
+    events_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events"
+    try:
+        ev_resp = _get(events_url, {"apiKey": config.api_key})
+        events = ev_resp.json() or []
+    except Exception as e:
+        if verbose:
+            print(f"[game-odds-current] events request failed: {e}")
+        return pd.DataFrame()
+
+    target = pd.to_datetime(date).date()
+    et = None
+    if ZoneInfo is not None:
+        try:
+            et = ZoneInfo("US/Eastern")
+        except Exception:
+            et = None
+    day_events = []
+    for ev in events:
+        try:
+            ct_raw = pd.to_datetime(ev.get("commence_time"), utc=True)
+            try:
+                ct_et = ct_raw.tz_convert(et).date() if et is not None else ct_raw.date()
+            except Exception:
+                ct_et = ct_raw.date()
+            if ct_et == target:
+                day_events.append(ev)
+        except Exception:
+            continue
+    if not day_events:
+        if verbose:
+            print(f"[game-odds-current] no events on {target}")
+        return pd.DataFrame()
+
+    # For each event fetch odds and flatten
+    rows: list[dict] = []
+    snap = pd.Timestamp.utcnow().isoformat()
+    odds_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/odds"
+    params_common = {
         "apiKey": config.api_key,
         "regions": config.regions,
         "markets": ",".join(markets),
         "oddsFormat": config.odds_format,
     }
-    try:
-        r = _get(url, params)
-        data = r.json() or []
-    except Exception as e:
-        if verbose:
-            print(f"[game-odds-current] request failed: {e}")
-        return pd.DataFrame()
-    target = pd.to_datetime(date).date()
-    snap = pd.Timestamp.utcnow().isoformat()
-    rows: list[dict] = []
-    for ev in data:
+    for ev in day_events:
+        eid = ev.get("id")
         try:
-            ct = pd.to_datetime(ev.get("commence_time")).date()
-            if ct != target:
+            r = _get(odds_url_tpl.format(event_id=eid), params_common)
+            d = r.json()
+            ev_obj = d if isinstance(d, dict) else None
+            if not ev_obj:
                 continue
-            rows.extend(_flatten_bookmakers(ev, snap))
-        except Exception:
+            rows.extend(_flatten_bookmakers(ev_obj, snap))
+        except Exception as e:
+            if verbose:
+                print(f"[game-odds-current] event {eid} failed: {e}")
             continue
     return pd.DataFrame(rows)
 
@@ -116,37 +153,59 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
     """
     if markets is None:
         markets = [
+            # Core modeled markets
             "player_points",
             "player_rebounds",
             "player_assists",
             "player_pr_points_rebounds_assists",
             "player_three_pointers",
+            # Additional markets requested
+            "player_steals",
+            "player_blocks",
+            "player_turnovers",
+            "player_points_rebounds",
+            "player_points_assists",
+            "player_rebounds_assists",
+            "player_double_double",
+            "player_triple_double",
         ]
+    # Use events list first, filter by US/Eastern calendar day, then fetch per-event odds
     events_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events"
     try:
         ev_resp = _get(events_url, {"apiKey": config.api_key})
-        events = ev_resp.json()
+        events = ev_resp.json() or []
     except Exception as e:
         if verbose:
-            print(f"[props-current] events request failed: {e}")
+            print(f"[game-odds-current] events request failed: {e}")
         return pd.DataFrame()
-    # Normalize date filter
+
+    # Compare by US/Eastern calendar day to avoid UTC-crossing dropping late games
     target = pd.to_datetime(date).date()
-    events = events or []
+    et = None
+    if ZoneInfo is not None:
+        try:
+            et = ZoneInfo("US/Eastern")
+        except Exception:
+            et = None
     day_events = []
     for ev in events:
         try:
-            ct = pd.to_datetime(ev.get("commence_time")).date()
-            if ct == target:
+            ct_raw = pd.to_datetime(ev.get("commence_time"), utc=True)
+            try:
+                ct_et = ct_raw.tz_convert(et).date() if et is not None else ct_raw.date()
+            except Exception:
+                ct_et = ct_raw.date()
+            if ct_et == target:
                 day_events.append(ev)
         except Exception:
             continue
     if not day_events:
         if verbose:
-            print(f"[props-current] no events found on {target}")
+            print(f"[game-odds-current] no events on {target}")
         return pd.DataFrame()
 
     rows: list[dict] = []
+    snap = pd.Timestamp.utcnow().isoformat()
     odds_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/odds"
     params_common = {
         "apiKey": config.api_key,
@@ -155,43 +214,17 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
         "oddsFormat": config.odds_format,
     }
     for ev in day_events:
-        eid = ev.get("id"); commence_time = ev.get("commence_time")
-        home = normalize_team(ev.get("home_team", "")); away = normalize_team(ev.get("away_team", ""))
+        eid = ev.get("id")
         try:
             r = _get(odds_url_tpl.format(event_id=eid), params_common)
             d = r.json()
-            # Response is a single event object for current event odds
             ev_obj = d if isinstance(d, dict) else None
             if not ev_obj:
                 continue
-            for bk in ev_obj.get("bookmakers", []) or []:
-                bk_key = bk.get("key"); bk_title = bk.get("title")
-                for m in bk.get("markets", []) or []:
-                    mkey = m.get("key"); last_update = m.get("last_update") or bk.get("last_update")
-                    for oc in m.get("outcomes", []) or []:
-                        rows.append({
-                            "snapshot_ts": pd.Timestamp.utcnow().isoformat(),
-                            "event_id": eid,
-                            "commence_time": commence_time,
-                            "bookmaker": bk_key,
-                            "bookmaker_title": bk_title,
-                            "market": mkey,
-                            "outcome_name": oc.get("name"),
-                            "player_name": oc.get("description") or oc.get("name"),
-                            "point": oc.get("point"),
-                            "price": oc.get("price"),
-                            "last_update": last_update,
-                            "home_team": home,
-                            "away_team": away,
-                        })
-        except requests.HTTPError as he:
-            if verbose:
-                code = he.response.status_code if he.response is not None else None
-                print(f"[props-current] event {eid} HTTP {code}; skipping")
-            continue
+            rows.extend(_flatten_bookmakers(ev_obj, snap))
         except Exception as e:
             if verbose:
-                print(f"[props-current] event {eid} failed: {e}")
+                print(f"[game-odds-current] event {eid} failed: {e}")
             continue
     return pd.DataFrame(rows)
 def backfill_player_props(config: OddsApiConfig, date: datetime, markets: list[str] | None = None, verbose: bool = False) -> pd.DataFrame:
@@ -210,11 +243,21 @@ def backfill_player_props(config: OddsApiConfig, date: datetime, markets: list[s
     out_csv = paths.data_raw / "odds_nba_player_props.csv"
     if markets is None:
         markets = [
+            # Core modeled markets
             "player_points",
             "player_rebounds",
             "player_assists",
             "player_pr_points_rebounds_assists",
             "player_three_pointers",
+            # Additional markets requested
+            "player_steals",
+            "player_blocks",
+            "player_turnovers",
+            "player_points_rebounds",
+            "player_points_assists",
+            "player_rebounds_assists",
+            "player_double_double",
+            "player_triple_double",
         ]
 
     # Load base (for append + de-dup)

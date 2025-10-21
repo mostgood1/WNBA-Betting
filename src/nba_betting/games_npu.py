@@ -1,5 +1,5 @@
 """
-🏀 NPU-Accelerated Game Projection Module for NBA-Betting
+NPU-Accelerated Game Projection Module for NBA-Betting
 Optimizes win probability, spread, totals, halves, and quarters models with Qualcomm NPU
 """
 
@@ -105,13 +105,13 @@ class NPUGamePredictor:
     
     def _load_models(self):
         """Load ONNX models and fallback sklearn models"""
-        print("[INFO][LOADING]🚀 Loading NBA Game Models with NPU acceleration...")
+        print("[INFO][LOADING] Loading NBA Game Models with NPU acceleration...")
         
         # Load feature columns
         feature_path = self.models_dir / "feature_columns.joblib"
         if feature_path.exists():
             self.feature_columns = joblib.load(feature_path)
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Loaded {len(self.feature_columns)} game features")
+            print(f"[OK] Loaded {len(self.feature_columns)} game features")
         else:
             raise FileNotFoundError(f"Feature columns not found: {feature_path}")
         
@@ -123,9 +123,9 @@ class NPUGamePredictor:
                 try:
                     session = self._create_npu_session(str(onnx_path))
                     self.npu_sessions[model_name] = session
-                    print(f"[WARN][ERROR][PERF][READY][OK]✅ {model_name.upper()} loaded with NPU acceleration")
+                    print(f"[OK] {model_name.upper()} loaded with NPU acceleration")
                 except Exception as e:
-                    print(f"[WARN][ERROR][PERF][READY][OK]⚠️  {model_name.upper()} NPU failed, using CPU: {e}")
+                    print(f"[WARN] {model_name.upper()} NPU failed, using CPU: {e}")
             
             # Load sklearn fallback (only if sklearn available)
             sklearn_path = self.models_dir / f"{model_name}.joblib"
@@ -133,7 +133,7 @@ class NPUGamePredictor:
                 try:
                     self.fallback_models[model_name] = joblib.load(sklearn_path)
                     if model_name not in self.npu_sessions:
-                        print(f"[WARN][ERROR][PERF][READY][OK]✅ {model_name.upper()} loaded (CPU fallback)")
+                        print(f"[OK] {model_name.upper()} loaded (CPU fallback)")
                 except (ImportError, ModuleNotFoundError):
                     # Skip sklearn fallback if sklearn not available
                     pass
@@ -153,7 +153,7 @@ class NPUGamePredictor:
                         self.period_models["halves"][half][model_type] = ("onnx", session)
                         halves_onnx_count += 1
                     except Exception as e:
-                        print(f"[WARN][ERROR][PERF][READY][OK]⚠️  {half}_{model_type} ONNX failed, trying sklearn: {e}")
+                        print(f"[WARN] {half}_{model_type} ONNX failed, trying sklearn: {e}")
                 
                 # Fallback to sklearn joblib if ONNX not available
                 if model_type not in self.period_models["halves"][half]:
@@ -169,9 +169,9 @@ class NPUGamePredictor:
                             pass
         
         if halves_onnx_count > 0:
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Loaded halves models: {halves_onnx_count} NPU, {halves_cpu_count} CPU")
+            print(f"[OK] Loaded halves models: {halves_onnx_count} NPU, {halves_cpu_count} CPU")
         elif halves_cpu_count > 0:
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Loaded halves models: {halves_cpu_count} CPU (ONNX not available)")
+            print(f"[OK] Loaded halves models: {halves_cpu_count} CPU (ONNX not available)")
         
         # Load quarters models (ONNX for NPU, fallback to joblib if needed)
         quarters_onnx_count = 0
@@ -188,7 +188,7 @@ class NPUGamePredictor:
                         self.period_models["quarters"][quarter][model_type] = ("onnx", session)
                         quarters_onnx_count += 1
                     except Exception as e:
-                        print(f"[WARN][ERROR][PERF][READY][OK]⚠️  {quarter}_{model_type} ONNX failed, trying sklearn: {e}")
+                        print(f"[WARN] {quarter}_{model_type} ONNX failed, trying sklearn: {e}")
                 
                 # Fallback to sklearn joblib if ONNX not available
                 if model_type not in self.period_models["quarters"][quarter]:
@@ -204,13 +204,13 @@ class NPUGamePredictor:
                             pass
         
         if quarters_onnx_count > 0:
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Loaded quarters models: {quarters_onnx_count} NPU, {quarters_cpu_count} CPU")
+            print(f"[OK] Loaded quarters models: {quarters_onnx_count} NPU, {quarters_cpu_count} CPU")
         elif quarters_cpu_count > 0:
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Loaded quarters models: {quarters_cpu_count} CPU (ONNX not available)")
+            print(f"[OK] Loaded quarters models: {quarters_cpu_count} CPU (ONNX not available)")
         
         total_npu = len(self.npu_sessions) + halves_onnx_count + quarters_onnx_count
         total_cpu = len(self.fallback_models) + halves_cpu_count + quarters_cpu_count
-        print(f"[WARN][ERROR][PERF][READY][OK]🎯 Ready with {total_npu + total_cpu} models ({total_npu} NPU-accelerated)")
+        print(f"[READY] Ready with {total_npu + total_cpu} models ({total_npu} NPU-accelerated)")
     
     def predict_game(self, features: np.ndarray, include_periods: bool = True) -> Dict[str, Any]:
         """Predict full game outcomes using NPU where available"""
@@ -340,7 +340,7 @@ class NPUGamePredictor:
         if not self.feature_columns:
             raise RuntimeError("Feature columns not loaded")
         
-        print(f"[WARN][ERROR][PERF][READY][OK]🔥 Benchmarking Game Models NPU vs CPU performance ({num_predictions} predictions)...")
+        print(f"[PERF] Benchmarking Game Models NPU vs CPU performance ({num_predictions} predictions)...")
         
         # Create test features
         test_features = np.random.rand(1, len(self.feature_columns)).astype(np.float32)
@@ -427,13 +427,15 @@ def train_game_models_npu(retrain: bool = True):
         raise ImportError("ONNX Runtime not available. Install with: pip install onnxruntime")
     
     try:
-        import skl2onnx
-        from skl2onnx import convert_sklearn
-        from skl2onnx.common.data_types import FloatTensorType
-    except ImportError:
+        import importlib
+        skl2onnx = importlib.import_module("skl2onnx")
+        convert_sklearn = getattr(skl2onnx, "convert_sklearn")
+        dt_mod = importlib.import_module("skl2onnx.common.data_types")
+        FloatTensorType = getattr(dt_mod, "FloatTensorType")
+    except Exception:
         raise ImportError("skl2onnx not available. Install with: pip install skl2onnx")
     
-    print("[INFO][LOADING]🏗️  Training game models for NPU conversion...")
+    print("[INFO][LOADING] Training game models for NPU conversion...")
     
     if retrain:
         # Load features and retrain models
@@ -442,7 +444,7 @@ def train_game_models_npu(retrain: bool = True):
             raise FileNotFoundError(f"Features not found: {features_path}")
         
         df = pd.read_parquet(features_path)
-        print("[INFO][LOADING]📊 Retraining game models with latest data...")
+        print("[INFO][LOADING] Retraining game models with latest data...")
         train_models(df)
     
     # Load trained models and convert to ONNX
@@ -459,15 +461,15 @@ def train_game_models_npu(retrain: bool = True):
         "totals": paths.models / "totals.joblib"
     }
     
-    print(f"[WARN][ERROR][PERF][READY][OK]🔄 Converting {len(models_to_convert)} game models to ONNX...")
+    print(f"[INFO] Converting {len(models_to_convert)} game models to ONNX...")
     
     # Convert each model to ONNX
     for model_name, model_path in models_to_convert.items():
         if not model_path.exists():
-            print(f"[WARN][ERROR][PERF][READY][OK]⚠️  Skipping {model_name} - model file not found")
+            print(f"[WARN] Skipping {model_name} - model file not found")
             continue
             
-        print(f"[WARN][ERROR][PERF][READY][OK]Converting {model_name} model...")
+        print(f"[INFO] Converting {model_name} model...")
         
         model = joblib.load(model_path)
         
@@ -483,12 +485,12 @@ def train_game_models_npu(retrain: bool = True):
             with open(onnx_path, "wb") as f:
                 f.write(onx.SerializeToString())
             
-            print(f"[WARN][ERROR][PERF][READY][OK]✅ Saved {model_name} ONNX model to {onnx_path}")
+            print(f"[OK] Saved {model_name} ONNX model to {onnx_path}")
             
         except Exception as e:
-            print(f"[WARN][ERROR][PERF][READY][OK]❌ Failed to convert {model_name}: {e}")
+            print(f"[ERROR] Failed to convert {model_name}: {e}")
     
-    print("[INFO][LOADING]🎯 NPU game model conversion complete!")
+    print("[INFO][LOADING] NPU game model conversion complete!")
 
 
 def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -> pd.DataFrame:
@@ -542,15 +544,15 @@ def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -
     cols = info_cols + main_cols + period_cols
     pred_df = pred_df[cols]
     
-    print(f"[WARN][ERROR][PERF][READY][OK]⚡ NPU game predictions complete: {len(features_df)} games in {total_inference_time:.1f}ms")
-    print(f"[WARN][ERROR][PERF][READY][OK]🚀 Average per game: {total_inference_time/len(features_df):.2f}ms")
+    print(f"[PERF] NPU game predictions complete: {len(features_df)} games in {total_inference_time:.1f}ms")
+    print(f"[PERF] Average per game: {total_inference_time/len(features_df):.2f}ms")
     
     return pred_df
 
 
 def benchmark_game_npu_performance(num_runs: int = 100, num_games: int = 100) -> Dict:
     """Benchmark NPU vs CPU performance for game predictions"""
-    print(f"[WARN][ERROR][PERF][READY][OK]🔥 Benchmarking Game NPU performance with {num_runs} runs, {num_games} games each...")
+    print(f"[PERF] Benchmarking Game NPU performance with {num_runs} runs, {num_games} games each...")
     
     try:
         predictor = NPUGamePredictor()

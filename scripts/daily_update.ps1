@@ -67,6 +67,34 @@ function Write-Log {
   if (-not $Quiet) { Write-Host $line }
 }
 
+# Load .env (if present) into the current PowerShell process environment so child Python sees keys (e.g., ODDS_API_KEY)
+function Import-DotEnv {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) { return }
+  try {
+    Get-Content -Path $Path -Encoding UTF8 | ForEach-Object {
+      $line = $_.Trim()
+      if (-not $line) { return }
+      if ($line.StartsWith('#')) { return }
+      $idx = $line.IndexOf('=')
+      if ($idx -lt 1) { return }
+      $key = $line.Substring(0, $idx).Trim()
+      $val = $line.Substring($idx + 1).Trim().Trim('"').Trim("'")
+  if ($key) { Set-Item -Path "Env:$key" -Value $val }
+    }
+    Write-Log "Loaded environment from .env"
+  } catch {
+    Write-Log (".env load failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+}
+
+# Import .env at repo root if available
+$DotEnvPath = Join-Path $RepoRoot '.env'
+Import-DotEnv -Path $DotEnvPath
+
+# Ensure Python writes UTF-8 to stdout/stderr to avoid UnicodeEncodeError on Windows PowerShell consoles
+$env:PYTHONIOENCODING = 'utf-8'
+
 Write-Log "Starting NBA local daily update for date=$Date"
 Write-Log "Python: $Python"
 
@@ -125,17 +153,17 @@ if ($UseServer) {
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
 # 0) Ensure current season rosters are fetched/updated prior to projections
 try {
-  # Compute NBA season string like 2025-26 from the target date
+  # Compute NBA season starting year (e.g., 2025 for 2025-26) for CLI that expects an int
   $dt = [datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)
   $yr = $dt.Year
   $mo = $dt.Month
   if ($mo -ge 7) {
-    $season = ('{0}-{1:00}' -f $yr, ($yr + 1) % 100)
+    $seasonYear = $yr
   } else {
-    $season = ('{0}-{1:00}' -f ($yr - 1), $yr % 100)
+    $seasonYear = $yr - 1
   }
-  Write-Log ("Fetching team rosters for season {0}" -f $season)
-  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $season)
+  Write-Log ("Fetching team rosters for season start {0}" -f $seasonYear)
+  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonYear)
   Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
@@ -145,54 +173,90 @@ try {
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
 Write-Log ("predict-date exit code: {0}" -f $rc1)
 
-# Ensure we have standardized game odds CSV locally; prefer OddsAPI, fall back to Bovada only if empty/missing
+# Always write standardized game odds via OddsAPI (US/Eastern slate), replacing any existing file
 $GameOddsPath = Join-Path $RepoRoot ("data/processed/game_odds_{0}.csv" -f $Date)
-if (-not (Test-Path $GameOddsPath)) {
-  Write-Log "game_odds CSV missing; attempting OddsAPI first (fall back to Bovada if needed)"
-  try {
-    $pyOdds = @"
-import os, pandas as pd
+Write-Log "Writing game odds via OddsAPI (consensus) to $GameOddsPath"
+try {
+  $pyOdds = @'
+import os, pandas as pd, requests
 from datetime import datetime
-from nba_betting.odds_api import OddsApiConfig, fetch_game_odds_current, consensus_lines_at_close
+from nba_betting.odds_api import OddsApiConfig, fetch_game_odds_current, consensus_lines_at_close, ODDS_HOST, NBA_SPORT_KEY
 date_str = os.environ.get('TARGET_DATE')
 api_key = os.environ.get('ODDS_API_KEY')
 out = os.environ.get('OUT_PATH')
+out_events = os.environ.get('OUT_EVENTS')
 ok = False
+why = ''
 if api_key and date_str and out:
-    d = datetime.strptime(date_str, '%Y-%m-%d')
-    cfg = OddsApiConfig(api_key=api_key)
-    long_df = fetch_game_odds_current(cfg, d)
-    if long_df is not None and not long_df.empty:
-        wide = consensus_lines_at_close(long_df)
-        if wide is not None and not wide.empty:
-            tmp = wide.copy()
-            tmp['date'] = pd.to_datetime(tmp['commence_time']).dt.strftime('%Y-%m-%d')
-            tmp = tmp.rename(columns={'away_team':'visitor_team'})
-            if 'spread_point' in tmp.columns:
-                tmp['home_spread'] = tmp['spread_point']
-                tmp['away_spread'] = tmp['home_spread'].apply(lambda x: -x if pd.notna(x) else pd.NA)
-            if 'total_point' in tmp.columns:
-                tmp['total'] = tmp['total_point']
-            cols = [c for c in ['date','commence_time','home_team','visitor_team','home_ml','away_ml','home_spread','away_spread','total'] if c in tmp.columns]
-            out_df = tmp[cols].copy()
-            out_df['bookmaker'] = 'oddsapi_consensus'
-            out_df.to_csv(out, index=False)
-            ok = True
-print('OK' if ok else 'NO')
-"@
-    $env:TARGET_DATE = $Date
-    $env:OUT_PATH = $GameOddsPath
-    $out = & $Python -c $pyOdds 2>&1 | Tee-Object -FilePath $LogFile -Append
-    if ($out -match 'OK' -and (Test-Path $GameOddsPath)) {
-      Write-Log "Saved game odds via OddsAPI -> $GameOddsPath"
-    } else {
-      Write-Log "OddsAPI produced no rows or key missing; trying Bovada fallback"
-      try {
-        & $Python 'scripts/fetch_bovada_game_odds.py' $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-      } catch { Write-Log ("Bovada odds fetch failed: {0}" -f $_.Exception.Message) }
-    }
-  } catch { Write-Log ("Odds fetch block failed: {0}" -f $_.Exception.Message) }
-}
+  d = datetime.strptime(date_str, '%Y-%m-%d')
+  cfg = OddsApiConfig(api_key=api_key)
+  long_df = fetch_game_odds_current(cfg, d)
+  # Write a debug events coverage file
+  try:
+    ev = requests.get("{}/v4/sports/{}/events".format(ODDS_HOST, NBA_SPORT_KEY), params={"apiKey": api_key}, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=45)
+    ev.raise_for_status()
+    events = ev.json() or []
+  except Exception:
+    events = []
+  target = pd.to_datetime(d).date()
+  try:
+    from zoneinfo import ZoneInfo
+    et=ZoneInfo("US/Eastern")
+  except Exception:
+    et=None
+  rows = []
+  have = set(long_df['event_id'].unique()) if long_df is not None and not long_df.empty else set()
+  for e in events:
+    try:
+      ct_raw = pd.to_datetime(e.get("commence_time"), utc=True)
+      ct_et = ct_raw.tz_convert(et).date() if et is not None else ct_raw.date()
+    except Exception:
+      ct_et = None
+    if ct_et == target:
+      rows.append({
+        "event_id": e.get("id"),
+        "commence_time": e.get("commence_time"),
+        "home_team": e.get("home_team"),
+        "away_team": e.get("away_team"),
+        "has_odds": e.get("id") in have,
+      })
+  if out_events and rows:
+    pd.DataFrame(rows).to_csv(out_events, index=False)
+  if long_df is None or long_df.empty:
+    why = 'no_events_for_date'
+  else:
+    wide = consensus_lines_at_close(long_df)
+    if wide is None or wide.empty:
+      why = 'no_consensus_rows'
+    else:
+      tmp = wide.copy()
+      # Date by US/Eastern calendar day
+      tmp['date'] = pd.to_datetime(tmp['commence_time'], utc=True).dt.tz_convert('US/Eastern').dt.strftime('%Y-%m-%d')
+      tmp = tmp.rename(columns={'away_team':'visitor_team'})
+      if 'spread_point' in tmp.columns:
+        tmp['home_spread'] = tmp['spread_point']
+        tmp['away_spread'] = tmp['home_spread'].apply(lambda x: -x if pd.notna(x) else pd.NA)
+      if 'total_point' in tmp.columns:
+        tmp['total'] = tmp['total_point']
+      cols = [c for c in ['date','commence_time','home_team','visitor_team','home_ml','away_ml','home_spread','away_spread','total'] if c in tmp.columns]
+      out_df = tmp[cols].copy()
+      out_df['bookmaker'] = 'oddsapi_consensus'
+      out_df.to_csv(out, index=False)
+      ok = True
+print('OK' if ok else f'NO:{why}')
+'@
+  $env:TARGET_DATE = $Date
+  $env:OUT_PATH = $GameOddsPath
+  $env:OUT_EVENTS = (Join-Path $RepoRoot ("data/processed/oddsapi_events_{0}.csv" -f $Date))
+  $tmpPy = Join-Path $LogPath ("oddsapi_write_{0}.py" -f $Stamp)
+  Set-Content -Path $tmpPy -Value $pyOdds -Encoding UTF8
+  $out = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
+  if ($out -match 'OK' -and (Test-Path $GameOddsPath)) {
+  Write-Log "Saved game odds via OddsAPI -> $GameOddsPath"
+  } else {
+  Write-Log ("OddsAPI wrote no rows: {0}" -f $out)
+  }
+} catch { Write-Log ("Odds fetch block failed: {0}" -f $_.Exception.Message) }
 
 # 2) Reconcile yesterday's games (best-effort)
 try {
@@ -215,9 +279,8 @@ try {
 
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
-# CHANGED: Removed --slate-only to predict for ALL players (not just today's slate)
-# This populates the full props table at /props, then edges are calculated separately
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--no-slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
+# IMPORTANT: Restrict predictions to today's slate only (do NOT generate for all rostered players)
+$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
 # 4) Props actuals upsert for yesterday (CLI)
@@ -253,16 +316,12 @@ if not df.empty:
   }
 } catch { Write-Log ("Snapshot safeguard error: {0}" -f $_.Exception.Message) }
 
-# 5) Props edges for today: Prefer OddsAPI, fall back to Bovada only if OddsAPI has no data
+# 5) Props edges for today: OddsAPI only (no Bovada fallback)
 $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $Date)
+# Remove any stale file so an empty OddsAPI result doesn't leave prior Bovada content around
+try { if (Test-Path $edgesPath) { Remove-Item $edgesPath -Force } } catch { }
 $rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--file-only')
 Write-Log ("props-edges (oddsapi) exit code: {0}" -f $rc4a)
-function Test-File-NonEmpty($path){ if (-not (Test-Path $path)) { return $false }; try { return ((Get-Item $path).Length -gt 8) } catch { return $false } }
-if (-not (Test-File-NonEmpty $edgesPath)) {
-  Write-Log 'OddsAPI props edges empty; trying Bovada fallback'
-  $rc4b = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','bovada','--file-only')
-  Write-Log ("props-edges (bovada) exit code: {0}" -f $rc4b)
-}
 
 # 6) Export recommendations CSVs for site consumption
 $rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)

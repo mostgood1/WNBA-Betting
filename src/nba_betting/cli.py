@@ -26,6 +26,8 @@ from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_vi
 from .props_features import build_props_features, build_features_for_date
 # from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
+from .props_linear import train_linear_props_models, export_linear_to_onnx
+from .props_backtest import backtest_linear_props
 from nba_api.stats.endpoints import scoreboardv2
 from nba_api.stats.endpoints import boxscoretraditionalv3
 from nba_api.stats.library import http as nba_http
@@ -331,6 +333,51 @@ def train_props_cmd(alpha: float):
         console.print(f"Failed to train props models: {e}", style="red")
 
 
+@cli.command("train-props-pure")
+@click.option("--targets", type=str, default="t_stl,t_blk,t_tov", show_default=True, help="Comma-separated targets to train with pure linear fallback")
+@click.option("--alpha", type=float, default=1.0, show_default=True, help="Ridge regularization strength")
+def train_props_pure_cmd(targets: str, alpha: float):
+    """Train pure linear (numpy ridge) fallback models for selected targets (no sklearn)."""
+    console.rule("Train Props (Pure Linear)")
+    try:
+        tgt_list = [t.strip() for t in targets.split(',') if t.strip()]
+        out = train_linear_props_models(targets=tgt_list, alpha=alpha)
+        console.print({"saved": str(out), "targets": tgt_list})
+    except Exception as e:
+        console.print(f"Failed to train pure linear models: {e}", style="red")
+
+
+@cli.command("export-props-onnx")
+@click.option("--targets", type=str, default="t_stl,t_blk,t_tov", show_default=True, help="Comma-separated targets to export from pure linear models")
+def export_props_onnx_cmd(targets: str):
+    """Export pure-linear models (MatMul + Add) to ONNX for NPU path."""
+    console.rule("Export Props ONNX (from pure-linear)")
+    try:
+        tgt_list = [t.strip() for t in targets.split(',') if t.strip()]
+        out = export_linear_to_onnx(tgt_list)
+        console.print({"exported": {k: str(v) for k, v in out.items()}})
+    except Exception as e:
+        console.print(f"Failed to export ONNX: {e}", style="red")
+
+
+@cli.command("props-backtest")
+@click.option("--targets", type=str, default="t_stl,t_blk,t_tov", show_default=True, help="Comma-separated targets to backtest (use t_* names)")
+@click.option("--start", type=str, required=False, help="Start date YYYY-MM-DD (if available in features)")
+@click.option("--end", type=str, required=False, help="End date YYYY-MM-DD (if available in features)")
+def props_backtest_cmd(targets: str, start: str | None, end: str | None):
+    """Quick backtest of pure-linear props models on historical features with basic metrics."""
+    console.rule("Props Backtest (pure-linear)")
+    tgt_list = [t.strip() for t in targets.split(',') if t.strip()]
+    try:
+        df = backtest_linear_props(tgt_list, start=start, end=end)
+        rows = 0 if df is None else int(len(df))
+        console.print({"rows": rows})
+        if rows:
+            console.print(df)
+    except Exception as e:
+        console.print(f"Failed to run backtest: {e}", style="red")
+
+
 @cli.command("predict-props")
 @click.option("--date", "date_str", type=str, required=True, help="Prediction date YYYY-MM-DD (features built up to the day before)")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path (default props_predictions_YYYY-MM-DD.csv)")
@@ -361,8 +408,10 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             feats = build_features_for_date(date_str)
         except Exception as e:
             console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
-    # Optional slate filter using ScoreboardV2
+    # Optional slate filter using ScoreboardV2, with fallback to OddsAPI game odds
     if slate_only:
+        slate_applied = False
+        # Primary: NBA ScoreboardV2
         try:
             sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=30)
             nd = sb.get_normalized_dict()
@@ -393,9 +442,41 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         if not slate.empty and "team" in feats.columns:
                             feats["team"] = feats["team"].astype(str).str.upper()
                             feats = feats.merge(slate, on="team", how="inner")
+                            slate_applied = True
         except Exception:
-            # If scoreboard fails, proceed without filtering
             pass
+        # Fallback: use standardized OddsAPI game odds CSV written earlier in the pipeline
+        if not slate_applied:
+            try:
+                from .config import paths as _paths
+                from .teams import to_tricode as _to_tri
+                go_path = _paths.data_processed / f"game_odds_{date_str}.csv"
+                if go_path.exists():
+                    go = pd.read_csv(go_path)
+                    if not go.empty:
+                        games = []
+                        # Support both visitor_team and away_team column names
+                        home_col = "home_team" if "home_team" in go.columns else None
+                        away_col = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                        if home_col and away_col:
+                            for _, r in go.iterrows():
+                                try:
+                                    h_raw = str(r.get(home_col) or "").strip()
+                                    a_raw = str(r.get(away_col) or "").strip()
+                                    h = _to_tri(h_raw)
+                                    a = _to_tri(a_raw)
+                                    if h and a:
+                                        games.append({"team": h, "opponent": a, "home": True})
+                                        games.append({"team": a, "opponent": h, "home": False})
+                                except Exception:
+                                    continue
+                        slate = pd.DataFrame(games)
+                        if not slate.empty and "team" in feats.columns:
+                            feats["team"] = feats["team"].astype(str).str.upper()
+                            feats = feats.merge(slate, on="team", how="inner")
+                            slate_applied = True
+            except Exception:
+                pass
     
     # Predict using pure ONNX or sklearn
     if use_pure_onnx:

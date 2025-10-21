@@ -23,6 +23,15 @@ MARKET_TO_STAT = {
     "player_assists": "ast",
     "player_three_pointers": "threes",
     "player_pr_points_rebounds_assists": "pra",
+    # Additional OddsAPI markets
+    "player_points_rebounds": "pr",
+    "player_points_assists": "pa",
+    "player_rebounds_assists": "ra",
+    "player_steals": "stl",
+    "player_blocks": "blk",
+    "player_turnovers": "tov",
+    "player_double_double": "dd",
+    "player_triple_double": "td",
 }
 
 
@@ -89,6 +98,10 @@ class SigmaConfig:
     ast: float = 2.5
     threes: float = 1.3
     pra: float = 9.0
+    # Optional defaults for additional stats
+    stl: float = 1.2
+    blk: float = 1.3
+    tov: float = 1.5
 
 
 def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
@@ -194,6 +207,10 @@ def compute_props_edges(
         "ast": "pred_ast",
         "threes": "pred_threes",
         "pra": "pred_pra",
+        # newly supported
+        "stl": "pred_stl",
+        "blk": "pred_blk",
+        "tov": "pred_tov",
     }
     for need in ["player_id", "player_name"] + list(pred_map.values()):
         if need not in preds.columns:
@@ -237,10 +254,29 @@ def compute_props_edges(
         odds["player_name"] = odds["outcome_name"].astype(str)
     odds["name_key"] = odds["player_name"].astype(str).map(_norm_name)
     odds["short_key"] = odds["player_name"].astype(str).map(_short_key)
-    odds["side"] = odds["outcome_name"].astype(str).str.upper().map(lambda x: "OVER" if "OVER" in x else ("UNDER" if "UNDER" in x else None))
+    # Side: OVER/UNDER for most markets; YES/NO for double-double/triple-double
+    def _map_side(x: str) -> Optional[str]:
+        u = str(x).upper()
+        if "OVER" in u:
+            return "OVER"
+        if "UNDER" in u:
+            return "UNDER"
+        if u in ("YES", "Y"):
+            return "YES"
+        if u in ("NO", "N"):
+            return "NO"
+        return None
+    odds["side"] = odds["outcome_name"].astype(str).map(_map_side)
     # Map markets to stat
     odds["stat"] = odds["market"].map(MARKET_TO_STAT)
-    odds = odds.dropna(subset=["name_key", "stat", "side", "point", "price"]).copy()
+    # Keep rows depending on market type: dd/td have no point/line
+    def _row_ok(row) -> bool:
+        if pd.isna(row.get("name_key")) or pd.isna(row.get("stat")) or pd.isna(row.get("side")):
+            return False
+        if row.get("stat") in ("dd", "td"):
+            return not pd.isna(row.get("price"))
+        return (not pd.isna(row.get("point"))) and (not pd.isna(row.get("price")))
+    odds = odds[odds.apply(_row_ok, axis=1)].copy()
 
     # Merge odds with predictions on name_key
     merged = odds.merge(
@@ -280,6 +316,13 @@ def compute_props_edges(
     # Choose model mean based on stat
     def _select_pred(row) -> float:
         stat = row["stat"]
+        # Derived combos from base predictions
+        if stat == "pr":
+            return (row.get(pred_map["pts"], np.nan)) + (row.get(pred_map["reb"], np.nan))
+        if stat == "pa":
+            return (row.get(pred_map["pts"], np.nan)) + (row.get(pred_map["ast"], np.nan))
+        if stat == "ra":
+            return (row.get(pred_map["reb"], np.nan)) + (row.get(pred_map["ast"], np.nan))
         col = pred_map.get(stat)
         val = row.get(col, np.nan)
         if pd.isna(val):
@@ -289,9 +332,32 @@ def compute_props_edges(
         return val
 
     merged["model_mean"] = merged.apply(_select_pred, axis=1)
-    # Sigma by stat
-    sig_map = {"pts": sigma.pts, "reb": sigma.reb, "ast": sigma.ast, "threes": sigma.threes, "pra": sigma.pra}
-    merged["sigma"] = merged["stat"].map(sig_map)
+    # Sigma by stat; combos derived assuming independence of components
+    def _sigma_for(stat: str) -> float:
+        if stat == "pts":
+            return sigma.pts
+        if stat == "reb":
+            return sigma.reb
+        if stat == "ast":
+            return sigma.ast
+        if stat == "threes":
+            return sigma.threes
+        if stat == "pra":
+            return sigma.pra
+        if stat == "pr":
+            return float(np.sqrt(sigma.pts ** 2 + sigma.reb ** 2))
+        if stat == "pa":
+            return float(np.sqrt(sigma.pts ** 2 + sigma.ast ** 2))
+        if stat == "ra":
+            return float(np.sqrt(sigma.reb ** 2 + sigma.ast ** 2))
+        if stat == "stl":
+            return sigma.stl
+        if stat == "blk":
+            return sigma.blk
+        if stat == "tov":
+            return sigma.tov
+        return np.nan
+    merged["sigma"] = merged["stat"].map(_sigma_for)
 
     # Model probability for Over: P(X > line) under Normal(mean, sigma)
     from math import erf, sqrt
@@ -306,10 +372,44 @@ def compute_props_edges(
         # P(X > line) = 1 - CDF(line)
         return 1.0 - _norm_cdf(z)
 
-    merged["line"] = pd.to_numeric(merged["point"], errors="coerce")
-    merged["price"] = pd.to_numeric(merged["price"], errors="coerce")
-    merged["p_over"] = merged.apply(lambda r: _prob_over(r["model_mean"], r["sigma"], r["line"]), axis=1)
-    merged["model_prob"] = merged.apply(lambda r: (1.0 - r["p_over"]) if r["side"] == "UNDER" else r["p_over"], axis=1)
+    merged["line"] = pd.to_numeric(merged.get("point"), errors="coerce")
+    merged["price"] = pd.to_numeric(merged.get("price"), errors="coerce")
+    # Compute model probability; special handling for YES/NO markets (double/triple-double)
+    def _calc_model_prob(r) -> float:
+        stat = r.get("stat")
+        side = r.get("side")
+        if stat in ("dd", "td"):
+            # Approximate independence on Pts/Reb/Ast reaching 10+
+            mean_pts = r.get(pred_map["pts"], np.nan)
+            mean_reb = r.get(pred_map["reb"], np.nan)
+            mean_ast = r.get(pred_map["ast"], np.nan)
+            vals = [(mean_pts, sigma.pts), (mean_reb, sigma.reb), (mean_ast, sigma.ast)]
+            p10 = []
+            for m, s in vals:
+                if pd.isna(m) or s is None or s <= 0:
+                    p10.append(np.nan)
+                else:
+                    z = (10.0 - float(m)) / float(s)
+                    p10.append(1.0 - _norm_cdf(z))
+            p1, p2, p3 = p10
+            if any(pd.isna(x) for x in (p1, p2, p3)):
+                return np.nan
+            if stat == "td":
+                p_yes = float(p1 * p2 * p3)
+            else:
+                # at least two of three
+                p_yes = float(p1 * p2 + p1 * p3 + p2 * p3 - p1 * p2 * p3)
+            if side == "YES":
+                return p_yes
+            if side == "NO":
+                return 1.0 - p_yes
+            return np.nan
+        # Default OVER/UNDER path
+        p_over = _prob_over(r.get("model_mean"), r.get("sigma"), r.get("line"))
+        if pd.isna(p_over):
+            return np.nan
+        return (1.0 - p_over) if side == "UNDER" else p_over
+    merged["model_prob"] = merged.apply(_calc_model_prob, axis=1)
     merged["implied_prob"] = merged["price"].map(_american_implied_prob)
     merged["edge"] = merged["model_prob"] - merged["implied_prob"]
     merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
@@ -381,6 +481,10 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
         "ast": ("t_ast", "pred_ast"),
         "threes": ("t_threes", "pred_threes"),
         "pra": ("t_pra", "pred_pra"),
+        # Additional stats if available
+        "stl": ("t_stl", "pred_stl"),
+        "blk": ("t_blk", "pred_blk"),
+        "tov": ("t_tov", "pred_tov"),
     }
     sig = {}
     for k, (tgt, pr) in stats.items():
@@ -396,4 +500,7 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
         ast=sig.get("ast", defaults.ast),
         threes=sig.get("threes", defaults.threes),
         pra=sig.get("pra", defaults.pra),
+        stl=sig.get("stl", defaults.stl),
+        blk=sig.get("blk", defaults.blk),
+        tov=sig.get("tov", defaults.tov),
     )

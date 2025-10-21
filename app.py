@@ -51,7 +51,24 @@ try:  # lightweight optional dependency
 
     load_dotenv()
 except Exception:
-    pass
+    # Fallback: minimal manual .env loader to avoid adding dependencies
+    try:
+        _env_path = BASE_DIR / ".env"
+        if _env_path.exists():
+            for _line in _env_path.read_text(encoding="utf-8").splitlines():
+                _line = _line.strip()
+                if not _line or _line.startswith("#"):
+                    continue
+                if "=" not in _line:
+                    continue
+                _k, _v = _line.split("=", 1)
+                _k = _k.strip()
+                _v = _v.strip().strip('"').strip("'")
+                # Don't clobber an explicitly-set environment var
+                if _k and not os.environ.get(_k):
+                    os.environ[_k] = _v
+    except Exception:
+        pass
 
 WEB_DIR = BASE_DIR / "web"
 CRON_META_PATH = BASE_DIR / "data" / "processed" / ".cron_meta.json"
@@ -1553,7 +1570,8 @@ def api_props():
                     env = {"PYTHONPATH": str(SRC_DIR)}
                     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                     lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
-                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--no-slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
+                    # Generate props only for the slate (today's games)
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
                     pdf = _read_csv_if_exists(preds_p)
                 except Exception:
                     pass
