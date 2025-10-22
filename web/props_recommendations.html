@@ -56,7 +56,7 @@
   <script>
     function fmt(x){ if(x==null||isNaN(x)) return ''; return Number(x).toFixed(1); }
     function qs(name){ const u=new URL(window.location); return u.searchParams.get(name); }
-    async function loadData(){
+  async function loadData(){
       const date = document.getElementById('datePicker').value || '';
       const market = document.getElementById('market').value || '';
       const onlyEV = document.getElementById('onlyEV').checked;
@@ -79,8 +79,8 @@
         // Be resilient to non-strict JSON (NaN/Inf) from older servers
         let text = await resp.text();
         try { text = text.replace(/\bNaN\b/g, 'null').replace(/\bInfinity\b/g, 'null').replace(/-Infinity\b/g, 'null'); } catch(_){}
-        const data = JSON.parse(text);
-        renderGames(data.games||[]);
+  const data = JSON.parse(text);
+  renderGames(data.games||[], data.data||[]);
         renderCards(data.data||[]);  // API returns 'data'
         document.getElementById('status').textContent = `${(data.data||[]).length} players`;
       } catch(err){
@@ -88,19 +88,37 @@
         document.getElementById('status').textContent = 'Error loading data';
       }
     }
-    function renderGames(games){
+    function renderGames(games, items){
       const sel = document.getElementById('game');
       const current = sel.value;
       sel.innerHTML = '<option value="">All games</option>';
       // Normalize into labels like "Away @ Home" and sort alphabetically for stable UX
-      const labels = (games||[]).map(g=>{
+      let labels = (games||[]).map(g=>{
         if (g && typeof g === 'object'){
           const away = (g.away_team||'').trim();
           const home = (g.home_team||'').trim();
-          return `${away} @ ${home}`.trim();
+          if (away && home) return `${away} @ ${home}`.trim();
         }
-        return String(g||'');
+        return '';
       }).filter(Boolean);
+      // Fallback: derive from items if API didn't provide games (e.g., missing predictions CSV)
+      if (!labels.length && Array.isArray(items)){
+        try{
+          const pairs = new Set();
+          items.forEach(it=>{
+            const a = (it.away_team||'').trim();
+            const h = (it.home_team||'').trim();
+            if (a && h){ pairs.add(`${a} @ ${h}`); return; }
+            const team = (it.team||'').trim();
+            const opp = (it.opponent||'').trim();
+            if (team && opp){
+              // We don't know home/away; default to opp @ team for stability
+              pairs.add(`${opp} @ ${team}`);
+            }
+          });
+          labels = Array.from(pairs);
+        }catch(_){ /* ignore */ }
+      }
       const seen = new Set();
       const uniqSorted = labels.filter(x=>{ if (seen.has(x)) return false; seen.add(x); return true; }).sort((a,b)=> a.localeCompare(b));
       uniqSorted.forEach(label=>{
@@ -204,7 +222,10 @@
       });
     }
     window.addEventListener('DOMContentLoaded',()=>{
-      function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+      function localYMD(){
+        try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
+        catch(_){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+      }
       const paramDate=(new URL(window.location)).searchParams.get('date');
       const today=localYMD();
       const inp=document.getElementById('datePicker'); if(!inp.value) inp.value=(paramDate||today);

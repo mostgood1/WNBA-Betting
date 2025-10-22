@@ -67,7 +67,10 @@
   </div>
   <script>
     (function(){ try{ const body=document.body; const saved=localStorage.getItem('theme'); if(saved==='light') body.classList.add('light'); const t=document.getElementById('themeToggle'); if(t){ t.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); }}catch(e){} })();
-    function localYMD(){ const d=new Date(); return d.toISOString().slice(0,10); }
+    function localYMD(){
+      try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
+      catch(_){ const d=new Date(); return d.toISOString().slice(0,10); }
+    }
     function qs(name){ try{ return new URL(window.location).searchParams.get(name); }catch(_){ return null; } }
     function impliedConfidence(rec){ // heuristic bucket using edge / ev magnitudes
       if(rec.market==='ML' && rec.ev!=null){ if(rec.ev>=0.04) return 'High'; if(rec.ev>=0.02) return 'Medium'; return 'Low'; }

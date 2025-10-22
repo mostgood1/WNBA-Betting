@@ -107,7 +107,10 @@
     // Theme toggle
     (function(){ try{ var body=document.body; var saved=localStorage.getItem('theme'); if(saved==='light'){ body.classList.add('light'); } var tbtn=document.getElementById('themeToggle'); if(tbtn){ tbtn.addEventListener('click', function(){ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); } }catch(e){} })();
     
-    function localYMD(){ const d=new Date(); return d.toISOString().slice(0,10); }
+    function localYMD(){
+      try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
+      catch(_){ const d=new Date(); return d.toISOString().slice(0,10); }
+    }
     function parseTeamsMulti(v){
       return String(v||'').split(/[\s,]+/).map(s=>s.trim().toUpperCase()).filter(Boolean);
     }
@@ -278,7 +281,7 @@
         const srcLabel = 'predictions';
         const sortLabel = ` • sort=${sortKey}${sortDir==='desc'?'(desc)':'(asc)'}`;
         const teamLabel = TEAM? ` • team ${TEAM}`: '';
-        document.getElementById('meta').textContent = `Date ${js.date||d} — ${playersCount} players • ${srcLabel}${teamLabel}${sortLabel} • page ${curPage}/${pages}`;
+  document.getElementById('meta').textContent = `Date ${(js.date||d)} (ET) — ${playersCount} players • ${srcLabel}${teamLabel}${sortLabel} • page ${curPage}/${pages}`;
         const pi = document.getElementById('pageInfo'); if (pi) pi.textContent = `Page ${curPage}/${pages}`;
         const prevBtn = document.getElementById('prevPage'); const nextBtn = document.getElementById('nextPage');
         if (prevBtn && nextBtn){
@@ -300,7 +303,7 @@
         const srcLabel = `edges (${collapsed})`;
         const sortLabel = (sortBy)? ` • sort=${sortBy}` : '';
         const teamLabel = team? ` • team ${team}`: '';
-        document.getElementById('meta').textContent = `Date ${js.date||d} — ${rows.length} rows • ${srcLabel}${market? ' • '+market.toUpperCase():''}${teamLabel}${sortLabel}`;
+  document.getElementById('meta').textContent = `Date ${(js.date||d)} (ET) — ${rows.length} rows • ${srcLabel}${market? ' • '+market.toUpperCase():''}${teamLabel}${sortLabel}`;
       }
 
       

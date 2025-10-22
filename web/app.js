@@ -63,11 +63,12 @@ function getQueryParam(name){
   }catch(_){ return null; }
 }
 
+// Format helpers in US/Eastern timezone (NBA slate standard)
 function fmtLocalTime(iso){
   try{
     const d = new Date(iso);
     if (isNaN(d)) return '';
-    return new Intl.DateTimeFormat(undefined, { hour:'2-digit', minute:'2-digit', hour12:true }).format(d);
+    return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit', hour12:true }).format(d) + ' ET';
   }catch(_){ return ''; }
 }
 
@@ -75,7 +76,8 @@ function fmtLocalDate(iso){
   try{
     const d = new Date(iso);
     if (isNaN(d)) return '';
-    return new Intl.DateTimeFormat(undefined, { year:'numeric', month:'2-digit', day:'2-digit' }).format(d);
+    // en-CA yields YYYY-MM-DD reliably; force ET day
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(d);
   }catch(_){ return ''; }
 }
 
@@ -83,13 +85,20 @@ function fmtLocalDate(iso){
 function localYMD(d){
   try{
     const dt = d instanceof Date ? d : new Date();
-    const y = dt.getFullYear();
-    const m = String(dt.getMonth()+1).padStart(2,'0');
-    const day = String(dt.getDate()).padStart(2,'0');
-    return `${y}-${m}-${day}`;
+    // Compute calendar date in US/Eastern
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(dt);
   }catch(_){
     try { return new Date().toLocaleDateString('en-CA'); } catch(__){ return new Date().toISOString().slice(0,10); }
   }
+}
+
+// Convert an ISO/date into ET calendar YYYY-MM-DD
+function etYMD(isoOrDate){
+  try{
+    const d = (isoOrDate instanceof Date) ? isoOrDate : new Date(isoOrDate);
+    if (isNaN(d)) return '';
+    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(d);
+  }catch(_){ return ''; }
 }
 
 // Parse YYYY-MM-DD into a Date at local midnight to avoid ISO UTC interpretation
@@ -320,12 +329,22 @@ async function loadSchedule() {
   const m = new Map();
   const schedDateSet = new Set();
   for (const g of filtered) {
-    let dt = g.date_utc || (g.datetime_utc ? g.datetime_utc.slice(0,10) : null);
-    if (typeof dt === 'string' && dt.includes('T')) dt = dt.slice(0,10);
-    if (!dt) continue;
-    schedDateSet.add(dt);
-    if (!m.has(dt)) m.set(dt, []);
-    m.get(dt).push(g);
+    // Group by US/Eastern calendar day
+    let dtKey = null;
+    if (g.datetime_utc) {
+      dtKey = etYMD(g.datetime_utc);
+    } else if (g.date_est) {
+      dtKey = String(g.date_est).slice(0,10);
+    } else if (g.datetime_est) {
+      dtKey = String(g.datetime_est).slice(0,10);
+    } else if (g.date_utc) {
+      // Interpret date-only as UTC midnight and convert to ET day
+      dtKey = etYMD(`${g.date_utc}T00:00:00Z`);
+    }
+    if (!dtKey) continue;
+    schedDateSet.add(dtKey);
+    if (!m.has(dtKey)) m.set(dtKey, []);
+    m.get(dtKey).push(g);
   }
   state.byDate = m;
   state.scheduleDates = Array.from(schedDateSet).sort();
@@ -1196,11 +1215,11 @@ function renderDate(dateStr){
   // Format all game dates into the user's local timezone similar to NHL
   try{
     const nodes = Array.from(document.querySelectorAll('.card .js-local-time'));
-    const fmt = new Intl.DateTimeFormat(undefined, { year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true });
+    const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true });
     nodes.forEach(node=>{
       const iso = node.textContent;
       const d = new Date(iso);
-      if (!isNaN(d)) node.textContent = fmt.format(d);
+      if (!isNaN(d)) node.textContent = fmt.format(d) + ' ET';
     });
   }catch(_){}
 

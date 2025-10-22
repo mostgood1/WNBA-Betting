@@ -20,7 +20,10 @@
     document.getElementById('summary').textContent = `Date ${js.date||d} — ${(js.rows||[]).length} games`;
   }
   window.addEventListener('DOMContentLoaded', ()=>{
-    function localYMD(){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+    function localYMD(){
+      try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
+      catch(_){ const d=new Date(); const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+    }
     const params = new URLSearchParams(window.location.search);
     const paramDate = params.get('date');
     const today = localYMD();
