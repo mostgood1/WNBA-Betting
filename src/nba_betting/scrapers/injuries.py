@@ -15,6 +15,48 @@ except Exception:
     def _to_tri(x: str) -> str:
         return (x or '').strip().upper()
 
+# Robust team name -> abbreviation mapper (used by ESPN parser)
+def _map_team_name_to_abbr(team_name: str) -> str:
+    """Convert a full ESPN team name to a standard three-letter abbreviation.
+
+    Falls back to the original string if no mapping is found.
+    """
+    team_map = {
+        'Atlanta Hawks': 'ATL',
+        'Boston Celtics': 'BOS',
+        'Brooklyn Nets': 'BKN',
+        'Charlotte Hornets': 'CHA',
+        'Chicago Bulls': 'CHI',
+        'Cleveland Cavaliers': 'CLE',
+        'Dallas Mavericks': 'DAL',
+        'Denver Nuggets': 'DEN',
+        'Detroit Pistons': 'DET',
+        'Golden State Warriors': 'GSW',
+        'Houston Rockets': 'HOU',
+        'Indiana Pacers': 'IND',
+        'LA Clippers': 'LAC',
+        'Los Angeles Clippers': 'LAC',
+        'LA Lakers': 'LAL',
+        'Los Angeles Lakers': 'LAL',
+        'Memphis Grizzlies': 'MEM',
+        'Miami Heat': 'MIA',
+        'Milwaukee Bucks': 'MIL',
+        'Minnesota Timberwolves': 'MIN',
+        'New Orleans Pelicans': 'NOP',
+        'New York Knicks': 'NYK',
+        'Oklahoma City Thunder': 'OKC',
+        'Orlando Magic': 'ORL',
+        'Philadelphia 76ers': 'PHI',
+        'Phoenix Suns': 'PHX',
+        'Portland Trail Blazers': 'POR',
+        'Sacramento Kings': 'SAC',
+        'San Antonio Spurs': 'SAS',
+        'Toronto Raptors': 'TOR',
+        'Utah Jazz': 'UTA',
+        'Washington Wizards': 'WAS',
+    }
+    return team_map.get((team_name or '').strip(), (team_name or '').strip())
+
 
 class ESPNInjuryScraper:
     """Scrapes NBA injury reports from ESPN."""
@@ -67,7 +109,8 @@ class ESPNInjuryScraper:
                 if not team_header:
                     continue
                 team_name_raw = team_header.get_text(strip=True)
-                team_abbr = self._get_team_abbreviation(team_name_raw)
+                # Use module-level mapper to avoid attribute issues if class helper is missing
+                team_abbr = _map_team_name_to_abbr(team_name_raw)
 
                 table = section.find('table')
                 if not table:
