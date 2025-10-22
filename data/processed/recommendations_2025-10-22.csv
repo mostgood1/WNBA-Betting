@@ -1,0 +1,14 @@
+market,side,home,away,ev,date,edge
+ML,Cleveland Cavaliers,New York Knicks,Cleveland Cavaliers,0.11101793266675297,2025-10-22,
+TOTAL,Under,New York Knicks,Cleveland Cavaliers,,2025-10-22,-3.47552490234375
+ML,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,0.0842452960381872,2025-10-22,
+ATS,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,,2025-10-22,-5.164061903953552
+ML,Miami Heat,Orlando Magic,Miami Heat,0.2820140716092576,2025-10-22,
+ATS,Miami Heat,Orlando Magic,Miami Heat,,2025-10-22,-4.097522020339966
+TOTAL,Over,Orlando Magic,Miami Heat,,2025-10-22,13.014923095703125
+ML,Toronto Raptors,Atlanta Hawks,Toronto Raptors,0.7788770142599505,2025-10-22,
+ATS,Toronto Raptors,Atlanta Hawks,Toronto Raptors,,2025-10-22,-7.205460548400879
+TOTAL,Under,Atlanta Hawks,Toronto Raptors,,2025-10-22,-11.730972290039091
+ML,Boston Celtics,Boston Celtics,Philadelphia 76ers,0.2774513550035348,2025-10-22,
+ATS,Boston Celtics,Boston Celtics,Philadelphia 76ers,,2025-10-22,6.395599365234375
+TOTAL,Over,Boston Celtics,Philadelphia 76ers,,2025-10-22,1.7117462158203125

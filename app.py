@@ -2003,6 +2003,12 @@ def api_props_recommendations():
             if home_q or away_q:
                 if home_q: keep_teams.add(home_q)
                 if away_q: keep_teams.add(away_q)
+        # Compute tricode whitelist for any model-only cards when a specific game is requested
+        if keep_teams:
+            try:
+                keep_tris_for_game = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
+            except Exception:
+                keep_tris_for_game = { str(t).strip().upper() for t in keep_teams }
         # If props edges include home_team/away_team columns, prefer an exact matchup filter first
         applied_matchup_filter = False
         if (home_q or away_q) and {"home_team","away_team"}.issubset(set(df.columns)):
@@ -2022,7 +2028,7 @@ def api_props_recommendations():
         # Apply team-based filter only as a fallback when we couldn't use matchup columns
         if (not applied_matchup_filter) and keep_teams and ("team" in df.columns):
             try:
-                keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
+                keep_tris = keep_tris_for_game or { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
                 keep_tris_for_game = set(keep_tris)
                 tmp = df.copy()
                 tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
