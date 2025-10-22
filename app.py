@@ -1985,28 +1985,34 @@ def api_props_recommendations():
         away_q = (request.args.get("away_team") or "").strip()
         keep_tris_for_game: set[str] | None = None
         games: list[dict] = []
+        keep_teams: set[str] = set()
         if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
             try:
                 g = games_df[["home_team","visitor_team"]].dropna()
                 for _, r in g.iterrows():
                     games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
                 if home_q or away_q:
-                    keep_teams = set()
                     for _, r in g.iterrows():
                         h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
                         if (not home_q or h == home_q) and (not away_q or a == away_q):
                             keep_teams.update({h, a})
-                    if keep_teams and ("team" in df.columns):
-                        try:
-                            keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
-                            keep_tris_for_game = set(keep_tris)
-                            tmp = df.copy()
-                            tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
-                            df = tmp[tmp["_team_tri"].isin(keep_tris)].drop(columns=["_team_tri"], errors="ignore")
-                        except Exception:
-                            df = df[df["team"].astype(str).isin(keep_teams)]
             except Exception:
                 pass
+        else:
+            # If predictions/games CSV is unavailable, still honor an explicit game filter from query params
+            if home_q or away_q:
+                if home_q: keep_teams.add(home_q)
+                if away_q: keep_teams.add(away_q)
+        # Apply game filter if we have teams to keep
+        if keep_teams and ("team" in df.columns):
+            try:
+                keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
+                keep_tris_for_game = set(keep_tris)
+                tmp = df.copy()
+                tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                df = tmp[tmp["_team_tri"].isin(keep_tris)].drop(columns=["_team_tri"], errors="ignore")
+            except Exception:
+                df = df[df["team"].astype(str).isin(keep_teams)]
         # Build cards grouped by player/team regardless of games_df presence
         sort_by = (request.args.get("sortBy") or "ev_desc").strip().lower()
         player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
