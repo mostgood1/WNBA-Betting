@@ -81,8 +81,10 @@
         try { text = text.replace(/\bNaN\b/g, 'null').replace(/\bInfinity\b/g, 'null').replace(/-Infinity\b/g, 'null'); } catch(_){}
   const data = JSON.parse(text);
   renderGames(data.games||[], data.data||[]);
-        renderCards(data.data||[]);  // API returns 'data'
-        document.getElementById('status').textContent = `${(data.data||[]).length} players`;
+  renderCards(data.data||[]);  // API returns 'data'
+  const count = (data.data||[]).length;
+  const gameLabel = (document.getElementById('game').value||'').trim();
+  document.getElementById('status').textContent = `${gameLabel? gameLabel + ' — ' : ''}${count} players`;
       } catch(err){
         console.error(err);
         document.getElementById('status').textContent = 'Error loading data';
