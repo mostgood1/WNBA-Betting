@@ -2003,7 +2003,21 @@ def api_props_recommendations():
             if home_q or away_q:
                 if home_q: keep_teams.add(home_q)
                 if away_q: keep_teams.add(away_q)
-        # Apply game filter if we have teams to keep
+        # If props edges include home_team/away_team columns, prefer an exact matchup filter first
+        if (home_q or away_q) and {"home_team","away_team"}.issubset(set(df.columns)):
+            try:
+                m = pd.Series([True]*len(df))
+                if home_q and away_q:
+                    m = ((df["home_team"].astype(str).str.strip() == home_q) & (df["away_team"].astype(str).str.strip() == away_q)) | \
+                        ((df["home_team"].astype(str).str.strip() == away_q) & (df["away_team"].astype(str).str.strip() == home_q))
+                elif home_q:
+                    m = (df["home_team"].astype(str).str.strip() == home_q) | (df["away_team"].astype(str).str.strip() == home_q)
+                elif away_q:
+                    m = (df["home_team"].astype(str).str.strip() == away_q) | (df["away_team"].astype(str).str.strip() == away_q)
+                df = df[m]
+            except Exception:
+                pass
+        # Apply team-based filter as a fallback/secondary guard
         if keep_teams and ("team" in df.columns):
             try:
                 keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
