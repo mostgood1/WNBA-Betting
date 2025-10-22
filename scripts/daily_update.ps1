@@ -277,6 +277,13 @@ try {
   Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 }
 
+# 2.5) Fetch injuries before building props projections (ensures inactive players are filtered)
+try {
+  Write-Log "Fetching injuries from ESPN before props predictions"
+  $rcInj = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-injuries')
+  Write-Log ("fetch-injuries exit code: {0}" -f $rcInj)
+} catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
 # IMPORTANT: Restrict predictions to today's slate only (do NOT generate for all rostered players)

@@ -392,22 +392,23 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     """
     console.rule("Predict Props")
     
-    # Build features using pure or regular method based on flag
-    if use_pure_onnx:
-        try:
-            from .props_features_pure import build_features_for_date_pure
-            console.print("Building features with pure method (no sklearn)...", style="cyan")
-            feats = build_features_for_date_pure(date_str)
-        except Exception as e:
-            console.print(f"WARNING: Pure feature builder failed: {e}", style="yellow")
-            console.print("Falling back to regular feature builder...", style="yellow")
-            use_pure_onnx = False
-    
-    if not use_pure_onnx:
-        try:
+    # Build features (no sklearn required). If a pure builder exists, use it; else use standard builder.
+    try:
+        if use_pure_onnx:
+            try:
+                from .props_features_pure import build_features_for_date_pure
+                console.print("Building features with pure method (no sklearn)...", style="cyan")
+                feats = build_features_for_date_pure(date_str)
+            except ModuleNotFoundError:
+                # Fall back to standard feature builder (still sklearn-free)
+                feats = build_features_for_date(date_str)
+            except Exception as e:
+                # Do not fall back to sklearn; fail fast in ONNX-only mode
+                console.print(f"Failed to build features in pure mode: {e}", style="red"); return
+        else:
             feats = build_features_for_date(date_str)
-        except Exception as e:
-            console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
+    except Exception as e:
+        console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
     # Optional slate filter using ScoreboardV2, with fallback to OddsAPI game odds
     if slate_only:
         slate_applied = False
@@ -478,36 +479,61 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             except Exception:
                 pass
     
-    # Predict using pure ONNX or sklearn
-    if use_pure_onnx:
-        try:
-            from .props_onnx_pure import predict_props_pure_onnx
-            
-            console.print("Using pure ONNX models with NPU acceleration...", style="cyan")
-            
-            # Predict with pure ONNX
-            preds = predict_props_pure_onnx(feats)
-            
-            console.print(f"Pure ONNX predictions generated for {len(preds)} players", style="green")
-            
-        except ImportError as e:
-            console.print(f"WARNING: Pure ONNX not available: {e}", style="yellow")
-            console.print("Falling back to sklearn models...", style="yellow")
-            use_pure_onnx = False
-        except Exception as e:
-            console.print(f"WARNING: Pure ONNX failed: {e}", style="yellow")
-            console.print("Falling back to sklearn models...", style="yellow")
-            use_pure_onnx = False
-    
-    # Fallback to sklearn if pure ONNX disabled or failed
-    if not use_pure_onnx:
-        try:
-            from .props_train import predict_props  # Import here to avoid sklearn dependency
-            preds = predict_props(feats)
-        except FileNotFoundError:
-            console.print("Props models not found. Run train-props first.", style="red"); return
-        except Exception as e:
-            console.print(f"Failed to predict props: {e}", style="red"); return
+    # Optional: exclude clearly inactive players based on ESPN injuries DB (OUT)
+    try:
+        import pandas as _pd
+        from .teams import to_tricode as _to_tri
+        inj_path = paths.data_raw / "injuries.csv"
+        if not feats.empty:
+            day_out = _pd.DataFrame()
+            # Primary source: scraped injuries DB
+            if inj_path.exists():
+                inj = _pd.read_csv(inj_path)
+                if not inj.empty and {"team","player","status","date"}.issubset(set(inj.columns)):
+                    inj["date"] = _pd.to_datetime(inj["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+                    day = inj[inj["date"] == date_str].copy()
+                    if not day.empty:
+                        day["team_tri"] = day["team"].astype(str).map(lambda x: _to_tri(str(x)))
+                        day["player_key"] = day["player"].astype(str).str.strip().str.lower()
+                        # Non-capturing group to avoid pandas warning about match groups
+                        out_mask = day["status"].astype(str).str.upper().str.contains(r"\b(?:OUT|INACTIVE|SUSPENDED|REST)\b", regex=True, na=False)
+                        day_out = day[out_mask]
+            # Manual override per-day file support
+            try:
+                override_path = paths.data_raw / f"injuries_overrides_{date_str}.csv"
+                if override_path.exists():
+                    ovr = _pd.read_csv(override_path)
+                    if not ovr.empty and {"team","player","status"}.issubset(set(ovr.columns)):
+                        ovr = ovr.copy()
+                        ovr["team_tri"] = ovr["team"].astype(str).map(lambda x: _to_tri(str(x)))
+                        ovr["player_key"] = ovr["player"].astype(str).str.strip().str.lower()
+                        ovr_out = ovr[ovr["status"].astype(str).str.upper().str.contains(r"\b(?:OUT|INACTIVE|SUSPENDED|REST)\b", regex=True, na=False)]
+                        day_out = _pd.concat([day_out, ovr_out], ignore_index=True) if not day_out.empty else ovr_out
+            except Exception:
+                pass
+
+            if not day_out.empty and {"team","player_name"}.issubset(set(feats.columns)):
+                tmp = feats.copy()
+                tmp["team_tri"] = tmp["team"].astype(str).map(lambda x: _to_tri(str(x)))
+                tmp["player_key"] = tmp["player_name"].astype(str).str.strip().str.lower()
+                ban = set((str(r.get("player_key")), str(r.get("team_tri"))) for _, r in day_out.iterrows())
+                before = len(tmp)
+                tmp = tmp[~tmp.apply(lambda r: (str(r.get("player_key")), str(r.get("team_tri"))) in ban, axis=1)]
+                if len(tmp) < before:
+                    console.print(f"Filtered OUT players by injuries/overrides: removed {before-len(tmp)} rows", style="yellow")
+                feats = tmp.drop(columns=["team_tri","player_key"], errors="ignore")
+    except Exception as _e:
+        console.print(f"Injury filter skipped: {_e}", style="yellow")
+
+    # Predict using pure ONNX only
+    # Predict using pure ONNX only
+    try:
+        from .props_onnx_pure import predict_props_pure_onnx
+        console.print("Using pure ONNX models with NPU acceleration...", style="cyan")
+        preds = predict_props_pure_onnx(feats)
+        console.print(f"Pure ONNX predictions generated for {len(preds)} players", style="green")
+    except Exception as e:
+        console.print(f"Failed to run pure ONNX predictions: {e}", style="red"); return
     # Optional light calibration (rolling intercept per stat)
     if calibrate:
         try:

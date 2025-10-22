@@ -63,14 +63,25 @@
       const minEV = parseFloat(document.getElementById('minEV').value) || 0;
       const game = document.getElementById('game').value || '';
       const sortBy = document.getElementById('sortBy').value || 'ev_desc';
-      const params = new URLSearchParams({date, market, only_ev:onlyEV?'1':'0', min_ev_pct:minEV, game, sort:sortBy});
+      const params = new URLSearchParams({date, market, only_ev:onlyEV?'1':'0', min_ev_pct:minEV, sort:sortBy});
+      // If a specific game is selected (label: "Away Team @ Home Team"), pass explicit filters
+      if (game && game.includes('@')){
+        const parts = game.split('@');
+        const away = (parts[0]||'').trim();
+        const home = (parts[1]||'').trim();
+        if (away) params.set('away_team', away);
+        if (home) params.set('home_team', home);
+      }
       document.getElementById('status').textContent = 'Loading…';
       try {
         const resp = await fetch(`/api/props-recommendations?${params}`);
         if(!resp.ok) throw new Error('Failed to fetch');
-        const data = await resp.json();
+        // Be resilient to non-strict JSON (NaN/Inf) from older servers
+        let text = await resp.text();
+        try { text = text.replace(/\bNaN\b/g, 'null').replace(/\bInfinity\b/g, 'null').replace(/-Infinity\b/g, 'null'); } catch(_){}
+        const data = JSON.parse(text);
         renderGames(data.games||[]);
-        renderCards(data.data||[]);  // Fixed: API returns 'data', not 'items'
+        renderCards(data.data||[]);  // API returns 'data'
         document.getElementById('status').textContent = `${(data.data||[]).length} players`;
       } catch(err){
         console.error(err);
@@ -81,7 +92,23 @@
       const sel = document.getElementById('game');
       const current = sel.value;
       sel.innerHTML = '<option value="">All games</option>';
-      games.forEach(g=>{ const opt=document.createElement('option'); opt.value=g; opt.textContent=g; sel.appendChild(opt); });
+      // Normalize into labels like "Away @ Home" and sort alphabetically for stable UX
+      const labels = (games||[]).map(g=>{
+        if (g && typeof g === 'object'){
+          const away = (g.away_team||'').trim();
+          const home = (g.home_team||'').trim();
+          return `${away} @ ${home}`.trim();
+        }
+        return String(g||'');
+      }).filter(Boolean);
+      const seen = new Set();
+      const uniqSorted = labels.filter(x=>{ if (seen.has(x)) return false; seen.add(x); return true; }).sort((a,b)=> a.localeCompare(b));
+      uniqSorted.forEach(label=>{
+        const opt=document.createElement('option');
+        opt.value = label;
+        opt.textContent = label;
+        sel.appendChild(opt);
+      });
       sel.value = current;
     }
     function renderCards(items){

@@ -305,7 +305,8 @@
 
       
       // Update CSV link
-      document.getElementById('downloadCsv').href = `/props_predictions_${d}.csv`;
+  // Provide a direct link to the processed predictions CSV for this date
+  document.getElementById('downloadCsv').href = `/data/processed/props_predictions_${d}.csv`;
     }
     
     window.addEventListener('DOMContentLoaded', ()=>{

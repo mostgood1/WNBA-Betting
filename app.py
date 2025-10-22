@@ -183,49 +183,13 @@ def route_recommendations():
 
 @app.route("/props")
 def route_props():
+    # Serve the props explorer page
     return send_from_directory(str(WEB_DIR), "props.html")
 
 @app.route("/props/recommendations")
 def route_props_recommendations():
+    # Serve the props recommendations page
     return send_from_directory(str(WEB_DIR), "props_recommendations.html")
-
-@app.route("/props/reconciliation")
-def route_props_reconciliation():
-    return send_from_directory(str(WEB_DIR), "props_reconciliation.html")
-
-@app.route("/reconciliation")
-def route_reconciliation():
-    return send_from_directory(str(WEB_DIR), "reconciliation.html")
-
-@app.route("/odds-coverage")
-def route_odds_coverage():
-    return send_from_directory(str(WEB_DIR), "odds_coverage.html")
-
-
-@app.route("/predictions_<date>.csv")
-def serve_predictions_csv(date: str):
-    """Serve predictions_YYYY-MM-DD.csv from data/processed (fallback root)."""
-    processed = BASE_DIR / "data" / "processed" / f"predictions_{date}.csv"
-    if processed.exists():
-        return send_from_directory(str(processed.parent), processed.name)
-    legacy = BASE_DIR / f"predictions_{date}.csv"
-    if legacy.exists():
-        return send_from_directory(str(BASE_DIR), legacy.name)
-    from flask import abort
-    abort(404)
-
-
-@app.route("/props_predictions_<date>.csv")
-def serve_props_predictions_csv(date: str):
-    """Serve props_predictions_YYYY-MM-DD.csv from data/processed (fallback root)."""
-    processed = BASE_DIR / "data" / "processed" / f"props_predictions_{date}.csv"
-    if processed.exists():
-        return send_from_directory(str(processed.parent), processed.name)
-    legacy = BASE_DIR / f"props_predictions_{date}.csv"
-    if legacy.exists():
-        return send_from_directory(str(BASE_DIR), legacy.name)
-    from flask import abort
-    abort(404)
 
 
 @app.route("/health")
@@ -601,17 +565,40 @@ def _number(x):
 
 
 def _json_primitive(x):
-    """Convert numpy/pandas scalars and datetimes to native JSON-serializable types."""
+    """Convert numpy/pandas scalars and datetimes to native JSON-serializable types.
+
+    Strict mode: coerce NaN/Inf to None so JSON is valid (browsers reject NaN/Infinity).
+    """
     try:
-        # None/str/bool/int/float already fine
-        if x is None or isinstance(x, (str, bool, int, float)):
-            return x
-        # pandas NaN/NA
+        # Normalize pandas/NumPy NA first (including plain float('nan'))
         try:
-            if pd.isna(x):
+            if x is None:
                 return None
+            # pandas/NumPy NA detection
+            try:
+                if pd.isna(x):
+                    return None
+            except Exception:
+                pass
+            # Explicitly guard floats for NaN/Inf
+            if isinstance(x, float):
+                if not np.isfinite(x):
+                    return None
+                return float(x)
+            # NumPy numeric scalars
+            if isinstance(x, np.floating):
+                xv = float(x)
+                if not np.isfinite(xv):
+                    return None
+                return xv
+            if isinstance(x, np.integer):
+                return int(x)
         except Exception:
             pass
+
+        # Primitive JSON-safe types
+        if isinstance(x, (str, bool, int)):
+            return x
         # numpy scalar -> python scalar
         if isinstance(x, np.generic):
             try:
@@ -1534,10 +1521,89 @@ def api_props():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
+        # Fast path: if the caller explicitly requests predictions, bypass edges logic and return projections
+        requested_source = (request.args.get("source") or "").strip().lower() or None
+        if requested_source == "predictions":
+            preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+            if not preds_p.exists():
+                _maybe_fetch_remote_processed(preds_p.name)
+            pdf = _read_csv_if_exists(preds_p)
+            # Optionally auto-build predictions if not present and build=1
+            if (pdf is None or pdf.empty) and str(request.args.get("build", "0")).lower() in {"1","true","yes"}:
+                try:
+                    py = _resolve_python()
+                    env = {"PYTHONPATH": str(SRC_DIR)}
+                    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+                    lf = logs_dir / f"props_predictions_on_demand_{d}_{stamp}.log"
+                    _ = _run_to_file([str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--slate-only", "--use-pure-onnx"], lf, cwd=BASE_DIR, env=env)
+                    pdf = _read_csv_if_exists(preds_p)
+                except Exception:
+                    pass
+            if not isinstance(pdf, pd.DataFrame) or pdf is None:
+                return jsonify({"date": d, "source": "predictions", "rows": [], "collapsed": False})
+            # Build predictions long table with filters
+            tmp = pdf.copy()
+            for c in ("player_id","player_name","team","opponent","home"):
+                if c not in tmp.columns:
+                    tmp[c] = None
+            pred_cols = [c for c in tmp.columns if c.startswith("pred_")]
+            rename_map = {"pred_pts":"pts","pred_reb":"reb","pred_ast":"ast","pred_threes":"threes","pred_pra":"pra"}
+            use = {c: rename_map.get(c, c.replace("pred_","")) for c in pred_cols}
+            long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
+            long["stat"] = long["stat_col"].map(use)
+            long.drop(columns=["stat_col"], inplace=True)
+            # Apply frontend filters
+            market = (request.args.get("market") or "").strip().lower()
+            if market:
+                long = long[long["stat"].astype(str).str.lower() == market]
+            team_q = (request.args.get("team") or "").strip()
+            teams_q = (request.args.get("teams") or "").strip()
+            if team_q or teams_q:
+                want = set(); vals = []
+                if team_q: vals.append(team_q)
+                if teams_q: vals += [v for v in teams_q.replace(";", ",").split(",") if v.strip()]
+                for v in vals:
+                    try:
+                        tri = _get_tricode(v)
+                    except Exception:
+                        tri = None
+                    want.add((tri or str(v).strip().upper()))
+                try:
+                    long["_team_tri"] = long["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                    long = long[long["_team_tri"].isin(want)].drop(columns=["_team_tri"], errors="ignore")
+                except Exception:
+                    long = long[long["team"].astype(str).str.strip().str.upper().isin(want)]
+            player_q = (request.args.get("player") or "").strip().lower()
+            if player_q:
+                long = long[long.get("player_name").astype(str).str.lower().str.contains(player_q)]
+            # Optional sort by prediction value
+            sort_by = (request.args.get("sortBy") or request.args.get("sort") or "").strip().lower()
+            try:
+                long["pred"] = pd.to_numeric(long["pred"], errors="coerce")
+                if sort_by == "pred_asc":
+                    long = long.sort_values(["pred"], ascending=True, kind="stable")
+                elif sort_by == "pred_desc":
+                    long = long.sort_values(["pred"], ascending=False, kind="stable")
+            except Exception:
+                pass
+            # Pagination
+            try:
+                offset = int(request.args.get("offset", "0") or 0)
+            except Exception:
+                offset = 0
+            try:
+                limit = request.args.get("limit"); limit = int(limit) if (limit is not None and str(limit).strip() != "") else None
+            except Exception:
+                limit = None
+            if offset or limit:
+                if offset < 0: offset = 0
+                long = long.iloc[offset: (offset + limit) if (limit is not None and limit >= 0) else None]
+            rows = long.fillna("").to_dict(orient="records")
+            return jsonify({"date": d, "source": "predictions", "rows": rows, "collapsed": False})
+
         # Prefer edges if available, fall back to predictions (unless source=predictions requested)
         edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
-        requested_source = (request.args.get("source") or "").strip().lower() or None
         use_predictions_first = (requested_source == "predictions")
         df = None
         src = None
@@ -1584,7 +1650,8 @@ def api_props():
         # By default, show only players from today's slate; allow opt-out via slateOnly=0
         slate_param = (request.args.get("slateOnly", request.args.get("slate-only", "1")) or "1").strip().lower()
         slate_only = slate_param not in ("0","false","no")
-        if slate_only and ("team" in df.columns):
+        # Skip slate filter for predictions mode because predictions are already slate-scoped
+        if slate_only and ("team" in df.columns) and (src != "predictions"):
             try:
                 tris = _get_slate_team_tricodes(d)
                 if tris:
@@ -1722,6 +1789,14 @@ def api_props():
                     if offset < 0:
                         offset = 0
                     long = long.iloc[offset: (offset + limit) if (limit is not None and limit >= 0) else None]
+                # If an over-aggressive slate filter above emptied predictions, fall back to full predictions
+                if long.empty and slate_only:
+                    try:
+                        long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
+                        long["stat"] = long["stat_col"].map(use)
+                        long.drop(columns=["stat_col"], inplace=True)
+                    except Exception:
+                        pass
                 rows = long.fillna("").to_dict(orient="records")
                 return jsonify({"date": d, "source": src, "rows": rows, "collapsed": False})
             except Exception:
@@ -1904,17 +1979,17 @@ def api_props_recommendations():
         elif (onlyEV or (minEV and minEV > 0)):
             # If we don't have EVs, nothing qualifies
             df = df.iloc[0:0]
-        # Optionally narrow to a game (home_team/away_team)
+
+        # Optionally narrow to a game (home_team/away_team) and rebuild games list
         home_q = (request.args.get("home_team") or "").strip()
         away_q = (request.args.get("away_team") or "").strip()
-        # games_df already loaded above; build games list (optional)
+        keep_tris_for_game: set[str] | None = None
         games: list[dict] = []
         if isinstance(games_df, pd.DataFrame) and (not games_df.empty):
             try:
                 g = games_df[["home_team","visitor_team"]].dropna()
                 for _, r in g.iterrows():
                     games.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
-                # Filter rows by game if requested: keep only players whose team appears in that matchup
                 if home_q or away_q:
                     keep_teams = set()
                     for _, r in g.iterrows():
@@ -1922,14 +1997,13 @@ def api_props_recommendations():
                         if (not home_q or h == home_q) and (not away_q or a == away_q):
                             keep_teams.update({h, a})
                     if keep_teams and ("team" in df.columns):
-                        # Normalize both sides to tricodes to avoid full-name vs abbr mismatches
                         try:
                             keep_tris = { (_get_tricode(t) or str(t).strip().upper()) for t in keep_teams }
+                            keep_tris_for_game = set(keep_tris)
                             tmp = df.copy()
                             tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
                             df = tmp[tmp["_team_tri"].isin(keep_tris)].drop(columns=["_team_tri"], errors="ignore")
                         except Exception:
-                            # Fallback to original behavior if anything goes wrong
                             df = df[df["team"].astype(str).isin(keep_teams)]
             except Exception:
                 pass
@@ -1993,10 +2067,22 @@ def api_props_recommendations():
                 if "ev_pct" in g2.columns:
                     g2 = g2.sort_values(["ev_pct", "edge"], ascending=[False, False])
                 for _, r in g2.iterrows():
+                    # Coerce line to strict JSON: dd/td have no numeric line; any NaN -> None
+                    mkt = r.get("stat")
+                    raw_line = r.get("line")
+                    try:
+                        if str(mkt).lower() in {"dd", "td"}:
+                            line_val = None
+                        else:
+                            line_val = float(raw_line)
+                            if pd.isna(line_val):
+                                line_val = None
+                    except Exception:
+                        line_val = None
                     plays.append({
-                        "market": r.get("stat"),
+                        "market": mkt,
                         "side": r.get("side"),
-                        "line": r.get("line"),
+                        "line": line_val,
                         "price": r.get("price"),
                         "edge": r.get("edge"),
                         "ev": r.get("ev"),
@@ -2042,16 +2128,38 @@ def api_props_recommendations():
                                 # Skip base line (match by exact line value)
                                 if base_row is not None and (rr.get("line") == base_row.get("line")):
                                     continue
+                                # Coerce unsupported or NaN lines (e.g., dd/td) to None to keep strict JSON
+                                line_val = rr.get("line")
+                                try:
+                                    if mkt in {"dd", "td"}:
+                                        line_val = None
+                                    else:
+                                        line_val = float(line_val)
+                                        if pd.isna(line_val):
+                                            line_val = None
+                                except Exception:
+                                    line_val = None
                                 entries.append({
-                                    "line": rr.get("line"),
+                                    "line": line_val,
                                     "price": rr.get("price"),
                                     "ev_pct": rr.get("ev_pct"),
                                     "book": rr.get("bookmaker"),
                                 })
                             base_obj = None
                             if base_row is not None:
+                                # Coerce base line similarly
+                                _base_line = base_row.get("line")
+                                try:
+                                    if mkt in {"dd", "td"}:
+                                        _base_line = None
+                                    else:
+                                        _base_line = float(_base_line)
+                                        if pd.isna(_base_line):
+                                            _base_line = None
+                                except Exception:
+                                    _base_line = None
                                 base_obj = {
-                                    "line": base_row.get("line"),
+                                    "line": _base_line,
                                     "price": base_row.get("price"),
                                     "ev_pct": base_row.get("ev_pct"),
                                     "book": base_row.get("bookmaker"),
@@ -2176,6 +2284,32 @@ def api_props_recommendations():
                     cards.sort(key=lambda c: (float('inf') if c.get('_best_edge') is None else c.get('_best_edge')))
                 else:  # ev_desc default
                     cards.sort(key=lambda c: (c.get('_best_ev') or -1e9), reverse=True)
+        except Exception:
+            pass
+        # If we have model-only cards (from props_predictions), include them when no edges exist for that player/team.
+        # This prevents disappearing players (e.g., when a game's props aren't posted) while still showing model baselines.
+        try:
+            if cards_map:
+                # Build quick index of existing (player, team_tri) in cards
+                existing: set[tuple[str, str]] = set()
+                for c in cards:
+                    p = str(c.get("player") or "")
+                    t = _get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper()
+                    existing.add((p, t))
+                # Add missing ones, respecting optional game filter (keep_tris_for_game)
+                for (p, t), card in cards_map.items():
+                    tt = _get_tricode(t) or str(t).strip().upper()
+                    if keep_tris_for_game is not None and tt not in keep_tris_for_game:
+                        continue
+                    if (str(p), tt) in existing:
+                        continue
+                    # Ensure minimal fields present
+                    c2 = dict(card)
+                    if "plays" not in c2:
+                        c2["plays"] = []
+                    if "ladders" not in c2:
+                        c2["ladders"] = []
+                    cards.append(c2)
         except Exception:
             pass
         # Strip internal fields
@@ -3220,7 +3354,7 @@ def api_cron_props_predictions():
                 return False
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
-        cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d]
+        cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", d, "--use-pure-onnx"]
         if slate_only:
             cmd += ["--slate-only"]
         else:
@@ -3229,8 +3363,6 @@ def api_cron_props_predictions():
             cmd += ["--calibrate", "--calib-window", str(calib_window)]
         else:
             cmd += ["--no-calibrate"]
-        # Enforce pure ONNX path for ARM64/Render environments
-        cmd += ["--use-pure-onnx"]
         if do_async:
             def _job():
                 try:

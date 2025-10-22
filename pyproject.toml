@@ -17,7 +17,6 @@ dependencies = [
     "lxml>=5.3",
     "tenacity>=8.5",
     "pyarrow>=17.0",
-    "scikit-learn>=1.5",
     "click>=8.1",
     "rich>=13.7",
     "matplotlib>=3.9",
@@ -29,3 +28,8 @@ package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[project.optional-dependencies]
+train = [
+    "scikit-learn>=1.5",
+]

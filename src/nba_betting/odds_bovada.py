@@ -551,9 +551,9 @@ def fetch_bovada_player_props_current(date: datetime | str, verbose: bool = Fals
         d = (desc or "").lower()
         # Match common Bovada labels
         if "points + rebounds + assists" in d or "+ rebounds + assists" in d or "points rebounds assists" in d or "pra" in d:
-            return "player_pr_points_rebounds_assists"
+            return "player_points_rebounds_assists"
         if "3-point" in d or "3pt" in d or "three point" in d or "3-point field goals" in d:
-            return "player_three_pointers"
+            return "player_threes"
         if "rebounds" in d:
             return "player_rebounds"
         if "assists" in d:

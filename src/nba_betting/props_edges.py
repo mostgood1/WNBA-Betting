@@ -13,6 +13,7 @@ from .props_calibration import compute_biases as _compute_biases, apply_biases a
 from .props_features import build_features_for_date
 # from .props_train import _load_features as _load_props_features  # MOVED TO CONDITIONAL - requires sklearn
 from .odds_api import OddsApiConfig, backfill_player_props, fetch_player_props_current
+from .teams import to_tricode as _tri, normalize_team as _norm_team
 from .odds_bovada import fetch_bovada_player_props_current
 
 
@@ -21,8 +22,8 @@ MARKET_TO_STAT = {
     "player_points": "pts",
     "player_rebounds": "reb",
     "player_assists": "ast",
-    "player_three_pointers": "threes",
-    "player_pr_points_rebounds_assists": "pra",
+    "player_threes": "threes",
+    "player_points_rebounds_assists": "pra",
     # Additional OddsAPI markets
     "player_points_rebounds": "pr",
     "player_points_assists": "pa",
@@ -123,8 +124,21 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
         return pd.DataFrame()
     # Filter by commence_time date
     if "commence_time" in df.columns:
-        dt = pd.to_datetime(df["commence_time"], errors="coerce")
-        df = df.loc[dt.dt.date == pd.to_datetime(date).date()].copy()
+        dt_utc = pd.to_datetime(df["commence_time"], errors="coerce", utc=True)
+        # Convert to US/Eastern date for correct slate filtering
+        def _to_et_date(ts):
+            try:
+                return ts.tz_convert("America/New_York").date()
+            except Exception:
+                try:
+                    return ts.tz_convert("US/Eastern").date()
+                except Exception:
+                    # Fallback: approximate DST offset by month
+                    month = int(ts.month)
+                    offset = 4 if 3 <= month <= 11 else 5
+                    return (ts - pd.Timedelta(hours=offset)).date()
+        et_dates = dt_utc.map(_to_et_date)
+        df = df.loc[et_dates == pd.to_datetime(date).date()].copy()
     return df
 
 
@@ -134,13 +148,37 @@ def _fetch_odds_for_date(date: datetime, mode: str, api_key: Optional[str]) -> p
     cfg = OddsApiConfig(api_key=api_key)
     # Try historical first with a late timestamp on that date (UTC)
     if mode in ("auto", "historical"):
-        ts = pd.Timestamp(pd.to_datetime(date).date()).to_pydatetime().replace(hour=23, minute=0, second=0)
+        # Use a late-evening Eastern timestamp for the snapshot to ensure late games are included
+        base = pd.Timestamp(pd.to_datetime(date).date())
+        try:
+            # Localize to US/Eastern then convert to UTC for the historical API 'date' parameter
+            ts_et = base.tz_localize("America/New_York").replace(hour=23, minute=59, second=0)
+        except Exception:
+            try:
+                ts_et = base.tz_localize("US/Eastern").replace(hour=23, minute=59, second=0)
+            except Exception:
+                # Fallback naive -> approximate by subtracting 4h (DST months) or 5h otherwise
+                month = int(base.month)
+                offset = 4 if 3 <= month <= 11 else 5
+                ts_et = (base.replace(hour=23, minute=59, second=0) - pd.Timedelta(hours=offset)).tz_localize("UTC")
+        ts = ts_et.tz_convert("UTC").to_pydatetime()
         try:
             df = backfill_player_props(cfg, ts, verbose=False)
             # Filter to date in commence_time in case file had other days
             if df is not None and not df.empty:
-                dt = pd.to_datetime(df["commence_time"], errors="coerce")
-                df = df.loc[dt.dt.date == pd.to_datetime(date).date()].copy()
+                dt_utc = pd.to_datetime(df["commence_time"], errors="coerce", utc=True)
+                def _to_et_date(ts):
+                    try:
+                        return ts.tz_convert("America/New_York").date()
+                    except Exception:
+                        try:
+                            return ts.tz_convert("US/Eastern").date()
+                        except Exception:
+                            month = int(ts.month)
+                            offset = 4 if 3 <= month <= 11 else 5
+                            return (ts - pd.Timedelta(hours=offset)).date()
+                et_dates = dt_utc.map(_to_et_date)
+                df = df.loc[et_dates == pd.to_datetime(date).date()].copy()
                 if not df.empty:
                     return df
         except Exception:
@@ -190,10 +228,10 @@ def compute_props_edges(
         # If we are restricted to file-only mode, do NOT run models server-side
         if from_file_only:
             return pd.DataFrame()
-        # Otherwise compute predictions locally
-        from .props_train import predict_props  # Import here to avoid sklearn dependency
+        # Otherwise compute predictions locally using pure ONNX path (no sklearn)
+        from .props_onnx_pure import predict_props_pure_onnx  # Pure ONNX inference
         feats = build_features_for_date(target_date)
-        preds = predict_props(feats)
+        preds = predict_props_pure_onnx(feats)
         # Light bias calibration based on recent recon (safe default)
         try:
             biases = _compute_biases(anchor_date=str(pd.to_datetime(target_date).date()), window_days=7)
@@ -245,7 +283,8 @@ def compute_props_edges(
 
     # Normalize odds
     keep_cols = [
-        "bookmaker", "bookmaker_title", "market", "outcome_name", "player_name", "point", "price", "commence_time"
+        "bookmaker", "bookmaker_title", "market", "outcome_name", "player_name", "point", "price", "commence_time",
+        "home_team", "away_team",
     ]
     odds = odds[[c for c in keep_cols if c in odds.columns]].copy()
     # outcome_name is Over/Under, player_name may be in description
@@ -267,6 +306,10 @@ def compute_props_edges(
             return "NO"
         return None
     odds["side"] = odds["outcome_name"].astype(str).map(_map_side)
+    # Ensure team columns exist for event context
+    for col in ("home_team","away_team"):
+        if col not in odds.columns:
+            odds[col] = None
     # Map markets to stat
     odds["stat"] = odds["market"].map(MARKET_TO_STAT)
     # Keep rows depending on market type: dd/td have no point/line
@@ -332,6 +375,22 @@ def compute_props_edges(
         return val
 
     merged["model_mean"] = merged.apply(_select_pred, axis=1)
+    # Team-consistency guard: ensure the prediction team matches the event's home or away team (by tricode)
+    try:
+        def _to_tri_team(x: str | None) -> str:
+            try:
+                return _tri(_norm_team(str(x))) if x is not None else ""
+            except Exception:
+                return (str(x).strip().upper() if x else "")
+        merged["team_tri"] = merged.get("team").astype(str).map(lambda x: _to_tri_team(x))
+        merged["home_tri"] = merged.get("home_team").astype(str).map(lambda x: _to_tri_team(x))
+        merged["away_tri"] = merged.get("away_team").astype(str).map(lambda x: _to_tri_team(x))
+        # Only filter when we have a non-empty team_tri
+        mask_ok = (merged["team_tri"] == "") | (merged["team_tri"].isna()) | (
+            (merged["team_tri"] == merged["home_tri"]) | (merged["team_tri"] == merged["away_tri"]) )
+        merged = merged[mask_ok].copy()
+    except Exception:
+        pass
     # Sigma by stat; combos derived assuming independence of components
     def _sigma_for(stat: str) -> float:
         if stat == "pts":
@@ -428,7 +487,8 @@ def compute_props_edges(
         merged["bookmaker_title"] = merged["bookmaker"].map(lambda b: "Bovada" if str(b).lower()=="bovada" else None)
 
     desired_cols = [
-        "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time"
+        "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time",
+        "home_team", "away_team"
     ]
     out_cols = [c for c in desired_cols if c in merged.columns]
     if not out_cols:
@@ -457,7 +517,7 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
     if defaults is None:
         defaults = SigmaConfig()
     try:
-        from .props_train import _load_features as _load_props_features  # Import here to avoid sklearn dependency
+        from .props_train import _load_features as _load_props_features  # Optional; may not exist without sklearn
         df = _load_props_features().copy()
     except Exception:
         return defaults
@@ -471,8 +531,8 @@ def calibrate_sigma_for_date(date: str, window_days: int = 30, min_rows: int = 2
         return defaults
     # Predict on this window
     try:
-        from .props_train import predict_props  # Import here to avoid sklearn dependency
-        preds = predict_props(hist)
+        from .props_onnx_pure import predict_props_pure_onnx
+        preds = predict_props_pure_onnx(hist)
     except Exception:
         return defaults
     stats = {

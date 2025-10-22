@@ -58,6 +58,11 @@ def _flatten_bookmakers(row: dict, snapshot_ts: str) -> list[dict]:
         for m in bk.get("markets", []) or []:
             mkey = m.get("key"); last_update = m.get("last_update") or bk.get("last_update")
             for oc in m.get("outcomes", []) or []:
+                # Prefer player name from description for player_* markets; leave outcome_name as-is (team or Over/Under)
+                player_name = oc.get("description")
+                if (not player_name) and isinstance(mkey, str) and mkey.startswith("player_"):
+                    # Fallback: some payloads are inconsistent; keep something for debugging
+                    player_name = oc.get("description") or oc.get("participant") or oc.get("name")
                 out.append({
                     "snapshot_ts": snapshot_ts,
                     "event_id": event_id,
@@ -66,6 +71,7 @@ def _flatten_bookmakers(row: dict, snapshot_ts: str) -> list[dict]:
                     "bookmaker_title": bk_title,
                     "market": mkey,
                     "outcome_name": normalize_team(oc.get("name", "")),
+                    "player_name": player_name,
                     "point": oc.get("point"),
                     "price": oc.get("price"),
                     "last_update": last_update,
@@ -94,20 +100,31 @@ def fetch_game_odds_current(config: OddsApiConfig, date: datetime, markets: list
         return pd.DataFrame()
 
     target = pd.to_datetime(date).date()
-    et = None
-    if ZoneInfo is not None:
+    # Robust Eastern Time conversion: prefer America/New_York, fallback to US/Eastern, else approximate UTC-4/UTC-5 depending on month
+    def _et_date(iso_str: str) -> Optional[object]:
         try:
-            et = ZoneInfo("US/Eastern")
+            ct_raw = pd.to_datetime(iso_str, utc=True)
         except Exception:
-            et = None
+            return None
+        # Try with tz name strings first (pandas can resolve via dateutil without zoneinfo)
+        for tzname in ("America/New_York", "US/Eastern"):
+            try:
+                return ct_raw.tz_convert(tzname).date()
+            except Exception:
+                continue
+        # Last resort: rough offset based on DST (Mar-Nov ~ DST)
+        try:
+            month = int(ct_raw.month)
+            # Assume DST between March (3) and November (11) inclusive
+            offset_hours = 4 if 3 <= month <= 11 else 5
+            return (ct_raw - pd.Timedelta(hours=offset_hours)).date()
+        except Exception:
+            return ct_raw.date()
+
     day_events = []
     for ev in events:
         try:
-            ct_raw = pd.to_datetime(ev.get("commence_time"), utc=True)
-            try:
-                ct_et = ct_raw.tz_convert(et).date() if et is not None else ct_raw.date()
-            except Exception:
-                ct_et = ct_raw.date()
+            ct_et = _et_date(ev.get("commence_time"))
             if ct_et == target:
                 day_events.append(ev)
         except Exception:
@@ -148,7 +165,7 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
 
     Steps:
     - GET /v4/sports/{sport}/events to list upcoming/live events
-    - Filter events whose commence_time date matches requested date
+    - Filter events whose commence_time date matches requested date (US/Eastern day)
     - For each event id, GET /v4/sports/{sport}/events/{eventId}/odds with player markets
     """
     if markets is None:
@@ -157,8 +174,8 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
             "player_points",
             "player_rebounds",
             "player_assists",
-            "player_pr_points_rebounds_assists",
-            "player_three_pointers",
+            "player_points_rebounds_assists",
+            "player_threes",
             # Additional markets requested
             "player_steals",
             "player_blocks",
@@ -169,64 +186,156 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
             "player_double_double",
             "player_triple_double",
         ]
-    # Use events list first, filter by US/Eastern calendar day, then fetch per-event odds
+
+    # List events then filter by Eastern calendar day
     events_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events"
     try:
         ev_resp = _get(events_url, {"apiKey": config.api_key})
         events = ev_resp.json() or []
     except Exception as e:
         if verbose:
-            print(f"[game-odds-current] events request failed: {e}")
+            print(f"[player-props-current] events request failed: {e}")
         return pd.DataFrame()
 
-    # Compare by US/Eastern calendar day to avoid UTC-crossing dropping late games
     target = pd.to_datetime(date).date()
-    et = None
-    if ZoneInfo is not None:
+    def _et_date(iso_str: str) -> Optional[object]:
         try:
-            et = ZoneInfo("US/Eastern")
+            ct_raw = pd.to_datetime(iso_str, utc=True)
         except Exception:
-            et = None
+            return None
+        for tzname in ("America/New_York", "US/Eastern"):
+            try:
+                return ct_raw.tz_convert(tzname).date()
+            except Exception:
+                continue
+        try:
+            month = int(ct_raw.month)
+            offset_hours = 4 if 3 <= month <= 11 else 5
+            return (ct_raw - pd.Timedelta(hours=offset_hours)).date()
+        except Exception:
+            return ct_raw.date()
+
     day_events = []
     for ev in events:
         try:
-            ct_raw = pd.to_datetime(ev.get("commence_time"), utc=True)
-            try:
-                ct_et = ct_raw.tz_convert(et).date() if et is not None else ct_raw.date()
-            except Exception:
-                ct_et = ct_raw.date()
+            ct_et = _et_date(ev.get("commence_time"))
             if ct_et == target:
                 day_events.append(ev)
         except Exception:
             continue
     if not day_events:
         if verbose:
-            print(f"[game-odds-current] no events on {target}")
+            print(f"[player-props-current] no events on {target}")
         return pd.DataFrame()
 
     rows: list[dict] = []
+    debug_rows: list[dict] = []
     snap = pd.Timestamp.utcnow().isoformat()
     odds_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/odds"
-    params_common = {
-        "apiKey": config.api_key,
-        "regions": config.regions,
-        "markets": ",".join(markets),
-        "oddsFormat": config.odds_format,
-    }
-    for ev in day_events:
-        eid = ev.get("id")
+    markets_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/markets"
+
+    def _discover_markets(eid: str) -> list[str]:
         try:
-            r = _get(odds_url_tpl.format(event_id=eid), params_common)
+            r = _get(markets_url_tpl.format(event_id=eid), {"apiKey": config.api_key, "regions": config.regions})
             d = r.json()
             ev_obj = d if isinstance(d, dict) else None
             if not ev_obj:
-                continue
-            rows.extend(_flatten_bookmakers(ev_obj, snap))
-        except Exception as e:
-            if verbose:
-                print(f"[game-odds-current] event {eid} failed: {e}")
+                return []
+            keys = set()
+            for bk in ev_obj.get("bookmakers", []) or []:
+                for m in bk.get("markets", []) or []:
+                    k = m.get("key")
+                    if k:
+                        keys.add(k)
+            desired = set(markets)
+            return [k for k in keys if k in desired]
+        except Exception:
+            return []
+
+    for ev in day_events:
+        eid = ev.get("id")
+        if not eid:
             continue
-    return pd.DataFrame(rows)
+        evt_markets = _discover_markets(eid)
+        desired_markets = markets or []
+        fetched_any = False
+
+        def _fetch_once(mkts: list[str]) -> bool:
+            if not mkts:
+                return False
+            params = {
+                "apiKey": config.api_key,
+                "regions": config.regions,
+                "markets": ",".join(mkts),
+                "oddsFormat": config.odds_format,
+            }
+            try:
+                r = _get(odds_url_tpl.format(event_id=eid), params)
+                d = r.json()
+                ev_obj = d if isinstance(d, dict) else None
+                if not ev_obj:
+                    return False
+                rows.extend(_flatten_bookmakers(ev_obj, snap))
+                return True
+            except requests.HTTPError as he:
+                if verbose:
+                    code = he.response.status_code if he.response is not None else None
+                    print(f"[player-props-current] event {eid} HTTP {code} for markets={mkts}; will try fallback granularity")
+                return False
+            except Exception as e:
+                if verbose:
+                    print(f"[player-props-current] event {eid} failed: {e}")
+                return False
+
+        # Try discovery as a batch
+        req_markets = evt_markets if evt_markets else []
+        if req_markets and _fetch_once(req_markets):
+            fetched_any = True
+        else:
+            # Conservative core set
+            core = [
+                "player_points",
+                "player_rebounds",
+                "player_assists",
+                "player_threes",
+                "player_points_rebounds_assists",
+            ]
+            if desired_markets:
+                core = [m for m in core if m in desired_markets]
+            if _fetch_once(core):
+                fetched_any = True
+            else:
+                # One-by-one
+                probe_list = evt_markets or (desired_markets if desired_markets else core)
+                for mkt in probe_list:
+                    if _fetch_once([mkt]):
+                        fetched_any = True
+
+        # Record per-event diagnostics
+        try:
+            debug_rows.append({
+                "event_id": eid,
+                "commence_time": ev.get("commence_time"),
+                "home_team": ev.get("home_team"),
+                "away_team": ev.get("away_team"),
+                "discovered_markets": ";".join(sorted(set(evt_markets))) if evt_markets else "",
+                "fetched_any": bool(fetched_any),
+            })
+        except Exception:
+            pass
+        if (not fetched_any) and verbose:
+            print(f"[player-props-current] event {eid} returned no player markets")
+
+    df = pd.DataFrame(rows)
+    # Persist diagnostics and snapshot to processed for inspection
+    try:
+        paths.data_processed.mkdir(parents=True, exist_ok=True)
+        day_str = pd.to_datetime(date).date().isoformat()
+        pd.DataFrame(debug_rows).to_csv(paths.data_processed / f"oddsapi_event_markets_{day_str}.csv", index=False)
+        df.to_csv(paths.data_processed / f"oddsapi_player_props_{day_str}.csv", index=False)
+    except Exception:
+        pass
+    return df
 def backfill_player_props(config: OddsApiConfig, date: datetime, markets: list[str] | None = None, verbose: bool = False) -> pd.DataFrame:
     """Fetch historical player props snapshot for a given date by querying per-event historical odds.
 
@@ -247,8 +356,8 @@ def backfill_player_props(config: OddsApiConfig, date: datetime, markets: list[s
             "player_points",
             "player_rebounds",
             "player_assists",
-            "player_pr_points_rebounds_assists",
-            "player_three_pointers",
+            "player_points_rebounds_assists",
+            "player_threes",
             # Additional markets requested
             "player_steals",
             "player_blocks",
