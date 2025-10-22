@@ -485,6 +485,18 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         from .teams import to_tricode as _to_tri
         inj_path = paths.data_raw / "injuries.csv"
         if not feats.empty:
+            # Consistent name normalization for matching injuries -> features
+            import re as _re
+            _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
+            def _norm_name_key(s: str) -> str:
+                s = (s or "").strip().lower()
+                # remove punctuation
+                s = _re.sub(r"[^a-z0-9\s]", "", s)
+                # collapse whitespace
+                s = _re.sub(r"\s+", " ", s).strip()
+                # drop common suffix tokens
+                toks = [t for t in s.split(" ") if t and t not in _SUFFIXES]
+                return " ".join(toks)
             day_out = _pd.DataFrame()
             # Primary source: scraped injuries DB
             if inj_path.exists():
@@ -494,7 +506,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     day = inj[inj["date"] == date_str].copy()
                     if not day.empty:
                         day["team_tri"] = day["team"].astype(str).map(lambda x: _to_tri(str(x)))
-                        day["player_key"] = day["player"].astype(str).str.strip().str.lower()
+                        day["player_key"] = day["player"].astype(str).map(_norm_name_key)
                         # Non-capturing group to avoid pandas warning about match groups
                         out_mask = day["status"].astype(str).str.upper().str.contains(r"\b(?:OUT|INACTIVE|SUSPENDED|REST)\b", regex=True, na=False)
                         day_out = day[out_mask]
@@ -515,7 +527,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             if not day_out.empty and {"team","player_name"}.issubset(set(feats.columns)):
                 tmp = feats.copy()
                 tmp["team_tri"] = tmp["team"].astype(str).map(lambda x: _to_tri(str(x)))
-                tmp["player_key"] = tmp["player_name"].astype(str).str.strip().str.lower()
+                tmp["player_key"] = tmp["player_name"].astype(str).map(_norm_name_key)
                 ban = set((str(r.get("player_key")), str(r.get("team_tri"))) for _, r in day_out.iterrows())
                 before = len(tmp)
                 tmp = tmp[~tmp.apply(lambda r: (str(r.get("player_key")), str(r.get("team_tri"))) in ban, axis=1)]
