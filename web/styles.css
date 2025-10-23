@@ -131,5 +131,12 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .muted { color: var(--muted, #9fb0ff); }
 .d-block { display:block; }
 
+/* Recommendations page small banners */
+.banner-small { margin: 6px 0; }
+
 /* A11y utility */
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+
+/* YTD summary cards container */
+.ytd-summary { display:flex; gap:12px; flex-wrap:wrap; margin:14px 0 4px 0; }
+.ytd-card { min-width: 220px; flex: 1; }

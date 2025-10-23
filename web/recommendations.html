@@ -58,10 +58,13 @@
           <option value="edge">Edge</option>
         </select>
       </label>
-      <button type="submit">Apply</button>
+  <button type="submit">Apply</button>
+  <button type="button" id="reconcileBtn" title="Reconcile this date (populate results)">Reconcile date</button>
       <button type="button" id="resetBtn">Reset</button>
     </form>
-    <div id="cardsSummary" class="cards-summary"></div>
+  <div class="muted-small banner-small" id="seasonBanner">Season to date</div>
+  <div id="cardsSummary" class="cards-summary"></div>
+  <div class="muted-small banner-small" id="rowsMeta"></div>
     <div id="recsRoot"></div>
     <p class="summary-note lh-13">Sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs both available. Theme choice persists locally.</p>
   </div>
@@ -89,20 +92,111 @@
       const rows = Array.isArray(js.rows)? js.rows: [];
       // Derive confidence & normalized fields
       rows.forEach(r=>{ r.confidence = impliedConfidence(r); });
+      // Attach reconciliation results and odds for display
+      const finals = await fetchReconGames(date);
+      const lines = await fetchPredictionLines(date);
+      annotateResults(rows, finals, lines);
       renderSummary(rows);
+      const rowsMeta = document.getElementById('rowsMeta'); if(rowsMeta){ rowsMeta.textContent = `${rows.length} rows (filtered)`; }
       renderTables(rows, date);
     }
-    function renderSummary(rows){
+    async function fetchReconGames(date){
+      try{
+        const r = await fetch(`/data/processed/recon_games_${date}.csv`, {cache:'no-store'});
+        if(!r.ok) return new Map();
+        const txt = await r.text();
+        const lines = txt.trim().split(/\r?\n/); if(lines.length<2) return new Map();
+        const hdr = lines[0].split(',');
+        const col = (name)=> hdr.indexOf(name);
+        const m = new Map();
+        for(let i=1;i<lines.length;i++){
+          const parts = lines[i].split(',');
+          const home = (parts[col('home_team')]||'').trim(); const away=(parts[col('visitor_team')]||'').trim();
+          const hp = parseFloat(parts[col('home_pts')]||''); const ap = parseFloat(parts[col('visitor_pts')]||'');
+          if(home && away){ m.set(home+'@@'+away, {home,away,hp:isNaN(hp)?null:hp, ap:isNaN(ap)?null:ap}); }
+        }
+        return m;
+      }catch(_){ return new Map(); }
+    }
+    async function fetchPredictionLines(date){
+      try{
+        const r = await fetch(`/api/predictions?date=${date}`, {cache:'no-store'});
+        const js = await r.json(); const rows = Array.isArray(js.rows)? js.rows: [];
+        const m = new Map();
+        rows.forEach(x=>{
+          const k = String(x.home_team||'').trim()+'@@'+String(x.visitor_team||'').trim();
+          m.set(k, {
+            home_spread: x.home_spread!=null? Number(x.home_spread): null,
+            total: x.total!=null? Number(x.total): null,
+            home_ml: x.home_ml!=null? Number(x.home_ml): null,
+            away_ml: x.away_ml!=null? Number(x.away_ml): null,
+          });
+        });
+        return m;
+      }catch(_){ return new Map(); }
+    }
+    function americanToDecimal(a){ if(a==null||isNaN(a)) return null; a=Number(a); if(a>0) return 1+(a/100); if(a<0) return 1+(100/Math.abs(a)); return null; }
+    function annotateResults(rows, finals, lines){
+      rows.forEach(r=>{
+        const key = String(r.home||'').trim()+'@@'+String(r.away||'').trim();
+        const f = finals.get(key) || finals.get(String(r.away||'').trim()+'@@'+String(r.home||'').trim());
+        const ln = lines.get(key) || lines.get(String(r.away||'').trim()+'@@'+String(r.home||'').trim());
+        r.odds = null; r.result = null; r.selectionLabel = '';
+        if(r.market==='ML'){
+          const pickHome = r.side===r.home; const amer = pickHome? (ln?ln.home_ml:null): (ln?ln.away_ml:null);
+          r.odds = (amer!=null? amer: null);
+          r.selectionLabel = `${r.side} ML ${r.confidence? '('+r.confidence+')':''}`;
+          if(f && f.hp!=null && f.ap!=null){ const homeWon = f.hp>f.ap; r.result = (pickHome===homeWon)? 'Win':'Loss'; }
+        } else if(r.market==='ATS'){
+          const hs = ln? ln.home_spread: null; if(hs!=null){
+            const lineHome = Number(hs); const isHome = r.side===r.home;
+            const lineDisp = isHome? (lineHome>0?`+${lineHome}`:`${lineHome}`) : ((-lineHome)>0?`+${-lineHome}`:`${-lineHome}`);
+            r.selectionLabel = `${r.side} ${lineDisp} ${r.confidence? '('+r.confidence+')':''}`;
+          } else { r.selectionLabel = `${r.side} ${r.confidence? '('+r.confidence+')':''}`; }
+          r.odds = -110;
+          if(f && f.hp!=null && f.ap!=null && hs!=null){
+            const margin = f.hp - f.ap; const diff = (r.side===r.home)? (margin + Number(hs)) : (-margin - Number(hs));
+            r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss');
+          }
+        } else if(r.market==='TOTAL'){
+          const tot = ln? ln.total: null; const side = String(r.side||'').toLowerCase();
+          r.selectionLabel = tot!=null? `${r.side} ${Number(tot)} ${r.confidence? '('+r.confidence+')':''}`: `${r.side} ${r.confidence? '('+r.confidence+')':''}`;
+          r.odds = -110;
+          if(f && f.hp!=null && f.ap!=null && tot!=null){ const pts = f.hp + f.ap; const diff = side.startsWith('o')? (pts-Number(tot)) : (Number(tot)-pts); r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss'); }
+        }
+      });
+    }
+    async function renderSummary(_rows){
       const root=document.getElementById('cardsSummary'); root.innerHTML='';
-      if(!rows.length){ root.innerHTML='<div class="card">No recommendations available.</div>'; return; }
-      const tiers=['Overall','High','Medium','Low'];
-      const byTier = new Map();
-      tiers.forEach(t=>byTier.set(t,{wins:0,losses:0,pushes:0,resolved:0,total:0,evs:[],edges:[]}));
-      rows.forEach(r=>{ const t=r.confidence||'Low'; const rec=byTier.get('Overall'); rec.total++; const tierRec=byTier.get(t); tierRec.total++; if(r.ev!=null) { rec.evs.push(r.ev); tierRec.evs.push(r.ev); } if(r.edge!=null){ rec.edges.push(r.edge); tierRec.edges.push(r.edge); } });
-      function agg(m){ const evAvg = m.evs.length? (m.evs.reduce((a,b)=>a+b,0)/m.evs.length*100).toFixed(1)+'%': '—'; const edgeAvg = m.edges.length? (m.edges.reduce((a,b)=>a+Math.abs(b),0)/m.edges.length).toFixed(2): '—'; return { evAvg, edgeAvg, total:m.total }; }
-      const wrap=document.createElement('div'); wrap.className='cards-summary';
-      tiers.forEach(t=>{ const m=agg(byTier.get(t)); if(t!=='Overall' && m.total===0) return; const card=document.createElement('div'); card.className='card '+(t==='Overall'?'card-summary':'card-tier'); card.innerHTML=`<div class="title-sm">${t}</div><div class="mt-4 title-md">${m.total} Picks</div><div class="muted-small mt-4">Avg EV: ${m.evAvg}</div><div class="muted-small mt-4">Avg |Edge|: ${m.edgeAvg}</div>`; wrap.appendChild(card); });
-      root.innerHTML=''; root.appendChild(wrap);
+      const since = '2025-10-21';
+      try{
+        const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
+        const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
+        const res = await fetch(`/api/recommendations/summary?since=${since}&spread_edge=${minSp}&total_edge=${minTot}`, {cache:'no-store'});
+        const js = await res.json();
+        if(!js || !js.buckets){ root.innerHTML='<div class="card">No YTD data available.</div>'; return; }
+        const tiers=['Overall','High','Medium','Low'];
+        const wrap=document.createElement('div'); wrap.className='cards-summary';
+        tiers.forEach(t=>{
+          const b = js.buckets[t];
+          if(!b) return;
+          const acc = (b.accuracy_pct!=null)? `${b.accuracy_pct}%` : '—';
+          const roi = (b.roi_pct!=null)? `${b.roi_pct}%` : '—';
+          const picks = b.total||0; const resv = b.resolved||0;
+          const w = b.wins||0, l=b.losses||0, p=b.pushes||0;
+          // Convert units to $ by assuming 1 unit = $100
+          const prof = (b.profit_total!=null)? `$${(Number(b.profit_total)*100).toFixed(0)}`: '—';
+          const st = (b.stake_total!=null)? `$${(Number(b.stake_total)*100).toFixed(0)}`: '—';
+          const card=document.createElement('div'); card.className='card '+(t==='Overall'?'card-summary':'card-tier');
+          card.innerHTML=`<div class="title-sm">${t}</div>
+            <div class="mt-4 title-md">${acc} Acc <span class="muted-small">${w}W-${l}L${p?'-'+p+'P':''} / ${resv||0} settled</span></div>
+            <div class="muted-small mt-4">ROI: ${roi}</div>
+            <div class="muted-small mt-4">Stake: ${st} | P/L: ${prof}</div>
+            <div class="muted-small mt-4">${t==='Overall'?'Total picks':'Picks'}: ${picks}</div>`;
+          wrap.appendChild(card);
+        });
+        root.appendChild(wrap);
+      }catch(_){ root.innerHTML='<div class="card">Failed to load YTD summary.</div>'; }
     }
     function sortRows(rows){ const mode=document.getElementById('sortBy').value; return rows.slice().sort((a,b)=>{ if(mode==='confidence'){ const order={High:0,Medium:1,Low:2}; const ca=order[a.confidence]??9; const cb=order[b.confidence]??9; if(ca!==cb) return ca-cb; return (b.ev||0)-(a.ev||0); } if(mode==='time'){ return 0; } if(mode==='type'){ return String(a.market).localeCompare(String(b.market)) || (b.ev||0)-(a.ev||0); } if(mode==='ev'){ return (b.ev||0)-(a.ev||0); } if(mode==='edge'){ const ae=Math.abs(a.edge||0); const be=Math.abs(b.edge||0); if(be!==ae) return be-ae; return (b.ev||0)-(a.ev||0); } return 0; }); }
     function renderTables(rows, date){
@@ -110,9 +204,9 @@
       const sorted=sortRows(rows);
       const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
       sorted.forEach(r=>{ const t=r.confidence||'Low'; groups.get(t).push(r); });
-      groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds/Edge</th><th class="tar">EV</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = (r.market==='ML'? r.side : (r.side||'')) + (r.market==='TOTAL'?'': ''); const oddsEdge = r.market==='ML' ? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const ev = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? ( (Math.abs(r.edge)>=4)?'High': (Math.abs(r.edge)>=2?'Med':'Low') ): ''); tr.innerHTML=`<td>${game}</td><td>${r.market}</td><td>${sel} ${r.confidence? `<span class="pill ${pillClass(r.confidence)}">${r.confidence}</span>`:''}</td><td class="tar">${oddsEdge}</td><td class="tar">${r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): '')}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+      groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = r.selectionLabel || ((r.market==='ML'? r.side : (r.side||'')) + (r.confidence? ` (${r.confidence})`:'')); const oddsDisp = (r.market==='ML' && r.odds!=null)? String(r.odds): ((r.market!=='ML')? '-110' : ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; tr.innerHTML=`<td>${game}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${r.confidence? `<span class="pill ${pillClass(r.confidence)}">${r.confidence}</span>`:''}</td><td class="tar">${oddsDisp}</td><td class="tar">${evDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
     }
-    window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET'}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } loadRecs(); });
   </script>
 </body>
 </html>

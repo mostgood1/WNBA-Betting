@@ -10,5 +10,12 @@
     "rows": 0,
     "output": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\props_predictions_2025-10-21.csv",
     "timestamp": "2025-10-18T18:24:10Z"
+  },
+  "last_reconcile_games": {
+    "date": "2025-10-23",
+    "rows": 2,
+    "output": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\recon_games_2025-10-23.csv",
+    "pushed": null,
+    "timestamp": "2025-10-23T18:56:52Z"
   }
 }

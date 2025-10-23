@@ -380,6 +380,155 @@ def _get_slate_team_tricodes(date_str: str) -> set[str]:
         pass
     return teams
 
+# ---- Finals export helpers (module-level) ----
+def _finals_from_cdn_all(date_str_local: str) -> pd.DataFrame:
+    """Fetch all games' finals from NBA CDN scoreboard for a date (no filtering)."""
+    try:
+        import requests as _rq  # type: ignore
+    except Exception:
+        return pd.DataFrame()
+    try:
+        ymd = date_str_local.replace('-', '')
+        url = f"https://data.nba.com/data/10s/prod/v1/{ymd}/scoreboard.json"
+        r = _rq.get(url, timeout=6)
+        rows: list[dict[str, object]] = []
+        if r.status_code == 200:
+            jd = r.json()
+            games = jd.get('games', []) if isinstance(jd, dict) else []
+            for g in games:
+                try:
+                    htri = str((g.get('hTeam') or {}).get('triCode') or '').upper()
+                    vtri = str((g.get('vTeam') or {}).get('triCode') or '').upper()
+                    hs = (g.get('hTeam') or {}).get('score'); vs = (g.get('vTeam') or {}).get('score')
+                    hpts = int(hs) if (hs not in (None, '')) else None
+                    vpts = int(vs) if (vs not in (None, '')) else None
+                    rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+                except Exception:
+                    continue
+        return pd.DataFrame(rows)
+    except Exception:
+        return pd.DataFrame()
+
+def _finals_from_espn_all(date_str_local: str) -> pd.DataFrame:
+    """Fetch all games' finals from ESPN scoreboard for a date (no filtering)."""
+    try:
+        import requests as _rq  # type: ignore
+    except Exception:
+        return pd.DataFrame()
+    try:
+        ymd = date_str_local.replace('-', '')
+        url = f"https://site.web.api.espn.com/apis/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+        r = _rq.get(url, timeout=6)
+        if r.status_code != 200:
+            return pd.DataFrame()
+        jd = r.json()
+        evs = jd.get('events', []) if isinstance(jd, dict) else []
+        def espn_to_tri(abbr: str) -> str:
+            s = str(abbr or '').upper()
+            fix = { 'GS': 'GSW', 'NO': 'NOP', 'NY': 'NYK' }
+            return fix.get(s, s)
+        rows: list[dict[str, object]] = []
+        for e in evs:
+            try:
+                comps = e.get('competitions', [])
+                if not comps: continue
+                c = comps[0]
+                teams = c.get('competitors', [])
+                if len(teams) < 2: continue
+                home = next((t for t in teams if str(t.get('homeAway'))=='home'), None)
+                away = next((t for t in teams if str(t.get('homeAway'))=='away'), None)
+                if not home or not away: continue
+                htri = espn_to_tri(((home.get('team') or {}).get('abbreviation')))
+                vtri = espn_to_tri(((away.get('team') or {}).get('abbreviation')))
+                try:
+                    hpts = int(home.get('score')) if str(home.get('score') or '') != '' else None
+                except Exception:
+                    hpts = None
+                try:
+                    vpts = int(away.get('score')) if str(away.get('score') or '') != '' else None
+                except Exception:
+                    vpts = None
+                rows.append({'home_tri': htri, 'away_tri': vtri, 'home_pts': hpts, 'visitor_pts': vpts})
+            except Exception:
+                continue
+        return pd.DataFrame(rows)
+    except Exception:
+        return pd.DataFrame()
+
+def _finals_from_stats_all(date_str_local: str) -> pd.DataFrame:
+    """Fetch all games' finals from nba_api ScoreboardV2 (if available)."""
+    try:
+        if _scoreboardv2 is None:
+            return pd.DataFrame()
+        try:
+            if _nba_http is not None:
+                _nba_http.STATS_HEADERS.update({
+                    'Accept': 'application/json, text/plain, */*',
+                    'Accept-Language': 'en-US,en;q=0.9',
+                    'Origin': 'https://www.nba.com',
+                    'Referer': 'https://www.nba.com/stats/',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+                    'Connection': 'keep-alive',
+                })
+        except Exception:
+            pass
+        sb = _scoreboardv2.ScoreboardV2(game_date=date_str_local, day_offset=0, timeout=10)
+        nd = sb.get_normalized_dict()
+        gh = pd.DataFrame(nd.get("GameHeader", []))
+        ls = pd.DataFrame(nd.get("LineScore", []))
+        if gh.empty or ls.empty:
+            return pd.DataFrame()
+        cgh = {c.upper(): c for c in gh.columns}
+        cls = {c.upper(): c for c in ls.columns}
+        team_rows: dict[int, dict[str, object]] = {}
+        for _, r in ls.iterrows():
+            try:
+                tid = int(r[cls["TEAM_ID"]])
+                tri = str(r[cls["TEAM_ABBREVIATION"]]).upper()
+                pts = None
+                if "PTS" in cls:
+                    try:
+                        pts = int(r[cls["PTS"]])
+                    except Exception:
+                        pts = None
+                team_rows[tid] = {"tri": tri, "pts": pts}
+            except Exception:
+                continue
+        out_rows: list[dict[str, object]] = []
+        for _, g in gh.iterrows():
+            try:
+                hid = int(g[cgh["HOME_TEAM_ID"]]); vid = int(g[cgh["VISITOR_TEAM_ID"]])
+                h = team_rows.get(hid, {}); v = team_rows.get(vid, {})
+                htri = str(h.get("tri") or "").upper(); vtri = str(v.get("tri") or "").upper()
+                hpts = h.get("pts"); vpts = v.get("pts")
+                out_rows.append({"home_tri": htri, "away_tri": vtri, "home_pts": hpts, "visitor_pts": vpts})
+            except Exception:
+                continue
+        return pd.DataFrame(out_rows)
+    except Exception:
+        return pd.DataFrame()
+
+def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
+    """Fetch finals for date and write data/processed/finals_YYYY-MM-DD.csv; return (path, rows)."""
+    # Preference: stats -> CDN -> ESPN
+    df = _finals_from_stats_all(date_str)
+    if df is None or df.empty:
+        df = _finals_from_cdn_all(date_str)
+    if df is None or df.empty:
+        df = _finals_from_espn_all(date_str)
+    if not isinstance(df, pd.DataFrame):
+        df = pd.DataFrame()
+    for col in ("home_tri","away_tri","home_pts","visitor_pts"):
+        if col not in df.columns:
+            df[col] = pd.NA
+    out = BASE_DIR / "data" / "processed" / f"finals_{date_str}.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    keep = ["home_tri","away_tri","home_pts","visitor_pts"]
+    df2 = df[keep].copy()
+    df2.insert(0, "date", date_str)
+    df2.to_csv(out, index=False)
+    return str(out), int(len(df2))
+
 def _ensure_rosters_loaded() -> pd.DataFrame:
     global _rosters_df_cache
     if _rosters_df_cache is not None:
@@ -1512,6 +1661,278 @@ def api_recommendations():
         }
         return jsonify({"date": d, "rows": recs, "summary": summary})
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recommendations/summary")
+def api_recommendations_summary():
+    """Aggregate reconciliation-adjusted YTD stats for recommendations.
+
+    Query params:
+      - since: YYYY-MM-DD (default: 2025-10-21 opening day)
+      - until: YYYY-MM-DD (default: today UTC)
+      - spread_edge: float threshold used to generate ATS picks (for recompute if files missing)
+      - total_edge: float threshold used to generate TOTAL picks (for recompute if files missing)
+
+    Returns JSON with Overall/High/Medium/Low buckets containing:
+      total, resolved, wins, losses, pushes, accuracy_pct, stake_total, profit_total, roi_pct
+    """
+    try:
+        since = (request.args.get("since") or "2025-10-21").strip()
+        until = (request.args.get("until") or datetime.utcnow().date().isoformat()).strip()
+        th_spread = float(request.args.get("spread_edge", 1.0))
+        th_total = float(request.args.get("total_edge", 1.5))
+
+        # Utilities
+        def _parse_date(s: str) -> Optional[datetime]:
+            try:
+                return datetime.strptime(s, "%Y-%m-%d")
+            except Exception:
+                return None
+
+        def _american_to_decimal(amer: Any) -> Optional[float]:
+            try:
+                a = float(amer)
+            except Exception:
+                return None
+            if a > 0:
+                return 1.0 + (a / 100.0)
+            if a < 0:
+                return 1.0 + (100.0 / abs(a))
+            return None
+
+        def _tier_for_row(market: str, ev: Any, edge: Any) -> str:
+            try:
+                if (market or "").upper() == "ML":
+                    v = float(ev)
+                    if v >= 0.04:
+                        return "High"
+                    if v >= 0.02:
+                        return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            try:
+                if (market or "").upper() in {"ATS", "TOTAL"}:
+                    e = abs(float(edge))
+                    if e >= 4.0:
+                        return "High"
+                    if e >= 2.0:
+                        return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            return "Low"
+
+        # Collect dates by existing recommendation files within range
+        proc = BASE_DIR / "data" / "processed"
+        ds = _parse_date(since) or datetime.utcnow()
+        de = _parse_date(until) or datetime.utcnow()
+        if de < ds:
+            ds, de = de, ds
+
+        rec_files = []
+        if proc.exists():
+            for p in sorted(proc.glob("recommendations_*.csv")):
+                try:
+                    dstr = p.stem.replace("recommendations_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_files.append((dstr, p))
+                except Exception:
+                    continue
+
+        # Stats template per bucket
+        def _empty_stats():
+            return {
+                "total": 0,
+                "resolved": 0,
+                "wins": 0,
+                "losses": 0,
+                "pushes": 0,
+                "stake_total": 0.0,
+                "profit_total": 0.0,
+                "accuracy_pct": None,
+                "roi_pct": None,
+            }
+
+        buckets = {k: _empty_stats() for k in ["Overall", "High", "Medium", "Low"]}
+
+        for dstr, fp in rec_files:
+            try:
+                rec = pd.read_csv(fp)
+            except Exception:
+                continue
+            # Final scores for this date
+            gfin = None
+            try:
+                gpath = BASE_DIR / "data" / "processed" / f"recon_games_{dstr}.csv"
+                if gpath.exists():
+                    gfin = pd.read_csv(gpath)
+            except Exception:
+                gfin = None
+            # Odds for spread/total/ML pricing
+            godds = None
+            try:
+                op = _find_game_odds_for_date(dstr)
+                if op is not None:
+                    godds = pd.read_csv(op)
+            except Exception:
+                godds = None
+
+            # Normalize joins
+            def _norm(s):
+                return (str(s or "").strip())
+
+            # Evaluate each recommendation
+            for _, r in rec.iterrows():
+                try:
+                    market = str(r.get("market") or "").upper()
+                    side = str(r.get("side") or "").strip()
+                    home = _norm(r.get("home"))
+                    away = _norm(r.get("away"))
+                    ev = r.get("ev")
+                    edge = r.get("edge")
+                    tier = _tier_for_row(market, ev, edge)
+                    for key in ("Overall", tier):
+                        buckets[key]["total"] += 1
+
+                    # find final row
+                    hp = ap = None
+                    if isinstance(gfin, pd.DataFrame) and not gfin.empty:
+                        try:
+                            row = gfin[(gfin.get("home_team").astype(str) == home) & (gfin.get("visitor_team").astype(str) == away)]
+                            if row.empty:
+                                # try swapped
+                                row = gfin[(gfin.get("home_team").astype(str) == away) & (gfin.get("visitor_team").astype(str) == home)]
+                            if not row.empty:
+                                hp = pd.to_numeric(row.iloc[0].get("home_pts"), errors="coerce")
+                                ap = pd.to_numeric(row.iloc[0].get("visitor_pts"), errors="coerce")
+                                if pd.isna(hp) or pd.isna(ap):
+                                    hp = ap = None
+                        except Exception:
+                            hp = ap = None
+
+                    resolved = False
+                    is_win = False
+                    is_push = False
+                    stake = 1.0
+                    profit = 0.0
+
+                    if market == "ML":
+                        if hp is None or ap is None:
+                            # unresolved
+                            pass
+                        else:
+                            resolved = True
+                            home_won = (float(hp) > float(ap))
+                            pick_home = (side == home)
+                            # ML odds
+                            dec = None
+                            if isinstance(godds, pd.DataFrame) and not godds.empty:
+                                try:
+                                    o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                    if not o.empty:
+                                        if pick_home:
+                                            dec = _american_to_decimal(o.iloc[0].get("home_ml"))
+                                        else:
+                                            dec = _american_to_decimal(o.iloc[0].get("away_ml"))
+                                except Exception:
+                                    dec = None
+                            if dec is None:
+                                # Fallback to even money
+                                dec = 2.0
+                            if pick_home == home_won:
+                                is_win = True
+                                profit = (float(dec) - 1.0) * stake
+                            else:
+                                profit = -stake
+
+                    elif market in {"ATS", "TOTAL"}:
+                        # Need odds lines and finals
+                        if isinstance(godds, pd.DataFrame) and not godds.empty and (hp is not None and ap is not None):
+                            try:
+                                o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                if not o.empty:
+                                    dec = None
+                                    # Default spread/total price if not available
+                                    default_dec = 1.909090909  # -110
+                                    if market == "ATS":
+                                        hsp = pd.to_numeric(o.iloc[0].get("home_spread"), errors="coerce")
+                                        line_home = hsp if pd.notna(hsp) else None
+                                        margin = float(hp) - float(ap)
+                                        if side == home and line_home is not None:
+                                            diff = margin + float(line_home)
+                                            is_push = abs(diff) < 1e-9
+                                            is_win = diff > 0
+                                            dec = default_dec
+                                        elif side == away and line_home is not None:
+                                            diff = -margin - float(line_home)
+                                            is_push = abs(diff) < 1e-9
+                                            is_win = diff > 0
+                                            dec = default_dec
+                                    elif market == "TOTAL":
+                                        tot = pd.to_numeric(o.iloc[0].get("total"), errors="coerce")
+                                        if pd.notna(tot):
+                                            pts = float(hp) + float(ap)
+                                            if str(side).lower().startswith("o"):
+                                                diff = pts - float(tot)
+                                            else:
+                                                diff = float(tot) - pts
+                                            is_push = abs(diff) < 1e-9
+                                            is_win = diff > 0
+                                            dec = default_dec
+                                    if dec is not None:
+                                        resolved = True
+                                        if is_push:
+                                            profit = 0.0
+                                        elif is_win:
+                                            profit = (float(dec) - 1.0) * stake
+                                        else:
+                                            profit = -stake
+                            except Exception:
+                                pass
+
+                    # Update buckets
+                    if resolved:
+                        for key in ("Overall", tier):
+                            b = buckets[key]
+                            b["resolved"] += 1
+                            if is_push:
+                                b["pushes"] += 1
+                            elif is_win:
+                                b["wins"] += 1
+                            else:
+                                b["losses"] += 1
+                            b["stake_total"] += stake
+                            b["profit_total"] += profit
+                except Exception:
+                    continue
+
+        # Finalize percentages
+        for k, b in buckets.items():
+            if b["resolved"] > 0:
+                try:
+                    b["accuracy_pct"] = round(100.0 * b["wins"] / max(1, b["resolved"]), 1)
+                except Exception:
+                    b["accuracy_pct"] = None
+            else:
+                b["accuracy_pct"] = None
+            if b["stake_total"] > 0:
+                try:
+                    b["roi_pct"] = round(100.0 * b["profit_total"] / max(1e-9, b["stake_total"]), 1)
+                except Exception:
+                    b["roi_pct"] = None
+            else:
+                b["roi_pct"] = None
+
+        return jsonify({
+            "since": since,
+            "until": until,
+            "buckets": buckets,
+            "dates": [d for d, _ in rec_files],
+        })
+    except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 
 
@@ -2976,15 +3397,81 @@ def api_cron_reconcile_games():
                 pass
         return pd.DataFrame(rows)
 
+    def _finals_from_espn(date_str_local: str, pred_pairs: set[tuple[str, str]]) -> pd.DataFrame:
+        """Fallback finals via ESPN scoreboard public API."""
+        try:
+            import requests as _rq  # type: ignore
+        except Exception:
+            return pd.DataFrame()
+        try:
+            ymd = date_str_local.replace('-', '')
+            url = f"https://site.web.api.espn.com/apis/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+            r = _rq.get(url, timeout=6)
+            if r.status_code != 200:
+                return pd.DataFrame()
+            jd = r.json()
+            evs = jd.get('events', []) if isinstance(jd, dict) else []
+            def espn_to_tri(abbr: str) -> str:
+                s = str(abbr or '').upper()
+                fix = {
+                    'GS': 'GSW',  # ESPN sometimes uses GS
+                    'NO': 'NOP',
+                    'NY': 'NYK',
+                }
+                return fix.get(s, s)
+            rows: list[dict[str, object]] = []
+            for e in evs:
+                try:
+                    comps = e.get('competitions', [])
+                    if not comps: continue
+                    c = comps[0]
+                    at = c.get('competitors', [])
+                    if len(at) < 2: continue
+                    home = next((t for t in at if str(t.get('homeAway'))=='home'), None)
+                    away = next((t for t in at if str(t.get('homeAway'))=='away'), None)
+                    if not home or not away: continue
+                    htri = espn_to_tri(((home.get('team') or {}).get('abbreviation')))
+                    vtri = espn_to_tri(((away.get('team') or {}).get('abbreviation')))
+                    if (htri, vtri) not in pred_pairs:
+                        continue
+                    try:
+                        hpts = int(home.get('score')) if str(home.get('score') or '') != '' else None
+                    except Exception:
+                        hpts = None
+                    try:
+                        vpts = int(away.get('score')) if str(away.get('score') or '') != '' else None
+                    except Exception:
+                        vpts = None
+                    rows.append({'home_tri': htri, 'away_tri': vtri, 'home_pts': hpts, 'visitor_pts': vpts})
+                except Exception:
+                    continue
+            return pd.DataFrame(rows)
+        except Exception:
+            return pd.DataFrame()
+
     # Fetch finals from ScoreboardV2 if available, else use CDN fallback
     pred_pairs: set[tuple[str, str]] = set(zip(
         preds.get("home_tri").astype(str).str.upper(),
         preds.get("away_tri").astype(str).str.upper()
     ))
     try:
-        if _scoreboardv2 is None:
-            finals = _finals_from_cdn(d, pred_pairs, include_adjacent=False)
+        # Prefer a pre-generated finals CSV if available
+        finals_csv = BASE_DIR / "data" / "processed" / f"finals_{d}.csv"
+        finals: pd.DataFrame
+        if finals_csv.exists():
+            try:
+                _f = pd.read_csv(finals_csv)
+                finals = _f[["home_tri","away_tri","home_pts","visitor_pts"]].copy()
+            except Exception:
+                finals = pd.DataFrame()
         else:
+            finals = pd.DataFrame()
+        if finals.empty and _scoreboardv2 is None:
+            # Use CDN with ±1 day tolerance to handle timezone/reporting offsets; then ESPN fallback
+            finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
+            if finals.empty:
+                finals = _finals_from_espn(d, pred_pairs)
+        elif finals.empty:
             # Try stats API once
             try:
                 if _nba_http is not None:
@@ -3039,7 +3526,9 @@ def api_cron_reconcile_games():
                         continue
                 finals = pd.DataFrame(out_rows)
             if finals.empty and last_err is not None:
-                finals = _finals_from_cdn(d, pred_pairs, include_adjacent=False)
+                finals = _finals_from_cdn(d, pred_pairs, include_adjacent=True)
+                if finals.empty:
+                    finals = _finals_from_espn(d, pred_pairs)
 
         # Join and compute errors
         merged = preds.merge(finals, on=["home_tri","away_tri"], how="left")
@@ -3082,6 +3571,50 @@ def api_cron_reconcile_games():
     except Exception:
         pass
     return jsonify({"date": d, "rows": int(len(out_df)), "output": str(out), "pushed": pushed, "push_detail": push_detail})
+
+
+@app.route("/api/finals/export", methods=["POST", "GET"])
+def api_finals_export():
+    """Export finals CSVs for a single date or a date range.
+
+    Query:
+      - date=YYYY-MM-DD (single) OR since=YYYY-MM-DD&until=YYYY-MM-DD (range)
+    Writes:
+      - data/processed/finals_YYYY-MM-DD.csv per date
+    """
+    if not _cron_auth_ok(request):
+        return jsonify({"error": "unauthorized"}), 401
+    one = (request.args.get("date") or "").strip()
+    since = (request.args.get("since") or "").strip()
+    until = (request.args.get("until") or "").strip()
+    dates: list[str] = []
+    if one:
+        dates = [one]
+    else:
+        try:
+            from datetime import datetime as _dt
+            if not since:
+                return jsonify({"error": "missing date or since/until"}), 400
+            if not until:
+                until = datetime.utcnow().date().isoformat()
+            ds = _dt.strptime(since, "%Y-%m-%d").date()
+            de = _dt.strptime(until, "%Y-%m-%d").date()
+            if de < ds:
+                ds, de = de, ds
+            cur = ds
+            while cur <= de:
+                dates.append(cur.isoformat())
+                cur = cur + timedelta(days=1)
+        except Exception as e:
+            return jsonify({"error": f"invalid dates: {e}"}), 400
+    written: list[dict[str, object]] = []
+    for d in dates:
+        try:
+            path, n = _write_finals_csv_for_date(d)
+            written.append({"date": d, "path": path, "rows": int(n)})
+        except Exception as e:
+            written.append({"date": d, "error": str(e)})
+    return jsonify({"count": len(written), "items": written})
 
 @app.route("/api/cron/daily-update", methods=["POST", "GET"])
 def api_cron_daily_update():
