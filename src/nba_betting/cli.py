@@ -1420,21 +1420,25 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     except Exception as e:
         console.print(f"Player logs update failed: {e}", style="yellow")
 
-    # 4) Reconcile historic game actuals (last N days)
+    # 4) Reconcile historic game actuals (last N days) → writes recon_games_<date>.csv
     try:
         console.print(f"[SEARCH] Reconciling game actuals for last {reconcile_days} days...")
         for days_back in range(1, reconcile_days + 1):
             past_date = target_date - _dt.timedelta(days=days_back)
             try:
-                # This will fetch and upsert actual game results
-                pass  # Game actuals reconciliation logic would go here
-                console.print(f"  [OK] Game actuals for {past_date}")
+                # Invoke reconcile-date via module to avoid Click context issues
+                log = paths.data_processed / f".logs/reconcile_games_{past_date}.log"
+                log.parent.mkdir(parents=True, exist_ok=True)
+                cmd = [sys.executable or "python", "-m", "nba_betting.cli", "reconcile-date", "--date", str(past_date)]
+                with open(log, "w", encoding="utf-8", errors="ignore") as fh:
+                    rc = subprocess.run(cmd, cwd=paths.root, stdout=fh, stderr=subprocess.STDOUT, check=False)
+                console.print(f"  [OK] Game actuals for {past_date} (rc={rc.returncode})")
             except Exception as e:
                 console.print(f"  ⚠️  Game actuals for {past_date}: {e}")
     except Exception as e:
         console.print(f"Game actuals reconciliation failed: {e}", style="yellow")
 
-    # 5) Reconcile historic prop actuals (last N days)
+    # 5) Reconcile historic prop actuals (last N days) and write recon_props_<date>.csv
     try:
         console.print(f"[ACTION] Reconciling prop actuals for last {reconcile_days} days...")
         for days_back in range(1, reconcile_days + 1):
@@ -1447,6 +1451,13 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     if df_actuals is not None and not df_actuals.empty:
                         from .props_actuals import upsert_props_actuals
                         upsert_props_actuals(df_actuals)
+                        # Also write a recon CSV for transparency
+                        try:
+                            outp = paths.data_processed / f"recon_props_{past_date}.csv"
+                            outp.parent.mkdir(parents=True, exist_ok=True)
+                            df_actuals.to_csv(outp, index=False)
+                        except Exception:
+                            pass
                         console.print(f"  [OK] Prop actuals for {past_date}")
                 except Exception:
                     # Fallback to nba_api
@@ -1455,6 +1466,12 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     if df_actuals is not None and not df_actuals.empty:
                         from .props_actuals import upsert_props_actuals
                         upsert_props_actuals(df_actuals)
+                        try:
+                            outp = paths.data_processed / f"recon_props_{past_date}.csv"
+                            outp.parent.mkdir(parents=True, exist_ok=True)
+                            df_actuals.to_csv(outp, index=False)
+                        except Exception:
+                            pass
                         console.print(f"  [OK] Prop actuals for {past_date}")
             except Exception as e:
                 console.print(f"  ⚠️  Prop actuals for {past_date}: {e}")
