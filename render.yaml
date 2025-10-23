@@ -2,7 +2,7 @@ services:
   - type: web
     name: nba-betting
     env: python
-    plan: free
+    # plan intentionally omitted to preserve Render dashboard plan (avoid accidental downgrades)
     autoDeploy: true
     buildCommand: |
       pip install --upgrade pip
