@@ -191,6 +191,15 @@ def route_props_recommendations():
     # Serve the props recommendations page
     return send_from_directory(str(WEB_DIR), "props_recommendations.html")
 
+# Reconciliation pages (static)
+@app.route("/reconciliation")
+def route_reconciliation():
+    return send_from_directory(str(WEB_DIR), "reconciliation.html")
+
+@app.route("/props/reconciliation")
+def route_props_reconciliation_page():
+    return send_from_directory(str(WEB_DIR), "props_reconciliation.html")
+
 
 @app.route("/health")
 def health():
