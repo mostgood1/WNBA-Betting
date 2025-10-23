@@ -1132,6 +1132,8 @@ def api_cron_git_diag():
 
     Requires CRON_TOKEN or admin fallback. Does not expose secrets.
     """
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     def _safe_run(cmd: list[str]) -> str:
@@ -1309,8 +1311,22 @@ def _cron_auth_ok(req) -> bool:
         return True
     return False
 
+def _debug_routes_enabled() -> bool:
+    """Return True if debug/maintenance routes should be enabled.
+
+    Controlled by ADMIN_ENABLE_DEBUG_ROUTES or DEBUG env vars.
+    Defaults to False on servers like Render.
+    """
+    val = os.environ.get("ADMIN_ENABLE_DEBUG_ROUTES") or os.environ.get("DEBUG")
+    if val is None:
+        return False
+    s = str(val).strip().lower()
+    return s in {"1", "true", "yes", "on"}
+
 @app.route("/api/cron/push-test", methods=["POST"])  # lightweight diagnostics
 def api_cron_push_test():
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     # Stage a no-op commit and attempt push (allow-empty)
@@ -2929,6 +2945,8 @@ def api_cron_train_games():
 
     Auth: CRON_TOKEN or ADMIN_KEY. Writes models into models/.
     """
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
     # Choose python exe
@@ -3166,6 +3184,8 @@ def api_cron_probe_bovada():
 
     Auth: CRON_TOKEN or ADMIN_KEY. Query: date=YYYY-MM-DD
     """
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=True)
@@ -3186,6 +3206,8 @@ def api_cron_capture_closing():
     Query params:
       - date (required): YYYY-MM-DD
     """
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=False)
@@ -3224,6 +3246,8 @@ def api_cron_predict_date():
 
     Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
     """
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=True)
@@ -3628,6 +3652,8 @@ def api_finals_export():
 @app.route("/api/cron/daily-update", methods=["POST", "GET"])
 def api_cron_daily_update():
     """Trigger the daily update job via cron token. Git push is disabled by default for cron."""
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     if _job_state["running"]:
@@ -3725,6 +3751,8 @@ def api_cron_config():
 
 @app.route("/api/admin/daily-update", methods=["POST", "GET"])
 def api_admin_daily_update():
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _admin_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     if _job_state["running"]:
@@ -3737,6 +3765,8 @@ def api_admin_daily_update():
 
 @app.route("/api/admin/daily-update/status")
 def api_admin_daily_update_status():
+    if not _debug_routes_enabled():
+        return jsonify({"error": "disabled"}), 404
     if not _admin_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     try:
