@@ -2,8 +2,9 @@ name: "NBA Betting: Reconcile"
 
 on:
   workflow_dispatch: {}
-  schedule:
-    - cron: '5 10 * * *'
+  # Temporarily disable all scheduled runs to keep Render and local behavior identical
+  # schedule:
+  #   - cron: '5 10 * * *'
 
 jobs:
   reconcile:

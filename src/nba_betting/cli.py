@@ -1133,6 +1133,78 @@ def export_props_recommendations_cmd(date_str: str, out_path: str | None):
     console.print({"rows": int(len(cards)), "output": str(out)})
 
 
+@cli.command("odds-refresh")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
+@click.option("--min-prop-edge", type=float, default=0.02, show_default=True, help="Minimum edge filter for props edges")
+@click.option("--min-prop-ev", type=float, default=0.0, show_default=True, help="Minimum EV filter for props edges")
+def odds_refresh_cmd(date_str: str | None, api_key: str | None, min_prop_edge: float, min_prop_ev: float):
+    """Refresh odds and recompute odds-related edges only.
+
+    - Fetch current game odds (OddsAPI via ODDS_API_KEY) and write game_odds_<date>.csv
+    - Compute props edges for the date using current odds (source=auto), saving props_edges_<date>.csv
+    - Do not retrain or rebuild predictions beyond what's needed for edges
+    """
+    console.rule("Odds Refresh (odds + props-edges)")
+    import datetime as _dt
+    try:
+        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+
+    # Load API key from env or .env
+    if not api_key:
+        api_key = _load_dotenv_key("ODDS_API_KEY")
+
+    # 1) Fetch current game odds and save standardized CSV for frontend/merges
+    try:
+        if api_key:
+            console.print("Fetching current game odds (OddsAPI)...", style="cyan")
+            cfg = OddsApiConfig(api_key=api_key)
+            go = fetch_game_odds_current(cfg, pd.to_datetime(target_date))
+            if go is not None and not go.empty:
+                out_csv = paths.data_processed / f"game_odds_{target_date}.csv"
+                out_csv.parent.mkdir(parents=True, exist_ok=True)
+                go.to_csv(out_csv, index=False)
+                console.print({"game_odds_rows": int(len(go)), "output": str(out_csv)})
+            else:
+                console.print("No game odds returned (OddsAPI)", style="yellow")
+        else:
+            console.print("ODDS_API_KEY not set; skipping game odds fetch", style="yellow")
+    except Exception as e:
+        console.print(f"Game odds fetch failed: {e}", style="yellow")
+
+    # 2) Compute props edges using current odds (source auto, mode current)
+    try:
+        console.print("Computing props edges from current odds...", style="cyan")
+        # Calibrate sigma best-effort; fall back to defaults if it fails
+        try:
+            sigma = calibrate_sigma_for_date(str(target_date), window_days=30, min_rows=200, defaults=SigmaConfig())
+        except Exception:
+            sigma = SigmaConfig()
+        edges = compute_props_edges(
+            date=str(target_date),
+            sigma=sigma,
+            use_saved=False,
+            mode="current",
+            api_key=api_key,
+            source="auto",
+            predictions_path=None,
+            from_file_only=False,
+        )
+        if edges is None or edges.empty:
+            console.print("No props edges computed (missing odds or predictions)", style="yellow"); return
+        # Filter and save
+        edges = edges[(edges["edge"] >= float(min_prop_edge)) & (edges["ev"] >= float(min_prop_ev))].copy()
+        edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
+        out = paths.data_processed / f"props_edges_{target_date}.csv"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        edges.to_csv(out, index=False)
+        console.print({"props_edges_rows": int(len(edges)), "output": str(out)})
+    except Exception as e:
+        console.print(f"Props edges computation failed: {e}", style="yellow")
+
+
 @cli.command()
 @click.option("--input", "input_csv", required=True, type=click.Path(exists=True), help="CSV with columns: date,home_team,visitor_team")
 def predict(input_csv: str):

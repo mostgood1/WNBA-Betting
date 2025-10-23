@@ -2,8 +2,9 @@ name: "NBA Betting: Refresh Odds"
 
 on:
   workflow_dispatch: {}
-  schedule:
-    - cron: '*/15 15-23 * * *'  # 15:00–23:59 UTC, every 15min — adjust as needed
+  # Temporarily disable all scheduled runs to keep Render and local behavior identical
+  # schedule:
+  #   - cron: '*/15 15-23 * * *'
 
 jobs:
   refresh-odds:

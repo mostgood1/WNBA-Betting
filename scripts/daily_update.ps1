@@ -339,10 +339,13 @@ Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 # Simple retention: keep last 21 local_daily_update_* logs
 Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object LastWriteTime -Descending | Select-Object -Skip 21 | ForEach-Object { Remove-Item $_.FullName -ErrorAction SilentlyContinue }
 
-# Optionally commit and push updated artifacts
-if ($GitPush) {
+# Ensure push to Git is the final action of the script when enabled
+if (-not $GitPush) {
+  Write-Log 'Local daily update complete (no Git push requested).'
+} else {
+  # Optionally commit and push updated artifacts (LAST STEP)
   try {
-    Write-Log 'Git: staging and pushing updated artifacts'
+    Write-Log 'Git: staging and pushing updated artifacts (final step)'
     & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
     # Try to include predictions.csv at root if present (legacy)
     if (Test-Path 'predictions.csv') { git add -- predictions.csv | Out-Null }
@@ -352,7 +355,6 @@ if ($GitPush) {
       & git commit -m $msg 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
       & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
       & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-      Write-Log 'Git push complete'
     } else {
       Write-Log 'Git: no staged changes; skipping push'
     }
@@ -360,5 +362,3 @@ if ($GitPush) {
     Write-Log ("Git push failed: {0}" -f $_.Exception.Message)
   }
 }
-
-Write-Log 'Local daily update complete.'
