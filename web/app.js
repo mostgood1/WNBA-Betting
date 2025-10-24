@@ -458,6 +458,8 @@ async function maybeLoadRecon(dateStr){
       const rows = parseCSV(text);
       const headers = rows[0];
       const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+      // Build temp map to allow finals backfill before committing to state
+      const temp = new Map();
       for (let i=1;i<rows.length;i++){
         const r = rows[i];
         const date = r[idx.date];
@@ -466,11 +468,50 @@ async function maybeLoadRecon(dateStr){
         if (!date||!home||!away) continue;
         const key = `${date}|${tricodeFromName(home)}|${tricodeFromName(away)}`;
         const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
-        for (const k of ['home_pts','visitor_pts','actual_margin','total_actual','margin_error','total_error']){
-          if (obj[k]!==undefined) obj[k] = Number(obj[k]);
+        for (const k of ['home_pts','visitor_pts','actual_margin','total_actual','margin_error','total_error','pred_total','pred_margin']){
+          if (obj[k]!==undefined) obj[k] = toNum(obj[k]);
         }
-        state.reconByKey.set(key, obj);
+        temp.set(key, obj);
       }
+      // Backfill missing points from finals CSV if available
+      try{
+        const fpath = `/data/processed/finals_${dateStr}.csv?v=${Date.now()}`;
+        const rf = await fetch(fpath);
+        if (rf.ok){
+          const ftxt = await rf.text();
+          const frows = parseCSV(ftxt);
+          if (frows && frows.length > 1){
+            const fh = frows[0];
+            const fidx = Object.fromEntries(fh.map((h,i)=>[h,i]));
+            const fmap = new Map();
+            for (let i=1;i<frows.length;i++){
+              const rr = frows[i];
+              const d = rr[fidx.date];
+              const htri = String(rr[fidx.home_tri]||'').toUpperCase();
+              const atri = String(rr[fidx.away_tri]||'').toUpperCase();
+              const hp = toNum(rr[fidx.home_pts]);
+              const ap = toNum(rr[fidx.visitor_pts]);
+              if (d && htri && atri) fmap.set(`${d}|${htri}|${atri}`, {hp, ap});
+            }
+            for (const [k,obj] of temp.entries()){
+              const d = obj.date || dateStr;
+              const htri = (obj.home_tri ? String(obj.home_tri).toUpperCase() : tricodeFromName(obj.home_team));
+              const atri = (obj.away_tri ? String(obj.away_tri).toUpperCase() : tricodeFromName(obj.visitor_team));
+              if (obj.home_pts==null || obj.visitor_pts==null){
+                const fin = fmap.get(`${d}|${htri}|${atri}`);
+                if (fin && fin.hp!=null && fin.ap!=null){
+                  obj.home_pts = fin.hp; obj.visitor_pts = fin.ap;
+                  obj.total_actual = fin.hp + fin.ap;
+                  if (obj.pred_margin!=null) obj.margin_error = (fin.hp - fin.ap) - obj.pred_margin;
+                  if (obj.pred_total!=null) obj.total_error = obj.total_actual - obj.pred_total;
+                }
+              }
+            }
+          }
+        }
+      }catch(_){ /* ignore finals backfill errors */ }
+      // Commit results
+      for (const [k,obj] of temp.entries()) state.reconByKey.set(k, obj);
     }
   }catch(_){/* ignore */}
   // Props recon (optional)
@@ -501,6 +542,15 @@ function parseCSV(text) {
   // very basic CSV parser for simple commas without quoted commas
   const lines = text.trim().split(/\r?\n/);
   return lines.map(l => l.split(','));
+}
+
+// Parse numeric values safely; return null for blanks/NaN instead of 0
+function toNum(v){
+  if (v === null || v === undefined) return null;
+  const s = String(v).trim();
+  if (s === '' || s.toLowerCase() === 'nan' || s.toLowerCase() === 'none') return null;
+  const n = Number(s);
+  return Number.isFinite(n) ? n : null;
 }
 
 function fmtNum(x, digits=1){
