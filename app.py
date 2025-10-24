@@ -84,7 +84,9 @@ def _norm_player_name(s: str) -> str:
     t = str(s)
     if "(" in t:
         t = t.split("(", 1)[0]
-    t = t.replace(".", "").replace("'", "").strip()
+    # normalize punctuation/hyphens and quotes to align with edges matching
+    t = t.replace("-", " ")
+    t = t.replace(".", "").replace("'", "").replace(",", " ").strip()
     for suf in [" JR", " SR", " II", " III", " IV"]:
         if t.upper().endswith(suf):
             t = t[: -len(suf)]

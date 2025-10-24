@@ -43,7 +43,9 @@ def _norm_name(s: str) -> str:
     # strip team suffixes in parentheses if present
     if "(" in t:
         t = t.split("(", 1)[0]
-    t = t.replace(".", "").replace("'", "").strip()
+    # normalize punctuation/hyphens and quotes
+    t = t.replace("-", " ")
+    t = t.replace(".", "").replace("'", "").replace(",", " ").strip()
     # remove common suffix tokens
     for suf in [" JR", " SR", " II", " III", " IV"]:
         if t.upper().endswith(suf):
@@ -411,6 +413,86 @@ def compute_props_edges(
             alt_col = f"{col}_alt"
             if base_col in merged.columns and alt_col in merged.columns:
                 merged[base_col] = merged[base_col].fillna(merged[alt_col])
+
+    # Third-pass: roster-assisted resolution by event team context -> join predictions by player_id
+    try:
+        still_unmatched = merged[merged["player_id"].isna()].copy()
+        if not still_unmatched.empty:
+            # Load latest rosters file from processed
+            roster = pd.DataFrame()
+            try:
+                proc = paths.data_processed
+                # Prefer files like rosters_*.csv; pick most recent by modified time
+                cands = sorted(proc.glob("rosters_*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                if not cands:
+                    cands = sorted(proc.glob("*roster*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                if cands:
+                    roster = pd.read_csv(cands[0])
+            except Exception:
+                roster = pd.DataFrame()
+            if roster is not None and not roster.empty:
+                # Normalize roster columns heuristically
+                def _pick(col_opts):
+                    for c in col_opts:
+                        if c in roster.columns:
+                            return c
+                    return None
+                name_col = _pick(["PLAYER","player","Player","NAME","name"]) or "PLAYER"
+                id_col = _pick(["PLAYER_ID","player_id","PlayerID","id","ID"])
+                team_col = _pick(["TEAM","team","Team","TEAM_ABBREVIATION","TEAM_ABBR","tricode","TRICODE","TEAM_TRICODE"])            
+                cols = {}
+                if name_col and name_col in roster.columns:
+                    cols["player_name"] = roster[name_col].astype(str)
+                if id_col and id_col in roster.columns:
+                    cols["player_id"] = pd.to_numeric(roster[id_col], errors="coerce")
+                if team_col and team_col in roster.columns:
+                    cols["team"] = roster[team_col].astype(str)
+                r = pd.DataFrame(cols)
+                if not r.empty and ("player_name" in r.columns):
+                    r["name_key"] = r["player_name"].astype(str).map(_norm_name)
+                    r["short_key"] = r["player_name"].astype(str).map(_short_key)
+                    # Join by name_key first
+                    enrich = still_unmatched.merge(r[["name_key","player_id","team"]], on="name_key", how="left", suffixes=("","_r"))
+                    # For remaining, try short_key
+                    rem = enrich[enrich["player_id"].isna()].copy()
+                    if not rem.empty:
+                        enrich2 = rem.merge(r[["short_key","player_id","team"]].rename(columns={"short_key":"short_key_r"}), left_on="short_key", right_on="short_key_r", how="left")
+                        for col in ("player_id","team"):
+                            col_r = f"{col}_y"
+                            if col in enrich.columns and col_r in enrich2.columns:
+                                enrich.loc[rem.index, col] = enrich.loc[rem.index, col].fillna(enrich2[col_r])
+                    # Team-tricode alignment: prefer roster match that aligns with event teams
+                    def _to_tri_team(x: str | None) -> str:
+                        try:
+                            return _tri(_norm_team(str(x))) if x is not None else ""
+                        except Exception:
+                            return (str(x).strip().upper() if x else "")
+                    if "home_team" in enrich.columns and "away_team" in enrich.columns:
+                        enrich["home_tri"] = enrich["home_team"].astype(str).map(_to_tri_team)
+                        enrich["away_tri"] = enrich["away_team"].astype(str).map(_to_tri_team)
+                        enrich["team_tri_r"] = enrich.get("team").astype(str).map(_to_tri_team)
+                        # In cases where roster team doesn't match either event team, null it out to avoid mis-join
+                        ok_mask = (enrich["team_tri_r"] == enrich["home_tri"]) | (enrich["team_tri_r"] == enrich["away_tri"]) | (enrich["team_tri_r"] == "")
+                        enrich.loc[~ok_mask, ["player_id","team"]] = np.nan
+                    # Fill merged with roster-assisted ids/teams
+                    for col in ["player_id","team"]:
+                        if col in enrich.columns:
+                            merged[col] = merged[col].fillna(enrich[col])
+                    # If we resolved player_id, bring in prediction columns via id join
+                    need = merged[merged["player_id"].notna()].index
+                    if len(need) > 0:
+                        pred_cols = ["player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]
+                        pred_cols = [c for c in pred_cols if c in preds.columns]
+                        by_id = preds[pred_cols].drop_duplicates("player_id")
+                        merged = merged.merge(by_id.add_suffix("_pid"), left_on="player_id", right_on="player_id_pid", how="left")
+                        # Backfill any missing prediction fields from the _pid columns
+                        for col in ["player_name","team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]:
+                            base = col
+                            aux = f"{col}_pid"
+                            if base in merged.columns and aux in merged.columns:
+                                merged[base] = merged[base].fillna(merged[aux])
+    except Exception:
+        pass
     # Choose model mean based on stat
     def _select_pred(row) -> float:
         stat = row["stat"]
