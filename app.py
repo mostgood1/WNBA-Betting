@@ -589,6 +589,34 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
         df = _finals_from_cdn_all(date_str)
     if df is None or df.empty:
         df = _finals_from_espn_all(date_str)
+
+    # If still empty, try +/- 1 day as a timezone-friendly fallback and merge unique rows
+    if df is None or df.empty:
+        try:
+            from datetime import datetime as _dt, timedelta as _td
+            base = _dt.strptime(date_str, "%Y-%m-%d").date()
+            candidates: list[pd.DataFrame] = []
+            for off in (-1, 1):
+                d2 = (base + _td(days=off)).isoformat()
+                # Stats first
+                d2_df = _finals_from_stats_all(d2)
+                if d2_df is None or d2_df.empty:
+                    d2_df = _finals_from_cdn_all(d2)
+                if d2_df is None or d2_df.empty:
+                    d2_df = _finals_from_espn_all(d2)
+                if isinstance(d2_df, pd.DataFrame) and not d2_df.empty:
+                    candidates.append(d2_df)
+            if candidates:
+                try:
+                    df = pd.concat(candidates, ignore_index=True)
+                    # De-duplicate on matchup keys if possible
+                    keep_cols = [c for c in ("home_tri","away_tri","home_pts","visitor_pts") if c in df.columns]
+                    if keep_cols:
+                        df = df[keep_cols].drop_duplicates()
+                except Exception:
+                    pass
+        except Exception:
+            pass
     if not isinstance(df, pd.DataFrame):
         df = pd.DataFrame()
     for col in ("home_tri","away_tri","home_pts","visitor_pts"):
