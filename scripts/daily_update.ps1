@@ -277,6 +277,26 @@ try {
   Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 }
 
+# 2.1) Best-effort finals export for yesterday (writes data/processed/finals_<date>.csv)
+try {
+  Write-Log ("Exporting finals CSV for {0}" -f $yesterday)
+  $pyFinals = @'
+import os
+from app import _write_finals_csv_for_date
+d = os.environ.get("YDAY")
+if d:
+    p, n = _write_finals_csv_for_date(d)
+    print(f"WROTE:{p}:{n}")
+else:
+    print("NO_DATE")
+'@
+  $env:YDAY = $yesterday
+  $tmpPyF = Join-Path $LogPath ("finals_export_{0}.py" -f $Stamp)
+  Set-Content -Path $tmpPyF -Value $pyFinals -Encoding UTF8
+  $outF = & $Python $tmpPyF 2>&1 | Tee-Object -FilePath $LogFile -Append
+  if ($outF -match 'WROTE:') { Write-Log ("Finals export result: {0}" -f $outF) } else { Write-Log ("Finals export returned: {0}" -f $outF) }
+} catch { Write-Log ("Finals export block failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 2.5) Fetch injuries before building props projections (ensures inactive players are filtered)
 try {
   Write-Log "Fetching injuries from ESPN before props predictions"
