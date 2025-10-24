@@ -192,7 +192,8 @@ def write_finals_csv(date_str: str, df: Optional[pd.DataFrame] = None) -> tuple[
     Returns (path, row_count).
     """
     if df is None:
-        df = fetch_finals(date_str)
+        # Try network, else offline derivation from props actuals
+        df = fetch_finals_offline_or_network(date_str)
     out = paths.data_processed / f"finals_{date_str}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     keep = ["home_tri","away_tri","home_pts","visitor_pts"]
@@ -204,3 +205,156 @@ def write_finals_csv(date_str: str, df: Optional[pd.DataFrame] = None) -> tuple[
     df2.insert(0, "date", date_str)
     df2.to_csv(out, index=False)
     return str(out), int(len(df2))
+
+
+# -------- Local derivation fallback (no network) --------
+def _find_predictions_for_date(date_str: str) -> Optional[pd.DataFrame]:
+    """Locate predictions_<date>.csv either in processed or at repo root and return DataFrame."""
+    try:
+        proc = paths.data_processed / f"predictions_{date_str}.csv"
+        root = paths.root / f"predictions_{date_str}.csv"
+        if proc.exists():
+            return pd.read_csv(proc)
+        if root.exists():
+            return pd.read_csv(root)
+    except Exception:
+        return None
+    return None
+
+
+def _tri_from_team_name(name: str) -> str:
+    s = str(name or '').strip().upper()
+    # Minimal common mappings
+    alt = {
+        "LOS ANGELES LAKERS": "LAL",
+        "LOS ANGELES CLIPPERS": "LAC",
+        "LA CLIPPERS": "LAC",
+        "GOLDEN STATE WARRIORS": "GSW",
+        "NEW YORK KNICKS": "NYK",
+        "NEW ORLEANS PELICANS": "NOP",
+        "SAN ANTONIO SPURS": "SAS",
+        "PHOENIX SUNS": "PHX",
+        "UTAH JAZZ": "UTA",
+        "OKLAHOMA CITY THUNDER": "OKC",
+        "PORTLAND TRAIL BLAZERS": "POR",
+        "BROOKLYN NETS": "BKN",
+        "CLEVELAND CAVALIERS": "CLE",
+        "DALLAS MAVERICKS": "DAL",
+        "DENVER NUGGETS": "DEN",
+        "DETROIT PISTONS": "DET",
+        "HOUSTON ROCKETS": "HOU",
+        "MIAMI HEAT": "MIA",
+        "MILWAUKEE BUCKS": "MIL",
+        "MINNESOTA TIMBERWOLVES": "MIN",
+        "ORLANDO MAGIC": "ORL",
+        "PHILADELPHIA 76ERS": "PHI",
+        "TORONTO RAPTORS": "TOR",
+        "SACRAMENTO KINGS": "SAC",
+        "CHARLOTTE HORNETS": "CHA",
+        "ATLANTA HAWKS": "ATL",
+        "BOSTON CELTICS": "BOS",
+        "CHICAGO BULLS": "CHI",
+        "INDIANA PACERS": "IND",
+        "MEMPHIS GRIZZLIES": "MEM",
+        "WASHINGTON WIZARDS": "WAS",
+        "PHILADELPHIA SIXERS": "PHI",
+    }
+    return alt.get(s, s if len(s) <= 4 else s)
+
+
+def derive_finals_from_props_actuals(date_str: str) -> pd.DataFrame:
+    """Derive team final scores from props actuals snapshot for a single date.
+
+    Strategy:
+      - Sum player points per (game_id, team_abbr) from recon_props_<date>.csv (preferred) or props_actuals_<date>.csv.
+      - Load predictions_<date>.csv and compute (home_tri, away_tri) from team names.
+      - For each prediction pair, find the matching team totals by set {home_tri, away_tri},
+        and assign home_pts/visitor_pts accordingly.
+    Returns DataFrame with [home_tri, away_tri, home_pts, visitor_pts] (empty if not enough info).
+    """
+    # Load player actuals (prefer recon_props)
+    rp = paths.data_processed / f"recon_props_{date_str}.csv"
+    pa = paths.data_processed / f"props_actuals_{date_str}.csv"
+    dfp: Optional[pd.DataFrame] = None
+    try:
+        if rp.exists():
+            dfp = pd.read_csv(rp)
+        elif pa.exists():
+            dfp = pd.read_csv(pa)
+    except Exception:
+        dfp = None
+    if dfp is None or dfp.empty:
+        return pd.DataFrame()
+    # Normalize fields
+    dfp = dfp.copy()
+    if "team_abbr" not in dfp.columns:
+        return pd.DataFrame()
+    if "pts" not in dfp.columns:
+        # Try alternate field names
+        cand = None
+        for c in ("points","PTS","pts_actual"):
+            if c in dfp.columns:
+                cand = c; break
+        if cand is None:
+            return pd.DataFrame()
+        dfp["pts"] = pd.to_numeric(dfp[cand], errors="coerce")
+    else:
+        dfp["pts"] = pd.to_numeric(dfp["pts"], errors="coerce")
+    # Group to team totals per game
+    if "game_id" not in dfp.columns:
+        return pd.DataFrame()
+    agg = dfp.groupby(["game_id","team_abbr"], as_index=False)["pts"].sum()
+    # Build map from team-pair set -> {team->points}
+    pairs: dict[frozenset[str], dict[str, float]] = {}
+    for gid, gdf in agg.groupby("game_id"):
+        teams = list(gdf["team_abbr"].astype(str).str.upper().unique())
+        if len(teams) != 2:
+            continue
+        key = frozenset(teams)
+        if key in pairs:
+            # In case of duplicate game_ids (shouldn't happen per date), skip
+            continue
+        mp = { row["team_abbr"].upper(): float(row["pts"]) for _, row in gdf.iterrows() }
+        pairs[key] = mp
+
+    # Load predictions and compute (home_tri,away_tri)
+    preds = _find_predictions_for_date(date_str)
+    if preds is None or preds.empty:
+        return pd.DataFrame()
+    try:
+        preds = preds.copy()
+        preds["home_tri"] = preds.get("home_team").apply(_tri_from_team_name)
+        preds["away_tri"] = preds.get("visitor_team").apply(_tri_from_team_name)
+    except Exception:
+        return pd.DataFrame()
+
+    rows: list[dict[str, object]] = []
+    for _, r in preds.iterrows():
+        try:
+            h = str(r.get("home_tri") or '').upper()
+            a = str(r.get("away_tri") or '').upper()
+            key = frozenset((h,a))
+            mp = pairs.get(key)
+            if not mp:
+                continue
+            hp = mp.get(h); ap = mp.get(a)
+            if hp is None or ap is None:
+                # If missing by case sensitivity, try alternate
+                hp = mp.get(h.upper()); ap = mp.get(a.upper())
+            rows.append({"home_tri": h, "away_tri": a, "home_pts": (None if hp is None else int(round(hp))), "visitor_pts": (None if ap is None else int(round(ap)))})
+        except Exception:
+            continue
+    if not rows:
+        return pd.DataFrame()
+    out = pd.DataFrame(rows)
+    # Deduplicate on matchup just in case
+    out = out.drop_duplicates(subset=["home_tri","away_tri"])
+    return out
+
+
+def fetch_finals_offline_or_network(date_str: str) -> pd.DataFrame:
+    """Attempt network sources first; if empty, derive from props actuals and predictions offline."""
+    df = fetch_finals(date_str, include_adjacent=True)
+    if df is None or df.empty:
+        df = derive_finals_from_props_actuals(date_str)
+    return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
