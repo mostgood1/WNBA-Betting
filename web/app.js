@@ -640,6 +640,7 @@ function renderDate(dateStr){
   const wrap = document.getElementById('cards');
   if (!wrap) return;
   wrap.innerHTML = '';
+  const isToday = (dateStr === localYMD());
   let list = state.byDate.get(dateStr) || [];
   // Sort games by commence/start time: prefer odds.commence_time, else schedule timestamps
   try{
@@ -682,8 +683,8 @@ function renderDate(dateStr){
   const recs = recChips(pred);
   // Always load recon to determine final status/score; Results toggle governs extra details only
   const recon = state.reconByKey.get(key);
-  const finals = showResults ? resultChips(recon) : '';
-    // Projected / Actual scores
+  const finals = (!isToday && showResults) ? resultChips(recon) : '';
+  // Projected / Actual scores
     let projHome=null, projAway=null;
     if (pred && Number.isFinite(Number(pred.pred_total)) && Number.isFinite(Number(pred.pred_margin))){
       const T = Number(pred.pred_total), M = Number(pred.pred_margin);
@@ -692,8 +693,9 @@ function renderDate(dateStr){
         projAway = (T - M) / 2;
       }
     }
-  const actualHome = recon && Number.isFinite(recon.home_pts) ? Number(recon.home_pts) : null;
-  const actualAway = recon && Number.isFinite(recon.visitor_pts) ? Number(recon.visitor_pts) : null;
+  // Do not show finals/actuals sourced from CSV for today's date; only historical dates get finals from recon
+  const actualHome = (!isToday && recon && Number.isFinite(recon.home_pts)) ? Number(recon.home_pts) : null;
+  const actualAway = (!isToday && recon && Number.isFinite(recon.visitor_pts)) ? Number(recon.visitor_pts) : null;
   const totalModel = pred && Number.isFinite(Number(pred.pred_total)) ? Number(pred.pred_total) : null;
   const totalActual = (actualHome!=null && actualAway!=null) ? (actualHome + actualAway) : null;
   const diffLine = (totalModel!=null && totalActual!=null) ? `Diff: ${(totalActual - totalModel).toFixed(2)}` : '';
@@ -859,7 +861,7 @@ function renderDate(dateStr){
   const venue = venueText;
   // Determine final result class when results are shown
   let w = 0, l = 0, psh = 0;
-  let isFinal = (actualHome!=null && actualAway!=null);
+  let isFinal = (!isToday && actualHome!=null && actualAway!=null);
   if (isFinal) {
       // Moneyline
       if (pred && pred.home_win_prob!=null) {
@@ -905,7 +907,8 @@ function renderDate(dateStr){
   // Derive a single, non-duplicative status/time display
   const gst = String(g.game_status_text||'').trim();
   const isLive = /Q\d|OT|Half|End|1st|2nd|3rd|4th|LIVE|In Progress/i.test(gst);
-  isFinal = isFinal || /FINAL/i.test(gst);
+  // Never consider today's games as final in the header status
+  isFinal = (!isToday && (isFinal || /FINAL/i.test(gst)));
     const isEtTimeOnly = /\bET\b/i.test(gst) && !isLive && !/FINAL/i.test(gst) && /\d/.test(gst);
     let statusLine = '';
     if (isFinal) {
@@ -948,7 +951,8 @@ function renderDate(dateStr){
   const sortIso = (odds && odds.commence_time) ? odds.commence_time : (dtIso || `${dateStr}T00:00:00Z`);
   node.setAttribute('data-game-date', dtIso || dateStr);
   node.setAttribute('data-sort-time', sortIso);
-  node.setAttribute('data-status', isFinal ? 'final' : (isLive ? 'live' : 'scheduled'));
+  // Never mark today's games as final in card state
+  node.setAttribute('data-status', (!isToday && isFinal) ? 'final' : (isLive ? 'live' : 'scheduled'));
     node.setAttribute('data-home-abbr', home);
     node.setAttribute('data-away-abbr', away);
   // Build chips: Totals, Spread, and Moneyline
@@ -1262,6 +1266,7 @@ async function pollScoreboardOnce(dateStr){
       map.set(`${home}|${away}`, g);
     }
     const cards = Array.from(document.querySelectorAll('.card'));
+    const isToday = (dateStr === localYMD());
     let anyFinalized = false;
     for (const c of cards){
       const home = c.getAttribute('data-home-abbr');
@@ -1301,8 +1306,8 @@ async function pollScoreboardOnce(dateStr){
       const h = c.querySelector('.js-live-home');
       if (a && g.away_pts!=null) a.textContent = String(g.away_pts);
       if (h && g.home_pts!=null) h.textContent = String(g.home_pts);
-      // Update final badge and card class if now final
-      if (g.final){
+      // Update final badge and card class if now final (but not for today's date)
+      if (!isToday && g.final){
         c.setAttribute('data-status','final');
         if (!/final/i.test(c.querySelector('.row.head .state')?.textContent||'')) {
           anyFinalized = true;

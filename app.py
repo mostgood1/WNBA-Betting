@@ -77,6 +77,68 @@ PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
 
+# --- Lightweight name normalizers to align across odds/preds/injuries ---
+def _norm_player_name(s: str) -> str:
+    if s is None:
+        return ""
+    t = str(s)
+    if "(" in t:
+        t = t.split("(", 1)[0]
+    t = t.replace(".", "").replace("'", "").strip()
+    for suf in [" JR", " SR", " II", " III", " IV"]:
+        if t.upper().endswith(suf):
+            t = t[: -len(suf)]
+    try:
+        t = t.encode("ascii", "ignore").decode("ascii")
+    except Exception:
+        pass
+    return t.upper().strip()
+
+def _short_player_key(s: str) -> str:
+    s2 = _norm_player_name(s)
+    parts = [p for p in s2.replace("-", " ").split() if p]
+    if not parts:
+        return s2
+    last = parts[-1]
+    first_initial = parts[0][0] if parts and parts[0] else ""
+    return f"{last}{first_initial}"
+
+def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
+    """Return sets of name_key and short_key for players to exclude on a date.
+
+    Excludes statuses: OUT, DOUBTFUL, SUSPENDED, INACTIVE, REST.
+    """
+    try:
+        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        if not inj_path.exists():
+            return set(), set()
+        inj = pd.read_csv(inj_path)
+        if inj is None or inj.empty or ("player" not in inj.columns) or ("status" not in inj.columns):
+            return set(), set()
+        if "date" in inj.columns:
+            inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
+            cutoff = pd.to_datetime(date_str).date()
+            inj = inj[inj["date"].notna()]
+            inj = inj[inj["date"] <= cutoff].copy()
+        # latest by player (+team if present)
+        sort_cols = [c for c in ["date"] if c in inj.columns]
+        if sort_cols:
+            inj = inj.sort_values(sort_cols)
+        grp_cols = [c for c in ["player","team"] if c in inj.columns]
+        if not grp_cols:
+            grp_cols = ["player"]
+        latest = inj.groupby(grp_cols, as_index=False).tail(1)
+        latest["status_norm"] = latest["status"].astype(str).str.upper()
+        EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
+        bad = latest[latest["status_norm"].isin(EXCLUDE_STATUSES)].copy()
+        if bad.empty:
+            return set(), set()
+        bad["name_key"] = bad["player"].astype(str).map(_norm_player_name)
+        bad["short_key"] = bad["player"].astype(str).map(_short_player_key)
+        return set(bad["name_key"].dropna().astype(str)), set(bad["short_key"].dropna().astype(str))
+    except Exception:
+        return set(), set()
+
 # Helper to reliably resolve the Python interpreter for subprocess tasks
 def _resolve_python() -> str:
     """Return best Python executable path for running our CLI.
@@ -2106,6 +2168,21 @@ def api_props():
                     df = tmp[tmp["_team_tri"].isin(tris)].drop(columns=["_team_tri"], errors="ignore")
             except Exception:
                 pass
+
+        # Exclude injured players by default (can override with excludeInjured=0)
+        try:
+            excl_param = (request.args.get("excludeInjured", "1") or "1").strip().lower()
+            do_excl = excl_param not in ("0", "false", "no")
+            if do_excl and ("player_name" in df.columns):
+                bad_name_keys, bad_short_keys = _injury_name_sets_for_date(d)
+                if bad_name_keys or bad_short_keys:
+                    tmp = df.copy()
+                    tmp["_name_key"] = tmp["player_name"].astype(str).map(_norm_player_name)
+                    tmp["_short_key"] = tmp["player_name"].astype(str).map(_short_player_key)
+                    mask = (~tmp["_name_key"].isin(bad_name_keys)) & (~tmp["_short_key"].isin(bad_short_keys))
+                    df = tmp[mask].drop(columns=["_name_key","_short_key"], errors="ignore")
+        except Exception:
+            pass
 
     # Optional filters
         min_edge = float(request.args.get("min_edge", "0"))

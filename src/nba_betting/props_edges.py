@@ -204,6 +204,7 @@ def compute_props_edges(
     source: str = "auto",
     predictions_path: Optional[str] = None,
     from_file_only: bool = False,
+    exclude_injured: bool = True,
 ) -> pd.DataFrame:
     """Compute model edges/EV against OddsAPI player props for a given date.
 
@@ -281,6 +282,52 @@ def compute_props_edges(
     if odds is None or odds.empty:
         return pd.DataFrame()
 
+    # Optional: exclude injured players from consideration before merging
+    if exclude_injured:
+        try:
+            inj_path = paths.data_raw / "injuries.csv"
+            if inj_path.exists():
+                inj = pd.read_csv(inj_path)
+                # Normalize date and take latest status per player/team up to target date
+                if "date" in inj.columns:
+                    inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
+                    cutoff = pd.to_datetime(target_date).date()
+                    inj = inj[inj["date"].notna()]
+                    inj = inj[inj["date"] <= cutoff].copy()
+                # Keep relevant columns
+                keep = [c for c in ["player","team","status","date"] if c in inj.columns]
+                inj = inj[keep].copy() if keep else pd.DataFrame()
+                if not inj.empty and "player" in inj.columns and "status" in inj.columns:
+                    # Latest record per player+team if team exists, else per player
+                    sort_cols = [c for c in ["date"] if c in inj.columns]
+                    if sort_cols:
+                        inj = inj.sort_values(sort_cols)
+                    grp_cols = [c for c in ["player","team"] if c in inj.columns]
+                    if not grp_cols:
+                        grp_cols = ["player"]
+                    inj_latest = inj.groupby(grp_cols, as_index=False).tail(1)
+                    # Normalize names and statuses
+                    def _norm(s: str) -> str:
+                        return _norm_name(s)
+                    inj_latest["name_key"] = inj_latest["player"].astype(str).map(_norm)
+                    inj_latest["short_key"] = inj_latest["player"].astype(str).map(_short_key)
+                    inj_latest["status_norm"] = inj_latest["status"].astype(str).str.upper()
+                    EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
+                    bad = inj_latest[inj_latest["status_norm"].isin(EXCLUDE_STATUSES)].copy()
+                    if not bad.empty:
+                        bad_name_keys = set(bad["name_key"].dropna().astype(str))
+                        bad_short_keys = set(bad["short_key"].dropna().astype(str))
+                        # We'll apply once odds are normalized with name_key/short_key
+                        _inj_filter = (bad_name_keys, bad_short_keys)
+                    else:
+                        _inj_filter = None
+                else:
+                    _inj_filter = None
+            else:
+                _inj_filter = None
+        except Exception:
+            _inj_filter = None
+
     # Normalize odds
     keep_cols = [
         "bookmaker", "bookmaker_title", "market", "outcome_name", "player_name", "point", "price", "commence_time",
@@ -293,6 +340,14 @@ def compute_props_edges(
         odds["player_name"] = odds["outcome_name"].astype(str)
     odds["name_key"] = odds["player_name"].astype(str).map(_norm_name)
     odds["short_key"] = odds["player_name"].astype(str).map(_short_key)
+    # Apply injuries filter now that keys exist
+    try:
+        if exclude_injured and ('_inj_filter' in locals()) and (_inj_filter is not None):
+            bad_name_keys, bad_short_keys = _inj_filter
+            if bad_name_keys or bad_short_keys:
+                odds = odds[~(odds["name_key"].isin(bad_name_keys) | odds["short_key"].isin(bad_short_keys))].copy()
+    except Exception:
+        pass
     # Side: OVER/UNDER for most markets; YES/NO for double-double/triple-double
     def _map_side(x: str) -> Optional[str]:
         u = str(x).upper()
