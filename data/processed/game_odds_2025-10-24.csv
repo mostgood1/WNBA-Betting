@@ -1,0 +1,13 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-10-24,2025-10-25T02:00:00Z,Los Angeles Lakers,Minnesota Timberwolves,111.0,-132.45454545454547,2.5,-2.5,225.5,oddsapi_consensus
+2025-10-24,2025-10-24T23:10:00Z,Orlando Magic,Atlanta Hawks,-205.9090909090909,170.8181818181818,-5.0,5.0,236.0,oddsapi_consensus
+2025-10-24,2025-10-25T02:10:00Z,Sacramento Kings,Utah Jazz,-194.1818181818182,162.1818181818182,-5.0,5.0,234.0,oddsapi_consensus
+2025-10-24,2025-10-25T02:40:00Z,Los Angeles Clippers,Phoenix Suns,-451.72727272727275,344.1818181818182,-10.0,10.0,223.5,oddsapi_consensus
+2025-10-24,2025-10-24T23:30:00Z,New York Knicks,Boston Celtics,-162.8181818181818,137.27272727272728,-3.5,3.5,230.0,oddsapi_consensus
+2025-10-24,2025-10-25T00:10:00Z,New Orleans Pelicans,San Antonio Spurs,154.45454545454547,-183.9090909090909,4.5,-4.5,233.0,oddsapi_consensus
+2025-10-24,2025-10-24T22:40:00Z,Toronto Raptors,Milwaukee Bucks,-121.54545454545455,101.45454545454545,-1.5,1.5,234.0,oddsapi_consensus
+2025-10-24,2025-10-25T00:10:00Z,Memphis Grizzlies,Miami Heat,-145.45454545454547,122.54545454545455,-2.5,2.5,231.5,oddsapi_consensus
+2025-10-24,2025-10-24T23:40:00Z,Brooklyn Nets,Cleveland Cavaliers,485.90909090909093,-689.9090909090909,11.5,-11.5,230.0,oddsapi_consensus
+2025-10-24,2025-10-25T00:40:00Z,Dallas Mavericks,Washington Wizards,-530.3636363636364,392.3636363636364,-10.0,10.0,227.5,oddsapi_consensus
+2025-10-24,2025-10-25T02:10:00Z,Portland Trail Blazers,Golden State Warriors,86.18181818181819,-124.63636363636364,1.5,-1.5,227.5,oddsapi_consensus
+2025-10-24,2025-10-25T00:10:00Z,Houston Rockets,Detroit Pistons,-259.8181818181818,210.9090909090909,-6.5,6.5,227.5,oddsapi_consensus

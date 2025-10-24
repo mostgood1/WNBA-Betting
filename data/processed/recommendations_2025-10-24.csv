@@ -1,0 +1,13 @@
+market,side,home,away,ev,date,edge
+ML,New York Knicks,New York Knicks,Boston Celtics,0.18031472209215776,2025-10-24,
+ATS,New York Knicks,New York Knicks,Boston Celtics,,2025-10-24,4.67508602142334
+TOTAL,Over,New York Knicks,Boston Celtics,,2025-10-24,4.626251220703125
+ML,Atlanta Hawks,Orlando Magic,Atlanta Hawks,0.6669866893160246,2025-10-24,
+ATS,Atlanta Hawks,Orlando Magic,Atlanta Hawks,,2025-10-24,-5.93270206451416
+TOTAL,Under,Orlando Magic,Atlanta Hawks,,2025-10-24,-8.655120849609347
+ML,Brooklyn Nets,Brooklyn Nets,Cleveland Cavaliers,0.4523276239490813,2025-10-24,
+ATS,Brooklyn Nets,Brooklyn Nets,Cleveland Cavaliers,,2025-10-24,1.8898668289184553
+TOTAL,Under,Brooklyn Nets,Cleveland Cavaliers,,2025-10-24,-1.62152099609375
+ML,Toronto Raptors,Toronto Raptors,Milwaukee Bucks,0.2122597102505469,2025-10-24,
+ATS,Toronto Raptors,Toronto Raptors,Milwaukee Bucks,,2025-10-24,2.439592123031616
+TOTAL,Under,Toronto Raptors,Milwaukee Bucks,,2025-10-24,-4.674560546875
