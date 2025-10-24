@@ -277,6 +277,15 @@ try {
   Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 }
 
+# 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
+try {
+  Write-Log ("Export finals CSV for {0}" -f $yesterday)
+  $rc_fin = Invoke-PyMod -plist @('-m','nba_betting.cli','finals-export','--date', $yesterday)
+  Write-Log ("finals-export exit code: {0}" -f $rc_fin)
+} catch {
+  Write-Log ("finals-export failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.1) Best-effort finals export for yesterday (writes data/processed/finals_<date>.csv)
 try {
   Write-Log ("Exporting finals CSV for {0}" -f $yesterday)

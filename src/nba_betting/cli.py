@@ -24,6 +24,7 @@ from .odds_bovada import fetch_bovada_odds_current
 from .props_actuals import fetch_prop_actuals_via_nbastatr, upsert_props_actuals
 from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_via_nbaapi
 from .props_features import build_props_features, build_features_for_date
+from .finals import fetch_finals, write_finals_csv
 # from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
 from .props_linear import train_linear_props_models, export_linear_to_onnx
@@ -208,6 +209,46 @@ def backfill_scoreboard_cmd(seasons: str, rate_delay: float, day_limit: int | No
         console.print("Invalid seasons list", style="red"); return
     df = backfill_scoreboard(seasons=season_list, rate_delay=rate_delay, verbose=verbose, day_limit=day_limit, resume_file=resume_file)
     console.print(f"Backfill complete. Raw rows={len(df)}")
+
+
+@cli.command("finals-export")
+@click.option("--date", "date_str", type=str, required=False, help="Single date YYYY-MM-DD")
+@click.option("--since", "since_str", type=str, required=False, help="Start date YYYY-MM-DD (inclusive)")
+@click.option("--until", "until_str", type=str, required=False, help="End date YYYY-MM-DD (inclusive; defaults to today)")
+def finals_export_cmd(date_str: str | None, since_str: str | None, until_str: str | None):
+    """Export final scores to data/processed/finals_<date>.csv for a date or date range.
+
+    Source order: nba_api ScoreboardV2 -> NBA CDN -> ESPN, with ±1 day fallback.
+    """
+    console.rule("Export Finals")
+    dates: list[str] = []
+    if date_str:
+        dates = [date_str]
+    else:
+        try:
+            from datetime import datetime as _dt, timedelta as _td
+            if not since_str:
+                console.print("Provide --date or --since/--until", style="red"); return
+            if not until_str:
+                until_str = _dt.utcnow().date().isoformat()
+            ds = _dt.strptime(since_str, "%Y-%m-%d").date()
+            de = _dt.strptime(until_str, "%Y-%m-%d").date()
+            if de < ds:
+                ds, de = de, ds
+            cur = ds
+            while cur <= de:
+                dates.append(cur.isoformat())
+                cur += _td(days=1)
+        except Exception as e:
+            console.print(f"Invalid dates: {e}", style="red"); return
+    out = []
+    for d in dates:
+        try:
+            path, n = write_finals_csv(d)
+            out.append({"date": d, "path": str(path), "rows": int(n)})
+        except Exception as e:
+            out.append({"date": d, "error": str(e)})
+    console.print({"count": len(out), "items": out})
 
 
 @cli.command("backfill-player-props")
