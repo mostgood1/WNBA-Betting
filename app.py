@@ -3754,7 +3754,15 @@ def api_finals_export():
             written.append({"date": d, "path": path, "rows": int(n)})
         except Exception as e:
             written.append({"date": d, "error": str(e)})
-    return jsonify({"count": len(written), "items": written})
+    # Optional: commit and push generated CSVs
+    pushed = None; push_detail = None
+    if str(request.args.get("push", "0")).lower() in {"1","true","yes"}:
+        try:
+            ok, detail = _git_commit_and_push(msg=f"finals export {dates[0]}..{dates[-1]}" if len(dates) > 1 else f"finals export {dates[0]}")
+            pushed = bool(ok); push_detail = detail
+        except Exception as e:
+            pushed = False; push_detail = str(e)
+    return jsonify({"count": len(written), "items": written, "pushed": pushed, "push_detail": push_detail})
 
 @app.route("/api/cron/daily-update", methods=["POST", "GET"])
 def api_cron_daily_update():
