@@ -14,6 +14,14 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
+# Default behavior: push to Git at the end unless explicitly disabled.
+# If caller omitted -GitPush, honor env DAILY_UPDATE_ALWAYS_PUSH (default = true)
+if (-not $PSBoundParameters.ContainsKey('GitPush')) {
+  $always = $env:DAILY_UPDATE_ALWAYS_PUSH
+  if ($null -eq $always -or $always -eq '') { $always = '1' }
+  if ($always -match '^(1|true|yes)$') { $GitPush = $true } else { $GitPush = $false }
+}
+
 # Resolve paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # Repo root is the parent of the scripts folder

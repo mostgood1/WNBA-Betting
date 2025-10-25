@@ -309,23 +309,6 @@ TeamID,SEASON,LeagueID,PLAYER,NICKNAME,PLAYER_SLUG,NUM,POSITION,HEIGHT,WEIGHT,BI
 1610612754,2025,00,Quenton Jackson,Quenton,quenton-jackson,29,G,6-4,173,"SEP 15, 1998",27.0,3,Texas A&M,1631245,Signed on 03/04/24,1610612754,IND,Indiana Pacers
 1610612754,2025,00,Jay Huff,Jay,jay-huff,32,C,7-1,240,"AUG 25, 1997",28.0,4,Virginia,1630643,Traded from MEM on 07/06/25,1610612754,IND,Indiana Pacers
 1610612754,2025,00,Pascal Siakam,Pascal,pascal-siakam,43,F,6-8,245,"APR 02, 1994",31.0,9,New Mexico State,1627783,Traded from TOR on 01/17/24,1610612754,IND,Indiana Pacers
-1610612755,2025,00,Tyrese Maxey,Tyrese,tyrese-maxey,0,G,6-2,200,"NOV 04, 2000",24.0,5,Kentucky,1630178,#21 Pick in 2020 Draft,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Andre Drummond,Andre,andre-drummond,1,C,6-11,279,"AUG 10, 1993",32.0,13,Connecticut,203083,Signed on 07/07/24,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Quentin Grimes,Quentin,quentin-grimes,5,G,6-4,210,"MAY 08, 2000",25.0,4,Houston,1629656,Traded from DAL on 02/04/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Kyle Lowry,Kyle,kyle-lowry,7,G,6-0,196,"MAR 25, 1986",39.0,19,Villanova,200768,Signed on 02/13/24,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Paul George,Paul,paul-george,8,F,6-8,220,"MAY 02, 1990",35.0,15,Fresno State,202331,Signed on 07/06/24,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Kelly Oubre Jr.,Kelly,kelly-oubre-jr,9,F-G,6-8,203,"DEC 09, 1995",29.0,10,Kansas,1626162,Signed on 09/26/23,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Justin Edwards,Justin,justin-edwards,11,F,6-7,203,"DEC 16, 2003",21.0,1,Kentucky,1642348,Signed on 07/04/24,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Trendon Watford,Trendon,trendon-watford,12,G-F,6-8,237,"NOV 09, 2000",24.0,4,Louisiana State,1630570,Signed on 07/02/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Jared McCain,Jared,jared-mccain,20,G,6-3,195,"FEB 20, 2004",21.0,1,Duke,1642272,#16 Pick in 2024 Draft,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Joel Embiid,Joel,joel-embiid,21,C-F,7-0,280,"MAR 16, 1994",31.0,9,Kansas,203954,#3 Pick in 2014 Draft,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Johni Broome,Johni,johni-broome,22,F,6-10,235,"JUL 19, 2002",23.0,R,Auburn,1641780,#35 Pick in 2025 Draft,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Eric Gordon,Eric,eric-gordon,23,G,6-3,215,"DEC 25, 1988",36.0,17,Indiana,201569,Signed on 07/10/24,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Dominick Barlow,Dominick,dominick-barlow,25,F,6-9,215,"MAY 26, 2003",22.0,3,Overtime Elite,1631230,Signed on 07/09/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Adem Bona,Adem,adem-bona,30,F,6-10,235,"MAR 28, 2003",22.0,1,UCLA,1641737,#41 Pick in 2024 Draft,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Jabari Walker,Jabari,jabari-walker,34,F,6-7,237,"JUL 30, 2002",23.0,3,Colorado,1631133,Signed on 07/05/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,Hunter Sallis,Hunter,hunter-sallis,45,G,6-4,185,"MAR 26, 2003",22.0,R,Wake Forest,1642282,Signed on 07/01/25,1610612755,PHI,Philadelphia 76ers
-1610612755,2025,00,VJ Edgecombe,VJ,vj-edgecombe,77,G,6-4,180,"JUL 30, 2005",20.0,R,Baylor,1642845,#3 Pick in 2025 Draft,1610612755,PHI,Philadelphia 76ers
 1610612756,2025,00,Royce O'Neale,Royce,royce-oneale,00,F,6-6,226,"JUN 05, 1993",32.0,8,Baylor,1626220,Traded from BKN on 02/08/24,1610612756,PHX,Phoenix Suns
 1610612756,2025,00,Ryan Dunn,Ryan,ryan-dunn,0,F,6-7,216,"JAN 07, 2003",22.0,1,Virginia,1642346,Draft Rights Traded from DEN on 06/26/24,1610612756,PHX,Phoenix Suns
 1610612756,2025,00,Devin Booker,Devin,devin-booker,1,G,6-5,206,"OCT 30, 1996",28.0,10,Kentucky,1626164,#13 Pick in 2015 Draft,1610612756,PHX,Phoenix Suns

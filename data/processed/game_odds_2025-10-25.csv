@@ -1,6 +1,6 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-10-25,2025-10-25T23:30:00Z,Atlanta Hawks,Oklahoma City Thunder,211.36363636363637,-259.72727272727275,6.0,-6.0,238.5,oddsapi_consensus
-2025-10-25,2025-10-26T00:10:00Z,Memphis Grizzlies,Indiana Pacers,-110.375,-109.625,0.0,-0.0,237.5,oddsapi_consensus
-2025-10-25,2025-10-26T02:00:00Z,Denver Nuggets,Phoenix Suns,-850.0909090909091,567.9090909090909,-13.0,13.0,233.5,oddsapi_consensus
-2025-10-25,2025-10-25T23:40:00Z,Philadelphia 76ers,Charlotte Hornets,-198.1818181818182,165.27272727272728,-5.0,5.0,236.5,oddsapi_consensus
-2025-10-25,2025-10-25T23:00:00Z,Orlando Magic,Chicago Bulls,-240.1818181818182,196.36363636363637,-6.0,6.0,232.5,oddsapi_consensus
+2025-10-25,2025-10-25T23:30:00Z,Atlanta Hawks,Oklahoma City Thunder,212.27272727272728,-259.72727272727275,6.5,-6.5,238.5,oddsapi_consensus
+2025-10-25,2025-10-26T00:10:00Z,Memphis Grizzlies,Indiana Pacers,-112.5,-107.5,-1.0,1.0,237.5,oddsapi_consensus
+2025-10-25,2025-10-26T02:00:00Z,Denver Nuggets,Phoenix Suns,-854.1818181818181,569.2727272727273,-13.0,13.0,233.5,oddsapi_consensus
+2025-10-25,2025-10-25T23:40:00Z,Philadelphia 76ers,Charlotte Hornets,-198.72727272727272,165.9090909090909,-4.5,4.5,237.0,oddsapi_consensus
+2025-10-25,2025-10-25T23:00:00Z,Orlando Magic,Chicago Bulls,-242.45454545454547,198.1818181818182,-6.0,6.0,232.5,oddsapi_consensus

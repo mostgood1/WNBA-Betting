@@ -1,9 +1,10 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Chicago Bulls,Orlando Magic,Chicago Bulls,2025-10-25,0.07806693899032147,196.3636363636364,0.3374233128834356,,,,,,High
+ML,Chicago Bulls,Orlando Magic,Chicago Bulls,2025-10-25,0.08302736969119706,197.72727272727272,0.33587786259541985,,,,,,High
 ATS,Chicago Bulls,Orlando Magic,Chicago Bulls,2025-10-25,,,,-3.819918632507324,6.0,2.180081367492676,6.0,,High
 TOTAL,Under,Orlando Magic,Chicago Bulls,2025-10-25,,,,-8.966705322265597,232.5,,,223.5332946777344,High
-ML,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,0.13013044834548992,211.3636363636364,0.32116788321167883,,,,,,High
-ATS,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,3.7713119983673096,6.0,-2.2286880016326904,-6.0,,High
+ML,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,0.13343009928956417,212.27272727272728,0.32023289665211063,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,4.27131199836731,6.5,-2.2286880016326904,-6.5,,High
 TOTAL,Under,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,-8.382659912109347,238.5,,,230.11734008789065,High
-ATS,Charlotte Hornets,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-3.5721616744995117,5.0,1.4278383255004885,5.0,,High
-TOTAL,Under,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-10.6739501953125,236.5,,,225.8260498046875,High
+ML,Charlotte Hornets,Philadelphia 76ers,Charlotte Hornets,2025-10-25,0.000431717391586095,165.9090909090909,0.3760683760683761,,,,,,Low
+ATS,Charlotte Hornets,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-3.0721616744995117,4.5,1.4278383255004885,4.5,,High
+TOTAL,Under,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-11.1739501953125,237.0,,,225.8260498046875,High
