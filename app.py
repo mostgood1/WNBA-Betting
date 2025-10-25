@@ -1729,6 +1729,33 @@ def api_recommendations():
         recs: List[Dict[str, Any]] = []
         th_spread = float(request.args.get("spread_edge", 1.0))
         th_total = float(request.args.get("total_edge", 1.5))
+
+        def _tier_for_pick(market: str, ev: Any, edge: Any) -> str:
+            try:
+                if (market or "").upper() == "ML":
+                    v = float(ev)
+                    if v >= 0.04:
+                        return "High"
+                    if v >= 0.02:
+                        return "Medium"
+                    return "Low"
+                if (market or "").upper() == "ATS":
+                    v = abs(float(edge))
+                    if v >= 3.0:
+                        return "High"
+                    if v >= 1.5:
+                        return "Medium"
+                    return "Low"
+                if (market or "").upper() == "TOTAL":
+                    v = abs(float(edge))
+                    if v >= 4.0:
+                        return "High"
+                    if v >= 2.0:
+                        return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            return "Low"
         for _, r in df.iterrows():
             try:
                 home = r.get("home_team"); away = r.get("visitor_team")
@@ -1740,9 +1767,26 @@ def api_recommendations():
                     side = home if (ev_h or -1) >= (ev_a or -1) else away
                     ev = ev_h if side == home else ev_a
                     if ev is not None and ev > 0:
+                        price = None
+                        implied = None
+                        try:
+                            if side == home:
+                                price = _number(r.get("home_ml"))
+                            else:
+                                price = _number(r.get("away_ml"))
+                            implied = _implied_prob_american(price) if price is not None else None
+                        except Exception:
+                            price = None; implied = None
                         recs.append({
-                            "market": "ML", "side": side, "home": home, "away": away,
-                            "ev": float(ev), "date": d,
+                            "market": "ML",
+                            "side": side,
+                            "home": home,
+                            "away": away,
+                            "ev": float(ev),
+                            "price": price,
+                            "implied_prob": (float(implied) if implied is not None else None),
+                            "tier": _tier_for_pick("ML", ev, None),
+                            "date": d,
                         })
                 # Spread rec
                 pred_m = _number(r.get("pred_margin"))
@@ -1752,9 +1796,19 @@ def api_recommendations():
                     edge = pred_m - market_home_margin
                     if abs(edge) >= th_spread:
                         side = home if edge > 0 else away
+                        # Derive the picked team's line: for home it's home_spread; for away it's -home_spread
+                        line = home_spread if side == home else (-home_spread if home_spread is not None else None)
                         recs.append({
-                            "market": "ATS", "side": side, "home": home, "away": away,
-                            "edge": float(edge), "date": d,
+                            "market": "ATS",
+                            "side": side,
+                            "home": home,
+                            "away": away,
+                            "edge": float(edge),
+                            "pred_margin": float(pred_m),
+                            "market_home_margin": float(market_home_margin),
+                            "line": (float(line) if line is not None else None),
+                            "tier": _tier_for_pick("ATS", None, edge),
+                            "date": d,
                         })
                 # Total rec
                 pred_t = _number(r.get("pred_total"))
@@ -1764,8 +1818,15 @@ def api_recommendations():
                     if abs(edge_t) >= th_total:
                         side = "Over" if edge_t > 0 else "Under"
                         recs.append({
-                            "market": "TOTAL", "side": side, "home": home, "away": away,
-                            "edge": float(edge_t), "date": d,
+                            "market": "TOTAL",
+                            "side": side,
+                            "home": home,
+                            "away": away,
+                            "edge": float(edge_t),
+                            "line": (float(total) if total is not None else None),
+                            "pred_total": float(pred_t),
+                            "tier": _tier_for_pick("TOTAL", None, edge_t),
+                            "date": d,
                         })
             except Exception:
                 continue
@@ -3857,11 +3918,29 @@ def api_cron_config():
                 "/api/cron/reconcile-games",
                 "/api/cron/capture-closing",
                 "/api/cron/probe-bovada",
+                "/api/cron/ping",
                 "/api/cron/config",
             ],
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cron/ping")
+def api_cron_ping():
+    """Lightweight cron auth check. Returns 200 quickly if token is valid.
+
+    Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/local).
+    """
+    try:
+        if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+            return jsonify({"ok": False, "error": "unauthorized"}), 401
+        return jsonify({
+            "ok": True,
+            "utc": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        })
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 @app.route("/api/admin/daily-update", methods=["POST", "GET"])

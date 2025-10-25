@@ -35,7 +35,9 @@
 				"Bypass",
 				"-File",
 				"${workspaceFolder}\\scripts\\daily_update.ps1",
-				"-GitPush"
+				"-GitPush",
+				"-CronToken",
+				"${env:CRON_TOKEN}"
 			],
 			"isBackground": false,
 			"problemMatcher": []

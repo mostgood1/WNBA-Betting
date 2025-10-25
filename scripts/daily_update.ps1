@@ -7,7 +7,9 @@ Param(
   # If set, do a 'git pull --rebase' before running to reduce conflicts
   [switch]$GitSyncFirst,
   # Optional: Remote server base URL (updated to the correct Render site)
-  [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com"
+  [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
+  # Optional: Pass cron token explicitly (overrides env/.env/file discovery)
+  [string]$CronToken
 )
 
 $ErrorActionPreference = 'Stop'
@@ -98,6 +100,37 @@ $env:PYTHONIOENCODING = 'utf-8'
 Write-Log "Starting NBA local daily update for date=$Date"
 Write-Log "Python: $Python"
 
+# Discover CRON token for server calls: precedence = param > env > repo .cron_token file
+$ServerToken = $null
+if ($CronToken) {
+  $ServerToken = $CronToken
+  Write-Log "Server auth: using token from parameter (redacted)"
+} elseif ($env:CRON_TOKEN) {
+  $ServerToken = $env:CRON_TOKEN
+  Write-Log "Server auth: using token from environment (redacted)"
+} else {
+  try {
+    $tokenPath1 = Join-Path $RepoRoot '.cron_token'
+    $tokenPath2 = Join-Path $ScriptDir '.cron_token'
+    $tp = $null
+    if (Test-Path $tokenPath1) { $tp = $tokenPath1 }
+    elseif (Test-Path $tokenPath2) { $tp = $tokenPath2 }
+    if ($tp) {
+      $raw = (Get-Content -Path $tp -Encoding UTF8 | Select-Object -First 1).Trim()
+      if ($raw) {
+        $ServerToken = $raw
+        $env:CRON_TOKEN = $raw  # propagate for child procs
+        Write-Log "Server auth: loaded token from file $tp (redacted)"
+      }
+    }
+  } catch {
+    Write-Log ("Server auth: token file load failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+}
+$ServerHeaders = @{}
+if ($ServerToken) { $ServerHeaders['Authorization'] = "Bearer $ServerToken" }
+else { Write-Log "Server auth: NO TOKEN AVAILABLE; server cron endpoints may return 401 (will fallback locally)" }
+
 # Optionally sync repo to reduce push conflicts
 if ($GitSyncFirst) {
   try {
@@ -131,9 +164,7 @@ try {
 if ($UseServer) {
   Write-Log "Server detected at $BaseUrl; will call refresh/reconcile, but all model CSVs will still be generated locally."
   try {
-    $token = $env:CRON_TOKEN
-    $headers = @{}
-    if ($token) { $headers['Authorization'] = "Bearer $token" }
+    $headers = $ServerHeaders
     # Warm server props edges via auto source (OddsAPI first) without pushing
     $u2 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
     try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-edges warm call failed: {0}" -f $_.Exception.Message) }
@@ -264,10 +295,8 @@ try {
 } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
 Write-Log ("Reconcile games for {0} via server endpoint (if available), else CLI" -f $yesterday)
 try {
-  $token = $env:CRON_TOKEN
-  $headers = @{}
-  if ($token) { $headers['Authorization'] = "Bearer $token" }
-  $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday"
+  $headers = $ServerHeaders
+  $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
   $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
   ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
 } catch {

@@ -10,3 +10,5 @@ logs/
 *.log
 # Deprecated rolling file; replaced by dated snapshots
 data/processed/props_actuals.csv
+# Local server cron token (do not commit)
+.cron_token
