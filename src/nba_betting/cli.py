@@ -80,6 +80,121 @@ except Exception:
 @click.group()
 def cli():
     """NBA Betting pipeline"""
+    pass
+
+@cli.command("backfill-injuries-overrides")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+def backfill_injuries_overrides_cmd(start_date: str, end_date: str):
+    """Generate per-day injuries_overrides_<date>.csv for a date range using season-long/indefinite OUTs.
+
+    This uses the consolidated data/raw/injuries.csv (latest scrape) and selects players whose status/injury
+    indicate season-long or indefinite absence. For each date in [start..end], writes a CSV with columns
+    [team, player, status] and status='OUT'.
+    """
+    console.rule("Backfill Injury Overrides (season-long/indefinite)")
+    try:
+        s = pd.to_datetime(start_date).date()
+        e = pd.to_datetime(end_date).date()
+    except Exception:
+        console.print("Invalid --start/--end (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+    inj_path = paths.data_raw / "injuries.csv"
+    if not inj_path.exists():
+        console.print(f"Injuries DB not found: {inj_path}", style="red"); return
+    df = pd.read_csv(inj_path)
+    if df is None or df.empty:
+        console.print("Injuries DB is empty", style="red"); return
+    # Normalize
+    for c in ("team","player","status","injury"):
+        if c in df.columns:
+            df[c] = df[c].astype(str)
+    df["status_norm"] = df.get("status", "").astype(str).str.upper()
+    df["injury_norm"] = df.get("injury", "").astype(str).str.upper()
+    # Season-long or indefinite classifier
+    def _season_long(u: str, j: str) -> bool:
+        u = str(u or "").upper(); j = str(j or "").upper()
+        if ("OUT" in u) and ("SEASON" in u or "INDEFINITE" in u):
+            return True
+        if ("SEASON-ENDING" in u):
+            return True
+        # Also examine injury notes (Rotowire often puts details there)
+        if ("OUT FOR SEASON" in j) or ("SEASON-ENDING" in j) or ("OUT INDEFINITELY" in j):
+            return True
+        return False
+    df["season_block"] = df.apply(lambda r: _season_long(r.get("status_norm"), r.get("injury_norm")), axis=1)
+    block = df[df["season_block"]].copy()
+    if block.empty:
+        console.print("No season-long/indefinite injuries found in DB; nothing to backfill", style="yellow"); return
+    # Team tricode
+    from .teams import to_tricode as _to_tri
+    block["team_tri"] = block["team"].map(lambda x: _to_tri(str(x)))
+    block = block[block["team_tri"].astype(str).str.len() == 3]
+    # Unique by player+team
+    uniq = block.drop_duplicates(subset=["player","team_tri"]).copy()
+    # Write overrides per day
+    dates = pd.date_range(s, e, freq="D").date
+    total_rows = 0
+    for d in dates:
+        out = paths.data_raw / f"injuries_overrides_{d}.csv"
+        rows = uniq[["team_tri","player"]].rename(columns={"team_tri":"team"}).copy()
+        rows["status"] = "OUT"
+        rows.to_csv(out, index=False)
+        total_rows += len(rows)
+        console.print({"date": str(d), "rows": int(len(rows)), "output": str(out)})
+    console.print({"dates": f"{start_date}..{end_date}", "files": int(len(dates)), "rows": int(total_rows)})
+
+
+@cli.command("backfill-injuries-from-excluded")
+@click.option("--src-date", type=str, required=True, help="Source date of injuries_excluded_YYYY-MM-DD.csv")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+def backfill_injuries_from_excluded_cmd(src_date: str, start_date: str, end_date: str):
+    """Generate per-day injuries_overrides_<date>.csv from an injuries_excluded_<src>.csv snapshot.
+
+    This is a pragmatic backfill for short ranges: we take the excluded list (status OUT) from src-date diagnostics
+    and apply it to each date in [start..end].
+    """
+    console.rule("Backfill Injury Overrides (from diagnostics)")
+    try:
+        s = pd.to_datetime(start_date).date(); e = pd.to_datetime(end_date).date(); sd = pd.to_datetime(src_date).date()
+    except Exception:
+        console.print("Invalid --src-date/--start/--end (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+    src = paths.data_processed / f"injuries_excluded_{sd}.csv"
+    if not src.exists():
+        console.print(f"Diagnostics not found: {src}", style="red"); return
+    df = pd.read_csv(src)
+    if df is None or df.empty:
+        console.print("Diagnostics file is empty", style="red"); return
+    cols = set(c.lower() for c in df.columns)
+    # Heuristics for column names
+    team_col = next((c for c in df.columns if c.lower() in ("team","team_tri","team_abbr","teamabbr")), None)
+    player_col = next((c for c in df.columns if c.lower() in ("player","player_name")), None)
+    status_col = next((c for c in df.columns if c.lower() == "status"), None)
+    if not (team_col and player_col and status_col):
+        console.print("Diagnostics missing team/player/status columns", style="red"); return
+    from .teams import to_tricode as _to_tri
+    tmp = df.copy()
+    tmp["team"] = tmp[team_col].astype(str).map(lambda x: _to_tri(str(x)))
+    tmp["player"] = tmp[player_col].astype(str)
+    tmp["status"] = tmp[status_col].astype(str).str.upper()
+    tmp = tmp[tmp["status"] == "OUT"]
+    tmp = tmp[tmp["team"].astype(str).str.len() == 3]
+    tmp = tmp.drop_duplicates(subset=["team","player"])
+    if tmp.empty:
+        console.print("No OUT rows in diagnostics", style="yellow"); return
+    dates = pd.date_range(s, e, freq="D").date
+    total_rows = 0
+    for d in dates:
+        out = paths.data_raw / f"injuries_overrides_{d}.csv"
+        rows = tmp[["team","player","status"]].copy()
+        rows.to_csv(out, index=False)
+        total_rows += len(rows)
+        console.print({"date": str(d), "rows": int(len(rows)), "output": str(out)})
+    console.print({"dates": f"{start_date}..{end_date}", "files": int(len(dates)), "rows": int(total_rows)})
 
 
 @cli.command()
