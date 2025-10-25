@@ -1,14 +1,14 @@
-market,side,home,away,ev,price,date,edge,line,pred_total,pred_margin
-ML,Cleveland Cavaliers,New York Knicks,Cleveland Cavaliers,0.11101793266675297,-124.0909090909091,2025-10-22,,,,
-TOTAL,Under,New York Knicks,Cleveland Cavaliers,,,2025-10-22,-3.47552490234375,228.5,225.02447509765625,
-ML,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,0.0842452960381872,174.9090909090909,2025-10-22,,,,
-ATS,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,,,2025-10-22,-5.164061903953552,5.5,,0.3359380960464477
-ML,Miami Heat,Orlando Magic,Miami Heat,0.2820140716092576,282.09090909090907,2025-10-22,,,,
-ATS,Miami Heat,Orlando Magic,Miami Heat,,,2025-10-22,-4.097522020339966,8.0,,3.902477979660034
-TOTAL,Over,Orlando Magic,Miami Heat,,,2025-10-22,13.014923095703125,214.5,227.51492309570312,
-ML,Toronto Raptors,Atlanta Hawks,Toronto Raptors,0.7788770142599505,183.0909090909091,2025-10-22,,,,
-ATS,Toronto Raptors,Atlanta Hawks,Toronto Raptors,,,2025-10-22,-7.205460548400879,5.5,,-1.705460548400879
-TOTAL,Under,Atlanta Hawks,Toronto Raptors,,,2025-10-22,-11.730972290039091,236.0,224.2690277099609,
-ML,Boston Celtics,Boston Celtics,Philadelphia 76ers,0.2774513550035348,-135.27272727272728,2025-10-22,,,,
-ATS,Boston Celtics,Boston Celtics,Philadelphia 76ers,,,2025-10-22,6.395599365234375,-2.0,,8.395599365234375
-TOTAL,Over,Boston Celtics,Philadelphia 76ers,,,2025-10-22,1.7117462158203125,228.5,230.2117462158203,
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Cleveland Cavaliers,New York Knicks,Cleveland Cavaliers,2025-10-22,0.11101793266675297,-124.0909090909091,0.5537525354969574,,,,,,High
+TOTAL,Under,New York Knicks,Cleveland Cavaliers,2025-10-22,,,,-3.47552490234375,228.5,,,225.02447509765625,Medium
+ML,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,2025-10-22,0.0842452960381872,174.9090909090909,0.3637566137566138,,,,,,High
+ATS,Brooklyn Nets,Charlotte Hornets,Brooklyn Nets,2025-10-22,,,,-5.164061903953552,5.5,0.3359380960464477,5.5,,High
+ML,Miami Heat,Orlando Magic,Miami Heat,2025-10-22,0.2820140716092576,282.09090909090907,0.26171782060433024,,,,,,High
+ATS,Miami Heat,Orlando Magic,Miami Heat,2025-10-22,,,,-4.097522020339966,8.0,3.902477979660034,8.0,,High
+TOTAL,Over,Orlando Magic,Miami Heat,2025-10-22,,,,13.014923095703125,214.5,,,227.51492309570312,High
+ML,Toronto Raptors,Atlanta Hawks,Toronto Raptors,2025-10-22,0.7788770142599505,183.0909090909091,0.3532434168272318,,,,,,High
+ATS,Toronto Raptors,Atlanta Hawks,Toronto Raptors,2025-10-22,,,,-7.205460548400879,5.5,-1.705460548400879,5.5,,High
+TOTAL,Under,Atlanta Hawks,Toronto Raptors,2025-10-22,,,,-11.730972290039091,236.0,,,224.2690277099609,High
+ML,Boston Celtics,Boston Celtics,Philadelphia 76ers,2025-10-22,0.2774513550035348,-135.27272727272728,0.5749613601236476,,,,,,High
+ATS,Boston Celtics,Boston Celtics,Philadelphia 76ers,2025-10-22,,,,6.395599365234375,-2.0,8.395599365234375,2.0,,High
+TOTAL,Over,Boston Celtics,Philadelphia 76ers,2025-10-22,,,,1.7117462158203125,228.5,,,230.2117462158203,Low
