@@ -108,7 +108,8 @@ def _short_player_key(s: str) -> str:
 def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
     """Return sets of name_key and short_key for players to exclude on a date.
 
-    Excludes statuses: OUT, DOUBTFUL, SUSPENDED, INACTIVE, REST.
+    Excludes statuses: OUT, DOUBTFUL, SUSPENDED, INACTIVE, REST, and season-long/indefinite variants like
+    'Out for season', 'Season-ending', or 'Out indefinitely'.
     """
     try:
         inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
@@ -132,7 +133,17 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
         latest = inj.groupby(grp_cols, as_index=False).tail(1)
         latest["status_norm"] = latest["status"].astype(str).str.upper()
         EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
-        bad = latest[latest["status_norm"].isin(EXCLUDE_STATUSES)].copy()
+        def _excluded_status(u: str) -> bool:
+            try:
+                u = str(u).upper()
+            except Exception:
+                return False
+            if u in EXCLUDE_STATUSES:
+                return True
+            if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                return True
+            return False
+        bad = latest[latest["status_norm"].map(_excluded_status)].copy()
         if bad.empty:
             return set(), set()
         bad["name_key"] = bad["player"].astype(str).map(_norm_player_name)

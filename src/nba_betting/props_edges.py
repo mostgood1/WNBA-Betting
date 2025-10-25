@@ -314,8 +314,20 @@ def compute_props_edges(
                     inj_latest["name_key"] = inj_latest["player"].astype(str).map(_norm)
                     inj_latest["short_key"] = inj_latest["player"].astype(str).map(_short_key)
                     inj_latest["status_norm"] = inj_latest["status"].astype(str).str.upper()
+                    # Exclusion logic: exact statuses plus season-long/indefinite phrasing
                     EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
-                    bad = inj_latest[inj_latest["status_norm"].isin(EXCLUDE_STATUSES)].copy()
+                    def _excluded_status(u: str) -> bool:
+                        try:
+                            u = str(u).upper()
+                        except Exception:
+                            return False
+                        if u in EXCLUDE_STATUSES:
+                            return True
+                        # Season-long and indefinite patterns
+                        if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                            return True
+                        return False
+                    bad = inj_latest[inj_latest["status_norm"].map(_excluded_status)].copy()
                     if not bad.empty:
                         bad_name_keys = set(bad["name_key"].dropna().astype(str))
                         bad_short_keys = set(bad["short_key"].dropna().astype(str))

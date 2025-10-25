@@ -543,14 +543,33 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             if inj_path.exists():
                 inj = _pd.read_csv(inj_path)
                 if not inj.empty and {"team","player","status","date"}.issubset(set(inj.columns)):
-                    inj["date"] = _pd.to_datetime(inj["date"], errors="coerce").dt.strftime("%Y-%m-%d")
-                    day = inj[inj["date"] == date_str].copy()
-                    if not day.empty:
-                        day["team_tri"] = day["team"].astype(str).map(lambda x: _to_tri(str(x)))
-                        day["player_key"] = day["player"].astype(str).map(_norm_name_key)
-                        # Non-capturing group to avoid pandas warning about match groups
-                        out_mask = day["status"].astype(str).str.upper().str.contains(r"\b(?:OUT|INACTIVE|SUSPENDED|REST)\b", regex=True, na=False)
-                        day_out = day[out_mask]
+                    # Consider the latest status up to the target date, not just exact date rows
+                    inj["date"] = _pd.to_datetime(inj["date"], errors="coerce").dt.date
+                    cutoff = _pd.to_datetime(date_str).date()
+                    inj = inj[inj["date"].notna()]
+                    inj = inj[inj["date"] <= cutoff].copy()
+                    if not inj.empty:
+                        # take latest per player+team
+                        inj = inj.sort_values(["date"])  # ascending so tail(1) gives latest
+                        grp_cols = [c for c in ["player","team"] if c in inj.columns]
+                        if not grp_cols:
+                            grp_cols = ["player"]
+                        latest = inj.groupby(grp_cols, as_index=False).tail(1)
+                        latest["team_tri"] = latest["team"].astype(str).map(lambda x: _to_tri(str(x)))
+                        latest["player_key"] = latest["player"].astype(str).map(_norm_name_key)
+                        latest["status_norm"] = latest["status"].astype(str).str.upper()
+                        # Exclusion logic: exact statuses plus season-long/indefinite phrasing
+                        def _excluded_status(u: str) -> bool:
+                            try:
+                                u = str(u).upper()
+                            except Exception:
+                                return False
+                            if u in {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}:
+                                return True
+                            if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                                return True
+                            return False
+                        day_out = latest[latest["status_norm"].map(_excluded_status)].copy()
             # Manual override per-day file support
             try:
                 override_path = paths.data_raw / f"injuries_overrides_{date_str}.csv"
@@ -560,7 +579,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         ovr = ovr.copy()
                         ovr["team_tri"] = ovr["team"].astype(str).map(lambda x: _to_tri(str(x)))
                         ovr["player_key"] = ovr["player"].astype(str).str.strip().str.lower()
-                        ovr_out = ovr[ovr["status"].astype(str).str.upper().str.contains(r"\b(?:OUT|INACTIVE|SUSPENDED|REST)\b", regex=True, na=False)]
+                        # Apply same exclusion logic to overrides
+                        ovr_status = ovr["status"].astype(str).str.upper()
+                        ovr_mask = ovr_status.isin({"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}) | \
+                                   (ovr_status.str.contains("OUT", na=False) & (ovr_status.str.contains("SEASON", na=False) | ovr_status.str.contains("INDEFINITE", na=False))) | \
+                                   (ovr_status.str.contains("SEASON-ENDING", na=False))
+                        ovr_out = ovr[ovr_mask]
                         day_out = _pd.concat([day_out, ovr_out], ignore_index=True) if not day_out.empty else ovr_out
             except Exception:
                 pass
@@ -574,6 +598,14 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                 tmp = tmp[~tmp.apply(lambda r: (str(r.get("player_key")), str(r.get("team_tri"))) in ban, axis=1)]
                 if len(tmp) < before:
                     console.print(f"Filtered OUT players by injuries/overrides: removed {before-len(tmp)} rows", style="yellow")
+                # Persist a small diagnostics file to aid debugging
+                try:
+                    diag_cols = [c for c in ["date","team","team_tri","player","status"] if c in day_out.columns]
+                    diag = day_out[diag_cols].copy() if diag_cols else day_out.copy()
+                    out_diag = paths.data_processed / f"injuries_excluded_{date_str}.csv"
+                    diag.to_csv(out_diag, index=False)
+                except Exception:
+                    pass
                 feats = tmp.drop(columns=["team_tri","player_key"], errors="ignore")
     except Exception as _e:
         console.print(f"Injury filter skipped: {_e}", style="yellow")
@@ -1057,7 +1089,7 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         except Exception:
             pass
     # Build recs
-    recs = []
+    recs: list[dict] = []
     def _num(x):
         try:
             return float(x)
@@ -1076,6 +1108,42 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
             return p * (a/100.0) - (1-p) * 1.0
         else:
             return p * (100.0/(-a)) - (1-p) * 1.0
+    def _implied(american):
+        try:
+            a = float(american)
+        except Exception:
+            return None
+        if a == 0:
+            return None
+        if a > 0:
+            return 100.0 / (a + 100.0)
+        return (-a) / ((-a) + 100.0)
+    def _tier(market: str, ev: float | None, edge: float | None) -> str:
+        try:
+            m = (market or '').upper()
+            if m == 'ML' and ev is not None:
+                if ev >= 0.04:
+                    return 'High'
+                if ev >= 0.02:
+                    return 'Medium'
+                return 'Low'
+            if m == 'ATS' and edge is not None:
+                v = abs(edge)
+                if v >= 3.0:
+                    return 'High'
+                if v >= 1.5:
+                    return 'Medium'
+                return 'Low'
+            if m == 'TOTAL' and edge is not None:
+                v = abs(edge)
+                if v >= 4.0:
+                    return 'High'
+                if v >= 2.0:
+                    return 'Medium'
+                return 'Low'
+        except Exception:
+            pass
+        return 'Low'
     for _, r in df.iterrows():
         try:
             home = r.get("home_team"); away = r.get("visitor_team")
@@ -1083,29 +1151,74 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
             p_home = _num(r.get("home_win_prob"))
             ev_h = _ev(p_home, r.get("home_ml")) if p_home is not None else None
             ev_a = _ev((1-p_home) if p_home is not None else None, r.get("away_ml"))
-            side_ml = None; ev_ml = None
             if ev_h is not None or ev_a is not None:
                 side_ml = home if (ev_h or -1) >= (ev_a or -1) else away
                 ev_ml = ev_h if side_ml == home else ev_a
                 if ev_ml is not None and ev_ml > 0:
-                    recs.append({"market":"ML","side": side_ml, "home": home, "away": away, "ev": float(ev_ml), "date": str(d)})
+                    price = _num(r.get("home_ml")) if side_ml == home else _num(r.get("away_ml"))
+                    recs.append({
+                        "market":"ML",
+                        "side": side_ml,
+                        "home": home,
+                        "away": away,
+                        "date": str(d),
+                        "ev": float(ev_ml),
+                        "price": price,
+                        "implied_prob": (_implied(price) if price is not None else None),
+                        "tier": _tier('ML', float(ev_ml), None),
+                    })
             # ATS
             pm = _num(r.get("pred_margin")); hs = _num(r.get("home_spread"))
             if pm is not None and hs is not None:
                 edge_spread = pm - (-hs)
                 if abs(edge_spread) >= 1.0:
-                    recs.append({"market":"ATS","side": home if edge_spread>0 else away, "home": home, "away": away, "edge": float(edge_spread), "date": str(d)})
+                    side_ats = home if edge_spread>0 else away
+                    line = hs if side_ats == home else (-hs if hs is not None else None)
+                    recs.append({
+                        "market":"ATS",
+                        "side": side_ats,
+                        "home": home,
+                        "away": away,
+                        "date": str(d),
+                        "edge": float(edge_spread),
+                        "line": line,
+                        "pred_margin": pm,
+                        "market_home_margin": -hs,
+                        "tier": _tier('ATS', None, float(edge_spread)),
+                    })
             # TOTAL
             pt = _num(r.get("pred_total")); tot = _num(r.get("total"))
             if pt is not None and tot is not None:
                 edge_total = pt - tot
                 if abs(edge_total) >= 1.5:
-                    recs.append({"market":"TOTAL","side": ("Over" if edge_total>0 else "Under"), "home": home, "away": away, "edge": float(edge_total), "date": str(d)})
+                    recs.append({
+                        "market":"TOTAL",
+                        "side": ("Over" if edge_total>0 else "Under"),
+                        "home": home,
+                        "away": away,
+                        "date": str(d),
+                        "edge": float(edge_total),
+                        "line": tot,
+                        "pred_total": pt,
+                        "tier": _tier('TOTAL', None, float(edge_total)),
+                    })
         except Exception:
             continue
     out = paths.data_processed / f"recommendations_{date_str}.csv" if not out_path else Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(recs).to_csv(out, index=False)
+    # Enforce canonical column order
+    cols = [
+        "market","side","home","away","date",
+        "ev","price","implied_prob",
+        "edge","line","pred_margin","market_home_margin","pred_total",
+        "tier",
+    ]
+    df_out = pd.DataFrame(recs)
+    for c in cols:
+        if c not in df_out.columns:
+            df_out[c] = None
+    df_out = df_out[cols]
+    df_out.to_csv(out, index=False)
     console.print({"rows": int(len(recs)), "output": str(out)})
 
 
