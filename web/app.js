@@ -1598,6 +1598,12 @@ function setupControls(){
     await maybeLoadPropsEdges(d);
     await maybeLoadRecon(d);
     renderDate(d);
+    // Also refresh the YTD summary through the selected date, if the host page exposes it
+    try{
+      if (typeof window.updateYtdSummary === 'function'){
+        window.updateYtdSummary(d);
+      }
+    }catch(_){/* ignore */}
     const note = document.getElementById('note');
     if (note) {
       if ((state.byDate.get(d) || []).length === 0) {

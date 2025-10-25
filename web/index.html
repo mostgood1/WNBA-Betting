@@ -71,14 +71,25 @@
       }catch(_){ /* ignore */ }
     })();
     // Load YTD KPI summary cards (Overall/High/Medium/Low) with $ stake and P/L
-    (async function(){
+    // Make available globally so app.js can refresh after date changes
+    window.updateYtdSummary = async function(untilDate){
       const root = document.getElementById('ytdSummary'); if(!root) return;
       try{
-        const res = await fetch('/api/recommendations/summary?since=2025-10-21', {cache:'no-store'});
+        const until = (untilDate && String(untilDate).length>=10) ? String(untilDate).slice(0,10) : null;
+        const params = new URLSearchParams();
+        params.set('since','2025-10-21');
+        if (until) params.set('until', until);
+        const res = await fetch(`/api/recommendations/summary?${params.toString()}`, {cache:'no-store'});
         const js = await res.json();
         if(!js || !js.buckets){ root.innerHTML=''; return; }
         const tiers = ['Overall','High','Medium','Low'];
         const frag = document.createDocumentFragment();
+        // Optional label to clarify range
+        const label = document.createElement('div');
+        label.className = 'subtle';
+        label.style.margin = '6px 0 8px 0';
+        label.textContent = `YTD since 2025-10-21${until?` through ${until}`:''}`;
+        frag.appendChild(label);
         tiers.forEach(t=>{
           const b = js.buckets[t]; if(!b) return;
           const card = document.createElement('div'); card.className='card ytd-card';
@@ -97,6 +108,12 @@
         });
         root.innerHTML=''; root.appendChild(frag);
       }catch(_){ /* ignore */ }
+    };
+    // Initial load (default to today's local date); app.js will call again with selected date
+    (function(){
+      const today = new Date();
+      const y = today.getFullYear(); const m = String(today.getMonth()+1).padStart(2,'0'); const d = String(today.getDate()).padStart(2,'0');
+      window.updateYtdSummary(`${y}-${m}-${d}`);
     })();
   </script>
 </body>
