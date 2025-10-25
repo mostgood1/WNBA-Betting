@@ -111,6 +111,29 @@ class ESPNInjuryScraper:
                 team_name_raw = team_header.get_text(strip=True)
                 # Use module-level mapper to avoid attribute issues if class helper is missing
                 team_abbr = _map_team_name_to_abbr(team_name_raw)
+                # Harden: if header is noisy (e.g., page-wide "Team Injuries...") try to extract a real team name/tri
+                KNOWN_TRIS = {
+                    'ATL','BOS','BKN','CHA','CHI','CLE','DAL','DEN','DET','GSW','HOU','IND','LAC','LAL','MEM','MIA','MIL','MIN','NOP','NYK','OKC','ORL','PHI','PHX','POR','SAC','SAS','TOR','UTA','WAS'
+                }
+                if (not team_abbr) or (len(team_abbr) != 3) or (team_abbr.upper() not in KNOWN_TRIS):
+                    txt = (team_name_raw or '').strip()
+                    # Try to spot a known full team name inside the text
+                    name_map = {
+                        'Atlanta Hawks': 'ATL','Boston Celtics':'BOS','Brooklyn Nets':'BKN','Charlotte Hornets':'CHA','Chicago Bulls':'CHI','Cleveland Cavaliers':'CLE','Dallas Mavericks':'DAL','Denver Nuggets':'DEN','Detroit Pistons':'DET','Golden State Warriors':'GSW','Houston Rockets':'HOU','Indiana Pacers':'IND','LA Clippers':'LAC','Los Angeles Clippers':'LAC','LA Lakers':'LAL','Los Angeles Lakers':'LAL','Memphis Grizzlies':'MEM','Miami Heat':'MIA','Milwaukee Bucks':'MIL','Minnesota Timberwolves':'MIN','New Orleans Pelicans':'NOP','New York Knicks':'NYK','Oklahoma City Thunder':'OKC','Orlando Magic':'ORL','Philadelphia 76ers':'PHI','Phoenix Suns':'PHX','Portland Trail Blazers':'POR','Sacramento Kings':'SAC','San Antonio Spurs':'SAS','Toronto Raptors':'TOR','Utah Jazz':'UTA','Washington Wizards':'WAS'
+                    }
+                    found = None
+                    for full, tri in name_map.items():
+                        if full in txt:
+                            found = tri; break
+                    # Or a parenthetical tri like (LAL)
+                    if not found and '(' in txt and ')' in txt:
+                        maybe = txt.split('(')[-1].split(')')[0].strip().upper()
+                        if maybe in KNOWN_TRIS:
+                            found = maybe
+                    team_abbr = found or ''
+                # If still not a valid tri code, skip this section entirely
+                if not team_abbr or (team_abbr.upper() not in KNOWN_TRIS):
+                    continue
 
                 table = section.find('table')
                 if not table:
@@ -166,8 +189,11 @@ class ESPNInjuryScraper:
                         player = cols[player_idx].get_text(strip=True) if player_idx is not None and player_idx < len(cols) else ''
                         status = cols[status_idx].get_text(strip=True).upper() if status_idx is not None and status_idx < len(cols) else ''
                         injury = cols[injury_idx].get_text(strip=True) if injury_idx is not None and injury_idx < len(cols) else ''
-                        # Normalize common status short-hands from ESPN
-                        status_norm = status.upper()
+                        # Normalize common status; strip positional junk
+                        POS = {'G','F','C','PG','SG','SF','PF'}
+                        status_norm = (status or '').upper().strip()
+                        if status_norm in POS:
+                            status_norm = ''
                         # Some pages render empty status but put it in injury/notes; try to extract OUT/QUESTIONABLE keywords
                         if not status_norm and injury:
                             txt = injury.upper()
@@ -289,20 +315,24 @@ class RotowireInjuryScraper:
                         maybe = ptxt.split('(')[-1].split(')')[0] if '(' in ptxt and ')' in ptxt else ''
                         team = _to_tri(maybe) if maybe else team
 
-                    status_norm = status.upper()
+                    POS = {'G','F','C','PG','SG','SF','PF'}
+                    status_norm = (status or '').upper().strip()
+                    if status_norm in POS:
+                        status_norm = ''
                     if not status_norm and injury:
                         itxt = injury.upper()
                         for key in ['OUT','QUESTIONABLE','DOUBTFUL','DAY-TO-DAY','DTD','SUSPENDED','INACTIVE','REST']:
                             if key in itxt:
                                 status_norm = key; break
                     date_str = datetime.now().strftime('%Y-%m-%d')
-                    out_rows.append({
-                        'team': team,
-                        'player': player,
-                        'status': status_norm,
-                        'injury': injury,
-                        'date': date_str,
-                    })
+                    if team and len(team) == 3:
+                        out_rows.append({
+                            'team': team,
+                            'player': player,
+                            'status': status_norm,
+                            'injury': injury,
+                            'date': date_str,
+                        })
                 except Exception:
                     continue
         return out_rows
@@ -489,14 +519,51 @@ class NBAInjuryDatabase:
         # Load existing data
         try:
             existing = pd.read_csv(self.filepath)
-            # Append new data (avoiding duplicates)
+            # Append new data (we will re-normalize and then de-duplicate by team/player/date)
             combined = pd.concat([existing, combined_new], ignore_index=True)
-            combined = combined.drop_duplicates(
-                subset=['team', 'player', 'date', 'status'],
-                keep='last'
-            )
         except FileNotFoundError:
             combined = combined_new
+
+        # Normalize statuses across entire set to remove positional leakage and infer from notes where possible
+        if not combined.empty:
+            POS = {'G','F','C','PG','SG','SF','PF'}
+            for c in ('team','player','status','injury','date'):
+                if c in combined.columns:
+                    combined[c] = combined[c].astype(str)
+            # Normalize team to tri-codes; drop rows with invalid/unrecognized teams
+            try:
+                from ..teams import to_tricode as _to_tri
+            except Exception:
+                def _to_tri(x: str) -> str:
+                    return (x or '').strip().upper()
+            combined['team'] = combined['team'].map(lambda x: _to_tri(str(x)))
+            combined = combined[combined['team'].astype(str).str.len() == 3]
+            status_norm = combined.get('status', '').astype(str).str.upper().str.strip()
+            status_norm = status_norm.where(~status_norm.isin(POS), other='')
+            # Infer from injury text when empty
+            inj_txt = combined.get('injury', '').astype(str).str.upper()
+            needs_infer = status_norm.eq('') & inj_txt.notna()
+            infer_vals = []
+            for i, (need, txt) in enumerate(zip(needs_infer.tolist(), inj_txt.tolist())):
+                if not need:
+                    infer_vals.append(None)
+                    continue
+                val = None
+                for key in ['OUT','QUESTIONABLE','DOUBTFUL','DAY-TO-DAY','DTD','SUSPENDED','INACTIVE','REST']:
+                    if key in txt:
+                        val = key; break
+                infer_vals.append(val)
+            import numpy as _np
+            infer_series = pd.Series(infer_vals, index=status_norm.index)
+            status_norm = status_norm.where(~needs_infer, other=infer_series.fillna(''))
+            combined['status'] = status_norm
+            # De-duplicate by team/player/date (keep last = prefer newest scrape in file order)
+            if 'date' in combined.columns:
+                # ensure date sorting by appending row index for stable keep='last'
+                combined['_row'] = _np.arange(len(combined))
+                combined = combined.sort_values(['date','_row'])
+                combined = combined.drop(columns=['_row'])
+            combined = combined.drop_duplicates(subset=['team','player','date'], keep='last')
         
         # Save updated database
         combined.to_csv(self.filepath, index=False)
