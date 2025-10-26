@@ -108,49 +108,113 @@ def _short_player_key(s: str) -> str:
 def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
     """Return sets of name_key and short_key for players to exclude on a date.
 
-    Excludes statuses: OUT, DOUBTFUL, SUSPENDED, INACTIVE, REST, and season-long/indefinite variants like
-    'Out for season', 'Season-ending', or 'Out indefinitely'.
+    Sources (union):
+      1) data/processed/injuries_excluded_<date>.csv if present
+      2) any data/raw/injuries_overrides_*.csv with suffix date <= requested date
+      3) data/raw/injuries.csv latest status per player (OUT/DOUBTFUL/SUSPENDED/INACTIVE/REST or season-long/indefinite)
     """
+    name_keys: set[str] = set()
+    short_keys: set[str] = set()
+    try:
+        cutoff = pd.to_datetime(date_str).date()
+    except Exception:
+        from datetime import date as _date
+        cutoff = _date.today()
+
+    def _add_players_from_df(df: pd.DataFrame, player_col: str = "player") -> None:
+        nonlocal name_keys, short_keys
+        try:
+            if not isinstance(df, pd.DataFrame) or df is None or df.empty:
+                return
+            col = player_col if player_col in df.columns else ("player" if "player" in df.columns else None)
+            if not col:
+                return
+            s = df[col].dropna().astype(str)
+            if s.empty:
+                return
+            nk = s.map(_norm_player_name)
+            sk = s.map(_short_player_key)
+            name_keys.update(set(nk.tolist()))
+            short_keys.update(set(sk.tolist()))
+        except Exception:
+            return
+
+    # 1) Processed daily exclusions
+    try:
+        proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
+        if proc_path.exists():
+            df = pd.read_csv(proc_path)
+            _add_players_from_df(df, player_col="player")
+    except Exception:
+        pass
+
+    # 2) Overrides up to the cutoff date
+    try:
+        raw_dir = BASE_DIR / "data" / "raw"
+        for p in sorted(raw_dir.glob("injuries_overrides_*.csv")):
+            try:
+                dstr = p.stem.replace("injuries_overrides_", "")
+                dval = pd.to_datetime(dstr, errors="coerce")
+                if pd.isna(dval) or dval.date() > cutoff:
+                    continue
+                df = pd.read_csv(p)
+                # If status column exists, keep only excluded statuses
+                if "status" in df.columns:
+                    EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
+                    def _excluded_status(u: str) -> bool:
+                        try:
+                            u = str(u).upper()
+                        except Exception:
+                            return False
+                        if u in EXCLUDE_STATUSES:
+                            return True
+                        if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                            return True
+                        return False
+                    try:
+                        df = df[df["status"].map(_excluded_status)]
+                    except Exception:
+                        pass
+                _add_players_from_df(df, player_col="player")
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    # 3) Raw injuries.csv latest rows
     try:
         inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
-        if not inj_path.exists():
-            return set(), set()
-        inj = pd.read_csv(inj_path)
-        if inj is None or inj.empty or ("player" not in inj.columns) or ("status" not in inj.columns):
-            return set(), set()
-        if "date" in inj.columns:
-            inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
-            cutoff = pd.to_datetime(date_str).date()
-            inj = inj[inj["date"].notna()]
-            inj = inj[inj["date"] <= cutoff].copy()
-        # latest by player (+team if present)
-        sort_cols = [c for c in ["date"] if c in inj.columns]
-        if sort_cols:
-            inj = inj.sort_values(sort_cols)
-        grp_cols = [c for c in ["player","team"] if c in inj.columns]
-        if not grp_cols:
-            grp_cols = ["player"]
-        latest = inj.groupby(grp_cols, as_index=False).tail(1)
-        latest["status_norm"] = latest["status"].astype(str).str.upper()
-        EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
-        def _excluded_status(u: str) -> bool:
-            try:
-                u = str(u).upper()
-            except Exception:
-                return False
-            if u in EXCLUDE_STATUSES:
-                return True
-            if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
-                return True
-            return False
-        bad = latest[latest["status_norm"].map(_excluded_status)].copy()
-        if bad.empty:
-            return set(), set()
-        bad["name_key"] = bad["player"].astype(str).map(_norm_player_name)
-        bad["short_key"] = bad["player"].astype(str).map(_short_player_key)
-        return set(bad["name_key"].dropna().astype(str)), set(bad["short_key"].dropna().astype(str))
+        if inj_path.exists():
+            inj = pd.read_csv(inj_path)
+            if isinstance(inj, pd.DataFrame) and not inj.empty and ("player" in inj.columns) and ("status" in inj.columns):
+                if "date" in inj.columns:
+                    inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
+                    inj = inj[inj["date"].notna()]
+                    inj = inj[inj["date"] <= cutoff].copy()
+                # latest by player (+team if present)
+                sort_cols = [c for c in ["date"] if c in inj.columns]
+                if sort_cols:
+                    inj = inj.sort_values(sort_cols)
+                grp_cols = [c for c in ["player","team"] if c in inj.columns] or ["player"]
+                latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
+                latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper()
+                EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
+                def _excluded_status(u: str) -> bool:
+                    try:
+                        u = str(u).upper()
+                    except Exception:
+                        return False
+                    if u in EXCLUDE_STATUSES:
+                        return True
+                    if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                        return True
+                    return False
+                bad = latest[latest["status_norm"].map(_excluded_status)].copy()
+                _add_players_from_df(bad, player_col="player")
     except Exception:
-        return set(), set()
+        pass
+
+    return name_keys, short_keys
 
 # Helper to reliably resolve the Python interpreter for subprocess tasks
 def _resolve_python() -> str:
