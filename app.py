@@ -528,6 +528,183 @@ def _get_slate_team_tricodes(date_str: str) -> set[str]:
         pass
     return teams
 
+def _build_roster_team_maps() -> tuple[dict[int, str], dict[str, str]]:
+    """Return maps for player_id->team_tri and name_key->team_tri from processed rosters.
+
+    Falls back to empty maps when unavailable. Name map uses _norm_player_name keys.
+    """
+    pid_to_tri: dict[int, str] = {}
+    name_to_tri: dict[str, str] = {}
+    try:
+        rost = _ensure_rosters_loaded()
+        if isinstance(rost, pd.DataFrame) and not rost.empty:
+            cols = {c.upper(): c for c in rost.columns}
+            pid_col = cols.get("PLAYER_ID"); name_col = cols.get("PLAYER"); tri_col = cols.get("TEAM_ABBREVIATION")
+            if pid_col and name_col and tri_col:
+                tmp = rost[[pid_col, name_col, tri_col]].dropna(subset=[tri_col]).copy()
+                # Normalize tri to 3-letter
+                tmp[tri_col] = tmp[tri_col].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                for _, r in tmp.iterrows():
+                    try:
+                        tri = str(r[tri_col]).strip().upper()
+                        if not tri:
+                            continue
+                        try:
+                            pid = int(pd.to_numeric(r[pid_col], errors="coerce"))
+                            pid_to_tri[pid] = tri
+                        except Exception:
+                            pass
+                        try:
+                            nkey = _norm_player_name(str(r[name_col]))
+                            if nkey:
+                                name_to_tri[nkey] = tri
+                        except Exception:
+                            pass
+                    except Exception:
+                        continue
+        # Apply roster overrides (if any)
+        try:
+            ov = BASE_DIR / "data" / "overrides" / "roster_overrides.csv"
+            if ov.exists():
+                odf = pd.read_csv(ov)
+                if isinstance(odf, pd.DataFrame) and not odf.empty:
+                    ocols = {c.upper(): c for c in odf.columns}
+                    opid = ocols.get("PLAYER_ID"); oname = ocols.get("PLAYER"); otri = ocols.get("TEAM_ABBREVIATION")
+                    if otri and (opid or oname):
+                        tmpo = odf[[c for c in [opid, oname, otri] if c]].dropna(subset=[otri]).copy()
+                        tmpo[otri] = tmpo[otri].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                        for _, r in tmpo.iterrows():
+                            try:
+                                tri = str(r[otri]).strip().upper()
+                                if not tri:
+                                    continue
+                                if opid and pd.notna(r.get(opid)):
+                                    try:
+                                        pid = int(pd.to_numeric(r[opid], errors="coerce"))
+                                        pid_to_tri[pid] = tri
+                                    except Exception:
+                                        pass
+                                if oname and pd.notna(r.get(oname)):
+                                    try:
+                                        nkey = _norm_player_name(str(r[oname]))
+                                        if nkey:
+                                            name_to_tri[nkey] = tri
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                continue
+        except Exception:
+            pass
+    except Exception:
+        pass
+    return pid_to_tri, name_to_tri
+
+def _games_lookup_for_date(date_str: str) -> dict[str, tuple[str, bool]]:
+    """Return mapping team_tri -> (opponent_tri, home_flag) for a date.
+
+    Uses processed game_odds_<date>.csv primarily, else predictions_<date>.csv.
+    """
+    out: dict[str, tuple[str, bool]] = {}
+    # 1) game_odds
+    try:
+        p = _find_game_odds_for_date(date_str)
+        if p is not None:
+            go = pd.read_csv(p)
+            for _, r in go.iterrows():
+                try:
+                    h = _get_tricode(r.get("home_team")); a = _get_tricode(r.get("visitor_team") or r.get("away_team"))
+                    if h and a:
+                        out[h] = (a, True)
+                        out[a] = (h, False)
+                except Exception:
+                    continue
+    except Exception:
+        pass
+    # 2) predictions fallback
+    if not out:
+        try:
+            pp = _find_predictions_for_date(date_str)
+        except Exception:
+            pp = None
+        if pp is not None and pp.exists():
+            try:
+                df = pd.read_csv(pp)
+                for _, r in df.iterrows():
+                    try:
+                        h = _get_tricode(r.get("home_team")); a = _get_tricode(r.get("visitor_team") or r.get("away_team"))
+                        if h and a:
+                            out[h] = (a, True)
+                            out[a] = (h, False)
+                    except Exception:
+                        continue
+            except Exception:
+                pass
+    return out
+
+def _correct_props_long_with_roster_and_games(long: pd.DataFrame, date_str: str) -> pd.DataFrame:
+    """Best-effort correction for team/opponent/home in props predictions long table.
+
+    - Prefer roster maps by player_id, then by normalized name, to set team tricode.
+    - Then use games lookup to set opponent and home flag consistently for the date.
+    """
+    if not isinstance(long, pd.DataFrame) or long is None or long.empty:
+        return long
+    try:
+        pid_to_tri, name_to_tri = _build_roster_team_maps()
+        games_lu = _games_lookup_for_date(date_str)
+        tmp = long.copy()
+        # Ensure minimal columns exist
+        for c in ("player_id","player_name","team","opponent","home"):
+            if c not in tmp.columns:
+                tmp[c] = None
+        # Normalize player_id
+        try:
+            tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
+        except Exception:
+            pass
+        # Resolve team via roster maps
+        try:
+            # By id first
+            if pid_to_tri:
+                tmp["_pid_tri"] = tmp["player_id"].map(lambda x: pid_to_tri.get(int(x)) if pd.notna(x) else None)
+            else:
+                tmp["_pid_tri"] = None
+            # By name next
+            if name_to_tri:
+                tmp["_name_tri"] = tmp["player_name"].astype(str).map(lambda s: name_to_tri.get(_norm_player_name(s)))
+            else:
+                tmp["_name_tri"] = None
+            def _pick_team(row):
+                for k in ("_pid_tri","_name_tri"):
+                    v = row.get(k)
+                    if isinstance(v, str) and v:
+                        return v
+                # fallback to existing but normalized
+                return (_get_tricode(row.get("team")) or (str(row.get("team") or "").strip().upper() or None))
+            tmp["team"] = tmp.apply(_pick_team, axis=1)
+        except Exception:
+            pass
+        # Apply games lookup to set opponent + home
+        try:
+            tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+            def _opp_for_team(t: str) -> tuple[str|None, bool|None]:
+                v = games_lu.get(str(t).upper()) if isinstance(t, str) else None
+                if isinstance(v, tuple) and len(v) == 2:
+                    return v[0], v[1]
+                return None, None
+            opps = tmp["_team_tri"].map(lambda t: _opp_for_team(t))
+            try:
+                tmp["opponent"] = [a[0] if isinstance(a, tuple) else None for a in opps]
+                tmp["home"] = [a[1] if isinstance(a, tuple) else None for a in opps]
+            except Exception:
+                pass
+            tmp.drop(columns=["_team_tri","_pid_tri","_name_tri"], inplace=True, errors="ignore")
+        except Exception:
+            pass
+        return tmp
+    except Exception:
+        return long
+
 # ---- Finals export helpers (module-level) ----
 def _finals_from_cdn_all(date_str_local: str) -> pd.DataFrame:
     """Fetch all games' finals from NBA CDN scoreboard for a date (no filtering)."""
@@ -2237,6 +2414,11 @@ def api_props():
                         long["_short_key"] = long["player_name"].astype(str).map(_short_player_key)
                         mask = (~long["_name_key"].isin(bad_name_keys)) & (~long["_short_key"].isin(bad_short_keys))
                         long = long[mask].drop(columns=["_name_key","_short_key"], errors="ignore")
+            except Exception:
+                pass
+            # Best-effort correction for off-season team changes and matchup coherence
+            try:
+                long = _correct_props_long_with_roster_and_games(long, d)
             except Exception:
                 pass
             # Apply frontend filters

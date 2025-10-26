@@ -211,6 +211,21 @@ try {
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
+# Optional: Report roster overrides applied
+try {
+  $ovDir = Join-Path $RepoRoot 'data/overrides'
+  if (-not (Test-Path $ovDir)) { New-Item -ItemType Directory -Path $ovDir -Force | Out-Null }
+  $ovPath = Join-Path $ovDir 'roster_overrides.csv'
+  if (Test-Path $ovPath) {
+    $ovCount = 0
+    try {
+      $ovCount = (Import-Csv -Path $ovPath).Count
+    } catch { $ovCount = 0 }
+    Write-Log ("Roster overrides present: {0} rows" -f $ovCount)
+  } else {
+    Write-Log "No roster overrides file found (optional)"
+  }
+} catch { }
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
 # NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
