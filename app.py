@@ -2151,7 +2151,7 @@ def api_props():
                     pass
             if not isinstance(pdf, pd.DataFrame) or pdf is None:
                 return jsonify({"date": d, "source": "predictions", "rows": [], "collapsed": False})
-            # Build predictions long table with filters
+            # Build predictions long table with filters (and injury exclusion)
             tmp = pdf.copy()
             for c in ("player_id","player_name","team","opponent","home"):
                 if c not in tmp.columns:
@@ -2162,6 +2162,19 @@ def api_props():
             long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
             long["stat"] = long["stat_col"].map(use)
             long.drop(columns=["stat_col"], inplace=True)
+            # Exclude injured players by default (excludeInjured=1)
+            try:
+                excl_param = (request.args.get("excludeInjured", "1") or "1").strip().lower()
+                do_excl = excl_param not in ("0", "false", "no")
+                if do_excl and ("player_name" in long.columns):
+                    bad_name_keys, bad_short_keys = _injury_name_sets_for_date(d)
+                    if bad_name_keys or bad_short_keys:
+                        long["_name_key"] = long["player_name"].astype(str).map(_norm_player_name)
+                        long["_short_key"] = long["player_name"].astype(str).map(_short_player_key)
+                        mask = (~long["_name_key"].isin(bad_name_keys)) & (~long["_short_key"].isin(bad_short_keys))
+                        long = long[mask].drop(columns=["_name_key","_short_key"], errors="ignore")
+            except Exception:
+                pass
             # Apply frontend filters
             market = (request.args.get("market") or "").strip().lower()
             if market:
