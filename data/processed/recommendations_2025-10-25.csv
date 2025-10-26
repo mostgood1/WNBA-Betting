@@ -1,10 +1,10 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Chicago Bulls,Orlando Magic,Chicago Bulls,2025-10-25,0.08302736969119706,197.72727272727272,0.33587786259541985,,,,,,High
-ATS,Chicago Bulls,Orlando Magic,Chicago Bulls,2025-10-25,,,,-3.819918632507324,6.0,2.180081367492676,6.0,,High
-TOTAL,Under,Orlando Magic,Chicago Bulls,2025-10-25,,,,-8.966705322265597,232.5,,,223.5332946777344,High
-ML,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,0.13343009928956417,212.27272727272728,0.32023289665211063,,,,,,High
-ATS,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,4.27131199836731,6.5,-2.2286880016326904,-6.5,,High
-TOTAL,Under,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,-8.382659912109347,238.5,,,230.11734008789065,High
-ML,Charlotte Hornets,Philadelphia 76ers,Charlotte Hornets,2025-10-25,0.000431717391586095,165.9090909090909,0.3760683760683761,,,,,,Low
-ATS,Charlotte Hornets,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-3.0721616744995117,4.5,1.4278383255004885,4.5,,High
-TOTAL,Under,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-11.1739501953125,237.0,,,225.8260498046875,High
+ML,Orlando Magic,Orlando Magic,Chicago Bulls,2025-10-25,2.721975229324319,485.0,0.17094017094017094,,,,,,High
+ATS,Orlando Magic,Orlando Magic,Chicago Bulls,2025-10-25,,,,9.680081367492676,7.5,2.180081367492676,-7.5,,High
+TOTAL,Over,Orlando Magic,Chicago Bulls,2025-10-25,,,,8.033294677734403,215.5,,,223.5332946777344,High
+ML,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,3.9907220529125644,1275.0,0.07272727272727272,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,11.27131199836731,13.5,-2.2286880016326904,-13.5,,High
+TOTAL,Under,Atlanta Hawks,Oklahoma City Thunder,2025-10-25,,,,-13.382659912109347,243.5,,,230.11734008789065,High
+ML,Philadelphia 76ers,Philadelphia 76ers,Charlotte Hornets,2025-10-25,0.21323122756947055,94.5,0.5141388174807198,,,,,,High
+ATS,Philadelphia 76ers,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,2.9278383255004883,1.5,1.4278383255004885,-1.5,,Medium
+TOTAL,Under,Philadelphia 76ers,Charlotte Hornets,2025-10-25,,,,-16.6739501953125,242.5,,,225.8260498046875,High
