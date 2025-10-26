@@ -360,6 +360,67 @@ try {
 $rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
+# 3.1) Post-process props_predictions to drop OUT players (ensures downstream CSVs have no injured players at all)
+try {
+  $ppPath = Join-Path $RepoRoot ("data/processed/props_predictions_{0}.csv" -f $Date)
+  $injExclPath = Join-Path $RepoRoot ("data/processed/injuries_excluded_{0}.csv" -f $Date)
+  if (Test-Path $ppPath) {
+  Write-Log "Filtering props_predictions to remove OUT players based on injuries_excluded list"
+  $pyFilt = @'
+import os, pandas as pd
+from pathlib import Path
+
+preds_path = Path(os.environ.get("PP"))
+inj_path = Path(os.environ.get("INJ"))
+if not preds_path.exists():
+  print("NO_PREDICTIONS"); raise SystemExit(0)
+pdf = pd.read_csv(preds_path)
+before = len(pdf)
+name_keys = set(); short_keys = set()
+def _norm_player_name(s: str) -> str:
+  if s is None: return ""
+  t = str(s)
+  if "(" in t:
+    t = t.split("(", 1)[0]
+  t = (t.replace("-"," ").replace(".", "").replace("'", "").replace(","," ").strip())
+  for suf in (" JR"," SR"," II"," III"," IV"):
+    if t.upper().endswith(suf):
+      t = t[: -len(suf)]
+  try: t = t.encode("ascii","ignore").decode("ascii")
+  except Exception: pass
+  return t.upper().strip()
+def _short_player_key(s: str) -> str:
+  s2 = _norm_player_name(s)
+  parts = [p for p in s2.replace("-"," ").split() if p]
+  if not parts: return s2
+  last = parts[-1]; first_initial = parts[0][0] if parts and parts[0] else ""
+  return f"{last}{first_initial}"
+if inj_path.exists():
+  idf = pd.read_csv(inj_path)
+  if not idf.empty and "player" in idf.columns:
+    s = idf["player"].dropna().astype(str)
+    name_keys = set(s.map(_norm_player_name).tolist())
+    short_keys = set(s.map(_short_player_key).tolist())
+if name_keys or short_keys:
+  pdf["_name_key"] = pdf.get("player_name").astype(str).map(_norm_player_name)
+  pdf["_short_key"] = pdf.get("player_name").astype(str).map(_short_player_key)
+  mask = (~pdf["_name_key"].isin(name_keys)) & (~pdf["_short_key"].isin(short_keys))
+  pdf = pdf[mask].drop(columns=["_name_key","_short_key"], errors="ignore")
+after = len(pdf)
+pdf.to_csv(preds_path, index=False)
+print(f"FILTERED:{before}->{after}")
+'@
+  $env:PP = $ppPath
+  $env:INJ = $injExclPath
+  $tmpPyF = Join-Path $LogPath ("props_predictions_filter_{0}.py" -f $Stamp)
+  Set-Content -Path $tmpPyF -Value $pyFilt -Encoding UTF8
+  $outFilt = & $Python $tmpPyF 2>&1 | Tee-Object -FilePath $LogFile -Append
+  Write-Log ("Props predictions filter result: {0}" -f $outFilt)
+  } else {
+  Write-Log "No props_predictions file found to filter; skipping"
+  }
+} catch { Write-Log ("Props predictions filter failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 4) Props actuals upsert for yesterday (CLI)
 $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
 Write-Log ("props-actuals exit code: {0}" -f $rc3)
