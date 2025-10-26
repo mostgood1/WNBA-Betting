@@ -1653,7 +1653,8 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
 @click.option("--min-prop-edge", type=float, default=0.03, show_default=True)
 @click.option("--use-npu/--no-npu", default=True, show_default=True, help="Use NPU acceleration for training and predictions")
 @click.option("--reconcile-days", type=int, default=7, show_default=True, help="Days back to reconcile actuals")
-def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float, use_npu: bool, reconcile_days: int):
+@click.option("--retrain-games/--no-retrain-games", default=False, show_default=True, help="Retrain game models (enhanced models recommended). Default is no retrain to preserve calibrated enhanced models.")
+def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float, use_npu: bool, reconcile_days: int, retrain_games: bool):
     """Enhanced end-to-end daily updater with NPU acceleration, actuals reconciliation, and comprehensive odds fetching."""
     console.rule("Enhanced Daily Update")
     import datetime as _dt
@@ -1747,9 +1748,9 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     except Exception as e:
         console.print(f"Props actuals reconciliation failed: {e}", style="yellow")
 
-    # 6) Rebuild features and retrain game models
+    # 6) Rebuild base features (for diagnostics) and optionally retrain game models
     try:
-        console.print("🏗️  Rebuilding game features...")
+        console.print("🏗️  Rebuilding game features (baseline for diagnostics)...")
         # Build game features uses data/raw/games_nba_api; assume already fetched historically; skip if missing
         feats_raw = paths.data_raw / "games_nba_api.parquet"
         if feats_raw.exists():
@@ -1761,18 +1762,21 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
             out.parent.mkdir(parents=True, exist_ok=True)
             feats.to_parquet(out, index=False)
             console.print(f"Features built and saved to {out}")
-            
-            if use_npu:
-                console.print("[NPU] Training game models with NPU acceleration...")
-                from .games_npu import train_game_models_npu
-                train_game_models_npu(retrain=True)
+            # Optional retrain: default False to preserve enhanced, injury-aware model artifacts
+            if retrain_games:
+                if use_npu:
+                    console.print("[NPU] Retraining game models with latest data...")
+                    from .games_npu import train_game_models_npu
+                    train_game_models_npu(retrain=True)
+                else:
+                    console.print("🖥️  Retraining game models (CPU)...")
+                    feats_path = paths.data_processed / "features.parquet"
+                    df = pd.read_parquet(feats_path)
+                    from .train import train_models
+                    _ = train_models(df)
+                    console.print("Game models retrained (CPU)")
             else:
-                console.print("🖥️  Training game models (CPU)...")
-                feats_path = paths.data_processed / "features.parquet"
-                df = pd.read_parquet(feats_path)
-                from .train import train_models
-                metrics = train_models(df)
-                console.print("Game models trained (CPU)")
+                console.print("⏭️  Skipping game model retrain (use --retrain-games to enable)")
         else:
             console.print("Raw games not found; skipping full-game retrain.", style="yellow")
     except Exception as e:
@@ -1817,30 +1821,12 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     except Exception as e:
         console.print(f"Game odds fetch failed: {e}", style="yellow")
 
-    # 9) Predict today's slate (games) and write predictions_<date>.csv
+    # 9) Predict today's slate (games) with enhanced, injury-aware features and write predictions_<date>.csv
     try:
-        console.print("🎲 Generating game predictions...")
-        if use_npu:
-            console.print("[NPU] Using NPU acceleration for game predictions...")
-            from .games_npu import predict_games_npu
-            # Load features and predict
-            features_path = paths.data_processed / "features.parquet"
-            if features_path.exists():
-                features_df = pd.read_parquet(features_path)
-                if 'date' in features_df.columns:
-                    features_df['date'] = pd.to_datetime(features_df['date']).dt.date
-                    target_date_obj = pd.to_datetime(str(target_date)).date()
-                    features_df = features_df[features_df['date'] == target_date_obj]
-                
-                if not features_df.empty:
-                    preds = predict_games_npu(features_df, include_periods=True)
-                    out_path = paths.data_processed / f"predictions_{target_date}.csv"
-                    preds.to_csv(out_path, index=False)
-                    console.print(f"[OK] NPU game predictions saved to {out_path}")
-                else:
-                    console.print(f"No games found for {target_date} in features", style="yellow")
-        else:
-            predict_date_cmd(date_str=str(target_date), merge_odds_csv=None, out_path=None)
+        console.print("🎲 Generating game predictions (enhanced + injuries)...")
+        # Always use the enhanced pipeline which already builds injury-aware features
+        # and leverages NPU (NPUGamePredictor) internally when available.
+        predict_date_cmd(date_str=str(target_date), merge_odds_csv=None, out_path=None)
     except Exception as e:
         console.print(f"Game predictions failed: {e}", style="yellow")
 
@@ -3477,8 +3463,25 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
         preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
-    # Fetch finals via ScoreboardV2 with simple retry; if empty, fallback to NBA CDN daily scoreboard
+    # Prefer processed finals CSV if available; else fetch via APIs with fallbacks
     try:
+        finals = None
+        # 0) Use previously exported finals if present
+        try:
+            from .config import paths as _paths2
+            fpath = _paths2.data_processed / f"finals_{target_date}.csv"
+            if fpath.exists():
+                fdf = pd.read_csv(fpath)
+                # Normalize column names
+                cols = {c.lower(): c for c in fdf.columns}
+                need = {"home_tri","away_tri","home_pts","visitor_pts"}
+                if need.issubset(set(cols.keys())):
+                    finals = fdf[[cols["home_tri"], cols["away_tri"], cols["home_pts"], cols["visitor_pts"]]].copy()
+                    finals.columns = ["home_tri","away_tri","home_pts","visitor_pts"]
+        except Exception:
+            finals = None
+
+        # 1) If no processed finals, fetch via ScoreboardV2
         try:
             nba_http.STATS_HEADERS.update({
                 'Accept': 'application/json, text/plain, */*',
@@ -3538,7 +3541,8 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
                     time.sleep(3)
             return finals_local
 
-        finals = fetch_finals_for(str(target_date))
+        if finals is None or finals.empty:
+            finals = fetch_finals_for(str(target_date))
         if finals is None or finals.empty:
             # Try +1 day then -1 day to handle timezone/date slippage
             from datetime import timedelta as _td

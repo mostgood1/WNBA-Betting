@@ -36,7 +36,7 @@
 				"-File",
 				"${workspaceFolder}\\scripts\\daily_update.ps1",
 				"-GitPush",
-				"-CronToken",
+				"-Token",
 				"${env:CRON_TOKEN}"
 			],
 			"isBackground": false,

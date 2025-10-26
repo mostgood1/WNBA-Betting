@@ -8,8 +8,11 @@ Param(
   [switch]$GitSyncFirst,
   # Optional: Remote server base URL (updated to the correct Render site)
   [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
-  # Optional: Pass cron token explicitly (overrides env/.env/file discovery)
-  [string]$CronToken
+  # Optional: Bare -CronToken flag is accepted (no value) to avoid task failures
+  [switch]$CronToken,
+  # Optional: Pass cron token explicitly (overrides env/.env/file discovery). Alias provided for clarity.
+  [Alias('CronTokenText','Token')]
+  [string]$CronTokenParam
 )
 
 $ErrorActionPreference = 'Stop'
@@ -110,9 +113,10 @@ Write-Log "Python: $Python"
 
 # Discover CRON token for server calls: precedence = param > env > repo .cron_token file
 $ServerToken = $null
-if ($CronToken) {
-  $ServerToken = $CronToken
-  Write-Log "Server auth: using token from parameter (redacted)"
+# If explicit token text provided via -CronTokenParam/-Token, use it
+if ($CronTokenParam -and $CronTokenParam.Trim().Length -gt 0) {
+  $ServerToken = $CronTokenParam
+  Write-Log "Server auth: using token from explicit parameter (redacted)"
 } elseif ($env:CRON_TOKEN) {
   $ServerToken = $env:CRON_TOKEN
   Write-Log "Server auth: using token from environment (redacted)"

@@ -307,13 +307,13 @@ def compute_props_edges(
                     grp_cols = [c for c in ["player","team"] if c in inj.columns]
                     if not grp_cols:
                         grp_cols = ["player"]
-                    inj_latest = inj.groupby(grp_cols, as_index=False).tail(1)
-                    # Normalize names and statuses
+                    inj_latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
+                    # Normalize names and statuses (use .loc to avoid SettingWithCopyWarning)
                     def _norm(s: str) -> str:
                         return _norm_name(s)
-                    inj_latest["name_key"] = inj_latest["player"].astype(str).map(_norm)
-                    inj_latest["short_key"] = inj_latest["player"].astype(str).map(_short_key)
-                    inj_latest["status_norm"] = inj_latest["status"].astype(str).str.upper()
+                    inj_latest.loc[:, "name_key"] = inj_latest["player"].astype(str).map(_norm)
+                    inj_latest.loc[:, "short_key"] = inj_latest["player"].astype(str).map(_short_key)
+                    inj_latest.loc[:, "status_norm"] = inj_latest["status"].astype(str).str.upper()
                     # Exclusion logic: exact statuses plus season-long/indefinite phrasing
                     EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
                     def _excluded_status(u: str) -> bool:
