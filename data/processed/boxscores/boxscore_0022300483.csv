@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300483,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,37:21,3,11,0.273,1,3,0.333,4,4,1.0,1,1,2,0,1,0,0,3,11,20.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,30:06,1,11,0.091,0,3,0.0,6,6,1.0,0,7,7,5,1,1,4,3,8,13.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,35:28,8,9,0.889,0,0,0.0,1,2,0.5,1,5,6,5,2,2,1,4,17,26.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,16:42,4,6,0.667,4,6,0.667,2,2,1.0,1,1,2,3,1,0,2,4,14,-7.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,32:23,11,20,0.55,4,9,0.444,3,3,1.0,0,3,3,2,1,1,0,1,29,14.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,,,29:35,4,7,0.571,0,2,0.0,2,2,1.0,3,12,15,6,0,1,2,2,10,46.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,14:58,4,8,0.5,4,6,0.667,3,3,1.0,0,1,1,4,0,0,0,1,15,20.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,23:37,6,13,0.462,4,9,0.444,3,3,1.0,2,6,8,2,1,1,1,3,19,37.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,12:32,2,3,0.667,1,2,0.5,0,0,0.0,2,1,3,0,0,1,1,0,5,10.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,,,3:30,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,2.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,2:26,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,1:22,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,2.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300483
+0022300483,1610612752,New York,Knicks,NYK,knicks,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,F,,,21:16,0,2,0.0,0,1,0.0,0,0,0.0,1,3,4,1,0,1,2,2,0,-6.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,24:03,2,6,0.333,1,2,0.5,0,1,0.0,0,3,3,4,0,0,0,2,5,-1.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,36:13,10,23,0.435,1,1,1.0,9,12,0.75,3,7,10,3,1,3,6,3,30,-29.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,30:59,6,12,0.5,3,6,0.5,0,0,0.0,2,5,7,1,0,3,3,2,15,-20.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,36:27,9,20,0.45,1,7,0.143,8,10,0.8,1,3,4,9,2,1,1,1,27,-28.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,22:18,1,3,0.333,0,1,0.0,0,0,0.0,0,4,4,1,1,0,0,1,2,-27.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,13:34,0,1,0.0,0,1,0.0,2,2,1.0,0,2,2,0,1,0,2,2,2,-12.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,16:27,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-24.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,11:47,3,5,0.6,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,2,6,-7.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,14:55,1,7,0.143,0,3,0.0,1,2,0.5,1,0,1,1,1,1,0,1,3,-12.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,7:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,-12.0,0022300483
+0022300483,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,4:41,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,1,2,0,0,0,2,-2.0,0022300483

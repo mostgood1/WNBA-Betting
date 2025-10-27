@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,F,,,26:53,1,7,0.143,1,2,0.5,1,2,0.5,3,4,7,3,0,5,2,2,4,-14.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630191,Isaiah,Stewart,I. Stewart,isaiah-stewart,F,,,34:37,6,11,0.545,2,3,0.667,0,0,0.0,6,8,14,2,0,0,1,3,14,7.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,31:49,8,11,0.727,0,0,0.0,1,3,0.333,6,8,14,4,0,4,4,4,17,-4.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630165,Killian,Hayes,K. Hayes,killian-hayes,G,,,30:30,4,12,0.333,0,6,0.0,2,3,0.667,0,1,1,3,2,1,1,2,10,1.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,35:46,13,27,0.481,4,9,0.444,0,0,0.0,0,3,3,9,1,1,3,5,30,-2.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,16:11,3,3,1.0,0,0,0.0,2,2,1.0,2,6,8,3,0,1,1,1,8,3.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,,,,17:08,1,7,0.143,0,2,0.0,2,3,0.667,0,2,2,3,0,0,3,3,4,-2.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,202692,Alec,Burks,A. Burks,alec-burks,,,,24:57,2,8,0.25,2,5,0.4,1,2,0.5,0,5,5,0,0,1,0,1,7,9.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,10:23,3,4,0.75,2,3,0.667,0,0,0.0,0,2,2,1,0,0,1,0,8,2.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,203925,Joe,Harris,J. Harris,joe-harris,,,,11:47,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,-5.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630608,Malcolm,Cazalon,M. Cazalon,malcolm-cazalon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,34:28,6,18,0.333,0,0,0.0,7,9,0.778,8,5,13,4,2,0,0,0,19,-3.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,F,,,27:44,4,9,0.444,3,6,0.5,2,2,1.0,2,8,10,2,0,0,1,5,13,5.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,32:08,7,13,0.538,0,0,0.0,8,10,0.8,2,6,8,3,0,2,2,3,22,-4.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,34:30,7,24,0.292,2,7,0.286,0,0,0.0,0,2,2,3,3,0,2,1,16,6.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,31:52,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,2,2,1,0,4,0,4.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,19:31,1,7,0.143,0,3,0.0,0,0,0.0,1,2,3,1,1,0,0,1,2,-5.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,13:11,3,3,1.0,0,0,0.0,0,0,0.0,0,2,2,2,2,0,1,2,6,4.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,15:51,2,5,0.4,0,0,0.0,4,5,0.8,2,4,6,3,1,0,1,0,8,5.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,22:06,6,10,0.6,3,5,0.6,0,0,0.0,1,1,2,1,0,0,0,1,15,-3.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,,,8:40,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,2,-4.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1630181,R.J.,Hampton,R. Hampton,rj-hampton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068
+0022300068,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300068

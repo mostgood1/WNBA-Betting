@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,31:58,7,21,0.333,6,14,0.429,6,7,0.857,3,4,7,1,0,0,1,2,26,-15.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,F,,,26:12,4,7,0.571,3,6,0.5,0,0,0.0,2,5,7,2,1,1,1,1,11,-8.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,38:27,4,6,0.667,0,1,0.0,1,6,0.167,8,8,16,3,0,3,0,1,9,-15.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,G,,,25:23,4,10,0.4,2,5,0.4,1,2,0.5,0,3,3,3,1,0,2,0,11,-16.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,36:20,10,22,0.455,4,10,0.4,0,0,0.0,1,2,3,5,1,0,4,3,24,-13.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,,,13:38,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,4,0,0,1,2,0,3.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,33:29,7,17,0.412,3,5,0.6,10,11,0.909,0,6,6,5,2,1,4,5,27,4.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,10:50,1,4,0.25,0,1,0.0,0,0,0.0,1,2,3,2,1,0,0,2,2,6.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,9:33,0,2,0.0,0,0,0.0,0,0,0.0,1,3,4,2,0,0,1,2,0,4.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,14:10,1,2,0.5,1,2,0.5,0,0,0.0,1,0,1,0,0,0,2,2,3,-5.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392
+0022400392,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,F,,,23:58,6,12,0.5,6,11,0.545,2,2,1.0,1,0,1,4,3,0,1,2,20,2.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,33:42,9,17,0.529,3,5,0.6,1,2,0.5,2,8,10,4,1,3,2,2,22,17.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,26:54,2,6,0.333,0,0,0.0,3,4,0.75,2,4,6,2,0,0,1,1,7,10.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:42,7,15,0.467,4,8,0.5,4,5,0.8,0,3,3,7,3,0,1,2,22,17.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,32:41,8,14,0.571,3,6,0.5,4,5,0.8,1,2,3,8,1,0,2,1,23,21.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,,,,21:45,1,3,0.333,0,2,0.0,0,0,0.0,2,4,6,2,0,0,0,3,2,-4.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,23:56,3,6,0.5,1,3,0.333,4,5,0.8,1,2,3,1,0,0,0,3,11,6.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,21:15,3,8,0.375,2,6,0.333,0,0,0.0,1,6,7,3,1,0,2,4,8,-1.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,13:54,2,7,0.286,1,5,0.2,0,0,0.0,0,0,0,2,0,0,0,3,5,-7.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,8:13,2,3,0.667,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,2,4,-6.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392
+0022400392,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400392

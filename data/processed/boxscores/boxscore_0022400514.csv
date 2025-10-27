@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,27:04,10,15,0.667,4,7,0.571,2,4,0.5,3,3,6,2,1,1,3,2,26,24.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,29:21,4,8,0.5,1,4,0.25,6,6,1.0,0,3,3,5,3,1,2,3,15,23.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,27:03,5,8,0.625,0,0,0.0,1,2,0.5,7,6,13,3,0,1,1,1,11,26.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,33:18,8,13,0.615,4,7,0.571,1,1,1.0,0,1,1,2,1,0,2,0,21,28.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,28:44,7,11,0.636,3,7,0.429,0,0,0.0,1,5,6,5,1,0,0,0,17,15.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,29:13,6,15,0.4,1,5,0.2,0,0,0.0,0,2,2,5,1,0,5,2,13,4.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,20:56,3,6,0.5,0,3,0.0,0,0,0.0,0,1,1,0,1,0,0,1,6,-5.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,14:56,2,6,0.333,0,3,0.0,0,0,0.0,0,1,1,2,2,0,0,1,4,1.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,16:12,2,3,0.667,0,0,0.0,0,0,0.0,1,5,6,0,1,4,0,2,4,2.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,4:45,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-9.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,4:45,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,1,0,-9.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,3:43,1,2,0.5,0,0,0.0,0,0,0.0,2,0,2,0,0,0,0,0,2,-5.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400514
+0022400514,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,F,,,18:18,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,1,2,0,1,2,0,-17.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,F,,,19:45,1,1,1.0,0,0,0.0,0,0,0.0,1,3,4,2,0,0,0,3,2,1.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,24:56,1,2,0.5,0,0,0.0,0,0,0.0,2,5,7,4,0,1,0,0,2,-26.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,27:06,10,17,0.588,3,7,0.429,0,0,0.0,0,2,2,2,0,0,2,3,23,-17.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,25:52,8,14,0.571,2,5,0.4,2,2,1.0,1,2,3,5,2,0,4,0,20,-27.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,17:03,2,3,0.667,0,0,0.0,2,2,1.0,4,2,6,0,1,0,0,1,6,-2.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,21:12,3,12,0.25,0,4,0.0,0,2,0.0,4,0,4,0,1,0,3,2,6,-11.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,25:11,4,16,0.25,2,9,0.222,0,0,0.0,1,0,1,1,0,0,3,0,10,-11.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,19:46,3,8,0.375,1,2,0.5,2,3,0.667,2,1,3,3,3,1,3,2,9,-5.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,28:49,3,7,0.429,2,5,0.4,1,1,1.0,2,5,7,0,0,1,1,2,9,2.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,6:01,2,3,0.667,0,1,0.0,0,0,0.0,1,3,4,1,1,0,0,0,4,9.0,0022400514
+0022400514,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,6:01,3,4,0.75,2,3,0.667,1,1,1.0,0,0,0,0,1,0,0,0,9,9.0,0022400514

@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,41:09,6,12,0.5,2,5,0.4,2,2,1.0,1,4,5,7,2,0,2,3,16,-4.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,24:18,3,4,0.75,2,3,0.667,0,0,0.0,3,1,4,2,1,0,3,4,8,-10.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,33:44,7,10,0.7,0,0,0.0,2,2,1.0,4,8,12,2,1,3,4,1,16,-3.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,37:04,8,19,0.421,1,7,0.143,0,1,0.0,1,2,3,3,0,0,1,1,17,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,37:36,10,21,0.476,6,12,0.5,4,6,0.667,0,4,4,6,1,0,0,2,30,-15.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,35:25,6,11,0.545,3,4,0.75,2,6,0.333,1,1,2,9,0,1,1,4,17,-10.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,10:45,1,5,0.2,0,0,0.0,0,0,0.0,1,2,3,1,0,0,1,2,2,-3.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,16:30,3,5,0.6,2,4,0.5,0,0,0.0,1,3,4,1,1,1,2,1,8,6.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,3:29,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,4.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,39:40,8,16,0.5,3,5,0.6,5,6,0.833,3,7,10,3,0,1,0,2,24,22.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,38:12,12,20,0.6,2,5,0.4,3,4,0.75,2,5,7,4,2,2,1,5,29,1.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,38:08,7,17,0.412,1,7,0.143,0,0,0.0,6,2,8,1,1,5,3,3,15,22.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,G,,,32:30,4,10,0.4,0,1,0.0,1,2,0.5,4,1,5,4,2,1,2,4,9,13.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,38:51,8,15,0.533,5,10,0.5,7,7,1.0,2,5,7,10,2,0,3,2,28,17.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,15:39,2,3,0.667,2,2,1.0,0,0,0.0,0,5,5,2,0,0,0,0,6,-2.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,9:44,1,1,1.0,0,0,0.0,0,1,0.0,0,0,0,0,0,0,0,1,2,-19.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,14:53,3,7,0.429,0,0,0.0,0,0,0.0,2,2,4,3,2,1,3,2,6,-8.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1629650,Moses,Brown,M. Brown,moses-brown,,,,3:48,1,3,0.333,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-7.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,8:35,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,1,0,0,2,0,-4.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288
+0022400288,1610612754,Indiana,Pacers,IND,pacers,1641803,Tristen,Newton,T. Newton,tristen-newton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400288

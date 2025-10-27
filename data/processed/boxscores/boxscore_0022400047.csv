@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,36:50,7,21,0.333,4,10,0.4,3,4,0.75,1,1,2,4,0,0,3,2,21,7.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,35:43,12,18,0.667,4,8,0.5,7,10,0.7,1,13,14,5,1,1,3,0,35,13.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,25:09,7,11,0.636,2,5,0.4,5,7,0.714,0,8,8,1,0,0,0,3,21,7.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,24:02,6,10,0.6,4,8,0.5,0,0,0.0,1,5,6,4,1,0,0,1,16,-5.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,35:43,5,11,0.455,1,4,0.25,0,0,0.0,3,5,8,4,1,1,2,2,11,6.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,,,,25:27,1,6,0.167,0,3,0.0,0,0,0.0,0,1,1,3,0,0,0,2,2,-4.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,28:31,10,16,0.625,7,11,0.636,2,2,1.0,4,3,7,1,1,0,0,1,29,11.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,21:59,1,5,0.2,1,5,0.2,0,0,0.0,0,3,3,1,2,0,1,2,3,3.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,6:35,0,0,0.0,0,0,0.0,0,0,0.0,1,1,2,1,0,0,0,0,0,7.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1631248,Baylor,Scheierman,B. Scheierman,baylor-scheierman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,F,,,35:18,11,22,0.5,4,11,0.364,3,3,1.0,0,1,1,1,0,0,0,4,29,-19.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,F,,,32:00,5,11,0.455,1,4,0.25,2,2,1.0,0,1,1,5,1,0,1,4,13,-15.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,34:05,11,16,0.688,6,9,0.667,4,6,0.667,0,11,11,3,0,1,0,3,32,-19.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,32:35,3,11,0.273,1,7,0.143,4,5,0.8,1,5,6,4,0,0,2,0,11,7.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,24:21,2,6,0.333,0,2,0.0,0,0,0.0,1,7,8,9,3,0,3,0,4,14.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1628366,Lonzo,Ball,L. Ball,lonzo-ball,,,,21:40,1,4,0.25,0,3,0.0,0,0,0.0,1,2,3,5,2,0,0,1,2,-16.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,4:57,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,2,-7.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,7:59,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,11.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,13:55,1,4,0.25,0,3,0.0,0,0,0.0,0,7,7,1,1,1,0,0,2,10.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,,,12:58,4,6,0.667,3,5,0.6,0,0,0.0,1,2,3,0,0,0,0,3,11,-4.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,13:37,6,7,0.857,4,4,1.0,0,0,0.0,0,0,0,0,0,0,1,1,16,0.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,6:35,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,0,1,0,5,-7.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1630537,Chris,Duarte,C. Duarte,chris-duarte,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047
+0022400047,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400047

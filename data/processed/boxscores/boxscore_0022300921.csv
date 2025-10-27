@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,33:36,5,8,0.625,5,8,0.625,2,2,1.0,1,6,7,5,0,1,3,0,17,5.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,24:23,7,14,0.5,2,4,0.5,4,6,0.667,0,5,5,1,0,1,3,5,20,7.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,C,,,22:15,4,8,0.5,1,1,1.0,0,2,0.0,0,2,2,0,1,1,0,5,9,8.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,G,,,29:00,7,15,0.467,3,6,0.5,3,4,0.75,1,2,3,2,0,0,3,1,20,8.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,31:04,1,5,0.2,0,2,0.0,5,6,0.833,1,4,5,11,2,0,1,1,7,3.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,20:19,1,3,0.333,0,0,0.0,2,2,1.0,0,5,5,9,1,2,1,3,4,8.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,31:42,9,18,0.5,4,9,0.444,0,0,0.0,3,8,11,1,0,0,1,1,22,4.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,30:05,7,10,0.7,0,1,0.0,5,6,0.833,5,3,8,4,1,1,0,4,19,4.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,,,11:18,3,4,0.75,2,2,1.0,0,0,0.0,0,2,2,0,1,0,0,2,8,10.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,6:18,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,8.0,0022300921
+0022300921,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,30:21,10,17,0.588,0,1,0.0,6,8,0.75,0,3,3,2,1,0,2,4,26,-8.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,27:55,3,6,0.5,1,3,0.333,0,0,0.0,2,3,5,4,2,1,3,2,7,-8.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,23:40,5,5,1.0,0,0,0.0,1,5,0.2,1,5,6,0,1,3,1,4,11,-5.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,30:36,2,7,0.286,1,1,1.0,3,4,0.75,4,2,6,7,1,1,2,0,8,-8.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,G,,,29:13,4,9,0.444,2,3,0.667,0,0,0.0,0,4,4,9,3,0,0,1,10,-3.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,26:16,2,11,0.182,0,6,0.0,5,6,0.833,1,4,5,0,0,1,1,2,9,-9.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,,,,24:51,8,16,0.5,5,10,0.5,6,6,1.0,0,2,2,1,0,1,3,4,27,2.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,,,26:14,5,12,0.417,1,3,0.333,0,0,0.0,1,5,6,1,1,0,0,3,11,-6.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,8:58,1,3,0.333,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,1,2,-11.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,3:13,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,2,2,-6.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,5:31,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,1.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,1:36,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-2.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,,,1:36,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022300921
+0022300921,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300921

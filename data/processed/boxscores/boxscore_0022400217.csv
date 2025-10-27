@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,34:50,7,17,0.412,1,5,0.2,8,9,0.889,1,11,12,0,1,0,4,2,23,-4.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,38:44,8,11,0.727,4,6,0.667,5,5,1.0,1,6,7,2,0,0,3,4,25,0.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,33:50,4,11,0.364,2,5,0.4,1,2,0.5,0,2,2,1,2,2,1,4,11,-3.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,G,,,25:46,2,6,0.333,1,2,0.5,0,0,0.0,1,2,3,1,1,1,0,2,5,-11.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,39:33,3,14,0.214,2,8,0.25,1,1,1.0,0,1,1,11,0,0,4,1,9,5.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,14:54,2,9,0.222,0,0,0.0,0,0,0.0,1,5,6,3,1,1,2,2,4,1.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,18:38,1,4,0.25,0,3,0.0,0,0,0.0,1,2,3,2,0,2,0,2,2,-3.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,2:08,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,22:45,2,5,0.4,0,0,0.0,0,0,0.0,0,5,5,2,4,0,1,2,4,-1.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,8:53,3,6,0.5,0,1,0.0,1,1,1.0,2,0,2,0,1,0,1,0,7,-8.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,20:38,1,6,0.167,0,2,0.0,1,2,0.5,4,5,9,3,0,0,0,1,3,9.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,36:47,9,24,0.375,3,8,0.375,8,9,0.889,0,3,3,6,1,1,1,0,29,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,27:49,6,7,0.857,0,0,0.0,0,0,0.0,6,6,12,1,1,2,3,4,12,3.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,34:15,4,8,0.5,2,5,0.4,0,0,0.0,0,5,5,3,0,0,1,3,10,10.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,37:37,2,15,0.133,2,11,0.182,2,2,1.0,1,1,2,3,2,2,4,3,8,8.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,17:30,4,7,0.571,2,4,0.5,0,0,0.0,1,1,2,0,0,0,5,3,10,1.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,22:20,3,5,0.6,2,3,0.667,0,0,0.0,1,10,11,1,0,3,0,3,8,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,24:45,2,5,0.4,0,1,0.0,2,2,1.0,0,4,4,6,4,1,2,0,6,-4.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,13:45,2,3,0.667,2,3,0.667,0,0,0.0,0,0,0,2,0,1,1,2,6,-6.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,4:35,1,4,0.25,0,1,0.0,0,0,0.0,0,2,2,1,0,0,0,0,2,-1.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1630644,Mac,McClung,M. McClung,mac-mcclung,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217
+0022400217,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400217

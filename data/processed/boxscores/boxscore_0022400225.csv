@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,29:27,6,14,0.429,2,7,0.286,1,2,0.5,3,4,7,5,3,1,0,2,15,8.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,33:17,10,20,0.5,2,7,0.286,7,8,0.875,1,6,7,1,2,1,2,5,29,-1.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,C,,,12:51,3,8,0.375,0,4,0.0,0,2,0.0,1,2,3,0,1,1,0,0,6,-16.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,G,,,27:16,4,8,0.5,0,3,0.0,1,1,1.0,0,3,3,2,0,0,2,2,9,1.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,31:37,6,14,0.429,1,2,0.5,2,2,1.0,0,3,3,3,3,1,2,3,15,-10.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,,,,25:32,3,8,0.375,0,0,0.0,6,6,1.0,4,4,8,1,1,1,2,6,12,12.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,20:16,3,4,0.75,1,1,1.0,3,4,0.75,1,2,3,4,0,0,1,2,10,-4.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,26:28,4,7,0.571,4,4,1.0,0,0,0.0,0,2,2,4,0,0,0,2,12,2.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,,,,22:38,3,5,0.6,2,4,0.5,7,8,0.875,1,1,2,6,1,1,4,2,15,-5.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,10:38,0,1,0.0,0,1,0.0,0,0,0.0,1,2,3,2,0,0,0,1,0,-12.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630658,Colin,Castleton,C. Castleton,colin-castleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225
+0022400225,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,35:47,6,7,0.857,3,4,0.75,4,5,0.8,3,4,7,3,1,1,1,1,19,7.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,36:56,13,22,0.591,4,7,0.571,5,8,0.625,1,11,12,14,1,0,6,2,35,3.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,32:00,6,16,0.375,2,3,0.667,7,8,0.875,2,12,14,3,0,3,3,5,21,-6.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,G,,,22:32,1,1,1.0,1,1,1.0,1,4,0.25,1,1,2,0,2,1,1,1,4,-12.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,35:53,5,14,0.357,3,11,0.273,5,7,0.714,0,2,2,6,1,0,3,4,18,-1.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,31:08,7,8,0.875,5,5,1.0,0,0,0.0,0,2,2,3,1,0,1,4,19,17.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,20:24,3,9,0.333,2,6,0.333,0,0,0.0,0,2,2,2,0,0,1,2,8,5.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,12:37,0,6,0.0,0,4,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,6.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,12:43,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,2,1,4,6.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225
+0022400225,1610612747,Los Angeles,Lakers,LAL,lakers,1642422,Armel,Traore,A. Traore,armel-traore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400225

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,202330,Gordon,Hayward,G. Hayward,gordon-hayward,F,,,33:47,9,23,0.391,1,4,0.25,1,4,0.25,2,2,4,8,1,0,1,2,20,-4.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:16,8,15,0.533,1,4,0.25,3,4,0.75,0,4,4,1,0,0,0,3,20,8.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,27:17,8,8,1.0,0,0,0.0,3,6,0.5,2,8,10,1,0,0,2,3,19,-1.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,35:52,3,12,0.25,0,5,0.0,1,2,0.5,0,1,1,1,1,0,0,3,7,-9.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,39:04,11,23,0.478,5,10,0.5,3,3,1.0,2,8,10,13,1,1,3,6,30,1.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,14:58,0,1,0.0,0,0,0.0,0,0,0.0,1,2,3,1,0,0,0,0,0,-10.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1630177,Theo,Maledon,T. Maledon,theo-maledon,,,,20:51,4,9,0.444,1,6,0.167,0,0,0.0,0,0,0,4,0,0,1,1,9,-7.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,,,20:43,6,7,0.857,0,0,0.0,0,0,0.0,3,6,9,1,0,1,0,4,12,-5.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,9:53,0,1,0.0,0,1,0.0,1,2,0.5,0,2,2,0,2,0,0,0,1,1.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,202397,Ish,Smith,I. Smith,ish-smith,,,,3:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,3,0,-4.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,16:47,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,1,1,1,1,0,3.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1629684,Grant,Williams,G. Williams,grant-williams,F,,,31:13,7,9,0.778,4,5,0.8,0,1,0.0,0,4,4,3,0,1,0,3,18,2.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,32:25,7,9,0.778,0,0,0.0,1,2,0.5,3,11,14,1,0,1,2,4,15,1.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,33:58,6,14,0.429,2,6,0.333,4,4,1.0,0,3,3,10,1,1,2,3,18,8.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,36:25,8,19,0.421,1,9,0.111,6,7,0.857,1,11,12,9,0,1,4,3,23,3.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,23:33,3,9,0.333,1,4,0.25,0,2,0.0,0,2,2,3,1,1,1,1,7,2.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,32:13,5,17,0.294,4,12,0.333,2,2,1.0,0,2,2,1,0,0,0,0,16,1.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,15:27,3,3,1.0,0,0,0.0,4,6,0.667,5,0,5,3,0,0,0,2,10,2.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,3:17,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,1,3,-1.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,14:42,3,7,0.429,1,4,0.25,7,8,0.875,0,4,4,0,0,0,0,1,14,9.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,203552,Seth,Curry,S. Curry,seth-curry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143
+0022300143,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300143

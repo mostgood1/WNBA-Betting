@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,26:12,2,5,0.4,2,4,0.5,0,0,0.0,0,1,1,0,2,0,1,1,6,17.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,F,,,34:41,4,8,0.5,0,0,0.0,3,7,0.429,3,6,9,0,4,2,2,2,11,20.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,25:40,9,21,0.429,0,1,0.0,2,2,1.0,3,6,9,8,2,0,1,1,20,17.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,29:36,10,16,0.625,6,10,0.6,8,8,1.0,1,0,1,5,0,1,1,2,34,13.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,35:08,6,13,0.462,4,9,0.444,0,0,0.0,0,1,1,8,3,0,0,3,16,18.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,17:33,3,5,0.6,0,1,0.0,0,0,0.0,3,1,4,1,0,0,0,3,6,-6.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,7:07,1,1,1.0,0,0,0.0,0,0,0.0,2,1,3,1,0,1,1,0,2,6.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,23:56,7,11,0.636,2,4,0.5,0,0,0.0,2,7,9,1,1,1,1,1,16,5.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,20:34,3,6,0.5,2,5,0.4,0,0,0.0,0,2,2,0,0,1,0,4,8,13.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,7:30,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,2,1,0,0,1,0,-2.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,6:15,0,3,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,1,0,0,0.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,5:50,4,4,1.0,1,1,1.0,0,0,0.0,0,0,0,1,1,0,0,1,9,-1.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,NWT - Personal,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400568
+0022400568,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,34:49,10,11,0.909,2,3,0.667,0,0,0.0,2,2,4,1,0,0,1,2,22,-17.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,23:41,2,4,0.5,0,2,0.0,4,7,0.571,1,2,3,0,0,1,2,2,8,-20.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,C,,,23:18,0,0,0.0,0,0,0.0,0,0,0.0,1,7,8,0,1,3,1,2,0,-19.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,24:42,6,14,0.429,3,5,0.6,2,2,1.0,3,1,4,2,1,0,5,3,17,-15.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,29:38,8,14,0.571,4,5,0.8,2,2,1.0,0,4,4,5,0,0,5,2,22,-17.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,22:45,4,8,0.5,1,3,0.333,1,2,0.5,0,3,3,0,0,3,1,0,10,-7.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,24:44,3,9,0.333,2,6,0.333,2,2,1.0,0,1,1,3,0,0,3,2,10,-4.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,18:52,3,4,0.75,0,0,0.0,2,4,0.5,1,3,4,5,0,0,0,1,8,-2.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,18:22,1,3,0.333,0,1,0.0,0,0,0.0,0,1,1,5,1,0,0,0,2,-3.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,7:30,1,3,0.333,1,2,0.5,1,2,0.5,1,1,2,0,0,0,0,1,4,2.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,5:50,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,1.0,0022400568
+0022400568,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,,,5:50,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,1,1,0,0,1,3,1.0,0022400568

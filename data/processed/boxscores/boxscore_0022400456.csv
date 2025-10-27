@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,F,,,31:13,12,20,0.6,3,8,0.375,5,7,0.714,0,1,1,3,2,1,3,2,32,2.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,22:43,3,6,0.5,1,4,0.25,0,0,0.0,0,3,3,3,1,0,2,0,7,-3.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,31:49,5,17,0.294,2,9,0.222,0,0,0.0,2,12,14,6,0,0,1,2,12,-2.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,26:16,3,8,0.375,0,1,0.0,0,0,0.0,3,3,6,2,1,1,5,1,6,-17.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,31:00,5,11,0.455,2,6,0.333,5,5,1.0,0,2,2,6,1,0,4,3,17,-22.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1628366,Lonzo,Ball,L. Ball,lonzo-ball,,,,22:28,2,7,0.286,1,6,0.167,0,0,0.0,1,7,8,4,3,1,1,1,5,-6.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,14:12,2,5,0.4,1,3,0.333,0,0,0.0,1,3,4,0,1,1,1,0,5,2.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,18:32,2,3,0.667,1,2,0.5,1,2,0.5,0,1,1,3,1,0,2,1,6,-7.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,13:42,1,6,0.167,1,4,0.25,0,0,0.0,0,2,2,0,1,1,1,2,3,-17.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,15:55,3,5,0.6,1,2,0.5,0,0,0.0,1,2,3,0,0,1,0,1,7,-18.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,7:49,2,3,0.667,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,4,-2.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,4:21,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,0,3,0.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1630537,Chris,Duarte,C. Duarte,chris-duarte,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400456
+0022400456,1610612741,Chicago,Bulls,CHI,bulls,1641766,Adama,Sanogo,A. Sanogo,adama-sanogo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,8:34,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,2,1,0,1,0,0,0.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,20:47,6,8,0.75,2,3,0.667,1,1,1.0,0,2,2,1,1,0,1,2,15,3.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,24:46,5,11,0.455,1,2,0.5,0,1,0.0,1,9,10,5,0,1,2,1,11,10.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,27:36,10,21,0.476,6,13,0.462,4,4,1.0,1,2,3,2,3,0,5,2,30,8.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,30:31,4,5,0.8,3,3,1.0,0,0,0.0,0,4,4,6,1,1,0,1,11,12.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,27:48,5,12,0.417,0,1,0.0,2,2,1.0,1,3,4,6,0,1,1,1,12,12.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,21:32,6,12,0.5,0,0,0.0,2,3,0.667,2,4,6,6,3,0,4,2,14,13.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,,,,22:10,2,3,0.667,0,0,0.0,1,1,1.0,0,5,5,5,1,0,0,2,5,10.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,29:11,5,12,0.417,3,6,0.5,0,0,0.0,1,1,2,2,0,0,1,0,13,22.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,,,,20:25,4,10,0.4,1,6,0.167,0,0,0.0,0,4,4,0,1,0,0,1,9,8.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,1:40,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-2.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,1:40,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,1:40,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,-2.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,1:40,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,-2.0,0022400456
+0022400456,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400456

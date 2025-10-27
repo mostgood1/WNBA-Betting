@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,42:58,12,22,0.545,2,8,0.25,6,8,0.75,0,5,5,2,5,0,6,2,32,3.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,F,,,36:02,1,5,0.2,1,4,0.25,0,0,0.0,2,3,5,4,1,0,2,4,3,7.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,35:40,5,14,0.357,2,6,0.333,8,10,0.8,1,4,5,1,1,1,1,5,20,-7.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,G,,,39:29,10,21,0.476,3,8,0.375,3,4,0.75,0,7,7,4,1,0,3,5,26,-16.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,41:37,4,16,0.25,0,4,0.0,4,6,0.667,3,8,11,6,1,0,3,3,12,-19.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,4:23,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-5.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,24:46,3,8,0.375,3,8,0.375,2,2,1.0,1,3,4,0,1,1,1,3,11,-3.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,20:22,0,3,0.0,0,1,0.0,0,0,0.0,3,3,6,3,0,0,0,2,0,13.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,3:51,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,15:52,1,2,0.5,0,0,0.0,3,4,0.75,1,0,1,0,2,0,0,2,5,4.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1630625,Dalano,Banton,D. Banton,dalano-banton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300154
+0022300154,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,45:28,8,18,0.444,4,9,0.444,0,0,0.0,1,1,2,1,1,0,3,3,20,-6.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,27:46,3,10,0.3,1,7,0.143,0,0,0.0,0,10,10,3,0,0,7,6,7,-5.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,40:45,6,6,1.0,0,0,0.0,2,11,0.182,2,10,12,1,0,1,2,4,14,24.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,38:08,15,25,0.6,2,8,0.25,6,7,0.857,0,9,9,7,1,0,3,5,38,18.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,36:15,3,5,0.6,2,3,0.667,0,0,0.0,0,2,2,3,2,0,0,1,8,-18.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,19:46,3,6,0.5,2,4,0.5,0,1,0.0,0,1,1,3,1,0,1,3,8,13.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,25:07,5,9,0.556,2,4,0.5,2,2,1.0,1,3,4,2,2,2,3,0,14,-2.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,25:13,1,6,0.167,0,2,0.0,1,2,0.5,2,3,5,6,0,1,4,4,3,6.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,2:41,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-8.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,3:51,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,1,0,0,2,3.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300154
+0022300154,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300154

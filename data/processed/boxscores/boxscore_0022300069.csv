@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,F,,,22:38,1,5,0.2,0,3,0.0,0,0,0.0,0,4,4,2,1,0,1,3,2,-17.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,35:58,8,25,0.32,2,10,0.2,1,1,1.0,2,8,10,3,0,4,4,2,19,-1.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,32:00,6,12,0.5,0,0,0.0,3,5,0.6,5,8,13,1,2,4,2,3,15,-11.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,38:18,8,27,0.296,4,7,0.571,6,6,1.0,5,9,14,1,0,0,2,1,26,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,30:31,4,9,0.444,1,4,0.25,2,2,1.0,1,3,4,3,1,1,1,1,11,-6.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,30:19,3,9,0.333,0,1,0.0,1,2,0.5,2,7,9,5,2,0,1,0,7,15.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,21:16,1,5,0.2,1,4,0.25,1,2,0.5,0,3,3,4,2,0,2,4,4,3.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,23:46,3,8,0.375,0,2,0.0,4,4,1.0,1,3,4,1,0,0,1,0,10,1.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,5:15,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,1.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,33:48,7,13,0.538,4,9,0.444,2,2,1.0,0,6,6,1,2,3,2,2,20,6.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,34:05,5,17,0.294,3,5,0.6,2,2,1.0,0,7,7,6,1,0,2,2,15,7.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,23:43,3,3,1.0,0,0,0.0,1,4,0.25,3,8,11,1,1,1,0,1,7,8.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,37:03,6,16,0.375,1,4,0.25,4,6,0.667,1,7,8,5,2,5,4,1,17,2.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,32:33,8,17,0.471,4,8,0.5,2,2,1.0,1,2,3,7,0,0,2,1,22,10.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,26:42,2,8,0.25,1,4,0.25,0,0,0.0,0,2,2,2,1,1,0,3,5,3.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,24:17,4,9,0.444,0,1,0.0,0,0,0.0,3,5,8,0,0,0,2,1,8,-5.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,16:09,0,3,0.0,0,3,0.0,0,0,0.0,0,2,2,2,1,1,0,2,0,-3.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,9:33,1,3,0.333,1,1,1.0,0,0,0.0,0,0,0,2,1,0,2,4,3,-14.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,2:07,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,1.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069
+0022300069,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300069

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,31:05,7,11,0.636,3,5,0.6,3,3,1.0,1,3,4,0,2,0,2,4,20,21.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,8:28,3,4,0.75,1,2,0.5,1,2,0.5,1,0,1,1,2,1,0,0,8,7.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,18:24,6,14,0.429,0,0,0.0,0,2,0.0,7,4,11,1,0,0,0,2,12,21.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,26:43,4,14,0.286,1,6,0.167,2,2,1.0,0,5,5,10,4,0,0,0,11,19.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,30:22,9,17,0.529,5,8,0.625,3,3,1.0,0,6,6,10,2,0,2,1,26,40.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,21:04,6,9,0.667,3,3,1.0,0,1,0.0,0,3,3,1,1,0,2,3,15,13.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,,,,31:56,6,14,0.429,0,4,0.0,1,2,0.5,3,6,9,1,1,0,1,1,13,30.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,24:41,3,6,0.5,0,1,0.0,3,4,0.75,3,3,6,1,1,1,0,2,9,9.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,7:45,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-6.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,14:23,2,3,0.667,2,3,0.667,0,0,0.0,1,1,2,1,0,0,0,1,6,1.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,9:09,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,2,0,0,1,1,2,-7.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,,,6:10,2,3,0.667,2,3,0.667,0,0,0.0,0,0,0,0,0,0,0,0,6,-4.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,4:55,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,3,-2.0,0022300241
+0022300241,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,4:55,2,2,1.0,0,0,0.0,1,1,1.0,1,0,1,0,0,0,1,0,5,-2.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,16:50,3,8,0.375,1,4,0.25,2,2,1.0,1,5,6,2,0,0,3,2,9,-17.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,25:12,4,10,0.4,2,5,0.4,2,2,1.0,2,5,7,8,0,0,5,1,12,-25.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,18:10,6,8,0.75,0,0,0.0,0,0,0.0,1,3,4,0,0,2,0,2,12,-18.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,G,,,27:54,3,14,0.214,1,10,0.1,3,3,1.0,0,1,1,2,0,0,0,2,10,-28.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,24:26,2,6,0.333,0,3,0.0,0,0,0.0,1,1,2,4,0,0,2,1,4,-18.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,,,31:40,3,5,0.6,1,2,0.5,0,0,0.0,0,3,3,2,1,1,3,1,7,-1.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,203488,Mike,Muscala,M. Muscala,mike-muscala,,,,17:36,2,3,0.667,1,2,0.5,0,0,0.0,0,6,6,4,0,2,1,0,5,-8.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,16:31,5,9,0.556,2,5,0.4,0,0,0.0,0,1,1,2,0,0,1,1,12,-18.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,15:45,2,5,0.4,0,1,0.0,0,0,0.0,0,3,3,2,1,0,1,1,4,5.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,17:30,4,6,0.667,0,1,0.0,2,2,1.0,1,2,3,1,0,0,2,1,10,-8.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,16:26,5,8,0.625,2,4,0.5,1,1,1.0,0,2,2,5,2,1,2,4,13,-5.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1630647,Eugene,Omoruyi,E. Omoruyi,eugene-omoruyi,,,,12:00,4,6,0.667,0,1,0.0,2,2,1.0,2,1,3,1,1,0,0,1,10,1.0,0022300241
+0022300241,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300241

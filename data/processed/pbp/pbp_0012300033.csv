@@ -1,0 +1,473 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012300033,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (7:35 PM EST),period,start,0,0,1,0012300033
+0012300033,4,PT12M00.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Jump Ball Wembanyama vs. Bryant: Tip to Osman,Jump Ball,,1,0,2,0012300033
+0012300033,7,PT11M43.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,6,70,7,Missed,1,,,0,h,MISS Sochan 7' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,3,0012300033
+0012300033,8,PT11M40.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,4,0012300033
+0012300033,9,PT11M25.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,1,42,4,Missed,1,,,0,v,MISS Bryant 4' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,5,0012300033
+0012300033,9,PT11M25.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey BLOCK (1 BLK),,,1,2,6,0012300033
+0012300033,11,PT11M24.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,7,0012300033
+0012300033,12,PT11M24.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant OFF.Foul (P1) (D.Collins),Foul,Offensive,1,0,8,0012300033
+0012300033,14,PT11M24.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant Offensive Foul Turnover (P1.T1),Turnover,Offensive Foul Turnover,1,0,9,0012300033
+0012300033,15,PT11M16.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,113,239,26,Made,1,3,0,3,h,Vassell 26' 3PT Jump Shot (3 PTS) (Wembanyama 1 AST),Made Shot,Jump Shot,1,3,10,0012300033
+0012300033,17,PT11M02.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant Bad Pass Turnover (P2.T2),Turnover,Bad Pass,1,0,11,0012300033
+0012300033,17,PT11M02.00S,1,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,Osman STEAL (1 STL),,,1,0,12,0012300033
+0012300033,19,PT10M58.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-158,218,27,Missed,1,,,0,h,MISS Wembanyama 27' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,13,0012300033
+0012300033,20,PT10M53.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,14,0012300033
+0012300033,21,PT10M43.00S,1,1610612748,MIA,1630696,Smith,D. Smith,40,75,9,Missed,1,,,0,v,MISS Smith 9' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,15,0012300033
+0012300033,22,PT10M40.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,Vassell REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,16,0012300033
+0012300033,23,PT10M36.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,9,0,1,Made,1,5,0,5,h,Sochan 1' Running Finger Roll Layup (2 PTS) (Vassell 1 AST),Made Shot,Running Finger Roll Layup Shot,1,2,17,0012300033
+0012300033,25,PT10M12.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,230,53,24,Missed,1,,,0,v,MISS D. Robinson 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,18,0012300033
+0012300033,26,PT10M10.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,D. Robinson REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,19,0012300033
+0012300033,29,PT09M57.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,-26,31,4,Missed,1,,,0,v,MISS Highsmith 4' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,20,0012300033
+0012300033,29,PT09M57.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama BLOCK (1 BLK),,,1,2,21,0012300033
+0012300033,31,PT09M56.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,0,0,22,0012300033
+0012300033,32,PT09M56.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Turnover: Shot Clock (T#3),Turnover,Shot Clock Turnover,0,0,23,0012300033
+0012300033,33,PT09M39.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,152,15,Made,1,7,0,7,h,Wembanyama 15' Pullup Jump Shot (2 PTS) (Bassey 1 AST),Made Shot,Pullup Jump shot,1,2,24,0012300033
+0012300033,34,PT09M28.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,32,250,25,Missed,1,,,0,v,MISS D. Robinson 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,25,0012300033
+0012300033,35,PT09M22.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,26,0012300033
+0012300033,36,PT09M22.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,Missed,1,,,0,v,MISS Cain Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,27,0012300033
+0012300033,37,PT09M21.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,28,0012300033
+0012300033,38,PT09M19.00S,1,1610612748,MIA,1631288,Cain,J. Cain,17,8,2,Missed,1,,,0,v,MISS Cain 2' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,29,0012300033
+0012300033,39,PT09M17.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,Highsmith REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,30,0012300033
+0012300033,40,PT09M17.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,Missed,1,,,0,v,MISS Highsmith Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,31,0012300033
+0012300033,41,PT09M17.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,32,0012300033
+0012300033,42,PT09M11.00S,1,1610612748,MIA,1631288,Cain,J. Cain,22,21,3,Missed,1,,,0,v,MISS Cain 3' Putback Layup,Missed Shot,Putback Layup Shot,1,2,33,0012300033
+0012300033,42,PT09M11.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey BLOCK (2 BLK),,,1,2,34,0012300033
+0012300033,44,PT09M09.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,35,0012300033
+0012300033,45,PT09M07.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-135,132,19,Made,1,9,0,9,h,Wembanyama 19' Pullup Jump Shot (4 PTS) (Osman 1 AST),Made Shot,Pullup Jump shot,1,2,36,0012300033
+0012300033,47,PT08M55.00S,1,1610612748,MIA,1630696,Smith,D. Smith,-23,1,2,Missed,1,,,0,v,MISS Smith 2' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,37,0012300033
+0012300033,47,PT08M55.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey BLOCK (3 BLK),,,1,2,38,0012300033
+0012300033,49,PT08M55.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,39,0012300033
+0012300033,50,PT08M49.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,40,0012300033
+0012300033,50,PT08M49.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,D. Robinson STEAL (1 STL),,,1,0,41,0012300033
+0012300033,52,PT08M43.00S,1,1610612748,MIA,1631288,Cain,J. Cain,-174,172,24,Made,1,9,3,12,v,Cain 24' 3PT Running Jump Shot (3 PTS) (Highsmith 1 AST),Made Shot,Running Jump Shot,1,3,42,0012300033
+0012300033,54,PT08M31.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,124,216,25,Missed,1,,,0,h,MISS Vassell 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,43,0012300033
+0012300033,55,PT08M31.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,44,0012300033
+0012300033,56,PT08M21.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,-110,1,11,Made,1,9,5,14,v,D. Robinson 11' Step Back Jump Shot (2 PTS),Made Shot,Step Back Jump shot,1,2,45,0012300033
+0012300033,57,PT08M08.00S,1,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith S.FOUL (P1.T1) (B.Adair),Foul,Shooting,1,0,46,0012300033
+0012300033,59,PT08M08.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,MISS Vassell Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,47,0012300033
+0012300033,60,PT08M08.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,48,0012300033
+0012300033,61,PT08M08.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,10,5,15,h,Vassell Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,49,0012300033
+0012300033,62,PT08M00.00S,1,1610612748,MIA,1630696,Smith,D. Smith,-77,138,16,Made,1,10,7,17,v,Smith 16' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,50,0012300033
+0012300033,63,PT07M40.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,118,95,15,Missed,1,,,0,h,MISS Wembanyama 15' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,51,0012300033
+0012300033,64,PT07M37.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,52,0012300033
+0012300033,65,PT07M37.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,Made,1,12,7,19,h,Bassey Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,53,0012300033
+0012300033,66,PT07M23.00S,1,1610612748,MIA,1631288,Cain,J. Cain,-233,15,0,Made,1,12,10,22,v,Cain 3PT Jump Shot (6 PTS) (D. Robinson 1 AST),Made Shot,Jump Shot,1,3,54,0012300033
+0012300033,68,PT07M04.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,-15,275,28,Made,1,15,10,25,h,Vassell 28' 3PT Jump Shot (7 PTS) (Osman 2 AST),Made Shot,Jump Shot,1,3,55,0012300033
+0012300033,70,PT06M52.00S,1,1610612748,MIA,1631288,Cain,J. Cain,17,0,2,Made,1,15,12,27,v,Cain 2' Cutting Finger Roll Layup Shot (8 PTS) (D. Robinson 2 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,56,0012300033
+0012300033,72,PT06M43.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama Bad Pass Turnover (P1.T2),Turnover,Bad Pass,1,0,57,0012300033
+0012300033,72,PT06M43.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,Highsmith STEAL (1 STL),,,1,0,58,0012300033
+0012300033,74,PT06M37.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,-223,-2,0,Missed,1,,,0,v,MISS Highsmith 3PT Jump Shot,Missed Shot,Jump Shot,1,3,59,0012300033
+0012300033,75,PT06M35.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,60,0012300033
+0012300033,76,PT06M31.00S,1,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith P.FOUL (P2.T2) (D.Collins),Foul,Personal,1,0,61,0012300033
+0012300033,78,PT06M31.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,62,0012300033
+0012300033,80,PT06M31.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,SUB: Jones FOR Wembanyama,Substitution,,0,0,63,0012300033
+0012300033,81,PT06M31.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Branham FOR Sochan,Substitution,,0,0,64,0012300033
+0012300033,82,PT06M31.00S,1,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,SUB: Champagnie FOR Smith,Substitution,,0,0,65,0012300033
+0012300033,86,PT06M19.00S,1,1610612759,SAS,1631103,Branham,M. Branham,42,116,12,Made,1,17,12,29,h,Branham 12' Fadeaway Jumper (2 PTS) (Osman 3 AST),Made Shot,Fadeaway Jump Shot,1,2,66,0012300033
+0012300033,88,PT05M58.00S,1,1610612748,MIA,1631288,Cain,J. Cain,199,173,26,Made,1,17,15,32,v,Cain 26' 3PT Jump Shot (11 PTS) (Highsmith 2 AST),Made Shot,Jump Shot,1,3,67,0012300033
+0012300033,90,PT05M41.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,D. Robinson S.FOUL (P1.T3) (C.Blair),Foul,Shooting,1,0,68,0012300033
+0012300033,92,PT05M41.00S,1,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,18,15,33,h,Osman Free Throw 1 of 3 (1 PTS),Free Throw,Free Throw 1 of 3,1,0,69,0012300033
+0012300033,93,PT05M41.00S,1,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,19,15,34,h,Osman Free Throw 2 of 3 (2 PTS),Free Throw,Free Throw 2 of 3,0,0,70,0012300033
+0012300033,94,PT05M41.00S,1,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,MISS Osman Free Throw 3 of 3,Free Throw,Free Throw 3 of 3,1,0,71,0012300033
+0012300033,95,PT05M39.00S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,72,0012300033
+0012300033,96,PT05M29.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,-229,-7,0,Made,1,19,18,37,v,D. Robinson 3PT Jump Shot (5 PTS) (Cain 1 AST),Made Shot,Jump Shot,1,3,73,0012300033
+0012300033,99,PT05M22.00S,1,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,SUB: Barlow FOR Vassell,Substitution,,0,0,74,0012300033
+0012300033,100,PT05M22.00S,1,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,SUB: Champagnie FOR Bassey,Substitution,,0,0,75,0012300033
+0012300033,103,PT05M12.00S,1,1610612759,SAS,1630200,Jones,T. Jones,28,7,3,Made,1,21,18,39,h,Jones 3' Driving Floating Bank Jump Shot (2 PTS) (Champagnie 1 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,76,0012300033
+0012300033,105,PT04M55.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P1.T1) (B.Adair),Foul,Personal,1,0,77,0012300033
+0012300033,107,PT04M55.00S,1,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,SUB: Cissoko FOR Osman,Substitution,,0,0,78,0012300033
+0012300033,109,PT04M51.00S,1,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko S.FOUL (P1.T2) (C.Blair),Foul,Shooting,1,0,79,0012300033
+0012300033,111,PT04M51.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,21,19,40,v,D. Robinson Free Throw 1 of 3 (6 PTS),Free Throw,Free Throw 1 of 3,1,0,80,0012300033
+0012300033,112,PT04M51.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,MISS D. Robinson Free Throw 2 of 3,Free Throw,Free Throw 2 of 3,1,0,81,0012300033
+0012300033,113,PT04M51.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Normal Rebound,0,0,82,0012300033
+0012300033,114,PT04M51.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,21,20,41,v,D. Robinson Free Throw 3 of 3 (7 PTS),Free Throw,Free Throw 3 of 3,0,0,83,0012300033
+0012300033,115,PT04M36.00S,1,1610612759,SAS,1631103,Branham,M. Branham,27,265,27,Missed,1,,,0,h,MISS Branham 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,84,0012300033
+0012300033,116,PT04M33.00S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,85,0012300033
+0012300033,117,PT04M25.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,-173,183,25,Made,1,21,23,44,v,Highsmith 25' 3PT Jump Shot (3 PTS) (Champagnie 1 AST),Made Shot,Jump Shot,1,3,86,0012300033
+0012300033,119,PT04M11.00S,1,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow OFF.Foul (P1) (B.Adair),Foul,Offensive,1,0,87,0012300033
+0012300033,121,PT04M11.00S,1,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow Offensive Foul Turnover (P1.T3),Turnover,Offensive Foul Turnover,1,0,88,0012300033
+0012300033,122,PT04M02.00S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,-12,247,25,Missed,1,,,0,v,MISS Champagnie 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,89,0012300033
+0012300033,123,PT03M59.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,1,0,90,0012300033
+0012300033,125,PT03M45.00S,1,1610612759,SAS,1630200,Jones,T. Jones,23,64,7,Missed,1,,,0,h,MISS Jones 7' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,91,0012300033
+0012300033,126,PT03M45.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,1,0,92,0012300033
+0012300033,128,PT03M45.00S,1,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,SUB: O. Robinson FOR Bryant,Substitution,,0,0,93,0012300033
+0012300033,129,PT03M45.00S,1,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,SUB: Swider FOR D. Robinson,Substitution,,0,0,94,0012300033
+0012300033,132,PT03M34.00S,1,1610612748,MIA,1631306,Swider,C. Swider,91,241,26,Missed,1,,,0,v,MISS Swider 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,95,0012300033
+0012300033,133,PT03M30.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,96,0012300033
+0012300033,134,PT03M24.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-152,202,25,Made,1,24,23,47,h,Champagnie 25' 3PT Running Jump Shot (3 PTS) (Jones 1 AST),Made Shot,Running Jump Shot,1,3,97,0012300033
+0012300033,136,PT03M12.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,-43,250,25,Missed,1,,,0,v,MISS Highsmith 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,98,0012300033
+0012300033,137,PT03M08.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,99,0012300033
+0012300033,139,PT03M08.00S,1,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,SUB: Williams FOR Cain,Substitution,,0,0,100,0012300033
+0012300033,141,PT02M48.00S,1,1610612759,SAS,1631230,Barlow,D. Barlow,-118,-13,12,Missed,1,,,0,h,MISS Barlow 12' Jump Shot,Missed Shot,Jump Shot,1,2,101,0012300033
+0012300033,142,PT02M45.00S,1,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,102,0012300033
+0012300033,144,PT02M40.00S,1,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,103,0012300033
+0012300033,144,PT02M40.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (1 STL),,,1,0,104,0012300033
+0012300033,146,PT02M40.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-164,189,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,105,0012300033
+0012300033,147,PT02M40.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,1,0,106,0012300033
+0012300033,149,PT02M40.00S,1,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,107,0012300033
+0012300033,150,PT02M40.00S,1,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,SUB: Wembanyama FOR Cissoko,Substitution,,0,0,108,0012300033
+0012300033,151,PT02M40.00S,1,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,SUB: Sochan FOR Barlow,Substitution,,0,0,109,0012300033
+0012300033,152,PT02M40.00S,1,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,SUB: Peterson FOR Highsmith,Substitution,,0,0,110,0012300033
+0012300033,156,PT02M25.00S,1,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson Step Out of Bounds Turnover (P1.T5),Turnover,Step Out of Bounds Turnover,1,0,111,0012300033
+0012300033,157,PT02M13.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,27,252,25,Missed,1,,,0,h,MISS Wembanyama 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,112,0012300033
+0012300033,158,PT02M09.00S,1,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,113,0012300033
+0012300033,159,PT01M59.00S,1,1610612748,MIA,1631115,Robinson,O. Robinson,-23,255,26,Missed,1,,,0,v,MISS O. Robinson 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,114,0012300033
+0012300033,160,PT01M54.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,115,0012300033
+0012300033,161,PT01M47.00S,1,1610612759,SAS,1631103,Branham,M. Branham,9,4,1,Missed,1,,,0,h,MISS Branham 1' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,116,0012300033
+0012300033,162,PT01M44.00S,1,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,117,0012300033
+0012300033,163,PT01M39.00S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,-159,197,25,Missed,1,,,0,v,MISS Champagnie 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,118,0012300033
+0012300033,164,PT01M36.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,119,0012300033
+0012300033,165,PT01M34.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,120,0012300033
+0012300033,165,PT01M34.00S,1,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams STEAL (1 STL),,,1,0,121,0012300033
+0012300033,167,PT01M28.00S,1,1610612748,MIA,1631306,Swider,C. Swider,232,56,24,Missed,1,,,0,v,MISS Swider 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,122,0012300033
+0012300033,168,PT01M26.00S,1,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,123,0012300033
+0012300033,169,PT01M23.00S,1,1610612748,MIA,1631214,Williams,A. Williams,-97,226,25,Missed,1,,,0,v,MISS Williams 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,124,0012300033
+0012300033,170,PT01M21.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,125,0012300033
+0012300033,171,PT01M07.00S,1,1610612759,SAS,1631103,Branham,M. Branham,-161,207,26,Missed,1,,,0,h,MISS Branham 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,126,0012300033
+0012300033,172,PT01M05.00S,1,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,127,0012300033
+0012300033,173,PT00M50.90S,1,1610612748,MIA,1631115,Robinson,O. Robinson,20,1,2,Made,1,24,25,49,v,O. Robinson 2' Reverse Layup (2 PTS) (Williams 1 AST),Made Shot,Reverse Layup Shot,1,2,128,0012300033
+0012300033,175,PT00M40.00S,1,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,136,217,26,Missed,1,,,0,h,MISS Wembanyama 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,129,0012300033
+0012300033,176,PT00M36.90S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,130,0012300033
+0012300033,177,PT00M25.30S,1,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie Step Out of Bounds Turnover (P1.T6),Turnover,Step Out of Bounds Turnover,1,0,131,0012300033
+0012300033,178,PT00M03.90S,1,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson P.FOUL (P1.T4) (D.Collins),Foul,Personal,1,0,132,0012300033
+0012300033,180,PT00M00.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,-74,67,10,Missed,1,,,0,h,MISS Sochan 10' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,133,0012300033
+0012300033,181,PT00M00.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,134,0012300033
+0012300033,182,PT00M00.00S,1,0,,0,,,0,0,0,,0,24,25,49,,End of 1st Period (8:02 PM EST),period,end,1,0,135,0012300033
+0012300033,187,PT12M00.00S,2,0,,0,,,0,0,0,,0,24,25,49,,Start of 2nd Period (8:05 PM EST),period,start,0,0,136,0012300033
+0012300033,188,PT11M44.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,-136,27,14,Made,1,24,27,51,v,O. Robinson 14' Jump Shot (4 PTS),Made Shot,Jump Shot,1,2,137,0012300033
+0012300033,189,PT11M30.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey Out of Bounds Lost Ball Turnover (P1.T5),Turnover,Out of Bounds Lost Ball Turnover,1,0,138,0012300033
+0012300033,190,PT11M13.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson Bad Pass Turnover (P2.T7),Turnover,Bad Pass,1,0,139,0012300033
+0012300033,190,PT11M13.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan STEAL (1 STL),,,1,0,140,0012300033
+0012300033,192,PT11M09.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-2,-3,0,Made,1,26,27,53,h,Wembanyama Running Dunk (6 PTS) (Sochan 1 AST),Made Shot,Running Dunk Shot,1,2,141,0012300033
+0012300033,194,PT10M54.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie P.FOUL (P1.T1) (B.Adair),Foul,Personal,1,0,142,0012300033
+0012300033,196,PT10M50.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey S.FOUL (P1.T2) (D.Collins),Foul,Shooting,0,0,143,0012300033
+0012300033,198,PT10M50.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,MISS Champagnie Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,144,0012300033
+0012300033,199,PT10M50.00S,2,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Normal Rebound,0,0,145,0012300033
+0012300033,200,PT10M50.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,26,28,54,v,Champagnie Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,146,0012300033
+0012300033,201,PT10M36.00S,2,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P1.T1) (D.Collins),Foul,Shooting,1,0,147,0012300033
+0012300033,203,PT10M36.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,MISS Sochan Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,148,0012300033
+0012300033,204,PT10M36.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,149,0012300033
+0012300033,205,PT10M36.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Osman FOR Champagnie,Substitution,,0,0,150,0012300033
+0012300033,207,PT10M36.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,27,28,55,h,Sochan Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,151,0012300033
+0012300033,208,PT10M25.00S,2,1610612748,MIA,1631214,Williams,A. Williams,27,5,3,Missed,1,,,0,v,MISS Williams 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,152,0012300033
+0012300033,209,PT10M23.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,153,0012300033
+0012300033,210,PT10M09.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,110,236,26,Made,1,30,28,58,h,Vassell 26' 3PT Jump Shot (10 PTS) (Wembanyama 2 AST),Made Shot,Jump Shot,1,3,154,0012300033
+0012300033,212,PT09M53.00S,2,1610612748,MIA,1631306,Swider,C. Swider,-207,141,25,Missed,1,,,0,v,MISS Swider 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,155,0012300033
+0012300033,213,PT09M50.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,156,0012300033
+0012300033,214,PT09M48.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama Out of Bounds - Bad Pass Turnover Turnover (P2.T6),Turnover,Out of Bounds - Bad Pass Turnover,1,0,157,0012300033
+0012300033,215,PT09M39.00S,2,1610612748,MIA,1631306,Swider,C. Swider,99,173,20,Missed,1,,,0,v,MISS Swider 20' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,158,0012300033
+0012300033,216,PT09M35.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,159,0012300033
+0012300033,217,PT09M25.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,54,21,6,Missed,1,,,0,h,MISS Sochan 6' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,160,0012300033
+0012300033,218,PT09M21.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,161,0012300033
+0012300033,219,PT09M21.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,Made,1,32,28,60,h,Bassey Tip Dunk Shot (4 PTS),Made Shot,Tip Dunk Shot,1,2,162,0012300033
+0012300033,220,PT09M15.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson OFF.Foul (P2) (D.Collins),Foul,Offensive,1,0,163,0012300033
+0012300033,222,PT09M15.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson Offensive Foul Turnover (P3.T8),Turnover,Offensive Foul Turnover,1,0,164,0012300033
+0012300033,223,PT09M05.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-5,-8,1,Made,1,34,28,62,h,Wembanyama 1' Cutting Dunk Shot (8 PTS) (Vassell 2 AST),Made Shot,Cutting Dunk Shot,1,2,165,0012300033
+0012300033,225,PT08M58.00S,2,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,166,0012300033
+0012300033,226,PT08M58.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,SUB: Branham FOR Wembanyama,Substitution,,0,0,167,0012300033
+0012300033,227,PT08M58.00S,2,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,SUB: Smith FOR Williams,Substitution,,0,0,168,0012300033
+0012300033,231,PT08M43.00S,2,1610612748,MIA,1631306,Swider,C. Swider,-161,198,26,Made,1,34,31,65,v,Swider 26' 3PT Jump Shot (3 PTS) (Peterson 1 AST),Made Shot,Jump Shot,1,3,169,0012300033
+0012300033,233,PT08M28.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,124,97,16,Missed,1,,,0,h,MISS Vassell 16' Fadeaway Bank Shot,Missed Shot,Fadeaway Bank shot,1,2,170,0012300033
+0012300033,234,PT08M25.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,171,0012300033
+0012300033,235,PT08M12.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,88,24,9,Made,1,34,33,67,v,O. Robinson 9' Floating Jump Shot (6 PTS) (Swider 1 AST),Made Shot,Floating Jump shot,1,2,172,0012300033
+0012300033,237,PT07M58.00S,2,1610612759,SAS,1626224,Osman,C. Osman,-176,193,26,Missed,1,,,0,h,MISS Osman 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,173,0012300033
+0012300033,238,PT07M58.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,174,0012300033
+0012300033,239,PT07M37.00S,2,1610612748,MIA,1641809,Peterson,D. Peterson,-123,99,16,Made,1,34,35,69,v,Peterson 16' Pullup Jump Shot (2 PTS) (O. Robinson 1 AST),Made Shot,Pullup Jump shot,1,2,175,0012300033
+0012300033,240,PT07M17.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,-6,6,1,Missed,1,,,0,h,MISS Sochan 1' Layup,Missed Shot,Layup Shot,1,2,176,0012300033
+0012300033,241,PT07M14.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,177,0012300033
+0012300033,242,PT07M11.00S,2,1610612748,MIA,1631306,Swider,C. Swider,229,98,25,Missed,1,,,0,v,MISS Swider 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,178,0012300033
+0012300033,243,PT07M11.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,179,0012300033
+0012300033,244,PT07M05.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,Made,1,34,37,71,v,Champagnie Putback Layup (3 PTS),Made Shot,Putback Layup Shot,1,2,180,0012300033
+0012300033,245,PT06M36.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,-158,204,26,Made,1,37,37,74,h,Vassell 26' 3PT Step Back Jump Shot (13 PTS),Made Shot,Step Back Jump shot,1,3,181,0012300033
+0012300033,246,PT06M10.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,-18,5,2,Made,1,37,39,76,v,O. Robinson 2' Cutting Finger Roll Layup Shot (8 PTS) (Swider 2 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,182,0012300033
+0012300033,248,PT05M49.00S,2,1610612759,SAS,1631103,Branham,M. Branham,140,207,25,Missed,1,,,0,h,MISS Branham 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,183,0012300033
+0012300033,249,PT05M47.00S,2,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,184,0012300033
+0012300033,250,PT05M43.00S,2,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson Bad Pass Turnover (P2.T9),Turnover,Bad Pass,1,0,185,0012300033
+0012300033,250,PT05M43.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,Vassell STEAL (1 STL),,,1,0,186,0012300033
+0012300033,252,PT05M41.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson S.FOUL (P3.T2) (B.Adair),Foul,Shooting,1,0,187,0012300033
+0012300033,254,PT05M41.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,38,39,77,h,Vassell Free Throw 1 of 2 (14 PTS),Free Throw,Free Throw 1 of 2,1,0,188,0012300033
+0012300033,255,PT05M41.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Jones FOR Sochan,Substitution,,0,0,189,0012300033
+0012300033,256,PT05M41.00S,2,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,SUB: Bryant FOR Peterson,Substitution,,0,0,190,0012300033
+0012300033,257,PT05M41.00S,2,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,SUB: Cain FOR Champagnie,Substitution,,0,0,191,0012300033
+0012300033,258,PT05M41.00S,2,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,,,0,v,SUB: D. Robinson FOR Swider,Substitution,,0,0,192,0012300033
+0012300033,259,PT05M41.00S,2,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,SUB: Highsmith FOR O. Robinson,Substitution,,0,0,193,0012300033
+0012300033,265,PT05M41.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,39,39,78,h,Vassell Free Throw 2 of 2 (15 PTS),Free Throw,Free Throw 2 of 2,0,0,194,0012300033
+0012300033,266,PT05M33.00S,2,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,Osman S.FOUL (P1.T3) (B.Adair),Foul,Shooting,0,0,195,0012300033
+0012300033,268,PT05M33.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,39,40,79,v,D. Robinson Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,196,0012300033
+0012300033,269,PT05M33.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,SUB: Champagnie FOR Vassell,Substitution,,0,0,197,0012300033
+0012300033,271,PT05M33.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,MISS D. Robinson Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,198,0012300033
+0012300033,272,PT05M29.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,199,0012300033
+0012300033,273,PT05M11.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-163,195,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,200,0012300033
+0012300033,274,PT05M06.00S,2,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:3 Def:2),Rebound,Unknown,1,0,201,0012300033
+0012300033,275,PT04M54.00S,2,1610612748,MIA,1631288,Cain,J. Cain,-229,-11,0,Made,1,39,43,82,v,Cain 3PT Jump Shot (14 PTS) (Smith 1 AST),Made Shot,Jump Shot,1,3,202,0012300033
+0012300033,277,PT04M31.00S,2,1610612759,SAS,1626224,Osman,C. Osman,13,-6,1,Made,1,41,43,84,h,Osman 1' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,203,0012300033
+0012300033,278,PT04M23.00S,2,1610612748,MIA,1630696,Smith,D. Smith,26,3,3,Made,1,41,45,86,v,Smith 3' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,204,0012300033
+0012300033,279,PT04M23.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey S.FOUL (P2.T4) (C.Blair),Foul,Shooting,1,0,205,0012300033
+0012300033,281,PT04M23.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,206,0012300033
+0012300033,283,PT04M23.00S,2,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,SUB: Wembanyama FOR Bassey,Substitution,,0,0,207,0012300033
+0012300033,285,PT04M23.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,41,46,87,v,Smith Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,208,0012300033
+0012300033,286,PT04M10.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,D. Robinson S.FOUL (P2.T3) (C.Blair),Foul,Shooting,1,0,209,0012300033
+0012300033,288,PT04M10.00S,2,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,42,46,88,h,Osman Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,210,0012300033
+0012300033,289,PT04M10.00S,2,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,MISS Osman Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,211,0012300033
+0012300033,290,PT04M06.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,212,0012300033
+0012300033,291,PT04M00.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith Lost Ball Turnover (P1.T10),Turnover,Lost Ball,1,0,213,0012300033
+0012300033,291,PT04M00.00S,2,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (2 STL),,,1,0,214,0012300033
+0012300033,293,PT03M55.00S,2,1610612759,SAS,1630200,Jones,T. Jones,9,4,1,Made,1,44,46,90,h,Jones 1' Running Finger Roll Layup (4 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,215,0012300033
+0012300033,294,PT03M34.00S,2,1610612748,MIA,1631288,Cain,J. Cain,-98,224,24,Missed,1,,,0,v,MISS Cain 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,216,0012300033
+0012300033,295,PT03M30.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,217,0012300033
+0012300033,296,PT03M30.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,Made,1,44,48,92,v,Smith Putback Layup (7 PTS),Made Shot,Putback Layup Shot,1,2,218,0012300033
+0012300033,297,PT03M23.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-118,226,25,Missed,1,,,0,h,MISS Wembanyama 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,219,0012300033
+0012300033,298,PT03M20.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,220,0012300033
+0012300033,299,PT03M17.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant OFF.Foul (P2) (C.Blair),Foul,Offensive,1,0,221,0012300033
+0012300033,301,PT03M17.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant Offensive Foul Turnover (P3.T11),Turnover,Offensive Foul Turnover,1,0,222,0012300033
+0012300033,302,PT03M17.00S,2,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,SUB: Sochan FOR Osman,Substitution,,0,0,223,0012300033
+0012300033,304,PT03M01.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-138,84,16,Made,1,46,48,94,h,Wembanyama 16' Jump Shot (10 PTS) (Jones 2 AST),Made Shot,Jump Shot,1,2,224,0012300033
+0012300033,306,PT02M57.00S,2,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P2.PN) (C.Blair),Foul,Personal,1,0,225,0012300033
+0012300033,308,PT02M57.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,46,49,95,v,Smith Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,226,0012300033
+0012300033,309,PT02M57.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,46,50,96,v,Smith Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,227,0012300033
+0012300033,310,PT02M38.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-131,212,25,Made,1,49,50,99,h,Wembanyama 25' 3PT Jump Shot (13 PTS) (Jones 3 AST),Made Shot,Jump Shot,1,3,228,0012300033
+0012300033,331,PT02M24.00S,2,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith Out of Bounds - Bad Pass Turnover Turnover (P2.T12),Turnover,Out of Bounds - Bad Pass Turnover,1,0,229,0012300033
+0012300033,315,PT02M13.00S,2,1610612759,SAS,1631103,Branham,M. Branham,233,6,0,Made,1,52,50,102,h,Branham 3PT Jump Shot (5 PTS) (Jones 4 AST),Made Shot,Jump Shot,1,3,230,0012300033
+0012300033,317,PT01M58.00S,2,1610612748,MIA,1630696,Smith,D. Smith,120,38,13,Missed,1,,,0,v,MISS Smith 13' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,231,0012300033
+0012300033,318,PT01M56.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,232,0012300033
+0012300033,319,PT01M51.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,-1,7,1,Made,1,54,50,104,h,Sochan 1' Running Finger Roll Layup (5 PTS) (Wembanyama 3 AST),Made Shot,Running Finger Roll Layup Shot,1,2,233,0012300033
+0012300033,321,PT01M34.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,126,71,14,Missed,1,,,0,v,MISS Bryant 14' Jump Shot,Missed Shot,Jump Shot,1,2,234,0012300033
+0012300033,322,PT01M26.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,235,0012300033
+0012300033,323,PT01M24.00S,2,1610612759,SAS,1631103,Branham,M. Branham,156,201,25,Missed,1,,,0,h,MISS Branham 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,236,0012300033
+0012300033,324,PT01M22.00S,2,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,237,0012300033
+0012300033,325,PT01M16.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,-119,225,25,Missed,1,,,0,v,MISS D. Robinson 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,238,0012300033
+0012300033,326,PT01M16.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,239,0012300033
+0012300033,332,PT01M10.00S,2,1610612748,MIA,1628418,Bryant,T. Bryant,29,23,4,Missed,1,,,0,v,MISS Bryant 4' Dunk,Missed Shot,Dunk Shot,1,2,240,0012300033
+0012300033,332,PT01M10.00S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama BLOCK (2 BLK),,,1,2,241,0012300033
+0012300033,334,PT01M09.00S,2,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,0,0,242,0012300033
+0012300033,329,PT01M09.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,243,0012300033
+0012300033,330,PT01M09.00S,2,0,,327,,,0,0,0,,0,54,50,104,,Instant Replay2nd Period (8:30 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,244,0012300033
+0012300033,357,PT01M09.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Vassell FOR Champagnie,Substitution,,0,0,245,0012300033
+0012300033,335,PT01M05.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,225,1,0,Missed,1,,,0,v,MISS D. Robinson 3PT Jump Shot,Missed Shot,Jump Shot,1,3,246,0012300033
+0012300033,336,PT01M02.00S,2,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:4 Def:3),Rebound,Unknown,1,0,247,0012300033
+0012300033,337,PT01M02.00S,2,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,Made,1,54,52,106,v,Cain Putback Layup (16 PTS),Made Shot,Putback Layup Shot,1,2,248,0012300033
+0012300033,383,PT01M02.00S,2,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham Non-Unsportsmanlike (P0.PN) (C.Blair),Foul,Non-Unsportsmanlike Technical,0,0,249,0012300033
+0012300033,343,PT01M02.00S,2,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,MISS D. Robinson Free Throw Technical,Free Throw,Free Throw Technical,1,0,250,0012300033
+0012300033,344,PT01M02.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,251,0012300033
+0012300033,345,PT00M53.10S,2,1610612759,SAS,1630170,Vassell,D. Vassell,-202,174,27,Made,1,57,52,109,h,Vassell 27' 3PT Jump Shot (18 PTS) (Sochan 2 AST),Made Shot,Jump Shot,1,3,252,0012300033
+0012300033,347,PT00M39.70S,2,1610612748,MIA,1630696,Smith,D. Smith,87,151,17,Made,1,57,54,111,v,Smith 17' Pullup Jump Shot (11 PTS),Made Shot,Pullup Jump shot,1,2,253,0012300033
+0012300033,348,PT00M30.10S,2,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,11,10,1,Made,1,59,54,113,h,Wembanyama 1' Alley Oop Dunk (15 PTS) (Jones 5 AST),Made Shot,Alley Oop Dunk Shot,1,2,254,0012300033
+0012300033,350,PT00M16.20S,2,1610612748,MIA,1630696,Smith,D. Smith,20,6,2,Made,1,59,56,115,v,Smith 2' Driving Layup (13 PTS),Made Shot,Driving Layup Shot,1,2,255,0012300033
+0012300033,351,PT00M03.40S,2,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,256,0012300033
+0012300033,351,PT00M03.40S,2,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,Highsmith STEAL (2 STL),,,1,0,257,0012300033
+0012300033,353,PT00M00.00S,2,1610612748,MIA,1629312,Highsmith,H. Highsmith,27,-1,3,Missed,1,,,0,v,MISS Highsmith 3' Running Layup,Missed Shot,Running Layup Shot,1,2,258,0012300033
+0012300033,353,PT00M00.00S,2,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,Vassell BLOCK (1 BLK),,,1,2,259,0012300033
+0012300033,355,PT00M00.00S,2,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,0,0,260,0012300033
+0012300033,356,PT00M00.00S,2,0,,0,,,0,0,0,,0,59,56,115,,End of 2nd Period (8:36 PM EST),period,end,1,0,261,0012300033
+0012300033,364,PT12M00.00S,3,0,,0,,,0,0,0,,0,59,56,115,,Start of 3rd Period (8:52 PM EST),period,start,0,0,262,0012300033
+0012300033,366,PT11M35.00S,3,1610612748,MIA,1630696,Smith,D. Smith,199,175,27,Missed,1,,,0,v,MISS Smith 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,263,0012300033
+0012300033,367,PT11M33.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,264,0012300033
+0012300033,368,PT11M25.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,29,140,14,Made,1,61,56,117,h,Wembanyama 14' Step Back Jump Shot (17 PTS),Made Shot,Step Back Jump shot,1,2,265,0012300033
+0012300033,369,PT11M09.00S,3,1610612748,MIA,1628418,Bryant,T. Bryant,119,142,19,Made,1,61,58,119,v,Bryant 19' Jump Shot (2 PTS) (D. Robinson 3 AST),Made Shot,Jump Shot,1,2,266,0012300033
+0012300033,370,PT10M42.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,-50,50,7,Missed,1,,,0,h,MISS Sochan 7' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,267,0012300033
+0012300033,371,PT10M39.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,268,0012300033
+0012300033,372,PT10M37.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama Lost Ball Turnover (P3.T8),Turnover,Lost Ball,0,0,269,0012300033
+0012300033,373,PT10M19.00S,3,1610612748,MIA,1631288,Cain,J. Cain,185,191,27,Made,1,61,61,122,v,Cain 27' 3PT Jump Shot (19 PTS) (Highsmith 3 AST),Made Shot,Jump Shot,1,3,270,0012300033
+0012300033,375,PT09M57.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,97,56,11,Missed,1,,,0,h,MISS Bassey 11' Jump Bank Shot,Missed Shot,Jump Bank Shot,1,2,271,0012300033
+0012300033,376,PT09M54.00S,3,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,D. Robinson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,272,0012300033
+0012300033,378,PT09M46.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,168,206,27,Made,1,61,64,125,v,Highsmith 27' 3PT Jump Shot (6 PTS) (Smith 2 AST),Made Shot,Jump Shot,1,3,273,0012300033
+0012300033,380,PT09M35.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,Highsmith S.FOUL (P1.T1) (D.Collins),Foul,Shooting,1,0,274,0012300033
+0012300033,382,PT09M35.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,62,64,126,h,Wembanyama Free Throw 1 of 2 (18 PTS),Free Throw,Free Throw 1 of 2,1,0,275,0012300033
+0012300033,385,PT09M35.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,63,64,127,h,Wembanyama Free Throw 2 of 2 (19 PTS),Free Throw,Free Throw 2 of 2,1,0,276,0012300033
+0012300033,386,PT09M26.00S,3,1610612748,MIA,1629130,Robinson,D. Robinson,-125,241,27,Made,1,63,67,130,v,D. Robinson 27' 3PT Jump Shot (11 PTS) (Smith 3 AST),Made Shot,Jump Shot,1,3,277,0012300033
+0012300033,388,PT09M10.00S,3,1610612759,SAS,1630170,Vassell,D. Vassell,5,256,26,Made,1,66,67,133,h,Vassell 26' 3PT Jump Shot (21 PTS) (Sochan 3 AST),Made Shot,Jump Shot,1,3,278,0012300033
+0012300033,536,PT08M47.00S,3,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith Lost Ball Turnover (P3.T13),Turnover,Lost Ball,1,0,279,0012300033
+0012300033,393,PT08M45.00S,3,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith L.B.FOUL (P3.T2) (C.Blair),Foul,Loose Ball,1,0,280,0012300033
+0012300033,395,PT08M33.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,7,48,5,Made,1,68,67,135,h,Wembanyama 5' Dunk (21 PTS) (Vassell 3 AST),Made Shot,Dunk Shot,1,2,281,0012300033
+0012300033,397,PT08M06.00S,3,1610612748,MIA,1629130,Robinson,D. Robinson,-1,270,27,Made,1,68,70,138,v,D. Robinson 27' 3PT Pullup Jump Shot (14 PTS) (Bryant 1 AST),Made Shot,Pullup Jump shot,1,3,282,0012300033
+0012300033,399,PT07M41.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,29,3,3,Made,1,70,70,140,h,Sochan 3' Cutting Finger Roll Layup Shot (7 PTS) (Wembanyama 4 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,283,0012300033
+0012300033,401,PT07M26.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,-234,97,25,Missed,1,,,0,v,MISS Highsmith 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,284,0012300033
+0012300033,402,PT07M24.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,285,0012300033
+0012300033,403,PT07M16.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama Lost Ball Turnover (P4.T9),Turnover,Lost Ball,1,0,286,0012300033
+0012300033,403,PT07M16.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,Highsmith STEAL (3 STL),,,1,0,287,0012300033
+0012300033,405,PT07M15.00S,3,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,Osman P.FOUL (P2.T1) (D.Collins),Foul,Personal,1,0,288,0012300033
+0012300033,407,PT07M15.00S,3,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,SUB: Branham FOR Osman,Substitution,,0,0,289,0012300033
+0012300033,408,PT07M15.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,SUB: Jones FOR Bassey,Substitution,,0,0,290,0012300033
+0012300033,411,PT06M58.00S,3,1610612748,MIA,1628418,Bryant,T. Bryant,-9,34,4,Made,1,70,72,142,v,Bryant 4' Cutting Dunk Shot (4 PTS) (D. Robinson 4 AST),Made Shot,Cutting Dunk Shot,1,2,291,0012300033
+0012300033,414,PT06M48.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,2,55,6,Missed,1,,,0,h,MISS Sochan 6' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,292,0012300033
+0012300033,415,PT06M48.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,293,0012300033
+0012300033,416,PT06M48.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,Made,1,72,72,144,h,Sochan Tip Layup Shot (9 PTS),Made Shot,Tip Layup Shot,1,2,294,0012300033
+0012300033,417,PT06M48.00S,3,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,Bryant S.FOUL (P3.T3) (C.Blair),Foul,Shooting,1,0,295,0012300033
+0012300033,419,PT06M48.00S,3,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,296,0012300033
+0012300033,421,PT06M48.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,73,72,145,h,Sochan Free Throw 1 of 1 (10 PTS),Free Throw,Free Throw 1 of 1,1,0,297,0012300033
+0012300033,422,PT06M32.00S,3,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith Out of Bounds - Bad Pass Turnover Turnover (P4.T14),Turnover,Out of Bounds - Bad Pass Turnover,1,0,298,0012300033
+0012300033,423,PT06M08.00S,3,1610612759,SAS,1630170,Vassell,D. Vassell,-1,179,18,Missed,1,,,0,h,MISS Vassell 18' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,299,0012300033
+0012300033,424,PT06M03.00S,3,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:4 Def:4),Rebound,Unknown,1,0,300,0012300033
+0012300033,425,PT05M45.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,-105,2,11,Missed,1,,,0,v,MISS Highsmith 11' Jump Shot,Missed Shot,Jump Shot,1,2,301,0012300033
+0012300033,425,PT05M45.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama BLOCK (3 BLK),,,1,2,302,0012300033
+0012300033,427,PT05M45.00S,3,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,0,0,303,0012300033
+0012300033,429,PT05M43.00S,3,1610612748,MIA,1631288,Cain,J. Cain,232,26,0,Missed,1,,,0,v,MISS Cain 3PT Jump Shot,Missed Shot,Jump Shot,1,3,304,0012300033
+0012300033,430,PT05M41.00S,3,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,1,0,305,0012300033
+0012300033,431,PT05M41.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan L.B.FOUL (P1.T2) (C.Blair),Foul,Loose Ball,1,0,306,0012300033
+0012300033,433,PT05M41.00S,3,1610612748,MIA,1628418,Bryant,T. Bryant,0,0,0,,0,,,0,v,SUB: O. Robinson FOR Bryant,Substitution,,0,0,307,0012300033
+0012300033,435,PT05M31.00S,3,1610612748,MIA,1629130,Robinson,D. Robinson,206,167,27,Missed,1,,,0,v,MISS D. Robinson 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,308,0012300033
+0012300033,436,PT05M28.00S,3,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:5 Def:4),Rebound,Unknown,1,0,309,0012300033
+0012300033,437,PT05M21.00S,3,1610612748,MIA,1631288,Cain,J. Cain,238,11,24,Made,1,73,75,148,v,Cain 24' 3PT Jump Shot (22 PTS) (D. Robinson 5 AST),Made Shot,Jump Shot,1,3,310,0012300033
+0012300033,440,PT04M57.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,-16,125,13,Made,1,75,75,150,h,Wembanyama 13' Turnaround Jump Shot (23 PTS),Made Shot,Turnaround Jump Shot,1,2,311,0012300033
+0012300033,441,PT04M43.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson Out of Bounds - Bad Pass Turnover Turnover (P4.T15),Turnover,Out of Bounds - Bad Pass Turnover,1,0,312,0012300033
+0012300033,442,PT04M43.00S,3,1610612759,SAS,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,SUB: Wesley FOR Wembanyama,Substitution,,0,0,313,0012300033
+0012300033,443,PT04M43.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Bassey FOR Sochan,Substitution,,0,0,314,0012300033
+0012300033,444,PT04M43.00S,3,1610612759,SAS,1630170,Vassell,D. Vassell,0,0,0,,0,,,0,h,SUB: Champagnie FOR Vassell,Substitution,,0,0,315,0012300033
+0012300033,445,PT04M43.00S,3,1610612748,MIA,1629312,Highsmith,H. Highsmith,0,0,0,,0,,,0,v,SUB: Champagnie FOR Highsmith,Substitution,,0,0,316,0012300033
+0012300033,446,PT04M43.00S,3,1610612748,MIA,1629130,Robinson,D. Robinson,0,0,0,,0,,,0,v,SUB: Swider FOR D. Robinson,Substitution,,0,0,317,0012300033
+0012300033,453,PT04M35.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley OFF.Foul (P1) (B.Adair),Foul,Offensive,1,0,318,0012300033
+0012300033,455,PT04M35.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley Offensive Foul Turnover (P1.T10),Turnover,Offensive Foul Turnover,1,0,319,0012300033
+0012300033,456,PT04M24.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson OFF.Foul (P4) (D.Collins),Foul,Offensive,1,0,320,0012300033
+0012300033,458,PT04M24.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson Offensive Foul Turnover (P5.T16),Turnover,Offensive Foul Turnover,1,0,321,0012300033
+0012300033,459,PT04M02.00S,3,1610612759,SAS,1630200,Jones,T. Jones,97,20,10,Made,1,77,75,152,h,Jones 10' Driving Floating Jump Shot (6 PTS),Made Shot,Driving Floating Jump Shot,1,2,322,0012300033
+0012300033,460,PT03M46.00S,3,1610612748,MIA,1631306,Swider,C. Swider,-94,239,26,Missed,1,,,0,v,MISS Swider 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,323,0012300033
+0012300033,461,PT03M42.00S,3,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain REBOUND (Off:6 Def:4),Rebound,Unknown,1,0,324,0012300033
+0012300033,462,PT03M42.00S,3,1610612748,MIA,1631288,Cain,J. Cain,0,0,0,,0,,,0,v,Cain Lost Ball Turnover (P1.T17),Turnover,Lost Ball,1,0,325,0012300033
+0012300033,462,PT03M42.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (3 STL),,,1,0,326,0012300033
+0012300033,464,PT03M36.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,-237,-1,24,Missed,1,,,0,h,MISS Champagnie 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,327,0012300033
+0012300033,465,PT03M34.00S,3,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Rebound,Rebound,Unknown,0,0,328,0012300033
+0012300033,467,PT03M16.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,-29,16,3,Missed,1,,,0,v,MISS O. Robinson 3' Layup,Missed Shot,Layup Shot,1,2,329,0012300033
+0012300033,467,PT03M16.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey BLOCK (4 BLK),,,1,2,330,0012300033
+0012300033,469,PT03M11.00S,3,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,331,0012300033
+0012300033,470,PT03M08.00S,3,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie Bad Pass Turnover (P2.T18),Turnover,Bad Pass,1,0,332,0012300033
+0012300033,470,PT03M08.00S,3,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham STEAL (1 STL),,,1,0,333,0012300033
+0012300033,472,PT03M04.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,28,29,4,Missed,1,,,0,h,MISS Wesley 4' Running Layup,Missed Shot,Running Layup Shot,1,2,334,0012300033
+0012300033,473,PT03M02.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,335,0012300033
+0012300033,474,PT03M02.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P3.T3) (C.Blair),Foul,Personal,1,0,336,0012300033
+0012300033,476,PT03M02.00S,3,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,337,0012300033
+0012300033,477,PT02M51.00S,3,1610612748,MIA,1631306,Swider,C. Swider,138,237,27,Made,1,77,78,155,v,Swider 27' 3PT Jump Shot (6 PTS) (Champagnie 2 AST),Made Shot,Jump Shot,1,3,338,0012300033
+0012300033,479,PT02M31.00S,3,1610612759,SAS,1630200,Jones,T. Jones,113,53,12,Made,1,79,78,157,h,Jones 12' Pullup Jump Shot (8 PTS),Made Shot,Pullup Jump shot,1,2,339,0012300033
+0012300033,480,PT02M19.00S,3,1610612748,MIA,1631306,Swider,C. Swider,227,63,24,Missed,1,,,0,v,MISS Swider 24' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,340,0012300033
+0012300033,481,PT02M15.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,O. Robinson REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,341,0012300033
+0012300033,482,PT02M13.00S,3,1610612748,MIA,1631115,Robinson,O. Robinson,31,31,4,Made,1,79,80,159,v,O. Robinson 4' Putback Layup (10 PTS),Made Shot,Putback Layup Shot,1,2,342,0012300033
+0012300033,483,PT01M55.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,22,32,4,Missed,1,,,0,h,MISS Champagnie 4' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,343,0012300033
+0012300033,484,PT01M53.00S,3,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,344,0012300033
+0012300033,485,PT01M48.00S,3,1610612748,MIA,1630696,Smith,D. Smith,-27,76,8,Missed,1,,,0,v,MISS Smith 8' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,345,0012300033
+0012300033,486,PT01M44.00S,3,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,346,0012300033
+0012300033,487,PT01M35.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,6,25,3,Made,1,81,80,161,h,Bassey 3' Layup (6 PTS) (Champagnie 2 AST),Made Shot,Layup Shot,1,2,347,0012300033
+0012300033,489,PT01M16.00S,3,1610612748,MIA,1631306,Swider,C. Swider,-200,176,27,Missed,1,,,0,v,MISS Swider 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,348,0012300033
+0012300033,490,PT01M14.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,349,0012300033
+0012300033,491,PT01M07.00S,3,1610612759,SAS,1630200,Jones,T. Jones,-148,210,26,Missed,1,,,0,h,MISS Jones 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,350,0012300033
+0012300033,492,PT01M04.00S,3,1610612759,SAS,1629646,Bassey,C. Bassey,0,0,0,,0,,,0,h,Bassey REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,351,0012300033
+0012300033,493,PT01M00.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,124,222,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,352,0012300033
+0012300033,494,PT00M57.80S,3,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,,,0,v,Swider REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,353,0012300033
+0012300033,495,PT00M45.10S,3,1610612748,MIA,1630696,Smith,D. Smith,0,0,0,,0,,,0,v,Smith Bad Pass Turnover (P5.T19),Turnover,Bad Pass,1,0,354,0012300033
+0012300033,495,PT00M45.10S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (4 STL),,,1,0,355,0012300033
+0012300033,497,PT00M41.20S,3,1610612759,SAS,1631103,Branham,M. Branham,18,22,3,Missed,1,,,0,h,MISS Branham 3' Running Layup,Missed Shot,Running Layup Shot,1,2,356,0012300033
+0012300033,498,PT00M37.50S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,357,0012300033
+0012300033,499,PT00M37.50S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,Made,1,83,80,163,h,Wesley Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,358,0012300033
+0012300033,500,PT00M25.90S,3,1610612748,MIA,1631288,Cain,J. Cain,39,99,11,Made,1,83,82,165,v,Cain 11' Driving Floating Jump Shot (24 PTS),Made Shot,Driving Floating Jump Shot,1,2,359,0012300033
+0012300033,501,PT00M06.80S,3,1610612759,SAS,1631103,Branham,M. Branham,36,256,26,Made,1,86,82,168,h,Branham 26' 3PT Pullup Jump Shot (8 PTS),Made Shot,Pullup Jump shot,1,3,360,0012300033
+0012300033,502,PT00M00.80S,3,1610612748,MIA,1631115,Robinson,O. Robinson,-25,6,3,Made,1,86,84,170,v,O. Robinson 3' Driving Layup (12 PTS),Made Shot,Driving Layup Shot,1,2,361,0012300033
+0012300033,503,PT00M00.00S,3,0,,0,,,0,0,0,,0,86,84,170,,End of 3rd Period (9:16 PM EST),period,end,1,0,362,0012300033
+0012300033,514,PT12M00.00S,4,0,,0,,,0,0,0,,0,86,84,170,,Start of 4th Period (9:20 PM EST),period,start,0,0,363,0012300033
+0012300033,515,PT11M37.00S,4,1610612759,SAS,1630577,Champagnie,J. Champagnie,-180,178,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,364,0012300033
+0012300033,515,PT11M37.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie BLOCK (1 BLK),,,1,3,365,0012300033
+0012300033,516,PT11M30.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,366,0012300033
+0012300033,517,PT11M27.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams Out of Bounds - Bad Pass Turnover Turnover (P1.T20),Turnover,Out of Bounds - Bad Pass Turnover,1,0,367,0012300033
+0012300033,518,PT11M16.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,-7,147,15,Made,1,88,84,172,h,Barlow 15' Jump Shot (2 PTS) (Osman 4 AST),Made Shot,Jump Shot,1,2,368,0012300033
+0012300033,521,PT10M54.00S,4,1610612748,MIA,1631115,Robinson,O. Robinson,20,13,2,Missed,1,,,0,v,MISS O. Robinson 2' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,369,0012300033
+0012300033,522,PT10M51.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,370,0012300033
+0012300033,523,PT10M48.00S,4,1610612759,SAS,1626224,Osman,C. Osman,165,201,26,Made,1,91,84,175,h,Osman 26' 3PT Running Jump Shot (8 PTS) (Wesley 1 AST),Made Shot,Running Jump Shot,1,3,371,0012300033
+0012300033,525,PT10M33.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,1,71,7,Missed,1,,,0,v,MISS Champagnie 7' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,372,0012300033
+0012300033,526,PT10M29.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,373,0012300033
+0012300033,527,PT10M29.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,Made,1,91,86,177,v,Champagnie Putback Layup (5 PTS),Made Shot,Putback Layup Shot,1,2,374,0012300033
+0012300033,528,PT10M18.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P2.T1) (D.Collins),Foul,Shooting,1,0,375,0012300033
+0012300033,530,PT10M18.00S,4,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,MISS Champagnie Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,376,0012300033
+0012300033,531,PT10M18.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,377,0012300033
+0012300033,533,PT10M18.00S,4,1610612748,MIA,1631115,Robinson,O. Robinson,0,0,0,,0,,,0,v,SUB: Diallo FOR O. Robinson,Substitution,,0,0,378,0012300033
+0012300033,535,PT10M18.00S,4,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,92,86,178,h,Champagnie Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,379,0012300033
+0012300033,537,PT10M02.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,96,248,27,Missed,1,,,0,v,MISS Peterson 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,380,0012300033
+0012300033,538,PT10M00.00S,4,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,381,0012300033
+0012300033,539,PT09M45.00S,4,1610612759,SAS,1628984,Graham,D. Graham,0,0,0,,0,,,0,h,Graham Bad Pass Turnover (P1.T11),Turnover,Bad Pass,1,0,382,0012300033
+0012300033,539,PT09M45.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo STEAL (1 STL),,,1,0,383,0012300033
+0012300033,541,PT09M36.00S,4,1610612748,MIA,1631214,Williams,A. Williams,237,28,24,Made,1,92,89,181,v,Williams 24' 3PT Jump Shot (3 PTS) (Swider 3 AST),Made Shot,Jump Shot,1,3,384,0012300033
+0012300033,543,PT09M24.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson S.FOUL (P1.T2) (C.Blair),Foul,Shooting,1,0,385,0012300033
+0012300033,545,PT09M24.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,93,89,182,h,Wesley Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,386,0012300033
+0012300033,546,PT09M24.00S,4,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Champagnie,Substitution,,0,0,387,0012300033
+0012300033,548,PT09M24.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,94,89,183,h,Wesley Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,388,0012300033
+0012300033,549,PT09M10.00S,4,1610612748,MIA,1631214,Williams,A. Williams,161,218,27,Missed,1,,,0,v,MISS Williams 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,389,0012300033
+0012300033,550,PT09M08.00S,4,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,Osman REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,390,0012300033
+0012300033,551,PT09M03.00S,4,1610612759,SAS,1626224,Osman,C. Osman,-2,68,7,Made,1,96,89,185,h,Osman 7' Driving Floating Jump Shot (10 PTS),Made Shot,Driving Floating Jump Shot,1,2,391,0012300033
+0012300033,552,PT08M50.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo OFF.Foul (P1) (C.Blair),Foul,Offensive,1,0,392,0012300033
+0012300033,554,PT08M50.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo Offensive Foul Turnover (P1.T21),Turnover,Offensive Foul Turnover,1,0,393,0012300033
+0012300033,555,PT08M50.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,SUB: Cissoko FOR Wesley,Substitution,,0,0,394,0012300033
+0012300033,557,PT08M30.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,-123,3,12,Made,1,98,89,187,h,Barlow 12' Jump Shot (4 PTS) (Osman 5 AST),Made Shot,Jump Shot,1,2,395,0012300033
+0012300033,559,PT08M20.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,174,207,27,Missed,1,,,0,v,MISS Champagnie 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,396,0012300033
+0012300033,560,PT08M14.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,397,0012300033
+0012300033,561,PT08M14.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,Made,1,98,91,189,v,Diallo Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,398,0012300033
+0012300033,562,PT08M05.00S,4,1610612759,SAS,1626224,Osman,C. Osman,-221,135,26,Missed,1,,,0,h,MISS Osman 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,399,0012300033
+0012300033,563,PT08M03.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,400,0012300033
+0012300033,564,PT07M51.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo Bad Pass Turnover (P2.T22),Turnover,Bad Pass,1,0,401,0012300033
+0012300033,564,PT07M51.00S,4,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,Osman STEAL (2 STL),,,1,0,402,0012300033
+0012300033,566,PT07M46.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,18,8,2,Made,1,100,91,191,h,Barlow 2' Running Layup (6 PTS),Made Shot,Running Layup Shot,1,2,403,0012300033
+0012300033,567,PT07M45.00S,4,0,,1610612748,,,0,0,0,,0,,,0,v,Heat Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,404,0012300033
+0012300033,568,PT07M45.00S,4,1610612759,SAS,1626224,Osman,C. Osman,0,0,0,,0,,,0,h,SUB: Wesley FOR Osman,Substitution,,0,0,405,0012300033
+0012300033,570,PT07M21.00S,4,1610612748,MIA,1631214,Williams,A. Williams,76,265,28,Missed,1,,,0,v,MISS Williams 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,406,0012300033
+0012300033,571,PT07M18.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,407,0012300033
+0012300033,572,PT07M08.00S,4,1610612759,SAS,1628984,Graham,D. Graham,0,0,0,,0,,,0,h,Graham Step Out of Bounds Turnover (P2.T12),Turnover,Step Out of Bounds Turnover,0,0,408,0012300033
+0012300033,573,PT06M55.00S,4,1610612748,MIA,1631306,Swider,C. Swider,21,25,3,Missed,1,,,0,v,MISS Swider 3' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,409,0012300033
+0012300033,574,PT06M51.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,410,0012300033
+0012300033,575,PT06M47.00S,4,1610612759,SAS,1628984,Graham,D. Graham,148,213,26,Missed,1,,,0,h,MISS Graham 26' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,411,0012300033
+0012300033,576,PT06M42.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,412,0012300033
+0012300033,577,PT06M35.00S,4,1610612748,MIA,1631214,Williams,A. Williams,-12,21,2,Made,1,100,93,193,v,Williams 2' Driving Finger Roll Layup (5 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,413,0012300033
+0012300033,578,PT06M12.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,-107,38,11,Missed,1,,,0,h,MISS Barlow 11' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,414,0012300033
+0012300033,579,PT06M08.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:3 Def:6),Rebound,Unknown,1,0,415,0012300033
+0012300033,580,PT06M02.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,-28,71,8,Missed,1,,,0,v,MISS Champagnie 8' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,416,0012300033
+0012300033,581,PT06M00.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,417,0012300033
+0012300033,582,PT05M56.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,1,68,7,Missed,1,,,0,v,MISS Diallo 7' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,418,0012300033
+0012300033,582,PT05M56.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow BLOCK (1 BLK),,,1,2,419,0012300033
+0012300033,584,PT05M52.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,420,0012300033
+0012300033,585,PT05M52.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P3.T3) (D.Collins),Foul,Shooting,1,0,421,0012300033
+0012300033,587,PT05M52.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,MISS Wesley Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,422,0012300033
+0012300033,588,PT05M52.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,423,0012300033
+0012300033,589,PT05M52.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,101,93,194,h,Wesley Free Throw 2 of 2 (5 PTS),Free Throw,Free Throw 2 of 2,1,0,424,0012300033
+0012300033,590,PT05M40.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,183,189,26,Missed,1,,,0,v,MISS Peterson 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,425,0012300033
+0012300033,591,PT05M36.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,426,0012300033
+0012300033,592,PT05M31.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-208,162,26,Made,1,104,93,197,h,Mamukelashvili 26' 3PT Jump Shot (3 PTS) (Wesley 2 AST),Made Shot,Jump Shot,1,3,427,0012300033
+0012300033,594,PT05M17.00S,4,1610612748,MIA,1631306,Swider,C. Swider,78,262,27,Missed,1,,,0,v,MISS Swider 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,428,0012300033
+0012300033,595,PT05M14.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,429,0012300033
+0012300033,596,PT05M04.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,-131,225,26,Made,1,107,93,200,h,Barlow 26' 3PT Jump Shot (9 PTS) (Cissoko 1 AST),Made Shot,Jump Shot,1,3,430,0012300033
+0012300033,598,PT04M48.00S,4,1610612748,MIA,1631306,Swider,C. Swider,-189,193,27,Made,1,107,96,203,v,Swider 27' 3PT Jump Shot (9 PTS) (Williams 2 AST),Made Shot,Jump Shot,1,3,431,0012300033
+0012300033,600,PT04M33.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie P.FOUL (P1.T4) (D.Collins),Foul,Personal,1,0,432,0012300033
+0012300033,602,PT04M30.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley Bad Pass Turnover (P2.T13),Turnover,Bad Pass,1,0,433,0012300033
+0012300033,602,PT04M30.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams STEAL (2 STL),,,1,0,434,0012300033
+0012300033,604,PT04M28.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley S.FOUL (P2.T1) (D.Collins),Foul,Shooting,1,0,435,0012300033
+0012300033,606,PT04M28.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,107,97,204,v,Diallo Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,436,0012300033
+0012300033,607,PT04M28.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,107,98,205,v,Diallo Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,437,0012300033
+0012300033,608,PT04M12.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,-20,48,5,Missed,1,,,0,h,MISS Barlow 5' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,438,0012300033
+0012300033,609,PT04M08.00S,4,1610612748,MIA,1627767,Diallo,C. Diallo,0,0,0,,0,,,0,v,Diallo REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,439,0012300033
+0012300033,610,PT03M58.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow S.FOUL (P2.T2) (C.Blair),Foul,Shooting,1,0,440,0012300033
+0012300033,612,PT03M58.00S,4,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,107,99,206,v,Swider Free Throw 1 of 2 (10 PTS),Free Throw,Free Throw 1 of 2,1,0,441,0012300033
+0012300033,613,PT03M58.00S,4,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,107,100,207,v,Swider Free Throw 2 of 2 (11 PTS),Free Throw,Free Throw 2 of 2,1,0,442,0012300033
+0012300033,614,PT03M41.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,48,127,14,Missed,1,,,0,h,MISS Barlow 14' Jump Shot,Missed Shot,Jump Shot,1,2,443,0012300033
+0012300033,615,PT03M36.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,444,0012300033
+0012300033,616,PT03M27.00S,4,1610612748,MIA,1631214,Williams,A. Williams,-40,15,4,Made,1,107,102,209,v,Williams 4' Driving Finger Roll Layup (7 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,445,0012300033
+0012300033,617,PT03M18.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P4.PN) (D.Collins),Foul,Shooting,1,0,446,0012300033
+0012300033,619,PT03M18.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,108,102,210,h,Barlow Free Throw 1 of 2 (10 PTS),Free Throw,Free Throw 1 of 2,1,0,447,0012300033
+0012300033,620,PT03M18.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,109,102,211,h,Barlow Free Throw 2 of 2 (11 PTS),Free Throw,Free Throw 2 of 2,1,0,448,0012300033
+0012300033,622,PT03M04.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,-238,36,24,Missed,1,,,0,v,MISS Champagnie 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,449,0012300033
+0012300033,623,PT03M01.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,450,0012300033
+0012300033,624,PT02M56.00S,4,1610612759,SAS,1628984,Graham,D. Graham,-180,185,26,Made,1,112,102,214,h,Graham 26' 3PT Running Jump Shot (3 PTS) (Wesley 3 AST),Made Shot,Running Jump Shot,1,3,451,0012300033
+0012300033,628,PT02M45.00S,4,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,,,0,v,Swider Traveling Turnover (P1.T23),Turnover,Traveling,1,0,452,0012300033
+0012300033,629,PT02M45.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,453,0012300033
+0012300033,630,PT02M24.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-234,-11,0,Made,1,115,102,217,h,Mamukelashvili 3PT Jump Shot (6 PTS) (Cissoko 2 AST),Made Shot,Jump Shot,1,3,454,0012300033
+0012300033,632,PT02M03.00S,4,1610612748,MIA,1631214,Williams,A. Williams,147,49,15,Made,1,115,104,219,v,Williams 15' Pullup Jump Shot (9 PTS) (Diallo 1 AST),Made Shot,Pullup Jump shot,1,2,455,0012300033
+0012300033,633,PT01M47.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,114,234,26,Missed,1,,,0,h,MISS Cissoko 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,456,0012300033
+0012300033,634,PT01M43.00S,4,1610612748,MIA,1631214,Williams,A. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,457,0012300033
+0012300033,635,PT01M21.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,-229,28,0,Missed,1,,,0,v,MISS Peterson 3PT Jump Shot,Missed Shot,Jump Shot,1,3,458,0012300033
+0012300033,636,PT01M19.00S,4,1610612759,SAS,1631230,Barlow,D. Barlow,0,0,0,,0,,,0,h,Barlow REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,459,0012300033
+0012300033,637,PT01M12.00S,4,1610612748,MIA,1641809,Peterson,D. Peterson,0,0,0,,0,,,0,v,Peterson S.FOUL (P2.PN) (C.Blair),Foul,Shooting,1,0,460,0012300033
+0012300033,639,PT01M12.00S,4,1610612759,SAS,1628984,Graham,D. Graham,0,0,0,,0,116,104,220,h,Graham Free Throw 1 of 3 (4 PTS),Free Throw,Free Throw 1 of 3,1,0,461,0012300033
+0012300033,640,PT01M12.00S,4,1610612759,SAS,1628984,Graham,D. Graham,0,0,0,,0,117,104,221,h,Graham Free Throw 2 of 3 (5 PTS),Free Throw,Free Throw 2 of 3,1,0,462,0012300033
+0012300033,641,PT01M12.00S,4,1610612759,SAS,1628984,Graham,D. Graham,0,0,0,,0,,,0,h,MISS Graham Free Throw 3 of 3,Free Throw,Free Throw 3 of 3,1,0,463,0012300033
+0012300033,642,PT01M07.00S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:3 Def:7),Rebound,Unknown,1,0,464,0012300033
+0012300033,643,PT00M59.60S,4,1610612748,MIA,1641809,Peterson,D. Peterson,-85,249,26,Missed,1,,,0,v,MISS Peterson 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,465,0012300033
+0012300033,644,PT00M56.10S,4,1610612748,MIA,1630551,Champagnie,J. Champagnie,0,0,0,,0,,,0,v,Champagnie REBOUND (Off:4 Def:7),Rebound,Unknown,1,0,466,0012300033
+0012300033,645,PT00M54.00S,4,1610612748,MIA,1631306,Swider,C. Swider,-16,274,27,Missed,1,,,0,v,MISS Swider 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,467,0012300033
+0012300033,646,PT00M50.80S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,468,0012300033
+0012300033,647,PT00M28.40S,4,1610612759,SAS,1631104,Wesley,B. Wesley,-181,182,26,Made,1,120,104,224,h,Wesley 26' 3PT Jump Shot (8 PTS) (Barlow 1 AST),Made Shot,Jump Shot,1,3,469,0012300033
+0012300033,649,PT00M16.30S,4,1610612748,MIA,1631306,Swider,C. Swider,0,0,0,,0,,,0,v,Swider Lost Ball Turnover (P2.T24),Turnover,Lost Ball,1,0,470,0012300033
+0012300033,649,PT00M16.30S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili STEAL (1 STL),,,1,0,471,0012300033
+0012300033,651,PT00M00.00S,4,0,,0,,,0,0,0,,0,120,104,224,,End of 4th Period (9:47 PM EST),period,end,1,0,472,0012300033

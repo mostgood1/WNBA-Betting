@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,F,,,30:10,1,2,0.5,0,0,0.0,2,2,1.0,1,5,6,2,0,0,2,2,4,-16.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,31:22,2,16,0.125,2,6,0.333,5,6,0.833,1,4,5,3,0,0,1,1,11,-39.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,29:54,7,9,0.778,0,0,0.0,2,3,0.667,2,9,11,0,0,1,2,2,16,-25.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,29:05,6,18,0.333,1,6,0.167,3,4,0.75,2,4,6,3,1,1,2,2,16,-31.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,G,,,24:11,2,9,0.222,0,3,0.0,1,2,0.5,1,4,5,5,0,0,3,2,5,-36.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,30:21,5,10,0.5,2,5,0.4,3,4,0.75,0,5,5,0,1,0,1,5,15,-19.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,23:49,2,10,0.2,2,8,0.25,7,8,0.875,0,3,3,3,0,0,2,0,13,0.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1641877,Nathan,Mensah,N. Mensah,nathan-mensah,,,,18:06,2,3,0.667,0,0,0.0,0,0,0.0,1,3,4,0,0,0,0,4,4,-11.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,18:46,0,1,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,2,0,-2.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,,,4:16,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-1.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,NWT - Trade Pending,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300745
+0022300745,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,,NWT - Trade Pending,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,F,,,29:40,1,7,0.143,1,6,0.167,2,3,0.667,0,2,2,3,0,0,0,1,5,39.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,23:38,5,10,0.5,0,1,0.0,5,7,0.714,1,13,14,3,1,1,0,5,15,28.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,26:53,4,9,0.444,1,5,0.2,2,2,1.0,2,5,7,2,0,3,1,2,11,34.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,24:28,7,9,0.778,7,9,0.778,0,1,0.0,1,1,2,2,1,0,0,2,21,31.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,29:04,9,18,0.5,2,8,0.25,6,6,1.0,0,4,4,8,3,0,0,1,26,33.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,20:59,7,14,0.5,3,4,0.75,1,1,1.0,2,5,7,1,1,0,1,3,18,13.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,15:42,2,3,0.667,1,2,0.5,0,0,0.0,2,4,6,1,0,0,1,0,5,9.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,11:42,2,5,0.4,2,3,0.667,0,0,0.0,0,1,1,4,0,0,1,1,6,8.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,18:20,1,9,0.111,1,9,0.111,0,0,0.0,1,3,4,0,1,0,0,3,3,-3.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,13:12,1,3,0.333,0,2,0.0,0,0,0.0,0,2,2,0,1,0,1,2,2,-1.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,10:42,2,3,0.667,0,1,0.0,0,0,0.0,1,0,1,1,0,1,0,2,4,-3.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,7:50,0,2,0.0,0,1,0.0,4,4,1.0,0,3,3,0,0,0,0,2,4,-4.0,0022300745
+0022300745,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,7:50,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-4.0,0022300745

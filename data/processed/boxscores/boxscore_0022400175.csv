@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,23:51,3,3,1.0,1,1,1.0,0,0,0.0,1,3,4,3,0,0,0,0,7,6.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,28:31,7,16,0.438,0,1,0.0,1,3,0.333,5,4,9,3,0,3,1,6,15,-7.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,34:48,7,10,0.7,0,0,0.0,2,2,1.0,2,12,14,2,1,2,0,5,16,24.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:43,10,20,0.5,3,9,0.333,6,6,1.0,0,4,4,3,1,1,2,1,29,4.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,29:59,5,10,0.5,4,6,0.667,0,0,0.0,0,1,1,9,1,1,3,2,14,14.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,21:07,4,8,0.5,1,5,0.2,0,0,0.0,0,2,2,2,0,1,0,2,9,-7.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,27:47,7,13,0.538,2,4,0.5,0,0,0.0,2,4,6,6,1,0,1,0,16,6.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,19:13,3,6,0.5,3,6,0.5,0,0,0.0,1,1,2,0,0,0,2,3,9,0.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,15:48,4,7,0.571,2,2,1.0,1,2,0.5,1,2,3,5,2,0,1,1,11,1.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,5:13,2,3,0.667,1,1,1.0,0,0,0.0,0,1,1,0,0,2,1,1,5,4.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,38:41,9,20,0.45,2,8,0.25,0,0,0.0,0,5,5,5,1,1,2,2,20,-17.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,29:12,9,18,0.5,0,0,0.0,11,13,0.846,2,6,8,4,1,1,4,3,29,-3.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,18:47,4,8,0.5,0,0,0.0,2,3,0.667,3,1,4,0,0,3,1,1,10,-2.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,G,,,38:23,4,11,0.364,2,5,0.4,4,4,1.0,2,0,2,5,0,1,0,1,14,-3.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,35:19,10,14,0.714,7,7,1.0,0,0,0.0,0,2,2,5,3,0,1,4,27,1.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,25:34,1,3,0.333,0,1,0.0,2,2,1.0,1,4,5,1,0,1,0,1,4,-7.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,29:37,4,6,0.667,1,2,0.5,2,2,1.0,0,3,3,0,3,0,0,1,11,1.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,18:29,1,7,0.143,1,4,0.25,4,4,1.0,0,4,4,1,0,1,1,0,7,-10.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,5:50,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-5.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,0:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175
+0022400175,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400175

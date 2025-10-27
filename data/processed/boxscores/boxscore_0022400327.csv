@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,26:17,2,8,0.25,1,6,0.167,0,0,0.0,2,2,4,2,1,0,1,3,5,-10.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,F,,,2:14,1,1,1.0,0,0,0.0,2,2,1.0,0,1,1,0,1,0,0,1,4,4.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,23:49,3,6,0.5,0,0,0.0,0,0,0.0,3,5,8,3,0,1,3,3,6,-6.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,34:32,6,13,0.462,2,5,0.4,0,1,0.0,0,1,1,12,0,0,2,2,14,-8.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,29:37,9,19,0.474,5,12,0.417,3,3,1.0,1,5,6,3,0,0,1,3,26,-25.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,,,,26:26,2,7,0.286,0,2,0.0,0,0,0.0,1,2,3,1,0,1,1,1,4,-29.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,,,,17:02,0,4,0.0,0,2,0.0,0,2,0.0,1,1,2,3,0,0,1,3,0,-19.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,,,,10:44,3,6,0.5,0,0,0.0,0,0,0.0,1,4,5,1,1,0,0,0,6,-11.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,19:11,2,8,0.25,2,5,0.4,0,0,0.0,0,3,3,1,0,0,0,1,6,-5.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,18:23,7,9,0.778,4,5,0.8,0,0,0.0,0,3,3,0,0,1,0,0,18,1.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,15:39,3,5,0.6,1,2,0.5,1,2,0.5,0,1,1,1,0,0,0,2,8,-2.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,16:06,2,3,0.667,0,0,0.0,0,0,0.0,1,2,3,0,0,1,1,3,4,-10.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400327
+0022400327,1610612766,Charlotte,Hornets,CHA,hornets,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,39:30,10,18,0.556,3,4,0.75,2,2,1.0,1,5,6,2,4,2,1,2,25,18.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,38:23,6,9,0.667,4,6,0.667,2,2,1.0,0,10,10,6,1,0,1,2,18,17.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,39:25,9,15,0.6,2,5,0.4,7,9,0.778,3,13,16,2,0,2,2,4,27,25.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,46:30,7,15,0.467,2,7,0.286,3,5,0.6,0,3,3,7,1,0,2,1,19,26.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,26:58,6,8,0.75,5,6,0.833,7,8,0.875,0,1,1,5,1,0,0,1,24,22.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,3:22,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,-4.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,27:39,2,5,0.4,2,4,0.5,4,4,1.0,0,1,1,6,0,0,0,1,10,13.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,12:15,1,4,0.25,0,1,0.0,0,2,0.0,2,2,4,1,0,0,2,2,2,11.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,1:30,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,,,1:30,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,1:30,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-2.0,0022400327
+0022400327,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400327

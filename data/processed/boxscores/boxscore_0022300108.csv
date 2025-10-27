@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,20:27,4,8,0.5,1,2,0.5,0,2,0.0,1,2,3,0,0,0,3,2,9,10.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,21:34,3,8,0.375,0,2,0.0,0,0,0.0,1,5,6,7,0,1,1,2,6,6.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,24:34,3,5,0.6,0,0,0.0,2,2,1.0,2,5,7,1,1,0,1,2,8,19.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,G,,,20:51,5,8,0.625,2,5,0.4,1,1,1.0,2,1,3,4,0,0,0,0,13,18.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,30:02,15,22,0.682,7,13,0.538,5,7,0.714,0,5,5,5,2,0,3,1,42,13.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,20:35,2,7,0.286,1,4,0.25,1,2,0.5,4,6,10,2,0,1,0,2,6,14.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,25:13,6,10,0.6,1,5,0.2,0,0,0.0,0,6,6,5,2,0,1,0,13,17.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,20:09,4,10,0.4,2,6,0.333,0,0,0.0,2,2,4,1,1,1,0,4,10,17.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,19:50,5,9,0.556,0,0,0.0,3,4,0.75,7,2,9,0,0,4,2,2,13,11.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,22:48,2,5,0.4,0,1,0.0,1,2,0.5,1,7,8,2,0,0,2,4,5,15.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,,,4:39,0,2,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,0,0.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,4:39,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,2,0,0.0,0022300108
+0022300108,1610612744,Golden State,Warriors,GSW,warriors,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,4:39,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,0,1,0,5,0.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,F,,,22:21,1,5,0.2,0,4,0.0,2,2,1.0,0,2,2,1,2,1,0,4,4,-22.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,29:55,7,15,0.467,0,1,0.0,5,9,0.556,3,2,5,3,2,0,5,5,19,-17.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,22:48,4,11,0.364,1,5,0.2,2,2,1.0,2,4,6,3,0,2,0,1,11,-17.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,G,,,35:01,6,13,0.462,2,7,0.286,0,2,0.0,2,3,5,2,2,0,1,1,14,-14.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,33:29,7,21,0.333,2,8,0.25,3,4,0.75,2,4,6,5,1,0,0,1,19,-19.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,24:09,3,5,0.6,1,2,0.5,0,0,0.0,0,4,4,3,0,0,0,1,7,-13.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,16:58,2,2,1.0,1,1,1.0,0,0,0.0,2,3,5,2,0,0,3,2,5,-6.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,27:10,4,9,0.444,3,7,0.429,1,1,1.0,1,1,2,2,1,0,2,2,12,-17.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1629232,Kaiser,Gates,K. Gates,kaiser-gates,,,,7:26,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-2.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,16:04,4,6,0.667,0,2,0.0,3,4,0.75,1,0,1,2,0,0,0,1,11,-13.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,,,4:39,0,2,0.0,0,0,0.0,0,2,0.0,1,1,2,0,0,0,0,0,0,0.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300108
+0022300108,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300108

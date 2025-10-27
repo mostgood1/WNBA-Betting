@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400292,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,41:33,5,10,0.5,1,2,0.5,1,1,1.0,1,1,2,3,4,0,1,3,12,-8.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,39:50,3,15,0.2,0,8,0.0,2,2,1.0,3,2,5,2,0,0,1,2,8,-15.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,34:54,7,16,0.438,2,4,0.5,9,10,0.9,1,13,14,4,0,1,1,4,25,-7.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,39:15,8,19,0.421,4,10,0.4,0,0,0.0,2,3,5,0,0,0,2,1,20,-11.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:22,14,21,0.667,0,3,0.0,9,10,0.9,0,3,3,7,2,0,2,4,37,-12.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,13:06,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,1,2,1,0,3,1,-8.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,19:41,2,3,0.667,0,1,0.0,2,2,1.0,0,1,1,1,0,0,1,1,6,-11.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,15:19,1,2,0.5,0,1,0.0,3,3,1.0,0,2,2,2,1,1,0,1,5,-3.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,F,,,30:11,10,17,0.588,2,6,0.333,2,2,1.0,3,0,3,1,0,0,2,2,24,7.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,35:39,7,12,0.583,3,3,1.0,2,3,0.667,0,10,10,7,1,2,4,2,19,6.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,29:06,4,5,0.8,0,0,0.0,4,4,1.0,2,7,9,2,2,1,0,4,12,0.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,28:41,7,13,0.538,4,8,0.5,3,6,0.5,3,4,7,2,1,0,3,2,21,16.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,34:58,10,21,0.476,3,9,0.333,0,0,0.0,1,6,7,6,0,0,1,4,23,5.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,23:37,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,0,0,0,1,3,1,15.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,15:50,1,5,0.2,1,1,1.0,2,2,1.0,0,1,1,0,0,0,1,0,5,14.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,32:53,8,11,0.727,3,5,0.6,2,2,1.0,1,2,3,9,1,0,1,4,21,9.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,,,2:25,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,2,3,-1.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,6:40,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,1,1,0,2,0,4.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292
+0022400292,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400292

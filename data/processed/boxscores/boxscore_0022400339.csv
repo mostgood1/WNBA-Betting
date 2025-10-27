@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,F,,,21:29,5,7,0.714,3,4,0.75,0,0,0.0,1,7,8,4,1,0,3,2,13,27.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,28:07,7,10,0.7,1,1,1.0,5,5,1.0,1,2,3,2,0,1,0,3,20,32.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,30:34,5,8,0.625,0,0,0.0,3,4,0.75,6,11,17,2,0,5,2,0,13,35.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,23:19,6,14,0.429,0,2,0.0,4,4,1.0,0,2,2,7,0,0,0,0,16,31.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,23:55,6,13,0.462,2,6,0.333,3,3,1.0,0,5,5,4,0,1,1,2,17,24.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,,,23:02,5,13,0.385,1,3,0.333,1,2,0.5,0,4,4,7,3,0,3,1,12,14.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,26:31,2,5,0.4,1,4,0.25,0,0,0.0,1,9,10,2,0,2,1,2,5,15.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,19:53,5,6,0.833,0,1,0.0,1,1,1.0,0,1,1,4,1,0,2,1,11,10.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,25:44,8,14,0.571,6,11,0.545,0,0,0.0,0,2,2,0,0,0,0,4,22,15.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,17:26,4,6,0.667,0,0,0.0,4,4,1.0,2,7,9,2,1,2,0,2,12,7.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339
+0022400339,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,28:30,6,11,0.545,4,8,0.5,3,3,1.0,0,3,3,1,0,3,1,4,19,-31.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,8:06,0,4,0.0,0,4,0.0,0,0,0.0,0,0,0,1,1,0,0,2,0,-11.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,17:27,3,7,0.429,0,0,0.0,0,2,0.0,0,4,4,0,1,2,2,1,6,-29.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,28:42,3,12,0.25,1,8,0.125,3,4,0.75,1,1,2,4,0,0,0,1,10,-30.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,27:59,6,15,0.4,2,7,0.286,0,0,0.0,1,4,5,5,0,0,0,3,14,-34.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,,,23:39,2,9,0.222,1,5,0.2,1,2,0.5,1,4,5,2,0,1,1,2,6,-14.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,19:30,6,9,0.667,1,1,1.0,1,1,1.0,1,1,2,1,0,0,0,2,14,-11.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,24:41,3,5,0.6,2,3,0.667,0,0,0.0,1,4,5,1,0,0,0,3,8,-11.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,26:48,7,17,0.412,3,8,0.375,2,3,0.667,0,3,3,4,1,0,3,1,19,-19.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,18:33,0,3,0.0,0,1,0.0,1,2,0.5,0,3,3,2,1,1,2,2,1,-9.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,16:05,1,3,0.333,0,2,0.0,0,0,0.0,1,1,2,2,0,0,1,1,2,-11.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339
+0022400339,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,NWT_CONCUSSION_PROTOCOL ,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400339

@@ -1,0 +1,41 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,F,,,21:05,2,4,0.5,0,2,0.0,1,1,1.0,0,5,5,1,0,0,1,2,5,-3.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,28:03,5,12,0.417,0,2,0.0,3,4,0.75,3,2,5,2,0,2,2,2,13,4.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,28:03,9,15,0.6,3,6,0.5,4,5,0.8,1,13,14,8,1,0,1,3,25,4.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,28:21,6,9,0.667,1,3,0.333,0,0,0.0,0,1,1,3,3,0,1,2,13,6.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,28:47,3,11,0.273,1,6,0.167,1,2,0.5,1,3,4,7,0,0,1,2,8,8.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,16:54,3,9,0.333,1,3,0.333,0,1,0.0,2,1,3,0,0,0,2,2,7,5.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,20:44,3,6,0.5,2,4,0.5,0,0,0.0,1,3,4,2,1,0,1,1,8,3.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,,,16:23,2,3,0.667,0,1,0.0,2,2,1.0,1,0,1,1,2,1,4,3,6,7.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,19:57,3,6,0.5,0,1,0.0,7,8,0.875,1,5,6,1,0,0,0,2,13,9.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,20:56,1,7,0.143,0,2,0.0,0,0,0.0,1,2,3,1,0,0,1,1,2,15.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,7:24,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,1,0,0,1,2,3,6.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,3:23,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,1.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1628427,Vlatko,Čančar,V. Čančar,vlatko-čančar,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612743,Denver,Nuggets,DEN,nuggets,1642113,Bryce,Wills,B. Wills,bryce-wills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,F,,,24:55,3,8,0.375,1,4,0.25,3,4,0.75,2,1,3,0,2,0,2,0,10,-9.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,203496,Robert,Covington,R. Covington,robert-covington,F,,,23:32,3,6,0.5,1,2,0.5,0,0,0.0,0,4,4,0,1,0,0,1,7,-3.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,22:55,2,7,0.286,0,0,0.0,1,2,0.5,4,6,10,2,0,0,1,4,5,-7.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,G,,,28:11,4,13,0.308,1,3,0.333,1,2,0.5,0,2,2,1,0,0,2,1,10,-4.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,G,,,24:29,10,15,0.667,0,2,0.0,5,8,0.625,1,6,7,6,2,0,1,3,25,-4.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,8:27,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,-3.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,17:41,2,3,0.667,0,0,0.0,2,4,0.5,1,6,7,2,1,2,4,4,6,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1630231,KJ,Martin,K. Martin,kj-martin,,,,18:46,4,8,0.5,0,1,0.0,1,2,0.5,1,2,3,2,1,0,2,1,9,-3.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,21:08,3,7,0.429,1,5,0.2,2,2,1.0,0,2,2,1,3,0,2,3,9,-8.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1629875,Xavier,Moon,X. Moon,xavier-moon,,,,23:31,3,12,0.25,0,5,0.0,0,0,0.0,1,4,5,3,0,0,0,1,6,-9.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,13:44,0,2,0.0,0,0,0.0,1,2,0.5,0,0,0,1,0,0,1,0,1,-4.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,7:24,1,3,0.333,0,0,0.0,0,0,0.0,2,1,3,0,0,0,0,1,2,-6.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,5:17,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,2,0,0,-5.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1630268,Nate,Darling,N. Darling,nate-darling,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1630563,Joshua,Primo,J. Primo,joshua-primo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064
+0012300064,1610612746,LA,Clippers,LAC,clippers,1631258,Bryson,Williams,B. Williams,bryson-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300064

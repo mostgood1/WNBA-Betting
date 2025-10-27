@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,29:47,7,10,0.7,2,3,0.667,0,0,0.0,0,3,3,0,1,0,0,1,16,14.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,31:20,8,17,0.471,1,4,0.25,5,5,1.0,2,6,8,6,0,1,4,2,22,11.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,32:58,6,7,0.857,0,0,0.0,1,3,0.333,3,9,12,1,2,2,1,2,13,22.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,32:33,8,17,0.471,2,5,0.4,6,6,1.0,0,3,3,5,2,0,5,2,24,14.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,25:00,3,8,0.375,2,5,0.4,0,0,0.0,0,2,2,5,0,0,0,3,8,13.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,24:46,6,11,0.545,3,6,0.5,1,2,0.5,1,6,7,2,0,1,0,1,16,21.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,17:35,1,4,0.25,0,0,0.0,0,0,0.0,1,6,7,5,3,0,2,3,2,16.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,17:32,4,6,0.667,2,4,0.5,1,2,0.5,1,2,3,3,2,2,0,2,11,17.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,12:49,1,1,1.0,1,1,1.0,0,0,0.0,0,3,3,3,2,0,0,0,3,19.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,3:28,1,4,0.25,0,2,0.0,0,0,0.0,1,0,1,0,0,0,1,1,2,0.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,3:28,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,0.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,3:28,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,1,0,0,0,0,3,0.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,2:38,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,0,-6.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,2:38,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,-6.0,0022300485
+0022300485,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,F,,,20:51,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,2,1,0,0,1,0,-13.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,32:25,6,13,0.462,3,5,0.6,1,2,0.5,1,8,9,2,0,0,4,3,16,-12.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,33:20,8,17,0.471,0,1,0.0,3,3,1.0,1,4,5,1,0,0,2,3,19,-16.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,30:42,7,16,0.438,4,8,0.5,2,4,0.5,1,4,5,2,0,0,2,1,20,-9.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,30:58,2,9,0.222,2,5,0.4,1,1,1.0,0,1,1,8,1,1,1,0,7,-13.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,19:37,2,9,0.222,0,2,0.0,2,3,0.667,1,5,6,1,3,0,2,3,6,-20.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,18:57,2,3,0.667,1,1,1.0,0,0,0.0,0,2,2,2,0,0,0,0,5,-14.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,14:53,4,10,0.4,1,4,0.25,2,2,1.0,0,2,2,0,2,0,4,1,11,-9.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,20:50,2,4,0.5,0,2,0.0,0,0,0.0,1,0,1,0,0,0,0,2,4,-17.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,,,7:59,2,4,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,1,5,-5.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,5:23,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,-4.0,0022300485
+0022300485,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,,,4:05,1,3,0.333,0,0,0.0,0,0,0.0,2,1,3,0,0,0,0,0,2,-3.0,0022300485

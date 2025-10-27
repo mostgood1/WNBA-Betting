@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,36:08,9,12,0.75,0,1,0.0,2,2,1.0,0,2,2,2,2,1,0,3,20,20.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,34:45,8,18,0.444,3,6,0.5,2,3,0.667,5,1,6,2,0,0,0,4,21,13.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,38:18,14,33,0.424,3,9,0.333,5,6,0.833,7,15,22,11,4,0,2,0,36,20.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,32:44,7,7,1.0,0,0,0.0,2,2,1.0,3,7,10,10,4,0,0,3,16,23.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,37:14,7,17,0.412,2,6,0.333,4,4,1.0,1,3,4,10,2,1,3,2,20,-9.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,17:49,1,5,0.2,0,3,0.0,2,2,1.0,1,1,2,1,1,0,1,2,4,5.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,6:58,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-6.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,26:22,6,9,0.667,1,3,0.333,0,0,0.0,0,4,4,1,0,1,1,1,13,-2.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,9:42,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,-9.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,F,,,22:51,5,9,0.556,2,5,0.4,2,2,1.0,1,3,4,1,0,0,0,1,14,13.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,32:03,5,13,0.385,2,9,0.222,5,5,1.0,1,0,1,0,0,0,2,1,17,-18.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,37:37,6,6,1.0,0,0,0.0,0,0,0.0,2,11,13,4,1,2,2,4,12,-15.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,28:41,9,19,0.474,1,6,0.167,3,3,1.0,1,1,2,4,0,0,2,2,22,-12.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,28:16,3,9,0.333,1,4,0.25,0,1,0.0,0,3,3,6,1,0,3,0,7,-8.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,27:46,7,15,0.467,3,5,0.6,7,7,1.0,2,3,5,4,1,0,4,2,24,-7.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,17:08,2,3,0.667,2,3,0.667,1,2,0.5,0,1,1,1,0,0,1,1,7,-7.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,,,17:08,3,4,0.75,1,2,0.5,1,1,1.0,0,4,4,5,1,0,0,1,8,-5.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,10:23,2,3,0.667,0,0,0.0,1,1,1.0,0,1,1,2,2,0,0,2,5,4.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,18:07,2,5,0.4,1,4,0.25,0,0,0.0,0,3,3,1,0,0,2,3,5,0.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445
+0022400445,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400445

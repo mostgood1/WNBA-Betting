@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,25:19,4,7,0.571,2,5,0.4,0,0,0.0,3,10,13,0,1,2,0,3,10,22.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,24:40,2,6,0.333,1,4,0.25,2,2,1.0,1,6,7,1,1,2,6,5,7,5.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,24:43,6,9,0.667,0,0,0.0,0,0,0.0,3,6,9,1,1,2,1,5,12,22.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,27:21,9,19,0.474,5,11,0.455,0,0,0.0,0,3,3,4,0,0,1,0,23,8.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,28:34,10,17,0.588,3,8,0.375,2,4,0.5,0,3,3,8,2,0,0,2,25,23.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,,,,18:53,1,6,0.167,1,5,0.2,0,0,0.0,0,4,4,1,1,0,3,0,3,-2.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,19:48,1,3,0.333,1,2,0.5,0,0,0.0,0,3,3,5,1,0,1,4,3,5.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,21:03,3,9,0.333,2,4,0.5,1,2,0.5,0,1,1,1,2,0,2,0,9,4.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,13:45,2,4,0.5,1,2,0.5,0,0,0.0,1,1,2,0,0,0,1,4,5,7.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,19:34,3,10,0.3,2,5,0.4,2,2,1.0,1,1,2,4,1,0,0,2,10,12.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,4:05,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,1,0,2,-4.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,,,4:05,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-4.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,4:05,0,1,0.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,-4.0,0022400446
+0022400446,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,4:05,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-4.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,27:16,5,9,0.556,1,5,0.2,0,0,0.0,0,3,3,2,0,2,2,2,11,-20.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,25:04,1,10,0.1,0,2,0.0,0,2,0.0,3,5,8,5,1,2,3,2,2,-8.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,28:34,6,14,0.429,0,0,0.0,4,4,1.0,6,10,16,2,0,2,2,2,16,-23.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,30:19,4,11,0.364,2,4,0.5,2,2,1.0,1,3,4,3,0,0,4,2,12,-24.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,29:05,4,14,0.286,3,11,0.273,0,0,0.0,0,2,2,3,1,1,1,1,11,-2.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,18:47,1,8,0.125,0,3,0.0,0,0,0.0,1,2,3,0,0,0,1,0,2,-9.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,31:57,4,15,0.267,0,2,0.0,10,14,0.714,2,8,10,2,1,1,0,3,18,-5.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,20:33,7,8,0.875,3,4,0.75,2,2,1.0,0,2,2,1,1,0,1,0,19,2.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,14:28,0,6,0.0,0,5,0.0,2,2,1.0,0,2,2,0,0,0,0,2,2,-4.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,4:39,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,1.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,4:39,0,1,0.0,0,0,0.0,0,0,0.0,0,3,3,2,1,0,0,0,0,1.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,4:39,1,2,0.5,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,1.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400446
+0022400446,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400446

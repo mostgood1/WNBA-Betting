@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,40:43,10,14,0.714,1,1,1.0,11,12,0.917,0,2,2,10,2,0,3,2,32,-7.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,24:20,2,9,0.222,0,5,0.0,2,2,1.0,0,6,6,2,0,2,2,5,6,-11.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,39:11,9,12,0.75,2,3,0.667,0,0,0.0,3,5,8,1,0,1,2,2,20,-7.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1627936,Alex,Caruso,A. Caruso,alex-caruso,G,,,35:22,6,12,0.5,3,9,0.333,2,2,1.0,1,3,4,6,2,2,2,4,17,-6.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,42:54,8,18,0.444,3,10,0.3,6,7,0.857,2,5,7,3,0,0,4,1,25,-1.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,,,,29:31,6,11,0.545,2,5,0.4,4,4,1.0,1,1,2,1,2,1,2,2,18,-11.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,7:49,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,2,0,0,0,1,0,3.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,203083,Andre,Drummond,A. Drummond,andre-drummond,,,,16:51,5,7,0.714,0,0,0.0,1,2,0.5,5,4,9,1,1,0,1,0,11,0.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,3:19,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,1,3,-5.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633
+0022300633,1610612741,Chicago,Bulls,CHI,bulls,1630678,Terry,Taylor,T. Taylor,terry-taylor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,30:18,5,8,0.625,4,7,0.571,0,0,0.0,0,4,4,2,2,0,0,3,14,-2.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,35:42,10,19,0.526,3,4,0.75,2,2,1.0,0,4,4,12,2,0,5,2,25,14.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,36:06,10,18,0.556,0,1,0.0,2,5,0.4,5,6,11,6,0,1,0,1,22,13.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,33:13,7,9,0.778,2,3,0.667,4,4,1.0,0,3,3,8,0,0,1,4,20,14.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,37:43,10,18,0.556,8,13,0.615,1,2,0.5,0,0,0,4,1,1,2,3,29,7.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,8:53,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,1,1,0,1,0,2,-1.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,26:50,8,11,0.727,1,1,1.0,0,1,0.0,0,5,5,0,3,1,2,2,17,0.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,,,19:21,3,3,1.0,2,2,1.0,2,2,1.0,0,3,3,2,1,0,1,3,10,4.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,,,11:54,0,1,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,1,0,3,2,-4.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633
+0022300633,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300633

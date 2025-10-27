@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,28:40,1,7,0.143,1,4,0.25,1,2,0.5,1,3,4,1,2,2,1,1,4,16.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,32:53,10,23,0.435,1,5,0.2,1,1,1.0,1,6,7,2,1,0,0,0,22,20.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,C,,,31:31,6,11,0.545,1,1,1.0,2,3,0.667,5,5,10,3,1,3,2,4,15,8.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,36:45,8,13,0.615,4,7,0.571,2,2,1.0,1,4,5,1,2,0,1,3,22,24.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,34:23,9,18,0.5,3,6,0.5,2,3,0.667,1,5,6,2,0,1,1,2,23,17.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,16:39,4,7,0.571,0,1,0.0,2,2,1.0,0,4,4,2,1,1,1,2,10,3.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,7:10,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,0,0,1.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,16:18,0,1,0.0,0,0,0.0,0,0,0.0,2,5,7,1,1,1,1,2,0,13.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,21:45,6,14,0.429,0,3,0.0,2,3,0.667,0,3,3,0,0,0,0,3,14,4.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,203496,Robert,Covington,R. Covington,robert-covington,,,,11:26,1,2,0.5,0,1,0.0,0,1,0.0,0,1,1,2,2,0,1,2,2,0.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,1:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,1:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-3.0,0022300415
+0022300415,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,36:10,8,16,0.5,1,5,0.2,7,8,0.875,0,5,5,3,1,0,4,4,24,-22.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,37:52,6,21,0.286,1,8,0.125,6,7,0.857,0,9,9,4,1,1,1,0,19,-18.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,22:09,1,4,0.25,0,2,0.0,2,2,1.0,2,2,4,1,0,2,1,0,4,-8.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,28:23,8,12,0.667,1,2,0.5,3,3,1.0,1,1,2,1,1,1,3,5,20,-17.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,23:27,1,6,0.167,1,3,0.333,0,0,0.0,1,3,4,4,1,1,0,2,3,-3.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,23:10,2,7,0.286,1,4,0.25,0,1,0.0,2,4,6,1,0,1,4,1,5,-14.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,25:56,2,4,0.5,2,4,0.5,1,1,1.0,2,4,6,2,0,0,2,2,7,-10.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,15:47,0,3,0.0,0,1,0.0,2,2,1.0,0,2,2,1,0,0,1,2,2,-2.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,14:32,1,3,0.333,1,2,0.5,0,0,0.0,1,3,4,0,0,1,0,2,3,-2.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,8:49,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,4,0,0,2,-13.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,1:15,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,3.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,,,1:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022300415
+0022300415,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,1:15,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,3.0,0022300415

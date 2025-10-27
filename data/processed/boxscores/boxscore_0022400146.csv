@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,29:55,3,9,0.333,1,6,0.167,0,0,0.0,1,2,3,1,1,1,0,3,7,-8.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,29:50,8,15,0.533,0,3,0.0,5,6,0.833,1,4,5,2,1,0,3,3,21,-11.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,23:06,3,8,0.375,0,0,0.0,4,4,1.0,1,2,3,1,0,0,0,2,10,-8.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,35:33,8,17,0.471,3,7,0.429,2,4,0.5,0,5,5,2,2,0,3,0,21,-20.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,20:53,2,4,0.5,1,3,0.333,0,0,0.0,1,2,3,3,3,0,2,2,5,-12.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,27:52,5,7,0.714,3,5,0.6,1,1,1.0,1,1,2,2,0,0,1,2,14,-1.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,26:15,4,8,0.5,2,5,0.4,1,2,0.5,0,4,4,2,0,0,0,1,11,-10.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,10:10,2,4,0.5,0,2,0.0,0,0,0.0,0,2,2,0,0,0,1,2,4,7.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,23:54,3,7,0.429,0,4,0.0,0,1,0.0,1,2,3,6,0,1,2,1,6,-3.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,3:08,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,4.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,3:08,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,0,4.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,3:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628408,PJ,Dozier,P. Dozier,pj-dozier,,,,3:08,1,1,1.0,1,1,1.0,1,2,0.5,0,1,1,0,0,0,0,0,4,4.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400146
+0022400146,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,32:58,7,10,0.7,1,2,0.5,4,5,0.8,1,9,10,4,1,1,3,4,19,5.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,37:56,6,10,0.6,2,5,0.4,0,0,0.0,1,2,3,3,1,0,0,0,14,7.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,30:60,7,15,0.467,1,7,0.143,2,2,1.0,1,5,6,3,1,2,3,4,17,13.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,G,,,28:40,3,9,0.333,1,7,0.143,0,0,0.0,1,5,6,3,0,1,0,2,7,13.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,32:30,5,9,0.556,3,6,0.5,2,2,1.0,1,3,4,13,0,0,1,1,15,12.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,29:18,10,17,0.588,3,8,0.375,2,2,1.0,2,6,8,0,2,0,0,1,25,10.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,12:44,2,3,0.667,1,2,0.5,2,2,1.0,0,1,1,5,1,1,2,2,7,4.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,14:11,2,4,0.5,0,2,0.0,2,2,1.0,0,2,2,1,0,0,2,1,6,3.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,,,,15:27,1,5,0.2,1,3,0.333,0,2,0.0,0,3,3,0,0,0,0,1,3,3.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,1:19,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1629646,Charles,Bassey,C. Bassey,charles-bassey,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022400146
+0022400146,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022400146

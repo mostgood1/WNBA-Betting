@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400161,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,39:35,7,14,0.5,5,6,0.833,2,3,0.667,1,5,6,2,1,2,0,2,21,-5.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,37:50,4,9,0.444,0,2,0.0,4,4,1.0,0,4,4,7,1,0,1,3,12,-20.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,32:25,7,17,0.412,0,2,0.0,3,4,0.75,9,10,19,0,0,1,3,4,17,-26.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,40:21,6,14,0.429,3,8,0.375,0,1,0.0,1,2,3,0,1,0,4,0,15,-21.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,42:25,9,24,0.375,2,4,0.5,9,9,1.0,1,2,3,8,1,0,1,2,29,-8.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,15:35,0,0,0.0,0,0,0.0,0,0,0.0,1,3,4,1,0,0,1,4,0,14.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,26:17,0,9,0.0,0,5,0.0,0,0,0.0,0,0,0,2,2,1,0,3,0,10.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,5:32,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,-4.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,30:48,4,9,0.444,3,5,0.6,2,2,1.0,2,1,3,0,0,0,0,5,13,9.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,22:15,3,8,0.375,1,5,0.2,0,0,0.0,0,6,6,1,0,0,1,2,7,-1.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,33:23,11,15,0.733,0,3,0.0,3,3,1.0,2,12,14,5,0,4,4,2,25,14.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,31:37,5,15,0.333,2,8,0.25,3,3,1.0,0,4,4,3,1,0,3,1,15,14.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,35:47,8,14,0.571,1,5,0.2,2,2,1.0,1,1,2,5,2,1,1,3,19,12.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,13:39,1,4,0.25,0,0,0.0,2,4,0.5,3,2,5,3,0,0,1,1,4,-6.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,33:22,5,8,0.625,0,1,0.0,2,2,1.0,1,8,9,3,1,0,0,3,12,11.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,24:42,3,7,0.429,0,2,0.0,1,2,0.5,2,3,5,1,0,1,0,3,7,9.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,14:27,3,8,0.375,1,4,0.25,0,0,0.0,0,2,2,0,0,0,0,0,7,-2.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161
+0022400161,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400161

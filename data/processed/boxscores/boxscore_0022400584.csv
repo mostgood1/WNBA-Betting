@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,30:13,3,4,0.75,2,3,0.667,0,0,0.0,1,2,3,2,2,0,0,0,8,4.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,31:37,8,15,0.533,3,6,0.5,2,2,1.0,1,3,4,3,1,0,3,2,21,15.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,32:57,9,17,0.529,0,0,0.0,1,2,0.5,7,12,19,3,1,2,0,5,19,10.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,G,,,25:36,6,12,0.5,3,7,0.429,0,0,0.0,0,5,5,1,1,0,4,0,15,8.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,32:05,7,19,0.368,1,9,0.111,11,13,0.846,0,1,1,9,2,0,3,2,26,-9.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,14:14,1,3,0.333,1,2,0.5,0,0,0.0,1,2,3,2,1,0,1,1,3,-11.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,,,,21:07,3,7,0.429,1,2,0.5,0,0,0.0,1,0,1,1,0,0,0,2,7,-9.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,17:43,7,10,0.7,1,2,0.5,0,0,0.0,1,1,2,1,0,0,1,0,15,-3.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,15:03,1,2,0.5,0,0,0.0,0,0,0.0,0,3,3,0,1,0,0,0,2,-8.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,,,,19:25,3,7,0.429,1,3,0.333,2,3,0.667,1,2,3,4,0,0,0,1,9,13.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1629006,Josh,Okogie,J. Okogie,josh-okogie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584
+0022400584,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,F,,,34:48,7,15,0.467,2,4,0.5,3,3,1.0,1,5,6,8,2,0,4,1,19,4.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,16:55,2,8,0.25,1,5,0.2,0,0,0.0,0,0,0,1,0,2,0,0,5,-17.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,34:11,17,25,0.68,2,6,0.333,4,4,1.0,2,11,13,3,1,0,0,3,40,5.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,32:56,6,7,0.857,4,5,0.8,2,3,0.667,0,5,5,8,1,0,3,2,18,4.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,26:13,3,7,0.429,0,2,0.0,0,0,0.0,2,3,5,5,0,0,4,2,6,-16.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1628366,Lonzo,Ball,L. Ball,lonzo-ball,,,,24:49,2,6,0.333,2,6,0.333,0,0,0.0,1,2,3,3,3,0,0,2,6,16.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,,,,28:12,4,8,0.5,1,3,0.333,0,0,0.0,1,4,5,4,1,0,0,4,9,4.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,17:34,1,6,0.167,0,1,0.0,4,4,1.0,4,0,4,0,0,0,1,3,6,-4.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,13:49,3,7,0.429,0,4,0.0,0,0,0.0,1,3,4,1,0,0,1,0,6,-7.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,6:23,2,4,0.5,2,3,0.667,0,0,0.0,0,0,0,1,1,0,0,1,6,-2.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,4:10,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,1,0,0,2,3.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584
+0022400584,1610612741,Chicago,Bulls,CHI,bulls,1630537,Chris,Duarte,C. Duarte,chris-duarte,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400584

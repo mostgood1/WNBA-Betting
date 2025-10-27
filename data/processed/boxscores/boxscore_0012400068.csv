@@ -1,0 +1,35 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400068,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,25:11,1,2,0.5,0,1,0.0,0,0,0.0,0,5,5,3,0,1,2,2,2,3.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,27:36,4,7,0.571,2,4,0.5,4,6,0.667,0,4,4,3,3,2,2,2,14,5.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,30:05,7,16,0.438,0,5,0.0,8,10,0.8,3,9,12,4,0,1,0,1,22,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,32:27,2,12,0.167,0,10,0.0,4,4,1.0,2,1,3,3,1,0,2,3,8,-8.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,28:02,10,15,0.667,2,4,0.5,5,5,1.0,0,1,1,5,0,0,4,1,27,6.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,20:12,5,12,0.417,1,6,0.167,1,3,0.333,0,0,0,1,2,0,1,3,12,3.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,14:43,2,4,0.5,0,0,0.0,2,2,1.0,2,2,4,0,1,1,0,1,6,1.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,17:01,3,5,0.6,1,2,0.5,6,6,1.0,0,1,1,2,0,0,4,1,13,-4.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,11:26,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,1,0,0,0,1,0,-2.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,17:08,4,7,0.571,2,3,0.667,0,0,0.0,0,3,3,0,0,0,0,1,10,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,203933,T.J.,Warren,T. Warren,tj-warren,,,,7:04,1,2,0.5,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,-3.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,5:06,0,1,0.0,0,0,0.0,1,2,0.5,0,2,2,0,0,1,0,1,1,-3.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,4:01,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1641755,Kevin,McCullar Jr.,K. McCullar Jr.,kevin-mccullar-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,22:24,3,6,0.5,2,5,0.4,0,0,0.0,0,4,4,5,0,0,1,1,8,-4.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,16:42,4,11,0.364,1,4,0.25,3,4,0.75,0,3,3,3,1,0,1,0,12,-1.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,15:43,3,3,1.0,0,0,0.0,1,2,0.5,1,3,4,1,0,0,2,2,7,-2.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,21:58,3,6,0.5,1,3,0.333,0,0,0.0,0,3,3,1,0,0,2,3,7,-8.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,18:17,6,10,0.6,3,5,0.6,1,1,1.0,0,1,1,5,0,0,1,2,16,7.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,22:32,6,11,0.545,1,2,0.5,1,2,0.5,0,0,0,5,1,1,2,3,14,2.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,18:25,3,6,0.5,1,1,1.0,0,0,0.0,1,6,7,4,0,1,3,5,7,2.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,17:26,3,7,0.429,2,6,0.333,0,2,0.0,0,2,2,0,2,0,1,2,8,1.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,26:39,5,8,0.625,0,1,0.0,4,4,1.0,0,2,2,5,3,0,1,4,14,3.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,18:18,5,7,0.714,0,2,0.0,1,1,1.0,0,2,2,0,0,0,1,1,11,2.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,13:52,2,3,0.667,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,5,1.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,6:18,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-2.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1641917,Taylor,Funk,T. Funk,taylor-funk,,,,13:52,3,7,0.429,3,7,0.429,0,0,0.0,2,3,5,2,0,0,1,1,9,1.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,7:34,0,2,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,2,0,3.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1631219,John,Butler Jr.,J. Butler Jr.,john-butler-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068
+0012400068,1610612764,Washington,Wizards,WAS,wizards,1631338,Mouhamadou,Gueye,M. Gueye,mouhamadou-gueye,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400068

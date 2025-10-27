@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,20:17,4,13,0.308,2,6,0.333,1,2,0.5,3,4,7,3,2,0,2,0,11,-4.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1631223,David,Roddy,D. Roddy,david-roddy,F,,,18:02,1,3,0.333,0,2,0.0,0,0,0.0,1,4,5,0,0,1,1,1,2,-3.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,26:47,2,9,0.222,1,3,0.333,2,4,0.5,0,7,7,1,1,0,4,4,7,-14.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,G,,,34:26,2,6,0.333,0,4,0.0,0,0,0.0,1,4,5,6,1,0,4,3,4,-11.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1630811,Keaton,Wallace,K. Wallace,keaton-wallace,G,,,34:48,4,12,0.333,3,9,0.333,2,2,1.0,1,2,3,7,2,0,3,3,13,-7.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,31:36,12,21,0.571,4,8,0.5,7,8,0.875,0,2,2,1,0,0,3,2,35,-4.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,25:31,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,1,1,1,2,2,6,-9.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,,,,18:48,2,9,0.222,0,6,0.0,0,0,0.0,1,3,4,1,2,0,0,1,4,9.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,,,,21:14,5,7,0.714,0,0,0.0,0,2,0.0,6,9,15,3,1,1,2,2,10,6.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,8:30,0,2,0.0,0,1,0.0,0,0,0.0,1,1,2,1,0,0,0,2,0,-3.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656
+0022400656,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,33:24,3,7,0.429,2,4,0.5,2,2,1.0,0,8,8,2,4,1,2,4,10,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,32:18,7,17,0.412,3,8,0.375,3,3,1.0,3,5,8,2,1,0,5,3,20,12.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,38:19,7,9,0.778,0,0,0.0,4,7,0.571,5,5,10,1,0,2,1,2,18,8.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,35:23,6,20,0.3,2,11,0.182,9,13,0.692,2,3,5,4,2,1,3,2,23,8.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,31:22,1,9,0.111,0,5,0.0,2,2,1.0,1,3,4,4,4,0,1,0,4,7.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,28:42,6,9,0.667,3,5,0.6,0,0,0.0,0,3,3,2,0,0,2,1,15,4.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,22:00,2,7,0.286,1,5,0.2,0,0,0.0,2,7,9,2,0,0,2,5,5,5.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,10:40,2,5,0.4,1,2,0.5,0,2,0.0,0,2,2,1,2,0,0,0,5,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,7:52,0,3,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,0,-4.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656
+0022400656,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400656

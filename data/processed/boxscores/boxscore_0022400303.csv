@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,33:33,7,17,0.412,4,9,0.444,0,0,0.0,0,3,3,3,1,0,2,2,18,12.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,30:35,5,8,0.625,2,5,0.4,1,1,1.0,0,2,2,7,2,1,4,3,13,6.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,14:57,1,5,0.2,0,0,0.0,0,0,0.0,4,2,6,2,0,3,1,1,2,-3.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,33:01,4,8,0.5,2,4,0.5,2,2,1.0,0,7,7,4,1,1,1,1,12,7.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,32:24,8,21,0.381,3,10,0.3,4,5,0.8,1,6,7,4,0,0,0,1,23,4.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,12:17,0,3,0.0,0,1,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,-12.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,16:26,3,7,0.429,2,4,0.5,3,3,1.0,0,1,1,1,1,0,0,0,11,-15.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,18:55,4,12,0.333,0,3,0.0,4,6,0.667,0,2,2,1,1,0,0,4,12,-12.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,16:04,4,4,1.0,0,0,0.0,1,1,1.0,2,4,6,1,0,0,0,2,9,-1.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,8:26,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,3,1,0,0,2,0,-10.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,2:46,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-5.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,7:15,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,1,1,0,0,0,2,-3.0,0022400303
+0022400303,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,13:22,1,3,0.333,1,3,0.333,0,0,0.0,0,3,3,1,0,0,0,1,3,-8.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,32:27,4,8,0.5,3,6,0.5,6,6,1.0,1,3,4,3,1,0,1,0,17,-4.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,35:40,7,20,0.35,3,8,0.375,4,6,0.667,0,10,10,3,0,3,3,1,21,4.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,C,,,16:11,1,5,0.2,0,0,0.0,0,0,0.0,2,4,6,1,0,2,2,0,2,-7.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,38:13,8,20,0.4,3,8,0.375,8,8,1.0,0,3,3,9,2,0,1,1,27,1.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,32:06,7,9,0.778,4,5,0.8,1,2,0.5,0,3,3,9,0,0,1,1,19,0.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,19:25,4,6,0.667,3,4,0.75,0,0,0.0,0,2,2,1,0,0,0,1,11,15.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,30:33,3,4,0.75,0,0,0.0,0,0,0.0,2,6,8,0,0,2,2,3,6,14.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,,,20:17,1,2,0.5,0,1,0.0,0,0,0.0,0,4,4,2,0,2,2,4,2,8.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,,,15:08,3,5,0.6,2,3,0.667,0,0,0.0,1,4,5,3,1,0,0,2,8,9.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400303
+0022400303,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400303

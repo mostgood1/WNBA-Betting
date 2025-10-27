@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,25:01,8,16,0.5,3,9,0.333,1,2,0.5,2,3,5,0,1,0,3,2,20,-4.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:10,4,12,0.333,0,6,0.0,5,6,0.833,1,4,5,1,1,1,2,0,13,1.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,27:23,1,3,0.333,0,0,0.0,5,6,0.833,3,3,6,2,0,2,1,2,7,3.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,39:03,9,14,0.643,6,9,0.667,5,5,1.0,0,6,6,4,2,1,3,2,29,6.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,38:14,9,20,0.45,6,13,0.462,6,6,1.0,0,13,13,11,4,0,4,4,30,10.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,17:23,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,1,0,0,1,0,0,6.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,20:37,5,6,0.833,0,0,0.0,0,0,0.0,3,3,6,0,1,3,4,2,10,4.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,24:19,1,6,0.167,1,4,0.25,8,8,1.0,1,1,2,0,0,0,0,2,11,3.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,3:28,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,4.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,10:22,1,2,0.5,1,2,0.5,2,4,0.5,3,3,6,2,1,1,0,1,5,2.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,27:22,8,16,0.5,2,5,0.4,0,0,0.0,0,4,4,5,1,0,1,5,18,-13.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,20:08,2,6,0.333,0,3,0.0,0,0,0.0,0,2,2,0,0,0,1,3,4,-6.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,33:32,7,11,0.636,0,0,0.0,6,6,1.0,2,5,7,7,2,0,3,5,20,-8.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,G,,,34:13,8,21,0.381,5,14,0.357,6,6,1.0,1,3,4,1,1,0,1,1,27,-12.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,37:37,8,17,0.471,3,7,0.429,0,0,0.0,2,6,8,14,3,1,3,1,19,10.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,21:10,3,7,0.429,2,2,1.0,0,0,0.0,1,6,7,2,1,2,1,0,8,-6.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,26:30,0,2,0.0,0,1,0.0,1,2,0.5,1,2,3,4,1,0,1,3,1,-5.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,,,,20:44,4,10,0.4,0,4,0.0,0,0,0.0,0,0,0,3,2,0,1,3,8,6.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,,,14:28,3,3,1.0,3,3,1.0,4,4,1.0,1,3,4,1,2,0,1,0,13,1.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,4:16,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1642279,Ulrich,Chomche,U. Chomche,ulrich-chomche,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344
+0022400344,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400344

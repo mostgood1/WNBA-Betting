@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300429,1610612752,New York,Knicks,NYK,knicks,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,36:39,7,17,0.412,1,5,0.2,4,5,0.8,2,4,6,2,1,0,2,4,19,-22.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,36:26,16,25,0.64,0,4,0.0,6,8,0.75,3,9,12,6,0,1,5,5,38,0.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,24:50,2,4,0.5,0,0,0.0,3,3,1.0,1,2,3,3,3,0,2,4,7,-18.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,19:51,1,7,0.143,0,5,0.0,0,0,0.0,0,1,1,2,3,1,1,4,2,-12.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,34:25,4,15,0.267,0,4,0.0,12,12,1.0,0,7,7,8,0,1,3,2,20,-10.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,,,30:39,2,4,0.5,1,2,0.5,0,0,0.0,0,4,4,0,0,0,2,2,5,6.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,,,,28:09,4,10,0.4,3,7,0.429,1,1,1.0,0,1,1,1,0,0,1,4,12,3.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,13:35,1,3,0.333,1,3,0.333,0,0,0.0,0,2,2,0,1,0,0,1,3,1.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,15:26,1,1,1.0,0,0,0.0,0,0,0.0,0,4,4,0,0,1,0,4,2,7.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612752,New York,Knicks,NYK,knicks,1631376,Dmytro,Skapintsev,D. Skapintsev,dmytro-skapintsev,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,39:23,11,19,0.579,3,5,0.6,7,7,1.0,2,7,9,2,4,1,4,1,32,15.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,35:38,9,19,0.474,2,6,0.333,9,12,0.75,1,9,10,4,1,1,2,3,29,4.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,30:26,4,8,0.5,0,0,0.0,5,8,0.625,3,4,7,0,1,2,2,3,13,16.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,31:02,8,15,0.533,2,7,0.286,3,6,0.5,0,2,2,6,0,1,3,4,21,9.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,29:23,2,2,1.0,0,0,0.0,0,0,0.0,2,4,6,5,2,0,1,4,4,0.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,20:47,0,5,0.0,0,5,0.0,0,0,0.0,2,0,2,0,0,0,1,1,0,-3.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,23:25,3,8,0.375,0,3,0.0,3,4,0.75,0,2,2,5,2,0,1,2,9,6.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,17:34,2,8,0.25,0,3,0.0,3,3,1.0,4,7,11,1,0,1,1,1,7,-7.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,12:23,1,5,0.2,0,4,0.0,0,0,0.0,0,0,0,1,0,0,0,1,2,5.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429
+0022300429,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300429

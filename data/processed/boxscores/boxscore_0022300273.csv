@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300273,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,35:19,9,17,0.529,2,2,1.0,3,4,0.75,1,6,7,0,2,0,0,2,23,2.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,37:20,6,18,0.333,3,10,0.3,0,0,0.0,0,1,1,10,0,0,1,5,15,-6.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,26:41,7,11,0.636,0,0,0.0,4,5,0.8,4,9,13,0,0,1,0,1,18,7.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,33:58,4,10,0.4,1,4,0.25,0,0,0.0,3,2,5,1,1,0,2,1,9,13.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,37:14,6,13,0.462,5,10,0.5,1,2,0.5,0,3,3,7,1,0,1,3,18,-1.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,17:42,1,2,0.5,0,0,0.0,3,3,1.0,0,0,0,0,1,0,2,1,5,-13.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,26:01,5,13,0.385,0,3,0.0,4,6,0.667,6,5,11,6,0,0,0,1,14,-10.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,14:44,4,9,0.444,1,1,1.0,1,2,0.5,1,1,2,2,0,0,0,2,10,-20.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,6:06,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,2,0,-6.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,3:49,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,0.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,0:33,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,2.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,0:33,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,2.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,1629875,Xavier,Moon,X. Moon,xavier-moon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273
+0022300273,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,27:39,6,10,0.6,1,4,0.25,0,0,0.0,2,1,3,1,0,1,0,2,13,-9.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,28:58,4,8,0.5,2,4,0.5,3,4,0.75,1,4,5,5,0,0,2,5,13,-11.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,12:55,0,4,0.0,0,0,0.0,2,2,1.0,2,3,5,2,0,0,0,2,2,-6.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,34:20,8,18,0.444,2,7,0.286,4,4,1.0,2,4,6,2,0,1,2,2,22,8.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,33:00,8,15,0.533,3,9,0.333,7,9,0.778,0,7,7,8,1,1,2,2,26,-4.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,31:15,5,10,0.5,2,4,0.5,1,2,0.5,2,6,8,2,0,0,0,2,13,12.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,26:44,4,7,0.571,2,4,0.5,3,4,0.75,0,5,5,5,1,0,0,2,13,15.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,21:50,0,2,0.0,0,2,0.0,1,2,0.5,0,2,2,2,0,0,0,1,1,12.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,23:19,6,8,0.75,3,5,0.6,2,4,0.5,1,5,6,3,1,1,1,0,17,13.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1631311,Lester,Quinones,L. Quinones,lester-quinones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273
+0022300273,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300273

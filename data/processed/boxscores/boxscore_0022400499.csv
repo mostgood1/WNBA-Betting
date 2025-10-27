@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,31:47,7,22,0.318,2,8,0.25,1,1,1.0,2,8,10,5,3,0,2,5,17,-18.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,F,,,22:32,2,3,0.667,0,1,0.0,0,0,0.0,0,2,2,1,0,1,1,3,4,3.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,32:51,7,11,0.636,0,0,0.0,0,0,0.0,5,7,12,1,0,3,0,3,14,-17.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,G,,,32:44,5,15,0.333,2,6,0.333,4,5,0.8,1,5,6,3,2,0,2,2,16,-8.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,26:36,5,16,0.313,3,8,0.375,2,2,1.0,1,3,4,3,0,2,1,0,15,-18.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,7:50,2,3,0.667,0,0,0.0,1,3,0.333,0,1,1,0,0,1,0,2,5,6.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,29:34,2,3,0.667,2,2,1.0,0,0,0.0,0,1,1,3,0,0,2,4,6,-9.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,26:02,4,13,0.308,1,6,0.167,0,0,0.0,0,6,6,6,1,0,2,1,9,-10.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,21:10,5,10,0.5,3,5,0.6,2,2,1.0,0,3,3,2,1,1,4,2,15,2.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,6:24,1,2,0.5,0,0,0.0,0,0,0.0,4,1,5,1,0,0,1,0,2,-2.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,1:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,1:15,0,0,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,0,0,0,1,-2.0,0022400499
+0022400499,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,34:56,3,11,0.273,1,5,0.2,10,11,0.909,2,9,11,1,0,0,0,1,17,18.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,34:11,13,23,0.565,1,2,0.5,8,12,0.667,5,8,13,5,3,1,2,2,35,9.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,13:15,2,4,0.5,0,1,0.0,0,0,0.0,2,1,3,0,0,2,3,1,4,-5.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,22:30,2,6,0.333,0,3,0.0,1,1,1.0,3,10,13,2,0,0,0,1,5,0.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,28:14,6,13,0.462,3,7,0.429,3,4,0.75,1,4,5,4,5,1,1,2,18,9.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,24:24,5,9,0.556,3,5,0.6,0,0,0.0,0,4,4,4,0,0,2,1,13,10.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,27:38,4,7,0.571,3,6,0.5,0,0,0.0,0,1,1,1,2,0,2,1,11,18.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,27:29,1,4,0.25,0,2,0.0,5,6,0.833,0,2,2,4,0,0,2,1,7,13.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,,,2:18,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,2,0,1.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,14:53,3,7,0.429,0,0,0.0,0,1,0.0,0,2,2,1,1,1,1,4,6,4.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,10:13,1,3,0.333,1,3,0.333,0,0,0.0,0,0,0,1,0,0,0,1,3,-2.0,0022400499
+0022400499,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630658,Colin,Castleton,C. Castleton,colin-castleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400499

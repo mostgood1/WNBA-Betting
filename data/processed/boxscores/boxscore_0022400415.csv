@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,35:11,8,13,0.615,4,6,0.667,9,9,1.0,1,4,5,3,0,0,6,1,29,8.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,F,,,30:38,7,10,0.7,6,9,0.667,0,0,0.0,1,3,4,2,1,0,2,1,20,10.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,30:60,5,12,0.417,0,2,0.0,3,6,0.5,2,5,7,3,2,0,1,0,13,7.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,30:13,5,15,0.333,2,9,0.222,0,0,0.0,0,4,4,1,2,1,0,4,12,0.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,G,,,28:59,4,9,0.444,0,0,0.0,0,0,0.0,1,3,4,9,1,0,6,1,8,16.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,31:38,2,7,0.286,0,4,0.0,0,0,0.0,1,3,4,5,0,0,1,1,4,6.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,11:24,0,2,0.0,0,0,0.0,0,0,0.0,2,1,3,0,1,0,2,1,0,-7.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1629003,Shake,Milton,S. Milton,shake-milton,,,,22:54,7,10,0.7,4,6,0.667,2,3,0.667,1,1,2,0,1,0,2,1,20,-6.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,17:26,1,4,0.25,0,2,0.0,3,4,0.75,0,5,5,2,0,0,1,1,5,-4.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,0:37,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1641798,Jaylen,Martin,J. Martin,jaylen-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,26:13,8,13,0.615,3,6,0.5,2,3,0.667,0,5,5,5,1,0,7,4,21,-9.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,F,,,35:19,7,16,0.438,0,4,0.0,4,4,1.0,2,6,8,4,2,0,4,3,18,-16.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,33:59,8,12,0.667,4,5,0.8,0,0,0.0,2,5,7,2,2,2,1,2,20,-8.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,23:00,3,5,0.6,0,0,0.0,2,3,0.667,1,2,3,2,0,0,1,1,8,0.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,G,,,29:00,3,7,0.429,1,5,0.2,0,0,0.0,2,2,4,3,3,1,4,4,7,-12.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,29:15,3,8,0.375,2,7,0.286,0,0,0.0,1,5,6,2,0,0,0,1,8,2.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,23:23,3,9,0.333,3,6,0.5,0,2,0.0,0,3,3,0,0,0,1,2,9,5.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,21:41,6,10,0.6,2,2,1.0,0,0,0.0,0,3,3,0,3,0,3,0,14,3.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,,,18:10,0,3,0.0,0,3,0.0,0,0,0.0,0,0,0,5,1,0,1,1,0,5.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1641857,Liam,Robbins,L. Robbins,liam-robbins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415
+0022400415,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400415

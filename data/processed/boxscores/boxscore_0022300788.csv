@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,32:37,4,8,0.5,1,2,0.5,2,2,1.0,0,3,3,1,0,1,0,2,11,11.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,33:38,13,19,0.684,6,8,0.75,4,5,0.8,0,2,2,1,0,1,0,0,36,25.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,38:00,13,25,0.52,1,3,0.333,10,13,0.769,3,12,15,1,0,2,2,0,37,24.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,33:40,9,13,0.692,3,5,0.6,1,1,1.0,0,4,4,7,3,0,3,0,22,22.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,33:19,4,8,0.5,0,1,0.0,3,3,1.0,1,8,9,17,1,0,2,4,11,9.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,27:37,4,6,0.667,2,4,0.5,0,0,0.0,0,0,0,4,2,0,1,2,10,9.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,,,16:14,1,5,0.2,0,4,0.0,0,0,0.0,1,3,4,1,0,0,1,3,2,2.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1629685,Dylan,Windler,D. Windler,dylan-windler,,,,8:21,1,4,0.25,1,4,0.25,0,0,0.0,0,0,0,1,0,0,0,1,3,-6.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,11:40,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,1,2,0,0,1,4,-2.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1630658,Colin,Castleton,C. Castleton,colin-castleton,,,,2:27,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-7.0,0022300788
+0022300788,1610612747,Los Angeles,Lakers,LAL,lakers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,2:27,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,33:41,6,15,0.4,2,7,0.286,2,2,1.0,2,6,8,1,0,1,2,1,16,-16.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,27:51,5,10,0.5,0,3,0.0,1,3,0.333,3,7,10,2,1,1,2,4,11,-6.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,27:41,6,13,0.462,0,1,0.0,0,0,0.0,5,2,7,1,0,3,2,4,12,-20.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,26:05,8,15,0.533,2,5,0.4,0,0,0.0,0,0,0,3,0,2,0,1,18,-12.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,32:59,5,9,0.556,3,5,0.6,0,0,0.0,0,5,5,7,2,0,2,3,13,-5.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,,,,16:11,4,9,0.444,1,6,0.167,0,0,0.0,2,3,5,1,0,0,0,2,9,-1.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,17:21,5,6,0.833,1,2,0.5,1,1,1.0,1,0,1,3,1,0,0,3,12,-21.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,32:29,6,14,0.429,3,8,0.375,2,2,1.0,0,3,3,5,0,0,4,2,17,-17.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,15:54,2,5,0.4,1,4,0.25,2,2,1.0,1,1,2,4,0,0,1,1,7,-10.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,,,2:27,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,3,7.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,2:27,0,0,0.0,0,0,0.0,1,2,0.5,1,1,2,0,0,0,0,0,1,7.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,2:27,1,3,0.333,0,2,0.0,1,1,1.0,0,0,0,0,0,0,0,0,3,7.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,2:27,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,2,1,0,0,0,0,7.0,0022300788
+0022300788,1610612762,Utah,Jazz,UTA,jazz,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300788

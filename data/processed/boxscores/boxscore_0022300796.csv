@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,36:45,2,3,0.667,2,2,1.0,4,4,1.0,1,4,5,2,0,0,1,3,10,-7.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,40:22,9,22,0.409,2,8,0.25,3,5,0.6,0,6,6,1,1,1,5,3,23,-4.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,19:33,2,6,0.333,0,0,0.0,1,2,0.5,2,3,5,3,2,1,1,3,5,-2.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,G,,,35:21,5,10,0.5,4,7,0.571,2,3,0.667,0,1,1,1,2,1,1,3,16,-7.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,39:18,13,21,0.619,2,6,0.333,7,8,0.875,1,4,5,8,1,0,4,2,35,-14.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,18:30,4,7,0.571,2,4,0.5,1,2,0.5,4,0,4,1,0,0,2,1,11,-15.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,6:05,0,0,0.0,0,0,0.0,0,0,0.0,2,1,3,0,0,1,1,2,0,-10.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,29:54,4,12,0.333,2,8,0.25,0,0,0.0,1,8,9,2,1,0,1,3,10,-7.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1630240,Saben,Lee,S. Lee,saben-lee,,,,6:17,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,0,0,0,10.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,,,5:51,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,1,3,0.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1631223,David,Roddy,D. Roddy,david-roddy,,,,1:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1630177,Theo,Maledon,T. Maledon,theo-maledon,,,,1:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300796
+0022300796,1610612756,Phoenix,Suns,PHX,suns,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,F,,,25:07,3,7,0.429,3,5,0.6,0,0,0.0,1,1,2,5,2,0,2,4,9,4.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,30:35,4,10,0.4,2,6,0.333,2,2,1.0,2,4,6,1,1,1,1,3,12,11.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,15:53,2,3,0.667,0,0,0.0,1,2,0.5,3,1,4,1,0,2,0,1,5,-3.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,35:41,11,18,0.611,5,8,0.625,2,2,1.0,1,4,5,3,1,0,1,2,29,20.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,38:03,14,27,0.519,6,11,0.545,7,7,1.0,0,9,9,11,3,0,3,4,41,9.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,30:10,5,13,0.385,1,9,0.111,1,2,0.5,0,4,4,0,2,0,2,2,12,-4.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,25:48,3,7,0.429,1,3,0.333,0,0,0.0,0,2,2,1,1,0,0,1,7,3.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,,,,18:23,1,3,0.333,1,2,0.5,1,2,0.5,1,1,2,1,0,1,0,0,4,8.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,17:14,0,1,0.0,0,0,0.0,4,4,1.0,2,3,5,1,0,1,1,4,4,11.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,1:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,1:02,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,1:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300796
+0022300796,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300796

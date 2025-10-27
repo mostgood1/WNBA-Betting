@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,26:38,6,9,0.667,1,3,0.333,0,0,0.0,1,2,3,5,0,1,0,1,13,1.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,F,,,32:01,2,5,0.4,1,4,0.25,2,2,1.0,1,4,5,1,2,0,1,1,7,-7.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,31:49,4,5,0.8,0,0,0.0,4,10,0.4,2,10,12,0,3,1,1,3,12,-4.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,33:48,7,18,0.389,3,9,0.333,4,6,0.667,0,4,4,4,0,1,1,4,21,-3.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,32:27,5,8,0.625,3,4,0.75,6,7,0.857,0,2,2,7,1,0,1,2,19,12.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,8:19,2,3,0.667,2,3,0.667,0,0,0.0,0,0,0,2,0,0,1,1,6,-1.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,20:27,1,4,0.25,0,3,0.0,0,0,0.0,0,3,3,3,0,0,2,1,2,-3.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,,,,21:41,2,7,0.286,2,4,0.5,2,2,1.0,0,0,0,4,0,0,1,0,8,-1.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,,,14:01,1,4,0.25,0,1,0.0,0,0,0.0,2,1,3,2,2,0,1,1,2,-14.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,18:49,5,10,0.5,3,7,0.429,0,0,0.0,0,1,1,0,1,0,1,0,13,10.0,0022300578
+0022300578,1610612751,Brooklyn,Nets,BKN,nets,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,35:35,14,26,0.538,2,4,0.5,0,0,0.0,4,4,8,1,0,0,2,1,30,12.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,29:53,1,4,0.25,1,1,1.0,1,2,0.5,0,6,6,0,1,0,0,2,4,-6.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,C,,,25:20,7,9,0.778,2,4,0.5,1,1,1.0,2,5,7,3,0,0,1,4,17,5.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,38:46,8,20,0.4,1,7,0.143,3,4,0.75,0,4,4,4,0,0,0,2,20,11.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,30:17,6,12,0.5,2,6,0.333,2,2,1.0,0,5,5,6,1,0,0,2,16,-2.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,23:25,1,6,0.167,0,2,0.0,5,5,1.0,1,2,3,3,0,0,5,0,7,-13.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,,,13:07,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,2,0,0,2,2.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,20:27,3,4,0.75,0,0,0.0,0,0,0.0,2,4,6,1,0,0,0,2,6,5.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,20:37,1,4,0.25,1,3,0.333,0,0,0.0,0,0,0,3,0,0,0,3,3,-3.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,2:33,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-1.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300578
+0022300578,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300578

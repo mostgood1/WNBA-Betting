@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,31:21,7,9,0.778,2,3,0.667,2,4,0.5,2,4,6,0,2,0,0,2,18,-6.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,31:01,5,9,0.556,0,1,0.0,3,5,0.6,1,6,7,2,0,0,2,3,13,-8.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,30:09,7,15,0.467,1,1,1.0,4,6,0.667,5,4,9,6,1,2,5,1,19,-4.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,27:17,7,16,0.438,1,7,0.143,5,7,0.714,0,5,5,3,0,0,2,2,20,-7.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,32:32,2,5,0.4,2,4,0.5,2,4,0.5,0,1,1,5,0,2,1,4,8,-12.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,12:48,1,4,0.25,0,3,0.0,0,0,0.0,1,3,4,2,0,0,0,4,2,5.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,12:33,0,5,0.0,0,1,0.0,1,2,0.5,1,1,2,0,0,2,1,1,1,-30.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,19:16,7,8,0.875,0,1,0.0,0,1,0.0,2,1,3,0,1,0,1,2,14,-5.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,23:25,6,12,0.5,2,5,0.4,0,1,0.0,2,4,6,1,1,0,0,3,14,0.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,5:30,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-5.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,8:45,2,2,1.0,0,0,0.0,0,0,0.0,1,0,1,0,1,3,0,0,4,17.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,5:23,0,2,0.0,0,0,0.0,2,2,1.0,1,0,1,1,1,0,1,1,2,10.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300555
+0022300555,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,F,,,27:33,2,7,0.286,1,3,0.333,0,0,0.0,2,3,5,3,2,1,0,2,5,0.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,30:51,3,7,0.429,2,3,0.667,2,2,1.0,0,3,3,2,0,0,1,2,10,-1.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,31:16,12,21,0.571,1,5,0.2,16,17,0.941,2,8,10,3,1,1,2,5,41,7.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,25:48,3,8,0.375,1,3,0.333,0,0,0.0,0,2,2,0,4,0,1,3,7,-12.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,35:22,8,18,0.444,6,10,0.6,5,5,1.0,0,1,1,7,0,0,2,4,27,19.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,14:02,3,3,1.0,2,2,1.0,0,0,0.0,0,5,5,1,0,0,0,1,8,26.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,28:36,3,8,0.375,1,4,0.25,4,6,0.667,0,5,5,6,1,1,3,2,11,15.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,17:52,2,4,0.5,1,1,1.0,1,1,1.0,2,3,5,1,0,0,0,4,6,9.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,16:31,3,4,0.75,0,0,0.0,1,2,0.5,2,2,4,2,0,1,1,0,7,2.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,6:05,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-10.0,0022300555
+0022300555,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,,,6:05,1,2,0.5,0,0,0.0,0,1,0.0,0,0,0,0,0,0,0,0,2,-10.0,0022300555

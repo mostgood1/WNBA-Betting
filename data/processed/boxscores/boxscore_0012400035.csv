@@ -1,0 +1,41 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,16:05,4,8,0.5,1,2,0.5,6,6,1.0,0,0,0,0,1,0,1,1,15,-3.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,30:56,5,9,0.556,2,4,0.5,7,8,0.875,2,7,9,3,1,1,1,3,19,-8.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,17:19,3,5,0.6,2,2,1.0,0,0,0.0,2,5,7,1,2,0,1,0,8,2.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,G,,,27:12,4,7,0.571,1,2,0.5,0,2,0.0,0,4,4,2,1,1,3,2,9,-1.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,30:05,4,16,0.25,1,6,0.167,4,6,0.667,1,3,4,3,0,0,7,3,13,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,24:35,3,7,0.429,0,1,0.0,1,4,0.25,2,6,8,3,0,0,0,1,7,6.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,27:05,3,11,0.273,2,8,0.25,3,4,0.75,1,3,4,5,2,2,1,2,11,2.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,19:22,3,5,0.6,1,1,1.0,0,0,0.0,1,4,5,2,0,1,2,3,7,-9.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,24:24,3,7,0.429,0,2,0.0,0,0,0.0,0,3,3,2,0,0,0,0,6,-3.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,11:09,2,5,0.4,0,2,0.0,0,0,0.0,1,1,2,1,0,1,1,2,4,6.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1628984,Devonte',Graham,D. Graham,devonte-graham,,,,11:48,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,2,0,0,0,2,0,-2.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,F,,,18:16,1,3,0.333,1,3,0.333,1,2,0.5,0,5,5,0,2,0,1,3,4,6.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,20:42,4,8,0.5,0,1,0.0,8,10,0.8,0,0,0,0,1,0,0,1,16,5.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,17:49,1,4,0.25,0,0,0.0,0,0,0.0,0,4,4,2,1,0,0,1,2,2.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,G,,,20:46,2,6,0.333,0,2,0.0,0,0,0.0,0,3,3,0,1,0,1,2,4,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,18:22,5,10,0.5,3,6,0.5,1,3,0.333,0,3,3,5,1,0,4,2,14,-3.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1630539,Kai,Jones,K. Jones,kai-jones,,,,28:36,4,8,0.5,0,0,0.0,0,0,0.0,2,4,6,2,2,5,0,1,8,5.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,16:48,3,10,0.3,0,1,0.0,0,0,0.0,0,2,2,4,0,1,1,4,6,3.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,28:15,6,12,0.5,1,4,0.25,2,4,0.5,3,3,6,2,1,0,1,4,15,-2.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,8:17,1,1,1.0,0,0,0.0,0,0,0.0,2,1,3,0,0,1,0,0,2,-1.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,18:16,4,15,0.267,3,11,0.273,3,3,1.0,0,3,3,2,1,0,1,0,14,1.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,19:01,2,4,0.5,0,2,0.0,1,1,1.0,2,4,6,0,0,0,0,0,5,-2.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,,,4:39,1,2,0.5,0,1,0.0,2,2,1.0,0,0,0,0,1,1,0,0,4,-5.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1631214,Alondes,Williams,A. Williams,alondes-williams,,,,13:27,2,5,0.4,0,3,0.0,0,0,0.0,1,1,2,5,0,0,1,1,4,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,,,6:46,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,2,3,1.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1630268,Nate,Darling,N. Darling,nate-darling,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1642280,Trentyn,Flowers,T. Flowers,trentyn-flowers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035
+0012400035,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400035

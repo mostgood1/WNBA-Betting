@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,202330,Gordon,Hayward,G. Hayward,gordon-hayward,F,,,33:55,10,17,0.588,1,2,0.5,2,2,1.0,1,5,6,3,0,2,1,3,23,-3.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,33:17,6,13,0.462,1,1,1.0,2,2,1.0,1,2,3,4,1,2,1,0,15,-13.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,30:04,9,12,0.75,0,0,0.0,9,9,1.0,4,3,7,1,2,2,3,2,27,-3.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,31:11,7,14,0.5,3,5,0.6,5,5,1.0,0,6,6,3,0,1,0,0,22,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,30:59,4,15,0.267,2,7,0.286,1,1,1.0,1,1,2,11,2,0,6,5,11,-15.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,14:43,3,3,1.0,1,1,1.0,0,0,0.0,1,3,4,0,0,0,0,1,7,14.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,,,,33:50,4,7,0.571,0,2,0.0,2,2,1.0,1,2,3,1,0,1,0,4,10,17.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1630177,Theo,Maledon,T. Maledon,theo-maledon,,,,14:05,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,1,4,0,4.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,,,17:56,4,4,1.0,0,0,0.0,2,2,1.0,3,7,10,0,0,2,1,1,10,4.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,,NWT - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612766,Charlotte,Hornets,CHA,hornets,202397,Ish,Smith,I. Smith,ish-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,23:56,3,11,0.273,0,2,0.0,2,2,1.0,4,1,5,5,1,0,3,1,8,6.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,F,,,25:57,5,7,0.714,1,2,0.5,0,0,0.0,1,3,4,0,0,0,0,2,11,1.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,26:33,5,9,0.556,3,5,0.6,1,2,0.5,0,6,6,2,1,0,4,4,14,12.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1628971,Bruce,Brown,B. Brown,bruce-brown,G,,,31:44,3,8,0.375,1,4,0.25,0,0,0.0,0,1,1,6,2,0,0,3,7,7.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,36:42,14,21,0.667,8,12,0.667,7,7,1.0,0,2,2,12,0,1,3,2,43,8.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,26:06,7,15,0.467,5,13,0.385,0,1,0.0,2,4,6,2,0,2,2,1,19,-1.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,,,17:33,3,9,0.333,1,3,0.333,0,0,0.0,1,0,1,2,2,0,0,0,7,-7.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,21:27,4,6,0.667,2,3,0.667,1,2,0.5,3,6,9,1,0,0,1,4,11,-13.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,4:43,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-9.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,,,,25:19,1,5,0.2,1,1,1.0,1,2,0.5,0,2,2,1,1,2,0,0,4,-9.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133
+0022300133,1610612754,Indiana,Pacers,IND,pacers,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300133

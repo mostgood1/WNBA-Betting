@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,23:46,6,8,0.75,1,2,0.5,1,2,0.5,0,4,4,3,0,0,2,1,14,-14.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,31:03,8,19,0.421,4,9,0.444,2,2,1.0,1,3,4,3,0,0,5,3,22,-20.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,19:39,1,1,1.0,0,0,0.0,2,3,0.667,1,4,5,1,0,2,2,5,4,-10.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,28:25,8,14,0.571,3,4,0.75,0,1,0.0,0,1,1,6,4,0,2,3,19,-21.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,24:10,3,5,0.6,1,2,0.5,0,0,0.0,0,2,2,5,0,0,2,1,7,-14.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,,,26:17,4,5,0.8,1,2,0.5,0,2,0.0,0,3,3,3,0,0,1,1,9,13.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1626153,Delon,Wright,D. Wright,delon-wright,,,,17:14,0,3,0.0,0,0,0.0,0,0,0.0,0,2,2,2,1,0,2,0,0,-11.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,9:23,3,5,0.6,0,1,0.0,0,2,0.0,1,2,3,3,0,0,1,0,6,-4.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,13:06,5,5,1.0,1,1,1.0,0,0,0.0,0,1,1,0,1,0,0,0,11,19.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,14:03,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,0,0,-13.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,203488,Mike,Muscala,M. Muscala,mike-muscala,,,,12:22,2,5,0.4,1,4,0.25,0,0,0.0,0,1,1,1,0,0,1,1,5,-11.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,7:20,2,4,0.5,1,1,1.0,2,3,0.667,0,1,1,2,0,1,0,1,7,15.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,6:36,2,3,0.667,0,0,0.0,2,2,1.0,1,1,2,0,0,1,1,1,6,18.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1630647,Eugene,Omoruyi,E. Omoruyi,eugene-omoruyi,,,,6:36,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,2,1,0,1,1,4,18.0,0022300003
+0022300003,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,31:23,7,11,0.636,1,2,0.5,5,6,0.833,0,7,7,2,3,0,2,1,20,6.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,21:43,3,4,0.75,2,3,0.667,0,0,0.0,0,0,0,0,0,0,2,3,8,10.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,29:59,8,15,0.533,0,0,0.0,2,2,1.0,0,4,4,3,0,0,4,3,18,6.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,36:40,9,17,0.529,4,7,0.571,2,2,1.0,0,10,10,9,2,0,3,3,24,7.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,25:33,1,4,0.25,1,4,0.25,0,0,0.0,2,1,3,7,2,0,2,1,3,2.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,29:32,7,11,0.636,4,8,0.5,0,0,0.0,0,1,1,6,1,0,2,0,18,2.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,18:01,5,7,0.714,0,0,0.0,1,2,0.5,2,2,4,0,0,1,2,4,11,1.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,,,25:33,4,6,0.667,1,2,0.5,1,1,1.0,0,3,3,5,0,0,2,2,10,-2.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,21:36,4,5,0.8,0,1,0.0,1,1,1.0,3,2,5,3,1,0,0,1,9,3.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300003
+0022300003,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300003

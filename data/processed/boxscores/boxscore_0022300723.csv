@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,39:49,6,11,0.545,1,3,0.333,0,0,0.0,1,0,1,3,1,0,4,4,13,1.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,38:37,11,22,0.5,7,16,0.438,4,5,0.8,1,4,5,3,1,2,2,4,33,1.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,44:24,3,6,0.5,0,0,0.0,6,10,0.6,7,9,16,1,1,1,1,5,12,-8.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,43:33,12,26,0.462,5,9,0.556,9,11,0.818,0,12,12,5,2,1,5,5,38,-4.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,36:22,3,7,0.429,3,7,0.429,0,0,0.0,0,0,0,8,0,0,0,2,9,-9.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,16:03,1,2,0.5,0,0,0.0,0,0,0.0,1,1,2,3,0,0,1,1,2,-4.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,20:12,4,11,0.364,2,6,0.333,0,0,0.0,0,4,4,2,0,1,0,1,10,3.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,19:19,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,2,1,0,0,2,3,-8.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,6:41,1,3,0.333,1,1,1.0,0,0,0.0,0,1,1,1,0,0,0,1,3,-2.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,42:37,8,19,0.421,0,1,0.0,17,18,0.944,2,1,3,5,4,0,1,2,33,12.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,F,,,42:38,10,16,0.625,2,4,0.5,2,2,1.0,1,5,6,2,0,4,0,5,24,5.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,35:27,7,13,0.538,0,0,0.0,2,4,0.5,6,10,16,0,0,4,1,4,16,4.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1627936,Alex,Caruso,A. Caruso,alex-caruso,G,,,35:09,1,5,0.2,1,3,0.333,0,0,0.0,1,8,9,6,2,4,4,1,3,19.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,42:13,11,21,0.524,7,13,0.538,4,5,0.8,0,5,5,7,1,0,3,4,33,7.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,,,,29:00,3,6,0.5,0,1,0.0,0,1,0.0,0,1,1,3,1,2,2,3,6,-9.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,,,21:49,2,5,0.4,1,4,0.25,2,2,1.0,2,4,6,1,1,2,2,1,7,-2.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,9:11,1,4,0.25,0,1,0.0,0,0,0.0,1,1,2,0,0,0,0,1,2,-4.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,6:56,2,4,0.5,1,3,0.333,0,0,0.0,0,0,0,0,0,0,1,1,5,-2.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1641931,Onuralp,Bitim,O. Bitim,onuralp-bitim,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1630929,Henri,Drell,H. Drell,henri-drell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1641766,Adama,Sanogo,A. Sanogo,adama-sanogo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1630678,Terry,Taylor,T. Taylor,terry-taylor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723
+0022300723,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300723

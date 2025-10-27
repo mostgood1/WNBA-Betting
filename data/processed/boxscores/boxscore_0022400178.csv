@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400178,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,36:55,6,13,0.462,0,2,0.0,3,3,1.0,3,4,7,3,1,0,2,1,15,-3.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,5:16,1,2,0.5,0,0,0.0,2,2,1.0,0,1,1,0,0,0,0,0,4,2.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,34:26,5,21,0.238,0,1,0.0,2,2,1.0,7,5,12,6,5,1,1,2,12,0.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,35:01,9,15,0.6,5,9,0.556,5,5,1.0,0,3,3,6,0,0,3,3,28,5.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,31:56,2,10,0.2,1,7,0.143,2,2,1.0,1,6,7,5,1,0,2,1,7,10.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,30:36,7,8,0.875,2,3,0.667,3,3,1.0,2,5,7,0,2,0,0,3,19,3.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,,,21:23,2,5,0.4,0,3,0.0,2,3,0.667,0,0,0,3,0,0,1,3,6,-8.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,,,,13:35,3,6,0.5,1,1,1.0,0,0,0.0,0,3,3,0,2,1,1,2,7,-3.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,14:51,3,8,0.375,3,6,0.5,0,0,0.0,0,1,1,0,0,1,0,0,9,-6.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,,,16:01,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,4,1,0,0,1,5,-15.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,F,,,31:44,3,9,0.333,1,4,0.25,0,0,0.0,1,1,2,3,2,2,1,4,7,4.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,37:13,13,23,0.565,4,11,0.364,2,3,0.667,0,8,8,3,1,1,6,1,32,-1.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,33:13,6,8,0.75,3,3,1.0,5,6,0.833,4,14,18,1,1,2,2,4,20,5.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,38:53,9,17,0.529,2,7,0.286,2,3,0.667,1,3,4,9,0,0,3,1,22,8.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,32:52,2,7,0.286,1,3,0.333,0,0,0.0,0,1,1,8,0,0,1,1,5,-1.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,22:49,2,6,0.333,2,4,0.5,0,0,0.0,3,4,7,2,1,1,1,2,6,-2.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,12:08,2,2,1.0,0,0,0.0,0,0,0.0,1,2,3,2,0,0,0,0,4,-1.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,,,,21:39,3,10,0.3,3,9,0.333,3,4,0.75,0,2,2,0,0,0,1,0,12,1.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,,,9:28,2,2,1.0,2,2,1.0,1,2,0.5,0,1,1,1,0,0,1,1,7,2.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178
+0022400178,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400178

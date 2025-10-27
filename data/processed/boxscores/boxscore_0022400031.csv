@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,25:52,4,13,0.308,3,9,0.333,0,0,0.0,0,3,3,3,1,1,0,2,11,-4.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,26:52,2,6,0.333,1,4,0.25,0,0,0.0,0,3,3,5,0,1,1,1,5,-10.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,15:05,4,7,0.571,1,3,0.333,0,0,0.0,3,4,7,1,0,2,2,4,9,-11.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,23:16,3,9,0.333,1,3,0.333,6,6,1.0,1,0,1,2,2,0,0,1,13,-18.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,21:28,2,7,0.286,1,3,0.333,3,3,1.0,0,2,2,0,1,0,4,1,8,-4.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,,,23:27,4,9,0.444,1,3,0.333,4,5,0.8,1,5,6,1,0,0,4,3,13,-16.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,16:41,3,5,0.6,0,0,0.0,1,2,0.5,2,4,6,0,1,4,0,2,7,-14.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,12:26,0,6,0.0,0,3,0.0,1,2,0.5,0,2,2,2,1,0,2,2,1,-18.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,23:42,4,8,0.5,1,4,0.25,1,2,0.5,1,3,4,0,0,0,1,0,10,-22.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,11:40,1,3,0.333,0,2,0.0,0,0,0.0,1,1,2,0,0,0,0,2,2,-8.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,15:31,2,7,0.286,1,4,0.25,0,0,0.0,2,1,3,0,0,0,3,2,5,-5.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,,,12:00,1,8,0.125,1,4,0.25,1,2,0.5,2,2,4,1,2,0,1,0,4,-5.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,12:00,0,3,0.0,0,1,0.0,0,0,0.0,0,2,2,2,1,0,2,0,0,-5.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400031
+0022400031,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,24:35,10,15,0.667,6,8,0.75,2,4,0.5,3,3,6,1,0,0,2,3,28,13.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,20:15,2,7,0.286,1,3,0.333,0,0,0.0,0,2,2,0,0,0,0,3,5,-8.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,25:04,7,13,0.538,0,1,0.0,0,1,0.0,2,6,8,3,1,0,3,2,14,11.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,29:40,6,17,0.353,3,10,0.3,2,2,1.0,1,4,5,1,1,0,2,2,17,16.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,27:33,0,2,0.0,0,1,0.0,2,2,1.0,0,2,2,8,2,0,1,3,2,11.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,23:57,3,8,0.375,0,0,0.0,4,7,0.571,5,6,11,4,3,2,3,2,10,26.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,21:54,8,14,0.571,1,5,0.2,5,5,1.0,1,7,8,2,2,0,0,1,22,33.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,14:59,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,3,0,0,3,1,1,15.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,16:28,1,6,0.167,1,3,0.333,0,0,0.0,0,0,0,2,3,2,0,1,3,15.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,8:49,1,5,0.2,1,5,0.2,0,0,0.0,0,0,0,2,0,0,0,0,3,1.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,8:49,0,0,0.0,0,0,0.0,1,2,0.5,0,4,4,0,2,0,3,2,1,1.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,7:28,2,3,0.667,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,5,2.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,6:30,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,1,0,0,2,2.0,0022400031
+0022400031,1610612745,Houston,Rockets,HOU,rockets,1629098,Jack,McVeigh,J. McVeigh,jack-mcveigh,,,,3:59,1,2,0.5,1,2,0.5,0,0,0.0,1,1,2,1,0,0,0,0,3,2.0,0022400031

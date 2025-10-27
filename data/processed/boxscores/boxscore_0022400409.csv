@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,36:40,7,14,0.5,3,8,0.375,5,7,0.714,2,2,4,2,0,1,5,2,22,-4.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,19:03,3,7,0.429,0,1,0.0,1,2,0.5,1,2,3,2,0,0,0,2,7,-1.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,37:48,10,19,0.526,2,7,0.286,3,4,0.75,5,10,15,2,2,0,2,1,25,-3.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,G,,,28:07,2,7,0.286,0,2,0.0,1,2,0.5,3,2,5,3,0,0,1,3,5,-10.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,39:06,4,10,0.4,1,2,0.5,4,4,1.0,0,6,6,6,0,0,4,1,13,-16.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,27:10,6,12,0.5,1,4,0.25,4,7,0.571,1,5,6,2,1,0,4,1,17,3.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,17:37,2,4,0.5,1,2,0.5,0,0,0.0,1,1,2,1,0,0,0,3,5,-8.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,24:17,0,3,0.0,0,3,0.0,2,2,1.0,1,2,3,2,0,1,0,2,2,-4.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,10:12,2,2,1.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,1,4,-7.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,20:51,2,3,0.667,1,2,0.5,0,0,0.0,2,1,3,1,0,0,0,1,5,3.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,37:48,9,26,0.346,0,5,0.0,9,9,1.0,2,2,4,6,2,2,0,3,27,3.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,29:56,3,6,0.5,1,4,0.25,1,2,0.5,3,10,13,6,0,0,1,2,8,5.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,38:18,11,21,0.524,3,7,0.429,2,4,0.5,1,1,2,4,4,1,3,4,27,12.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,30:23,7,9,0.778,3,5,0.6,0,0,0.0,0,3,3,4,1,0,1,1,17,2.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,30:07,2,7,0.286,1,5,0.2,0,0,0.0,1,7,8,6,2,1,0,3,5,3.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,12:32,1,1,1.0,0,0,0.0,1,1,1.0,0,4,4,1,0,0,2,3,3,3.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,,,17:37,3,8,0.375,1,5,0.2,4,4,1.0,1,1,2,3,2,0,0,0,11,8.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,16:56,3,6,0.5,1,3,0.333,0,0,0.0,2,0,2,0,1,0,0,0,7,9.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,5:32,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,2.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1641779,Jalen,Bridges,J. Bridges,jalen-bridges,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409
+0022400409,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400409

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300537,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,28:41,10,16,0.625,2,5,0.4,0,0,0.0,0,7,7,4,2,2,1,3,22,11.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,34:37,12,18,0.667,7,10,0.7,6,6,1.0,0,3,3,1,2,0,4,3,37,18.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,21:57,2,5,0.4,0,0,0.0,2,2,1.0,4,7,11,0,0,2,0,3,6,6.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,26:27,3,8,0.375,1,4,0.25,0,0,0.0,2,3,5,0,0,0,1,0,7,2.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,27:47,3,7,0.429,2,4,0.5,3,3,1.0,0,1,1,9,1,0,3,0,11,20.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,16:00,5,11,0.455,1,3,0.333,1,3,0.333,1,1,2,2,0,0,1,1,12,0.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,25:46,6,6,1.0,1,1,1.0,0,1,0.0,0,2,2,1,2,0,1,0,13,-4.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,24:16,5,8,0.625,0,2,0.0,1,1,1.0,0,5,5,0,0,0,1,2,11,11.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,21:50,2,4,0.5,1,1,1.0,2,4,0.5,2,3,5,4,2,3,0,2,7,14.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,4:13,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-11.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,4:13,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,-11.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,4:13,1,2,0.5,0,0,0.0,0,0,0.0,2,0,2,0,0,0,0,0,2,-11.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300537
+0022300537,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,26:32,2,6,0.333,2,5,0.4,0,0,0.0,2,1,3,1,1,0,1,2,6,-8.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,29:37,6,20,0.3,1,8,0.125,8,10,0.8,2,4,6,1,1,1,1,1,21,-14.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,C,,,30:35,8,10,0.8,1,2,0.5,3,7,0.429,4,5,9,2,1,2,2,1,20,-5.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,29:16,4,7,0.571,3,5,0.6,0,0,0.0,1,6,7,6,0,0,1,2,11,-13.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,22:48,3,11,0.273,3,6,0.5,6,7,0.857,0,1,1,3,1,0,0,3,15,-6.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,18:43,5,12,0.417,3,5,0.6,0,0,0.0,2,1,3,2,0,0,1,2,13,4.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,26:55,7,11,0.636,3,5,0.6,0,0,0.0,1,5,6,4,1,0,2,3,17,-5.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,6:16,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-11.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,,,,20:07,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,8,0,0,1,1,0,0.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,19:53,5,10,0.5,2,4,0.5,0,0,0.0,2,2,4,1,0,1,0,4,12,5.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,9:18,1,5,0.2,0,1,0.0,2,3,0.667,3,2,5,1,0,0,0,1,4,8.0,0022300537
+0022300537,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300537

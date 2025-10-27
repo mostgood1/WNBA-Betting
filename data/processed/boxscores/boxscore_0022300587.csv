@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,F,,,36:00,4,12,0.333,0,5,0.0,6,7,0.857,1,1,2,0,0,0,1,2,14,-2.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,33:37,7,14,0.5,1,4,0.25,0,0,0.0,2,5,7,2,2,0,2,1,15,1.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,22:13,2,4,0.5,0,0,0.0,5,7,0.714,5,6,11,0,0,1,0,2,9,-12.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,G,,,34:55,6,15,0.4,3,7,0.429,2,2,1.0,0,3,3,1,0,0,3,2,17,1.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,39:46,9,22,0.409,3,7,0.429,1,1,1.0,0,3,3,11,2,0,2,2,22,3.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,18:02,4,6,0.667,3,5,0.6,0,0,0.0,0,3,3,2,1,0,1,4,11,-7.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,19:56,3,5,0.6,3,4,0.75,0,0,0.0,0,3,3,3,0,0,1,2,9,12.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,25:50,4,5,0.8,1,1,1.0,0,0,0.0,1,4,5,1,1,1,2,5,9,13.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,9:42,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,3,0,0,1,0,3,-4.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587
+0022300587,1610612737,Atlanta,Hawks,ATL,hawks,1641754,Seth,Lundy,S. Lundy,seth-lundy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,36:03,8,10,0.8,0,0,0.0,9,10,0.9,4,1,5,6,2,0,4,2,25,0.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,14:58,1,5,0.2,0,1,0.0,0,0,0.0,2,1,3,0,0,0,0,2,2,4.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,38:53,7,15,0.467,0,0,0.0,7,8,0.875,2,7,9,6,1,0,3,4,21,8.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,G,,,26:49,4,9,0.444,2,3,0.667,0,0,0.0,3,5,8,1,0,1,1,1,10,3.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,34:32,10,19,0.526,4,9,0.444,1,1,1.0,0,6,6,2,1,0,2,4,25,0.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,11:52,0,5,0.0,0,3,0.0,0,0,0.0,1,4,5,1,1,0,3,1,0,-11.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,,,20:52,2,5,0.4,2,4,0.5,3,3,1.0,0,3,3,0,0,1,0,1,9,-9.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,,,24:20,1,4,0.25,0,3,0.0,0,0,0.0,1,2,3,4,1,0,1,2,2,-7.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,21:37,5,8,0.625,4,7,0.571,0,0,0.0,0,2,2,1,0,0,2,0,14,6.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,10:05,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,1.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587
+0022300587,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300587

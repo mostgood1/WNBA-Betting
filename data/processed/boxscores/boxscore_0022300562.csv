@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300562,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,40:18,8,12,0.667,0,0,0.0,15,16,0.938,2,3,5,4,2,0,1,2,31,6.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,18:44,2,4,0.5,1,3,0.333,0,0,0.0,0,3,3,2,0,0,0,0,5,17.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,43:49,5,17,0.294,0,1,0.0,1,2,0.5,2,18,20,4,1,1,2,2,11,-3.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,37:37,11,22,0.5,4,11,0.364,3,4,0.75,1,10,11,2,0,0,4,3,29,16.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,23:54,1,5,0.2,0,2,0.0,0,0,0.0,0,4,4,5,1,0,1,3,2,14.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,11:57,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,2,0,-16.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,21:48,0,4,0.0,0,3,0.0,0,0,0.0,0,2,2,2,1,1,2,1,0,-11.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,,,27:59,3,13,0.231,2,6,0.333,1,1,1.0,1,4,5,1,0,1,1,2,9,-11.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,33:60,3,8,0.375,1,4,0.25,2,2,1.0,0,3,3,1,1,1,1,1,9,-9.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,4:54,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,2.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300562
+0022300562,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,22:34,3,13,0.231,0,8,0.0,0,0,0.0,0,2,2,0,0,0,0,3,6,-12.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,F,,,28:22,1,6,0.167,1,5,0.2,2,2,1.0,2,5,7,2,0,2,0,0,5,-5.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,42:35,4,9,0.444,0,0,0.0,1,1,1.0,2,11,13,2,0,2,1,1,9,-4.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,43:51,10,23,0.435,2,10,0.2,4,4,1.0,2,7,9,6,2,2,1,1,26,-1.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,20:24,1,6,0.167,1,6,0.167,0,0,0.0,0,0,0,1,3,0,1,2,3,-13.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,,,,31:47,7,20,0.35,2,10,0.2,7,7,1.0,0,2,2,3,0,0,2,2,23,9.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,,,32:23,3,8,0.375,1,4,0.25,1,2,0.5,1,4,5,5,4,1,2,2,8,10.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,30:10,5,10,0.5,5,10,0.5,0,0,0.0,1,8,9,5,0,1,0,4,15,9.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,9:09,0,3,0.0,0,2,0.0,0,0,0.0,0,2,2,1,0,1,1,1,0,0.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,3:46,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,1,0,2.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300562
+0022300562,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300562

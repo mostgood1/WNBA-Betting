@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,36:39,7,19,0.368,2,4,0.5,8,8,1.0,0,4,4,8,1,2,0,1,24,9.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,F,,,16:38,2,6,0.333,0,4,0.0,0,0,0.0,0,1,1,0,1,0,0,1,4,-8.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,32:39,5,6,0.833,0,0,0.0,4,9,0.444,5,7,12,6,0,1,1,3,14,12.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,G,,,30:05,2,6,0.333,1,3,0.333,0,0,0.0,1,1,2,3,1,0,2,4,5,-12.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,37:00,12,25,0.48,2,4,0.5,9,9,1.0,1,4,5,1,3,0,2,1,35,-4.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,14:14,3,3,1.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,1,6,10.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,14:33,2,5,0.4,1,2,0.5,1,1,1.0,2,5,7,2,1,0,1,3,6,0.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,22:44,1,6,0.167,1,6,0.167,0,0,0.0,2,2,4,2,0,0,1,2,3,21.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,24:38,6,11,0.545,3,7,0.429,1,1,1.0,2,2,4,1,0,0,0,1,16,17.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,,,,10:50,2,2,1.0,0,0,0.0,1,1,1.0,0,1,1,1,0,0,0,2,5,5.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1642382,Branden,Carlson,B. Carlson,branden-carlson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,29:10,1,5,0.2,0,2,0.0,0,0,0.0,0,2,2,3,0,0,0,5,2,8.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,34:52,8,11,0.727,5,5,1.0,3,4,0.75,3,6,9,4,0,0,3,5,24,1.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,20:20,0,4,0.0,0,1,0.0,0,0,0.0,1,5,6,1,0,2,1,4,0,5.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,38:09,9,16,0.563,4,9,0.444,6,6,1.0,3,5,8,8,1,1,4,3,28,4.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,34:57,3,10,0.3,2,6,0.333,6,6,1.0,0,2,2,3,0,0,0,1,14,6.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,30:12,7,17,0.412,5,11,0.455,6,6,1.0,2,3,5,1,1,1,4,3,25,-15.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,20:44,0,4,0.0,0,0,0.0,1,2,0.5,3,7,10,0,0,1,2,3,1,-11.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,19:09,3,10,0.3,2,4,0.5,2,4,0.5,1,1,2,0,0,1,1,1,10,-28.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,7:50,2,4,0.5,0,2,0.0,0,0,0.0,0,0,0,1,0,0,0,2,4,-14.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,4:38,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647
+0022400647,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400647

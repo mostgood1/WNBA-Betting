@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,40:57,5,15,0.333,4,9,0.444,11,12,0.917,2,2,4,6,2,1,1,4,25,6.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,28:50,4,7,0.571,0,2,0.0,0,0,0.0,4,9,13,1,0,2,1,3,8,-16.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,C,,,33:10,8,13,0.615,1,3,0.333,1,2,0.5,2,4,6,3,0,1,1,3,18,-16.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,43:08,12,23,0.522,6,14,0.429,1,2,0.5,0,4,4,4,0,0,5,0,31,-8.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,31:29,7,13,0.538,0,1,0.0,4,4,1.0,0,1,1,5,0,0,0,0,18,-10.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,10:05,0,1,0.0,0,1,0.0,0,0,0.0,1,0,1,2,1,0,0,4,0,1.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,14:50,3,4,0.75,0,0,0.0,1,2,0.5,2,3,5,0,0,0,0,0,7,10.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,19:47,1,7,0.143,1,2,0.5,4,4,1.0,1,7,8,3,0,1,0,4,7,5.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,12:31,2,4,0.5,2,3,0.667,0,0,0.0,0,0,0,0,0,0,2,1,6,2.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,,,5:13,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300867
+0022300867,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,35:49,12,19,0.632,3,3,1.0,10,11,0.909,1,2,3,7,1,1,2,1,37,14.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,18:52,3,6,0.5,2,5,0.4,0,0,0.0,1,2,3,4,1,0,0,3,8,7.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,34:13,10,15,0.667,0,0,0.0,3,4,0.75,2,5,7,3,0,0,0,2,23,2.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,34:08,5,13,0.385,2,9,0.222,0,0,0.0,0,5,5,6,1,1,1,2,12,3.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,32:31,5,9,0.556,1,3,0.333,3,4,0.75,1,1,2,8,1,0,2,2,14,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,29:02,5,10,0.5,1,3,0.333,1,2,0.5,2,2,4,1,1,0,1,3,12,-1.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,22:48,5,9,0.556,4,6,0.667,4,4,1.0,0,5,5,4,0,3,0,2,18,1.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,18:50,1,5,0.2,0,4,0.0,0,0,0.0,0,1,1,0,0,1,0,1,2,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,13:47,0,2,0.0,0,1,0.0,0,0,0.0,1,3,4,0,1,0,0,4,0,4.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867
+0022300867,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300867

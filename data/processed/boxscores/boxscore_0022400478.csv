@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,24:51,7,8,0.875,2,3,0.667,1,3,0.333,3,1,4,3,1,1,1,3,17,18.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,F,,,25:33,1,4,0.25,0,3,0.0,1,2,0.5,1,5,6,0,2,0,0,0,3,13.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,28:58,8,16,0.5,2,3,0.667,10,10,1.0,1,11,12,6,0,0,3,2,28,22.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,G,,,28:58,6,14,0.429,3,9,0.333,2,2,1.0,0,4,4,6,2,0,2,2,17,22.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,31:48,5,12,0.417,2,6,0.333,6,7,0.857,0,2,2,7,0,0,4,0,18,20.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,,,24:07,2,2,1.0,1,1,1.0,0,0,0.0,1,3,4,4,2,0,1,2,5,15.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,22:06,3,9,0.333,2,6,0.333,0,0,0.0,1,1,2,1,2,0,1,4,8,12.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,,,22:52,4,7,0.571,3,6,0.5,0,0,0.0,1,4,5,1,0,0,1,2,11,11.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,,,,8:09,2,4,0.5,0,1,0.0,2,2,1.0,0,4,4,0,1,0,1,1,6,1.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,6:57,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,1,0,0,2.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,8:51,2,3,0.667,0,1,0.0,0,0,0.0,0,4,4,2,0,0,0,0,4,6.0,0022400478
+0022400478,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,6:50,2,2,1.0,0,0,0.0,2,4,0.5,0,3,3,1,0,1,2,1,6,3.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,21:37,6,8,0.75,4,6,0.667,3,4,0.75,0,3,3,2,1,1,2,1,19,-19.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,F,,,33:02,4,11,0.364,3,8,0.375,0,0,0.0,1,3,4,0,0,0,3,6,11,-20.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,23:24,5,8,0.625,0,1,0.0,0,0,0.0,1,4,5,0,0,0,2,2,10,-21.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,36:21,5,14,0.357,2,5,0.4,3,4,0.75,1,7,8,8,1,0,2,3,15,-16.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,14:08,1,4,0.25,1,2,0.5,2,3,0.667,0,1,1,4,2,0,3,0,5,-11.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,18:36,1,3,0.333,1,3,0.333,0,0,0.0,1,5,6,2,1,0,4,2,3,-14.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,20:42,1,4,0.25,1,4,0.25,0,2,0.0,0,1,1,1,0,1,1,3,3,-11.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,29:14,6,18,0.333,1,7,0.143,3,4,0.75,1,4,5,3,0,0,0,1,16,-19.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,25:02,2,8,0.25,1,4,0.25,0,1,0.0,1,4,5,2,0,1,1,2,5,-6.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,17:55,3,4,0.75,0,1,0.0,1,1,1.0,0,1,1,0,1,1,4,1,7,-8.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400478
+0022400478,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400478

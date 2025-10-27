@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400061,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,34:10,1,7,0.143,0,4,0.0,2,2,1.0,0,5,5,3,1,0,0,3,4,-21.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,24:30,4,6,0.667,0,2,0.0,4,6,0.667,1,3,4,3,0,0,1,0,12,-23.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,23:37,5,9,0.556,1,2,0.5,1,1,1.0,0,7,7,3,0,0,0,1,12,-18.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,34:37,7,13,0.538,2,7,0.286,0,1,0.0,0,0,0,2,0,0,1,0,16,-33.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,24:30,9,14,0.643,1,2,0.5,3,3,1.0,0,1,1,2,0,0,4,3,22,-23.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,24:23,2,3,0.667,0,0,0.0,0,0,0.0,3,6,9,1,0,2,1,0,4,-5.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,25:51,8,10,0.8,4,5,0.8,2,3,0.667,0,0,0,2,0,0,1,1,22,-18.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,20:43,5,10,0.5,1,4,0.25,0,0,0.0,1,2,3,4,1,0,1,3,11,0.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,13:23,1,3,0.333,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,1,3,10.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,6:05,0,0,0.0,0,0,0.0,0,0,0.0,0,4,4,0,0,1,0,0,0,9.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,5:24,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,0,0,2,0,3,7.0,0022400061
+0022400061,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,,,2:47,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,29:54,7,18,0.389,5,9,0.556,4,4,1.0,2,5,7,1,1,0,1,3,23,23.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,30:18,14,18,0.778,8,11,0.727,1,2,0.5,0,4,4,10,1,1,1,1,37,26.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,26:05,4,7,0.571,3,5,0.6,0,0,0.0,0,3,3,5,1,1,0,2,11,19.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,26:38,8,13,0.615,6,10,0.6,2,2,1.0,0,3,3,4,1,0,0,1,24,21.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,30:31,7,9,0.778,4,6,0.667,0,0,0.0,2,2,4,4,1,0,0,2,18,23.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,19:19,2,3,0.667,0,0,0.0,0,0,0.0,2,1,3,1,1,1,0,0,4,2.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,24:58,1,10,0.1,1,9,0.111,0,0,0.0,1,3,4,4,0,0,1,2,3,7.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,24:10,4,10,0.4,2,7,0.286,0,0,0.0,1,4,5,1,0,0,0,2,10,6.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,17:42,1,6,0.167,0,3,0.0,0,0,0.0,3,4,7,2,0,0,0,1,2,-3.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,,,6:05,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-9.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,4:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,0.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1631248,Baylor,Scheierman,B. Scheierman,baylor-scheierman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400061
+0022400061,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400061

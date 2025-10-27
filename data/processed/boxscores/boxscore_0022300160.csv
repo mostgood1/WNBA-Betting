@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300160,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,39:06,7,20,0.35,2,10,0.2,8,8,1.0,1,6,7,1,3,1,3,2,24,-7.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,35:56,7,16,0.438,1,6,0.167,2,2,1.0,0,6,6,2,2,1,1,1,17,3.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,29:20,5,9,0.556,0,0,0.0,0,0,0.0,3,7,10,1,0,3,1,5,10,-11.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,35:57,4,9,0.444,2,5,0.4,2,2,1.0,0,8,8,5,2,0,5,0,12,-15.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,31:16,6,18,0.333,1,5,0.2,0,0,0.0,3,4,7,8,0,0,1,1,13,-5.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,,,20:48,1,3,0.333,0,1,0.0,1,1,1.0,3,3,6,3,1,1,0,3,3,10.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,5:47,2,6,0.333,0,2,0.0,0,0,0.0,1,1,2,0,0,0,1,0,4,-2.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,,,,19:21,0,2,0.0,0,2,0.0,0,0,0.0,0,4,4,1,0,0,2,1,0,-2.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,22:29,4,8,0.5,2,5,0.4,0,0,0.0,0,1,1,1,2,2,1,2,10,-6.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160
+0022300160,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,34:06,4,11,0.364,1,4,0.25,1,2,0.5,1,7,8,7,2,2,3,1,10,1.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,F,,,33:47,4,10,0.4,4,8,0.5,0,0,0.0,3,7,10,2,0,3,0,1,12,3.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,C,,,35:18,4,11,0.364,4,8,0.5,0,0,0.0,3,6,9,2,1,3,0,2,12,4.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,20:02,6,14,0.429,0,2,0.0,2,2,1.0,0,2,2,0,0,1,2,1,14,1.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,26:14,2,8,0.25,2,7,0.286,1,2,0.5,0,3,3,4,0,0,2,0,7,-1.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,19:16,4,9,0.444,0,0,0.0,3,3,1.0,4,6,10,0,1,0,2,3,11,7.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,,,24:35,2,7,0.286,0,3,0.0,0,0,0.0,1,0,1,5,2,0,1,4,4,5.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,27:54,8,16,0.5,3,7,0.429,2,2,1.0,0,1,1,0,1,1,0,0,21,10.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,18:48,3,6,0.5,1,2,0.5,2,2,1.0,2,3,5,2,3,0,4,2,9,5.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1629717,Armoni,Brooks,A. Brooks,armoni-brooks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160
+0022300160,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300160

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300463,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,36:42,10,19,0.526,1,5,0.2,4,4,1.0,2,4,6,3,2,0,4,4,25,-1.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,34:23,8,20,0.4,3,8,0.375,8,11,0.727,4,8,12,6,2,1,5,4,27,-8.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,26:12,6,6,1.0,1,1,1.0,0,0,0.0,3,4,7,1,1,1,0,3,13,-15.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,13:18,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,1,2,0,-1.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,31:23,3,14,0.214,3,7,0.429,1,2,0.5,1,1,2,3,0,0,4,2,10,-9.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,28:43,3,7,0.429,2,6,0.333,0,0,0.0,0,2,2,2,0,0,0,1,8,3.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,25:49,3,8,0.375,1,2,0.5,1,1,1.0,3,1,4,2,0,1,2,4,8,-4.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,,,19:52,1,5,0.2,0,1,0.0,4,4,1.0,0,2,2,1,1,1,0,1,6,4.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,15:33,5,8,0.625,1,2,0.5,1,1,1.0,3,2,5,1,1,0,1,2,12,7.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,8:07,2,3,0.667,2,3,0.667,0,0,0.0,0,1,1,0,0,0,0,1,6,-6.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,25:24,6,11,0.545,3,8,0.375,0,0,0.0,0,3,3,2,0,1,1,4,15,4.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,34:02,7,14,0.5,1,5,0.2,4,5,0.8,2,4,6,4,0,2,1,2,19,10.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,23:31,3,4,0.75,0,0,0.0,4,6,0.667,2,2,4,2,1,2,3,1,10,-1.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,G,,,29:59,3,5,0.6,3,3,1.0,3,4,0.75,0,2,2,4,0,0,1,1,12,-8.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,35:14,12,20,0.6,4,9,0.444,8,11,0.727,1,1,2,6,4,1,2,4,36,12.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,28:27,4,7,0.571,1,3,0.333,1,4,0.25,1,3,4,2,2,0,0,2,10,4.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,10:32,1,5,0.2,0,3,0.0,0,0,0.0,1,3,4,0,0,0,1,0,2,10.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,,,21:20,4,7,0.571,1,3,0.333,1,3,0.333,0,3,3,0,2,0,1,1,10,-3.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,17:20,1,2,0.5,0,0,0.0,3,4,0.75,1,4,5,2,0,0,0,4,5,10.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,14:13,1,3,0.333,0,1,0.0,0,0,0.0,1,2,3,1,0,0,2,0,2,-8.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,DND_LEAGUE_SUSPENSION,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1631311,Lester,Quinones,L. Quinones,lester-quinones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463
+0022300463,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300463

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294583,Dwayne,Bacon,D. Bacon,dwayne-bacon,F,,,34:02,9,17,0.529,4,7,0.571,4,4,1.0,2,3,5,7,2,0,4,2,26,-7.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294592,Jonathan,Mor,J. Mor,jonathan-mor,F,,,23:45,4,8,0.5,1,4,0.25,1,2,0.5,2,3,5,0,0,1,0,1,10,-5.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294585,Bruno,Caboclo,B. Caboclo,bruno-caboclo,C,,,24:06,4,5,0.8,0,0,0.0,2,2,1.0,3,6,9,1,0,3,1,5,10,5.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294596,Dakarai,Tucker,D. Tucker,dakarai-tucker,G,,,37:10,8,19,0.421,5,14,0.357,3,3,1.0,1,4,5,1,2,1,1,0,24,1.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294588,Ashton,Hagans,A. Hagans,ashton-hagans,G,,,38:35,3,8,0.375,1,2,0.5,2,2,1.0,1,4,5,9,1,0,5,2,9,-16.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294582,Yonatan,Atias,Y. Atias,yonatan-atias,,,,9:08,2,3,0.667,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,5,4,-14.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294586,Mamadi,Diakite,M. Diakite,mamadi-diakite,,,,20:55,4,13,0.308,1,6,0.167,2,2,1.0,3,5,8,1,1,2,0,3,11,-14.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294595,Jason,Siggers,J. Siggers,jason-siggers,,,,19:52,2,9,0.222,1,6,0.167,6,6,1.0,1,1,2,1,0,0,1,3,11,-15.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294587,Julien,Ducree,J. Ducree,julien-ducree,,,,14:49,1,4,0.25,0,0,0.0,1,2,0.5,1,1,2,0,0,1,0,0,3,-20.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294589,Ori,Hai,O. Hai,ori-hai,,,,8:38,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,0,1,1,0,-24.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294584,Yoav,Berman,Y. Berman,yoav-berman,,,,3:45,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-11.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294591,Nathan,Missia-Dio,N. Missia-Dio,nathan-missia-dio,,,,2:55,1,1,1.0,1,1,1.0,0,2,0.0,0,0,0,0,1,0,0,1,3,-6.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294594,Jared,Ruiz,J. Ruiz,jared-ruiz,,,,2:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-9.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294581,Eidan,Alber,E. Alber,eidan-alber,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294590,Alex,Leder,A. Leder,alex-leder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294593,Yogev,Ohayon,Y. Ohayon,yogev-ohayon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300054
+0012300054,50009,Ra'anana,Maccabi Ra'anana,MRA,maccabi-ra'anana,196294597,Quinndary,Weatherspoon,Q. Weatherspoon,quinndary-weatherspoon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,F,,,15:43,5,7,0.714,3,4,0.75,0,0,0.0,0,2,2,0,2,0,1,1,13,-5.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,F,,,32:03,9,15,0.6,0,1,0.0,5,6,0.833,1,5,6,6,0,3,2,5,23,14.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,C,,,31:41,9,15,0.6,2,5,0.4,10,12,0.833,1,3,4,3,0,1,3,3,30,6.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630346,Matt,Ryan,M. Ryan,matt-ryan,G,,,27:55,4,9,0.444,4,9,0.444,0,0,0.0,1,6,7,5,1,0,0,1,12,9.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,G,,,28:51,3,8,0.375,1,4,0.25,0,0,0.0,0,4,4,4,0,0,0,2,7,-2.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,27:08,10,14,0.714,1,3,0.333,1,2,0.5,8,7,15,2,2,0,1,3,22,23.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,,,24:39,7,11,0.636,5,6,0.833,0,0,0.0,2,0,2,10,0,0,1,2,19,23.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,25:26,3,6,0.5,0,1,0.0,1,3,0.333,0,4,4,4,2,1,3,2,7,29.0,0012300054
+0012300054,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631211,Trevor,Keels,T. Keels,trevor-keels,,,,26:34,2,7,0.286,1,4,0.25,0,0,0.0,0,1,1,4,2,0,2,2,5,38.0,0012300054

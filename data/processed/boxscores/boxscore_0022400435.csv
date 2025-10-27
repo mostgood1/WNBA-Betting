@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400435,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,41:13,12,17,0.706,0,2,0.0,1,1,1.0,2,4,6,7,1,0,1,4,25,-9.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,28:34,2,7,0.286,1,6,0.167,0,0,0.0,2,1,3,0,0,0,1,3,5,-15.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,25:55,6,13,0.462,2,3,0.667,0,0,0.0,4,8,12,7,0,0,1,6,14,-3.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,33:00,7,16,0.438,3,8,0.375,3,3,1.0,1,5,6,7,0,0,1,3,20,-12.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,38:59,12,25,0.48,1,9,0.111,4,7,0.571,1,4,5,12,4,1,3,2,29,-7.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,,,24:13,4,7,0.571,1,4,0.25,0,0,0.0,0,1,1,3,1,0,1,2,9,1.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,13:24,4,4,1.0,3,3,1.0,0,0,0.0,0,1,1,1,1,1,0,1,11,7.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,23:26,2,8,0.25,0,5,0.0,2,2,1.0,3,2,5,0,0,0,1,3,6,-4.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,11:03,1,1,1.0,0,0,0.0,1,2,0.5,0,0,0,1,0,0,0,2,3,-8.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,0:13,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612758,Sacramento,Kings,SAC,kings,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,F,,,32:10,5,8,0.625,3,5,0.6,3,3,1.0,0,1,1,2,2,1,0,5,16,-7.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,34:15,7,11,0.636,4,5,0.8,3,3,1.0,0,4,4,0,1,2,1,1,21,-1.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,38:55,12,16,0.75,1,1,1.0,11,13,0.846,2,13,15,8,0,0,2,2,36,21.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,42:36,9,16,0.563,3,4,0.75,5,8,0.625,1,5,6,16,0,0,5,3,26,15.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,G,,,6:55,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,9.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,28:15,4,10,0.4,1,4,0.25,0,0,0.0,0,2,2,4,0,0,1,1,9,4.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,32:53,6,10,0.6,2,5,0.4,4,4,1.0,0,2,2,1,0,0,0,0,18,9.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,,,19:15,1,3,0.333,0,1,0.0,0,2,0.0,0,1,1,2,1,0,0,0,2,4.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,4:47,2,2,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,1,4,-4.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1642439,Quincy,Olivari,Q. Olivari,quincy-olivari,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435
+0022400435,1610612747,Los Angeles,Lakers,LAL,lakers,1642422,Armel,Traore,A. Traore,armel-traore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400435

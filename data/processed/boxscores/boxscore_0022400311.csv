@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,36:04,12,28,0.429,0,9,0.0,3,3,1.0,1,4,5,14,0,2,3,1,27,0.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,40:25,5,11,0.455,2,8,0.25,1,2,0.5,3,4,7,3,2,0,0,4,13,-2.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,38:49,13,25,0.52,2,4,0.5,5,6,0.833,1,10,11,0,2,1,1,1,33,6.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,G,,,30:20,2,10,0.2,1,5,0.2,1,2,0.5,3,4,7,1,1,0,0,5,6,-19.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,G,,,31:30,4,5,0.8,2,3,0.667,0,0,0.0,0,3,3,2,1,0,0,3,10,-8.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,30:07,2,6,0.333,0,2,0.0,8,10,0.8,1,4,5,2,0,0,0,0,12,10.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,,,12:40,1,1,1.0,0,0,0.0,2,2,1.0,1,0,1,1,0,1,1,3,4,12.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1642422,Armel,Traore,A. Traore,armel-traore,,,,10:52,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,0,1,0,0,1,0,11.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,9:13,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400311
+0022400311,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,37:33,8,17,0.471,5,11,0.455,1,2,0.5,1,6,7,4,1,0,1,1,22,4.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,35:36,7,14,0.5,3,5,0.6,4,7,0.571,2,7,9,3,0,1,0,2,21,2.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,34:39,6,6,1.0,0,0,0.0,1,1,1.0,3,8,11,2,0,2,2,4,13,-1.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,29:09,7,14,0.5,1,6,0.167,0,0,0.0,1,2,3,4,1,1,3,2,15,10.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,31:50,5,10,0.5,1,5,0.2,3,3,1.0,0,4,4,4,0,0,6,2,14,2.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,16:57,2,6,0.333,2,6,0.333,0,0,0.0,0,2,2,3,0,0,1,2,6,-16.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,,,12:25,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,2,2,0,1,2,0,-7.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,10:32,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,2,-3.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,16:10,4,10,0.4,2,6,0.333,1,3,0.333,1,3,4,5,0,0,0,2,11,-3.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,15:11,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,1,0,7.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400311
+0022400311,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400311

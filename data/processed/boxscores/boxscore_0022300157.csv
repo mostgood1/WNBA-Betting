@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,27:32,3,10,0.3,0,1,0.0,3,3,1.0,1,2,3,5,0,1,1,4,9,-5.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,31:19,13,24,0.542,4,11,0.364,3,3,1.0,3,6,9,4,0,0,2,1,33,8.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,13:25,2,3,0.667,0,0,0.0,1,2,0.5,3,2,5,1,0,2,1,4,5,3.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,20:24,3,12,0.25,1,5,0.2,4,5,0.8,1,1,2,1,0,0,1,2,11,-5.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,19:04,1,6,0.167,0,2,0.0,0,0,0.0,1,5,6,4,1,0,1,1,2,-8.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,23:01,5,9,0.556,2,4,0.5,0,0,0.0,1,2,3,3,1,0,2,2,12,6.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,19:39,7,11,0.636,4,7,0.571,0,2,0.0,0,4,4,2,0,1,1,3,18,18.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1626153,Delon,Wright,D. Wright,delon-wright,,,,26:01,4,5,0.8,2,3,0.667,8,8,1.0,2,1,3,3,4,0,1,1,18,26.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,,,29:35,2,3,0.667,2,3,0.667,0,0,0.0,0,2,2,1,0,0,0,5,6,23.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,17:08,6,9,0.667,3,6,0.5,0,1,0.0,0,1,1,2,1,1,0,3,15,24.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,4:07,0,3,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-4.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,2:55,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,-2.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1630647,Eugene,Omoruyi,E. Omoruyi,eugene-omoruyi,,,,2:55,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-2.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,2:55,1,1,1.0,0,0,0.0,1,1,1.0,0,0,0,0,2,0,0,0,3,-2.0,0022300157
+0022300157,1610612764,Washington,Wizards,WAS,wizards,203488,Mike,Muscala,M. Muscala,mike-muscala,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,202330,Gordon,Hayward,G. Hayward,gordon-hayward,F,,,32:18,6,14,0.429,2,4,0.5,4,6,0.667,1,6,7,4,3,0,3,2,18,-8.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,35:47,4,11,0.364,0,5,0.0,6,7,0.857,1,6,7,1,0,2,2,2,14,-8.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,18:20,5,5,1.0,0,0,0.0,4,6,0.667,2,5,7,0,0,1,1,4,14,2.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,30:00,5,11,0.455,1,2,0.5,2,3,0.667,2,3,5,2,1,0,2,2,13,-11.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,36:12,13,22,0.591,3,9,0.333,5,7,0.714,3,1,4,7,1,0,6,3,34,-3.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,,,15:33,2,3,0.667,0,0,0.0,3,4,0.75,0,6,6,0,0,0,0,2,7,-9.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,14:50,0,0,0.0,0,0,0.0,2,2,1.0,0,3,3,1,0,0,2,2,2,-1.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1630177,Theo,Maledon,T. Maledon,theo-maledon,,,,17:46,4,7,0.571,1,2,0.5,0,0,0.0,0,1,1,0,1,0,1,2,9,-21.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,20:59,0,3,0.0,0,2,0.0,0,0,0.0,2,3,5,1,0,1,0,3,0,-21.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,202397,Ish,Smith,I. Smith,ish-smith,,,,10:01,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,2,0,0,-8.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,4:07,2,2,1.0,1,1,1.0,0,0,0.0,0,1,1,0,1,0,1,0,5,4.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,,,4:07,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,1,0,0,0,4.0,0022300157
+0022300157,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300157

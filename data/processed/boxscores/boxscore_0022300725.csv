@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,8:03,2,3,0.667,1,1,1.0,1,2,0.5,0,3,3,1,1,0,1,1,6,-1.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,38:37,13,24,0.542,1,3,0.333,7,13,0.538,4,6,10,6,0,0,5,5,34,1.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,201577,Robin,Lopez,R. Lopez,robin-lopez,C,,,18:28,3,8,0.375,0,1,0.0,0,0,0.0,1,0,1,0,1,2,0,2,6,-13.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,G,,,32:15,4,6,0.667,3,5,0.6,1,2,0.5,0,6,6,6,0,0,0,4,12,-15.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,35:57,7,17,0.412,6,14,0.429,2,2,1.0,2,2,4,2,0,0,3,1,22,0.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,39:45,4,9,0.444,0,4,0.0,2,2,1.0,0,6,6,3,2,1,1,4,10,-8.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,31:11,2,9,0.222,1,4,0.25,0,0,0.0,3,6,9,2,4,1,1,1,5,3.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,13:06,0,4,0.0,0,4,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-4.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,22:38,4,10,0.4,1,4,0.25,2,4,0.5,0,4,4,3,2,0,1,2,11,-3.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,33:38,2,4,0.5,2,4,0.5,2,2,1.0,0,3,3,3,1,1,0,2,8,2.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,39:24,11,21,0.524,1,5,0.2,5,7,0.714,0,10,10,1,1,2,5,3,28,8.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,32:16,5,9,0.556,0,1,0.0,0,1,0.0,5,5,10,4,2,0,2,4,10,10.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,37:47,10,22,0.455,2,8,0.25,3,5,0.6,2,8,10,3,3,0,4,3,25,9.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,37:40,12,21,0.571,2,6,0.333,6,10,0.6,0,1,1,4,0,0,1,3,32,5.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,22:17,1,4,0.25,1,3,0.333,0,0,0.0,0,4,4,1,0,0,0,2,3,17.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,15:44,1,3,0.333,0,0,0.0,0,0,0.0,1,4,5,0,1,1,0,0,2,-2.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,17:09,2,3,0.667,0,1,0.0,0,0,0.0,0,6,6,1,0,1,1,2,4,8.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,3:35,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-11.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,0:15,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,-3.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,,,0:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1628962,Udoka,Azubuike,U. Azubuike,udoka-azubuike,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725
+0022300725,1610612756,Phoenix,Suns,PHX,suns,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300725

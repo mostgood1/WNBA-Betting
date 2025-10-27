@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,16:59,7,14,0.5,3,4,0.75,1,1,1.0,0,4,4,3,1,0,0,0,18,-1.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,F,,,25:07,1,6,0.167,0,2,0.0,0,0,0.0,2,4,6,2,1,2,3,2,2,-3.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,C,,,9:09,5,5,1.0,0,0,0.0,0,0,0.0,0,1,1,0,1,2,3,2,10,8.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,G,,,22:02,3,8,0.375,1,2,0.5,0,0,0.0,0,2,2,3,0,1,0,0,7,5.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,G,,,26:11,4,7,0.571,1,3,0.333,0,0,0.0,1,6,7,1,1,0,0,4,9,7.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,17:06,2,3,0.667,1,2,0.5,0,0,0.0,0,2,2,5,1,1,1,1,5,20.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,,,,17:06,2,5,0.4,0,1,0.0,0,0,0.0,3,5,8,7,1,1,2,2,4,20.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,17:34,4,9,0.444,1,6,0.167,0,0,0.0,0,1,1,3,1,0,0,0,9,-13.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1642349,Ajay,Mitchell,A. Mitchell,ajay-mitchell,,,,23:42,8,13,0.615,1,4,0.25,2,4,0.5,1,1,2,2,1,0,2,3,19,-6.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,25:47,8,11,0.727,1,1,1.0,0,0,0.0,0,5,5,3,0,0,2,3,17,-12.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,14:52,1,5,0.2,1,5,0.2,0,0,0.0,0,1,1,3,1,0,0,0,3,-1.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,,,13:20,2,7,0.286,1,4,0.25,0,0,0.0,0,1,1,1,2,2,2,0,5,-3.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1642502,Malevy,Leons,M. Leons,malevy-leons,,,,9:50,2,3,0.667,0,0,0.0,0,0,0.0,4,2,6,0,2,1,0,0,4,2.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1642504,Cormac,Ryan,C. Ryan,cormac-ryan,,,,1:15,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,2.0,0012400013
+0012400013,1610612760,Oklahoma City,Thunder,OKC,thunder,1642024,Alex,Reese,A. Reese,alex-reese,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,F,,,23:23,3,6,0.5,0,1,0.0,2,2,1.0,1,2,3,1,0,0,1,1,8,-8.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,21:18,4,7,0.571,1,2,0.5,0,0,0.0,1,5,6,4,0,1,2,2,9,-10.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,C,,,20:11,2,8,0.25,1,4,0.25,1,2,0.5,3,2,5,3,0,0,1,0,6,-8.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,G,,,21:20,7,16,0.438,6,13,0.462,2,2,1.0,0,7,7,1,1,0,1,1,22,-3.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,20:13,2,5,0.4,0,1,0.0,2,4,0.5,1,1,2,4,0,0,1,1,6,-1.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,17:39,1,3,0.333,1,2,0.5,0,0,0.0,0,4,4,7,2,0,1,0,3,-5.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,17:39,5,14,0.357,2,8,0.25,0,0,0.0,0,1,1,0,1,1,1,0,12,-5.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,19:59,0,0,0.0,0,0,0.0,1,2,0.5,1,3,4,2,0,1,3,3,1,10.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,,,,18:30,2,3,0.667,0,0,0.0,1,2,0.5,1,1,2,3,0,0,6,1,5,6.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,17:41,4,5,0.8,3,4,0.75,3,4,0.75,0,3,3,1,1,0,1,0,14,2.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,,,10:08,1,3,0.333,0,2,0.0,0,0,0.0,1,1,2,1,1,0,0,2,2,1.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1642434,Riley,Minix,R. Minix,riley-minix,,,,10:08,3,4,0.75,2,3,0.667,0,0,0.0,0,2,2,0,0,0,0,1,8,1.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,10:08,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,1,2,1.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,8:12,3,4,0.75,1,2,0.5,2,2,1.0,0,1,1,2,2,1,2,0,9,-1.0,0012400013
+0012400013,1610612759,San Antonio,Spurs,SAS,spurs,1641877,Nathan,Mensah,N. Mensah,nathan-mensah,,,,3:31,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0012400013

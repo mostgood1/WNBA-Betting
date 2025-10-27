@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,31:38,6,16,0.375,2,8,0.25,3,4,0.75,0,7,7,0,1,0,0,1,17,3.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,32:20,6,13,0.462,1,2,0.5,1,2,0.5,5,2,7,6,0,0,0,1,14,8.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,16:24,2,5,0.4,0,0,0.0,0,0,0.0,3,6,9,6,0,0,0,1,4,5.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,12:32,2,4,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,2,4,10.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,G,,,31:39,9,16,0.563,5,8,0.625,2,2,1.0,0,2,2,6,0,0,2,4,25,13.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,22:47,4,6,0.667,2,4,0.5,3,4,0.75,1,1,2,2,0,1,3,1,13,-16.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,22:38,3,4,0.75,2,3,0.667,0,0,0.0,1,0,1,2,0,0,0,3,8,4.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,22:48,4,9,0.444,2,5,0.4,6,8,0.75,0,6,6,3,1,0,2,1,16,12.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,22:43,1,6,0.167,0,0,0.0,2,2,1.0,1,0,1,1,1,1,1,1,4,7.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,24:31,2,4,0.5,0,0,0.0,5,10,0.5,4,6,10,2,1,2,2,5,9,-6.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300307
+0022300307,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,36:54,3,13,0.231,1,4,0.25,7,7,1.0,0,4,4,5,1,2,0,5,14,-7.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,31:06,2,8,0.25,2,5,0.4,1,2,0.5,0,2,2,0,0,1,1,1,7,-7.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,32:59,12,21,0.571,1,4,0.25,1,1,1.0,4,12,16,5,0,2,3,1,26,-5.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,G,,,37:39,3,7,0.429,1,4,0.25,2,2,1.0,0,3,3,3,0,1,2,4,9,-6.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,34:30,8,15,0.533,5,10,0.5,6,6,1.0,2,2,4,8,1,0,2,2,27,-5.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,,,18:41,1,4,0.25,0,2,0.0,0,0,0.0,2,3,5,1,1,0,2,4,2,-4.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,15:13,3,10,0.3,3,8,0.375,0,0,0.0,1,0,1,2,1,0,0,2,9,-12.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,203083,Andre,Drummond,A. Drummond,andre-drummond,,,,14:22,3,4,0.75,0,0,0.0,2,3,0.667,1,3,4,0,2,2,1,1,8,-5.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,11:15,0,2,0.0,0,2,0.0,2,2,1.0,0,0,0,1,0,1,0,1,2,9.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,6:42,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,1,1,0,3.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1630678,Terry,Taylor,T. Taylor,terry-taylor,,,,0:39,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,2.0,0022300307
+0022300307,1610612741,Chicago,Bulls,CHI,bulls,1627936,Alex,Caruso,A. Caruso,alex-caruso,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300307

@@ -1,0 +1,494 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012400038,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:11 PM EST),period,start,0,0,1,0012400038
+0012400038,4,PT12M00.00S,1,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Jump Ball Collins vs. Kessler: Tip to Collier,Jump Ball,,1,0,2,0012400038
+0012400038,7,PT11M47.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,107,139,18,Made,1,0,2,2,v,Sexton 18' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,3,0012400038
+0012400038,8,PT11M30.00S,1,1610612759,SAS,101108,Paul,C. Paul,137,-12,14,Missed,1,,,0,h,MISS Paul 14' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,4,0012400038
+0012400038,9,PT11M28.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,5,0012400038
+0012400038,10,PT11M21.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,48,200,21,Made,1,0,4,4,v,Sexton 21' Pullup Jump Shot (4 PTS) (Collier 1 AST),Made Shot,Pullup Jump shot,1,2,6,0012400038
+0012400038,12,PT11M13.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,207,137,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,7,0012400038
+0012400038,13,PT11M09.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,8,0012400038
+0012400038,14,PT11M04.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,-224,27,0,Made,1,3,4,7,h,Barnes 3PT Jump Shot (3 PTS) (Paul 1 AST),Made Shot,Jump Shot,1,3,9,0012400038
+0012400038,16,PT10M56.00S,1,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,Collier OFF.Foul (P1) (B.Schwab),Foul,Offensive,1,0,10,0012400038
+0012400038,18,PT10M56.00S,1,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,Collier Offensive Foul Turnover (P1.T1),Turnover,Offensive Foul Turnover,1,0,11,0012400038
+0012400038,19,PT10M52.00S,1,1610612759,SAS,1628380,Collins,Z. Collins,64,240,25,Missed,1,,,0,h,MISS Collins 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,12,0012400038
+0012400038,20,PT10M48.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,13,0012400038
+0012400038,21,PT10M29.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,-232,26,0,Missed,1,,,0,v,MISS Sexton 3PT Jump Shot,Missed Shot,Jump Shot,1,3,14,0012400038
+0012400038,22,PT10M27.00S,1,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,15,0012400038
+0012400038,23,PT10M20.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,-9,16,2,Made,1,3,6,9,v,Hendricks 2' Alley Oop Dunk (2 PTS) (Collier 2 AST),Made Shot,Alley Oop Dunk Shot,1,2,16,0012400038
+0012400038,25,PT10M10.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,-9,5,1,Missed,1,,,0,h,MISS Sochan 1' Cutting Dunk Shot,Missed Shot,Cutting Dunk Shot,1,2,17,0012400038
+0012400038,25,PT10M10.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler BLOCK (1 BLK),,,1,2,18,0012400038
+0012400038,27,PT10M04.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,19,0012400038
+0012400038,28,PT10M01.00S,1,1610612762,UTA,1642262,Williams,C. Williams,224,68,0,Made,1,3,9,12,v,Williams 3PT Running Jump Shot (3 PTS) (Sexton 1 AST),Made Shot,Running Jump Shot,1,3,20,0012400038
+0012400038,30,PT09M49.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes Out of Bounds - Bad Pass Turnover Turnover (P1.T1),Turnover,Out of Bounds - Bad Pass Turnover,1,0,21,0012400038
+0012400038,31,PT09M39.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,108,236,26,Missed,1,,,0,v,MISS Sexton 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,22,0012400038
+0012400038,32,PT09M35.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,23,0012400038
+0012400038,33,PT09M24.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,29,255,26,Missed,1,,,0,h,MISS Barnes 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,24,0012400038
+0012400038,34,PT09M21.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,25,0012400038
+0012400038,35,PT09M08.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks Lost Ball Turnover (P1.T2),Turnover,Lost Ball,1,0,26,0012400038
+0012400038,35,PT09M08.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan STEAL (1 STL),,,1,0,27,0012400038
+0012400038,37,PT09M04.00S,1,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P1.T1) (B.Taylor),Foul,Shooting,1,0,28,0012400038
+0012400038,39,PT09M04.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,4,9,13,h,Barnes Free Throw 1 of 2 (4 PTS),Free Throw,Free Throw 1 of 2,1,0,29,0012400038
+0012400038,40,PT09M04.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,5,9,14,h,Barnes Free Throw 2 of 2 (5 PTS),Free Throw,Free Throw 2 of 2,1,0,30,0012400038
+0012400038,112,PT08M47.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler Lost Ball Turnover (P1.T3),Turnover,Lost Ball,1,0,31,0012400038
+0012400038,112,PT08M47.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie STEAL (1 STL),,,1,0,32,0012400038
+0012400038,44,PT08M39.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,12,5,1,Missed,1,,,0,h,MISS Sochan 1' Running Layup,Missed Shot,Running Layup Shot,1,2,33,0012400038
+0012400038,45,PT08M36.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,34,0012400038
+0012400038,46,PT08M35.00S,1,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,Collier Out of Bounds - Bad Pass Turnover Turnover (P2.T4),Turnover,Out of Bounds - Bad Pass Turnover,1,0,35,0012400038
+0012400038,47,PT08M23.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,137,220,26,Missed,1,,,0,h,MISS Champagnie 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,36,0012400038
+0012400038,48,PT08M22.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,37,0012400038
+0012400038,50,PT08M09.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Violation:Kicked Ball (B.Taylor),Violation,Kicked Ball,0,0,38,0012400038
+0012400038,51,PT08M09.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Kessler,Substitution,,0,0,39,0012400038
+0012400038,61,PT08M09.00S,1,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,SUB: Eubanks FOR Collier,Substitution,,0,0,40,0012400038
+0012400038,53,PT07M59.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie P.FOUL (P1.T1) (B.Taylor),Foul,Personal,1,0,41,0012400038
+0012400038,56,PT07M52.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,239,-8,24,Missed,1,,,0,v,MISS Hendricks 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,42,0012400038
+0012400038,57,PT07M50.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,43,0012400038
+0012400038,58,PT07M37.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-225,73,24,Made,1,8,9,17,h,Champagnie 24' 3PT Jump Shot (3 PTS) (Barnes 1 AST),Made Shot,Jump Shot,1,3,44,0012400038
+0012400038,60,PT07M37.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,45,0012400038
+0012400038,63,PT07M34.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes P.FOUL (P1.T2) (M.Smith),Foul,Personal,1,0,46,0012400038
+0012400038,65,PT07M28.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,225,1,0,Made,1,8,12,20,v,Hendricks 3PT Jump Shot (5 PTS) (Williams 1 AST),Made Shot,Jump Shot,1,3,47,0012400038
+0012400038,67,PT07M07.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,-228,-10,0,Missed,1,,,0,h,MISS Barnes 3PT Jump Shot,Missed Shot,Jump Shot,1,3,48,0012400038
+0012400038,68,PT07M02.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,49,0012400038
+0012400038,69,PT06M58.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh Out of Bounds - Bad Pass Turnover Turnover (P1.T5),Turnover,Out of Bounds - Bad Pass Turnover,1,0,50,0012400038
+0012400038,70,PT06M58.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Jones FOR Sochan,Substitution,,0,0,51,0012400038
+0012400038,71,PT06M58.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Filipowski FOR Hendricks,Substitution,,0,0,52,0012400038
+0012400038,74,PT06M47.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,206,147,25,Made,1,11,12,23,h,Champagnie 25' 3PT Jump Shot (6 PTS) (Paul 2 AST),Made Shot,Jump Shot,1,3,53,0012400038
+0012400038,76,PT06M25.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,-43,96,11,Missed,1,,,0,v,MISS Sexton 11' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,54,0012400038
+0012400038,77,PT06M22.00S,1,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,55,0012400038
+0012400038,78,PT06M15.00S,1,1610612759,SAS,1628380,Collins,Z. Collins,-12,5,1,Missed,1,,,0,h,MISS Collins 1' Driving Layup,Missed Shot,Driving Layup Shot,1,2,56,0012400038
+0012400038,79,PT06M13.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,57,0012400038
+0012400038,80,PT05M59.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh Traveling Turnover (P2.T6),Turnover,Traveling,1,0,58,0012400038
+0012400038,81,PT05M59.00S,1,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Collins,Substitution,,0,0,59,0012400038
+0012400038,82,PT05M59.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Johnson FOR Barnes,Substitution,,0,0,60,0012400038
+0012400038,85,PT05M46.00S,1,1610612759,SAS,1630200,Jones,T. Jones,11,3,1,Made,1,13,12,25,h,Jones 1' Driving Reverse Layup (2 PTS),Made Shot,Driving Reverse Layup Shot,1,2,61,0012400038
+0012400038,86,PT05M36.00S,1,1610612762,UTA,1642262,Williams,C. Williams,10,6,1,Made,1,13,14,27,v,Williams 1' Driving Reverse Layup (5 PTS),Made Shot,Driving Reverse Layup Shot,1,2,62,0012400038
+0012400038,87,PT05M24.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,12,260,26,Missed,1,,,0,h,MISS Mamukelashvili 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,63,0012400038
+0012400038,88,PT05M22.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,64,0012400038
+0012400038,89,PT05M17.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-114,239,26,Made,1,13,17,30,v,Sensabaugh 26' 3PT Running Jump Shot (3 PTS) (Sexton 2 AST),Made Shot,Running Jump Shot,1,3,65,0012400038
+0012400038,91,PT05M02.00S,1,1610612759,SAS,101108,Paul,C. Paul,-13,250,25,Made,1,16,17,33,h,Paul 25' 3PT Pullup Jump Shot (3 PTS) (Mamukelashvili 1 AST),Made Shot,Pullup Jump shot,1,3,66,0012400038
+0012400038,93,PT04M45.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,27,18,3,Missed,1,,,0,v,MISS Sexton 3' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,67,0012400038
+0012400038,94,PT04M42.00S,1,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,Paul REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,68,0012400038
+0012400038,95,PT04M36.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,-228,-21,0,Missed,1,,,0,h,MISS Johnson 3PT Jump Shot,Missed Shot,Jump Shot,1,3,69,0012400038
+0012400038,96,PT04M32.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,70,0012400038
+0012400038,97,PT04M23.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili S.FOUL (P1.T3) (B.Schwab),Foul,Shooting,1,0,71,0012400038
+0012400038,99,PT04M23.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,16,18,34,v,Eubanks Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,72,0012400038
+0012400038,100,PT04M23.00S,1,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,SUB: Castle FOR Paul,Substitution,,0,0,73,0012400038
+0012400038,101,PT04M23.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Wesley FOR Champagnie,Substitution,,0,0,74,0012400038
+0012400038,102,PT04M23.00S,1,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Collier FOR Williams,Substitution,,0,0,75,0012400038
+0012400038,115,PT04M23.00S,1,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,SUB: Juzang FOR Sexton,Substitution,,0,0,76,0012400038
+0012400038,106,PT04M23.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,16,19,35,v,Eubanks Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,77,0012400038
+0012400038,107,PT04M07.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,12,5,1,Made,1,18,19,37,h,Johnson 1' Driving Finger Roll Layup (2 PTS) (Mamukelashvili 2 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,78,0012400038
+0012400038,108,PT03M49.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,146,197,25,Missed,1,,,0,v,MISS Sensabaugh 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,79,0012400038
+0012400038,109,PT03M49.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,80,0012400038
+0012400038,110,PT03M41.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks S.FOUL (P1.T2) (B.Schwab),Foul,Shooting,1,0,81,0012400038
+0012400038,114,PT03M41.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,19,19,38,h,Mamukelashvili Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,82,0012400038
+0012400038,117,PT03M41.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,20,19,39,h,Mamukelashvili Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,83,0012400038
+0012400038,118,PT03M32.00S,1,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,Collier Lost Ball Turnover (P3.T7),Turnover,Lost Ball,1,0,84,0012400038
+0012400038,118,PT03M32.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (1 STL),,,1,0,85,0012400038
+0012400038,120,PT03M12.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-54,-11,6,Missed,1,,,0,h,MISS Mamukelashvili 6' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,86,0012400038
+0012400038,121,PT03M12.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,1,0,87,0012400038
+0012400038,123,PT03M08.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson L.B.FOUL (P1.T4) (M.Smith),Foul,Loose Ball,1,0,88,0012400038
+0012400038,125,PT02M56.00S,1,1610612762,UTA,1630548,Juzang,J. Juzang,-199,155,25,Made,1,20,22,42,v,Juzang 25' 3PT Jump Shot (3 PTS) (Sensabaugh 1 AST),Made Shot,Jump Shot,1,3,89,0012400038
+0012400038,127,PT02M55.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,90,0012400038
+0012400038,129,PT02M55.00S,1,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,SUB: Hendricks FOR Eubanks,Substitution,,0,0,91,0012400038
+0012400038,130,PT02M55.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,SUB: Mykhailiuk FOR Sensabaugh,Substitution,,0,0,92,0012400038
+0012400038,131,PT02M55.00S,1,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,SUB: Kessler FOR Filipowski,Substitution,,0,0,93,0012400038
+0012400038,135,PT02M44.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,22,4,2,Made,1,22,22,44,h,Johnson 2' Driving Layup (4 PTS) (Jones 1 AST),Made Shot,Driving Layup Shot,1,2,94,0012400038
+0012400038,136,PT02M29.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-205,136,25,Missed,1,,,0,v,MISS Mykhailiuk 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,95,0012400038
+0012400038,137,PT02M24.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,96,0012400038
+0012400038,138,PT02M15.00S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-162,190,25,Missed,1,,,0,h,MISS Mamukelashvili 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,97,0012400038
+0012400038,139,PT02M12.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,98,0012400038
+0012400038,140,PT02M06.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,-148,223,27,Missed,1,,,0,v,MISS Hendricks 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,99,0012400038
+0012400038,141,PT02M02.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,100,0012400038
+0012400038,142,PT01M52.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,10,69,7,Missed,1,,,0,h,MISS Johnson 7' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,101,0012400038
+0012400038,143,PT01M49.00S,1,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,102,0012400038
+0012400038,144,PT01M39.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-9,117,12,Made,1,22,24,46,v,Mykhailiuk 12' Pullup Jump Shot (2 PTS) (Kessler 1 AST),Made Shot,Pullup Jump shot,1,2,103,0012400038
+0012400038,146,PT01M25.00S,1,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,Juzang S.FOUL (P1.T3) (M.Smith),Foul,Shooting,1,0,104,0012400038
+0012400038,148,PT01M25.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,23,24,47,h,Castle Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,105,0012400038
+0012400038,149,PT01M25.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,24,24,48,h,Castle Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,106,0012400038
+0012400038,150,PT01M11.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley S.FOUL (P1.PN) (B.Taylor),Foul,Shooting,1,0,107,0012400038
+0012400038,152,PT01M11.00S,1,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,MISS Juzang Free Throw 1 of 3,Free Throw,Free Throw 1 of 3,1,0,108,0012400038
+0012400038,153,PT01M11.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Normal Rebound,0,0,109,0012400038
+0012400038,155,PT01M11.00S,1,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,MISS Juzang Free Throw 2 of 3,Free Throw,Free Throw 2 of 3,1,0,110,0012400038
+0012400038,156,PT01M11.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Normal Rebound,0,0,111,0012400038
+0012400038,157,PT01M11.00S,1,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,24,25,49,v,Juzang Free Throw 3 of 3 (4 PTS),Free Throw,Free Throw 3 of 3,1,0,112,0012400038
+0012400038,158,PT00M53.30S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-168,183,25,Made,1,27,25,52,h,Mamukelashvili 25' 3PT Jump Shot (5 PTS) (Wesley 1 AST),Made Shot,Jump Shot,1,3,113,0012400038
+0012400038,161,PT00M36.90S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,150,217,26,Missed,1,,,0,v,MISS Hendricks 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,114,0012400038
+0012400038,162,PT00M31.30S,1,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,Juzang REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,115,0012400038
+0012400038,163,PT00M31.30S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones S.FOUL (P1.PN) (B.Taylor),Foul,Shooting,1,0,116,0012400038
+0012400038,166,PT00M31.30S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Coach Challenge (Reg.1 Short 0),Timeout,Coach Challenge,0,0,117,0012400038
+0012400038,167,PT00M31.30S,1,0,,163,,,0,0,0,,0,27,25,52,,Instant Replay1st Period (8:36 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,118,0012400038
+0012400038,168,PT00M31.30S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,27,26,53,v,Hendricks Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,119,0012400038
+0012400038,169,PT00M31.30S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,27,27,54,v,Hendricks Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,120,0012400038
+0012400038,170,PT00M08.90S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley Out of Bounds - Bad Pass Turnover Turnover (P1.T2),Turnover,Out of Bounds - Bad Pass Turnover,1,0,121,0012400038
+0012400038,171,PT00M00.90S,1,1610612762,UTA,1642268,Collier,I. Collier,17,1,2,Made,1,27,29,56,v,Collier 2' Driving Finger Roll Layup (2 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,122,0012400038
+0012400038,172,PT00M00.00S,1,0,,0,,,0,0,0,,0,27,29,56,,End of 1st Period (8:41 PM EST),period,end,1,0,123,0012400038
+0012400038,183,PT12M00.00S,2,0,,0,,,0,0,0,,0,27,29,56,,Start of 2nd Period (8:43 PM EST),period,start,0,0,124,0012400038
+0012400038,184,PT11M46.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes Out of Bounds - Bad Pass Turnover Turnover (P2.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,125,0012400038
+0012400038,185,PT11M35.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,222,38,0,Missed,1,,,0,v,MISS Hendricks 3PT Jump Shot,Missed Shot,Jump Shot,1,3,126,0012400038
+0012400038,186,PT11M29.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,127,0012400038
+0012400038,187,PT11M23.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,25,5,3,Made,1,29,29,58,h,Johnson 3' Running Layup (6 PTS),Made Shot,Running Layup Shot,1,2,128,0012400038
+0012400038,188,PT11M06.00S,2,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,Collier Bad Pass Turnover (P4.T8),Turnover,Bad Pass,1,0,129,0012400038
+0012400038,188,PT11M06.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson STEAL (1 STL),,,1,0,130,0012400038
+0012400038,190,PT11M02.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,-2,6,1,Made,1,31,29,60,h,Sochan 1' Running Layup (2 PTS) (Johnson 1 AST),Made Shot,Running Layup Shot,1,2,131,0012400038
+0012400038,192,PT10M50.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-219,128,25,Missed,1,,,0,v,MISS Mykhailiuk 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,132,0012400038
+0012400038,193,PT10M47.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,133,0012400038
+0012400038,194,PT10M40.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks S.FOUL (P1.T1) (B.Taylor),Foul,Shooting,1,0,134,0012400038
+0012400038,196,PT10M40.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,MISS Sochan Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,135,0012400038
+0012400038,197,PT10M40.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,136,0012400038
+0012400038,198,PT10M40.00S,2,1610612762,UTA,1642268,Collier,I. Collier,0,0,0,,0,,,0,v,SUB: Sexton FOR Collier,Substitution,,0,0,137,0012400038
+0012400038,200,PT10M40.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,32,29,61,h,Sochan Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,138,0012400038
+0012400038,201,PT10M21.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-146,210,26,Missed,1,,,0,v,MISS Mykhailiuk 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,139,0012400038
+0012400038,202,PT10M18.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,140,0012400038
+0012400038,203,PT10M18.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson Out of Bounds Lost Ball Turnover (P1.T4),Turnover,Out of Bounds Lost Ball Turnover,1,0,141,0012400038
+0012400038,204,PT10M14.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,230,70,24,Missed,1,,,0,v,MISS Mykhailiuk 24' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,142,0012400038
+0012400038,205,PT10M10.00S,2,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,Paul REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,143,0012400038
+0012400038,206,PT10M03.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,5,5,1,Made,1,34,29,63,h,Johnson 1' Driving Hook Shot (8 PTS) (Paul 3 AST),Made Shot,Driving Hook Shot,1,2,144,0012400038
+0012400038,208,PT09M51.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,9,64,6,Missed,1,,,0,v,MISS Hendricks 6' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,145,0012400038
+0012400038,209,PT09M50.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,146,0012400038
+0012400038,210,PT09M50.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins P.FOUL (P1.T1) (M.Smith),Foul,Personal,1,0,147,0012400038
+0012400038,212,PT09M39.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,-1,8,1,Made,1,34,31,65,v,Kessler 1' Reverse Layup (2 PTS) (Hendricks 1 AST),Made Shot,Reverse Layup Shot,1,2,148,0012400038
+0012400038,214,PT09M33.00S,2,1610612759,SAS,101108,Paul,C. Paul,93,239,26,Missed,1,,,0,h,MISS Paul 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,149,0012400038
+0012400038,215,PT09M33.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,150,0012400038
+0012400038,216,PT09M23.00S,2,1610612762,UTA,1642262,Williams,C. Williams,224,6,0,Made,1,34,34,68,v,Williams 3PT Jump Shot (8 PTS) (Mykhailiuk 1 AST),Made Shot,Jump Shot,1,3,151,0012400038
+0012400038,218,PT09M13.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,16,251,25,Missed,1,,,0,h,MISS Collins 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,152,0012400038
+0012400038,219,PT09M10.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,153,0012400038
+0012400038,220,PT09M08.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,260,26,Missed,1,,,0,h,MISS Collins 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,154,0012400038
+0012400038,221,PT09M03.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,155,0012400038
+0012400038,222,PT08M58.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks Bad Pass Turnover (P2.T9),Turnover,Bad Pass,1,0,156,0012400038
+0012400038,222,PT08M58.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson STEAL (2 STL),,,1,0,157,0012400038
+0012400038,224,PT08M52.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,11,3,1,Missed,1,,,0,h,MISS Johnson 1' Driving Dunk,Missed Shot,Driving Dunk Shot,1,2,158,0012400038
+0012400038,224,PT08M52.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler BLOCK (2 BLK),,,1,2,159,0012400038
+0012400038,226,PT08M51.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,160,0012400038
+0012400038,227,PT08M51.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,Missed,1,,,0,h,MISS Johnson Putback Layup,Missed Shot,Putback Layup Shot,1,2,161,0012400038
+0012400038,228,PT08M50.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,162,0012400038
+0012400038,230,PT08M49.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,SUB: Champagnie FOR Johnson,Substitution,,0,0,163,0012400038
+0012400038,232,PT08M40.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,4,4,1,Missed,1,,,0,h,MISS Sochan 1' Layup,Missed Shot,Layup Shot,1,2,164,0012400038
+0012400038,232,PT08M40.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler BLOCK (3 BLK),,,1,2,165,0012400038
+0012400038,234,PT08M37.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,166,0012400038
+0012400038,235,PT08M34.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,-23,7,2,Made,1,34,36,70,v,Kessler 2' Running Layup (4 PTS) (Sexton 3 AST),Made Shot,Running Layup Shot,1,2,167,0012400038
+0012400038,237,PT08M23.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler S.FOUL (P1.T2) (M.Smith),Foul,Shooting,1,0,168,0012400038
+0012400038,239,PT08M23.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,35,36,71,h,Collins Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,169,0012400038
+0012400038,240,PT08M23.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,MISS Collins Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,170,0012400038
+0012400038,241,PT08M20.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,171,0012400038
+0012400038,242,PT08M12.00S,2,1610612762,UTA,1642262,Williams,C. Williams,29,272,27,Missed,1,,,0,v,MISS Williams 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,172,0012400038
+0012400038,243,PT08M08.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,173,0012400038
+0012400038,244,PT07M58.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,167,192,25,Made,1,38,36,74,h,Champagnie 25' 3PT Jump Shot (9 PTS) (Barnes 2 AST),Made Shot,Jump Shot,1,3,174,0012400038
+0012400038,246,PT07M43.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,-118,235,26,Made,1,38,39,77,v,Sexton 26' 3PT Jump Shot (7 PTS) (Williams 2 AST),Made Shot,Jump Shot,1,3,175,0012400038
+0012400038,248,PT07M30.00S,2,1610612759,SAS,101108,Paul,C. Paul,43,161,17,Missed,1,,,0,h,MISS Paul 17' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,176,0012400038
+0012400038,249,PT07M24.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,177,0012400038
+0012400038,250,PT07M18.00S,2,1610612762,UTA,1642262,Williams,C. Williams,16,13,2,Missed,1,,,0,v,MISS Williams 2' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,178,0012400038
+0012400038,250,PT07M18.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins BLOCK (1 BLK),,,1,2,179,0012400038
+0012400038,252,PT07M18.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,180,0012400038
+0012400038,253,PT07M18.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams L.B.FOUL (P2.T3) (B.Taylor),Foul,Loose Ball,1,0,181,0012400038
+0012400038,255,PT07M18.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,182,0012400038
+0012400038,256,PT07M18.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,SUB: Eubanks FOR Mykhailiuk,Substitution,,0,0,183,0012400038
+0012400038,257,PT07M18.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Kessler,Substitution,,0,0,184,0012400038
+0012400038,260,PT06M57.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,-7,15,2,Missed,1,,,0,h,MISS Collins 2' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,185,0012400038
+0012400038,261,PT06M52.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,186,0012400038
+0012400038,262,PT06M52.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,Made,1,40,39,79,h,Sochan Tip Dunk Shot (5 PTS),Made Shot,Tip Dunk Shot,1,2,187,0012400038
+0012400038,263,PT06M30.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,180,186,26,Missed,1,,,0,v,MISS Sensabaugh 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,188,0012400038
+0012400038,264,PT06M27.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,189,0012400038
+0012400038,265,PT06M23.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,9,19,2,Missed,1,,,0,h,MISS Sochan 2' Running Layup,Missed Shot,Running Layup Shot,1,2,190,0012400038
+0012400038,265,PT06M23.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton BLOCK (1 BLK),,,1,2,191,0012400038
+0012400038,267,PT06M18.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,192,0012400038
+0012400038,268,PT06M14.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton Bad Pass Turnover (P1.T10),Turnover,Bad Pass,1,0,193,0012400038
+0012400038,268,PT06M14.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins STEAL (1 STL),,,1,0,194,0012400038
+0012400038,270,PT06M07.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,20,5,2,Made,1,42,39,81,h,Sochan 2' Layup (7 PTS) (Paul 4 AST),Made Shot,Layup Shot,1,2,195,0012400038
+0012400038,272,PT05M51.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,-143,220,26,Missed,1,,,0,v,MISS Sexton 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,196,0012400038
+0012400038,273,PT05M48.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,197,0012400038
+0012400038,274,PT05M46.00S,2,1610612762,UTA,1642262,Williams,C. Williams,140,216,26,Made,1,42,42,84,v,Williams 26' 3PT Jump Shot (11 PTS) (Sensabaugh 2 AST),Made Shot,Jump Shot,1,3,198,0012400038
+0012400038,276,PT05M22.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,-64,20,7,Missed,1,,,0,h,MISS Barnes 7' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,199,0012400038
+0012400038,277,PT05M19.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,200,0012400038
+0012400038,278,PT05M09.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton Out of Bounds - Bad Pass Turnover Turnover (P2.T11),Turnover,Out of Bounds - Bad Pass Turnover,1,0,201,0012400038
+0012400038,279,PT05M09.00S,2,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,SUB: Johnson FOR Collins,Substitution,,0,0,202,0012400038
+0012400038,280,PT05M09.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Jones FOR Barnes,Substitution,,0,0,203,0012400038
+0012400038,281,PT05M09.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Juzang FOR Hendricks,Substitution,,0,0,204,0012400038
+0012400038,282,PT05M09.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Filipowski FOR Williams,Substitution,,0,0,205,0012400038
+0012400038,287,PT04M55.00S,2,1610612759,SAS,101108,Paul,C. Paul,-36,192,20,Missed,1,,,0,h,MISS Paul 20' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,206,0012400038
+0012400038,288,PT04M50.00S,2,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,207,0012400038
+0012400038,289,PT04M42.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh Backcourt Turnover (P3.T12),Turnover,Backcourt Turnover,1,0,208,0012400038
+0012400038,290,PT04M23.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-224,56,0,Missed,1,,,0,h,MISS Champagnie 3PT Jump Shot,Missed Shot,Jump Shot,0,3,209,0012400038
+0012400038,291,PT04M20.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,210,0012400038
+0012400038,292,PT04M20.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson L.B.FOUL (P2.T2) (B.Schwab),Foul,Loose Ball,0,0,211,0012400038
+0012400038,294,PT04M20.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Violation: Delay of game Violation,Violation,Delay Of Game,0,0,212,0012400038
+0012400038,295,PT04M20.00S,2,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Paul,Substitution,,0,0,213,0012400038
+0012400038,296,PT04M20.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Wesley FOR Sochan,Substitution,,0,0,214,0012400038
+0012400038,297,PT04M20.00S,2,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,SUB: Preston FOR Sexton,Substitution,,0,0,215,0012400038
+0012400038,301,PT03M59.00S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,9,11,1,Made,1,42,44,86,v,Filipowski 1' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,0,2,216,0012400038
+0012400038,302,PT03M37.00S,2,1610612759,SAS,1630200,Jones,T. Jones,59,20,6,Made,1,44,44,88,h,Jones 6' Driving Floating Bank Jump Shot (4 PTS) (Mamukelashvili 3 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,217,0012400038
+0012400038,303,PT03M19.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,164,197,26,Missed,1,,,0,v,MISS Sensabaugh 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,0,3,218,0012400038
+0012400038,303,PT03M19.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie BLOCK (1 BLK),,,0,3,219,0012400038
+0012400038,305,PT03M19.00S,2,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:2),Rebound,Unknown,0,0,220,0012400038
+0012400038,306,PT03M10.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-223,36,0,Missed,1,,,0,h,MISS Champagnie 3PT Jump Shot,Missed Shot,Jump Shot,0,3,221,0012400038
+0012400038,307,PT03M06.00S,2,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,Juzang REBOUND (Off:1 Def:1),Rebound,Unknown,0,0,222,0012400038
+0012400038,308,PT02M46.00S,2,1610612762,UTA,1629234,Eubanks,D. Eubanks,-23,10,3,Made,1,44,46,90,v,Eubanks 3' Driving Layup (4 PTS) (Preston 1 AST),Made Shot,Driving Layup Shot,1,2,223,0012400038
+0012400038,310,PT02M23.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-10,253,25,Made,1,47,46,93,h,Mamukelashvili 25' 3PT Jump Shot (8 PTS) (Wesley 2 AST),Made Shot,Jump Shot,1,3,224,0012400038
+0012400038,340,PT02M15.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,130,232,27,Missed,1,,,0,v,MISS Sensabaugh 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,0,3,225,0012400038
+0012400038,341,PT02M15.00S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,226,0012400038
+0012400038,342,PT02M13.00S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski Lost Ball Turnover (P1.T13),Turnover,Lost Ball,1,0,227,0012400038
+0012400038,342,PT02M13.00S,2,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (2 STL),,,1,0,228,0012400038
+0012400038,314,PT02M02.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili Out of Bounds - Bad Pass Turnover Turnover (P1.T5),Turnover,Out of Bounds - Bad Pass Turnover,1,0,229,0012400038
+0012400038,315,PT02M02.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,230,0012400038
+0012400038,317,PT02M02.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Castle FOR Champagnie,Substitution,,0,0,231,0012400038
+0012400038,318,PT02M02.00S,2,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,SUB: Kessler FOR Eubanks,Substitution,,0,0,232,0012400038
+0012400038,321,PT01M45.00S,2,1610612762,UTA,1630548,Juzang,J. Juzang,-156,239,29,Made,1,47,49,96,v,Juzang 29' 3PT Pullup Jump Shot (7 PTS) (Sensabaugh 3 AST),Made Shot,Pullup Jump shot,1,3,233,0012400038
+0012400038,323,PT01M23.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,20,2,Made,1,49,49,98,h,Johnson 2' Driving Layup (10 PTS) (Mamukelashvili 4 AST),Made Shot,Driving Layup Shot,1,2,234,0012400038
+0012400038,325,PT01M23.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler S.FOUL (P2.T4) (B.Schwab),Foul,Shooting,1,0,235,0012400038
+0012400038,327,PT01M23.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,MISS Johnson Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,0,0,236,0012400038
+0012400038,328,PT01M20.00S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:1 Def:1),Rebound,Unknown,0,0,237,0012400038
+0012400038,329,PT01M07.00S,2,1610612762,UTA,1631117,Kessler,W. Kessler,7,11,1,Made,1,49,51,100,v,Kessler 1' Layup (6 PTS) (Filipowski 1 AST),Made Shot,Layup Shot,1,2,238,0012400038
+0012400038,331,PT00M49.20S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-78,239,25,Made,1,52,51,103,h,Mamukelashvili 25' 3PT Jump Shot (11 PTS) (Castle 1 AST),Made Shot,Jump Shot,1,3,239,0012400038
+0012400038,333,PT00M27.10S,2,1610612762,UTA,1630554,Preston,J. Preston,-36,90,10,Made,1,52,53,105,v,Preston 10' Driving Floating Jump Shot (2 PTS),Made Shot,Driving Floating Jump Shot,1,2,240,0012400038
+0012400038,334,PT00M05.50S,2,1610612759,SAS,1631104,Wesley,B. Wesley,-13,5,1,Missed,1,,,0,h,MISS Wesley 1' Layup,Missed Shot,Layup Shot,1,2,241,0012400038
+0012400038,335,PT00M03.40S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,242,0012400038
+0012400038,336,PT00M00.40S,2,1610612762,UTA,1642271,Filipowski,K. Filipowski,167,300,34,Missed,1,,,0,v,MISS Filipowski 34' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,243,0012400038
+0012400038,337,PT00M00.10S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,244,0012400038
+0012400038,339,PT00M00.00S,2,0,,0,,,0,0,0,,0,52,53,105,,End of 2nd Period (9:06 PM EST),period,end,1,0,245,0012400038
+0012400038,360,PT12M00.00S,3,0,,0,,,0,0,0,,0,52,53,105,,Start of 3rd Period (9:21 PM EST),period,start,0,0,246,0012400038
+0012400038,361,PT11M40.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P3.T1) (M.Smith),Foul,Shooting,1,0,247,0012400038
+0012400038,363,PT11M40.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,53,53,106,h,Champagnie Free Throw 1 of 3 (10 PTS),Free Throw,Free Throw 1 of 3,1,0,248,0012400038
+0012400038,364,PT11M40.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,54,53,107,h,Champagnie Free Throw 2 of 3 (11 PTS),Free Throw,Free Throw 2 of 3,1,0,249,0012400038
+0012400038,365,PT11M40.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,55,53,108,h,Champagnie Free Throw 3 of 3 (12 PTS),Free Throw,Free Throw 3 of 3,1,0,250,0012400038
+0012400038,366,PT11M29.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,227,26,0,Missed,1,,,0,v,MISS Hendricks 3PT Jump Shot,Missed Shot,Jump Shot,1,3,251,0012400038
+0012400038,367,PT11M25.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,252,0012400038
+0012400038,368,PT11M11.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,-168,193,26,Missed,1,,,0,h,MISS Collins 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,253,0012400038
+0012400038,369,PT11M07.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,254,0012400038
+0012400038,370,PT11M00.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton Lost Ball Turnover (P3.T14),Turnover,Lost Ball,1,0,255,0012400038
+0012400038,370,PT11M00.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan STEAL (2 STL),,,1,0,256,0012400038
+0012400038,372,PT10M52.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,9,2,1,Missed,1,,,0,h,MISS Collins 1' Driving Layup,Missed Shot,Driving Layup Shot,1,2,257,0012400038
+0012400038,373,PT10M49.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,258,0012400038
+0012400038,374,PT10M46.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,150,205,25,Made,1,55,56,111,v,Sexton 25' 3PT Running Jump Shot (10 PTS) (Kessler 2 AST),Made Shot,Running Jump Shot,1,3,259,0012400038
+0012400038,376,PT10M30.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler S.FOUL (P3.T2) (B.Taylor),Foul,Shooting,1,0,260,0012400038
+0012400038,378,PT10M30.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,56,56,112,h,Collins Free Throw 1 of 2 (2 PTS),Free Throw,Free Throw 1 of 2,1,0,261,0012400038
+0012400038,379,PT10M30.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,57,56,113,h,Collins Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,262,0012400038
+0012400038,380,PT10M19.00S,3,1610612762,UTA,1642262,Williams,C. Williams,15,-6,2,Made,1,57,58,115,v,Williams 2' Driving Finger Roll Layup (13 PTS) (Sexton 4 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,263,0012400038
+0012400038,382,PT10M13.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,4,8,1,Made,1,59,58,117,h,Sochan 1' Driving Layup (9 PTS) (Paul 5 AST),Made Shot,Driving Layup Shot,1,2,264,0012400038
+0012400038,384,PT09M56.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,78,41,9,Made,1,59,60,119,v,Sexton 9' Driving Floating Jump Shot (12 PTS),Made Shot,Driving Floating Jump Shot,1,2,265,0012400038
+0012400038,385,PT09M42.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,5,126,13,Made,1,61,60,121,h,Collins 13' Floating Jump Shot (5 PTS) (Paul 6 AST),Made Shot,Floating Jump shot,1,2,266,0012400038
+0012400038,387,PT09M30.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,5,90,9,Missed,1,,,0,v,MISS Kessler 9' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,267,0012400038
+0012400038,388,PT09M28.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,268,0012400038
+0012400038,389,PT09M19.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,13,12,2,Missed,1,,,0,h,MISS Sochan 2' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,269,0012400038
+0012400038,389,PT09M19.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks BLOCK (1 BLK),,,1,2,270,0012400038
+0012400038,391,PT09M16.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,271,0012400038
+0012400038,392,PT09M12.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,Collins S.FOUL (P2.T1) (M.Smith),Foul,Shooting,1,0,272,0012400038
+0012400038,394,PT09M12.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,MISS Kessler Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,273,0012400038
+0012400038,395,PT09M12.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Normal Rebound,0,0,274,0012400038
+0012400038,396,PT09M12.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,61,61,122,v,Kessler Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,275,0012400038
+0012400038,397,PT08M58.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,-17,8,2,Made,1,63,61,124,h,Collins 2' Layup (7 PTS) (Sochan 1 AST),Made Shot,Layup Shot,1,2,276,0012400038
+0012400038,399,PT08M58.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler S.FOUL (P4.T3) (M.Smith),Foul,Shooting,1,0,277,0012400038
+0012400038,401,PT08M58.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,MISS Collins Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,278,0012400038
+0012400038,402,PT08M52.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,279,0012400038
+0012400038,403,PT08M43.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,-7,12,1,Made,1,65,61,126,h,Sochan 1' Cutting Dunk Shot (11 PTS) (Collins 1 AST),Made Shot,Cutting Dunk Shot,1,2,280,0012400038
+0012400038,406,PT08M29.00S,3,1610612762,UTA,1642262,Williams,C. Williams,54,62,8,Made,1,65,63,128,v,Williams 8' Driving Floating Jump Shot (15 PTS) (Sexton 5 AST),Made Shot,Driving Floating Jump Shot,1,2,281,0012400038
+0012400038,407,PT08M21.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,221,-10,0,Missed,1,,,0,h,MISS Barnes 3PT Jump Shot,Missed Shot,Jump Shot,1,3,282,0012400038
+0012400038,408,PT08M19.00S,3,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,Juzang REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,283,0012400038
+0012400038,409,PT08M04.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,-100,226,25,Made,1,65,66,131,v,Sexton 25' 3PT Pullup Jump Shot (15 PTS),Made Shot,Pullup Jump shot,1,3,284,0012400038
+0012400038,411,PT07M45.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,-2,34,3,Made,1,67,66,133,h,Collins 3' Turnaround Hook Shot (9 PTS) (Barnes 3 AST),Made Shot,Turnaround Hook Shot,1,2,285,0012400038
+0012400038,413,PT07M34.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,5,257,26,Made,1,67,69,136,v,Sexton 26' 3PT Pullup Jump Shot (18 PTS),Made Shot,Pullup Jump shot,1,3,286,0012400038
+0012400038,414,PT07M15.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,-4,16,2,Made,1,69,69,138,h,Sochan 2' Driving Finger Roll Layup (13 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,287,0012400038
+0012400038,415,PT07M15.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler Violation:Defensive Goaltending (B.Schwab),Violation,Defensive Goaltending,1,0,288,0012400038
+0012400038,416,PT07M07.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler Traveling Turnover (P2.T15),Turnover,Traveling,1,0,289,0012400038
+0012400038,417,PT07M07.00S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,SUB: Eubanks FOR Kessler,Substitution,,0,0,290,0012400038
+0012400038,418,PT07M07.00S,3,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Juzang,Substitution,,0,0,291,0012400038
+0012400038,421,PT06M52.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,227,-11,0,Made,1,72,69,141,h,Champagnie 3PT Jump Shot (15 PTS) (Paul 7 AST),Made Shot,Jump Shot,1,3,292,0012400038
+0012400038,424,PT06M37.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,-6,-4,1,Made,1,72,71,143,v,Eubanks 1' Dunk (6 PTS) (Sensabaugh 4 AST),Made Shot,Dunk Shot,1,2,293,0012400038
+0012400038,426,PT06M22.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,60,238,25,Missed,1,,,0,h,MISS Collins 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,294,0012400038
+0012400038,427,PT06M21.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,295,0012400038
+0012400038,429,PT06M21.00S,3,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,296,0012400038
+0012400038,430,PT06M21.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Filipowski FOR Hendricks,Substitution,,0,0,297,0012400038
+0012400038,432,PT06M12.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,SPURS T.Foul (Def. 3 Sec Collins ) (M.Smith),Foul,Defense 3 Second,1,0,298,0012400038
+0012400038,433,PT06M12.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,72,72,144,v,Sensabaugh Free Throw Technical (4 PTS),Free Throw,Free Throw Technical,1,0,299,0012400038
+0012400038,435,PT06M02.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks OFF.Foul (P2) (B.Taylor),Foul,Offensive,1,0,300,0012400038
+0012400038,437,PT06M02.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks Offensive Foul Turnover (P1.T16),Turnover,Offensive Foul Turnover,1,0,301,0012400038
+0012400038,438,PT05M44.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,59,248,25,Missed,1,,,0,h,MISS Collins 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,302,0012400038
+0012400038,439,PT05M40.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,303,0012400038
+0012400038,440,PT05M34.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-134,210,25,Made,1,72,75,147,v,Sensabaugh 25' 3PT Running Jump Shot (7 PTS) (Filipowski 2 AST),Made Shot,Running Jump Shot,1,3,304,0012400038
+0012400038,442,PT05M11.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,-2,8,1,Made,1,74,75,149,h,Collins 1' Cutting Dunk Shot (11 PTS) (Paul 8 AST),Made Shot,Cutting Dunk Shot,1,2,305,0012400038
+0012400038,444,PT04M58.00S,3,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,Paul S.FOUL (P1.T2) (B.Taylor),Foul,Shooting,1,0,306,0012400038
+0012400038,446,PT04M58.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,74,76,150,v,Williams Free Throw 1 of 2 (16 PTS),Free Throw,Free Throw 1 of 2,1,0,307,0012400038
+0012400038,447,PT04M58.00S,3,1610612759,SAS,1628380,Collins,Z. Collins,0,0,0,,0,,,0,h,SUB: Johnson FOR Collins,Substitution,,0,0,308,0012400038
+0012400038,448,PT04M58.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Jones FOR Champagnie,Substitution,,0,0,309,0012400038
+0012400038,451,PT04M58.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,74,77,151,v,Williams Free Throw 2 of 2 (17 PTS),Free Throw,Free Throw 2 of 2,1,0,310,0012400038
+0012400038,452,PT04M47.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,42,252,26,Missed,1,,,0,h,MISS Barnes 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,311,0012400038
+0012400038,453,PT04M44.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,312,0012400038
+0012400038,454,PT04M23.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,-223,8,0,Missed,1,,,0,v,MISS Filipowski 3PT Jump Shot,Missed Shot,Jump Shot,1,3,313,0012400038
+0012400038,455,PT04M17.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,314,0012400038
+0012400038,456,PT04M10.00S,3,1610612759,SAS,1629640,Johnson,K. Johnson,225,16,0,Made,1,77,77,154,h,Johnson 3PT Jump Shot (13 PTS) (Jones 2 AST),Made Shot,Jump Shot,1,3,315,0012400038
+0012400038,458,PT04M01.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P2.T3) (B.Taylor),Foul,Personal,0,0,316,0012400038
+0012400038,460,PT04M01.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Sochan,Substitution,,0,0,317,0012400038
+0012400038,461,PT04M01.00S,3,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,SUB: Preston FOR Sexton,Substitution,,0,0,318,0012400038
+0012400038,462,PT04M01.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Mykhailiuk FOR Williams,Substitution,,0,0,319,0012400038
+0012400038,466,PT03M48.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-225,24,0,Made,1,77,80,157,v,Mykhailiuk 3PT Jump Shot (5 PTS) (Preston 2 AST),Made Shot,Jump Shot,1,3,320,0012400038
+0012400038,468,PT03M35.00S,3,1610612759,SAS,101108,Paul,C. Paul,69,105,13,Missed,1,,,0,h,MISS Paul 13' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,321,0012400038
+0012400038,469,PT03M33.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,322,0012400038
+0012400038,470,PT03M29.00S,3,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,Paul P.FOUL (P2.T4) (B.Taylor),Foul,Personal,1,0,323,0012400038
+0012400038,472,PT03M29.00S,3,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,SUB: Wesley FOR Paul,Substitution,,0,0,324,0012400038
+0012400038,474,PT03M10.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,23,20,3,Missed,1,,,0,v,MISS Mykhailiuk 3' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,325,0012400038
+0012400038,475,PT03M09.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,326,0012400038
+0012400038,476,PT03M08.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones Out of Bounds - Bad Pass Turnover Turnover (P1.T6),Turnover,Out of Bounds - Bad Pass Turnover,1,0,327,0012400038
+0012400038,477,PT02M52.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,12,-4,1,Made,1,77,82,159,v,Filipowski 1' Driving Reverse Layup (4 PTS),Made Shot,Driving Reverse Layup Shot,1,2,328,0012400038
+0012400038,478,PT02M42.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili Bad Pass Turnover (P2.T7),Turnover,Bad Pass,1,0,329,0012400038
+0012400038,478,PT02M42.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski STEAL (1 STL),,,1,0,330,0012400038
+0012400038,480,PT02M34.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,2,-4,0,Made,1,77,84,161,v,Eubanks Driving Reverse Layup (8 PTS) (Filipowski 3 AST),Made Shot,Driving Reverse Layup Shot,1,2,331,0012400038
+0012400038,482,PT02M19.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,-26,2,3,Made,1,79,84,163,h,Wesley 3' Cutting Layup Shot (2 PTS) (Jones 3 AST),Made Shot,Cutting Layup Shot,1,2,332,0012400038
+0012400038,484,PT02M12.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,333,0012400038
+0012400038,485,PT02M12.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Castle FOR Barnes,Substitution,,0,0,334,0012400038
+0012400038,486,PT02M12.00S,3,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,SUB: Kessler FOR Eubanks,Substitution,,0,0,335,0012400038
+0012400038,489,PT02M02.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-115,220,25,Missed,1,,,0,v,MISS Mykhailiuk 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,336,0012400038
+0012400038,490,PT01M56.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,337,0012400038
+0012400038,491,PT01M55.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,13,13,2,Made,1,79,86,165,v,Filipowski 2' Putback Layup (6 PTS),Made Shot,Putback Layup Shot,1,2,338,0012400038
+0012400038,492,PT01M41.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,104,2,10,Made,1,81,86,167,h,Mamukelashvili 10' Driving Floating Jump Shot (13 PTS),Made Shot,Driving Floating Jump Shot,1,2,339,0012400038
+0012400038,493,PT01M27.00S,3,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski Out of Bounds - Bad Pass Turnover Turnover (P2.T17),Turnover,Out of Bounds - Bad Pass Turnover,1,0,340,0012400038
+0012400038,494,PT01M13.00S,3,1610612759,SAS,1642264,Castle,S. Castle,-26,2,3,Made,1,83,86,169,h,Castle 3' Driving Layup (4 PTS) (Jones 4 AST),Made Shot,Driving Layup Shot,1,2,341,0012400038
+0012400038,496,PT01M00.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh Bad Pass Turnover (P4.T18),Turnover,Bad Pass,1,0,342,0012400038
+0012400038,496,PT01M00.00S,3,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle STEAL (1 STL),,,1,0,343,0012400038
+0012400038,498,PT00M57.10S,3,1610612759,SAS,1631104,Wesley,B. Wesley,-18,0,2,Made,1,85,86,171,h,Wesley 2' Running Layup (4 PTS),Made Shot,Running Layup Shot,1,2,344,0012400038
+0012400038,499,PT00M49.30S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-200,148,25,Made,1,85,89,174,v,Mykhailiuk 25' 3PT Jump Shot (8 PTS) (Preston 3 AST),Made Shot,Jump Shot,1,3,345,0012400038
+0012400038,501,PT00M38.20S,3,1610612759,SAS,1642264,Castle,S. Castle,-181,211,28,Missed,1,,,0,h,MISS Castle 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,346,0012400038
+0012400038,502,PT00M34.30S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:7),Rebound,Unknown,1,0,347,0012400038
+0012400038,503,PT00M25.10S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-229,-12,0,Missed,1,,,0,v,MISS Mykhailiuk 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,348,0012400038
+0012400038,504,PT00M22.50S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,349,0012400038
+0012400038,505,PT00M21.60S,3,1610612759,SAS,1629640,Johnson,K. Johnson,5,1,1,Made,1,87,89,176,h,Johnson 1' Running Layup (15 PTS) (Jones 5 AST),Made Shot,Running Layup Shot,1,2,350,0012400038
+0012400038,507,PT00M21.60S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh S.FOUL (P1.T4) (B.Schwab),Foul,Shooting,1,0,351,0012400038
+0012400038,509,PT00M21.60S,3,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,88,89,177,h,Johnson Free Throw 1 of 1 (16 PTS),Free Throw,Free Throw 1 of 1,1,0,352,0012400038
+0012400038,510,PT00M17.20S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley P.FOUL (P2.PN) (B.Taylor),Foul,Personal,1,0,353,0012400038
+0012400038,512,PT00M17.20S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,88,90,178,v,Mykhailiuk Free Throw 1 of 2 (9 PTS),Free Throw,Free Throw 1 of 2,1,0,354,0012400038
+0012400038,513,PT00M17.20S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,88,91,179,v,Mykhailiuk Free Throw 2 of 2 (10 PTS),Free Throw,Free Throw 2 of 2,1,0,355,0012400038
+0012400038,514,PT00M04.20S,3,1610612759,SAS,1642264,Castle,S. Castle,5,62,6,Missed,1,,,0,h,MISS Castle 6' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,356,0012400038
+0012400038,515,PT00M02.70S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,357,0012400038
+0012400038,557,PT00M02.20S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,2,16,2,Missed,1,,,0,h,MISS Mamukelashvili 2' Tip Dunk Shot,Missed Shot,Tip Dunk Shot,1,2,358,0012400038
+0012400038,558,PT00M02.20S,3,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:8),Rebound,Unknown,1,0,359,0012400038
+0012400038,516,PT00M00.00S,3,0,,0,,,0,0,0,,0,88,91,179,,End of 3rd Period (9:48 PM EST),period,end,1,0,360,0012400038
+0012400038,527,PT12M00.00S,4,0,,0,,,0,0,0,,0,88,91,179,,Start of 4th Period (9:50 PM EST),period,start,0,0,361,0012400038
+0012400038,528,PT11M34.00S,4,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams Lost Ball Turnover (P1.T19),Turnover,Lost Ball,1,0,362,0012400038
+0012400038,528,PT11M34.00S,4,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (3 STL),,,1,0,363,0012400038
+0012400038,530,PT11M29.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,2,12,1,Made,1,90,91,181,h,Sochan 1' Running Layup (15 PTS) (Johnson 2 AST),Made Shot,Running Layup Shot,1,2,364,0012400038
+0012400038,532,PT11M13.00S,4,1610612762,UTA,1630554,Preston,J. Preston,70,124,14,Missed,1,,,0,v,MISS Preston 14' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,365,0012400038
+0012400038,533,PT11M10.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,366,0012400038
+0012400038,534,PT11M04.00S,4,1610612759,SAS,1642264,Castle,S. Castle,-18,15,2,Missed,1,,,0,h,MISS Castle 2' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,367,0012400038
+0012400038,535,PT11M03.00S,4,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,368,0012400038
+0012400038,536,PT11M02.00S,4,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,Made,1,92,91,183,h,Johnson Tip Layup Shot (18 PTS),Made Shot,Tip Layup Shot,1,2,369,0012400038
+0012400038,537,PT10M47.00S,4,1610612762,UTA,1642262,Williams,C. Williams,18,-1,2,Missed,1,,,0,v,MISS Williams 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,370,0012400038
+0012400038,537,PT10M47.00S,4,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson BLOCK (1 BLK),,,1,2,371,0012400038
+0012400038,539,PT10M47.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,372,0012400038
+0012400038,541,PT10M47.00S,4,1610612762,UTA,1630554,Preston,J. Preston,0,0,0,,0,,,0,v,SUB: Sexton FOR Preston,Substitution,,0,0,373,0012400038
+0012400038,543,PT10M38.00S,4,1610612762,UTA,1630548,Juzang,J. Juzang,119,218,25,Missed,1,,,0,v,MISS Juzang 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,374,0012400038
+0012400038,544,PT10M36.00S,4,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,Paul REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,375,0012400038
+0012400038,545,PT10M27.00S,4,1610612759,SAS,1630200,Jones,T. Jones,-29,6,3,Made,1,94,91,185,h,Jones 3' Running Layup (6 PTS),Made Shot,Running Layup Shot,1,2,376,0012400038
+0012400038,546,PT10M12.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton Lost Ball Turnover (P4.T20),Turnover,Lost Ball,1,0,377,0012400038
+0012400038,546,PT10M12.00S,4,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (4 STL),,,1,0,378,0012400038
+0012400038,548,PT10M08.00S,4,1610612759,SAS,1630200,Jones,T. Jones,9,13,2,Made,1,96,91,187,h,Jones 2' Running Layup (8 PTS),Made Shot,Running Layup Shot,1,2,379,0012400038
+0012400038,549,PT10M08.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,380,0012400038
+0012400038,551,PT09M47.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks Bad Pass Turnover (P3.T21),Turnover,Bad Pass,1,0,381,0012400038
+0012400038,551,PT09M47.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan STEAL (3 STL),,,1,0,382,0012400038
+0012400038,553,PT09M35.00S,4,1610612759,SAS,101108,Paul,C. Paul,96,49,11,Missed,1,,,0,h,MISS Paul 11' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,383,0012400038
+0012400038,554,PT09M33.00S,4,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler REBOUND (Off:0 Def:9),Rebound,Unknown,1,0,384,0012400038
+0012400038,555,PT09M17.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,-162,194,25,Missed,1,,,0,v,MISS Hendricks 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,385,0012400038
+0012400038,556,PT09M13.00S,4,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,386,0012400038
+0012400038,559,PT09M11.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton S.FOUL (P1.T1) (B.Schwab),Foul,Shooting,1,0,387,0012400038
+0012400038,561,PT09M11.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,MISS Sochan Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,388,0012400038
+0012400038,562,PT09M11.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,389,0012400038
+0012400038,563,PT09M11.00S,4,1610612759,SAS,101108,Paul,C. Paul,0,0,0,,0,,,0,h,SUB: Barnes FOR Paul,Substitution,,0,0,390,0012400038
+0012400038,565,PT09M11.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,MISS Sochan Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,0,0,391,0012400038
+0012400038,566,PT09M08.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,392,0012400038
+0012400038,567,PT08M58.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton Lost Ball Turnover (P5.T22),Turnover,Lost Ball,1,0,393,0012400038
+0012400038,567,PT08M58.00S,4,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones STEAL (5 STL),,,1,0,394,0012400038
+0012400038,569,PT08M49.00S,4,1610612759,SAS,1629640,Johnson,K. Johnson,-1,1,0,Made,1,98,91,189,h,Johnson Running Dunk (20 PTS) (Jones 6 AST),Made Shot,Running Dunk Shot,1,2,395,0012400038
+0012400038,571,PT08M32.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,-221,105,24,Made,1,98,94,192,v,Hendricks 24' 3PT Jump Shot (10 PTS) (Sexton 6 AST),Made Shot,Jump Shot,1,3,396,0012400038
+0012400038,573,PT08M19.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Lost Ball Turnover (P1.T8),Turnover,Lost Ball,1,0,397,0012400038
+0012400038,573,PT08M19.00S,4,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,Kessler STEAL (1 STL),,,1,0,398,0012400038
+0012400038,575,PT08M15.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,-145,213,26,Missed,1,,,0,v,MISS Hendricks 26' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,399,0012400038
+0012400038,576,PT08M11.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,400,0012400038
+0012400038,577,PT08M11.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,-15,13,2,Made,1,98,96,194,v,Hendricks 2' Driving Floating Bank Jump Shot (12 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,401,0012400038
+0012400038,578,PT08M11.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan S.FOUL (P1.T1) (B.Schwab),Foul,Shooting,1,0,402,0012400038
+0012400038,580,PT08M11.00S,4,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Johnson,Substitution,,0,0,403,0012400038
+0012400038,581,PT08M11.00S,4,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Wesley FOR Sochan,Substitution,,0,0,404,0012400038
+0012400038,584,PT08M11.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,98,97,195,v,Hendricks Free Throw 1 of 1 (13 PTS),Free Throw,Free Throw 1 of 1,1,0,405,0012400038
+0012400038,585,PT07M59.00S,4,1610612759,SAS,1630200,Jones,T. Jones,-15,8,2,Made,1,100,97,197,h,Jones 2' Driving Finger Roll Layup (10 PTS) (Mamukelashvili 5 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,406,0012400038
+0012400038,587,PT07M46.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,232,27,0,Missed,1,,,0,v,MISS Hendricks 3PT Jump Shot,Missed Shot,Jump Shot,1,3,407,0012400038
+0012400038,588,PT07M46.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,408,0012400038
+0012400038,589,PT07M27.00S,4,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes Backcourt Turnover (P3.T9),Turnover,Backcourt Turnover,1,0,409,0012400038
+0012400038,590,PT07M27.00S,4,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,SUB: Cissoko FOR Jones,Substitution,,0,0,410,0012400038
+0012400038,591,PT07M27.00S,4,1610612762,UTA,1631117,Kessler,W. Kessler,0,0,0,,0,,,0,v,SUB: Eubanks FOR Kessler,Substitution,,0,0,411,0012400038
+0012400038,592,PT07M27.00S,4,1610612762,UTA,1630548,Juzang,J. Juzang,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Juzang,Substitution,,0,0,412,0012400038
+0012400038,596,PT07M23.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle S.FOUL (P1.T2) (B.Schwab),Foul,Shooting,1,0,413,0012400038
+0012400038,598,PT07M23.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,100,98,198,v,Sexton Free Throw 1 of 2 (19 PTS),Free Throw,Free Throw 1 of 2,1,0,414,0012400038
+0012400038,599,PT07M23.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,100,99,199,v,Sexton Free Throw 2 of 2 (20 PTS),Free Throw,Free Throw 2 of 2,1,0,415,0012400038
+0012400038,600,PT07M04.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-141,221,26,Missed,1,,,0,h,MISS Mamukelashvili 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,416,0012400038
+0012400038,601,PT07M01.00S,4,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,417,0012400038
+0012400038,602,PT06M41.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,64,192,20,Made,1,100,101,201,v,Sexton 20' Pullup Jump Shot (22 PTS),Made Shot,Pullup Jump shot,1,2,418,0012400038
+0012400038,603,PT06M29.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Lost Ball Turnover (P1.T10),Turnover,Lost Ball,1,0,419,0012400038
+0012400038,603,PT06M29.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,Sexton STEAL (1 STL),,,1,0,420,0012400038
+0012400038,605,PT06M26.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko P.FOUL (P1.T3) (B.Taylor),Foul,Personal,1,0,421,0012400038
+0012400038,607,PT06M26.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Filipowski FOR Hendricks,Substitution,,0,0,422,0012400038
+0012400038,609,PT06M22.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-194,151,25,Missed,1,,,0,v,MISS Sensabaugh 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,423,0012400038
+0012400038,610,PT06M19.00S,4,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,424,0012400038
+0012400038,611,PT06M09.00S,4,1610612759,SAS,1642264,Castle,S. Castle,159,196,25,Made,1,103,101,204,h,Castle 25' 3PT Jump Shot (7 PTS) (Cissoko 1 AST),Made Shot,Jump Shot,1,3,425,0012400038
+0012400038,614,PT05M47.00S,4,1610612762,UTA,1642262,Williams,C. Williams,5,4,1,Missed,1,,,0,v,MISS Williams 1' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,426,0012400038
+0012400038,615,PT05M43.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,427,0012400038
+0012400038,616,PT05M43.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,Made,1,103,103,206,v,Filipowski Tip Dunk Shot (8 PTS),Made Shot,Tip Dunk Shot,1,2,428,0012400038
+0012400038,617,PT05M40.00S,4,1610612759,SAS,1642264,Castle,S. Castle,2,2,0,Made,1,105,103,208,h,Castle Driving Dunk (9 PTS),Made Shot,Driving Dunk Shot,1,2,429,0012400038
+0012400038,619,PT05M18.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,154,203,25,Missed,1,,,0,v,MISS Sexton 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,430,0012400038
+0012400038,620,PT05M15.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,431,0012400038
+0012400038,621,PT05M12.00S,4,1610612759,SAS,203084,Barnes,H. Barnes,-185,186,26,Made,1,108,103,211,h,Barnes 26' 3PT Running Jump Shot (8 PTS) (Wesley 3 AST),Made Shot,Running Jump Shot,1,3,432,0012400038
+0012400038,623,PT05M03.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,-83,239,25,Missed,1,,,0,v,MISS Filipowski 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,433,0012400038
+0012400038,624,PT05M01.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,434,0012400038
+0012400038,625,PT04M55.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,16,10,2,Made,1,110,103,213,h,Mamukelashvili 2' Cutting Layup Shot (15 PTS) (Wesley 4 AST),Made Shot,Cutting Layup Shot,1,2,435,0012400038
+0012400038,627,PT04M55.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,436,0012400038
+0012400038,628,PT04M55.00S,4,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Minix FOR Barnes,Substitution,,0,0,437,0012400038
+0012400038,629,PT04M55.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,SUB: Ingram FOR Mamukelashvili,Substitution,,0,0,438,0012400038
+0012400038,630,PT04M55.00S,4,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Mykhailiuk FOR Williams,Substitution,,0,0,439,0012400038
+0012400038,634,PT04M42.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle S.FOUL (P2.T4) (B.Schwab),Foul,Shooting,1,0,440,0012400038
+0012400038,636,PT04M42.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,110,104,214,v,Sensabaugh Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,441,0012400038
+0012400038,637,PT04M42.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,110,105,215,v,Sensabaugh Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,442,0012400038
+0012400038,638,PT04M29.00S,4,1610612759,SAS,1642434,Minix,R. Minix,-10,13,2,Made,1,112,105,217,h,Minix 2' Driving Layup (2 PTS) (Castle 2 AST),Made Shot,Driving Layup Shot,1,2,443,0012400038
+0012400038,640,PT04M29.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,Filipowski S.FOUL (P1.T2) (M.Smith),Foul,Shooting,1,0,444,0012400038
+0012400038,642,PT04M29.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,113,105,218,h,Minix Free Throw 1 of 1 (3 PTS),Free Throw,Free Throw 1 of 1,1,0,445,0012400038
+0012400038,643,PT04M11.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,225,24,0,Missed,1,,,0,v,MISS Filipowski 3PT Jump Shot,Missed Shot,Jump Shot,1,3,446,0012400038
+0012400038,644,PT04M09.00S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,447,0012400038
+0012400038,645,PT04M05.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-225,22,0,Made,1,113,108,221,v,Sensabaugh 3PT Step Back Jump Shot (12 PTS) (Mykhailiuk 2 AST),Made Shot,Step Back Jump shot,1,3,448,0012400038
+0012400038,647,PT03M56.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,-103,237,26,Missed,1,,,0,h,MISS Ingram 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,449,0012400038
+0012400038,648,PT03M52.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,450,0012400038
+0012400038,649,PT03M45.00S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,20,145,15,Made,1,113,110,223,v,Mykhailiuk 15' Turnaround Jump Shot (12 PTS) (Sexton 7 AST),Made Shot,Turnaround Jump Shot,1,2,451,0012400038
+0012400038,650,PT03M32.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Bad Pass Turnover (P2.T11),Turnover,Bad Pass,1,0,452,0012400038
+0012400038,650,PT03M32.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh STEAL (1 STL),,,1,0,453,0012400038
+0012400038,652,PT03M18.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,-77,87,12,Missed,1,,,0,v,MISS Sexton 12' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,454,0012400038
+0012400038,653,PT03M15.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,455,0012400038
+0012400038,654,PT03M11.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,-228,-6,0,Missed,1,,,0,h,MISS Wesley 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,456,0012400038
+0012400038,655,PT03M11.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,457,0012400038
+0012400038,656,PT03M05.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,Made,1,115,110,225,h,Minix Putback Layup (5 PTS),Made Shot,Putback Layup Shot,1,2,458,0012400038
+0012400038,657,PT02M54.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix S.FOUL (P1.PN) (M.Smith),Foul,Shooting,1,0,459,0012400038
+0012400038,659,PT02M54.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,115,111,226,v,Sexton Free Throw 1 of 2 (23 PTS),Free Throw,Free Throw 1 of 2,1,0,460,0012400038
+0012400038,660,PT02M54.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,115,112,227,v,Sexton Free Throw 2 of 2 (24 PTS),Free Throw,Free Throw 2 of 2,1,0,461,0012400038
+0012400038,662,PT02M39.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,-4,69,7,Missed,1,,,0,h,MISS Wesley 7' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,462,0012400038
+0012400038,663,PT02M36.00S,4,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,Eubanks REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,463,0012400038
+0012400038,664,PT02M20.00S,4,1610612762,UTA,1629234,Eubanks,D. Eubanks,107,3,11,Made,1,115,114,229,v,Eubanks 11' Turnaround Hook Shot (10 PTS) (Sexton 8 AST),Made Shot,Turnaround Hook Shot,1,2,464,0012400038
+0012400038,666,PT02M07.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,2,2,0,Made,1,117,114,231,h,Wesley Cutting Dunk Shot (6 PTS) (Ingram 1 AST),Made Shot,Cutting Dunk Shot,1,2,465,0012400038
+0012400038,668,PT01M54.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,45,255,26,Missed,1,,,0,v,MISS Sexton 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,466,0012400038
+0012400038,669,PT01M52.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,467,0012400038
+0012400038,670,PT01M39.00S,4,1610612759,SAS,1642264,Castle,S. Castle,10,0,1,Made,1,119,114,233,h,Castle 1' Driving Floating Bank Jump Shot (11 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,468,0012400038
+0012400038,671,PT01M31.00S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,9,94,9,Missed,1,,,0,v,MISS Mykhailiuk 9' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,469,0012400038
+0012400038,671,PT01M31.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko BLOCK (1 BLK),,,1,2,470,0012400038
+0012400038,673,PT01M27.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,471,0012400038
+0012400038,674,PT01M27.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,1,11,1,Made,1,121,114,235,h,Cissoko 1' Running Dunk (2 PTS) (Castle 3 AST),Made Shot,Running Dunk Shot,1,2,472,0012400038
+0012400038,676,PT01M17.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley S.FOUL (P3.PN) (B.Schwab),Foul,Shooting,1,0,473,0012400038
+0012400038,678,PT01M17.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,121,115,236,v,Filipowski Free Throw 1 of 2 (9 PTS),Free Throw,Free Throw 1 of 2,1,0,474,0012400038
+0012400038,679,PT01M17.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,SUB: Flynn FOR Castle,Substitution,,0,0,475,0012400038
+0012400038,680,PT01M17.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,SUB: Boston Jr. FOR Wesley,Substitution,,0,0,476,0012400038
+0012400038,691,PT01M17.00S,4,1610612762,UTA,1629012,Sexton,C. Sexton,0,0,0,,0,,,0,v,SUB: Juzang FOR Sexton,Substitution,,0,0,477,0012400038
+0012400038,683,PT01M17.00S,4,1610612762,UTA,1642271,Filipowski,K. Filipowski,0,0,0,,0,,,0,v,MISS Filipowski Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,478,0012400038
+0012400038,684,PT01M06.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,479,0012400038
+0012400038,685,PT01M04.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,-16,17,2,Made,1,123,115,238,h,Cissoko 2' Driving Hook Shot (4 PTS),Made Shot,Driving Hook Shot,1,2,480,0012400038
+0012400038,686,PT00M59.20S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-222,109,25,Made,1,123,118,241,v,Mykhailiuk 25' 3PT Step Back Jump Shot (15 PTS) (Sensabaugh 5 AST),Made Shot,Step Back Jump shot,1,3,481,0012400038
+0012400038,687,PT00M59.20S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix S.FOUL (P2.PN) (B.Schwab),Foul,Shooting,1,0,482,0012400038
+0012400038,689,PT00M59.20S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,123,119,242,v,Mykhailiuk Free Throw 1 of 1 (16 PTS),Free Throw,Free Throw 1 of 1,1,0,483,0012400038
+0012400038,690,PT00M41.60S,4,1610612759,SAS,1642434,Minix,R. Minix,-159,214,27,Made,1,126,119,245,h,Minix 27' 3PT Step Back Jump Shot (8 PTS),Made Shot,Step Back Jump shot,1,3,484,0012400038
+0012400038,693,PT00M30.10S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-81,50,10,Missed,1,,,0,v,MISS Sensabaugh 10' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,485,0012400038
+0012400038,694,PT00M26.70S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,486,0012400038
+0012400038,695,PT00M21.30S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko Lost Ball Turnover (P1.T12),Turnover,Lost Ball,1,0,487,0012400038
+0012400038,695,PT00M21.30S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh STEAL (2 STL),,,1,0,488,0012400038
+0012400038,697,PT00M15.60S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn P.FOUL (P1.PN) (B.Taylor),Foul,Personal,1,0,489,0012400038
+0012400038,699,PT00M15.60S,4,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,126,120,246,v,Eubanks Free Throw 1 of 2 (11 PTS),Free Throw,Free Throw 1 of 2,1,0,490,0012400038
+0012400038,700,PT00M15.60S,4,1610612762,UTA,1629234,Eubanks,D. Eubanks,0,0,0,,0,,,0,v,MISS Eubanks Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,491,0012400038
+0012400038,701,PT00M12.20S,4,1610612759,SAS,1630527,Boston,B. Boston,0,0,0,,0,,,0,h,Boston Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,492,0012400038
+0012400038,702,PT00M00.00S,4,0,,0,,,0,0,0,,0,126,120,246,,End of 4th Period (10:17 PM EST),period,end,1,0,493,0012400038

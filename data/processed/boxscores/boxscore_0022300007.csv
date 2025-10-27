@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,27:03,5,8,0.625,1,1,1.0,2,2,1.0,0,6,6,3,1,1,2,6,13,-16.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,F,,,32:20,8,14,0.571,0,4,0.0,0,0,0.0,1,2,3,0,0,0,0,4,16,-13.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,37:42,11,17,0.647,5,8,0.625,3,6,0.5,2,8,10,3,1,3,4,1,30,3.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,44:47,13,26,0.5,3,9,0.333,4,5,0.8,1,7,8,7,4,3,3,5,33,11.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,G,,,39:30,4,12,0.333,0,5,0.0,0,0,0.0,1,2,3,4,1,0,5,2,8,-19.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,24:03,3,8,0.375,0,2,0.0,0,0,0.0,1,6,7,5,1,2,1,5,6,-11.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,26:39,2,7,0.286,1,4,0.25,0,0,0.0,1,7,8,3,0,0,0,1,5,-10.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,10:36,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,1,0,0,2,13.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,,,,12:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,3,0,0,1,0,0,17.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,9:59,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,1,0,0,1,1,0,15.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,0:00,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,18:30,2,4,0.5,1,3,0.333,0,0,0.0,0,0,0,0,0,2,0,1,5,-3.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,43:44,9,23,0.391,3,7,0.429,5,9,0.556,2,6,8,3,0,1,3,0,26,9.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,36:16,7,11,0.636,0,0,0.0,2,2,1.0,4,8,12,2,3,1,1,4,16,10.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,46:26,7,17,0.412,2,5,0.4,6,7,0.857,1,4,5,2,1,1,3,2,22,-1.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,44:21,6,19,0.316,2,9,0.222,10,12,0.833,0,7,7,10,3,0,4,1,24,14.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,19:45,3,4,0.75,0,0,0.0,2,3,0.667,4,6,10,0,2,1,1,1,8,-5.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,15:13,3,8,0.375,1,5,0.2,2,2,1.0,0,1,1,1,1,0,1,0,9,-9.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,31:29,2,8,0.25,0,3,0.0,1,1,1.0,3,0,3,1,2,0,1,4,5,2.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,9:16,0,2,0.0,0,0,0.0,0,0,0.0,1,3,4,0,0,1,0,2,0,-7.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007
+0022300007,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300007

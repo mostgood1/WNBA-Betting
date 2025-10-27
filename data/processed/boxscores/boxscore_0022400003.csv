@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,28:39,0,1,0.0,0,0,0.0,0,0,0.0,0,3,3,1,0,0,4,4,0,-22.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,F,,,31:11,5,9,0.556,3,5,0.6,2,4,0.5,0,4,4,1,2,0,2,2,15,-7.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,C,,,14:18,2,3,0.667,0,0,0.0,0,0,0.0,2,2,4,0,0,0,3,2,4,-8.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,37:32,3,18,0.167,1,11,0.091,1,1,1.0,0,3,3,7,2,0,5,3,8,-23.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,35:07,13,27,0.481,6,14,0.429,3,3,1.0,1,5,6,7,0,0,3,3,35,-12.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,29:57,6,7,0.857,0,0,0.0,0,0,0.0,3,12,15,2,1,3,0,0,12,-10.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,,,,19:27,3,4,0.75,2,2,1.0,0,0,0.0,0,3,3,0,1,0,2,0,8,-12.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,5:44,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,1,1,0,0.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,20:34,1,6,0.167,1,3,0.333,0,2,0.0,2,4,6,1,0,0,1,2,3,-25.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,,,,13:35,1,5,0.2,0,1,0.0,2,4,0.5,0,3,3,1,1,0,1,1,4,-10.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,,,1:58,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022400003
+0022400003,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,1:58,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,2.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,32:02,2,6,0.333,1,4,0.25,0,0,0.0,1,5,6,2,0,2,0,1,5,15.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,31:58,14,25,0.56,2,9,0.222,2,3,0.667,1,7,8,5,3,0,2,2,32,19.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,20:09,3,5,0.6,0,1,0.0,3,4,0.75,1,1,2,2,0,1,1,2,9,-4.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,24:48,2,6,0.333,0,2,0.0,2,2,1.0,0,1,1,3,0,0,1,2,6,11.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,28:00,7,14,0.5,3,5,0.6,0,0,0.0,0,4,4,4,2,1,2,3,17,17.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,14:00,3,4,0.75,1,2,0.5,0,0,0.0,1,3,4,1,2,1,0,1,7,12.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,24:35,3,12,0.25,1,8,0.125,1,2,0.5,0,5,5,3,0,2,1,4,8,19.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,16:48,0,2,0.0,0,2,0.0,0,0,0.0,1,2,3,1,2,0,0,0,0,20.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,23:32,5,7,0.714,2,4,0.5,6,6,1.0,2,3,5,1,2,0,2,1,18,30.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,9:39,2,5,0.4,1,2,0.5,1,2,0.5,1,2,3,2,1,0,1,2,6,-6.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,6:14,1,3,0.333,1,3,0.333,0,0,0.0,0,0,0,0,0,0,1,2,3,-3.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,4:19,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-1.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,1:58,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-2.0,0022400003
+0022400003,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,1:58,1,3,0.333,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,1,3,-2.0,0022400003

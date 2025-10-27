@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,31:10,7,19,0.368,1,8,0.125,1,1,1.0,2,11,13,2,2,1,6,0,16,-39.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,24:43,1,7,0.143,0,4,0.0,0,0,0.0,1,2,3,1,0,1,3,1,2,-17.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,29:42,3,4,0.75,0,0,0.0,1,2,0.5,4,9,13,3,2,1,1,3,7,-19.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,G,,,22:23,1,10,0.1,0,4,0.0,1,2,0.5,1,1,2,2,0,1,1,1,3,-26.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,G,,,26:09,3,4,0.75,2,2,1.0,1,2,0.5,0,2,2,3,0,0,5,2,9,-18.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,19:23,2,7,0.286,1,2,0.5,1,2,0.5,1,1,2,1,1,0,0,3,6,-22.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,24:31,2,10,0.2,1,5,0.2,0,0,0.0,0,1,1,3,2,0,3,0,5,-37.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,14:26,2,7,0.286,1,4,0.25,2,2,1.0,0,2,2,1,1,0,0,1,7,-23.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,,,9:49,2,5,0.4,1,2,0.5,0,0,0.0,1,0,1,0,0,0,0,1,5,-25.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,19:01,3,8,0.375,3,6,0.5,0,0,0.0,3,0,3,2,0,0,1,2,9,-20.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,4:00,0,3,0.0,0,3,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-8.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,3:57,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-3.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,6:14,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-6.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,1642279,Ulrich,Chomche,U. Chomche,ulrich-chomche,,,,4:32,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,-7.0,0022400449
+0022400449,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,25:28,6,13,0.462,0,2,0.0,0,0,0.0,5,4,9,3,1,0,3,1,12,11.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,29:22,6,13,0.462,4,9,0.444,7,11,0.636,0,8,8,3,1,0,3,2,23,38.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,20:58,0,7,0.0,0,6,0.0,0,0,0.0,0,6,6,4,2,0,0,1,0,20.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,27:22,6,8,0.75,3,3,1.0,1,2,0.5,0,4,4,3,1,4,2,2,16,29.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,25:05,5,8,0.625,4,5,0.8,0,0,0.0,1,0,1,4,3,0,0,0,14,25.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,22:56,7,13,0.538,5,8,0.625,0,0,0.0,1,5,6,4,3,0,2,1,19,36.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,17:50,4,7,0.571,4,7,0.571,0,0,0.0,0,2,2,1,0,0,0,0,12,28.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,13:03,1,2,0.5,0,0,0.0,0,0,0.0,1,3,4,2,0,0,1,0,2,17.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,18:38,4,5,0.8,0,0,0.0,0,0,0.0,3,1,4,0,1,2,0,1,8,16.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,,,12:00,2,3,0.667,1,2,0.5,0,0,0.0,0,4,4,2,0,0,1,0,5,17.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,,,12:00,4,6,0.667,1,1,1.0,1,2,0.5,0,1,1,2,0,0,0,1,10,17.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,9:04,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,2,1,0,0,2,10.0,0022400449
+0022400449,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,6:14,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,1,2,6.0,0022400449

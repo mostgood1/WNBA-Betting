@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,31:11,4,10,0.4,3,5,0.6,0,0,0.0,2,3,5,0,0,0,0,4,11,-1.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,F,,,31:42,2,6,0.333,2,3,0.667,2,2,1.0,0,7,7,2,1,1,1,3,8,2.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,C,,,31:29,0,4,0.0,0,0,0.0,0,0,0.0,7,4,11,2,2,1,1,4,0,-2.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,42:47,11,23,0.478,6,13,0.462,4,4,1.0,2,9,11,3,0,1,4,2,32,-5.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,39:41,17,38,0.447,6,17,0.353,10,13,0.769,0,5,5,10,1,0,4,3,50,7.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,,,,29:10,2,7,0.286,0,4,0.0,2,2,1.0,2,4,6,4,2,2,0,2,6,5.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,16:53,2,3,0.667,2,3,0.667,0,0,0.0,1,1,2,1,0,0,0,1,6,-15.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,4:24,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-4.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,4:24,2,3,0.667,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,4,-4.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,,,,8:19,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-13.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,21:35,2,5,0.4,2,3,0.667,2,2,1.0,1,4,5,0,0,0,3,4,8,-16.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,31:29,12,23,0.522,1,3,0.333,7,10,0.7,2,9,11,6,0,2,4,1,32,-2.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,38:00,4,9,0.444,3,7,0.429,2,2,1.0,1,7,8,2,1,3,1,4,13,2.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,20:35,2,4,0.5,1,1,1.0,0,0,0.0,3,3,6,4,0,0,0,0,5,-5.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,34:42,9,21,0.429,3,9,0.333,10,11,0.909,0,4,4,4,1,0,1,2,31,4.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,,,13:18,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,1,1,0,0,2.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,26:31,5,13,0.385,1,3,0.333,0,1,0.0,1,6,7,2,1,3,0,2,11,12.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,29:16,6,8,0.75,4,5,0.8,0,0,0.0,1,2,3,2,0,0,2,3,16,13.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,24:34,3,4,0.75,3,4,0.75,0,0,0.0,1,5,6,0,0,0,2,6,9,20.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1641857,Liam,Robbins,L. Robbins,liam-robbins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268
+0022400268,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400268

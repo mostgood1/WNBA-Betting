@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401227,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,36:43,3,8,0.375,1,3,0.333,0,0,0.0,1,4,5,1,1,0,2,2,7,14.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,33:02,5,9,0.556,1,3,0.333,1,3,0.333,0,5,5,5,4,1,5,1,12,9.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,43:17,7,15,0.467,1,3,0.333,7,7,1.0,4,18,22,5,0,1,6,4,22,9.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,40:49,7,11,0.636,1,3,0.333,2,2,1.0,0,1,1,1,1,1,1,2,17,2.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,38:03,8,18,0.444,4,8,0.5,11,14,0.786,0,3,3,5,1,0,3,2,31,3.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,17:31,1,3,0.333,0,1,0.0,2,2,1.0,1,4,5,0,1,0,0,2,4,-4.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,20:38,2,6,0.333,2,2,1.0,1,2,0.5,1,1,2,1,0,0,0,2,7,6.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,9:57,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,2,0,0,0,1,0,6.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401227
+0022401227,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,32:10,9,17,0.529,2,5,0.4,0,0,0.0,3,0,3,2,0,0,2,4,20,-8.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,F,,,27:16,1,4,0.25,0,2,0.0,0,0,0.0,1,4,5,1,1,0,0,2,2,-9.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,24:50,4,7,0.571,0,0,0.0,0,0,0.0,4,7,11,1,1,3,4,1,8,-2.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,32:42,2,7,0.286,0,3,0.0,0,0,0.0,1,1,2,2,1,1,2,3,4,-2.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,32:22,4,19,0.211,1,5,0.2,0,0,0.0,1,4,5,8,1,3,2,6,9,-15.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,15:00,1,1,1.0,1,1,1.0,0,0,0.0,0,3,3,0,1,2,0,1,3,-12.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,4:57,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-1.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,25:32,10,15,0.667,4,7,0.571,8,11,0.727,0,6,6,1,2,0,3,4,32,-1.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,19:36,1,7,0.143,0,1,0.0,2,2,1.0,0,1,1,3,1,0,0,2,4,-3.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,9:03,2,4,0.5,0,2,0.0,0,0,0.0,0,2,2,5,0,1,0,0,4,1.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,9:18,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,1,2,4.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,5:43,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,0,3,-1.0,0022401227
+0022401227,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,1:31,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,4.0,0022401227

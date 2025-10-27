@@ -1,0 +1,41 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,F,,,23:13,3,7,0.429,0,4,0.0,4,5,0.8,2,3,5,1,0,0,3,0,10,-12.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,F,,,25:11,2,9,0.222,2,9,0.222,0,0,0.0,2,6,8,1,1,0,2,2,6,-1.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,C,,,19:38,2,2,1.0,0,0,0.0,0,0,0.0,1,1,2,3,0,2,1,3,4,-10.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630625,Dalano,Banton,D. Banton,dalano-banton,G,,,30:26,8,19,0.421,1,5,0.2,3,3,1.0,0,2,2,2,0,0,1,2,20,-17.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,G,,,29:12,7,15,0.467,4,11,0.364,3,3,1.0,0,3,3,5,3,0,3,1,21,-12.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,26:48,5,12,0.417,1,5,0.2,0,0,0.0,3,5,8,1,1,0,2,4,11,1.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,25:36,5,9,0.556,3,7,0.429,2,2,1.0,1,2,3,1,0,0,0,4,15,4.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,13:35,3,5,0.6,0,0,0.0,1,3,0.333,4,0,4,0,0,1,1,5,7,9.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1631120,JD,Davison,J. Davison,jd-davison,,,,13:42,2,4,0.5,0,2,0.0,1,1,1.0,0,3,3,4,0,0,1,2,5,-1.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,,,18:50,2,5,0.4,0,2,0.0,0,0,0.0,2,5,7,0,2,0,2,2,4,-3.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1629117,Wenyen,Gabriel,W. Gabriel,wenyen-gabriel,,,,9:40,0,3,0.0,0,0,0.0,1,2,0.5,2,2,4,1,0,0,0,4,1,2.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630569,DJ,Steward,D. Steward,dj-steward,,,,4:09,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,0,0,0,1,0,3,5.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1630206,Jay,Scrubb,J. Scrubb,jay-scrubb,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,15:31,1,6,0.167,1,5,0.2,9,9,1.0,0,2,2,2,0,0,0,0,12,17.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,12:46,3,4,0.75,1,2,0.5,4,4,1.0,1,3,4,0,0,0,1,0,11,10.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,C,,,23:23,5,6,0.833,0,0,0.0,0,3,0.0,4,3,7,0,2,3,0,0,10,11.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,5:36,4,5,0.8,1,1,1.0,1,2,0.5,0,0,0,1,0,0,0,0,10,7.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,22:04,2,6,0.333,2,5,0.4,0,0,0.0,0,3,3,4,1,0,3,0,6,14.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,25:34,0,1,0.0,0,0,0.0,0,0,0.0,2,5,7,3,0,1,0,3,0,-1.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,,,,22:58,8,14,0.571,2,5,0.4,3,5,0.6,1,0,1,3,3,0,3,3,21,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,22:33,2,8,0.25,2,5,0.4,2,2,1.0,0,3,3,2,0,0,1,2,8,-11.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,,,,20:07,3,5,0.6,0,2,0.0,3,4,0.75,0,3,3,3,0,1,4,2,9,1.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,,,20:49,4,10,0.4,3,7,0.429,0,0,0.0,1,2,3,1,1,0,0,4,11,-5.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,19:26,3,10,0.3,0,4,0.0,0,0,0.0,0,3,3,4,0,0,1,2,6,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,12:00,1,4,0.25,1,3,0.333,0,0,0.0,0,0,0,0,0,0,0,0,3,1.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,,,9:40,1,3,0.333,0,2,0.0,2,2,1.0,0,2,2,0,0,2,0,0,4,-2.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1630233,Nathan,Knight,N. Knight,nathan-knight,,,,4:30,1,1,1.0,0,0,0.0,1,2,0.5,0,1,1,0,0,0,0,1,3,-5.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629718,Charlie,Brown Jr.,C. Brown Jr.,charlie-brown-jr,,,,3:03,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-2.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1641798,Jaylen,Martin,J. Martin,jaylen-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629676,Isaiah,Roby,I. Roby,isaiah-roby,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1630613,Duane,Washington Jr.,D. Washington Jr.,duane-washington-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010
+0012300010,1610612752,New York,Knicks,NYK,knicks,1629685,Dylan,Windler,D. Windler,dylan-windler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300010

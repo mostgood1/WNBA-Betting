@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,29:08,11,16,0.688,5,10,0.5,1,1,1.0,0,4,4,1,1,0,1,3,28,-5.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,18:46,5,7,0.714,2,3,0.667,0,4,0.0,2,2,4,0,1,0,1,3,12,4.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,14:40,2,5,0.4,0,0,0.0,0,0,0.0,1,3,4,2,1,1,0,2,4,-2.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,33:25,4,8,0.5,0,2,0.0,2,2,1.0,0,5,5,5,1,0,1,3,10,1.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,31:14,2,12,0.167,0,8,0.0,3,4,0.75,0,2,2,8,1,1,4,1,7,14.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,31:36,2,7,0.286,0,4,0.0,0,0,0.0,1,3,4,8,1,0,2,1,4,-4.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,18:52,3,7,0.429,0,2,0.0,0,0,0.0,2,2,4,1,1,0,1,0,6,9.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,15:18,2,4,0.5,2,3,0.667,2,2,1.0,0,1,1,1,0,0,2,3,8,-2.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,,,29:20,9,12,0.75,4,6,0.667,3,4,0.75,0,7,7,2,1,1,0,2,25,-3.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,17:41,6,9,0.667,0,0,0.0,2,2,1.0,5,3,8,3,2,1,2,2,14,8.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,22:24,3,4,0.75,3,3,1.0,2,4,0.5,1,2,3,0,2,0,1,2,11,-5.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,40:48,11,19,0.579,3,9,0.333,5,5,1.0,1,6,7,6,1,0,3,4,30,-13.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,32:48,4,8,0.5,0,0,0.0,0,0,0.0,3,5,8,1,0,1,1,0,8,-3.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,27:12,4,10,0.4,3,5,0.6,1,1,1.0,1,4,5,1,1,0,2,3,12,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,35:35,9,20,0.45,0,5,0.0,6,6,1.0,0,3,3,7,1,0,4,3,24,-1.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,21:46,4,9,0.444,1,4,0.25,5,5,1.0,0,1,1,2,1,0,1,2,14,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,15:03,1,3,0.333,0,0,0.0,2,2,1.0,2,3,5,0,1,1,1,4,4,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,26:42,3,8,0.375,2,5,0.4,0,0,0.0,0,1,1,5,0,0,0,1,8,-2.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,17:42,1,4,0.25,1,4,0.25,0,0,0.0,1,3,4,1,3,2,0,1,3,4.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348
+0022300348,1610612757,Portland,Trail Blazers,POR,blazers,1630688,Ish,Wainright,I. Wainright,ish-wainright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300348

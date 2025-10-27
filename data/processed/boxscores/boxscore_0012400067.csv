@@ -1,0 +1,36 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,22:38,6,10,0.6,0,3,0.0,5,6,0.833,1,3,4,2,1,0,2,2,17,1.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,F,,,23:49,4,7,0.571,1,1,1.0,0,2,0.0,2,1,3,0,2,1,2,1,9,-12.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,26:23,6,9,0.667,0,0,0.0,0,1,0.0,5,15,20,1,3,0,5,2,12,-9.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,G,,,17:32,1,5,0.2,1,3,0.333,0,0,0.0,0,0,0,0,0,0,0,2,3,-10.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,5:01,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-2.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,,,19:37,0,6,0.0,0,3,0.0,2,3,0.667,1,2,3,2,1,0,1,1,2,-10.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,24:19,3,10,0.3,2,4,0.5,2,2,1.0,1,3,4,2,0,1,3,1,10,-10.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,17:16,2,7,0.286,1,4,0.25,4,4,1.0,2,4,6,2,1,1,1,1,9,-16.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,16:16,2,8,0.25,1,4,0.25,0,0,0.0,1,1,2,3,0,0,1,1,5,-1.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,21:07,1,7,0.143,0,3,0.0,11,12,0.917,1,0,1,0,0,0,1,3,13,-1.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,14:02,3,5,0.6,1,2,0.5,0,0,0.0,1,1,2,3,0,0,0,0,7,-4.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,,,12:00,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,1,0,2,1,2,-1.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,11:06,1,6,0.167,1,4,0.25,3,4,0.75,1,2,3,2,1,0,0,0,6,-4.0,0012400067
+0012400067,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,8:54,2,3,0.667,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,4,4.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,24:17,3,10,0.3,0,3,0.0,0,0,0.0,1,0,1,1,2,0,1,3,6,13.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,24:17,8,13,0.615,1,2,0.5,4,5,0.8,0,6,6,3,2,0,2,2,21,13.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,21:02,5,8,0.625,0,3,0.0,0,0,0.0,1,6,7,1,0,1,0,0,10,9.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,15:33,1,4,0.25,1,4,0.25,0,0,0.0,1,1,2,3,1,0,2,1,3,12.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,24:17,3,8,0.375,0,4,0.0,6,7,0.857,1,3,4,7,4,1,2,3,12,13.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,15:15,3,4,0.75,3,3,1.0,0,0,0.0,0,0,0,1,0,0,0,2,9,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,9:46,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,1,0,0,3.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,17:50,3,5,0.6,2,3,0.667,0,0,0.0,0,2,2,8,0,0,4,1,8,2.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,16:47,3,6,0.5,3,6,0.5,2,2,1.0,0,0,0,2,1,0,1,3,11,4.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,6:31,2,3,0.667,1,1,1.0,0,0,0.0,0,0,0,0,1,2,0,1,5,-1.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,10:46,3,4,0.75,0,0,0.0,0,2,0.0,1,6,7,0,0,1,0,0,6,3.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,8:18,1,3,0.333,1,2,0.5,2,2,1.0,0,0,0,1,0,0,1,1,5,7.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,,,,11:19,2,5,0.4,0,2,0.0,2,2,1.0,1,3,4,1,0,1,1,3,6,3.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,8:54,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-4.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630644,Mac,McClung,M. McClung,mac-mcclung,,,,2:54,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,1,2,0,0,2,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,,,6:26,1,2,0.5,0,0,0.0,2,2,1.0,0,1,1,0,0,0,0,2,4,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630679,Ethan,Thompson,E. Thompson,ethan-thompson,,,,5:53,1,4,0.25,0,2,0.0,0,0,0.0,0,2,2,2,0,0,1,0,2,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1629633,Jarrett,Culver,J. Culver,jarrett-culver,,,,5:53,1,3,0.333,0,0,0.0,0,0,0.0,2,1,3,0,0,1,0,0,2,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1631457,Alex,Morales,A. Morales,alex-morales,,,,4:02,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,2,-2.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400067
+0012400067,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400067

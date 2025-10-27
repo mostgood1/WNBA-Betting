@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,33:47,6,12,0.5,4,8,0.5,4,5,0.8,0,5,5,0,1,0,1,3,20,-12.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,38:30,7,11,0.636,0,1,0.0,2,6,0.333,3,3,6,4,0,0,2,5,16,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,38:01,11,20,0.55,0,2,0.0,3,4,0.75,11,8,19,3,1,1,4,3,25,1.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,32:47,5,13,0.385,2,7,0.286,1,1,1.0,0,5,5,2,1,0,0,2,13,-3.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,38:09,7,16,0.438,1,3,0.333,2,2,1.0,1,2,3,10,0,1,2,0,17,-5.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,19:40,3,6,0.5,2,3,0.667,2,2,1.0,0,2,2,2,1,0,1,0,10,4.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,17:48,3,5,0.6,2,3,0.667,3,3,1.0,0,4,4,0,0,1,0,3,11,3.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,11:18,1,4,0.25,1,2,0.5,2,2,1.0,1,0,1,2,0,0,0,0,5,-8.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,10:00,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,3,4,-5.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,F,,,34:59,3,4,0.75,2,3,0.667,0,0,0.0,1,3,4,2,0,2,2,3,8,7.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,37:60,8,10,0.8,2,4,0.5,6,6,1.0,0,5,5,4,1,2,0,2,24,13.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,38:33,13,22,0.591,3,6,0.5,12,15,0.8,1,6,7,10,0,1,3,4,41,0.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,26:31,5,9,0.556,1,4,0.25,0,1,0.0,0,5,5,0,1,0,2,4,11,-3.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,42:54,9,20,0.45,4,9,0.444,3,7,0.429,1,4,5,9,2,0,1,2,25,9.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,26:35,3,7,0.429,2,3,0.667,0,0,0.0,0,2,2,2,2,0,0,2,8,4.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,18:36,1,3,0.333,1,2,0.5,4,5,0.8,1,1,2,0,0,0,0,3,7,-3.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,,,4:25,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,9:27,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,2,0,1,2,5.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566
+0022300566,1610612755,Philadelphia,76ers,PHI,sixers,1631173,Terquavion,Smith,T. Smith,terquavion-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300566

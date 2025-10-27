@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,F,,,24:53,2,7,0.286,2,6,0.333,0,0,0.0,0,4,4,2,1,0,2,0,6,-17.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,38:60,9,20,0.45,1,3,0.333,6,8,0.75,6,4,10,5,1,0,0,2,25,-12.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,C,,,19:25,1,4,0.25,1,2,0.5,0,0,0.0,1,3,4,1,1,0,1,3,3,-18.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,G,,,32:08,10,16,0.625,4,6,0.667,4,6,0.667,3,2,5,2,1,1,4,3,28,-14.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,38:49,5,18,0.278,2,9,0.222,4,4,1.0,2,1,3,4,5,2,1,4,16,-15.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,31:00,8,13,0.615,3,8,0.375,0,0,0.0,0,2,2,5,2,1,1,1,19,-3.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,8:05,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,1,1,3,-3.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,26:30,4,11,0.364,0,1,0.0,2,2,1.0,0,3,3,7,5,0,0,2,10,23.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,19:28,4,7,0.571,1,3,0.333,0,0,0.0,0,1,1,3,1,1,0,3,9,5.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1641803,Tristen,Newton,T. Newton,tristen-newton,,,,0:41,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400247
+0022400247,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,35:35,13,21,0.619,4,8,0.5,9,12,0.75,1,8,9,5,0,0,5,2,39,12.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,32:51,4,7,0.571,2,3,0.667,1,2,0.5,1,3,4,6,1,3,2,5,11,12.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,37:38,13,18,0.722,0,0,0.0,4,6,0.667,4,11,15,2,2,2,6,3,30,18.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,G,,,34:31,4,9,0.444,3,6,0.5,4,4,1.0,0,4,4,3,0,0,4,5,15,18.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,G,,,32:36,4,7,0.571,1,2,0.5,2,2,1.0,0,0,0,4,0,0,3,5,11,26.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,13:59,2,5,0.4,0,2,0.0,0,2,0.0,0,0,0,2,0,0,3,2,4,-15.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,18:24,2,4,0.5,0,2,0.0,0,0,0.0,1,6,7,0,0,3,0,0,4,-10.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,12:37,2,3,0.667,0,0,0.0,0,0,0.0,3,0,3,1,0,0,0,0,4,-11.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,10:55,3,6,0.5,3,5,0.6,0,0,0.0,0,1,1,1,0,0,0,1,9,-4.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,10:55,1,2,0.5,1,1,1.0,0,0,0.0,0,3,3,3,2,1,0,3,3,9.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400247
+0022400247,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400247

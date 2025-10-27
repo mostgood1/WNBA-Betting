@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,18:45,1,4,0.25,0,3,0.0,0,0,0.0,0,5,5,1,1,0,0,3,2,15.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,32:18,4,13,0.308,0,2,0.0,5,7,0.714,1,12,13,4,0,2,2,4,13,14.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,25:04,10,10,1.0,0,0,0.0,3,4,0.75,1,4,5,1,1,2,0,1,23,13.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,29:18,11,18,0.611,6,11,0.545,2,3,0.667,1,3,4,5,4,0,5,1,30,18.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,23:56,9,11,0.818,4,5,0.8,1,1,1.0,0,2,2,5,2,0,4,4,23,17.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,19:35,3,8,0.375,3,7,0.429,2,2,1.0,1,1,2,1,1,0,1,2,11,12.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,19:11,3,4,0.75,2,2,1.0,2,2,1.0,0,0,0,4,0,2,0,1,10,6.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,21:14,1,7,0.143,1,6,0.167,0,0,0.0,3,3,6,1,1,0,0,2,3,7.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,18:55,0,4,0.0,0,1,0.0,3,5,0.6,3,2,5,1,2,2,1,2,3,4.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,15:10,4,6,0.667,1,1,1.0,5,6,0.833,1,1,2,3,1,0,1,1,14,-4.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,7:53,1,3,0.333,1,1,1.0,0,0,0.0,0,1,1,0,0,0,1,5,3,-3.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,5:19,0,0,0.0,0,0,0.0,0,4,0.0,0,1,1,0,0,0,1,1,0,-3.0,0022400090
+0022400090,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,3:22,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,1,0,2,0,0,0,-1.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,35:09,9,16,0.563,4,9,0.444,1,1,1.0,3,3,6,1,0,0,3,2,23,-15.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,24:17,3,16,0.188,0,4,0.0,8,10,0.8,3,5,8,3,0,0,1,0,14,-17.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,24:58,4,10,0.4,2,6,0.333,2,2,1.0,2,4,6,1,1,2,0,3,12,-18.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,23:45,4,9,0.444,4,7,0.571,2,2,1.0,0,1,1,6,3,0,1,2,14,-17.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,25:17,2,8,0.25,2,4,0.5,4,4,1.0,0,2,2,4,0,0,2,5,10,-15.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,21:07,4,7,0.571,0,0,0.0,2,2,1.0,4,4,8,0,1,0,3,1,10,-9.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,26:24,4,9,0.444,2,6,0.333,0,0,0.0,0,1,1,2,0,0,1,2,10,-10.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,,,,26:34,0,7,0.0,0,4,0.0,2,4,0.5,2,2,4,4,0,4,2,5,2,-2.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,11:11,3,4,0.75,1,1,1.0,1,2,0.5,0,1,1,3,1,1,0,2,8,1.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,9:46,2,5,0.4,0,2,0.0,5,5,1.0,3,3,6,0,0,1,2,1,9,2.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,6:13,1,3,0.333,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,2,2,2.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,5:19,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,2,3.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400090
+0022400090,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400090

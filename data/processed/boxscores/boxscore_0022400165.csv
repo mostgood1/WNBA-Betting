@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,31:48,7,13,0.538,1,4,0.25,1,3,0.333,0,7,7,3,1,0,0,3,16,13.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:35,10,16,0.625,1,2,0.5,2,2,1.0,1,5,6,4,0,0,1,1,23,16.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,32:55,10,17,0.588,5,8,0.625,5,5,1.0,1,10,11,0,1,1,2,2,30,9.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,28:48,4,9,0.444,1,2,0.5,2,2,1.0,1,2,3,3,0,0,0,3,11,7.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,35:32,10,16,0.625,2,8,0.25,3,6,0.5,0,4,4,12,2,1,2,1,25,9.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,16:42,1,3,0.333,1,3,0.333,0,0,0.0,1,0,1,2,0,0,2,2,3,-6.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,20:06,6,10,0.6,0,0,0.0,0,0,0.0,1,2,3,2,1,1,1,0,12,-5.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,24:16,5,8,0.625,1,3,0.333,0,0,0.0,1,5,6,2,0,0,0,2,11,-8.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,14:18,1,3,0.333,1,2,0.5,0,2,0.0,1,4,5,2,0,0,1,2,3,0.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,33:54,6,12,0.5,4,8,0.5,0,0,0.0,0,2,2,3,0,0,2,0,16,-14.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:51,3,11,0.273,0,5,0.0,2,4,0.5,1,10,11,0,0,3,2,2,8,-6.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,15:08,3,3,1.0,0,0,0.0,2,2,1.0,1,3,4,0,0,0,0,3,8,-12.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,39:36,11,21,0.524,3,7,0.429,2,2,1.0,2,3,5,4,0,0,2,3,27,-11.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,42:20,9,24,0.375,4,10,0.4,12,15,0.8,0,7,7,15,2,0,2,3,34,-3.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,7:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,6.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,33:43,8,9,0.889,2,2,1.0,2,2,1.0,1,4,5,6,1,0,0,2,20,5.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,23:03,6,8,0.75,2,3,0.667,0,0,0.0,0,3,3,1,0,0,0,4,14,-3.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,10:04,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,1,0,3.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165
+0022400165,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400165

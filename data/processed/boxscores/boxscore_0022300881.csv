@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,F,,,33:17,7,20,0.35,1,6,0.167,3,5,0.6,3,4,7,4,0,0,1,1,18,-10.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,28:23,2,9,0.222,0,3,0.0,0,0,0.0,1,7,8,1,0,0,0,5,4,3.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,C,,,38:55,10,14,0.714,5,6,0.833,1,2,0.5,2,1,3,1,1,1,3,4,26,-9.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,G,,,35:03,6,11,0.545,1,5,0.2,1,1,1.0,4,1,5,2,1,1,0,1,14,6.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,43:01,13,26,0.5,5,13,0.385,3,3,1.0,0,5,5,14,0,0,4,4,34,1.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,19:42,0,1,0.0,0,0,0.0,0,0,0.0,0,3,3,4,3,0,3,4,0,-1.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,,,8:41,1,1,1.0,0,0,0.0,0,0,0.0,1,2,3,2,0,1,1,3,2,4.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,23:22,5,7,0.714,3,3,1.0,0,0,0.0,1,5,6,0,0,0,1,3,13,-7.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,9:36,1,3,0.333,1,3,0.333,0,0,0.0,0,1,1,0,0,0,0,1,3,-12.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881
+0022300881,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,23:47,3,7,0.429,0,3,0.0,3,6,0.5,2,2,4,1,0,0,0,2,9,-9.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,21:19,5,12,0.417,0,3,0.0,4,6,0.667,2,2,4,1,0,2,1,4,14,1.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,39:01,9,10,0.9,0,0,0.0,7,7,1.0,5,11,16,0,1,3,3,6,25,-4.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,G,,,21:22,4,6,0.667,3,5,0.6,2,2,1.0,0,1,1,1,2,0,0,1,13,-5.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,28:43,6,13,0.462,2,6,0.333,5,5,1.0,2,0,2,7,3,0,2,1,19,-3.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,,,,34:42,4,10,0.4,1,3,0.333,4,6,0.667,0,4,4,6,1,0,2,2,13,8.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,22:59,4,5,0.8,4,4,1.0,0,2,0.0,0,5,5,0,0,1,1,0,12,16.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628420,Monté,Morris,M. Morris,monté-morris,,,,19:17,2,8,0.25,0,2,0.0,1,1,1.0,1,0,1,7,1,0,1,0,5,8.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,28:50,3,8,0.375,1,2,0.5,2,2,1.0,0,3,3,5,1,1,1,1,9,13.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881
+0022300881,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300881

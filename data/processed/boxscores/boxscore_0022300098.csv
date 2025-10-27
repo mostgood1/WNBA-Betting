@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,10:39,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,-14.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,27:54,5,16,0.313,1,4,0.25,6,7,0.857,2,3,5,1,0,2,2,2,17,-29.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,20:37,3,7,0.429,0,0,0.0,1,1,1.0,2,7,9,2,2,1,0,3,7,-15.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,35:38,7,13,0.538,2,4,0.5,4,5,0.8,1,4,5,2,0,0,3,3,20,-23.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,26:30,2,7,0.286,0,4,0.0,0,0,0.0,0,1,1,3,0,1,4,5,4,-17.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,25:42,2,3,0.667,0,0,0.0,2,2,1.0,2,5,7,2,2,2,1,2,6,-6.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,25:51,7,16,0.438,2,6,0.333,2,2,1.0,1,4,5,5,1,0,2,2,18,-6.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,27:40,5,16,0.313,1,5,0.2,1,2,0.5,3,0,3,2,0,2,0,3,12,-13.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,24:24,4,9,0.444,1,3,0.333,3,3,1.0,3,4,7,1,4,1,2,4,12,5.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,5:47,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,-8.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,4:39,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,4:39,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,-7.0,0022300098
+0022300098,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,37:44,8,11,0.727,2,4,0.5,6,7,0.857,0,5,5,2,1,2,3,3,24,31.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,200782,P.J.,Tucker,P. Tucker,pj-tucker,F,,,19:34,1,2,0.5,1,2,0.5,0,0,0.0,0,4,4,0,1,2,1,1,3,26.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,29:25,12,22,0.545,2,4,0.5,9,12,0.75,5,10,15,7,2,6,3,3,35,28.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,30:33,4,9,0.444,1,2,0.5,3,3,1.0,0,2,2,8,2,0,1,2,12,27.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,34:44,6,14,0.429,4,8,0.5,10,10,1.0,1,9,10,4,0,0,2,1,26,19.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,,,25:45,3,10,0.3,0,4,0.0,6,6,1.0,1,2,3,0,2,1,1,1,12,-1.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,20:26,2,3,0.667,0,0,0.0,0,0,0.0,1,1,2,2,1,3,1,3,4,8.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,10:16,1,2,0.5,0,1,0.0,0,0,0.0,1,1,2,2,1,0,1,0,2,-3.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,17:03,1,5,0.2,0,2,0.0,0,0,0.0,1,4,5,1,0,1,1,2,2,0.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,7:36,1,3,0.333,0,0,0.0,0,0,0.0,1,1,2,2,0,1,1,4,2,-1.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1630196,Filip,Petrusev,F. Petrusev,filip-petrusev,,,,2:41,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,3.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,,,2:41,1,1,1.0,1,1,1.0,1,2,0.5,0,0,0,0,0,0,0,0,4,3.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,1:32,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,0.0,0022300098
+0022300098,1610612755,Philadelphia,76ers,PHI,sixers,201980,Danny,Green,D. Green,danny-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300098

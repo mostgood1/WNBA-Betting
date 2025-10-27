@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,29:25,9,14,0.643,7,11,0.636,4,5,0.8,0,5,5,4,2,1,1,3,29,21.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:47,4,7,0.571,2,4,0.5,3,4,0.75,1,3,4,1,1,1,2,2,13,20.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,30:21,4,4,1.0,0,0,0.0,0,2,0.0,2,5,7,3,1,1,2,3,8,10.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,35:19,8,16,0.5,1,4,0.25,4,5,0.8,1,2,3,8,0,0,2,0,21,10.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,37:51,16,23,0.696,6,11,0.545,7,9,0.778,2,9,11,13,3,2,3,1,45,18.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,21:21,0,2,0.0,0,1,0.0,0,0,0.0,0,3,3,4,0,0,2,0,0,-8.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,16:54,5,7,0.714,0,0,0.0,0,0,0.0,4,5,9,1,0,0,3,3,10,0.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,18:35,5,12,0.417,4,8,0.5,0,0,0.0,0,2,2,0,1,0,0,0,14,-11.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,13:13,1,2,0.5,1,2,0.5,0,0,0.0,0,3,3,2,0,0,0,0,3,-10.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228
+0022401228,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,33:31,11,20,0.55,5,9,0.556,2,3,0.667,1,2,3,4,1,1,1,2,29,-20.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,29:42,9,15,0.6,2,3,0.667,0,0,0.0,2,1,3,6,0,0,0,4,20,-10.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,21:22,2,3,0.667,0,0,0.0,0,0,0.0,0,3,3,6,0,0,0,0,4,-15.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,G,,,26:43,3,11,0.273,3,8,0.375,0,0,0.0,0,0,0,1,1,0,3,1,9,-19.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,35:25,9,19,0.474,7,13,0.538,1,1,1.0,0,5,5,10,1,0,2,1,26,-10.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,,,29:25,6,14,0.429,5,9,0.556,4,4,1.0,3,4,7,4,0,0,4,1,21,4.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,15:50,1,5,0.2,1,3,0.333,0,0,0.0,0,1,1,2,0,0,0,1,3,-1.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,14:20,2,2,1.0,0,0,0.0,1,3,0.333,3,3,6,3,0,0,0,3,5,2.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,21:27,4,9,0.444,4,7,0.571,0,0,0.0,2,3,5,2,4,0,0,3,12,13.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,11:29,2,5,0.4,0,2,0.0,0,0,0.0,4,0,4,1,1,1,0,1,4,6.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228
+0022401228,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401228

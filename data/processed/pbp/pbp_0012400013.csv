@@ -1,0 +1,470 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012400013,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:11 PM EST),period,start,0,0,1,0012400013
+0012400013,4,PT12M00.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Jump Ball Sochan vs. Holmgren: Tip to Wallace,Jump Ball,,1,0,2,0012400013
+0012400013,7,PT11M47.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren Step Out of Bounds Turnover (P1.T1),Turnover,Step Out of Bounds Turnover,1,0,3,0012400013
+0012400013,8,PT11M33.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-230,-11,0,Missed,1,,,0,h,MISS Champagnie 3PT Jump Shot,Missed Shot,Jump Shot,1,3,4,0012400013
+0012400013,9,PT11M30.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,5,0012400013
+0012400013,10,PT11M27.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren P.FOUL (P1.T1) (P.Ransom),Foul,Personal,1,0,6,0012400013
+0012400013,12,PT11M19.00S,1,1610612759,SAS,1630200,Jones,T. Jones,60,41,7,Made,1,2,0,2,h,Jones 7' Floating Jump Shot (2 PTS),Made Shot,Floating Jump shot,1,2,7,0012400013
+0012400013,13,PT11M06.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan P.FOUL (P1.T1) (P.Ransom),Foul,Personal,1,0,8,0012400013
+0012400013,15,PT10M56.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren Traveling Turnover (P2.T2),Turnover,Traveling,1,0,9,0012400013
+0012400013,16,PT10M45.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,-59,0,6,Made,1,4,0,4,h,Johnson 6' Driving Layup (2 PTS) (Jones 1 AST),Made Shot,Driving Layup Shot,1,2,10,0012400013
+0012400013,18,PT10M37.00S,1,1610612760,OKC,1631114,Williams,J. Williams,12,4,1,Missed,1,,,0,v,MISS Williams 1' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,11,0012400013
+0012400013,19,PT10M34.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,12,0012400013
+0012400013,20,PT10M25.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,-22,34,4,Missed,1,,,0,h,MISS Barnes 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,13,0012400013
+0012400013,20,PT10M25.00S,1,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,v,Wiggins BLOCK (1 BLK),,,1,2,14,0012400013
+0012400013,22,PT10M25.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,15,0012400013
+0012400013,23,PT10M25.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace P.FOUL (P1.T2) (P.Ransom),Foul,Personal,1,0,16,0012400013
+0012400013,25,PT10M16.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,-21,22,3,Missed,1,,,0,h,MISS Sochan 3' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,17,0012400013
+0012400013,26,PT10M16.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,18,0012400013
+0012400013,28,PT10M12.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,-233,-9,0,Missed,1,,,0,h,MISS Barnes 3PT Jump Shot,Missed Shot,Jump Shot,1,3,19,0012400013
+0012400013,29,PT10M08.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,20,0012400013
+0012400013,30,PT10M04.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,21,0012400013
+0012400013,30,PT10M04.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie STEAL (1 STL),,,1,0,22,0012400013
+0012400013,32,PT09M57.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,-21,12,2,Missed,1,,,0,h,MISS Johnson 2' Reverse Layup,Missed Shot,Reverse Layup Shot,1,2,23,0012400013
+0012400013,32,PT09M57.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng BLOCK (1 BLK),,,1,2,24,0012400013
+0012400013,34,PT09M53.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,25,0012400013
+0012400013,35,PT09M50.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-234,8,0,Missed,1,,,0,h,MISS Champagnie 3PT Jump Shot,Missed Shot,Jump Shot,1,3,26,0012400013
+0012400013,36,PT09M48.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,27,0012400013
+0012400013,37,PT09M43.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P1.T2) (P.Ransom),Foul,Personal,1,0,28,0012400013
+0012400013,39,PT09M41.00S,1,1610612760,OKC,1631114,Williams,J. Williams,-53,252,26,Made,1,4,3,7,v,Williams 26' 3PT Jump Shot (3 PTS) (Wiggins 1 AST),Made Shot,Jump Shot,1,3,29,0012400013
+0012400013,41,PT09M14.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,-210,137,25,Made,1,7,3,10,h,Sochan 25' 3PT Jump Shot (3 PTS) (Champagnie 1 AST),Made Shot,Jump Shot,1,3,30,0012400013
+0012400013,43,PT08M59.00S,1,1610612760,OKC,1631114,Williams,J. Williams,9,6,1,Missed,1,,,0,v,MISS Williams 1' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,31,0012400013
+0012400013,44,PT08M56.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,32,0012400013
+0012400013,45,PT08M38.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-233,22,0,Made,1,10,3,13,h,Champagnie 3PT Jump Shot (3 PTS) (Barnes 1 AST),Made Shot,Jump Shot,1,3,33,0012400013
+0012400013,47,PT08M19.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,11,11,2,Made,1,10,5,15,v,Holmgren 2' Driving Dunk (2 PTS) (Williams 1 AST),Made Shot,Driving Dunk Shot,1,2,34,0012400013
+0012400013,49,PT07M59.00S,1,1610612759,SAS,1630200,Jones,T. Jones,-235,23,24,Missed,1,,,0,h,MISS Jones 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,35,0012400013
+0012400013,50,PT07M56.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,36,0012400013
+0012400013,51,PT07M52.00S,1,1610612760,OKC,1631114,Williams,J. Williams,-33,252,25,Missed,1,,,0,v,MISS Williams 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,37,0012400013
+0012400013,52,PT07M49.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,38,0012400013
+0012400013,53,PT07M41.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,18,16,2,Missed,1,,,0,h,MISS Johnson 2' Layup,Missed Shot,Layup Shot,1,2,39,0012400013
+0012400013,53,PT07M41.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren BLOCK (1 BLK),,,1,2,40,0012400013
+0012400013,55,PT07M39.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,41,0012400013
+0012400013,56,PT07M33.00S,1,1610612760,OKC,1630598,Wiggins,A. Wiggins,23,-2,2,Made,1,10,7,17,v,Wiggins 2' Running Layup (2 PTS) (Williams 2 AST),Made Shot,Running Layup Shot,1,2,42,0012400013
+0012400013,58,PT07M14.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,223,2,0,Missed,1,,,0,h,MISS Johnson 3PT Jump Shot,Missed Shot,Jump Shot,1,3,43,0012400013
+0012400013,59,PT07M13.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,44,0012400013
+0012400013,60,PT07M10.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren S.FOUL (P2.T3) (S.Wright),Foul,Shooting,1,0,45,0012400013
+0012400013,62,PT07M10.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,11,7,18,h,Jones Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,46,0012400013
+0012400013,63,PT07M10.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,MISS Jones Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,47,0012400013
+0012400013,64,PT07M07.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,48,0012400013
+0012400013,65,PT06M55.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,-1,8,1,Made,1,11,9,20,v,Holmgren 1' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,49,0012400013
+0012400013,66,PT06M46.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,50,0012400013
+0012400013,66,PT06M46.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren STEAL (1 STL),,,1,0,51,0012400013
+0012400013,68,PT06M40.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,-14,43,5,Missed,1,,,0,v,MISS Dieng 5' Driving Layup,Missed Shot,Driving Layup Shot,1,2,52,0012400013
+0012400013,69,PT06M37.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,53,0012400013
+0012400013,70,PT06M30.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,-150,226,27,Missed,1,,,0,h,MISS Champagnie 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,54,0012400013
+0012400013,71,PT06M27.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,55,0012400013
+0012400013,72,PT06M18.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren Out of Bounds - Bad Pass Turnover Turnover (P3.T4),Turnover,Out of Bounds - Bad Pass Turnover,1,0,56,0012400013
+0012400013,73,PT06M18.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,57,0012400013
+0012400013,74,PT06M18.00S,1,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Wesley FOR Champagnie,Substitution,,0,0,58,0012400013
+0012400013,75,PT06M18.00S,1,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,SUB: Branham FOR Jones,Substitution,,0,0,59,0012400013
+0012400013,76,PT06M18.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,SUB: Caruso FOR Williams,Substitution,,0,0,60,0012400013
+0012400013,77,PT06M18.00S,1,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,v,SUB: Hartenstein FOR Wiggins,Substitution,,0,0,61,0012400013
+0012400013,82,PT06M06.00S,1,1610612759,SAS,1631103,Branham,M. Branham,15,7,2,Missed,1,,,0,h,MISS Branham 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,62,0012400013
+0012400013,82,PT06M06.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng BLOCK (2 BLK),,,1,2,63,0012400013
+0012400013,84,PT06M06.00S,1,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,64,0012400013
+0012400013,86,PT05M55.00S,1,1610612759,SAS,1631103,Branham,M. Branham,12,7,1,Missed,1,,,0,h,MISS Branham 1' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,65,0012400013
+0012400013,87,PT05M53.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,66,0012400013
+0012400013,88,PT05M52.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein Bad Pass Turnover (P1.T5),Turnover,Bad Pass,1,0,67,0012400013
+0012400013,88,PT05M52.00S,1,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham STEAL (1 STL),,,1,0,68,0012400013
+0012400013,90,PT05M46.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,20,4,2,Missed,1,,,0,h,MISS Wesley 2' Layup,Missed Shot,Layup Shot,1,2,69,0012400013
+0012400013,90,PT05M46.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,Holmgren BLOCK (2 BLK),,,1,2,70,0012400013
+0012400013,91,PT05M44.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,71,0012400013
+0012400013,92,PT05M42.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,224,17,0,Missed,1,,,0,v,MISS Dieng 3PT Jump Shot,Missed Shot,Jump Shot,1,3,72,0012400013
+0012400013,93,PT05M42.00S,1,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,73,0012400013
+0012400013,94,PT05M31.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,43,5,4,Missed,1,,,0,h,MISS Sochan 4' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,74,0012400013
+0012400013,95,PT05M29.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,75,0012400013
+0012400013,96,PT05M21.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,6,1,Made,1,11,11,22,v,Wallace 1' Running Finger Roll Layup (2 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,76,0012400013
+0012400013,97,PT05M06.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,29,265,27,Missed,1,,,0,h,MISS Barnes 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,77,0012400013
+0012400013,98,PT05M03.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,78,0012400013
+0012400013,99,PT04M55.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,-1,5,1,Made,1,11,13,24,v,Holmgren 1' Driving Finger Roll Layup (6 PTS) (Caruso 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,79,0012400013
+0012400013,101,PT04M36.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,43,252,26,Missed,1,,,0,h,MISS Barnes 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,80,0012400013
+0012400013,102,PT04M34.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,81,0012400013
+0012400013,103,PT04M19.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,6,0,1,Made,1,11,15,26,v,Holmgren 1' Driving Dunk (8 PTS) (Hartenstein 1 AST),Made Shot,Driving Dunk Shot,1,2,82,0012400013
+0012400013,105,PT04M02.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,-119,237,27,Missed,1,,,0,h,MISS Wesley 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,83,0012400013
+0012400013,106,PT04M00.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,84,0012400013
+0012400013,107,PT03M52.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,5,1,Made,1,11,17,28,v,Wallace 1' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,85,0012400013
+0012400013,108,PT03M34.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,22,12,3,Made,1,13,17,30,h,Johnson 3' Driving Layup (4 PTS) (Wesley 1 AST),Made Shot,Driving Layup Shot,1,2,86,0012400013
+0012400013,110,PT03M20.00S,1,1610612760,OKC,1627936,Caruso,A. Caruso,112,-21,11,Made,1,13,19,32,v,Caruso 11' Jump Shot (2 PTS) (Hartenstein 2 AST),Made Shot,Jump Shot,1,2,87,0012400013
+0012400013,112,PT03M01.00S,1,1610612759,SAS,1631103,Branham,M. Branham,159,195,25,Missed,1,,,0,h,MISS Branham 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,88,0012400013
+0012400013,113,PT02M59.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,89,0012400013
+0012400013,114,PT02M55.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,11,6,1,Made,1,13,21,34,v,Holmgren 1' Alley Oop Layup (10 PTS) (Caruso 2 AST),Made Shot,Alley Oop Layup shot,1,2,90,0012400013
+0012400013,116,PT02M51.00S,1,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso P.FOUL (P1.T4) (S.Wright),Foul,Personal,1,0,91,0012400013
+0012400013,118,PT02M51.00S,1,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,92,0012400013
+0012400013,120,PT02M51.00S,1,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,SUB: Cissoko FOR Johnson,Substitution,,0,0,93,0012400013
+0012400013,121,PT02M51.00S,1,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Castle FOR Sochan,Substitution,,0,0,94,0012400013
+0012400013,122,PT02M51.00S,1,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Barnes,Substitution,,0,0,95,0012400013
+0012400013,123,PT02M51.00S,1,1610612760,OKC,1631096,Holmgren,C. Holmgren,0,0,0,,0,,,0,v,SUB: Joe FOR Holmgren,Substitution,,0,0,96,0012400013
+0012400013,124,PT02M51.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,SUB: Mitchell FOR Wallace,Substitution,,0,0,97,0012400013
+0012400013,130,PT02M40.00S,1,1610612759,SAS,1631103,Branham,M. Branham,105,-8,11,Made,1,15,21,36,h,Branham 11' Pullup Jump Shot (2 PTS) (Castle 1 AST),Made Shot,Pullup Jump shot,1,2,98,0012400013
+0012400013,132,PT02M23.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,-12,4,1,Made,1,15,23,38,v,Hartenstein 1' Layup (2 PTS) (Mitchell 1 AST),Made Shot,Layup Shot,1,2,99,0012400013
+0012400013,134,PT02M05.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Lost Ball Turnover (P1.T2),Turnover,Lost Ball,1,0,100,0012400013
+0012400013,134,PT02M05.00S,1,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell STEAL (1 STL),,,1,0,101,0012400013
+0012400013,136,PT01M58.00S,1,1610612760,OKC,1642349,Mitchell,A. Mitchell,211,134,25,Missed,1,,,0,v,MISS Mitchell 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,102,0012400013
+0012400013,137,PT01M56.00S,1,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,103,0012400013
+0012400013,138,PT01M50.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein Bad Pass Turnover (P2.T6),Turnover,Bad Pass,1,0,104,0012400013
+0012400013,138,PT01M50.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley STEAL (1 STL),,,1,0,105,0012400013
+0012400013,141,PT01M44.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein S.FOUL (P1.PN) (I.Hwang),Foul,Shooting,1,0,106,0012400013
+0012400013,143,PT01M44.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,16,23,39,h,Castle Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,0,0,107,0012400013
+0012400013,144,PT01M44.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,SUB: Williams FOR Dieng,Substitution,,0,0,108,0012400013
+0012400013,146,PT01M44.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,MISS Castle Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,109,0012400013
+0012400013,147,PT01M41.00S,1,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso REBOUND (Off:0 Def:1),Rebound,Unknown,0,0,110,0012400013
+0012400013,148,PT01M24.00S,1,1610612760,OKC,1631114,Williams,J. Williams,132,124,18,Missed,1,,,0,v,MISS Williams 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,111,0012400013
+0012400013,149,PT01M21.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,112,0012400013
+0012400013,150,PT01M15.00S,1,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Bad Pass Turnover (P2.T3),Turnover,Bad Pass,1,0,113,0012400013
+0012400013,150,PT01M15.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein STEAL (1 STL),,,1,0,114,0012400013
+0012400013,152,PT01M10.00S,1,1610612760,OKC,1630198,Joe,I. Joe,-126,218,25,Missed,1,,,0,v,MISS Joe 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,115,0012400013
+0012400013,153,PT01M08.00S,1,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,116,0012400013
+0012400013,154,PT00M57.60S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,150,205,25,Made,1,19,23,42,h,Mamukelashvili 25' 3PT Jump Shot (3 PTS) (Cissoko 1 AST),Made Shot,Jump Shot,1,3,117,0012400013
+0012400013,156,PT00M38.10S,1,1610612760,OKC,1642349,Mitchell,A. Mitchell,25,5,3,Made,1,19,25,44,v,Mitchell 3' Driving Layup (2 PTS) (Caruso 3 AST),Made Shot,Driving Layup Shot,1,2,118,0012400013
+0012400013,158,PT00M23.60S,1,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,119,227,26,Made,1,22,25,47,h,Mamukelashvili 26' 3PT Jump Shot (6 PTS) (Castle 2 AST),Made Shot,Jump Shot,1,3,119,0012400013
+0012400013,160,PT00M02.70S,1,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko Personal Take Foul (P1.T3) (P.Ransom),Foul,Personal Take,1,0,120,0012400013
+0012400013,162,PT00M01.90S,1,1610612760,OKC,1631114,Williams,J. Williams,-1,3,0,Made,1,22,27,49,v,Williams Alley Oop Dunk (5 PTS) (Caruso 4 AST),Made Shot,Alley Oop Dunk Shot,1,2,121,0012400013
+0012400013,164,PT00M00.00S,1,0,,0,,,0,0,0,,0,22,27,49,,End of 1st Period (8:34 PM EST),period,end,1,0,122,0012400013
+0012400013,165,PT12M00.00S,2,0,,0,,,0,0,0,,0,22,27,49,,Start of 2nd Period (8:36 PM EST),period,start,0,0,123,0012400013
+0012400013,166,PT11M36.00S,2,1610612759,SAS,1631104,Wesley,B. Wesley,223,-1,0,Made,1,25,27,52,h,Wesley 3PT Jump Shot (3 PTS) (Cissoko 2 AST),Made Shot,Jump Shot,1,3,124,0012400013
+0012400013,168,PT11M20.00S,2,1610612760,OKC,1630198,Joe,I. Joe,-50,148,16,Made,1,25,29,54,v,Joe 16' Pullup Jump Shot (2 PTS) (Hartenstein 3 AST),Made Shot,Pullup Jump shot,1,2,125,0012400013
+0012400013,170,PT11M02.00S,2,1610612759,SAS,1642264,Castle,S. Castle,-20,10,2,Made,1,27,29,56,h,Castle 2' Driving Layup (3 PTS) (Wesley 2 AST),Made Shot,Driving Layup Shot,1,2,126,0012400013
+0012400013,172,PT10M47.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,6,113,11,Missed,1,,,0,v,MISS Hartenstein 11' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,127,0012400013
+0012400013,173,PT10M45.00S,2,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,128,0012400013
+0012400013,174,PT10M35.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,-10,17,2,Made,1,29,29,58,h,Mamukelashvili 2' Layup (8 PTS) (Wesley 3 AST),Made Shot,Layup Shot,1,2,129,0012400013
+0012400013,176,PT10M35.00S,2,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,130,0012400013
+0012400013,177,PT10M23.00S,2,1610612760,OKC,1631114,Williams,J. Williams,13,8,2,Missed,1,,,0,v,MISS Williams 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,131,0012400013
+0012400013,178,PT10M22.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,132,0012400013
+0012400013,179,PT10M21.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,Missed,1,,,0,v,MISS Hartenstein Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,133,0012400013
+0012400013,180,PT10M20.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,134,0012400013
+0012400013,181,PT10M19.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,Made,1,29,31,60,v,Hartenstein Putback Layup (4 PTS),Made Shot,Putback Layup Shot,1,2,135,0012400013
+0012400013,182,PT10M00.00S,2,1610612759,SAS,1631103,Branham,M. Branham,-210,151,26,Missed,1,,,0,h,MISS Branham 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,136,0012400013
+0012400013,183,PT09M58.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,137,0012400013
+0012400013,184,PT09M50.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,-15,-10,2,Made,1,29,33,62,v,Mitchell 2' Driving Layup (4 PTS) (Williams 3 AST),Made Shot,Driving Layup Shot,1,2,138,0012400013
+0012400013,186,PT09M42.00S,2,1610612759,SAS,1631103,Branham,M. Branham,-28,5,3,Made,1,31,33,64,h,Branham 3' Layup (4 PTS) (Wesley 4 AST),Made Shot,Layup Shot,1,2,139,0012400013
+0012400013,188,PT09M27.00S,2,1610612760,OKC,1630198,Joe,I. Joe,-224,68,0,Missed,1,,,0,v,MISS Joe 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,140,0012400013
+0012400013,189,PT09M24.00S,2,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,141,0012400013
+0012400013,190,PT09M18.00S,2,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,142,0012400013
+0012400013,190,PT09M18.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso STEAL (1 STL),,,1,0,143,0012400013
+0012400013,192,PT09M14.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,144,0012400013
+0012400013,192,PT09M14.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili STEAL (1 STL),,,1,0,145,0012400013
+0012400013,194,PT09M07.00S,2,1610612759,SAS,1631103,Branham,M. Branham,-59,39,7,Made,1,33,33,66,h,Branham 7' Pullup Jump Shot (6 PTS) (Mamukelashvili 1 AST),Made Shot,Pullup Jump shot,1,2,146,0012400013
+0012400013,196,PT08M51.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,22,4,2,Made,1,33,35,68,v,Mitchell 2' Driving Finger Roll Layup (6 PTS) (Hartenstein 4 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,147,0012400013
+0012400013,198,PT08M39.00S,2,1610612759,SAS,1631103,Branham,M. Branham,-232,27,0,Missed,1,,,0,h,MISS Branham 3PT Jump Shot,Missed Shot,Jump Shot,1,3,148,0012400013
+0012400013,199,PT08M37.00S,2,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,v,Joe REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,149,0012400013
+0012400013,200,PT08M28.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,-32,-6,3,Made,1,33,37,70,v,Mitchell 3' Driving Layup (8 PTS),Made Shot,Driving Layup Shot,1,2,150,0012400013
+0012400013,201,PT08M16.00S,2,1610612759,SAS,1631103,Branham,M. Branham,-234,-1,0,Missed,1,,,0,h,MISS Branham 3PT Jump Shot,Missed Shot,Jump Shot,1,3,151,0012400013
+0012400013,202,PT08M10.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,152,0012400013
+0012400013,203,PT08M04.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,134,210,25,Missed,1,,,0,v,MISS Hartenstein 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,153,0012400013
+0012400013,204,PT08M00.00S,2,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,154,0012400013
+0012400013,206,PT07M54.00S,2,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,SUB: Jones FOR Wesley,Substitution,,0,0,155,0012400013
+0012400013,207,PT07M54.00S,2,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,SUB: Champagnie FOR Branham,Substitution,,0,0,156,0012400013
+0012400013,208,PT07M54.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,SUB: Wiggins FOR Mitchell,Substitution,,0,0,157,0012400013
+0012400013,212,PT07M49.00S,2,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko OFF.Foul (P2) (I.Hwang),Foul,Offensive,1,0,158,0012400013
+0012400013,214,PT07M49.00S,2,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko Offensive Foul Turnover (P1.T5),Turnover,Offensive Foul Turnover,1,0,159,0012400013
+0012400013,215,PT07M38.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,-140,209,25,Made,1,33,40,73,v,Caruso 25' 3PT Jump Shot (5 PTS) (Hartenstein 5 AST),Made Shot,Jump Shot,1,3,160,0012400013
+0012400013,217,PT07M37.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,161,0012400013
+0012400013,218,PT07M37.00S,2,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,SUB: Johnson FOR Cissoko,Substitution,,0,0,162,0012400013
+0012400013,219,PT07M37.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,SUB: Jones FOR Caruso,Substitution,,0,0,163,0012400013
+0012400013,220,PT07M37.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,SUB: Wallace FOR Hartenstein,Substitution,,0,0,164,0012400013
+0012400013,224,PT07M17.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-7,53,5,Missed,1,,,0,h,MISS Champagnie 5' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,165,0012400013
+0012400013,225,PT07M16.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,166,0012400013
+0012400013,226,PT07M13.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,89,238,25,Made,1,36,40,76,h,Champagnie 25' 3PT Jump Shot (6 PTS),Made Shot,Jump Shot,1,3,167,0012400013
+0012400013,227,PT06M56.00S,2,1610612760,OKC,1631114,Williams,J. Williams,18,13,2,Missed,1,,,0,v,MISS Williams 2' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,168,0012400013
+0012400013,228,PT06M53.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,169,0012400013
+0012400013,229,PT06M52.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace S.FOUL (P2.T1) (P.Ransom),Foul,Shooting,1,0,170,0012400013
+0012400013,231,PT06M52.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,37,40,77,h,Johnson Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,171,0012400013
+0012400013,232,PT06M52.00S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,38,40,78,h,Johnson Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,172,0012400013
+0012400013,233,PT06M32.00S,2,1610612760,OKC,1641794,Jones,D. Jones,15,14,2,Missed,1,,,0,v,MISS Jones 2' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,173,0012400013
+0012400013,234,PT06M30.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,174,0012400013
+0012400013,235,PT06M25.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie Offensive Charge Foul (P1) (S.Wright),Foul,Offensive Charge,1,0,175,0012400013
+0012400013,237,PT06M25.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie Offensive Foul Turnover (P1.T6),Turnover,Offensive Foul Turnover,1,0,176,0012400013
+0012400013,238,PT06M25.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,SUB: Caruso FOR Williams,Substitution,,0,0,177,0012400013
+0012400013,239,PT06M25.00S,2,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,v,SUB: Hartenstein FOR Joe,Substitution,,0,0,178,0012400013
+0012400013,242,PT06M09.00S,2,1610612760,OKC,1641794,Jones,D. Jones,69,126,14,Made,1,38,42,80,v,Jones 14' Pullup Jump Shot (2 PTS) (Wiggins 2 AST),Made Shot,Pullup Jump shot,1,2,179,0012400013
+0012400013,244,PT05M55.00S,2,1610612759,SAS,1630200,Jones,T. Jones,6,86,9,Missed,1,,,0,h,MISS Jones 9' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,180,0012400013
+0012400013,245,PT05M51.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,181,0012400013
+0012400013,246,PT05M41.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,156,218,27,Made,1,38,45,83,v,Wallace 27' 3PT Pullup Jump Shot (7 PTS) (Hartenstein 6 AST),Made Shot,Pullup Jump shot,1,3,182,0012400013
+0012400013,248,PT05M28.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,45,252,26,Missed,1,,,0,h,MISS Mamukelashvili 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,183,0012400013
+0012400013,249,PT05M26.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,184,0012400013
+0012400013,250,PT05M12.00S,2,1610612760,OKC,1641794,Jones,D. Jones,-17,-6,2,Missed,1,,,0,v,MISS Jones 2' Layup,Missed Shot,Layup Shot,1,2,185,0012400013
+0012400013,251,PT05M10.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,186,0012400013
+0012400013,252,PT04M55.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,229,92,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,187,0012400013
+0012400013,253,PT04M53.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,188,0012400013
+0012400013,254,PT04M45.00S,2,1610612760,OKC,1630598,Wiggins,A. Wiggins,208,155,26,Missed,1,,,0,v,MISS Wiggins 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,189,0012400013
+0012400013,255,PT04M42.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,190,0012400013
+0012400013,256,PT04M25.00S,2,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Traveling Turnover (P3.T7),Turnover,Traveling,1,0,191,0012400013
+0012400013,257,PT04M25.00S,2,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,SUB: Sochan FOR Castle,Substitution,,0,0,192,0012400013
+0012400013,258,PT04M25.00S,2,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,SUB: Barnes FOR Mamukelashvili,Substitution,,0,0,193,0012400013
+0012400013,261,PT04M15.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,-62,242,25,Missed,1,,,0,v,MISS Wallace 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,194,0012400013
+0012400013,262,PT04M11.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,195,0012400013
+0012400013,263,PT03M58.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,-51,17,5,Missed,1,,,0,h,MISS Barnes 5' Driving Layup,Missed Shot,Driving Layup Shot,1,2,196,0012400013
+0012400013,263,PT03M58.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso BLOCK (1 BLK),,,1,2,197,0012400013
+0012400013,265,PT03M58.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,198,0012400013
+0012400013,267,PT03M58.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,SUB: Williams FOR Jones,Substitution,,0,0,199,0012400013
+0012400013,269,PT03M49.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-42,100,11,Missed,1,,,0,h,MISS Champagnie 11' Driving Layup,Missed Shot,Driving Layup Shot,1,2,200,0012400013
+0012400013,269,PT03M49.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein BLOCK (1 BLK),,,1,2,201,0012400013
+0012400013,271,PT03M48.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,202,0012400013
+0012400013,272,PT03M42.00S,2,1610612760,OKC,1630598,Wiggins,A. Wiggins,17,4,2,Missed,1,,,0,v,MISS Wiggins 2' Running Layup,Missed Shot,Running Layup Shot,1,2,203,0012400013
+0012400013,273,PT03M40.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,204,0012400013
+0012400013,275,PT03M33.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-6,260,26,Made,1,41,45,86,h,Champagnie 26' 3PT Jump Shot (9 PTS) (Jones 2 AST),Made Shot,Jump Shot,1,3,205,0012400013
+0012400013,277,PT03M16.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,-154,190,24,Missed,1,,,0,v,MISS Caruso 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,206,0012400013
+0012400013,278,PT03M12.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,207,0012400013
+0012400013,279,PT03M10.00S,2,1610612760,OKC,1631114,Williams,J. Williams,-2,4,0,Made,1,41,47,88,v,Williams Cutting Dunk Shot (7 PTS) (Hartenstein 7 AST),Made Shot,Cutting Dunk Shot,1,2,208,0012400013
+0012400013,281,PT02M59.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,214,127,25,Missed,1,,,0,h,MISS Champagnie 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,209,0012400013
+0012400013,282,PT02M57.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,210,0012400013
+0012400013,283,PT02M52.00S,2,1610612760,OKC,1630598,Wiggins,A. Wiggins,-13,3,1,Missed,1,,,0,v,MISS Wiggins 1' Driving Layup,Missed Shot,Driving Layup Shot,1,2,211,0012400013
+0012400013,284,PT02M50.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,212,0012400013
+0012400013,285,PT02M41.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Offensive Charge Foul (P2) (S.Wright),Foul,Offensive Charge,1,0,213,0012400013
+0012400013,287,PT02M41.00S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Offensive Foul Turnover (P1.T8),Turnover,Offensive Foul Turnover,1,0,214,0012400013
+0012400013,288,PT02M21.00S,2,1610612760,OKC,1631114,Williams,J. Williams,-32,109,11,Made,1,41,49,90,v,Williams 11' Driving Floating Jump Shot (9 PTS),Made Shot,Driving Floating Jump Shot,1,2,215,0012400013
+0012400013,289,PT02M00.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein S.FOUL (P2.T2) (S.Wright),Foul,Shooting,1,0,216,0012400013
+0012400013,291,PT02M00.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,MISS Barnes Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,217,0012400013
+0012400013,292,PT02M00.00S,2,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,0,0,218,0012400013
+0012400013,293,PT02M00.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,42,49,91,h,Barnes Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,219,0012400013
+0012400013,294,PT01M44.00S,2,1610612760,OKC,1630598,Wiggins,A. Wiggins,25,16,3,Missed,1,,,0,v,MISS Wiggins 3' Layup,Missed Shot,Layup Shot,1,2,220,0012400013
+0012400013,295,PT01M40.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,221,0012400013
+0012400013,296,PT01M35.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-183,174,25,Made,1,45,49,94,h,Champagnie 25' 3PT Jump Shot (12 PTS) (Jones 3 AST),Made Shot,Jump Shot,1,3,222,0012400013
+0012400013,298,PT01M17.00S,2,1610612760,OKC,1631114,Williams,J. Williams,-26,268,27,Made,1,45,52,97,v,Williams 27' 3PT Jump Shot (12 PTS) (Caruso 5 AST),Made Shot,Jump Shot,1,3,223,0012400013
+0012400013,300,PT01M02.00S,2,1610612759,SAS,1630577,Champagnie,J. Champagnie,-145,214,26,Missed,1,,,0,h,MISS Champagnie 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,224,0012400013
+0012400013,301,PT01M00.00S,2,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes REBOUND (Off:3 Def:2),Rebound,Unknown,1,0,225,0012400013
+0012400013,303,PT00M49.30S,2,1610612759,SAS,1630200,Jones,T. Jones,6,15,2,Missed,1,,,0,h,MISS Jones 2' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,226,0012400013
+0012400013,304,PT00M47.40S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,227,0012400013
+0012400013,305,PT00M35.60S,2,1610612760,OKC,1631114,Williams,J. Williams,151,218,27,Made,1,45,55,100,v,Williams 27' 3PT Pullup Jump Shot (15 PTS),Made Shot,Pullup Jump shot,1,3,228,0012400013
+0012400013,306,PT00M14.80S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson Lost Ball Turnover (P1.T9),Turnover,Lost Ball,1,0,229,0012400013
+0012400013,306,PT00M14.80S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,v,Williams STEAL (1 STL),,,1,0,230,0012400013
+0012400013,308,PT00M10.40S,2,1610612760,OKC,1631114,Williams,J. Williams,-20,4,2,Missed,1,,,0,v,MISS Williams 2' Running Layup,Missed Shot,Running Layup Shot,1,2,231,0012400013
+0012400013,308,PT00M10.40S,2,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan BLOCK (1 BLK),,,1,2,232,0012400013
+0012400013,310,PT00M09.50S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,233,0012400013
+0012400013,311,PT00M00.20S,2,1610612760,OKC,1631114,Williams,J. Williams,-22,155,16,Made,1,45,57,102,v,Williams 16' Pullup Jump Shot (17 PTS),Made Shot,Pullup Jump shot,1,2,234,0012400013
+0012400013,312,PT00M00.20S,2,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson S.FOUL (P1.T1) (I.Hwang),Foul,Shooting,1,0,235,0012400013
+0012400013,314,PT00M00.20S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,45,58,103,v,Williams Free Throw 1 of 1 (18 PTS),Free Throw,Free Throw 1 of 1,1,0,236,0012400013
+0012400013,315,PT00M00.00S,2,0,,0,,,0,0,0,,0,45,58,103,,End of 2nd Period (9:00 PM EST),period,end,1,0,237,0012400013
+0012400013,322,PT12M00.00S,3,0,,0,,,0,0,0,,0,45,58,103,,Start of 3rd Period (9:15 PM EST),period,start,0,0,238,0012400013
+0012400013,323,PT11M43.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,9,6,1,Made,1,47,58,105,h,Barnes 1' Driving Layup (3 PTS) (Sochan 1 AST),Made Shot,Driving Layup Shot,1,2,239,0012400013
+0012400013,324,PT11M28.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,-15,15,2,Made,1,47,60,107,v,Wallace 2' Driving Layup (9 PTS),Made Shot,Driving Layup Shot,1,2,240,0012400013
+0012400013,325,PT11M12.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,225,16,0,Made,1,50,60,110,h,Champagnie 3PT Jump Shot (15 PTS) (Sochan 2 AST),Made Shot,Jump Shot,1,3,241,0012400013
+0012400013,327,PT10M57.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,135,215,25,Missed,1,,,0,v,MISS Wallace 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,242,0012400013
+0012400013,328,PT10M51.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,243,0012400013
+0012400013,329,PT10M48.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,Barnes Bad Pass Turnover (P1.T10),Turnover,Bad Pass,1,0,244,0012400013
+0012400013,329,PT10M48.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng STEAL (1 STL),,,1,0,245,0012400013
+0012400013,331,PT10M46.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng Offensive Charge Foul (P1) (P.Ransom),Foul,Offensive Charge,1,0,246,0012400013
+0012400013,333,PT10M46.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng Offensive Foul Turnover (P2.T8),Turnover,Offensive Foul Turnover,1,0,247,0012400013
+0012400013,335,PT10M25.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan Lost Ball Turnover (P2.T11),Turnover,Lost Ball,1,0,248,0012400013
+0012400013,335,PT10M25.00S,3,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,v,Joe STEAL (1 STL),,,1,0,249,0012400013
+0012400013,337,PT10M07.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,-82,136,16,Made,1,50,62,112,v,Wiggins 16' Pullup Jump Shot (4 PTS) (Joe 1 AST),Made Shot,Pullup Jump shot,1,2,250,0012400013
+0012400013,339,PT09M58.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,227,25,0,Made,1,53,62,115,h,Barnes 3PT Jump Shot (6 PTS) (Johnson 1 AST),Made Shot,Jump Shot,1,3,251,0012400013
+0012400013,341,PT09M58.00S,3,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,252,0012400013
+0012400013,342,PT09M52.00S,3,1610612760,OKC,1630198,Joe,I. Joe,235,-5,24,Made,1,53,65,118,v,Joe 24' 3PT Jump Shot (5 PTS) (Wiggins 3 AST),Made Shot,Jump Shot,0,3,253,0012400013
+0012400013,344,PT09M33.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,134,10,13,Missed,1,,,0,h,MISS Barnes 13' Pullup Jump Shot,Missed Shot,Pullup Jump shot,0,2,254,0012400013
+0012400013,345,PT09M33.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:0 Def:3),Rebound,Unknown,0,0,255,0012400013
+0012400013,346,PT09M26.00S,3,1610612760,OKC,1630198,Joe,I. Joe,221,-10,0,Missed,1,,,0,v,MISS Joe 3PT Jump Shot,Missed Shot,Jump Shot,0,3,256,0012400013
+0012400013,347,PT09M26.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:3),Rebound,Unknown,0,0,257,0012400013
+0012400013,348,PT09M12.00S,3,1610612759,SAS,1629640,Johnson,K. Johnson,9,4,1,Made,1,55,65,120,h,Johnson 1' Cutting Layup Shot (8 PTS) (Sochan 3 AST),Made Shot,Cutting Layup Shot,1,2,258,0012400013
+0012400013,350,PT09M02.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,-13,83,8,Missed,1,,,0,v,MISS Wallace 8' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,259,0012400013
+0012400013,351,PT09M00.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,260,0012400013
+0012400013,352,PT08M49.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,-10,-7,1,Made,1,57,65,122,h,Sochan 1' Layup (5 PTS) (Barnes 2 AST),Made Shot,Layup Shot,1,2,261,0012400013
+0012400013,354,PT08M32.00S,3,1610612760,OKC,1630198,Joe,I. Joe,-91,254,27,Missed,1,,,0,v,MISS Joe 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,262,0012400013
+0012400013,355,PT08M29.00S,3,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,Johnson REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,263,0012400013
+0012400013,356,PT08M25.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,23,8,2,Made,1,59,65,124,h,Sochan 2' Cutting Finger Roll Layup Shot (7 PTS) (Jones 4 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,264,0012400013
+0012400013,358,PT08M13.00S,3,1610612760,OKC,1630198,Joe,I. Joe,-185,212,28,Missed,1,,,0,v,MISS Joe 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,265,0012400013
+0012400013,359,PT08M13.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,Sochan REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,266,0012400013
+0012400013,360,PT08M08.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace S.FOUL (P3.T1) (S.Wright),Foul,Shooting,1,0,267,0012400013
+0012400013,362,PT08M08.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,60,65,125,h,Jones Free Throw 1 of 2 (4 PTS),Free Throw,Free Throw 1 of 2,1,0,268,0012400013
+0012400013,363,PT08M08.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,MISS Jones Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,269,0012400013
+0012400013,364,PT08M04.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,v,Wiggins REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,270,0012400013
+0012400013,365,PT07M53.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,-10,2,1,Made,1,60,67,127,v,Dieng 1' Driving Dunk (2 PTS) (Joe 2 AST),Made Shot,Driving Dunk Shot,1,2,271,0012400013
+0012400013,367,PT07M31.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,-222,100,24,Missed,1,,,0,h,MISS Sochan 24' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,272,0012400013
+0012400013,368,PT07M29.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,273,0012400013
+0012400013,369,PT07M19.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,-228,116,26,Made,1,60,70,130,v,Wiggins 26' 3PT Jump Shot (7 PTS) (Dieng 1 AST),Made Shot,Jump Shot,1,3,274,0012400013
+0012400013,371,PT07M06.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,229,13,0,Made,1,63,70,133,h,Champagnie 3PT Jump Shot (18 PTS) (Barnes 3 AST),Made Shot,Jump Shot,1,3,275,0012400013
+0012400013,373,PT06M51.00S,3,1610612760,OKC,1641794,Jones,D. Jones,-4,31,3,Made,1,63,72,135,v,Jones 3' Driving Finger Roll Layup (4 PTS) (Wallace 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,276,0012400013
+0012400013,375,PT06M33.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,29,31,4,Made,1,65,72,137,h,Champagnie 4' Driving Layup (20 PTS),Made Shot,Driving Layup Shot,1,2,277,0012400013
+0012400013,376,PT06M17.00S,3,1610612760,OKC,1630198,Joe,I. Joe,-20,15,3,Made,1,65,74,139,v,Joe 3' Layup (7 PTS) (Jones 1 AST),Made Shot,Layup Shot,1,2,278,0012400013
+0012400013,377,PT06M01.00S,3,1610612759,SAS,1630200,Jones,T. Jones,13,-1,1,Made,1,67,74,141,h,Jones 1' Cutting Finger Roll Layup Shot (6 PTS) (Sochan 4 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,279,0012400013
+0012400013,379,PT05M43.00S,3,1610612760,OKC,1641794,Jones,D. Jones,-17,193,19,Made,1,67,76,143,v,Jones 19' Step Back Jump Shot (6 PTS),Made Shot,Step Back Jump shot,1,2,280,0012400013
+0012400013,380,PT05M23.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace S.FOUL (P4.T2) (I.Hwang),Foul,Shooting,1,0,281,0012400013
+0012400013,382,PT05M23.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,68,76,144,h,Champagnie Free Throw 1 of 2 (21 PTS),Free Throw,Free Throw 1 of 2,1,0,282,0012400013
+0012400013,467,PT05M23.00S,3,1610612759,SAS,1629640,Johnson,K. Johnson,0,0,0,,0,,,0,h,SUB: Wesley FOR Johnson,Substitution,,0,0,283,0012400013
+0012400013,468,PT05M23.00S,3,1610612759,SAS,1630200,Jones,T. Jones,0,0,0,,0,,,0,h,SUB: Branham FOR Jones,Substitution,,0,0,284,0012400013
+0012400013,469,PT05M23.00S,3,1610612759,SAS,203084,Barnes,H. Barnes,0,0,0,,0,,,0,h,SUB: Mamukelashvili FOR Barnes,Substitution,,0,0,285,0012400013
+0012400013,470,PT05M23.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,SUB: Mitchell FOR Dieng,Substitution,,0,0,286,0012400013
+0012400013,392,PT05M23.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,69,76,145,h,Champagnie Free Throw 2 of 2 (22 PTS),Free Throw,Free Throw 2 of 2,1,0,287,0012400013
+0012400013,393,PT05M09.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,-76,94,12,Missed,1,,,0,v,MISS Wiggins 12' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,288,0012400013
+0012400013,394,PT05M07.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,Champagnie REBOUND (Off:0 Def:7),Rebound,Unknown,1,0,289,0012400013
+0012400013,398,PT04M59.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,Made,1,71,76,147,h,Sochan Layup (9 PTS),Made Shot,Layup Shot,1,2,290,0012400013
+0012400013,399,PT04M39.00S,3,1610612760,OKC,1641794,Jones,D. Jones,120,-6,12,Made,1,71,78,149,v,Jones 12' Pullup Jump Shot (8 PTS),Made Shot,Pullup Jump shot,1,2,291,0012400013
+0012400013,400,PT04M30.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,-208,124,24,Missed,1,,,0,h,MISS Champagnie 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,292,0012400013
+0012400013,401,PT04M28.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,v,Wiggins REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,293,0012400013
+0012400013,402,PT04M17.00S,3,1610612760,OKC,1630198,Joe,I. Joe,-179,-1,18,Made,1,71,80,151,v,Joe 18' Pullup Jump Shot (9 PTS),Made Shot,Pullup Jump shot,1,2,294,0012400013
+0012400013,403,PT04M16.00S,3,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,295,0012400013
+0012400013,404,PT04M16.00S,3,1610612759,SAS,1631110,Sochan,J. Sochan,0,0,0,,0,,,0,h,SUB: Castle FOR Sochan,Substitution,,0,0,296,0012400013
+0012400013,405,PT04M16.00S,3,1610612759,SAS,1630577,Champagnie,J. Champagnie,0,0,0,,0,,,0,h,SUB: Cissoko FOR Champagnie,Substitution,,0,0,297,0012400013
+0012400013,409,PT03M58.00S,3,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Bad Pass Turnover (P4.T12),Turnover,Bad Pass,1,0,298,0012400013
+0012400013,409,PT03M58.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,Wallace STEAL (1 STL),,,1,0,299,0012400013
+0012400013,411,PT03M49.00S,3,1610612760,OKC,1641794,Jones,D. Jones,12,15,2,Made,1,71,82,153,v,Jones 2' Driving Layup (10 PTS) (Joe 3 AST),Made Shot,Driving Layup Shot,1,2,300,0012400013
+0012400013,414,PT03M34.00S,3,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,v,SUB: Dieng FOR Wiggins,Substitution,,0,0,301,0012400013
+0012400013,416,PT03M22.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,143,205,25,Made,1,74,82,156,h,Mamukelashvili 25' 3PT Jump Shot (11 PTS) (Castle 3 AST),Made Shot,Jump Shot,1,3,302,0012400013
+0012400013,418,PT02M58.00S,3,1610612760,OKC,1642349,Mitchell,A. Mitchell,-4,79,8,Missed,1,,,0,v,MISS Mitchell 8' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,303,0012400013
+0012400013,419,PT02M56.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,304,0012400013
+0012400013,420,PT02M52.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones S.FOUL (P1.T3) (S.Wright),Foul,Shooting,1,0,305,0012400013
+0012400013,422,PT02M52.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,75,82,157,h,Mamukelashvili Free Throw 1 of 2 (12 PTS),Free Throw,Free Throw 1 of 2,1,0,306,0012400013
+0012400013,423,PT02M52.00S,3,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,v,SUB: Flagler FOR Joe,Substitution,,0,0,307,0012400013
+0012400013,425,PT02M52.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,76,82,158,h,Mamukelashvili Free Throw 2 of 2 (13 PTS),Free Throw,Free Throw 2 of 2,1,0,308,0012400013
+0012400013,426,PT02M42.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,-138,222,26,Missed,1,,,0,v,MISS Flagler 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,309,0012400013
+0012400013,427,PT02M39.00S,3,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,310,0012400013
+0012400013,428,PT02M35.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones P.FOUL (P2.T4) (P.Ransom),Foul,Personal,1,0,311,0012400013
+0012400013,430,PT02M35.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,v,SUB: Ducas FOR Wallace,Substitution,,0,0,312,0012400013
+0012400013,432,PT02M27.00S,3,1610612759,SAS,1631103,Branham,M. Branham,230,53,24,Made,1,79,82,161,h,Branham 24' 3PT Jump Shot (9 PTS) (Wesley 5 AST),Made Shot,Jump Shot,1,3,313,0012400013
+0012400013,434,PT02M16.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,13,17,2,Missed,1,,,0,v,MISS Dieng 2' Running Layup,Missed Shot,Running Layup Shot,1,2,314,0012400013
+0012400013,434,PT02M16.00S,3,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,Branham BLOCK (1 BLK),,,1,2,315,0012400013
+0012400013,436,PT02M14.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,316,0012400013
+0012400013,437,PT02M13.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,Missed,1,,,0,v,MISS Dieng Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,317,0012400013
+0012400013,438,PT02M12.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,318,0012400013
+0012400013,439,PT02M09.00S,3,1610612759,SAS,1631103,Branham,M. Branham,-172,198,26,Made,1,82,82,164,h,Branham 26' 3PT Running Jump Shot (12 PTS) (Wesley 6 AST),Made Shot,Running Jump Shot,1,3,319,0012400013
+0012400013,441,PT01M52.00S,3,1610612760,OKC,1641794,Jones,D. Jones,-185,200,27,Made,1,82,85,167,v,Jones 27' 3PT Jump Shot (13 PTS) (Dieng 2 AST),Made Shot,Jump Shot,1,3,320,0012400013
+0012400013,443,PT01M39.00S,3,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Offensive Charge Foul (P1) (I.Hwang),Foul,Offensive Charge,1,0,321,0012400013
+0012400013,445,PT01M39.00S,3,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Offensive Foul Turnover (P5.T13),Turnover,Offensive Foul Turnover,1,0,322,0012400013
+0012400013,446,PT01M23.00S,3,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell Lost Ball Turnover (P1.T9),Turnover,Lost Ball,1,0,323,0012400013
+0012400013,447,PT01M23.00S,3,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell L.B.FOUL (P1.PN) (P.Ransom),Foul,Loose Ball,1,0,324,0012400013
+0012400013,449,PT01M23.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,MISS Mamukelashvili Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,325,0012400013
+0012400013,450,PT01M23.00S,3,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,1,0,326,0012400013
+0012400013,451,PT01M23.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,83,85,168,h,Mamukelashvili Free Throw 2 of 2 (14 PTS),Free Throw,Free Throw 2 of 2,1,0,327,0012400013
+0012400013,452,PT01M07.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas Bad Pass Turnover (P1.T10),Turnover,Bad Pass,1,0,328,0012400013
+0012400013,452,PT01M07.00S,3,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley STEAL (2 STL),,,1,0,329,0012400013
+0012400013,454,PT01M04.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili Out of Bounds - Bad Pass Turnover Turnover (P1.T14),Turnover,Out of Bounds - Bad Pass Turnover,1,0,330,0012400013
+0012400013,455,PT00M48.50S,3,1610612760,OKC,1641794,Jones,D. Jones,59,167,18,Made,1,83,87,170,v,Jones 18' Pullup Jump Shot (15 PTS),Made Shot,Pullup Jump shot,1,2,331,0012400013
+0012400013,456,PT00M43.00S,3,1610612759,SAS,1642264,Castle,S. Castle,4,3,1,Made,1,85,87,172,h,Castle 1' Driving Dunk (5 PTS) (Wesley 7 AST),Made Shot,Driving Dunk Shot,1,2,332,0012400013
+0012400013,458,PT00M38.80S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones Backcourt Turnover (P1.T11),Turnover,Backcourt Turnover,1,0,333,0012400013
+0012400013,459,PT00M21.90S,3,1610612759,SAS,1642264,Castle,S. Castle,12,9,2,Missed,1,,,0,h,MISS Castle 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,334,0012400013
+0012400013,460,PT00M19.40S,3,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,335,0012400013
+0012400013,461,PT00M15.30S,3,1610612760,OKC,1642349,Mitchell,A. Mitchell,-22,11,2,Missed,1,,,0,v,MISS Mitchell 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,336,0012400013
+0012400013,461,PT00M15.30S,3,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko BLOCK (1 BLK),,,1,2,337,0012400013
+0012400013,463,PT00M11.00S,3,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,Mamukelashvili REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,338,0012400013
+0012400013,464,PT00M00.90S,3,1610612759,SAS,1631103,Branham,M. Branham,-200,137,24,Missed,1,,,0,h,MISS Branham 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,339,0012400013
+0012400013,465,PT00M00.90S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,340,0012400013
+0012400013,466,PT00M00.00S,3,0,,0,,,0,0,0,,0,85,87,172,,End of 3rd Period (9:39 PM EST),period,end,1,0,341,0012400013
+0012400013,477,PT12M00.00S,4,0,,0,,,0,0,0,,0,85,87,172,,Start of 4th Period (9:42 PM EST),period,start,0,0,342,0012400013
+0012400013,479,PT11M39.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,-118,242,27,Missed,1,,,0,v,MISS Dieng 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,343,0012400013
+0012400013,480,PT11M39.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,344,0012400013
+0012400013,482,PT11M22.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,Wesley Bad Pass Turnover (P1.T15),Turnover,Bad Pass,1,0,345,0012400013
+0012400013,482,PT11M22.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas STEAL (1 STL),,,1,0,346,0012400013
+0012400013,484,PT11M19.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-26,1,3,Missed,1,,,0,v,MISS Ducas 3' Running Layup,Missed Shot,Running Layup Shot,1,2,347,0012400013
+0012400013,485,PT11M17.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,348,0012400013
+0012400013,486,PT11M16.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,Made,1,85,89,174,v,Leons Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,349,0012400013
+0012400013,487,PT11M01.00S,4,1610612759,SAS,1631103,Branham,M. Branham,176,188,26,Missed,1,,,0,h,MISS Branham 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,350,0012400013
+0012400013,488,PT11M00.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,351,0012400013
+0012400013,489,PT10M53.00S,4,1610612759,SAS,1631103,Branham,M. Branham,-27,1,3,Missed,1,,,0,h,MISS Branham 3' Layup,Missed Shot,Layup Shot,1,2,352,0012400013
+0012400013,489,PT10M53.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas BLOCK (1 BLK),,,1,2,353,0012400013
+0012400013,491,PT10M53.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,0,0,354,0012400013
+0012400013,493,PT10M53.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko OFF.Foul (P3) (S.Wright),Foul,Offensive,1,0,355,0012400013
+0012400013,495,PT10M53.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko Offensive Foul Turnover (P2.T16),Turnover,Offensive Foul Turnover,1,0,356,0012400013
+0012400013,496,PT10M42.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-163,216,27,Missed,1,,,0,v,MISS Ducas 27' 3PT Jump Bank Shot,Missed Shot,Jump Bank Shot,1,3,357,0012400013
+0012400013,497,PT10M37.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,358,0012400013
+0012400013,498,PT10M34.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,142,214,26,Missed,1,,,0,v,MISS Mitchell 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,359,0012400013
+0012400013,499,PT10M30.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,360,0012400013
+0012400013,500,PT10M28.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,-143,218,26,Made,1,85,92,177,v,Flagler 26' 3PT Jump Shot (3 PTS) (Ducas 1 AST),Made Shot,Jump Shot,1,3,361,0012400013
+0012400013,502,PT10M20.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell S.FOUL (P2.T1) (I.Hwang),Foul,Shooting,1,0,362,0012400013
+0012400013,504,PT10M20.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,MISS Cissoko Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,363,0012400013
+0012400013,505,PT10M20.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Normal Rebound,1,0,364,0012400013
+0012400013,506,PT10M20.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,86,92,178,h,Cissoko Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,365,0012400013
+0012400013,507,PT10M10.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,-25,274,28,Missed,1,,,0,v,MISS Flagler 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,366,0012400013
+0012400013,508,PT10M08.00S,4,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Rebound,Rebound,Unknown,1,0,367,0012400013
+0012400013,510,PT10M08.00S,4,1610612759,SAS,1631104,Wesley,B. Wesley,0,0,0,,0,,,0,h,SUB: Ingram FOR Wesley,Substitution,,0,0,368,0012400013
+0012400013,511,PT10M08.00S,4,1610612759,SAS,1630572,Mamukelashvili,S. Mamukelashvili,0,0,0,,0,,,0,h,SUB: Minix FOR Mamukelashvili,Substitution,,0,0,369,0012400013
+0012400013,514,PT10M08.00S,4,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Timeout: Coach Challenge (Reg.3 Short 0),Timeout,Coach Challenge,0,0,370,0012400013
+0012400013,515,PT10M08.00S,4,0,,509,,,0,0,0,,0,86,92,178,,Instant Replay4th Period (9:46 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,371,0012400013
+0012400013,516,PT10M08.00S,4,1610612759,SAS,1631103,Branham,M. Branham,0,0,0,,0,,,0,h,SUB: Boston Jr. FOR Branham,Substitution,,0,0,372,0012400013
+0012400013,525,PT10M08.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,SUB: Jones FOR Mitchell,Substitution,,0,0,373,0012400013
+0012400013,518,PT10M05.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones Out of Bounds - Bad Pass Turnover Turnover (P2.T12),Turnover,Out of Bounds - Bad Pass Turnover,1,0,374,0012400013
+0012400013,519,PT09M46.00S,4,1610612759,SAS,1630527,Boston,B. Boston,-233,50,24,Missed,1,,,0,h,MISS Boston Jr. 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,375,0012400013
+0012400013,520,PT09M45.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,376,0012400013
+0012400013,521,PT09M39.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-229,5,0,Missed,1,,,0,v,MISS Ducas 3PT Jump Shot,Missed Shot,Jump Shot,1,3,377,0012400013
+0012400013,522,PT09M39.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Rebound,Rebound,Unknown,1,0,378,0012400013
+0012400013,523,PT09M39.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng P.FOUL (P2.T2) (S.Wright),Foul,Personal,1,0,379,0012400013
+0012400013,527,PT09M30.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,Castle Out of Bounds Lost Ball Turnover (P6.T17),Turnover,Out of Bounds Lost Ball Turnover,1,0,380,0012400013
+0012400013,528,PT09M30.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,SUB: Mitchell FOR Leons,Substitution,,0,0,381,0012400013
+0012400013,530,PT09M12.00S,4,1610612760,OKC,1641794,Jones,D. Jones,17,15,2,Missed,1,,,0,v,MISS Jones 2' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,382,0012400013
+0012400013,531,PT09M10.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,383,0012400013
+0012400013,533,PT08M53.00S,4,1610612759,SAS,1642434,Minix,R. Minix,113,72,13,Made,1,88,92,180,h,Minix 13' Jump Shot (2 PTS) (Ingram 1 AST),Made Shot,Jump Shot,1,2,384,0012400013
+0012400013,535,PT08M36.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-233,-21,0,Missed,1,,,0,v,MISS Ducas 3PT Jump Shot,Missed Shot,Jump Shot,1,3,385,0012400013
+0012400013,536,PT08M34.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,386,0012400013
+0012400013,537,PT08M24.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,Dieng Lost Ball Turnover (P3.T13),Turnover,Lost Ball,1,0,387,0012400013
+0012400013,537,PT08M24.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram STEAL (1 STL),,,1,0,388,0012400013
+0012400013,539,PT08M13.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,197,155,25,Missed,1,,,0,h,MISS Ingram 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,389,0012400013
+0012400013,540,PT08M12.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,390,0012400013
+0012400013,541,PT08M12.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell P.FOUL (P3.T3) (I.Hwang),Foul,Personal,1,0,391,0012400013
+0012400013,543,PT08M12.00S,4,1610612759,SAS,1642264,Castle,S. Castle,0,0,0,,0,,,0,h,SUB: Flynn FOR Castle,Substitution,,0,0,392,0012400013
+0012400013,544,PT08M12.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,SUB: Mensah FOR Cissoko,Substitution,,0,0,393,0012400013
+0012400013,547,PT08M02.00S,4,1610612759,SAS,1641877,Mensah,N. Mensah,-27,147,15,Missed,1,,,0,h,MISS Mensah 15' Jump Shot,Missed Shot,Jump Shot,1,2,394,0012400013
+0012400013,548,PT07M57.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,395,0012400013
+0012400013,549,PT07M55.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,-224,137,26,Made,1,88,95,183,v,Mitchell 26' 3PT Jump Shot (11 PTS) (Flagler 1 AST),Made Shot,Jump Shot,1,3,396,0012400013
+0012400013,551,PT07M42.00S,4,1610612759,SAS,1630527,Boston,B. Boston,2,146,15,Made,1,90,95,185,h,Boston Jr. 15' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,397,0012400013
+0012400013,552,PT07M28.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,6,10,1,Made,1,90,97,187,v,Ducas 1' Cutting Layup Shot (2 PTS) (Jones 2 AST),Made Shot,Cutting Layup Shot,1,2,398,0012400013
+0012400013,554,PT07M20.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,v,Jones P.FOUL (P3.T4) (P.Ransom),Foul,Personal,1,0,399,0012400013
+0012400013,556,PT07M20.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,v,SUB: Leons FOR Dieng,Substitution,,0,0,400,0012400013
+0012400013,558,PT07M10.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn Lost Ball Turnover (P1.T18),Turnover,Lost Ball,1,0,401,0012400013
+0012400013,558,PT07M10.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons STEAL (1 STL),,,1,0,402,0012400013
+0012400013,560,PT07M08.00S,4,1610612760,OKC,1642502,Leons,M. Leons,21,11,2,Missed,1,,,0,v,MISS Leons 2' Running Layup,Missed Shot,Running Layup Shot,1,2,403,0012400013
+0012400013,560,PT07M08.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn BLOCK (1 BLK),,,1,2,404,0012400013
+0012400013,562,PT07M08.00S,4,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Rebound,Rebound,Unknown,0,0,405,0012400013
+0012400013,564,PT06M59.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-228,2,0,Made,1,90,100,190,v,Ducas 3PT Jump Shot (5 PTS) (Flagler 2 AST),Made Shot,Jump Shot,1,3,406,0012400013
+0012400013,566,PT06M42.00S,4,1610612759,SAS,1642434,Minix,R. Minix,-223,-16,0,Made,1,93,100,193,h,Minix 3PT Jump Shot (5 PTS) (Flynn 1 AST),Made Shot,Jump Shot,1,3,407,0012400013
+0012400013,568,PT06M22.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-26,4,3,Missed,1,,,0,v,MISS Ducas 3' Finger Roll Layup,Missed Shot,Finger Roll Layup Shot,1,2,408,0012400013
+0012400013,569,PT06M20.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,409,0012400013
+0012400013,570,PT05M59.00S,4,1610612759,SAS,1641877,Mensah,N. Mensah,6,53,5,Missed,1,,,0,h,MISS Mensah 5' Jump Shot,Missed Shot,Jump Shot,1,2,410,0012400013
+0012400013,570,PT05M59.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas BLOCK (2 BLK),,,1,2,411,0012400013
+0012400013,572,PT05M57.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,412,0012400013
+0012400013,573,PT05M56.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix P.FOUL (P1.T1) (P.Ransom),Foul,Personal,1,0,413,0012400013
+0012400013,575,PT05M56.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,SUB: Ryan FOR Ducas,Substitution,,0,0,414,0012400013
+0012400013,577,PT05M49.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,-21,4,2,Made,1,93,102,195,v,Mitchell 2' Driving Finger Roll Layup (13 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,415,0012400013
+0012400013,578,PT05M33.00S,4,1610612759,SAS,1630527,Boston,B. Boston,0,0,0,,0,,,0,h,Boston Jr. Lost Ball Turnover (P1.T19),Turnover,Lost Ball,1,0,416,0012400013
+0012400013,578,PT05M33.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons STEAL (2 STL),,,1,0,417,0012400013
+0012400013,580,PT05M29.00S,4,1610612760,OKC,1642502,Leons,M. Leons,-18,6,2,Made,1,93,104,197,v,Leons 2' Driving Layup (4 PTS) (Ryan 1 AST),Made Shot,Driving Layup Shot,1,2,418,0012400013
+0012400013,582,PT05M29.00S,4,0,,1610612759,,,0,0,0,,0,,,0,h,SPURS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,419,0012400013
+0012400013,583,PT05M05.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,-191,184,27,Missed,1,,,0,h,MISS Flynn 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,420,0012400013
+0012400013,584,PT05M02.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,421,0012400013
+0012400013,585,PT04M53.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,222,131,26,Missed,1,,,0,v,MISS Ryan 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,422,0012400013
+0012400013,586,PT04M50.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,423,0012400013
+0012400013,587,PT04M41.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,v,Ryan S.FOUL (P1.PN) (P.Ransom),Foul,Shooting,1,0,424,0012400013
+0012400013,589,PT04M41.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,94,104,198,h,Flynn Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,425,0012400013
+0012400013,590,PT04M41.00S,4,1610612759,SAS,1641877,Mensah,N. Mensah,0,0,0,,0,,,0,h,SUB: Cissoko FOR Mensah,Substitution,,0,0,426,0012400013
+0012400013,591,PT04M41.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,v,SUB: Ducas FOR Ryan,Substitution,,0,0,427,0012400013
+0012400013,594,PT04M41.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,95,104,199,h,Flynn Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,428,0012400013
+0012400013,595,PT04M23.00S,4,1610612760,OKC,1641794,Jones,D. Jones,10,5,1,Made,1,95,106,201,v,Jones 1' Cutting Layup Shot (17 PTS) (Mitchell 2 AST),Made Shot,Cutting Layup Shot,1,2,429,0012400013
+0012400013,597,PT04M02.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko Lost Ball Turnover (P3.T20),Turnover,Lost Ball,1,0,430,0012400013
+0012400013,597,PT04M02.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas STEAL (2 STL),,,1,0,431,0012400013
+0012400013,599,PT03M56.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,-211,158,26,Missed,1,,,0,v,MISS Flagler 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,432,0012400013
+0012400013,600,PT03M53.00S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,433,0012400013
+0012400013,601,PT03M46.00S,4,1610612759,SAS,1642434,Minix,R. Minix,-50,246,25,Made,1,98,106,204,h,Minix 25' 3PT Jump Shot (8 PTS) (Flynn 2 AST),Made Shot,Jump Shot,1,3,434,0012400013
+0012400013,603,PT03M26.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram S.FOUL (P1.T2) (P.Ransom),Foul,Shooting,1,0,435,0012400013
+0012400013,605,PT03M26.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,MISS Mitchell Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,436,0012400013
+0012400013,606,PT03M26.00S,4,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Rebound,Rebound,Normal Rebound,0,0,437,0012400013
+0012400013,607,PT03M26.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,98,107,205,v,Mitchell Free Throw 2 of 2 (14 PTS),Free Throw,Free Throw 2 of 2,1,0,438,0012400013
+0012400013,608,PT03M15.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,227,99,25,Missed,1,,,0,h,MISS Ingram 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,439,0012400013
+0012400013,609,PT03M12.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,v,Flagler REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,440,0012400013
+0012400013,610,PT02M55.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,159,199,25,Missed,1,,,0,v,MISS Flagler 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,441,0012400013
+0012400013,611,PT02M52.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:4 Def:1),Rebound,Unknown,1,0,442,0012400013
+0012400013,612,PT02M42.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,194,175,26,Missed,1,,,0,v,MISS Mitchell 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,443,0012400013
+0012400013,613,PT02M38.00S,4,1610612759,SAS,1642434,Minix,R. Minix,0,0,0,,0,,,0,h,Minix REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,444,0012400013
+0012400013,614,PT02M27.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,18,-2,2,Made,1,100,107,207,h,Flynn 2' Driving Layup (4 PTS),Made Shot,Driving Layup Shot,1,2,445,0012400013
+0012400013,616,PT02M06.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,145,11,15,Made,1,100,109,209,v,Mitchell 15' Step Back Jump Shot (16 PTS) (Jones 3 AST),Made Shot,Step Back Jump shot,1,2,446,0012400013
+0012400013,618,PT02M00.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell Violation:Kicked Ball (P.Ransom),Violation,Kicked Ball,0,0,447,0012400013
+0012400013,619,PT01M43.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,62,37,7,Made,1,102,109,211,h,Ingram 7' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,448,0012400013
+0012400013,620,PT01M26.00S,4,1610612759,SAS,1631127,Ingram,H. Ingram,0,0,0,,0,,,0,h,Ingram P.FOUL (P2.T3) (I.Hwang),Foul,Personal,1,0,449,0012400013
+0012400013,622,PT01M20.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,29,148,15,Made,1,102,111,213,v,Mitchell 15' Pullup Jump Shot (18 PTS) (Flagler 3 AST),Made Shot,Pullup Jump shot,1,2,450,0012400013
+0012400013,624,PT01M12.00S,4,1610612759,SAS,1630527,Boston,B. Boston,-12,15,2,Missed,1,,,0,h,MISS Boston Jr. 2' Dunk,Missed Shot,Dunk Shot,1,2,451,0012400013
+0012400013,624,PT01M12.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons BLOCK (1 BLK),,,1,2,452,0012400013
+0012400013,626,PT01M11.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,v,Leons REBOUND (Off:4 Def:2),Rebound,Unknown,1,0,453,0012400013
+0012400013,627,PT00M55.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas Bad Pass Turnover (P2.T14),Turnover,Bad Pass,1,0,454,0012400013
+0012400013,627,PT00M55.00S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn STEAL (1 STL),,,1,0,455,0012400013
+0012400013,629,PT00M51.50S,4,1610612759,SAS,1630201,Flynn,M. Flynn,147,203,25,Made,1,105,111,216,h,Flynn 25' 3PT Running Pull-Up Jump Shot (7 PTS),Made Shot,Running Pull-Up Jump Shot,1,3,456,0012400013
+0012400013,630,PT00M34.40S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,Mitchell Bad Pass Turnover (P2.T15),Turnover,Bad Pass,1,0,457,0012400013
+0012400013,630,PT00M34.40S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn STEAL (2 STL),,,1,0,458,0012400013
+0012400013,632,PT00M30.90S,4,1610612759,SAS,1630201,Flynn,M. Flynn,-13,-12,2,Made,1,107,111,218,h,Flynn 2' Running Layup (9 PTS),Made Shot,Running Layup Shot,1,2,459,0012400013
+0012400013,633,PT00M17.60S,4,1610612759,SAS,1630527,Boston,B. Boston,0,0,0,,0,,,0,h,Boston Jr. P.FOUL (P1.PN) (P.Ransom),Foul,Personal,1,0,460,0012400013
+0012400013,635,PT00M17.60S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,v,MISS Mitchell Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,461,0012400013
+0012400013,636,PT00M17.60S,4,0,,1610612760,,,0,0,0,,0,,,0,v,Thunder Rebound,Rebound,Normal Rebound,1,0,462,0012400013
+0012400013,637,PT00M17.60S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,107,112,219,v,Mitchell Free Throw 2 of 2 (19 PTS),Free Throw,Free Throw 2 of 2,1,0,463,0012400013
+0012400013,638,PT00M11.10S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,v,Ducas Violation:Kicked Ball (P.Ransom),Violation,Kicked Ball,0,0,464,0012400013
+0012400013,639,PT00M09.20S,4,1610612759,SAS,1642434,Minix,R. Minix,-195,236,31,Missed,1,,,0,h,MISS Minix 31' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,465,0012400013
+0012400013,640,PT00M03.20S,4,1610612759,SAS,1631321,Cissoko,S. Cissoko,0,0,0,,0,,,0,h,Cissoko REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,466,0012400013
+0012400013,642,PT00M00.50S,4,1610612759,SAS,1630201,Flynn,M. Flynn,0,0,0,,0,,,0,h,Flynn Bad Pass Turnover (P2.T21),Turnover,Bad Pass,1,0,467,0012400013
+0012400013,642,PT00M00.50S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,v,Flagler STEAL (1 STL),,,1,0,468,0012400013
+0012400013,644,PT00M00.00S,4,0,,0,,,0,0,0,,0,107,112,219,,End of 4th Period (10:10 PM EST),period,end,1,0,469,0012400013

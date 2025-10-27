@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,F,,,37:57,2,10,0.2,1,5,0.2,0,3,0.0,3,1,4,5,1,1,0,3,5,-2.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,40:43,13,27,0.481,1,10,0.1,5,5,1.0,1,11,12,4,0,1,0,2,32,-10.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,30:05,5,6,0.833,0,0,0.0,0,0,0.0,5,8,13,0,2,1,2,3,10,-15.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,30:08,8,19,0.421,2,7,0.286,3,3,1.0,1,5,6,0,0,1,1,4,21,-16.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,32:00,6,14,0.429,0,5,0.0,2,2,1.0,0,3,3,3,0,0,3,1,14,-13.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,11:15,2,2,1.0,2,2,1.0,0,0,0.0,0,2,2,1,0,1,1,1,6,6.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,,,31:40,4,14,0.286,3,10,0.3,0,0,0.0,3,3,6,3,2,0,0,2,11,-7.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,16:00,0,6,0.0,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,2,0,1.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,10:12,0,2,0.0,0,1,0.0,1,2,0.5,0,1,1,0,1,0,0,1,1,-4.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1629716,Marques,Bolden,M. Bolden,marques-bolden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300910
+0022300910,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,35:03,8,14,0.571,1,2,0.5,1,3,0.333,3,11,14,2,0,2,1,2,18,9.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,39:56,11,23,0.478,0,7,0.0,6,6,1.0,0,8,8,9,1,2,2,3,28,21.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,C,,,36:02,5,5,1.0,0,0,0.0,4,4,1.0,3,8,11,1,1,1,0,5,14,23.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,G,,,27:05,4,7,0.571,1,4,0.25,2,2,1.0,1,3,4,0,1,1,2,3,11,0.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,21:45,3,7,0.429,1,4,0.25,0,0,0.0,0,4,4,4,0,1,1,1,7,-4.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,,,,34:05,6,17,0.353,2,10,0.2,1,2,0.5,1,4,5,7,2,3,4,2,15,8.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,30:00,3,7,0.429,1,5,0.2,6,6,1.0,0,4,4,2,0,0,0,0,13,19.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1630647,Eugene,Omoruyi,E. Omoruyi,eugene-omoruyi,,,,6:10,2,5,0.4,0,1,0.0,0,0,0.0,1,1,2,0,0,0,0,2,4,-6.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,7:31,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,1,1,2,0,-7.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,2:23,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-3.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1631262,Jules,Bernard,J. Bernard,jules-bernard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300910
+0022300910,1610612764,Washington,Wizards,WAS,wizards,1630181,R.J.,Hampton,R. Hampton,rj-hampton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300910

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,28:00,4,9,0.444,3,4,0.75,1,2,0.5,1,3,4,2,0,0,2,6,12,15.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,34:16,9,14,0.643,1,3,0.333,2,6,0.333,0,6,6,3,1,0,1,5,21,17.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,34:06,10,17,0.588,6,10,0.6,3,3,1.0,2,10,12,1,0,5,1,3,29,6.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1627741,Buddy,Hield,B. Hield,buddy-hield,G,,,36:26,6,13,0.462,6,11,0.545,0,0,0.0,1,5,6,7,1,1,1,4,18,11.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,34:52,6,14,0.429,2,7,0.286,7,9,0.778,0,2,2,17,0,0,0,1,21,16.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,13:08,1,4,0.25,0,0,0.0,0,0,0.0,0,0,0,2,0,0,2,1,2,-19.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,23:29,0,8,0.0,0,5,0.0,2,3,0.667,0,3,3,0,0,0,3,1,2,-21.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,13:54,2,5,0.4,1,1,1.0,2,2,1.0,2,1,3,0,0,0,1,2,7,-9.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,11:20,0,3,0.0,0,3,0.0,0,0,0.0,0,0,0,2,0,0,2,2,0,-16.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,10:29,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,0,1,0,0,1,3,-15.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1631112,Kendall,Brown,K. Brown,kendall-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612754,Indiana,Pacers,IND,pacers,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,42:37,14,28,0.5,1,4,0.25,8,11,0.727,1,3,4,3,1,2,1,2,37,2.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,41:07,4,11,0.364,0,2,0.0,5,6,0.833,2,10,12,3,0,1,0,3,13,3.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,30:11,6,15,0.4,0,0,0.0,0,0,0.0,2,6,8,1,0,2,1,1,12,-14.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,G,,,27:52,1,2,0.5,0,1,0.0,2,2,1.0,0,1,1,2,1,2,0,3,4,-14.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,37:17,9,18,0.5,2,4,0.5,10,10,1.0,1,6,7,6,1,1,1,3,30,-7.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,18:35,1,3,0.333,0,0,0.0,2,2,1.0,1,3,4,0,0,0,1,2,4,11.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,7:52,4,4,1.0,0,0,0.0,2,2,1.0,0,2,2,1,0,1,2,2,10,8.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,14:29,2,2,1.0,1,1,1.0,0,0,0.0,0,3,3,0,0,0,3,1,5,8.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,17:38,1,1,1.0,0,0,0.0,1,2,0.5,2,3,5,2,0,2,0,4,3,18.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,2:22,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590
+0022300590,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300590

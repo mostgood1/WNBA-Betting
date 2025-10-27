@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,38:01,3,8,0.375,2,4,0.5,2,3,0.667,0,2,2,0,1,1,0,1,10,-10.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,36:06,5,13,0.385,0,2,0.0,3,4,0.75,2,6,8,8,0,0,3,4,13,3.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,C,,,24:59,6,15,0.4,4,9,0.444,0,0,0.0,1,8,9,1,1,1,2,4,16,-2.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,25:04,2,8,0.25,0,3,0.0,1,1,1.0,2,4,6,2,0,1,2,1,5,-16.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,36:27,10,18,0.556,5,12,0.417,4,4,1.0,1,4,5,13,1,0,3,2,29,12.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,23:05,7,11,0.636,0,2,0.0,1,2,0.5,4,3,7,4,1,0,0,2,15,8.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,16:35,3,9,0.333,0,6,0.0,0,0,0.0,2,0,2,3,1,0,3,0,6,3.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,11:32,4,6,0.667,0,0,0.0,2,2,1.0,3,1,4,0,0,1,1,3,10,-10.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,17:28,6,8,0.75,1,2,0.5,1,1,1.0,2,2,4,2,2,0,1,2,14,0.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,7:24,0,2,0.0,0,1,0.0,1,2,0.5,1,0,1,0,0,0,0,0,1,-14.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,3:20,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-9.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400864
+0022400864,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,41:44,6,13,0.462,3,6,0.5,5,7,0.714,1,1,2,1,1,1,2,2,20,1.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,38:34,6,13,0.462,3,5,0.6,2,2,1.0,1,7,8,4,2,1,3,4,17,14.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,20:51,3,5,0.6,0,1,0.0,4,6,0.667,5,9,14,2,0,0,2,4,10,3.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,36:43,18,24,0.75,6,9,0.667,2,8,0.25,1,5,6,1,3,1,2,3,44,-5.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,39:49,2,14,0.143,0,2,0.0,1,1,1.0,1,2,3,11,2,0,2,1,5,2.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,,,15:42,2,3,0.667,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,4,4,-1.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,27:09,5,8,0.625,5,7,0.714,3,4,0.75,1,5,6,5,0,0,2,1,18,4.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,5:39,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,0,3,5.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,13:49,2,3,0.667,1,1,1.0,0,0,0.0,0,0,0,3,0,0,0,0,5,12.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1630215,Jared,Butler,J. Butler,jared-butler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400864
+0022400864,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400864

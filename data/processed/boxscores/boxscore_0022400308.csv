@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,F,,,22:45,2,4,0.5,0,2,0.0,1,5,0.2,1,3,4,0,2,2,2,1,5,-14.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,29:02,3,14,0.214,3,9,0.333,2,2,1.0,1,3,4,2,1,0,1,2,11,-34.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,20:27,5,7,0.714,0,0,0.0,1,1,1.0,6,2,8,1,0,1,2,3,11,-8.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,25:12,6,16,0.375,0,3,0.0,1,1,1.0,1,2,3,3,1,0,0,2,13,-22.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,29:34,5,17,0.294,0,6,0.0,0,0,0.0,1,7,8,5,3,1,3,4,10,-34.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,19:31,1,4,0.25,0,1,0.0,0,0,0.0,1,3,4,0,0,0,1,2,2,-28.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,18:46,3,8,0.375,1,3,0.333,6,6,1.0,0,3,3,2,2,0,0,1,13,-8.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,6:52,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,2,-14.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,16:32,3,6,0.5,0,0,0.0,0,0,0.0,0,1,1,7,1,2,3,0,6,-8.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,19:25,1,6,0.167,0,2,0.0,0,0,0.0,1,1,2,0,1,0,1,2,2,1.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,14:38,0,2,0.0,0,0,0.0,0,2,0.0,0,3,3,0,0,1,0,2,0,-7.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,9:02,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,1,1,0,0,0,6.0,0022400308
+0022400308,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,8:14,5,6,0.833,0,1,0.0,0,0,0.0,0,1,1,0,2,1,0,0,10,5.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,31:24,2,10,0.2,0,3,0.0,3,4,0.75,1,3,4,2,3,4,2,1,7,32.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,30:60,5,9,0.556,2,3,0.667,0,0,0.0,1,5,6,3,2,1,0,2,12,23.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,24:34,4,12,0.333,1,5,0.2,5,5,1.0,3,16,19,2,1,1,2,1,14,17.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,35:30,12,19,0.632,7,12,0.583,0,0,0.0,0,4,4,1,0,1,1,1,31,40.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,26:28,4,11,0.364,3,7,0.429,5,5,1.0,2,0,2,9,0,0,3,3,16,29.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,21:40,5,9,0.556,3,4,0.75,0,0,0.0,1,1,2,3,1,0,2,2,13,18.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,23:26,2,2,1.0,0,0,0.0,0,0,0.0,5,8,13,2,1,0,2,0,4,16.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,16:29,3,7,0.429,2,4,0.5,0,0,0.0,0,3,3,5,2,2,1,2,8,9.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,9:02,3,6,0.5,2,5,0.4,0,0,0.0,0,1,1,0,0,0,2,0,8,-6.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,9:02,1,2,0.5,0,0,0.0,1,2,0.5,1,2,3,1,0,0,1,2,3,-6.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,6:23,1,4,0.25,0,1,0.0,0,0,0.0,0,2,2,2,0,0,0,0,2,-2.0,0022400308
+0022400308,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,,,5:03,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,-5.0,0022400308

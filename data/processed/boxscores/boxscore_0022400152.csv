@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,29:52,4,13,0.308,1,5,0.2,2,2,1.0,1,4,5,1,3,0,2,3,11,-3.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,37:54,12,20,0.6,0,4,0.0,5,6,0.833,2,7,9,8,2,2,4,2,29,32.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,20:39,4,5,0.8,0,0,0.0,0,0,0.0,0,4,4,0,0,1,0,1,8,27.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,24:49,7,10,0.7,2,5,0.4,0,0,0.0,2,3,5,3,1,0,2,3,16,21.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,31:21,8,15,0.533,5,10,0.5,2,2,1.0,1,3,4,12,1,0,2,1,23,29.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1631223,David,Roddy,D. Roddy,david-roddy,,,,25:51,3,3,1.0,2,2,1.0,0,0,0.0,1,2,3,3,0,0,1,1,8,-8.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,24:58,6,8,0.75,2,3,0.667,0,0,0.0,2,4,6,0,1,0,1,0,14,-4.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,20:16,3,7,0.429,3,6,0.5,2,2,1.0,0,3,3,1,0,0,2,4,11,-8.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1630811,Keaton,Wallace,K. Wallace,keaton-wallace,,,,21:57,3,7,0.429,0,1,0.0,0,0,0.0,1,1,2,1,2,0,2,2,6,-3.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,2:23,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-8.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400152
+0022400152,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,29:31,12,19,0.632,4,8,0.5,4,5,0.8,1,6,7,2,1,1,6,4,32,-21.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,F,,,23:31,1,2,0.5,0,1,0.0,1,1,1.0,0,2,2,1,1,0,0,2,3,-22.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,25:55,2,6,0.333,0,0,0.0,0,0,0.0,3,3,6,3,1,1,1,0,4,-18.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,G,,,31:17,7,18,0.389,3,8,0.375,2,2,1.0,1,2,3,3,0,1,4,2,19,-21.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,28:35,3,12,0.25,1,7,0.143,2,2,1.0,1,2,3,7,1,0,1,2,9,-19.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,30:09,4,10,0.4,1,3,0.333,5,6,0.833,3,2,5,4,0,0,2,2,14,-2.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,24:55,2,8,0.25,2,3,0.667,0,0,0.0,6,1,7,2,1,0,1,1,6,4.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,17:52,4,7,0.571,3,5,0.6,3,4,0.75,2,1,3,0,0,0,0,1,14,9.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,17:38,3,4,0.75,1,1,1.0,0,0,0.0,0,3,3,0,1,0,2,2,7,3.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,,,3:33,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,4.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,3:33,0,2,0.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,4.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,3:33,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,0,3,4.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400152
+0022400152,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400152

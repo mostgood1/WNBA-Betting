@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,F,,,34:40,10,24,0.417,3,11,0.273,4,6,0.667,1,3,4,6,0,1,4,4,27,11.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,29:19,3,15,0.2,0,3,0.0,6,6,1.0,0,4,4,1,1,1,3,4,12,-3.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,C,,,35:39,5,6,0.833,0,0,0.0,3,7,0.429,4,8,12,3,1,2,1,3,13,20.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,G,,,36:29,5,12,0.417,3,7,0.429,4,4,1.0,0,3,3,7,0,0,5,3,17,16.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,G,,,23:52,2,6,0.333,2,6,0.333,0,0,0.0,1,4,5,3,3,0,0,3,6,3.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,24:18,4,5,0.8,4,5,0.8,1,1,1.0,0,1,1,2,1,0,0,1,13,-1.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,21:11,4,8,0.5,1,4,0.25,0,0,0.0,0,3,3,2,0,1,2,1,9,-3.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,8:36,0,4,0.0,0,3,0.0,0,0,0.0,1,0,1,1,0,0,0,1,0,-6.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,4:55,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,1,2,0,-12.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,21:01,4,7,0.571,0,1,0.0,0,0,0.0,4,2,6,0,1,1,0,1,8,-5.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300179
+0022300179,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,36:51,6,16,0.375,1,4,0.25,1,2,0.5,1,4,5,3,1,2,0,3,14,-18.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,37:28,8,16,0.5,3,7,0.429,7,9,0.778,1,6,7,7,2,0,7,5,26,2.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,23:27,2,4,0.5,0,0,0.0,2,2,1.0,0,6,6,1,1,0,1,3,6,-6.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,28:40,4,12,0.333,1,7,0.143,2,2,1.0,2,2,4,3,1,1,1,0,11,-28.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,30:42,5,13,0.385,1,4,0.25,1,2,0.5,1,8,9,5,3,0,4,3,12,10.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,11:30,1,2,0.5,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,1,2,-6.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,31:11,7,13,0.538,4,7,0.571,2,6,0.333,0,2,2,3,0,0,0,5,20,8.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,,,13:07,1,2,0.5,1,2,0.5,0,0,0.0,1,1,2,1,1,0,0,1,3,5.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,,,,27:04,3,7,0.429,1,3,0.333,0,0,0.0,1,2,3,3,0,0,1,2,7,13.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300179
+0022300179,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300179

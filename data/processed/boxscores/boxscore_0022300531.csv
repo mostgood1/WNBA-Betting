@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300531,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,32:15,7,12,0.583,2,5,0.4,2,2,1.0,0,5,5,5,3,1,1,0,18,15.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,30:03,2,8,0.25,1,6,0.167,0,0,0.0,1,4,5,3,0,0,0,3,5,32.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,28:29,3,6,0.5,0,0,0.0,3,4,0.75,4,8,12,2,1,0,2,2,9,29.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,32:07,14,21,0.667,8,10,0.8,1,1,1.0,2,4,6,4,1,0,3,3,37,25.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,33:31,11,22,0.5,2,6,0.333,7,7,1.0,0,5,5,5,3,0,3,2,31,20.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,22:57,2,11,0.182,1,9,0.111,0,0,0.0,2,1,3,0,0,0,0,0,5,1.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,17:18,2,3,0.667,0,0,0.0,2,2,1.0,2,4,6,2,2,2,0,1,6,9.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1628962,Udoka,Azubuike,U. Azubuike,udoka-azubuike,,,,5:00,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,2,2,-6.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,11:34,2,4,0.5,0,2,0.0,1,2,0.5,0,0,0,0,1,0,0,1,5,-3.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,8:31,0,0,0.0,0,0,0.0,4,4,1.0,1,1,2,1,0,0,0,0,4,-6.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,4:36,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,1,0,1,1,0,-7.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,,,4:36,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,0,-7.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,,,4:36,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-7.0,0022300531
+0022300531,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,,,4:27,1,1,1.0,0,0,0.0,1,1,1.0,0,0,0,0,0,0,1,0,3,-5.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,F,,,8:24,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-5.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,24:16,3,11,0.273,0,4,0.0,4,7,0.571,0,5,5,9,1,0,4,1,10,-25.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,31:40,6,11,0.545,0,2,0.0,1,1,1.0,0,5,5,1,1,2,3,4,13,-24.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,28:14,4,10,0.4,3,8,0.375,0,0,0.0,1,5,6,2,0,0,0,0,11,-30.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,30:23,4,7,0.571,2,3,0.667,3,3,1.0,1,0,1,6,1,0,3,2,13,-23.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,24:33,4,8,0.5,1,3,0.333,5,6,0.833,0,7,7,4,0,0,2,2,14,-2.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,27:24,7,14,0.5,3,7,0.429,2,4,0.5,0,1,1,6,2,0,3,2,19,2.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,29:27,2,5,0.4,1,3,0.333,1,4,0.25,3,6,9,2,2,0,1,0,6,-1.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,13:01,3,3,1.0,0,0,0.0,0,0,0.0,1,1,2,1,0,2,2,6,6,1.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,12:00,5,6,0.833,2,2,1.0,0,0,0.0,1,0,1,1,1,0,0,0,12,9.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1629685,Dylan,Windler,D. Windler,dylan-windler,,,,5:19,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,1,3,4.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,,,5:19,1,3,0.333,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,4.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300531
+0022300531,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300531

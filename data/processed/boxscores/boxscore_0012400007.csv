@@ -1,0 +1,38 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,21:46,1,7,0.143,0,3,0.0,0,0,0.0,1,4,5,1,0,1,3,1,2,-2.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,F,,,22:26,6,8,0.75,3,4,0.75,0,0,0.0,2,1,3,4,0,1,3,2,15,-13.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,15:32,1,5,0.2,0,0,0.0,1,2,0.5,1,5,6,1,0,1,3,2,3,-2.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,G,,,24:12,4,6,0.667,1,3,0.333,1,1,1.0,0,2,2,0,2,2,1,3,10,-13.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,21:56,5,9,0.556,2,5,0.4,4,4,1.0,0,1,1,6,0,0,0,1,16,-7.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,,,,21:28,3,8,0.375,2,6,0.333,0,0,0.0,0,3,3,1,2,0,0,3,8,-22.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,19:09,1,3,0.333,1,1,1.0,2,2,1.0,0,1,1,1,0,0,0,0,5,-26.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,,,,17:36,1,8,0.125,0,4,0.0,5,7,0.714,0,2,2,1,0,0,3,3,7,-10.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,13:23,2,5,0.4,0,0,0.0,4,5,0.8,2,1,3,1,0,0,1,1,8,-3.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,13:52,1,4,0.25,0,2,0.0,1,2,0.5,2,1,3,2,1,2,1,1,3,1.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,16:03,2,4,0.5,1,1,1.0,3,8,0.375,1,1,2,1,0,0,1,1,8,-2.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,8:28,4,4,1.0,1,1,1.0,1,1,1.0,0,1,1,0,0,0,1,0,10,-10.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,8:28,1,4,0.25,0,0,0.0,1,1,1.0,0,0,0,2,1,0,0,0,3,-10.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,8:11,0,1,0.0,0,0,0.0,0,1,0.0,0,0,0,1,0,0,0,0,0,-10.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,7:30,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-6.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630180,Saddiq,Bey,S. Bey,saddiq-bey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1641778,Leaky,Black,L. Black,leaky-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007
+0012400007,1610612764,Washington,Wizards,WAS,wizards,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,14:15,7,10,0.7,3,4,0.75,0,2,0.0,0,2,2,2,0,0,3,1,17,16.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,F,,,19:34,1,5,0.2,0,0,0.0,0,0,0.0,3,2,5,5,1,1,0,3,2,-4.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,20:36,3,7,0.429,0,0,0.0,0,0,0.0,3,4,7,3,0,1,0,0,6,16.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,G,,,20:14,5,9,0.556,0,4,0.0,0,0,0.0,0,4,4,5,1,0,2,1,10,11.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,G,,,20:16,2,4,0.5,0,2,0.0,0,0,0.0,0,1,1,5,0,0,0,3,4,22.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,17:40,5,9,0.556,3,5,0.6,0,0,0.0,4,2,6,0,0,1,1,1,13,19.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,16:58,4,6,0.667,0,2,0.0,2,2,1.0,0,0,0,4,3,0,1,2,10,-7.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,,,,17:08,4,7,0.571,1,3,0.333,0,1,0.0,0,0,0,2,0,0,1,1,9,16.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,,,11:40,3,6,0.5,2,5,0.4,2,3,0.667,0,5,5,3,0,0,1,3,10,8.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1630618,D.J.,Carton,D. Carton,dj-carton,,,,19:35,3,6,0.5,1,3,0.333,0,0,0.0,0,1,1,3,1,0,1,1,7,9.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1630186,Jahmi'us,Ramsey,J. Ramsey,jahmius-ramsey,,,,15:06,3,6,0.5,2,3,0.667,2,2,1.0,0,2,2,1,0,0,2,0,10,-6.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,9:49,2,5,0.4,0,0,0.0,0,0,0.0,2,5,7,1,0,0,1,3,4,3.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,12:00,4,5,0.8,2,3,0.667,0,0,0.0,1,0,1,0,1,0,0,1,10,10.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1642382,Branden,Carlson,B. Carlson,branden-carlson,,,,10:46,1,3,0.333,1,3,0.333,2,2,1.0,0,5,5,2,1,0,0,2,5,12.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,,,8:28,3,4,0.75,0,0,0.0,0,0,0.0,0,3,3,1,0,0,0,3,6,10.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,1642279,Ulrich,Chomche,U. Chomche,ulrich-chomche,,,,5:55,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,2,0,0,3,4,2,0.0,0012400007
+0012400007,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400007

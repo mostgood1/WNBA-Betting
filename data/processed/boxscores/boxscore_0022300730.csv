@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,19:27,2,7,0.286,2,5,0.4,0,0,0.0,3,2,5,3,2,0,0,2,6,7.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,28:48,3,7,0.429,0,2,0.0,0,0,0.0,0,5,5,3,1,0,2,2,6,-11.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,27:48,7,13,0.538,3,5,0.6,1,3,0.333,0,13,13,3,1,1,3,1,18,-12.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,32:18,8,18,0.444,1,6,0.167,2,2,1.0,0,3,3,3,1,0,2,1,19,-11.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,31:11,7,11,0.636,2,4,0.5,3,5,0.6,0,2,2,6,0,0,3,0,19,-15.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,24:31,3,10,0.3,0,4,0.0,1,1,1.0,3,3,6,0,0,1,0,3,7,-15.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,16:49,3,6,0.5,0,1,0.0,2,2,1.0,0,4,4,3,0,0,1,5,8,-4.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,15:40,2,2,1.0,0,0,0.0,1,4,0.25,0,1,1,6,1,0,1,3,5,-4.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,21:35,3,7,0.429,2,4,0.5,0,0,0.0,0,5,5,0,0,0,0,1,8,-2.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,10:19,1,3,0.333,1,3,0.333,0,0,0.0,0,1,1,0,0,0,0,1,3,-1.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,8:11,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,1,0,0,2,2,3,4.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,3:23,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,2,0,0,0,0,2,4.0,0022300730
+0022300730,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,33:50,5,12,0.417,1,3,0.333,6,6,1.0,1,10,11,11,3,1,0,0,17,17.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,24:60,4,6,0.667,1,3,0.333,0,0,0.0,2,3,5,2,2,0,1,2,9,13.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,28:47,10,14,0.714,0,0,0.0,0,2,0.0,0,5,5,2,1,0,1,4,20,17.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,29:08,10,15,0.667,4,7,0.571,0,0,0.0,1,5,6,7,0,0,1,1,24,16.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,28:12,5,15,0.333,2,7,0.286,1,1,1.0,1,1,2,5,0,0,1,3,13,16.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,27:56,4,6,0.667,0,2,0.0,2,5,0.4,0,3,3,0,0,0,2,1,10,-2.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,,,26:28,2,6,0.333,1,4,0.25,4,4,1.0,0,4,4,0,0,0,0,2,9,-3.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,16:47,2,7,0.286,2,6,0.333,0,0,0.0,0,6,6,0,1,1,1,3,6,0.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,18:60,1,6,0.167,1,6,0.167,3,3,1.0,0,2,2,2,1,0,2,2,6,-4.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,2:26,0,0,0.0,0,0,0.0,2,2,1.0,0,1,1,0,0,0,0,2,2,-5.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,2:26,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-5.0,0022300730
+0022300730,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300730

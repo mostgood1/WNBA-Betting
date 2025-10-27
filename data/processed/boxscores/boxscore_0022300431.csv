@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300431,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,11:50,0,2,0.0,0,2,0.0,2,2,1.0,0,0,0,0,0,0,0,1,2,-4.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,36:16,4,12,0.333,1,6,0.167,0,0,0.0,0,5,5,0,2,2,0,5,9,-3.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,35:08,12,17,0.706,0,0,0.0,1,4,0.25,2,8,10,7,0,0,1,2,25,-4.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,9:45,3,6,0.5,1,3,0.333,0,0,0.0,0,3,3,1,0,0,0,0,7,-5.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,40:46,10,20,0.5,8,16,0.5,3,7,0.429,1,4,5,8,5,0,3,3,31,9.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,30:42,6,10,0.6,2,5,0.4,1,1,1.0,0,4,4,8,1,1,5,3,15,18.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,25:02,7,12,0.583,4,9,0.444,1,1,1.0,0,6,6,1,0,0,2,3,19,4.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,24:39,2,5,0.4,1,3,0.333,0,0,0.0,0,0,0,4,1,0,1,1,5,10.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,12:52,1,2,0.5,0,0,0.0,0,0,0.0,1,3,4,4,0,0,0,0,2,11.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,13:01,1,3,0.333,0,1,0.0,0,0,0.0,1,0,1,2,0,0,0,2,2,-1.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1629308,Juan,Toscano-Anderson,J. Toscano-Anderson,juan-toscano-anderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612758,Sacramento,Kings,SAC,kings,1628426,Sasha,Vezenkov,A. Vezenkov,sasha-vezenkov,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,F,,,32:29,4,14,0.286,3,8,0.375,4,4,1.0,5,2,7,4,1,0,1,2,15,5.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,35:04,5,12,0.417,1,4,0.25,5,6,0.833,2,13,15,4,0,1,4,2,16,-7.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,28:13,5,7,0.714,0,0,0.0,2,4,0.5,6,6,12,3,1,2,2,1,12,2.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,36:50,7,20,0.35,4,8,0.5,0,0,0.0,1,5,6,3,1,0,3,3,18,5.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,38:29,7,18,0.389,3,10,0.3,7,7,1.0,1,2,3,9,4,0,4,4,24,-11.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,8:14,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,1,0,0,1,3,7.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,26:45,4,14,0.286,2,10,0.2,2,2,1.0,2,2,4,5,0,0,1,1,12,-14.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,22:45,3,6,0.5,0,0,0.0,1,2,0.5,1,2,3,1,1,1,0,2,7,-11.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,11:11,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,-11.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431
+0022300431,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300431

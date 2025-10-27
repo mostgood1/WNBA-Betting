@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,16:38,4,6,0.667,2,3,0.667,0,0,0.0,2,3,5,2,0,0,0,2,10,0.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,35:57,7,15,0.467,1,1,1.0,1,2,0.5,1,7,8,2,2,0,2,1,16,-1.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,31:17,8,21,0.381,1,6,0.167,2,3,0.667,5,8,13,4,5,5,1,1,19,0.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,36:42,13,18,0.722,3,4,0.75,3,5,0.6,0,1,1,7,0,0,1,1,32,-4.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,29:47,5,8,0.625,0,1,0.0,0,0,0.0,1,1,2,9,0,0,2,0,10,1.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,16:43,1,4,0.25,0,0,0.0,1,2,0.5,0,3,3,4,1,0,0,1,3,-5.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,31:22,7,12,0.583,2,4,0.5,2,2,1.0,0,4,4,3,1,0,0,3,18,-5.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,11:18,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,3,0,0,0,1,5,-1.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,13:21,2,6,0.333,1,2,0.5,0,0,0.0,1,2,3,2,0,0,1,0,5,-6.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,16:55,1,4,0.25,0,2,0.0,2,2,1.0,1,0,1,1,0,0,1,2,4,-4.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803
+0022300803,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,17:14,2,5,0.4,0,1,0.0,1,2,0.5,1,3,4,0,1,0,0,2,5,-7.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,34:39,6,10,0.6,2,4,0.5,2,2,1.0,1,3,4,0,0,0,2,3,16,3.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,33:02,11,15,0.733,0,0,0.0,0,0,0.0,3,8,11,11,0,1,2,1,22,15.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,31:24,8,14,0.571,5,8,0.625,0,0,0.0,0,4,4,5,0,0,1,1,21,15.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,37:21,12,18,0.667,2,6,0.333,2,4,0.5,0,5,5,9,2,1,3,1,28,-1.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,15:01,1,6,0.167,1,5,0.2,1,2,0.5,0,3,3,0,0,0,0,0,4,-15.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,13:56,2,5,0.4,0,0,0.0,0,0,0.0,1,3,4,0,0,2,0,1,4,-3.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,26:45,8,15,0.533,1,5,0.2,4,4,1.0,0,3,3,2,2,2,2,0,21,8.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,10:39,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,6.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,19:57,2,3,0.667,2,3,0.667,0,0,0.0,1,3,4,1,0,0,0,2,6,4.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,0:01,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803
+0022300803,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300803

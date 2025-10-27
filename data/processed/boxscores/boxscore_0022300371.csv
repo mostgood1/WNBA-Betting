@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,28:16,5,10,0.5,1,4,0.25,0,0,0.0,0,1,1,3,0,0,0,2,11,-19.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,F,,,31:38,3,11,0.273,2,6,0.333,1,1,1.0,4,5,9,0,0,0,1,1,9,16.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,21:18,4,6,0.667,0,0,0.0,7,7,1.0,5,4,9,2,2,1,0,3,15,-9.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,35:18,7,15,0.467,3,8,0.375,4,5,0.8,2,1,3,5,0,1,3,2,21,-8.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,36:28,10,18,0.556,5,8,0.625,5,7,0.714,0,4,4,14,1,0,4,4,30,11.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,32:41,8,11,0.727,0,1,0.0,3,4,0.75,1,10,11,2,0,0,0,1,19,12.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,29:36,8,14,0.571,4,8,0.5,2,2,1.0,0,4,4,5,1,1,0,3,22,14.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,7:58,0,2,0.0,0,1,0.0,1,2,0.5,0,2,2,0,0,0,0,1,1,2.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,16:47,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,0,0,0,1,1,6,16.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,29:46,7,9,0.778,5,6,0.833,0,0,0.0,0,2,2,1,2,0,0,5,19,1.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,41:36,8,14,0.571,4,7,0.571,14,14,1.0,5,8,13,1,0,4,0,3,34,3.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,26:42,7,12,0.583,0,0,0.0,0,0,0.0,2,7,9,5,0,1,0,2,14,-10.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,32:26,7,19,0.368,2,7,0.286,0,0,0.0,1,3,4,2,1,1,1,1,16,-7.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,44:03,10,20,0.5,3,7,0.429,9,9,1.0,0,4,4,15,1,0,2,3,32,-2.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,19:07,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,3,0,-2.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,8:26,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,1,2,-10.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,26:02,3,8,0.375,2,5,0.4,0,0,0.0,0,2,2,0,0,0,2,1,8,2.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,11:52,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,3,4,2,-10.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371
+0022300371,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300371

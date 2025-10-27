@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,28:36,4,13,0.308,0,3,0.0,3,4,0.75,3,2,5,0,0,0,1,3,11,-6.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,F,,,26:14,2,5,0.4,0,3,0.0,0,0,0.0,1,7,8,2,0,0,0,0,4,-12.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,29:36,4,4,1.0,0,0,0.0,2,3,0.667,2,6,8,4,1,0,2,5,10,-6.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,32:03,5,12,0.417,2,8,0.25,3,6,0.5,0,6,6,1,1,0,2,1,15,-13.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,34:28,6,17,0.353,6,13,0.462,5,5,1.0,1,4,5,4,1,0,3,2,23,-10.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,26:54,4,10,0.4,1,4,0.25,0,0,0.0,1,4,5,4,1,0,1,2,9,5.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,18:13,2,3,0.667,0,0,0.0,4,5,0.8,0,2,2,1,0,0,0,4,8,4.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,18:49,4,12,0.333,0,1,0.0,2,2,1.0,2,2,4,2,0,0,0,1,10,9.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,13:53,4,7,0.571,2,3,0.667,0,0,0.0,0,3,3,1,1,0,0,0,10,6.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,11:14,2,3,0.667,0,0,0.0,1,1,1.0,1,2,3,2,0,0,0,2,5,8.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169
+0022300169,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,36:55,7,17,0.412,3,8,0.375,0,0,0.0,2,6,8,2,0,2,0,1,17,13.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,34:25,5,14,0.357,1,2,0.5,3,4,0.75,4,7,11,3,3,1,2,2,14,12.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,36:36,14,25,0.56,1,8,0.125,6,10,0.6,3,10,13,5,3,1,3,3,35,3.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,35:07,3,8,0.375,0,3,0.0,4,4,1.0,1,2,3,3,1,0,0,3,10,13.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,G,,,32:21,8,17,0.471,3,7,0.429,1,2,0.5,0,2,2,6,0,0,0,5,20,13.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,15:39,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,1,0,0,1,2,3,-10.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,10:35,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-8.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,15:44,1,3,0.333,1,2,0.5,1,2,0.5,0,2,2,2,0,0,0,1,4,-8.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,8:14,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,2,0,-12.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,6:29,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,0,0,0,-3.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,7:55,1,2,0.5,1,2,0.5,0,0,0.0,0,3,3,0,0,0,0,1,3,2.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169
+0022300169,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300169

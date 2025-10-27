@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,23:47,3,6,0.5,0,2,0.0,4,4,1.0,0,2,2,0,2,1,1,1,10,-11.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,21:16,3,7,0.429,0,1,0.0,1,1,1.0,4,4,8,0,0,0,1,2,7,-25.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,26:44,3,6,0.5,0,0,0.0,2,2,1.0,1,2,3,1,0,1,0,1,8,-16.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,36:51,11,23,0.478,4,10,0.4,3,4,0.75,1,3,4,4,2,0,2,2,29,-20.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,35:30,5,13,0.385,0,2,0.0,1,3,0.333,3,5,8,6,0,0,0,2,11,-10.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,23:05,1,5,0.2,1,4,0.25,0,0,0.0,0,1,1,0,1,1,0,2,3,5.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,37:08,8,15,0.533,3,7,0.429,11,12,0.917,2,3,5,2,0,0,2,3,30,7.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,20:31,3,4,0.75,2,2,1.0,2,4,0.5,1,3,4,1,1,1,1,3,10,6.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,13:38,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,1,0,1,0,0,8.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022300697
+0022300697,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,34:58,5,14,0.357,3,10,0.3,0,0,0.0,0,4,4,1,0,0,1,0,13,8.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,27:41,7,9,0.778,1,1,1.0,3,3,1.0,2,2,4,5,0,0,3,4,18,20.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,38:15,11,16,0.688,1,1,1.0,4,4,1.0,7,15,22,12,1,2,4,3,27,20.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,33:45,4,8,0.5,1,2,0.5,7,7,1.0,0,1,1,2,0,1,0,3,16,22.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,32:43,5,21,0.238,3,15,0.2,0,0,0.0,4,5,9,10,0,2,2,1,13,9.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,24:18,5,9,0.556,1,3,0.333,2,3,0.667,0,0,0,3,0,0,0,3,13,-9.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,21:48,6,8,0.75,2,2,1.0,0,0,0.0,1,4,5,0,0,1,0,4,14,0.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,8:06,1,2,0.5,0,1,0.0,0,0,0.0,1,1,2,0,0,0,1,1,2,-7.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,4:36,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,-10.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,11:35,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,1,0,0,0,0,1.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,2.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,0:45,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,2.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300697
+0022300697,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300697

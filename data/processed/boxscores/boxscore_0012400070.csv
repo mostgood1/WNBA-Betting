@@ -1,0 +1,33 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,26:23,5,10,0.5,4,9,0.444,0,0,0.0,1,4,5,3,1,1,0,0,14,4.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,34:42,4,11,0.364,1,3,0.333,6,12,0.5,0,10,10,8,0,3,0,2,15,-5.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,32:19,11,16,0.688,0,0,0.0,3,3,1.0,6,10,16,2,2,0,1,2,25,9.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,34:42,8,21,0.381,2,9,0.222,4,6,0.667,1,3,4,4,2,0,3,2,22,-5.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,32:19,8,15,0.533,5,10,0.5,2,2,1.0,0,2,2,5,1,0,3,1,23,9.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,25:45,3,10,0.3,1,7,0.143,2,2,1.0,0,0,0,5,0,0,1,2,9,2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,17:27,2,7,0.286,2,7,0.286,0,0,0.0,0,2,2,2,0,0,0,1,6,-7.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,12:53,1,4,0.25,1,3,0.333,2,2,1.0,0,0,0,3,1,0,0,2,5,-7.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,12:03,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,1,0,0,1,0,3,-3.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,11:28,2,2,1.0,0,0,0.0,4,4,1.0,1,3,4,0,0,0,2,2,8,3.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631262,Jules,Bernard,J. Bernard,jules-bernard,,,,5:00,1,4,0.25,0,2,0.0,0,0,0.0,0,0,0,0,0,0,1,0,2,-2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631250,Pete,Nance,P. Nance,pete-nance,,,,5:00,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,1,0,1,3,0,-2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,5:00,0,3,0.0,0,1,0.0,1,2,0.5,1,1,2,0,0,0,1,0,1,-2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,,,5:00,0,0,0.0,0,0,0.0,4,4,1.0,0,2,2,0,1,1,0,0,4,-2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,,,5:00,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,1,0,-2.0,0012400070
+0012400070,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,F,,,28:12,7,14,0.5,2,7,0.286,2,4,0.5,1,5,6,3,1,0,1,2,18,3.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,20:00,4,8,0.5,2,5,0.4,0,0,0.0,0,6,6,3,0,1,0,0,10,-3.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,27:03,8,16,0.5,1,3,0.333,1,1,1.0,2,10,12,6,1,1,3,2,18,6.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,30:33,5,14,0.357,2,8,0.25,2,2,1.0,1,5,6,8,2,0,5,2,14,9.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,G,,,28:02,7,11,0.636,5,7,0.714,0,2,0.0,1,2,3,3,1,0,0,2,19,13.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1628366,Lonzo,Ball,L. Ball,lonzo-ball,,,,15:43,4,9,0.444,3,7,0.429,0,0,0.0,0,3,3,3,0,0,1,2,11,2.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,15:30,1,4,0.25,0,2,0.0,0,0,0.0,1,0,1,0,0,1,2,3,2,-6.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,14:48,3,4,0.75,1,1,1.0,0,0,0.0,0,3,3,0,0,0,1,1,7,9.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,17:19,5,9,0.556,0,2,0.0,4,6,0.667,3,6,9,4,1,0,1,4,14,-5.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,,,8:18,1,3,0.333,1,3,0.333,0,0,0.0,0,0,0,0,0,0,1,1,3,-7.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,14:19,3,5,0.6,1,2,0.5,2,2,1.0,0,1,1,1,0,0,1,0,9,-5.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,14:19,1,6,0.167,0,5,0.0,1,2,0.5,0,1,1,3,1,1,1,2,3,-5.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,13:42,3,8,0.375,1,3,0.333,2,2,1.0,0,2,2,0,0,0,1,2,9,-3.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1641766,Adama,Sanogo,A. Sanogo,adama-sanogo,,,,8:34,0,1,0.0,0,0,0.0,0,0,0.0,1,4,5,0,3,1,0,2,0,1.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,8:38,1,3,0.333,0,1,0.0,0,0,0.0,2,0,2,0,0,0,0,2,2,1.0,0012400070
+0012400070,1610612741,Chicago,Bulls,CHI,bulls,1630569,DJ,Steward,D. Steward,dj-steward,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400070

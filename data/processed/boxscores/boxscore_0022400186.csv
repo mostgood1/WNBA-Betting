@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,26:19,4,12,0.333,1,4,0.25,2,2,1.0,1,4,5,5,0,0,6,3,11,-20.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,F,,,31:33,4,12,0.333,0,2,0.0,4,4,1.0,2,2,4,0,3,0,3,3,12,-6.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,19:45,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,1,0,2,0,-30.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,G,,,38:13,10,17,0.588,2,4,0.5,4,4,1.0,0,6,6,3,2,0,0,0,26,-19.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,34:48,7,18,0.389,4,11,0.364,3,6,0.5,1,4,5,5,3,0,3,0,21,-16.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,24:05,1,6,0.167,1,2,0.5,0,0,0.0,0,1,1,1,0,0,0,1,3,-4.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,12:07,1,3,0.333,0,0,0.0,0,0,0.0,1,0,1,2,0,0,0,1,2,-6.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,18:21,1,5,0.2,1,3,0.333,0,0,0.0,0,3,3,1,1,0,0,1,3,-18.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,,,13:12,4,9,0.444,1,4,0.25,1,1,1.0,0,0,0,1,0,0,1,0,10,-11.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,8:50,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,3,0,-15.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,12:47,0,1,0.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,2,5,0,10.0,0022400186
+0022400186,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,26:40,3,11,0.273,1,7,0.143,0,0,0.0,0,3,3,1,0,0,0,1,7,10.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,32:26,9,18,0.5,2,5,0.4,7,8,0.875,2,3,5,6,2,0,2,2,27,8.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,26:43,5,6,0.833,0,0,0.0,1,1,1.0,5,4,9,3,1,2,0,3,11,7.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,29:03,3,9,0.333,0,4,0.0,1,1,1.0,0,3,3,5,4,1,0,1,7,11.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,32:43,3,9,0.333,1,6,0.167,0,0,0.0,0,6,6,3,1,2,5,1,7,9.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,24:16,4,6,0.667,0,0,0.0,3,4,0.75,1,2,3,4,0,1,2,4,11,16.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,8:53,4,4,1.0,0,0,0.0,2,2,1.0,2,0,2,0,0,0,0,0,10,8.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,19:29,2,3,0.667,1,2,0.5,2,3,0.667,1,0,1,2,0,1,0,1,7,26.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,18:15,8,11,0.727,1,1,1.0,0,0,0.0,0,4,4,2,0,0,3,0,17,17.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,12:00,3,5,0.6,1,3,0.333,1,2,0.5,0,6,6,2,1,0,1,0,8,14.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,4:17,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,3.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,3:02,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,1,0,0,0,3.0,0022400186
+0022400186,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,2:13,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,0,3,3.0,0022400186

@@ -1,0 +1,36 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,F,,,14:45,3,6,0.5,1,4,0.25,0,0,0.0,0,0,0,4,0,1,3,1,7,-10.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,15:22,1,4,0.25,1,4,0.25,0,0,0.0,0,1,1,1,0,0,1,1,3,-11.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,C,,,15:42,3,6,0.5,0,0,0.0,4,5,0.8,2,7,9,0,0,1,1,2,10,-5.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,17:28,4,9,0.444,1,4,0.25,1,1,1.0,0,3,3,2,3,0,1,1,10,-10.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,16:12,1,10,0.1,0,5,0.0,0,0,0.0,0,1,1,2,1,0,0,1,2,-4.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,,,19:41,4,4,1.0,0,0,0.0,0,4,0.0,1,5,6,0,0,2,1,3,8,-1.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,17:28,2,4,0.5,2,4,0.5,0,0,0.0,0,3,3,1,2,0,1,1,6,13.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,20:45,6,8,0.75,2,4,0.5,5,5,1.0,0,2,2,3,1,0,2,1,19,14.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,17:16,3,4,0.75,0,1,0.0,3,3,1.0,0,3,3,3,1,0,2,4,9,9.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630536,Sharife,Cooper,S. Cooper,sharife-cooper,,,,14:25,1,3,0.333,0,1,0.0,0,0,0.0,0,4,4,6,0,1,3,2,2,-6.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,10:24,2,9,0.222,2,8,0.25,0,0,0.0,0,1,1,3,0,0,0,1,6,17.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,10:05,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,3,1,0,0,0,2,12.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,16:42,3,6,0.5,2,5,0.4,0,0,0.0,0,2,2,1,1,0,1,0,8,-3.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,,,13:36,4,7,0.571,2,5,0.4,0,0,0.0,0,2,2,0,1,1,0,2,10,-6.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629015,Zhaire,Smith,Z. Smith,zhaire-smith,,,,6:12,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,2,0,0,0,0,6.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630600,Isaiah,Mobley,I. Mobley,isaiah-mobley,,,,8:09,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,2,1,2,-10.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,5:48,1,1,1.0,0,0,0.0,1,1,1.0,0,0,0,1,0,0,0,0,3,-10.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631250,Pete,Nance,P. Nance,pete-nance,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300015
+0012300015,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641920,Justin,Powell,J. Powell,justin-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,F,,,22:10,3,7,0.429,0,3,0.0,3,4,0.75,2,4,6,0,2,0,2,2,9,6.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,21:14,2,5,0.4,0,1,0.0,3,3,1.0,1,6,7,3,0,1,1,1,7,-1.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,15:22,2,3,0.667,0,0,0.0,3,4,0.75,2,8,10,0,0,1,0,2,7,11.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,16:46,2,7,0.286,2,4,0.5,0,0,0.0,1,1,2,3,1,0,2,0,6,11.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,16:06,2,8,0.25,2,7,0.286,6,6,1.0,0,2,2,5,3,0,4,0,12,9.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,,,23:13,4,10,0.4,1,4,0.25,2,2,1.0,1,1,2,0,0,0,1,2,11,-14.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,9:18,1,2,0.5,0,1,0.0,0,0,0.0,0,4,4,1,0,0,1,0,2,0.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,19:02,5,7,0.714,2,3,0.667,0,0,0.0,1,1,2,0,0,0,2,1,12,-16.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,,,18:27,4,11,0.364,1,6,0.167,0,0,0.0,0,1,1,1,0,0,0,4,9,-9.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,10:26,1,5,0.2,1,2,0.5,0,0,0.0,0,2,2,2,0,0,3,1,3,-15.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,,,,17:44,1,5,0.2,0,3,0.0,0,0,0.0,0,2,2,1,1,0,1,1,2,-2.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,14:21,5,6,0.833,0,1,0.0,3,3,1.0,0,2,2,3,2,0,1,0,13,3.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,9:41,1,1,1.0,0,0,0.0,0,0,0.0,1,3,4,0,0,0,2,1,2,-1.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,13:36,1,5,0.2,1,4,0.25,2,3,0.667,1,1,2,1,0,0,0,0,5,6.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1641754,Seth,Lundy,S. Lundy,seth-lundy,,,,8:09,3,3,1.0,2,2,1.0,0,0,0.0,0,1,1,0,0,0,0,1,8,10.0,0012300015
+0012300015,1610612737,Atlanta,Hawks,ATL,hawks,1641936,Miles,Norris,M. Norris,miles-norris,,,,4:25,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,2,0,0,0,0,0,7.0,0012300015

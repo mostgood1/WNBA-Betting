@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,10:04,5,5,1.0,2,2,1.0,0,0,0.0,0,1,1,1,0,0,1,0,12,7.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,31:43,7,13,0.538,2,5,0.4,0,0,0.0,1,4,5,6,1,1,2,6,16,1.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,29:55,5,12,0.417,2,5,0.4,0,0,0.0,0,4,4,2,0,1,4,4,12,-19.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,G,,,32:16,7,15,0.467,1,2,0.5,4,5,0.8,2,4,6,3,0,0,1,3,19,-13.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,33:24,2,8,0.25,1,6,0.167,6,6,1.0,1,1,2,11,0,0,2,2,11,-19.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,18:47,3,6,0.5,1,3,0.333,0,0,0.0,1,4,5,0,0,0,2,2,7,-3.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,15:35,3,3,1.0,0,0,0.0,0,2,0.0,0,8,8,1,0,1,0,1,6,7.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,32:57,7,12,0.583,6,11,0.545,0,0,0.0,0,3,3,1,0,0,0,1,20,7.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,21:49,5,9,0.556,0,1,0.0,0,0,0.0,0,3,3,9,1,0,2,1,10,5.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,13:30,2,6,0.333,1,3,0.333,0,0,0.0,1,1,2,1,1,0,0,1,5,-8.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,35:18,10,25,0.4,3,8,0.375,3,3,1.0,2,4,6,7,1,2,2,3,26,17.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,36:54,14,20,0.7,1,2,0.5,5,8,0.625,1,5,6,10,2,0,3,3,34,17.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,26:10,2,5,0.4,0,0,0.0,0,0,0.0,6,4,10,0,0,1,0,2,4,8.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,G,,,36:43,7,17,0.412,2,8,0.25,7,8,0.875,0,4,4,1,0,0,0,1,23,8.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,32:25,5,12,0.417,2,5,0.4,0,0,0.0,1,5,6,7,2,0,0,4,12,13.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,18:49,3,4,0.75,1,1,1.0,0,0,0.0,0,4,4,0,1,1,0,0,7,-5.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,22:48,6,9,0.667,2,4,0.5,0,0,0.0,0,2,2,2,2,0,0,2,14,-5.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,8:36,1,4,0.25,0,1,0.0,0,0,0.0,3,0,3,0,0,0,1,0,2,-13.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,9:03,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-17.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,13:14,1,3,0.333,1,1,1.0,0,0,0.0,2,3,5,1,0,0,0,0,3,12.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138
+0022400138,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400138

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,33:22,9,15,0.6,4,6,0.667,1,1,1.0,0,6,6,5,0,1,1,4,23,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,35:41,6,14,0.429,1,5,0.2,5,6,0.833,0,4,4,5,0,1,2,2,18,4.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,33:26,5,7,0.714,0,0,0.0,2,2,1.0,4,8,12,2,0,1,1,2,12,6.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,28:26,5,13,0.385,4,8,0.5,0,0,0.0,0,0,0,1,3,0,1,1,14,-2.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,30:49,6,13,0.462,3,6,0.5,3,4,0.75,0,3,3,4,0,0,0,1,18,-4.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,21:34,4,5,0.8,0,0,0.0,4,4,1.0,0,3,3,4,1,0,0,3,12,8.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,,,,26:47,4,9,0.444,3,6,0.5,5,7,0.714,0,4,4,5,0,0,2,2,16,9.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,,,14:34,2,3,0.667,0,0,0.0,0,0,0.0,3,5,8,2,1,0,1,2,4,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,15:21,2,2,1.0,2,2,1.0,0,0,0.0,0,1,1,2,0,0,1,0,6,9.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1631241,Javon,Freeman-Liberty,J. Freeman-Liberty,javon-freeman-liberty,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,F,,,23:01,1,2,0.5,0,1,0.0,1,2,0.5,0,3,3,3,0,1,1,1,3,9.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,37:30,17,27,0.63,6,11,0.545,5,7,0.714,5,3,8,7,0,0,1,4,45,-6.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,28:27,1,2,0.5,0,0,0.0,3,4,0.75,2,4,6,1,1,0,1,3,5,1.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,41:23,9,17,0.529,2,8,0.25,0,0,0.0,0,4,4,1,2,1,4,1,20,-12.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,G,,,28:00,7,13,0.538,3,5,0.6,2,3,0.667,0,5,5,8,2,0,1,3,19,-1.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1629023,P.J.,Washington,P. Washington,pj-washington,,,,31:24,2,11,0.182,0,5,0.0,2,4,0.5,0,5,5,1,0,0,1,2,6,-19.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,202397,Ish,Smith,I. Smith,ish-smith,,,,15:50,0,5,0.0,0,0,0.0,0,0,0.0,0,2,2,4,1,0,0,1,0,-1.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,15:21,4,7,0.571,2,5,0.4,0,0,0.0,1,3,4,1,0,0,0,2,10,6.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,13:14,3,4,0.75,3,4,0.75,0,0,0.0,0,0,0,1,0,0,0,1,9,-11.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1641877,Nathan,Mensah,N. Mensah,nathan-mensah,,,,5:50,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,2,0,4.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1630547,James,Bouknight,J. Bouknight,james-bouknight,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726
+0022300726,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300726

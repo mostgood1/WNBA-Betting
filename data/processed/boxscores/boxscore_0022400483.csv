@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,42:35,7,14,0.5,3,8,0.375,2,2,1.0,0,14,14,4,3,0,7,3,19,6.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,33:21,6,11,0.545,2,4,0.5,1,1,1.0,1,5,6,2,1,0,0,2,15,-1.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,34:04,5,9,0.556,0,1,0.0,0,1,0.0,2,11,13,0,1,1,2,1,10,3.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,31:46,7,15,0.467,2,7,0.286,0,2,0.0,1,3,4,3,1,0,1,1,16,1.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,40:37,9,20,0.45,5,12,0.417,5,5,1.0,0,3,3,8,0,0,4,1,28,10.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,23:37,3,5,0.6,1,2,0.5,2,2,1.0,1,6,7,3,1,1,3,0,9,-5.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,20:04,2,6,0.333,0,1,0.0,0,0,0.0,1,2,3,1,0,0,0,1,4,1.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,13:56,2,5,0.4,0,1,0.0,0,0,0.0,2,3,5,0,0,1,0,0,4,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,25:57,1,5,0.2,0,3,0.0,0,0,0.0,0,7,7,3,0,0,1,2,2,-4.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,38:20,14,27,0.519,0,1,0.0,3,4,0.75,2,9,11,2,2,2,4,2,31,-3.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,23:13,2,9,0.222,1,6,0.167,0,0,0.0,1,5,6,0,1,1,1,0,5,1.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,14:28,3,4,0.75,0,0,0.0,0,0,0.0,2,1,3,4,2,0,0,1,6,-4.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,36:41,5,15,0.333,2,7,0.286,4,5,0.8,1,1,2,6,4,0,3,1,16,-2.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,22:03,2,5,0.4,1,4,0.25,0,0,0.0,0,3,3,5,0,0,0,0,5,1.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,25:33,4,11,0.364,1,4,0.25,0,0,0.0,1,6,7,1,3,0,1,3,9,-5.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,30:01,7,13,0.538,7,13,0.538,0,0,0.0,0,2,2,3,1,0,1,2,21,4.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,18:01,2,5,0.4,1,3,0.333,0,0,0.0,0,2,2,0,0,0,0,2,5,-4.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,5:43,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,1,0,0,0,2,1.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483
+0022400483,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400483

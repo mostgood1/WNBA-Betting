@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,30:51,1,3,0.333,1,3,0.333,5,5,1.0,0,3,3,2,0,0,1,1,8,-22.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,34:40,10,17,0.588,3,6,0.5,7,8,0.875,0,7,7,2,0,1,3,2,30,-14.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,21:22,3,8,0.375,1,2,0.5,1,2,0.5,1,2,3,2,1,0,0,1,8,-14.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,34:48,7,15,0.467,0,2,0.0,1,2,0.5,0,3,3,2,2,0,2,4,15,-7.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,34:00,8,14,0.571,2,6,0.333,2,2,1.0,0,0,0,5,0,0,6,4,20,-31.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,24:36,3,8,0.375,2,7,0.286,4,4,1.0,0,1,1,2,0,0,1,1,12,-20.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,16:22,0,1,0.0,0,0,0.0,0,0,0.0,2,2,4,0,0,2,0,2,0,-5.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,7:56,1,1,1.0,0,0,0.0,2,2,1.0,0,2,2,0,0,1,0,1,4,-7.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,17:45,2,3,0.667,0,1,0.0,0,0,0.0,1,0,1,2,3,0,0,2,4,-12.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,,,2:04,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,1,3,3.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1630240,Saben,Lee,S. Lee,saben-lee,,,,5:12,0,1,0.0,0,0,0.0,2,2,1.0,1,0,1,0,0,0,1,0,2,-3.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,5:12,2,3,0.667,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,4,-3.0,0022300511
+0022300511,1610612756,Phoenix,Suns,PHX,suns,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,,,5:12,0,2,0.0,0,2,0.0,1,2,0.5,0,0,0,0,0,0,0,1,1,-3.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,F,,,27:57,5,9,0.556,3,6,0.5,1,2,0.5,3,2,5,3,0,0,1,2,14,14.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,32:27,8,15,0.533,1,3,0.333,0,0,0.0,0,3,3,2,5,1,3,1,17,11.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,27:40,8,9,0.889,0,0,0.0,3,6,0.5,2,6,8,3,1,1,0,3,19,14.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,G,,,31:20,10,19,0.526,4,9,0.444,1,2,0.5,1,6,7,0,1,0,1,2,25,21.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,29:36,6,8,0.75,3,4,0.75,4,4,1.0,0,7,7,10,0,0,3,1,19,25.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,14:59,3,6,0.5,0,1,0.0,3,3,1.0,2,0,2,7,2,0,1,2,9,-3.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,23:29,4,5,0.8,1,1,1.0,0,0,0.0,0,2,2,0,0,0,0,3,9,12.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,24:33,4,6,0.667,2,3,0.667,4,4,1.0,1,4,5,1,0,0,1,1,14,20.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,14:05,3,6,0.5,0,1,0.0,0,0,0.0,2,1,3,3,1,1,1,3,6,15.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,4:38,0,0,0.0,0,0,0.0,1,2,0.5,0,2,2,3,0,0,0,0,1,2.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,4:38,2,2,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,2,5,2.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,4:38,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,2.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300511
+0022300511,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300511

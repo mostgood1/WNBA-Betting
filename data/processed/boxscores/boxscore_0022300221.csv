@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300221,1610612752,New York,Knicks,NYK,knicks,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,21:58,4,13,0.308,3,4,0.75,3,4,0.75,2,5,7,1,1,0,4,5,14,-14.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,33:33,6,16,0.375,1,6,0.167,8,12,0.667,3,11,14,1,0,0,2,2,21,-12.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,C,,,30:27,5,7,0.714,0,0,0.0,0,0,0.0,7,4,11,0,2,2,2,3,10,-11.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,24:47,0,6,0.0,0,6,0.0,0,0,0.0,0,1,1,2,2,0,0,2,0,-18.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:09,7,15,0.467,3,6,0.5,8,8,1.0,0,4,4,6,0,0,1,2,25,-16.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,,,24:09,2,6,0.333,0,2,0.0,0,0,0.0,1,1,2,1,2,0,0,0,4,-5.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,,,,17:09,4,14,0.286,1,7,0.143,6,6,1.0,0,1,1,0,0,0,0,3,15,-6.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,25:34,2,8,0.25,1,6,0.167,2,2,1.0,2,1,3,5,1,0,0,3,7,3.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,,,,14:28,1,3,0.333,0,0,0.0,0,0,0.0,2,2,4,0,0,1,1,3,2,-6.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,3:05,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,0.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,,,3:05,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,3:05,0,3,0.0,0,1,0.0,0,2,0.0,0,1,1,0,0,0,0,0,0,0.0,0022300221
+0022300221,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,2:31,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,4:30,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,4,1.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,35:45,6,10,0.6,2,3,0.667,6,7,0.857,0,5,5,4,3,2,3,6,20,14.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,26:23,7,7,1.0,0,0,0.0,2,7,0.286,3,4,7,1,0,2,1,2,16,16.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,39:08,9,21,0.429,1,6,0.167,4,4,1.0,2,8,10,5,2,0,3,1,23,9.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,27:55,3,9,0.333,3,8,0.375,2,2,1.0,0,1,1,5,0,1,0,3,11,20.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,33:05,4,8,0.5,3,6,0.5,0,0,0.0,1,2,3,3,0,0,0,2,11,15.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,23:06,3,4,0.75,0,0,0.0,3,5,0.6,0,2,2,5,1,2,1,2,9,3.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,18:13,3,8,0.375,1,6,0.167,3,3,1.0,0,3,3,1,1,0,3,6,10,3.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,14:01,2,5,0.4,0,2,0.0,2,2,1.0,0,5,5,4,0,0,1,1,6,0.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,16:34,1,5,0.2,1,3,0.333,2,2,1.0,1,4,5,2,0,0,0,2,5,2.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,1:20,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,1,2,2.0,0022300221
+0022300221,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300221

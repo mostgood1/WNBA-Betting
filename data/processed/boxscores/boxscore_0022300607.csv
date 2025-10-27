@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,20:21,3,4,0.75,1,1,1.0,1,2,0.5,0,1,1,0,0,0,0,4,8,15.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,24:03,3,4,0.75,3,3,1.0,0,0,0.0,0,3,3,0,2,0,0,2,9,24.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,27:18,6,8,0.75,0,0,0.0,2,4,0.5,5,6,11,4,0,2,2,2,14,21.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,G,,,27:24,4,7,0.571,2,4,0.5,0,0,0.0,1,3,4,4,1,0,1,0,10,16.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,30:01,9,19,0.474,3,8,0.375,4,4,1.0,0,3,3,13,4,0,3,3,25,34.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,31:06,8,13,0.615,8,13,0.615,2,2,1.0,2,1,3,1,1,0,1,2,26,12.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,28:29,3,9,0.333,2,7,0.286,3,4,0.75,0,5,5,1,0,1,0,3,11,12.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,21:58,5,7,0.714,0,0,0.0,2,2,1.0,0,3,3,5,0,0,1,2,12,0.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,20:44,2,6,0.333,0,0,0.0,0,2,0.0,1,4,5,1,1,1,1,1,4,5.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,,,8:37,2,3,0.667,1,2,0.5,2,2,1.0,0,1,1,0,1,0,0,1,7,-4.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300607
+0022300607,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,24:21,6,11,0.545,2,5,0.4,3,3,1.0,1,2,3,2,0,0,3,2,17,-23.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,29:18,6,14,0.429,1,4,0.25,5,9,0.556,0,3,3,6,0,0,2,2,18,-22.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,26:52,4,9,0.444,1,2,0.5,1,2,0.5,2,7,9,1,2,0,1,2,10,-22.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,25:30,2,5,0.4,2,4,0.5,0,0,0.0,0,2,2,3,2,0,3,2,6,-24.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,18:28,3,6,0.5,0,1,0.0,1,2,0.5,1,0,1,2,1,0,0,0,7,-18.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,14:36,1,1,1.0,0,0,0.0,0,0,0.0,2,2,4,2,1,0,2,2,2,-9.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,12:48,2,4,0.5,1,1,1.0,0,0,0.0,0,2,2,2,0,0,2,1,5,-9.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,23:33,2,3,0.667,2,3,0.667,0,0,0.0,0,2,2,0,0,0,1,2,6,0.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,18:29,4,8,0.5,1,1,1.0,6,8,0.75,1,3,4,1,0,0,0,2,15,-10.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,21:11,1,6,0.167,1,6,0.167,0,0,0.0,0,1,1,0,0,0,0,1,3,-9.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,13:38,2,4,0.5,0,1,0.0,4,6,0.667,0,1,1,5,1,0,1,0,8,2.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,8:37,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,1,2,4.0,0022300607
+0022300607,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,,,2:39,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,5.0,0022300607

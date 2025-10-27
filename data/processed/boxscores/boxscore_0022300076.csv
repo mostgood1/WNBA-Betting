@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,F,,,32:30,3,5,0.6,2,4,0.5,2,2,1.0,4,4,8,3,0,1,1,2,10,5.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,39:23,14,28,0.5,1,5,0.2,10,13,0.769,0,11,11,2,1,1,8,2,39,18.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,28:02,1,5,0.2,0,2,0.0,2,2,1.0,3,6,9,3,3,0,4,5,4,-3.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,G,,,34:42,2,6,0.333,2,4,0.5,0,0,0.0,1,5,6,4,0,0,0,3,6,0.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,G,,,30:17,6,16,0.375,2,8,0.25,1,1,1.0,1,1,2,0,0,0,2,2,15,-27.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,29:58,6,15,0.4,1,5,0.2,1,3,0.333,0,6,6,2,2,0,1,2,14,8.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,,,14:50,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,0,0,0,1,2,3,-16.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,,,13:11,0,2,0.0,0,2,0.0,2,2,1.0,0,2,2,0,1,1,1,0,2,-9.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,17:07,1,2,0.5,0,0,0.0,0,0,0.0,1,3,4,2,0,0,2,3,2,-1.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1628962,Udoka,Azubuike,U. Azubuike,udoka-azubuike,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1630240,Saben,Lee,S. Lee,saben-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612756,Phoenix,Suns,PHX,suns,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,18:10,0,5,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,3,0,-15.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,35:00,7,14,0.5,1,5,0.2,6,8,0.75,1,7,8,9,2,2,5,1,21,22.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,39:15,10,17,0.588,1,2,0.5,9,10,0.9,3,9,12,2,3,3,2,2,30,7.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,27:54,4,7,0.571,1,2,0.5,1,2,0.5,1,1,2,1,1,0,1,5,10,-11.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,33:05,6,16,0.375,1,7,0.143,1,1,1.0,0,4,4,5,2,1,3,2,14,8.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,35:01,3,10,0.3,0,5,0.0,1,2,0.5,1,2,3,6,3,0,0,1,7,13.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,,,12:29,2,3,0.667,1,2,0.5,2,2,1.0,0,0,0,0,1,1,1,2,7,-13.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,5:57,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,1,0,2,3,0,3.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,,,11:45,2,5,0.4,0,3,0.0,0,0,0.0,0,1,1,0,0,0,1,2,4,-12.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,,,21:24,2,7,0.286,0,2,0.0,3,4,0.75,2,8,10,1,0,0,1,2,7,23.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1630658,Colin,Castleton,C. Castleton,colin-castleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1641793,D'Moi,Hodge,D. Hodge,dmoi-hodge,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076
+0022300076,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300076

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300441,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,37:38,4,9,0.444,1,2,0.5,1,2,0.5,3,7,10,1,1,0,0,3,10,-19.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,39:23,9,22,0.409,1,5,0.2,9,13,0.692,6,6,12,4,0,0,5,1,28,-6.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,32:50,1,3,0.333,0,0,0.0,0,0,0.0,2,7,9,6,4,0,1,3,2,-4.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,35:59,15,21,0.714,7,11,0.636,1,1,1.0,2,4,6,2,4,1,1,2,38,-17.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,40:46,9,22,0.409,4,8,0.5,6,9,0.667,0,1,1,6,0,1,4,3,28,-17.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,,,17:24,3,10,0.3,2,8,0.25,2,2,1.0,0,2,2,2,3,0,1,0,10,-13.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,14:05,1,3,0.333,0,0,0.0,0,0,0.0,2,0,2,1,0,0,1,4,2,-13.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,17:35,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,3,5,7.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,3.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1631376,Dmytro,Skapintsev,D. Skapintsev,dmytro-skapintsev,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1629718,Charlie,Brown Jr.,C. Brown Jr.,charlie-brown-jr,,,,1:05,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,3.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022300441
+0022300441,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,30:37,8,13,0.615,7,11,0.636,2,2,1.0,0,1,1,2,1,0,2,2,25,10.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,F,,,20:46,3,5,0.6,1,2,0.5,2,4,0.5,0,4,4,2,0,2,1,5,9,3.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,30:55,10,17,0.588,6,8,0.75,2,3,0.667,1,7,8,2,0,0,1,0,28,17.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,33:28,5,10,0.5,2,4,0.5,2,2,1.0,3,2,5,5,2,0,4,4,14,20.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,35:43,8,17,0.471,2,10,0.2,4,4,1.0,1,4,5,23,2,1,2,0,22,19.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,25:32,7,10,0.7,3,5,0.6,3,3,1.0,0,0,0,0,0,0,2,0,20,11.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,18:20,2,3,0.667,1,2,0.5,1,1,1.0,0,2,2,1,1,0,1,1,6,4.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,9:10,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,1,1,2,2,-2.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,12:17,2,3,0.667,0,0,0.0,1,1,1.0,0,0,0,3,0,0,2,0,5,-5.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,19:57,4,6,0.667,1,1,1.0,0,1,0.0,2,6,8,2,0,3,0,4,9,2.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,1:05,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300441
+0022300441,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300441

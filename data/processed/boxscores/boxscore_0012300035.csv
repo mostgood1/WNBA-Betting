@@ -1,0 +1,33 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,25:08,3,8,0.375,0,3,0.0,0,0,0.0,0,4,4,2,1,1,4,0,6,-8.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,24:35,5,11,0.455,0,0,0.0,6,8,0.75,0,2,2,5,0,0,3,0,16,-14.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,22:03,2,3,0.667,0,0,0.0,3,3,1.0,1,4,5,0,2,1,2,4,7,-13.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,7:58,2,4,0.5,1,2,0.5,0,0,0.0,1,0,1,1,2,0,1,2,5,3.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,23:24,2,9,0.222,2,6,0.333,1,1,1.0,0,2,2,4,2,1,4,2,7,-7.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,22:54,4,7,0.571,1,4,0.25,0,2,0.0,1,3,4,5,4,0,1,2,9,-3.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,20:52,3,6,0.5,2,5,0.4,1,2,0.5,0,3,3,1,1,0,2,0,9,-11.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,10:36,0,2,0.0,0,1,0.0,0,0,0.0,0,2,2,1,0,0,2,2,0,-21.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,22:52,5,14,0.357,5,11,0.455,2,3,0.667,0,2,2,1,0,0,1,1,17,3.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1629232,Kaiser,Gates,K. Gates,kaiser-gates,,,,8:50,3,5,0.6,2,4,0.5,0,0,0.0,0,0,0,2,0,0,0,2,8,7.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,16:56,4,4,1.0,2,2,1.0,0,0,0.0,1,1,2,3,0,0,0,2,10,13.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,16:56,1,1,1.0,0,0,0.0,0,0,0.0,2,7,9,4,0,1,1,2,2,13.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1631220,Dereon,Seabron,D. Seabron,dereon-seabron,,,,16:56,4,7,0.571,0,1,0.0,1,2,0.5,0,1,1,3,0,0,2,1,9,13.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630622,Jalen,Crutcher,J. Crutcher,jalen-crutcher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1630792,Malcolm,Hill,M. Hill,malcolm-hill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1641856,Tevian,Jones,T. Jones,tevian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300035
+0012300035,1610612740,New Orleans,Pelicans,NOP,pelicans,1641805,Landers,Nolley II,L. Nolley II,landers-nolley-ii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,F,,,23:01,4,9,0.444,1,6,0.167,0,0,0.0,2,5,7,3,3,0,2,1,9,15.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,F,,,24:56,8,10,0.8,1,3,0.333,1,1,1.0,1,5,6,2,0,0,1,3,18,12.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,C,,,24:53,4,5,0.8,0,0,0.0,1,2,0.5,2,4,6,0,1,1,4,4,9,-6.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,20:36,4,7,0.571,2,3,0.667,2,2,1.0,0,7,7,1,4,0,4,0,12,23.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,18:16,6,11,0.545,1,5,0.2,2,2,1.0,0,0,0,5,0,0,4,0,15,18.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,,,,16:30,5,9,0.556,1,2,0.5,1,2,0.5,0,3,3,7,2,0,2,1,12,17.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,,,20:24,1,9,0.111,0,7,0.0,1,1,1.0,0,5,5,1,4,0,0,1,3,-1.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,16:34,0,2,0.0,0,2,0.0,0,0,0.0,3,1,4,2,0,1,1,2,0,-4.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,,,20:12,2,9,0.222,0,4,0.0,0,0,0.0,0,1,1,2,0,0,2,1,4,-17.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,,,,13:12,4,4,1.0,0,0,0.0,2,2,1.0,0,2,2,1,0,0,0,2,10,-4.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,12:00,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,3,0,0,0,0,0,-6.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,12:00,2,6,0.333,2,5,0.4,4,5,0.8,1,1,2,1,0,0,1,2,10,-6.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,7:39,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1641936,Miles,Norris,M. Norris,miles-norris,,,,3:51,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,1,0,0,-6.0,0012300035
+0012300035,1610612737,Atlanta,Hawks,ATL,hawks,1641754,Seth,Lundy,S. Lundy,seth-lundy,,,,5:56,2,4,0.5,1,3,0.333,3,3,1.0,0,1,1,0,0,1,0,0,8,-7.0,0012300035

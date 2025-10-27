@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,F,,,17:52,1,3,0.333,0,2,0.0,1,2,0.5,1,1,2,0,0,0,0,1,3,-13.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,47:25,7,14,0.5,4,9,0.444,0,0,0.0,2,13,15,1,0,1,2,3,18,8.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,41:11,11,19,0.579,0,3,0.0,3,8,0.375,2,7,9,5,2,0,2,5,25,-8.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,39:33,8,19,0.421,2,7,0.286,0,1,0.0,1,5,6,8,1,0,2,2,18,-4.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,42:09,7,19,0.368,3,14,0.214,3,4,0.75,0,6,6,10,1,3,2,3,20,-10.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,32:58,6,12,0.5,2,5,0.4,2,2,1.0,1,4,5,1,2,0,1,1,16,-3.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,11:15,1,3,0.333,0,1,0.0,2,2,1.0,1,1,2,0,2,0,2,0,4,-1.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,13:37,3,7,0.429,0,3,0.0,0,0,0.0,0,2,2,3,1,0,2,2,6,3.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,18:60,4,5,0.8,0,1,0.0,1,1,1.0,1,2,3,1,0,0,1,1,9,3.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523
+0022300523,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1627936,Alex,Caruso,A. Caruso,alex-caruso,F,,,32:17,3,10,0.3,2,9,0.222,4,6,0.667,2,4,6,3,1,1,0,3,12,-9.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,42:31,5,19,0.263,3,6,0.5,6,6,1.0,0,4,4,4,0,0,1,2,19,-9.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,40:30,9,17,0.529,0,5,0.0,0,0,0.0,3,12,15,3,0,1,0,4,18,16.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,41:14,8,15,0.533,4,8,0.5,5,6,0.833,1,12,13,7,3,1,4,5,25,15.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,43:17,9,17,0.529,6,11,0.545,6,7,0.857,0,4,4,8,0,1,4,1,30,15.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,,,,28:37,2,6,0.333,1,3,0.333,0,0,0.0,0,0,0,1,3,0,2,2,5,9.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,,,,18:01,3,8,0.375,2,4,0.5,0,0,0.0,2,2,4,3,0,0,0,0,8,-5.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,203083,Andre,Drummond,A. Drummond,andre-drummond,,,,12:30,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,1,2,0,3,1,4,-11.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,6:03,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,1,3,4.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523
+0022300523,1610612741,Chicago,Bulls,CHI,bulls,1630678,Terry,Taylor,T. Taylor,terry-taylor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300523

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,F,,,24:45,2,12,0.167,0,5,0.0,1,2,0.5,0,0,0,5,0,0,1,1,5,3.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,25:21,4,9,0.444,2,7,0.286,4,4,1.0,0,2,2,1,1,0,0,1,14,-8.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,33:25,4,10,0.4,2,6,0.333,0,0,0.0,4,6,10,1,2,3,3,4,10,-7.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,32:00,4,17,0.235,3,9,0.333,0,0,0.0,0,9,9,2,1,0,2,0,11,-9.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,29:19,6,10,0.6,5,6,0.833,1,1,1.0,2,3,5,7,1,1,0,2,18,-10.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,26:43,3,11,0.273,3,9,0.333,0,0,0.0,0,3,3,1,0,0,1,2,9,-26.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1629646,Charles,Bassey,C. Bassey,charles-bassey,,,,12:46,2,3,0.667,0,0,0.0,0,0,0.0,1,1,2,0,1,1,0,2,4,-9.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,25:20,7,15,0.467,2,5,0.4,8,9,0.889,5,6,11,1,0,0,0,0,24,-17.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,,,,16:24,1,2,0.5,0,1,0.0,1,1,1.0,0,2,2,5,1,0,0,1,3,-10.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,5:34,2,5,0.4,1,3,0.333,2,3,0.667,0,0,0,0,1,0,0,1,7,1.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,2:48,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,4.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,2:48,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,1,0,0,4.0,0022400516
+0022400516,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,2:48,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,24:22,1,3,0.333,1,3,0.333,0,0,0.0,0,4,4,1,0,0,2,0,3,0.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,35:42,11,21,0.524,0,1,0.0,3,7,0.429,3,13,16,8,0,1,4,1,25,13.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,35:23,8,17,0.471,5,11,0.455,1,1,1.0,2,5,7,1,1,2,0,3,22,7.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,11:27,0,1,0.0,0,0,0.0,0,0,0.0,2,0,2,0,0,0,0,0,0,-10.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,35:20,8,13,0.615,4,7,0.571,6,6,1.0,0,5,5,8,0,0,2,1,26,8.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,,,,20:50,2,7,0.286,1,5,0.2,3,4,0.75,0,5,5,3,0,0,0,2,8,20.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,19:19,2,12,0.167,0,3,0.0,1,2,0.5,2,9,11,2,1,1,1,2,5,20.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,24:46,5,9,0.556,4,7,0.571,0,0,0.0,0,1,1,1,1,0,0,3,14,18.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,21:39,5,5,1.0,4,4,1.0,0,0,0.0,0,3,3,2,2,0,0,1,14,20.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1641857,Liam,Robbins,L. Robbins,liam-robbins,,,,2:48,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,0,-4.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,,,2:48,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,1,0,-4.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,2:48,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,1,2,-4.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,2:48,1,2,0.5,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,-4.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400516
+0022400516,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400516

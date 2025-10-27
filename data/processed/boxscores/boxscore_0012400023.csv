@@ -1,0 +1,36 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,20:10,6,11,0.545,4,7,0.571,0,2,0.0,2,0,2,1,0,0,0,4,16,9.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,16:16,4,6,0.667,2,3,0.667,0,1,0.0,0,2,2,5,0,0,2,1,10,-5.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,17:25,1,2,0.5,0,0,0.0,0,0,0.0,1,1,2,2,0,0,0,1,2,1.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,15:41,5,8,0.625,3,6,0.5,0,0,0.0,0,0,0,1,1,0,1,1,13,-7.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,22:44,3,8,0.375,2,4,0.5,0,0,0.0,0,4,4,8,2,0,1,1,8,7.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,19:25,2,3,0.667,0,0,0.0,4,6,0.667,0,6,6,2,1,1,0,1,8,22.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,19:24,8,9,0.889,6,7,0.857,0,0,0.0,0,3,3,1,0,0,0,0,22,13.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,,,,21:28,6,12,0.5,4,9,0.444,0,0,0.0,1,4,5,3,0,0,2,1,16,2.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,19:56,1,3,0.333,1,1,1.0,0,0,0.0,0,4,4,4,0,0,3,1,3,0.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,20:22,3,9,0.333,2,6,0.333,1,1,1.0,0,1,1,3,1,2,0,2,9,8.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,11:59,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,2,0,0,2,1,1,1.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,12:55,3,5,0.6,3,5,0.6,0,0,0.0,0,2,2,0,1,0,0,0,9,4.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,7:54,1,2,0.5,0,1,0.0,0,1,0.0,0,0,0,1,0,0,0,1,2,1.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,7:54,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,2,0,0,1.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,3:50,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,1,3,-1.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,2:37,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1642396,Blake,Hinson,B. Hinson,blake-hinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400023
+0012400023,1610612744,Golden State,Warriors,GSW,warriors,1642050,Jackson,Rowe,J. Rowe,jackson-rowe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,15:20,6,6,1.0,1,1,1.0,2,2,1.0,0,0,0,1,0,1,1,0,15,8.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,17:19,4,6,0.667,0,2,0.0,0,0,0.0,0,2,2,1,0,0,0,1,8,-1.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,17:19,5,7,0.714,0,0,0.0,1,2,0.5,0,8,8,4,0,0,2,1,11,-1.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,14:16,1,2,0.5,0,0,0.0,0,0,0.0,1,2,3,4,1,0,0,0,2,7.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,19:19,5,10,0.5,0,2,0.0,1,1,1.0,1,2,3,1,1,0,1,0,11,6.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,9:44,4,7,0.571,1,2,0.5,4,4,1.0,0,1,1,0,0,0,0,1,13,-5.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,20:55,2,8,0.25,0,4,0.0,2,2,1.0,1,3,4,0,1,0,1,1,6,-13.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,,,17:16,2,5,0.4,2,4,0.5,1,2,0.5,0,3,3,1,0,0,1,6,7,-9.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,21:07,5,7,0.714,0,0,0.0,0,0,0.0,2,7,9,5,1,0,0,3,10,-9.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,19:30,4,7,0.571,0,2,0.0,2,2,1.0,0,1,1,2,1,2,0,0,10,-11.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,16:08,1,6,0.167,0,1,0.0,0,0,0.0,1,0,1,3,1,0,2,1,2,-10.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1627746,Skal,Labissiere,S. Labissiere,skal-labissiere,,,,6:57,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,1,2,-6.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,,,11:44,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,1,1,0,1,1,2,3.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1630678,Terry,Taylor,T. Taylor,terry-taylor,,,,9:07,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,2,1,0,2,1,0,-3.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1642407,Boogie,Ellis,B. Ellis,boogie-ellis,,,,16:07,4,10,0.4,2,6,0.333,0,0,0.0,1,1,2,0,0,0,1,0,10,-4.0,0012400023
+0012400023,1610612758,Sacramento,Kings,SAC,kings,1630271,Brodric,Thomas,B. Thomas,brodric-thomas,,,,7:52,1,1,1.0,1,1,1.0,0,0,0.0,1,2,3,2,1,0,0,0,3,-2.0,0012400023

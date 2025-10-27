@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400411,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,F,,,30:30,4,9,0.444,3,5,0.6,4,4,1.0,2,2,4,4,5,1,3,2,15,2.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,27:05,3,6,0.5,3,5,0.6,0,0,0.0,0,3,3,0,1,0,2,5,9,-10.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,35:13,2,10,0.2,0,1,0.0,0,0,0.0,3,6,9,7,0,5,4,4,4,-3.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,17:52,0,3,0.0,0,3,0.0,0,0,0.0,0,2,2,1,0,0,0,2,0,-12.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,32:03,8,17,0.471,3,6,0.5,1,1,1.0,0,3,3,2,1,0,6,1,20,-10.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,,,28:51,6,14,0.429,1,2,0.5,1,2,0.5,1,3,4,1,1,0,2,1,14,12.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,23:40,3,8,0.375,2,4,0.5,0,0,0.0,0,4,4,5,3,0,2,0,8,5.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,,,,13:08,1,4,0.25,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,2,2,4.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,,,31:39,4,5,0.8,3,3,1.0,6,7,0.857,1,5,6,0,3,0,1,3,17,17.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,NWT-Return to Competition Reconditioning,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1630528,Josh,Christopher,J. Christopher,josh-christopher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612748,Miami,Heat,MIA,heat,1641815,Isaiah,Stevens,I. Stevens,isaiah-stevens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,38:47,7,12,0.583,1,3,0.333,3,3,1.0,2,4,6,2,1,1,4,2,18,12.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,F,,,36:59,4,8,0.5,0,3,0.0,0,0,0.0,1,2,3,2,3,0,1,3,8,9.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,32:47,4,7,0.571,0,0,0.0,2,3,0.667,5,9,14,2,3,3,2,1,10,6.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,32:07,5,8,0.625,1,4,0.25,0,0,0.0,0,2,2,2,3,0,1,0,11,10.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,32:19,10,21,0.476,2,11,0.182,7,8,0.875,0,4,4,2,1,0,7,3,29,8.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,11:40,0,4,0.0,0,2,0.0,0,0,0.0,0,3,3,2,0,0,4,4,0,-3.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,13:59,1,6,0.167,0,2,0.0,0,0,0.0,1,1,2,1,0,0,1,2,2,-9.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,13:08,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,0,-12.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,,,15:13,1,6,0.167,0,2,0.0,3,4,0.75,0,6,6,1,0,1,1,0,5,-7.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,7:41,2,4,0.5,1,2,0.5,0,0,0.0,0,0,0,0,1,0,0,0,5,-11.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,5:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-8.0,0022400411
+0022400411,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400411

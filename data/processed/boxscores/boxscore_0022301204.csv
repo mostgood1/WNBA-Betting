@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,40:27,10,20,0.5,3,6,0.5,7,9,0.778,2,6,8,6,1,0,2,2,30,3.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,27:38,5,8,0.625,0,2,0.0,0,0,0.0,1,5,6,6,3,0,4,3,10,4.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,29:26,7,11,0.636,0,0,0.0,4,4,1.0,4,7,11,0,0,0,1,6,18,-7.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,34:49,8,13,0.615,3,5,0.6,4,4,1.0,3,2,5,5,0,2,1,5,23,-3.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,35:53,7,14,0.5,3,5,0.6,0,0,0.0,0,2,2,7,2,2,2,2,17,-4.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,13:29,1,3,0.333,0,2,0.0,2,2,1.0,2,2,4,2,1,0,1,1,4,7.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,,,,29:40,6,13,0.462,3,8,0.375,1,2,0.5,0,2,2,1,0,1,0,1,16,24.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,17:38,3,4,0.75,2,3,0.667,1,2,0.5,0,3,3,2,2,2,1,1,9,19.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,,,4:38,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-1.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,6:23,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,0,2,0,0,1,0,8.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,34:08,1,3,0.333,1,3,0.333,1,2,0.5,1,3,4,1,1,1,2,0,4,-11.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,31:04,5,11,0.455,4,8,0.5,0,0,0.0,0,4,4,1,0,0,1,5,14,-8.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,36:22,8,12,0.667,0,1,0.0,10,10,1.0,5,8,13,10,2,1,1,2,26,5.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,31:31,5,10,0.5,2,7,0.286,0,0,0.0,1,4,5,2,0,0,0,2,12,11.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,39:51,10,25,0.4,1,7,0.143,9,13,0.692,1,4,5,4,1,0,6,3,30,-9.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,16:25,1,4,0.25,0,3,0.0,3,4,0.75,0,1,1,6,0,0,0,3,5,-2.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,32:26,7,14,0.5,5,9,0.556,2,2,1.0,1,2,3,5,2,0,3,0,21,-17.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,8:09,1,2,0.5,1,2,0.5,2,2,1.0,0,0,0,0,1,0,0,1,5,-1.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1628426,Sasha,Vezenkov,A. Vezenkov,sasha-vezenkov,,,,6:14,0,3,0.0,0,1,0.0,0,0,0.0,2,0,2,0,0,0,0,2,0,-12.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,,,3:50,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-6.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1630259,Jordan,Ford,J. Ford,jordan-ford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204
+0022301204,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301204

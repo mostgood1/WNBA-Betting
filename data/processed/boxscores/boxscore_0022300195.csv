@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,20:19,5,9,0.556,1,2,0.5,0,0,0.0,1,4,5,4,2,0,4,3,11,12.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,F,,,16:31,0,1,0.0,0,0,0.0,0,0,0.0,2,0,2,1,0,0,2,2,0,9.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,33:06,4,10,0.4,1,3,0.333,1,1,1.0,2,6,8,4,1,7,0,2,10,26.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,31:04,11,14,0.786,8,11,0.727,0,0,0.0,0,4,4,0,1,0,0,2,30,34.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,30:42,9,18,0.5,4,10,0.4,15,16,0.938,0,4,4,13,2,0,4,1,37,25.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,30:42,7,11,0.636,2,3,0.667,2,2,1.0,1,6,7,0,0,2,0,5,18,15.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,22:28,1,3,0.333,1,3,0.333,0,0,0.0,1,6,7,0,0,0,1,2,3,10.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,9:41,2,3,0.667,0,0,0.0,0,0,0.0,0,0,0,1,1,0,0,2,4,2.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,15:01,1,5,0.2,0,0,0.0,0,0,0.0,2,0,2,0,0,0,0,3,2,-13.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,16:05,4,8,0.5,3,4,0.75,2,2,1.0,0,1,1,2,0,0,0,2,13,1.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,7:15,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-20.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,201577,Robin,Lopez,R. Lopez,robin-lopez,,,,2:22,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1629623,Lindell,Wigginton,L. Wigginton,lindell-wigginton,,,,2:22,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-7.0,0022300195
+0022300195,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,2:22,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,1,0,0,-7.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,F,,,26:23,2,10,0.2,1,6,0.167,6,6,1.0,0,0,0,2,1,0,1,4,11,-29.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,28:36,4,9,0.444,0,2,0.0,3,5,0.6,2,5,7,5,0,1,4,1,11,-21.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,27:10,6,10,0.6,0,0,0.0,1,2,0.5,7,4,11,1,4,2,0,4,13,-17.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,31:23,11,19,0.579,3,3,1.0,4,5,0.8,5,4,9,7,1,0,3,2,29,-24.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,22:31,2,9,0.222,1,4,0.25,4,4,1.0,0,3,3,5,2,0,2,3,9,-29.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,26:52,3,11,0.273,0,8,0.0,1,1,1.0,2,1,3,5,0,1,0,1,7,4.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,20:16,2,8,0.25,1,3,0.333,4,4,1.0,5,4,9,0,0,1,1,1,9,6.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,17:19,4,7,0.571,1,2,0.5,2,2,1.0,3,1,4,0,0,2,1,3,11,-3.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,,,10:39,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,18:18,3,10,0.3,1,4,0.25,0,0,0.0,0,4,4,1,1,1,1,0,7,21.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,,,3:31,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,4.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,1641806,Markquis,Nowell,M. Nowell,markquis-nowell,,,,3:31,0,1,0.0,0,0,0.0,2,2,1.0,2,0,2,2,1,0,0,0,2,4.0,0022300195
+0022300195,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,3:31,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,3,4.0,0022300195

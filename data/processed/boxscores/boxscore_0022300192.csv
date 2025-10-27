@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,26:02,8,11,0.727,2,5,0.4,2,3,0.667,1,6,7,1,1,2,2,4,20,5.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1629684,Grant,Williams,G. Williams,grant-williams,F,,,35:37,4,13,0.308,2,7,0.286,0,0,0.0,2,1,3,7,1,0,1,1,10,14.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,23:38,7,8,0.875,0,0,0.0,3,3,1.0,4,5,9,2,1,2,1,2,17,16.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,G,,,36:43,0,4,0.0,0,4,0.0,0,0,0.0,1,3,4,1,1,0,0,1,0,12.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,32:25,7,18,0.389,4,11,0.364,8,12,0.667,1,6,7,10,0,0,3,2,26,12.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,26:48,11,20,0.55,7,11,0.636,2,5,0.4,0,4,4,3,0,0,1,1,31,17.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,6:43,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,2,0,0,0,1,2,2.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,18:37,2,6,0.333,0,1,0.0,1,2,0.5,0,7,7,3,0,0,0,3,5,0.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,4:22,1,2,0.5,0,0,0.0,0,1,0.0,0,0,0,0,1,0,1,0,2,-3.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,203552,Seth,Curry,S. Curry,seth-curry,,,,19:52,6,6,1.0,2,2,1.0,1,1,1.0,0,2,2,2,1,0,0,1,15,-3.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,7:26,1,2,0.5,0,1,0.0,0,2,0.0,0,2,2,1,0,0,0,0,2,-2.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,1:47,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-5.0,0022300192
+0022300192,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,23:59,5,6,0.833,3,4,0.75,2,2,1.0,1,2,3,4,3,0,0,4,15,1.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,29:48,6,18,0.333,2,6,0.333,8,10,0.8,2,4,6,3,0,0,2,1,22,-24.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,23:38,5,6,0.833,0,0,0.0,0,1,0.0,2,7,9,2,0,0,0,1,10,-16.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,32:03,6,17,0.353,2,7,0.286,2,2,1.0,1,4,5,3,1,0,5,4,16,-10.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,22:19,6,7,0.857,0,1,0.0,0,0,0.0,0,3,3,2,0,0,0,1,12,-20.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,,,27:58,4,5,0.8,2,2,1.0,0,0,0.0,0,8,8,2,0,1,0,3,10,-8.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,25:44,3,8,0.375,3,7,0.429,3,4,0.75,0,1,1,4,0,0,0,3,12,2.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,18:07,3,6,0.5,0,2,0.0,4,4,1.0,2,4,6,1,0,0,2,0,10,-8.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,20:52,2,12,0.167,0,7,0.0,0,0,0.0,0,2,2,1,0,0,0,2,4,-12.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,5:20,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,3,1,0,9.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,6:38,2,3,0.667,0,0,0.0,0,0,0.0,0,1,1,1,1,0,0,1,4,11.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,1:47,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,5.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,1:47,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,5.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300192
+0022300192,1610612764,Washington,Wizards,WAS,wizards,203488,Mike,Muscala,M. Muscala,mike-muscala,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300192

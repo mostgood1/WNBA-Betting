@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,35:18,12,21,0.571,2,5,0.4,4,6,0.667,0,4,4,5,0,0,3,3,30,13.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,34:06,13,25,0.52,0,1,0.0,6,9,0.667,2,4,6,5,2,0,5,2,32,-1.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,27:56,4,6,0.667,2,2,1.0,2,2,1.0,2,6,8,4,1,0,1,4,12,15.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,24:03,5,7,0.714,3,4,0.75,1,2,0.5,2,2,4,4,1,1,3,5,14,22.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,35:31,3,7,0.429,1,2,0.5,0,0,0.0,2,6,8,5,1,1,1,2,7,18.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,27:16,0,7,0.0,0,3,0.0,5,6,0.833,2,6,8,1,0,0,0,1,5,-3.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,20:12,3,5,0.6,2,4,0.5,0,0,0.0,0,4,4,1,0,0,0,1,8,3.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,15:34,1,6,0.167,0,2,0.0,2,2,1.0,1,4,5,1,1,0,1,0,4,-12.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,20:04,2,4,0.5,0,1,0.0,0,0,0.0,1,2,3,0,0,3,1,1,4,-5.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,34:14,8,17,0.471,1,7,0.143,3,4,0.75,1,7,8,3,1,1,1,0,20,-15.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,38:38,14,30,0.467,4,12,0.333,2,3,0.667,1,7,8,2,0,0,2,3,34,-9.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,21:33,5,6,0.833,0,0,0.0,1,1,1.0,3,2,5,0,0,1,4,4,11,-18.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,23:54,3,4,0.75,1,1,1.0,0,0,0.0,0,2,2,5,2,1,0,5,7,-4.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,37:15,2,8,0.25,1,6,0.167,3,6,0.5,0,5,5,10,4,1,3,3,8,-6.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,20:43,1,3,0.333,1,2,0.5,0,0,0.0,0,4,4,2,0,3,1,2,3,5.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,27:41,8,14,0.571,3,5,0.6,1,1,1.0,0,1,1,0,3,0,0,1,20,-2.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,13:53,1,8,0.125,0,2,0.0,1,2,0.5,1,3,4,2,0,1,0,2,3,-8.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,,,22:09,0,2,0.0,0,2,0.0,0,0,0.0,2,0,2,3,1,0,0,4,0,7.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052
+0022300052,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300052

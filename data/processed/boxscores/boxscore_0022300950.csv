@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,F,,,36:02,4,12,0.333,2,6,0.333,0,1,0.0,1,2,3,5,4,0,1,1,10,0.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,39:31,12,21,0.571,3,7,0.429,0,0,0.0,1,5,6,6,1,1,1,2,27,12.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,28:44,3,4,0.75,0,0,0.0,2,4,0.5,2,3,5,1,0,2,2,3,8,0.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,G,,,29:53,5,9,0.556,0,2,0.0,0,1,0.0,1,4,5,0,2,0,3,1,10,-4.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,30:15,9,10,0.9,5,6,0.833,2,2,1.0,0,0,0,8,2,0,2,2,25,21.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,,,27:45,6,11,0.545,1,4,0.25,5,5,1.0,0,6,6,3,1,1,6,0,18,12.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1630197,Aleksej,Pokusevski,A. Pokusevski,aleksej-pokusevski,,,,26:32,4,5,0.8,1,2,0.5,0,0,0.0,1,4,5,3,1,2,3,2,9,10.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,,,21:18,1,10,0.1,1,9,0.111,0,0,0.0,0,5,5,0,1,1,2,0,3,9.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,F,,,34:00,5,8,0.625,3,5,0.6,0,0,0.0,1,8,9,4,3,0,3,2,13,3.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,F,,,37:15,8,17,0.471,6,12,0.5,4,4,1.0,3,1,4,0,0,0,3,3,26,-12.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,C,,,31:55,6,8,0.75,0,0,0.0,2,2,1.0,5,1,6,1,1,2,3,3,14,-2.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,27:21,6,13,0.462,4,8,0.5,1,1,1.0,1,3,4,3,1,0,2,0,17,-1.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,27:10,4,8,0.5,0,2,0.0,1,2,0.5,1,3,4,10,2,1,3,2,9,4.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630610,DeJon,Jarreau,D. Jarreau,dejon-jarreau,,,,16:56,0,3,0.0,0,1,0.0,2,2,1.0,0,5,5,4,0,0,1,0,2,-13.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629117,Wenyen,Gabriel,W. Gabriel,wenyen-gabriel,,,,16:05,0,4,0.0,0,1,0.0,0,0,0.0,2,4,6,1,0,1,3,3,0,-10.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,30:12,2,13,0.154,1,6,0.167,0,0,0.0,3,2,5,0,3,0,1,2,5,-19.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,19:06,5,11,0.455,2,5,0.4,0,0,0.0,0,3,3,1,2,1,2,4,12,-10.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950
+0022300950,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300950

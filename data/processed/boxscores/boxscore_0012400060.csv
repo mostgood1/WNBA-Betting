@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295092,Justinian,Jessup,J. Jessup,justinian-jessup,F,,,36:03,5,14,0.357,3,8,0.375,0,0,0.0,2,5,7,3,1,0,0,0,13,-3.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295093,Noa,Essengue,N. Essengue,noa-essengue,F,,,34:01,6,14,0.429,3,6,0.5,5,6,0.833,3,5,8,3,2,0,3,5,20,-13.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295095,Philipp,Herkenhoff,P. Herkenhoff,philipp-herkenhoff,C,,,23:21,2,6,0.333,2,5,0.4,0,0,0.0,0,2,2,4,0,0,1,3,6,2.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295091,Alfonso ,Plummer,A. Plummer,alfonso--plummer,G,,,30:40,5,14,0.357,3,10,0.3,0,0,0.0,1,2,3,4,2,0,2,0,13,-4.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295100,Ben,Saraf,B. Saraf,ben-saraf,G,,,33:10,6,14,0.429,3,5,0.6,1,1,1.0,0,1,1,2,2,0,4,3,16,-8.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295088,Nelson,Weidemann,N. Weidemann,nelson-weidemann,,,,15:07,2,5,0.4,1,1,1.0,2,2,1.0,0,1,1,1,1,0,1,4,7,-16.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295094,Nicolas,Bretzel,N. Bretzel,nicolas-bretzel,,,,8:38,1,3,0.333,0,1,0.0,0,0,0.0,1,4,5,0,0,0,1,1,2,-16.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295089,Marcio,Santos,M. Santos,marcio-santos,,,,21:16,2,2,1.0,1,1,1.0,4,4,1.0,1,1,2,1,0,1,2,5,9,6.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295098,Thomas,Klepeisz,T. Klepeisz,thomas-klepeisz,,,,15:35,3,7,0.429,3,6,0.5,0,0,0.0,0,1,1,4,1,0,0,2,9,0.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295090,Tobias,Jensen,T. Jensen,tobias-jensen,,,,13:25,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,0,1,0,5,-2.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295097,Alec,Anigbata,A. Anigbata,alec-anigbata,,,,8:44,0,1,0.0,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-1.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295099,Karim,Jallow,K. Jallow,karim-jallow,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400060
+0012400060,15025,Ratiopharm,Ulm,ULM,ulm,196295096,Isaiah,Roby,I. Roby,isaiah-roby,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,F,,,36:16,4,8,0.5,0,3,0.0,3,5,0.6,0,4,4,1,1,1,5,1,11,15.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,23:01,6,9,0.667,0,1,0.0,6,6,1.0,0,1,1,3,2,1,3,0,18,19.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,17:42,6,8,0.75,1,1,1.0,0,0,0.0,2,6,8,1,1,1,0,0,13,19.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,G,,,35:07,5,15,0.333,1,3,0.333,4,4,1.0,4,6,10,4,1,1,3,4,15,-3.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,31:59,10,14,0.714,1,3,0.333,2,3,0.667,1,4,5,6,2,0,0,5,23,21.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,28:19,6,9,0.667,2,5,0.4,0,1,0.0,3,4,7,3,1,0,0,3,14,10.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,16:01,4,6,0.667,0,2,0.0,3,6,0.5,0,1,1,4,1,0,3,0,11,-10.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,14:59,0,3,0.0,0,3,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-10.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,20:30,2,7,0.286,0,0,0.0,0,0,0.0,5,6,11,0,0,1,1,2,4,-8.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,9:05,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,0.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,3:19,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,2,-3.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,,,3:42,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0012400060
+0012400060,1610612757,Portland,Trail Blazers,POR,blazers,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400060

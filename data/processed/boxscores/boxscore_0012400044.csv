@@ -1,0 +1,42 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1627736,Malik,Beasley,M. Beasley,malik-beasley,F,,,25:00,1,8,0.125,0,5,0.0,0,0,0.0,0,1,1,1,2,0,0,2,2,-3.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,25:40,3,9,0.333,0,3,0.0,0,0,0.0,0,4,4,4,2,3,1,1,6,6.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,23:06,7,8,0.875,0,0,0.0,0,1,0.0,3,6,9,3,1,3,1,0,14,4.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,G,,,26:25,7,10,0.7,3,5,0.6,2,2,1.0,1,1,2,4,1,1,4,3,19,-13.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,23:46,9,15,0.6,0,1,0.0,0,1,0.0,0,3,3,7,0,0,3,2,18,2.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,14:08,0,4,0.0,0,3,0.0,0,0,0.0,0,2,2,0,2,0,1,0,0,-19.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631323,Simone,Fontecchio,S. Fontecchio,simone-fontecchio,,,,10:20,1,4,0.25,1,4,0.25,0,0,0.0,0,1,1,0,0,0,0,3,3,-23.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1630191,Isaiah,Stewart,I. Stewart,isaiah-stewart,,,,12:54,2,5,0.4,0,1,0.0,1,2,0.5,0,0,0,0,1,0,1,0,5,-21.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1641842,Ronald,Holland II,R. Holland II,ronald-holland-ii,,,,19:13,1,3,0.333,0,0,0.0,0,2,0.0,1,0,1,1,1,1,1,0,2,-20.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,8:52,1,3,0.333,1,2,0.5,0,0,0.0,0,0,0,2,0,0,0,3,3,-6.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,4:42,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,2,-4.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,7:35,1,4,0.25,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-8.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1630194,Paul,Reed,P. Reed,paul-reed,,,,4:42,0,2,0.0,0,0,0.0,0,0,0.0,0,1,1,3,0,0,0,0,0,-4.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1642450,Daniss,Jenkins,D. Jenkins,daniss-jenkins,,,,7:18,1,3,0.333,1,1,1.0,0,0,0.0,2,2,4,0,1,0,1,0,3,3.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631322,Javante,McCoy,J. McCoy,javante-mccoy,,,,7:18,1,4,0.25,0,1,0.0,0,0,0.0,1,0,1,2,0,0,0,1,2,3.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1642449,Tolu,Smith,T. Smith,tolu-smith,,,,7:18,1,1,1.0,0,0,0.0,1,2,0.5,2,1,3,1,0,0,0,0,3,3.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,7:18,1,2,0.5,1,1,1.0,0,0,0.0,1,1,2,2,0,1,1,0,3,3.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1642401,Aaron,Estrada,A. Estrada,aaron-estrada,,,,4:25,2,4,0.5,0,1,0.0,2,2,1.0,0,0,0,0,0,0,0,0,6,7.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1641752,Bobi,Klintman,B. Klintman,bobi-klintman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1631220,Dereon,Seabron,D. Seabron,dereon-seabron,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044
+0012400044,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,25:10,5,14,0.357,2,5,0.4,2,2,1.0,0,2,2,3,1,0,3,1,14,6.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,23:06,4,9,0.444,3,5,0.6,1,2,0.5,1,1,2,1,0,0,0,2,12,-4.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,26:53,6,7,0.857,0,0,0.0,0,0,0.0,3,7,10,3,0,3,1,2,12,4.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,23:06,2,11,0.182,1,4,0.25,0,0,0.0,2,2,4,7,0,1,3,1,5,-4.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,19:37,4,7,0.571,2,3,0.667,2,2,1.0,0,4,4,4,2,0,5,2,12,5.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,12:54,0,1,0.0,0,0,0.0,2,2,1.0,0,3,3,1,2,1,1,0,2,21.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,12:49,3,5,0.6,0,1,0.0,2,3,0.667,0,3,3,2,2,1,2,2,8,13.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,13:46,4,8,0.5,4,6,0.667,0,0,0.0,1,2,3,2,0,0,0,3,12,11.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,15:18,2,3,0.667,1,2,0.5,0,0,0.0,1,2,3,2,0,1,1,0,5,17.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,19:12,4,6,0.667,3,4,0.75,2,3,0.667,2,5,7,0,0,0,0,1,13,22.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,7:42,0,3,0.0,0,2,0.0,2,2,1.0,0,1,1,2,1,0,1,1,2,-5.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,7:47,1,3,0.333,0,1,0.0,0,0,0.0,0,1,1,3,1,0,0,0,2,8.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,7:55,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,0,0,0,1,0,-7.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,6:03,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,0,0,0,2,2,3,1.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,8:18,1,2,0.5,0,1,0.0,0,0,0.0,1,1,2,0,0,2,0,0,2,1.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1642050,Jackson,Rowe,J. Rowe,jackson-rowe,,,,5:13,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,4,8.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,1642396,Blake,Hinson,B. Hinson,blake-hinson,,,,5:11,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,0,3,-7.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044
+0012400044,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400044

@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,30:48,3,11,0.273,2,8,0.25,3,3,1.0,3,3,6,4,1,0,2,2,11,-16.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,28:28,6,11,0.545,2,4,0.5,0,0,0.0,1,6,7,2,1,2,1,2,14,1.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,31:31,13,25,0.52,2,5,0.4,1,3,0.333,3,9,12,8,0,0,5,1,29,-16.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,9:20,0,3,0.0,0,1,0.0,1,1,1.0,0,2,2,2,0,0,0,0,1,1.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,17:33,1,5,0.2,1,3,0.333,0,0,0.0,0,2,2,0,0,0,2,0,3,-18.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,22:06,3,7,0.429,1,2,0.5,0,0,0.0,0,1,1,3,0,0,0,0,7,-1.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,22:25,2,7,0.286,0,3,0.0,3,4,0.75,0,5,5,0,2,0,0,2,7,-7.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,21:06,2,6,0.333,0,2,0.0,1,1,1.0,1,3,4,1,0,0,0,2,5,-9.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,4:17,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,0,0,0,0,1,1,-10.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,18:54,2,6,0.333,1,5,0.2,0,0,0.0,0,2,2,1,0,0,0,2,5,-11.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,13:11,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,1,2,0,3,0,6,-7.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,8:06,1,5,0.2,0,0,0.0,0,0,0.0,3,0,3,0,1,0,0,1,2,3.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,6:39,0,3,0.0,0,3,0.0,2,2,1.0,0,0,0,2,0,0,0,0,2,3.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,,,5:36,1,1,1.0,0,0,0.0,0,1,0.0,1,1,2,0,0,0,0,1,2,2.0,0022300767
+0022300767,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,F,,,22:54,1,4,0.25,0,2,0.0,0,0,0.0,0,1,1,1,2,0,1,0,2,3.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,30:24,14,19,0.737,0,0,0.0,8,14,0.571,4,14,18,5,3,2,2,2,36,18.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,29:05,3,9,0.333,3,7,0.429,0,0,0.0,1,4,5,3,0,3,1,2,9,12.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,30:23,3,6,0.5,3,6,0.5,0,0,0.0,1,4,5,1,0,0,0,0,9,16.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,22:42,6,15,0.4,2,5,0.4,4,4,1.0,1,2,3,5,0,0,2,3,18,12.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,25:21,6,14,0.429,1,3,0.333,0,0,0.0,1,7,8,3,0,0,3,2,13,8.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,19:42,2,5,0.4,1,2,0.5,0,0,0.0,0,1,1,4,1,0,1,4,5,7.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,22:20,2,2,1.0,1,1,1.0,0,0,0.0,0,5,5,5,1,1,0,0,5,19.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,15:25,3,5,0.6,3,5,0.6,0,0,0.0,0,0,0,1,0,0,0,2,9,7.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,6:16,1,2,0.5,1,2,0.5,0,0,0.0,1,1,2,0,0,0,1,1,3,-3.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,5:36,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,1,0,0,0,1,3,-2.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,4:54,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,1,0,1,2,0,-1.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,2:46,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022300767
+0022300767,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,2:12,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-6.0,0022300767

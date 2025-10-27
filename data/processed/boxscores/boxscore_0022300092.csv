@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,35:48,4,10,0.4,1,4,0.25,6,7,0.857,1,1,2,2,2,2,2,1,15,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,200782,P.J.,Tucker,P. Tucker,pj-tucker,F,,,21:12,1,1,1.0,1,1,1.0,0,0,0.0,0,3,3,0,0,0,1,3,3,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,35:21,14,21,0.667,1,3,0.333,5,6,0.833,0,9,9,8,1,2,1,0,34,-2.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,31:47,1,7,0.143,0,4,0.0,0,0,0.0,0,5,5,4,1,1,2,2,2,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,40:34,12,20,0.6,7,9,0.778,3,3,1.0,1,5,6,7,0,1,1,1,34,10.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,,,29:22,7,17,0.412,0,6,0.0,4,5,0.8,2,3,5,2,3,0,0,3,18,3.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,16:58,1,2,0.5,0,0,0.0,0,0,0.0,3,2,5,2,0,0,1,2,2,10.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,201980,Danny,Green,D. Green,danny-green,,,,4:46,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,12:39,2,4,0.5,0,0,0.0,0,0,0.0,2,3,5,0,1,0,1,4,4,9.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,11:33,1,3,0.333,0,1,0.0,0,0,0.0,0,2,2,0,0,1,0,1,2,7.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1630196,Filip,Petrusev,F. Petrusev,filip-petrusev,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,36:39,11,16,0.688,2,5,0.4,0,0,0.0,1,7,8,5,0,2,1,3,24,-6.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,36:18,3,8,0.375,2,5,0.4,3,4,0.75,1,6,7,4,0,1,2,4,11,-5.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,24:48,2,5,0.4,0,0,0.0,2,3,0.667,1,6,7,3,0,1,2,2,6,-19.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,33:05,6,16,0.375,3,5,0.6,2,4,0.5,1,1,2,0,1,0,1,0,17,3.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,35:17,5,14,0.357,4,6,0.667,1,2,0.5,3,1,4,10,2,0,1,1,15,-5.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,18:15,3,10,0.3,0,1,0.0,0,0,0.0,3,4,7,3,0,1,1,1,6,5.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,28:27,5,8,0.625,4,6,0.667,2,2,1.0,2,0,2,1,0,0,1,5,16,1.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,12:43,2,4,0.5,2,2,1.0,1,1,1.0,0,0,0,2,1,0,3,1,7,-2.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,11:42,1,6,0.167,0,2,0.0,3,3,1.0,1,3,4,0,1,0,1,2,5,-2.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,2:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,1631241,Javon,Freeman-Liberty,J. Freeman-Liberty,javon-freeman-liberty,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092
+0022300092,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300092

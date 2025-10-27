@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301217,1610612765,Detroit,Pistons,DET,pistons,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,F,,,28:31,4,10,0.4,1,3,0.333,0,1,0.0,0,3,3,1,1,0,2,1,9,-18.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1630191,Isaiah,Stewart,I. Stewart,isaiah-stewart,F,,,28:47,1,3,0.333,1,3,0.333,0,0,0.0,0,6,6,2,0,0,1,3,3,-19.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,C,,,22:58,4,7,0.571,0,0,0.0,1,2,0.5,2,3,5,0,0,0,4,1,9,-19.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1630165,Killian,Hayes,K. Hayes,killian-hayes,G,,,31:54,7,11,0.636,0,2,0.0,2,3,0.667,1,6,7,4,0,1,2,1,16,-22.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,32:09,8,15,0.533,2,6,0.333,3,4,0.75,1,2,3,6,1,0,3,1,21,-20.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,,,,21:28,2,7,0.286,0,4,0.0,4,4,1.0,0,2,2,0,0,0,0,2,8,-14.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,203925,Joe,Harris,J. Harris,joe-harris,,,,3:34,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,-7.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,,,,15:40,0,0,0.0,0,0,0.0,2,4,0.5,2,3,5,0,0,0,1,2,2,-6.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,,,,19:37,2,12,0.167,0,5,0.0,1,2,0.5,1,1,2,2,1,0,0,3,5,-15.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,202692,Alec,Burks,A. Burks,alec-burks,,,,12:31,4,7,0.571,2,3,0.667,4,4,1.0,1,2,3,0,0,0,1,1,14,-3.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1630587,Isaiah,Livers,I. Livers,isaiah-livers,,,,11:54,0,5,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,0,0,2,0,-11.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,5:29,2,3,0.667,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,4,-3.0,0022301217
+0022301217,1610612765,Detroit,Pistons,DET,pistons,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,5:29,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,-3.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,30:45,12,20,0.6,2,4,0.5,1,1,1.0,0,2,2,3,0,0,0,0,27,19.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,30:29,9,17,0.529,0,3,0.0,6,7,0.857,0,4,4,2,2,0,0,3,24,25.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,27:52,6,7,0.857,0,0,0.0,1,1,1.0,4,4,8,2,0,4,1,1,13,26.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,22:35,4,8,0.5,2,5,0.4,1,1,1.0,0,3,3,1,2,0,1,3,11,23.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,24:41,2,4,0.5,0,1,0.0,2,4,0.5,1,4,5,3,0,0,1,2,6,7.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,15:54,2,6,0.333,2,3,0.667,0,0,0.0,0,4,4,5,0,0,0,1,6,15.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,23:35,6,12,0.5,1,3,0.333,3,3,1.0,0,3,3,6,0,0,1,4,16,23.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,13:08,1,1,1.0,0,0,0.0,0,0,0.0,0,4,4,0,1,0,1,0,2,4.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,25:25,2,6,0.333,2,6,0.333,0,0,0.0,0,4,4,1,0,0,0,1,6,9.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,16:13,2,4,0.5,0,0,0.0,0,0,0.0,1,4,5,2,0,0,2,1,4,5.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,5:29,2,2,1.0,1,1,1.0,1,2,0.5,0,1,1,1,0,0,0,1,6,3.0,0022301217
+0022301217,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,,,3:55,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,0,0,0,2,3,2,1.0,0022301217

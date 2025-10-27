@@ -1,0 +1,43 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1629684,Grant,Williams,G. Williams,grant-williams,F,,,16:19,2,7,0.286,2,7,0.286,0,0,0.0,0,2,2,1,0,1,1,2,6,-9.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,F,,,17:42,0,3,0.0,0,2,0.0,1,2,0.5,0,1,1,0,0,0,1,2,1,-18.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,14:31,1,2,0.5,0,0,0.0,0,0,0.0,1,4,5,0,0,1,0,4,2,-12.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,16:59,8,14,0.571,3,8,0.375,6,7,0.857,1,4,5,1,0,0,1,1,25,-13.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,13:52,1,6,0.167,0,2,0.0,0,0,0.0,0,1,1,2,0,1,2,0,2,-22.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,15:47,2,4,0.5,0,1,0.0,1,2,0.5,0,0,0,0,2,1,0,2,5,0.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,18:18,3,6,0.5,0,2,0.0,0,0,0.0,0,3,3,3,0,0,1,0,6,5.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,203552,Seth,Curry,S. Curry,seth-curry,,,,9:08,0,2,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,2,0,-7.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,7:41,1,3,0.333,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,-8.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,20:01,4,10,0.4,1,4,0.25,4,8,0.5,0,1,1,3,1,0,2,3,13,12.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,13:03,1,4,0.25,1,1,1.0,2,2,1.0,0,3,3,3,1,0,1,1,5,6.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,,,6:18,1,3,0.333,1,3,0.333,0,2,0.0,0,1,1,2,1,1,0,0,3,5.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,9:27,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,0,1,1,1,2,2,5.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,17:42,3,10,0.3,1,4,0.25,2,5,0.4,2,6,8,0,1,0,0,0,9,0.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1630535,Greg,Brown III,G. Brown III,greg-brown-iii,,,,12:27,0,3,0.0,0,0,0.0,0,0,0.0,0,4,4,0,0,2,1,5,0,-11.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1641926,Dexter,Dennis,D. Dennis,dexter-dennis,,,,12:00,2,5,0.4,2,4,0.5,1,2,0.5,1,2,3,0,2,0,0,0,7,1.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1641948,Jordan,Walker,J. Walker,jordan-walker,,,,12:00,3,8,0.375,2,6,0.333,0,0,0.0,0,0,0,3,1,0,2,1,8,1.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1630580,Joe,Wieskamp,J. Wieskamp,joe-wieskamp,,,,6:45,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,1,0,0,0,3,5.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612742,Dallas,Mavericks,DAL,mavericks,1641756,Mike,Miles Jr.,M. Miles Jr.,mike-miles-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,19:18,2,8,0.25,1,3,0.333,4,4,1.0,1,4,5,1,0,1,1,3,9,8.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,17:13,8,16,0.5,2,7,0.286,2,3,0.667,1,3,4,1,0,2,2,0,20,12.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,23:27,3,6,0.5,0,0,0.0,3,4,0.75,3,5,8,0,0,3,0,2,9,15.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,G,,,22:07,3,5,0.6,3,5,0.6,2,2,1.0,0,5,5,5,0,2,1,1,11,4.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,16:48,2,3,0.667,1,2,0.5,0,0,0.0,0,2,2,4,3,0,2,0,5,22.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,18:34,1,4,0.25,0,1,0.0,0,2,0.0,0,1,1,5,1,1,2,3,2,-3.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,20:04,5,6,0.833,2,3,0.667,0,0,0.0,0,4,4,1,1,0,2,4,12,-7.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,17:32,6,14,0.429,0,3,0.0,4,5,0.8,2,5,7,1,0,0,0,1,16,7.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,18:19,2,6,0.333,2,5,0.4,0,0,0.0,0,7,7,1,0,0,0,3,6,7.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,11:40,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,2,1,0,1,0,2,8.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,12:06,1,2,0.5,0,0,0.0,1,1,1.0,0,0,0,3,1,0,1,0,3,-1.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,11:02,6,13,0.462,0,1,0.0,0,1,0.0,3,3,6,0,0,1,0,2,12,-3.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,11:02,0,3,0.0,0,1,0.0,0,0,0.0,1,2,3,3,0,1,2,0,0,-3.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,10:25,2,4,0.5,0,1,0.0,0,0,0.0,0,3,3,0,0,1,2,0,4,-3.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,10:23,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-3.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631211,Trevor,Keels,T. Keels,trevor-keels,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001
+0012300001,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300001

@@ -1,0 +1,33 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294573,Tom ,Abercrombie,T. Abercrombie,tom--abercrombie,F,,,16:29,0,0,0.0,0,0,0.0,0,0,0.0,0,4,4,0,1,0,0,2,0,-5.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294578,Zylan,Cheatham,Z. Cheatham,zylan-cheatham,F,,,35:46,4,12,0.333,0,5,0.0,3,5,0.6,3,7,10,4,3,1,0,2,11,-22.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294572,Mangok,Mathiang,M. Mathiang,mangok-mathiang,C,,,20:35,2,5,0.4,0,0,0.0,1,2,0.5,2,2,4,0,1,2,3,5,5,-12.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294571,Will,McDowell-White,W. McDowell-White,will-mcdowell-white,G,,,33:13,5,16,0.313,1,7,0.143,0,0,0.0,2,3,5,2,2,0,4,3,11,-24.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294570,Parker,Jackson-Cartwright,P. Jackson-Cartwright,parker-jackson-cartwright,G,,,33:45,6,23,0.261,2,8,0.25,5,5,1.0,0,3,3,3,2,0,4,3,19,-22.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294577,Anthony,Lamb,A. Lamb,anthony-lamb,,,,27:04,3,9,0.333,2,6,0.333,1,2,0.5,1,4,5,2,1,2,5,2,9,-26.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294569,Cam,Gliddon,C. Gliddon,cam-gliddon,,,,13:15,0,3,0.0,0,3,0.0,0,1,0.0,0,1,1,1,0,0,0,2,0,-16.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294574,Dane,Pineau,D. Pineau,dane-pineau,,,,14:11,4,4,1.0,0,0,0.0,0,0,0.0,3,0,3,1,1,0,0,1,8,-22.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294568,Izayah,Le'Afa,I. Le'Afa,izayah-leafa,,,,23:21,1,7,0.143,1,6,0.167,0,0,0.0,0,1,1,0,3,0,3,3,3,-23.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294576,Dan,Fotu,D. Fotu,dan-fotu,,,,18:26,0,3,0.0,0,2,0.0,0,0,0.0,0,4,4,1,0,0,1,0,0,-22.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294567,Alex,McNaught,A. McNaught,alex-mcnaught,,,,3:55,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-6.0,0012300022
+0012300022,15020,New Zealand,Breakers,NZB,breakers,196294575,Dom,Kelman-Poto,D. Kelman-Poto,dom-kelman-poto,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,13:52,3,4,0.75,2,3,0.667,0,0,0.0,0,0,0,0,1,1,1,0,8,6.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,14:11,0,3,0.0,0,1,0.0,0,0,0.0,0,3,3,1,1,0,2,0,0,11.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,15:11,4,10,0.4,0,0,0.0,0,0,0.0,2,4,6,2,2,1,0,0,8,11.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,17:01,4,7,0.571,3,4,0.75,3,5,0.6,0,1,1,0,0,0,4,3,14,2.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,19:22,3,6,0.5,1,2,0.5,0,0,0.0,0,1,1,6,0,0,1,4,7,11.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,14:51,0,2,0.0,0,0,0.0,2,2,1.0,2,5,7,1,0,0,3,1,2,4.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,13:22,1,5,0.2,0,2,0.0,3,4,0.75,1,1,2,1,0,0,3,0,5,2.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,13:03,1,5,0.2,0,1,0.0,6,6,1.0,3,3,6,0,2,0,1,0,8,-3.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,,,15:29,3,3,1.0,0,0,0.0,0,1,0.0,2,6,8,0,1,1,1,1,6,11.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,18:09,1,3,0.333,1,3,0.333,0,0,0.0,1,4,5,1,0,0,0,2,3,18.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,17:20,4,9,0.444,0,2,0.0,4,4,1.0,1,4,5,1,1,1,0,2,12,18.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,20:46,3,6,0.5,0,1,0.0,1,2,0.5,0,2,2,2,0,0,1,2,7,32.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,14:28,5,6,0.833,2,3,0.667,1,1,1.0,0,4,4,3,1,0,2,1,13,19.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,10:52,3,4,0.75,0,0,0.0,0,0,0.0,0,2,2,2,2,0,1,0,6,17.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,16:12,0,1,0.0,0,0,0.0,2,2,1.0,0,2,2,5,3,0,2,1,2,28.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,5:51,2,4,0.5,1,1,1.0,0,0,0.0,0,0,0,1,1,0,1,1,5,13.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1631219,John,Butler Jr.,J. Butler Jr.,john-butler-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1642022,George,Conditt IV,G. Conditt IV,george-conditt-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300022
+0012300022,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300022

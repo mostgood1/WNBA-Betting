@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400329,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,35:24,6,15,0.4,1,1,1.0,13,14,0.929,1,2,3,1,1,0,2,5,26,-12.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,40:23,4,12,0.333,1,7,0.143,2,2,1.0,3,8,11,2,2,0,1,2,11,-4.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,35:57,7,11,0.636,1,2,0.5,2,2,1.0,4,9,13,6,0,0,3,3,17,-5.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,31:44,7,16,0.438,4,9,0.444,5,5,1.0,0,1,1,5,0,0,0,4,23,-2.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,37:50,8,23,0.348,0,7,0.0,2,3,0.667,2,4,6,3,6,0,4,2,18,-4.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,,,24:48,3,10,0.3,0,6,0.0,0,0,0.0,2,4,6,0,1,0,1,3,6,4.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,16:06,4,7,0.571,1,1,1.0,0,2,0.0,1,2,3,0,0,1,1,3,9,-2.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,2:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-5.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,12:35,0,4,0.0,0,2,0.0,0,0,0.0,1,2,3,1,1,0,1,0,0,0.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,2:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612758,Sacramento,Kings,SAC,kings,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,18:27,2,5,0.4,1,3,0.333,5,6,0.833,1,5,6,0,0,0,4,3,10,-27.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,25:19,5,9,0.556,0,1,0.0,5,5,1.0,0,2,2,2,2,0,4,3,15,-17.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,C,,,17:35,2,2,1.0,0,0,0.0,0,0,0.0,1,2,3,0,0,2,1,2,4,-15.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,32:25,6,10,0.6,2,4,0.5,4,4,1.0,2,6,8,7,1,0,3,2,18,15.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,27:49,2,13,0.154,0,6,0.0,4,4,1.0,2,1,3,7,0,1,2,2,8,-32.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,,,,25:40,5,9,0.556,4,8,0.5,4,6,0.667,0,4,4,5,2,0,4,1,18,13.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,29:07,6,8,0.75,3,3,1.0,0,1,0.0,2,8,10,0,3,0,0,1,15,23.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,20:04,4,9,0.444,2,6,0.333,1,2,0.5,0,4,4,1,0,2,1,4,11,30.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,14:42,2,9,0.222,0,4,0.0,0,0,0.0,0,1,1,3,0,0,1,1,4,10.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,28:52,4,6,0.667,1,3,0.333,3,4,0.75,1,7,8,2,1,0,2,2,12,25.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630658,Colin,Castleton,C. Castleton,colin-castleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329
+0022400329,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400329

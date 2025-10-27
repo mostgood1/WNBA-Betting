@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400283,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,37:50,16,23,0.696,5,7,0.714,3,3,1.0,1,4,5,4,0,1,1,2,40,21.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,27:45,5,5,1.0,1,1,1.0,1,1,1.0,2,4,6,5,1,1,1,5,12,13.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,33:52,12,15,0.8,2,2,1.0,4,6,0.667,1,14,15,4,3,0,4,4,30,21.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,36:12,6,16,0.375,2,8,0.25,0,0,0.0,0,2,2,6,0,0,0,1,14,18.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,37:52,8,14,0.571,4,5,0.8,3,3,1.0,0,3,3,17,0,0,2,2,23,19.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,17:39,3,6,0.5,2,5,0.4,3,3,1.0,0,1,1,5,0,0,0,3,11,21.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,14:08,0,1,0.0,0,0,0.0,0,0,0.0,2,2,4,0,0,2,0,2,0,6.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,27:45,5,9,0.556,3,6,0.5,0,0,0.0,2,4,6,3,1,0,0,4,13,10.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,2:19,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,2.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,2:19,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,2,2.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,2:19,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,2.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400283
+0022400283,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,33:37,7,17,0.412,3,7,0.429,1,1,1.0,4,6,10,0,0,0,2,4,18,-13.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,F,,,22:19,2,4,0.5,0,1,0.0,2,2,1.0,0,0,0,0,0,0,1,2,6,-18.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,31:50,9,20,0.45,2,7,0.286,2,2,1.0,3,4,7,7,1,0,0,1,22,-20.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,G,,,32:27,5,10,0.5,0,0,0.0,4,4,1.0,0,1,1,2,1,1,1,0,14,-13.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,30:56,6,13,0.462,1,5,0.2,7,9,0.778,1,3,4,7,1,0,0,1,20,-13.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,25:31,9,16,0.563,4,7,0.571,5,5,1.0,1,2,3,3,2,1,3,1,27,-16.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,22:51,1,4,0.25,0,1,0.0,2,2,1.0,0,2,2,1,0,0,1,3,4,-20.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,,,10:48,0,2,0.0,0,2,0.0,2,2,1.0,0,0,0,1,0,1,1,1,2,-8.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,13:51,0,0,0.0,0,0,0.0,0,0,0.0,0,5,5,1,0,0,2,4,0,-5.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,10:25,2,3,0.667,1,2,0.5,0,0,0.0,1,0,1,1,0,0,0,1,5,-4.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,3:06,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,1641790,PJ,Hall,P. Hall,pj-hall,,,,2:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400283
+0022400283,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400283

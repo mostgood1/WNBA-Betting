@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,24:18,4,6,0.667,1,3,0.333,0,0,0.0,1,1,2,1,2,1,1,0,9,-2.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,28:12,4,12,0.333,3,6,0.5,2,2,1.0,0,2,2,3,2,1,3,4,13,6.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,29:41,5,9,0.556,0,0,0.0,0,0,0.0,2,4,6,3,0,0,3,2,10,-6.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,39:24,11,15,0.733,4,7,0.571,3,3,1.0,0,10,10,5,1,0,5,3,29,10.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,30:46,3,7,0.429,1,3,0.333,4,4,1.0,2,1,3,7,2,1,5,0,11,-9.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,21:42,1,8,0.125,0,5,0.0,0,0,0.0,0,1,1,7,0,0,3,2,2,12.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,23:56,3,7,0.429,0,2,0.0,0,0,0.0,2,10,12,1,1,0,1,3,6,5.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,18:19,4,5,0.8,3,4,0.75,2,2,1.0,1,1,2,2,1,1,1,2,13,14.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,23:42,4,8,0.5,2,5,0.4,0,0,0.0,1,1,2,0,1,0,0,1,10,10.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,35:42,4,11,0.364,1,6,0.167,0,0,0.0,0,3,3,3,2,0,2,6,9,-10.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,33:49,9,14,0.643,0,1,0.0,2,2,1.0,2,6,8,3,2,0,3,1,20,3.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,38:03,6,9,0.667,0,0,0.0,0,0,0.0,6,4,10,2,0,2,1,3,12,-3.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:30,7,20,0.35,1,9,0.111,8,8,1.0,3,4,7,6,4,0,1,1,23,1.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,36:58,6,18,0.333,2,8,0.25,1,1,1.0,1,3,4,7,1,0,8,0,15,2.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,26:06,2,9,0.222,1,4,0.25,0,0,0.0,1,1,2,2,0,0,2,3,5,-17.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,18:58,3,6,0.5,1,3,0.333,1,1,1.0,1,0,1,2,2,0,0,0,8,-4.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,16:54,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,1,0,0,1,3,-12.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265
+0022300265,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300265

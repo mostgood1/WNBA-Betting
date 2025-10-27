@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300855,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,40:17,7,17,0.412,1,4,0.25,6,9,0.667,3,4,7,3,1,0,0,1,21,0.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,24:35,3,8,0.375,1,4,0.25,0,0,0.0,0,6,6,1,2,0,3,0,7,-16.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,35:41,8,18,0.444,0,0,0.0,6,6,1.0,1,7,8,3,1,0,1,5,22,-3.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,35:58,5,9,0.556,2,6,0.333,0,0,0.0,0,3,3,3,3,0,1,4,12,5.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,32:46,6,15,0.4,1,8,0.125,6,6,1.0,0,5,5,4,1,0,3,1,19,-7.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,26:47,1,5,0.2,0,1,0.0,1,2,0.5,1,3,4,5,2,0,3,1,3,-3.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,28:17,5,10,0.5,2,3,0.667,1,1,1.0,3,6,9,1,0,1,2,4,13,1.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,,,3:21,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,12:19,0,0,0.0,0,0,0.0,0,0,0.0,1,2,3,1,0,0,1,0,0,-3.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612748,Miami,Heat,MIA,heat,1631214,Alondes,Williams,A. Williams,alondes-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,38:15,12,23,0.522,4,10,0.4,2,2,1.0,2,9,11,3,2,2,2,2,30,1.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,37:16,5,8,0.625,0,0,0.0,6,6,1.0,2,7,9,3,3,1,4,2,16,-2.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,38:00,6,15,0.4,0,3,0.0,6,6,1.0,2,9,11,7,1,2,4,4,18,12.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,34:21,5,11,0.455,4,8,0.5,4,4,1.0,1,1,2,2,1,1,1,4,18,10.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,14:07,2,6,0.333,2,3,0.667,0,0,0.0,0,1,1,3,0,0,1,1,6,7.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,29:21,3,10,0.3,0,5,0.0,0,0,0.0,0,2,2,2,1,0,1,5,6,-2.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,20:14,1,2,0.5,0,0,0.0,0,1,0.0,1,1,2,1,1,1,0,3,2,2.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,15:01,0,4,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,1,1,0,6.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,5:36,0,1,0.0,0,0,0.0,1,2,0.5,1,0,1,0,0,1,1,0,1,-2.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,7:49,2,4,0.5,2,4,0.5,0,0,0.0,0,2,2,1,0,0,0,1,6,-2.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855
+0022300855,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300855

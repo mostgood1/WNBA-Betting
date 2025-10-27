@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,32:44,5,12,0.417,2,5,0.4,2,3,0.667,0,7,7,3,1,0,3,3,14,-2.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,29:49,9,14,0.643,1,2,0.5,5,6,0.833,1,6,7,0,1,0,3,5,24,-1.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,33:24,2,7,0.286,0,0,0.0,3,4,0.75,3,5,8,2,1,5,1,3,7,-9.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,39:51,7,14,0.5,2,5,0.4,4,4,1.0,0,2,2,8,1,0,1,2,20,2.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,32:45,8,18,0.444,5,8,0.625,5,6,0.833,0,3,3,5,0,1,1,3,26,9.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,21:28,2,5,0.4,1,1,1.0,0,0,0.0,0,1,1,0,1,0,2,2,5,2.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,,,,29:26,6,11,0.545,1,3,0.333,3,4,0.75,0,7,7,5,0,0,0,0,16,5.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1629007,Jontay,Porter,J. Porter,jontay-porter,,,,7:12,0,2,0.0,0,2,0.0,0,0,0.0,0,3,3,0,0,0,0,2,0,9.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,13:21,2,2,1.0,0,0,0.0,0,0,0.0,3,5,8,2,0,0,1,0,4,10.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300470
+0022300470,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,F,,,33:06,2,10,0.2,0,5,0.0,2,3,0.667,0,5,5,2,1,0,3,4,6,11.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,36:44,7,18,0.389,4,8,0.5,6,6,1.0,1,3,4,0,1,4,3,1,24,5.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,C,,,23:27,2,3,0.667,0,0,0.0,0,0,0.0,2,3,5,2,0,0,0,3,4,-15.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,37:45,9,18,0.5,2,6,0.333,2,2,1.0,2,2,4,8,0,0,0,4,22,5.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,34:53,10,18,0.556,3,6,0.5,5,6,0.833,1,7,8,9,1,0,2,1,28,-7.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,21:34,2,6,0.333,2,4,0.5,1,2,0.5,1,7,8,3,1,0,1,4,7,2.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,8:03,0,2,0.0,0,0,0.0,0,0,0.0,0,2,2,1,2,1,1,0,0,2.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,18:49,1,5,0.2,0,4,0.0,0,0,0.0,0,1,1,0,0,0,0,1,2,-17.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,7:30,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-10.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,18:09,7,12,0.583,4,7,0.571,0,0,0.0,2,4,6,0,1,0,0,1,18,-1.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300470
+0022300470,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300470

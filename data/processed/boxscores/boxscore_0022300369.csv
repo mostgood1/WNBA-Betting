@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,32:38,5,13,0.385,2,7,0.286,0,0,0.0,1,5,6,2,1,0,0,1,12,10.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,30:11,6,9,0.667,0,1,0.0,0,0,0.0,3,2,5,2,0,0,1,1,12,14.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,38:06,13,23,0.565,3,5,0.6,2,3,0.667,5,10,15,6,0,2,2,2,31,15.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,31:45,4,5,0.8,2,3,0.667,0,0,0.0,0,2,2,3,2,2,0,2,10,15.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,32:04,9,22,0.409,2,7,0.286,0,0,0.0,1,4,5,6,1,2,2,2,20,12.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,16:53,1,4,0.25,1,2,0.5,0,0,0.0,1,2,3,2,1,0,0,0,3,-6.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,16:43,3,7,0.429,0,3,0.0,1,2,0.5,1,1,2,4,0,0,1,1,7,-5.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,17:49,5,6,0.833,1,1,1.0,0,0,0.0,1,3,4,1,1,1,0,1,11,-5.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,13:57,3,6,0.5,1,4,0.25,0,0,0.0,0,1,1,2,2,0,0,2,7,1.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,9:55,0,3,0.0,0,0,0.0,0,2,0.0,2,1,3,1,1,2,2,1,0,-6.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,33:04,13,22,0.591,1,5,0.2,3,4,0.75,1,9,10,5,0,1,2,0,30,-4.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:34,7,16,0.438,1,5,0.2,3,5,0.6,1,4,5,1,0,0,1,2,18,-17.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,19:21,2,5,0.4,0,0,0.0,0,0,0.0,2,3,5,3,0,2,1,2,4,-12.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1628384,OG,Anunoby,O. Anunoby,og-anunoby,G,,,39:57,4,9,0.444,1,4,0.25,0,0,0.0,0,1,1,3,0,0,1,2,9,-5.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,30:50,3,8,0.375,1,2,0.5,0,0,0.0,0,2,2,7,1,0,2,2,7,-17.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,28:37,4,9,0.444,1,5,0.2,3,3,1.0,0,3,3,4,0,0,1,0,12,-11.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,24:34,6,10,0.6,1,2,0.5,0,1,0.0,4,1,5,1,1,1,1,2,13,6.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,15:37,2,8,0.25,2,3,0.667,0,0,0.0,0,3,3,2,1,0,1,1,6,7.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,12:26,2,3,0.667,1,1,1.0,0,0,0.0,2,5,7,0,0,1,1,1,5,8.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369
+0022300369,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300369

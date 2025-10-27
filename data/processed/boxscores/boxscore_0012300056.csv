@@ -1,0 +1,38 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,29:01,5,14,0.357,1,5,0.2,0,0,0.0,1,1,2,3,1,0,2,2,11,-10.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,F,,,21:34,4,5,0.8,3,4,0.75,0,0,0.0,0,0,0,0,0,0,1,2,11,-5.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,26:46,3,7,0.429,0,0,0.0,2,6,0.333,1,5,6,2,1,4,2,3,8,2.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,27:31,3,10,0.3,2,8,0.25,1,1,1.0,1,4,5,6,1,1,1,2,9,8.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,G,,,23:28,0,4,0.0,0,0,0.0,2,2,1.0,0,8,8,7,0,0,4,3,2,-7.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,21:11,6,7,0.857,1,2,0.5,6,6,1.0,4,7,11,0,2,3,0,3,19,1.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,,,,27:11,3,14,0.214,1,4,0.25,7,7,1.0,0,0,0,1,0,0,2,0,14,1.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,20:53,3,5,0.6,2,4,0.5,0,0,0.0,2,4,6,3,1,0,0,3,8,11.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,24:35,7,14,0.5,4,7,0.571,4,4,1.0,2,2,4,0,2,1,0,0,22,20.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1629717,Armoni,Brooks,A. Brooks,armoni-brooks,,,,8:55,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,1,0,0,1,1,3,-3.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,8:55,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-3.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1629647,Darius,Bazley,D. Bazley,darius-bazley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,F,,,23:05,4,12,0.333,1,6,0.167,3,3,1.0,0,3,3,4,0,0,1,0,12,15.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,26:46,6,8,0.75,3,4,0.75,0,0,0.0,0,3,3,1,0,1,0,2,15,3.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,15:37,6,15,0.4,0,0,0.0,2,2,1.0,2,4,6,3,0,0,1,2,14,12.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,G,,,28:45,3,9,0.333,1,2,0.5,0,0,0.0,6,8,14,1,1,0,2,1,7,9.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,G,,,6:45,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,9.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,,,27:58,4,12,0.333,1,3,0.333,0,0,0.0,2,3,5,10,1,0,3,5,9,-2.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,15:51,3,6,0.5,0,0,0.0,2,2,1.0,1,3,4,1,0,0,1,1,8,-8.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,,,24:55,5,10,0.5,3,8,0.375,2,2,1.0,0,2,2,1,0,0,3,3,15,-18.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,23:45,3,9,0.333,2,7,0.286,1,2,0.5,1,4,5,2,0,1,2,3,9,-15.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,30:01,4,9,0.444,0,1,0.0,0,0,0.0,1,5,6,2,0,1,2,3,8,-13.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,16:32,3,6,0.5,0,1,0.0,1,2,0.5,2,3,5,2,1,0,1,3,7,-7.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1627767,Cheick,Diallo,C. Diallo,cheick-diallo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1630181,R.J.,Hampton,R. Hampton,rj-hampton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056
+0012300056,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300056

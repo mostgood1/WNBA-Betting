@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294562,Bul,Kuol,B. Kuol,bul-kuol,F,,,31:01,4,10,0.4,3,8,0.375,2,2,1.0,1,0,1,0,3,0,2,5,13,-37.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294554,Lat,Mayen,L. Mayen,lat-mayen,F,,,26:29,1,8,0.125,1,7,0.143,0,0,0.0,0,4,4,1,1,2,2,2,3,-37.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294555,Akoldah,Gak,A. Gak,akoldah-gak,C,,,21:38,7,14,0.5,2,2,1.0,1,1,1.0,1,8,9,0,1,0,2,3,17,-28.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294549,Tahjere,McCall,T. McCall,tahjere-mccall,G,,,31:29,4,13,0.308,0,2,0.0,3,3,1.0,2,5,7,4,0,0,8,6,11,-47.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294550,Patrick,Miller,P. Miller,patrick-miller,G,,,36:24,5,14,0.357,0,2,0.0,5,7,0.714,2,2,4,3,1,1,1,2,15,-54.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294560,Bobi,Klintman,B. Klintman,bobi-klintman,,,,23:33,1,12,0.083,1,7,0.143,2,4,0.5,1,0,1,2,1,0,2,3,5,-32.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294558,Josh,Roberts,J. Roberts,josh-roberts,,,,26:22,5,6,0.833,0,0,0.0,0,0,0.0,3,7,10,0,1,0,1,1,10,-35.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294551,Taran,Armstrong,T. Armstrong,taran-armstrong,,,,23:40,2,5,0.4,0,0,0.0,2,2,1.0,0,0,0,8,3,0,6,3,6,-23.0,0012300014
+0012300014,15022,Cairns,Taipans,CNS,taipans,196294553,Jonah,Antonio,J. Antonio,jonah-antonio,,,,19:24,0,7,0.0,0,7,0.0,2,2,1.0,2,0,2,0,1,1,0,0,2,-22.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,20:11,2,4,0.5,0,1,0.0,1,2,0.5,2,4,6,3,3,1,0,4,5,29.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,20:14,7,10,0.7,3,5,0.6,5,5,1.0,0,4,4,2,0,0,1,0,22,30.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,19:46,5,6,0.833,0,0,0.0,5,7,0.714,2,6,8,0,1,5,1,1,15,28.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,20:03,6,13,0.462,4,8,0.5,2,2,1.0,0,1,1,2,0,0,3,2,18,28.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,19:27,3,5,0.6,1,2,0.5,4,4,1.0,0,2,2,5,1,0,0,0,11,28.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,16:14,5,7,0.714,3,4,0.75,2,2,1.0,0,4,4,3,1,0,1,2,15,20.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1626153,Delon,Wright,D. Wright,delon-wright,,,,16:33,1,1,1.0,0,0,0.0,2,2,1.0,0,2,2,6,3,0,3,0,4,20.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,17:39,4,7,0.571,2,5,0.4,1,3,0.333,0,1,1,1,0,0,2,2,11,19.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,8:17,0,3,0.0,0,0,0.0,2,2,1.0,0,1,1,3,2,0,0,1,2,12.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,21:38,6,8,0.75,0,1,0.0,1,1,1.0,0,5,5,2,1,2,1,3,13,28.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1641645,Xavier,Cooks,X. Cooks,xavier-cooks,,,,12:10,1,2,0.5,0,0,0.0,0,0,0.0,2,1,3,0,0,0,0,2,2,14.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,9:03,1,2,0.5,0,1,0.0,0,0,0.0,1,2,3,1,0,0,0,0,2,13.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1630647,Eugene,Omoruyi,E. Omoruyi,eugene-omoruyi,,,,12:00,6,8,0.75,1,2,0.5,3,4,0.75,1,1,2,0,3,0,0,1,16,15.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,12:00,3,9,0.333,0,2,0.0,0,0,0.0,0,2,2,3,1,0,1,2,6,15.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1631262,Jules,Bernard,J. Bernard,jules-bernard,,,,8:26,1,2,0.5,1,2,0.5,0,0,0.0,0,3,3,0,1,0,2,0,3,9.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,1641914,Chase,Audige,C. Audige,chase-audige,,,,6:19,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,0,3,0,7.0,0012300014
+0012300014,1610612764,Washington,Wizards,WAS,wizards,203488,Mike,Muscala,M. Muscala,mike-muscala,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300014

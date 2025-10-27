@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,29:15,3,6,0.5,0,1,0.0,0,0,0.0,1,3,4,0,0,3,0,2,6,21.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,26:14,5,9,0.556,3,4,0.75,0,0,0.0,1,5,6,2,1,0,1,0,13,20.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,28:56,4,7,0.571,1,2,0.5,1,2,0.5,2,12,14,10,2,0,1,3,10,23.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,36:59,18,26,0.692,5,9,0.556,4,4,1.0,0,2,2,6,2,0,5,0,45,14.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,26:15,3,11,0.273,1,3,0.333,2,2,1.0,2,4,6,3,2,1,4,2,9,22.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,26:59,2,6,0.333,1,3,0.333,4,4,1.0,0,5,5,1,1,1,1,2,9,10.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,,,,17:34,2,9,0.222,0,3,0.0,4,4,1.0,2,0,2,0,1,1,0,2,8,-1.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,17:39,1,3,0.333,1,3,0.333,0,0,0.0,0,3,3,3,0,0,1,4,3,-2.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,15:36,3,4,0.75,0,0,0.0,2,4,0.5,3,3,6,2,0,1,2,0,8,0.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,4:12,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,1,3,0.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,3:28,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,3,0,-4.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,3:28,1,1,1.0,0,0,0.0,2,2,1.0,0,1,1,0,0,0,2,0,4,-4.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,,,3:25,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-4.0,0022400559
+0022400559,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,F,,,21:46,5,8,0.625,0,2,0.0,1,1,1.0,0,2,2,4,0,0,1,1,11,-7.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,26:18,2,10,0.2,0,2,0.0,1,2,0.5,3,5,8,4,2,1,1,2,5,-19.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,3:56,2,3,0.667,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,4,-4.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,20:44,3,8,0.375,2,6,0.333,0,0,0.0,0,3,3,0,0,1,2,1,8,-13.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,30:20,4,18,0.222,0,3,0.0,3,4,0.75,1,3,4,2,4,1,1,1,11,-17.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,19:02,5,8,0.625,0,0,0.0,3,4,0.75,1,3,4,1,0,1,1,3,13,-6.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,18:11,4,7,0.571,2,4,0.5,0,0,0.0,1,0,1,3,0,0,0,2,10,-17.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,26:35,3,8,0.375,2,6,0.333,2,2,1.0,0,0,0,5,3,0,0,1,10,0.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,20:04,3,4,0.75,1,2,0.5,1,1,1.0,0,2,2,2,1,0,1,0,8,-16.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,20:19,2,9,0.222,0,3,0.0,1,2,0.5,1,1,2,4,1,0,4,3,5,-4.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,14:17,0,0,0.0,0,0,0.0,1,2,0.5,1,1,2,1,2,0,0,3,1,-2.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,14:16,4,6,0.667,1,3,0.333,1,4,0.25,0,2,2,1,1,1,1,0,10,10.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,4:12,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,0.0,0022400559
+0022400559,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400559

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,35:56,7,18,0.389,0,3,0.0,5,6,0.833,0,7,7,6,2,0,5,3,19,-2.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,31:43,9,17,0.529,0,0,0.0,5,7,0.714,4,3,7,3,0,0,3,1,23,-8.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,29:12,4,7,0.571,2,4,0.5,2,2,1.0,0,12,12,1,0,1,3,1,12,16.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,38:06,4,8,0.5,2,3,0.667,3,5,0.6,3,5,8,3,1,1,3,3,13,2.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,37:20,8,16,0.5,6,11,0.545,2,2,1.0,1,3,4,6,2,1,2,3,24,-1.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,18:53,3,6,0.5,0,1,0.0,0,0,0.0,2,3,5,0,2,1,2,4,6,-2.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,10:49,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,1,1,1,0,0.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,14:56,1,2,0.5,0,0,0.0,0,0,0.0,1,7,8,0,1,0,2,1,2,-4.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,9:14,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,2,0,0,0,2,3,14.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,13:52,3,6,0.5,3,6,0.5,0,0,0.0,0,1,1,1,0,0,0,2,9,20.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1629232,Kaiser,Gates,K. Gates,kaiser-gates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,29:16,4,7,0.571,1,3,0.333,0,0,0.0,0,4,4,0,0,0,1,2,9,-8.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,35:43,2,9,0.222,0,5,0.0,4,4,1.0,1,4,5,3,0,5,3,5,8,-1.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,C,,,33:42,7,16,0.438,1,5,0.2,2,2,1.0,4,8,12,4,3,1,0,2,17,3.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,36:08,11,22,0.5,5,10,0.5,4,5,0.8,0,5,5,5,2,1,2,1,31,6.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,G,,,32:06,6,11,0.545,2,6,0.333,3,6,0.5,0,0,0,3,2,0,5,3,17,3.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,27:53,4,7,0.571,1,3,0.333,0,0,0.0,1,4,5,2,0,0,1,2,9,-3.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,14:40,0,5,0.0,0,5,0.0,3,3,1.0,1,1,2,2,0,0,1,0,3,-14.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,14:38,1,3,0.333,0,2,0.0,0,0,0.0,0,2,2,1,1,0,0,4,2,-11.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,,,15:54,3,11,0.273,2,4,0.5,0,0,0.0,1,1,2,3,0,0,0,0,8,-10.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,,NWT - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071
+0022300071,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300071

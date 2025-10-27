@@ -1,0 +1,37 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,20:25,4,9,0.444,1,3,0.333,7,9,0.778,2,1,3,0,0,0,0,2,16,-22.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,24:42,2,8,0.25,0,0,0.0,0,0,0.0,0,3,3,3,0,0,1,0,4,-16.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,25:56,4,8,0.5,0,3,0.0,3,6,0.5,2,4,6,1,0,2,1,2,11,-13.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,G,,,22:27,4,10,0.4,1,4,0.25,0,0,0.0,0,5,5,3,0,0,3,3,9,-15.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,G,,,22:19,3,11,0.273,1,3,0.333,1,2,0.5,1,5,6,3,0,0,1,3,8,3.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1631100,AJ,Griffin,A. Griffin,aj-griffin,,,,20:26,6,10,0.6,3,4,0.75,0,0,0.0,1,1,2,2,1,0,1,1,15,8.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1630180,Saddiq,Bey,S. Bey,saddiq-bey,,,,19:57,7,10,0.7,2,3,0.667,5,5,1.0,3,7,10,0,2,0,0,0,21,1.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,23:40,4,5,0.8,0,0,0.0,0,0,0.0,0,3,3,4,0,0,3,1,8,14.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,22:04,2,4,0.5,0,0,0.0,4,5,0.8,1,2,3,3,0,0,5,5,8,9.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,201988,Patty,Mills,P. Mills,patty-mills,,,,5:21,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-16.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,10:20,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,3,8.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,,,,9:13,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,0,0,1,1,1,3,6.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,8:16,2,3,0.667,2,2,1.0,0,0,0.0,0,0,0,1,1,0,0,0,6,7.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1641754,Seth,Lundy,S. Lundy,seth-lundy,,,,4:54,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,6.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1641936,Miles,Norris,M. Norris,miles-norris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1628971,Bruce,Brown,B. Brown,bruce-brown,F,,,22:58,3,6,0.5,2,5,0.4,0,0,0.0,1,0,1,4,0,1,0,1,8,8.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,F,,,18:27,3,6,0.5,1,3,0.333,0,0,0.0,0,3,3,1,2,1,1,1,7,19.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,15:34,4,5,0.8,3,3,1.0,2,2,1.0,0,4,4,0,1,3,1,6,13,7.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,G,,,22:03,4,6,0.667,0,2,0.0,1,2,0.5,1,3,4,4,0,0,0,4,9,1.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,23:08,4,9,0.444,2,7,0.286,5,6,0.833,0,3,3,8,1,0,2,1,15,14.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,21:24,3,10,0.3,3,9,0.333,2,3,0.667,0,3,3,5,0,0,2,0,11,14.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,20:26,4,6,0.667,1,1,1.0,0,0,0.0,1,6,7,0,0,2,0,3,9,6.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,,,,16:20,6,10,0.6,3,6,0.5,0,0,0.0,1,0,1,1,0,0,0,3,15,4.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,19:58,3,5,0.6,0,1,0.0,1,1,1.0,1,2,3,9,1,0,2,1,7,-4.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,21:54,3,8,0.375,3,8,0.375,0,0,0.0,1,3,4,1,0,0,1,1,9,-4.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,14:08,2,8,0.25,0,2,0.0,0,0,0.0,0,2,2,1,0,1,0,1,4,-24.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,12:00,1,3,0.333,0,1,0.0,3,4,0.75,1,1,2,1,0,0,1,1,5,-9.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,,,6:46,2,3,0.667,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,2,4,-6.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,,,4:54,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,2,1,0,-6.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1631112,Kendall,Brown,K. Brown,kendall-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044
+0012300044,1610612754,Indiana,Pacers,IND,pacers,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300044

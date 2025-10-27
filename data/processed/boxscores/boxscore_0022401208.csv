@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,39:48,10,18,0.556,5,8,0.625,2,2,1.0,0,6,6,5,0,2,3,1,27,-8.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,36:04,7,13,0.538,2,7,0.286,0,2,0.0,2,6,8,1,1,1,0,3,16,1.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,26:31,6,10,0.6,2,4,0.5,0,0,0.0,2,5,7,2,1,1,1,4,14,-2.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,28:16,1,6,0.167,0,4,0.0,0,0,0.0,1,6,7,3,0,1,1,5,2,-20.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,36:04,6,15,0.4,2,8,0.25,3,3,1.0,1,4,5,6,3,1,7,5,17,-9.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,27:10,3,8,0.375,2,5,0.4,0,0,0.0,0,5,5,2,2,1,0,2,8,0.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,16:55,3,6,0.5,0,0,0.0,2,2,1.0,0,4,4,2,0,0,3,3,8,-5.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,17:37,3,6,0.5,1,2,0.5,0,0,0.0,0,1,1,3,0,0,1,2,7,-2.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,4:33,2,2,1.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,1,6,-3.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,7:02,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,1,2,0,-2.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401208
+0022401208,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,24:40,4,8,0.5,3,4,0.75,2,2,1.0,1,1,2,1,1,1,2,2,13,16.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,19:07,1,8,0.125,0,7,0.0,0,1,0.0,5,2,7,0,0,1,0,2,2,-4.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,33:22,7,9,0.778,0,0,0.0,7,10,0.7,3,8,11,2,1,1,1,0,21,8.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,34:19,7,18,0.389,4,11,0.364,2,3,0.667,0,6,6,6,1,0,1,1,20,4.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,33:23,6,17,0.353,3,10,0.3,9,10,0.9,0,5,5,8,2,0,4,0,24,4.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,27:45,3,9,0.333,0,3,0.0,8,12,0.667,2,3,5,6,1,1,2,1,14,11.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,22:10,4,8,0.5,2,5,0.4,0,0,0.0,2,3,5,1,0,0,0,2,10,5.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,24:03,3,10,0.3,3,9,0.333,0,0,0.0,2,4,6,2,1,0,0,2,9,4.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,10:59,0,1,0.0,0,0,0.0,0,2,0.0,1,2,3,0,0,1,0,3,0,4.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,10:12,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,1,3,0,1,1,2,-2.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401208
+0022401208,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401208

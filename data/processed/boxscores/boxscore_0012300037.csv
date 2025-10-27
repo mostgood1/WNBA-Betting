@@ -1,0 +1,42 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,19:03,1,5,0.2,0,4,0.0,0,0,0.0,0,3,3,2,3,1,0,2,2,-7.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,26:21,9,12,0.75,2,3,0.667,4,5,0.8,0,2,2,0,0,1,2,1,24,-11.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,C,,,11:54,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,0,0,2,1,1,1,-1.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,24:03,12,15,0.8,5,8,0.625,0,1,0.0,0,1,1,1,2,0,2,3,29,-1.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,32:42,6,17,0.353,2,7,0.286,3,4,0.75,0,1,1,8,1,0,2,4,17,-13.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,18:29,1,4,0.25,1,2,0.5,0,0,0.0,2,1,3,0,0,0,1,2,3,-3.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,29:13,8,15,0.533,2,5,0.4,2,2,1.0,2,5,7,4,2,0,3,2,20,-7.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,24:30,4,6,0.667,3,4,0.75,2,3,0.667,1,4,5,2,1,2,1,2,13,6.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,21:01,6,14,0.429,0,4,0.0,1,1,1.0,4,3,7,1,1,0,0,3,13,2.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,12:58,3,6,0.5,0,1,0.0,0,1,0.0,3,1,4,0,0,1,1,2,6,-1.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,12:00,2,8,0.25,1,4,0.25,0,0,0.0,0,1,1,4,3,0,2,2,5,9.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,7:46,0,0,0.0,0,0,0.0,0,0,0.0,3,0,3,2,0,0,0,1,0,2.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1631219,John,Butler Jr.,J. Butler Jr.,john-butler-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1642022,George,Conditt IV,G. Conditt IV,george-conditt-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,25:14,9,12,0.75,2,2,1.0,6,6,1.0,3,6,9,1,0,1,1,2,26,14.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,23:48,5,7,0.714,1,3,0.333,4,4,1.0,1,2,3,1,0,0,1,1,15,8.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,20:48,4,9,0.444,0,2,0.0,0,0,0.0,0,4,4,2,1,2,0,1,8,10.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,G,,,25:14,4,7,0.571,1,3,0.333,0,0,0.0,0,3,3,6,2,0,3,1,9,14.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,G,,,16:56,2,4,0.5,1,1,1.0,3,4,0.75,1,3,4,6,1,0,3,2,8,8.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,,,15:12,1,2,0.5,1,1,1.0,2,2,1.0,0,3,3,4,1,0,1,1,5,4.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,,,,19:04,3,7,0.429,2,3,0.667,8,8,1.0,0,1,1,6,1,1,2,2,16,6.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,10:46,4,4,1.0,1,1,1.0,0,0,0.0,0,0,0,0,1,0,0,1,9,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,,,,12:12,2,3,0.667,1,2,0.5,4,6,0.667,0,0,0,1,0,0,0,0,9,6.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,22:46,4,8,0.5,3,6,0.5,6,6,1.0,0,2,2,4,1,0,3,1,17,-9.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1631323,Simone,Fontecchio,S. Fontecchio,simone-fontecchio,,,,12:00,1,5,0.2,1,3,0.333,1,2,0.5,0,2,2,2,1,0,3,3,4,-9.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,,,,12:00,1,3,0.333,1,2,0.5,4,4,1.0,1,0,1,0,1,0,2,1,7,-9.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,,,12:00,1,2,0.5,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,0,2,-9.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,12:00,1,1,1.0,0,0,0.0,1,2,0.5,0,3,3,0,1,0,0,4,3,-9.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1630528,Josh,Christopher,J. Christopher,josh-christopher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1631238,Michael,Devoe,M. Devoe,michael-devoe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1641864,Keshawn,Justice,K. Justice,keshawn-justice,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1629641,Romeo,Langford,R. Langford,romeo-langford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037
+0012300037,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300037

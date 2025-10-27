@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,10:26,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,1,0,0,-6.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,33:36,5,14,0.357,1,6,0.167,4,4,1.0,3,5,8,3,0,0,2,2,15,-17.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,30:30,4,10,0.4,2,5,0.4,0,0,0.0,2,9,11,3,0,7,6,4,10,-12.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,39:36,9,19,0.474,1,5,0.2,3,4,0.75,2,6,8,3,0,1,3,1,22,-15.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,20:51,2,7,0.286,0,3,0.0,0,0,0.0,1,3,4,5,0,0,1,0,4,-5.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,33:35,5,12,0.417,3,5,0.6,5,6,0.833,1,5,6,2,0,0,1,1,18,-4.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,17:30,2,4,0.5,1,1,1.0,1,2,0.5,2,4,6,1,0,2,3,1,6,-1.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,26:19,8,14,0.571,4,7,0.571,0,0,0.0,0,1,1,2,0,0,1,2,20,-2.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,12:26,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,5,0,0,0,1,0,-1.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,15:11,3,4,0.75,0,1,0.0,0,0,0.0,1,3,4,0,1,0,0,0,6,-2.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891
+0022300891,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,36:16,0,3,0.0,0,2,0.0,0,0,0.0,0,3,3,2,2,0,0,2,0,20.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,25:14,1,6,0.167,0,3,0.0,0,0,0.0,2,1,3,1,0,1,0,2,2,-9.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,36:57,19,32,0.594,2,3,0.667,5,7,0.714,6,10,16,3,5,1,2,3,45,18.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,38:47,11,23,0.478,1,10,0.1,0,0,0.0,0,2,2,3,1,0,0,1,23,22.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,37:38,8,15,0.533,5,9,0.556,0,0,0.0,0,4,4,10,4,0,1,1,21,27.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,19:15,0,4,0.0,0,2,0.0,2,4,0.5,1,5,6,1,1,2,1,2,2,2.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,11:02,1,4,0.25,0,1,0.0,0,0,0.0,3,5,8,0,1,0,0,3,2,-5.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,5:21,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-12.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,20:20,9,16,0.563,1,4,0.25,0,0,0.0,4,4,8,1,1,0,1,0,19,-2.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,5:44,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,1,0,0,0,0.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,,,3:27,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891
+0022300891,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300891

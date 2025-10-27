@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400367,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,30:25,3,8,0.375,1,5,0.2,2,2,1.0,1,2,3,4,2,1,0,1,9,28.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,F,,,27:48,6,9,0.667,1,1,1.0,0,0,0.0,3,7,10,2,1,0,1,2,13,-4.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,37:38,10,12,0.833,5,5,1.0,7,9,0.778,3,17,20,6,2,0,4,2,32,31.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,35:36,12,18,0.667,4,8,0.5,1,1,1.0,2,4,6,6,1,0,3,2,29,35.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,29:45,5,14,0.357,2,5,0.4,2,2,1.0,1,2,3,7,1,0,3,1,14,8.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,28:56,6,13,0.462,4,9,0.444,0,0,0.0,2,3,5,8,1,0,1,0,16,23.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,18:46,3,6,0.5,0,0,0.0,0,0,0.0,2,4,6,0,0,0,2,3,6,-1.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,18:15,3,9,0.333,3,7,0.429,0,0,0.0,1,0,1,6,1,1,0,1,9,18.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,5:05,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-9.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,4:06,2,5,0.4,0,2,0.0,0,0,0.0,0,1,1,0,1,0,0,0,4,3.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,1:50,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,1:50,0,0,0.0,0,0,0.0,1,2,0.5,1,1,2,0,0,0,1,0,1,-1.0,0022400367
+0022400367,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,24:17,3,8,0.375,2,6,0.333,0,0,0.0,0,6,6,3,0,2,0,1,8,-18.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,30:28,8,17,0.471,4,8,0.5,4,6,0.667,2,3,5,3,0,0,5,2,24,-13.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,22:18,1,1,1.0,0,0,0.0,1,4,0.25,1,3,4,0,2,0,0,2,3,-37.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,33:35,7,16,0.438,3,7,0.429,0,0,0.0,0,5,5,7,3,1,2,0,17,-15.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,18:00,1,5,0.2,1,3,0.333,0,0,0.0,0,0,0,2,1,1,0,1,3,-19.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,15:38,1,7,0.143,1,4,0.25,0,0,0.0,0,2,2,2,0,0,1,4,3,-6.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,22:02,5,5,1.0,1,1,1.0,1,1,1.0,0,3,3,1,1,0,1,2,12,-21.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,25:28,5,9,0.556,3,6,0.5,2,2,1.0,1,5,6,3,0,0,2,1,15,-20.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,16:32,2,7,0.286,0,3,0.0,0,0,0.0,0,1,1,5,0,0,2,1,4,-8.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,10:34,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,9.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,10:34,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,1,0,0,0,0,5,9.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,10:34,5,8,0.625,1,2,0.5,0,0,0.0,2,0,2,1,3,1,0,0,11,9.0,0022400367
+0022400367,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628408,PJ,Dozier,P. Dozier,pj-dozier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400367

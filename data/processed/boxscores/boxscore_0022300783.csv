@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,36:29,5,17,0.294,2,10,0.2,7,7,1.0,4,6,10,2,2,0,1,3,19,-1.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,33:20,3,13,0.231,0,6,0.0,0,0,0.0,1,10,11,1,1,0,2,2,6,-2.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,34:14,8,16,0.5,1,2,0.5,2,7,0.286,3,2,5,6,1,1,1,6,19,-6.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,22:42,2,7,0.286,0,4,0.0,0,0,0.0,0,3,3,3,0,1,0,1,4,-3.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,G,,,33:43,9,17,0.529,0,0,0.0,1,3,0.333,6,6,12,2,2,1,2,6,19,-13.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,30:20,7,13,0.538,5,8,0.625,0,0,0.0,2,0,2,1,1,0,2,3,19,-14.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,15:22,2,7,0.286,1,1,1.0,2,4,0.5,4,2,6,1,1,0,1,2,7,-11.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,16:17,3,7,0.429,0,2,0.0,4,4,1.0,1,3,4,0,0,0,0,0,10,2.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,2:32,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,0,-5.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1630207,Nate,Hinton,N. Hinton,nate-hinton,,,,15:01,3,5,0.6,2,3,0.667,2,3,0.667,1,2,3,2,1,1,0,2,10,13.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300783
+0022300783,1610612745,Houston,Rockets,HOU,rockets,1631257,Jermaine,Samuels Jr.,J. Samuels Jr.,jermaine-samuels-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,34:32,1,6,0.167,0,4,0.0,10,12,0.833,1,7,8,7,3,1,2,1,12,-4.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,21:43,2,7,0.286,1,6,0.167,2,4,0.5,2,3,5,4,1,1,0,3,7,11.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,27:49,7,12,0.583,3,6,0.5,1,2,0.5,0,2,2,3,0,1,4,5,18,9.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,29:34,5,7,0.714,4,6,0.667,5,7,0.714,0,2,2,2,1,0,2,2,19,-4.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,20:00,3,4,0.75,2,2,1.0,0,0,0.0,0,3,3,2,1,2,2,3,8,-8.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,24:11,8,15,0.533,3,5,0.6,1,2,0.5,3,6,9,0,0,3,1,2,20,2.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,21:41,2,6,0.333,0,2,0.0,1,1,1.0,0,2,2,2,1,0,0,1,5,12.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,,,16:10,3,6,0.5,0,1,0.0,2,3,0.667,0,4,4,3,0,0,0,1,8,10.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,24:05,4,8,0.5,1,2,0.5,1,4,0.25,1,2,3,3,1,1,0,1,10,10.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,20:15,4,8,0.5,1,1,1.0,5,6,0.833,1,7,8,1,0,2,0,1,14,2.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300783
+0022300783,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300783

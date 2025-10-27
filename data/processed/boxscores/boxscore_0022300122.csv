@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,202330,Gordon,Hayward,G. Hayward,gordon-hayward,F,,,30:52,6,11,0.545,0,1,0.0,5,7,0.714,2,5,7,5,1,1,1,1,17,-3.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,35:01,8,13,0.615,5,6,0.833,2,2,1.0,1,2,3,0,0,0,1,2,23,0.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,25:17,3,4,0.75,0,0,0.0,3,6,0.5,3,3,6,1,2,2,1,0,9,-1.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,38:29,10,21,0.476,1,6,0.167,0,0,0.0,2,1,3,6,1,0,4,0,21,-1.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,33:25,7,15,0.467,2,6,0.333,3,4,0.75,1,0,1,5,1,0,3,4,19,-14.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,,,,23:56,4,9,0.444,1,3,0.333,1,2,0.5,1,4,5,2,0,0,1,5,10,-6.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,13:24,2,4,0.5,1,3,0.333,0,0,0.0,0,5,5,0,3,1,1,2,5,-15.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,,,18:43,3,6,0.5,0,0,0.0,4,4,1.0,4,4,8,0,0,4,1,3,10,-9.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1630177,Theo,Maledon,T. Maledon,theo-maledon,,,,20:53,2,7,0.286,1,2,0.5,0,0,0.0,1,5,6,2,1,0,3,2,5,4.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,,NWT - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,38:30,7,9,0.778,3,3,1.0,3,4,0.75,1,2,3,5,5,0,7,4,20,-3.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,30:06,7,10,0.7,3,5,0.6,0,0,0.0,0,6,6,4,0,1,2,3,17,-1.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,27:10,9,12,0.75,1,1,1.0,0,1,0.0,1,6,7,4,1,0,1,1,19,9.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,30:53,6,16,0.375,4,8,0.5,7,7,1.0,1,3,4,3,2,0,1,3,23,-4.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,38:58,8,17,0.471,5,10,0.5,1,1,1.0,0,3,3,11,0,0,2,1,22,14.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,18:55,1,5,0.2,1,2,0.5,1,2,0.5,1,5,6,5,0,0,0,4,4,17.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,13:13,1,3,0.333,0,1,0.0,2,2,1.0,0,1,1,1,1,0,1,3,4,10.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,19:06,1,7,0.143,0,3,0.0,2,2,1.0,3,2,5,1,1,1,1,1,4,2.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,12:18,2,3,0.667,2,2,1.0,3,4,0.75,0,2,2,0,0,0,1,1,9,2.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,10:51,2,2,1.0,2,2,1.0,0,0,0.0,0,1,1,1,0,0,1,1,6,-1.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1630207,Nate,Hinton,N. Hinton,nate-hinton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1631257,Jermaine,Samuels Jr.,J. Samuels Jr.,jermaine-samuels-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122
+0022300122,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300122

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300688,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,27:21,8,16,0.5,2,5,0.4,0,0,0.0,0,4,4,7,3,1,0,3,18,13.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,31:58,12,17,0.706,6,8,0.75,3,3,1.0,0,4,4,3,0,1,0,2,33,18.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,C,,,25:53,5,7,0.714,0,0,0.0,2,3,0.667,3,6,9,2,1,0,1,3,12,-4.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,23:51,4,4,1.0,0,0,0.0,4,4,1.0,1,0,1,0,0,0,1,1,12,-20.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,33:36,1,10,0.1,0,5,0.0,2,2,1.0,1,2,3,6,1,0,1,1,4,8.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,25:09,10,13,0.769,2,3,0.667,1,2,0.5,1,2,3,9,2,0,2,2,23,15.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,23:57,5,7,0.714,1,1,1.0,3,3,1.0,0,4,4,0,4,1,1,0,14,9.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,25:27,6,11,0.545,3,6,0.5,0,0,0.0,1,4,5,2,0,0,0,5,15,19.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,17:30,2,3,0.667,0,1,0.0,1,2,0.5,0,3,3,2,1,2,2,3,5,11.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,2:39,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,2:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-7.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300688
+0022300688,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,F,,,29:30,9,13,0.692,6,9,0.667,2,2,1.0,0,1,1,3,0,0,4,2,26,-8.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,F,,,18:24,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,2,1,0,1,3,0,16.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,31:10,5,7,0.714,0,0,0.0,1,2,0.5,2,11,13,2,0,0,0,1,11,-8.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,G,,,33:30,11,18,0.611,3,8,0.375,3,6,0.5,5,2,7,3,0,0,3,2,28,5.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,32:47,7,17,0.412,1,3,0.333,1,1,1.0,0,3,3,11,1,0,4,4,16,-11.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,,,,26:09,1,4,0.25,0,1,0.0,1,2,0.5,4,3,7,1,2,1,1,1,3,-11.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,202692,Alec,Burks,A. Burks,alec-burks,,,,20:47,2,10,0.2,1,7,0.143,1,1,1.0,1,1,2,1,1,1,1,0,6,-13.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1628420,Monté,Morris,M. Morris,monté-morris,,,,10:24,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-15.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,14:36,1,3,0.333,1,2,0.5,8,9,0.889,1,0,1,2,0,1,0,3,11,-10.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,20:30,8,10,0.8,5,6,0.833,0,0,0.0,0,1,1,2,0,0,2,2,21,-7.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,,,,2:14,1,1,1.0,0,0,0.0,1,1,1.0,0,1,1,0,0,0,0,0,3,7.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,203925,Joe,Harris,J. Harris,joe-harris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300688
+0022300688,1610612765,Detroit,Pistons,DET,pistons,1630165,Killian,Hayes,K. Hayes,killian-hayes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300688

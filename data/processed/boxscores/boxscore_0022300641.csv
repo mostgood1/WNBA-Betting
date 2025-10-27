@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,10:21,2,6,0.333,0,1,0.0,0,0,0.0,0,1,1,2,0,0,1,1,4,7.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,36:51,1,5,0.2,0,2,0.0,1,4,0.25,2,7,9,2,2,1,0,2,3,-21.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,34:07,10,17,0.588,0,0,0.0,0,0,0.0,2,10,12,2,2,0,2,2,20,-8.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,G,,,26:34,2,5,0.4,1,4,0.25,0,0,0.0,1,0,1,4,2,0,1,4,5,-6.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,40:51,14,27,0.519,7,15,0.467,5,5,1.0,0,2,2,10,1,0,5,3,40,-5.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,23:08,4,9,0.444,0,1,0.0,4,4,1.0,2,2,4,1,2,1,3,0,12,-9.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,6:27,1,2,0.5,1,1,1.0,3,3,1.0,0,1,1,0,0,0,0,0,6,8.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,12:38,1,4,0.25,0,2,0.0,1,2,0.5,1,2,3,0,0,0,0,2,3,-7.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,17:21,1,9,0.111,0,6,0.0,0,1,0.0,0,2,2,0,1,0,0,3,2,-22.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,22:02,0,3,0.0,0,3,0.0,0,0,0.0,0,2,2,1,1,1,1,1,0,-10.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,8:25,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,1,3,-6.0,0022300641
+0022300641,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,,,1:15,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,-1.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,18:58,2,4,0.5,0,2,0.0,1,1,1.0,0,4,4,3,1,0,1,0,5,6.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,31:48,12,20,0.6,4,7,0.571,3,3,1.0,4,10,14,2,2,0,2,0,31,8.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,28:36,7,18,0.389,3,7,0.429,6,6,1.0,3,9,12,4,2,2,7,1,23,23.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,32:11,5,14,0.357,2,7,0.286,3,5,0.6,0,4,4,2,0,0,1,1,15,19.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,24:17,3,4,0.75,1,1,1.0,2,2,1.0,0,1,1,7,3,0,1,0,9,24.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,23:43,0,5,0.0,0,1,0.0,1,2,0.5,0,2,2,8,2,0,1,1,1,-8.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,29:57,9,15,0.6,0,2,0.0,3,4,0.75,8,8,16,1,1,2,1,2,21,8.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,18:09,1,6,0.167,0,4,0.0,2,2,1.0,2,1,3,0,0,0,1,4,4,-8.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,17:30,3,4,0.75,0,1,0.0,1,1,1.0,0,3,3,1,1,1,2,1,7,-6.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,13:36,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,2,0,0,0,1,0,13.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,1:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,1.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300641
+0022300641,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300641

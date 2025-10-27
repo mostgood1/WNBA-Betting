@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,27:24,2,8,0.25,1,6,0.167,0,0,0.0,0,2,2,3,4,0,1,2,5,-22.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,33:31,17,22,0.773,0,0,0.0,3,8,0.375,1,10,11,4,1,1,1,4,37,0.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,23:34,4,8,0.5,3,6,0.5,1,2,0.5,0,3,3,1,0,0,0,4,12,-35.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,18:09,4,12,0.333,0,7,0.0,1,1,1.0,0,2,2,0,1,0,0,1,9,-23.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,33:21,1,12,0.083,0,6,0.0,2,2,1.0,1,1,2,6,1,0,1,3,4,-29.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,24:57,5,14,0.357,1,5,0.2,0,0,0.0,5,2,7,0,1,0,1,2,11,-17.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,15:55,1,7,0.143,1,5,0.2,0,0,0.0,0,3,3,2,0,0,1,2,3,-2.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,,,20:42,3,4,0.75,2,2,1.0,0,0,0.0,0,1,1,2,0,1,0,2,8,10.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,18:48,1,2,0.5,0,1,0.0,0,2,0.0,1,4,5,1,2,1,2,5,2,8.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,4:44,1,3,0.333,0,1,0.0,0,0,0.0,1,1,2,0,0,0,1,0,2,-1.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,4:44,1,2,0.5,1,2,0.5,1,2,0.5,0,0,0,1,0,1,1,0,4,-1.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1641857,Liam,Robbins,L. Robbins,liam-robbins,,,,4:44,1,1,1.0,0,0,0.0,0,2,0.0,0,0,0,0,0,0,0,0,2,-1.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,4:44,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022400128
+0022400128,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,,,4:44,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,2,0,-1.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,33:06,7,14,0.5,1,4,0.25,4,4,1.0,2,7,9,2,1,0,3,1,19,9.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,26:09,5,12,0.417,0,4,0.0,3,3,1.0,0,5,5,2,0,0,3,4,13,4.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,23:44,5,9,0.556,0,0,0.0,0,0,0.0,2,6,8,0,1,1,1,3,10,5.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,G,,,35:37,5,9,0.556,3,6,0.5,3,3,1.0,1,6,7,1,0,0,1,2,16,7.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,28:55,9,16,0.563,2,5,0.4,6,7,0.857,1,9,10,14,1,0,3,0,26,29.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,26:53,5,8,0.625,1,3,0.333,5,5,1.0,0,3,3,1,1,0,3,2,16,9.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,16:35,1,4,0.25,0,2,0.0,2,2,1.0,0,2,2,1,0,1,1,4,4,3.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,32:43,3,6,0.5,1,3,0.333,4,6,0.667,1,9,10,3,2,0,1,4,11,30.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,11:40,3,3,1.0,0,0,0.0,1,1,1.0,0,2,2,2,0,0,0,1,7,18.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,,,2:55,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630658,Colin,Castleton,C. Castleton,colin-castleton,,,,1:43,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,-1.0,0022400128
+0022400128,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400128

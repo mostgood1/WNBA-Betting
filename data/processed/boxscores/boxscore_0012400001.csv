@@ -1,0 +1,43 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,19:04,3,9,0.333,1,5,0.2,1,2,0.5,1,1,2,2,1,1,2,3,8,-8.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,19:04,4,11,0.364,3,7,0.429,1,2,0.5,3,3,6,5,0,0,2,1,12,-8.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,C,,,21:10,3,5,0.6,0,0,0.0,0,0,0.0,4,7,11,3,1,0,1,1,6,12.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,19:04,3,9,0.333,1,4,0.25,2,2,1.0,0,1,1,0,2,1,3,2,9,-8.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,12:00,2,7,0.286,0,4,0.0,0,0,0.0,1,0,1,0,0,0,0,0,4,-7.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,14:50,2,5,0.4,2,3,0.667,0,0,0.0,1,2,3,1,2,1,1,3,6,-13.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,16:56,2,8,0.25,2,8,0.25,1,1,1.0,0,1,1,3,2,0,0,0,7,7.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,24:00,6,13,0.462,6,12,0.5,3,4,0.75,1,3,4,6,0,0,3,1,21,6.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,11:45,0,3,0.0,0,1,0.0,0,0,0.0,2,0,2,1,0,0,0,2,0,12.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,,,24:40,3,7,0.429,2,6,0.333,1,2,0.5,3,1,4,4,0,3,0,3,9,12.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,12:55,3,3,1.0,0,0,0.0,0,0,0.0,0,3,3,0,0,1,2,3,6,0.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1631120,JD,Davison,J. Davison,jd-davison,,,,12:00,1,3,0.333,1,3,0.333,4,4,1.0,0,2,2,1,2,1,0,2,7,5.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,,,12:00,4,9,0.444,2,5,0.4,0,0,0.0,1,2,3,0,1,0,1,1,10,5.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1631248,Baylor,Scheierman,B. Scheierman,baylor-scheierman,,,,7:44,0,3,0.0,0,2,0.0,0,0,0.0,0,1,1,1,1,0,1,1,0,5.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1641817,Anton,Watson,A. Watson,anton-watson,,,,4:16,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,1,0,0.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,4:16,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,0.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1631376,Dmytro,Skapintsev,D. Skapintsev,dmytro-skapintsev,,,,4:09,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,1.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1631199,Ron,Harper Jr.,R. Harper Jr.,ron-harper-jr,,,,0:07,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-1.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,1642400,Tristan,Enaruna,T. Enaruna,tristan-enaruna,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,,DND - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001
+0012400001,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,14:51,5,8,0.625,1,3,0.333,1,2,0.5,1,1,2,0,1,0,3,1,12,2.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,15:15,3,10,0.3,1,4,0.25,0,0,0.0,1,2,3,3,2,0,1,1,7,0.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,16:42,5,7,0.714,0,0,0.0,4,5,0.8,3,5,8,2,2,0,1,2,14,4.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,G,,,13:01,2,4,0.5,0,1,0.0,1,2,0.5,1,4,5,3,1,1,1,0,5,7.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,15:15,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,2,2,0,2,1,3,0.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,18:32,3,10,0.3,3,6,0.5,3,4,0.75,1,3,4,8,0,0,2,2,12,4.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,18:27,2,5,0.4,2,3,0.667,0,0,0.0,1,2,3,1,0,0,2,6,6,13.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,22:37,4,8,0.5,1,3,0.333,2,2,1.0,0,2,2,2,0,1,0,3,11,4.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1628427,Vlatko,Čančar,V. Čančar,vlatko-čančar,,,,20:58,2,5,0.4,1,2,0.5,1,2,0.5,1,2,3,1,0,0,4,0,6,-11.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,14:25,2,4,0.5,0,1,0.0,1,1,1.0,1,2,3,1,0,0,1,2,5,7.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,12:00,1,2,0.5,0,0,0.0,0,0,0.0,0,4,4,1,0,0,1,1,2,-6.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,15:04,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,1,0,0,0,0,3,-15.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,,,4:27,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-10.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,,,15:10,1,5,0.2,0,0,0.0,1,2,0.5,1,3,4,2,2,0,1,2,3,-9.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,12:00,4,7,0.571,1,2,0.5,1,2,0.5,1,5,6,0,0,0,1,1,10,-5.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1642443,Jahmir,Young,J. Young,jahmir-young,,,,7:45,1,1,1.0,0,0,0.0,2,4,0.5,0,0,0,2,0,0,1,2,4,-4.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1641790,PJ,Hall,P. Hall,pj-hall,,,,3:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,1.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1642440,Gabe,McGlothan,G. McGlothan,gabe-mcglothan,,,,0:04,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-2.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1641747,DaRon,Holmes II,D. Holmes II,daron-holmes-ii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001
+0012400001,1610612743,Denver,Nuggets,DEN,nuggets,1642444,Jaylin,Williams,J. Williams,jaylin-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400001

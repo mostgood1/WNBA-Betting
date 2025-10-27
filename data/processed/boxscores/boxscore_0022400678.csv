@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400678,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,31:27,8,17,0.471,1,5,0.2,7,8,0.875,2,1,3,3,0,0,1,4,24,-7.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,33:15,10,23,0.435,0,4,0.0,1,3,0.333,1,5,6,3,1,0,3,1,21,-23.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,17:53,1,1,1.0,0,0,0.0,0,0,0.0,1,2,3,2,1,1,2,3,2,-18.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,G,,,18:50,0,3,0.0,0,1,0.0,0,0,0.0,1,1,2,1,0,0,2,2,0,-17.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,23:57,2,5,0.4,0,2,0.0,0,0,0.0,0,2,2,0,0,0,0,1,4,-25.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,13:18,1,2,0.5,1,2,0.5,0,0,0.0,1,0,1,0,0,1,0,1,3,2.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,23:49,6,15,0.4,3,7,0.429,1,1,1.0,1,0,1,2,1,1,2,4,16,-12.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,,,25:19,3,7,0.429,0,1,0.0,6,6,1.0,2,5,7,1,1,0,1,2,12,-3.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,,,,20:39,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,1,1,1,0,-17.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,15:44,1,2,0.5,0,0,0.0,2,2,1.0,3,2,5,1,3,2,0,1,4,-2.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,6:13,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,0,0,0,1,2,2,-7.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,4:48,0,1,0.0,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-8.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,4:48,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-8.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400678
+0022400678,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,24:37,2,8,0.25,0,2,0.0,7,8,0.875,0,5,5,5,0,2,1,1,11,16.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,35:10,3,4,0.75,0,1,0.0,1,2,0.5,0,5,5,2,0,2,2,4,7,25.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,34:37,10,12,0.833,0,0,0.0,2,4,0.5,4,4,8,3,3,0,2,0,22,31.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,32:19,7,16,0.438,3,5,0.6,6,6,1.0,2,3,5,7,2,0,3,3,23,27.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,21:30,3,9,0.333,2,4,0.5,0,0,0.0,0,2,2,3,0,1,0,0,8,-2.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,14:47,3,5,0.6,2,4,0.5,3,4,0.75,0,2,2,0,0,0,1,0,11,4.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,32:47,9,14,0.643,3,6,0.5,2,2,1.0,1,1,2,2,1,0,1,2,23,26.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,7:44,0,1,0.0,0,0,0.0,0,0,0.0,2,1,3,1,0,0,0,5,0,-4.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,6:27,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,3.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,19:01,3,4,0.75,2,2,1.0,2,2,1.0,0,4,4,0,0,0,2,3,10,13.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,3:48,0,2,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,2.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,3:48,1,2,0.5,0,1,0.0,1,2,0.5,0,1,1,0,0,0,0,0,3,2.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,3:24,0,0,0.0,0,0,0.0,1,1,1.0,0,0,0,0,0,0,0,0,1,2.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400678
+0022400678,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400678

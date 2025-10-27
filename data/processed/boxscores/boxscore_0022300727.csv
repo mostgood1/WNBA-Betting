@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,23:13,9,14,0.643,2,3,0.667,1,2,0.5,4,6,10,1,1,1,0,1,21,17.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,29:11,7,14,0.5,0,3,0.0,4,6,0.667,1,5,6,5,1,0,1,0,18,22.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,C,,,18:07,2,4,0.5,0,1,0.0,0,1,0.0,1,5,6,3,1,1,2,3,4,14.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,28:16,6,12,0.5,4,5,0.8,2,2,1.0,1,2,3,1,0,1,0,1,18,24.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,24:36,2,7,0.286,1,4,0.25,4,4,1.0,0,3,3,1,0,1,4,2,9,13.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,25:21,3,8,0.375,0,2,0.0,0,0,0.0,1,4,5,5,2,0,0,2,6,5.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,13:44,3,5,0.6,1,2,0.5,2,2,1.0,0,3,3,2,1,0,2,2,9,-4.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,24:09,4,7,0.571,4,7,0.571,1,2,0.5,0,2,2,4,0,0,2,4,13,4.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,17:09,4,8,0.5,0,0,0.0,1,1,1.0,3,6,9,2,0,2,0,3,9,15.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,19:18,3,8,0.375,2,7,0.286,0,0,0.0,1,1,2,3,0,2,1,0,8,1.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,8:02,0,2,0.0,0,1,0.0,2,2,1.0,0,1,1,1,1,0,0,2,2,-2.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,5:13,3,4,0.75,2,3,0.667,0,0,0.0,0,1,1,1,0,0,0,0,8,4.0,0022300727
+0022300727,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,3:41,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,2.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,24:30,5,15,0.333,1,4,0.25,0,0,0.0,1,2,3,0,0,1,1,2,11,-15.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,29:24,6,14,0.429,0,1,0.0,1,1,1.0,0,7,7,3,0,1,1,1,13,-22.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,C,,,31:06,3,6,0.5,0,1,0.0,0,0,0.0,4,4,8,4,2,2,0,3,6,-8.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,G,,,23:24,3,9,0.333,0,3,0.0,2,2,1.0,2,2,4,1,2,1,1,2,8,-11.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,29:49,5,14,0.357,2,7,0.286,0,0,0.0,0,2,2,3,1,1,3,2,12,-27.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,22:57,5,8,0.625,1,2,0.5,2,2,1.0,0,3,3,5,0,0,3,1,13,-17.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,,,16:17,0,3,0.0,0,2,0.0,0,0,0.0,3,1,4,0,0,2,1,0,0,-5.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,8:44,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,1,0,0,2,3,0,-5.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,28:32,6,10,0.6,2,3,0.667,1,1,1.0,1,4,5,2,1,0,1,1,15,-9.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,10:02,4,7,0.571,1,3,0.333,8,8,1.0,0,0,0,0,0,0,0,1,17,4.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1631173,Terquavion,Smith,T. Smith,terquavion-smith,,,,10:02,3,8,0.375,1,4,0.25,0,0,0.0,0,1,1,2,1,0,1,0,7,4.0,0022300727
+0022300727,1610612755,Philadelphia,76ers,PHI,sixers,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,,,5:13,1,4,0.25,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-4.0,0022300727

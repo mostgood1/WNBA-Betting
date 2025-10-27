@@ -1,0 +1,24 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,22:31,4,6,0.667,3,4,0.75,0,0,0.0,0,4,4,5,0,0,2,0,11,-28.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,34:50,6,17,0.353,3,5,0.6,4,4,1.0,1,2,3,5,1,0,4,4,19,-6.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,C,,,32:09,6,10,0.6,0,0,0.0,0,0,0.0,5,1,6,2,0,2,1,5,12,-16.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,G,,,24:12,4,6,0.667,4,6,0.667,0,0,0.0,0,3,3,4,0,1,4,2,12,-10.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,26:09,2,4,0.5,1,3,0.333,0,0,0.0,1,3,4,5,0,0,0,1,5,-14.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,24:21,4,8,0.5,3,5,0.6,1,2,0.5,0,3,3,4,1,0,0,1,12,-1.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,,,11:48,2,4,0.5,1,1,1.0,2,2,1.0,0,3,3,2,1,0,3,0,7,-1.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,20:30,2,4,0.5,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,1,4,10.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,20:50,5,10,0.5,3,6,0.5,3,6,0.5,0,5,5,1,1,2,1,1,16,14.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,22:40,6,11,0.545,3,5,0.6,0,2,0.0,1,2,3,3,0,0,3,0,15,2.0,0022300722
+0022300722,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630562,Matt,Hurt,M. Hurt,matt-hurt,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,F,,,40:18,8,13,0.615,1,2,0.5,0,0,0.0,2,3,5,3,3,1,0,2,17,-1.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,37:16,3,7,0.429,1,2,0.5,3,4,0.75,1,9,10,4,0,0,1,1,10,20.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,34:59,7,8,0.875,0,0,0.0,3,4,0.75,4,5,9,3,1,3,3,3,17,12.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,31:15,11,21,0.524,1,4,0.25,4,5,0.8,0,3,3,8,3,0,2,1,27,-3.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,40:04,12,18,0.667,4,9,0.444,4,5,0.8,0,5,5,5,3,1,2,1,32,9.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,31:26,5,14,0.357,2,6,0.333,0,0,0.0,1,2,3,3,2,0,0,4,12,0.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,13:01,0,1,0.0,0,1,0.0,2,2,1.0,0,1,1,1,0,0,1,0,2,-2.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,11:41,2,4,0.5,2,3,0.667,0,0,0.0,0,1,1,1,0,0,1,0,6,15.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1629718,Charlie,Brown Jr.,C. Brown Jr.,charlie-brown-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300722
+0022300722,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300722

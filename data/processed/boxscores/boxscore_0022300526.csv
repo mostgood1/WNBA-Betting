@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,36:35,10,16,0.625,4,6,0.667,0,0,0.0,1,4,5,4,0,0,4,4,24,0.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,34:29,5,10,0.5,1,5,0.2,1,3,0.333,0,7,7,6,0,2,2,1,12,-9.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,C,,,23:25,4,5,0.8,0,1,0.0,0,0,0.0,2,2,4,3,2,0,2,1,8,-2.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,33:30,8,13,0.615,1,5,0.2,5,5,1.0,0,1,1,4,0,0,2,1,22,-1.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,36:28,7,16,0.438,2,4,0.5,9,9,1.0,0,4,4,6,1,0,1,1,25,-5.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1629007,Jontay,Porter,J. Porter,jontay-porter,,,,18:19,4,8,0.5,1,3,0.333,0,0,0.0,3,4,7,4,0,0,3,4,9,2.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,24:11,5,9,0.556,2,4,0.5,0,0,0.0,1,2,3,2,0,0,0,1,12,-9.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,13:13,1,2,0.5,0,0,0.0,0,0,0.0,0,3,3,1,1,0,0,2,2,0.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,8:29,1,2,0.5,1,1,1.0,0,0,0.0,0,2,2,1,0,0,0,2,3,4.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,11:21,1,3,0.333,0,1,0.0,1,1,1.0,0,1,1,0,0,0,0,0,3,-10.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,37:45,10,18,0.556,2,4,0.5,7,7,1.0,2,1,3,7,1,2,0,3,29,-5.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,38:16,12,22,0.545,5,9,0.556,0,0,0.0,0,7,7,6,2,1,0,4,29,15.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,31:09,6,8,0.75,0,0,0.0,0,0,0.0,5,6,11,3,0,1,2,2,12,1.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,23:42,5,5,1.0,3,3,1.0,0,0,0.0,2,0,2,1,0,0,1,1,13,6.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,33:40,5,13,0.385,2,7,0.286,2,2,1.0,0,5,5,11,1,0,3,4,14,8.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,14:20,3,9,0.333,0,1,0.0,0,0,0.0,0,0,0,3,0,0,0,0,6,-2.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,27:22,4,11,0.364,3,8,0.375,2,2,1.0,0,3,3,1,0,0,0,1,13,2.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,17:52,3,5,0.6,0,2,0.0,0,0,0.0,0,1,1,1,1,0,0,1,6,3.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,15:54,1,2,0.5,0,0,0.0,2,2,1.0,2,2,4,1,1,1,1,1,4,2.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526
+0022300526,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300526

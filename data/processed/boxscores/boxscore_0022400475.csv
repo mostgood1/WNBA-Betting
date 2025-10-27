@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,F,,,24:29,3,8,0.375,1,4,0.25,1,2,0.5,1,2,3,4,0,0,1,2,8,18.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,31:51,4,10,0.4,0,3,0.0,0,0,0.0,1,3,4,3,0,0,1,0,8,10.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,33:25,14,22,0.636,4,6,0.667,3,4,0.75,3,15,18,4,1,2,7,5,35,17.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,36:13,7,16,0.438,1,4,0.25,3,6,0.5,1,5,6,6,2,0,0,0,18,-18.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,31:14,3,11,0.273,1,6,0.167,0,0,0.0,0,8,8,11,0,0,1,1,7,-6.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,14:35,2,5,0.4,0,1,0.0,0,0,0.0,3,2,5,0,1,1,0,5,4,-14.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,25:00,6,11,0.545,3,6,0.5,0,0,0.0,2,2,4,0,0,0,1,1,15,-6.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,26:27,6,14,0.429,3,6,0.5,1,1,1.0,2,2,4,1,0,0,1,0,16,5.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,,,,16:46,1,2,0.5,0,0,0.0,0,0,0.0,1,3,4,2,0,0,1,1,2,9.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1629646,Charles,Bassey,C. Bassey,charles-bassey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,42:45,3,10,0.3,2,6,0.333,3,4,0.75,1,7,8,5,0,2,0,2,11,0.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,41:46,9,14,0.643,4,8,0.5,0,0,0.0,1,3,4,1,0,2,1,0,22,7.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,36:39,15,36,0.417,3,10,0.3,8,9,0.889,4,14,18,9,2,0,2,3,41,7.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,31:14,4,7,0.571,1,2,0.5,0,2,0.0,1,5,6,8,2,0,3,5,9,6.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,36:33,6,17,0.353,2,5,0.4,0,0,0.0,1,3,4,7,0,0,2,1,14,-7.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,22:57,4,7,0.571,3,6,0.5,0,0,0.0,0,1,1,1,1,0,0,2,11,1.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,18:37,1,4,0.25,0,1,0.0,0,1,0.0,1,1,2,2,2,2,0,0,2,-10.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,5:21,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,1,0,0,0,-11.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,4:08,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,0,-8.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475
+0022400475,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400475

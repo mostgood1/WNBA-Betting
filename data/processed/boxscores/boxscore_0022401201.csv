@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401201,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,F,,,15:53,1,5,0.2,0,1,0.0,4,4,1.0,1,1,2,0,0,0,3,1,6,7.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,F,,,34:01,2,5,0.4,0,2,0.0,4,4,1.0,3,8,11,5,1,1,2,6,8,14.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,38:01,6,13,0.462,0,2,0.0,0,0,0.0,5,9,14,4,1,1,0,5,12,-4.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,31:19,3,7,0.429,0,2,0.0,1,2,0.5,0,1,1,1,1,0,0,2,7,-1.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,37:41,12,26,0.462,3,11,0.273,5,6,0.833,3,6,9,1,4,1,4,2,32,2.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,19:12,6,6,1.0,1,1,1.0,0,0,0.0,1,2,3,1,1,0,1,1,13,-14.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,32:16,6,12,0.5,0,0,0.0,5,8,0.625,2,4,6,3,3,1,3,3,17,-14.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,14:39,2,12,0.167,0,3,0.0,0,0,0.0,0,0,0,2,0,0,0,0,4,-12.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,4:29,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-2.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,12:30,3,7,0.429,2,5,0.4,2,3,0.667,0,0,0,1,0,0,0,1,10,-1.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1630644,Mac,McClung,M. McClung,mac-mcclung,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,20:26,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,1,0,0,0,0,-4.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,35:36,15,24,0.625,0,2,0.0,7,12,0.583,1,6,7,1,2,4,6,1,37,5.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,28:25,3,7,0.429,1,3,0.333,0,0,0.0,0,6,6,0,0,0,2,2,7,-8.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,8:10,2,4,0.5,1,3,0.333,0,0,0.0,1,1,2,0,0,0,0,2,5,-9.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,38:44,8,15,0.533,2,5,0.4,10,10,1.0,1,1,2,9,1,0,4,4,28,2.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,32:34,3,9,0.333,3,8,0.375,0,0,0.0,0,4,4,2,0,1,2,2,9,13.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,31:50,9,11,0.818,2,3,0.667,2,3,0.667,2,8,10,4,1,1,0,1,22,11.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,,,,19:47,0,2,0.0,0,1,0.0,0,0,0.0,0,4,4,8,3,0,2,2,0,4.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,24:28,2,4,0.5,2,4,0.5,0,0,0.0,0,0,0,2,1,0,0,3,6,11.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1642358,AJ,Johnson,A. Johnson,aj-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201
+0022401201,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401201

@@ -1,0 +1,452 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012400029,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:12 PM EST),period,start,0,0,1,0012400029
+0012400029,4,PT12M00.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Jump Ball Dieng vs. Mennenga: Tip to Jones,Jump Ball,,1,0,2,0012400029
+0012400029,7,PT11M45.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,-135,220,26,Made,1,3,0,3,h,Dieng 26' 3PT Step Back Jump Shot (3 PTS),Made Shot,Step Back Jump shot,1,3,3,0012400029
+0012400029,8,PT11M29.00S,1,15020,NZB,196295063,Mooney,M. Mooney,-229,6,0,Made,1,3,3,6,v,Mooney 3PT Jump Shot (3 PTS) (Jackson-Cartwright 1 AST),Made Shot,Jump Shot,1,3,4,0012400029
+0012400029,10,PT11M02.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,-158,190,25,Missed,1,,,0,h,MISS Ducas 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,5,0012400029
+0012400029,11,PT10M57.00S,1,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,6,0012400029
+0012400029,12,PT10M40.00S,1,15020,NZB,196295063,Mooney,M. Mooney,1,62,6,Missed,1,,,0,v,MISS Mooney 6' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,7,0012400029
+0012400029,12,PT10M40.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng BLOCK (1 BLK),,,1,2,8,0012400029
+0012400029,14,PT10M37.00S,1,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,9,0012400029
+0012400029,15,PT10M34.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,-56,267,27,Missed,1,,,0,v,MISS Jackson-Cartwright 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,10,0012400029
+0012400029,16,PT10M30.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,11,0012400029
+0012400029,17,PT10M18.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,34,8,3,Made,1,5,3,8,h,Ducas 3' Reverse Layup (2 PTS) (Leons 1 AST),Made Shot,Reverse Layup Shot,1,2,12,0012400029
+0012400029,19,PT09M50.00S,1,15020,NZB,196295063,Mooney,M. Mooney,228,2,0,Made,1,5,6,11,v,Mooney 3PT Jump Shot (6 PTS) (Jackson-Cartwright 2 AST),Made Shot,Jump Shot,1,3,13,0012400029
+0012400029,21,PT09M36.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,-227,8,0,Made,1,8,6,14,h,Flagler 3PT Jump Shot (3 PTS) (Dieng 1 AST),Made Shot,Jump Shot,1,3,14,0012400029
+0012400029,23,PT09M10.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas S.FOUL (P1.T1) (B.Adair),Foul,Shooting,1,0,15,0012400029
+0012400029,25,PT09M10.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,8,7,15,v,Mennenga Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,16,0012400029
+0012400029,26,PT09M10.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,8,8,16,v,Mennenga Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,17,0012400029
+0012400029,27,PT08M56.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,243,20,24,Made,1,11,8,19,h,Flagler 24' 3PT Jump Shot (6 PTS) (Dieng 2 AST),Made Shot,Jump Shot,1,3,18,0012400029
+0012400029,29,PT08M41.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,19,0012400029
+0012400029,29,PT08M41.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones STEAL (1 STL),,,1,0,20,0012400029
+0012400029,31,PT08M31.00S,1,1610612760,OKC,1642502,Leons,M. Leons,-1,4,0,Made,1,13,8,21,h,Leons Driving Dunk (2 PTS) (Dieng 3 AST),Made Shot,Driving Dunk Shot,1,2,21,0012400029
+0012400029,33,PT08M11.00S,1,15020,NZB,196295063,Mooney,M. Mooney,232,-8,0,Made,1,13,11,24,v,Mooney 3PT Jump Shot (9 PTS) (Jackson-Cartwright 3 AST),Made Shot,Jump Shot,1,3,22,0012400029
+0012400029,35,PT07M57.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,-214,117,24,Missed,1,,,0,h,MISS Ducas 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,23,0012400029
+0012400029,36,PT07M51.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,24,0012400029
+0012400029,37,PT07M42.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,36,6,4,Made,1,13,13,26,v,Jackson-Cartwright 4' Driving Finger Roll Layup (2 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,25,0012400029
+0012400029,38,PT07M32.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,-148,205,25,Made,1,16,13,29,h,Flagler 25' 3PT Jump Shot (9 PTS) (Jones 1 AST),Made Shot,Jump Shot,1,3,26,0012400029
+0012400029,40,PT07M06.00S,1,15020,NZB,196295063,Mooney,M. Mooney,156,216,27,Made,1,16,16,32,v,Mooney 27' 3PT Pullup Jump Shot (12 PTS) (Jackson-Cartwright 4 AST),Made Shot,Pullup Jump shot,1,3,27,0012400029
+0012400029,42,PT06M45.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,-82,276,29,Made,1,19,16,35,h,Flagler 29' 3PT Jump Shot (12 PTS) (Dieng 4 AST),Made Shot,Jump Shot,1,3,28,0012400029
+0012400029,44,PT06M25.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,-32,17,4,Made,1,19,18,37,v,Mennenga 4' Layup (4 PTS) (Darling 1 AST),Made Shot,Layup Shot,1,2,29,0012400029
+0012400029,46,PT06M17.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,-16,11,2,Made,1,21,18,39,h,Dieng 2' Cutting Layup Shot (5 PTS),Made Shot,Cutting Layup Shot,1,2,30,0012400029
+0012400029,48,PT06M02.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga Lost Ball Turnover (P1.T2),Turnover,Lost Ball,1,0,31,0012400029
+0012400029,48,PT06M02.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler STEAL (1 STL),,,1,0,32,0012400029
+0012400029,50,PT05M55.00S,1,1610612760,OKC,1641794,Jones,D. Jones,-96,242,26,Missed,1,,,0,h,MISS Jones 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,33,0012400029
+0012400029,51,PT05M50.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,34,0012400029
+0012400029,52,PT05M46.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,25,18,3,Made,1,21,20,41,v,Jackson-Cartwright 3' Running Layup (4 PTS),Made Shot,Running Layup Shot,1,2,35,0012400029
+0012400029,53,PT05M46.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler S.FOUL (P1.T2) (M.Lindsay),Foul,Shooting,1,0,36,0012400029
+0012400029,55,PT05M46.00S,1,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,37,0012400029
+0012400029,56,PT05M46.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,SUB: Reese FOR Jones,Substitution,,0,0,38,0012400029
+0012400029,57,PT05M46.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,SUB: Ryan FOR Ducas,Substitution,,0,0,39,0012400029
+0012400029,58,PT05M46.00S,1,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,SUB: Gillespie FOR Darling,Substitution,,0,0,40,0012400029
+0012400029,59,PT05M46.00S,1,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,SUB: Anticevich FOR Mennenga,Substitution,,0,0,41,0012400029
+0012400029,64,PT05M46.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,21,21,42,v,Jackson-Cartwright Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,42,0012400029
+0012400029,65,PT05M23.00S,1,1610612760,OKC,1642502,Leons,M. Leons,22,13,3,Made,1,23,21,44,h,Leons 3' Driving Dunk (4 PTS),Made Shot,Driving Dunk Shot,1,2,43,0012400029
+0012400029,66,PT05M04.00S,1,15020,NZB,196295063,Mooney,M. Mooney,223,89,24,Missed,1,,,0,v,MISS Mooney 24' 3PT Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,3,44,0012400029
+0012400029,67,PT05M01.00S,1,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,45,0012400029
+0012400029,68,PT04M55.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright P.FOUL (P1.T1) (M.Lindsay),Foul,Personal,1,0,46,0012400029
+0012400029,70,PT04M55.00S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,SUB: King FOR Jackson-Cartwright,Substitution,,0,0,47,0012400029
+0012400029,71,PT04M55.00S,1,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: McCarron FOR Mooney,Substitution,,0,0,48,0012400029
+0012400029,74,PT04M46.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,-108,239,26,Missed,1,,,0,h,MISS Dieng 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,49,0012400029
+0012400029,75,PT04M43.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,50,0012400029
+0012400029,76,PT04M36.00S,1,15020,NZB,196295059,King,M. King,-228,44,0,Made,1,23,24,47,v,King 3PT Jump Shot (3 PTS) (Anticevich 1 AST),Made Shot,Jump Shot,1,3,51,0012400029
+0012400029,78,PT04M14.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,34,21,4,Missed,1,,,0,h,MISS Dieng 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,52,0012400029
+0012400029,79,PT04M09.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,53,0012400029
+0012400029,80,PT03M59.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng S.FOUL (P1.T3) (M.Lindsay),Foul,Shooting,1,0,54,0012400029
+0012400029,82,PT03M59.00S,1,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,23,25,48,v,Bairstow Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,55,0012400029
+0012400029,83,PT03M59.00S,1,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,23,26,49,v,Bairstow Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,56,0012400029
+0012400029,85,PT03M37.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,-150,220,27,Missed,1,,,0,h,MISS Dieng 27' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,57,0012400029
+0012400029,86,PT03M35.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,58,0012400029
+0012400029,87,PT03M23.00S,1,15020,NZB,196295067,Gillespie,F. Gillespie,6,123,12,Made,1,23,28,51,v,Gillespie 12' Jump Shot (2 PTS) (McCarron 1 AST),Made Shot,Jump Shot,1,2,59,0012400029
+0012400029,89,PT03M03.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,38,253,26,Missed,1,,,0,h,MISS Flagler 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,60,0012400029
+0012400029,90,PT02M59.00S,1,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,61,0012400029
+0012400029,91,PT02M49.00S,1,15020,NZB,196295055,Bairstow,S. Bairstow,-49,92,10,Made,1,23,30,53,v,Bairstow 10' Jump Shot (4 PTS) (McCarron 2 AST),Made Shot,Jump Shot,1,2,62,0012400029
+0012400029,93,PT02M37.00S,1,1610612760,OKC,1642024,Reese,A. Reese,-162,194,25,Missed,1,,,0,h,MISS Reese 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,63,0012400029
+0012400029,94,PT02M34.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,64,0012400029
+0012400029,95,PT02M29.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron P.FOUL (P1.T2) (M.Lindsay),Foul,Personal,1,0,65,0012400029
+0012400029,97,PT02M29.00S,1,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,66,0012400029
+0012400029,98,PT02M29.00S,1,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,SUB: Ducas FOR Dieng,Substitution,,0,0,67,0012400029
+0012400029,99,PT02M29.00S,1,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,SUB: Jones FOR Flagler,Substitution,,0,0,68,0012400029
+0012400029,100,PT02M29.00S,1,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,SUB: Kopp FOR Leons,Substitution,,0,0,69,0012400029
+0012400029,101,PT02M29.00S,1,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: Davison FOR Bairstow,Substitution,,0,0,70,0012400029
+0012400029,109,PT02M19.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Lost Ball Turnover (P1.T1),Turnover,Lost Ball,1,0,71,0012400029
+0012400029,109,PT02M19.00S,1,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie STEAL (1 STL),,,1,0,72,0012400029
+0012400029,111,PT02M13.00S,1,15020,NZB,196295067,Gillespie,F. Gillespie,-4,8,1,Made,1,23,32,55,v,Gillespie 1' Running Dunk (4 PTS),Made Shot,Running Dunk Shot,1,2,73,0012400029
+0012400029,113,PT02M04.00S,1,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich S.FOUL (P1.T3) (M.Lindsay),Foul,Shooting,1,0,74,0012400029
+0012400029,115,PT02M04.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,24,32,56,h,Ducas Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,75,0012400029
+0012400029,116,PT02M04.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,MISS Ducas Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,76,0012400029
+0012400029,117,PT01M54.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,77,0012400029
+0012400029,118,PT01M41.00S,1,15020,NZB,196295061,Anticevich,G. Anticevich,-159,-4,16,Missed,1,,,0,v,MISS Anticevich 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,78,0012400029
+0012400029,119,PT01M35.00S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,79,0012400029
+0012400029,120,PT01M34.00S,1,1610612760,OKC,1641794,Jones,D. Jones,-1,15,2,Missed,1,,,0,h,MISS Jones 2' Running Layup,Missed Shot,Running Layup Shot,1,2,80,0012400029
+0012400029,120,PT01M34.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron BLOCK (1 BLK),,,1,2,81,0012400029
+0012400029,122,PT01M34.00S,1,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,82,0012400029
+0012400029,123,PT01M25.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P1.T4) (M.Lindsay),Foul,Personal,1,0,83,0012400029
+0012400029,125,PT01M09.00S,1,15020,NZB,196295067,Gillespie,F. Gillespie,123,112,17,Missed,1,,,0,v,MISS Gillespie 17' Jump Shot,Missed Shot,Jump Shot,1,2,84,0012400029
+0012400029,126,PT01M04.00S,1,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,85,0012400029
+0012400029,127,PT00M59.40S,1,1610612760,OKC,1641794,Jones,D. Jones,147,243,28,Made,1,27,32,59,h,Jones 28' 3PT Running Pull-Up Jump Shot (3 PTS),Made Shot,Running Pull-Up Jump Shot,1,3,86,0012400029
+0012400029,128,PT00M55.80S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron Out of Bounds - Bad Pass Turnover Turnover (P1.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,87,0012400029
+0012400029,129,PT00M54.30S,1,1610612760,OKC,1642504,Ryan,C. Ryan,-228,-6,0,Made,1,30,32,62,h,Ryan 3PT Jump Shot (3 PTS) (Jones 2 AST),Made Shot,Jump Shot,1,3,88,0012400029
+0012400029,131,PT00M35.90S,1,15020,NZB,196295060,McCarron,M. McCarron,-40,55,7,Missed,1,,,0,v,MISS McCarron 7' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,89,0012400029
+0012400029,132,PT00M31.50S,1,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,90,0012400029
+0012400029,133,PT00M29.50S,1,1610612760,OKC,1641794,Jones,D. Jones,51,14,5,Missed,1,,,0,h,MISS Jones 5' Running Layup,Missed Shot,Running Layup Shot,1,2,91,0012400029
+0012400029,134,PT00M28.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,92,0012400029
+0012400029,135,PT00M28.00S,1,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich S.FOUL (P2.T4) (B.Adair),Foul,Shooting,1,0,93,0012400029
+0012400029,137,PT00M28.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,31,32,63,h,Jones Free Throw 1 of 2 (4 PTS),Free Throw,Free Throw 1 of 2,1,0,94,0012400029
+0012400029,138,PT00M28.00S,1,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,SUB: Jackson-Cartwright FOR McCarron,Substitution,,0,0,95,0012400029
+0012400029,139,PT00M28.00S,1,15020,NZB,196295065,Davison,C. Davison,0,0,0,,0,,,0,v,SUB: Mooney FOR Davison,Substitution,,0,0,96,0012400029
+0012400029,142,PT00M28.00S,1,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,32,32,64,h,Jones Free Throw 2 of 2 (5 PTS),Free Throw,Free Throw 2 of 2,1,0,97,0012400029
+0012400029,143,PT00M14.60S,1,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,Ryan S.FOUL (P1.PN) (M.Lindsay),Foul,Shooting,1,0,98,0012400029
+0012400029,145,PT00M14.60S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,32,33,65,v,Jackson-Cartwright Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,99,0012400029
+0012400029,146,PT00M14.60S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,32,34,66,v,Jackson-Cartwright Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,100,0012400029
+0012400029,147,PT00M06.00S,1,1610612760,OKC,1641794,Jones,D. Jones,23,16,3,Made,1,34,34,68,h,Jones 3' Driving Layup (7 PTS),Made Shot,Driving Layup Shot,1,2,101,0012400029
+0012400029,148,PT00M06.00S,1,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie Violation:Defensive Goaltending (B.Adair),Violation,Defensive Goaltending,1,0,102,0012400029
+0012400029,149,PT00M00.20S,1,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,40,39,6,Made,1,34,36,70,v,Jackson-Cartwright 6' Driving Floating Jump Shot (9 PTS),Made Shot,Driving Floating Jump Shot,1,2,103,0012400029
+0012400029,209,PT00M00.00S,1,0,,0,,,0,0,0,,0,34,36,70,,End of 1st Period (8:37 PM EST),period,end,1,0,104,0012400029
+0012400029,212,PT12M00.00S,2,0,,0,,,0,0,0,,0,34,36,70,,Start of 2nd Period (8:38 PM EST),period,start,0,0,105,0012400029
+0012400029,157,PT11M46.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,-20,27,3,Missed,1,,,0,v,MISS Mennenga 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,106,0012400029
+0012400029,158,PT11M43.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,107,0012400029
+0012400029,159,PT11M37.00S,2,1610612760,OKC,1642024,Reese,A. Reese,189,218,29,Missed,1,,,0,h,MISS Reese 29' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,108,0012400029
+0012400029,160,PT11M34.00S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,109,0012400029
+0012400029,161,PT11M27.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,-232,86,25,Missed,1,,,0,v,MISS Jackson-Cartwright 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,110,0012400029
+0012400029,162,PT11M23.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,111,0012400029
+0012400029,163,PT11M06.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,-194,156,25,Missed,1,,,0,h,MISS Ducas 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,112,0012400029
+0012400029,164,PT11M03.00S,2,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,113,0012400029
+0012400029,165,PT10M56.00S,2,15020,NZB,196295059,King,M. King,-224,-1,0,Made,1,34,39,73,v,King 3PT Running Jump Shot (6 PTS) (Mooney 1 AST),Made Shot,Running Jump Shot,1,3,114,0012400029
+0012400029,166,PT10M36.00S,2,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,Darling P.FOUL (P1.T1) (B.Adair),Foul,Personal,1,0,115,0012400029
+0012400029,168,PT10M31.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,176,176,25,Missed,1,,,0,h,MISS Ducas 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,116,0012400029
+0012400029,169,PT10M28.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,117,0012400029
+0012400029,170,PT10M22.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright Bad Pass Turnover (P2.T4),Turnover,Bad Pass,1,0,118,0012400029
+0012400029,170,PT10M22.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones STEAL (2 STL),,,1,0,119,0012400029
+0012400029,172,PT10M14.00S,2,1610612760,OKC,1642046,Kopp,M. Kopp,-28,58,6,Missed,1,,,0,h,MISS Kopp 6' Jump Shot,Missed Shot,Jump Shot,1,2,120,0012400029
+0012400029,173,PT10M12.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,121,0012400029
+0012400029,174,PT10M12.00S,2,1610612760,OKC,1641794,Jones,D. Jones,-27,41,5,Missed,1,,,0,h,MISS Jones 5' Layup,Missed Shot,Layup Shot,1,2,122,0012400029
+0012400029,174,PT10M12.00S,2,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,Darling BLOCK (1 BLK),,,1,2,123,0012400029
+0012400029,176,PT10M10.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,124,0012400029
+0012400029,332,PT10M10.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,SUB: Bairstow FOR Jackson-Cartwright,Substitution,,0,0,125,0012400029
+0012400029,334,PT10M10.00S,2,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,SUB: Floyd FOR King,Substitution,,0,0,126,0012400029
+0012400029,182,PT10M09.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,-190,5,19,Missed,1,,,0,h,MISS Ducas 19' Jump Shot,Missed Shot,Jump Shot,1,2,127,0012400029
+0012400029,183,PT10M07.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,128,0012400029
+0012400029,184,PT10M02.00S,2,15020,NZB,196295069,Floyd,J. Floyd,-16,6,2,Made,1,34,41,75,v,Floyd 2' Running Layup (2 PTS) (Bairstow 1 AST),Made Shot,Running Layup Shot,1,2,129,0012400029
+0012400029,186,PT09M48.00S,2,1610612760,OKC,1641794,Jones,D. Jones,70,116,14,Made,1,36,41,77,h,Jones 14' Step Back Jump Shot (9 PTS),Made Shot,Step Back Jump shot,1,2,130,0012400029
+0012400029,187,PT09M34.00S,2,15020,NZB,196295063,Mooney,M. Mooney,88,174,19,Missed,1,,,0,v,MISS Mooney 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,131,0012400029
+0012400029,188,PT09M33.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,132,0012400029
+0012400029,189,PT09M22.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Out of Bounds Lost Ball Turnover (P2.T2),Turnover,Out of Bounds Lost Ball Turnover,1,0,133,0012400029
+0012400029,340,PT09M22.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,SUB: Flagler FOR Jones,Substitution,,0,0,134,0012400029
+0012400029,357,PT09M22.00S,2,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,SUB: Leons FOR Kopp,Substitution,,0,0,135,0012400029
+0012400029,358,PT09M22.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,SUB: Dieng FOR Ducas,Substitution,,0,0,136,0012400029
+0012400029,196,PT09M07.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,-31,7,3,Missed,1,,,0,v,MISS Mennenga 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,137,0012400029
+0012400029,197,PT09M05.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,138,0012400029
+0012400029,198,PT09M00.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,232,54,24,Missed,1,,,0,v,MISS Bairstow 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,139,0012400029
+0012400029,199,PT08M58.00S,2,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,140,0012400029
+0012400029,200,PT08M50.00S,2,1610612760,OKC,1641745,Flagler,A. Flagler,59,22,6,Missed,1,,,0,h,MISS Flagler 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,141,0012400029
+0012400029,201,PT08M49.00S,2,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,142,0012400029
+0012400029,202,PT08M48.00S,2,1610612760,OKC,1642502,Leons,M. Leons,32,20,4,Missed,1,,,0,h,MISS Leons 4' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,143,0012400029
+0012400029,203,PT08M47.00S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,144,0012400029
+0012400029,204,PT08M23.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,137,209,25,Made,1,36,44,80,v,Mennenga 25' 3PT Jump Shot (7 PTS) (Mooney 2 AST),Made Shot,Jump Shot,1,3,145,0012400029
+0012400029,206,PT08M12.00S,2,1610612760,OKC,1642024,Reese,A. Reese,-2,6,1,Made,1,38,44,82,h,Reese 1' Dunk (2 PTS) (Leons 2 AST),Made Shot,Dunk Shot,1,2,146,0012400029
+0012400029,326,PT07M48.00S,2,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler S.FOUL (P2.T1) (M.Lindsay),Foul,Shooting,1,0,147,0012400029
+0012400029,312,PT07M48.00S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,38,45,83,v,Mooney Free Throw 1 of 2 (13 PTS),Free Throw,Free Throw 1 of 2,0,0,148,0012400029
+0012400029,313,PT07M48.00S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,38,46,84,v,Mooney Free Throw 2 of 2 (14 PTS),Free Throw,Free Throw 2 of 2,0,0,149,0012400029
+0012400029,215,PT07M30.00S,2,1610612760,OKC,1642504,Ryan,C. Ryan,27,8,3,Made,1,40,46,86,h,Ryan 3' Cutting Layup Shot (5 PTS),Made Shot,Cutting Layup Shot,1,2,150,0012400029
+0012400029,216,PT07M19.00S,2,15020,NZB,196295062,Darling,M. Darling,-221,123,25,Made,1,40,49,89,v,Darling 25' 3PT Jump Shot (3 PTS),Made Shot,Jump Shot,1,3,151,0012400029
+0012400029,218,PT07M06.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga S.FOUL (P1.T2) (M.Lindsay),Foul,Shooting,1,0,152,0012400029
+0012400029,220,PT07M06.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,41,49,90,h,Dieng Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,153,0012400029
+0012400029,221,PT07M06.00S,2,1610612760,OKC,1642024,Reese,A. Reese,0,0,0,,0,,,0,h,SUB: Ducas FOR Reese,Substitution,,0,0,154,0012400029
+0012400029,222,PT07M06.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: McCarron FOR Bairstow,Substitution,,0,0,155,0012400029
+0012400029,223,PT07M06.00S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: Gillespie FOR Mooney,Substitution,,0,0,156,0012400029
+0012400029,347,PT07M06.00S,2,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,SUB: Jones FOR Flagler,Substitution,,0,0,157,0012400029
+0012400029,227,PT07M06.00S,2,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,SUB: Bairstow FOR Mennenga,Substitution,,0,0,158,0012400029
+0012400029,229,PT07M06.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,MISS Dieng Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,159,0012400029
+0012400029,230,PT07M02.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,160,0012400029
+0012400029,231,PT06M52.00S,2,1610612760,OKC,1642502,Leons,M. Leons,23,-8,2,Made,1,43,49,92,h,Leons 2' Layup (6 PTS) (Jones 3 AST),Made Shot,Layup Shot,1,2,161,0012400029
+0012400029,234,PT06M34.00S,2,15020,NZB,196295062,Darling,M. Darling,-21,7,2,Missed,1,,,0,v,MISS Darling 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,162,0012400029
+0012400029,234,PT06M34.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones BLOCK (1 BLK),,,1,2,163,0012400029
+0012400029,236,PT06M34.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,164,0012400029
+0012400029,237,PT06M34.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Step Out of Bounds Turnover (P3.T3),Turnover,Step Out of Bounds Turnover,1,0,165,0012400029
+0012400029,238,PT06M31.00S,2,15020,NZB,196295069,Floyd,J. Floyd,11,128,13,Made,1,43,51,94,v,Floyd 13' Jump Shot (4 PTS),Made Shot,Jump Shot,0,2,166,0012400029
+0012400029,239,PT06M14.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,25,5,3,Made,1,45,51,96,h,Dieng 3' Driving Dunk (8 PTS),Made Shot,Driving Dunk Shot,1,2,167,0012400029
+0012400029,240,PT06M04.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas P.FOUL (P2.T2) (B.Adair),Foul,Personal,1,0,168,0012400029
+0012400029,242,PT05M56.00S,2,15020,NZB,196295069,Floyd,J. Floyd,-129,109,17,Missed,1,,,0,v,MISS Floyd 17' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,169,0012400029
+0012400029,243,PT05M54.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,170,0012400029
+0012400029,245,PT05M40.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,93,142,17,Missed,1,,,0,h,MISS Dieng 17' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,171,0012400029
+0012400029,246,PT05M36.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,172,0012400029
+0012400029,247,PT05M30.00S,2,15020,NZB,196295069,Floyd,J. Floyd,0,0,0,,0,,,0,v,Floyd Lost Ball Turnover (P1.T5),Turnover,Lost Ball,1,0,173,0012400029
+0012400029,247,PT05M30.00S,2,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons STEAL (1 STL),,,1,0,174,0012400029
+0012400029,249,PT05M26.00S,2,1610612760,OKC,1642502,Leons,M. Leons,23,15,3,Made,1,47,51,98,h,Leons 3' Running Dunk (8 PTS),Made Shot,Running Dunk Shot,1,2,175,0012400029
+0012400029,250,PT05M26.00S,2,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,176,0012400029
+0012400029,255,PT05M06.00S,2,15020,NZB,196295069,Floyd,J. Floyd,-131,138,19,Missed,1,,,0,v,MISS Floyd 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,177,0012400029
+0012400029,256,PT05M01.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,178,0012400029
+0012400029,257,PT04M53.00S,2,15020,NZB,196295062,Darling,M. Darling,-20,16,3,Made,1,47,53,100,v,Darling 3' Driving Reverse Layup (5 PTS),Made Shot,Driving Reverse Layup Shot,1,2,179,0012400029
+0012400029,258,PT04M40.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie P.FOUL (P1.T3) (M.Lindsay),Foul,Personal,1,0,180,0012400029
+0012400029,260,PT04M40.00S,2,15020,NZB,196295069,Floyd,J. Floyd,0,0,0,,0,,,0,v,SUB: King FOR Floyd,Substitution,,0,0,181,0012400029
+0012400029,262,PT04M34.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,-10,15,2,Missed,1,,,0,h,MISS Dieng 2' Driving Dunk,Missed Shot,Driving Dunk Shot,1,2,182,0012400029
+0012400029,262,PT04M34.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie BLOCK (1 BLK),,,1,2,183,0012400029
+0012400029,264,PT04M30.00S,2,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,184,0012400029
+0012400029,265,PT04M27.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,218,130,25,Missed,1,,,0,v,MISS Bairstow 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,185,0012400029
+0012400029,266,PT04M27.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,186,0012400029
+0012400029,268,PT04M26.00S,2,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,SUB: Anticevich FOR Darling,Substitution,,0,0,187,0012400029
+0012400029,270,PT04M11.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,174,184,25,Missed,1,,,0,h,MISS Dieng 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,188,0012400029
+0012400029,271,PT04M08.00S,2,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,189,0012400029
+0012400029,272,PT04M03.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Bad Pass Turnover (P4.T4),Turnover,Bad Pass,1,0,190,0012400029
+0012400029,272,PT04M03.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow STEAL (1 STL),,,1,0,191,0012400029
+0012400029,274,PT04M02.00S,2,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons P.FOUL (P1.T3) (A.Moyer-Gleich),Foul,Personal,1,0,192,0012400029
+0012400029,276,PT04M02.00S,2,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,SUB: Flagler FOR Ryan,Substitution,,0,0,193,0012400029
+0012400029,278,PT03M38.00S,2,15020,NZB,196295060,McCarron,M. McCarron,-131,262,29,Missed,1,,,0,v,MISS McCarron 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,194,0012400029
+0012400029,279,PT03M32.00S,2,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,195,0012400029
+0012400029,280,PT03M25.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,36,9,4,Made,1,49,53,102,h,Ducas 4' Reverse Layup (5 PTS) (Jones 4 AST),Made Shot,Reverse Layup Shot,1,2,196,0012400029
+0012400029,282,PT03M10.00S,2,15020,NZB,196295061,Anticevich,G. Anticevich,-232,28,0,Missed,1,,,0,v,MISS Anticevich 3PT Jump Shot,Missed Shot,Jump Shot,1,3,197,0012400029
+0012400029,283,PT03M07.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,198,0012400029
+0012400029,284,PT02M54.00S,2,1610612760,OKC,1631172,Dieng,O. Dieng,-229,0,0,Made,1,52,53,105,h,Dieng 3PT Pullup Jump Shot (11 PTS) (Flagler 1 AST),Made Shot,Pullup Jump shot,1,3,199,0012400029
+0012400029,286,PT02M52.00S,2,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,200,0012400029
+0012400029,289,PT02M52.00S,2,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: Jackson-Cartwright FOR Bairstow,Substitution,,0,0,201,0012400029
+0012400029,290,PT02M52.00S,2,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,SUB: Mooney FOR McCarron,Substitution,,0,0,202,0012400029
+0012400029,295,PT02M36.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,-142,155,21,Missed,1,,,0,v,MISS Jackson-Cartwright 21' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,203,0012400029
+0012400029,296,PT02M30.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,204,0012400029
+0012400029,297,PT02M22.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie S.FOUL (P2.T4) (A.Moyer-Gleich),Foul,Shooting,1,0,205,0012400029
+0012400029,299,PT02M22.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,53,53,106,h,Jones Free Throw 1 of 2 (10 PTS),Free Throw,Free Throw 1 of 2,1,0,206,0012400029
+0012400029,300,PT02M22.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,MISS Jones Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,207,0012400029
+0012400029,301,PT02M21.00S,2,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,208,0012400029
+0012400029,302,PT02M14.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,-9,99,10,Made,1,53,55,108,v,Jackson-Cartwright 10' Driving Floating Jump Shot (11 PTS),Made Shot,Driving Floating Jump Shot,1,2,209,0012400029
+0012400029,303,PT02M01.00S,2,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Traveling Turnover (P5.T5),Turnover,Traveling,1,0,210,0012400029
+0012400029,304,PT01M48.00S,2,15020,NZB,196295061,Anticevich,G. Anticevich,-33,117,12,Made,1,53,57,110,v,Anticevich 12' Turnaround Jump Shot (2 PTS) (Jackson-Cartwright 5 AST),Made Shot,Turnaround Jump Shot,1,2,211,0012400029
+0012400029,306,PT01M31.00S,2,1610612760,OKC,1642505,Ducas,A. Ducas,-17,24,3,Made,1,55,57,112,h,Ducas 3' Driving Layup (7 PTS) (Dieng 5 AST),Made Shot,Driving Layup Shot,1,2,212,0012400029
+0012400029,308,PT01M08.00S,2,15020,NZB,196295061,Anticevich,G. Anticevich,-130,232,27,Missed,1,,,0,v,MISS Anticevich 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,213,0012400029
+0012400029,309,PT01M08.00S,2,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,214,0012400029
+0012400029,310,PT00M55.70S,2,15020,NZB,196295059,King,M. King,-185,199,27,Made,1,55,60,115,v,King 27' 3PT Jump Shot (9 PTS) (Jackson-Cartwright 6 AST),Made Shot,Jump Shot,1,3,215,0012400029
+0012400029,314,PT00M37.60S,2,1610612760,OKC,1641794,Jones,D. Jones,42,22,5,Made,1,57,60,117,h,Jones 5' Pullup Jump Shot (12 PTS),Made Shot,Pullup Jump shot,1,2,216,0012400029
+0012400029,315,PT00M14.40S,2,15020,NZB,196295067,Gillespie,F. Gillespie,66,112,13,Missed,1,,,0,v,MISS Gillespie 13' Jump Shot,Missed Shot,Jump Shot,1,2,217,0012400029
+0012400029,316,PT00M12.50S,2,0,,15020,,,0,0,0,,0,,,0,v,Breakers Rebound,Rebound,Unknown,1,0,218,0012400029
+0012400029,317,PT00M12.50S,2,0,,15020,,,0,0,0,,0,,,0,v,Breakers Turnover: Shot Clock (T#6),Turnover,Shot Clock Turnover,1,0,219,0012400029
+0012400029,318,PT00M12.50S,2,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,SUB: Darling FOR Anticevich,Substitution,,0,0,220,0012400029
+0012400029,319,PT00M12.50S,2,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: Mennenga FOR Mooney,Substitution,,0,0,221,0012400029
+0012400029,322,PT00M04.00S,2,1610612760,OKC,1641794,Jones,D. Jones,146,232,27,Made,1,60,60,120,h,Jones 27' 3PT Pullup Jump Shot (15 PTS),Made Shot,Pullup Jump shot,1,3,222,0012400029
+0012400029,323,PT00M00.00S,2,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,105,422,43,Missed,1,,,0,v,MISS Jackson-Cartwright 43' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,223,0012400029
+0012400029,324,PT00M00.00S,2,0,,15020,,,0,0,0,,0,,,0,v,Breakers Rebound,Rebound,Unknown,1,0,224,0012400029
+0012400029,325,PT00M00.00S,2,0,,0,,,0,0,0,,0,60,60,120,,End of 2nd Period (9:04 PM EST),period,end,1,0,225,0012400029
+0012400029,346,PT12M00.00S,3,0,,0,,,0,0,0,,0,60,60,120,,Start of 3rd Period (9:20 PM EST),period,start,0,0,226,0012400029
+0012400029,349,PT11M43.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons P.FOUL (P2.T1) (A.Moyer-Gleich),Foul,Personal,1,0,227,0012400029
+0012400029,351,PT11M36.00S,3,15020,NZB,196295063,Mooney,M. Mooney,99,32,10,Made,1,60,62,122,v,Mooney 10' Driving Floating Bank Jump Shot (16 PTS) (Jackson-Cartwright 7 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,228,0012400029
+0012400029,353,PT11M12.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney S.FOUL (P1.T1) (A.Moyer-Gleich),Foul,Shooting,1,0,229,0012400029
+0012400029,355,PT11M12.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,61,62,123,h,Jones Free Throw 1 of 2 (16 PTS),Free Throw,Free Throw 1 of 2,1,0,230,0012400029
+0012400029,356,PT11M12.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,62,62,124,h,Jones Free Throw 2 of 2 (17 PTS),Free Throw,Free Throw 2 of 2,1,0,231,0012400029
+0012400029,361,PT10M59.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,232,0012400029
+0012400029,361,PT10M59.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons STEAL (2 STL),,,1,0,233,0012400029
+0012400029,363,PT10M51.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,-143,132,19,Made,1,64,62,126,h,Flagler 19' Step Back Jump Shot (14 PTS),Made Shot,Step Back Jump shot,1,2,234,0012400029
+0012400029,364,PT10M38.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler P.FOUL (P3.T2) (A.Moyer-Gleich),Foul,Personal,1,0,235,0012400029
+0012400029,366,PT10M22.00S,3,15020,NZB,196295063,Mooney,M. Mooney,-127,237,27,Missed,1,,,0,v,MISS Mooney 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,236,0012400029
+0012400029,367,PT10M15.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,237,0012400029
+0012400029,372,PT10M14.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright P.FOUL (P2.T2) (M.Lindsay),Foul,Personal,1,0,238,0012400029
+0012400029,374,PT10M02.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,119,130,18,Made,1,66,62,128,h,Flagler 18' Pullup Jump Shot (16 PTS),Made Shot,Pullup Jump shot,1,2,239,0012400029
+0012400029,375,PT09M42.00S,3,15020,NZB,196295056,Mennenga,S. Mennenga,-17,6,2,Made,1,66,64,130,v,Mennenga 2' Driving Layup (9 PTS),Made Shot,Driving Layup Shot,1,2,240,0012400029
+0012400029,377,PT09M26.00S,3,1610612760,OKC,1641794,Jones,D. Jones,31,11,3,Made,1,68,64,132,h,Jones 3' Driving Layup (19 PTS),Made Shot,Driving Layup Shot,1,2,241,0012400029
+0012400029,378,PT09M09.00S,3,15020,NZB,196295063,Mooney,M. Mooney,186,185,26,Missed,1,,,0,v,MISS Mooney 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,242,0012400029
+0012400029,379,PT09M06.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,243,0012400029
+0012400029,380,PT08M55.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,-229,12,0,Made,1,71,64,135,h,Ducas 3PT Jump Shot (10 PTS) (Jones 5 AST),Made Shot,Jump Shot,1,3,244,0012400029
+0012400029,382,PT08M30.00S,3,15020,NZB,196295056,Mennenga,S. Mennenga,-38,258,26,Missed,1,,,0,v,MISS Mennenga 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,245,0012400029
+0012400029,383,PT08M27.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,246,0012400029
+0012400029,384,PT08M20.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,-159,205,26,Missed,1,,,0,h,MISS Ducas 26' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,247,0012400029
+0012400029,385,PT08M16.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,248,0012400029
+0012400029,386,PT07M58.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,161,208,26,Missed,1,,,0,v,MISS Bairstow 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,249,0012400029
+0012400029,387,PT07M55.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,250,0012400029
+0012400029,388,PT07M52.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,39,24,5,Missed,1,,,0,v,MISS Jackson-Cartwright 5' Putback Layup,Missed Shot,Putback Layup Shot,1,2,251,0012400029
+0012400029,388,PT07M52.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng BLOCK (2 BLK),,,1,2,252,0012400029
+0012400029,390,PT07M48.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,253,0012400029
+0012400029,391,PT07M47.00S,3,15020,NZB,196295063,Mooney,M. Mooney,33,-1,3,Missed,1,,,0,v,MISS Mooney 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,254,0012400029
+0012400029,392,PT07M46.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,255,0012400029
+0012400029,393,PT07M46.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,Missed,1,,,0,v,MISS Mooney Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,256,0012400029
+0012400029,394,PT07M46.00S,3,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,0,0,257,0012400029
+0012400029,396,PT07M46.00S,3,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: King FOR Mooney,Substitution,,0,0,258,0012400029
+0012400029,398,PT07M46.00S,3,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,259,0012400029
+0012400029,399,PT07M46.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,SUB: McCarron FOR Jackson-Cartwright,Substitution,,0,0,260,0012400029
+0012400029,401,PT07M32.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas Bad Pass Turnover (P1.T6),Turnover,Bad Pass,1,0,261,0012400029
+0012400029,401,PT07M32.00S,3,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,McCarron STEAL (1 STL),,,1,0,262,0012400029
+0012400029,403,PT07M15.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,THUNDER T.Foul (Def. 3 Sec Leons ) (M.Lindsay),Foul,Defense 3 Second,1,0,263,0012400029
+0012400029,404,PT07M15.00S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,71,65,136,v,King Free Throw Technical (10 PTS),Free Throw,Free Throw Technical,1,0,264,0012400029
+0012400029,405,PT07M00.00S,3,15020,NZB,196295062,Darling,M. Darling,18,95,10,Missed,1,,,0,v,MISS Darling 10' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,265,0012400029
+0012400029,406,PT06M57.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,266,0012400029
+0012400029,407,PT06M43.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,-83,176,19,Missed,1,,,0,h,MISS Flagler 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,267,0012400029
+0012400029,408,PT06M40.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:3 Def:6),Rebound,Unknown,1,0,268,0012400029
+0012400029,409,PT06M38.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,129,222,26,Missed,1,,,0,h,MISS Flagler 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,269,0012400029
+0012400029,410,PT06M35.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,270,0012400029
+0012400029,411,PT06M28.00S,3,15020,NZB,196295059,King,M. King,237,96,26,Made,1,71,68,139,v,King 26' 3PT Running Jump Shot (13 PTS) (Bairstow 2 AST),Made Shot,Running Jump Shot,1,3,271,0012400029
+0012400029,413,PT06M11.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,-176,233,29,Missed,1,,,0,h,MISS Dieng 29' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,272,0012400029
+0012400029,414,PT06M07.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,273,0012400029
+0012400029,415,PT06M05.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones P.FOUL (P2.T3) (M.Lindsay),Foul,Personal,1,0,274,0012400029
+0012400029,417,PT06M05.00S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,SUB: Reese FOR Jones,Substitution,,0,0,275,0012400029
+0012400029,418,PT06M05.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,SUB: Ryan FOR Ducas,Substitution,,0,0,276,0012400029
+0012400029,419,PT06M05.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: Gillespie FOR Bairstow,Substitution,,0,0,277,0012400029
+0012400029,420,PT06M05.00S,3,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,SUB: Anticevich FOR Darling,Substitution,,0,0,278,0012400029
+0012400029,425,PT06M05.00S,3,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,SUB: Bairstow FOR Mennenga,Substitution,,0,0,279,0012400029
+0012400029,427,PT05M51.00S,3,15020,NZB,196295060,McCarron,M. McCarron,175,189,26,Missed,1,,,0,v,MISS McCarron 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,280,0012400029
+0012400029,428,PT05M46.00S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,281,0012400029
+0012400029,429,PT05M45.00S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King Bad Pass Turnover (P1.T8),Turnover,Bad Pass,1,0,282,0012400029
+0012400029,429,PT05M45.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons STEAL (3 STL),,,1,0,283,0012400029
+0012400029,431,PT05M41.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,-233,13,0,Missed,1,,,0,h,MISS Flagler 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,284,0012400029
+0012400029,432,PT05M38.00S,3,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,285,0012400029
+0012400029,433,PT05M25.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,53,34,6,Missed,1,,,0,v,MISS Gillespie 6' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,286,0012400029
+0012400029,434,PT05M21.00S,3,1610612760,OKC,1642024,Reese,A. Reese,0,0,0,,0,,,0,h,Reese REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,287,0012400029
+0012400029,435,PT05M12.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,168,185,25,Missed,1,,,0,h,MISS Flagler 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,288,0012400029
+0012400029,436,PT05M07.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,289,0012400029
+0012400029,437,PT05M04.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow Lost Ball Turnover (P1.T9),Turnover,Lost Ball,1,0,290,0012400029
+0012400029,437,PT05M04.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons STEAL (4 STL),,,1,0,291,0012400029
+0012400029,439,PT05M02.00S,3,1610612760,OKC,1642502,Leons,M. Leons,7,4,1,Made,1,73,68,141,h,Leons 1' Driving Dunk (10 PTS),Made Shot,Driving Dunk Shot,1,2,292,0012400029
+0012400029,440,PT04M44.00S,3,15020,NZB,196295059,King,M. King,-207,138,25,Made,1,73,71,144,v,King 25' 3PT Jump Shot (16 PTS) (Bairstow 3 AST),Made Shot,Jump Shot,1,3,293,0012400029
+0012400029,442,PT04M29.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng Backcourt Turnover (P1.T7),Turnover,Backcourt Turnover,1,0,294,0012400029
+0012400029,443,PT04M19.00S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King OFF.Foul (P1) (M.Lindsay),Foul,Offensive,1,0,295,0012400029
+0012400029,445,PT04M19.00S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King Offensive Foul Turnover (P2.T10),Turnover,Offensive Foul Turnover,1,0,296,0012400029
+0012400029,446,PT04M09.00S,3,1610612760,OKC,1642504,Ryan,C. Ryan,221,133,26,Made,1,76,71,147,h,Ryan 26' 3PT Jump Shot (8 PTS) (Dieng 6 AST),Made Shot,Jump Shot,1,3,297,0012400029
+0012400029,448,PT03M54.00S,3,15020,NZB,196295059,King,M. King,-121,231,26,Missed,1,,,0,v,MISS King 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,298,0012400029
+0012400029,449,PT03M51.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,299,0012400029
+0012400029,450,PT03M40.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow OFF.Foul (P1) (A.Moyer-Gleich),Foul,Offensive,1,0,300,0012400029
+0012400029,452,PT03M40.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,Bairstow Offensive Foul Turnover (P2.T11),Turnover,Offensive Foul Turnover,1,0,301,0012400029
+0012400029,453,PT03M40.00S,3,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,SUB: Kopp FOR Leons,Substitution,,0,0,302,0012400029
+0012400029,454,PT03M40.00S,3,15020,NZB,196295060,McCarron,M. McCarron,0,0,0,,0,,,0,v,SUB: Davison FOR McCarron,Substitution,,0,0,303,0012400029
+0012400029,455,PT03M40.00S,3,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: Jackson-Cartwright FOR Bairstow,Substitution,,0,0,304,0012400029
+0012400029,459,PT03M31.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,16,10,2,Missed,1,,,0,h,MISS Dieng 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,305,0012400029
+0012400029,459,PT03M31.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie BLOCK (2 BLK),,,1,2,306,0012400029
+0012400029,461,PT03M28.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,307,0012400029
+0012400029,462,PT03M19.00S,3,1610612760,OKC,1642024,Reese,A. Reese,-227,91,24,Made,1,79,71,150,h,Reese 24' 3PT Jump Shot (5 PTS) (Dieng 7 AST),Made Shot,Jump Shot,1,3,308,0012400029
+0012400029,464,PT03M06.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,126,229,26,Made,1,79,74,153,v,Jackson-Cartwright 26' 3PT Step Back Jump Shot (14 PTS),Made Shot,Step Back Jump shot,1,3,309,0012400029
+0012400029,465,PT02M49.00S,3,1610612760,OKC,1642024,Reese,A. Reese,-180,185,26,Missed,1,,,0,h,MISS Reese 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,310,0012400029
+0012400029,466,PT02M48.00S,3,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,311,0012400029
+0012400029,467,PT02M48.00S,3,15020,NZB,196295065,Davison,C. Davison,0,0,0,,0,,,0,v,Davison L.B.FOUL (P1.T3) (A.Moyer-Gleich),Foul,Loose Ball,1,0,312,0012400029
+0012400029,469,PT02M48.00S,3,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,313,0012400029
+0012400029,470,PT02M48.00S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,SUB: Ducas FOR Dieng,Substitution,,0,0,314,0012400029
+0012400029,471,PT02M48.00S,3,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,SUB: Jones FOR Flagler,Substitution,,0,0,315,0012400029
+0012400029,474,PT02M42.00S,3,1610612760,OKC,1641794,Jones,D. Jones,-15,8,2,Made,1,81,74,155,h,Jones 2' Driving Layup (21 PTS),Made Shot,Driving Layup Shot,1,2,316,0012400029
+0012400029,475,PT02M23.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,165,126,21,Made,1,81,76,157,v,Jackson-Cartwright 21' Pullup Jump Shot (16 PTS),Made Shot,Pullup Jump shot,1,2,317,0012400029
+0012400029,476,PT02M05.00S,3,1610612760,OKC,1642504,Ryan,C. Ryan,-50,44,7,Missed,1,,,0,h,MISS Ryan 7' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,318,0012400029
+0012400029,477,PT02M02.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,319,0012400029
+0012400029,478,PT01M57.00S,3,15020,NZB,196295061,Anticevich,G. Anticevich,-140,209,25,Missed,1,,,0,v,MISS Anticevich 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,320,0012400029
+0012400029,479,PT01M54.00S,3,1610612760,OKC,1642024,Reese,A. Reese,0,0,0,,0,,,0,h,Reese REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,321,0012400029
+0012400029,480,PT01M47.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,-227,-1,0,Made,1,84,76,160,h,Ducas 3PT Jump Shot (13 PTS) (Ryan 1 AST),Made Shot,Jump Shot,1,3,322,0012400029
+0012400029,482,PT01M26.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,40,36,5,Missed,1,,,0,v,MISS Gillespie 5' Turnaround Bank Hook Shot,Missed Shot,Turnaround Bank Hook Shot,1,2,323,0012400029
+0012400029,483,PT01M24.00S,3,1610612760,OKC,1642024,Reese,A. Reese,0,0,0,,0,,,0,h,Reese REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,324,0012400029
+0012400029,484,PT01M17.00S,3,1610612760,OKC,1642505,Ducas,A. Ducas,-230,16,0,Missed,1,,,0,h,MISS Ducas 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,325,0012400029
+0012400029,485,PT01M16.00S,3,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,326,0012400029
+0012400029,486,PT00M54.00S,3,15020,NZB,196295059,King,M. King,241,22,24,Missed,1,,,0,v,MISS King 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,327,0012400029
+0012400029,487,PT00M51.50S,3,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:3 Def:7),Rebound,Unknown,1,0,328,0012400029
+0012400029,488,PT00M40.10S,3,1610612760,OKC,1642504,Ryan,C. Ryan,163,228,28,Missed,1,,,0,h,MISS Ryan 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,329,0012400029
+0012400029,489,PT00M35.50S,3,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,330,0012400029
+0012400029,490,PT00M29.20S,3,15020,NZB,196295059,King,M. King,-59,150,16,Missed,1,,,0,v,MISS King 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,331,0012400029
+0012400029,491,PT00M26.40S,3,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,Ducas REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,332,0012400029
+0012400029,492,PT00M21.00S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie P.FOUL (P3.T4) (A.Moyer-Gleich),Foul,Personal,1,0,333,0012400029
+0012400029,494,PT00M21.00S,3,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,SUB: Dieng FOR Kopp,Substitution,,0,0,334,0012400029
+0012400029,495,PT00M21.00S,3,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,SUB: Mooney FOR Jackson-Cartwright,Substitution,,0,0,335,0012400029
+0012400029,498,PT00M14.50S,3,1610612760,OKC,1631172,Dieng,O. Dieng,151,146,21,Missed,1,,,0,h,MISS Dieng 21' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,336,0012400029
+0012400029,499,PT00M12.70S,3,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,337,0012400029
+0012400029,500,PT00M06.60S,3,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng P.FOUL (P2.T4) (M.Lindsay),Foul,Personal,1,0,338,0012400029
+0012400029,502,PT00M00.40S,3,15020,NZB,196295063,Mooney,M. Mooney,230,121,26,Missed,1,,,0,v,MISS Mooney 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,339,0012400029
+0012400029,503,PT00M00.40S,3,0,,15020,,,0,0,0,,0,,,0,v,Breakers Rebound,Rebound,Unknown,0,0,340,0012400029
+0012400029,504,PT00M00.00S,3,0,,0,,,0,0,0,,0,84,76,160,,End of 3rd Period (9:43 PM EST),period,end,1,0,341,0012400029
+0012400029,511,PT12M00.00S,4,0,,0,,,0,0,0,,0,84,76,160,,Start of 4th Period (9:45 PM EST),period,start,0,0,342,0012400029
+0012400029,512,PT11M44.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones Bad Pass Turnover (P6.T8),Turnover,Bad Pass,1,0,343,0012400029
+0012400029,512,PT11M44.00S,4,15020,NZB,196295057,Isaac,K. Isaac,0,0,0,,0,,,0,v,Isaac STEAL (1 STL),,,1,0,344,0012400029
+0012400029,514,PT11M35.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,23,61,7,Missed,1,,,0,v,MISS Gillespie 7' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,345,0012400029
+0012400029,515,PT11M33.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:3 Def:8),Rebound,Unknown,1,0,346,0012400029
+0012400029,516,PT11M22.00S,4,1610612760,OKC,1641794,Jones,D. Jones,23,11,3,Made,1,86,76,162,h,Jones 3' Driving Layup (23 PTS),Made Shot,Driving Layup Shot,1,2,347,0012400029
+0012400029,517,PT11M01.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,167,214,27,Made,1,86,79,165,v,Anticevich 27' 3PT Jump Shot (5 PTS) (Mooney 3 AST),Made Shot,Jump Shot,1,3,348,0012400029
+0012400029,519,PT10M39.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie P.FOUL (P4.T1) (B.Adair),Foul,Personal,1,0,349,0012400029
+0012400029,522,PT10M39.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,SUB: Mennenga FOR Gillespie,Substitution,,0,0,350,0012400029
+0012400029,526,PT10M39.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,SUB: Dieng FOR Jones,Substitution,,0,0,351,0012400029
+0012400029,525,PT10M26.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,26,-3,3,Made,1,88,79,167,h,Ryan 3' Driving Layup (10 PTS),Made Shot,Driving Layup Shot,1,2,352,0012400029
+0012400029,528,PT10M04.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,44,262,27,Missed,1,,,0,v,MISS Mennenga 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,353,0012400029
+0012400029,529,PT10M02.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,354,0012400029
+0012400029,530,PT09M51.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,113,238,26,Missed,1,,,0,h,MISS Ryan 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,355,0012400029
+0012400029,531,PT09M48.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,356,0012400029
+0012400029,532,PT09M45.00S,4,1610612760,OKC,1642024,Reese,A. Reese,-120,251,28,Missed,1,,,0,h,MISS Reese 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,357,0012400029
+0012400029,533,PT09M44.00S,4,0,,15020,,,0,0,0,,0,,,0,v,Breakers Rebound,Rebound,Unknown,1,0,358,0012400029
+0012400029,535,PT09M44.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,0,0,0,,0,,,0,h,SUB: Flagler FOR Ducas,Substitution,,0,0,359,0012400029
+0012400029,536,PT09M44.00S,4,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: Jackson-Cartwright FOR Mooney,Substitution,,0,0,360,0012400029
+0012400029,539,PT09M44.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,361,0012400029
+0012400029,540,PT09M44.00S,4,0,,534,,,0,0,0,,0,88,79,167,,Instant Replay4th Period (9:49 PM EST),Instant Replay,Coach Challenge Ruling Stands,1,0,362,0012400029
+0012400029,541,PT09M29.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich Bad Pass Turnover (P1.T12),Turnover,Bad Pass,1,0,363,0012400029
+0012400029,541,PT09M29.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,Ryan STEAL (1 STL),,,1,0,364,0012400029
+0012400029,543,PT09M25.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp Bad Pass Turnover (P1.T9),Turnover,Bad Pass,1,0,365,0012400029
+0012400029,543,PT09M25.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga STEAL (1 STL),,,1,0,366,0012400029
+0012400029,545,PT09M10.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,121,219,25,Missed,1,,,0,v,MISS Anticevich 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,367,0012400029
+0012400029,546,PT09M06.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,368,0012400029
+0012400029,547,PT08M56.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,23,10,3,Missed,1,,,0,h,MISS Ryan 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,369,0012400029
+0012400029,547,PT08M56.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,Anticevich BLOCK (1 BLK),,,1,2,370,0012400029
+0012400029,549,PT08M52.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:4 Def:3),Rebound,Unknown,1,0,371,0012400029
+0012400029,550,PT08M43.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,-230,44,0,Made,1,91,79,170,h,Kopp 3PT Jump Shot (3 PTS) (Reese 1 AST),Made Shot,Jump Shot,1,3,372,0012400029
+0012400029,552,PT08M28.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,-153,200,25,Made,1,91,82,173,v,Anticevich 25' 3PT Jump Shot (8 PTS) (Jackson-Cartwright 8 AST),Made Shot,Jump Shot,1,3,373,0012400029
+0012400029,554,PT08M10.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,-10,33,3,Made,1,93,82,175,h,Dieng 3' Driving Layup (13 PTS) (Kopp 1 AST),Made Shot,Driving Layup Shot,1,2,374,0012400029
+0012400029,555,PT08M10.00S,4,15020,NZB,196295057,Isaac,K. Isaac,0,0,0,,0,,,0,v,Isaac S.FOUL (P1.T2) (A.Moyer-Gleich),Foul,Shooting,1,0,375,0012400029
+0012400029,557,PT08M10.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,SUB: Jones FOR Kopp,Substitution,,0,0,376,0012400029
+0012400029,558,PT08M10.00S,4,1610612760,OKC,1642024,Reese,A. Reese,0,0,0,,0,,,0,h,SUB: Leons FOR Reese,Substitution,,0,0,377,0012400029
+0012400029,559,PT08M10.00S,4,15020,NZB,196295055,Bairstow,S. Bairstow,0,0,0,,0,,,0,v,SUB: Darling FOR Bairstow,Substitution,,0,0,378,0012400029
+0012400029,560,PT08M10.00S,4,15020,NZB,196295057,Isaac,K. Isaac,0,0,0,,0,,,0,v,SUB: King FOR Isaac,Substitution,,0,0,379,0012400029
+0012400029,565,PT08M10.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,94,82,176,h,Dieng Free Throw 1 of 1 (14 PTS),Free Throw,Free Throw 1 of 1,1,0,380,0012400029
+0012400029,566,PT07M55.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,12,264,26,Missed,1,,,0,v,MISS Mennenga 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,381,0012400029
+0012400029,567,PT07M51.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:3 Def:9),Rebound,Unknown,1,0,382,0012400029
+0012400029,568,PT07M43.00S,4,1610612760,OKC,1641794,Jones,D. Jones,159,-5,16,Missed,1,,,0,h,MISS Jones 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,383,0012400029
+0012400029,569,PT07M40.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,384,0012400029
+0012400029,571,PT07M38.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,116,13,12,Made,1,96,82,178,h,Flagler 12' Turnaround Fadeaway (18 PTS),Made Shot,Turnaround Fadeaway shot,1,2,385,0012400029
+0012400029,572,PT07M38.00S,4,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,386,0012400029
+0012400029,573,PT07M38.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,SUB: Mooney FOR Anticevich,Substitution,,0,0,387,0012400029
+0012400029,575,PT07M22.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,27,63,7,Missed,1,,,0,v,MISS Mennenga 7' Hook Shot,Missed Shot,Hook Shot,1,2,388,0012400029
+0012400029,576,PT07M20.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,389,0012400029
+0012400029,577,PT07M14.00S,4,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright P.FOUL (P3.T3) (M.Lindsay),Foul,Personal,1,0,390,0012400029
+0012400029,616,PT06M57.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Turnover: Shot Clock (T#10),Turnover,Shot Clock Turnover,1,0,391,0012400029
+0012400029,580,PT06M45.00S,4,15020,NZB,196295059,King,M. King,-227,-10,0,Missed,1,,,0,v,MISS King 3PT Jump Shot,Missed Shot,Jump Shot,1,3,392,0012400029
+0012400029,581,PT06M41.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,Ryan REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,393,0012400029
+0012400029,582,PT06M37.00S,4,1610612760,OKC,1642502,Leons,M. Leons,18,-1,2,Made,1,98,82,180,h,Leons 2' Running Layup (12 PTS) (Ryan 2 AST),Made Shot,Running Layup Shot,1,2,394,0012400029
+0012400029,584,PT06M26.00S,4,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,Jackson-Cartwright Bad Pass Turnover (P3.T13),Turnover,Bad Pass,1,0,395,0012400029
+0012400029,584,PT06M26.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones STEAL (3 STL),,,1,0,396,0012400029
+0012400029,586,PT06M21.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,Mennenga S.FOUL (P2.T4) (M.Lindsay),Foul,Shooting,1,0,397,0012400029
+0012400029,588,PT06M21.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,MISS Dieng Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,398,0012400029
+0012400029,589,PT06M21.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Normal Rebound,0,0,399,0012400029
+0012400029,590,PT06M21.00S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,SUB: Ducas FOR Ryan,Substitution,,0,0,400,0012400029
+0012400029,591,PT06M21.00S,4,15020,NZB,196295056,Mennenga,S. Mennenga,0,0,0,,0,,,0,v,SUB: Gillespie FOR Mennenga,Substitution,,0,0,401,0012400029
+0012400029,592,PT06M21.00S,4,15020,NZB,196295058,Jackson-Cartwright,P. Jackson-Cartwright,0,0,0,,0,,,0,v,SUB: McNaught FOR Jackson-Cartwright,Substitution,,0,0,402,0012400029
+0012400029,596,PT06M21.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,99,82,181,h,Dieng Free Throw 2 of 2 (15 PTS),Free Throw,Free Throw 2 of 2,1,0,403,0012400029
+0012400029,597,PT05M59.00S,4,15020,NZB,196295062,Darling,M. Darling,-15,25,3,Missed,1,,,0,v,MISS Darling 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,404,0012400029
+0012400029,597,PT05M59.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones BLOCK (2 BLK),,,1,2,405,0012400029
+0012400029,599,PT05M59.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,406,0012400029
+0012400029,600,PT05M54.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,25,6,3,Made,1,99,84,183,v,Gillespie 3' Putback Layup (6 PTS),Made Shot,Putback Layup Shot,1,2,407,0012400029
+0012400029,601,PT05M51.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-157,216,27,Missed,1,,,0,h,MISS Ducas 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,408,0012400029
+0012400029,602,PT05M51.00S,4,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,King REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,409,0012400029
+0012400029,603,PT05M36.00S,4,15020,NZB,196295059,King,M. King,245,15,25,Missed,1,,,0,v,MISS King 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,410,0012400029
+0012400029,604,PT05M31.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:4 Def:4),Rebound,Unknown,1,0,411,0012400029
+0012400029,605,PT05M21.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,-44,254,26,Made,1,102,84,186,h,Dieng 26' 3PT Jump Shot (18 PTS) (Jones 6 AST),Made Shot,Jump Shot,1,3,412,0012400029
+0012400029,607,PT05M01.00S,4,15020,NZB,196295062,Darling,M. Darling,-131,229,26,Missed,1,,,0,v,MISS Darling 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,413,0012400029
+0012400029,608,PT04M58.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones REBOUND (Off:3 Def:10),Rebound,Unknown,1,0,414,0012400029
+0012400029,609,PT04M46.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,-16,8,2,Missed,1,,,0,h,MISS Flagler 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,415,0012400029
+0012400029,610,PT04M43.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:5 Def:4),Rebound,Unknown,1,0,416,0012400029
+0012400029,611,PT04M43.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,Made,1,104,84,188,h,Dieng Tip Layup Shot (20 PTS),Made Shot,Tip Layup Shot,1,2,417,0012400029
+0012400029,612,PT04M28.00S,4,15020,NZB,196295053,McNaught,A. McNaught,28,5,3,Made,1,104,86,190,v,McNaught 3' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,418,0012400029
+0012400029,613,PT04M15.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,-157,237,28,Made,1,107,86,193,h,Flagler 28' 3PT Jump Shot (21 PTS) (Ducas 1 AST),Made Shot,Jump Shot,1,3,419,0012400029
+0012400029,615,PT04M10.00S,4,0,,15020,,,0,0,0,,0,,,0,v,Breakers Timeout: Regular (Reg.6 Short 0),Timeout,Regular,0,0,420,0012400029
+0012400029,617,PT04M10.00S,4,15020,NZB,196295059,King,M. King,0,0,0,,0,,,0,v,SUB: Arcidiacono FOR King,Substitution,,0,0,421,0012400029
+0012400029,618,PT04M10.00S,4,15020,NZB,196295062,Darling,M. Darling,0,0,0,,0,,,0,v,SUB: Anticevich FOR Darling,Substitution,,0,0,422,0012400029
+0012400029,621,PT03M56.00S,4,15020,NZB,196295063,Mooney,M. Mooney,102,234,26,Made,1,107,89,196,v,Mooney 26' 3PT Fadeaway Jumper (19 PTS),Made Shot,Fadeaway Jump Shot,1,3,423,0012400029
+0012400029,622,PT03M30.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,97,38,10,Made,1,109,89,198,h,Flagler 10' Turnaround Jump Shot (23 PTS),Made Shot,Turnaround Jump Shot,1,2,424,0012400029
+0012400029,623,PT03M06.00S,4,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,Mooney Bad Pass Turnover (P2.T14),Turnover,Bad Pass,1,0,425,0012400029
+0012400029,623,PT03M06.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,Jones STEAL (4 STL),,,1,0,426,0012400029
+0012400029,625,PT02M55.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,168,183,25,Missed,1,,,0,h,MISS Flagler 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,427,0012400029
+0012400029,626,PT02M52.00S,4,15020,NZB,196295053,McNaught,A. McNaught,0,0,0,,0,,,0,v,McNaught REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,428,0012400029
+0012400029,627,PT02M35.00S,4,15020,NZB,196295053,McNaught,A. McNaught,62,41,7,Missed,1,,,0,v,MISS McNaught 7' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,429,0012400029
+0012400029,628,PT02M33.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,Dieng REBOUND (Off:5 Def:5),Rebound,Unknown,1,0,430,0012400029
+0012400029,629,PT02M17.00S,4,1610612760,OKC,1642505,Ducas,A. Ducas,-16,11,2,Made,1,111,89,200,h,Ducas 2' Cutting Dunk Shot (15 PTS) (Dieng 8 AST),Made Shot,Cutting Dunk Shot,1,2,431,0012400029
+0012400029,631,PT02M10.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,,,0,h,Flagler P.FOUL (P4.T1) (M.Lindsay),Foul,Personal,1,0,432,0012400029
+0012400029,633,PT02M10.00S,4,1610612760,OKC,1641794,Jones,D. Jones,0,0,0,,0,,,0,h,SUB: Ryan FOR Jones,Substitution,,0,0,433,0012400029
+0012400029,634,PT02M10.00S,4,1610612760,OKC,1631172,Dieng,O. Dieng,0,0,0,,0,,,0,h,SUB: Kopp FOR Dieng,Substitution,,0,0,434,0012400029
+0012400029,635,PT02M10.00S,4,15020,NZB,196295063,Mooney,M. Mooney,0,0,0,,0,,,0,v,SUB: Isaac FOR Mooney,Substitution,,0,0,435,0012400029
+0012400029,639,PT01M50.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,-66,69,10,Missed,1,,,0,v,MISS Anticevich 10' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,436,0012400029
+0012400029,640,PT01M48.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,Leons REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,437,0012400029
+0012400029,641,PT01M37.00S,4,1610612760,OKC,1642502,Leons,M. Leons,20,7,2,Made,1,113,89,202,h,Leons 2' Driving Reverse Layup (14 PTS),Made Shot,Driving Reverse Layup Shot,1,2,438,0012400029
+0012400029,642,PT01M15.00S,4,15020,NZB,196295057,Isaac,K. Isaac,240,89,26,Missed,1,,,0,v,MISS Isaac 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,439,0012400029
+0012400029,643,PT01M10.00S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,440,0012400029
+0012400029,644,PT01M01.00S,4,15020,NZB,196295067,Gillespie,F. Gillespie,0,0,0,,0,,,0,v,Gillespie P.FOUL (P5.PN) (M.Lindsay),Foul,Personal,1,0,441,0012400029
+0012400029,646,PT01M01.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,114,89,203,h,Flagler Free Throw 1 of 2 (24 PTS),Free Throw,Free Throw 1 of 2,1,0,442,0012400029
+0012400029,647,PT01M01.00S,4,1610612760,OKC,1642502,Leons,M. Leons,0,0,0,,0,,,0,h,SUB: Reese FOR Leons,Substitution,,0,0,443,0012400029
+0012400029,648,PT01M01.00S,4,15020,NZB,196295061,Anticevich,G. Anticevich,0,0,0,,0,,,0,v,SUB: Davison FOR Anticevich,Substitution,,0,0,444,0012400029
+0012400029,651,PT01M01.00S,4,1610612760,OKC,1641745,Flagler,A. Flagler,0,0,0,,0,115,89,204,h,Flagler Free Throw 2 of 2 (25 PTS),Free Throw,Free Throw 2 of 2,1,0,445,0012400029
+0012400029,652,PT00M44.10S,4,15020,NZB,196295064,Arcidiacono,C. Arcidiacono,-229,-12,0,Missed,1,,,0,v,MISS Arcidiacono 3PT Jump Shot,Missed Shot,Jump Shot,1,3,446,0012400029
+0012400029,653,PT00M41.80S,4,1610612760,OKC,1642046,Kopp,M. Kopp,0,0,0,,0,,,0,h,Kopp REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,447,0012400029
+0012400029,654,PT00M25.70S,4,1610612760,OKC,1642504,Ryan,C. Ryan,13,6,1,Made,1,117,89,206,h,Ryan 1' Cutting Layup Shot (12 PTS) (Reese 2 AST),Made Shot,Cutting Layup Shot,1,2,448,0012400029
+0012400029,656,PT00M05.30S,4,15020,NZB,196295057,Isaac,K. Isaac,245,35,25,Missed,1,,,0,v,MISS Isaac 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,449,0012400029
+0012400029,657,PT00M00.50S,4,1610612760,OKC,1642504,Ryan,C. Ryan,0,0,0,,0,,,0,h,Ryan REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,450,0012400029
+0012400029,658,PT00M00.00S,4,0,,0,,,0,0,0,,0,117,89,206,,End of 4th Period (10:10 PM EST),period,end,1,0,451,0012400029

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,18:52,3,4,0.75,3,4,0.75,0,0,0.0,0,0,0,2,0,0,0,1,9,-5.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,37:07,8,18,0.444,2,8,0.25,4,4,1.0,1,5,6,0,1,1,2,2,22,8.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,32:01,5,9,0.556,0,0,0.0,0,0,0.0,7,16,23,2,1,2,1,1,10,7.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,38:13,4,10,0.4,2,5,0.4,4,4,1.0,2,3,5,3,1,2,4,3,14,4.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,34:25,4,12,0.333,0,6,0.0,3,4,0.75,0,4,4,7,2,0,4,6,11,1.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,29:24,9,21,0.429,3,7,0.429,0,1,0.0,1,2,3,5,0,0,1,2,21,9.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,,,23:21,1,4,0.25,0,2,0.0,1,2,0.5,2,5,7,0,0,1,1,2,3,12.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,15:59,2,3,0.667,0,0,0.0,0,0,0.0,0,3,3,0,0,1,1,2,4,1.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,10:38,2,4,0.5,1,3,0.333,0,0,0.0,0,0,0,1,1,0,0,0,5,3.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,30:14,4,12,0.333,2,9,0.222,0,0,0.0,0,3,3,1,2,1,2,0,10,0.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:06,9,21,0.429,0,6,0.0,2,3,0.667,1,5,6,3,1,0,0,1,20,-2.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,28:27,6,8,0.75,0,0,0.0,2,3,0.667,5,5,10,1,0,1,2,3,14,-5.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,37:21,8,19,0.421,1,4,0.25,3,3,1.0,4,8,12,2,2,1,4,3,20,1.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,32:00,4,10,0.4,1,3,0.333,1,1,1.0,0,1,1,8,1,0,1,1,10,1.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,20:50,2,7,0.286,0,3,0.0,0,0,0.0,1,5,6,0,2,0,0,3,4,-9.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,18:53,1,7,0.143,0,1,0.0,1,3,0.333,0,1,1,2,1,0,0,2,3,-10.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,14:51,3,5,0.6,0,2,0.0,0,0,0.0,0,1,1,0,1,0,1,1,6,-9.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,16:56,1,4,0.25,0,0,0.0,2,2,1.0,3,4,7,1,0,1,1,2,4,-3.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,5:22,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-4.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,1631199,Ron,Harper Jr.,R. Harper Jr.,ron-harper-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,203490,Otto,Porter Jr.,O. Porter Jr.,otto-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105
+0022300105,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300105

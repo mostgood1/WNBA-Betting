@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,36:40,7,16,0.438,0,3,0.0,3,3,1.0,1,2,3,1,2,1,2,4,17,-6.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:47,4,13,0.308,2,5,0.4,3,5,0.6,4,2,6,1,3,0,2,6,13,-22.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,38:28,5,9,0.556,4,6,0.667,2,2,1.0,1,6,7,2,0,3,3,1,16,-6.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,18:51,1,5,0.2,0,1,0.0,4,4,1.0,0,0,0,4,1,0,2,2,6,-18.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,39:54,10,16,0.625,4,9,0.444,6,7,0.857,1,3,4,6,1,0,3,2,30,-3.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,23:56,5,10,0.5,0,1,0.0,4,6,0.667,0,2,2,4,1,0,3,1,14,-3.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,14:25,6,10,0.6,2,4,0.5,1,1,1.0,2,7,9,1,0,1,1,4,15,17.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,25:35,0,5,0.0,0,1,0.0,0,0,0.0,0,2,2,2,0,0,3,3,0,-7.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1629650,Moses,Brown,M. Brown,moses-brown,,,,3:06,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-7.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,3:18,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,1,0,0,0,0.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1641803,Tristen,Newton,T. Newton,tristen-newton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,36:53,9,16,0.563,2,6,0.333,9,12,0.75,1,8,9,5,0,0,5,3,29,6.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,35:54,5,7,0.714,3,3,1.0,0,0,0.0,1,2,3,2,2,1,1,4,13,5.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,35:51,7,10,0.7,0,0,0.0,3,3,1.0,1,9,10,4,1,2,3,5,17,18.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,G,,,16:43,1,6,0.167,0,3,0.0,0,0,0.0,0,1,1,0,1,0,1,3,2,15.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,36:21,13,20,0.65,3,7,0.429,6,8,0.75,0,6,6,9,1,1,7,3,35,18.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,26:25,3,9,0.333,1,4,0.25,1,2,0.5,1,2,3,3,1,0,1,2,8,-4.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,14:33,1,3,0.333,0,2,0.0,1,2,0.5,2,3,5,2,3,0,1,2,3,-5.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,14:12,2,6,0.333,1,4,0.25,1,2,0.5,0,2,2,2,0,0,1,1,6,-6.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,13:36,1,2,0.5,1,2,0.5,0,0,0.0,0,2,2,1,0,0,0,1,3,0.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,9:32,2,2,1.0,2,2,1.0,0,0,0.0,0,1,1,0,0,0,1,2,6,8.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054
+0022400054,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400054

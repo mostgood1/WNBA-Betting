@@ -1,0 +1,33 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,31:52,9,18,0.5,4,10,0.4,2,4,0.5,0,2,2,6,1,0,2,3,24,18.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,F,,,26:45,5,16,0.313,2,7,0.286,8,9,0.889,3,6,9,1,2,1,3,4,20,-3.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,21:34,5,10,0.5,0,0,0.0,5,7,0.714,5,3,8,4,0,3,0,0,15,7.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,29:39,3,7,0.429,0,2,0.0,2,3,0.667,4,3,7,5,0,3,1,1,8,-18.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,20:35,4,12,0.333,2,5,0.4,1,2,0.5,1,1,2,2,2,0,3,3,11,-16.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,12:50,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,2,0,0,0,1,0,-15.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,21:14,7,15,0.467,4,9,0.444,0,0,0.0,4,5,9,1,0,1,4,1,18,-6.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629671,Miye,Oni,M. Oni,miye-oni,,,,20:06,4,6,0.667,3,4,0.75,0,0,0.0,0,4,4,1,1,0,3,3,11,8.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,,,23:48,0,5,0.0,0,5,0.0,2,2,1.0,0,0,0,8,1,0,2,4,2,17.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641970,Maozinha,Pereira,M. Pereira,maozinha-pereira,,,,14:35,2,3,0.667,2,3,0.667,0,0,0.0,0,8,8,0,0,0,0,0,6,15.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630654,Armando,Bacot,A. Bacot,armando-bacot,,,,17:02,3,4,0.75,0,1,0.0,3,6,0.5,2,5,7,1,0,0,3,2,9,8.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,203897,Zach,LaVine,Z. LaVine,zach-lavine,F,,,22:26,9,12,0.75,6,6,1.0,4,4,1.0,0,0,0,4,2,0,1,3,28,17.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,18:15,1,9,0.111,0,4,0.0,1,2,0.5,2,0,2,1,2,0,2,1,3,-18.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,22:45,3,6,0.5,1,1,1.0,0,0,0.0,1,4,5,1,1,0,0,3,7,22.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,G,,,14:05,2,4,0.5,1,2,0.5,2,2,1.0,1,1,2,0,1,0,3,1,7,1.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,23:26,3,10,0.3,1,4,0.25,4,4,1.0,1,6,7,7,0,2,2,1,11,12.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,27:28,7,12,0.583,5,8,0.625,2,2,1.0,5,3,8,2,0,0,2,2,21,-20.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,25:14,4,7,0.571,1,3,0.333,2,6,0.333,1,6,7,4,2,2,4,2,11,-17.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,23:08,1,9,0.111,1,5,0.2,2,2,1.0,2,2,4,2,0,1,0,1,5,-24.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,14:00,1,4,0.25,0,3,0.0,0,0,0.0,0,2,2,2,0,0,0,1,2,17.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,,,18:21,2,6,0.333,1,4,0.25,0,0,0.0,1,2,3,0,1,0,1,1,5,12.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1641766,Adama,Sanogo,A. Sanogo,adama-sanogo,,,,4:52,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,0,2,-3.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630569,DJ,Steward,D. Steward,dj-steward,,,,6:45,0,3,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-3.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,14:55,5,11,0.455,2,5,0.4,4,5,0.8,0,2,2,2,3,1,0,4,16,-10.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,4:20,1,2,0.5,1,1,1.0,0,0,0.0,1,1,2,0,0,0,3,3,3,-1.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1641931,Onuralp,Bitim,O. Bitim,onuralp-bitim,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037
+0012400037,1610612741,Chicago,Bulls,CHI,bulls,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400037

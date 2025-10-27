@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,27:12,4,6,0.667,1,3,0.333,0,0,0.0,1,4,5,1,0,0,1,1,9,-10.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,F,,,32:57,6,18,0.333,2,6,0.333,2,6,0.333,3,3,6,6,0,1,1,1,16,-13.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,33:01,5,12,0.417,0,1,0.0,2,3,0.667,8,11,19,2,1,2,1,2,12,-14.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,G,,,30:48,6,17,0.353,3,9,0.333,3,3,1.0,2,2,4,1,0,0,1,3,18,-17.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,34:05,5,14,0.357,1,6,0.167,7,12,0.583,1,6,7,7,3,1,1,1,18,-9.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,24:38,2,4,0.5,2,3,0.667,0,2,0.0,0,1,1,3,1,0,6,3,6,-10.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,,,14:09,3,7,0.429,0,3,0.0,4,4,1.0,1,2,3,0,2,0,0,3,10,4.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,20:26,4,8,0.5,1,2,0.5,4,4,1.0,2,5,7,0,1,1,1,1,13,1.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,4:19,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,16:19,2,5,0.4,2,5,0.4,0,0,0.0,0,2,2,2,1,0,2,3,6,5.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,1:03,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400275
+0022400275,1610612761,Toronto,Raptors,TOR,raptors,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,1:03,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-2.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,28:43,4,4,1.0,2,2,1.0,0,1,0.0,2,4,6,4,1,1,0,1,10,12.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,32:49,6,11,0.545,0,2,0.0,2,2,1.0,3,8,11,4,1,1,2,3,14,12.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,32:19,10,14,0.714,0,0,0.0,3,5,0.6,6,7,13,2,1,1,0,2,23,11.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,34:39,10,18,0.556,5,9,0.556,1,1,1.0,0,4,4,1,1,0,3,2,26,10.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,30:57,6,14,0.429,4,7,0.571,0,0,0.0,1,2,3,6,1,0,2,4,16,15.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,28:24,9,14,0.643,4,8,0.5,4,4,1.0,0,3,3,6,4,1,3,4,26,12.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,19:17,1,13,0.077,0,8,0.0,0,0,0.0,0,4,4,1,0,0,1,3,2,3.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,19:46,1,6,0.167,1,4,0.25,0,0,0.0,1,3,4,3,0,0,0,1,3,3.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,5:31,1,1,1.0,0,0,0.0,0,1,0.0,0,0,0,0,1,0,2,0,2,-5.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,6:51,0,2,0.0,0,1,0.0,0,0,0.0,1,0,1,0,1,0,0,1,0,-5.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,,,0:44,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022400275
+0022400275,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400275

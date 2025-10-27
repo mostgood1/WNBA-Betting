@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400624,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,F,,,28:03,4,13,0.308,3,12,0.25,1,1,1.0,0,1,1,4,1,0,0,1,12,-18.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,F,,,28:43,5,12,0.417,0,2,0.0,1,2,0.5,6,8,14,3,0,0,1,3,11,-20.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,C,,,35:26,9,15,0.6,2,7,0.286,2,2,1.0,1,9,10,0,1,2,4,1,22,-12.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,G,,,13:43,1,5,0.2,0,2,0.0,2,3,0.667,2,3,5,0,0,0,1,4,4,-1.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,32:17,6,19,0.316,4,13,0.308,5,5,1.0,1,2,3,9,0,0,1,1,21,-16.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,21:43,1,3,0.333,1,3,0.333,0,0,0.0,0,3,3,1,1,0,0,3,3,-3.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,,,25:25,2,8,0.25,0,4,0.0,0,0,0.0,2,4,6,3,0,0,1,1,4,-24.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,21:52,2,6,0.333,2,6,0.333,2,2,1.0,0,2,2,2,0,0,1,3,8,-26.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,24:54,3,8,0.375,0,2,0.0,2,2,1.0,0,3,3,4,0,1,1,1,8,-19.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1630528,Josh,Christopher,J. Christopher,josh-christopher,,,,3:57,0,1,0.0,0,0,0.0,1,2,0.5,0,1,1,0,0,0,0,0,1,-3.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,,,3:57,1,2,0.5,0,0,0.0,0,2,0.0,1,1,2,0,0,0,0,0,2,-3.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400624
+0022400624,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,25:04,1,5,0.2,1,3,0.333,0,0,0.0,1,3,4,4,1,0,0,1,3,8.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,31:56,10,18,0.556,0,0,0.0,5,10,0.5,2,10,12,4,0,3,1,2,25,19.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,34:32,4,11,0.364,1,4,0.25,2,2,1.0,1,2,3,1,1,3,1,1,11,17.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,14:29,1,3,0.333,1,2,0.5,0,0,0.0,2,2,4,1,0,0,0,1,3,-8.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,35:30,9,21,0.429,5,14,0.357,6,6,1.0,1,9,10,11,2,0,1,1,29,16.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,26:39,7,11,0.636,7,10,0.7,0,0,0.0,0,1,1,1,0,0,0,2,21,31.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,21:38,7,14,0.5,0,1,0.0,2,2,1.0,3,5,8,3,0,0,1,1,16,16.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,14:09,3,5,0.6,1,3,0.333,0,0,0.0,0,0,0,1,1,0,1,1,7,21.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,16:18,1,2,0.5,0,0,0.0,0,0,0.0,0,5,5,3,0,0,1,1,2,10.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1642358,AJ,Johnson,A. Johnson,aj-johnson,,,,3:57,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,2,0,0,0,0,0,3.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,,,3:57,1,3,0.333,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,3.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,3:57,0,0,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,1,0,3.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,,,3:57,2,3,0.667,2,2,1.0,0,0,0.0,1,1,2,0,0,0,0,1,6,3.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,3:57,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,0,0,0,0,0,3.0,0022400624
+0022400624,1610612749,Milwaukee,Bucks,MIL,bucks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400624

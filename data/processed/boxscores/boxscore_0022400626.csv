@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400626,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,37:01,9,16,0.563,0,2,0.0,6,8,0.75,2,4,6,1,0,1,1,1,24,-10.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,29:57,4,10,0.4,3,5,0.6,0,0,0.0,5,4,9,2,1,1,2,2,11,-2.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,39:25,10,21,0.476,1,4,0.25,2,2,1.0,6,13,19,8,0,0,4,4,23,-18.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,30:59,5,13,0.385,0,4,0.0,5,7,0.714,0,2,2,7,1,0,2,5,15,-2.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,40:13,7,24,0.292,3,10,0.3,0,0,0.0,1,4,5,6,1,1,2,2,17,-1.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,21:10,3,4,0.75,0,1,0.0,0,0,0.0,2,1,3,5,1,0,0,2,6,-11.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,2:31,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-5.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,21:30,4,9,0.444,3,7,0.429,1,2,0.5,1,8,9,1,1,0,1,0,12,-9.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,,,6:15,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-7.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,10:59,5,7,0.714,5,6,0.833,0,0,0.0,0,0,0,0,0,0,1,2,15,20.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612758,Sacramento,Kings,SAC,kings,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,25:28,8,14,0.571,2,5,0.4,3,4,0.75,2,0,2,1,2,1,0,4,21,-6.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,33:53,7,16,0.438,2,8,0.25,4,4,1.0,4,4,8,0,1,1,1,0,20,5.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,37:23,12,19,0.632,2,3,0.667,9,10,0.9,3,19,22,17,1,2,1,5,35,11.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,31:37,7,10,0.7,2,4,0.5,2,6,0.333,1,4,5,3,1,0,3,1,18,2.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,39:46,8,18,0.444,1,6,0.167,1,2,0.5,1,5,6,5,3,0,2,0,18,3.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,19:16,3,9,0.333,2,6,0.333,1,1,1.0,0,0,0,2,1,0,1,1,9,14.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,,,,16:53,1,8,0.125,1,3,0.333,0,0,0.0,1,1,2,1,0,0,1,1,3,6.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,25:07,2,6,0.333,1,2,0.5,1,4,0.25,2,4,6,1,1,4,0,1,6,12.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,10:37,1,1,1.0,0,0,0.0,0,0,0.0,1,4,5,0,0,0,1,1,2,-2.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1641790,PJ,Hall,P. Hall,pj-hall,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626
+0022400626,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400626

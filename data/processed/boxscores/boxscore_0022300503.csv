@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,F,,,21:52,3,5,0.6,3,3,1.0,0,0,0.0,0,3,3,3,0,0,0,2,9,2.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,F,,,3:11,0,3,0.0,0,1,0.0,0,0,0.0,3,0,3,0,0,0,0,1,0,-7.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,31:48,11,20,0.55,3,8,0.375,3,4,0.75,1,9,10,6,0,1,2,5,28,25.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,36:32,8,14,0.571,2,7,0.286,5,5,1.0,2,3,5,5,1,1,3,3,23,-13.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,G,,,37:40,9,20,0.45,4,13,0.308,3,5,0.6,0,6,6,8,3,0,5,2,25,10.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,36:58,6,11,0.545,3,4,0.75,4,4,1.0,4,5,9,1,0,2,0,2,19,22.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,27:27,4,10,0.4,1,5,0.2,0,1,0.0,2,2,4,3,2,0,1,4,9,6.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,25:58,0,2,0.0,0,0,0.0,1,2,0.5,1,5,6,2,0,3,2,3,1,-5.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,15:34,2,11,0.182,1,7,0.143,2,3,0.667,2,5,7,1,1,1,4,2,7,-5.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,3:00,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300503
+0022300503,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,38:57,6,15,0.4,4,8,0.5,0,0,0.0,0,2,2,3,0,2,3,2,16,0.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,36:22,11,23,0.478,0,1,0.0,1,1,1.0,2,8,10,5,0,1,1,1,23,-7.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,32:20,8,17,0.471,1,2,0.5,1,3,0.333,6,13,19,5,0,1,2,4,18,2.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,37:09,5,12,0.417,0,1,0.0,2,4,0.5,3,3,6,5,0,0,1,3,12,-8.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,37:15,9,17,0.529,2,6,0.333,4,5,0.8,0,0,0,8,2,1,2,4,24,11.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,13:36,2,5,0.4,0,2,0.0,2,2,1.0,0,1,1,2,2,0,0,5,6,12.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,13:21,2,3,0.667,0,0,0.0,4,5,0.8,3,4,7,0,0,0,2,1,8,0.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,12:13,2,7,0.286,0,5,0.0,0,0,0.0,0,1,1,0,1,0,1,3,4,-8.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,,,14:18,1,3,0.333,1,3,0.333,0,0,0.0,1,2,3,1,0,0,0,3,3,-15.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1630240,Saben,Lee,S. Lee,saben-lee,,,,4:29,0,0,0.0,0,0,0.0,1,2,0.5,1,0,1,0,0,1,0,1,1,-8.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300503
+0022300503,1610612756,Phoenix,Suns,PHX,suns,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300503

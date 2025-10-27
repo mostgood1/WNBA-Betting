@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400679,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,33:15,6,9,0.667,0,1,0.0,0,2,0.0,2,6,8,3,0,2,1,0,12,18.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,28:09,8,17,0.471,4,7,0.571,1,2,0.5,1,8,9,2,1,1,3,3,21,13.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,31:59,7,10,0.7,0,0,0.0,0,0,0.0,2,9,11,1,1,0,1,2,14,7.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,G,,,35:40,11,15,0.733,2,4,0.5,3,7,0.429,1,2,3,4,2,0,1,3,27,16.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,37:23,4,12,0.333,1,6,0.167,5,5,1.0,0,5,5,10,1,0,6,3,14,13.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,19:02,3,9,0.333,1,4,0.25,0,0,0.0,1,3,4,3,0,0,1,2,7,-2.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,23:42,3,5,0.6,2,3,0.667,2,2,1.0,0,1,1,2,2,0,2,4,10,-6.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,,,,23:04,1,2,0.5,1,2,0.5,2,2,1.0,1,2,3,1,0,1,1,1,5,-8.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,7:09,1,2,0.5,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,-8.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,0:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400679
+0022400679,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,37:18,4,4,1.0,2,2,1.0,0,0,0.0,0,4,4,1,0,0,0,0,10,-12.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,37:40,12,27,0.444,1,8,0.125,2,3,0.667,1,8,9,6,0,0,3,4,27,1.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,C,,,16:04,2,5,0.4,0,0,0.0,0,0,0.0,3,4,7,0,0,1,1,0,4,-9.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,G,,,25:30,3,12,0.25,0,3,0.0,2,2,1.0,0,2,2,1,1,0,1,2,8,-10.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,30:37,7,12,0.583,2,6,0.333,4,4,1.0,0,2,2,4,1,0,1,2,20,-14.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,31:56,5,11,0.455,0,0,0.0,1,2,0.5,7,7,14,0,3,0,1,2,11,1.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,,,,24:51,4,11,0.364,1,3,0.333,0,0,0.0,1,0,1,5,1,0,0,2,9,2.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,11:15,2,6,0.333,1,5,0.2,2,2,1.0,0,1,1,0,0,0,0,0,7,4.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,14:29,3,7,0.429,0,2,0.0,2,2,1.0,1,1,2,0,3,2,2,0,8,6.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,10:20,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,2,0,0,4,0,-9.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400679
+0022400679,1610612766,Charlotte,Hornets,CHA,hornets,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400679

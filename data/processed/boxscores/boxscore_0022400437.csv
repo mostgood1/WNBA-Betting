@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,29:27,6,8,0.75,1,1,1.0,1,1,1.0,1,4,5,1,0,0,2,2,14,9.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,30:51,6,11,0.545,1,2,0.5,4,4,1.0,0,8,8,6,3,1,2,3,17,10.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,32:37,5,8,0.625,0,1,0.0,3,4,0.75,1,5,6,3,0,0,0,0,13,12.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,33:17,6,12,0.5,1,1,1.0,4,5,0.8,1,7,8,8,0,1,2,3,17,23.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,36:08,11,19,0.579,1,6,0.167,8,9,0.889,0,6,6,7,1,0,0,0,31,13.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,21:08,3,8,0.375,2,5,0.4,0,0,0.0,2,2,4,1,0,0,0,5,8,-4.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,25:18,4,8,0.5,3,5,0.6,1,2,0.5,0,5,5,0,0,0,1,1,12,3.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,13:35,1,6,0.167,0,1,0.0,1,2,0.5,3,2,5,1,1,0,2,1,3,-10.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,15:23,4,6,0.667,0,1,0.0,0,0,0.0,3,0,3,0,1,0,0,2,8,-3.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,1:08,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,1:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400437
+0022400437,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,41:13,8,17,0.471,2,10,0.2,4,5,0.8,2,7,9,6,3,1,3,3,22,-21.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,F,,,19:40,3,6,0.5,3,6,0.5,0,0,0.0,0,0,0,3,1,0,0,1,9,0.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,30:39,2,12,0.167,1,10,0.1,0,0,0.0,0,5,5,3,0,0,0,5,5,-14.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,G,,,36:25,13,21,0.619,2,6,0.333,3,5,0.6,0,4,4,6,1,0,2,3,31,-10.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,38:49,7,15,0.467,3,11,0.273,0,0,0.0,1,2,3,3,0,1,1,4,17,-20.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,27:42,7,13,0.538,5,8,0.625,2,2,1.0,1,3,4,3,0,0,2,2,21,-2.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,,,19:24,0,2,0.0,0,1,0.0,0,2,0.0,1,2,3,0,1,1,0,2,0,4.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,13:42,0,1,0.0,0,0,0.0,1,2,0.5,1,8,9,0,0,3,0,0,1,-3.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,5:11,2,2,1.0,0,0,0.0,2,3,0.667,2,1,3,1,0,0,0,2,6,3.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,2:25,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,6.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,2:25,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,6.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,,,2:25,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,6.0,0022400437
+0022400437,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400437

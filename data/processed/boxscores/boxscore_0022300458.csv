@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300458,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,F,,,34:31,4,12,0.333,1,4,0.25,0,0,0.0,3,0,3,1,1,1,0,3,9,-22.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,F,,,38:29,6,13,0.462,0,3,0.0,3,4,0.75,3,1,4,2,4,0,2,2,15,-17.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,35:45,6,17,0.353,0,2,0.0,9,13,0.692,3,12,15,4,0,0,3,3,21,-12.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,34:35,4,13,0.308,4,8,0.5,0,0,0.0,0,6,6,6,2,0,3,1,12,-29.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,24:24,3,5,0.6,0,1,0.0,2,2,1.0,1,0,1,3,0,0,3,3,8,-19.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,26:05,3,8,0.375,3,7,0.429,6,6,1.0,0,1,1,2,0,0,1,1,15,-3.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,22:30,7,11,0.636,1,5,0.2,2,2,1.0,2,2,4,3,0,2,1,2,17,5.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1630181,R.J.,Hampton,R. Hampton,rj-hampton,,,,11:34,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,9.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,3:22,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-6.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,2:55,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,0,3,3.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,,,2:55,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,3.0,0022300458
+0022300458,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,2:55,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,1,0,0,0,0,1,3.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,33:42,10,19,0.526,2,5,0.4,2,3,0.667,1,5,6,5,4,1,2,0,24,24.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,33:46,7,14,0.5,3,8,0.375,6,6,1.0,0,3,3,2,1,0,3,4,23,14.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,28:48,3,4,0.75,0,0,0.0,0,0,0.0,1,11,12,1,0,0,1,4,6,28.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,17:47,5,7,0.714,1,2,0.5,1,1,1.0,1,2,3,0,0,0,1,2,12,8.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,31:29,5,8,0.625,3,5,0.6,2,2,1.0,0,4,4,10,1,2,2,1,15,26.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,17:53,4,10,0.4,0,1,0.0,0,0,0.0,2,2,4,3,2,0,2,0,8,-4.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,33:01,9,11,0.818,4,5,0.8,0,0,0.0,0,2,2,2,2,0,1,4,22,13.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,18:32,2,3,0.667,1,2,0.5,0,0,0.0,1,0,1,2,0,0,0,2,5,-7.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,16:17,2,3,0.667,0,1,0.0,2,2,1.0,0,1,1,0,0,0,2,3,6,-8.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,2:55,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,2:55,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-3.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,2:55,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-3.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300458
+0022300458,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300458

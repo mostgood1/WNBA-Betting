@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294562,Bul,Kuol,B. Kuol,bul-kuol,F,,,31:33,1,7,0.143,0,6,0.0,0,0,0.0,0,1,1,3,2,0,1,3,2,-36.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294560,Bobi,Klintman,B. Klintman,bobi-klintman,F,,,34:21,3,12,0.25,1,5,0.2,2,3,0.667,4,3,7,2,2,0,1,1,9,-34.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294555,Akoldah,Gak,A. Gak,akoldah-gak,C,,,18:51,0,4,0.0,0,1,0.0,0,0,0.0,0,4,4,0,0,0,5,5,0,-31.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294557,Sam,Waardenburg,S. Waardenburg,sam-waardenburg,G,,,27:42,6,11,0.545,1,3,0.333,2,4,0.5,2,2,4,1,0,2,1,1,15,-27.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294550,Patrick,Miller,P. Miller,patrick-miller,G,,,40:47,9,20,0.45,1,2,0.5,3,5,0.6,3,2,5,6,1,0,6,2,22,-27.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294558,Josh,Roberts,J. Roberts,josh-roberts,,,,22:04,5,7,0.714,0,0,0.0,1,1,1.0,3,6,9,0,2,1,1,3,11,-4.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294600,Elfrid,Peyton,E. Peyton,elfrid-peyton,,,,27:32,10,19,0.526,1,3,0.333,0,1,0.0,1,6,7,7,2,0,5,3,21,-5.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294554,Lat,Mayen,L. Mayen,lat-mayen,,,,22:60,6,10,0.6,1,5,0.2,0,0,0.0,1,4,5,0,1,0,2,2,13,-18.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294553,Jonah,Antonio,J. Antonio,jonah-antonio,,,,9:01,0,4,0.0,0,4,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-15.0,0012300040
+0012300040,15022,Cairns,Taipans,CNS,taipans,196294559,Lachlan,Anderson,L. Anderson,lachlan-anderson,,,,5:09,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-8.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,16:53,3,6,0.5,3,6,0.5,1,2,0.5,0,1,1,1,1,0,2,1,10,19.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,16:53,5,7,0.714,1,1,1.0,1,1,1.0,3,4,7,5,0,0,2,2,12,19.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,C,,,13:00,3,6,0.5,0,2,0.0,6,8,0.75,3,5,8,0,2,1,0,1,12,15.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,G,,,17:34,4,6,0.667,2,3,0.667,4,6,0.667,2,3,5,4,2,1,5,0,14,15.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,16:53,3,6,0.5,1,3,0.333,0,0,0.0,1,1,2,3,1,0,2,1,7,19.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,18:09,2,8,0.25,2,7,0.286,2,2,1.0,0,1,1,3,0,1,0,1,8,15.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,201152,Thaddeus,Young,T. Young,thaddeus-young,,,,14:39,4,6,0.667,0,0,0.0,1,1,1.0,2,5,7,2,1,0,0,1,9,8.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,16:42,3,6,0.5,1,3,0.333,2,2,1.0,1,2,3,0,1,0,0,2,9,5.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,16:42,4,7,0.571,2,3,0.667,0,0,0.0,2,1,3,4,0,0,1,0,10,5.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,16:42,2,7,0.286,1,4,0.25,0,0,0.0,0,2,2,2,0,0,0,0,5,5.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,9:46,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,1,0,1,2,-4.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1631241,Javon,Freeman-Liberty,J. Freeman-Liberty,javon-freeman-liberty,,,,14:25,7,11,0.636,1,3,0.333,0,0,0.0,1,2,3,0,2,0,0,1,15,17.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1631199,Ron,Harper Jr.,R. Harper Jr.,ron-harper-jr,,,,11:59,0,2,0.0,0,2,0.0,3,4,0.75,0,0,0,1,0,1,0,0,3,13.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1641806,Markquis,Nowell,M. Nowell,markquis-nowell,,,,10:31,2,4,0.5,0,2,0.0,0,0,0.0,1,1,2,4,1,1,2,3,4,8.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1631338,Mouhamadou,Gueye,M. Gueye,mouhamadou-gueye,,,,12:18,1,3,0.333,0,0,0.0,0,0,0.0,2,5,7,3,1,0,2,1,2,14.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,8:27,3,3,1.0,0,0,0.0,2,2,1.0,0,2,2,1,1,0,1,0,8,16.0,0012300040
+0012300040,1610612761,Toronto,Raptors,TOR,raptors,1630588,Makur,Maker,M. Maker,makur-maker,,,,8:27,1,4,0.25,0,1,0.0,2,2,1.0,1,2,3,1,1,0,0,0,4,16.0,0012300040

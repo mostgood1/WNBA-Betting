@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,F,,,32:56,4,12,0.333,3,7,0.429,0,0,0.0,1,6,7,3,0,1,4,1,11,-18.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,38:03,8,20,0.4,4,9,0.444,8,10,0.8,0,4,4,1,1,2,2,4,28,0.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,27:30,3,5,0.6,0,0,0.0,2,2,1.0,0,6,6,0,1,5,3,5,8,-12.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,G,,,20:49,3,7,0.429,2,3,0.667,0,1,0.0,0,3,3,0,0,2,1,4,8,-8.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,35:30,8,18,0.444,3,6,0.5,11,12,0.917,0,3,3,6,1,0,2,1,30,-9.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,29:25,0,3,0.0,0,3,0.0,0,0,0.0,0,4,4,1,0,1,0,0,0,-4.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,16:50,0,0,0.0,0,0,0.0,0,0,0.0,1,4,5,2,2,2,0,1,0,2.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,,,8:20,2,3,0.667,0,0,0.0,1,2,0.5,0,2,2,1,1,0,3,3,5,10.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,8:50,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,1,1,0,0,0,0,-8.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,19:38,4,6,0.667,0,2,0.0,2,2,1.0,0,1,1,2,1,0,2,1,10,-6.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,2:09,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400448
+0022400448,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,25:30,6,13,0.462,1,2,0.5,1,1,1.0,0,4,4,2,0,0,1,4,14,-1.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,36:03,2,8,0.25,0,3,0.0,0,0,0.0,0,6,6,1,2,0,1,3,4,3.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,33:25,8,16,0.5,0,1,0.0,1,2,0.5,7,9,16,7,1,0,2,3,17,-6.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,35:37,4,14,0.286,1,6,0.167,5,6,0.833,2,5,7,6,1,0,6,4,14,7.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,35:13,13,23,0.565,3,7,0.429,4,5,0.8,2,4,6,6,1,0,1,5,33,17.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,,,19:37,1,5,0.2,1,4,0.25,0,0,0.0,0,2,2,1,0,1,0,1,3,11.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,19:59,1,5,0.2,1,3,0.333,4,4,1.0,1,4,5,0,2,0,3,1,7,-4.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,21:47,5,9,0.556,3,6,0.5,1,1,1.0,1,3,4,1,1,0,0,1,14,31.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,7:14,2,7,0.286,0,0,0.0,0,0,0.0,5,3,8,0,0,0,0,1,4,0.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,1:24,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,-2.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,1:24,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,,,1:24,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,1:24,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400448
+0022400448,1610612758,Sacramento,Kings,SAC,kings,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400448

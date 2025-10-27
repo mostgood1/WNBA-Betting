@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,33:35,7,17,0.412,6,12,0.5,2,2,1.0,0,4,4,3,0,0,2,5,22,-3.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,F,,,22:05,2,6,0.333,0,3,0.0,2,2,1.0,2,1,3,2,1,0,2,2,6,-10.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,23:35,7,8,0.875,0,0,0.0,1,3,0.333,2,4,6,2,0,0,1,5,15,2.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,35:59,8,13,0.615,1,3,0.333,4,5,0.8,0,3,3,6,0,0,5,4,21,-13.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,41:05,13,27,0.481,2,10,0.2,3,3,1.0,0,8,8,6,3,0,5,2,31,2.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,24:25,4,6,0.667,0,0,0.0,4,7,0.571,2,6,8,2,0,1,1,3,12,-5.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,28:56,2,4,0.5,2,4,0.5,0,0,0.0,2,4,6,1,1,0,0,1,6,2.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,11:23,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,18:57,1,2,0.5,0,1,0.0,2,2,1.0,0,2,2,4,1,0,1,1,4,16.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,33:43,3,8,0.375,0,3,0.0,2,4,0.5,1,2,3,4,2,1,1,4,8,16.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,31:42,3,6,0.5,2,4,0.5,3,4,0.75,0,7,7,6,3,2,0,2,11,20.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,14:12,3,5,0.6,0,0,0.0,2,6,0.333,5,4,9,2,2,0,2,1,8,4.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,26:25,6,12,0.5,2,6,0.333,0,0,0.0,1,3,4,4,1,0,2,2,14,12.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,34:52,14,27,0.519,5,12,0.417,4,5,0.8,0,6,6,9,1,2,4,2,37,24.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,7:29,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,4.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,20:39,6,13,0.462,2,8,0.25,0,0,0.0,0,1,1,0,2,0,0,0,14,-21.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,27:33,6,11,0.545,2,5,0.4,2,4,0.5,2,3,5,1,1,0,0,2,16,-1.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,14:49,2,5,0.4,0,0,0.0,1,2,0.5,9,2,11,2,1,0,2,2,5,-9.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,16:41,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,1,0,0,0,2,3,-19.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,11:55,1,4,0.25,0,2,0.0,2,2,1.0,0,2,2,0,0,2,1,1,4,-15.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007
+0022400007,1610612744,Golden State,Warriors,GSW,warriors,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400007

@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400384,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,37:16,6,17,0.353,2,8,0.25,2,2,1.0,2,3,5,3,3,0,2,3,16,17.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,41:57,6,13,0.462,1,4,0.25,1,2,0.5,1,7,8,5,2,1,1,3,14,12.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,27:14,3,10,0.3,2,5,0.4,3,3,1.0,2,8,10,4,0,1,5,5,11,1.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,45:01,7,16,0.438,3,6,0.5,1,2,0.5,0,0,0,2,2,0,3,0,18,20.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,39:53,13,19,0.684,7,10,0.7,6,6,1.0,0,1,1,6,2,0,4,1,39,25.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,11:54,1,4,0.25,0,0,0.0,0,0,0.0,5,2,7,1,0,1,1,2,2,-13.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,15:56,1,6,0.167,0,3,0.0,0,0,0.0,1,1,2,1,1,0,0,0,2,-10.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,8:03,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,-14.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,12:45,0,0,0.0,0,0,0.0,0,0,0.0,4,4,8,1,1,0,0,3,0,17.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384
+0022400384,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,38:05,11,18,0.611,3,8,0.375,1,1,1.0,1,5,6,2,0,2,3,3,26,-12.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,F,,,32:48,1,7,0.143,1,4,0.25,2,4,0.5,2,2,4,4,3,0,1,6,5,4.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,30:03,3,8,0.375,0,0,0.0,3,4,0.75,7,1,8,1,1,0,5,2,9,-11.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,32:21,5,13,0.385,0,4,0.0,3,4,0.75,2,3,5,4,1,1,2,1,13,-10.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,33:18,5,15,0.333,2,6,0.333,2,2,1.0,0,9,9,8,1,0,3,3,14,-9.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,20:43,3,8,0.375,3,6,0.5,0,0,0.0,1,1,2,1,0,0,0,0,9,-5.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,17:57,2,4,0.5,0,2,0.0,0,0,0.0,1,3,4,1,1,0,1,0,4,0.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,17:36,2,4,0.5,2,2,1.0,0,0,0.0,2,3,5,1,1,1,2,3,6,-7.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,17:08,2,6,0.333,1,2,0.5,2,4,0.5,0,2,2,1,0,1,2,2,7,-5.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384
+0022400384,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400384

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,30:25,5,10,0.5,0,3,0.0,6,7,0.857,0,4,4,3,0,0,1,4,16,-24.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,F,,,10:42,1,3,0.333,1,2,0.5,0,0,0.0,1,0,1,0,0,0,1,1,3,-20.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,28:24,5,13,0.385,0,1,0.0,1,4,0.25,10,7,17,0,1,1,2,2,11,-31.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1627936,Alex,Caruso,A. Caruso,alex-caruso,G,,,21:27,3,10,0.3,1,6,0.167,1,2,0.5,1,1,2,2,0,1,2,0,8,-12.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,28:29,5,15,0.333,0,5,0.0,4,5,0.8,0,4,4,3,2,0,1,4,14,-26.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,,,,31:32,7,14,0.5,1,4,0.25,0,0,0.0,0,3,3,0,1,0,3,2,15,-19.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1630678,Terry,Taylor,T. Taylor,terry-taylor,,,,19:36,0,5,0.0,0,2,0.0,0,0,0.0,4,1,5,1,1,1,4,2,0,18.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,22:50,3,11,0.273,3,8,0.375,0,0,0.0,0,1,1,1,4,0,0,0,9,8.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,20:47,2,7,0.286,0,3,0.0,2,2,1.0,1,7,8,7,0,1,3,4,6,14.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,16:52,3,5,0.6,1,3,0.333,0,0,0.0,0,0,0,0,0,3,0,2,7,10.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1641766,Adama,Sanogo,A. Sanogo,adama-sanogo,,,,8:57,3,3,1.0,0,0,0.0,2,3,0.667,2,4,6,0,0,0,1,0,8,17.0,0022300459
+0022300459,1610612741,Chicago,Bulls,CHI,bulls,1628470,Torrey,Craig,T. Craig,torrey-craig,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,F,,,22:23,2,4,0.5,1,3,0.333,1,1,1.0,2,1,3,2,0,1,1,2,6,18.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,29:53,9,13,0.692,1,4,0.25,1,3,0.333,1,7,8,2,0,2,1,0,20,32.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,31:27,10,20,0.5,2,5,0.4,9,12,0.75,0,15,15,10,1,2,4,4,31,32.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,26:43,5,8,0.625,3,5,0.6,3,3,1.0,0,3,3,3,3,0,1,3,16,28.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,29:19,6,12,0.5,4,7,0.571,5,6,0.833,0,1,1,5,0,0,1,2,21,24.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,14:06,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,2,0,0,1,1,3,15.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,,,15:14,2,5,0.4,0,2,0.0,1,1,1.0,0,0,0,1,0,0,1,1,5,-2.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,21:17,2,4,0.5,0,2,0.0,0,0,0.0,2,0,2,2,1,1,2,4,4,-15.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,11:04,0,3,0.0,0,0,0.0,2,4,0.5,1,1,2,0,1,0,1,0,2,-7.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,12:57,1,3,0.333,0,0,0.0,0,0,0.0,0,4,4,0,2,0,0,2,2,-9.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,8:57,0,3,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-17.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,7:03,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,0,1,0,2,3,0,-12.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,6:01,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-12.0,0022300459
+0022300459,1610612755,Philadelphia,76ers,PHI,sixers,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,,,3:36,0,2,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,2,0,0,-10.0,0022300459

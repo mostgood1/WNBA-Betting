@@ -1,0 +1,488 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012300004,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (1:11 PM EST),period,start,1,0,1,0012300004
+0012300004,44,PT12M00.00S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Violation: Delay of game Violation,Violation,Delay Of Game,0,0,2,0012300004
+0012300004,4,PT12M00.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,Jump Ball B. Lopez vs. Vucevic: Tip to LaVine,Jump Ball,,1,0,3,0012300004
+0012300004,7,PT11M44.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,145,22,15,Missed,1,,,0,v,MISS LaVine 15' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,4,0012300004
+0012300004,8,PT11M40.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,Portis REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,5,0012300004
+0012300004,9,PT11M26.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,-94,277,29,Missed,1,,,0,h,MISS B. Lopez 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,6,0012300004
+0012300004,10,PT11M24.00S,1,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,7,0012300004
+0012300004,11,PT11M04.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,-10,253,25,Missed,1,,,0,v,MISS LaVine 25' 3PT Jump Shot,Missed Shot,Jump Shot,0,3,8,0012300004
+0012300004,12,PT11M00.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,9,0012300004
+0012300004,13,PT10M43.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,-32,162,17,Missed,1,,,0,h,MISS B. Lopez 17' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,10,0012300004
+0012300004,14,PT10M40.00S,1,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,11,0012300004
+0012300004,15,PT10M26.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,27,206,21,Missed,1,,,0,v,MISS DeRozan 21' Jump Shot,Missed Shot,Jump Shot,1,2,12,0012300004
+0012300004,16,PT10M23.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,13,0012300004
+0012300004,17,PT10M18.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,14,0012300004
+0012300004,17,PT10M18.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White STEAL (1 STL),,,1,0,15,0012300004
+0012300004,19,PT10M12.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,-226,6,0,Missed,1,,,0,v,MISS LaVine 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,16,0012300004
+0012300004,20,PT10M11.00S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,17,0012300004
+0012300004,22,PT09M58.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley Bad Pass Turnover (P1.T2),Turnover,Bad Pass,1,0,18,0012300004
+0012300004,22,PT09M58.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,,,0,v,DeRozan STEAL (1 STL),,,1,0,19,0012300004
+0012300004,24,PT09M50.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,-9,11,1,Made,1,0,2,2,v,LaVine 1' Running Layup (2 PTS) (White 1 AST),Made Shot,Running Layup Shot,1,2,20,0012300004
+0012300004,26,PT09M37.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,-47,84,10,Made,1,2,2,4,h,Crowder 10' Floating Jump Shot (2 PTS) (Beasley 1 AST),Made Shot,Floating Jump shot,1,2,21,0012300004
+0012300004,28,PT09M17.00S,1,1610612741,CHI,1629632,White,C. White,-208,159,26,Missed,1,,,0,v,MISS White 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,22,0012300004
+0012300004,29,PT09M13.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,Portis REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,23,0012300004
+0012300004,30,PT09M06.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-26,43,5,Made,1,4,2,6,h,Portis 5' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,24,0012300004
+0012300004,31,PT08M49.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,-118,135,18,Made,1,4,4,8,v,DeRozan 18' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,25,0012300004
+0012300004,33,PT08M33.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-124,89,15,Made,1,6,4,10,h,Portis 15' Turnaround Jump Shot (4 PTS) (Beasley 2 AST),Made Shot,Turnaround Jump Shot,1,2,26,0012300004
+0012300004,35,PT08M16.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,229,43,0,Made,1,6,7,13,v,DeRozan 3PT Jump Shot (5 PTS) (Vucevic 1 AST),Made Shot,Jump Shot,1,3,27,0012300004
+0012300004,37,PT08M04.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,-207,186,28,Missed,1,,,0,h,MISS B. Lopez 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,28,0012300004
+0012300004,38,PT07M58.00S,1,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,29,0012300004
+0012300004,39,PT07M52.00S,1,1610612741,CHI,1630172,Williams,P. Williams,-71,145,16,Made,1,6,9,15,v,Williams 16' Running Pull-Up Jump Shot (2 PTS),Made Shot,Running Pull-Up Jump Shot,0,2,30,0012300004
+0012300004,40,PT07M36.00S,1,1610612749,MIL,1626171,Portis,B. Portis,65,214,22,Missed,1,,,0,h,MISS Portis 22' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,31,0012300004
+0012300004,41,PT07M33.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,32,0012300004
+0012300004,42,PT07M28.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,219,136,26,Made,1,6,12,18,v,LaVine 26' 3PT Running Jump Shot (5 PTS) (White 2 AST),Made Shot,Running Jump Shot,1,3,33,0012300004
+0012300004,61,PT07M28.00S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,34,0012300004
+0012300004,45,PT07M28.00S,1,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,SUB: Dosunmu FOR Williams,Substitution,,0,0,35,0012300004
+0012300004,47,PT07M28.00S,1,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,SUB: Craig FOR Dosunmu,Substitution,,0,0,36,0012300004
+0012300004,49,PT07M07.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,107,139,18,Missed,1,,,0,h,MISS Wigginton 18' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,37,0012300004
+0012300004,49,PT07M07.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,,,0,v,DeRozan BLOCK (1 BLK),,,1,2,38,0012300004
+0012300004,51,PT07M04.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,,,0,v,DeRozan REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,39,0012300004
+0012300004,52,PT07M04.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley S.FOUL (P1.T1) (B.Haskill),Foul,Shooting,1,0,40,0012300004
+0012300004,54,PT07M04.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,6,13,19,v,DeRozan Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,41,0012300004
+0012300004,55,PT07M04.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,6,14,20,v,DeRozan Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,42,0012300004
+0012300004,56,PT06M52.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,5,32,3,Made,1,8,14,22,h,B. Lopez 3' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,43,0012300004
+0012300004,57,PT06M36.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,44,0012300004
+0012300004,57,PT06M36.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton STEAL (1 STL),,,1,0,45,0012300004
+0012300004,59,PT06M30.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,116,265,29,Made,1,11,14,25,h,B. Lopez 29' 3PT Pullup Jump Shot (5 PTS) (Crowder 1 AST),Made Shot,Pullup Jump shot,1,3,46,0012300004
+0012300004,62,PT06M03.00S,1,1610612741,CHI,202696,Vučević,N. Vučević,4,143,14,Missed,1,,,0,v,MISS Vucevic 14' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,47,0012300004
+0012300004,63,PT06M00.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,48,0012300004
+0012300004,64,PT05M50.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,230,32,0,Missed,1,,,0,h,MISS Crowder 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,49,0012300004
+0012300004,65,PT05M46.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,0,0,0,,0,,,0,v,LaVine REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,50,0012300004
+0012300004,66,PT05M42.00S,1,1610612741,CHI,1629632,White,C. White,172,187,25,Made,1,11,17,28,v,White 25' 3PT Running Jump Shot (3 PTS) (LaVine 1 AST),Made Shot,Running Jump Shot,1,3,51,0012300004
+0012300004,68,PT05M26.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,65,49,8,Missed,1,,,0,h,MISS Beasley 8' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,52,0012300004
+0012300004,69,PT05M24.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,53,0012300004
+0012300004,70,PT05M17.00S,1,1610612741,CHI,1628470,Craig,T. Craig,26,16,3,Missed,1,,,0,v,MISS Craig 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,54,0012300004
+0012300004,71,PT05M14.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,Portis REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,55,0012300004
+0012300004,72,PT05M06.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,-50,277,28,Made,1,14,17,31,h,B. Lopez 28' 3PT Jump Shot (8 PTS) (Portis 1 AST),Made Shot,Jump Shot,1,3,56,0012300004
+0012300004,74,PT04M51.00S,1,1610612741,CHI,202696,Vučević,N. Vučević,114,245,27,Missed,1,,,0,v,MISS Vucevic 27' 3PT Jump Shot,Missed Shot,Jump Shot,0,3,57,0012300004
+0012300004,75,PT04M49.00S,1,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,58,0012300004
+0012300004,76,PT04M39.00S,1,1610612741,CHI,1629632,White,C. White,-132,226,26,Missed,1,,,0,v,MISS White 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,59,0012300004
+0012300004,77,PT04M37.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,Portis REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,60,0012300004
+0012300004,78,PT04M31.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,76,273,28,Missed,1,,,0,h,MISS Beasley 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,61,0012300004
+0012300004,79,PT04M28.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,0,0,0,,0,,,0,v,LaVine REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,62,0012300004
+0012300004,80,PT04M25.00S,1,1610612741,CHI,1628470,Craig,T. Craig,5,10,1,Made,1,14,19,33,v,Craig 1' Running Layup (2 PTS) (LaVine 2 AST),Made Shot,Running Layup Shot,1,2,63,0012300004
+0012300004,82,PT04M12.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,-180,197,27,Missed,1,,,0,h,MISS Beasley 27' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,64,0012300004
+0012300004,83,PT04M08.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,65,0012300004
+0012300004,84,PT04M03.00S,1,1610612741,CHI,1628470,Craig,T. Craig,-148,218,26,Made,1,14,22,36,v,Craig 26' 3PT Running Jump Shot (5 PTS) (White 3 AST),Made Shot,Running Jump Shot,1,3,66,0012300004
+0012300004,86,PT03M46.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,67,0012300004
+0012300004,86,PT03M46.00S,1,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig STEAL (1 STL),,,1,0,68,0012300004
+0012300004,88,PT03M42.00S,1,1610612741,CHI,1629632,White,C. White,-13,0,1,Made,1,14,24,38,v,White 1' Running Reverse Layup (5 PTS) (Craig 1 AST),Made Shot,Running Reverse Layup Shot,1,2,69,0012300004
+0012300004,90,PT03M31.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton Bad Pass Turnover (P2.T4),Turnover,Bad Pass,1,0,70,0012300004
+0012300004,90,PT03M31.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,0,0,0,,0,,,0,v,LaVine STEAL (1 STL),,,1,0,71,0012300004
+0012300004,92,PT03M26.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,105,206,23,Missed,1,,,0,v,MISS DeRozan 23' Running Jump Shot,Missed Shot,Running Jump Shot,1,2,72,0012300004
+0012300004,93,PT03M22.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,73,0012300004
+0012300004,94,PT03M06.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,-76,50,9,Missed,1,,,0,h,MISS Crowder 9' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,74,0012300004
+0012300004,95,PT03M06.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,75,0012300004
+0012300004,96,PT03M06.00S,1,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,76,0012300004
+0012300004,97,PT03M06.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: Washington Jr. FOR Beasley,Substitution,,0,0,77,0012300004
+0012300004,98,PT03M06.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,SUB: Connaughton FOR Portis,Substitution,,0,0,78,0012300004
+0012300004,99,PT03M06.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,SUB: T. Antetokounmpo FOR B. Lopez,Substitution,,0,0,79,0012300004
+0012300004,100,PT03M06.00S,1,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,SUB: Beauchamp FOR Wigginton,Substitution,,0,0,80,0012300004
+0012300004,101,PT03M06.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: R. Lopez FOR Crowder,Substitution,,0,0,81,0012300004
+0012300004,102,PT03M06.00S,1,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,SUB: Dosunmu FOR White,Substitution,,0,0,82,0012300004
+0012300004,103,PT03M06.00S,1,1610612741,CHI,203897,LaVine,Z. LaVine,0,0,0,,0,,,0,v,SUB: Caruso FOR LaVine,Substitution,,0,0,83,0012300004
+0012300004,104,PT03M06.00S,1,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,SUB: Drummond FOR Vucevic,Substitution,,0,0,84,0012300004
+0012300004,105,PT03M06.00S,1,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,,,0,v,SUB: Carter FOR DeRozan,Substitution,,0,0,85,0012300004
+0012300004,115,PT02M50.00S,1,1610612741,CHI,1627936,Caruso,A. Caruso,137,211,25,Missed,1,,,0,v,MISS Caruso 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,86,0012300004
+0012300004,116,PT02M47.00S,1,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Rebound,Rebound,Unknown,1,0,87,0012300004
+0012300004,118,PT02M38.00S,1,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,-59,48,8,Missed,1,,,0,v,MISS Dosunmu 8' Driving Layup,Missed Shot,Driving Layup Shot,1,2,88,0012300004
+0012300004,119,PT02M38.00S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,89,0012300004
+0012300004,121,PT02M16.00S,1,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp Bad Pass Turnover (P1.T5),Turnover,Bad Pass,1,0,90,0012300004
+0012300004,121,PT02M16.00S,1,1610612741,CHI,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,Caruso STEAL (1 STL),,,1,0,91,0012300004
+0012300004,123,PT02M12.00S,1,1610612741,CHI,1628975,Carter,J. Carter,186,179,26,Missed,1,,,0,v,MISS Carter 26' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,92,0012300004
+0012300004,124,PT02M09.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,93,0012300004
+0012300004,125,PT02M05.00S,1,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,Dosunmu P.FOUL (P1.T1) (P.Ransom),Foul,Personal,1,0,94,0012300004
+0012300004,127,PT01M55.00S,1,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,31,59,7,Missed,1,,,0,h,MISS T. Antetokounmpo 7' Driving Layup,Missed Shot,Driving Layup Shot,1,2,95,0012300004
+0012300004,128,PT01M54.00S,1,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,96,0012300004
+0012300004,130,PT01M40.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,2,46,5,Missed,1,,,0,h,MISS Connaughton 5' Driving Layup,Missed Shot,Driving Layup Shot,1,2,97,0012300004
+0012300004,131,PT01M37.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,98,0012300004
+0012300004,132,PT01M35.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,-10,37,4,Made,1,16,24,40,h,Connaughton 4' Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,99,0012300004
+0012300004,134,PT01M29.00S,1,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo S.FOUL (P1.T2) (P.Ransom),Foul,Shooting,1,0,100,0012300004
+0012300004,136,PT01M29.00S,1,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,16,25,41,v,Drummond Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,101,0012300004
+0012300004,137,PT01M29.00S,1,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,16,26,42,v,Drummond Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,0,0,102,0012300004
+0012300004,138,PT01M16.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,-232,60,24,Missed,1,,,0,h,MISS Connaughton 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,103,0012300004
+0012300004,139,PT01M13.00S,1,1610612741,CHI,1628975,Carter,J. Carter,0,0,0,,0,,,0,v,Carter REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,104,0012300004
+0012300004,140,PT01M05.00S,1,1610612741,CHI,1628975,Carter,J. Carter,-11,25,3,Made,1,16,28,44,v,Carter 3' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,105,0012300004
+0012300004,141,PT00M49.40S,1,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,12,27,3,Missed,1,,,0,h,MISS Washington Jr. 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,106,0012300004
+0012300004,142,PT00M46.70S,1,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,107,0012300004
+0012300004,143,PT00M43.30S,1,1610612741,CHI,203083,Drummond,A. Drummond,-10,13,2,Made,1,16,30,46,v,Drummond 2' Running Layup (4 PTS) (Caruso 1 AST),Made Shot,Running Layup Shot,1,2,108,0012300004
+0012300004,145,PT00M33.80S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,165,231,28,Made,1,19,30,49,h,Connaughton 28' 3PT Jump Shot (5 PTS) (Washington Jr. 1 AST),Made Shot,Jump Shot,1,3,109,0012300004
+0012300004,147,PT00M21.00S,1,1610612741,CHI,1628470,Craig,T. Craig,-37,31,5,Missed,1,,,0,v,MISS Craig 5' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,110,0012300004
+0012300004,147,PT00M21.00S,1,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo BLOCK (1 BLK),,,1,2,111,0012300004
+0012300004,149,PT00M16.30S,1,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,112,0012300004
+0012300004,150,PT00M15.30S,1,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,6,36,4,Made,1,21,30,51,h,Beauchamp 4' Running Finger Roll Layup (2 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,113,0012300004
+0012300004,151,PT00M03.80S,1,1610612741,CHI,1628975,Carter,J. Carter,108,98,15,Missed,1,,,0,v,MISS Carter 15' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,114,0012300004
+0012300004,152,PT00M03.20S,1,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,115,0012300004
+0012300004,227,PT00M03.10S,1,1610612741,CHI,1628470,Craig,T. Craig,-9,15,2,Missed,1,,,0,v,MISS Craig 2' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,116,0012300004
+0012300004,228,PT00M02.90S,1,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,117,0012300004
+0012300004,235,PT00M02.30S,1,1610612741,CHI,203083,Drummond,A. Drummond,-2,15,2,Missed,1,,,0,v,MISS Drummond 2' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,118,0012300004
+0012300004,236,PT00M01.20S,1,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,119,0012300004
+0012300004,153,PT00M00.00S,1,1610612741,CHI,203083,Drummond,A. Drummond,-54,4,5,Missed,1,,,0,v,MISS Drummond 5' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,120,0012300004
+0012300004,154,PT00M00.00S,1,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Rebound,Rebound,Unknown,0,0,121,0012300004
+0012300004,155,PT00M00.00S,1,0,,0,,,0,0,0,,0,21,30,51,,End of 1st Period (1:33 PM EST),period,end,1,0,122,0012300004
+0012300004,158,PT12M00.00S,2,0,,0,,,0,0,0,,0,21,30,51,,Start of 2nd Period (1:35 PM EST),period,start,0,0,123,0012300004
+0012300004,159,PT11M44.00S,2,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,7,26,3,Made,1,23,30,53,h,T. Antetokounmpo 3' Cutting Dunk Shot (2 PTS) (Connaughton 1 AST),Made Shot,Cutting Dunk Shot,1,2,124,0012300004
+0012300004,162,PT11M20.00S,2,1610612741,CHI,1630172,Williams,P. Williams,83,243,26,Made,1,23,33,56,v,Williams 26' 3PT Jump Bank Shot (5 PTS) (Carter 1 AST),Made Shot,Jump Bank Shot,1,3,125,0012300004
+0012300004,164,PT10M59.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,4,23,2,Made,1,25,33,58,h,Connaughton 2' Driving Finger Roll Layup (7 PTS) (Washington Jr. 2 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,126,0012300004
+0012300004,165,PT10M43.00S,2,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,51,85,10,Missed,1,,,0,v,MISS Dosunmu 10' Driving Layup,Missed Shot,Driving Layup Shot,1,2,127,0012300004
+0012300004,165,PT10M43.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez BLOCK (1 BLK),,,1,2,128,0012300004
+0012300004,167,PT10M39.00S,2,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,Dosunmu REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,129,0012300004
+0012300004,168,PT10M38.00S,2,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,-23,5,2,Missed,1,,,0,v,MISS Dosunmu 2' Putback Layup,Missed Shot,Putback Layup Shot,1,2,130,0012300004
+0012300004,168,PT10M38.00S,2,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo BLOCK (2 BLK),,,1,2,131,0012300004
+0012300004,170,PT10M34.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,132,0012300004
+0012300004,171,PT10M30.00S,2,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,13,39,4,Made,1,27,33,60,h,T. Antetokounmpo 4' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,133,0012300004
+0012300004,173,PT10M22.00S,2,1610612741,CHI,1628975,Carter,J. Carter,-91,241,26,Made,1,27,36,63,v,Carter 26' 3PT Pullup Jump Shot (5 PTS),Made Shot,Pullup Jump shot,1,3,134,0012300004
+0012300004,174,PT10M04.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,-172,216,28,Missed,1,,,0,h,MISS Connaughton 28' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,135,0012300004
+0012300004,175,PT10M01.00S,2,1610612741,CHI,1628975,Carter,J. Carter,0,0,0,,0,,,0,v,Carter REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,136,0012300004
+0012300004,176,PT09M57.00S,2,1610612741,CHI,1630172,Williams,P. Williams,-31,36,5,Missed,1,,,0,v,MISS Williams 5' Running Layup,Missed Shot,Running Layup Shot,1,2,137,0012300004
+0012300004,177,PT09M57.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,138,0012300004
+0012300004,179,PT09M32.00S,2,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,116,273,30,Missed,1,,,0,h,MISS Washington Jr. 30' 3PT Jump Shot,Missed Shot,Jump Shot,0,3,139,0012300004
+0012300004,179,PT09M32.00S,2,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams BLOCK (1 BLK),,,0,3,140,0012300004
+0012300004,180,PT09M31.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,141,0012300004
+0012300004,181,PT09M31.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Turnover: Shot Clock (T#6),Turnover,Shot Clock Turnover,1,0,142,0012300004
+0012300004,182,PT09M19.00S,2,1610612741,CHI,203083,Drummond,A. Drummond,-67,32,7,Missed,1,,,0,v,MISS Drummond 7' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,143,0012300004
+0012300004,182,PT09M19.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez BLOCK (2 BLK),,,1,2,144,0012300004
+0012300004,184,PT09M14.00S,2,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,145,0012300004
+0012300004,185,PT09M12.00S,2,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-206,170,27,Missed,1,,,0,h,MISS Washington Jr. 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,146,0012300004
+0012300004,186,PT09M08.00S,2,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,147,0012300004
+0012300004,187,PT09M03.00S,2,1610612741,CHI,1628975,Carter,J. Carter,-29,276,28,Missed,1,,,0,v,MISS Carter 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,148,0012300004
+0012300004,188,PT08M59.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,149,0012300004
+0012300004,189,PT08M46.00S,2,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,64,279,29,Missed,1,,,0,h,MISS Beauchamp 29' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,150,0012300004
+0012300004,190,PT08M44.00S,2,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,151,0012300004
+0012300004,191,PT08M37.00S,2,1610612741,CHI,1630172,Williams,P. Williams,225,51,0,Made,1,27,39,66,v,Williams 3PT Jump Shot (8 PTS) (Dosunmu 1 AST),Made Shot,Jump Shot,1,3,152,0012300004
+0012300004,193,PT08M37.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,153,0012300004
+0012300004,195,PT08M23.00S,2,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,SUB: LaVine FOR Drummond,Substitution,,0,0,154,0012300004
+0012300004,196,PT08M23.00S,2,1610612741,CHI,1628975,Carter,J. Carter,0,0,0,,0,,,0,v,SUB: Vucevic FOR Carter,Substitution,,0,0,155,0012300004
+0012300004,197,PT08M23.00S,2,1610612741,CHI,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,v,SUB: DeRozan FOR Caruso,Substitution,,0,0,156,0012300004
+0012300004,201,PT08M23.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,SUB: Beasley FOR Connaughton,Substitution,,0,0,157,0012300004
+0012300004,202,PT08M23.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,SUB: Portis FOR R. Lopez,Substitution,,0,0,158,0012300004
+0012300004,203,PT08M23.00S,2,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,SUB: B. Lopez FOR T. Antetokounmpo,Substitution,,0,0,159,0012300004
+0012300004,207,PT08M21.00S,2,1610612749,MIL,1626171,Portis,B. Portis,4,34,3,Made,1,29,39,68,h,Portis 3' Cutting Layup Shot (6 PTS) (Washington Jr. 3 AST),Made Shot,Cutting Layup Shot,0,2,160,0012300004
+0012300004,209,PT08M01.00S,2,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp P.FOUL (P1.T1) (P.Ransom),Foul,Personal,1,0,161,0012300004
+0012300004,211,PT07M54.00S,2,1610612741,CHI,201942,DeRozan,D. DeRozan,-82,137,16,Missed,1,,,0,v,MISS DeRozan 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,162,0012300004
+0012300004,212,PT07M52.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,163,0012300004
+0012300004,213,PT07M42.00S,2,1610612749,MIL,1626171,Portis,B. Portis,-124,96,16,Made,1,31,39,70,h,Portis 16' Turnaround Jump Shot (8 PTS) (Beasley 3 AST),Made Shot,Turnaround Jump Shot,1,2,164,0012300004
+0012300004,215,PT07M25.00S,2,1610612741,CHI,202696,Vučević,N. Vučević,129,77,15,Made,1,31,41,72,v,Vucevic 15' Jump Shot (2 PTS) (LaVine 3 AST),Made Shot,Jump Shot,1,2,165,0012300004
+0012300004,217,PT07M12.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-110,141,18,Missed,1,,,0,h,MISS B. Lopez 18' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,166,0012300004
+0012300004,218,PT07M07.00S,2,1610612741,CHI,201942,DeRozan,D. DeRozan,0,0,0,,0,,,0,v,DeRozan REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,167,0012300004
+0012300004,219,PT07M01.00S,2,1610612741,CHI,201942,DeRozan,D. DeRozan,-115,126,17,Missed,1,,,0,v,MISS DeRozan 17' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,168,0012300004
+0012300004,220,PT06M58.00S,2,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,169,0012300004
+0012300004,221,PT06M52.00S,2,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-1,37,4,Made,1,33,41,74,h,Beauchamp 4' Driving Layup (4 PTS) (Washington Jr. 4 AST),Made Shot,Driving Layup Shot,1,2,170,0012300004
+0012300004,223,PT06M38.00S,2,1610612741,CHI,203897,LaVine,Z. LaVine,0,0,0,,0,,,0,v,LaVine Bad Pass Turnover (P1.T2),Turnover,Bad Pass,1,0,171,0012300004
+0012300004,223,PT06M38.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley STEAL (1 STL),,,1,0,172,0012300004
+0012300004,225,PT06M34.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,16,27,3,Made,1,35,41,76,h,Beasley 3' Running Layup (2 PTS),Made Shot,Running Layup Shot,1,2,173,0012300004
+0012300004,226,PT06M34.00S,2,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,174,0012300004
+0012300004,229,PT06M34.00S,2,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,SUB: Crowder FOR Beauchamp,Substitution,,0,0,175,0012300004
+0012300004,230,PT06M34.00S,2,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,SUB: Wigginton FOR Washington Jr.,Substitution,,0,0,176,0012300004
+0012300004,231,PT06M34.00S,2,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,SUB: White FOR Dosunmu,Substitution,,0,0,177,0012300004
+0012300004,237,PT06M19.00S,2,1610612741,CHI,203897,LaVine,Z. LaVine,-28,153,16,Made,1,35,43,78,v,LaVine 16' Turnaround Jump Shot (7 PTS) (White 4 AST),Made Shot,Turnaround Jump Shot,1,2,178,0012300004
+0012300004,239,PT06M05.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-61,283,29,Made,1,38,43,81,h,B. Lopez 29' 3PT Jump Shot (11 PTS) (Portis 2 AST),Made Shot,Jump Shot,1,3,179,0012300004
+0012300004,241,PT05M51.00S,2,1610612741,CHI,1629632,White,C. White,89,124,15,Made,1,38,45,83,v,White 15' Step Back Jump Shot (7 PTS),Made Shot,Step Back Jump shot,1,2,180,0012300004
+0012300004,242,PT05M32.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,227,23,0,Made,1,41,45,86,h,Crowder 3PT Jump Shot (5 PTS) (Beasley 4 AST),Made Shot,Jump Shot,1,3,181,0012300004
+0012300004,244,PT05M10.00S,2,1610612741,CHI,1630172,Williams,P. Williams,-240,50,25,Missed,1,,,0,v,MISS Williams 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,182,0012300004
+0012300004,245,PT05M07.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,183,0012300004
+0012300004,247,PT04M53.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder Bad Pass Turnover (P2.T7),Turnover,Bad Pass,1,0,184,0012300004
+0012300004,247,PT04M53.00S,2,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams STEAL (1 STL),,,1,0,185,0012300004
+0012300004,249,PT04M48.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley Violation:Kicked Ball (J.Williams),Violation,Kicked Ball,0,0,186,0012300004
+0012300004,250,PT04M48.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,h,SUB: R. Lopez FOR Portis,Substitution,,0,0,187,0012300004
+0012300004,251,PT04M48.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,SUB: Jackson Jr. FOR B. Lopez,Substitution,,0,0,188,0012300004
+0012300004,254,PT04M44.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. P.FOUL (P1.T2) (P.Ransom),Foul,Personal,1,0,189,0012300004
+0012300004,256,PT04M35.00S,2,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White Out of Bounds - Bad Pass Turnover Turnover (P2.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,190,0012300004
+0012300004,257,PT04M21.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,104,270,29,Made,1,44,45,89,h,Beasley 29' 3PT Jump Shot (5 PTS) (Jackson Jr. 1 AST),Made Shot,Jump Shot,1,3,191,0012300004
+0012300004,259,PT04M04.00S,2,1610612741,CHI,1630172,Williams,P. Williams,-87,235,25,Missed,1,,,0,v,MISS Williams 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,192,0012300004
+0012300004,260,PT04M00.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,193,0012300004
+0012300004,261,PT03M55.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley Lost Ball Turnover (P2.T8),Turnover,Lost Ball,1,0,194,0012300004
+0012300004,261,PT03M55.00S,2,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White STEAL (2 STL),,,1,0,195,0012300004
+0012300004,263,PT03M51.00S,2,1610612741,CHI,1629632,White,C. White,-114,216,24,Missed,1,,,0,v,MISS White 24' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,196,0012300004
+0012300004,264,PT03M50.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,197,0012300004
+0012300004,266,PT03M50.00S,2,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,SUB: Craig FOR Williams,Substitution,,0,0,198,0012300004
+0012300004,268,PT03M38.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,-147,265,30,Made,1,47,45,92,h,Beasley 30' 3PT Jump Shot (8 PTS),Made Shot,Jump Shot,1,3,199,0012300004
+0012300004,269,PT03M13.00S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic OFF.Foul (P1) (B.Haskill),Foul,Offensive,1,0,200,0012300004
+0012300004,271,PT03M13.00S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic Offensive Foul Turnover (P1.T4),Turnover,Offensive Foul Turnover,1,0,201,0012300004
+0012300004,272,PT03M01.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,233,34,24,Missed,1,,,0,h,MISS R. Lopez 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,202,0012300004
+0012300004,273,PT02M57.00S,2,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,203,0012300004
+0012300004,274,PT02M51.00S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic Out of Bounds - Bad Pass Turnover Turnover (P2.T5),Turnover,Out of Bounds - Bad Pass Turnover,1,0,204,0012300004
+0012300004,275,PT02M40.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,98,268,29,Made,1,50,45,95,h,Crowder 29' 3PT Jump Shot (8 PTS) (Wigginton 1 AST),Made Shot,Jump Shot,1,3,205,0012300004
+0012300004,277,PT02M10.00S,2,1610612741,CHI,203897,LaVine,Z. LaVine,-80,194,21,Made,1,50,47,97,v,LaVine 21' Pullup Jump Shot (9 PTS),Made Shot,Pullup Jump shot,1,2,206,0012300004
+0012300004,278,PT01M45.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,-127,258,29,Missed,1,,,0,h,MISS Beasley 29' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,207,0012300004
+0012300004,279,PT01M41.00S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,208,0012300004
+0012300004,280,PT01M27.00S,2,1610612741,CHI,1629632,White,C. White,-16,6,2,Made,1,50,49,99,v,White 2' Driving Layup (9 PTS),Made Shot,Driving Layup Shot,1,2,209,0012300004
+0012300004,282,PT01M06.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,151,235,28,Missed,1,,,0,h,MISS Beasley 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,210,0012300004
+0012300004,283,PT01M04.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,211,0012300004
+0012300004,284,PT00M58.50S,2,1610612749,MIL,1629623,Wigginton,L. Wigginton,-168,220,28,Missed,1,,,0,h,MISS Wigginton 28' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,212,0012300004
+0012300004,285,PT00M57.70S,2,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Rebound,Rebound,Unknown,0,0,213,0012300004
+0012300004,287,PT00M57.70S,2,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: Connaughton FOR Beasley,Substitution,,0,0,214,0012300004
+0012300004,288,PT00M57.70S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: Beauchamp FOR Crowder,Substitution,,0,0,215,0012300004
+0012300004,291,PT00M44.70S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez S.FOUL (P1.T3) (J.Williams),Foul,Shooting,1,0,216,0012300004
+0012300004,293,PT00M44.70S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,50,50,100,v,Vucevic Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,217,0012300004
+0012300004,294,PT00M44.70S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,50,51,101,v,Vucevic Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,218,0012300004
+0012300004,295,PT00M37.40S,2,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig P.FOUL (P1.T1) (J.Williams),Foul,Personal,1,0,219,0012300004
+0012300004,297,PT00M33.30S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic Violation:Kicked Ball (J.Williams),Violation,Kicked Ball,0,0,220,0012300004
+0012300004,298,PT00M25.40S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-88,90,13,Missed,1,,,0,h,MISS Jackson Jr. 13' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,221,0012300004
+0012300004,299,PT00M22.70S,2,1610612741,CHI,202696,Vučević,N. Vučević,0,0,0,,0,,,0,v,Vucevic REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,222,0012300004
+0012300004,300,PT00M03.00S,2,1610612741,CHI,1628470,Craig,T. Craig,183,177,25,Missed,1,,,0,v,MISS Craig 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,223,0012300004
+0012300004,301,PT00M03.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,224,0012300004
+0012300004,302,PT00M00.20S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-94,442,45,Missed,1,,,0,h,MISS Jackson Jr. 45' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,225,0012300004
+0012300004,303,PT00M00.10S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,226,0012300004
+0012300004,304,PT00M00.00S,2,0,,0,,,0,0,0,,0,50,51,101,,End of 2nd Period (2:00 PM EST),period,end,1,0,227,0012300004
+0012300004,319,PT12M00.00S,3,0,,0,,,0,0,0,,0,50,51,101,,Start of 3rd Period (2:15 PM EST),period,start,0,0,228,0012300004
+0012300004,320,PT11M41.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,-27,9,3,Made,1,52,51,103,h,R. Lopez 3' Cutting Layup Shot (2 PTS) (Connaughton 2 AST),Made Shot,Cutting Layup Shot,1,2,229,0012300004
+0012300004,322,PT11M28.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,-4,75,8,Missed,1,,,0,v,MISS Drummond 8' Driving Layup,Missed Shot,Driving Layup Shot,1,2,230,0012300004
+0012300004,323,PT11M27.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,231,0012300004
+0012300004,324,PT11M27.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,Made,1,52,53,105,v,Drummond Tip Layup Shot (6 PTS),Made Shot,Tip Layup Shot,1,2,232,0012300004
+0012300004,325,PT11M04.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,34,40,5,Missed,1,,,0,h,MISS R. Lopez 5' Hook Bank Shot,Missed Shot,Hook Bank Shot,1,2,233,0012300004
+0012300004,326,PT11M01.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,234,0012300004
+0012300004,327,PT10M49.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,21,64,7,Missed,1,,,0,v,MISS Drummond 7' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,235,0012300004
+0012300004,328,PT10M49.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,236,0012300004
+0012300004,329,PT10M40.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-16,5,2,Made,1,54,53,107,h,Washington Jr. 2' Running Layup (2 PTS),Made Shot,Running Layup Shot,1,2,237,0012300004
+0012300004,330,PT10M15.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,-65,123,14,Made,1,54,55,109,v,Drummond 14' Hook Shot (8 PTS) (White 5 AST),Made Shot,Hook Shot,1,2,238,0012300004
+0012300004,332,PT10M02.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,194,169,26,Missed,1,,,0,h,MISS Crowder 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,239,0012300004
+0012300004,333,PT09M59.00S,3,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,240,0012300004
+0012300004,334,PT09M48.00S,3,1610612741,CHI,1630172,Williams,P. Williams,-58,160,17,Missed,1,,,0,v,MISS Williams 17' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,241,0012300004
+0012300004,335,PT09M45.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,242,0012300004
+0012300004,336,PT09M38.00S,3,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig S.FOUL (P2.T1) (B.Haskill),Foul,Shooting,1,0,243,0012300004
+0012300004,338,PT09M38.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,55,55,110,h,Washington Jr. Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,244,0012300004
+0012300004,339,PT09M38.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,56,55,111,h,Washington Jr. Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,245,0012300004
+0012300004,341,PT09M28.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond Offensive Charge Foul (P1) (B.Haskill),Foul,Offensive Charge,1,0,246,0012300004
+0012300004,343,PT09M28.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond Offensive Foul Turnover (P1.T6),Turnover,Offensive Foul Turnover,1,0,247,0012300004
+0012300004,344,PT09M12.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,110,169,20,Missed,1,,,0,h,MISS R. Lopez 20' Jump Shot,Missed Shot,Jump Shot,1,2,248,0012300004
+0012300004,345,PT09M09.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,249,0012300004
+0012300004,346,PT09M03.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams Lost Ball Turnover (P1.T7),Turnover,Lost Ball,1,0,250,0012300004
+0012300004,346,PT09M03.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder STEAL (1 STL),,,1,0,251,0012300004
+0012300004,348,PT09M00.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley Offensive Charge Foul (P2) (P.Ransom),Foul,Offensive Charge,1,0,252,0012300004
+0012300004,350,PT09M00.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley Offensive Foul Turnover (P3.T9),Turnover,Offensive Foul Turnover,1,0,253,0012300004
+0012300004,351,PT08M44.00S,3,1610612741,CHI,1628470,Craig,T. Craig,48,277,28,Missed,1,,,0,v,MISS Craig 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,254,0012300004
+0012300004,352,PT08M40.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,255,0012300004
+0012300004,353,PT08M37.00S,3,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White P.FOUL (P1.T2) (J.Williams),Foul,Personal,1,0,256,0012300004
+0012300004,355,PT08M30.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,1,179,18,Made,1,58,55,113,h,Crowder 18' Pullup Jump Shot (10 PTS) (R. Lopez 1 AST),Made Shot,Pullup Jump shot,0,2,257,0012300004
+0012300004,357,PT08M10.00S,3,1610612741,CHI,1628470,Craig,T. Craig,2,32,3,Made,1,58,57,115,v,Craig 3' Cutting Layup Shot (7 PTS) (White 6 AST),Made Shot,Cutting Layup Shot,1,2,258,0012300004
+0012300004,359,PT07M51.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,-75,247,26,Missed,1,,,0,h,MISS Connaughton 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,259,0012300004
+0012300004,360,PT07M48.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond REBOUND (Off:3 Def:6),Rebound,Unknown,1,0,260,0012300004
+0012300004,361,PT07M45.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond Bad Pass Turnover (P2.T8),Turnover,Bad Pass,1,0,261,0012300004
+0012300004,361,PT07M45.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley STEAL (2 STL),,,1,0,262,0012300004
+0012300004,363,PT07M45.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,-15,5,2,Made,1,60,57,117,h,Beasley 2' Driving Reverse Layup (10 PTS),Made Shot,Driving Reverse Layup Shot,1,2,263,0012300004
+0012300004,364,PT07M45.00S,3,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,264,0012300004
+0012300004,365,PT07M31.00S,3,1610612741,CHI,1629632,White,C. White,-113,278,30,Made,1,60,60,120,v,White 30' 3PT Jump Shot (12 PTS) (Williams 1 AST),Made Shot,Jump Shot,1,3,265,0012300004
+0012300004,367,PT07M13.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton Bad Pass Turnover (P1.T10),Turnover,Bad Pass,1,0,266,0012300004
+0012300004,367,PT07M13.00S,3,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig STEAL (2 STL),,,1,0,267,0012300004
+0012300004,369,PT07M07.00S,3,1610612741,CHI,1628975,Carter,J. Carter,34,285,29,Missed,1,,,0,v,MISS Carter 29' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,268,0012300004
+0012300004,370,PT07M05.00S,3,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,White REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,269,0012300004
+0012300004,371,PT07M01.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez S.FOUL (P2.T1) (J.Williams),Foul,Shooting,1,0,270,0012300004
+0012300004,373,PT07M01.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,60,61,121,v,Williams Free Throw 1 of 2 (9 PTS),Free Throw,Free Throw 1 of 2,1,0,271,0012300004
+0012300004,374,PT07M01.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,60,62,122,v,Williams Free Throw 2 of 2 (10 PTS),Free Throw,Free Throw 2 of 2,1,0,272,0012300004
+0012300004,375,PT06M48.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,38,267,27,Made,1,63,62,125,h,Beasley 27' 3PT Pullup Jump Shot (13 PTS) (R. Lopez 2 AST),Made Shot,Pullup Jump shot,1,3,273,0012300004
+0012300004,377,PT06M28.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams 3 Second Violation Turnover (P2.T9),Turnover,3 Second Violation,1,0,274,0012300004
+0012300004,378,PT06M28.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: T. Antetokounmpo FOR Crowder,Substitution,,0,0,275,0012300004
+0012300004,379,PT06M28.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: Beauchamp FOR Beasley,Substitution,,0,0,276,0012300004
+0012300004,382,PT06M15.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,1,141,14,Missed,1,,,0,h,MISS Beauchamp 14' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,277,0012300004
+0012300004,383,PT06M14.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,278,0012300004
+0012300004,384,PT06M14.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,Drummond L.B.FOUL (P2.T3) (J.Williams),Foul,Loose Ball,1,0,279,0012300004
+0012300004,386,PT06M01.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-78,239,25,Missed,1,,,0,h,MISS Washington Jr. 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,280,0012300004
+0012300004,387,PT05M59.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,281,0012300004
+0012300004,388,PT05M59.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Turnover: Shot Clock (T#11),Turnover,Shot Clock Turnover,0,0,282,0012300004
+0012300004,389,PT05M43.00S,3,1610612741,CHI,1629632,White,C. White,59,64,9,Made,1,63,64,127,v,White 9' Turnaround Fadeaway Bank Jump Shot (14 PTS),Made Shot,Turnaround Fadeaway Bank Jump Shot,1,2,283,0012300004
+0012300004,390,PT05M17.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,25,45,5,Made,1,65,64,129,h,R. Lopez 5' Hook Shot (4 PTS),Made Shot,Hook Shot,1,2,284,0012300004
+0012300004,392,PT05M10.00S,3,1610612741,CHI,1628975,Carter,J. Carter,10,44,5,Made,1,65,66,131,v,Carter 5' Driving Finger Roll Layup (7 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,285,0012300004
+0012300004,393,PT04M56.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,44,63,8,Made,1,67,66,133,h,R. Lopez 8' Driving Hook Shot (6 PTS) (Washington Jr. 5 AST),Made Shot,Driving Hook Shot,1,2,286,0012300004
+0012300004,395,PT04M40.00S,3,1610612741,CHI,1629632,White,C. White,-86,163,18,Missed,1,,,0,v,MISS White 18' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,287,0012300004
+0012300004,396,PT04M36.00S,3,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,Craig REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,288,0012300004
+0012300004,397,PT04M35.00S,3,1610612741,CHI,1628470,Craig,T. Craig,12,39,4,Missed,1,,,0,v,MISS Craig 4' Putback Layup,Missed Shot,Putback Layup Shot,1,2,289,0012300004
+0012300004,398,PT04M35.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,290,0012300004
+0012300004,400,PT04M35.00S,3,1610612741,CHI,1629632,White,C. White,0,0,0,,0,,,0,v,SUB: Terry FOR White,Substitution,,0,0,291,0012300004
+0012300004,401,PT04M35.00S,3,1610612741,CHI,203083,Drummond,A. Drummond,0,0,0,,0,,,0,v,SUB: Taylor FOR Drummond,Substitution,,0,0,292,0012300004
+0012300004,402,PT04M35.00S,3,1610612741,CHI,1628470,Craig,T. Craig,0,0,0,,0,,,0,v,SUB: Dosunmu FOR Craig,Substitution,,0,0,293,0012300004
+0012300004,407,PT04M35.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez T.FOUL (P2.T1) (J.Williams),Foul,Technical,0,0,294,0012300004
+0012300004,408,PT04M35.00S,3,1610612741,CHI,1628975,Carter,J. Carter,0,0,0,,0,67,67,134,v,Carter Free Throw Technical (8 PTS),Free Throw,Free Throw Technical,1,0,295,0012300004
+0012300004,409,PT04M35.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,SUB: Wigginton FOR Washington Jr.,Substitution,,0,0,296,0012300004
+0012300004,411,PT04M25.00S,3,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry P.FOUL (P1.T4) (J.Williams),Foul,Personal,1,0,297,0012300004
+0012300004,413,PT04M18.00S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-16,-1,2,Made,1,69,67,136,h,T. Antetokounmpo 2' Cutting Dunk Shot (6 PTS) (Wigginton 2 AST),Made Shot,Cutting Dunk Shot,1,2,298,0012300004
+0012300004,415,PT04M07.00S,3,1610612741,CHI,1630678,Taylor,T. Taylor,-15,53,6,Missed,1,,,0,v,MISS Taylor 6' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,299,0012300004
+0012300004,417,PT04M03.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,300,0012300004
+0012300004,418,PT04M02.00S,3,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor S.FOUL (P1.PN) (B.Haskill),Foul,Shooting,1,0,301,0012300004
+0012300004,420,PT04M02.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,70,67,137,h,Beauchamp Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,0,0,302,0012300004
+0012300004,421,PT04M02.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,SUB: Bolden FOR R. Lopez,Substitution,,0,0,303,0012300004
+0012300004,423,PT04M02.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,MISS Beauchamp Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,304,0012300004
+0012300004,424,PT03M58.00S,3,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,305,0012300004
+0012300004,426,PT03M44.00S,3,1610612741,CHI,1630172,Williams,P. Williams,-159,273,32,Missed,1,,,0,v,MISS Williams 32' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,306,0012300004
+0012300004,427,PT03M41.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,307,0012300004
+0012300004,428,PT03M29.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,-197,163,26,Missed,1,,,0,h,MISS Wigginton 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,308,0012300004
+0012300004,429,PT03M26.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,309,0012300004
+0012300004,430,PT03M20.00S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,126,183,22,Made,1,70,69,139,v,Dosunmu 22' Running Jump Shot (2 PTS) (Terry 1 AST),Made Shot,Running Jump Shot,1,2,310,0012300004
+0012300004,432,PT03M03.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,-38,256,26,Missed,1,,,0,h,MISS Wigginton 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,311,0012300004
+0012300004,433,PT03M01.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,312,0012300004
+0012300004,434,PT02M58.00S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-6,-10,1,Made,1,72,69,141,h,T. Antetokounmpo 1' Cutting Layup Shot (8 PTS) (Beauchamp 1 AST),Made Shot,Cutting Layup Shot,1,2,313,0012300004
+0012300004,436,PT02M42.00S,3,1610612741,CHI,1631207,Terry,D. Terry,0,50,5,Missed,1,,,0,v,MISS Terry 5' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,314,0012300004
+0012300004,437,PT02M40.00S,3,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,315,0012300004
+0012300004,438,PT02M36.00S,3,1610612741,CHI,1630172,Williams,P. Williams,-234,36,24,Made,1,72,72,144,v,Williams 24' 3PT Jump Shot (13 PTS) (Carter 2 AST),Made Shot,Jump Shot,1,3,316,0012300004
+0012300004,440,PT02M28.00S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,Dosunmu P.FOUL (P2.PN) (B.Haskill),Foul,Personal,1,0,317,0012300004
+0012300004,442,PT02M28.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,318,0012300004
+0012300004,443,PT02M28.00S,3,1610612741,CHI,1628975,Carter,J. Carter,0,0,0,,0,,,0,v,SUB: Phillips FOR Carter,Substitution,,0,0,319,0012300004
+0012300004,444,PT02M28.00S,3,1610612741,CHI,1630172,Williams,P. Williams,0,0,0,,0,,,0,v,SUB: Jones FOR Williams,Substitution,,0,0,320,0012300004
+0012300004,447,PT02M28.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,MISS Connaughton Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,0,0,321,0012300004
+0012300004,448,PT02M28.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,0,0,322,0012300004
+0012300004,449,PT02M28.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,73,72,145,h,Connaughton Free Throw 2 of 2 (8 PTS),Free Throw,Free Throw 2 of 2,1,0,323,0012300004
+0012300004,450,PT02M24.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp P.FOUL (P2.T2) (J.Williams),Foul,Personal,0,0,324,0012300004
+0012300004,452,PT02M18.00S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,109,258,28,Made,1,73,75,148,v,Dosunmu 28' 3PT Step Back Jump Shot (5 PTS) (Taylor 1 AST),Made Shot,Step Back Jump shot,1,3,325,0012300004
+0012300004,454,PT02M15.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton OFF.Foul (P1) (P.Ransom),Foul,Offensive,1,0,326,0012300004
+0012300004,456,PT02M15.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton Offensive Foul Turnover (P3.T12),Turnover,Offensive Foul Turnover,1,0,327,0012300004
+0012300004,457,PT02M03.00S,3,1610612741,CHI,1631207,Terry,D. Terry,96,157,18,Missed,1,,,0,v,MISS Terry 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,328,0012300004
+0012300004,458,PT02M00.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,329,0012300004
+0012300004,459,PT01M56.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp Bad Pass Turnover (P2.T13),Turnover,Bad Pass,1,0,330,0012300004
+0012300004,459,PT01M56.00S,3,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,Phillips STEAL (1 STL),,,1,0,331,0012300004
+0012300004,461,PT01M50.00S,3,1610612741,CHI,1630637,Jones,C. Jones,146,244,28,Missed,1,,,0,v,MISS Jones 28' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,332,0012300004
+0012300004,462,PT01M46.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,333,0012300004
+0012300004,463,PT01M37.00S,3,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,Phillips P.FOUL (P1.PN) (P.Ransom),Foul,Personal,1,0,334,0012300004
+0012300004,465,PT01M37.00S,3,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,MISS Bolden Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,335,0012300004
+0012300004,466,PT01M37.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,0,0,336,0012300004
+0012300004,467,PT01M37.00S,3,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,74,75,149,h,Bolden Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,337,0012300004
+0012300004,468,PT01M25.00S,3,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor Lost Ball Turnover (P1.T10),Turnover,Lost Ball,1,0,338,0012300004
+0012300004,468,PT01M25.00S,3,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton STEAL (2 STL),,,1,0,339,0012300004
+0012300004,470,PT01M19.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-7,8,1,Made,1,76,75,151,h,Beauchamp 1' Running Layup (7 PTS) (Wigginton 3 AST),Made Shot,Running Layup Shot,1,2,340,0012300004
+0012300004,472,PT01M07.00S,3,1610612741,CHI,1641763,Phillips,J. Phillips,-218,169,28,Missed,1,,,0,v,MISS Phillips 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,341,0012300004
+0012300004,473,PT01M06.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,342,0012300004
+0012300004,474,PT01M06.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp Traveling Turnover (P3.T14),Turnover,Traveling,1,0,343,0012300004
+0012300004,475,PT00M50.90S,3,1610612741,CHI,1641763,Phillips,J. Phillips,6,47,5,Made,1,76,77,153,v,Phillips 5' Cutting Dunk Shot (2 PTS) (Dosunmu 2 AST),Made Shot,Cutting Dunk Shot,1,2,344,0012300004
+0012300004,477,PT00M31.50S,3,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry S.FOUL (P2.PN) (J.Williams),Foul,Shooting,1,0,345,0012300004
+0012300004,479,PT00M31.50S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,77,77,154,h,T. Antetokounmpo Free Throw 1 of 2 (9 PTS),Free Throw,Free Throw 1 of 2,0,0,346,0012300004
+0012300004,480,PT00M31.50S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,78,77,155,h,T. Antetokounmpo Free Throw 2 of 2 (10 PTS),Free Throw,Free Throw 2 of 2,0,0,347,0012300004
+0012300004,481,PT00M17.20S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,-186,209,28,Missed,1,,,0,v,MISS Dosunmu 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,348,0012300004
+0012300004,482,PT00M14.40S,3,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,349,0012300004
+0012300004,483,PT00M14.40S,3,1610612741,CHI,1630678,Taylor,T. Taylor,-2,38,4,Made,1,78,79,157,v,Taylor 4' Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,350,0012300004
+0012300004,484,PT00M03.70S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,80,38,9,Missed,1,,,0,h,MISS Connaughton 9' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,351,0012300004
+0012300004,485,PT00M01.70S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,Dosunmu REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,352,0012300004
+0012300004,489,PT00M00.70S,3,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,-4,436,44,Made,1,78,82,160,v,Dosunmu 44' 3PT Jump Shot (8 PTS),Made Shot,Jump Shot,0,3,353,0012300004
+0012300004,486,PT00M00.00S,3,0,,489,,,0,0,0,,0,78,82,160,,Instant Replay3rd Period (2:44 PM EST),Instant Replay,Overturn Ruling,0,0,354,0012300004
+0012300004,488,PT00M00.00S,3,0,,0,,,0,0,0,,0,78,82,160,,End of 3rd Period (2:44 PM EST),period,end,1,0,355,0012300004
+0012300004,492,PT12M00.00S,4,0,,0,,,0,0,0,,0,78,82,160,,Start of 4th Period (2:46 PM EST),period,start,0,0,356,0012300004
+0012300004,493,PT11M41.00S,4,1610612741,CHI,1631207,Terry,D. Terry,-49,279,28,Missed,1,,,0,v,MISS Terry 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,357,0012300004
+0012300004,494,PT11M41.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,358,0012300004
+0012300004,495,PT11M28.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,49,32,6,Missed,1,,,0,h,MISS Wigginton 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,359,0012300004
+0012300004,496,PT11M27.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden REBOUND (Off:1 Def:1),Rebound,Unknown,0,0,360,0012300004
+0012300004,506,PT11M25.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,-4,10,1,Made,1,80,82,162,h,Bolden 1' Tip Dunk Shot (3 PTS),Made Shot,Tip Dunk Shot,1,2,361,0012300004
+0012300004,497,PT11M09.00S,4,1610612741,CHI,1630637,Jones,C. Jones,18,139,14,Missed,1,,,0,v,MISS Jones 14' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,362,0012300004
+0012300004,498,PT11M09.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,363,0012300004
+0012300004,499,PT11M05.00S,4,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,-120,264,29,Missed,1,,,0,v,MISS Dosunmu 29' 3PT Jump Shot,Missed Shot,Jump Shot,0,3,364,0012300004
+0012300004,500,PT11M01.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,365,0012300004
+0012300004,501,PT10M50.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,17,252,25,Missed,1,,,0,h,MISS Wigginton 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,366,0012300004
+0012300004,502,PT10M47.00S,4,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,367,0012300004
+0012300004,504,PT10M38.00S,4,1610612741,CHI,1631207,Terry,D. Terry,-60,138,15,Missed,1,,,0,v,MISS Terry 15' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,368,0012300004
+0012300004,505,PT10M35.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,369,0012300004
+0012300004,507,PT10M27.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo OFF.Foul (P2) (P.Ransom),Foul,Offensive,1,0,370,0012300004
+0012300004,509,PT10M27.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo Offensive Foul Turnover (P1.T15),Turnover,Offensive Foul Turnover,1,0,371,0012300004
+0012300004,510,PT10M27.00S,4,1610612741,CHI,1630245,Dosunmu,A. Dosunmu,0,0,0,,0,,,0,v,SUB: Lewis FOR Dosunmu,Substitution,,0,0,372,0012300004
+0012300004,512,PT10M07.00S,4,1610612741,CHI,1630637,Jones,C. Jones,0,0,0,,0,,,0,v,Jones Lost Ball Turnover (P1.T11),Turnover,Lost Ball,1,0,373,0012300004
+0012300004,512,PT10M07.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton STEAL (3 STL),,,1,0,374,0012300004
+0012300004,514,PT10M04.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,-12,8,1,Made,1,82,82,164,h,Wigginton 1' Running Reverse Layup (2 PTS),Made Shot,Running Reverse Layup Shot,1,2,375,0012300004
+0012300004,515,PT09M57.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor OFF.Foul (P2) (J.Williams),Foul,Offensive,1,0,376,0012300004
+0012300004,517,PT09M57.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor Offensive Foul Turnover (P2.T12),Turnover,Offensive Foul Turnover,1,0,377,0012300004
+0012300004,518,PT09M57.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,SUB: Washington Jr. FOR Wigginton,Substitution,,0,0,378,0012300004
+0012300004,520,PT09M41.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor S.FOUL (P3.T1) (P.Ransom),Foul,Shooting,1,0,379,0012300004
+0012300004,522,PT09M41.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,83,82,165,h,Beauchamp Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,380,0012300004
+0012300004,523,PT09M41.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,84,82,166,h,Beauchamp Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,381,0012300004
+0012300004,524,PT09M23.00S,4,1610612741,CHI,1631171,Lewis,J. Lewis,-42,123,13,Missed,1,,,0,v,MISS Lewis 13' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,382,0012300004
+0012300004,525,PT09M19.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,383,0012300004
+0012300004,526,PT09M11.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,38,95,10,Missed,1,,,0,h,MISS Beauchamp 10' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,384,0012300004
+0012300004,526,PT09M11.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,Phillips BLOCK (1 BLK),,,1,2,385,0012300004
+0012300004,528,PT09M07.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,Taylor REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,386,0012300004
+0012300004,529,PT09M05.00S,4,1610612741,CHI,1631207,Terry,D. Terry,1,38,4,Made,1,84,84,168,v,Terry 4' Running Dunk (2 PTS) (Taylor 2 AST),Made Shot,Running Dunk Shot,1,2,387,0012300004
+0012300004,531,PT08M41.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,54,176,18,Made,1,86,84,170,h,Washington Jr. 18' Pullup Jump Shot (6 PTS) (Beauchamp 2 AST),Made Shot,Pullup Jump shot,1,2,388,0012300004
+0012300004,533,PT08M30.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,27,34,4,Missed,1,,,0,v,MISS Phillips 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,389,0012300004
+0012300004,534,PT08M27.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,390,0012300004
+0012300004,535,PT08M24.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-13,0,1,Made,1,88,84,172,h,Jackson Jr. 1' Running Dunk (2 PTS) (T. Antetokounmpo 1 AST),Made Shot,Running Dunk Shot,1,2,391,0012300004
+0012300004,537,PT08M06.00S,4,1610612741,CHI,1631171,Lewis,J. Lewis,-208,163,26,Missed,1,,,0,v,MISS Lewis 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,392,0012300004
+0012300004,538,PT08M03.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,393,0012300004
+0012300004,539,PT08M00.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-7,-7,1,Made,1,90,84,174,h,T. Antetokounmpo 1' Running Dunk (12 PTS) (Jackson Jr. 2 AST),Made Shot,Running Dunk Shot,1,2,394,0012300004
+0012300004,541,PT08M00.00S,4,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,395,0012300004
+0012300004,542,PT08M00.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,SUB: Wigginton FOR Washington Jr.,Substitution,,0,0,396,0012300004
+0012300004,543,PT08M00.00S,4,1610612741,CHI,1630678,Taylor,T. Taylor,0,0,0,,0,,,0,v,SUB: Sanogo FOR Taylor,Substitution,,0,0,397,0012300004
+0012300004,546,PT07M47.00S,4,1610612741,CHI,1630637,Jones,C. Jones,4,75,8,Missed,1,,,0,v,MISS Jones 8' Driving Layup,Missed Shot,Driving Layup Shot,1,2,398,0012300004
+0012300004,546,PT07M47.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden BLOCK (1 BLK),,,1,2,399,0012300004
+0012300004,548,PT07M40.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,400,0012300004
+0012300004,549,PT07M26.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden Lost Ball Turnover (P1.T16),Turnover,Lost Ball,1,0,401,0012300004
+0012300004,549,PT07M26.00S,4,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry STEAL (1 STL),,,1,0,402,0012300004
+0012300004,551,PT07M21.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,15,55,6,Missed,1,,,0,v,MISS Phillips 6' Running Layup,Missed Shot,Running Layup Shot,1,2,403,0012300004
+0012300004,552,PT07M19.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,404,0012300004
+0012300004,553,PT07M07.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton Out of Bounds - Bad Pass Turnover Turnover (P4.T17),Turnover,Out of Bounds - Bad Pass Turnover,1,0,405,0012300004
+0012300004,554,PT06M47.00S,4,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry Offensive Charge Foul (P3) (P.Ransom),Foul,Offensive Charge,1,0,406,0012300004
+0012300004,556,PT06M47.00S,4,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,Terry Offensive Foul Turnover (P1.T13),Turnover,Offensive Foul Turnover,1,0,407,0012300004
+0012300004,557,PT06M24.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-96,35,10,Missed,1,,,0,h,MISS Jackson Jr. 10' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,408,0012300004
+0012300004,558,PT06M20.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,409,0012300004
+0012300004,559,PT06M00.00S,4,1610612741,CHI,1630637,Jones,C. Jones,121,29,12,Missed,1,,,0,v,MISS Jones 12' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,410,0012300004
+0012300004,560,PT05M57.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,411,0012300004
+0012300004,561,PT05M40.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-6,-5,1,Made,1,92,84,176,h,T. Antetokounmpo 1' Cutting Layup Shot (14 PTS) (Jackson Jr. 3 AST),Made Shot,Cutting Layup Shot,1,2,412,0012300004
+0012300004,563,PT05M25.00S,4,1610612741,CHI,1631171,Lewis,J. Lewis,1,39,4,Made,1,92,86,178,v,Lewis 4' Cutting Layup Shot (2 PTS) (Terry 2 AST),Made Shot,Cutting Layup Shot,1,2,413,0012300004
+0012300004,565,PT05M25.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo S.FOUL (P3.T1) (P.Ransom),Foul,Shooting,1,0,414,0012300004
+0012300004,567,PT05M25.00S,4,1610612741,CHI,1630637,Jones,C. Jones,0,0,0,,0,,,0,v,SUB: Heidegger FOR Jones,Substitution,,0,0,415,0012300004
+0012300004,568,PT05M25.00S,4,1610612741,CHI,1631207,Terry,D. Terry,0,0,0,,0,,,0,v,SUB: Bitim FOR Terry,Substitution,,0,0,416,0012300004
+0012300004,571,PT05M25.00S,4,1610612741,CHI,1631171,Lewis,J. Lewis,0,0,0,,0,,,0,v,MISS Lewis Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,417,0012300004
+0012300004,572,PT05M21.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,418,0012300004
+0012300004,573,PT05M08.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-109,234,26,Missed,1,,,0,h,MISS Beauchamp 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,419,0012300004
+0012300004,574,PT05M06.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,Phillips REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,420,0012300004
+0012300004,575,PT04M51.00S,4,1610612741,CHI,1641972,Heidegger,M. Heidegger,-44,299,30,Missed,1,,,0,v,MISS Heidegger 30' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,421,0012300004
+0012300004,575,PT04M51.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,Wigginton BLOCK (1 BLK),,,1,3,422,0012300004
+0012300004,577,PT04M46.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,423,0012300004
+0012300004,578,PT04M45.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-13,8,2,Missed,1,,,0,h,MISS T. Antetokounmpo 2' Running Layup,Missed Shot,Running Layup Shot,1,2,424,0012300004
+0012300004,578,PT04M45.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,Phillips BLOCK (2 BLK),,,1,2,425,0012300004
+0012300004,580,PT04M45.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,426,0012300004
+0012300004,582,PT04M45.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,427,0012300004
+0012300004,583,PT04M45.00S,4,1610612749,MIL,1629623,Wigginton,L. Wigginton,0,0,0,,0,,,0,h,SUB: Washington Jr. FOR Wigginton,Substitution,,0,0,428,0012300004
+0012300004,584,PT04M45.00S,4,1610612741,CHI,1641763,Phillips,J. Phillips,0,0,0,,0,,,0,v,SUB: Jackson FOR Phillips,Substitution,,0,0,429,0012300004
+0012300004,585,PT04M45.00S,4,1610612741,CHI,1631171,Lewis,J. Lewis,0,0,0,,0,,,0,v,SUB: Drell FOR Lewis,Substitution,,0,0,430,0012300004
+0012300004,589,PT04M42.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-227,12,0,Made,1,95,86,181,h,Beauchamp 3PT Jump Shot (12 PTS) (Washington Jr. 6 AST),Made Shot,Jump Shot,1,3,431,0012300004
+0012300004,591,PT04M26.00S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,49,41,6,Made,1,95,88,183,v,Jackson 6' Driving Finger Roll Layup (2 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,432,0012300004
+0012300004,592,PT04M03.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-10,4,1,Made,1,97,88,185,h,Jackson Jr. 1' Driving Finger Roll Layup (4 PTS) (Beauchamp 3 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,433,0012300004
+0012300004,594,PT03M56.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo P.FOUL (P4.T2) (P.Ransom),Foul,Personal,1,0,434,0012300004
+0012300004,596,PT03M56.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,SUB: Timme FOR T. Antetokounmpo,Substitution,,0,0,435,0012300004
+0012300004,598,PT03M44.00S,4,1610612741,CHI,1641931,Bitim,O. Bitim,-26,122,12,Missed,1,,,0,v,MISS Bitim 12' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,436,0012300004
+0012300004,599,PT03M41.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,437,0012300004
+0012300004,600,PT03M40.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,-1,41,4,Missed,1,,,0,v,MISS Sanogo 4' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,438,0012300004
+0012300004,600,PT03M40.00S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden BLOCK (2 BLK),,,1,2,439,0012300004
+0012300004,602,PT03M40.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:1 Def:7),Rebound,Unknown,1,0,440,0012300004
+0012300004,603,PT03M26.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. Bad Pass Turnover (P1.T18),Turnover,Bad Pass,1,0,441,0012300004
+0012300004,603,PT03M26.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo STEAL (1 STL),,,1,0,442,0012300004
+0012300004,605,PT03M17.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,-9,47,5,Missed,1,,,0,v,MISS Sanogo 5' Layup,Missed Shot,Layup Shot,1,2,443,0012300004
+0012300004,606,PT03M12.00S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,0,0,0,,0,,,0,v,Jackson REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,444,0012300004
+0012300004,607,PT03M02.00S,4,1610612741,CHI,1641931,Bitim,O. Bitim,120,256,28,Made,1,97,91,188,v,Bitim 28' 3PT Jump Shot (3 PTS) (Sanogo 1 AST),Made Shot,Jump Shot,1,3,445,0012300004
+0012300004,609,PT03M02.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,446,0012300004
+0012300004,610,PT02M44.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-234,52,24,Missed,1,,,0,h,MISS Washington Jr. 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,447,0012300004
+0012300004,611,PT02M41.00S,4,1610612741,CHI,1641931,Bitim,O. Bitim,0,0,0,,0,,,0,v,Bitim REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,448,0012300004
+0012300004,612,PT02M39.00S,4,1610612741,CHI,1641931,Bitim,O. Bitim,0,0,0,,0,,,0,v,Bitim Lost Ball Turnover (P1.T14),Turnover,Lost Ball,1,0,449,0012300004
+0012300004,612,PT02M39.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. STEAL (1 STL),,,1,0,450,0012300004
+0012300004,614,PT02M35.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-12,1,1,Made,1,99,91,190,h,Beauchamp 1' Running Dunk (14 PTS) (Washington Jr. 7 AST),Made Shot,Running Dunk Shot,1,2,451,0012300004
+0012300004,616,PT02M35.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp HANGING.TECH.FOUL (P2.T2) (P.Ransom),Foul,Hanging Technical,0,0,452,0012300004
+0012300004,617,PT02M35.00S,4,1610612741,CHI,1641972,Heidegger,M. Heidegger,0,0,0,,0,99,92,191,v,Heidegger Free Throw Technical (1 PTS),Free Throw,Free Throw Technical,0,0,453,0012300004
+0012300004,618,PT02M20.00S,4,1610612741,CHI,1641931,Bitim,O. Bitim,-183,211,28,Made,1,99,95,194,v,Bitim 28' 3PT Jump Shot (6 PTS) (Drell 1 AST),Made Shot,Jump Shot,1,3,454,0012300004
+0012300004,620,PT01M51.00S,4,1610612749,MIL,1631166,Timme,D. Timme,174,139,22,Missed,1,,,0,h,MISS Timme 22' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,455,0012300004
+0012300004,621,PT01M50.00S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,0,0,0,,0,,,0,v,Jackson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,456,0012300004
+0012300004,623,PT01M50.00S,4,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,457,0012300004
+0012300004,624,PT01M35.00S,4,1610612741,CHI,1641972,Heidegger,M. Heidegger,-34,36,5,Missed,1,,,0,v,MISS Heidegger 5' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,458,0012300004
+0012300004,625,PT01M33.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,459,0012300004
+0012300004,626,PT01M32.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,11,34,4,Missed,1,,,0,v,MISS Sanogo 4' Putback Layup,Missed Shot,Putback Layup Shot,1,2,460,0012300004
+0012300004,626,PT01M32.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. BLOCK (1 BLK),,,1,2,461,0012300004
+0012300004,627,PT01M32.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,462,0012300004
+0012300004,628,PT01M32.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,2,33,3,Made,1,99,97,196,v,Sanogo 3' Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,463,0012300004
+0012300004,629,PT01M20.00S,4,1610612741,CHI,1630929,Drell,H. Drell,0,0,0,,0,,,0,v,Drell P.FOUL (P1.T2) (J.Williams),Foul,Personal,1,0,464,0012300004
+0012300004,631,PT01M13.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. Traveling Turnover (P1.T19),Turnover,Traveling,1,0,465,0012300004
+0012300004,632,PT01M01.00S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,4,28,3,Made,1,99,99,198,v,Sanogo 3' Cutting Layup Shot (4 PTS) (Jackson 1 AST),Made Shot,Cutting Layup Shot,1,2,466,0012300004
+0012300004,635,PT00M39.90S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,32,104,11,Missed,1,,,0,h,MISS Beauchamp 11' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,467,0012300004
+0012300004,636,PT00M37.60S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:2 Def:7),Rebound,Unknown,1,0,468,0012300004
+0012300004,637,PT00M34.40S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 6 Short 0),Timeout,Regular,0,0,469,0012300004
+0012300004,638,PT00M30.50S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-16,1,2,Missed,1,,,0,h,MISS Beauchamp 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,470,0012300004
+0012300004,639,PT00M29.10S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,471,0012300004
+0012300004,640,PT00M29.10S,4,1610612749,MIL,1631166,Timme,D. Timme,-2,-5,1,Made,1,101,99,200,h,Timme 1' Layup (2 PTS),Made Shot,Layup Shot,1,2,472,0012300004
+0012300004,641,PT00M29.10S,4,0,,1610612741,,,0,0,0,,0,,,0,v,Bulls Timeout: Regular (Reg.6 Short 0),Timeout,Regular,0,0,473,0012300004
+0012300004,642,PT00M23.80S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,-2,54,5,Missed,1,,,0,v,MISS Jackson 5' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,474,0012300004
+0012300004,643,PT00M21.30S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,475,0012300004
+0012300004,644,PT00M19.90S,4,1610612741,CHI,1641766,Sanogo,A. Sanogo,0,0,0,,0,,,0,v,Sanogo P.FOUL (P1.PN) (B.Haskill),Foul,Personal,1,0,476,0012300004
+0012300004,646,PT00M19.90S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,102,99,201,h,Beauchamp Free Throw 1 of 2 (15 PTS),Free Throw,Free Throw 1 of 2,1,0,477,0012300004
+0012300004,647,PT00M19.90S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,103,99,202,h,Beauchamp Free Throw 2 of 2 (16 PTS),Free Throw,Free Throw 2 of 2,1,0,478,0012300004
+0012300004,648,PT00M12.90S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,2,43,4,Made,1,103,101,204,v,Jackson 4' Driving Dunk (4 PTS),Made Shot,Driving Dunk Shot,1,2,479,0012300004
+0012300004,649,PT00M12.90S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. S.FOUL (P2.T3) (B.Haskill),Foul,Shooting,1,0,480,0012300004
+0012300004,651,PT00M12.90S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,0,0,0,,0,103,102,205,v,Jackson Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,481,0012300004
+0012300004,652,PT00M12.10S,4,1610612741,CHI,1630929,Drell,H. Drell,0,0,0,,0,,,0,v,Drell Personal Take Foul (P2.PN) (P.Ransom),Foul,Personal Take,1,0,482,0012300004
+0012300004,654,PT00M12.10S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,104,102,206,h,Beauchamp Free Throw 1 of 2 (17 PTS),Free Throw,Free Throw 1 of 2,1,0,483,0012300004
+0012300004,655,PT00M12.10S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,105,102,207,h,Beauchamp Free Throw 2 of 2 (18 PTS),Free Throw,Free Throw 2 of 2,1,0,484,0012300004
+0012300004,656,PT00M04.10S,4,1610612741,CHI,1631245,Jackson,Q. Jackson,0,0,0,,0,,,0,v,Jackson Bad Pass Turnover (P1.T15),Turnover,Bad Pass,1,0,485,0012300004
+0012300004,656,PT00M04.10S,4,1610612749,MIL,1629716,Bolden,M. Bolden,0,0,0,,0,,,0,h,Bolden STEAL (1 STL),,,1,0,486,0012300004
+0012300004,658,PT00M00.00S,4,0,,0,,,0,0,0,,0,105,102,207,,End of 4th Period (3:19 PM EST),period,end,1,0,487,0012300004

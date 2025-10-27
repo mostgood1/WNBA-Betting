@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300960,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,41:42,3,8,0.375,0,2,0.0,1,1,1.0,5,10,15,2,3,0,0,4,7,1.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,35:43,5,11,0.455,1,4,0.25,1,2,0.5,2,7,9,2,2,0,2,4,12,11.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,23:56,4,6,0.667,0,0,0.0,1,1,1.0,1,8,9,2,0,0,0,2,9,17.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,36:33,4,12,0.333,2,8,0.25,2,2,1.0,0,5,5,3,2,0,1,3,12,2.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,37:56,14,30,0.467,2,10,0.2,15,17,0.882,1,0,1,4,1,1,5,0,45,17.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,24:04,2,3,0.667,0,0,0.0,0,0,0.0,3,4,7,2,2,0,0,1,4,-5.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,13:54,1,6,0.167,0,2,0.0,3,3,1.0,0,0,0,1,0,0,1,0,5,5.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,21:54,3,6,0.5,0,1,0.0,0,0,0.0,2,1,3,0,1,0,2,3,6,13.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,,,4:18,2,5,0.4,1,2,0.5,0,0,0.0,1,0,1,0,0,0,1,1,5,-1.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,31:14,3,8,0.375,2,6,0.333,2,2,1.0,1,3,4,1,0,1,0,1,10,-7.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,34:11,3,6,0.5,1,3,0.333,0,0,0.0,1,2,3,4,3,0,2,4,7,-7.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,40:00,12,21,0.571,1,1,1.0,6,6,1.0,6,8,14,0,0,1,3,1,31,-12.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,G,,,41:45,6,20,0.3,2,9,0.222,2,2,1.0,0,2,2,2,4,0,5,2,16,-20.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,25:58,4,13,0.308,1,4,0.25,3,4,0.75,0,7,7,6,1,0,2,5,12,-15.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,22:02,3,5,0.6,2,3,0.667,0,0,0.0,1,4,5,3,0,0,2,2,8,3.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,20:41,2,6,0.333,1,4,0.25,0,0,0.0,0,2,2,3,2,0,2,1,5,-2.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,12:55,1,3,0.333,1,3,0.333,1,2,0.5,2,3,5,0,0,0,0,1,4,-3.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,11:14,0,2,0.0,0,0,0.0,0,0,0.0,2,1,3,0,0,0,1,2,0,3.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960
+0022300960,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300960

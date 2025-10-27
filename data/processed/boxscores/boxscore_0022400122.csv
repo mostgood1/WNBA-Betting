@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400122,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,36:52,3,6,0.5,3,6,0.5,2,2,1.0,0,3,3,0,2,0,3,2,11,11.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,42:14,4,7,0.571,2,5,0.4,0,0,0.0,1,13,14,6,1,0,0,3,10,9.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,38:46,17,25,0.68,4,5,0.8,6,6,1.0,3,10,13,2,0,0,2,5,44,15.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,39:52,6,16,0.375,4,11,0.364,1,2,0.5,1,2,3,6,2,2,1,2,17,10.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:22,6,18,0.333,3,7,0.429,7,8,0.875,0,2,2,9,0,0,1,0,22,5.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,9:14,1,1,1.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,2,2,-6.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,25:02,3,8,0.375,2,5,0.4,2,2,1.0,1,2,3,2,2,1,2,1,10,-3.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,11:38,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,5,1,1,0,1,0,4.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,37:24,6,9,0.667,0,2,0.0,3,4,0.75,2,2,4,4,2,0,4,3,15,-10.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,27:00,4,7,0.571,2,4,0.5,0,2,0.0,1,5,6,1,0,0,0,1,10,-13.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,32:53,3,7,0.429,0,2,0.0,5,6,0.833,1,2,3,4,1,0,1,3,11,-9.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,35:19,12,20,0.6,8,13,0.615,2,2,1.0,0,5,5,7,1,0,1,2,34,-3.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,34:43,5,14,0.357,4,8,0.5,2,2,1.0,0,4,4,7,2,0,2,2,16,-5.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,27:18,2,10,0.2,0,2,0.0,4,8,0.5,2,6,8,4,0,0,1,4,8,2.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,15:07,2,3,0.667,2,3,0.667,0,0,0.0,1,2,3,0,0,0,0,2,6,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,,,16:22,1,4,0.25,0,1,0.0,0,0,0.0,0,4,4,0,0,3,0,0,2,-7.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,13:54,2,7,0.286,1,5,0.2,0,0,0.0,0,2,2,0,0,0,1,0,5,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,NWT - Personal,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122
+0022400122,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400122

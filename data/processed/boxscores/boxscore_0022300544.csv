@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300544,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,31:40,7,15,0.467,1,4,0.25,3,4,0.75,2,3,5,2,1,4,4,1,18,7.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,203944,Julius,Randle,J. Randle,julius-randle,F,,,35:37,9,21,0.429,1,6,0.167,5,6,0.833,5,6,11,5,0,1,6,2,24,10.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,42:07,5,6,0.833,0,0,0.0,2,4,0.5,7,13,20,2,2,4,3,1,12,7.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,32:56,4,14,0.286,3,11,0.273,2,3,0.667,0,3,3,4,4,0,2,2,13,8.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,38:03,7,10,0.7,4,7,0.571,1,2,0.5,0,6,6,5,1,1,3,3,19,13.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,,,28:43,3,7,0.429,2,4,0.5,0,0,0.0,0,7,7,3,2,0,2,2,8,7.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,9:57,4,5,0.8,1,2,0.5,0,0,0.0,0,1,1,3,1,0,1,3,9,-1.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,15:04,1,5,0.2,1,4,0.25,0,0,0.0,0,2,2,1,0,0,0,1,3,4.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,5:53,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,1,1,0,0,5.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1627853,Ryan,Arcidiacono,R. Arcidiacono,ryan-arcidiacono,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1629718,Charlie,Brown Jr.,C. Brown Jr.,charlie-brown-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,203095,Evan,Fournier,E. Fournier,evan-fournier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,35:42,5,13,0.385,1,7,0.143,6,8,0.75,3,5,8,8,2,1,4,1,17,-4.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,F,,,34:54,6,12,0.5,2,4,0.5,0,0,0.0,1,3,4,1,2,0,2,4,14,-19.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,C,,,36:12,6,15,0.4,0,2,0.0,0,0,0.0,0,5,5,5,6,1,2,4,12,-6.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,33:17,6,13,0.462,2,8,0.25,0,0,0.0,0,3,3,2,0,0,0,2,14,-1.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,G,,,31:37,2,8,0.25,1,6,0.167,0,0,0.0,1,1,2,7,2,0,0,4,5,-12.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,1:19,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,-2.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,20:26,0,4,0.0,0,3,0.0,0,0,0.0,1,2,3,1,1,2,0,1,0,-9.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,19:31,2,8,0.25,1,4,0.25,5,5,1.0,1,3,4,2,1,0,2,0,10,-9.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,27:03,9,14,0.643,2,4,0.5,0,0,0.0,2,4,6,1,0,2,2,0,20,2.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544
+0022300544,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300544

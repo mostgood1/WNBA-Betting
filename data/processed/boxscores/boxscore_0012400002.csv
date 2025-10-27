@@ -1,0 +1,40 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295062,Max,Darling,M. Darling,max-darling,F,,,25:01,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,1,0,2,5,2,-10.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295068,Jonah,Bolden,J. Bolden,jonah-bolden,F,,,23:24,4,8,0.5,3,7,0.429,2,2,1.0,2,4,6,0,0,1,1,2,13,-5.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295056,Sam,Mennenga,S. Mennenga,sam-mennenga,C,,,19:50,3,9,0.333,2,5,0.4,2,2,1.0,2,3,5,2,0,0,1,1,10,3.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295063,Matt,Mooney,M. Mooney,matt-mooney,G,,,19:39,4,12,0.333,2,8,0.25,0,0,0.0,0,0,0,1,0,0,1,3,10,-10.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295058,Parker,Jackson-Cartwright,P. Jackson-Cartwright,parker-jackson-cartwright,G,,,22:27,7,16,0.438,1,5,0.2,1,1,1.0,0,2,2,9,3,0,1,1,16,-12.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295061,Grant,Anticevich,G. Anticevich,grant-anticevich,,,,14:53,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,1,0,1,0,-6.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295059,Mojave,King,M. King,mojave-king,,,,16:45,4,12,0.333,3,9,0.333,0,0,0.0,0,2,2,2,0,0,0,0,11,-20.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295067,Freddie,Gillespie,F. Gillespie,freddie-gillespie,,,,18:59,2,4,0.5,0,0,0.0,0,0,0.0,3,1,4,1,1,1,1,0,4,-18.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295060,Mitch,McCarron,M. McCarron,mitch-mccarron,,,,15:53,0,4,0.0,0,2,0.0,0,0,0.0,2,1,3,3,1,0,3,3,0,0.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295054,Karim,Lopez,K. Lopez,karim-lopez,,,,25:01,5,8,0.625,0,0,0.0,3,8,0.375,3,4,7,3,2,1,2,3,13,-11.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295053,Alex,McNaught,A. McNaught,alex-mcnaught,,,,8:28,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-15.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295069,Jordan,Floyd,J. Floyd,jordan-floyd,,,,9:15,3,6,0.5,0,0,0.0,0,0,0.0,0,1,1,0,2,1,3,0,6,2.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295055,Sean,Bairstow,S. Bairstow,sean-bairstow,,,,4:16,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-16.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295065,Carlin,Davison,C. Davison,carlin-davison,,,,3:25,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-10.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295066,Dane,Pineau,D. Pineau,dane-pineau,,,,9:11,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,1,1,0,0,0,0,-14.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295057,Kaia,Isaac,K. Isaac,kaia-isaac,,,,3:33,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,2,-3.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295064,Chris,Arcidiacono,C. Arcidiacono,chris-arcidiacono,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,15020,New Zealand,Breakers,NZB,breakers,196295070,Tacko,Fall,T. Fall,tacko-fall,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,15:27,5,7,0.714,1,2,0.5,2,2,1.0,0,3,3,0,0,0,2,0,13,12.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,23:23,2,5,0.4,1,3,0.333,0,0,0.0,0,3,3,1,2,1,2,2,5,5.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,25:15,4,6,0.667,0,0,0.0,0,4,0.0,5,4,9,2,0,1,1,1,8,13.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,18:15,3,7,0.429,2,4,0.5,0,0,0.0,0,4,4,3,1,0,1,0,8,16.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,22:16,4,6,0.667,2,4,0.5,2,4,0.5,0,0,0,5,0,0,2,1,12,14.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,,,,9:59,3,5,0.6,0,1,0.0,6,6,1.0,0,3,3,0,0,0,2,2,12,2.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,28:40,3,7,0.429,0,3,0.0,0,0,0.0,0,4,4,3,1,0,1,3,6,17.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,11:17,4,7,0.571,1,3,0.333,2,2,1.0,0,3,3,2,0,0,0,2,11,-2.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,22:02,5,9,0.556,0,2,0.0,2,2,1.0,1,5,6,2,3,0,2,2,12,18.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,,,19:26,1,3,0.333,0,1,0.0,0,0,0.0,0,1,1,6,3,0,5,2,2,7.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,12:46,1,3,0.333,0,1,0.0,0,0,0.0,1,3,4,1,1,1,2,1,2,14.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,12:46,2,2,1.0,0,0,0.0,2,2,1.0,1,2,3,0,0,2,1,0,6,14.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,18:28,7,9,0.778,5,6,0.833,0,0,0.0,1,0,1,2,0,0,0,3,19,15.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1630546,Max,Abmas,M. Abmas,max-abmas,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1641795,Taevion,Kinsey,T. Kinsey,taevion-kinsey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1630554,Jason,Preston,J. Preston,jason-preston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002
+0012400002,1610612762,Utah,Jazz,UTA,jazz,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012400002

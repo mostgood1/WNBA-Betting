@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,35:08,6,10,0.6,2,5,0.4,1,1,1.0,0,9,9,1,1,0,2,1,15,35.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,33:45,11,19,0.579,5,5,1.0,1,1,1.0,1,5,6,5,3,0,2,2,28,28.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,33:34,8,10,0.8,0,0,0.0,5,6,0.833,1,11,12,1,1,3,2,3,21,13.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,25:37,2,7,0.286,0,2,0.0,2,3,0.667,1,3,4,3,0,0,5,3,6,1.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,30:57,3,8,0.375,3,6,0.5,2,2,1.0,0,3,3,10,2,0,1,3,11,23.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,21:27,4,6,0.667,0,1,0.0,3,4,0.75,0,1,1,3,0,0,0,1,11,5.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,18:08,0,5,0.0,0,4,0.0,0,0,0.0,0,2,2,3,0,1,2,1,0,11.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,21:02,5,8,0.625,2,4,0.5,1,2,0.5,2,8,10,2,0,0,3,3,13,1.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,15:28,2,3,0.667,0,1,0.0,0,0,0.0,0,0,0,5,1,0,1,1,4,-8.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,2:27,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-2.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,2:27,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,4,-2.0,0022300513
+0022300513,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,F,,,34:08,3,12,0.25,2,10,0.2,0,0,0.0,3,4,7,2,0,0,0,2,8,-18.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,35:04,8,22,0.364,1,4,0.25,1,4,0.25,0,2,2,3,3,1,4,4,18,-30.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,16:33,1,3,0.333,0,0,0.0,0,0,0.0,4,2,6,1,1,2,1,4,2,-8.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,G,,,27:00,1,10,0.1,1,8,0.125,0,0,0.0,2,8,10,1,0,1,0,2,3,-9.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,26:42,8,14,0.571,4,8,0.5,0,1,0.0,1,4,5,2,3,0,2,2,20,-16.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,12:41,2,7,0.286,0,0,0.0,0,0,0.0,1,2,3,2,0,0,0,0,4,-3.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,28:23,3,9,0.333,3,4,0.75,2,2,1.0,1,2,3,3,1,0,2,1,11,-10.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,31:27,6,9,0.667,1,4,0.25,8,11,0.727,3,5,8,2,2,0,1,3,21,-13.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,6:47,1,4,0.25,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,2,2,2.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,21:15,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,4,3,1,2,2,3,0.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300513
+0022300513,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300513

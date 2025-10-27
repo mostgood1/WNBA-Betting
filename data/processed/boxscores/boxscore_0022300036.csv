@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,F,,,30:35,2,4,0.5,1,2,0.5,3,4,0.75,1,1,2,1,3,1,1,0,8,1.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,34:32,13,22,0.591,5,9,0.556,4,6,0.667,0,5,5,9,2,0,3,3,35,19.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,34:47,8,19,0.421,0,1,0.0,0,1,0.0,4,10,14,2,3,5,6,5,16,1.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,35:05,3,7,0.429,1,5,0.2,3,3,1.0,1,0,1,3,2,0,0,5,10,11.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,28:50,5,10,0.5,4,7,0.571,0,1,0.0,1,2,3,6,0,0,4,1,14,2.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,,,27:40,3,5,0.6,1,2,0.5,0,0,0.0,1,4,5,2,0,0,0,1,7,9.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,,,19:54,5,9,0.556,0,3,0.0,0,0,0.0,2,8,10,0,0,0,0,1,10,6.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,,,,17:59,1,4,0.25,0,0,0.0,5,6,0.833,1,1,2,4,0,0,3,0,7,11.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,8:16,0,0,0.0,0,0,0.0,0,1,0.0,0,1,1,0,1,0,0,0,0,5.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,1:11,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,0.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,1:11,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300036
+0022300036,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,35:52,3,8,0.375,1,6,0.167,3,5,0.6,2,4,6,0,2,1,1,3,10,-7.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,39:32,8,20,0.4,4,9,0.444,4,4,1.0,0,4,4,3,1,0,1,0,24,-14.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,37:48,8,14,0.571,0,0,0.0,1,2,0.5,7,5,12,2,2,0,4,4,17,-7.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,38:01,7,17,0.412,1,5,0.2,2,2,1.0,2,7,9,2,1,1,10,4,17,-5.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,G,,,25:31,6,14,0.429,3,7,0.429,0,0,0.0,3,2,5,8,2,0,0,3,15,-11.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,23:38,2,3,0.667,1,2,0.5,0,0,0.0,1,3,4,1,2,0,2,1,5,-10.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,18:10,2,6,0.333,0,2,0.0,3,5,0.6,2,3,5,1,0,0,0,0,7,2.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,10:12,0,5,0.0,0,4,0.0,0,0,0.0,1,1,2,0,0,0,0,1,0,-6.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,5:29,0,2,0.0,0,2,0.0,0,0,0.0,1,0,1,0,1,0,0,1,0,-5.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,4:36,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1631123,Jamaree,Bouyea,J. Bouyea,jamaree-bouyea,,,,1:11,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300036
+0022300036,1610612757,Portland,Trail Blazers,POR,blazers,1630688,Ish,Wainright,I. Wainright,ish-wainright,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300036

@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300842,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,33:12,7,12,0.583,1,2,0.5,7,9,0.778,1,3,4,9,4,2,1,3,22,5.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,15:11,3,5,0.6,2,4,0.5,0,2,0.0,0,2,2,0,0,0,0,1,8,2.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,33:45,5,9,0.556,0,0,0.0,3,7,0.429,1,8,9,2,0,1,6,3,13,4.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,34:14,5,8,0.625,4,6,0.667,3,3,1.0,0,3,3,3,2,0,2,3,17,7.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,30:19,7,14,0.5,2,4,0.5,3,3,1.0,0,4,4,4,1,2,2,0,19,8.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,29:21,2,5,0.4,1,2,0.5,2,2,1.0,2,1,3,4,0,0,1,3,7,10.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,26:56,3,6,0.5,2,2,1.0,0,0,0.0,0,3,3,1,0,1,3,1,8,7.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,,,16:54,1,3,0.333,0,0,0.0,0,0,0.0,1,1,2,4,1,0,0,1,2,0.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,14:15,3,6,0.5,2,5,0.4,0,0,0.0,1,1,2,2,0,1,2,2,8,6.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,5:53,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,1,1,2,2,1.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300842
+0022300842,1610612748,Miami,Heat,MIA,heat,1631214,Alondes,Williams,A. Williams,alondes-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,32:28,6,12,0.5,2,2,1.0,3,3,1.0,6,4,10,3,0,0,3,6,17,13.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,40:24,7,15,0.467,3,5,0.6,7,8,0.875,1,6,7,6,3,0,3,4,24,-15.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,18:34,6,9,0.667,0,0,0.0,0,0,0.0,3,7,10,2,2,1,2,1,12,14.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,G,,,29:54,0,6,0.0,0,5,0.0,0,0,0.0,1,2,3,2,2,0,3,3,0,1.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,40:34,10,26,0.385,4,11,0.364,2,2,1.0,0,1,1,4,0,0,4,3,26,-12.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,30:23,3,6,0.5,1,3,0.333,1,2,0.5,1,0,1,3,2,1,0,2,8,-13.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,19:13,2,4,0.5,0,0,0.0,3,4,0.75,0,2,2,2,0,0,0,0,7,-18.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,5:04,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,1,0,1,0,-2.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,12:35,0,4,0.0,0,3,0.0,0,0,0.0,2,1,3,0,0,0,1,3,0,-10.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,10:51,1,2,0.5,0,0,0.0,0,0,0.0,1,2,3,1,0,1,1,2,2,-8.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300842
+0022300842,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300842

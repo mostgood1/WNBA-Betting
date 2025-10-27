@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,35:48,7,12,0.583,1,1,1.0,2,2,1.0,0,8,8,1,0,3,1,4,17,14.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,28:15,0,5,0.0,0,5,0.0,1,2,0.5,1,2,3,4,0,0,0,1,1,-14.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,31:24,5,7,0.714,0,0,0.0,5,7,0.714,5,10,15,1,1,0,2,2,15,2.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,32:45,12,19,0.632,5,8,0.625,5,5,1.0,1,2,3,3,2,2,3,3,34,7.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:15,9,17,0.529,3,8,0.375,4,4,1.0,0,2,2,5,0,0,4,3,25,7.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,26:18,1,4,0.25,0,2,0.0,3,4,0.75,1,3,4,3,2,0,2,1,5,19.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,21:50,2,5,0.4,2,5,0.4,0,0,0.0,0,2,2,2,1,0,0,3,6,9.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,14:32,2,6,0.333,1,4,0.25,0,0,0.0,1,3,4,1,1,0,0,2,5,14.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,9:12,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,1,0,0,0,0,-15.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,6:41,1,5,0.2,0,2,0.0,0,0,0.0,0,0,0,0,2,0,1,1,2,-13.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400106
+0022400106,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,36:52,7,13,0.538,1,4,0.25,0,1,0.0,1,1,2,2,2,1,2,3,15,3.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,37:50,4,10,0.4,2,5,0.4,6,6,1.0,4,9,13,2,3,0,5,1,16,-4.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,32:17,4,8,0.5,1,2,0.5,4,4,1.0,1,9,10,3,1,0,3,6,13,-1.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,40:10,9,15,0.6,1,4,0.25,0,0,0.0,4,2,6,3,2,1,2,4,19,-14.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,37:36,8,24,0.333,0,4,0.0,5,7,0.714,0,3,3,7,0,0,1,2,21,0.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,3:48,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-6.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,29:08,6,12,0.5,2,6,0.333,0,0,0.0,1,2,3,4,0,0,1,2,14,-3.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,10:24,2,7,0.286,2,3,0.667,0,0,0.0,1,2,3,1,0,0,1,1,6,-6.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,11:55,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,1,1,0,1.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400106
+0022400106,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400106

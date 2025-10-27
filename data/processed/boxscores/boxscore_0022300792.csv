@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300792,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,31:47,6,11,0.545,1,4,0.25,1,1,1.0,0,4,4,4,1,0,3,1,14,-12.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,33:37,4,15,0.267,2,4,0.5,2,2,1.0,2,4,6,4,0,0,4,5,12,-7.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,23:08,5,7,0.714,2,3,0.667,0,0,0.0,0,2,2,1,0,0,1,2,12,-11.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,18:08,3,8,0.375,1,4,0.25,0,0,0.0,0,1,1,3,1,0,0,1,7,-12.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,28:56,2,4,0.5,2,2,1.0,2,2,1.0,0,0,0,3,3,0,1,3,8,-10.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,23:44,3,7,0.429,1,2,0.5,2,2,1.0,1,2,3,2,0,0,1,1,9,21.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,18:00,4,4,1.0,3,3,1.0,1,1,1.0,0,1,1,2,1,0,1,2,12,23.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,24:42,7,12,0.583,1,1,1.0,7,8,0.875,2,5,7,0,1,0,0,4,22,18.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,18:53,3,8,0.375,0,1,0.0,1,2,0.5,5,2,7,1,0,2,1,0,7,17.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,19:05,6,8,0.75,1,1,1.0,0,0,0.0,0,2,2,6,1,1,1,4,13,8.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300792
+0022300792,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,30:14,7,9,0.778,2,4,0.5,1,1,1.0,0,2,2,1,0,0,2,4,17,-3.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,34:00,5,9,0.556,0,1,0.0,4,4,1.0,1,7,8,6,2,2,1,3,14,0.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,34:25,6,10,0.6,0,0,0.0,6,8,0.75,2,8,10,1,2,0,2,1,18,9.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,G,,,33:06,7,10,0.7,1,3,0.333,3,4,0.75,3,1,4,6,1,1,4,4,18,11.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,37:01,6,12,0.5,3,5,0.6,3,5,0.6,0,2,2,10,2,0,4,2,18,2.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,27:26,2,10,0.2,0,2,0.0,2,2,1.0,0,2,2,2,1,1,2,2,6,-10.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,12:42,1,2,0.5,1,2,0.5,0,0,0.0,0,2,2,0,0,1,0,0,3,-9.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,11:43,1,2,0.5,1,2,0.5,1,1,1.0,1,1,2,4,0,0,0,0,4,-10.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,15:37,3,4,0.75,2,3,0.667,1,1,1.0,0,0,0,1,0,0,2,2,9,-20.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,3:46,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-5.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300792
+0022300792,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629015,Zhaire,Smith,Z. Smith,zhaire-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300792

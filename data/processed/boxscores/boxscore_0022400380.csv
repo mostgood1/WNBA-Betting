@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,27:11,4,12,0.333,1,4,0.25,2,2,1.0,1,4,5,1,1,0,3,1,11,-7.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,F,,,27:07,3,5,0.6,1,3,0.333,0,0,0.0,1,6,7,1,0,0,2,4,7,-6.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,14:24,0,3,0.0,0,0,0.0,0,0,0.0,2,6,8,0,0,1,1,4,0,-11.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,27:17,3,11,0.273,1,5,0.2,2,5,0.4,2,3,5,0,1,1,1,1,9,-34.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,33:00,8,21,0.381,5,10,0.5,6,8,0.75,0,1,1,3,1,0,1,0,27,-24.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,22:42,3,5,0.6,1,3,0.333,0,0,0.0,0,3,3,1,2,0,3,1,7,-14.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,28:58,3,10,0.3,0,3,0.0,2,4,0.5,2,1,3,3,1,0,1,4,8,-10.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,21:28,2,7,0.286,1,3,0.333,6,6,1.0,2,3,5,0,1,0,1,0,11,-10.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,,,4:34,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,2,0,0,0,0,0,-2.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,9:40,3,4,0.75,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,0,7,-9.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,11:39,1,1,1.0,0,0,0.0,1,1,1.0,1,2,3,1,0,0,0,1,3,-4.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,12:00,4,5,0.8,0,0,0.0,1,1,1.0,0,0,0,1,0,1,0,0,9,-4.0,0022400380
+0022400380,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,24:53,2,3,0.667,2,3,0.667,0,0,0.0,0,4,4,2,2,0,0,1,6,15.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,30:11,10,14,0.714,1,2,0.5,1,5,0.2,3,10,13,7,2,1,1,1,22,10.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,24:47,2,5,0.4,0,0,0.0,2,3,0.667,1,5,6,2,1,0,2,1,6,7.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,27:54,7,16,0.438,4,10,0.4,1,1,1.0,0,4,4,5,0,0,4,0,19,8.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,25:55,9,11,0.818,6,7,0.857,2,2,1.0,1,4,5,4,1,0,2,2,26,7.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,21:56,5,11,0.455,2,6,0.333,0,0,0.0,0,1,1,3,2,0,3,1,12,36.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,8:24,0,2,0.0,0,2,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,6.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,27:22,5,9,0.556,3,5,0.6,0,0,0.0,1,4,5,2,0,0,0,5,13,18.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,23:57,4,11,0.364,3,7,0.429,0,0,0.0,2,2,4,4,0,0,1,2,11,20.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,14:12,3,5,0.6,1,1,1.0,1,2,0.5,2,1,3,1,0,0,0,2,8,16.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,5:15,0,0,0.0,0,0,0.0,1,2,0.5,1,1,2,0,0,0,0,1,1,-4.0,0022400380
+0022400380,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,5:15,1,3,0.333,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,1,2,-4.0,0022400380

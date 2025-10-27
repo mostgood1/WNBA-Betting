@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,F,,,22:10,2,4,0.5,0,0,0.0,0,0,0.0,1,2,3,2,0,1,2,3,4,-10.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,40:07,14,27,0.519,3,8,0.375,2,3,0.667,2,6,8,9,3,1,4,1,33,-4.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,36:45,15,21,0.714,1,2,0.5,6,10,0.6,5,6,11,0,0,2,2,2,37,0.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,36:56,5,6,0.833,5,6,0.833,0,0,0.0,0,4,4,4,0,0,1,0,15,5.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,25:01,3,9,0.333,1,4,0.25,0,0,0.0,0,2,2,7,0,0,2,4,7,-6.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,,,,31:48,7,14,0.5,4,7,0.571,4,5,0.8,0,5,5,8,0,0,3,2,22,4.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,12:45,0,1,0.0,0,0,0.0,0,0,0.0,2,2,4,1,0,0,0,4,0,-1.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,,,28:31,3,9,0.333,1,2,0.5,0,0,0.0,0,3,3,2,1,0,1,3,7,-3.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,5:57,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,5.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306
+0022300306,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,F,,,35:53,8,10,0.8,7,9,0.778,3,4,0.75,2,2,4,3,1,1,1,2,26,7.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1629684,Grant,Williams,G. Williams,grant-williams,F,,,40:05,7,9,0.778,5,7,0.714,0,0,0.0,1,2,3,1,1,0,1,4,19,7.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,30:03,4,7,0.571,0,0,0.0,0,0,0.0,4,4,8,0,2,3,1,4,8,8.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,203552,Seth,Curry,S. Curry,seth-curry,G,,,11:58,1,2,0.5,1,2,0.5,0,0,0.0,1,1,2,0,0,1,0,0,3,4.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,43:21,12,28,0.429,3,10,0.3,6,6,1.0,0,6,6,17,1,0,4,0,33,10.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,36:59,10,21,0.476,5,10,0.5,7,8,0.875,1,2,3,3,1,0,0,2,32,-6.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,19:01,1,7,0.143,0,3,0.0,0,0,0.0,0,1,1,1,0,0,1,2,2,0.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,15:01,1,3,0.333,0,0,0.0,2,3,0.667,3,4,7,2,0,0,2,3,4,-4.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,1:16,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,,,6:21,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,1,1,0,0,0,0,-10.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,0:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1630535,Greg,Brown III,G. Brown III,greg-brown-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,1641926,Dexter,Dennis,D. Dennis,dexter-dennis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306
+0022300306,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300306

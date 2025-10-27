@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400606,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,38:54,3,5,0.6,1,2,0.5,0,0,0.0,1,11,12,9,2,0,2,2,7,-3.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,37:15,8,18,0.444,2,6,0.333,2,2,1.0,3,1,4,3,3,1,0,2,20,-4.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,39:23,11,18,0.611,0,3,0.0,3,4,0.75,5,11,16,6,3,2,5,4,25,16.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,34:23,3,13,0.231,2,6,0.333,2,2,1.0,0,1,1,2,2,0,0,1,10,8.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,38:33,7,18,0.389,1,4,0.25,2,4,0.5,0,3,3,4,0,0,1,4,17,-5.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,18:30,3,6,0.5,1,3,0.333,0,0,0.0,0,1,1,1,0,0,0,1,7,-6.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,17:43,5,7,0.714,1,2,0.5,0,0,0.0,0,4,4,1,1,0,1,2,11,-5.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,9:11,0,2,0.0,0,2,0.0,2,2,1.0,0,1,1,3,0,0,1,3,2,9.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,6:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,10.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,34:57,6,20,0.3,2,9,0.222,2,2,1.0,0,3,3,2,0,2,2,2,16,-18.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,F,,,26:00,4,8,0.5,2,5,0.4,0,0,0.0,3,3,6,1,1,2,0,1,10,-1.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,34:09,4,11,0.364,0,1,0.0,0,2,0.0,5,7,12,2,2,0,2,1,8,-19.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,26:57,2,7,0.286,1,3,0.333,2,3,0.667,1,2,3,2,0,0,0,0,7,3.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,31:28,6,17,0.353,4,11,0.364,7,7,1.0,0,2,2,10,1,3,3,5,23,5.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,28:01,1,5,0.2,0,3,0.0,1,4,0.25,1,4,5,2,0,0,3,3,3,5.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,13:51,3,4,0.75,0,0,0.0,4,4,1.0,2,1,3,0,0,2,2,2,10,15.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,24:13,5,8,0.625,3,6,0.5,0,0,0.0,0,7,7,1,0,0,3,2,13,-11.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,20:25,1,6,0.167,0,2,0.0,3,3,1.0,2,4,6,1,0,0,1,2,5,1.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606
+0022400606,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400606

@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,35:49,8,10,0.8,1,3,0.333,0,0,0.0,1,5,6,2,2,2,4,5,17,2.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,29:15,3,9,0.333,0,3,0.0,5,6,0.833,3,3,6,2,0,0,4,5,11,-6.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,32:48,2,3,0.667,0,0,0.0,5,6,0.833,0,8,8,4,1,1,4,2,9,-7.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,37:01,8,19,0.421,4,10,0.4,6,6,1.0,0,0,0,3,2,1,1,2,26,-20.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,24:17,2,5,0.4,2,5,0.4,0,0,0.0,0,4,4,6,2,0,1,1,6,7.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,17:59,1,3,0.333,1,3,0.333,0,0,0.0,0,2,2,1,2,0,4,1,3,-20.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,33:58,10,17,0.588,4,8,0.5,4,4,1.0,0,6,6,1,1,0,1,4,28,-15.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,27:08,3,7,0.429,1,3,0.333,1,1,1.0,0,0,0,2,3,0,2,1,8,-13.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,1:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,2.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628408,PJ,Dozier,P. Dozier,pj-dozier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,37:52,5,8,0.625,4,5,0.8,0,0,0.0,2,2,4,3,2,0,3,3,14,20.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,38:36,5,15,0.333,2,5,0.4,9,10,0.9,0,2,2,8,0,0,3,1,21,15.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,21:07,2,5,0.4,0,1,0.0,0,0,0.0,3,3,6,0,1,1,1,5,4,3.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,32:53,7,15,0.467,3,5,0.6,0,0,0.0,1,2,3,3,3,0,2,4,17,3.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,5:05,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-1.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,20:45,6,9,0.667,2,2,1.0,0,1,0.0,1,3,4,2,3,0,3,4,14,11.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,25:24,9,10,0.9,0,0,0.0,1,1,1.0,2,7,9,3,3,3,1,1,19,13.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,,,25:15,4,10,0.4,3,6,0.5,6,6,1.0,0,4,4,5,1,1,1,2,17,5.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,23:39,4,9,0.444,4,6,0.667,0,0,0.0,1,3,4,5,1,2,5,3,12,2.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,9:24,0,1,0.0,0,1,0.0,2,2,1.0,1,1,2,1,0,0,0,0,2,-1.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008
+0022400008,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400008

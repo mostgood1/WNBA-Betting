@@ -1,0 +1,43 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,24:13,8,16,0.5,0,1,0.0,2,2,1.0,3,1,4,6,0,0,1,1,18,3.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,15:34,6,8,0.75,0,1,0.0,4,5,0.8,0,3,3,3,5,2,3,1,16,6.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,20:52,5,9,0.556,0,2,0.0,0,0,0.0,2,4,6,0,0,0,3,4,10,-4.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,24:26,3,4,0.75,1,2,0.5,0,0,0.0,0,3,3,1,0,0,1,1,7,-3.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,23:05,5,12,0.417,1,2,0.5,0,0,0.0,2,3,5,5,0,0,2,2,11,-7.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,23:29,1,4,0.25,0,0,0.0,1,2,0.5,1,4,5,0,2,1,0,1,3,5.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,17:26,3,7,0.429,1,5,0.2,0,0,0.0,1,1,2,3,1,0,2,0,7,9.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,18:28,1,8,0.125,1,7,0.143,0,0,0.0,0,2,2,0,0,0,1,0,3,-2.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,17:51,1,3,0.333,0,1,0.0,2,4,0.5,2,1,3,1,0,1,1,2,4,-2.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,16:24,5,6,0.833,0,0,0.0,0,0,0.0,2,7,9,1,0,0,2,3,10,14.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1631220,Dereon,Seabron,D. Seabron,dereon-seabron,,,,15:52,1,3,0.333,0,1,0.0,0,0,0.0,0,3,3,3,1,0,1,0,2,12.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630622,Jalen,Crutcher,J. Crutcher,jalen-crutcher,,,,9:46,3,4,0.75,2,3,0.667,0,0,0.0,0,1,1,3,0,0,1,2,8,10.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630792,Malcolm,Hill,M. Hill,malcolm-hill,,,,8:55,1,3,0.333,1,3,0.333,2,2,1.0,0,1,1,0,0,0,0,0,5,8.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1631167,Izaiah,Brockington,I. Brockington,izaiah-brockington,,,,3:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,2,0,1,0,0,11.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1629232,Kaiser,Gates,K. Gates,kaiser-gates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1641856,Tevian,Jones,T. Jones,tevian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,19:01,8,11,0.727,3,6,0.5,0,0,0.0,2,3,5,2,1,1,0,0,19,-3.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,19:52,2,9,0.222,0,2,0.0,1,2,0.5,1,1,2,2,1,1,2,2,5,-9.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,19:52,1,7,0.143,1,4,0.25,1,2,0.5,3,3,6,5,0,1,3,0,4,-9.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,18:49,3,6,0.5,1,3,0.333,2,2,1.0,1,1,2,0,2,1,1,3,9,-6.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,G,,,19:52,2,6,0.333,0,1,0.0,0,0,0.0,1,2,3,6,1,0,3,2,4,-3.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,9:56,0,3,0.0,0,3,0.0,0,0,0.0,0,3,3,0,0,3,0,0,0,11.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,18:02,3,7,0.429,2,5,0.4,2,3,0.667,0,2,2,2,2,1,0,0,10,5.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,16:08,7,10,0.7,2,4,0.5,0,0,0.0,0,2,2,1,1,0,1,0,16,8.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,16:08,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,1,0,1,1,2,3,2.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,16:08,2,2,1.0,0,0,0.0,2,2,1.0,0,3,3,4,0,0,3,2,6,2.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,12:53,0,1,0.0,0,1,0.0,1,4,0.25,0,2,2,0,1,0,1,0,1,-1.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,12:00,4,5,0.8,1,2,0.5,0,0,0.0,2,2,4,2,0,0,2,1,9,-11.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,12:00,1,4,0.25,1,4,0.25,0,0,0.0,0,1,1,1,0,0,0,1,3,-11.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,12:00,0,6,0.0,0,5,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-11.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,12:00,1,4,0.25,1,4,0.25,0,0,0.0,0,2,2,0,2,1,0,2,3,-11.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,5:19,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,2,0,0,-13.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630284,Kevon,Harris,K. Harris,kevon-harris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630644,Mac,McClung,M. McClung,mac-mcclung,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1629671,Miye,Oni,M. Oni,miye-oni,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050
+0012300050,1610612753,Orlando,Magic,ORL,magic,1630314,Brandon,Williams,B. Williams,brandon-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300050

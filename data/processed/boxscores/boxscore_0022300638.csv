@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300638,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,38:02,6,15,0.4,4,8,0.5,2,3,0.667,1,4,5,4,1,1,5,1,18,2.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,34:11,8,20,0.4,2,9,0.222,9,11,0.818,0,5,5,6,2,1,3,3,27,0.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,35:24,8,9,0.889,2,3,0.667,2,3,0.667,3,6,9,2,2,2,1,3,20,-5.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,4:25,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-8.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,G,,,21:16,5,7,0.714,0,0,0.0,0,0,0.0,1,2,3,3,0,0,1,1,10,-2.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,23:22,2,8,0.25,0,4,0.0,1,2,0.5,0,7,7,4,2,0,0,0,5,10.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,17:12,1,5,0.2,0,4,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-9.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,26:39,0,3,0.0,0,1,0.0,2,4,0.5,2,1,3,1,0,0,1,5,2,1.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,12:36,4,6,0.667,1,1,1.0,3,4,0.75,0,3,3,0,1,0,0,1,12,4.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,22:09,4,5,0.8,0,1,0.0,2,2,1.0,2,3,5,0,0,0,0,0,10,7.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,4:44,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-5.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300638
+0022300638,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,35:48,3,9,0.333,3,8,0.375,2,4,0.5,0,5,5,4,0,2,1,4,11,2.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,28:56,6,9,0.667,2,5,0.4,0,0,0.0,2,5,7,5,0,0,1,2,14,-2.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,35:24,13,30,0.433,1,5,0.2,3,4,0.75,3,5,8,2,1,1,3,3,30,5.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,29:52,5,11,0.455,5,10,0.5,0,0,0.0,0,5,5,6,1,0,3,1,15,-8.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,26:08,3,5,0.6,1,2,0.5,0,0,0.0,1,0,1,2,3,2,1,2,7,8.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,29:45,7,10,0.7,3,6,0.5,0,0,0.0,0,4,4,5,2,0,3,3,17,-1.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,17:08,1,4,0.25,0,1,0.0,1,2,0.5,3,7,10,3,0,0,1,2,3,4.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,11:10,2,2,1.0,0,0,0.0,1,1,1.0,0,0,0,1,0,0,0,2,5,4.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,12:41,2,7,0.286,0,1,0.0,1,2,0.5,0,2,2,0,1,2,0,2,5,-4.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631367,Jacob,Gilyard,J. Gilyard,jacob-gilyard,,,,13:08,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,2,1,0,0,0,0,-3.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300638
+0022300638,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300638

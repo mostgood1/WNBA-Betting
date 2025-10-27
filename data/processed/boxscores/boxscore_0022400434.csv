@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,34:20,5,17,0.294,2,8,0.25,0,0,0.0,0,1,1,1,1,0,1,3,12,4.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,F,,,32:41,0,2,0.0,0,1,0.0,0,0,0.0,2,6,8,5,0,2,1,2,0,1.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,28:15,6,8,0.75,0,0,0.0,3,4,0.75,4,5,9,0,1,5,3,4,15,-5.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,35:19,5,13,0.385,2,6,0.333,5,5,1.0,0,8,8,4,0,0,1,5,17,3.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,38:38,16,26,0.615,5,12,0.417,9,9,1.0,1,1,2,2,2,1,4,1,46,-17.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,7:55,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,2,0,1,1,1,2,-7.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,16:51,4,7,0.571,3,6,0.5,0,0,0.0,0,4,4,1,0,0,1,2,11,-11.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,,,27:43,5,10,0.5,3,5,0.6,2,2,1.0,2,4,6,3,1,1,0,3,15,1.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,13:19,1,3,0.333,0,0,0.0,2,6,0.333,1,1,2,1,1,0,1,0,4,1.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,,,4:43,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,7.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,0:16,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,,DND_LEAGUE_SUSPENSION,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,,DND_LEAGUE_SUSPENSION,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,41:43,4,9,0.444,3,4,0.75,3,4,0.75,2,6,8,3,0,2,0,3,14,11.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,31:26,6,13,0.462,0,2,0.0,9,11,0.818,2,3,5,5,0,0,2,3,21,-8.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,35:42,9,15,0.6,0,1,0.0,3,4,0.75,4,12,16,1,2,3,4,4,21,16.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,38:03,9,18,0.5,2,4,0.5,3,3,1.0,1,4,5,4,1,0,0,3,23,17.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,39:38,8,18,0.444,4,8,0.5,2,2,1.0,0,4,4,8,0,0,2,1,22,7.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,28:38,8,15,0.533,2,6,0.333,1,3,0.333,0,4,4,6,5,1,1,2,19,3.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,8:11,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,2,0,2,-6.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,12:18,1,3,0.333,0,1,0.0,2,2,1.0,4,3,7,0,0,1,3,1,4,-12.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,4:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,-8.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434
+0022400434,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400434

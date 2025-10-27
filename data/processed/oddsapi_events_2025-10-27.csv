@@ -1,0 +1,12 @@
+event_id,commence_time,home_team,away_team,has_odds
+5c3141a83aab2381b9837f56079156fd,2025-10-27T23:00:00Z,Detroit Pistons,Cleveland Cavaliers,True
+f834a7893399a1848cb2572a2fbd03a8,2025-10-27T23:00:00Z,Philadelphia 76ers,Orlando Magic,True
+1e70cdfd00bfa5e08be3e030eebc8d39,2025-10-28T00:00:00Z,Chicago Bulls,Atlanta Hawks,True
+f5abc2b5aedbb8014bd140afacef4311,2025-10-28T00:00:00Z,New Orleans Pelicans,Boston Celtics,True
+3bb045e8e56483e4687e2aad7fc77870,2025-10-28T00:00:00Z,Houston Rockets,Brooklyn Nets,True
+fea9b1300b0006641e6f50a613e58f88,2025-10-28T00:00:00Z,San Antonio Spurs,Toronto Raptors,True
+5a01ca5161a08c4d7865032145759b36,2025-10-28T00:40:00Z,Dallas Mavericks,Oklahoma City Thunder,True
+f645a1acc849e1c50a8ed5f4b164fe76,2025-10-28T01:00:00Z,Utah Jazz,Phoenix Suns,True
+3a6b0d7961360bd22e31e59ea415ff57,2025-10-28T01:40:00Z,Minnesota Timberwolves,Denver Nuggets,True
+a3c68330f0966b1febd54c6e5a7fb538,2025-10-28T02:00:00Z,Golden State Warriors,Memphis Grizzlies,True
+79259d20c4c76b29a9886513796aa4b6,2025-10-28T02:40:00Z,Los Angeles Lakers,Portland Trail Blazers,True

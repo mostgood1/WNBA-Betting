@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,29:12,3,4,0.75,0,0,0.0,4,7,0.571,1,3,4,1,2,1,3,5,10,6.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,F,,,33:29,6,10,0.6,2,4,0.5,0,0,0.0,1,5,6,1,2,0,3,1,14,4.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,24:44,3,5,0.6,0,0,0.0,3,4,0.75,0,14,14,1,0,0,4,3,9,5.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,40:02,9,18,0.5,4,9,0.444,4,5,0.8,2,4,6,5,0,1,5,3,26,2.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,34:18,7,15,0.467,4,6,0.667,0,0,0.0,1,1,2,9,2,0,5,0,18,8.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,7:51,2,3,0.667,0,0,0.0,2,3,0.667,2,2,4,0,1,0,0,1,6,-2.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,,,,12:37,1,3,0.333,0,1,0.0,2,2,1.0,0,0,0,1,0,0,0,0,4,-1.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,7:50,0,4,0.0,0,2,0.0,0,0,0.0,0,2,2,1,1,0,1,0,0,-4.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,20:23,3,4,0.75,2,3,0.667,0,0,0.0,2,2,4,1,1,1,1,0,8,-2.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,11:33,3,6,0.5,1,3,0.333,2,2,1.0,0,0,0,0,1,0,0,2,9,1.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,,,18:01,3,6,0.5,1,1,1.0,2,3,0.667,1,2,3,4,1,0,2,3,9,3.0,0022400349
+0022400349,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,33:53,4,11,0.364,1,7,0.143,2,2,1.0,1,2,3,0,1,0,1,3,11,-7.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,34:08,3,8,0.375,0,2,0.0,3,3,1.0,1,10,11,3,2,0,3,4,9,-5.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,20:56,3,9,0.333,3,4,0.75,1,2,0.5,0,1,1,0,1,1,4,4,10,-7.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,30:39,3,5,0.6,2,3,0.667,2,2,1.0,1,3,4,3,1,0,4,1,10,-5.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,36:51,4,10,0.4,0,4,0.0,1,2,0.5,0,2,2,8,0,3,2,1,9,-3.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,22:44,4,11,0.364,3,9,0.333,0,0,0.0,0,3,3,2,1,0,0,3,11,4.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,25:49,14,19,0.737,0,3,0.0,2,2,1.0,0,1,1,6,2,2,0,1,30,1.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,20:29,6,7,0.857,3,4,0.75,0,0,0.0,0,3,3,0,0,1,3,1,15,2.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,9:28,0,1,0.0,0,0,0.0,2,2,1.0,0,0,0,1,1,0,0,1,2,1.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,5:03,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-1.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400349
+0022400349,1610612754,Indiana,Pacers,IND,pacers,1641803,Tristen,Newton,T. Newton,tristen-newton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400349

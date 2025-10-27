@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,F,,,37:16,10,17,0.588,5,10,0.5,2,2,1.0,2,5,7,2,2,0,0,1,27,11.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,37:02,8,19,0.421,2,7,0.286,3,5,0.6,4,3,7,5,1,0,6,1,21,1.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,37:14,12,20,0.6,2,4,0.5,5,7,0.714,3,11,14,1,2,1,2,3,31,2.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,G,,,29:55,1,6,0.167,0,3,0.0,0,0,0.0,2,1,3,1,2,1,0,2,2,1.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,40:50,3,15,0.2,2,9,0.222,2,2,1.0,1,1,2,7,1,0,0,1,10,9.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,20:51,2,5,0.4,1,3,0.333,2,2,1.0,0,1,1,5,1,0,3,3,7,9.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,21:38,0,2,0.0,0,2,0.0,0,0,0.0,1,1,2,2,0,0,0,1,0,-9.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1642422,Armel,Traore,A. Traore,armel-traore,,,,4:28,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-2.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,10:46,3,4,0.75,0,1,0.0,0,0,0.0,4,2,6,1,1,1,0,1,6,3.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,37:38,11,23,0.478,3,5,0.6,7,9,0.778,1,3,4,8,3,1,7,3,32,0.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,F,,,32:46,4,9,0.444,2,6,0.333,0,0,0.0,4,5,9,1,0,0,1,3,10,-7.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,28:41,3,5,0.6,0,0,0.0,2,4,0.5,4,3,7,3,2,0,3,3,8,-2.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,G,,,30:30,2,4,0.5,1,2,0.5,2,2,1.0,2,4,6,2,0,1,1,0,7,-1.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,G,,,35:39,4,12,0.333,2,6,0.333,2,2,1.0,1,7,8,5,1,0,3,3,12,3.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,,,34:43,6,18,0.333,2,7,0.286,2,2,1.0,1,5,6,3,0,1,1,0,16,-7.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,20:45,2,8,0.25,1,3,0.333,1,2,0.5,5,3,8,2,0,1,1,4,6,-8.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,19:19,3,4,0.75,0,0,0.0,2,2,1.0,0,2,2,0,1,0,0,3,8,-3.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231
+0022400231,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400231

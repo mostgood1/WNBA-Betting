@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400009,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,24:50,6,6,1.0,2,2,1.0,0,0,0.0,0,1,1,1,1,0,0,1,14,5.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,F,,,12:17,6,8,0.75,3,4,0.75,0,0,0.0,1,6,7,2,4,0,0,2,15,16.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,38:46,10,17,0.588,2,3,0.667,8,9,0.889,1,10,11,7,5,0,2,2,30,22.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,34:08,6,16,0.375,2,9,0.222,6,6,1.0,1,2,3,5,0,0,4,0,20,2.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,23:11,4,9,0.444,1,4,0.25,1,2,0.5,0,2,2,2,1,1,2,1,10,11.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,25:23,4,6,0.667,0,1,0.0,2,4,0.5,0,3,3,5,2,0,1,2,10,3.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,,,,3:40,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,,,24:49,2,7,0.286,2,5,0.4,0,0,0.0,0,1,1,2,1,0,1,0,6,2.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,23:20,2,9,0.222,2,9,0.222,2,2,1.0,0,1,1,2,1,0,0,2,8,8.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,29:38,5,8,0.625,1,4,0.25,0,0,0.0,1,5,6,1,1,0,0,2,11,1.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,F,,,28:39,4,11,0.364,0,3,0.0,0,0,0.0,1,3,4,1,0,0,2,2,8,-25.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,29:56,6,14,0.429,1,4,0.25,1,1,1.0,2,3,5,2,0,0,1,2,14,-25.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,28:21,3,7,0.429,1,4,0.25,2,3,0.667,0,5,5,2,1,1,1,1,9,-29.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,G,,,29:14,3,7,0.429,2,6,0.333,0,0,0.0,0,4,4,4,2,0,0,3,8,-22.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,28:39,7,14,0.5,4,9,0.444,0,0,0.0,1,1,2,8,1,0,1,1,18,-25.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,21:28,8,10,0.8,3,5,0.6,2,2,1.0,0,3,3,0,0,0,1,0,21,14.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,17:01,6,10,0.6,0,0,0.0,2,3,0.667,0,3,3,4,1,0,3,1,14,5.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,24:44,4,6,0.667,3,3,1.0,0,0,0.0,1,6,7,4,2,1,7,2,11,10.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,13:00,0,2,0.0,0,1,0.0,2,2,1.0,0,2,2,1,0,0,0,3,2,12.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,8:36,0,0,0.0,0,0,0.0,0,0,0.0,1,1,2,1,0,1,2,0,0,6.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,10:22,3,5,0.6,0,0,0.0,0,0,0.0,2,0,2,1,1,1,2,0,6,14.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009
+0022400009,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400009

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,29:05,3,7,0.429,3,7,0.429,2,2,1.0,1,7,8,0,1,1,0,1,11,-9.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,11:46,2,4,0.5,0,1,0.0,0,0,0.0,0,3,3,0,1,0,1,0,4,-11.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,28:38,3,7,0.429,0,0,0.0,0,0,0.0,0,7,7,1,0,0,1,2,6,-11.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,30:50,5,16,0.313,1,5,0.2,1,1,1.0,0,1,1,5,2,0,3,1,12,-16.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,32:23,9,19,0.474,2,6,0.333,3,4,0.75,0,5,5,5,0,0,2,1,23,-11.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,31:28,5,7,0.714,3,4,0.75,2,2,1.0,2,4,6,2,1,0,1,2,15,11.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,28:55,5,7,0.714,2,2,1.0,1,1,1.0,0,2,2,4,0,0,0,4,13,-4.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,20:41,3,6,0.5,2,5,0.4,2,2,1.0,0,0,0,2,0,0,1,4,10,-5.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,21:17,4,11,0.364,0,2,0.0,6,6,1.0,2,2,4,6,0,0,0,3,14,-4.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630550,JT,Thor,J. Thor,jt-thor,,,,1:39,2,2,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,5,5.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,,,1:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,1:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0022400351
+0022400351,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,35:16,6,12,0.5,0,2,0.0,6,8,0.75,1,2,3,5,2,0,1,0,18,10.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,23:31,0,2,0.0,0,2,0.0,0,0,0.0,0,5,5,1,0,0,2,3,0,9.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,36:02,7,14,0.5,2,4,0.5,0,0,0.0,1,12,13,6,0,1,1,2,16,20.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,27:49,7,11,0.636,4,6,0.667,5,5,1.0,0,3,3,1,1,0,1,2,23,11.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,35:51,10,19,0.526,5,9,0.556,9,9,1.0,2,4,6,7,0,0,2,2,34,5.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,4:50,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-11.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,,,25:38,4,9,0.444,3,6,0.5,0,0,0.0,3,1,4,2,0,0,2,2,11,-2.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,15:57,1,4,0.25,0,2,0.0,2,2,1.0,1,2,3,2,1,0,2,2,4,-7.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,,,27:58,6,14,0.429,2,5,0.4,0,0,0.0,2,7,9,3,0,1,0,1,14,10.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,7:08,0,0,0.0,0,0,0.0,2,2,1.0,0,1,1,0,0,2,0,1,2,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351
+0022400351,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400351

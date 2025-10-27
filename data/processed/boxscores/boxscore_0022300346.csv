@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,34:51,7,12,0.583,2,4,0.5,2,2,1.0,1,3,4,1,2,0,2,4,18,-15.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,27:57,7,13,0.538,1,4,0.25,1,1,1.0,0,5,5,2,0,1,0,5,16,-4.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,30:41,8,15,0.533,0,3,0.0,4,6,0.667,2,6,8,5,1,1,0,4,20,-7.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,28:50,6,11,0.545,2,4,0.5,2,2,1.0,0,2,2,7,0,0,1,0,16,-8.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,39:17,8,16,0.5,4,8,0.5,2,2,1.0,1,1,2,6,1,2,1,2,22,-6.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,29:59,5,8,0.625,1,2,0.5,0,0,0.0,0,6,6,1,2,0,0,2,11,-4.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,17:19,4,5,0.8,1,1,1.0,7,8,0.875,0,0,0,1,0,0,1,0,16,-2.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,12:30,0,3,0.0,0,1,0.0,0,0,0.0,0,1,1,2,1,0,2,2,0,-3.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,18:36,0,2,0.0,0,0,0.0,0,0,0.0,2,1,3,1,1,0,2,2,0,4.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300346
+0022300346,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,29:22,7,15,0.467,1,5,0.2,5,5,1.0,0,3,3,2,0,0,4,3,20,7.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,39:09,10,22,0.455,1,3,0.333,5,11,0.455,6,11,17,3,0,0,6,3,26,11.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,31:19,6,13,0.462,3,8,0.375,3,3,1.0,1,5,6,0,0,1,0,2,18,6.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,G,,,36:21,4,6,0.667,1,3,0.333,0,0,0.0,4,2,6,4,0,0,1,6,9,3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,36:42,11,19,0.579,5,8,0.625,12,13,0.923,0,5,5,11,3,0,3,2,39,10.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,24:56,5,7,0.714,1,2,0.5,0,0,0.0,4,2,6,0,0,0,0,3,11,7.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,12:36,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,2,0,2.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,17:05,2,4,0.5,1,3,0.333,0,0,0.0,1,1,2,4,1,0,1,0,5,12.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,11:00,0,4,0.0,0,4,0.0,0,0,0.0,0,0,0,1,0,0,0,2,0,2.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,0:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1629716,Marques,Bolden,M. Bolden,marques-bolden,,,,0:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,0:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,1629623,Lindell,Wigginton,L. Wigginton,lindell-wigginton,,,,0:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,0:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022300346
+0022300346,1610612749,Milwaukee,Bucks,MIL,bucks,201577,Robin,Lopez,R. Lopez,robin-lopez,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300346

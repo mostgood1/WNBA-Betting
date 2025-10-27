@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,37:03,8,9,0.889,3,3,1.0,1,2,0.5,0,7,7,2,0,0,2,2,20,-14.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,200782,P.J.,Tucker,P. Tucker,pj-tucker,F,,,25:35,0,2,0.0,0,2,0.0,0,0,0.0,1,6,7,0,2,0,0,5,0,2.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,36:26,9,21,0.429,3,7,0.429,3,8,0.375,0,7,7,6,0,1,7,5,24,-1.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,G,,,24:54,3,10,0.3,2,6,0.333,2,2,1.0,1,1,2,4,2,0,1,2,10,-4.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,40:12,10,22,0.455,3,8,0.375,8,10,0.8,0,4,4,8,2,0,0,3,31,0.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,,,32:28,9,11,0.818,5,6,0.833,4,4,1.0,1,3,4,0,1,0,3,4,27,14.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,201980,Danny,Green,D. Green,danny-green,,,,13:41,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,1,0,0,0,0,2.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,13:34,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,0,2,2,6.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,11:34,1,2,0.5,0,1,0.0,1,2,0.5,1,3,4,2,0,1,2,4,3,0.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,4:34,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,2,0,1,0,-10.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1627863,Danuel,House Jr.,D. House Jr.,danuel-house-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1627788,Furkan,Korkmaz,F. Korkmaz,furkan-korkmaz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612755,Philadelphia,76ers,PHI,sixers,1630196,Filip,Petrusev,F. Petrusev,filip-petrusev,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,16:12,2,5,0.4,1,3,0.333,1,2,0.5,0,3,3,4,2,0,2,0,6,14.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,35:07,10,21,0.476,0,3,0.0,3,9,0.333,4,8,12,3,2,2,7,4,23,-13.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,28:56,5,7,0.714,3,4,0.75,0,0,0.0,1,1,2,0,0,0,2,4,13,11.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,31:03,2,4,0.5,1,1,1.0,0,0,0.0,0,4,4,3,2,0,2,1,5,-5.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,37:13,9,20,0.45,4,12,0.333,17,17,1.0,0,8,8,4,0,0,0,2,39,12.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,26:46,3,4,0.75,1,1,1.0,2,2,1.0,0,4,4,2,2,0,1,3,9,11.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,20:21,2,6,0.333,1,4,0.25,2,2,1.0,0,2,2,2,0,1,0,0,7,-5.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,19:04,5,8,0.625,0,0,0.0,0,4,0.0,2,4,6,2,0,1,0,3,10,-10.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,8:56,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,3,2,-7.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,16:22,2,3,0.667,0,1,0.0,0,0,0.0,1,1,2,0,0,0,0,3,4,-3.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075
+0022300075,1610612749,Milwaukee,Bucks,MIL,bucks,201577,Robin,Lopez,R. Lopez,robin-lopez,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300075

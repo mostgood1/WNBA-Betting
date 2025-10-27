@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,33:48,4,11,0.364,0,1,0.0,1,2,0.5,0,4,4,6,0,0,2,2,9,-14.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,35:21,13,22,0.591,0,0,0.0,4,6,0.667,2,4,6,5,0,1,1,1,30,-7.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,25:39,5,11,0.455,1,3,0.333,6,6,1.0,2,4,6,1,0,0,0,3,17,-9.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,19:11,3,4,0.75,2,2,1.0,0,0,0.0,0,1,1,1,0,1,1,1,8,-2.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,30:11,4,10,0.4,3,8,0.375,1,2,0.5,0,5,5,7,1,0,2,2,12,-13.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,20:25,5,6,0.833,3,4,0.75,0,0,0.0,0,2,2,1,2,1,1,1,13,-9.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,,,,27:33,2,9,0.222,2,8,0.25,0,0,0.0,0,3,3,4,2,0,0,0,6,-18.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,16:33,3,7,0.429,2,3,0.667,2,2,1.0,1,0,1,1,1,0,1,0,10,-2.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,12:03,2,5,0.4,0,2,0.0,2,2,1.0,1,1,2,0,0,0,0,0,6,-5.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,15:24,1,4,0.25,0,2,0.0,0,2,0.0,2,2,4,3,3,0,0,0,2,7.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,1:56,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,6.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,1:56,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,6.0,0022300539
+0022300539,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,33:23,8,12,0.667,2,5,0.4,2,3,0.667,1,9,10,1,1,1,1,2,20,14.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,30:59,7,12,0.583,0,2,0.0,1,3,0.333,3,2,5,2,0,0,2,2,15,9.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,32:11,11,17,0.647,1,2,0.5,4,4,1.0,3,7,10,14,0,1,2,4,27,12.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,31:00,4,9,0.444,3,6,0.5,0,0,0.0,0,2,2,3,2,0,0,0,11,9.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,34:07,8,15,0.533,3,5,0.6,1,1,1.0,0,2,2,9,0,0,2,3,20,18.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,24:21,5,10,0.5,2,5,0.4,0,0,0.0,0,2,2,0,1,0,3,1,12,4.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,16:43,1,4,0.25,1,4,0.25,1,2,0.5,1,5,6,0,0,0,3,2,4,7.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,15:05,3,7,0.429,2,4,0.5,0,0,0.0,1,2,3,0,1,1,0,1,8,9.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,13:53,2,2,1.0,0,0,0.0,2,2,1.0,1,6,7,1,0,1,0,1,6,6.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,1:56,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-6.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,1:56,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,,,1:56,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-6.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,,,0:34,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-4.0,0022300539
+0022300539,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,1:56,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,-6.0,0022300539

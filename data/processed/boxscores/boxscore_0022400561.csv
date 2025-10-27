@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400561,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,49:25,4,9,0.444,0,3,0.0,2,3,0.667,5,12,17,12,4,0,3,3,10,10.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,44:30,6,16,0.375,3,10,0.3,2,2,1.0,0,4,4,4,1,0,2,1,17,-2.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,C,,,22:46,3,5,0.6,0,0,0.0,2,4,0.5,6,1,7,0,0,0,1,4,8,-3.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,43:28,9,19,0.474,5,10,0.5,0,0,0.0,0,2,2,2,0,0,1,0,23,3.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,45:28,14,22,0.636,3,6,0.5,7,9,0.778,1,4,5,4,2,0,5,1,38,7.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,30:07,4,6,0.667,0,0,0.0,2,4,0.5,2,4,6,1,1,3,1,2,10,9.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,21:48,4,5,0.8,3,4,0.75,2,2,1.0,1,2,3,3,1,0,0,1,13,5.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,7:28,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,2,1,0,0,2,6,1.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,43:27,9,20,0.45,3,8,0.375,5,5,1.0,0,3,3,6,3,0,3,2,26,4.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,45:24,7,11,0.636,1,3,0.333,1,1,1.0,1,9,10,1,2,1,2,3,16,-2.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,C,,,38:15,4,8,0.5,1,4,0.25,0,0,0.0,4,1,5,6,0,0,2,4,9,-10.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,G,,,21:11,4,6,0.667,3,5,0.6,3,3,1.0,0,1,1,2,0,0,0,0,14,-9.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,45:36,13,32,0.406,2,9,0.222,5,5,1.0,2,4,6,6,1,1,4,3,33,-9.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,,,35:18,4,6,0.667,2,4,0.5,0,0,0.0,1,1,2,3,1,0,0,3,10,1.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,14:21,3,6,0.5,1,2,0.5,0,0,0.0,0,1,1,3,1,0,0,1,7,-3.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,6:43,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-6.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,14:45,1,1,1.0,0,0,0.0,0,0,0.0,3,3,6,0,0,0,1,3,2,4.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561
+0022400561,1610612755,Philadelphia,76ers,PHI,sixers,1631250,Pete,Nance,P. Nance,pete-nance,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400561

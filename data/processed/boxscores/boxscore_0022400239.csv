@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,21:17,3,6,0.5,0,2,0.0,5,5,1.0,1,3,4,2,0,0,2,2,11,9.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,37:13,10,14,0.714,1,2,0.5,4,4,1.0,0,4,4,4,2,1,7,0,25,14.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,19:56,4,9,0.444,0,0,0.0,0,2,0.0,5,3,8,3,1,1,0,3,8,8.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,35:55,5,17,0.294,1,5,0.2,1,1,1.0,5,3,8,5,2,1,6,2,12,-4.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,37:55,8,16,0.5,5,10,0.5,8,9,0.889,1,4,5,8,0,0,6,2,29,-4.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,10:47,0,1,0.0,0,1,0.0,0,0,0.0,1,2,3,0,1,1,0,0,0,-18.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,28:06,4,9,0.444,0,1,0.0,3,4,0.75,2,9,11,3,2,2,2,4,11,-12.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,10:41,2,5,0.4,2,5,0.4,0,0,0.0,0,1,1,0,0,0,0,0,6,-19.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1630811,Keaton,Wallace,K. Wallace,keaton-wallace,,,,16:53,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,2,1,0,1,3,0,11.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,21:17,3,5,0.6,2,3,0.667,0,0,0.0,1,1,2,3,1,1,1,3,8,-5.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612737,Atlanta,Hawks,ATL,hawks,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,35:00,1,8,0.125,1,3,0.333,0,0,0.0,3,1,4,5,4,0,1,4,3,-6.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,27:55,4,10,0.4,1,4,0.25,0,0,0.0,0,0,0,1,3,2,0,5,9,-7.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,21:45,3,4,0.75,0,0,0.0,0,0,0.0,5,3,8,0,1,3,1,3,6,-20.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,31:47,11,21,0.524,3,8,0.375,7,12,0.583,0,2,2,5,3,0,3,3,32,8.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,29:45,3,11,0.273,0,4,0.0,0,0,0.0,1,0,1,10,1,1,4,3,6,-10.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,25:52,9,19,0.474,4,8,0.5,1,1,1.0,1,3,4,4,1,1,5,1,23,14.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,24:44,6,6,1.0,0,0,0.0,2,2,1.0,3,5,8,2,1,1,3,0,14,20.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,,,25:17,4,8,0.5,2,4,0.5,2,2,1.0,3,5,8,4,2,1,1,1,12,1.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,10:05,1,3,0.333,1,2,0.5,0,0,0.0,2,1,3,0,0,0,1,1,3,12.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,7:50,2,5,0.4,2,5,0.4,0,2,0.0,0,2,2,0,0,1,1,0,6,8.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1631386,Taze,Moore,T. Moore,taze-moore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239
+0022400239,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400239

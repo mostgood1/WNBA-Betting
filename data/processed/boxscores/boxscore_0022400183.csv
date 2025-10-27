@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,34:32,2,7,0.286,0,3,0.0,0,0,0.0,3,6,9,1,1,0,2,3,4,-10.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,36:56,6,10,0.6,1,4,0.25,8,11,0.727,0,3,3,1,0,0,2,3,21,-16.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,30:47,10,15,0.667,1,2,0.5,0,0,0.0,2,8,10,0,2,1,2,2,21,-4.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,24:48,3,5,0.6,1,3,0.333,2,5,0.4,2,5,7,5,0,0,1,0,9,-4.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,32:45,7,16,0.438,3,9,0.333,2,2,1.0,0,0,0,7,1,0,3,2,19,-14.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,20:25,5,12,0.417,1,2,0.5,0,0,0.0,1,2,3,3,1,0,2,0,11,-9.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,7:39,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,11:43,0,2,0.0,0,1,0.0,0,0,0.0,4,0,4,2,1,1,1,2,0,-9.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,20:11,6,9,0.667,1,4,0.25,0,0,0.0,1,1,2,1,0,1,1,2,13,-4.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,16:20,1,8,0.125,0,2,0.0,2,4,0.5,1,2,3,3,1,0,0,0,4,6.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,1:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,1.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,1:18,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,1.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,1:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,1.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400183
+0022400183,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,32:52,5,10,0.5,4,8,0.5,0,0,0.0,1,5,6,2,1,0,1,0,14,10.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,23:56,4,9,0.444,1,4,0.25,2,4,0.5,4,3,7,2,0,0,2,1,11,2.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,32:21,4,13,0.308,2,6,0.333,2,3,0.667,2,6,8,2,4,3,4,0,12,-7.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,25:23,6,11,0.545,0,3,0.0,2,2,1.0,1,2,3,6,0,0,0,1,14,12.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,27:29,2,6,0.333,1,4,0.25,1,1,1.0,0,2,2,6,2,0,1,1,6,-1.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,15:10,6,7,0.857,2,3,0.667,0,0,0.0,1,1,2,3,0,0,1,4,14,20.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,22:12,6,8,0.75,3,5,0.6,2,2,1.0,0,1,1,3,0,0,2,1,17,12.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,30:32,6,13,0.462,2,5,0.4,3,4,0.75,2,9,11,3,0,0,0,4,17,17.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,7:53,1,1,1.0,1,1,1.0,0,0,0.0,1,2,3,0,0,1,2,1,3,0.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,21:14,4,4,1.0,0,0,0.0,2,2,1.0,0,1,1,8,2,0,2,2,10,0.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1629646,Charles,Bassey,C. Bassey,charles-bassey,,,,0:29,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400183
+0022400183,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,0:29,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022400183

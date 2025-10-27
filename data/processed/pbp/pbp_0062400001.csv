@@ -1,0 +1,490 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0062400001,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:42 PM EST),period,start,0,0,1,0062400001
+0062400001,4,PT12M00.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Jump Ball Hartenstein vs. Lopez: Tip to Joe,Jump Ball,,1,0,2,0062400001
+0062400001,7,PT11M45.00S,1,1610612760,OKC,1630198,Joe,I. Joe,-183,177,25,Missed,1,,,0,h,MISS Joe 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,3,0062400001
+0062400001,8,PT11M42.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,4,0062400001
+0062400001,9,PT11M32.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,196,20,Missed,1,,,0,v,MISS Lopez 20' Jump Shot,Missed Shot,Jump Shot,1,2,5,0062400001
+0062400001,10,PT11M29.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,6,0062400001
+0062400001,11,PT11M19.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-4,158,16,Made,1,2,0,2,h,Gilgeous-Alexander 16' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,7,0062400001
+0062400001,12,PT11M00.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,-81,157,18,Missed,1,,,0,v,MISS Lillard 18' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,8,0062400001
+0062400001,12,PT11M00.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams BLOCK (1 BLK),,,1,2,9,0062400001
+0062400001,14,PT10M57.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,10,0062400001
+0062400001,15,PT10M49.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,10,4,1,Made,1,4,0,4,h,Hartenstein 1' Cutting Dunk Shot (2 PTS) (Gilgeous-Alexander 1 AST),Made Shot,Cutting Dunk Shot,1,2,11,0062400001
+0062400001,17,PT10M35.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,7,13,1,Made,1,4,2,6,v,Antetokounmpo 1' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,12,0062400001
+0062400001,18,PT10M22.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,5,119,12,Made,1,6,2,8,h,Hartenstein 12' Floating Jump Shot (4 PTS) (J. Williams 1 AST),Made Shot,Floating Jump shot,1,2,13,0062400001
+0062400001,20,PT10M10.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Lost Ball Turnover (P1.T1),Turnover,Lost Ball,1,0,14,0062400001
+0062400001,20,PT10M10.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein STEAL (1 STL),,,1,0,15,0062400001
+0062400001,22,PT09M59.00S,1,1610612760,OKC,1629652,Dort,L. Dort,230,72,24,Missed,1,,,0,h,MISS Dort 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,16,0062400001
+0062400001,23,PT09M56.00S,1,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,17,0062400001
+0062400001,24,PT09M45.00S,1,1610612749,MIL,1627752,Prince,T. Prince,105,230,25,Made,1,6,5,11,v,Prince 25' 3PT Jump Shot (3 PTS) (Lillard 1 AST),Made Shot,Jump Shot,1,3,18,0062400001
+0062400001,26,PT09M31.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams Traveling Turnover (P1.T1),Turnover,Traveling,1,0,19,0062400001
+0062400001,27,PT09M13.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,-217,209,30,Missed,1,,,0,v,MISS Lopez 30' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,20,0062400001
+0062400001,28,PT09M10.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,21,0062400001
+0062400001,29,PT08M54.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,-55,96,11,Made,1,8,5,13,h,Hartenstein 11' Floating Jump Shot (6 PTS) (Joe 1 AST),Made Shot,Floating Jump shot,1,2,22,0062400001
+0062400001,31,PT08M45.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort S.FOUL (P1.T1) (J.Tiven),Foul,Shooting,1,0,23,0062400001
+0062400001,33,PT08M45.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,8,6,14,v,Antetokounmpo Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,24,0062400001
+0062400001,34,PT08M45.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,25,0062400001
+0062400001,35,PT08M42.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,26,0062400001
+0062400001,36,PT08M38.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,5,1,Made,1,10,6,16,h,Gilgeous-Alexander 1' Running Dunk (4 PTS),Made Shot,Running Dunk Shot,1,2,27,0062400001
+0062400001,37,PT08M26.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-2,5,1,Made,1,10,8,18,v,Antetokounmpo 1' Driving Dunk (5 PTS) (Lillard 2 AST),Made Shot,Driving Dunk Shot,1,2,28,0062400001
+0062400001,39,PT08M17.00S,1,1610612760,OKC,1631114,Williams,J. Williams,-11,-7,1,Made,1,12,8,20,h,J. Williams 1' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,29,0062400001
+0062400001,40,PT08M01.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams S.FOUL (P1.T2) (J.Van Duyne),Foul,Shooting,1,0,30,0062400001
+0062400001,42,PT08M01.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,31,0062400001
+0062400001,43,PT08M01.00S,1,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,1,0,32,0062400001
+0062400001,44,PT08M01.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,12,9,21,v,Antetokounmpo Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,33,0062400001
+0062400001,45,PT07M55.00S,1,1610612760,OKC,1631114,Williams,J. Williams,42,21,5,Made,1,14,9,23,h,J. Williams 5' Driving Layup (4 PTS),Made Shot,Driving Layup Shot,1,2,34,0062400001
+0062400001,46,PT07M50.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,103,231,25,Missed,1,,,0,v,MISS Lillard 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,35,0062400001
+0062400001,47,PT07M48.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,36,0062400001
+0062400001,48,PT07M31.00S,1,1610612760,OKC,1630198,Joe,I. Joe,49,171,18,Made,1,16,9,25,h,Joe 18' Step Back Jump Shot (2 PTS),Made Shot,Step Back Jump shot,1,2,37,0062400001
+0062400001,50,PT07M30.00S,1,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,38,0062400001
+0062400001,51,PT07M24.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Charge Foul (P1) (J.Tiven),Foul,Offensive Charge,1,0,39,0062400001
+0062400001,53,PT07M24.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Foul Turnover (P1.T2),Turnover,Offensive Foul Turnover,1,0,40,0062400001
+0062400001,54,PT07M17.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-21,16,3,Missed,1,,,0,h,MISS Gilgeous-Alexander 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,0,2,41,0062400001
+0062400001,54,PT07M17.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez BLOCK (1 BLK),,,0,2,42,0062400001
+0062400001,56,PT07M15.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,0,0,43,0062400001
+0062400001,57,PT07M05.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,7,46,5,Made,1,16,11,27,v,Lillard 5' Driving Floating Jump Shot (2 PTS) (Jackson Jr. 1 AST),Made Shot,Driving Floating Jump Shot,1,2,44,0062400001
+0062400001,59,PT06M51.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,6,136,14,Made,1,18,11,29,h,Hartenstein 14' Floating Jump Shot (8 PTS) (Gilgeous-Alexander 2 AST),Made Shot,Floating Jump shot,1,2,45,0062400001
+0062400001,61,PT06M39.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,11,25,3,Missed,1,,,0,v,MISS Lopez 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,46,0062400001
+0062400001,62,PT06M38.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,47,0062400001
+0062400001,71,PT06M38.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,23,2,Missed,1,,,0,v,MISS Lopez 2' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,48,0062400001
+0062400001,71,PT06M38.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams BLOCK (2 BLK),,,1,2,49,0062400001
+0062400001,73,PT06M35.00S,1,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,Joe REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,50,0062400001
+0062400001,64,PT06M22.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander Out of Bounds - Bad Pass Turnover Turnover (P1.T2),Turnover,Out of Bounds - Bad Pass Turnover,1,0,51,0062400001
+0062400001,65,PT06M22.00S,1,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,SUB: K. Williams FOR Joe,Substitution,,0,0,52,0062400001
+0062400001,66,PT06M22.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,SUB: Wallace FOR Hartenstein,Substitution,,0,0,53,0062400001
+0062400001,69,PT06M00.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,230,-5,0,Made,1,18,14,32,v,Lopez 3PT Jump Shot (3 PTS) (Lillard 3 AST),Made Shot,Jump Shot,1,3,54,0062400001
+0062400001,74,PT05M49.00S,1,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince Violation:Kicked Ball (J.Tiven),Violation,Kicked Ball,0,0,55,0062400001
+0062400001,75,PT05M33.00S,1,1610612760,OKC,1631114,Williams,J. Williams,-5,53,5,Missed,1,,,0,h,MISS J. Williams 5' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,56,0062400001
+0062400001,76,PT05M31.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,57,0062400001
+0062400001,77,PT05M21.00S,1,1610612749,MIL,1627752,Prince,T. Prince,225,-14,0,Missed,1,,,0,v,MISS Prince 3PT Jump Shot,Missed Shot,Jump Shot,1,3,58,0062400001
+0062400001,78,PT05M18.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,59,0062400001
+0062400001,79,PT05M09.00S,1,1610612760,OKC,1629652,Dort,L. Dort,-5,87,9,Made,1,20,14,34,h,Dort 9' Turnaround Fadeaway (2 PTS),Made Shot,Turnaround Fadeaway shot,1,2,60,0062400001
+0062400001,80,PT04M48.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort S.FOUL (P2.T3) (J.Van Duyne),Foul,Shooting,1,0,61,0062400001
+0062400001,82,PT04M48.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,20,15,35,v,Lillard Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,62,0062400001
+0062400001,83,PT04M48.00S,1,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,SUB: Caruso FOR J. Williams,Substitution,,0,0,63,0062400001
+0062400001,84,PT04M48.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,SUB: Portis FOR Lopez,Substitution,,0,0,64,0062400001
+0062400001,85,PT04M48.00S,1,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,SUB: Green FOR Prince,Substitution,,0,0,65,0062400001
+0062400001,89,PT04M48.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,20,16,36,v,Lillard Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,66,0062400001
+0062400001,90,PT04M39.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,45,137,14,Missed,1,,,0,h,MISS Gilgeous-Alexander 14' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,67,0062400001
+0062400001,91,PT04M35.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,68,0062400001
+0062400001,92,PT04M28.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-195,185,27,Made,1,20,19,39,v,Portis 27' 3PT Jump Shot (3 PTS) (Antetokounmpo 1 AST),Made Shot,Jump Shot,1,3,69,0062400001
+0062400001,94,PT04M10.00S,1,1610612760,OKC,1629026,Williams,K. Williams,48,273,28,Missed,1,,,0,h,MISS K. Williams 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,70,0062400001
+0062400001,95,PT04M07.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,71,0062400001
+0062400001,96,PT03M46.00S,1,1610612749,MIL,1626171,Portis,B. Portis,83,-29,9,Missed,1,,,0,v,MISS Portis 9' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,72,0062400001
+0062400001,97,PT03M45.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,73,0062400001
+0062400001,98,PT03M35.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-228,-28,0,Missed,1,,,0,h,MISS Gilgeous-Alexander 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,74,0062400001
+0062400001,99,PT03M31.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,75,0062400001
+0062400001,100,PT03M26.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,-200,243,31,Made,1,20,22,42,v,Lillard 31' 3PT Running Jump Shot (7 PTS) (Antetokounmpo 2 AST),Made Shot,Running Jump Shot,1,3,76,0062400001
+0062400001,102,PT03M25.00S,1,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,77,0062400001
+0062400001,103,PT03M25.00S,1,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,SUB: Wiggins FOR Dort,Substitution,,0,0,78,0062400001
+0062400001,104,PT03M25.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Connaughton FOR Lillard,Substitution,,0,0,79,0062400001
+0062400001,107,PT03M08.00S,1,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green S.FOUL (P1.T1) (K.Lane),Foul,Shooting,1,0,80,0062400001
+0062400001,109,PT03M08.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,21,22,43,h,Gilgeous-Alexander Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,81,0062400001
+0062400001,110,PT03M08.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,MISS Gilgeous-Alexander Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,82,0062400001
+0062400001,111,PT03M05.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,83,0062400001
+0062400001,112,PT03M02.00S,1,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,84,0062400001
+0062400001,112,PT03M02.00S,1,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso STEAL (1 STL),,,1,0,85,0062400001
+0062400001,114,PT02M52.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,176,198,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,86,0062400001
+0062400001,115,PT02M48.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,87,0062400001
+0062400001,116,PT02M38.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-235,-13,24,Missed,1,,,0,v,MISS Portis 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,88,0062400001
+0062400001,117,PT02M35.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,89,0062400001
+0062400001,118,PT02M30.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,1,42,4,Missed,1,,,0,h,MISS Gilgeous-Alexander 4' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,90,0062400001
+0062400001,119,PT02M28.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,91,0062400001
+0062400001,120,PT02M20.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Bad Pass Turnover (P2.T4),Turnover,Bad Pass,1,0,92,0062400001
+0062400001,120,PT02M20.00S,1,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso STEAL (2 STL),,,1,0,93,0062400001
+0062400001,122,PT02M01.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-147,-2,15,Made,1,23,22,45,h,Gilgeous-Alexander 15' Turnaround Fadeaway (7 PTS),Made Shot,Turnaround Fadeaway shot,1,2,94,0062400001
+0062400001,123,PT01M44.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-53,21,6,Missed,1,,,0,v,MISS Portis 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,95,0062400001
+0062400001,123,PT01M44.00S,1,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace BLOCK (1 BLK),,,1,2,96,0062400001
+0062400001,125,PT01M42.00S,1,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,97,0062400001
+0062400001,127,PT01M42.00S,1,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,SUB: Hartenstein FOR K. Williams,Substitution,,0,0,98,0062400001
+0062400001,128,PT01M42.00S,1,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,SUB: Trent Jr. FOR Jackson Jr.,Substitution,,0,0,99,0062400001
+0062400001,131,PT01M33.00S,1,1610612749,MIL,1631260,Green,A. Green,237,52,24,Made,1,23,25,48,v,Green 24' 3PT Step Back Jump Shot (3 PTS),Made Shot,Step Back Jump shot,1,3,100,0062400001
+0062400001,132,PT01M22.00S,1,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-98,231,25,Made,1,26,25,51,h,Gilgeous-Alexander 25' 3PT Step Back Jump Shot (10 PTS),Made Shot,Step Back Jump shot,1,3,101,0062400001
+0062400001,133,PT01M05.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-206,-27,21,Made,1,26,27,53,v,Trent Jr. 21' Jump Shot (2 PTS) (Antetokounmpo 3 AST),Made Shot,Jump Shot,1,2,102,0062400001
+0062400001,135,PT00M43.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo S.FOUL (P1.T2) (J.Tiven),Foul,Shooting,1,0,103,0062400001
+0062400001,137,PT00M43.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,27,27,54,h,Hartenstein Free Throw 1 of 2 (9 PTS),Free Throw,Free Throw 1 of 2,1,0,104,0062400001
+0062400001,138,PT00M43.00S,1,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,28,27,55,h,Hartenstein Free Throw 2 of 2 (10 PTS),Free Throw,Free Throw 2 of 2,1,0,105,0062400001
+0062400001,139,PT00M20.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-190,107,22,Missed,1,,,0,v,MISS Antetokounmpo 22' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,106,0062400001
+0062400001,140,PT00M17.80S,1,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,h,Wiggins REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,107,0062400001
+0062400001,143,PT00M00.00S,1,0,,141,Tucker,A. Tucker,0,0,0,,0,28,27,55,,Instant Replay1st Period (9:08 PM EST),Instant Replay,Support Ruling,0,0,108,0062400001
+0062400001,144,PT00M00.00S,1,0,,0,,,0,0,0,,0,28,27,55,,End of 1st Period (9:10 PM EST),period,end,1,0,109,0062400001
+0062400001,155,PT12M00.00S,2,0,,0,,,0,0,0,,0,28,27,55,,Start of 2nd Period (9:13 PM EST),period,start,0,0,110,0062400001
+0062400001,156,PT11M43.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,-239,-5,24,Made,1,28,30,58,v,Lillard 24' 3PT Step Back Jump Shot (10 PTS),Made Shot,Step Back Jump shot,1,3,111,0062400001
+0062400001,157,PT11M27.00S,2,1610612760,OKC,1631114,Williams,J. Williams,51,171,18,Missed,1,,,0,h,MISS J. Williams 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,112,0062400001
+0062400001,158,PT11M25.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,113,0062400001
+0062400001,159,PT11M16.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace S.FOUL (P1.T1) (K.Lane),Foul,Shooting,1,0,114,0062400001
+0062400001,161,PT11M16.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,MISS Lillard Free Throw 1 of 3,Free Throw,Free Throw 1 of 3,1,0,115,0062400001
+0062400001,162,PT11M16.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,1,0,116,0062400001
+0062400001,163,PT11M16.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,28,31,59,v,Lillard Free Throw 2 of 3 (11 PTS),Free Throw,Free Throw 2 of 3,1,0,117,0062400001
+0062400001,164,PT11M16.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,28,32,60,v,Lillard Free Throw 3 of 3 (12 PTS),Free Throw,Free Throw 3 of 3,1,0,118,0062400001
+0062400001,165,PT11M04.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,-234,-17,0,Missed,1,,,0,h,MISS Mitchell 3PT Jump Shot,Missed Shot,Jump Shot,1,3,119,0062400001
+0062400001,166,PT11M02.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,120,0062400001
+0062400001,167,PT11M01.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,2,1,0,Made,1,30,32,62,h,Hartenstein Putback Layup (12 PTS),Made Shot,Putback Layup Shot,1,2,121,0062400001
+0062400001,168,PT10M48.00S,2,1610612749,MIL,1631260,Green,A. Green,222,123,25,Made,1,30,35,65,v,Green 25' 3PT Jump Shot (6 PTS) (Lillard 4 AST),Made Shot,Jump Shot,1,3,122,0062400001
+0062400001,170,PT10M24.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,11,5,1,Made,1,32,35,67,h,Mitchell 1' Cutting Finger Roll Layup Shot (2 PTS) (Hartenstein 1 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,123,0062400001
+0062400001,172,PT10M14.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard Bad Pass Turnover (P1.T5),Turnover,Bad Pass,1,0,124,0062400001
+0062400001,172,PT10M14.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams STEAL (1 STL),,,1,0,125,0062400001
+0062400001,174,PT10M10.00S,2,1610612760,OKC,1631114,Williams,J. Williams,15,5,2,Made,1,34,35,69,h,J. Williams 2' Running Layup (6 PTS),Made Shot,Running Layup Shot,1,2,126,0062400001
+0062400001,175,PT09M48.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,78,36,9,Missed,1,,,0,v,MISS Trent Jr. 9' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,127,0062400001
+0062400001,176,PT09M46.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,h,Mitchell REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,128,0062400001
+0062400001,177,PT09M44.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis P.FOUL (P1.T1) (K.Lane),Foul,Personal,1,0,129,0062400001
+0062400001,179,PT09M44.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,SUB: Dort FOR Wallace,Substitution,,0,0,130,0062400001
+0062400001,181,PT09M35.00S,2,1610612760,OKC,1631114,Williams,J. Williams,28,-2,3,Missed,1,,,0,h,MISS J. Williams 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,131,0062400001
+0062400001,182,PT09M33.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,132,0062400001
+0062400001,183,PT09M25.00S,2,1610612749,MIL,1631260,Green,A. Green,-238,-27,24,Missed,1,,,0,v,MISS Green 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,133,0062400001
+0062400001,184,PT09M22.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,h,Mitchell REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,134,0062400001
+0062400001,185,PT09M19.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard S.FOUL (P1.T2) (K.Lane),Foul,Shooting,1,0,135,0062400001
+0062400001,187,PT09M19.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,35,35,70,h,Mitchell Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,136,0062400001
+0062400001,188,PT09M19.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,SUB: K. Williams FOR Hartenstein,Substitution,,0,0,137,0062400001
+0062400001,190,PT09M19.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,36,35,71,h,Mitchell Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,0,0,138,0062400001
+0062400001,191,PT09M09.00S,2,1610612749,MIL,1626171,Portis,B. Portis,83,34,9,Missed,1,,,0,v,MISS Portis 9' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,139,0062400001
+0062400001,192,PT09M07.00S,2,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,K. Williams REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,140,0062400001
+0062400001,193,PT09M00.00S,2,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,K. Williams Out of Bounds Lost Ball Turnover (P1.T3),Turnover,Out of Bounds Lost Ball Turnover,1,0,141,0062400001
+0062400001,194,PT09M00.00S,2,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,SUB: Wallace FOR Joe,Substitution,,0,0,142,0062400001
+0062400001,196,PT08M45.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,4,133,13,Missed,1,,,0,v,MISS Lopez 13' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,143,0062400001
+0062400001,197,PT08M43.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,144,0062400001
+0062400001,198,PT08M37.00S,2,1610612760,OKC,1631114,Williams,J. Williams,62,50,8,Missed,1,,,0,h,MISS J. Williams 8' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,145,0062400001
+0062400001,199,PT08M35.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,146,0062400001
+0062400001,200,PT08M35.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. L.B.FOUL (P1.T3) (J.Van Duyne),Foul,Loose Ball,1,0,147,0062400001
+0062400001,202,PT08M29.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,131,224,26,Missed,1,,,0,h,MISS Mitchell 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,148,0062400001
+0062400001,203,PT08M25.00S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,149,0062400001
+0062400001,204,PT08M24.00S,2,1610612760,OKC,1631114,Williams,J. Williams,13,253,25,Missed,1,,,0,h,MISS J. Williams 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,150,0062400001
+0062400001,205,PT08M21.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,151,0062400001
+0062400001,206,PT08M17.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis OFF.Foul (P2) (K.Lane),Foul,Offensive,1,0,152,0062400001
+0062400001,208,PT08M17.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis Offensive Foul Turnover (P1.T6),Turnover,Offensive Foul Turnover,1,0,153,0062400001
+0062400001,209,PT08M00.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,31,94,10,Made,1,38,35,73,h,Wallace 10' Driving Floating Jump Shot (2 PTS) (Mitchell 1 AST),Made Shot,Driving Floating Jump Shot,1,2,154,0062400001
+0062400001,211,PT07M43.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-234,28,24,Missed,1,,,0,v,MISS Trent Jr. 24' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,155,0062400001
+0062400001,212,PT07M41.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,156,0062400001
+0062400001,213,PT07M40.00S,2,1610612749,MIL,1626171,Portis,B. Portis,-1,23,2,Missed,1,,,0,v,MISS Portis 2' Putback Layup,Missed Shot,Putback Layup Shot,1,2,157,0062400001
+0062400001,214,PT07M39.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,158,0062400001
+0062400001,215,PT07M39.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,Made,1,38,37,75,v,Portis Tip Layup Shot (5 PTS),Made Shot,Tip Layup Shot,1,2,159,0062400001
+0062400001,216,PT07M24.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green S.FOUL (P2.T4) (J.Van Duyne),Foul,Shooting,1,0,160,0062400001
+0062400001,218,PT07M24.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,MISS Wallace Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,161,0062400001
+0062400001,219,PT07M24.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Normal Rebound,1,0,162,0062400001
+0062400001,220,PT07M24.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,SUB: Antetokounmpo FOR Portis,Substitution,,0,0,163,0062400001
+0062400001,222,PT07M24.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,39,37,76,h,Wallace Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,164,0062400001
+0062400001,223,PT07M07.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,-141,306,34,Missed,1,,,0,v,MISS Lillard 34' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,165,0062400001
+0062400001,224,PT07M06.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,166,0062400001
+0062400001,226,PT06M51.00S,2,1610612760,OKC,1629652,Dort,L. Dort,-158,193,25,Missed,1,,,0,h,MISS Dort 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,167,0062400001
+0062400001,227,PT06M48.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,168,0062400001
+0062400001,228,PT06M41.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,180,189,26,Missed,1,,,0,v,MISS Lopez 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,169,0062400001
+0062400001,229,PT06M38.00S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,170,0062400001
+0062400001,230,PT06M33.00S,2,1610612760,OKC,1631114,Williams,J. Williams,-42,59,7,Made,1,41,37,78,h,J. Williams 7' Pullup Jump Shot (8 PTS),Made Shot,Pullup Jump shot,1,2,171,0062400001
+0062400001,237,PT06M20.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green Bad Pass Turnover (P2.T7),Turnover,Bad Pass,1,0,172,0062400001
+0062400001,237,PT06M20.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace STEAL (1 STL),,,1,0,173,0062400001
+0062400001,234,PT06M15.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. S.FOUL (P2.PN) (K.Lane),Foul,Shooting,1,0,174,0062400001
+0062400001,236,PT06M15.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,175,0062400001
+0062400001,240,PT06M15.00S,2,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,SUB: Hartenstein FOR K. Williams,Substitution,,0,0,176,0062400001
+0062400001,241,PT06M15.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,SUB: Jackson Jr. FOR Trent Jr.,Substitution,,0,0,177,0062400001
+0062400001,242,PT06M15.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,SUB: Prince FOR Green,Substitution,,0,0,178,0062400001
+0062400001,251,PT06M15.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,SUB: Gilgeous-Alexander FOR Wallace,Substitution,,0,0,179,0062400001
+0062400001,249,PT06M15.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,MISS J. Williams Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,180,0062400001
+0062400001,250,PT06M15.00S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Normal Rebound,1,0,181,0062400001
+0062400001,252,PT06M15.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,42,37,79,h,J. Williams Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,182,0062400001
+0062400001,253,PT06M01.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,60,154,17,Made,1,42,39,81,v,Antetokounmpo 17' Fadeaway Jumper (8 PTS) (Prince 1 AST),Made Shot,Fadeaway Jump Shot,1,2,183,0062400001
+0062400001,255,PT05M40.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,-23,4,2,Missed,1,,,0,h,MISS Mitchell 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,184,0062400001
+0062400001,256,PT05M38.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,185,0062400001
+0062400001,258,PT05M38.00S,2,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,SUB: Caruso FOR J. Williams,Substitution,,0,0,186,0062400001
+0062400001,260,PT05M22.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,6,41,4,Made,1,42,41,83,v,Antetokounmpo 4' Driving Hook Shot (10 PTS),Made Shot,Driving Hook Shot,1,2,187,0062400001
+0062400001,261,PT05M10.00S,2,1610612760,OKC,1629652,Dort,L. Dort,-228,85,24,Missed,1,,,0,h,MISS Dort 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,188,0062400001
+0062400001,262,PT05M07.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,189,0062400001
+0062400001,263,PT04M59.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-97,183,21,Missed,1,,,0,v,MISS Antetokounmpo 21' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,190,0062400001
+0062400001,264,PT04M54.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,191,0062400001
+0062400001,265,PT04M42.00S,2,1610612749,MIL,1627752,Prince,T. Prince,-245,-15,25,Missed,1,,,0,v,MISS Prince 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,192,0062400001
+0062400001,266,PT04M39.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,193,0062400001
+0062400001,267,PT04M30.00S,2,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,13,11,2,Missed,1,,,0,h,MISS Gilgeous-Alexander 2' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,194,0062400001
+0062400001,268,PT04M28.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,195,0062400001
+0062400001,269,PT04M28.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. S.FOUL (P2.PN) (J.Tiven),Foul,Shooting,1,0,196,0062400001
+0062400001,271,PT04M28.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,43,41,84,h,Hartenstein Free Throw 1 of 2 (13 PTS),Free Throw,Free Throw 1 of 2,1,0,197,0062400001
+0062400001,272,PT04M28.00S,2,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,h,SUB: Joe FOR Mitchell,Substitution,,0,0,198,0062400001
+0062400001,273,PT04M28.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Connaughton FOR Lillard,Substitution,,0,0,199,0062400001
+0062400001,276,PT04M28.00S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,SUB: Wallace FOR Dort,Substitution,,0,0,200,0062400001
+0062400001,278,PT04M28.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,44,41,85,h,Hartenstein Free Throw 2 of 2 (14 PTS),Free Throw,Free Throw 2 of 2,1,0,201,0062400001
+0062400001,279,PT04M17.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein P.FOUL (P1.T2) (J.Van Duyne),Foul,Personal,1,0,202,0062400001
+0062400001,281,PT04M13.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,22,2,Made,1,44,43,87,v,Antetokounmpo 2' Alley Oop Dunk (12 PTS) (Prince 2 AST),Made Shot,Alley Oop Dunk Shot,1,2,203,0062400001
+0062400001,283,PT03M53.00S,2,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,119,15,12,Missed,1,,,0,h,MISS Gilgeous-Alexander 12' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,204,0062400001
+0062400001,284,PT03M51.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,205,0062400001
+0062400001,285,PT03M47.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein P.FOUL (P2.T3) (J.Tiven),Foul,Personal,1,0,206,0062400001
+0062400001,287,PT03M41.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,225,123,26,Missed,1,,,0,v,MISS Jackson Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,207,0062400001
+0062400001,288,PT03M38.00S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,208,0062400001
+0062400001,289,PT03M30.00S,2,1610612760,OKC,1630198,Joe,I. Joe,119,225,25,Missed,1,,,0,h,MISS Joe 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,209,0062400001
+0062400001,290,PT03M27.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,210,0062400001
+0062400001,291,PT03M15.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,103,165,19,Missed,1,,,0,v,MISS Antetokounmpo 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,211,0062400001
+0062400001,292,PT03M12.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,212,0062400001
+0062400001,293,PT03M09.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo P.FOUL (P2.PN) (J.Van Duyne),Foul,Personal,1,0,213,0062400001
+0062400001,295,PT03M09.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,45,43,88,h,Caruso Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,214,0062400001
+0062400001,296,PT03M09.00S,2,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,46,43,89,h,Caruso Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,215,0062400001
+0062400001,297,PT02M54.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-16,6,2,Made,1,46,45,91,v,Antetokounmpo 2' Alley Oop Layup (14 PTS) (Lopez 1 AST),Made Shot,Alley Oop Layup shot,1,2,216,0062400001
+0062400001,299,PT02M40.00S,2,1610612760,OKC,1630198,Joe,I. Joe,-125,218,25,Missed,1,,,0,h,MISS Joe 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,217,0062400001
+0062400001,300,PT02M38.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,218,0062400001
+0062400001,301,PT02M27.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,9,8,1,Made,1,46,47,93,v,Jackson Jr. 1' Cutting Layup Shot (2 PTS) (Connaughton 1 AST),Made Shot,Cutting Layup Shot,1,2,219,0062400001
+0062400001,303,PT02M12.00S,2,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-49,253,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,220,0062400001
+0062400001,304,PT02M09.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,221,0062400001
+0062400001,305,PT01M56.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,222,0062400001
+0062400001,306,PT01M56.00S,2,0,,0,,,0,0,0,,0,46,47,93,,Instant Replay2nd Period (9:37 PM EST),Instant Replay,Altercation Ruling,0,0,223,0062400001
+0062400001,307,PT01M56.00S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,,"Double Technical - Jackson Jr., Hartenstein (J.Tiven)",Foul,Double Technical,1,0,224,0062400001
+0062400001,309,PT01M56.00S,2,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,SUB: Dort FOR Joe,Substitution,,0,0,225,0062400001
+0062400001,310,PT01M56.00S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,SUB: J. Williams FOR Wallace,Substitution,,0,0,226,0062400001
+0062400001,311,PT01M56.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,v,SUB: Lillard FOR Connaughton,Substitution,,0,0,227,0062400001
+0062400001,315,PT01M48.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-4,17,2,Made,1,46,49,95,v,Lopez 2' Cutting Finger Roll Layup Shot (5 PTS) (Antetokounmpo 4 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,228,0062400001
+0062400001,317,PT01M34.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince P.FOUL (P1.PN) (J.Van Duyne),Foul,Personal,1,0,229,0062400001
+0062400001,319,PT01M34.00S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,47,49,96,h,Dort Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,230,0062400001
+0062400001,320,PT01M34.00S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,48,49,97,h,Dort Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,231,0062400001
+0062400001,321,PT01M15.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-78,25,8,Made,1,48,51,99,v,Lopez 8' Hook Shot (7 PTS) (Antetokounmpo 5 AST),Made Shot,Hook Shot,1,2,232,0062400001
+0062400001,323,PT00M59.20S,2,1610612760,OKC,1631114,Williams,J. Williams,-75,156,17,Made,1,50,51,101,h,J. Williams 17' Pullup Jump Shot (11 PTS) (Hartenstein 2 AST),Made Shot,Pullup Jump shot,1,2,233,0062400001
+0062400001,325,PT00M50.40S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort P.FOUL (P3.T4) (J.Van Duyne),Foul,Personal,1,0,234,0062400001
+0062400001,327,PT00M50.40S,2,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,SUB: Wallace FOR Dort,Substitution,,0,0,235,0062400001
+0062400001,329,PT00M38.80S,2,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,228,-21,0,Missed,1,,,0,v,MISS Jackson Jr. 3PT Jump Shot,Missed Shot,Jump Shot,1,3,236,0062400001
+0062400001,330,PT00M36.60S,2,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,237,0062400001
+0062400001,331,PT00M25.20S,2,1610612760,OKC,1627936,Caruso,A. Caruso,234,69,24,Missed,1,,,0,h,MISS Caruso 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,238,0062400001
+0062400001,332,PT00M19.50S,2,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,239,0062400001
+0062400001,333,PT00M10.10S,2,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-88,247,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,240,0062400001
+0062400001,334,PT00M07.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,241,0062400001
+0062400001,335,PT00M02.50S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Traveling Turnover (P2.T8),Turnover,Traveling,1,0,242,0062400001
+0062400001,336,PT00M02.50S,2,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,SUB: Joe FOR Wallace,Substitution,,0,0,243,0062400001
+0062400001,338,PT00M00.30S,2,1610612760,OKC,1631114,Williams,J. Williams,-100,242,26,Missed,1,,,0,h,MISS J. Williams 26' 3PT Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,3,244,0062400001
+0062400001,339,PT00M00.10S,2,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,245,0062400001
+0062400001,340,PT00M00.00S,2,0,,0,,,0,0,0,,0,50,51,101,,End of 2nd Period (9:44 PM EST),period,end,1,0,246,0062400001
+0062400001,343,PT12M00.00S,3,0,,0,,,0,0,0,,0,50,51,101,,Start of 3rd Period (9:59 PM EST),period,start,0,0,247,0062400001
+0062400001,344,PT11M44.00S,3,1610612749,MIL,1627752,Prince,T. Prince,-190,163,25,Made,1,50,54,104,v,Prince 25' 3PT Jump Shot (6 PTS) (Antetokounmpo 6 AST),Made Shot,Jump Shot,1,3,248,0062400001
+0062400001,346,PT11M30.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams Lost Ball Turnover (P2.T4),Turnover,Lost Ball,1,0,249,0062400001
+0062400001,346,PT11M30.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo STEAL (1 STL),,,1,0,250,0062400001
+0062400001,348,PT11M25.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,-176,197,26,Made,1,50,57,107,v,Lillard 26' 3PT Running Jump Shot (15 PTS) (Antetokounmpo 7 AST),Made Shot,Running Jump Shot,1,3,251,0062400001
+0062400001,350,PT11M05.00S,3,1610612760,OKC,1631114,Williams,J. Williams,121,218,25,Made,1,53,57,110,h,J. Williams 25' 3PT Jump Shot (14 PTS) (Dort 1 AST),Made Shot,Jump Shot,1,3,252,0062400001
+0062400001,352,PT10M45.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Lost Ball Turnover (P3.T9),Turnover,Lost Ball,1,0,253,0062400001
+0062400001,352,PT10M45.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams STEAL (2 STL),,,1,0,254,0062400001
+0062400001,354,PT10M44.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo P.FOUL (P3.T1) (J.Tiven),Foul,Personal,1,0,255,0062400001
+0062400001,356,PT10M24.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,69,131,15,Missed,1,,,0,h,MISS Hartenstein 15' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,256,0062400001
+0062400001,357,PT10M21.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:7),Rebound,Unknown,1,0,257,0062400001
+0062400001,358,PT10M14.00S,3,1610612749,MIL,1627752,Prince,T. Prince,239,61,25,Missed,1,,,0,v,MISS Prince 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,258,0062400001
+0062400001,359,PT10M12.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,259,0062400001
+0062400001,360,PT10M06.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,145,220,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,260,0062400001
+0062400001,361,PT10M04.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:8),Rebound,Unknown,1,0,261,0062400001
+0062400001,362,PT09M54.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,16,11,2,Made,1,53,59,112,v,Antetokounmpo 2' Driving Finger Roll Layup (16 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,262,0062400001
+0062400001,363,PT09M54.00S,3,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,263,0062400001
+0062400001,364,PT09M40.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort Bad Pass Turnover (P1.T5),Turnover,Bad Pass,0,0,264,0062400001
+0062400001,364,PT09M40.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard STEAL (1 STL),,,0,0,265,0062400001
+0062400001,366,PT09M36.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams P.FOUL (P2.T1) (J.Tiven),Foul,Personal,0,0,266,0062400001
+0062400001,368,PT09M20.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-11,27,3,Missed,1,,,0,v,MISS Antetokounmpo 3' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,267,0062400001
+0062400001,368,PT09M20.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams BLOCK (3 BLK),,,1,2,268,0062400001
+0062400001,370,PT09M13.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,269,0062400001
+0062400001,371,PT09M12.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort T.FOUL (P3.T1) (J.Van Duyne),Foul,Technical,1,0,270,0062400001
+0062400001,372,PT09M12.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,53,60,113,v,Lillard Free Throw Technical (16 PTS),Free Throw,Free Throw Technical,1,0,271,0062400001
+0062400001,373,PT09M12.00S,3,0,,1627327,,,0,0,0,,0,,,0,,Mark Daigneault Foul:T.FOUL (J.Tiven),Foul,Technical,1,0,272,0062400001
+0062400001,374,PT09M12.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,53,61,114,v,Lillard Free Throw Technical (17 PTS),Free Throw,Free Throw Technical,1,0,273,0062400001
+0062400001,375,PT09M12.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Jump Ball Dort vs. Lopez: Tip to Antetokounmpo,Jump Ball,,1,0,274,0062400001
+0062400001,378,PT09M10.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort Lost Ball Turnover (P2.T6),Turnover,Lost Ball,1,0,275,0062400001
+0062400001,378,PT09M10.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez STEAL (1 STL),,,1,0,276,0062400001
+0062400001,380,PT09M08.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,1,299,30,Made,1,53,64,117,v,Lillard 30' 3PT Fadeaway Jumper (20 PTS) (Antetokounmpo 8 AST),Made Shot,Fadeaway Jump Shot,1,3,277,0062400001
+0062400001,382,PT08M52.00S,3,1610612760,OKC,1631114,Williams,J. Williams,22,44,5,Missed,1,,,0,h,MISS J. Williams 5' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,278,0062400001
+0062400001,383,PT08M50.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:9),Rebound,Unknown,1,0,279,0062400001
+0062400001,384,PT08M42.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,140,247,28,Missed,1,,,0,v,MISS Lillard 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,280,0062400001
+0062400001,385,PT08M40.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:3 Def:5),Rebound,Unknown,1,0,281,0062400001
+0062400001,386,PT08M32.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-49,149,16,Made,1,55,64,119,h,Gilgeous-Alexander 16' Pullup Jump Shot (12 PTS),Made Shot,Pullup Jump shot,1,2,282,0062400001
+0062400001,387,PT08M05.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander S.FOUL (P1.T2) (J.Tiven),Foul,Shooting,1,0,283,0062400001
+0062400001,389,PT08M05.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,284,0062400001
+0062400001,390,PT08M05.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,1,0,285,0062400001
+0062400001,391,PT08M05.00S,3,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,SUB: Wallace FOR Joe,Substitution,,0,0,286,0062400001
+0062400001,393,PT08M05.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,55,65,120,v,Antetokounmpo Free Throw 2 of 2 (17 PTS),Free Throw,Free Throw 2 of 2,1,0,287,0062400001
+0062400001,394,PT07M53.00S,3,1610612760,OKC,1631114,Williams,J. Williams,6,21,2,Missed,1,,,0,h,MISS J. Williams 2' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,288,0062400001
+0062400001,395,PT07M51.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,289,0062400001
+0062400001,397,PT07M39.00S,3,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-232,-10,0,Missed,1,,,0,v,MISS Jackson Jr. 3PT Jump Shot,Missed Shot,Jump Shot,1,3,290,0062400001
+0062400001,398,PT07M36.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,291,0062400001
+0062400001,399,PT07M28.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-20,12,2,Made,1,57,65,122,h,Gilgeous-Alexander 2' Driving Finger Roll Layup (14 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,292,0062400001
+0062400001,400,PT07M08.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-10,-7,1,Missed,1,,,0,v,MISS Antetokounmpo 1' Driving Layup,Missed Shot,Driving Layup Shot,1,2,293,0062400001
+0062400001,400,PT07M08.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort BLOCK (1 BLK),,,1,2,294,0062400001
+0062400001,402,PT07M07.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:9),Rebound,Unknown,1,0,295,0062400001
+0062400001,508,PT07M07.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-1,9,1,Missed,1,,,0,v,MISS Antetokounmpo 1' Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,296,0062400001
+0062400001,509,PT07M06.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:9),Rebound,Unknown,1,0,297,0062400001
+0062400001,403,PT07M06.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-9,3,1,Made,1,57,67,124,v,Antetokounmpo 1' Tip Layup Shot (19 PTS),Made Shot,Tip Layup Shot,1,2,298,0062400001
+0062400001,404,PT06M59.00S,3,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince P.FOUL (P2.T2) (K.Lane),Foul,Personal,1,0,299,0062400001
+0062400001,406,PT06M50.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,59,117,13,Missed,1,,,0,h,MISS Hartenstein 13' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,300,0062400001
+0062400001,407,PT06M48.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,301,0062400001
+0062400001,408,PT06M40.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Bad Pass Turnover (P4.T10),Turnover,Bad Pass,1,0,302,0062400001
+0062400001,408,PT06M40.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander STEAL (1 STL),,,1,0,303,0062400001
+0062400001,410,PT06M29.00S,3,1610612760,OKC,1629652,Dort,L. Dort,116,222,25,Missed,1,,,0,h,MISS Dort 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,304,0062400001
+0062400001,411,PT06M26.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:10),Rebound,Unknown,1,0,305,0062400001
+0062400001,412,PT06M19.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,306,0062400001
+0062400001,413,PT06M19.00S,3,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,SUB: K. Williams FOR Dort,Substitution,,0,0,307,0062400001
+0062400001,414,PT06M19.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,SUB: Caruso FOR Hartenstein,Substitution,,0,0,308,0062400001
+0062400001,417,PT06M09.00S,3,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-227,-11,0,Missed,1,,,0,v,MISS Jackson Jr. 3PT Jump Shot,Missed Shot,Jump Shot,1,3,309,0062400001
+0062400001,418,PT06M05.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,310,0062400001
+0062400001,419,PT06M02.00S,3,1610612749,MIL,1627752,Prince,T. Prince,69,45,8,Missed,1,,,0,v,MISS Prince 8' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,311,0062400001
+0062400001,420,PT06M00.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:3 Def:10),Rebound,Unknown,1,0,312,0062400001
+0062400001,421,PT05M56.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-1,4,0,Made,1,57,69,126,v,Antetokounmpo Putback Layup (21 PTS),Made Shot,Putback Layup Shot,1,2,313,0062400001
+0062400001,422,PT05M43.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-76,-5,8,Missed,1,,,0,h,MISS Gilgeous-Alexander 8' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,314,0062400001
+0062400001,423,PT05M42.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,315,0062400001
+0062400001,424,PT05M38.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-244,-11,24,Made,1,60,69,129,h,Gilgeous-Alexander 24' 3PT Jump Shot (17 PTS) (Wallace 1 AST),Made Shot,Jump Shot,1,3,316,0062400001
+0062400001,426,PT05M11.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,102,43,11,Missed,1,,,0,v,MISS Antetokounmpo 11' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,317,0062400001
+0062400001,427,PT05M10.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,318,0062400001
+0062400001,428,PT05M10.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Turnover: Shot Clock (T#11),Turnover,Shot Clock Turnover,1,0,319,0062400001
+0062400001,429,PT05M00.00S,3,1610612760,OKC,1629026,Williams,K. Williams,-237,22,24,Missed,1,,,0,h,MISS K. Williams 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,320,0062400001
+0062400001,430,PT04M56.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:3 Def:11),Rebound,Unknown,1,0,321,0062400001
+0062400001,431,PT04M46.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso P.FOUL (P1.T3) (K.Lane),Foul,Personal,1,0,322,0062400001
+0062400001,433,PT04M46.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,SUB: Portis FOR Lopez,Substitution,,0,0,323,0062400001
+0062400001,434,PT04M46.00S,3,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,SUB: Green FOR Prince,Substitution,,0,0,324,0062400001
+0062400001,437,PT04M38.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard Bad Pass Turnover (P2.T12),Turnover,Bad Pass,1,0,325,0062400001
+0062400001,437,PT04M38.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace STEAL (2 STL),,,1,0,326,0062400001
+0062400001,439,PT04M35.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard S.FOUL (P2.T3) (J.Tiven),Foul,Shooting,1,0,327,0062400001
+0062400001,441,PT04M35.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,61,69,130,h,Gilgeous-Alexander Free Throw 1 of 2 (18 PTS),Free Throw,Free Throw 1 of 2,1,0,328,0062400001
+0062400001,442,PT04M35.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,62,69,131,h,Gilgeous-Alexander Free Throw 2 of 2 (19 PTS),Free Throw,Free Throw 2 of 2,1,0,329,0062400001
+0062400001,443,PT04M17.00S,3,1610612749,MIL,1626171,Portis,B. Portis,-223,-23,0,Missed,1,,,0,v,MISS Portis 3PT Jump Shot,Missed Shot,Jump Shot,1,3,330,0062400001
+0062400001,444,PT04M15.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,331,0062400001
+0062400001,445,PT04M07.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,332,0062400001
+0062400001,445,PT04M07.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo STEAL (2 STL),,,1,0,333,0062400001
+0062400001,447,PT04M05.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,17,-2,2,Missed,1,,,0,v,MISS Antetokounmpo 2' Running Layup,Missed Shot,Running Layup Shot,1,2,334,0062400001
+0062400001,448,PT04M03.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:4 Def:11),Rebound,Unknown,1,0,335,0062400001
+0062400001,449,PT04M01.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander S.FOUL (P2.T4) (J.Tiven),Foul,Shooting,1,0,336,0062400001
+0062400001,451,PT04M01.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,337,0062400001
+0062400001,452,PT04M01.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,1,0,338,0062400001
+0062400001,453,PT04M01.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Connaughton FOR Lillard,Substitution,,0,0,339,0062400001
+0062400001,455,PT04M01.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,340,0062400001
+0062400001,456,PT03M59.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,J. Williams REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,341,0062400001
+0062400001,457,PT03M45.00S,3,1610612760,OKC,1641717,Wallace,C. Wallace,5,43,4,Made,1,64,69,133,h,Wallace 4' Floating Jump Shot (5 PTS) (K. Williams 1 AST),Made Shot,Floating Jump shot,1,2,342,0062400001
+0062400001,459,PT03M26.00S,3,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-44,-7,4,Missed,1,,,0,v,MISS Jackson Jr. 4' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,343,0062400001
+0062400001,460,PT03M23.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,344,0062400001
+0062400001,461,PT03M15.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-120,7,12,Missed,1,,,0,h,MISS Gilgeous-Alexander 12' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,345,0062400001
+0062400001,462,PT03M14.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:4 Def:12),Rebound,Unknown,1,0,346,0062400001
+0062400001,463,PT02M55.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-15,-7,2,Made,1,64,71,135,v,Antetokounmpo 2' Driving Finger Roll Layup (23 PTS) (Portis 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,347,0062400001
+0062400001,464,PT02M55.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso S.FOUL (P2.PN) (J.Van Duyne),Foul,Shooting,1,0,348,0062400001
+0062400001,466,PT02M55.00S,3,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,SUB: Hartenstein FOR J. Williams,Substitution,,0,0,349,0062400001
+0062400001,467,PT02M55.00S,3,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,v,SUB: Trent Jr. FOR Jackson Jr.,Substitution,,0,0,350,0062400001
+0062400001,470,PT02M55.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,64,72,136,v,Antetokounmpo Free Throw 1 of 1 (24 PTS),Free Throw,Free Throw 1 of 1,1,0,351,0062400001
+0062400001,471,PT02M41.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-104,154,19,Missed,1,,,0,h,MISS Gilgeous-Alexander 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,352,0062400001
+0062400001,472,PT02M39.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:4 Def:5),Rebound,Unknown,1,0,353,0062400001
+0062400001,473,PT02M36.00S,3,1610612760,OKC,1629026,Williams,K. Williams,-10,11,1,Missed,1,,,0,h,MISS K. Williams 1' Layup,Missed Shot,Layup Shot,1,2,354,0062400001
+0062400001,474,PT02M35.00S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,355,0062400001
+0062400001,475,PT02M21.00S,3,1610612749,MIL,1631260,Green,A. Green,158,224,27,Missed,1,,,0,v,MISS Green 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,356,0062400001
+0062400001,476,PT02M18.00S,3,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,K. Williams REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,357,0062400001
+0062400001,477,PT02M12.00S,3,1610612760,OKC,1629026,Williams,K. Williams,-99,265,28,Missed,1,,,0,h,MISS K. Williams 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,358,0062400001
+0062400001,478,PT02M10.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,359,0062400001
+0062400001,479,PT01M53.00S,3,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein S.FOUL (P3.PN) (K.Lane),Foul,Shooting,1,0,360,0062400001
+0062400001,481,PT01M53.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,64,73,137,v,Antetokounmpo Free Throw 1 of 2 (25 PTS),Free Throw,Free Throw 1 of 2,1,0,361,0062400001
+0062400001,482,PT01M53.00S,3,1610612760,OKC,1629026,Williams,K. Williams,0,0,0,,0,,,0,h,SUB: Mitchell FOR K. Williams,Substitution,,0,0,362,0062400001
+0062400001,483,PT01M53.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,v,SUB: Lillard FOR Connaughton,Substitution,,0,0,363,0062400001
+0062400001,486,PT01M53.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,64,74,138,v,Antetokounmpo Free Throw 2 of 2 (26 PTS),Free Throw,Free Throw 2 of 2,1,0,364,0062400001
+0062400001,487,PT01M38.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,-25,8,3,Missed,1,,,0,h,MISS Caruso 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,365,0062400001
+0062400001,487,PT01M38.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo BLOCK (1 BLK),,,1,2,366,0062400001
+0062400001,489,PT01M37.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,367,0062400001
+0062400001,491,PT01M37.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,SUB: Lopez FOR Antetokounmpo,Substitution,,0,0,368,0062400001
+0062400001,494,PT01M13.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,138,316,34,Missed,1,,,0,v,MISS Lillard 34' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,369,0062400001
+0062400001,495,PT01M11.00S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,370,0062400001
+0062400001,496,PT01M03.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander Bad Pass Turnover (P2.T8),Turnover,Bad Pass,1,0,371,0062400001
+0062400001,496,PT01M03.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (1 STL),,,1,0,372,0062400001
+0062400001,498,PT00M52.80S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-184,178,26,Made,1,64,77,141,v,Trent Jr. 26' 3PT Jump Shot (5 PTS) (Green 1 AST),Made Shot,Jump Shot,1,3,373,0062400001
+0062400001,500,PT00M30.20S,3,1610612760,OKC,1641717,Wallace,C. Wallace,0,0,0,,0,,,0,h,Wallace Bad Pass Turnover (P1.T9),Turnover,Bad Pass,1,0,374,0062400001
+0062400001,500,PT00M30.20S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green STEAL (1 STL),,,1,0,375,0062400001
+0062400001,503,PT00M04.40S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis Lost Ball Turnover (P2.T13),Turnover,Lost Ball,1,0,376,0062400001
+0062400001,503,PT00M04.40S,3,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,Caruso STEAL (3 STL),,,1,0,377,0062400001
+0062400001,505,PT00M01.00S,3,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-136,293,32,Missed,1,,,0,h,MISS Gilgeous-Alexander 32' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,378,0062400001
+0062400001,506,PT00M00.10S,3,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,379,0062400001
+0062400001,507,PT00M00.00S,3,0,,0,,,0,0,0,,0,64,77,141,,End of 3rd Period (10:29 PM EST),period,end,1,0,380,0062400001
+0062400001,517,PT12M00.00S,4,0,,0,,,0,0,0,,0,64,77,141,,Start of 4th Period (10:33 PM EST),period,start,0,0,381,0062400001
+0062400001,518,PT11M47.00S,4,1610612760,OKC,1631114,Williams,J. Williams,15,13,2,Made,1,66,77,143,h,J. Williams 2' Driving Layup (16 PTS) (Mitchell 2 AST),Made Shot,Driving Layup Shot,1,2,382,0062400001
+0062400001,519,PT11M26.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-105,242,26,Made,1,66,80,146,v,Trent Jr. 26' 3PT Jump Shot (8 PTS) (Portis 2 AST),Made Shot,Jump Shot,1,3,383,0062400001
+0062400001,521,PT11M17.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,-71,5,7,Missed,1,,,0,h,MISS Mitchell 7' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,384,0062400001
+0062400001,522,PT11M15.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,385,0062400001
+0062400001,523,PT11M04.00S,4,1610612749,MIL,1626171,Portis,B. Portis,201,34,20,Missed,1,,,0,v,MISS Portis 20' Jump Shot,Missed Shot,Jump Shot,1,2,386,0062400001
+0062400001,524,PT11M02.00S,4,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,Joe REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,387,0062400001
+0062400001,525,PT10M54.00S,4,1610612760,OKC,1631114,Williams,J. Williams,93,162,19,Missed,1,,,0,h,MISS J. Williams 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,388,0062400001
+0062400001,526,PT10M52.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,389,0062400001
+0062400001,528,PT10M33.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,172,210,27,Missed,1,,,0,v,MISS Lillard 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,390,0062400001
+0062400001,529,PT10M29.00S,4,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,Joe REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,391,0062400001
+0062400001,530,PT10M23.00S,4,1610612760,OKC,1631114,Williams,J. Williams,-123,252,28,Missed,1,,,0,h,MISS J. Williams 28' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,392,0062400001
+0062400001,531,PT10M20.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,393,0062400001
+0062400001,532,PT10M04.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,174,232,29,Made,1,66,83,149,v,Lopez 29' 3PT Jump Shot (10 PTS) (Portis 3 AST),Made Shot,Jump Shot,1,3,394,0062400001
+0062400001,534,PT10M01.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,395,0062400001
+0062400001,536,PT10M01.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,SUB: Caruso FOR Hartenstein,Substitution,,0,0,396,0062400001
+0062400001,538,PT09M47.00S,4,1610612760,OKC,1631114,Williams,J. Williams,-60,32,7,Missed,1,,,0,h,MISS J. Williams 7' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,397,0062400001
+0062400001,539,PT09M45.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez REBOUND (Off:2 Def:7),Rebound,Unknown,1,0,398,0062400001
+0062400001,540,PT09M32.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,240,74,25,Made,1,66,86,152,v,Lopez 25' 3PT Jump Shot (13 PTS) (Green 2 AST),Made Shot,Jump Shot,1,3,399,0062400001
+0062400001,542,PT09M17.00S,4,1610612760,OKC,1630198,Joe,I. Joe,-180,228,29,Made,1,69,86,155,h,Joe 29' 3PT Jump Shot (5 PTS) (J. Williams 2 AST),Made Shot,Jump Shot,1,3,400,0062400001
+0062400001,544,PT08M56.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,127,134,18,Made,1,69,88,157,v,Trent Jr. 18' Step Back Jump Shot (10 PTS),Made Shot,Step Back Jump shot,1,2,401,0062400001
+0062400001,546,PT08M40.00S,4,1610612760,OKC,1630198,Joe,I. Joe,-183,228,29,Missed,1,,,0,h,MISS Joe 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,402,0062400001
+0062400001,547,PT08M37.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,403,0062400001
+0062400001,548,PT08M23.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis FLAGRANT.FOUL.TYPE1 (P3.T1) (J.Tiven),Foul,Flagrant Type 1,1,0,404,0062400001
+0062400001,550,PT08M23.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis Offensive Foul Turnover (P3.T14),Turnover,Offensive Foul Turnover,1,0,405,0062400001
+0062400001,555,PT08M23.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,h,SUB: Gilgeous-Alexander FOR Mitchell,Substitution,,0,0,406,0062400001
+0062400001,556,PT08M23.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Connaughton FOR Lillard,Substitution,,0,0,407,0062400001
+0062400001,557,PT08M23.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,SUB: Antetokounmpo FOR Portis,Substitution,,0,0,408,0062400001
+0062400001,551,PT08M23.00S,4,0,,548,,,0,0,0,,0,69,88,157,,Instant Replay4th Period (10:41 PM EST),Instant Replay,Overturn Ruling,0,0,409,0062400001
+0062400001,553,PT08M23.00S,4,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,70,88,158,h,Joe Free Throw Flagrant 1 of 2 (6 PTS),Free Throw,Free Throw Flagrant 1 of 2,1,0,410,0062400001
+0062400001,554,PT08M23.00S,4,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,71,88,159,h,Joe Free Throw Flagrant 2 of 2 (7 PTS),Free Throw,Free Throw Flagrant 2 of 2,0,0,411,0062400001
+0062400001,561,PT08M14.00S,4,1610612760,OKC,1630198,Joe,I. Joe,-38,263,27,Missed,1,,,0,h,MISS Joe 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,412,0062400001
+0062400001,562,PT08M11.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,413,0062400001
+0062400001,563,PT07M59.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez OFF.Foul (P1) (K.Lane),Foul,Offensive,1,0,414,0062400001
+0062400001,565,PT07M59.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,Lopez Offensive Foul Turnover (P1.T15),Turnover,Offensive Foul Turnover,1,0,415,0062400001
+0062400001,566,PT07M59.00S,4,1610612760,OKC,1630198,Joe,I. Joe,0,0,0,,0,,,0,h,SUB: Hartenstein FOR Joe,Substitution,,0,0,416,0062400001
+0062400001,568,PT07M43.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,69,88,11,Made,1,73,88,161,h,Hartenstein 11' Floating Jump Shot (16 PTS) (J. Williams 3 AST),Made Shot,Floating Jump shot,1,2,417,0062400001
+0062400001,570,PT07M19.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-29,260,26,Missed,1,,,0,v,MISS Trent Jr. 26' 3PT Step Back Bank Jump Shot,Missed Shot,Step Back Bank Jump Shot,1,3,418,0062400001
+0062400001,571,PT07M17.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:4 Def:6),Rebound,Unknown,1,0,419,0062400001
+0062400001,572,PT07M05.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-233,121,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,420,0062400001
+0062400001,573,PT07M03.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:4 Def:13),Rebound,Unknown,1,0,421,0062400001
+0062400001,574,PT06M42.00S,4,1610612749,MIL,1626192,Connaughton,P. Connaughton,227,110,25,Missed,1,,,0,v,MISS Connaughton 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,422,0062400001
+0062400001,575,PT06M39.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:4 Def:7),Rebound,Unknown,1,0,423,0062400001
+0062400001,576,PT06M32.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander OFF.Foul (P3) (J.Tiven),Foul,Offensive,1,0,424,0062400001
+0062400001,578,PT06M32.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander Offensive Foul Turnover (P3.T10),Turnover,Offensive Foul Turnover,1,0,425,0062400001
+0062400001,579,PT06M32.00S,4,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,v,SUB: Lillard FOR Connaughton,Substitution,,0,0,426,0062400001
+0062400001,581,PT06M22.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green Lost Ball Turnover (P3.T16),Turnover,Lost Ball,1,0,427,0062400001
+0062400001,581,PT06M22.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander STEAL (2 STL),,,1,0,428,0062400001
+0062400001,583,PT06M13.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,115,10,12,Missed,1,,,0,h,MISS Gilgeous-Alexander 12' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,429,0062400001
+0062400001,584,PT06M12.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,430,0062400001
+0062400001,585,PT06M12.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. L.B.FOUL (P3.T2) (J.Van Duyne),Foul,Loose Ball,1,0,431,0062400001
+0062400001,587,PT06M04.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,-20,88,9,Missed,1,,,0,h,MISS Hartenstein 9' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,432,0062400001
+0062400001,588,PT06M02.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:4 Def:14),Rebound,Unknown,1,0,433,0062400001
+0062400001,589,PT05M41.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,125,236,27,Made,1,73,91,164,v,Lillard 27' 3PT Pullup Jump Shot (23 PTS) (Trent Jr. 1 AST),Made Shot,Pullup Jump shot,1,3,434,0062400001
+0062400001,591,PT05M27.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-132,37,14,Made,1,75,91,166,h,Gilgeous-Alexander 14' Fadeaway Jumper (21 PTS),Made Shot,Fadeaway Jump Shot,1,2,435,0062400001
+0062400001,592,PT05M06.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard Out of Bounds - Bad Pass Turnover Turnover (P3.T17),Turnover,Out of Bounds - Bad Pass Turnover,1,0,436,0062400001
+0062400001,593,PT05M06.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,437,0062400001
+0062400001,594,PT04M54.00S,4,1610612760,OKC,1627936,Caruso,A. Caruso,163,180,24,Missed,1,,,0,h,MISS Caruso 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,438,0062400001
+0062400001,595,PT04M49.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,439,0062400001
+0062400001,596,PT04M36.00S,4,1610612749,MIL,1631260,Green,A. Green,233,32,24,Made,1,75,94,169,v,Green 24' 3PT Jump Shot (9 PTS) (Antetokounmpo 9 AST),Made Shot,Jump Shot,1,3,440,0062400001
+0062400001,598,PT04M24.00S,4,1610612760,OKC,1631114,Williams,J. Williams,-64,42,8,Missed,1,,,0,h,MISS J. Williams 8' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,441,0062400001
+0062400001,599,PT04M22.00S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,442,0062400001
+0062400001,601,PT04M12.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard Out of Bounds Lost Ball Turnover (P4.T18),Turnover,Out of Bounds Lost Ball Turnover,1,0,443,0062400001
+0062400001,602,PT04M00.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,-38,1,4,Missed,1,,,0,h,MISS Hartenstein 4' Alley Oop Layup,Missed Shot,Alley Oop Layup shot,1,2,444,0062400001
+0062400001,603,PT03M59.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,Hartenstein REBOUND (Off:5 Def:7),Rebound,Unknown,1,0,445,0062400001
+0062400001,604,PT03M57.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,13,22,3,Missed,1,,,0,h,MISS Hartenstein 3' Putback Layup,Missed Shot,Putback Layup Shot,1,2,446,0062400001
+0062400001,604,PT03M57.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo BLOCK (2 BLK),,,1,2,447,0062400001
+0062400001,606,PT03M55.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,Lillard REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,448,0062400001
+0062400001,607,PT03M37.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,191,180,26,Missed,1,,,0,v,MISS Lopez 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,449,0062400001
+0062400001,608,PT03M33.00S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,450,0062400001
+0062400001,610,PT03M21.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,109,230,25,Missed,1,,,0,v,MISS Trent Jr. 25' 3PT Jump Shot,Missed Shot,Jump Shot,0,3,451,0062400001
+0062400001,611,PT03M18.00S,4,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,Dort REBOUND (Off:1 Def:7),Rebound,Unknown,0,0,452,0062400001
+0062400001,612,PT03M12.00S,4,1610612760,OKC,1631114,Williams,J. Williams,125,127,18,Made,1,77,94,171,h,J. Williams 18' Pullup Jump Shot (18 PTS),Made Shot,Pullup Jump shot,1,2,453,0062400001
+0062400001,616,PT02M43.00S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Turnover: Shot Clock (T#19),Turnover,Shot Clock Turnover,1,0,454,0062400001
+0062400001,617,PT02M43.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,SUB: Connaughton FOR Lopez,Substitution,,0,0,455,0062400001
+0062400001,619,PT02M43.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Timeout: Regular (Full 6 Short 0),Timeout,Regular,0,0,456,0062400001
+0062400001,620,PT02M43.00S,4,1610612760,OKC,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,SUB: K. Williams FOR Gilgeous-Alexander,Substitution,,0,0,457,0062400001
+0062400001,621,PT02M43.00S,4,1610612760,OKC,1629652,Dort,L. Dort,0,0,0,,0,,,0,h,SUB: Carlson FOR Dort,Substitution,,0,0,458,0062400001
+0062400001,622,PT02M43.00S,4,1610612760,OKC,1631114,Williams,J. Williams,0,0,0,,0,,,0,h,SUB: Mitchell FOR J. Williams,Substitution,,0,0,459,0062400001
+0062400001,623,PT02M43.00S,4,1610612760,OKC,1627936,Caruso,A. Caruso,0,0,0,,0,,,0,h,SUB: Wiggins FOR Caruso,Substitution,,0,0,460,0062400001
+0062400001,624,PT02M43.00S,4,1610612760,OKC,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,h,SUB: Jones FOR Hartenstein,Substitution,,0,0,461,0062400001
+0062400001,625,PT02M43.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Portis FOR Lillard,Substitution,,0,0,462,0062400001
+0062400001,632,PT02M27.00S,4,1610612760,OKC,1641794,Jones,D. Jones,86,86,12,Missed,1,,,0,h,MISS Jones 12' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,463,0062400001
+0062400001,633,PT02M25.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:4 Def:15),Rebound,Unknown,1,0,464,0062400001
+0062400001,634,PT02M07.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,42,20,5,Missed,1,,,0,v,MISS Antetokounmpo 5' Driving Layup,Missed Shot,Driving Layup Shot,1,2,465,0062400001
+0062400001,635,PT02M05.00S,4,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,h,Wiggins REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,466,0062400001
+0062400001,636,PT01M56.00S,4,1610612760,OKC,1629026,Williams,K. Williams,23,23,3,Missed,1,,,0,h,MISS K. Williams 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,467,0062400001
+0062400001,636,PT01M56.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo BLOCK (3 BLK),,,1,2,468,0062400001
+0062400001,638,PT01M53.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:7),Rebound,Unknown,1,0,469,0062400001
+0062400001,639,PT01M47.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,181,184,26,Made,1,77,97,174,v,Trent Jr. 26' 3PT Running Pull-Up Jump Shot (13 PTS) (Antetokounmpo 10 AST),Made Shot,Running Pull-Up Jump Shot,1,3,470,0062400001
+0062400001,641,PT01M37.00S,4,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,v,Connaughton P.FOUL (P1.T3) (K.Lane),Foul,Personal,1,0,471,0062400001
+0062400001,643,PT01M37.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,SUB: Johnson FOR Trent Jr.,Substitution,,0,0,472,0062400001
+0062400001,644,PT01M37.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,SUB: Livingston FOR Green,Substitution,,0,0,473,0062400001
+0062400001,645,PT01M37.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,SUB: Beauchamp FOR Antetokounmpo,Substitution,,0,0,474,0062400001
+0062400001,646,PT01M37.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,SUB: Smith FOR Portis,Substitution,,0,0,475,0062400001
+0062400001,651,PT01M32.00S,4,1610612749,MIL,1641890,Smith,T. Smith,0,0,0,,0,,,0,v,Smith S.FOUL (P1.PN) (J.Van Duyne),Foul,Shooting,1,0,476,0062400001
+0062400001,653,PT01M32.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,78,97,175,h,Mitchell Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,477,0062400001
+0062400001,654,PT01M32.00S,4,1610612760,OKC,1642349,Mitchell,A. Mitchell,0,0,0,,0,,,0,h,MISS Mitchell Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,478,0062400001
+0062400001,655,PT01M30.00S,4,0,,1610612760,,,0,0,0,,0,,,0,h,THUNDER Rebound,Rebound,Unknown,1,0,479,0062400001
+0062400001,657,PT01M23.00S,4,1610612760,OKC,1630598,Wiggins,A. Wiggins,-1,155,16,Missed,1,,,0,h,MISS Wiggins 16' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,480,0062400001
+0062400001,658,PT01M20.00S,4,1610612749,MIL,1641753,Livingston,C. Livingston,0,0,0,,0,,,0,v,Livingston REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,481,0062400001
+0062400001,659,PT01M01.00S,4,1610612749,MIL,1642358,Johnson,A. Johnson,47,15,5,Missed,1,,,0,v,MISS Johnson 5' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,482,0062400001
+0062400001,660,PT00M59.20S,4,1610612760,OKC,1630598,Wiggins,A. Wiggins,0,0,0,,0,,,0,h,Wiggins REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,483,0062400001
+0062400001,661,PT00M54.30S,4,1610612760,OKC,1641794,Jones,D. Jones,223,-17,0,Missed,1,,,0,h,MISS Jones 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,484,0062400001
+0062400001,662,PT00M51.40S,4,1610612749,MIL,1642358,Johnson,A. Johnson,0,0,0,,0,,,0,v,Johnson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,485,0062400001
+0062400001,663,PT00M32.80S,4,1610612749,MIL,1642358,Johnson,A. Johnson,-21,5,2,Missed,1,,,0,v,MISS Johnson 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,486,0062400001
+0062400001,664,PT00M31.10S,4,1610612760,OKC,1642382,Carlson,B. Carlson,0,0,0,,0,,,0,h,Carlson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,487,0062400001
+0062400001,665,PT00M18.10S,4,1610612760,OKC,1629026,Williams,K. Williams,-47,268,27,Made,1,81,97,178,h,K. Williams 27' 3PT Pullup Jump Shot (3 PTS),Made Shot,Pullup Jump shot,1,3,488,0062400001
+0062400001,666,PT00M00.00S,4,0,,0,,,0,0,0,,0,81,97,178,,End of 4th Period (11:01 PM EST),period,end,1,0,489,0062400001

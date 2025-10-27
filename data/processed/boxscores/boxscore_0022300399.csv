@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,24:34,2,3,0.667,0,0,0.0,2,2,1.0,0,2,2,0,1,1,1,1,6,-2.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,31:44,5,12,0.417,1,4,0.25,6,8,0.75,1,1,2,3,0,0,2,3,17,-20.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,28:54,6,12,0.5,0,0,0.0,1,3,0.333,1,5,6,2,3,0,1,2,13,2.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,34:05,7,17,0.412,7,13,0.538,4,4,1.0,0,2,2,2,1,0,1,0,25,-8.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,36:56,8,14,0.571,1,4,0.25,0,0,0.0,2,4,6,12,3,1,2,2,17,-4.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,22:48,4,9,0.444,2,4,0.5,2,4,0.5,0,1,1,2,3,0,2,4,12,-12.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,16:28,2,6,0.333,1,5,0.2,0,0,0.0,1,1,2,2,1,0,0,0,5,-14.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,9:06,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,3,0,-13.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,17:42,2,4,0.5,0,2,0.0,1,2,0.5,2,3,5,0,0,1,1,2,5,-25.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,4:38,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,1,0,0,2,2,-1.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,4:38,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,0,-1.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,4:38,0,2,0.0,0,0,0.0,1,2,0.5,0,0,0,1,0,0,1,0,1,-1.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1630688,Ish,Wainright,I. Wainright,ish-wainright,,,,3:49,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,1,3,-1.0,0022300399
+0022300399,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,30:33,11,16,0.688,6,10,0.6,0,0,0.0,1,2,3,0,0,0,3,1,28,14.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,29:45,3,7,0.429,0,2,0.0,5,5,1.0,1,5,6,5,0,0,0,0,11,18.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,21:52,2,3,0.667,0,0,0.0,2,2,1.0,6,5,11,7,0,0,3,2,6,15.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,31:32,7,12,0.583,1,5,0.2,0,0,0.0,1,9,10,7,1,1,2,1,15,25.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,30:18,11,18,0.611,2,7,0.286,3,3,1.0,0,3,3,2,0,0,1,1,27,4.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,26:32,1,4,0.25,0,2,0.0,0,0,0.0,0,3,3,11,3,0,1,1,2,9.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,17:19,6,7,0.857,0,0,0.0,1,4,0.25,1,4,5,3,1,0,2,2,13,-1.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,17:27,4,6,0.667,1,2,0.5,2,2,1.0,0,1,1,1,1,1,2,3,11,6.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,19:26,3,7,0.429,0,2,0.0,2,2,1.0,2,3,5,1,1,0,1,2,8,6.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,3:49,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,1.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1629010,Jerome,Robinson,J. Robinson,jerome-robinson,,,,3:49,0,2,0.0,0,2,0.0,3,4,0.75,0,0,0,0,0,0,0,0,3,1.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1630586,Usman,Garuba,U. Garuba,usman-garuba,,,,3:49,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,1.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,3:49,0,0,0.0,0,0,0.0,2,2,1.0,1,1,2,0,0,0,0,0,2,1.0,0022300399
+0022300399,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,NWT - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300399

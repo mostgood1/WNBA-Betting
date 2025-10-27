@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,24:57,4,13,0.308,0,6,0.0,1,2,0.5,1,3,4,8,1,0,0,2,9,-4.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,26:10,5,6,0.833,3,4,0.75,0,0,0.0,1,2,3,5,0,0,2,0,13,-3.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,22:20,6,12,0.5,0,0,0.0,2,7,0.286,5,7,12,0,3,0,0,4,14,-19.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,30:20,4,16,0.25,0,4,0.0,1,2,0.5,3,3,6,2,0,0,0,0,9,-18.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,31:34,1,7,0.143,1,6,0.167,2,2,1.0,0,3,3,6,0,1,1,1,5,-6.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1642272,Jared,McCain,J. McCain,jared-mccain,,,,30:31,6,17,0.353,4,9,0.444,2,2,1.0,0,1,1,2,1,0,2,1,18,0.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,23:22,5,6,0.833,3,4,0.75,1,2,0.5,1,4,5,0,1,1,0,1,14,5.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,17:07,4,5,0.8,1,1,1.0,2,2,1.0,0,2,2,0,0,1,0,1,11,-15.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,10:57,1,6,0.167,1,4,0.25,0,0,0.0,0,2,2,2,0,0,0,4,3,-9.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,15:10,0,4,0.0,0,1,0.0,2,2,1.0,1,2,3,2,0,0,0,0,2,3.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,2:56,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,2,8.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,2:18,1,1,1.0,0,0,0.0,1,1,1.0,1,1,2,0,0,0,0,0,3,4.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,2:18,1,1,1.0,0,0,0.0,1,1,1.0,0,1,1,0,0,1,0,0,3,4.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400195
+0022400195,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,32:50,3,8,0.375,3,6,0.5,0,0,0.0,1,3,4,1,0,0,1,5,9,-4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,33:48,9,14,0.643,2,4,0.5,1,1,1.0,0,12,12,13,0,3,2,0,21,12.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,35:30,11,20,0.55,2,3,0.667,7,8,0.875,3,6,9,1,0,4,3,2,31,20.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,29:56,7,13,0.538,6,10,0.6,0,0,0.0,0,6,6,7,0,1,2,1,20,14.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,G,,,27:49,1,1,1.0,1,1,1.0,0,0,0.0,0,5,5,2,1,1,1,1,3,-6.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,25:24,7,12,0.583,2,4,0.5,2,3,0.667,0,2,2,3,0,0,2,0,18,13.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,16:10,1,8,0.125,0,5,0.0,0,0,0.0,0,4,4,0,0,0,0,0,2,17.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,15:40,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,3,2,4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,15:33,3,4,0.75,0,0,0.0,2,2,1.0,1,1,2,0,0,4,0,3,8,0.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,1:28,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400195
+0022400195,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-4.0,0022400195

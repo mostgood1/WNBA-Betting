@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,30:57,5,10,0.5,3,7,0.429,2,2,1.0,0,1,1,0,1,1,2,2,15,-4.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,28:04,3,12,0.25,2,7,0.286,4,4,1.0,2,7,9,0,1,1,2,3,12,-5.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,32:15,5,9,0.556,0,0,0.0,3,4,0.75,5,4,9,3,0,2,2,1,13,-4.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,32:56,6,10,0.6,4,5,0.8,1,2,0.5,0,7,7,2,0,0,3,0,17,9.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,31:36,4,9,0.444,3,5,0.6,3,4,0.75,0,3,3,2,0,0,2,0,14,7.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,,,,22:19,3,5,0.6,0,0,0.0,0,0,0.0,1,4,5,12,2,0,3,3,6,8.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,23:25,3,10,0.3,1,4,0.25,3,3,1.0,1,0,1,2,0,0,1,3,10,-4.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,20:03,5,13,0.385,5,10,0.5,0,0,0.0,4,3,7,1,0,1,1,2,15,3.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,,,,18:27,2,6,0.333,1,4,0.25,0,0,0.0,1,3,4,2,0,0,0,0,5,0.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400214
+0022400214,1610612751,Brooklyn,Nets,BKN,nets,1642385,Cui,Yongxi,C. Yongxi,cui-yongxi,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,35:22,10,24,0.417,2,9,0.222,2,2,1.0,1,4,5,9,1,0,4,2,24,-3.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,25:37,4,14,0.286,2,6,0.333,2,2,1.0,2,3,5,0,0,2,4,3,12,-2.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,29:30,7,8,0.875,0,0,0.0,3,4,0.75,3,8,11,2,1,1,0,1,17,-2.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1630527,Brandon,Boston,B. Boston,brandon-boston,G,,,35:24,3,13,0.231,1,4,0.25,0,0,0.0,1,6,7,10,3,0,1,3,7,-1.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,18:20,1,5,0.2,1,4,0.25,0,0,0.0,0,0,0,0,1,0,1,2,3,6.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,,,,27:27,3,8,0.375,2,3,0.667,0,0,0.0,0,4,4,2,3,0,0,2,8,-1.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,,,22:18,4,7,0.571,1,2,0.5,2,2,1.0,0,1,1,6,0,0,0,1,11,0.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,8:57,2,3,0.667,0,0,0.0,0,0,0.0,1,3,4,0,0,0,0,0,4,-2.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,19:43,6,9,0.667,1,2,0.5,2,2,1.0,3,1,4,1,1,0,0,0,15,-3.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,9:10,1,2,0.5,0,0,0.0,0,0,0.0,3,1,4,1,1,1,0,1,2,2.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,8:12,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,2,0,0,0,2,-4.0,0022400214
+0022400214,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400214

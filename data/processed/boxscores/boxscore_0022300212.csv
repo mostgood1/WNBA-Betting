@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300212,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,33:58,4,11,0.364,1,7,0.143,3,3,1.0,2,2,4,6,1,0,3,1,12,17.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,32:31,7,13,0.538,2,7,0.286,1,1,1.0,3,0,3,4,1,0,1,5,17,21.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,34:43,13,15,0.867,0,2,0.0,6,10,0.6,3,10,13,6,0,0,1,2,32,16.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,G,,,32:32,5,8,0.625,3,4,0.75,0,0,0.0,0,8,8,4,2,0,1,3,13,7.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,31:14,10,20,0.5,6,10,0.6,4,5,0.8,1,3,4,7,3,0,0,1,30,2.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,18:00,4,9,0.444,4,6,0.667,0,0,0.0,0,2,2,3,1,1,2,2,12,8.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,9:13,0,0,0.0,0,0,0.0,0,0,0.0,1,3,4,0,0,0,0,1,0,9.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1628426,Sasha,Vezenkov,A. Vezenkov,sasha-vezenkov,,,,13:07,3,5,0.6,1,2,0.5,0,0,0.0,1,0,1,1,0,1,1,2,7,2.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,,,9:21,2,4,0.5,0,0,0.0,2,2,1.0,2,5,7,1,1,1,1,1,6,3.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,8:57,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,0.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,8:32,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,2,0,0,1.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,3:56,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,2,0,-3.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,,,3:56,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-3.0,0022300212
+0022300212,1610612758,Sacramento,Kings,SAC,kings,1630196,Filip,Petrusev,F. Petrusev,filip-petrusev,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,18:33,2,4,0.5,1,2,0.5,1,1,1.0,0,2,2,0,0,0,1,0,6,-20.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1629684,Grant,Williams,G. Williams,grant-williams,F,,,20:01,3,6,0.5,1,4,0.25,0,2,0.0,2,1,3,2,0,0,1,1,7,-7.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,29:09,3,6,0.5,0,0,0.0,0,0,0.0,5,4,9,0,1,2,1,3,6,-16.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,33:00,8,17,0.471,2,6,0.333,5,5,1.0,0,2,2,1,0,0,1,2,23,-19.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,31:47,7,19,0.368,3,7,0.429,8,10,0.8,1,9,10,7,3,0,2,0,25,-14.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,27:29,5,11,0.455,2,4,0.5,2,2,1.0,0,2,2,2,0,0,0,3,14,-10.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,13:23,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,2,1,0,-5.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,25:51,4,8,0.5,2,5,0.4,1,2,0.5,1,3,4,5,2,0,1,2,11,-1.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,14:38,4,5,0.8,0,1,0.0,0,0,0.0,0,2,2,4,0,0,0,0,8,-3.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,9:45,1,4,0.25,1,2,0.5,1,2,0.5,0,0,0,0,1,0,1,2,4,0.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,5:28,3,3,1.0,0,0,0.0,1,2,0.5,2,0,2,0,0,0,0,1,7,5.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,,,5:28,1,4,0.25,0,2,0.0,0,0,0.0,0,0,0,1,0,0,0,0,2,5.0,0022300212
+0022300212,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,5:28,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,0,0,0,0,0,0,5.0,0022300212

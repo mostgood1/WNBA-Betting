@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300111,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,36:51,5,17,0.294,2,7,0.286,4,4,1.0,2,6,8,4,2,0,2,4,16,-2.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,30:28,4,14,0.286,1,5,0.2,0,2,0.0,1,4,5,5,0,0,2,3,9,-12.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,35:13,4,8,0.5,1,3,0.333,1,2,0.5,2,6,8,1,0,1,0,4,10,2.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,26:22,4,12,0.333,3,7,0.429,4,4,1.0,3,5,8,2,1,0,0,2,15,10.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,G,,,32:59,7,16,0.438,0,1,0.0,0,0,0.0,1,3,4,8,1,2,1,2,14,0.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,21:09,4,12,0.333,1,3,0.333,3,4,0.75,0,3,3,2,3,0,1,2,12,-9.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,11:29,2,5,0.4,0,1,0.0,1,2,0.5,1,0,1,0,0,0,1,2,5,-10.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,11:09,1,3,0.333,1,3,0.333,0,0,0.0,0,3,3,0,1,0,0,1,3,-1.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,12:02,1,2,0.5,0,0,0.0,0,0,0.0,1,0,1,3,2,0,1,2,2,-2.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,21:00,6,6,1.0,5,5,1.0,0,0,0.0,1,2,3,3,0,0,3,0,17,4.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,1:18,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,F,,,26:28,1,4,0.25,0,2,0.0,2,2,1.0,0,0,0,1,0,1,0,3,4,-5.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,32:47,7,17,0.412,2,6,0.333,3,4,0.75,0,3,3,4,3,1,5,0,19,5.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,38:12,12,18,0.667,0,1,0.0,2,3,0.667,2,17,19,5,1,3,1,3,26,-2.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,31:19,5,12,0.417,1,4,0.25,0,0,0.0,0,3,3,3,0,1,3,0,11,-14.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,36:22,10,14,0.714,3,6,0.5,5,5,1.0,0,2,2,8,1,1,3,4,28,7.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,24:35,4,7,0.571,1,3,0.333,0,0,0.0,0,0,0,2,1,0,0,2,9,10.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,,,14:00,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,2,1,0,1,0,0,-3.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,,,26:29,3,6,0.5,1,4,0.25,2,4,0.5,1,8,9,3,0,3,3,3,9,12.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,9:48,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,2,0,5.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1630658,Colin,Castleton,C. Castleton,colin-castleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1641793,D'Moi,Hodge,D. Hodge,dmoi-hodge,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111
+0022300111,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300111

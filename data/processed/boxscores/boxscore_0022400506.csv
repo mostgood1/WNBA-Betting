@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,F,,,22:15,5,6,0.833,3,4,0.75,0,0,0.0,0,4,4,0,1,0,0,4,13,7.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,23:53,6,14,0.429,2,4,0.5,0,0,0.0,3,3,6,0,0,0,0,2,14,8.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,25:15,9,11,0.818,0,0,0.0,0,0,0.0,2,4,6,0,0,3,1,2,18,-1.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,35:11,7,12,0.583,2,4,0.5,0,0,0.0,1,5,6,7,2,2,1,4,16,2.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,36:34,6,16,0.375,3,10,0.3,9,10,0.9,0,2,2,20,0,1,2,1,24,4.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,27:26,5,11,0.455,4,7,0.571,3,5,0.6,1,3,4,1,0,0,2,3,17,-12.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,22:44,1,5,0.2,0,0,0.0,0,0,0.0,2,7,9,3,1,4,0,3,2,2.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,28:03,4,10,0.4,3,7,0.429,0,0,0.0,1,0,1,3,0,0,3,3,11,-3.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,18:39,4,13,0.308,1,8,0.125,0,0,0.0,2,4,6,1,2,1,1,0,9,8.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400506
+0022400506,1610612737,Atlanta,Hawks,ATL,hawks,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,F,,,24:54,4,11,0.364,3,8,0.375,0,0,0.0,1,3,4,4,0,0,0,2,11,-17.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,30:41,11,21,0.524,8,15,0.533,5,6,0.833,0,2,2,1,2,1,2,4,35,6.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,30:14,8,11,0.727,0,0,0.0,5,6,0.833,8,2,10,0,1,3,0,0,21,-2.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,30:37,7,16,0.438,2,3,0.667,8,9,0.889,2,2,4,3,0,0,1,3,24,4.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,26:10,1,6,0.167,1,4,0.25,0,0,0.0,1,5,6,9,0,0,2,3,3,-5.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,17:11,1,5,0.2,1,5,0.2,0,0,0.0,0,8,8,1,0,0,3,1,3,12.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,29:21,1,6,0.167,0,2,0.0,2,2,1.0,0,3,3,3,1,0,0,2,4,-2.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,,,18:07,5,14,0.357,3,9,0.333,0,0,0.0,0,1,1,2,3,0,0,0,13,-1.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,17:46,1,4,0.25,0,0,0.0,2,2,1.0,1,7,8,2,1,0,5,1,4,-1.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,14:59,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,0,2,1,3,-9.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400506
+0022400506,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400506

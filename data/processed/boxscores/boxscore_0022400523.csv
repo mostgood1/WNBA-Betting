@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400523,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,21:59,2,7,0.286,1,6,0.167,0,0,0.0,0,2,2,2,0,1,0,2,5,-7.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,F,,,36:11,7,11,0.636,3,5,0.6,3,4,0.75,2,5,7,7,2,0,3,1,20,4.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,28:43,6,13,0.462,1,2,0.5,2,4,0.5,2,5,7,3,3,2,1,1,15,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,37:22,7,16,0.438,4,9,0.444,5,5,1.0,0,7,7,5,1,1,1,1,23,1.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,32:49,4,13,0.308,1,8,0.125,0,0,0.0,1,2,3,1,1,0,1,1,9,-1.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,,,,19:17,4,5,0.8,0,0,0.0,0,0,0.0,4,3,7,1,1,2,2,2,8,5.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,27:19,4,14,0.286,2,8,0.25,1,2,0.5,3,3,6,5,0,1,1,1,11,10.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,18:13,0,5,0.0,0,5,0.0,0,0,0.0,0,3,3,1,1,0,3,2,0,9.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,,,18:07,2,7,0.286,2,7,0.286,0,0,0.0,1,6,7,1,1,0,2,1,6,4.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,NWT_TEAM_SUSPENSION,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1630528,Josh,Christopher,J. Christopher,josh-christopher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,NWT - Personal,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,F,,,23:33,2,9,0.222,1,5,0.2,0,0,0.0,1,5,6,0,1,0,1,3,5,8.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,30:00,8,24,0.333,6,15,0.4,1,2,0.5,2,3,5,1,0,1,1,0,23,-2.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,30:00,4,5,0.8,0,0,0.0,1,2,0.5,5,10,15,0,0,2,2,2,9,-2.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,28:44,9,18,0.5,1,3,0.333,4,4,1.0,0,1,1,5,1,0,2,0,23,4.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,33:31,3,5,0.6,0,2,0.0,2,2,1.0,1,2,3,9,0,0,3,3,8,0.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,23:08,1,3,0.333,0,1,0.0,2,2,1.0,1,10,11,1,2,1,2,1,4,-1.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,23:29,1,3,0.333,1,1,1.0,2,2,1.0,0,0,0,0,3,2,1,5,5,-18.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,18:00,2,4,0.5,0,0,0.0,2,2,1.0,1,3,4,3,0,0,1,0,6,-3.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,201988,Patty,Mills,P. Mills,patty-mills,,,,18:00,3,12,0.25,2,9,0.222,1,1,1.0,0,1,1,1,2,1,2,0,9,-3.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,11:35,0,0,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,1,1,0,-8.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523
+0022400523,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400523

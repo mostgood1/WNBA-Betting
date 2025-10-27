@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,39:24,7,18,0.389,3,6,0.5,5,6,0.833,1,1,2,2,4,0,4,3,22,-8.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,16:54,2,3,0.667,2,2,1.0,0,0,0.0,2,1,3,0,0,0,2,4,6,-3.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,32:12,5,6,0.833,0,0,0.0,4,6,0.667,4,9,13,2,1,2,0,3,14,-13.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,36:54,7,19,0.368,1,5,0.2,2,3,0.667,1,5,6,3,2,0,3,0,17,-19.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,33:42,7,23,0.304,2,6,0.333,2,3,0.667,2,6,8,12,2,1,2,4,18,-6.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,15:48,2,3,0.667,0,1,0.0,0,0,0.0,0,3,3,0,0,0,1,4,4,6.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,27:11,5,10,0.5,3,4,0.75,0,0,0.0,1,3,4,1,0,0,2,5,13,2.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,25:43,1,4,0.25,1,4,0.25,2,2,1.0,0,1,1,1,4,1,2,1,5,4.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,12:12,1,5,0.2,1,4,0.25,0,0,0.0,0,0,0,0,2,0,1,2,3,7.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1630219,Skylar,Mays,S. Mays,skylar-mays,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,F,,,11:32,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-11.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,38:49,11,21,0.524,0,1,0.0,11,18,0.611,6,10,16,6,1,3,4,5,33,9.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,31:06,4,11,0.364,2,6,0.333,0,0,0.0,1,5,6,3,3,4,0,3,10,3.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,36:07,5,14,0.357,4,11,0.364,0,0,0.0,1,5,6,0,3,0,2,1,14,16.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,37:16,7,21,0.333,4,12,0.333,13,14,0.929,1,4,5,4,2,0,3,2,31,15.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,30:41,5,12,0.417,2,5,0.4,0,0,0.0,6,2,8,1,2,3,2,3,12,3.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,19:38,2,4,0.5,1,2,0.5,0,0,0.0,2,2,4,1,1,0,2,1,5,4.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,9:28,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,1,1,2,0,-1.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,3:54,0,2,0.0,0,2,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-9.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,17:16,1,4,0.25,1,3,0.333,0,0,0.0,0,2,2,3,1,0,3,2,3,3.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,4:13,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,-2.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1629716,Marques,Bolden,M. Bolden,marques-bolden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,201577,Robin,Lopez,R. Lopez,robin-lopez,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245
+0022300245,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300245

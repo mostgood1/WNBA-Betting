@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,22:28,3,6,0.5,3,6,0.5,3,3,1.0,0,4,4,2,1,0,1,4,12,12.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,27:44,4,6,0.667,1,2,0.5,3,4,0.75,0,2,2,1,0,2,1,1,12,1.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,26:04,8,16,0.5,2,5,0.4,2,4,0.5,0,7,7,1,0,4,1,0,20,-12.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,34:06,3,8,0.375,1,2,0.5,4,5,0.8,1,1,2,3,1,1,2,2,11,-7.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,G,,,7:29,1,5,0.2,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,-3.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,31:13,7,16,0.438,1,4,0.25,4,5,0.8,1,5,6,4,1,0,3,4,19,-15.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,13:46,2,6,0.333,0,0,0.0,0,0,0.0,4,3,7,2,0,0,2,4,4,-6.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,,,,25:02,1,6,0.167,0,3,0.0,0,0,0.0,0,4,4,4,1,0,0,2,2,8.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,12:29,0,3,0.0,0,2,0.0,0,0,0.0,0,6,6,2,0,0,2,2,0,-9.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,16:13,1,4,0.25,1,4,0.25,0,0,0.0,0,0,0,0,0,0,0,0,3,-9.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,2:03,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,1,1,0,3,4.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,21:23,5,8,0.625,0,2,0.0,0,2,0.0,0,1,1,1,2,0,1,4,10,-4.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300460
+0022300460,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,203935,Marcus,Smart,M. Smart,marcus-smart,F,,,29:43,1,7,0.143,0,4,0.0,3,4,0.75,1,1,2,3,0,0,3,3,5,2.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,32:01,3,14,0.214,1,4,0.25,3,4,0.75,1,6,7,1,3,4,1,4,10,2.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,C,,,27:56,2,4,0.5,0,0,0.0,0,0,0.0,2,6,8,1,1,3,2,4,4,8.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,34:15,11,17,0.647,2,6,0.333,0,0,0.0,0,3,3,2,0,0,3,1,24,3.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,35:19,7,15,0.467,3,9,0.333,9,12,0.75,0,5,5,10,1,0,4,3,26,-1.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,28:07,5,6,0.833,1,2,0.5,2,2,1.0,2,9,11,0,0,1,0,1,13,12.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,20:43,3,7,0.429,3,7,0.429,3,3,1.0,1,4,5,3,0,0,0,2,12,16.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,,,8:37,2,4,0.5,0,1,0.0,0,0,0.0,0,0,0,2,0,0,0,0,4,1.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,21:58,3,6,0.5,2,5,0.4,0,0,0.0,1,4,5,2,0,0,2,5,8,13.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,0:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,0:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631223,David,Roddy,D. Roddy,david-roddy,,,,0:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300460
+0022300460,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,0:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022300460

@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,38:41,11,24,0.458,3,11,0.273,6,9,0.667,0,6,6,5,0,1,4,2,31,1.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,33:37,8,16,0.5,0,0,0.0,8,11,0.727,2,6,8,1,0,1,5,5,24,2.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,29:25,7,12,0.583,1,1,1.0,0,1,0.0,3,6,9,2,0,4,2,6,15,1.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,40:51,2,6,0.333,0,3,0.0,6,6,1.0,2,8,10,2,1,0,2,2,10,9.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,G,,,41:16,4,11,0.364,3,8,0.375,3,4,0.75,0,7,7,1,2,0,3,6,14,1.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,16:11,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,1,0,1,2,0,-9.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1631220,Dereon,Seabron,D. Seabron,dereon-seabron,,,,12:18,0,3,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-9.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,14:43,0,0,0.0,0,0,0.0,1,2,0.5,1,4,5,1,0,0,1,1,1,-8.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,,,3:52,0,0,0.0,0,0,0.0,1,1,1.0,0,1,1,0,1,0,0,1,1,4.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,9:07,2,2,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,1,5,-7.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300011
+0022300011,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,20:53,3,7,0.429,1,1,1.0,3,5,0.6,0,2,2,2,2,1,0,5,10,12.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,23:08,2,8,0.25,1,4,0.25,1,1,1.0,1,6,7,2,0,0,2,3,6,-8.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,33:39,11,15,0.733,0,2,0.0,2,5,0.4,4,4,8,3,2,1,4,3,24,-2.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,34:44,7,18,0.389,2,8,0.25,9,10,0.9,0,4,4,1,0,0,1,1,25,-1.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,40:29,7,15,0.467,4,9,0.444,2,2,1.0,1,2,3,8,1,1,1,2,20,-8.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,23:58,3,7,0.429,1,4,0.25,0,0,0.0,0,3,3,2,3,0,0,4,7,1.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,14:22,1,5,0.2,1,3,0.333,2,2,1.0,0,0,0,2,1,0,0,0,5,8.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,19:03,1,8,0.125,0,2,0.0,0,0,0.0,1,7,8,0,0,2,0,3,2,-2.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,6:52,0,2,0.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,3.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,22:53,1,3,0.333,0,2,0.0,3,3,1.0,1,3,4,0,0,0,1,1,5,12.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300011
+0022300011,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300011

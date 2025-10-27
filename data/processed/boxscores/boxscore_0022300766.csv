@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,36:11,7,14,0.5,2,6,0.333,0,1,0.0,0,2,2,6,1,1,6,4,16,5.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,34:43,4,13,0.308,0,0,0.0,6,7,0.857,2,3,5,4,1,1,3,1,14,8.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,17:30,1,4,0.25,0,1,0.0,4,6,0.667,2,4,6,3,0,1,1,3,6,-17.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,35:10,5,9,0.556,3,6,0.5,4,4,1.0,3,6,9,1,5,0,3,3,17,7.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,33:05,4,15,0.267,3,8,0.375,0,0,0.0,0,5,5,2,1,0,2,1,11,9.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,30:16,3,4,0.75,1,2,0.5,1,2,0.5,2,7,9,3,1,0,1,3,8,28.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,,,,25:06,3,8,0.375,1,5,0.2,2,2,1.0,1,2,3,2,1,1,0,0,9,5.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,14:56,3,7,0.429,2,5,0.4,2,2,1.0,0,3,3,0,2,0,1,2,10,0.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,13:03,2,4,0.5,1,2,0.5,0,0,0.0,2,5,7,0,0,0,0,1,5,0.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766
+0022300766,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,37:03,4,8,0.5,1,5,0.2,3,3,1.0,0,3,3,9,1,0,4,2,12,-4.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,29:27,2,9,0.222,2,8,0.25,0,0,0.0,0,4,4,5,0,1,1,0,6,-12.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,35:48,8,19,0.421,2,8,0.25,4,5,0.8,0,6,6,3,1,0,4,2,22,-20.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,G,,,15:22,1,2,0.5,0,1,0.0,0,0,0.0,0,3,3,2,2,1,1,1,2,-10.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,24:39,2,7,0.286,2,5,0.4,0,0,0.0,2,1,3,6,0,1,0,3,6,-6.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629139,Yuta,Watanabe,Y. Watanabe,yuta-watanabe,,,,24:59,5,12,0.417,1,7,0.143,0,0,0.0,0,2,2,1,2,0,1,1,11,-1.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,28:36,4,10,0.4,4,9,0.444,0,0,0.0,0,3,3,1,0,0,2,1,12,-2.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,26:21,5,10,0.5,0,1,0.0,0,0,0.0,1,6,7,0,0,2,2,3,10,-2.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,17:45,3,4,0.75,0,0,0.0,0,0,0.0,0,5,5,1,1,3,2,4,6,12.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,201565,Derrick,Rose,D. Rose,derrick-rose,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766
+0022300766,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300766

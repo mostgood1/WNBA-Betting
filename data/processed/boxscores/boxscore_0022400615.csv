@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,22:46,2,6,0.333,1,3,0.333,0,0,0.0,1,0,1,5,1,0,1,2,5,0.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,30:36,3,8,0.375,2,7,0.286,0,0,0.0,2,6,8,3,2,1,0,5,8,10.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,32:11,7,11,0.636,0,0,0.0,3,3,1.0,5,8,13,3,2,3,3,3,17,2.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,35:03,7,21,0.333,1,8,0.125,4,5,0.8,2,1,3,3,0,1,1,2,19,19.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,33:17,10,21,0.476,3,6,0.5,3,8,0.375,1,1,2,5,3,0,3,0,26,-7.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,20:25,3,7,0.429,2,4,0.5,0,0,0.0,2,3,5,0,0,0,1,2,8,-12.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,24:49,6,12,0.5,3,7,0.429,3,3,1.0,2,2,4,0,3,0,3,0,18,2.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,22:53,3,9,0.333,1,6,0.167,0,0,0.0,3,2,5,3,0,0,1,2,7,0.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,12:59,0,1,0.0,0,0,0.0,0,0,0.0,2,1,3,3,0,0,0,2,0,-6.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,5:03,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-13.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,32:00,1,3,0.333,0,1,0.0,2,2,1.0,0,0,0,1,1,0,0,4,4,-2.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,F,,,36:19,7,15,0.467,1,3,0.333,1,2,0.5,9,7,16,4,4,0,5,2,16,-10.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,29:16,7,13,0.538,0,1,0.0,4,6,0.667,2,9,11,4,0,1,3,3,18,4.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,33:23,4,16,0.25,2,6,0.333,0,0,0.0,0,2,2,5,0,0,3,3,10,-17.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,39:49,8,15,0.533,7,12,0.583,3,3,1.0,0,3,3,5,0,0,6,3,26,8.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,20:10,4,10,0.4,3,5,0.6,1,1,1.0,3,3,6,2,3,0,1,2,12,19.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,20:37,6,12,0.5,2,5,0.4,2,2,1.0,0,2,2,1,0,2,2,1,16,13.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,18:40,1,2,0.5,0,0,0.0,1,4,0.25,5,6,11,2,0,2,1,1,3,-2.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,9:48,2,5,0.4,0,1,0.0,0,0,0.0,1,1,2,1,0,0,1,1,4,-8.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615
+0022400615,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400615

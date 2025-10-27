@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,39:42,6,17,0.353,3,4,0.75,3,3,1.0,1,5,6,2,1,0,2,1,18,-2.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,28:50,5,12,0.417,3,7,0.429,0,1,0.0,0,2,2,5,0,0,0,4,13,-2.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,33:07,8,12,0.667,0,0,0.0,3,3,1.0,5,7,12,1,0,4,2,1,19,-5.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,36:37,15,24,0.625,5,13,0.385,6,6,1.0,0,5,5,2,1,0,5,5,41,-3.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,39:55,6,13,0.462,3,10,0.3,1,2,0.5,1,4,5,14,3,1,2,1,16,-6.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,34:02,4,10,0.4,3,9,0.333,0,0,0.0,3,2,5,3,1,1,3,4,11,3.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,8:05,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,1,1,0,2.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,8:56,0,3,0.0,0,0,0.0,0,0,0.0,3,1,4,2,0,2,0,3,0,-2.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,10:46,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,1,2,-5.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,F,,,33:32,7,19,0.368,4,9,0.444,6,6,1.0,2,3,5,3,1,0,0,2,24,6.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,20:53,3,6,0.5,0,0,0.0,4,4,1.0,2,2,4,2,0,1,1,1,10,4.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,26:38,2,5,0.4,0,0,0.0,0,0,0.0,1,6,7,3,1,0,0,2,4,6.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,32:09,7,15,0.467,4,9,0.444,1,2,0.5,1,4,5,5,3,1,5,4,19,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,35:02,14,22,0.636,6,8,0.75,3,3,1.0,0,3,3,1,0,3,3,1,37,7.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,29:53,1,4,0.25,0,2,0.0,0,0,0.0,0,4,4,11,0,0,3,2,2,3.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,,,26:32,4,9,0.444,1,1,1.0,5,5,1.0,2,3,5,1,1,0,0,0,14,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,20:54,5,8,0.625,2,3,0.667,0,0,0.0,3,3,6,2,1,0,2,3,12,-4.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,14:28,1,3,0.333,0,0,0.0,0,0,0.0,2,1,3,1,0,0,0,0,2,-2.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339
+0022300339,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300339

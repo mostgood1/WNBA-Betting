@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,34:59,6,8,0.75,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,5,13,8.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,37:21,8,14,0.571,2,3,0.667,3,3,1.0,2,12,14,3,2,1,1,1,21,11.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,35:13,4,7,0.571,0,0,0.0,2,8,0.25,4,6,10,3,1,5,2,3,10,-1.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,37:47,11,27,0.407,1,9,0.111,10,10,1.0,1,5,6,7,2,0,4,0,33,15.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,30:47,3,7,0.429,1,5,0.2,1,1,1.0,1,4,5,9,0,0,1,4,8,6.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,17:13,4,6,0.667,2,3,0.667,0,0,0.0,0,2,2,1,2,0,0,2,10,0.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,18:42,3,8,0.375,2,5,0.4,2,2,1.0,1,5,6,2,0,0,2,2,10,10.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,17:05,4,4,1.0,0,0,0.0,0,2,0.0,0,4,4,1,1,0,3,1,8,-13.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,9:50,0,1,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,0,1,1,1,-2.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,1:03,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,-4.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300186
+0022300186,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,24:23,3,7,0.429,1,3,0.333,2,2,1.0,2,7,9,7,1,0,2,5,9,-11.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,F,,,25:26,3,7,0.429,0,2,0.0,0,2,0.0,2,2,4,2,1,0,1,4,6,-13.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,C,,,19:03,1,3,0.333,0,0,0.0,0,0,0.0,5,1,6,0,1,0,0,3,2,-12.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,33:16,5,16,0.313,3,10,0.3,3,3,1.0,0,5,5,3,1,0,1,1,16,4.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,36:08,11,25,0.44,5,13,0.385,11,12,0.917,1,4,5,3,1,0,5,2,38,-4.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,27:16,5,10,0.5,1,4,0.25,0,0,0.0,3,7,10,1,1,0,1,4,11,2.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,23:35,2,11,0.182,0,3,0.0,6,7,0.857,2,1,3,0,2,0,0,2,10,5.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,101108,Chris,Paul,C. Paul,chris-paul,,,,21:43,0,3,0.0,0,2,0.0,2,2,1.0,0,1,1,5,0,0,2,4,2,-1.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,13:07,1,6,0.167,0,4,0.0,0,0,0.0,1,2,3,0,0,0,1,1,2,-10.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,13:31,2,2,1.0,0,0,0.0,0,0,0.0,2,2,4,2,0,0,1,2,4,-2.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,1:16,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,2,6.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,1:16,3,5,0.6,2,2,1.0,0,0,0.0,1,0,1,0,1,0,0,0,8,6.0,0022300186
+0022300186,1610612744,Golden State,Warriors,GSW,warriors,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300186

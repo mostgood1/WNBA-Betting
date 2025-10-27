@@ -1,0 +1,38 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012300071,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,12:46,2,6,0.333,0,3,0.0,0,0,0.0,0,4,4,2,0,0,0,1,4,-2.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,F,,,16:28,1,4,0.25,1,4,0.25,0,0,0.0,0,4,4,1,1,3,1,4,3,-10.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,15:49,4,6,0.667,0,0,0.0,3,6,0.5,1,2,3,2,1,0,2,1,11,-10.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,16:28,4,9,0.444,1,3,0.333,4,5,0.8,0,1,1,4,0,0,0,0,13,-10.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,16:28,2,5,0.4,2,4,0.5,0,0,0.0,0,1,1,1,1,0,0,1,6,-10.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1630181,R.J.,Hampton,R. Hampton,rj-hampton,,,,25:22,5,9,0.556,2,3,0.667,5,6,0.833,0,3,3,5,1,0,1,5,17,4.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,15:50,3,3,1.0,0,0,0.0,2,2,1.0,1,3,4,0,0,0,3,1,8,1.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,26:04,4,8,0.5,0,3,0.0,2,2,1.0,0,2,2,1,0,0,4,4,10,10.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1630696,Dru,Smith,D. Smith,dru-smith,,,,22:00,1,5,0.2,0,2,0.0,0,0,0.0,0,1,1,5,2,0,1,3,2,-4.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,19:32,1,3,0.333,0,2,0.0,0,0,0.0,0,4,4,0,1,0,4,1,2,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,19:24,4,8,0.5,1,2,0.5,2,2,1.0,0,4,4,0,2,0,2,0,11,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,16:21,2,7,0.286,0,0,0.0,3,5,0.6,2,3,5,1,1,2,3,3,7,3.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,,,12:00,3,5,0.6,1,3,0.333,1,1,1.0,1,2,3,0,0,0,0,0,8,4.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1627767,Cheick,Diallo,C. Diallo,cheick-diallo,,,,5:28,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,3,2,-6.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,27:24,3,10,0.3,1,7,0.143,0,0,0.0,0,2,2,0,3,0,4,4,7,1.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,27:23,3,8,0.375,1,4,0.25,0,0,0.0,0,8,8,2,0,0,5,4,7,-10.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,26:40,6,16,0.375,0,0,0.0,4,6,0.667,7,5,12,3,0,4,1,4,16,-1.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,28:20,6,15,0.4,3,7,0.429,5,5,1.0,0,4,4,1,1,0,2,2,20,2.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,28:32,7,10,0.7,3,4,0.75,3,3,1.0,0,3,3,6,2,1,1,0,20,-1.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,,,,24:44,6,9,0.667,0,1,0.0,7,9,0.778,3,4,7,4,2,0,1,0,19,9.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,21:18,4,8,0.5,0,1,0.0,0,0,0.0,0,2,2,2,2,1,1,1,8,7.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,11:59,0,3,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,3,0,6.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,16:17,2,6,0.333,0,1,0.0,3,3,1.0,2,2,4,2,0,0,1,1,7,4.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,,,8:18,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,1,0,0,0,0,0,6.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,8:43,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,1,2,2,1.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,5:34,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,4.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,4:48,2,2,1.0,0,0,0.0,0,0,0.0,0,2,2,0,1,0,0,2,4,2.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1630207,Nate,Hinton,N. Hinton,nate-hinton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1631309,Trevor,Hudgins,T. Hudgins,trevor-hudgins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071
+0012300071,1610612745,Houston,Rockets,HOU,rockets,1631257,Jermaine,Samuels Jr.,J. Samuels Jr.,jermaine-samuels-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012300071

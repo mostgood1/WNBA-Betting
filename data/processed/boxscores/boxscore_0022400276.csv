@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,33:33,5,11,0.455,3,6,0.5,3,4,0.75,0,6,6,4,1,0,1,1,16,6.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,20:06,2,9,0.222,1,5,0.2,1,2,0.5,2,0,2,0,0,0,1,1,6,-6.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,23:19,2,3,0.667,0,0,0.0,0,0,0.0,1,6,7,3,1,2,1,5,4,-3.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,36:20,11,22,0.5,4,10,0.4,8,11,0.727,0,2,2,6,0,0,1,3,34,4.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,G,,,26:49,2,3,0.667,0,0,0.0,0,0,0.0,1,2,3,5,1,1,2,2,4,4.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,33:10,2,4,0.5,2,3,0.667,1,2,0.5,2,2,4,2,0,0,1,4,7,4.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1629003,Shake,Milton,S. Milton,shake-milton,,,,21:02,4,6,0.667,2,4,0.5,0,0,0.0,0,2,2,3,1,0,1,1,10,10.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,14:40,1,5,0.2,0,1,0.0,1,2,0.5,0,3,3,0,2,1,2,2,3,-10.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,21:32,5,9,0.556,5,8,0.625,3,4,0.75,0,2,2,0,1,1,2,3,18,13.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,,,,9:30,2,3,0.667,2,2,1.0,0,0,0.0,0,0,0,1,0,0,0,1,6,3.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400276
+0022400276,1610612751,Brooklyn,Nets,BKN,nets,203471,Dennis,Schröder,D. Schröder,dennis-schröder,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,35:43,7,18,0.389,0,2,0.0,4,6,0.667,1,4,5,5,0,0,3,4,18,0.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,36:07,7,14,0.5,1,5,0.2,6,8,0.75,3,5,8,2,1,1,2,4,21,8.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,35:02,6,12,0.5,1,3,0.333,0,0,0.0,4,14,18,7,1,0,4,4,13,-2.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,32:12,4,8,0.5,1,5,0.2,2,2,1.0,0,3,3,0,0,2,1,4,11,-4.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,37:53,10,16,0.625,3,4,0.75,8,12,0.667,0,1,1,5,2,0,2,1,31,5.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,17:09,0,3,0.0,0,1,0.0,0,0,0.0,0,2,2,1,1,1,1,1,0,-16.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,22:54,3,5,0.6,3,4,0.75,0,1,0.0,1,0,1,1,1,0,1,1,9,-6.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,18:49,0,1,0.0,0,1,0.0,0,2,0.0,2,4,6,0,0,2,2,2,0,-6.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,4:11,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-1.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,0:01,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400276
+0022400276,1610612758,Sacramento,Kings,SAC,kings,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400276

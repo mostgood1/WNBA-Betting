@@ -1,0 +1,534 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012300072,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:11 PM EST),period,start,0,0,1,0012300072
+0012300072,4,PT12M00.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,Jump Ball B. Lopez vs. Jackson Jr.: Tip to G. Antetokounmpo,Jump Ball,,1,0,2,0012300072
+0012300072,388,PT11M46.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard Bad Pass Turnover (P1.T1),Turnover,Bad Pass,0,0,3,0012300072
+0012300072,388,PT11M46.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams STEAL (1 STL),,,0,0,4,0012300072
+0012300072,401,PT11M33.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Bad Pass Turnover (P1.T1),Turnover,Bad Pass,0,0,5,0012300072
+0012300072,11,PT11M22.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-127,118,17,Made,1,2,0,2,h,G. Antetokounmpo 17' Jump Shot (2 PTS) (Middleton 1 AST),Made Shot,Jump Shot,1,2,6,0012300072
+0012300072,13,PT11M06.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,-21,19,3,Made,1,2,2,4,v,Williams 3' Driving Dunk (2 PTS) (Smart 1 AST),Made Shot,Driving Dunk Shot,1,2,7,0012300072
+0012300072,15,PT10M55.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,-118,267,29,Missed,1,,,0,h,MISS Lillard 29' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,8,0012300072
+0012300072,16,PT10M53.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,9,0012300072
+0012300072,17,PT10M49.00S,1,1610612763,MEM,1630217,Bane,D. Bane,58,266,27,Missed,1,,,0,v,MISS Bane 27' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,10,0012300072
+0012300072,18,PT10M46.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,11,0012300072
+0012300072,19,PT10M39.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,17,47,5,Made,1,4,2,6,h,B. Lopez 5' Cutting Layup Shot (2 PTS) (Lillard 1 AST),Made Shot,Cutting Layup Shot,1,2,12,0012300072
+0012300072,21,PT10M39.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. S.FOUL (P1.T1) (N.Buchert),Foul,Shooting,1,0,13,0012300072
+0012300072,23,PT10M39.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,5,2,7,h,B. Lopez Free Throw 1 of 1 (3 PTS),Free Throw,Free Throw 1 of 1,1,0,14,0012300072
+0012300072,24,PT10M24.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,-244,10,24,Missed,1,,,0,v,MISS Jackson Jr. 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,15,0012300072
+0012300072,24,PT10M24.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez BLOCK (1 BLK),,,1,3,16,0012300072
+0012300072,26,PT10M19.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,17,0012300072
+0012300072,27,PT10M14.00S,1,1610612763,MEM,203935,Smart,M. Smart,164,183,25,Made,1,5,5,10,v,Smart 25' 3PT Step Back Jump Shot (3 PTS) (Jackson Jr. 1 AST),Made Shot,Step Back Jump shot,1,3,18,0012300072
+0012300072,29,PT10M01.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-20,28,3,Made,1,7,5,12,h,G. Antetokounmpo 3' Driving Finger Roll Layup (4 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,19,0012300072
+0012300072,30,PT09M48.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,0,0,0,,0,,,0,h,Middleton P.FOUL (P1.T1) (J.Capers),Foul,Personal,1,0,20,0012300072
+0012300072,32,PT09M41.00S,1,1610612763,MEM,1630217,Bane,D. Bane,31,253,25,Missed,1,,,0,v,MISS Bane 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,21,0012300072
+0012300072,33,PT09M38.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,22,0012300072
+0012300072,34,PT09M27.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,119,263,29,Missed,1,,,0,h,MISS Middleton 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,23,0012300072
+0012300072,35,PT09M25.00S,1,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,24,0012300072
+0012300072,36,PT09M21.00S,1,1610612763,MEM,1630217,Bane,D. Bane,-11,0,1,Made,1,7,7,14,v,Bane 1' Running Layup (2 PTS),Made Shot,Running Layup Shot,1,2,25,0012300072
+0012300072,37,PT09M10.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,-50,295,30,Missed,1,,,0,h,MISS Beasley 30' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,26,0012300072
+0012300072,38,PT09M07.00S,1,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,Smart REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,27,0012300072
+0012300072,39,PT08M56.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard S.FOUL (P1.T2) (P.O'Connell),Foul,Shooting,1,0,28,0012300072
+0012300072,41,PT08M56.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,7,8,15,v,Williams Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,29,0012300072
+0012300072,42,PT08M56.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,SUB: Crowder FOR G. Antetokounmpo,Substitution,,0,0,30,0012300072
+0012300072,44,PT08M56.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,7,9,16,v,Williams Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,31,0012300072
+0012300072,45,PT08M39.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,-91,152,18,Made,1,9,9,18,h,Middleton 18' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,32,0012300072
+0012300072,46,PT08M32.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder S.FOUL (P1.T3) (N.Buchert),Foul,Shooting,1,0,33,0012300072
+0012300072,48,PT08M32.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,9,10,19,v,Williams Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,34,0012300072
+0012300072,49,PT08M32.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,9,11,20,v,Williams Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,0,0,35,0012300072
+0012300072,50,PT08M14.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,119,52,13,Missed,1,,,0,h,MISS Middleton 13' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,36,0012300072
+0012300072,51,PT08M11.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,37,0012300072
+0012300072,52,PT07M59.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez S.FOUL (P1.T4) (J.Capers),Foul,Shooting,1,0,38,0012300072
+0012300072,54,PT07M59.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,9,12,21,v,Jackson Jr. Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,39,0012300072
+0012300072,55,PT07M59.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,MISS Jackson Jr. Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,40,0012300072
+0012300072,56,PT07M56.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,41,0012300072
+0012300072,57,PT07M49.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,4,29,3,Made,1,11,12,23,h,Lillard 3' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,42,0012300072
+0012300072,58,PT07M49.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman S.FOUL (P1.T2) (N.Buchert),Foul,Shooting,1,0,43,0012300072
+0012300072,60,PT07M49.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: G. Antetokounmpo FOR Beasley,Substitution,,0,0,44,0012300072
+0012300072,62,PT07M49.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,MISS Lillard Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,45,0012300072
+0012300072,63,PT07M45.00S,1,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,46,0012300072
+0012300072,64,PT07M39.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,-37,24,4,Missed,1,,,0,v,MISS Jackson Jr. 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,47,0012300072
+0012300072,65,PT07M36.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,48,0012300072
+0012300072,66,PT07M31.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,12,38,4,Made,1,13,12,25,h,B. Lopez 4' Cutting Layup Shot (5 PTS) (G. Antetokounmpo 1 AST),Made Shot,Cutting Layup Shot,1,2,49,0012300072
+0012300072,69,PT07M20.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Charge Foul (P2) (N.Buchert),Foul,Offensive Charge,1,0,50,0012300072
+0012300072,71,PT07M20.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Foul Turnover (P2.T2),Turnover,Offensive Foul Turnover,1,0,51,0012300072
+0012300072,72,PT07M11.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,-181,227,29,Made,1,16,12,28,h,Lillard 29' 3PT Jump Shot (5 PTS) (G. Antetokounmpo 2 AST),Made Shot,Jump Shot,1,3,52,0012300072
+0012300072,75,PT06M51.00S,1,1610612763,MEM,1630217,Bane,D. Bane,-191,176,26,Missed,1,,,0,v,MISS Bane 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,53,0012300072
+0012300072,76,PT06M48.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,54,0012300072
+0012300072,77,PT06M46.00S,1,1610612763,MEM,203935,Smart,M. Smart,151,209,26,Missed,1,,,0,v,MISS Smart 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,55,0012300072
+0012300072,78,PT06M41.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,56,0012300072
+0012300072,79,PT06M41.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,Missed,1,,,0,v,MISS Williams Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,57,0012300072
+0012300072,80,PT06M41.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,0,0,0,,0,,,0,h,Middleton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,58,0012300072
+0012300072,81,PT06M39.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,80,52,10,Made,1,18,12,30,h,G. Antetokounmpo 10' Driving Floating Bank Jump Shot (6 PTS) (Middleton 2 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,59,0012300072
+0012300072,83,PT06M39.00S,1,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane S.FOUL (P1.T3) (P.O'Connell),Foul,Shooting,1,0,60,0012300072
+0012300072,85,PT06M39.00S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,61,0012300072
+0012300072,86,PT06M39.00S,1,1610612749,MIL,203114,Middleton,K. Middleton,0,0,0,,0,,,0,h,SUB: Connaughton FOR Middleton,Substitution,,0,0,62,0012300072
+0012300072,88,PT06M39.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,0,0,63,0012300072
+0012300072,89,PT06M35.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:1),Rebound,Unknown,0,0,64,0012300072
+0012300072,90,PT06M24.00S,1,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,Smart Bad Pass Turnover (P1.T3),Turnover,Bad Pass,0,0,65,0012300072
+0012300072,90,PT06M24.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton STEAL (1 STL),,,0,0,66,0012300072
+0012300072,92,PT06M17.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo Bad Pass Turnover (P1.T2),Turnover,Bad Pass,1,0,67,0012300072
+0012300072,92,PT06M17.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. STEAL (1 STL),,,1,0,68,0012300072
+0012300072,94,PT06M04.00S,1,1610612763,MEM,203935,Smart,M. Smart,124,221,25,Missed,1,,,0,v,MISS Smart 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,69,0012300072
+0012300072,95,PT06M00.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,70,0012300072
+0012300072,96,PT05M55.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,140,248,28,Missed,1,,,0,h,MISS Lillard 28' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,71,0012300072
+0012300072,97,PT05M52.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,72,0012300072
+0012300072,98,PT05M49.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,106,228,25,Made,1,21,12,33,h,B. Lopez 25' 3PT Jump Shot (8 PTS) (Crowder 1 AST),Made Shot,Jump Shot,1,3,73,0012300072
+0012300072,100,PT05M35.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,-239,103,26,Missed,1,,,0,v,MISS Tillman 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,74,0012300072
+0012300072,101,PT05M31.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,75,0012300072
+0012300072,102,PT05M14.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,233,22,0,Missed,1,,,0,h,MISS Crowder 3PT Jump Shot,Missed Shot,Jump Shot,1,3,76,0012300072
+0012300072,103,PT05M12.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,77,0012300072
+0012300072,104,PT05M07.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,-241,-5,24,Missed,1,,,0,v,MISS Tillman 24' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,78,0012300072
+0012300072,105,PT05M05.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,79,0012300072
+0012300072,106,PT04M54.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,-169,29,17,Made,1,23,12,35,h,Lillard 17' Pullup Jump Shot (7 PTS) (Crowder 2 AST),Made Shot,Pullup Jump shot,1,2,80,0012300072
+0012300072,108,PT04M54.00S,1,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,81,0012300072
+0012300072,109,PT04M54.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,SUB: Beasley FOR B. Lopez,Substitution,,0,0,82,0012300072
+0012300072,110,PT04M54.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,SUB: R. Lopez FOR G. Antetokounmpo,Substitution,,0,0,83,0012300072
+0012300072,111,PT04M54.00S,1,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,SUB: Kennard FOR Williams,Substitution,,0,0,84,0012300072
+0012300072,112,PT04M54.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,SUB: Aldama FOR Jackson Jr.,Substitution,,0,0,85,0012300072
+0012300072,117,PT04M43.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,225,50,0,Missed,1,,,0,v,MISS Tillman 3PT Jump Shot,Missed Shot,Jump Shot,1,3,86,0012300072
+0012300072,118,PT04M41.00S,1,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,1,0,87,0012300072
+0012300072,120,PT04M29.00S,1,1610612763,MEM,1630217,Bane,D. Bane,113,3,11,Made,1,23,14,37,v,Bane 11' Step Back Jump Shot (4 PTS),Made Shot,Step Back Jump shot,1,2,88,0012300072
+0012300072,121,PT04M14.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,34,46,6,Missed,1,,,0,h,MISS Connaughton 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,89,0012300072
+0012300072,122,PT04M13.00S,1,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,90,0012300072
+0012300072,123,PT04M13.00S,1,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez Out of Bounds - Bad Pass Turnover Turnover (P1.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,91,0012300072
+0012300072,124,PT03M58.00S,1,1610612763,MEM,1630217,Bane,D. Bane,124,124,18,Made,1,23,16,39,v,Bane 18' Pullup Jump Shot (6 PTS) (Smart 2 AST),Made Shot,Pullup Jump shot,1,2,92,0012300072
+0012300072,126,PT03M48.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,77,274,28,Missed,1,,,0,h,MISS Lillard 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,93,0012300072
+0012300072,127,PT03M45.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,94,0012300072
+0012300072,128,PT03M32.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,-23,273,27,Missed,1,,,0,h,MISS Connaughton 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,95,0012300072
+0012300072,129,PT03M28.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,96,0012300072
+0012300072,130,PT03M19.00S,1,1610612763,MEM,203935,Smart,M. Smart,-98,236,26,Missed,1,,,0,v,MISS Smart 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,97,0012300072
+0012300072,131,PT03M17.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,Beasley REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,98,0012300072
+0012300072,132,PT03M04.00S,1,1610612749,MIL,1627736,Beasley,M. Beasley,29,42,5,Missed,1,,,0,h,MISS Beasley 5' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,99,0012300072
+0012300072,132,PT03M04.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman BLOCK (1 BLK),,,1,2,100,0012300072
+0012300072,134,PT03M01.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,101,0012300072
+0012300072,135,PT02M58.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,-5,5,1,Missed,1,,,0,v,MISS Aldama 1' Running Layup,Missed Shot,Running Layup Shot,1,2,102,0012300072
+0012300072,136,PT02M56.00S,1,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,103,0012300072
+0012300072,137,PT02M52.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard Bad Pass Turnover (P2.T4),Turnover,Bad Pass,1,0,104,0012300072
+0012300072,137,PT02M52.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman STEAL (1 STL),,,1,0,105,0012300072
+0012300072,139,PT02M47.00S,1,1610612763,MEM,1628379,Kennard,L. Kennard,16,266,27,Missed,1,,,0,v,MISS Kennard 27' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,106,0012300072
+0012300072,140,PT02M43.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,107,0012300072
+0012300072,141,PT02M38.00S,1,1610612763,MEM,1628379,Kennard,L. Kennard,0,0,0,,0,,,0,v,Kennard S.FOUL (P1.T4) (P.O'Connell),Foul,Shooting,1,0,108,0012300072
+0012300072,143,PT02M38.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,24,16,40,h,Crowder Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,109,0012300072
+0012300072,145,PT02M38.00S,1,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,SUB: G. Antetokounmpo FOR Lillard,Substitution,,0,0,110,0012300072
+0012300072,146,PT02M38.00S,1,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,SUB: Gilyard FOR Tillman,Substitution,,0,0,111,0012300072
+0012300072,147,PT02M38.00S,1,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,SUB: Jackson Jr. FOR Bane,Substitution,,0,0,112,0012300072
+0012300072,148,PT02M38.00S,1,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,SUB: Roddy FOR Smart,Substitution,,0,0,113,0012300072
+0012300072,153,PT02M38.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,MISS Crowder Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,114,0012300072
+0012300072,154,PT02M32.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,115,0012300072
+0012300072,155,PT02M25.00S,1,1610612763,MEM,1628379,Kennard,L. Kennard,42,48,6,Missed,1,,,0,v,MISS Kennard 6' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,116,0012300072
+0012300072,156,PT02M21.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,117,0012300072
+0012300072,157,PT02M16.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,71,268,28,Missed,1,,,0,h,MISS Crowder 28' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,118,0012300072
+0012300072,158,PT02M12.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,119,0012300072
+0012300072,159,PT02M10.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,25,268,27,Missed,1,,,0,v,MISS Aldama 27' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,120,0012300072
+0012300072,160,PT02M10.00S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,121,0012300072
+0012300072,161,PT02M00.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,11,26,3,Made,1,26,16,42,h,G. Antetokounmpo 3' Driving Finger Roll Layup (8 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,122,0012300072
+0012300072,162,PT01M43.00S,1,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,-129,215,25,Missed,1,,,0,v,MISS Jackson Jr. 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,123,0012300072
+0012300072,163,PT01M38.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,124,0012300072
+0012300072,164,PT01M33.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,82,275,29,Missed,1,,,0,h,MISS G. Antetokounmpo 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,125,0012300072
+0012300072,165,PT01M30.00S,1,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,Gilyard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,126,0012300072
+0012300072,166,PT01M22.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,103,246,27,Made,1,26,19,45,v,Aldama 27' 3PT Jump Shot (3 PTS) (Gilyard 1 AST),Made Shot,Jump Shot,1,3,127,0012300072
+0012300072,168,PT00M59.90S,1,1610612749,MIL,203109,Crowder,J. Crowder,235,20,24,Missed,1,,,0,h,MISS Crowder 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,128,0012300072
+0012300072,169,PT00M59.90S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,129,0012300072
+0012300072,170,PT00M59.90S,1,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama L.B.FOUL (P1.PN) (J.Capers),Foul,Loose Ball,1,0,130,0012300072
+0012300072,172,PT00M59.90S,1,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,MISS R. Lopez Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,131,0012300072
+0012300072,173,PT00M59.90S,1,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,1,0,132,0012300072
+0012300072,174,PT00M59.90S,1,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: Payne FOR Crowder,Substitution,,0,0,133,0012300072
+0012300072,176,PT00M59.90S,1,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,27,19,46,h,R. Lopez Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,0,0,134,0012300072
+0012300072,177,PT00M50.20S,1,1610612763,MEM,1631367,Gilyard,J. Gilyard,28,171,17,Made,1,27,21,48,v,Gilyard 17' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,135,0012300072
+0012300072,178,PT00M31.90S,1,1610612749,MIL,201577,Lopez,R. Lopez,230,21,0,Missed,1,,,0,h,MISS R. Lopez 3PT Jump Shot,Missed Shot,Jump Shot,1,3,136,0012300072
+0012300072,179,PT00M28.50S,1,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,137,0012300072
+0012300072,180,PT00M12.40S,1,1610612763,MEM,1628379,Kennard,L. Kennard,0,0,0,,0,,,0,v,Kennard Lost Ball Turnover (P1.T4),Turnover,Lost Ball,1,0,138,0012300072
+0012300072,180,PT00M12.40S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo STEAL (1 STL),,,1,0,139,0012300072
+0012300072,182,PT00M10.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,2,39,4,Made,1,29,21,50,h,G. Antetokounmpo 4' Running Dunk (10 PTS) (Connaughton 1 AST),Made Shot,Running Dunk Shot,1,2,140,0012300072
+0012300072,184,PT00M03.00S,1,1610612763,MEM,1630583,Aldama,S. Aldama,-22,10,2,Made,1,29,23,52,v,Aldama 2' Cutting Layup Shot (5 PTS) (Gilyard 2 AST),Made Shot,Cutting Layup Shot,1,2,141,0012300072
+0012300072,186,PT00M00.90S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo Palming Turnover (P2.T5),Turnover,Palming Turnover,1,0,142,0012300072
+0012300072,187,PT00M00.00S,1,0,,0,,,0,0,0,,0,29,23,52,,End of 1st Period (8:37 PM EST),period,end,1,0,143,0012300072
+0012300072,190,PT12M00.00S,2,0,,0,,,0,0,0,,0,29,23,52,,Start of 2nd Period (8:39 PM EST),period,start,0,0,144,0012300072
+0012300072,191,PT11M41.00S,2,1610612763,MEM,1630583,Aldama,S. Aldama,-6,260,26,Made,1,29,26,55,v,Aldama 26' 3PT Jump Shot (8 PTS) (Kennard 1 AST),Made Shot,Jump Shot,1,3,145,0012300072
+0012300072,193,PT11M25.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez Lost Ball Turnover (P2.T6),Turnover,Lost Ball,1,0,146,0012300072
+0012300072,193,PT11M25.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy STEAL (1 STL),,,1,0,147,0012300072
+0012300072,195,PT11M17.00S,2,1610612763,MEM,1628379,Kennard,L. Kennard,-5,6,1,Made,1,29,28,57,v,Kennard 1' Cutting Layup Shot (2 PTS) (Aldama 1 AST),Made Shot,Cutting Layup Shot,1,2,148,0012300072
+0012300072,197,PT10M59.00S,2,1610612749,MIL,1626166,Payne,C. Payne,5,37,4,Made,1,31,28,59,h,Payne 4' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,149,0012300072
+0012300072,198,PT10M45.00S,2,1610612763,MEM,1628379,Kennard,L. Kennard,135,255,29,Made,1,31,31,62,v,Kennard 29' 3PT Jump Shot (5 PTS) (Jackson Jr. 2 AST),Made Shot,Jump Shot,1,3,150,0012300072
+0012300072,200,PT10M31.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,-168,221,28,Missed,1,,,0,h,MISS Beasley 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,151,0012300072
+0012300072,201,PT10M29.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,152,0012300072
+0012300072,202,PT10M21.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,11,29,3,Missed,1,,,0,v,MISS Roddy 3' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,153,0012300072
+0012300072,203,PT10M19.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy REBOUND (Off:1 Def:1),Rebound,Unknown,0,0,154,0012300072
+0012300072,204,PT10M19.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy OFF.Foul (P1) (N.Buchert),Foul,Offensive,1,0,155,0012300072
+0012300072,206,PT10M19.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy Offensive Foul Turnover (P1.T5),Turnover,Offensive Foul Turnover,1,0,156,0012300072
+0012300072,207,PT10M19.00S,2,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,SUB: LaRavia FOR Aldama,Substitution,,0,0,157,0012300072
+0012300072,209,PT10M09.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-31,50,6,Missed,1,,,0,h,MISS G. Antetokounmpo 6' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,158,0012300072
+0012300072,209,PT10M09.00S,2,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. BLOCK (1 BLK),,,1,2,159,0012300072
+0012300072,211,PT10M09.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,160,0012300072
+0012300072,220,PT10M05.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-32,27,4,Missed,1,,,0,h,MISS G. Antetokounmpo 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,161,0012300072
+0012300072,220,PT10M05.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy BLOCK (1 BLK),,,1,2,162,0012300072
+0012300072,222,PT10M03.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,163,0012300072
+0012300072,213,PT09M58.00S,2,1610612749,MIL,203114,Middleton,K. Middleton,-49,193,20,Missed,1,,,0,h,MISS Middleton 20' Jump Shot,Missed Shot,Jump Shot,1,2,164,0012300072
+0012300072,214,PT09M58.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,165,0012300072
+0012300072,215,PT09M55.00S,2,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. S.FOUL (P3.T1) (N.Buchert),Foul,Shooting,1,0,166,0012300072
+0012300072,217,PT09M55.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,MISS R. Lopez Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,0,0,167,0012300072
+0012300072,218,PT09M55.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,0,0,168,0012300072
+0012300072,219,PT09M55.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,32,31,63,h,R. Lopez Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,169,0012300072
+0012300072,223,PT09M33.00S,2,1610612763,MEM,1628379,Kennard,L. Kennard,5,247,25,Made,1,32,34,66,v,Kennard 25' 3PT Jump Shot (8 PTS) (Jackson Jr. 3 AST),Made Shot,Jump Shot,1,3,170,0012300072
+0012300072,225,PT09M33.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,171,0012300072
+0012300072,226,PT09M33.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,SUB: Crowder FOR G. Antetokounmpo,Substitution,,0,0,172,0012300072
+0012300072,228,PT09M17.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,183,167,25,Made,1,35,34,69,h,Beasley 25' 3PT Jump Shot (3 PTS) (Middleton 3 AST),Made Shot,Jump Shot,1,3,173,0012300072
+0012300072,230,PT09M03.00S,2,1610612763,MEM,1628379,Kennard,L. Kennard,142,234,27,Missed,1,,,0,v,MISS Kennard 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,174,0012300072
+0012300072,231,PT09M00.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,175,0012300072
+0012300072,232,PT08M55.00S,2,1610612749,MIL,203114,Middleton,K. Middleton,-134,263,30,Missed,1,,,0,h,MISS Middleton 30' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,176,0012300072
+0012300072,233,PT08M53.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,177,0012300072
+0012300072,234,PT08M42.00S,2,1610612763,MEM,1631367,Gilyard,J. Gilyard,44,185,19,Missed,1,,,0,v,MISS Gilyard 19' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,178,0012300072
+0012300072,235,PT08M39.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,179,0012300072
+0012300072,236,PT08M23.00S,2,1610612749,MIL,203114,Middleton,K. Middleton,-138,247,28,Made,1,38,34,72,h,Middleton 28' 3PT Jump Shot (5 PTS) (Beasley 1 AST),Made Shot,Jump Shot,1,3,180,0012300072
+0012300072,249,PT08M22.00S,2,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Charge Foul (P4) (J.Capers),Foul,Offensive Charge,1,0,181,0012300072
+0012300072,250,PT08M22.00S,2,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. Offensive Foul Turnover (P3.T6),Turnover,Offensive Foul Turnover,1,0,182,0012300072
+0012300072,241,PT08M12.00S,2,1610612763,MEM,1628379,Kennard,L. Kennard,0,0,0,,0,,,0,v,SUB: Bane FOR Kennard,Substitution,,0,0,183,0012300072
+0012300072,242,PT08M12.00S,2,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,SUB: Tillman FOR Roddy,Substitution,,0,0,184,0012300072
+0012300072,290,PT08M12.00S,2,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,SUB: Williams FOR Jackson Jr.,Substitution,,0,0,185,0012300072
+0012300072,245,PT07M58.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez Bad Pass Turnover (P3.T7),Turnover,Bad Pass,1,0,186,0012300072
+0012300072,245,PT07M58.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams STEAL (2 STL),,,1,0,187,0012300072
+0012300072,247,PT07M58.00S,2,1610612749,MIL,203114,Middleton,K. Middleton,0,0,0,,0,,,0,h,Middleton S.FOUL (P2.T1) (P.O'Connell),Foul,Shooting,1,0,188,0012300072
+0012300072,256,PT07M58.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,38,35,73,v,Williams Free Throw 1 of 2 (7 PTS),Free Throw,Free Throw 1 of 2,1,0,189,0012300072
+0012300072,277,PT07M58.00S,2,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,SUB: B. Lopez FOR R. Lopez,Substitution,,0,0,190,0012300072
+0012300072,257,PT07M58.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,MISS Williams Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,191,0012300072
+0012300072,258,PT07M58.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,192,0012300072
+0012300072,267,PT07M49.00S,2,1610612749,MIL,1626166,Payne,C. Payne,0,0,0,,0,,,0,h,SUB: Lillard FOR Payne,Substitution,,0,0,193,0012300072
+0012300072,274,PT07M49.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams P.FOUL (P1.T2) (J.Capers),Foul,Personal,1,0,194,0012300072
+0012300072,261,PT07M39.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,-234,147,28,Made,1,41,35,76,h,Crowder 28' 3PT Jump Shot (4 PTS) (Beasley 2 AST),Made Shot,Jump Shot,1,3,195,0012300072
+0012300072,263,PT07M17.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,60,125,14,Missed,1,,,0,v,MISS Tillman 14' Jump Shot,Missed Shot,Jump Shot,1,2,196,0012300072
+0012300072,264,PT07M14.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,197,0012300072
+0012300072,265,PT07M05.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,-207,174,27,Made,1,44,35,79,h,Beasley 27' 3PT Jump Shot (6 PTS) (Middleton 4 AST),Made Shot,Jump Shot,1,3,198,0012300072
+0012300072,269,PT06M48.00S,2,1610612763,MEM,1630217,Bane,D. Bane,78,158,18,Missed,1,,,0,v,MISS Bane 18' Jump Shot,Missed Shot,Jump Shot,1,2,199,0012300072
+0012300072,270,PT06M45.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,200,0012300072
+0012300072,271,PT06M39.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,34,278,28,Made,1,47,35,82,h,B. Lopez 28' 3PT Jump Shot (11 PTS) (Middleton 5 AST),Made Shot,Jump Shot,1,3,201,0012300072
+0012300072,273,PT06M37.00S,2,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,202,0012300072
+0012300072,281,PT06M37.00S,2,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,SUB: Smart FOR Gilyard,Substitution,,0,0,203,0012300072
+0012300072,283,PT06M13.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,-152,-10,15,Made,1,47,37,84,v,Williams 15' Jump Shot (9 PTS),Made Shot,Jump Shot,1,2,204,0012300072
+0012300072,284,PT06M00.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard Bad Pass Turnover (P3.T8),Turnover,Bad Pass,1,0,205,0012300072
+0012300072,284,PT06M00.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman STEAL (2 STL),,,1,0,206,0012300072
+0012300072,286,PT05M50.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,-21,15,3,Missed,1,,,0,v,MISS Tillman 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,207,0012300072
+0012300072,287,PT05M48.00S,2,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,208,0012300072
+0012300072,288,PT05M46.00S,2,1610612763,MEM,1630217,Bane,D. Bane,238,78,25,Made,1,47,40,87,v,Bane 25' 3PT Jump Shot (9 PTS) (LaRavia 1 AST),Made Shot,Jump Shot,1,3,209,0012300072
+0012300072,293,PT05M34.00S,2,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia S.FOUL (P1.T3) (N.Buchert),Foul,Shooting,1,0,210,0012300072
+0012300072,295,PT05M34.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,48,40,88,h,Lillard Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,211,0012300072
+0012300072,296,PT05M34.00S,2,1610612749,MIL,203114,Middleton,K. Middleton,0,0,0,,0,,,0,h,SUB: Connaughton FOR Middleton,Substitution,,0,0,212,0012300072
+0012300072,297,PT05M34.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: G. Antetokounmpo FOR Crowder,Substitution,,0,0,213,0012300072
+0012300072,300,PT05M34.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,49,40,89,h,Lillard Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,214,0012300072
+0012300072,301,PT05M23.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,-28,21,4,Missed,1,,,0,v,MISS Williams 4' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,215,0012300072
+0012300072,301,PT05M23.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez BLOCK (2 BLK),,,1,2,216,0012300072
+0012300072,303,PT05M18.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,217,0012300072
+0012300072,304,PT05M15.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-213,233,32,Missed,1,,,0,h,MISS B. Lopez 32' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,218,0012300072
+0012300072,305,PT05M14.00S,2,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane REBOUND (Off:0 Def:3),Rebound,Unknown,0,0,219,0012300072
+0012300072,307,PT05M05.00S,2,1610612763,MEM,1631222,LaRavia,J. LaRavia,-13,89,9,Made,1,49,42,91,v,LaRavia 9' Driving Floating Bank Jump Shot (2 PTS) (Bane 1 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,220,0012300072
+0012300072,309,PT04M38.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,-137,79,16,Missed,1,,,0,h,MISS B. Lopez 16' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,221,0012300072
+0012300072,310,PT04M35.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,222,0012300072
+0012300072,311,PT04M30.00S,2,1610612763,MEM,1631222,LaRavia,J. LaRavia,-240,11,24,Missed,1,,,0,v,MISS LaRavia 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,223,0012300072
+0012300072,312,PT04M29.00S,2,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,1,0,224,0012300072
+0012300072,314,PT04M20.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,-20,21,3,Made,1,49,44,93,v,Tillman 3' Alley Oop Layup (2 PTS) (LaRavia 2 AST),Made Shot,Alley Oop Layup shot,1,2,225,0012300072
+0012300072,316,PT04M00.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,-165,248,30,Missed,1,,,0,h,MISS Beasley 30' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,226,0012300072
+0012300072,317,PT03M56.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,227,0012300072
+0012300072,319,PT03M43.00S,2,1610612763,MEM,1630217,Bane,D. Bane,-43,252,26,Made,1,49,47,96,v,Bane 26' 3PT Step Back Jump Shot (12 PTS) (LaRavia 3 AST),Made Shot,Step Back Jump shot,1,3,228,0012300072
+0012300072,321,PT03M23.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,-124,254,28,Missed,1,,,0,h,MISS Connaughton 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,229,0012300072
+0012300072,322,PT03M23.00S,2,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,0,0,230,0012300072
+0012300072,324,PT03M12.00S,2,1610612763,MEM,203935,Smart,M. Smart,47,77,9,Made,1,49,49,98,v,Smart 9' Driving Floating Jump Shot (5 PTS),Made Shot,Driving Floating Jump Shot,1,2,231,0012300072
+0012300072,325,PT03M00.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,-135,252,29,Missed,1,,,0,h,MISS Lillard 29' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,232,0012300072
+0012300072,326,PT02M57.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,233,0012300072
+0012300072,327,PT02M55.00S,2,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane Offensive Charge Foul (P2) (N.Buchert),Foul,Offensive Charge,1,0,234,0012300072
+0012300072,329,PT02M55.00S,2,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane Offensive Foul Turnover (P1.T7),Turnover,Offensive Foul Turnover,1,0,235,0012300072
+0012300072,330,PT02M55.00S,2,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: Crowder FOR Beasley,Substitution,,0,0,236,0012300072
+0012300072,332,PT02M32.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-1,32,3,Made,1,51,49,100,h,G. Antetokounmpo 3' Driving Finger Roll Layup (12 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,237,0012300072
+0012300072,333,PT02M16.00S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard S.FOUL (P2.T2) (N.Buchert),Foul,Shooting,1,0,238,0012300072
+0012300072,335,PT02M16.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,51,50,101,v,Williams Free Throw 1 of 2 (10 PTS),Free Throw,Free Throw 1 of 2,1,0,239,0012300072
+0012300072,336,PT02M16.00S,2,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,SUB: Aldama FOR LaRavia,Substitution,,0,0,240,0012300072
+0012300072,338,PT02M16.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,51,51,102,v,Williams Free Throw 2 of 2 (11 PTS),Free Throw,Free Throw 2 of 2,1,0,241,0012300072
+0012300072,339,PT02M00.00S,2,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane S.FOUL (P3.T4) (P.O'Connell),Foul,Shooting,1,0,242,0012300072
+0012300072,341,PT02M00.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,243,0012300072
+0012300072,342,PT02M00.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,0,0,244,0012300072
+0012300072,343,PT02M00.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,245,0012300072
+0012300072,344,PT01M56.00S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,246,0012300072
+0012300072,345,PT01M46.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo Traveling Turnover (P3.T9),Turnover,Traveling,1,0,247,0012300072
+0012300072,346,PT01M21.00S,2,1610612763,MEM,1630217,Bane,D. Bane,-16,15,2,Missed,1,,,0,v,MISS Bane 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,248,0012300072
+0012300072,347,PT01M19.00S,2,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,249,0012300072
+0012300072,348,PT01M15.00S,2,1610612763,MEM,1630533,Williams,Z. Williams,-10,-5,1,Made,1,51,53,104,v,Williams 1' Driving Dunk (13 PTS) (Smart 3 AST),Made Shot,Driving Dunk Shot,1,2,250,0012300072
+0012300072,350,PT00M59.10S,2,1610612749,MIL,203081,Lillard,D. Lillard,-67,99,12,Missed,1,,,0,h,MISS Lillard 12' Driving Layup,Missed Shot,Driving Layup Shot,1,2,251,0012300072
+0012300072,351,PT00M56.70S,2,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,,,0,h,Connaughton REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,252,0012300072
+0012300072,352,PT00M55.60S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-126,244,27,Missed,1,,,0,h,MISS G. Antetokounmpo 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,253,0012300072
+0012300072,353,PT00M55.60S,2,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,254,0012300072
+0012300072,354,PT00M49.30S,2,1610612763,MEM,1630217,Bane,D. Bane,-18,10,2,Made,1,51,55,106,v,Bane 2' Running Layup (14 PTS) (Aldama 2 AST),Made Shot,Running Layup Shot,1,2,255,0012300072
+0012300072,356,PT00M38.60S,2,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman S.FOUL (P2.PN) (J.Capers),Foul,Shooting,1,0,256,0012300072
+0012300072,358,PT00M38.60S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,52,55,107,h,G. Antetokounmpo Free Throw 1 of 2 (13 PTS),Free Throw,Free Throw 1 of 2,1,0,257,0012300072
+0012300072,359,PT00M38.60S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,258,0012300072
+0012300072,360,PT00M35.90S,2,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,259,0012300072
+0012300072,361,PT00M29.50S,2,1610612763,MEM,1630217,Bane,D. Bane,-83,245,26,Made,1,52,58,110,v,Bane 26' 3PT Jump Shot (17 PTS) (Smart 4 AST),Made Shot,Jump Shot,1,3,260,0012300072
+0012300072,363,PT00M14.40S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez OFF.Foul (P2) (P.O'Connell),Foul,Offensive,1,0,261,0012300072
+0012300072,365,PT00M14.40S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez Offensive Foul Turnover (P1.T10),Turnover,Offensive Foul Turnover,1,0,262,0012300072
+0012300072,366,PT00M02.60S,2,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,Smart Bad Pass Turnover (P2.T8),Turnover,Bad Pass,1,0,263,0012300072
+0012300072,366,PT00M02.60S,2,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard STEAL (1 STL),,,1,0,264,0012300072
+0012300072,368,PT00M00.00S,2,1610612749,MIL,203109,Crowder,J. Crowder,-36,380,38,Missed,1,,,0,h,MISS Crowder 38' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,265,0012300072
+0012300072,369,PT00M00.00S,2,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,0,0,266,0012300072
+0012300072,370,PT00M00.00S,2,0,,0,,,0,0,0,,0,52,58,110,,End of 2nd Period (9:08 PM EST),period,end,1,0,267,0012300072
+0012300072,376,PT12M00.00S,3,0,,0,,,0,0,0,,0,52,58,110,,Start of 3rd Period (9:23 PM EST),period,start,0,0,268,0012300072
+0012300072,377,PT11M46.00S,3,1610612763,MEM,203935,Smart,M. Smart,-31,29,4,Made,1,52,60,112,v,Smart 4' Turnaround Hook Shot (7 PTS) (Bane 2 AST),Made Shot,Turnaround Hook Shot,1,2,269,0012300072
+0012300072,379,PT11M30.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard OFF.Foul (P3) (P.O'Connell),Foul,Offensive,1,0,270,0012300072
+0012300072,381,PT11M30.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard Offensive Foul Turnover (P4.T11),Turnover,Offensive Foul Turnover,1,0,271,0012300072
+0012300072,382,PT11M22.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,5,55,6,Missed,1,,,0,v,MISS Jackson Jr. 6' Driving Hook Shot,Missed Shot,Driving Hook Shot,1,2,272,0012300072
+0012300072,383,PT11M19.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,273,0012300072
+0012300072,384,PT11M16.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. S.FOUL (P5.T1) (N.Buchert),Foul,Shooting,1,0,274,0012300072
+0012300072,386,PT11M16.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,275,0012300072
+0012300072,387,PT11M16.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Normal Rebound,0,0,276,0012300072
+0012300072,390,PT11M16.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,MISS G. Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,0,0,277,0012300072
+0012300072,391,PT11M13.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,278,0012300072
+0012300072,392,PT11M03.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,7,27,3,Made,1,52,62,114,v,Tillman 3' Cutting Dunk Shot (4 PTS) (Bane 3 AST),Made Shot,Cutting Dunk Shot,1,2,279,0012300072
+0012300072,394,PT10M41.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-12,9,2,Made,1,54,62,116,h,G. Antetokounmpo 2' Driving Finger Roll Layup (15 PTS) (Beasley 3 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,280,0012300072
+0012300072,396,PT10M33.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,22,44,5,Made,1,54,64,118,v,Jackson Jr. 5' Layup (3 PTS) (Smart 5 AST),Made Shot,Layup Shot,1,2,281,0012300072
+0012300072,398,PT10M16.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,-2,158,16,Missed,1,,,0,h,MISS B. Lopez 16' Jump Shot,Missed Shot,Jump Shot,1,2,282,0012300072
+0012300072,399,PT10M13.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:3 Def:6),Rebound,Unknown,1,0,283,0012300072
+0012300072,400,PT10M13.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,-45,59,7,Made,1,56,64,120,h,Crowder 7' Floating Jump Shot (6 PTS),Made Shot,Floating Jump shot,1,2,284,0012300072
+0012300072,402,PT10M03.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder Violation:Kicked Ball (P.O'Connell),Violation,Kicked Ball,0,0,285,0012300072
+0012300072,403,PT09M51.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,31,90,10,Made,1,56,66,122,v,Tillman 10' Pullup Jump Shot (6 PTS) (Bane 4 AST),Made Shot,Pullup Jump shot,1,2,286,0012300072
+0012300072,405,PT09M37.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,-127,209,24,Missed,1,,,0,h,MISS Beasley 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,287,0012300072
+0012300072,406,PT09M34.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,Crowder REBOUND (Off:4 Def:6),Rebound,Unknown,1,0,288,0012300072
+0012300072,407,PT09M33.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,96,239,26,Made,1,59,66,125,h,Lillard 26' 3PT Jump Shot (12 PTS) (Crowder 3 AST),Made Shot,Jump Shot,1,3,289,0012300072
+0012300072,409,PT09M33.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,290,0012300072
+0012300072,411,PT09M13.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez L.B.FOUL (P3.T1) (P.O'Connell),Foul,Loose Ball,1,0,291,0012300072
+0012300072,413,PT09M13.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,292,0012300072
+0012300072,414,PT09M13.00S,3,0,,411,,,0,0,0,,0,59,66,125,,Instant Replay3rd Period (9:30 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,293,0012300072
+0012300072,416,PT09M03.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,6,29,3,Made,1,59,68,127,v,Tillman 3' Cutting Layup Shot (8 PTS) (Williams 1 AST),Made Shot,Cutting Layup Shot,1,2,294,0012300072
+0012300072,418,PT09M03.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez S.FOUL (P4.T2) (N.Buchert),Foul,Shooting,1,0,295,0012300072
+0012300072,420,PT09M03.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,MISS Tillman Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,296,0012300072
+0012300072,421,PT09M00.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,297,0012300072
+0012300072,422,PT08M49.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-25,22,3,Missed,1,,,0,h,MISS G. Antetokounmpo 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,298,0012300072
+0012300072,423,PT08M43.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,299,0012300072
+0012300072,424,PT08M43.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,Made,1,61,68,129,h,G. Antetokounmpo Tip Layup Shot (17 PTS),Made Shot,Tip Layup Shot,1,2,300,0012300072
+0012300072,425,PT08M27.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,Jump Ball B. Lopez vs. Jackson Jr.: Tip to Smart,Jump Ball,,0,0,301,0012300072
+0012300072,428,PT08M27.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez S.FOUL (P5.T3) (J.Capers),Foul,Shooting,1,0,302,0012300072
+0012300072,430,PT08M27.00S,3,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,61,69,130,v,Smart Free Throw 1 of 2 (8 PTS),Free Throw,Free Throw 1 of 2,1,0,303,0012300072
+0012300072,431,PT08M27.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,SUB: R. Lopez FOR B. Lopez,Substitution,,0,0,304,0012300072
+0012300072,433,PT08M27.00S,3,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,61,70,131,v,Smart Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,305,0012300072
+0012300072,434,PT08M25.00S,3,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,h,B. Lopez T.FOUL (P5.T3) (J.Capers),Foul,Technical,1,0,306,0012300072
+0012300072,435,PT08M25.00S,3,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,61,71,132,v,Bane Free Throw Technical (18 PTS),Free Throw,Free Throw Technical,0,0,307,0012300072
+0012300072,436,PT08M14.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,-162,193,25,Missed,1,,,0,h,MISS Beasley 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,308,0012300072
+0012300072,437,PT08M09.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,309,0012300072
+0012300072,438,PT08M01.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,168,214,27,Missed,1,,,0,v,MISS Jackson Jr. 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,310,0012300072
+0012300072,439,PT07M59.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,311,0012300072
+0012300072,440,PT07M55.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,-20,0,2,Made,1,63,71,134,h,Lillard 2' Driving Layup (14 PTS),Made Shot,Driving Layup Shot,1,2,312,0012300072
+0012300072,441,PT07M55.00S,3,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane S.FOUL (P4.T2) (J.Capers),Foul,Shooting,1,0,313,0012300072
+0012300072,443,PT07M55.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,64,71,135,h,Lillard Free Throw 1 of 1 (15 PTS),Free Throw,Free Throw 1 of 1,1,0,314,0012300072
+0012300072,444,PT07M45.00S,3,1610612763,MEM,203935,Smart,M. Smart,-26,79,8,Missed,1,,,0,v,MISS Smart 8' Driving Layup,Missed Shot,Driving Layup Shot,1,2,315,0012300072
+0012300072,444,PT07M45.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez BLOCK (1 BLK),,,1,2,316,0012300072
+0012300072,446,PT07M41.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,317,0012300072
+0012300072,447,PT07M37.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,-156,188,24,Missed,1,,,0,h,MISS Lillard 24' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,318,0012300072
+0012300072,448,PT07M37.00S,3,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,319,0012300072
+0012300072,449,PT07M23.00S,3,1610612763,MEM,1630217,Bane,D. Bane,116,259,28,Missed,1,,,0,v,MISS Bane 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,320,0012300072
+0012300072,450,PT07M20.00S,3,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,Williams REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,321,0012300072
+0012300072,451,PT07M18.00S,3,1610612763,MEM,1630533,Williams,Z. Williams,1,26,3,Made,1,64,73,137,v,Williams 3' Reverse Layup (15 PTS),Made Shot,Reverse Layup Shot,1,2,322,0012300072
+0012300072,452,PT07M04.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,2,261,26,Missed,1,,,0,h,MISS G. Antetokounmpo 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,323,0012300072
+0012300072,453,PT07M04.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,324,0012300072
+0012300072,454,PT07M00.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo P.FOUL (P1.T4) (P.O'Connell),Foul,Personal,1,0,325,0012300072
+0012300072,456,PT06M58.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,18,44,5,Missed,1,,,0,v,MISS Jackson Jr. 5' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,326,0012300072
+0012300072,456,PT06M58.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo BLOCK (1 BLK),,,1,2,327,0012300072
+0012300072,458,PT06M58.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,0,0,328,0012300072
+0012300072,460,PT06M54.00S,3,1610612763,MEM,1630217,Bane,D. Bane,-228,23,0,Made,1,64,76,140,v,Bane 3PT Step Back Jump Shot (21 PTS) (Smart 6 AST),Made Shot,Step Back Jump shot,1,3,329,0012300072
+0012300072,462,PT06M35.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-16,-6,2,Made,1,66,76,142,h,G. Antetokounmpo 2' Cutting Dunk Shot (19 PTS) (Lillard 2 AST),Made Shot,Cutting Dunk Shot,1,2,330,0012300072
+0012300072,465,PT06M19.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,SUB: Connaughton FOR G. Antetokounmpo,Substitution,,0,0,331,0012300072
+0012300072,467,PT06M16.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,15,279,28,Made,1,66,79,145,v,Jackson Jr. 28' 3PT Step Back Jump Shot (6 PTS) (Bane 5 AST),Made Shot,Step Back Jump shot,1,3,332,0012300072
+0012300072,469,PT06M04.00S,3,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,Smart P.FOUL (P1.T3) (N.Buchert),Foul,Personal,1,0,333,0012300072
+0012300072,471,PT06M04.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,SUB: Kennard FOR Tillman,Substitution,,0,0,334,0012300072
+0012300072,472,PT06M04.00S,3,1610612763,MEM,1630533,Williams,Z. Williams,0,0,0,,0,,,0,v,SUB: Aldama FOR Williams,Substitution,,0,0,335,0012300072
+0012300072,475,PT05M57.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,-62,242,25,Made,1,69,79,148,h,Beasley 25' 3PT Jump Shot (9 PTS) (Crowder 4 AST),Made Shot,Jump Shot,1,3,336,0012300072
+0012300072,477,PT05M49.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez P.FOUL (P1.PN) (N.Buchert),Foul,Personal,1,0,337,0012300072
+0012300072,479,PT05M49.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,MISS Jackson Jr. Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,338,0012300072
+0012300072,480,PT05M49.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Normal Rebound,0,0,339,0012300072
+0012300072,481,PT05M49.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,69,80,149,v,Jackson Jr. Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,340,0012300072
+0012300072,482,PT05M39.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,Jackson Jr. S.FOUL (P6.T4) (N.Buchert),Foul,Shooting,1,0,341,0012300072
+0012300072,484,PT05M39.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,342,0012300072
+0012300072,485,PT05M39.00S,3,0,,482,,,0,0,0,,0,69,80,149,,Instant Replay3rd Period (9:43 PM EST),Instant Replay,Coach Challenge Ruling Stands,1,0,343,0012300072
+0012300072,486,PT05M39.00S,3,1610612763,MEM,1628991,Jackson Jr.,J. Jackson Jr.,0,0,0,,0,,,0,v,SUB: Tillman FOR Jackson Jr.,Substitution,,0,0,344,0012300072
+0012300072,488,PT05M39.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,70,80,150,h,Lillard Free Throw 1 of 2 (16 PTS),Free Throw,Free Throw 1 of 2,1,0,345,0012300072
+0012300072,491,PT05M39.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,71,80,151,h,Lillard Free Throw 2 of 2 (17 PTS),Free Throw,Free Throw 2 of 2,1,0,346,0012300072
+0012300072,489,PT05M39.00S,3,1610612749,MIL,1627736,Beasley,M. Beasley,0,0,0,,0,,,0,h,SUB: Beauchamp FOR Beasley,Substitution,,0,0,347,0012300072
+0012300072,492,PT05M17.00S,3,1610612763,MEM,1628379,Kennard,L. Kennard,-233,106,26,Missed,1,,,0,v,MISS Kennard 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,348,0012300072
+0012300072,493,PT05M13.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,349,0012300072
+0012300072,494,PT05M08.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,-55,50,7,Missed,1,,,0,h,MISS Crowder 7' Jump Shot,Missed Shot,Jump Shot,1,2,350,0012300072
+0012300072,495,PT05M08.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez REBOUND (Off:4 Def:1),Rebound,Unknown,1,0,351,0012300072
+0012300072,496,PT05M08.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,Missed,1,,,0,h,MISS R. Lopez Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,352,0012300072
+0012300072,497,PT05M08.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,1,0,353,0012300072
+0012300072,499,PT05M08.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,R. Lopez L.B.FOUL (P2.PN) (N.Buchert),Foul,Loose Ball,1,0,354,0012300072
+0012300072,501,PT05M08.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,MISS Tillman Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,355,0012300072
+0012300072,502,PT05M08.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Normal Rebound,0,0,356,0012300072
+0012300072,503,PT05M08.00S,3,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,SUB: G. Antetokounmpo FOR Lillard,Substitution,,0,0,357,0012300072
+0012300072,504,PT05M08.00S,3,1610612749,MIL,201577,Lopez,R. Lopez,0,0,0,,0,,,0,h,SUB: Washington Jr. FOR R. Lopez,Substitution,,0,0,358,0012300072
+0012300072,507,PT05M08.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,MISS Tillman Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,359,0012300072
+0012300072,512,PT05M08.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,360,0012300072
+0012300072,509,PT04M56.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. Bad Pass Turnover (P1.T12),Turnover,Bad Pass,1,0,361,0012300072
+0012300072,509,PT04M56.00S,3,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,Smart STEAL (1 STL),,,1,0,362,0012300072
+0012300072,511,PT04M50.00S,3,1610612763,MEM,203935,Smart,M. Smart,7,33,3,Made,1,71,82,153,v,Smart 3' Running Finger Roll Layup (11 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,363,0012300072
+0012300072,513,PT04M38.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-11,-4,1,Made,1,73,82,155,h,G. Antetokounmpo 1' Driving Reverse Layup (21 PTS),Made Shot,Driving Reverse Layup Shot,1,2,364,0012300072
+0012300072,514,PT04M15.00S,3,1610612763,MEM,1628379,Kennard,L. Kennard,188,216,29,Missed,1,,,0,v,MISS Kennard 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,365,0012300072
+0012300072,515,PT04M15.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,366,0012300072
+0012300072,516,PT04M03.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,125,237,27,Missed,1,,,0,h,MISS Beauchamp 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,367,0012300072
+0012300072,517,PT04M00.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,Tillman REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,368,0012300072
+0012300072,518,PT03M52.00S,3,1610612763,MEM,1630217,Bane,D. Bane,-14,290,29,Made,1,73,85,158,v,Bane 29' 3PT Jump Shot (24 PTS),Made Shot,Jump Shot,1,3,369,0012300072
+0012300072,519,PT03M38.00S,3,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,Bane P.FOUL (P5.PN) (J.Capers),Foul,Personal,1,0,370,0012300072
+0012300072,521,PT03M38.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,74,85,159,h,Connaughton Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,371,0012300072
+0012300072,522,PT03M38.00S,3,1610612763,MEM,1630214,Tillman,X. Tillman,0,0,0,,0,,,0,v,SUB: Gilyard FOR Tillman,Substitution,,0,0,372,0012300072
+0012300072,523,PT03M38.00S,3,1610612763,MEM,1630217,Bane,D. Bane,0,0,0,,0,,,0,v,SUB: LaRavia FOR Bane,Substitution,,0,0,373,0012300072
+0012300072,524,PT03M38.00S,3,1610612763,MEM,203935,Smart,M. Smart,0,0,0,,0,,,0,v,SUB: Roddy FOR Smart,Substitution,,0,0,374,0012300072
+0012300072,528,PT03M38.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,0,0,0,,0,75,85,160,h,Connaughton Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,375,0012300072
+0012300072,529,PT03M22.00S,3,1610612763,MEM,1630583,Aldama,S. Aldama,103,259,28,Made,1,75,88,163,v,Aldama 28' 3PT Jump Shot (11 PTS) (Kennard 2 AST),Made Shot,Jump Shot,1,3,376,0012300072
+0012300072,531,PT03M20.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,377,0012300072
+0012300072,532,PT03M00.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,-2,9,1,Made,1,77,88,165,h,Crowder 1' Driving Finger Roll Layup (8 PTS) (G. Antetokounmpo 3 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,378,0012300072
+0012300072,534,PT02M59.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Violation: Delay of game Violation,Violation,Delay Of Game,0,0,379,0012300072
+0012300072,536,PT02M48.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,380,0012300072
+0012300072,537,PT02M48.00S,3,0,,535,,,0,0,0,,0,77,88,165,,Instant Replay3rd Period (9:53 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,381,0012300072
+0012300072,548,PT02M27.00S,3,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia Step Out of Bounds Turnover (P1.T9),Turnover,Step Out of Bounds Turnover,1,0,382,0012300072
+0012300072,538,PT02M27.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,71,245,26,Missed,1,,,0,h,MISS Crowder 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,383,0012300072
+0012300072,539,PT02M24.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,384,0012300072
+0012300072,540,PT02M20.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-233,28,0,Made,1,80,88,168,h,Beauchamp 3PT Jump Shot (3 PTS) (G. Antetokounmpo 4 AST),Made Shot,Jump Shot,1,3,385,0012300072
+0012300072,542,PT02M09.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. P.FOUL (P1.PN) (N.Buchert),Foul,Personal,1,0,386,0012300072
+0012300072,544,PT02M09.00S,3,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,MISS Roddy Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,387,0012300072
+0012300072,545,PT02M09.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Normal Rebound,0,0,388,0012300072
+0012300072,546,PT02M09.00S,3,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,80,89,169,v,Roddy Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,389,0012300072
+0012300072,547,PT01M59.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-25,5,3,Made,1,82,89,171,h,G. Antetokounmpo 3' Driving Layup (23 PTS),Made Shot,Driving Layup Shot,1,2,390,0012300072
+0012300072,549,PT01M59.00S,3,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia S.FOUL (P2.PN) (N.Buchert),Foul,Shooting,1,0,391,0012300072
+0012300072,551,PT01M59.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,83,89,172,h,G. Antetokounmpo Free Throw 1 of 1 (24 PTS),Free Throw,Free Throw 1 of 1,1,0,392,0012300072
+0012300072,552,PT01M38.00S,3,1610612763,MEM,1631222,LaRavia,J. LaRavia,-10,41,4,Missed,1,,,0,v,MISS LaRavia 4' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,393,0012300072
+0012300072,552,PT01M38.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo BLOCK (2 BLK),,,1,2,394,0012300072
+0012300072,554,PT01M38.00S,3,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,0,0,395,0012300072
+0012300072,556,PT01M38.00S,3,1610612749,MIL,203109,Crowder,J. Crowder,0,0,0,,0,,,0,h,SUB: T. Antetokounmpo FOR Crowder,Substitution,,0,0,396,0012300072
+0012300072,558,PT01M36.00S,3,1610612763,MEM,1630583,Aldama,S. Aldama,126,64,14,Made,1,83,91,174,v,Aldama 14' Jump Shot (13 PTS) (Gilyard 3 AST),Made Shot,Jump Shot,1,2,397,0012300072
+0012300072,560,PT01M13.00S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,-99,247,27,Missed,1,,,0,h,MISS Connaughton 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,398,0012300072
+0012300072,561,PT01M10.00S,3,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,Gilyard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,399,0012300072
+0012300072,562,PT01M04.00S,3,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama Bad Pass Turnover (P1.T10),Turnover,Bad Pass,1,0,400,0012300072
+0012300072,562,PT01M04.00S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. STEAL (1 STL),,,1,0,401,0012300072
+0012300072,564,PT00M56.30S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-20,11,2,Made,1,85,91,176,h,G. Antetokounmpo 2' Cutting Dunk Shot (26 PTS) (Connaughton 2 AST),Made Shot,Cutting Dunk Shot,1,2,402,0012300072
+0012300072,566,PT00M45.00S,3,1610612763,MEM,1631222,LaRavia,J. LaRavia,-146,251,29,Missed,1,,,0,v,MISS LaRavia 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,403,0012300072
+0012300072,567,PT00M42.00S,3,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,404,0012300072
+0012300072,568,PT00M38.50S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,227,21,0,Missed,1,,,0,h,MISS Washington Jr. 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,405,0012300072
+0012300072,569,PT00M38.50S,3,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,Gilyard REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,406,0012300072
+0012300072,570,PT00M30.80S,3,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy Lost Ball Turnover (P2.T11),Turnover,Lost Ball,1,0,407,0012300072
+0012300072,570,PT00M30.80S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo STEAL (1 STL),,,1,0,408,0012300072
+0012300072,572,PT00M24.90S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,h,G. Antetokounmpo Lost Ball Turnover (P4.T13),Turnover,Lost Ball,1,0,409,0012300072
+0012300072,572,PT00M24.90S,3,1610612763,MEM,1630583,Aldama,S. Aldama,0,0,0,,0,,,0,v,Aldama STEAL (1 STL),,,1,0,410,0012300072
+0012300072,574,PT00M19.40S,3,1610612763,MEM,1631223,Roddy,D. Roddy,-239,21,24,Made,1,85,94,179,v,Roddy 24' 3PT Running Jump Shot (4 PTS) (Kennard 3 AST),Made Shot,Running Jump Shot,1,3,411,0012300072
+0012300072,576,PT00M02.70S,3,1610612749,MIL,1626192,Connaughton,P. Connaughton,191,187,27,Missed,1,,,0,h,MISS Connaughton 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,412,0012300072
+0012300072,577,PT00M00.10S,3,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,413,0012300072
+0012300072,578,PT00M00.00S,3,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-13,-1,1,Missed,1,,,0,h,MISS T. Antetokounmpo 1' Layup,Missed Shot,Layup Shot,1,2,414,0012300072
+0012300072,579,PT00M00.00S,3,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,415,0012300072
+0012300072,580,PT00M00.00S,3,0,,0,,,0,0,0,,0,85,94,179,,End of 3rd Period (9:59 PM EST),period,end,1,0,416,0012300072
+0012300072,592,PT12M00.00S,4,0,,0,,,0,0,0,,0,85,94,179,,Start of 4th Period (10:02 PM EST),period,start,0,0,417,0012300072
+0012300072,593,PT11M44.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-17,62,6,Missed,1,,,0,h,MISS Jackson Jr. 6' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,418,0012300072
+0012300072,594,PT11M40.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,419,0012300072
+0012300072,595,PT11M20.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,-103,52,12,Made,1,85,96,181,v,LaRavia 12' Turnaround Jump Shot (4 PTS),Made Shot,Turnaround Jump Shot,1,2,420,0012300072
+0012300072,596,PT11M07.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,-9,-1,1,Made,1,87,96,183,h,Lillard 1' Driving Layup (19 PTS),Made Shot,Driving Layup Shot,1,2,421,0012300072
+0012300072,597,PT10M57.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,BUCKS T.Foul (Def. 3 Sec Jackson Jr. ) (N.Buchert),Foul,Defense 3 Second,1,0,422,0012300072
+0012300072,598,PT10M57.00S,4,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,MISS Gilyard Free Throw Technical,Free Throw,Free Throw Technical,0,0,423,0012300072
+0012300072,599,PT10M57.00S,4,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Normal Rebound,0,0,424,0012300072
+0012300072,600,PT10M48.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,,,0,v,Lofton Jr. Out of Bounds Lost Ball Turnover (P1.T12),Turnover,Out of Bounds Lost Ball Turnover,1,0,425,0012300072
+0012300072,601,PT10M32.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-26,-10,3,Made,1,89,96,185,h,Beauchamp 3' Driving Reverse Layup (5 PTS) (Green 1 AST),Made Shot,Driving Reverse Layup Shot,1,2,426,0012300072
+0012300072,741,PT10M20.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,2,28,3,Missed,1,,,0,v,MISS Roddy 3' Driving Layup,Missed Shot,Driving Layup Shot,0,2,427,0012300072
+0012300072,741,PT10M20.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard BLOCK (1 BLK),,,0,2,428,0012300072
+0012300072,743,PT10M18.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy REBOUND (Off:2 Def:3),Rebound,Unknown,0,0,429,0012300072
+0012300072,603,PT10M16.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,2,29,3,Made,1,89,98,187,v,Roddy 3' Putback Layup (6 PTS),Made Shot,Putback Layup Shot,1,2,430,0012300072
+0012300072,604,PT10M03.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-58,247,25,Made,1,92,98,190,h,Beauchamp 25' 3PT Jump Shot (8 PTS) (Green 2 AST),Made Shot,Jump Shot,1,3,431,0012300072
+0012300072,606,PT09M48.00S,4,1610612763,MEM,1631367,Gilyard,J. Gilyard,-161,260,31,Missed,1,,,0,v,MISS Gilyard 31' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,432,0012300072
+0012300072,607,PT09M46.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,Lillard REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,433,0012300072
+0012300072,608,PT09M36.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,216,113,24,Missed,1,,,0,h,MISS Lillard 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,434,0012300072
+0012300072,609,PT09M36.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Rebound,Rebound,Unknown,1,0,435,0012300072
+0012300072,610,PT09M36.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,,,0,v,Lofton Jr. L.B.FOUL (P1.T1) (J.Capers),Foul,Loose Ball,1,0,436,0012300072
+0012300072,612,PT09M27.00S,4,1610612749,MIL,1631260,Green,A. Green,-137,218,26,Missed,1,,,0,h,MISS Green 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,437,0012300072
+0012300072,613,PT09M25.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,438,0012300072
+0012300072,614,PT09M25.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. P.FOUL (P1.T1) (P.O'Connell),Foul,Personal,1,0,439,0012300072
+0012300072,616,PT09M17.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. P.FOUL (P2.T2) (N.Buchert),Foul,Personal,1,0,440,0012300072
+0012300072,618,PT09M14.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy Bad Pass Turnover (P3.T13),Turnover,Bad Pass,1,0,441,0012300072
+0012300072,618,PT09M14.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. STEAL (1 STL),,,1,0,442,0012300072
+0012300072,620,PT09M10.00S,4,1610612749,MIL,1631260,Green,A. Green,200,152,25,Missed,1,,,0,h,MISS Green 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,443,0012300072
+0012300072,621,PT09M07.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,444,0012300072
+0012300072,622,PT09M04.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,-145,205,25,Missed,1,,,0,h,MISS Lillard 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,445,0012300072
+0012300072,623,PT09M02.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,446,0012300072
+0012300072,624,PT08M58.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,17,43,5,Missed,1,,,0,v,MISS Lofton Jr. 5' Running Layup,Missed Shot,Running Layup Shot,1,2,447,0012300072
+0012300072,624,PT08M58.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo BLOCK (1 BLK),,,1,2,448,0012300072
+0012300072,626,PT08M54.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,449,0012300072
+0012300072,627,PT08M44.00S,4,1610612749,MIL,1631260,Green,A. Green,185,177,26,Made,1,95,98,193,h,Green 26' 3PT Jump Shot (3 PTS) (Beauchamp 1 AST),Made Shot,Jump Shot,1,3,450,0012300072
+0012300072,629,PT08M44.00S,4,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.6 Short 0),Timeout,Regular,0,0,451,0012300072
+0012300072,630,PT08M44.00S,4,1610612749,MIL,203081,Lillard,D. Lillard,0,0,0,,0,,,0,h,SUB: Washington Jr. FOR Lillard,Substitution,,0,0,452,0012300072
+0012300072,632,PT08M30.00S,4,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,Gilyard Bad Pass Turnover (P1.T14),Turnover,Bad Pass,1,0,453,0012300072
+0012300072,632,PT08M30.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,h,Green STEAL (1 STL),,,1,0,454,0012300072
+0012300072,634,PT08M17.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,h,Green Lost Ball Turnover (P1.T14),Turnover,Lost Ball,1,0,455,0012300072
+0012300072,634,PT08M17.00S,4,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,Gilyard STEAL (1 STL),,,1,0,456,0012300072
+0012300072,636,PT08M14.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. S.FOUL (P3.T3) (P.O'Connell),Foul,Shooting,1,0,457,0012300072
+0012300072,638,PT08M14.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,95,99,194,v,Lofton Jr. Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,458,0012300072
+0012300072,639,PT08M14.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,95,100,195,v,Lofton Jr. Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,459,0012300072
+0012300072,640,PT08M01.00S,4,1610612749,MIL,1631260,Green,A. Green,34,240,24,Made,1,98,100,198,h,Green 24' 3PT Jump Shot (6 PTS) (Washington Jr. 1 AST),Made Shot,Jump Shot,1,3,460,0012300072
+0012300072,642,PT07M42.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,Roddy Lost Ball Turnover (P4.T15),Turnover,Lost Ball,1,0,461,0012300072
+0012300072,642,PT07M42.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,0,0,0,,0,,,0,h,Beauchamp STEAL (1 STL),,,1,0,462,0012300072
+0012300072,644,PT07M38.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-10,3,1,Missed,1,,,0,h,MISS Beauchamp 1' Running Layup,Missed Shot,Running Layup Shot,1,2,463,0012300072
+0012300072,645,PT07M38.00S,4,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,1,0,464,0012300072
+0012300072,647,PT07M31.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. Bad Pass Turnover (P1.T16),Turnover,Bad Pass,1,0,465,0012300072
+0012300072,647,PT07M31.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. STEAL (2 STL),,,1,0,466,0012300072
+0012300072,649,PT07M31.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. P.FOUL (P1.T2) (N.Buchert),Foul,Personal,1,0,467,0012300072
+0012300072,651,PT07M22.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,159,205,26,Made,1,101,100,201,h,Beauchamp 26' 3PT Jump Shot (11 PTS) (Washington Jr. 2 AST),Made Shot,Jump Shot,0,3,468,0012300072
+0012300072,653,PT07M02.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,-233,13,0,Made,1,101,103,204,v,Williams Jr. 3PT Jump Shot (3 PTS) (Lofton Jr. 1 AST),Made Shot,Jump Shot,1,3,469,0012300072
+0012300072,655,PT06M51.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-4,-16,2,Made,1,103,103,206,h,T. Antetokounmpo 2' Cutting Dunk Shot (2 PTS) (Washington Jr. 3 AST),Made Shot,Cutting Dunk Shot,1,2,470,0012300072
+0012300072,657,PT06M39.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,-200,161,26,Made,1,103,106,209,v,Roddy 26' 3PT Jump Shot (9 PTS),Made Shot,Jump Shot,1,3,471,0012300072
+0012300072,659,PT06M38.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,472,0012300072
+0012300072,660,PT06M30.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia P.FOUL (P3.T3) (J.Capers),Foul,Personal,1,0,473,0012300072
+0012300072,662,PT06M21.00S,4,1610612749,MIL,1631260,Green,A. Green,38,251,25,Missed,1,,,0,h,MISS Green 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,474,0012300072
+0012300072,663,PT06M21.00S,4,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Rebound,Rebound,Unknown,0,0,475,0012300072
+0012300072,665,PT06M01.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,-232,34,0,Missed,1,,,0,v,MISS Williams Jr. 3PT Jump Shot,Missed Shot,Jump Shot,1,3,476,0012300072
+0012300072,666,PT05M57.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,477,0012300072
+0012300072,667,PT05M45.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-159,-21,16,Made,1,105,106,211,h,Washington Jr. 16' Pullup Jump Shot (2 PTS) (T. Antetokounmpo 1 AST),Made Shot,Pullup Jump shot,1,2,478,0012300072
+0012300072,669,PT05M29.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo P.FOUL (P1.T4) (J.Capers),Foul,Personal,1,0,479,0012300072
+0012300072,671,PT05M29.00S,4,1610612763,MEM,1631367,Gilyard,J. Gilyard,0,0,0,,0,,,0,v,SUB: Jackson FOR Gilyard,Substitution,,0,0,480,0012300072
+0012300072,672,PT05M29.00S,4,1610612763,MEM,1631223,Roddy,D. Roddy,0,0,0,,0,,,0,v,SUB: Harrison FOR Roddy,Substitution,,0,0,481,0012300072
+0012300072,676,PT05M19.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,4,28,3,Made,1,105,108,213,v,Lofton Jr. 3' Cutting Layup Shot (4 PTS) (Harrison 1 AST),Made Shot,Cutting Layup Shot,1,2,482,0012300072
+0012300072,678,PT05M06.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,,,0,v,Lofton Jr. P.FOUL (P2.T4) (N.Buchert),Foul,Personal,1,0,483,0012300072
+0012300072,680,PT04M58.00S,4,1610612749,MIL,1631260,Green,A. Green,77,232,24,Made,1,108,108,216,h,Green 24' 3PT Jump Shot (9 PTS) (Beauchamp 2 AST),Made Shot,Jump Shot,1,3,484,0012300072
+0012300072,682,PT04M58.00S,4,0,,1610612763,,,0,0,0,,0,,,0,v,Grizzlies Timeout: Regular (Reg.7 Short 0),Timeout,Regular,0,0,485,0012300072
+0012300072,683,PT04M53.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. Violation:Kicked Ball (P.O'Connell),Violation,Kicked Ball,0,0,486,0012300072
+0012300072,684,PT04M37.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,-189,217,29,Missed,1,,,0,v,MISS LaRavia 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,487,0012300072
+0012300072,685,PT04M36.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,T. Antetokounmpo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,488,0012300072
+0012300072,686,PT04M36.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. P.FOUL (P2.PN) (J.Capers),Foul,Personal,1,0,489,0012300072
+0012300072,688,PT04M36.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,109,108,217,h,T. Antetokounmpo Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,0,0,490,0012300072
+0012300072,689,PT04M36.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,110,108,218,h,T. Antetokounmpo Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,0,0,491,0012300072
+0012300072,690,PT04M21.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,0,0,0,,0,,,0,h,BUCKS T.Foul (Def. 3 Sec T. Antetokounmpo ) (N.Buchert),Foul,Defense 3 Second,1,0,492,0012300072
+0012300072,691,PT04M21.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,110,109,219,v,Williams Jr. Free Throw Technical (4 PTS),Free Throw,Free Throw Technical,1,0,493,0012300072
+0012300072,692,PT04M13.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,9,31,3,Missed,1,,,0,v,MISS Lofton Jr. 3' Layup,Missed Shot,Layup Shot,1,2,494,0012300072
+0012300072,693,PT04M10.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,495,0012300072
+0012300072,694,PT04M02.00S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-13,-2,1,Made,1,112,109,221,h,Beauchamp 1' Driving Finger Roll Layup (13 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,496,0012300072
+0012300072,695,PT03M41.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,2,23,2,Made,1,112,111,223,v,LaRavia 2' Driving Layup (6 PTS),Made Shot,Driving Layup Shot,1,2,497,0012300072
+0012300072,696,PT03M24.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-58,245,25,Missed,1,,,0,h,MISS T. Antetokounmpo 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,498,0012300072
+0012300072,697,PT03M20.00S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,0,0,0,,0,,,0,v,Lofton Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,499,0012300072
+0012300072,698,PT03M14.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,153,242,29,Missed,1,,,0,v,MISS LaRavia 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,500,0012300072
+0012300072,699,PT03M10.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,501,0012300072
+0012300072,700,PT03M10.00S,4,0,,1610612749,,,0,0,0,,0,,,0,h,BUCKS Timeout: Regular (Full 6 Short 0),Timeout,Regular,0,0,502,0012300072
+0012300072,703,PT03M00.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-94,227,25,Made,1,115,111,226,h,Washington Jr. 25' 3PT Step Back Jump Shot (5 PTS),Made Shot,Step Back Jump shot,1,3,503,0012300072
+0012300072,704,PT02M39.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,-197,204,28,Missed,1,,,0,v,MISS LaRavia 28' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,504,0012300072
+0012300072,705,PT02M36.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,505,0012300072
+0012300072,706,PT02M26.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-15,-7,2,Made,1,117,111,228,h,T. Antetokounmpo 2' Cutting Layup Shot (6 PTS) (Washington Jr. 4 AST),Made Shot,Cutting Layup Shot,1,2,506,0012300072
+0012300072,708,PT02M06.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,-120,248,28,Missed,1,,,0,v,MISS Williams Jr. 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,507,0012300072
+0012300072,709,PT02M04.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,508,0012300072
+0012300072,710,PT01M59.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Jump Ball Washington Jr. vs. LaRavia: Tip to Jackson Jr.,Jump Ball,,0,0,509,0012300072
+0012300072,713,PT01M59.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia Lost Ball Turnover (P2.T17),Turnover,Lost Ball,1,0,510,0012300072
+0012300072,713,PT01M59.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,0,0,0,,0,,,0,h,Washington Jr. STEAL (2 STL),,,1,0,511,0012300072
+0012300072,715,PT01M55.00S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-23,22,3,Missed,1,,,0,h,MISS T. Antetokounmpo 3' Running Layup,Missed Shot,Running Layup Shot,1,2,512,0012300072
+0012300072,715,PT01M55.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia BLOCK (1 BLK),,,1,2,513,0012300072
+0012300072,716,PT01M51.00S,4,1610612763,MEM,1627885,Harrison,S. Harrison,0,0,0,,0,,,0,v,Harrison REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,514,0012300072
+0012300072,717,PT01M51.00S,4,1610612763,MEM,1641713,Jackson,G. Jackson,0,0,0,,0,,,0,v,Jackson Offensive Charge Foul (P1) (N.Buchert),Foul,Offensive Charge,1,0,515,0012300072
+0012300072,719,PT01M51.00S,4,1610612763,MEM,1641713,Jackson,G. Jackson,0,0,0,,0,,,0,v,Jackson Offensive Foul Turnover (P1.T18),Turnover,Offensive Foul Turnover,1,0,516,0012300072
+0012300072,720,PT01M38.00S,4,1610612749,MIL,1631102,Washington Jr.,T. Washington Jr.,-93,131,16,Missed,1,,,0,h,MISS Washington Jr. 16' Jump Shot,Missed Shot,Jump Shot,1,2,517,0012300072
+0012300072,721,PT01M37.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,0,0,0,,0,,,0,h,Jackson Jr. REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,518,0012300072
+0012300072,722,PT01M36.00S,4,1610612749,MIL,1641748,Jackson Jr.,A. Jackson Jr.,-16,6,2,Made,1,119,111,230,h,Jackson Jr. 2' Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,519,0012300072
+0012300072,723,PT01M26.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,20,90,9,Missed,1,,,0,v,MISS LaRavia 9' Hook Shot,Missed Shot,Hook Shot,1,2,520,0012300072
+0012300072,724,PT01M25.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,521,0012300072
+0012300072,725,PT01M25.00S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,Missed,1,,,0,v,MISS LaRavia Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,522,0012300072
+0012300072,726,PT01M24.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,0,0,0,,0,,,0,v,Williams Jr. REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,523,0012300072
+0012300072,727,PT01M22.00S,4,1610612763,MEM,1631246,Williams Jr.,V. Williams Jr.,20,33,4,Made,1,119,113,232,v,Williams Jr. 4' Putback Layup (6 PTS),Made Shot,Putback Layup Shot,1,2,524,0012300072
+0012300072,728,PT00M58.60S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-23,17,3,Made,1,121,113,234,h,Beauchamp 3' Layup (15 PTS) (Washington Jr. 5 AST),Made Shot,Layup Shot,1,2,525,0012300072
+0012300072,730,PT00M44.70S,4,1610612763,MEM,1631254,Lofton Jr.,K. Lofton Jr.,23,283,28,Made,1,121,116,237,v,Lofton Jr. 28' 3PT Jump Shot (7 PTS),Made Shot,Jump Shot,1,3,526,0012300072
+0012300072,732,PT00M24.30S,4,1610612749,MIL,1630699,Beauchamp,M. Beauchamp,-241,-8,24,Made,1,124,116,240,h,Beauchamp 24' 3PT Jump Shot (18 PTS) (Jackson Jr. 1 AST),Made Shot,Jump Shot,1,3,527,0012300072
+0012300072,734,PT00M08.60S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,-69,275,28,Missed,1,,,0,v,MISS LaRavia 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,528,0012300072
+0012300072,735,PT00M07.60S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,529,0012300072
+0012300072,736,PT00M04.20S,4,1610612749,MIL,203648,Antetokounmpo,T. Antetokounmpo,-25,19,3,Missed,1,,,0,h,MISS T. Antetokounmpo 3' Running Layup,Missed Shot,Running Layup Shot,1,2,530,0012300072
+0012300072,736,PT00M04.20S,4,1610612763,MEM,1631222,LaRavia,J. LaRavia,0,0,0,,0,,,0,v,LaRavia BLOCK (2 BLK),,,1,2,531,0012300072
+0012300072,737,PT00M02.20S,4,1610612763,MEM,1627885,Harrison,S. Harrison,0,0,0,,0,,,0,v,Harrison REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,532,0012300072
+0012300072,738,PT00M00.00S,4,0,,0,,,0,0,0,,0,124,116,240,,End of 4th Period (10:31 PM EST),period,end,1,0,533,0012300072

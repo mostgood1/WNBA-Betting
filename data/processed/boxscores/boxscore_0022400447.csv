@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,22:50,4,9,0.444,1,3,0.333,0,0,0.0,3,3,6,4,1,0,4,5,9,20.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,37:39,3,6,0.5,1,2,0.5,0,0,0.0,0,1,1,2,1,1,0,3,7,27.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,C,,,35:38,12,21,0.571,1,1,1.0,12,13,0.923,3,6,9,3,0,0,4,2,37,26.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,36:44,6,10,0.6,0,3,0.0,3,3,1.0,2,3,5,2,8,1,2,3,15,22.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,35:52,7,13,0.538,3,7,0.429,6,6,1.0,0,1,1,3,1,0,4,4,23,14.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,13:36,2,2,1.0,1,1,1.0,2,2,1.0,0,1,1,0,0,0,1,3,7,-11.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,17:52,1,3,0.333,0,1,0.0,1,2,0.5,0,2,2,4,0,0,1,1,3,3.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,27:59,6,9,0.667,2,4,0.5,2,3,0.667,0,4,4,1,1,1,2,1,16,17.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,4:51,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,0,0,0,1,0,3,-3.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,4:03,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,1,0,0,0,2,2,-3.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,1631250,Pete,Nance,P. Nance,pete-nance,,,,2:56,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,3,3,-2.0,0022400447
+0022400447,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,32:56,5,9,0.556,2,5,0.4,5,5,1.0,2,5,7,2,1,0,10,3,17,-21.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,33:56,4,9,0.444,0,2,0.0,4,5,0.8,6,4,10,1,2,0,0,5,12,-23.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,29:51,6,8,0.75,0,1,0.0,0,0,0.0,3,3,6,3,0,2,3,3,12,-24.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,34:14,5,14,0.357,1,8,0.125,1,2,0.5,0,1,1,1,0,0,3,3,12,-25.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,30:14,9,18,0.5,4,10,0.4,3,4,0.75,0,4,4,4,0,0,1,4,25,-17.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,23:49,2,7,0.286,0,4,0.0,2,3,0.667,0,0,0,7,3,0,3,2,6,-11.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,15:11,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,1,1,0,0,0,2,8.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,8:31,1,2,0.5,0,0,0.0,1,2,0.5,0,1,1,2,0,0,3,2,3,1.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,7:44,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,2,1,0,0,0,0,-3.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,,,11:25,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,2,1,3,0,-4.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,4:03,2,3,0.667,0,1,0.0,1,3,0.333,0,0,0,0,0,0,0,0,5,3.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,4:03,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,3.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,4:03,2,3,0.667,1,2,0.5,4,6,0.667,0,1,1,0,0,0,0,1,9,3.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400447
+0022400447,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400447

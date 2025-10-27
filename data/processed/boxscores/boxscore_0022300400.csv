@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,40:39,8,16,0.5,3,9,0.333,1,2,0.5,0,5,5,1,4,1,0,4,20,12.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,F,,,28:39,4,9,0.444,0,0,0.0,2,2,1.0,1,4,5,5,0,1,2,4,10,9.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,39:13,10,13,0.769,0,0,0.0,1,2,0.5,6,11,17,1,0,2,1,3,21,27.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,39:05,13,27,0.481,3,12,0.25,5,5,1.0,0,5,5,10,1,1,5,1,34,8.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,31:39,4,10,0.4,3,7,0.429,1,1,1.0,0,7,7,9,2,0,2,1,12,28.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,22:52,1,4,0.25,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,2,2,-1.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,19:11,2,4,0.5,0,1,0.0,2,2,1.0,0,2,2,2,2,0,1,0,6,-13.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,,,,3:19,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,3,0,-3.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629003,Shake,Milton,S. Milton,shake-milton,,,,13:46,2,4,0.5,1,2,0.5,0,0,0.0,0,1,1,1,0,0,1,0,5,-6.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,1:37,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,0,-1.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400
+0022300400,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,30:44,3,6,0.5,0,2,0.0,6,6,1.0,0,3,3,1,0,0,0,3,12,-12.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,39:40,8,16,0.5,3,7,0.429,1,2,0.5,1,6,7,0,3,1,1,4,20,-8.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,39:02,7,12,0.583,0,1,0.0,3,5,0.6,1,9,10,10,1,0,3,3,17,-17.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,15:17,1,7,0.143,0,2,0.0,0,0,0.0,0,1,1,1,0,0,1,3,2,-19.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,39:03,10,23,0.435,3,11,0.273,4,4,1.0,2,2,4,6,2,0,3,1,27,-4.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,27:23,4,8,0.5,1,4,0.25,1,3,0.333,3,4,7,3,0,0,1,1,10,7.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,11:29,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-14.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,18:22,1,3,0.333,1,3,0.333,0,0,0.0,1,3,4,0,2,0,1,1,3,4.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,,,8:58,3,6,0.5,0,0,0.0,1,1,1.0,0,2,2,1,1,1,1,2,7,5.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,0:07,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1628426,Sasha,Vezenkov,A. Vezenkov,sasha-vezenkov,,,,7:34,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,1,0,-5.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,2:21,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,3.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400
+0022300400,1610612758,Sacramento,Kings,SAC,kings,1629308,Juan,Toscano-Anderson,J. Toscano-Anderson,juan-toscano-anderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300400

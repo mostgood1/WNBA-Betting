@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,F,,,38:09,6,16,0.375,3,9,0.333,1,1,1.0,0,3,3,5,4,0,1,3,16,-3.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,40:30,10,20,0.5,4,6,0.667,2,4,0.5,3,11,14,4,0,0,1,3,26,12.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,C,,,28:18,3,5,0.6,0,0,0.0,2,4,0.5,6,4,10,3,1,2,0,2,8,1.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,G,,,29:39,4,8,0.5,2,3,0.667,3,4,0.75,1,5,6,4,2,0,1,4,13,2.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1628998,Cody,Martin,C. Martin,cody-martin,G,,,30:55,2,7,0.286,1,3,0.333,0,0,0.0,0,5,5,2,3,1,3,3,5,0.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,,,,19:42,1,9,0.111,0,3,0.0,2,4,0.5,1,1,2,8,0,0,2,3,4,15.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,19:08,4,8,0.5,1,4,0.25,1,1,1.0,1,1,2,0,0,0,1,0,10,3.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,,,27:12,7,16,0.438,6,11,0.545,4,4,1.0,0,0,0,2,1,0,0,3,24,3.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,,,6:27,3,3,1.0,3,3,1.0,0,0,0.0,0,0,0,0,0,0,0,2,9,7.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1629716,Marques,Bolden,M. Bolden,marques-bolden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,36:41,5,14,0.357,2,9,0.222,9,10,0.9,1,8,9,6,0,0,2,2,21,-11.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,25:46,5,9,0.556,1,5,0.2,1,1,1.0,4,5,9,1,0,0,0,2,12,10.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,C,,,30:45,4,10,0.4,1,2,0.5,0,0,0.0,6,12,18,2,0,1,2,3,9,10.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,26:18,3,9,0.333,2,4,0.5,9,10,0.9,0,2,2,5,0,0,4,2,17,2.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,31:07,7,14,0.5,2,8,0.25,0,0,0.0,0,3,3,5,0,0,5,2,16,7.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,25:10,4,7,0.571,0,3,0.0,0,0,0.0,2,1,3,3,0,0,0,3,8,-12.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,34:20,5,13,0.385,0,4,0.0,5,6,0.833,1,7,8,4,1,0,4,4,15,-19.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,,,,17:15,1,4,0.25,0,1,0.0,0,0,0.0,1,1,2,0,1,1,1,1,2,-18.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,12:38,3,6,0.5,1,3,0.333,0,0,0.0,0,0,0,0,1,0,1,2,7,-9.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801
+0022300801,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300801

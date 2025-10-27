@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300708,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,32:55,3,13,0.231,3,10,0.3,6,6,1.0,0,7,7,4,1,1,4,2,15,7.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,34:50,8,16,0.5,3,6,0.5,6,6,1.0,3,8,11,4,2,2,3,2,25,-6.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,18:20,2,4,0.5,0,0,0.0,0,0,0.0,1,2,3,0,0,0,1,2,4,0.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,19:38,3,5,0.6,1,2,0.5,0,0,0.0,2,3,5,1,0,0,0,1,7,-1.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,41:38,7,13,0.538,5,9,0.556,2,4,0.5,0,8,8,11,1,1,4,1,21,10.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,26:16,1,2,0.5,0,0,0.0,3,4,0.75,2,7,9,0,0,0,0,0,5,11.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,15:12,2,9,0.222,1,4,0.25,0,0,0.0,0,1,1,2,1,0,3,0,5,1.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,28:15,6,12,0.5,2,7,0.286,2,2,1.0,0,1,1,1,0,0,0,1,16,9.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,22:56,2,3,0.667,1,1,1.0,0,0,0.0,1,2,3,0,1,1,0,3,5,9.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,35:58,8,19,0.421,2,5,0.4,3,3,1.0,3,1,4,3,2,0,1,1,21,1.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,26:53,2,5,0.4,1,3,0.333,0,0,0.0,0,3,3,0,1,0,0,5,5,-3.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,35:04,5,13,0.385,0,0,0.0,4,4,1.0,4,9,13,3,3,0,2,1,14,-8.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,G,,,33:11,6,13,0.462,2,8,0.25,0,0,0.0,0,3,3,4,0,0,0,2,14,-8.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,37:47,7,17,0.412,0,5,0.0,3,3,1.0,1,6,7,5,2,0,2,4,17,-4.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,25:38,3,11,0.273,1,3,0.333,0,0,0.0,3,1,4,4,0,0,3,2,7,-9.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,14:53,2,4,0.5,2,4,0.5,0,0,0.0,0,7,7,3,0,0,2,1,6,-2.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,30:36,5,9,0.556,0,2,0.0,1,2,0.5,1,3,4,2,1,0,0,3,11,-7.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708
+0022300708,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300708

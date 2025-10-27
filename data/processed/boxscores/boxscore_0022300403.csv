@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,32:34,7,17,0.412,1,5,0.2,4,7,0.571,3,2,5,2,3,0,2,3,19,9.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,41:14,6,15,0.4,1,6,0.167,12,13,0.923,0,8,8,7,0,1,1,0,25,10.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,35:17,11,19,0.579,2,8,0.25,4,7,0.571,3,8,11,2,1,2,1,3,28,16.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,35:17,8,13,0.615,2,4,0.5,0,0,0.0,0,2,2,11,2,2,2,3,18,16.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,38:15,7,10,0.7,3,5,0.6,1,1,1.0,2,5,7,7,1,1,2,1,18,15.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,,,,23:19,2,4,0.5,2,4,0.5,0,0,0.0,0,6,6,1,0,1,0,3,6,1.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,14:38,1,5,0.2,0,4,0.0,0,0,0.0,1,1,2,0,0,0,0,0,2,3.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,,,6:43,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,0,3,0,-10.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,12:43,4,8,0.5,2,6,0.333,0,0,0.0,2,0,2,0,0,0,0,1,10,-5.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1630625,Dalano,Banton,D. Banton,dalano-banton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1631120,JD,Davison,J. Davison,jd-davison,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,F,,,18:23,1,2,0.5,1,1,1.0,2,2,1.0,0,0,0,0,0,0,2,2,5,-12.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,F,,,22:45,3,5,0.6,0,0,0.0,0,0,0.0,4,2,6,0,1,0,0,4,6,-10.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,38:50,15,26,0.577,2,4,0.5,8,10,0.8,5,8,13,4,0,1,2,2,40,-6.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,38:60,6,13,0.462,5,12,0.417,0,0,0.0,0,4,4,3,1,0,0,4,17,-12.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,G,,,36:47,5,14,0.357,1,2,0.5,5,6,0.833,0,9,9,8,0,0,3,1,16,-11.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,,,,28:14,4,9,0.444,2,3,0.667,1,1,1.0,4,2,6,3,1,0,2,3,11,-1.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,,,29:03,5,14,0.357,2,9,0.222,0,0,0.0,0,3,3,0,0,0,1,2,12,5.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,17:48,4,6,0.667,0,1,0.0,0,0,0.0,0,1,1,6,1,0,2,1,8,-3.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,9:10,0,1,0.0,0,0,0.0,0,2,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403
+0022300403,1610612747,Los Angeles,Lakers,LAL,lakers,1626174,Christian,Wood,C. Wood,christian-wood,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300403

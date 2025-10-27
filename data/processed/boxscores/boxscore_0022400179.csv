@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,23:36,7,9,0.778,2,3,0.667,2,2,1.0,3,4,7,2,3,1,4,4,18,-11.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1628997,Caleb,Martin,C. Martin,caleb-martin,F,,,30:45,4,10,0.4,1,4,0.25,5,10,0.5,0,2,2,2,1,0,1,1,14,-11.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,32:29,4,6,0.667,1,1,1.0,0,2,0.0,4,6,10,1,0,1,1,2,9,-12.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,24:35,8,12,0.667,1,3,0.333,1,1,1.0,0,2,2,3,1,0,3,5,18,-6.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,31:33,5,13,0.385,1,6,0.167,1,1,1.0,0,1,1,1,1,0,3,3,12,-16.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,,,,19:55,0,3,0.0,0,3,0.0,0,0,0.0,1,1,2,4,1,0,2,2,0,-9.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,16:45,0,2,0.0,0,1,0.0,1,2,0.5,1,0,1,2,0,0,4,1,1,-10.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,,,,10:12,2,3,0.667,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,1,4,-9.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,18:27,5,6,0.833,0,0,0.0,0,0,0.0,0,4,4,0,1,0,0,1,10,-1.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1642272,Jared,McCain,J. McCain,jared-mccain,,,,12:00,2,4,0.5,0,1,0.0,1,1,1.0,0,1,1,2,1,0,0,1,5,4.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,9:36,3,4,0.75,1,2,0.5,0,0,0.0,0,1,1,0,0,0,1,1,7,7.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,6:30,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,2,1,0,1,0,0,7.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,3:37,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,7.0,0022400179
+0022400179,1610612755,Philadelphia,76ers,PHI,sixers,203954,Joel,Embiid,J. Embiid,joel-embiid,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,F,,,20:41,3,6,0.5,1,3,0.333,0,0,0.0,1,1,2,2,1,0,0,2,7,2.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,23:51,5,6,0.833,1,2,0.5,3,3,1.0,1,3,4,2,0,0,0,2,14,9.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,33:17,7,9,0.778,0,0,0.0,1,1,1.0,2,7,9,3,1,0,1,1,15,13.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,G,,,34:43,8,10,0.8,6,8,0.75,4,4,1.0,0,1,1,6,1,0,3,4,26,6.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,33:57,5,15,0.333,1,6,0.167,7,9,0.778,0,4,4,6,3,1,6,1,18,13.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1630539,Kai,Jones,K. Jones,kai-jones,,,,8:50,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,2,-8.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,20:15,3,6,0.5,1,3,0.333,0,0,0.0,1,1,2,0,3,0,0,1,7,11.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,11:31,1,4,0.25,0,1,0.0,0,1,0.0,0,2,2,3,0,0,2,0,2,8.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,18:16,2,3,0.667,0,1,0.0,0,0,0.0,1,0,1,5,2,0,2,3,4,17.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,24:33,4,8,0.5,2,3,0.667,1,1,1.0,2,1,3,0,0,0,0,0,11,10.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,3:22,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-7.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,3:22,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-7.0,0022400179
+0022400179,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,3:22,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,1,0,1,1,2,-7.0,0022400179
