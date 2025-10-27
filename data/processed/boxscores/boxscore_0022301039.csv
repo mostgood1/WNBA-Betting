@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,34:36,2,5,0.4,0,2,0.0,2,3,0.667,0,4,4,2,0,0,0,2,6,5.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,36:08,12,17,0.706,4,6,0.667,1,2,0.5,0,8,8,6,1,0,3,2,29,5.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,19:20,3,9,0.333,0,0,0.0,0,2,0.0,1,8,9,4,1,2,1,1,6,-2.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,30:27,4,11,0.364,1,4,0.25,0,0,0.0,0,5,5,6,2,0,1,0,9,-1.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,39:59,14,28,0.5,3,10,0.3,5,7,0.714,1,5,6,4,1,3,5,4,36,-1.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,24:24,1,4,0.25,0,3,0.0,0,0,0.0,0,2,2,0,0,0,1,1,2,-9.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,21:16,1,3,0.333,0,0,0.0,0,0,0.0,3,3,6,4,0,0,2,4,2,7.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,25:45,5,6,0.833,2,3,0.667,0,0,0.0,0,5,5,2,0,1,1,0,12,-4.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,8:05,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,0,-10.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1629006,Josh,Okogie,J. Okogie,josh-okogie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,202738,Isaiah,Thomas,I. Thomas,isaiah-thomas,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612756,Phoenix,Suns,PHX,suns,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,20:05,2,5,0.4,0,2,0.0,2,2,1.0,0,0,0,0,1,0,1,2,6,8.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,35:37,10,19,0.526,1,7,0.143,5,5,1.0,2,16,18,1,1,1,0,2,26,3.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,C,,,30:04,7,14,0.5,0,3,0.0,4,6,0.667,2,3,5,3,1,0,3,3,18,-4.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,35:03,11,24,0.458,2,9,0.222,2,2,1.0,0,4,4,7,3,0,0,2,26,9.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,27:03,1,4,0.25,0,0,0.0,0,0,0.0,1,2,3,4,1,0,0,0,2,-13.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,20:57,2,7,0.286,1,2,0.5,0,0,0.0,0,2,2,3,1,0,1,0,5,15.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,30:51,5,9,0.556,2,2,1.0,2,2,1.0,0,3,3,5,1,0,0,2,14,1.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,17:50,0,1,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,2,2,0,6.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,7:29,0,4,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-11.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,15:01,2,4,0.5,2,4,0.5,1,2,0.5,0,2,2,0,1,0,0,2,7,-4.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039
+0022301039,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301039

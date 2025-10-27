@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203506,Victor,Oladipo,V. Oladipo,victor-oladipo,F,,,28:42,8,19,0.421,1,8,0.125,3,3,1.0,1,4,5,3,5,1,4,1,20,-13.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295528,Li,Xiangbo,L. Xiangbo,li-xiangbo,F,,,21:03,0,1,0.0,0,0,0.0,2,2,1.0,2,0,2,1,1,0,1,2,2,-19.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1626163,Frank,Kaminsky,F. Kaminsky,frank-kaminsky,C,,,29:59,8,15,0.533,5,10,0.5,1,2,0.5,1,6,7,0,1,1,1,1,22,-22.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295527,Liu,Yanthenz,L. Yanthenz,liu-yanthenz,G,,,19:27,2,5,0.4,1,2,0.5,0,0,0.0,2,1,3,1,0,0,0,2,5,-14.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,204025,Tim,Frazier,T. Frazier,tim-frazier,G,,,24:57,1,6,0.167,1,2,0.5,2,2,1.0,0,1,1,5,0,0,3,3,5,-20.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,16:08,1,6,0.167,0,3,0.0,1,2,0.5,0,0,0,3,3,0,1,1,3,-7.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295531,Chen,Guohao,C. Guohao,chen-guohao,,,,22:37,3,6,0.5,1,1,1.0,7,9,0.778,3,0,3,0,0,0,1,1,14,-9.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295533,Pang,Yanjun,P. Yanjun,pang-yanjun,,,,12:54,0,2,0.0,0,2,0.0,0,0,0.0,1,0,1,3,0,0,1,1,0,-2.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1628994,George,King,G. King,george-king,,,,17:55,2,4,0.5,0,1,0.0,0,0,0.0,0,1,1,0,1,0,4,2,4,-16.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1629126,Deonte,Burton,D. Burton,deonte-burton,,,,18:29,1,3,0.333,1,1,1.0,2,2,1.0,0,4,4,0,1,0,1,2,5,-12.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295532,Guan,Ziyu,G. Ziyu,guan-ziyu,,,,19:02,2,8,0.25,1,4,0.25,1,2,0.5,0,2,2,2,0,0,2,2,6,-17.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295526,Zhang,Huafei,Z. Huafei,zhang-huafei,,,,6:06,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,2,-6.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295530,Zhang,Wenjie,Z. Wenjie,zhang-wenjie,,,,2:41,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,2.0,0012500032
+0012500032,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295529,Li,Xiaotong,L. Xiaotong,li-xiaotong,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,F,,,16:27,6,8,0.75,1,1,1.0,3,3,1.0,1,1,2,0,1,1,2,1,16,22.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,15:15,0,3,0.0,0,2,0.0,2,2,1.0,1,2,3,1,2,0,0,1,2,18.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,16:23,3,3,1.0,1,1,1.0,2,2,1.0,2,8,10,7,0,3,6,3,9,20.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,G,,,16:18,4,8,0.5,4,7,0.571,4,5,0.8,0,4,4,2,2,0,1,0,16,18.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,G,,,20:12,3,6,0.5,3,5,0.6,0,0,0.0,2,2,4,3,1,0,0,2,9,13.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1642868,Carter,Bryant,C. Bryant,carter-bryant,,,,23:13,6,11,0.545,1,5,0.2,2,4,0.5,0,1,1,1,2,0,0,3,15,11.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,25:00,4,8,0.5,2,5,0.4,0,0,0.0,1,1,2,6,1,0,1,3,10,16.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,13:36,6,6,1.0,0,0,0.0,4,4,1.0,1,3,4,1,0,0,1,1,16,16.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1642357,David,Jones Garcia,D. Jones Garcia,david-jones-garcia,,,,20:01,2,8,0.25,0,2,0.0,0,0,0.0,1,3,4,5,2,2,4,2,4,16.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,13:23,1,2,0.5,0,0,0.0,1,2,0.5,2,3,5,0,1,1,0,2,3,-3.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1642434,Riley,Minix,R. Minix,riley-minix,,,,18:04,3,4,0.75,2,3,0.667,0,0,0.0,0,1,1,3,0,0,1,1,8,0.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1630695,Micah,Potter,M. Potter,micah-potter,,,,15:15,1,5,0.2,1,4,0.25,0,0,0.0,1,3,4,1,0,1,3,1,3,4.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1630649,Stanley,Umude,S. Umude,stanley-umude,,,,12:21,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,2,0,1,1,2,2.0,0012500032
+0012500032,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,,,14:32,3,6,0.5,0,2,0.0,0,2,0.0,3,3,6,1,0,0,3,3,6,2.0,0012500032

@@ -1,0 +1,41 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,203935,Marcus,Smart,M. Smart,marcus-smart,F,,,20:06,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,2,0,-2.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,F,,,34:29,2,7,0.286,1,4,0.25,3,4,0.75,1,7,8,3,0,1,1,1,8,6.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,25:52,4,9,0.444,0,0,0.0,2,2,1.0,5,8,13,1,2,3,2,2,10,3.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,31:10,8,16,0.5,2,6,0.333,7,8,0.875,0,4,4,2,1,1,4,2,25,-4.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,22:23,7,15,0.467,4,8,0.5,7,9,0.778,3,4,7,4,0,0,5,3,25,11.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,19:25,2,4,0.5,1,3,0.333,0,1,0.0,0,1,1,1,0,1,1,1,5,-11.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,,,22:29,3,8,0.375,0,2,0.0,1,2,0.5,0,4,4,2,1,1,0,3,7,-24.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,22:08,3,5,0.6,0,1,0.0,0,0,0.0,4,4,8,2,1,1,2,1,6,-12.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,15:25,3,7,0.429,2,4,0.5,0,0,0.0,0,1,1,1,0,0,1,2,8,2.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1642930,R.J.,Davis,R. Davis,rj-davis,,,,10:28,1,4,0.25,0,1,0.0,1,2,0.5,0,1,1,0,1,0,1,0,3,-6.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1631466,Nate,Williams,N. Williams,nate-williams,,,,10:11,3,6,0.5,1,4,0.25,0,0,0.0,1,0,1,1,1,0,1,0,7,-5.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1641817,Anton,Watson,A. Watson,anton-watson,,,,5:54,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-3.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1643024,Chris,Mañon,C. Mañon,chris-mañon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1643051,Augustas,Marčiulionis,A. Marčiulionis,augustas-marčiulionis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1642876,Adou,Thiero,A. Thiero,adou-thiero,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1628502,Nigel,Hayes-Davis,N. Hayes-Davis,nigel-hayes-davis,F,,,26:54,4,12,0.333,2,3,0.667,0,0,0.0,3,3,6,1,0,0,1,1,10,5.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642853,Rasheer,Fleming,R. Fleming,rasheer-fleming,F,,,31:09,3,9,0.333,3,8,0.375,0,0,0.0,3,2,5,0,1,1,1,4,9,3.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642863,Khaman,Maluach,K. Maluach,khaman-maluach,C,,,31:25,8,10,0.8,1,1,1.0,0,0,0.0,3,5,8,2,3,2,1,4,17,-7.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1630215,Jared,Butler,J. Butler,jared-butler,G,,,33:53,14,25,0.56,5,9,0.556,2,6,0.333,0,7,7,9,1,0,0,3,35,1.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,G,,,36:54,10,20,0.5,3,7,0.429,1,1,1.0,1,3,4,6,1,0,4,5,24,14.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1630587,Isaiah,Livers,I. Livers,isaiah-livers,,,,24:53,3,8,0.375,1,6,0.167,0,0,0.0,2,3,5,2,1,0,1,3,7,1.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642886,Koby,Brea,K. Brea,koby-brea,,,,24:53,2,12,0.167,0,6,0.0,0,0,0.0,1,0,1,5,1,0,1,0,4,7.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1643047,CJ,Huntley,C. Huntley,cj-huntley,,,,13:03,1,2,0.5,0,0,0.0,0,1,0.0,0,1,1,0,4,0,0,2,2,12.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1630561,David,Duke Jr.,D. Duke Jr.,david-duke-jr,,,,16:56,2,4,0.5,1,2,0.5,0,0,0.0,0,1,1,2,0,0,1,1,5,9.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1641878,Damion,Baugh,D. Baugh,damion-baugh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060
+0012500060,1610612756,Phoenix,Suns,PHX,suns,1642487,Tyrese,Samuel,T. Samuel,tyrese-samuel,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500060

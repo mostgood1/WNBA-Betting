@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,25:39,4,9,0.444,2,4,0.5,0,0,0.0,4,3,7,2,1,0,2,1,10,-12.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,34:20,5,16,0.313,0,3,0.0,4,4,1.0,6,12,18,0,1,0,2,3,14,-9.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,35:04,11,23,0.478,0,1,0.0,0,0,0.0,7,7,14,2,2,1,0,1,22,-19.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,33:16,3,8,0.375,3,6,0.5,0,0,0.0,1,2,3,2,1,0,1,3,9,-24.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,36:26,3,13,0.231,3,7,0.429,6,6,1.0,0,1,1,8,2,0,5,2,15,-9.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,36:36,11,23,0.478,3,9,0.333,3,3,1.0,1,2,3,9,1,0,4,0,28,-11.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,15:38,0,5,0.0,0,3,0.0,0,0,0.0,2,3,5,1,0,0,0,0,0,-4.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,23:01,3,5,0.6,3,5,0.6,0,0,0.0,1,1,2,2,0,1,0,2,9,3.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301134
+0022301134,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,29:50,10,17,0.588,3,5,0.6,3,3,1.0,0,4,4,2,1,1,2,2,26,6.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,F,,,20:55,3,6,0.5,1,4,0.25,0,0,0.0,1,5,6,3,1,0,1,0,7,7.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,27:18,3,7,0.429,1,3,0.333,5,8,0.625,1,9,10,2,3,5,2,1,12,4.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,30:58,5,13,0.385,3,10,0.3,2,2,1.0,0,1,1,9,1,0,2,1,15,2.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,20:55,5,8,0.625,2,3,0.667,0,0,0.0,0,1,1,2,0,0,0,1,12,7.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,25:44,9,13,0.692,2,4,0.5,0,0,0.0,0,3,3,8,1,0,2,1,20,19.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,27:05,4,6,0.667,2,4,0.5,0,0,0.0,0,2,2,3,1,0,0,3,10,10.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,18:32,1,1,1.0,0,0,0.0,0,0,0.0,3,2,5,1,0,0,0,0,2,5.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,0:38,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,1,0,0,3.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,17:12,4,7,0.571,1,2,0.5,0,0,0.0,0,5,5,1,1,2,0,0,9,6.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,12:00,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,2,0,0,1,2,5,9.0,0022301134
+0022301134,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,,,8:53,3,5,0.6,0,1,0.0,0,0,0.0,0,1,1,1,1,0,1,1,6,7.0,0022301134

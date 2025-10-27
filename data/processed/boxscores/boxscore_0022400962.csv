@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,20:48,3,4,0.75,1,2,0.5,0,0,0.0,1,2,3,2,0,0,2,2,7,7.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,31:38,9,16,0.563,3,6,0.5,1,2,0.5,2,9,11,3,1,2,2,0,22,16.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,25:22,6,7,0.857,0,0,0.0,4,8,0.5,0,6,6,3,1,1,2,3,16,10.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,G,,,22:06,2,4,0.5,2,4,0.5,3,3,1.0,0,4,4,5,1,0,0,0,9,7.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,29:48,7,17,0.412,3,11,0.273,3,3,1.0,0,2,2,9,4,0,3,1,20,17.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,22:47,4,6,0.667,3,5,0.6,7,8,0.875,0,5,5,1,1,0,1,5,18,11.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,16:35,4,8,0.5,1,4,0.25,3,3,1.0,0,2,2,5,0,0,3,3,12,5.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,21:55,5,7,0.714,4,5,0.8,0,0,0.0,1,0,1,2,0,0,2,1,14,13.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,22:38,1,4,0.25,0,3,0.0,0,0,0.0,1,3,4,0,0,0,0,0,2,-1.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,,,14:26,3,10,0.3,2,8,0.25,2,2,1.0,2,2,4,2,1,0,0,2,10,-7.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,3:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-11.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,3:59,0,1,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,1,0,0,1,-11.0,0022400962
+0022400962,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,3:59,0,4,0.0,0,3,0.0,2,2,1.0,1,0,1,0,0,0,0,0,2,-11.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,16:39,3,5,0.6,0,1,0.0,1,1,1.0,0,0,0,0,0,0,1,1,7,-4.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,28:27,4,10,0.4,3,5,0.6,2,2,1.0,0,3,3,0,4,2,0,5,13,-21.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,10:48,2,4,0.5,0,0,0.0,2,2,1.0,3,0,3,1,0,0,1,2,6,-16.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,26:29,5,16,0.313,2,9,0.222,0,1,0.0,3,3,6,3,0,0,5,4,12,-24.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,35:22,17,22,0.773,1,4,0.25,9,10,0.9,0,8,8,7,1,0,2,3,44,-6.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,17:44,1,2,0.5,1,1,1.0,0,0,0.0,0,3,3,2,0,0,1,2,3,4.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,19:25,5,7,0.714,0,0,0.0,3,5,0.6,1,4,5,1,1,0,1,3,13,-6.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,22:12,3,6,0.5,2,4,0.5,0,0,0.0,0,3,3,6,3,1,0,1,8,-3.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,15:22,0,5,0.0,0,4,0.0,0,0,0.0,1,0,1,0,1,0,3,1,0,-16.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,14:01,2,9,0.222,0,2,0.0,0,0,0.0,2,4,6,1,0,0,0,0,4,1.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,3:40,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,2,1.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,15:12,3,4,0.75,1,2,0.5,0,0,0.0,0,5,5,1,0,0,0,1,7,8.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,6:41,1,4,0.25,1,4,0.25,0,0,0.0,0,0,0,2,0,0,0,2,3,15.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,3:59,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,11.0,0022400962
+0022400962,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,3:59,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,0,2,11.0,0022400962

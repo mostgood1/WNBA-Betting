@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500088,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,37:25,12,17,0.706,1,2,0.5,4,9,0.444,2,4,6,9,2,1,1,2,29,9.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1642363,Nique,Clifford,N. Clifford,nique-clifford,F,,,23:41,1,3,0.333,0,0,0.0,0,0,0.0,3,5,8,2,2,1,1,4,2,3.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,C,,,21:54,1,4,0.25,0,0,0.0,2,4,0.5,1,3,4,0,2,4,2,1,4,-7.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,34:33,13,24,0.542,2,10,0.2,2,3,0.667,0,2,2,1,0,0,2,3,30,-6.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,29:44,6,13,0.462,2,4,0.5,0,0,0.0,0,1,1,7,2,1,4,3,14,-8.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1642875,Maxime,Raynaud,M. Raynaud,maxime-raynaud,,,,11:29,0,1,0.0,0,0,0.0,0,0,0.0,0,4,4,2,0,0,1,1,0,-3.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,27:23,7,13,0.538,3,4,0.75,2,2,1.0,0,1,1,2,0,0,0,2,19,-9.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,7:28,0,2,0.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,-5.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,18:48,2,8,0.25,0,2,0.0,2,3,0.667,1,5,6,1,0,1,2,0,6,2.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,12:58,4,5,0.8,1,2,0.5,0,0,0.0,0,1,1,0,1,0,0,1,9,-2.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1642928,Dylan,Cardwell,D. Cardwell,dylan-cardwell,,,,14:37,1,4,0.25,0,0,0.0,1,2,0.5,1,0,1,0,1,2,0,5,3,6.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1631342,Daeqwon,Plowden,D. Plowden,daeqwon-plowden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612758,Sacramento,Kings,SAC,kings,1641815,Isaiah,Stevens,I. Stevens,isaiah-stevens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,33:54,9,24,0.375,1,8,0.125,3,3,1.0,1,3,4,3,2,1,2,5,22,2.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,24:43,4,9,0.444,1,4,0.25,0,2,0.0,5,5,10,3,1,3,0,2,9,-7.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,C,,,19:23,3,5,0.6,0,0,0.0,1,1,1.0,1,3,4,1,0,0,1,3,7,-2.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,G,,,35:35,6,12,0.5,3,7,0.429,3,3,1.0,1,4,5,7,1,0,4,3,18,1.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,36:22,10,19,0.526,1,3,0.333,10,15,0.667,2,3,5,3,1,0,6,5,31,1.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,22:20,3,9,0.333,1,4,0.25,0,0,0.0,2,0,2,4,1,1,0,2,7,9.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1631109,Mark,Williams,M. Williams,mark-williams,,,,23:39,3,5,0.6,0,0,0.0,0,0,0.0,2,9,11,0,0,2,1,2,6,15.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,29:03,4,8,0.5,3,7,0.429,1,2,0.5,2,3,5,2,1,0,1,2,12,3.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1628502,Nigel,Hayes-Davis,N. Hayes-Davis,nigel-hayes-davis,,,,10:19,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,4.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,,,,4:42,3,3,1.0,0,0,0.0,2,2,1.0,2,1,3,0,0,0,0,1,8,-6.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1642886,Koby,Brea,K. Brea,koby-brea,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1642853,Rasheer,Fleming,R. Fleming,rasheer-fleming,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1630587,Isaiah,Livers,I. Livers,isaiah-livers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088
+0022500088,1610612756,Phoenix,Suns,PHX,suns,1642863,Khaman,Maluach,K. Maluach,khaman-maluach,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500088

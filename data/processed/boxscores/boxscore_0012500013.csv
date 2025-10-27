@@ -1,0 +1,43 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,17:02,3,5,0.6,1,3,0.333,0,0,0.0,1,0,1,0,1,1,1,4,7,-6.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,24:00,6,11,0.545,3,7,0.429,0,1,0.0,1,3,4,0,2,0,3,2,15,-6.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,21:36,2,8,0.25,0,1,0.0,0,2,0.0,1,6,7,2,1,1,1,1,4,-5.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,25:55,4,12,0.333,0,3,0.0,8,10,0.8,1,3,4,1,0,1,1,2,16,-16.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,G,,,17:28,2,5,0.4,0,2,0.0,0,0,0.0,0,2,2,3,0,0,4,3,4,-3.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,18:44,1,3,0.333,0,0,0.0,5,6,0.833,1,6,7,1,1,0,2,1,7,-5.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,19:07,5,8,0.625,4,6,0.667,1,1,1.0,0,4,4,0,0,0,1,2,15,-1.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,17:52,3,7,0.429,2,6,0.333,0,0,0.0,2,0,2,0,1,0,1,2,8,-1.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,,,,21:57,2,5,0.4,0,1,0.0,0,0,0.0,4,0,4,11,1,0,3,1,4,-5.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1642962,Drake,Powell,D. Powell,drake-powell,,,,16:15,2,5,0.4,2,4,0.5,0,0,0.0,0,2,2,2,0,0,1,1,6,9.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1642874,Danny,Wolf,D. Wolf,danny-wolf,,,,12:00,3,4,0.75,2,2,1.0,1,2,0.5,0,1,1,4,0,0,2,0,9,9.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,8:26,3,3,1.0,2,2,1.0,3,4,0.75,0,1,1,0,0,1,1,1,11,10.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,7:40,1,1,1.0,1,1,1.0,0,0,0.0,1,2,3,0,0,0,0,0,3,12.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,5:59,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,1,2,9.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,,,5:59,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,9.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1630855,Zeng,Fanbo,Z. Fanbo,zeng-fanbo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612751,Brooklyn,Nets,BKN,nets,1631166,Drew,Timme,D. Timme,drew-timme,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,22:51,4,9,0.444,1,4,0.25,3,3,1.0,2,0,2,1,1,0,1,6,12,6.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,20:47,3,8,0.375,1,4,0.25,0,0,0.0,1,4,5,1,1,1,0,2,7,6.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,C,,,20:01,5,7,0.714,0,0,0.0,2,3,0.667,2,3,5,3,1,0,2,1,12,-2.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,G,,,22:55,3,7,0.429,3,5,0.6,0,0,0.0,1,2,3,3,0,3,1,2,9,5.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,26:29,4,12,0.333,3,5,0.6,7,8,0.875,1,4,5,5,1,0,4,1,18,14.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,17:21,3,7,0.429,2,5,0.4,0,0,0.0,1,1,2,2,1,0,1,1,8,9.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,21:41,3,8,0.375,1,4,0.25,2,2,1.0,0,4,4,3,0,1,3,3,9,8.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,,,,16:08,4,5,0.8,0,0,0.0,3,5,0.6,3,2,5,2,0,1,0,2,11,10.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1628502,Nigel,Hayes-Davis,N. Hayes-Davis,nigel-hayes-davis,,,,15:03,1,4,0.25,0,2,0.0,0,0,0.0,0,0,0,1,1,0,0,2,2,-2.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630215,Jared,Butler,J. Butler,jared-butler,,,,13:32,3,6,0.5,1,3,0.333,0,0,0.0,0,0,0,3,2,1,0,0,7,-18.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642863,Khaman,Maluach,K. Maluach,khaman-maluach,,,,11:42,3,6,0.5,0,1,0.0,1,2,0.5,0,2,2,0,1,0,1,2,7,-10.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,11:04,3,7,0.429,1,3,0.333,0,0,0.0,0,1,1,2,2,1,0,2,7,-6.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642853,Rasheer,Fleming,R. Fleming,rasheer-fleming,,,,9:39,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-13.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630561,David,Duke Jr.,D. Duke Jr.,david-duke-jr,,,,5:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-9.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642886,Koby,Brea,K. Brea,koby-brea,,,,4:48,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-8.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1641878,Damion,Baugh,D. Baugh,damion-baugh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630224,Jalen,Green,J. Green,jalen-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1643047,CJ,Huntley,C. Huntley,cj-huntley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1630587,Isaiah,Livers,I. Livers,isaiah-livers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1642487,Tyrese,Samuel,T. Samuel,tyrese-samuel,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013
+0012500013,1610612756,Phoenix,Suns,PHX,suns,1631109,Mark,Williams,M. Williams,mark-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500013

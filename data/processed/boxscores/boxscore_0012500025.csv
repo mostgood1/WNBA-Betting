@@ -1,0 +1,40 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,31:23,7,16,0.438,5,12,0.417,13,14,0.929,1,5,6,0,2,3,2,4,32,-7.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,15:49,3,9,0.333,0,3,0.0,2,2,1.0,0,3,3,3,0,0,1,0,8,6.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,28:43,3,8,0.375,1,2,0.5,2,4,0.5,5,5,10,2,0,3,1,5,9,-10.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,34:49,6,17,0.353,2,9,0.222,6,7,0.857,1,2,3,3,1,0,4,3,20,-3.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,31:48,8,13,0.615,6,9,0.667,2,2,1.0,0,7,7,7,2,0,3,2,24,-2.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1642905,Hansen,Yang,H. Yang,hansen-yang,,,,15:01,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,1,1,1,3,6,3,-3.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,18:46,1,1,1.0,1,1,1.0,2,4,0.5,4,2,6,2,1,0,0,6,5,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,18:22,1,4,0.25,0,3,0.0,0,0,0.0,2,2,4,3,1,0,2,0,2,1.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,16:02,3,6,0.5,1,4,0.25,0,0,0.0,0,0,0,4,2,0,1,5,7,8.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631126,Caleb,Love,C. Love,caleb-love,,,,21:26,6,12,0.5,3,9,0.333,1,1,1.0,2,1,3,2,1,0,1,3,16,-6.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,7:51,1,2,0.5,1,1,1.0,0,0,0.0,0,3,3,1,0,0,1,4,3,1.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1631451,Javonte,Cooke,J. Cooke,javonte-cooke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,203081,Damian,Lillard,D. Lillard,damian-lillard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,21:16,6,10,0.6,1,4,0.25,2,2,1.0,0,3,3,5,0,1,3,4,15,11.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,F,,,23:30,2,7,0.286,1,4,0.25,4,4,1.0,0,2,2,0,2,0,0,2,9,-3.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,25:51,6,9,0.667,1,1,1.0,1,2,0.5,5,5,10,8,2,2,1,3,14,11.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,G,,,26:20,5,13,0.385,5,10,0.5,0,0,0.0,0,2,2,4,0,0,2,0,15,4.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,25:51,7,11,0.636,3,6,0.5,3,3,1.0,0,1,1,2,2,1,2,0,20,11.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,,,,24:30,3,4,0.75,1,1,1.0,1,2,0.5,2,5,7,2,0,0,0,3,8,6.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,20:50,4,7,0.571,1,3,0.333,3,4,0.75,0,5,5,1,0,0,4,0,12,-7.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642383,Walter,Clayton Jr.,W. Clayton Jr.,walter-clayton-jr,,,,19:02,3,9,0.333,0,4,0.0,2,2,1.0,1,2,3,5,1,0,2,3,8,-6.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,,,13:37,3,6,0.5,0,0,0.0,6,8,0.75,2,2,4,1,0,0,0,3,12,-12.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,,,20:53,1,4,0.25,0,2,0.0,7,8,0.875,0,0,0,0,2,0,0,1,9,-7.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642910,John,Tonje,J. Tonje,john-tonje,,,,9:48,0,3,0.0,0,2,0.0,2,2,1.0,1,2,3,0,0,0,1,0,2,3.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1628964,Mo,Bamba,M. Bamba,mo-bamba,,,,8:32,1,3,0.333,1,1,1.0,5,6,0.833,2,1,3,2,0,1,0,2,8,4.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642846,Ace,Bailey,A. Bailey,ace-bailey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1630817,Pedro,Bradshaw,P. Bradshaw,pedro-bradshaw,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642398,Sean,East II,S. East II,sean-east-ii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1627777,Georges,Niang,G. Niang,georges-niang,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025
+0012500025,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500025

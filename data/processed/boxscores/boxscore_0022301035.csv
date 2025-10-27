@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,F,,,24:51,1,6,0.167,1,3,0.333,2,2,1.0,1,5,6,0,0,0,1,1,5,-20.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,F,,,15:34,1,3,0.333,1,1,1.0,0,0,0.0,1,1,2,0,0,0,0,3,3,-27.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,C,,,31:14,7,11,0.636,0,0,0.0,0,0,0.0,2,9,11,1,0,1,4,3,14,-23.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,G,,,24:00,2,14,0.143,1,6,0.167,4,4,1.0,2,2,4,3,2,1,2,2,9,-21.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,G,,,34:36,7,18,0.389,1,6,0.167,9,10,0.9,0,1,1,6,1,0,1,2,24,-28.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,29:39,5,12,0.417,2,6,0.333,2,2,1.0,1,3,4,3,2,1,2,2,14,-5.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,16:46,3,4,0.75,0,0,0.0,0,0,0.0,0,2,2,4,2,1,0,3,6,-2.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,203095,Evan,Fournier,E. Fournier,evan-fournier,,,,19:43,5,11,0.455,1,4,0.25,4,4,1.0,0,2,2,2,1,0,1,1,15,-5.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,,,25:11,1,3,0.333,1,2,0.5,0,0,0.0,0,2,2,3,0,0,1,3,3,-3.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1631205,Buddy,Boeheim,B. Boeheim,buddy-boeheim,,,,18:26,2,6,0.333,2,6,0.333,0,0,0.0,0,3,3,0,0,1,0,2,6,9.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301035
+0022301035,1610612765,Detroit,Pistons,DET,pistons,1630649,Stanley,Umude,S. Umude,stanley-umude,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,F,,,40:50,14,23,0.609,11,20,0.55,1,3,0.333,1,4,5,2,2,1,4,2,40,21.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,39:48,4,10,0.4,1,3,0.333,2,2,1.0,3,11,14,10,1,0,3,0,11,26.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,24:14,3,6,0.5,0,0,0.0,0,0,0.0,2,8,10,5,1,3,0,3,6,27.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,30:04,10,20,0.5,3,7,0.429,5,5,1.0,0,2,2,6,0,0,0,3,28,37.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,43:18,5,12,0.417,1,7,0.143,2,2,1.0,1,4,5,4,1,0,0,4,13,28.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,25:51,3,5,0.6,0,0,0.0,3,6,0.5,5,11,16,1,1,1,2,2,9,3.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,18:17,5,11,0.455,2,7,0.286,1,2,0.5,0,0,0,1,0,0,2,2,13,-3.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,6:35,0,0,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,0,0,0,1,-5.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,,,4:53,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,2,0,-5.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,3:05,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,1,1,0,3,-2.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,,,3:05,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-2.0,0022301035
+0022301035,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301035

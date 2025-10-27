@@ -1,0 +1,37 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500017,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,22:44,4,5,0.8,0,1,0.0,2,2,1.0,0,1,1,0,0,0,1,0,10,3.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,15:53,4,7,0.571,0,2,0.0,1,3,0.333,4,1,5,1,1,0,0,1,9,11.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,16:53,3,11,0.273,0,3,0.0,2,3,0.667,2,2,4,3,1,1,2,5,8,-2.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,25:10,7,11,0.636,5,8,0.625,0,0,0.0,0,4,4,2,1,0,1,2,19,12.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,21:25,2,5,0.4,0,3,0.0,2,2,1.0,0,3,3,3,0,0,1,4,6,0.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,18:08,2,6,0.333,0,1,0.0,4,4,1.0,0,1,1,2,0,0,0,2,8,-11.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1642363,Nique,Clifford,N. Clifford,nique-clifford,,,,25:36,5,11,0.455,2,5,0.4,3,3,1.0,1,2,3,2,1,1,3,5,15,-19.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,15:54,3,5,0.6,0,1,0.0,5,6,0.833,0,3,3,0,1,0,3,3,11,-4.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,5:01,0,1,0.0,0,1,0.0,1,2,0.5,1,1,2,0,0,0,1,1,1,-2.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,7:54,0,1,0.0,0,1,0.0,2,3,0.667,0,1,1,1,1,0,1,2,2,-6.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,203967,Dario,Šarić,D. Šarić,dario-šarić,,,,13:40,4,5,0.8,4,4,1.0,2,2,1.0,0,0,0,0,0,0,0,2,14,6.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,14:55,3,7,0.429,0,1,0.0,0,0,0.0,0,2,2,0,1,0,1,1,6,-2.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1642928,Dylan,Cardwell,D. Cardwell,dylan-cardwell,,,,5:30,0,1,0.0,0,0,0.0,0,0,0.0,2,1,3,0,0,0,1,1,0,-7.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1642875,Maxime,Raynaud,M. Raynaud,maxime-raynaud,,,,12:00,1,3,0.333,0,1,0.0,0,0,0.0,2,3,5,4,0,0,1,1,2,3.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1641815,Isaiah,Stevens,I. Stevens,isaiah-stevens,,,,12:00,3,5,0.6,0,1,0.0,1,2,0.5,0,1,1,2,0,1,1,3,7,3.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1631342,Daeqwon,Plowden,D. Plowden,daeqwon-plowden,,,,7:17,2,4,0.5,0,1,0.0,1,1,1.0,0,0,0,0,1,0,0,0,5,10.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,1629056,Terence,Davis,T. Davis,terence-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017
+0012500017,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,22:31,4,9,0.444,1,3,0.333,6,6,1.0,1,5,6,2,0,0,2,1,15,-3.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,14:01,1,3,0.333,1,2,0.5,0,0,0.0,1,1,2,1,1,0,0,1,3,-4.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,17:41,1,4,0.25,0,0,0.0,0,2,0.0,5,3,8,1,0,2,1,5,2,3.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,25:46,6,14,0.429,2,6,0.333,3,6,0.5,1,5,6,0,0,0,2,5,17,-5.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,21:57,5,10,0.5,2,5,0.4,0,0,0.0,2,1,3,3,1,0,0,2,12,7.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,18:31,5,6,0.833,0,1,0.0,3,3,1.0,0,2,2,1,1,0,3,1,13,1.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1642905,Hansen,Yang,H. Yang,hansen-yang,,,,17:08,5,8,0.625,2,3,0.667,4,4,1.0,2,2,4,1,0,3,3,5,16,9.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,,,18:00,6,13,0.462,0,5,0.0,6,8,0.75,3,1,4,1,0,0,0,2,18,12.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,22:40,3,4,0.75,0,1,0.0,2,3,0.667,1,1,2,1,0,0,1,1,8,0.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,19:37,0,4,0.0,0,3,0.0,0,0,0.0,1,2,3,3,1,1,2,1,0,7.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631126,Caleb,Love,C. Love,caleb-love,,,,11:40,3,7,0.429,2,5,0.4,4,8,0.5,0,3,3,1,0,0,2,0,12,-3.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,12:29,3,4,0.75,0,0,0.0,0,0,0.0,2,3,5,0,1,0,0,4,6,-1.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,9:09,1,3,0.333,0,1,0.0,0,0,0.0,1,0,1,1,0,0,0,0,2,-10.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1631451,Javonte,Cooke,J. Cooke,javonte-cooke,,,,8:50,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,1,3,0,-8.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,203081,Damian,Lillard,D. Lillard,damian-lillard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017
+0012500017,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500017

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,32:42,1,5,0.2,0,3,0.0,2,2,1.0,0,4,4,1,2,0,1,4,4,0.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,37:49,4,11,0.364,0,4,0.0,2,2,1.0,1,4,5,0,1,2,1,2,10,-5.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,21:05,8,10,0.8,0,0,0.0,0,2,0.0,1,4,5,0,0,5,0,2,16,-3.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,39:09,7,16,0.438,4,7,0.571,2,5,0.4,2,2,4,6,1,0,2,4,20,6.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,41:27,10,23,0.435,5,11,0.455,7,7,1.0,1,9,10,13,0,0,4,0,32,6.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,26:47,6,6,1.0,0,0,0.0,2,2,1.0,3,6,9,2,0,0,0,3,14,2.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,11:41,3,7,0.429,2,3,0.667,0,0,0.0,0,1,1,1,1,0,1,1,8,-1.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,21:08,2,4,0.5,1,1,1.0,0,0,0.0,3,3,6,1,2,0,1,1,5,15.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,3:06,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,5:06,0,1,0.0,0,1,0.0,0,2,0.0,0,0,0,0,0,0,0,0,0,-9.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,36:16,1,6,0.167,0,3,0.0,0,0,0.0,0,5,5,2,0,2,2,2,2,-7.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,25:52,4,16,0.25,1,5,0.2,6,7,0.857,3,4,7,3,2,0,0,2,15,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,37:42,6,10,0.6,0,0,0.0,4,6,0.667,5,5,10,2,2,1,0,5,16,1.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,40:09,5,17,0.294,2,7,0.286,9,10,0.9,2,3,5,7,0,1,2,2,21,-9.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,33:05,7,14,0.5,2,5,0.4,2,3,0.667,2,3,5,5,1,1,2,3,18,-1.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,31:44,8,13,0.615,7,9,0.778,0,0,0.0,0,2,2,0,2,1,1,2,23,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,14:23,2,4,0.5,0,2,0.0,2,2,1.0,0,1,1,2,0,1,2,0,6,7.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,20:26,2,5,0.4,0,0,0.0,3,4,0.75,0,5,5,5,0,0,0,3,7,4.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628420,Monté,Morris,M. Morris,monté-morris,,,,0:23,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24
+0042300312,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203933,T.J.,Warren,T. Warren,tj-warren,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300312,2024-05-24

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1642851,Kon,Knueppel,K. Knueppel,kon-knueppel,F,,,34:55,7,12,0.583,5,9,0.556,1,2,0.5,0,6,6,2,1,0,2,2,20,19.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,32:04,6,16,0.375,1,7,0.143,9,10,0.9,0,4,4,3,1,0,0,0,22,4.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1641750,Ryan,Kalkbrenner,R. Kalkbrenner,ryan-kalkbrenner,C,,,22:07,2,3,0.667,0,0,0.0,0,0,0.0,2,3,5,1,0,0,1,2,4,9.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,32:59,7,10,0.7,0,1,0.0,6,7,0.857,0,2,2,3,2,0,3,2,20,4.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,34:38,13,25,0.52,5,12,0.417,7,7,1.0,4,9,13,13,3,0,4,3,38,32.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,16:21,1,1,1.0,1,1,1.0,1,2,0.5,1,6,7,1,2,1,0,3,4,22.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,,,,12:07,0,4,0.0,0,2,0.0,0,0,0.0,0,2,2,0,1,0,0,2,0,-4.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,22:58,4,9,0.444,0,0,0.0,4,5,0.8,4,6,10,1,0,2,1,1,12,12.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1642862,Liam,McNeeley,L. McNeeley,liam-mcneeley,,,,6:18,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,1,0,7.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1642883,Sion,James,S. James,sion-james,,,,20:17,4,7,0.571,3,4,0.75,2,2,1.0,0,0,0,3,2,1,0,0,13,13.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,2:55,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,0,2,5.0,0022500109
+0022500109,1610612766,Charlotte,Hornets,CHA,hornets,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,2:21,2,2,1.0,0,0,0.0,0,1,0.0,0,0,0,1,0,0,0,0,4,7.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,24:51,3,7,0.429,0,4,0.0,0,0,0.0,0,8,8,5,0,0,3,6,6,-22.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,20:17,4,6,0.667,0,1,0.0,3,3,1.0,1,2,3,1,1,0,2,3,11,-4.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,25:09,9,15,0.6,1,3,0.333,4,4,1.0,1,3,4,5,0,3,2,1,23,-7.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,29:57,8,20,0.4,4,11,0.364,4,6,0.667,1,5,6,5,0,0,1,2,24,-5.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,25:56,2,7,0.286,0,1,0.0,0,0,0.0,1,2,3,5,2,0,1,3,4,-8.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642848,Tre,Johnson,T. Johnson,tre-johnson,,,,29:04,6,14,0.429,2,7,0.286,2,2,1.0,1,3,4,2,0,1,0,4,16,-16.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,20:32,4,10,0.4,1,3,0.333,1,2,0.5,0,4,4,2,1,0,4,1,10,-16.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,9:50,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,2,2,-14.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,19:51,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,0,1,0,-13.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,5:56,0,1,0.0,0,0,0.0,4,4,1.0,2,1,3,0,0,0,0,1,4,-6.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,10:56,2,3,0.667,1,1,1.0,1,2,0.5,0,2,2,0,0,0,0,2,6,-1.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642860,Will,Riley,W. Riley,will-riley,,,,9:12,2,5,0.4,1,3,0.333,0,0,0.0,0,1,1,0,0,0,0,0,5,-3.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,,,,4:10,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-4.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1630536,Sharife,Cooper,S. Cooper,sharife-cooper,,,,2:21,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022500109
+0022500109,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,1:58,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,1,0,2,-4.0,0022500109

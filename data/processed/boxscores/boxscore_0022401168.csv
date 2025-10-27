@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,31:38,9,19,0.474,3,7,0.429,2,2,1.0,1,10,11,2,2,1,3,3,23,18.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,F,,,29:11,3,7,0.429,2,5,0.4,0,0,0.0,0,4,4,4,2,0,1,1,8,6.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,15:54,1,4,0.25,0,0,0.0,1,2,0.5,3,7,10,1,0,0,0,0,3,-3.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,G,,,28:57,5,9,0.556,5,8,0.625,0,0,0.0,0,3,3,4,1,1,0,3,15,-2.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,G,,,25:43,9,16,0.563,4,6,0.667,2,2,1.0,1,1,2,6,0,1,2,1,24,13.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,27:34,7,17,0.412,1,4,0.25,1,2,0.5,2,1,3,3,0,0,4,0,16,-13.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,31:05,5,11,0.455,2,6,0.333,1,1,1.0,0,2,2,2,0,0,0,4,13,-1.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,,,21:40,1,3,0.333,0,1,0.0,1,2,0.5,0,2,2,2,1,0,1,2,3,-14.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,19:59,3,8,0.375,0,0,0.0,1,2,0.5,4,8,12,0,0,0,0,2,7,-5.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,8:19,0,4,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-9.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,30:19,7,14,0.5,3,6,0.5,5,6,0.833,1,5,6,1,0,0,0,3,22,4.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,33:02,4,10,0.4,1,2,0.5,1,3,0.333,1,7,8,2,0,1,2,1,10,4.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,31:15,4,9,0.444,1,4,0.25,4,5,0.8,2,5,7,1,0,4,2,4,13,9.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,28:17,1,8,0.125,0,3,0.0,0,0,0.0,0,1,1,7,2,0,0,3,2,6.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,35:32,8,16,0.5,4,11,0.364,3,4,0.75,1,7,8,10,0,3,2,1,23,15.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,23:41,6,14,0.429,1,5,0.2,0,0,0.0,1,2,3,1,1,0,0,2,13,-8.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,19:25,4,7,0.571,1,4,0.25,1,2,0.5,1,3,4,2,0,2,1,0,10,-3.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,15:40,3,6,0.5,0,1,0.0,0,0,0.0,2,1,3,4,0,1,0,1,6,-2.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,8:06,0,2,0.0,0,1,0.0,0,0,0.0,1,2,3,0,0,0,0,0,0,-7.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,14:43,6,7,0.857,3,4,0.75,0,0,0.0,0,3,3,0,0,0,2,1,15,-8.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1642484,RayJ,Dennis,R. Dennis,rayj-dennis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168
+0022401168,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401168

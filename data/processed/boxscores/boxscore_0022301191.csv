@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,31:35,6,15,0.4,0,4,0.0,5,6,0.833,1,2,3,5,1,0,4,3,17,-25.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,F,,,31:11,6,9,0.667,3,4,0.75,2,2,1.0,0,10,10,1,2,2,3,5,17,-9.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,28:27,4,9,0.444,1,3,0.333,2,2,1.0,2,1,3,0,0,2,1,4,11,-17.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,G,,,26:16,1,3,0.333,0,1,0.0,0,0,0.0,2,3,5,2,1,0,2,1,2,-20.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,30:23,2,14,0.143,0,4,0.0,12,13,0.923,1,3,4,2,1,0,2,0,16,-8.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,22:04,2,6,0.333,2,5,0.4,0,0,0.0,1,1,2,0,1,0,2,2,6,-24.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,13:56,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,1,1,0,-8.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,,,,20:23,2,6,0.333,0,4,0.0,0,0,0.0,0,2,2,0,1,0,0,0,4,-14.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,7:09,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,1,0,0,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,7:09,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,1,1,0,0,0,2,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,7:09,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,1,1,0,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,7:09,3,5,0.6,1,1,1.0,0,0,0.0,0,1,1,0,1,0,0,1,7,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,7:09,3,4,0.75,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,6,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301191
+0022301191,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,32:39,10,21,0.476,1,5,0.2,4,4,1.0,1,4,5,3,3,0,0,1,25,25.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,35:03,8,19,0.421,2,6,0.333,8,9,0.889,0,11,11,7,0,0,3,1,26,16.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,C,,,26:10,4,11,0.364,2,7,0.286,0,0,0.0,2,6,8,2,1,3,0,2,10,9.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,27:47,1,4,0.25,1,4,0.25,0,0,0.0,0,0,0,2,1,0,1,3,3,12.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,27:57,1,3,0.333,0,2,0.0,2,2,1.0,0,2,2,4,1,1,1,3,4,13.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,12:44,5,6,0.833,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,1,10,-1.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,17:03,5,9,0.556,1,3,0.333,2,2,1.0,2,3,5,4,2,0,1,3,13,13.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,16:49,1,1,1.0,1,1,1.0,0,0,0.0,0,3,3,2,1,0,1,0,3,14.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,5:58,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,2,-2.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,,,14:17,3,3,1.0,1,1,1.0,0,0,0.0,2,0,2,0,0,0,0,1,7,27.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,5:16,2,3,0.667,1,2,0.5,0,0,0.0,0,1,1,0,0,0,1,0,5,1.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,5:16,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,1,0,0,1,0,1.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,5:16,1,1,1.0,1,1,1.0,2,2,1.0,0,0,0,0,1,1,0,0,5,1.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,3:53,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,1,0,0,0,1,0,-2.0,0022301191
+0022301191,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,3:53,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-2.0,0022301191

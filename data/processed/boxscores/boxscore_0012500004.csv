@@ -1,0 +1,32 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,22:27,5,8,0.625,1,3,0.333,2,2,1.0,0,0,0,6,1,0,5,1,13,-10.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,22:22,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,4,2,0,4,2,2,-3.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,C,,,17:52,3,7,0.429,3,7,0.429,0,0,0.0,0,2,2,1,1,1,0,2,9,-2.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,G,,,23:14,3,7,0.429,0,3,0.0,0,0,0.0,0,4,4,2,1,0,2,3,6,1.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,25:33,10,16,0.625,3,7,0.429,0,0,0.0,0,5,5,8,1,0,2,1,23,6.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,15:27,5,5,1.0,1,1,1.0,0,0,0.0,1,1,2,1,0,0,0,2,11,5.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,19:22,1,5,0.2,1,5,0.2,0,0,0.0,1,4,5,1,1,1,1,1,3,-2.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1642954,Will,Richard,W. Richard,will-richard,,,,23:13,2,9,0.222,1,6,0.167,0,0,0.0,1,0,1,4,2,0,2,3,5,-13.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,20:01,7,9,0.778,0,0,0.0,0,0,0.0,3,4,7,1,1,2,0,3,14,0.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,19:13,3,11,0.273,1,5,0.2,1,2,0.5,1,0,1,0,0,0,2,1,8,-17.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1629716,Marques,Bolden,M. Bolden,marques-bolden,,,,8:03,2,3,0.667,0,0,0.0,3,4,0.75,2,1,3,0,0,0,0,0,7,-8.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1643018,LJ,Cryer,L. Cryer,lj-cryer,,,,10:28,4,7,0.571,3,5,0.6,0,0,0.0,0,0,0,2,0,0,0,3,11,-6.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1642050,Jackson,Rowe,J. Rowe,jackson-rowe,,,,9:30,2,2,1.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,2,0,4,-4.0,0012500004
+0012500004,1610612744,Golden State,Warriors,GSW,warriors,1641795,Taevion,Kinsey,T. Kinsey,taevion-kinsey,,,,3:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,3.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,F,,,24:50,3,9,0.333,0,4,0.0,0,0,0.0,1,3,4,2,0,0,1,0,6,1.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,27:12,6,10,0.6,3,4,0.75,1,1,1.0,0,3,3,2,1,0,4,2,16,5.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,26:17,6,8,0.75,0,0,0.0,2,2,1.0,3,5,8,5,2,1,1,1,14,3.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,G,,,33:33,4,9,0.444,2,5,0.4,6,8,0.75,0,3,3,2,0,0,0,1,16,6.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,22:35,7,10,0.7,2,4,0.5,5,6,0.833,1,2,3,3,1,1,5,0,21,8.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,27:36,4,13,0.308,1,4,0.25,2,2,1.0,3,0,3,5,4,0,2,1,11,12.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,21:41,3,8,0.375,2,4,0.5,5,5,1.0,2,2,4,2,2,0,3,1,13,2.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,,,15:56,1,2,0.5,0,0,0.0,5,5,1.0,0,1,1,1,0,0,1,0,7,6.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,13:46,2,4,0.5,0,0,0.0,1,4,0.25,1,3,4,1,1,0,0,1,5,6.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1642930,R.J.,Davis,R. Davis,rj-davis,,,,6:17,2,2,1.0,1,1,1.0,0,0,0.0,1,2,3,0,0,0,1,2,5,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,7:57,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,4,0,0,1,0,0,1.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1631466,Nate,Williams,N. Williams,nate-williams,,,,6:10,2,2,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,2,5,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,6:10,3,3,1.0,0,0,0.0,1,2,0.5,0,0,0,1,0,0,0,0,7,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1643024,Chris,Mañon,C. Mañon,chris-mañon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1643051,Augustas,Marčiulionis,A. Marčiulionis,augustas-marčiulionis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500004
+0012500004,1610612747,Los Angeles,Lakers,LAL,lakers,1641817,Anton,Watson,A. Watson,anton-watson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500004

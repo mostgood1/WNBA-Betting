@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,27:57,6,11,0.545,3,6,0.5,1,2,0.5,1,2,3,2,1,0,0,3,16,23.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,28:40,12,20,0.6,1,4,0.25,2,3,0.667,2,5,7,4,1,2,2,2,27,28.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,27:52,7,13,0.538,2,3,0.667,2,2,1.0,4,3,7,1,0,1,0,0,18,20.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,32:43,1,6,0.167,1,6,0.167,2,2,1.0,0,2,2,7,0,0,0,1,5,26.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,31:22,5,13,0.385,2,7,0.286,2,3,0.667,2,3,5,10,1,0,1,0,14,15.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,25:14,4,7,0.571,0,2,0.0,3,4,0.75,2,6,8,3,1,0,0,2,11,-14.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,12:43,3,4,0.75,0,1,0.0,0,0,0.0,0,6,6,1,0,1,0,2,6,-10.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,17:12,4,4,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,5,0,8,-10.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,15:21,1,7,0.143,1,4,0.25,2,2,1.0,0,1,1,1,0,0,2,1,5,-7.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,16:23,1,4,0.25,0,2,0.0,0,0,0.0,0,4,4,1,1,0,0,5,2,-11.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,1:31,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,0.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,1:31,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,0.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,1:31,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,F,,,36:51,5,14,0.357,2,8,0.25,2,3,0.667,1,3,4,0,0,3,2,3,14,-12.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,F,,,36:01,1,6,0.167,1,3,0.333,2,4,0.5,2,13,15,2,1,0,2,1,5,-3.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,C,,,33:36,5,8,0.625,0,0,0.0,6,7,0.857,4,5,9,0,2,1,2,5,16,-8.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,G,,,40:06,11,20,0.55,1,5,0.2,1,1,1.0,2,3,5,4,2,1,0,1,24,-14.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1630215,Jared,Butler,J. Butler,jared-butler,G,,,32:40,6,13,0.462,3,9,0.333,2,2,1.0,0,3,3,4,0,1,4,3,17,-14.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,,,19:32,2,8,0.25,0,4,0.0,1,2,0.5,1,2,3,3,0,0,1,2,5,1.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1642024,Alex,Reese,A. Reese,alex-reese,,,,18:30,2,5,0.4,1,4,0.25,0,0,0.0,0,3,3,0,1,2,1,2,5,0.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,,,22:44,5,8,0.625,3,5,0.6,1,3,0.333,1,0,1,0,1,1,2,2,14,-10.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959
+0022400959,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400959

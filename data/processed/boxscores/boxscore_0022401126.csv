@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1631232,Keion,Brooks Jr.,K. Brooks Jr.,keion-brooks-jr,F,,,25:08,4,9,0.444,0,4,0.0,1,2,0.5,1,3,4,1,2,0,1,4,9,-11.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,F,,,22:08,4,8,0.5,0,1,0.0,4,6,0.667,2,1,3,2,0,1,2,4,12,-15.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,27:30,5,8,0.625,0,0,0.0,3,5,0.6,7,4,11,2,1,1,0,2,13,-15.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1628971,Bruce,Brown,B. Brown,bruce-brown,G,,,26:18,0,5,0.0,0,1,0.0,1,2,0.5,2,4,6,1,0,0,1,1,1,-12.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,28:09,10,21,0.476,6,10,0.6,1,3,0.333,1,3,4,5,0,0,4,0,27,-8.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,18:14,2,3,0.667,2,2,1.0,2,2,1.0,1,2,3,0,1,0,2,1,8,0.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,26:37,4,7,0.571,3,6,0.5,0,0,0.0,0,1,1,1,4,0,0,4,11,-3.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,20:30,6,7,0.857,1,2,0.5,2,2,1.0,1,5,6,2,1,0,0,2,15,-1.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,23:01,4,10,0.4,2,7,0.286,0,0,0.0,0,0,0,0,0,0,1,2,10,-8.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,19:51,1,3,0.333,0,0,0.0,0,0,0.0,0,0,0,12,1,0,5,2,2,-8.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,2:34,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,1.0,0022401126
+0022401126,1610612740,New Orleans,Pelicans,NOP,pelicans,1630283,Kylor,Kelley,K. Kelley,kylor-kelley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,F,,,31:40,2,4,0.5,1,3,0.333,0,0,0.0,0,2,2,2,0,0,1,2,5,3.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,32:40,9,17,0.529,2,7,0.286,7,8,0.875,0,0,0,8,2,0,1,1,27,7.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,C,,,24:12,3,4,0.75,0,0,0.0,0,0,0.0,1,11,12,0,1,2,1,4,6,8.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,35:44,8,13,0.615,6,9,0.667,8,9,0.889,1,2,3,7,1,0,1,1,30,17.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,35:49,10,21,0.476,4,10,0.4,11,11,1.0,0,6,6,6,0,0,2,2,35,12.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,17:47,1,4,0.25,0,3,0.0,0,0,0.0,2,3,5,2,1,0,2,4,2,7.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,18:29,2,4,0.5,1,3,0.333,0,0,0.0,2,1,3,1,1,0,1,3,5,6.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,16:30,1,2,0.5,0,0,0.0,0,0,0.0,1,2,3,0,0,0,1,0,2,11.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,20:18,5,10,0.5,2,6,0.333,0,0,0.0,1,0,1,0,0,0,1,0,12,12.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,4:58,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,1,0,1,1,0,-2.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,1629003,Shake,Milton,S. Milton,shake-milton,,,,1:53,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,203458,Alex,Len,A. Len,alex-len,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401126
+0022401126,1610612747,Los Angeles,Lakers,LAL,lakers,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401126

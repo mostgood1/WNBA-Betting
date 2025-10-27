@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,32:36,4,13,0.308,1,5,0.2,0,0,0.0,3,5,8,1,1,2,0,4,9,2.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,F,,,33:28,4,8,0.5,1,2,0.5,1,2,0.5,3,3,6,5,0,1,1,3,10,20.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,C,,,17:18,7,12,0.583,2,4,0.5,1,2,0.5,2,2,4,0,0,1,1,1,17,3.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,37:51,13,23,0.565,2,8,0.25,4,4,1.0,1,6,7,8,1,2,3,2,32,-1.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,27:05,2,8,0.25,0,5,0.0,0,0,0.0,0,1,1,2,2,1,1,2,4,15.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628420,Monté,Morris,M. Morris,monté-morris,,,,15:41,3,5,0.6,2,3,0.667,0,0,0.0,0,1,1,4,0,0,0,0,8,-5.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,34:28,4,11,0.364,3,6,0.5,2,2,1.0,1,3,4,5,3,2,0,2,13,26.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,11:06,3,5,0.6,2,4,0.5,0,0,0.0,1,0,1,0,0,0,2,1,8,-13.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203933,T.J.,Warren,T. Warren,tj-warren,,,,8:42,1,3,0.333,0,1,0.0,0,0,0.0,1,1,2,2,1,0,1,0,2,-2.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,21:45,3,3,1.0,3,3,1.0,2,2,1.0,0,1,1,0,1,0,0,0,11,5.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987
+0022300987,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,30:55,8,16,0.5,1,5,0.2,5,5,1.0,3,9,12,1,2,1,6,1,22,-7.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,27:37,3,6,0.5,2,4,0.5,0,0,0.0,0,6,6,1,1,1,0,1,8,1.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,C,,,19:51,5,9,0.556,0,0,0.0,1,2,0.5,2,4,6,0,0,0,0,4,11,4.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,26:37,3,9,0.333,2,6,0.333,0,0,0.0,3,0,3,5,0,0,0,3,8,2.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,29:48,6,12,0.5,2,3,0.667,1,1,1.0,0,3,3,8,1,0,6,0,15,-5.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,,,,36:32,9,17,0.529,5,8,0.625,1,1,1.0,1,0,1,2,0,0,4,0,24,-10.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,18:57,2,7,0.286,1,3,0.333,2,3,0.667,0,1,1,3,2,0,0,1,7,-2.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,14:48,1,5,0.2,1,3,0.333,0,0,0.0,0,1,1,3,0,0,0,1,3,-9.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,,,,28:09,2,3,0.667,0,0,0.0,2,2,1.0,5,9,14,2,0,1,1,2,6,-14.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,6:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-10.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987
+0022300987,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300987

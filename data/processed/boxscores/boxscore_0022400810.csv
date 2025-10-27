@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,23:22,1,6,0.167,1,5,0.2,1,1,1.0,1,1,2,2,2,0,2,2,4,-19.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,23:27,6,14,0.429,3,6,0.5,2,2,1.0,0,3,3,3,2,1,2,3,17,-28.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,21:19,3,8,0.375,0,0,0.0,4,5,0.8,2,3,5,0,2,0,1,1,10,-25.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,G,,,32:48,6,18,0.333,0,5,0.0,2,2,1.0,1,1,2,2,1,0,4,5,14,-32.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,21:49,1,10,0.1,0,4,0.0,3,4,0.75,0,4,4,2,0,1,0,1,5,-18.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,,,16:15,5,9,0.556,1,3,0.333,0,1,0.0,4,4,8,5,1,1,2,4,11,-22.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,22:27,1,4,0.25,0,0,0.0,0,0,0.0,0,1,1,1,1,1,3,1,2,-36.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,21:37,4,10,0.4,0,0,0.0,0,1,0.0,2,0,2,0,0,0,0,1,8,-21.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,20:32,3,9,0.333,0,5,0.0,0,0,0.0,0,1,1,1,1,0,0,0,6,-27.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,23:17,2,8,0.25,0,4,0.0,2,3,0.667,1,1,2,1,0,2,0,1,6,-25.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,13:07,2,2,1.0,0,0,0.0,1,2,0.5,1,6,7,2,2,1,1,2,5,-12.0,0022400810
+0022400810,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,29:06,3,10,0.3,2,6,0.333,0,0,0.0,2,7,9,4,4,0,3,0,8,27.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,27:55,7,9,0.778,4,6,0.667,2,2,1.0,1,9,10,6,1,2,2,3,20,45.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,19:49,4,4,1.0,0,0,0.0,0,0,0.0,2,3,5,0,1,1,1,4,8,23.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,23:14,6,10,0.6,1,4,0.25,2,5,0.4,1,3,4,4,1,0,2,2,15,26.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,26:21,8,16,0.5,5,10,0.5,4,4,1.0,0,3,3,4,0,0,4,1,25,30.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,20:05,4,7,0.571,3,5,0.6,2,4,0.5,1,0,1,5,0,0,0,4,13,24.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,26:17,6,10,0.6,1,3,0.333,7,10,0.7,2,12,14,2,2,0,0,3,20,28.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,21:09,8,12,0.667,4,7,0.571,0,0,0.0,0,3,3,5,0,2,1,0,20,27.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,15:51,1,2,0.5,0,0,0.0,0,0,0.0,1,0,1,1,1,1,1,1,2,11.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,10:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,2,0,0,10.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,10:34,4,6,0.667,0,2,0.0,0,0,0.0,1,3,4,2,1,1,1,2,8,8.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,8:40,0,1,0.0,0,0,0.0,2,2,1.0,0,3,3,2,0,0,1,2,2,6.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400810
+0022400810,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400810

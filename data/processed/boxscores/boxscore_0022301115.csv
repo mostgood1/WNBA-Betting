@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301115,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,28:26,8,16,0.5,0,4,0.0,6,8,0.75,3,4,7,1,1,0,1,4,22,-6.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,40:04,10,26,0.385,1,8,0.125,11,12,0.917,3,5,8,8,1,2,3,1,32,-19.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,37:16,5,10,0.5,3,7,0.429,0,0,0.0,3,4,7,1,1,1,1,4,13,-15.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,28:40,4,8,0.5,4,8,0.5,0,0,0.0,1,2,3,6,2,0,0,0,12,-5.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,22:13,4,8,0.5,0,3,0.0,0,0,0.0,0,1,1,2,1,0,0,3,8,-13.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,18:59,1,8,0.125,0,4,0.0,0,0,0.0,0,1,1,1,1,0,0,2,2,5.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,31:48,6,11,0.545,0,1,0.0,3,3,1.0,3,3,6,3,2,0,2,1,15,-2.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,21:50,1,2,0.5,1,2,0.5,0,1,0.0,0,0,0,2,0,0,2,1,3,4.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,10:44,3,5,0.6,0,1,0.0,2,2,1.0,2,2,4,0,0,0,1,3,8,6.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,F,,,39:19,11,13,0.846,5,6,0.833,5,5,1.0,0,6,6,2,1,1,5,3,32,7.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,41:40,8,17,0.471,2,6,0.333,5,5,1.0,0,6,6,4,0,1,3,2,23,18.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,C,,,38:28,7,13,0.538,3,4,0.75,1,1,1.0,1,5,6,7,0,1,3,4,18,7.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,G,,,31:34,2,5,0.4,1,2,0.5,2,2,1.0,0,4,4,5,3,0,1,2,7,9.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,34:48,4,9,0.444,1,5,0.2,5,5,1.0,0,5,5,9,1,0,3,3,14,20.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1630197,Aleksej,Pokusevski,A. Pokusevski,aleksej-pokusevski,,,,18:21,2,3,0.667,1,2,0.5,5,5,1.0,0,2,2,2,0,0,2,0,10,6.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1629716,Marques,Bolden,M. Bolden,marques-bolden,,,,9:32,2,2,1.0,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,1,4,2.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,,,19:58,5,8,0.625,2,5,0.4,0,0,0.0,2,2,4,0,0,0,1,4,12,-15.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,,,,6:20,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,0,1,1,0,3,4,-9.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115
+0022301115,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301115

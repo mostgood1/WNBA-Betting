@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,29:39,6,12,0.5,3,8,0.375,2,2,1.0,1,2,3,1,2,0,3,1,17,2.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,F,,,26:26,4,6,0.667,1,3,0.333,2,2,1.0,4,12,16,4,0,1,2,1,11,11.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,30:33,9,19,0.474,0,5,0.0,0,0,0.0,1,6,7,6,0,7,1,1,18,15.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,G,,,28:19,4,13,0.308,2,8,0.25,0,0,0.0,0,4,4,2,1,0,1,1,10,-1.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,32:00,4,10,0.4,0,4,0.0,0,0,0.0,2,5,7,4,1,0,0,0,8,20.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,17:40,2,5,0.4,0,1,0.0,1,1,1.0,0,7,7,3,0,1,1,0,5,1.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,21:23,4,6,0.667,0,1,0.0,2,2,1.0,2,1,3,2,1,1,0,2,10,6.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,,,21:10,1,6,0.167,1,6,0.167,0,0,0.0,0,0,0,4,0,1,2,2,3,14.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,22:30,5,7,0.714,2,3,0.667,1,1,1.0,0,2,2,3,0,0,5,2,13,13.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1630564,RaiQuan,Gray,R. Gray,raiquan-gray,,,,3:54,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,1,0,0,-4.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1630561,David,Duke Jr.,D. Duke Jr.,david-duke-jr,,,,3:13,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,1,0,0,0,0,3,-1.0,0022301151
+0022301151,1610612759,San Antonio,Spurs,SAS,spurs,1631123,Jamaree,Bouyea,J. Bouyea,jamaree-bouyea,,,,3:13,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,2,4,-1.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,F,,,27:36,4,17,0.235,2,8,0.25,1,2,0.5,1,3,4,2,0,1,0,1,11,-14.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,F,,,27:00,7,12,0.583,0,1,0.0,0,0,0.0,0,1,1,0,1,1,0,1,14,-13.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,C,,,30:10,6,14,0.429,0,0,0.0,2,2,1.0,5,4,9,2,1,1,1,3,14,-4.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,G,,,36:09,5,15,0.333,0,2,0.0,0,0,0.0,8,11,19,5,0,0,1,1,10,-7.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,31:30,4,15,0.267,0,5,0.0,6,7,0.857,2,5,7,5,4,1,3,2,14,-3.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630285,Zavier,Simpson,Z. Simpson,zavier-simpson,,,,30:37,5,15,0.333,2,6,0.333,0,0,0.0,0,3,3,5,1,0,2,0,12,-10.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641851,Timmy,Allen,T. Allen,timmy-allen,,,,31:27,3,9,0.333,0,3,0.0,0,0,0.0,1,3,4,2,2,0,0,4,6,-11.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631298,Jack,White,J. White,jack-white,,,,25:31,2,7,0.286,2,5,0.4,0,0,0.0,0,2,2,0,1,1,0,1,6,-13.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301151
+0022301151,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301151

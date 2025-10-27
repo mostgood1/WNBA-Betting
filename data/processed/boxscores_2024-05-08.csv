@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,34:13,2,7,0.286,2,6,0.333,0,0,0.0,0,1,1,2,1,0,2,3,6,-19.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,36:12,7,18,0.389,0,3,0.0,0,2,0.0,5,4,9,2,0,1,0,3,14,-9.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,31:04,3,11,0.273,0,2,0.0,0,1,0.0,2,5,7,1,0,1,2,2,6,-21.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,26:53,7,9,0.778,1,3,0.333,0,0,0.0,0,0,0,4,0,0,1,5,15,-21.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,34:41,11,19,0.579,7,11,0.636,5,6,0.833,2,4,6,9,3,0,2,0,34,-17.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,22:48,5,9,0.556,0,1,0.0,0,0,0.0,1,3,4,12,0,0,2,0,10,10.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,19:54,7,10,0.7,2,4,0.5,4,5,0.8,1,2,3,1,1,0,0,0,20,9.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,19:35,4,6,0.667,3,4,0.75,0,0,0.0,0,0,0,1,0,0,0,0,11,12.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,14:40,2,4,0.5,0,0,0.0,1,3,0.333,3,1,4,1,0,1,0,4,5,11.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1631112,Kendall,Brown,K. Brown,kendall-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,27:54,10,19,0.526,4,7,0.571,4,6,0.667,1,3,4,3,0,1,0,1,28,10.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,48:00,8,12,0.667,1,3,0.333,2,2,1.0,2,13,15,7,1,1,5,3,19,9.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,39:03,5,7,0.714,0,0,0.0,4,4,1.0,4,8,12,8,0,1,1,1,14,21.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,43:38,10,20,0.5,6,12,0.5,2,2,1.0,2,4,6,4,1,0,1,1,28,15.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,32:28,11,18,0.611,3,6,0.5,4,6,0.667,0,2,2,5,3,0,2,2,29,26.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,20:05,1,4,0.25,0,2,0.0,2,2,1.0,0,0,0,1,0,0,0,2,4,-22.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,28:08,4,5,0.8,0,0,0.0,0,0,0.0,3,2,5,0,0,0,0,4,8,-14.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,,,0:44,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08
+0042300212,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300212,2024-05-08

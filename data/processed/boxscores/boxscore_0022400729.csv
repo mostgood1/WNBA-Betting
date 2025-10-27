@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,33:42,6,13,0.462,3,7,0.429,0,0,0.0,0,3,3,1,0,1,0,4,15,-14.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,F,,,28:21,4,5,0.8,0,0,0.0,2,2,1.0,1,3,4,2,5,3,2,3,10,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,32:39,6,11,0.545,1,2,0.5,3,4,0.75,3,7,10,7,2,0,2,4,16,-21.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,37:58,9,22,0.409,3,8,0.375,7,10,0.7,1,5,6,5,1,0,1,0,28,-14.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,G,,,37:18,6,10,0.6,0,0,0.0,4,6,0.667,2,1,3,5,1,2,1,0,16,-15.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,27:59,5,13,0.385,3,7,0.429,3,5,0.6,1,2,3,0,0,0,0,1,16,-8.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,17:18,1,5,0.2,1,5,0.2,0,0,0.0,1,1,2,2,2,1,3,2,3,4.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,14:13,4,4,1.0,1,1,1.0,1,1,1.0,2,3,5,1,0,0,1,2,10,5.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,10:32,0,1,0.0,0,1,0.0,0,0,0.0,1,2,3,3,1,0,0,2,0,-2.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1642368,N'Faly,Dante,N. Dante,nfaly-dante,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1630531,Jaden,Springer,J. Springer,jaden-springer,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,30:37,6,15,0.4,0,4,0.0,0,0,0.0,5,3,8,4,0,1,3,5,12,22.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,F,,,35:32,6,16,0.375,2,8,0.25,1,1,1.0,4,7,11,4,2,2,2,2,15,25.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,34:25,5,8,0.625,0,0,0.0,3,4,0.75,3,7,10,0,0,1,2,4,13,2.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,38:27,11,25,0.44,5,12,0.417,14,15,0.933,2,5,7,6,0,1,4,3,41,9.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,28:31,6,8,0.75,4,4,1.0,0,0,0.0,0,3,3,5,1,1,1,1,16,12.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,13:02,3,5,0.6,0,2,0.0,0,0,0.0,0,0,0,0,1,0,1,2,6,-8.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,32:05,1,4,0.25,0,1,0.0,0,0,0.0,0,3,3,2,1,0,0,1,2,11.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,18:47,5,9,0.556,4,6,0.667,3,4,0.75,3,0,3,1,0,0,0,2,17,-8.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,0,2.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,6:34,2,4,0.5,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,0,5,-2.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729
+0022400729,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641803,Tristen,Newton,T. Newton,tristen-newton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400729

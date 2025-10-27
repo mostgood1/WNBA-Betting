@@ -1,0 +1,34 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295493,Yovel,Zoosman,Y. Zoosman,yovel-zoosman,F,,,23:53,2,7,0.286,2,5,0.4,0,0,0.0,0,1,1,0,2,0,3,1,6,-20.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,1630237,Anthony,Lamb,A. Lamb,anthony-lamb,F,,,29:06,4,15,0.267,2,8,0.25,3,5,0.6,2,6,8,4,3,0,2,4,13,-18.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295491,Austin,Wiley,A. Wiley,austin-wiley,C,,,23:31,4,9,0.444,0,0,0.0,6,7,0.857,4,7,11,0,0,1,1,3,14,0.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295482,Finn,Delaney,F. Delaney,finn-delaney,G,,,23:30,3,10,0.3,0,4,0.0,7,8,0.875,1,1,2,2,0,0,2,1,13,-14.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,1629607,Jared,Harper,J. Harper,jared-harper,G,,,22:30,3,5,0.6,1,3,0.333,2,4,0.5,0,1,1,4,0,0,1,0,9,-21.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295488,Nicholas,Tata,N. Tata,nicholas-tata,,,,19:00,1,3,0.333,0,1,0.0,0,0,0.0,1,1,2,0,1,0,1,3,2,-8.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295487,Fabijan,Krslovic,F. Krslovic,fabijan-krslovic,,,,22:11,2,10,0.2,0,4,0.0,3,4,0.75,2,1,3,1,0,0,1,1,7,-21.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295484,Tom,Wilson,T. Wilson,tom-wilson,,,,18:03,2,3,0.667,1,1,1.0,1,2,0.5,0,0,0,5,0,0,1,1,6,-16.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,1630676,Justin,Smith,J. Smith,justin-smith,,,,20:56,7,9,0.778,0,0,0.0,2,3,0.667,2,5,7,2,3,0,1,1,16,-8.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,196295485,Tanner,Krebs,T. Krebs,tanner-krebs,,,,30:00,0,4,0.0,0,2,0.0,0,0,0.0,1,1,2,0,1,1,0,2,0,-10.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,1631376,Dmytro,Skapintsev,D. Skapintsev,dmytro-skapintsev,,,,7:20,0,2,0.0,0,1,0.0,2,4,0.5,0,1,1,0,0,0,0,0,2,6.0,0012500026
+0012500026,50014,Hapoel,Jerusalem B.C.,HAP,jerusalem-b.c.,1630216,Cassius,Winston,C. Winston,cassius-winston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,19:08,6,7,0.857,2,2,1.0,1,2,0.5,1,2,3,0,0,0,0,1,15,17.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,16:38,5,9,0.556,2,5,0.4,1,3,0.333,1,4,5,4,1,0,0,2,13,14.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,14:58,5,7,0.714,1,1,1.0,0,1,0.0,2,6,8,0,0,0,0,2,11,14.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,16:38,4,7,0.571,0,2,0.0,0,0,0.0,0,2,2,4,0,0,1,0,8,14.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,G,,,17:56,4,6,0.667,1,1,1.0,0,0,0.0,0,0,0,6,0,0,1,5,9,25.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,,,,18:04,2,6,0.333,1,3,0.333,2,2,1.0,0,2,2,2,0,0,1,0,7,10.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,16:08,1,5,0.2,1,5,0.2,0,0,0.0,1,2,3,2,1,1,1,0,3,19.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,17:19,2,4,0.5,1,2,0.5,2,2,1.0,1,1,2,2,4,0,1,2,7,22.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,16:08,5,5,1.0,2,2,1.0,1,3,0.333,1,3,4,2,1,1,0,1,13,19.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,14:09,3,5,0.6,1,1,1.0,0,0,0.0,2,3,5,1,0,2,1,2,7,18.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,,,11:26,3,6,0.5,2,5,0.4,0,0,0.0,0,4,4,1,0,0,2,1,8,12.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1642874,Danny,Wolf,D. Wolf,danny-wolf,,,,14:47,2,4,0.5,0,0,0.0,1,2,0.5,3,2,5,5,0,0,2,2,5,-2.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,14:57,3,5,0.6,2,4,0.5,0,1,0.0,0,2,2,1,0,0,0,4,8,8.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1631166,Drew,Timme,D. Timme,drew-timme,,,,12:00,2,6,0.333,0,1,0.0,0,0,0.0,3,2,5,1,0,0,1,2,4,0.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,,,7:54,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,2,0,2,-5.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,,,7:54,1,3,0.333,1,3,0.333,0,0,0.0,0,1,1,0,0,0,0,2,3,-5.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,3:56,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,2,2,0,-5.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1642962,Drake,Powell,D. Powell,drake-powell,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500026
+0012500026,1610612751,Brooklyn,Nets,BKN,nets,1630855,Fanbo,Zeng,Z. Zeng,fanbo-zeng,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500026

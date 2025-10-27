@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,19:06,1,5,0.2,1,3,0.333,0,0,0.0,0,1,1,0,0,0,3,0,3,-20.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,21:02,4,6,0.667,2,2,1.0,5,6,0.833,0,4,4,1,0,0,2,3,15,-22.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,22:09,3,7,0.429,0,0,0.0,3,4,0.75,0,4,4,3,0,0,2,1,9,-17.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,G,,,20:16,1,5,0.2,0,3,0.0,0,2,0.0,1,2,3,1,1,0,0,2,2,-26.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,22:22,4,9,0.444,1,4,0.25,0,0,0.0,0,3,3,3,0,0,1,4,9,-17.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,31:12,0,6,0.0,0,6,0.0,1,1,1.0,0,2,2,6,0,0,1,2,1,-16.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,24:24,2,6,0.333,2,4,0.5,0,0,0.0,0,4,4,2,1,0,3,1,6,-18.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,21:25,3,10,0.3,0,3,0.0,1,2,0.5,0,2,2,2,1,1,0,0,7,-20.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,26:58,3,6,0.5,0,0,0.0,2,2,1.0,1,3,4,4,0,1,2,0,8,-19.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,10:02,3,4,0.75,0,0,0.0,0,0,0.0,2,1,3,1,0,1,2,0,6,-10.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,,,10:32,3,3,1.0,0,0,0.0,3,3,1.0,0,0,0,0,0,0,1,3,9,0.0,0022301029
+0022301029,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,,,10:32,3,5,0.6,3,4,0.75,0,0,0.0,0,0,0,1,0,0,0,0,9,0.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,24:25,3,6,0.5,1,2,0.5,8,9,0.889,0,3,3,6,1,0,2,3,15,32.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,18:29,3,6,0.5,2,4,0.5,0,0,0.0,0,0,0,1,1,0,2,3,8,24.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,27:42,7,11,0.636,0,1,0.0,1,2,0.5,3,13,16,3,5,0,1,0,15,27.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,201988,Patty,Mills,P. Mills,patty-mills,G,,,21:41,4,8,0.5,2,5,0.4,0,0,0.0,0,2,2,3,2,0,1,3,10,26.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,30:43,6,14,0.429,0,6,0.0,2,2,1.0,0,3,3,5,1,0,0,1,14,26.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,19:44,3,7,0.429,2,3,0.667,3,4,0.75,1,1,2,2,1,0,0,0,11,13.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,,,30:07,3,9,0.333,2,8,0.25,0,0,0.0,0,4,4,1,0,0,0,0,8,15.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,24:41,7,10,0.7,4,4,1.0,0,0,0.0,2,3,5,2,1,0,0,1,18,13.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,20:18,4,6,0.667,0,2,0.0,6,6,1.0,1,4,5,3,1,0,1,5,14,10.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,9:20,2,2,1.0,1,1,1.0,0,0,0.0,1,1,2,2,0,0,1,1,5,-1.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,,,7:25,1,3,0.333,1,2,0.5,0,0,0.0,0,1,1,0,0,0,1,0,3,2.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,5:25,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,-2.0,0022301029
+0022301029,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301029

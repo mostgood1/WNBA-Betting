@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,28:02,5,12,0.417,3,10,0.3,2,2,1.0,2,4,6,2,1,1,2,2,15,-1.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,34:33,10,16,0.625,3,5,0.6,7,8,0.875,2,7,9,7,0,4,2,4,30,5.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,31:49,2,4,0.5,0,0,0.0,2,3,0.667,4,9,13,6,3,1,4,1,6,-1.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,G,,,21:00,0,8,0.0,0,3,0.0,0,0,0.0,0,2,2,0,1,0,2,2,0,-5.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,31:30,8,18,0.444,4,7,0.571,5,6,0.833,1,2,3,5,0,1,5,3,25,-6.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,23:01,3,7,0.429,1,4,0.25,0,0,0.0,1,4,5,1,0,0,1,4,7,2.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,27:00,2,4,0.5,2,4,0.5,0,0,0.0,0,2,2,0,1,0,1,4,6,8.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,18:45,5,7,0.714,0,0,0.0,3,3,1.0,0,4,4,5,0,0,4,1,13,12.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,8:40,0,2,0.0,0,1,0.0,0,0,0.0,1,1,2,1,0,0,1,0,0,0.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,15:40,6,7,0.857,3,4,0.75,1,2,0.5,0,0,0,1,0,0,1,1,16,1.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718
+0022400718,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,F,,,27:26,4,10,0.4,0,0,0.0,4,7,0.571,4,4,8,3,3,0,1,3,12,-2.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,25:21,3,9,0.333,0,2,0.0,2,2,1.0,0,2,2,1,1,1,1,0,8,6.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,22:00,4,8,0.5,0,0,0.0,0,0,0.0,6,4,10,0,1,1,1,4,8,4.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,G,,,34:48,6,12,0.5,6,11,0.545,2,2,1.0,0,3,3,1,0,0,0,0,20,7.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,37:52,11,29,0.379,3,10,0.3,13,13,1.0,0,7,7,9,4,0,1,4,38,2.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1630191,Isaiah,Stewart,I. Stewart,isaiah-stewart,,,,18:07,3,4,0.75,0,0,0.0,2,2,1.0,1,5,6,1,0,2,1,0,8,0.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1627736,Malik,Beasley,M. Beasley,malik-beasley,,,,25:04,1,8,0.125,0,6,0.0,0,0,0.0,0,0,0,1,1,0,1,2,2,-2.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1631323,Simone,Fontecchio,S. Fontecchio,simone-fontecchio,,,,11:06,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,1,3,-11.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1641842,Ronald,Holland II,R. Holland II,ronald-holland-ii,,,,19:11,3,7,0.429,1,5,0.2,2,2,1.0,1,0,1,1,1,0,2,2,9,-10.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,11:11,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,4,1,0,3,1,0,-2.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1630194,Paul,Reed,P. Reed,paul-reed,,,,7:53,3,6,0.5,1,1,1.0,0,0,0.0,4,2,6,1,1,1,0,4,7,-7.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1631199,Ron,Harper Jr.,R. Harper Jr.,ron-harper-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1642450,Daniss,Jenkins,D. Jenkins,daniss-jenkins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1641752,Bobi,Klintman,B. Klintman,bobi-klintman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718
+0022400718,1610612765,Detroit,Pistons,DET,pistons,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400718

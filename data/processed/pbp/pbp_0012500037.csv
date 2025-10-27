@@ -1,0 +1,489 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0012500037,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (8:12 PM EST),period,start,1,0,1,0012500037
+0012500037,4,PT12M00.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Jump Ball Sengun vs. Nurkic: Tip to George,Jump Ball,,1,0,2,0012500037
+0012500037,7,PT11M48.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,20,195,20,Made,1,0,2,2,v,Bailey 20' Pullup Jump Shot (2 PTS) (George 1 AST),Made Shot,Pullup Jump shot,1,2,3,0012500037
+0012500037,9,PT11M33.00S,1,1610612745,HOU,201142,Durant,K. Durant,74,138,16,Missed,1,,,0,h,MISS Durant 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,4,0012500037
+0012500037,10,PT11M30.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,5,0012500037
+0012500037,11,PT11M28.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-126,210,24,Made,1,3,2,5,h,Smith Jr. 24' 3PT Jump Shot (3 PTS) (Thompson 1 AST),Made Shot,Jump Shot,1,3,6,0012500037
+0012500037,13,PT11M20.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-25,33,4,Missed,1,,,0,v,MISS Mykhailiuk 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,7,0012500037
+0012500037,13,PT11M20.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard BLOCK (1 BLK),,,1,2,8,0012500037
+0012500037,15,PT11M20.00S,1,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Unknown,1,0,9,0012500037
+0012500037,17,PT11M08.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,47,156,16,Missed,1,,,0,h,MISS Sengun 16' Jump Shot,Missed Shot,Jump Shot,1,2,10,0012500037
+0012500037,18,PT11M07.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,11,0012500037
+0012500037,19,PT10M56.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,-196,160,25,Made,1,3,5,8,v,Hendricks 25' 3PT Jump Shot (3 PTS) (Nurkic 1 AST),Made Shot,Jump Shot,1,3,12,0012500037
+0012500037,21,PT10M36.00S,1,1610612745,HOU,201142,Durant,K. Durant,66,-5,7,Missed,1,,,0,h,MISS Durant 7' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,13,0012500037
+0012500037,22,PT10M35.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,14,0012500037
+0012500037,23,PT10M29.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks Lost Ball Turnover (P1.T1),Turnover,Lost Ball,1,0,15,0012500037
+0012500037,23,PT10M29.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson STEAL (1 STL),,,1,0,16,0012500037
+0012500037,25,PT10M23.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,17,0012500037
+0012500037,25,PT10M23.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk STEAL (1 STL),,,1,0,18,0012500037
+0012500037,27,PT10M14.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,241,63,25,Made,1,3,8,11,v,Hendricks 25' 3PT Jump Shot (6 PTS) (George 2 AST),Made Shot,Jump Shot,1,3,19,0012500037
+0012500037,29,PT09M59.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard Out of Bounds - Bad Pass Turnover Turnover (P2.T2),Turnover,Out of Bounds - Bad Pass Turnover,1,0,20,0012500037
+0012500037,31,PT09M39.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,232,16,0,Missed,1,,,0,v,MISS Mykhailiuk 3PT Jump Shot,Missed Shot,Jump Shot,1,3,21,0012500037
+0012500037,32,PT09M38.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,22,0012500037
+0012500037,33,PT09M32.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson Out of Bounds - Bad Pass Turnover Turnover (P1.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,23,0012500037
+0012500037,34,PT09M23.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,-85,236,25,Made,1,3,11,14,v,Nurkic 25' 3PT Jump Shot (3 PTS) (Mykhailiuk 1 AST),Made Shot,Jump Shot,1,3,24,0012500037
+0012500037,36,PT09M07.00S,1,1610612745,HOU,201142,Durant,K. Durant,225,40,0,Missed,1,,,0,h,MISS Durant 3PT Jump Shot,Missed Shot,Jump Shot,1,3,25,0012500037
+0012500037,37,PT09M05.00S,1,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,26,0012500037
+0012500037,38,PT08M44.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,228,71,24,Missed,1,,,0,v,MISS Hendricks 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,27,0012500037
+0012500037,39,PT08M44.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,28,0012500037
+0012500037,40,PT08M42.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,18,6,2,Made,1,3,13,16,v,Nurkic 2' Putback Layup (5 PTS),Made Shot,Putback Layup Shot,1,2,29,0012500037
+0012500037,41,PT08M29.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,-34,8,3,Made,1,5,13,18,h,Thompson 3' Driving Layup (2 PTS),Made Shot,Driving Layup Shot,1,2,30,0012500037
+0012500037,42,PT08M12.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey Traveling Turnover (P1.T2),Turnover,Traveling,1,0,31,0012500037
+0012500037,43,PT08M01.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,98,237,26,Missed,1,,,0,h,MISS Sheppard 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,32,0012500037
+0012500037,44,PT08M00.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,33,0012500037
+0012500037,45,PT07M48.00S,1,1610612762,UTA,1641718,George,K. George,-51,257,26,Missed,1,,,0,v,MISS George 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,34,0012500037
+0012500037,46,PT07M47.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,35,0012500037
+0012500037,47,PT07M40.00S,1,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George P.FOUL (P1.T1) (J.Williams),Foul,Personal,1,0,36,0012500037
+0012500037,49,PT07M34.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-71,253,26,Missed,1,,,0,h,MISS Smith Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,37,0012500037
+0012500037,50,PT07M33.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,38,0012500037
+0012500037,51,PT07M21.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,-168,228,28,Missed,1,,,0,v,MISS Bailey 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,39,0012500037
+0012500037,52,PT07M20.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,40,0012500037
+0012500037,53,PT07M10.00S,1,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George P.FOUL (P2.T2) (K.Cutler),Foul,Personal,1,0,41,0012500037
+0012500037,55,PT07M01.00S,1,1610612745,HOU,201142,Durant,K. Durant,93,142,17,Made,1,7,13,20,h,Durant 17' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,42,0012500037
+0012500037,56,PT06M40.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,43,0012500037
+0012500037,56,PT06M40.00S,1,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant STEAL (1 STL),,,1,0,44,0012500037
+0012500037,58,PT06M37.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,1,20,2,Made,1,9,13,22,h,Thompson 2' Running Dunk (4 PTS) (Sengun 1 AST),Made Shot,Running Dunk Shot,1,2,45,0012500037
+0012500037,60,PT06M37.00S,1,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,46,0012500037
+0012500037,61,PT06M37.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,SUB: Eason FOR Smith Jr.,Substitution,,0,0,47,0012500037
+0012500037,62,PT06M37.00S,1,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Nurkic,Substitution,,0,0,48,0012500037
+0012500037,63,PT06M37.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,SUB: Love FOR Bailey,Substitution,,0,0,49,0012500037
+0012500037,67,PT06M25.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-227,38,0,Missed,1,,,0,v,MISS Mykhailiuk 3PT Jump Shot,Missed Shot,Jump Shot,1,3,50,0012500037
+0012500037,68,PT06M23.00S,1,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,51,0012500037
+0012500037,69,PT06M21.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,-23,29,4,Missed,1,,,0,h,MISS Thompson 4' Running Finger Roll Layup,Missed Shot,Running Finger Roll Layup Shot,1,2,52,0012500037
+0012500037,70,PT06M20.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:2 Def:1),Rebound,Unknown,0,0,53,0012500037
+0012500037,132,PT06M19.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,-2,6,1,Missed,1,,,0,h,MISS Thompson 1' Putback Layup,Missed Shot,Putback Layup Shot,1,2,54,0012500037
+0012500037,132,PT06M19.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh BLOCK (1 BLK),,,1,2,55,0012500037
+0012500037,134,PT06M19.00S,1,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Unknown,1,0,56,0012500037
+0012500037,72,PT06M13.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,57,0012500037
+0012500037,72,PT06M13.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk STEAL (2 STL),,,1,0,58,0012500037
+0012500037,74,PT06M06.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Jump Ball Sengun vs. Love: Tip to Thompson,Jump Ball,,1,0,59,0012500037
+0012500037,77,PT06M06.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love Lost Ball Turnover (P1.T4),Turnover,Lost Ball,1,0,60,0012500037
+0012500037,77,PT06M06.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun STEAL (1 STL),,,1,0,61,0012500037
+0012500037,79,PT05M59.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,-12,19,2,Made,1,11,13,24,h,Thompson 2' Cutting Dunk Shot (6 PTS) (Sengun 2 AST),Made Shot,Cutting Dunk Shot,1,2,62,0012500037
+0012500037,81,PT05M33.00S,1,1610612762,UTA,1641718,George,K. George,-82,52,10,Made,1,11,15,26,v,George 10' Driving Floating Bank Jump Shot (2 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,63,0012500037
+0012500037,82,PT05M12.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,-183,179,26,Made,1,14,15,29,h,Sheppard 26' 3PT Jump Shot (3 PTS) (Thompson 2 AST),Made Shot,Jump Shot,1,3,64,0012500037
+0012500037,84,PT04M53.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-1,126,13,Missed,1,,,0,v,MISS Sensabaugh 13' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,65,0012500037
+0012500037,85,PT04M52.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,66,0012500037
+0012500037,86,PT04M39.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,-5,36,4,Missed,1,,,0,h,MISS Thompson 4' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,67,0012500037
+0012500037,87,PT04M39.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,68,0012500037
+0012500037,88,PT04M21.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,-119,22,12,Made,1,14,17,31,v,Hendricks 12' Driving Floating Jump Shot (8 PTS) (Love 1 AST),Made Shot,Driving Floating Jump Shot,1,2,69,0012500037
+0012500037,90,PT04M01.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks S.FOUL (P1.T3) (J.Williams),Foul,Shooting,1,0,70,0012500037
+0012500037,92,PT04M01.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,15,17,32,h,Sengun Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,71,0012500037
+0012500037,93,PT04M01.00S,1,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,SUB: Smith Jr. FOR Durant,Substitution,,0,0,72,0012500037
+0012500037,94,PT04M01.00S,1,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,SUB: Holiday FOR Sheppard,Substitution,,0,0,73,0012500037
+0012500037,95,PT04M01.00S,1,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Williams FOR Hendricks,Substitution,,0,0,74,0012500037
+0012500037,96,PT04M01.00S,1,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,SUB: Clayton Jr. FOR George,Substitution,,0,0,75,0012500037
+0012500037,97,PT04M01.00S,1,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,SUB: Anderson FOR Mykhailiuk,Substitution,,0,0,76,0012500037
+0012500037,103,PT04M01.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,16,17,33,h,Sengun Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,77,0012500037
+0012500037,104,PT03M43.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love Bad Pass Turnover (P2.T5),Turnover,Bad Pass,1,0,78,0012500037
+0012500037,104,PT03M43.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun STEAL (2 STL),,,1,0,79,0012500037
+0012500037,106,PT03M40.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,5,29,3,Made,1,18,17,35,h,Sengun 3' Running Dunk (4 PTS) (Eason 1 AST),Made Shot,Running Dunk Shot,1,2,80,0012500037
+0012500037,108,PT03M40.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love S.FOUL (P1.T4) (K.Cutler),Foul,Shooting,1,0,81,0012500037
+0012500037,110,PT03M40.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,SUB: Capela FOR Thompson,Substitution,,0,0,82,0012500037
+0012500037,112,PT03M40.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,19,17,36,h,Sengun Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,83,0012500037
+0012500037,114,PT03M17.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-183,209,28,Missed,1,,,0,v,MISS Sensabaugh 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,84,0012500037
+0012500037,115,PT03M15.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,85,0012500037
+0012500037,116,PT03M05.00S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,92,41,10,Missed,1,,,0,h,MISS Smith Jr. 10' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,86,0012500037
+0012500037,118,PT03M03.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,87,0012500037
+0012500037,121,PT02M56.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun Violation:Defensive Goaltending (K.Cutler),Violation,Defensive Goaltending,0,0,88,0012500037
+0012500037,120,PT02M56.00S,1,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,22,20,3,Made,1,19,19,38,v,Clayton Jr. 3' Layup (2 PTS),Made Shot,Layup Shot,1,2,89,0012500037
+0012500037,122,PT02M35.00S,1,1610612745,HOU,203991,Capela,C. Capela,-17,46,5,Missed,1,,,0,h,MISS Capela 5' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,90,0012500037
+0012500037,122,PT02M35.00S,1,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,Anderson BLOCK (1 BLK),,,1,2,91,0012500037
+0012500037,124,PT02M33.00S,1,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,92,0012500037
+0012500037,125,PT02M27.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,234,27,24,Made,1,19,22,41,v,Sensabaugh 24' 3PT Jump Shot (3 PTS) (Anderson 1 AST),Made Shot,Jump Shot,1,3,93,0012500037
+0012500037,127,PT02M04.00S,1,1610612745,HOU,203991,Capela,C. Capela,34,20,4,Missed,1,,,0,h,MISS Capela 4' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,94,0012500037
+0012500037,128,PT02M02.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,95,0012500037
+0012500037,129,PT01M54.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-114,252,28,Made,1,19,25,44,v,Sensabaugh 28' 3PT Pullup Jump Shot (6 PTS) (Anderson 2 AST),Made Shot,Pullup Jump shot,1,3,96,0012500037
+0012500037,131,PT01M53.00S,1,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,97,0012500037
+0012500037,135,PT01M53.00S,1,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,SUB: Thompson FOR Sengun,Substitution,,0,0,98,0012500037
+0012500037,136,PT01M53.00S,1,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,SUB: Bailey FOR Sensabaugh,Substitution,,0,0,99,0012500037
+0012500037,139,PT01M43.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,27,31,4,Missed,1,,,0,h,MISS Thompson 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,100,0012500037
+0012500037,139,PT01M43.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey BLOCK (1 BLK),,,1,2,101,0012500037
+0012500037,141,PT01M43.00S,1,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Unknown,0,0,102,0012500037
+0012500037,143,PT01M33.00S,1,1610612745,HOU,1628988,Holiday,A. Holiday,67,90,11,Made,1,21,25,46,h,Holiday 11' Driving Floating Bank Jump Shot (2 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,103,0012500037
+0012500037,144,PT01M22.00S,1,1610612762,UTA,1642846,Bailey,A. Bailey,-178,81,20,Missed,1,,,0,v,MISS Bailey 20' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,104,0012500037
+0012500037,145,PT01M21.00S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,105,0012500037
+0012500037,146,PT01M14.00S,1,1610612745,HOU,1628988,Holiday,A. Holiday,-135,248,28,Missed,1,,,0,h,MISS Holiday 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,106,0012500037
+0012500037,147,PT01M13.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,107,0012500037
+0012500037,148,PT01M10.00S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love Out of Bounds - Bad Pass Turnover Turnover (P3.T6),Turnover,Out of Bounds - Bad Pass Turnover,1,0,108,0012500037
+0012500037,164,PT00M59.90S,1,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,Eason Bad Pass Turnover (P1.T5),Turnover,Bad Pass,1,0,109,0012500037
+0012500037,164,PT00M59.90S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love STEAL (1 STL),,,1,0,110,0012500037
+0012500037,152,PT00M52.20S,1,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,-237,28,24,Missed,1,,,0,v,MISS Clayton Jr. 24' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,111,0012500037
+0012500037,153,PT00M49.40S,1,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,112,0012500037
+0012500037,155,PT00M36.40S,1,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,99,52,11,Missed,1,,,0,h,MISS Smith Jr. 11' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,113,0012500037
+0012500037,156,PT00M33.90S,1,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,114,0012500037
+0012500037,157,PT00M30.20S,1,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,-31,258,26,Missed,1,,,0,v,MISS Clayton Jr. 26' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,115,0012500037
+0012500037,158,PT00M27.70S,1,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,116,0012500037
+0012500037,159,PT00M10.30S,1,1610612745,HOU,1631106,Eason,T. Eason,229,50,0,Missed,1,,,0,h,MISS Eason 3PT Jump Shot,Missed Shot,Jump Shot,1,3,117,0012500037
+0012500037,160,PT00M06.60S,1,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,118,0012500037
+0012500037,161,PT00M06.60S,1,1610612745,HOU,203991,Capela,C. Capela,-2,17,2,Made,1,23,25,48,h,Capela 2' Putback Dunk (2 PTS),Made Shot,Putback Dunk Shot,1,2,119,0012500037
+0012500037,162,PT00M01.40S,1,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. Out of Bounds - Bad Pass Turnover Turnover (P1.T7),Turnover,Out of Bounds - Bad Pass Turnover,1,0,120,0012500037
+0012500037,163,PT00M00.00S,1,0,,0,,,0,0,0,,0,23,25,48,,End of 1st Period (8:36 PM EST),period,end,1,0,121,0012500037
+0012500037,174,PT12M00.00S,2,0,,0,,,0,0,0,,0,23,25,48,,Start of 2nd Period (8:38 PM EST),period,start,1,0,122,0012500037
+0012500037,175,PT11M52.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey P.FOUL (P1.T1) (K.Cutler),Foul,Personal,1,0,123,0012500037
+0012500037,177,PT11M50.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic P.FOUL (P1.T2) (K.Cutler),Foul,Personal,1,0,124,0012500037
+0012500037,179,PT11M42.00S,2,1610612745,HOU,201142,Durant,K. Durant,9,113,11,Made,1,25,25,50,h,Durant 11' Turnaround Jump Shot (4 PTS),Made Shot,Turnaround Jump Shot,1,2,125,0012500037
+0012500037,180,PT11M23.00S,2,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,225,118,25,Missed,1,,,0,v,MISS Clayton Jr. 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,126,0012500037
+0012500037,181,PT11M20.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,127,0012500037
+0012500037,182,PT11M17.00S,2,1610612762,UTA,1642262,Williams,C. Williams,25,7,3,Made,1,25,27,52,v,Williams 3' Driving Dunk (2 PTS) (Bailey 1 AST),Made Shot,Driving Dunk Shot,1,2,128,0012500037
+0012500037,184,PT11M01.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,-148,58,16,Missed,1,,,0,h,MISS Holiday 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,129,0012500037
+0012500037,185,PT10M57.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,Holiday REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,130,0012500037
+0012500037,186,PT10M54.00S,2,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. P.FOUL (P1.T3) (K.Cutler),Foul,Personal,1,0,131,0012500037
+0012500037,188,PT10M47.00S,2,1610612745,HOU,1631120,Davison,J. Davison,176,180,25,Missed,1,,,0,h,MISS Davison 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,132,0012500037
+0012500037,189,PT10M43.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,133,0012500037
+0012500037,190,PT10M39.00S,2,1610612745,HOU,1631120,Davison,J. Davison,96,230,25,Made,1,28,27,55,h,Davison 25' 3PT Jump Shot (3 PTS) (Sengun 3 AST),Made Shot,Jump Shot,1,3,134,0012500037
+0012500037,192,PT10M20.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela S.FOUL (P1.T1) (K.Cutler),Foul,Shooting,1,0,135,0012500037
+0012500037,194,PT10M20.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,MISS Nurkic Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,136,0012500037
+0012500037,195,PT10M20.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Normal Rebound,0,0,137,0012500037
+0012500037,196,PT10M20.00S,2,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,SUB: Hendricks FOR Anderson,Substitution,,0,0,138,0012500037
+0012500037,198,PT10M20.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,28,28,56,v,Nurkic Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,139,0012500037
+0012500037,199,PT10M00.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,-116,5,12,Missed,1,,,0,h,MISS Sengun 12' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,140,0012500037
+0012500037,200,PT09M55.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:4 Def:1),Rebound,Unknown,1,0,141,0012500037
+0012500037,201,PT09M55.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,Missed,1,,,0,h,MISS Capela Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,142,0012500037
+0012500037,202,PT09M55.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,143,0012500037
+0012500037,203,PT09M54.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,Missed,1,,,0,h,MISS Capela Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,144,0012500037
+0012500037,204,PT09M54.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:4 Def:1),Rebound,Unknown,1,0,145,0012500037
+0012500037,206,PT09M47.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey S.FOUL (P2.T4) (K.Cutler),Foul,Shooting,1,0,146,0012500037
+0012500037,208,PT09M47.00S,2,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,29,28,57,h,Durant Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,0,0,147,0012500037
+0012500037,209,PT09M47.00S,2,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,30,28,58,h,Durant Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,148,0012500037
+0012500037,210,PT09M35.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,18,5,2,Made,1,30,30,60,v,Nurkic 2' Layup (8 PTS) (Hendricks 1 AST),Made Shot,Layup Shot,1,2,149,0012500037
+0012500037,212,PT09M35.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun S.FOUL (P1.T2) (K.Cutler),Foul,Shooting,1,0,150,0012500037
+0012500037,214,PT09M35.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,MISS Nurkic Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,151,0012500037
+0012500037,215,PT09M35.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:4 Def:2),Rebound,Unknown,1,0,152,0012500037
+0012500037,216,PT09M25.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,-69,63,9,Made,1,32,30,62,h,Sengun 9' Driving Hook Shot (7 PTS),Made Shot,Driving Hook Shot,1,2,153,0012500037
+0012500037,217,PT09M11.00S,2,1610612762,UTA,1642262,Williams,C. Williams,64,55,8,Missed,1,,,0,v,MISS Williams 8' Driving Layup,Missed Shot,Driving Layup Shot,1,2,154,0012500037
+0012500037,218,PT09M07.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,155,0012500037
+0012500037,221,PT09M01.00S,2,1610612745,HOU,203991,Capela,C. Capela,-22,8,2,Made,1,34,30,64,h,Capela 2' Reverse Dunk (4 PTS) (Sengun 4 AST),Made Shot,Reverse Dunk Shot,1,2,156,0012500037
+0012500037,223,PT08M47.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,-65,118,13,Made,1,34,32,66,v,Bailey 13' Turnaround Jump Shot (4 PTS) (Clayton Jr. 1 AST),Made Shot,Turnaround Jump Shot,1,2,157,0012500037
+0012500037,224,PT08M27.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,80,256,27,Made,1,37,32,69,h,Holiday 27' 3PT Jump Shot (5 PTS) (Davison 1 AST),Made Shot,Jump Shot,1,3,158,0012500037
+0012500037,226,PT08M15.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,Holiday P.FOUL (P1.T3) (J.Williams),Foul,Personal,1,0,159,0012500037
+0012500037,228,PT08M15.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,Holiday T.FOUL (P1.T3) (J.Williams),Foul,Technical,1,0,160,0012500037
+0012500037,229,PT08M15.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,37,33,70,v,Bailey Free Throw Technical (5 PTS),Free Throw,Free Throw Technical,1,0,161,0012500037
+0012500037,230,PT08M15.00S,2,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,SUB: Thompson FOR Holiday,Substitution,,0,0,162,0012500037
+0012500037,231,PT08M15.00S,2,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,SUB: Smith Jr. FOR Capela,Substitution,,0,0,163,0012500037
+0012500037,234,PT08M04.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun Violation:Kicked Ball (K.Cutler),Violation,Kicked Ball,0,0,164,0012500037
+0012500037,235,PT07M56.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,-39,125,13,Made,1,37,35,72,v,Bailey 13' Jump Shot (7 PTS) (Clayton Jr. 2 AST),Made Shot,Jump Shot,1,2,165,0012500037
+0012500037,237,PT07M41.00S,2,1610612745,HOU,201142,Durant,K. Durant,-11,42,4,Made,1,39,35,74,h,Durant 4' Driving Dunk (8 PTS) (Sengun 5 AST),Made Shot,Driving Dunk Shot,1,2,166,0012500037
+0012500037,239,PT07M41.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,167,0012500037
+0012500037,240,PT07M41.00S,2,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Williams,Substitution,,0,0,168,0012500037
+0012500037,242,PT07M29.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,-221,109,25,Missed,1,,,0,v,MISS Bailey 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,169,0012500037
+0012500037,243,PT07M28.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,170,0012500037
+0012500037,244,PT07M15.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,7,8,1,Made,1,41,35,76,h,Thompson 1' Driving Reverse Dunk Shot (8 PTS) (Sengun 6 AST),Made Shot,Driving Reverse Dunk Shot,1,2,171,0012500037
+0012500037,246,PT07M03.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,-159,127,20,Missed,1,,,0,v,MISS Bailey 20' Jump Shot,Missed Shot,Jump Shot,1,2,172,0012500037
+0012500037,247,PT07M01.00S,2,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,Davison REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,173,0012500037
+0012500037,248,PT06M58.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,-22,5,2,Made,1,43,35,78,h,Thompson 2' Running Layup (10 PTS),Made Shot,Running Layup Shot,1,2,174,0012500037
+0012500037,249,PT06M58.00S,2,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. S.FOUL (P2.PN) (K.Cutler),Foul,Shooting,1,0,175,0012500037
+0012500037,251,PT06M58.00S,2,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,SUB: Eason FOR Davison,Substitution,,0,0,176,0012500037
+0012500037,252,PT06M58.00S,2,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,SUB: George FOR Clayton Jr.,Substitution,,0,0,177,0012500037
+0012500037,255,PT06M58.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,MISS Thompson Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,178,0012500037
+0012500037,256,PT06M58.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,179,0012500037
+0012500037,257,PT06M41.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-232,6,0,Made,1,43,38,81,v,Sensabaugh 3PT Jump Shot (9 PTS) (George 3 AST),Made Shot,Jump Shot,1,3,180,0012500037
+0012500037,260,PT06M24.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-188,174,26,Missed,1,,,0,h,MISS Smith Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,181,0012500037
+0012500037,261,PT06M24.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,182,0012500037
+0012500037,262,PT06M14.00S,2,1610612762,UTA,1641718,George,K. George,-98,132,16,Made,1,43,40,83,v,George 16' Pullup Jump Shot (4 PTS) (Nurkic 2 AST),Made Shot,Pullup Jump shot,1,2,183,0012500037
+0012500037,264,PT06M04.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,-23,258,26,Missed,1,,,0,h,MISS Sengun 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,184,0012500037
+0012500037,265,PT06M04.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,185,0012500037
+0012500037,267,PT05M51.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,23,7,2,Made,1,43,42,85,v,Bailey 2' Dunk (9 PTS) (Nurkic 3 AST),Made Shot,Dunk Shot,1,2,186,0012500037
+0012500037,269,PT05M33.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,4,16,2,Made,1,45,42,87,h,Smith Jr. 2' Cutting Layup Shot (5 PTS) (Sengun 7 AST),Made Shot,Cutting Layup Shot,1,2,187,0012500037
+0012500037,271,PT05M33.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks S.FOUL (P2.PN) (J.Williams),Foul,Shooting,1,0,188,0012500037
+0012500037,273,PT05M33.00S,2,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,SUB: Sheppard FOR Durant,Substitution,,0,0,189,0012500037
+0012500037,274,PT05M33.00S,2,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,SUB: Love FOR Nurkic,Substitution,,0,0,190,0012500037
+0012500037,277,PT05M33.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,46,42,88,h,Smith Jr. Free Throw 1 of 1 (6 PTS),Free Throw,Free Throw 1 of 1,1,0,191,0012500037
+0012500037,278,PT05M18.00S,2,1610612762,UTA,1641718,George,K. George,21,252,25,Made,1,46,45,91,v,George 25' 3PT Pullup Jump Shot (7 PTS) (Sensabaugh 1 AST),Made Shot,Pullup Jump shot,1,3,192,0012500037
+0012500037,280,PT04M58.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,136,14,Made,1,48,45,93,h,Sengun 14' Pullup Jump Shot (9 PTS),Made Shot,Pullup Jump shot,1,2,193,0012500037
+0012500037,281,PT04M45.00S,2,1610612762,UTA,201567,Love,K. Love,-141,220,26,Made,1,48,48,96,v,Love 26' 3PT Jump Shot (3 PTS) (George 4 AST),Made Shot,Jump Shot,1,3,194,0012500037
+0012500037,283,PT04M28.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,-22,10,2,Made,1,50,48,98,h,Sengun 2' Cutting Layup Shot (11 PTS) (Eason 2 AST),Made Shot,Cutting Layup Shot,1,2,195,0012500037
+0012500037,288,PT04M12.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,196,0012500037
+0012500037,290,PT04M12.00S,2,0,,285,Grant,G. Grant,0,0,0,,0,50,48,98,,Instant Replay2nd Period (8:56 PM EST),Instant Replay,Coach Challenge Overturn Ruling,0,0,197,0012500037
+0012500037,291,PT04M12.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson S.FOUL (P1.T4) (J.Williams),Foul,Shooting,1,0,198,0012500037
+0012500037,293,PT04M12.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,MISS Hendricks Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,199,0012500037
+0012500037,294,PT04M12.00S,2,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Normal Rebound,0,0,200,0012500037
+0012500037,295,PT04M12.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,MISS Hendricks Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,201,0012500037
+0012500037,296,PT04M12.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,202,0012500037
+0012500037,297,PT04M00.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. OFF.Foul (P1) (K.Cutler),Foul,Offensive,1,0,203,0012500037
+0012500037,299,PT04M00.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. Offensive Foul Turnover (P1.T6),Turnover,Offensive Foul Turnover,1,0,204,0012500037
+0012500037,300,PT04M00.00S,2,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Mykhailiuk FOR Hendricks,Substitution,,0,0,205,0012500037
+0012500037,301,PT04M00.00S,2,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,SUB: Anderson FOR Bailey,Substitution,,0,0,206,0012500037
+0012500037,304,PT03M54.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun P.FOUL (P2.PN) (J.Williams),Foul,Personal,1,0,207,0012500037
+0012500037,306,PT03M54.00S,2,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,50,49,99,v,Love Free Throw 1 of 2 (4 PTS),Free Throw,Free Throw 1 of 2,1,0,208,0012500037
+0012500037,307,PT03M54.00S,2,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,50,50,100,v,Love Free Throw 2 of 2 (5 PTS),Free Throw,Free Throw 2 of 2,1,0,209,0012500037
+0012500037,308,PT03M41.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,7,17,2,Made,1,52,50,102,h,Thompson 2' Cutting Finger Roll Layup Shot (12 PTS) (Sengun 8 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,210,0012500037
+0012500037,310,PT03M25.00S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,21,26,3,Made,1,52,52,104,v,Sensabaugh 3' Driving Dunk (11 PTS) (Love 2 AST),Made Shot,Driving Dunk Shot,1,2,211,0012500037
+0012500037,312,PT03M25.00S,2,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,212,0012500037
+0012500037,313,PT03M15.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,16,13,2,Made,1,54,52,106,h,Thompson 2' Driving Layup (14 PTS) (Sengun 9 AST),Made Shot,Driving Layup Shot,1,2,213,0012500037
+0012500037,315,PT02M59.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk Bad Pass Turnover (P1.T8),Turnover,Bad Pass,1,0,214,0012500037
+0012500037,315,PT02M59.00S,2,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard STEAL (1 STL),,,1,0,215,0012500037
+0012500037,317,PT02M54.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,25,19,3,Made,1,56,52,108,h,Smith Jr. 3' Running Alley Oop Dunk Shot (8 PTS) (Thompson 3 AST),Made Shot,Running Alley Oop Dunk Shot,1,2,216,0012500037
+0012500037,319,PT02M36.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk Bad Pass Turnover (P2.T9),Turnover,Bad Pass,1,0,217,0012500037
+0012500037,319,PT02M36.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson STEAL (2 STL),,,1,0,218,0012500037
+0012500037,321,PT02M33.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,-7,32,3,Made,1,58,52,110,h,Thompson 3' Running Finger Roll Layup (16 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,219,0012500037
+0012500037,322,PT02M21.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-2,22,2,Made,1,58,54,112,v,Mykhailiuk 2' Alley Oop Layup (2 PTS) (George 5 AST),Made Shot,Alley Oop Layup shot,1,2,220,0012500037
+0012500037,324,PT02M02.00S,2,1610612745,HOU,1641708,Thompson,A. Thompson,-235,10,24,Made,1,61,54,115,h,Thompson 24' 3PT Jump Shot (19 PTS) (Sheppard 1 AST),Made Shot,Jump Shot,1,3,221,0012500037
+0012500037,326,PT01M47.00S,2,1610612762,UTA,203937,Anderson,K. Anderson,28,113,12,Made,1,61,56,117,v,Anderson 12' Driving Floating Jump Shot (2 PTS) (Mykhailiuk 2 AST),Made Shot,Driving Floating Jump Shot,1,2,222,0012500037
+0012500037,328,PT01M30.00S,2,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-89,237,25,Made,1,64,56,120,h,Smith Jr. 25' 3PT Step Back Jump Shot (11 PTS),Made Shot,Step Back Jump shot,1,3,223,0012500037
+0012500037,329,PT01M14.00S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk Lost Ball Turnover (P3.T10),Turnover,Lost Ball,1,0,224,0012500037
+0012500037,329,PT01M14.00S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun STEAL (3 STL),,,1,0,225,0012500037
+0012500037,331,PT01M09.00S,2,1610612745,HOU,1631106,Eason,T. Eason,-9,40,4,Made,1,66,56,122,h,Eason 4' Running Dunk (2 PTS) (Thompson 4 AST),Made Shot,Running Dunk Shot,1,2,226,0012500037
+0012500037,333,PT00M51.20S,2,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk Bad Pass Turnover (P4.T11),Turnover,Bad Pass,1,0,227,0012500037
+0012500037,333,PT00M51.20S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun STEAL (4 STL),,,1,0,228,0012500037
+0012500037,335,PT00M48.70S,2,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George S.FOUL (P3.PN) (J.Williams),Foul,Shooting,1,0,229,0012500037
+0012500037,337,PT00M48.70S,2,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,MISS Eason Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,230,0012500037
+0012500037,338,PT00M48.70S,2,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Normal Rebound,0,0,231,0012500037
+0012500037,339,PT00M48.70S,2,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,SUB: Durant FOR Sengun,Substitution,,0,0,232,0012500037
+0012500037,341,PT00M48.70S,2,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,67,56,123,h,Eason Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,233,0012500037
+0012500037,342,PT00M40.30S,2,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,Eason P.FOUL (P1.PN) (A.Abazi),Foul,Personal,1,0,234,0012500037
+0012500037,344,PT00M40.30S,2,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,67,57,124,v,Love Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,235,0012500037
+0012500037,345,PT00M40.30S,2,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,67,58,125,v,Love Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,236,0012500037
+0012500037,346,PT00M33.20S,2,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant Out of Bounds - Bad Pass Turnover Turnover (P1.T7),Turnover,Out of Bounds - Bad Pass Turnover,1,0,237,0012500037
+0012500037,347,PT00M15.10S,2,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-132,218,25,Made,1,67,61,128,v,Sensabaugh 25' 3PT Step Back Jump Shot (14 PTS),Made Shot,Step Back Jump shot,1,3,238,0012500037
+0012500037,348,PT00M00.60S,2,1610612745,HOU,1631106,Eason,T. Eason,1,5,1,Missed,1,,,0,h,MISS Eason 1' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,239,0012500037
+0012500037,349,PT00M00.10S,2,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Unknown,1,0,240,0012500037
+0012500037,350,PT00M00.00S,2,0,,0,,,0,0,0,,0,67,61,128,,End of 2nd Period (9:09 PM EST),period,end,1,0,241,0012500037
+0012500037,359,PT12M00.00S,3,0,,0,,,0,0,0,,0,67,61,128,,Start of 3rd Period (9:25 PM EST),period,start,1,0,242,0012500037
+0012500037,361,PT11M39.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,237,17,24,Made,1,70,61,131,h,Smith Jr. 24' 3PT Jump Shot (14 PTS) (Thompson 5 AST),Made Shot,Jump Shot,1,3,243,0012500037
+0012500037,363,PT11M24.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,-233,61,24,Missed,1,,,0,v,MISS Bailey 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,244,0012500037
+0012500037,364,PT11M21.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,245,0012500037
+0012500037,365,PT11M20.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,-163,125,21,Made,1,70,63,133,v,Bailey 21' Jump Shot (11 PTS),Made Shot,Jump Shot,1,2,246,0012500037
+0012500037,366,PT11M09.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,-40,117,12,Missed,1,,,0,h,MISS Sheppard 12' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,247,0012500037
+0012500037,367,PT11M08.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,248,0012500037
+0012500037,368,PT10M59.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic Offensive Charge Foul (P2) (A.Abazi),Foul,Offensive Charge,1,0,249,0012500037
+0012500037,370,PT10M59.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic Offensive Foul Turnover (P2.T12),Turnover,Offensive Foul Turnover,1,0,250,0012500037
+0012500037,371,PT10M47.00S,3,1610612745,HOU,201142,Durant,K. Durant,-103,12,10,Made,1,72,63,135,h,Durant 10' Driving Floating Jump Shot (10 PTS) (Sengun 10 AST),Made Shot,Driving Floating Jump Shot,1,2,251,0012500037
+0012500037,373,PT10M47.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk S.FOUL (P1.T1) (K.Cutler),Foul,Shooting,1,0,252,0012500037
+0012500037,375,PT10M47.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,73,63,136,h,Durant Free Throw 1 of 1 (11 PTS),Free Throw,Free Throw 1 of 1,1,0,253,0012500037
+0012500037,376,PT10M37.00S,3,1610612762,UTA,1641718,George,K. George,-145,221,26,Missed,1,,,0,v,MISS George 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,254,0012500037
+0012500037,376,PT10M37.00S,3,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson BLOCK (1 BLK),,,1,3,255,0012500037
+0012500037,377,PT10M37.00S,3,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,Sengun REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,256,0012500037
+0012500037,378,PT10M30.00S,3,1610612745,HOU,1641708,Thompson,A. Thompson,-2,8,1,Missed,1,,,0,h,MISS Thompson 1' Running Layup,Missed Shot,Running Layup Shot,1,2,257,0012500037
+0012500037,379,PT10M27.00S,3,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,Thompson REBOUND (Off:3 Def:4),Rebound,Unknown,1,0,258,0012500037
+0012500037,380,PT10M27.00S,3,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,Missed,1,,,0,h,MISS Thompson Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,259,0012500037
+0012500037,381,PT10M26.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,260,0012500037
+0012500037,382,PT10M26.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,Made,1,75,63,138,h,Durant Tip Layup Shot (13 PTS),Made Shot,Tip Layup Shot,1,2,261,0012500037
+0012500037,383,PT10M19.00S,3,1610612762,UTA,1641718,George,K. George,-23,-1,2,Made,1,75,65,140,v,George 2' Driving Layup (9 PTS),Made Shot,Driving Layup Shot,1,2,262,0012500037
+0012500037,384,PT10M03.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant Lost Ball Turnover (P2.T8),Turnover,Lost Ball,1,0,263,0012500037
+0012500037,384,PT10M03.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks STEAL (1 STL),,,1,0,264,0012500037
+0012500037,386,PT09M58.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,21,11,2,Made,1,75,67,142,v,Mykhailiuk 2' Running Finger Roll Layup (4 PTS) (Hendricks 2 AST),Made Shot,Running Finger Roll Layup Shot,1,2,265,0012500037
+0012500037,388,PT09M53.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-4,5,1,Made,1,77,67,144,h,Smith Jr. 1' Cutting Dunk Shot (16 PTS) (Sengun 11 AST),Made Shot,Cutting Dunk Shot,1,2,266,0012500037
+0012500037,390,PT09M53.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,267,0012500037
+0012500037,392,PT09M53.00S,3,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,SUB: Clayton Jr. FOR George,Substitution,,0,0,268,0012500037
+0012500037,394,PT09M42.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,-235,25,24,Made,1,77,70,147,v,Bailey 24' 3PT Jump Shot (14 PTS) (Hendricks 3 AST),Made Shot,Jump Shot,1,3,269,0012500037
+0012500037,396,PT09M24.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. Bad Pass Turnover (P2.T9),Turnover,Bad Pass,1,0,270,0012500037
+0012500037,396,PT09M24.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey STEAL (1 STL),,,1,0,271,0012500037
+0012500037,398,PT09M20.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,222,126,26,Made,1,77,73,150,v,Bailey 26' 3PT Running Jump Shot (17 PTS),Made Shot,Running Jump Shot,1,3,272,0012500037
+0012500037,399,PT09M04.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic P.FOUL (P3.T2) (J.Williams),Foul,Personal,1,0,273,0012500037
+0012500037,401,PT08M53.00S,3,1610612745,HOU,201142,Durant,K. Durant,-141,7,14,Made,1,79,73,152,h,Durant 14' Jump Shot (15 PTS) (Thompson 6 AST),Made Shot,Jump Shot,1,2,274,0012500037
+0012500037,403,PT08M48.00S,3,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. Out of Bounds - Bad Pass Turnover Turnover (P2.T13),Turnover,Out of Bounds - Bad Pass Turnover,1,0,275,0012500037
+0012500037,404,PT08M40.00S,3,1610612745,HOU,201142,Durant,K. Durant,-10,248,25,Made,1,82,73,155,h,Durant 25' 3PT Jump Shot (18 PTS) (Sengun 12 AST),Made Shot,Jump Shot,1,3,276,0012500037
+0012500037,406,PT08M26.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,197,157,25,Missed,1,,,0,v,MISS Mykhailiuk 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,277,0012500037
+0012500037,406,PT08M26.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard BLOCK (2 BLK),,,1,3,278,0012500037
+0012500037,408,PT08M23.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,279,0012500037
+0012500037,409,PT08M21.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,141,206,25,Made,1,82,76,158,v,Mykhailiuk 25' 3PT Jump Shot (7 PTS),Made Shot,Jump Shot,1,3,280,0012500037
+0012500037,410,PT08M09.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,-208,180,28,Made,1,85,76,161,h,Sheppard 28' 3PT Jump Shot (6 PTS) (Durant 1 AST),Made Shot,Jump Shot,1,3,281,0012500037
+0012500037,412,PT07M59.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,216,127,25,Made,1,85,79,164,v,Hendricks 25' 3PT Jump Shot (11 PTS) (Clayton Jr. 3 AST),Made Shot,Jump Shot,1,3,282,0012500037
+0012500037,414,PT07M48.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. Lost Ball Turnover (P3.T10),Turnover,Lost Ball,1,0,283,0012500037
+0012500037,414,PT07M48.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic STEAL (1 STL),,,1,0,284,0012500037
+0012500037,416,PT07M44.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,206,148,25,Missed,1,,,0,v,MISS Hendricks 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,285,0012500037
+0012500037,417,PT07M43.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,286,0012500037
+0012500037,418,PT07M40.00S,3,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,-146,219,26,Missed,1,,,0,v,MISS Clayton Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,287,0012500037
+0012500037,418,PT07M40.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. BLOCK (1 BLK),,,1,3,288,0012500037
+0012500037,420,PT07M40.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,289,0012500037
+0012500037,421,PT07M28.00S,3,1610612745,HOU,1630578,Sengun,A. Sengun,-4,154,15,Made,1,87,79,166,h,Sengun 15' Pullup Jump Shot (13 PTS),Made Shot,Pullup Jump shot,1,2,290,0012500037
+0012500037,422,PT07M13.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,9,9,1,Made,1,87,81,168,v,Nurkic 1' Reverse Layup (10 PTS) (Bailey 2 AST),Made Shot,Reverse Layup Shot,1,2,291,0012500037
+0012500037,424,PT06M55.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,Durant Bad Pass Turnover (P3.T11),Turnover,Bad Pass,1,0,292,0012500037
+0012500037,424,PT06M55.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey STEAL (2 STL),,,1,0,293,0012500037
+0012500037,426,PT06M52.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,-4,27,3,Made,1,87,83,170,v,Bailey 3' Running Dunk (19 PTS),Made Shot,Running Dunk Shot,1,2,294,0012500037
+0012500037,428,PT06M39.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,75,101,13,Made,1,89,83,172,h,Sheppard 13' Driving Floating Jump Shot (8 PTS),Made Shot,Driving Floating Jump Shot,1,2,295,0012500037
+0012500037,429,PT06M17.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,-159,213,27,Missed,1,,,0,v,MISS Hendricks 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,296,0012500037
+0012500037,430,PT06M17.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,Mykhailiuk REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,297,0012500037
+0012500037,431,PT06M13.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-9,11,1,Made,1,89,85,174,v,Mykhailiuk 1' Putback Layup (9 PTS),Made Shot,Putback Layup Shot,1,2,298,0012500037
+0012500037,432,PT06M00.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,-16,62,6,Made,1,91,85,176,h,Smith Jr. 6' Turnaround Fadeaway (18 PTS) (Sengun 13 AST),Made Shot,Turnaround Fadeaway shot,1,2,299,0012500037
+0012500037,434,PT05M49.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,148,166,22,Missed,1,,,0,v,MISS Mykhailiuk 22' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,300,0012500037
+0012500037,435,PT05M47.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,Smith Jr. REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,301,0012500037
+0012500037,436,PT05M41.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,235,6,24,Missed,1,,,0,h,MISS Sheppard 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,302,0012500037
+0012500037,437,PT05M40.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,303,0012500037
+0012500037,438,PT05M34.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,190,166,25,Made,1,91,88,179,v,Hendricks 25' 3PT Running Pull-Up Jump Shot (14 PTS) (Nurkic 4 AST),Made Shot,Running Pull-Up Jump Shot,1,3,304,0012500037
+0012500037,440,PT05M21.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks S.FOUL (P3.T3) (K.Cutler),Foul,Shooting,1,0,305,0012500037
+0012500037,442,PT05M21.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,92,88,180,h,Durant Free Throw 1 of 2 (19 PTS),Free Throw,Free Throw 1 of 2,1,0,306,0012500037
+0012500037,443,PT05M21.00S,3,1610612745,HOU,1641708,Thompson,A. Thompson,0,0,0,,0,,,0,h,SUB: Okogie FOR Thompson,Substitution,,0,0,307,0012500037
+0012500037,444,PT05M21.00S,3,1610612745,HOU,1631095,Smith Jr.,J. Smith Jr.,0,0,0,,0,,,0,h,SUB: Eason FOR Smith Jr.,Substitution,,0,0,308,0012500037
+0012500037,445,PT05M21.00S,3,1610612745,HOU,1630578,Sengun,A. Sengun,0,0,0,,0,,,0,h,SUB: Capela FOR Sengun,Substitution,,0,0,309,0012500037
+0012500037,446,PT05M21.00S,3,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Williams FOR Hendricks,Substitution,,0,0,310,0012500037
+0012500037,447,PT05M21.00S,3,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR Mykhailiuk,Substitution,,0,0,311,0012500037
+0012500037,448,PT05M21.00S,3,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,SUB: Love FOR Bailey,Substitution,,0,0,312,0012500037
+0012500037,449,PT05M21.00S,3,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,SUB: Anderson FOR Nurkic,Substitution,,0,0,313,0012500037
+0012500037,457,PT05M21.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,93,88,181,h,Durant Free Throw 2 of 2 (20 PTS),Free Throw,Free Throw 2 of 2,1,0,314,0012500037
+0012500037,458,PT05M09.00S,3,1610612762,UTA,1642262,Williams,C. Williams,-147,131,20,Missed,1,,,0,v,MISS Williams 20' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,315,0012500037
+0012500037,459,PT05M08.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,316,0012500037
+0012500037,460,PT05M01.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,-12,10,2,Made,1,95,88,183,h,Sheppard 2' Driving Layup (10 PTS),Made Shot,Driving Layup Shot,1,2,317,0012500037
+0012500037,461,PT05M00.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,318,0012500037
+0012500037,462,PT04M42.00S,3,1610612762,UTA,203937,Anderson,K. Anderson,-13,41,4,Missed,1,,,0,v,MISS Anderson 4' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,319,0012500037
+0012500037,463,PT04M41.00S,3,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,Eason REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,320,0012500037
+0012500037,464,PT04M31.00S,3,1610612745,HOU,1631106,Eason,T. Eason,219,109,24,Made,1,98,88,186,h,Eason 24' 3PT Jump Shot (6 PTS) (Sheppard 2 AST),Made Shot,Jump Shot,1,3,321,0012500037
+0012500037,466,PT04M15.00S,3,1610612762,UTA,1642262,Williams,C. Williams,-48,13,5,Missed,1,,,0,v,MISS Williams 5' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,322,0012500037
+0012500037,467,PT04M15.00S,3,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,Capela REBOUND (Off:4 Def:3),Rebound,Unknown,1,0,323,0012500037
+0012500037,468,PT04M05.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P1.T4) (J.Williams),Foul,Shooting,1,0,324,0012500037
+0012500037,470,PT04M05.00S,3,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,99,88,187,h,Capela Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,325,0012500037
+0012500037,471,PT04M05.00S,3,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,SUB: George FOR Clayton Jr.,Substitution,,0,0,326,0012500037
+0012500037,473,PT04M05.00S,3,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,MISS Capela Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,327,0012500037
+0012500037,474,PT04M05.00S,3,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,Anderson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,328,0012500037
+0012500037,475,PT03M48.00S,3,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love Out of Bounds Lost Ball Turnover (P4.T14),Turnover,Out of Bounds Lost Ball Turnover,1,0,329,0012500037
+0012500037,476,PT03M48.00S,3,1610612745,HOU,201142,Durant,K. Durant,0,0,0,,0,,,0,h,SUB: Holiday FOR Durant,Substitution,,0,0,330,0012500037
+0012500037,478,PT03M38.00S,3,1610612745,HOU,1631106,Eason,T. Eason,143,202,25,Missed,1,,,0,h,MISS Eason 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,331,0012500037
+0012500037,479,PT03M35.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,332,0012500037
+0012500037,480,PT03M24.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,67,73,10,Made,1,99,90,189,v,Sensabaugh 10' Pullup Jump Shot (16 PTS),Made Shot,Pullup Jump shot,1,2,333,0012500037
+0012500037,481,PT03M12.00S,3,1610612745,HOU,203991,Capela,C. Capela,42,75,9,Missed,1,,,0,h,MISS Capela 9' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,334,0012500037
+0012500037,481,PT03M12.00S,3,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,Anderson BLOCK (2 BLK),,,1,2,335,0012500037
+0012500037,483,PT03M12.00S,3,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,336,0012500037
+0012500037,484,PT02M59.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard P.FOUL (P1.T1) (A.Abazi),Foul,Personal,1,0,337,0012500037
+0012500037,486,PT02M53.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,208,141,25,Made,1,99,93,192,v,Sensabaugh 25' 3PT Jump Shot (19 PTS) (George 6 AST),Made Shot,Jump Shot,1,3,338,0012500037
+0012500037,488,PT02M42.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,Williams S.FOUL (P2.PN) (A.Abazi),Foul,Shooting,1,0,339,0012500037
+0012500037,490,PT02M42.00S,3,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,100,93,193,h,Eason Free Throw 1 of 2 (7 PTS),Free Throw,Free Throw 1 of 2,1,0,340,0012500037
+0012500037,491,PT02M42.00S,3,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,101,93,194,h,Eason Free Throw 2 of 2 (8 PTS),Free Throw,Free Throw 2 of 2,1,0,341,0012500037
+0012500037,492,PT02M25.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-114,241,27,Missed,1,,,0,v,MISS Sensabaugh 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,342,0012500037
+0012500037,493,PT02M24.00S,3,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,343,0012500037
+0012500037,494,PT02M15.00S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,169,184,25,Missed,1,,,0,v,MISS Sensabaugh 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,344,0012500037
+0012500037,495,PT02M13.00S,3,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,Eason REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,345,0012500037
+0012500037,496,PT02M04.00S,3,1610612745,HOU,1628988,Holiday,A. Holiday,-230,4,0,Missed,1,,,0,h,MISS Holiday 3PT Jump Shot,Missed Shot,Jump Shot,1,3,346,0012500037
+0012500037,497,PT02M03.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,347,0012500037
+0012500037,498,PT02M03.00S,3,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George P.FOUL (P4.PN) (K.Cutler),Foul,Personal,1,0,348,0012500037
+0012500037,500,PT02M03.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,,,0,h,MISS Sheppard Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,349,0012500037
+0012500037,501,PT02M03.00S,3,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Normal Rebound,0,0,350,0012500037
+0012500037,502,PT02M03.00S,3,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Harkless FOR Williams,Substitution,,0,0,351,0012500037
+0012500037,504,PT02M03.00S,3,1610612745,HOU,1642263,Sheppard,R. Sheppard,0,0,0,,0,102,93,195,h,Sheppard Free Throw 2 of 2 (11 PTS),Free Throw,Free Throw 2 of 2,1,0,352,0012500037
+0012500037,505,PT01M45.00S,3,1610612762,UTA,1641718,George,K. George,-225,-1,0,Made,1,102,96,198,v,George 3PT Jump Shot (12 PTS) (Anderson 3 AST),Made Shot,Jump Shot,1,3,353,0012500037
+0012500037,507,PT01M32.00S,3,1610612745,HOU,1631106,Eason,T. Eason,-147,202,25,Missed,1,,,0,h,MISS Eason 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,354,0012500037
+0012500037,508,PT01M31.00S,3,1610612745,HOU,1631106,Eason,T. Eason,0,0,0,,0,,,0,h,Eason REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,355,0012500037
+0012500037,509,PT01M25.00S,3,1610612745,HOU,1629006,Okogie,J. Okogie,233,109,26,Made,1,105,96,201,h,Okogie 26' 3PT Jump Shot (3 PTS) (Eason 3 AST),Made Shot,Jump Shot,1,3,356,0012500037
+0012500037,511,PT01M10.00S,3,1610612762,UTA,201567,Love,K. Love,228,101,25,Made,1,105,99,204,v,Love 25' 3PT Jump Shot (10 PTS) (Anderson 4 AST),Made Shot,Jump Shot,1,3,357,0012500037
+0012500037,513,PT01M09.00S,3,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,358,0012500037
+0012500037,514,PT00M50.40S,3,1610612745,HOU,1631106,Eason,T. Eason,32,1,3,Missed,1,,,0,h,MISS Eason 3' Driving Dunk,Missed Shot,Driving Dunk Shot,1,2,359,0012500037
+0012500037,515,PT00M48.70S,3,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,Okogie REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,360,0012500037
+0012500037,516,PT00M44.20S,3,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,Okogie Lost Ball Turnover (P1.T12),Turnover,Lost Ball,1,0,361,0012500037
+0012500037,516,PT00M44.20S,3,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh STEAL (1 STL),,,1,0,362,0012500037
+0012500037,519,PT00M35.10S,3,1610612762,UTA,1641718,George,K. George,-94,-12,9,Made,1,105,101,206,v,George 9' Driving Floating Jump Shot (14 PTS) (Anderson 5 AST),Made Shot,Driving Floating Jump Shot,1,2,363,0012500037
+0012500037,521,PT00M23.90S,3,1610612745,HOU,1629006,Okogie,J. Okogie,20,7,2,Made,1,107,101,208,h,Okogie 2' Cutting Dunk Shot (5 PTS) (Sheppard 3 AST),Made Shot,Cutting Dunk Shot,1,2,364,0012500037
+0012500037,523,PT00M04.40S,3,1610612762,UTA,1641718,George,K. George,-125,176,22,Missed,1,,,0,v,MISS George 22' Jump Shot,Missed Shot,Jump Shot,1,2,365,0012500037
+0012500037,524,PT00M01.60S,3,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,Anderson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,366,0012500037
+0012500037,525,PT00M00.00S,3,1610612762,UTA,203937,Anderson,K. Anderson,54,63,8,Missed,1,,,0,v,MISS Anderson 8' Turnaround Bank Shot,Missed Shot,Turnaround Bank shot,1,2,367,0012500037
+0012500037,526,PT00M00.00S,3,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,1,0,368,0012500037
+0012500037,527,PT00M00.00S,3,0,,0,,,0,0,0,,0,107,101,208,,End of 3rd Period (9:50 PM EST),period,end,1,0,369,0012500037
+0012500037,532,PT12M00.00S,4,0,,0,,,0,0,0,,0,107,101,208,,Start of 4th Period (9:53 PM EST),period,start,1,0,370,0012500037
+0012500037,533,PT11M36.00S,4,1610612762,UTA,201567,Love,K. Love,9,6,1,Made,1,107,103,210,v,Love 1' Cutting Finger Roll Layup Shot (12 PTS) (Anderson 6 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,371,0012500037
+0012500037,535,PT11M20.00S,4,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love S.FOUL (P2.T1) (A.Abazi),Foul,Shooting,1,0,372,0012500037
+0012500037,537,PT11M20.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,108,103,211,h,Green Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,373,0012500037
+0012500037,538,PT11M20.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,109,103,212,h,Green Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,374,0012500037
+0012500037,539,PT11M07.00S,4,1610612762,UTA,1641718,George,K. George,-125,222,25,Missed,1,,,0,v,MISS George 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,375,0012500037
+0012500037,540,PT11M05.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,376,0012500037
+0012500037,541,PT10M56.00S,4,1610612745,HOU,201145,Green,J. Green,230,43,0,Missed,1,,,0,h,MISS Green 3PT Jump Shot,Missed Shot,Jump Shot,1,3,377,0012500037
+0012500037,542,PT10M53.00S,4,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,Okogie REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,378,0012500037
+0012500037,543,PT10M51.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,9,274,27,Missed,1,,,0,h,MISS Holiday 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,379,0012500037
+0012500037,544,PT10M45.00S,4,1610612762,UTA,1641989,Harkless,E. Harkless,0,0,0,,0,,,0,v,Harkless REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,380,0012500037
+0012500037,545,PT10M42.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,10,3,1,Made,1,109,105,214,v,Sensabaugh 1' Running Layup (21 PTS) (George 7 AST),Made Shot,Running Layup Shot,1,2,381,0012500037
+0012500037,547,PT10M31.00S,4,1610612762,UTA,1641989,Harkless,E. Harkless,0,0,0,,0,,,0,v,Harkless P.FOUL (P1.T2) (K.Cutler),Foul,Personal,1,0,382,0012500037
+0012500037,549,PT10M31.00S,4,1610612762,UTA,203937,Anderson,K. Anderson,0,0,0,,0,,,0,v,SUB: Hendricks FOR Anderson,Substitution,,0,0,383,0012500037
+0012500037,551,PT10M24.00S,4,1610612762,UTA,1641989,Harkless,E. Harkless,0,0,0,,0,,,0,v,Harkless S.FOUL (P2.T3) (K.Cutler),Foul,Shooting,1,0,384,0012500037
+0012500037,553,PT10M24.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,110,105,215,h,Green Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,385,0012500037
+0012500037,554,PT10M24.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,111,105,216,h,Green Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,386,0012500037
+0012500037,555,PT10M07.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks Traveling Turnover (P2.T15),Turnover,Traveling,1,0,387,0012500037
+0012500037,556,PT09M55.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,Holiday Bad Pass Turnover (P1.T13),Turnover,Bad Pass,1,0,388,0012500037
+0012500037,556,PT09M55.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks STEAL (2 STL),,,1,0,389,0012500037
+0012500037,558,PT09M49.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,87,240,26,Missed,1,,,0,v,MISS Hendricks 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,390,0012500037
+0012500037,559,PT09M48.00S,4,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Unknown,0,0,391,0012500037
+0012500037,561,PT09M32.00S,4,1610612745,HOU,1631120,Davison,J. Davison,-7,88,9,Made,1,113,105,218,h,Davison 9' Driving Floating Jump Shot (5 PTS) (Capela 1 AST),Made Shot,Driving Floating Jump Shot,1,2,392,0012500037
+0012500037,563,PT09M12.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,5,294,29,Missed,1,,,0,v,MISS Sensabaugh 29' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,393,0012500037
+0012500037,564,PT09M12.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,394,0012500037
+0012500037,565,PT09M05.00S,4,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,Love S.FOUL (P3.T4) (J.Williams),Foul,Shooting,1,0,395,0012500037
+0012500037,567,PT09M05.00S,4,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,114,105,219,h,Capela Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,396,0012500037
+0012500037,568,PT09M05.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,SUB: Bailey FOR Sensabaugh,Substitution,,0,0,397,0012500037
+0012500037,569,PT09M05.00S,4,1610612762,UTA,201567,Love,K. Love,0,0,0,,0,,,0,v,SUB: Nurkic FOR Love,Substitution,,0,0,398,0012500037
+0012500037,572,PT09M05.00S,4,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,MISS Capela Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,399,0012500037
+0012500037,573,PT09M05.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,400,0012500037
+0012500037,574,PT08M49.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,25,15,3,Made,1,114,107,221,v,Nurkic 3' Driving Layup (12 PTS) (George 8 AST),Made Shot,Driving Layup Shot,1,2,401,0012500037
+0012500037,576,PT08M36.00S,4,1610612745,HOU,1631120,Davison,J. Davison,-185,194,27,Missed,1,,,0,h,MISS Davison 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,402,0012500037
+0012500037,577,PT08M36.00S,4,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,George REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,403,0012500037
+0012500037,578,PT08M20.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic Out of Bounds - Bad Pass Turnover Turnover (P3.T16),Turnover,Out of Bounds - Bad Pass Turnover,1,0,404,0012500037
+0012500037,579,PT08M07.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,183,190,26,Made,1,117,107,224,h,Holiday 26' 3PT Jump Shot (8 PTS) (Capela 2 AST),Made Shot,Jump Shot,1,3,405,0012500037
+0012500037,581,PT07M51.00S,4,1610612762,UTA,1642846,Bailey,A. Bailey,11,17,2,Made,1,117,109,226,v,Bailey 2' Cutting Dunk Shot (21 PTS) (Nurkic 5 AST),Made Shot,Cutting Dunk Shot,1,2,406,0012500037
+0012500037,583,PT07M29.00S,4,1610612745,HOU,203991,Capela,C. Capela,-70,62,9,Made,1,119,109,228,h,Capela 9' Alley Oop Dunk (8 PTS) (Davison 2 AST),Made Shot,Alley Oop Dunk Shot,1,2,407,0012500037
+0012500037,585,PT07M18.00S,4,1610612762,UTA,1641989,Harkless,E. Harkless,205,155,26,Made,1,119,112,231,v,Harkless 26' 3PT Jump Shot (3 PTS) (Nurkic 6 AST),Made Shot,Jump Shot,1,3,408,0012500037
+0012500037,587,PT07M00.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks P.FOUL (P4.PN) (K.Cutler),Foul,Personal,1,0,409,0012500037
+0012500037,589,PT07M00.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,120,112,232,h,Green Free Throw 1 of 2 (5 PTS),Free Throw,Free Throw 1 of 2,1,0,410,0012500037
+0012500037,590,PT07M00.00S,4,1610612745,HOU,203991,Capela,C. Capela,0,0,0,,0,,,0,h,SUB: Crawford FOR Capela,Substitution,,0,0,411,0012500037
+0012500037,591,PT07M00.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,SUB: Williams FOR Hendricks,Substitution,,0,0,412,0012500037
+0012500037,594,PT07M00.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,121,112,233,h,Green Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,413,0012500037
+0012500037,595,PT06M43.00S,4,1610612762,UTA,1642846,Bailey,A. Bailey,-4,19,2,Made,1,121,114,235,v,Bailey 2' Driving Finger Roll Layup (23 PTS) (George 9 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,414,0012500037
+0012500037,597,PT06M35.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,77,243,25,Made,1,124,114,238,h,Holiday 25' 3PT Pullup Jump Shot (11 PTS),Made Shot,Pullup Jump shot,1,3,415,0012500037
+0012500037,598,PT06M19.00S,4,1610612762,UTA,1641718,George,K. George,121,143,19,Made,1,124,116,240,v,George 19' Pullup Jump Shot (16 PTS),Made Shot,Pullup Jump shot,1,2,416,0012500037
+0012500037,599,PT06M01.00S,4,1610612745,HOU,1631120,Davison,J. Davison,-230,33,0,Missed,1,,,0,h,MISS Davison 3PT Jump Shot,Missed Shot,Jump Shot,1,3,417,0012500037
+0012500037,600,PT05M55.00S,4,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,Okogie REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,418,0012500037
+0012500037,601,PT05M55.00S,4,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,Made,1,126,116,242,h,Okogie Tip Layup Shot (7 PTS),Made Shot,Tip Layup Shot,1,2,419,0012500037
+0012500037,602,PT05M44.00S,4,1610612762,UTA,1642262,Williams,C. Williams,54,21,6,Missed,1,,,0,v,MISS Williams 6' Driving Bank Hook Shot,Missed Shot,Driving Bank Hook Shot,1,2,420,0012500037
+0012500037,603,PT05M44.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,Holiday REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,421,0012500037
+0012500037,604,PT05M38.00S,4,1610612745,HOU,1642384,Crawford,I. Crawford,230,6,0,Missed,1,,,0,h,MISS Crawford 3PT Jump Shot,Missed Shot,Jump Shot,1,3,422,0012500037
+0012500037,605,PT05M34.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,423,0012500037
+0012500037,606,PT05M21.00S,4,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey Out of Bounds - Bad Pass Turnover Turnover (P2.T17),Turnover,Out of Bounds - Bad Pass Turnover,1,0,424,0012500037
+0012500037,607,PT05M21.00S,4,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,425,0012500037
+0012500037,608,PT05M21.00S,4,1610612745,HOU,1628988,Holiday,A. Holiday,0,0,0,,0,,,0,h,SUB: Harris FOR Holiday,Substitution,,0,0,426,0012500037
+0012500037,609,PT05M21.00S,4,1610612762,UTA,1641718,George,K. George,0,0,0,,0,,,0,v,SUB: Sensabaugh FOR George,Substitution,,0,0,427,0012500037
+0012500037,610,PT05M21.00S,4,1610612762,UTA,1641989,Harkless,E. Harkless,0,0,0,,0,,,0,v,SUB: Clayton Jr. FOR Harkless,Substitution,,0,0,428,0012500037
+0012500037,611,PT05M21.00S,4,1610612762,UTA,1642262,Williams,C. Williams,0,0,0,,0,,,0,v,SUB: Mykhailiuk FOR Williams,Substitution,,0,0,429,0012500037
+0012500037,616,PT05M08.00S,4,1610612745,HOU,201145,Green,J. Green,12,258,26,Missed,1,,,0,h,MISS Green 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,430,0012500037
+0012500037,617,PT05M06.00S,4,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,Okogie REBOUND (Off:4 Def:0),Rebound,Unknown,1,0,431,0012500037
+0012500037,618,PT05M02.00S,4,1610612745,HOU,1642384,Crawford,I. Crawford,-235,63,24,Missed,1,,,0,h,MISS Crawford 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,432,0012500037
+0012500037,619,PT05M00.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,433,0012500037
+0012500037,620,PT04M49.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh Bad Pass Turnover (P1.T18),Turnover,Bad Pass,1,0,434,0012500037
+0012500037,620,PT04M49.00S,4,1610612745,HOU,1630284,Harris,K. Harris,0,0,0,,0,,,0,h,Harris STEAL (1 STL),,,1,0,435,0012500037
+0012500037,622,PT04M44.00S,4,1610612745,HOU,1630284,Harris,K. Harris,-4,8,1,Missed,1,,,0,h,MISS Harris 1' Running Layup,Missed Shot,Running Layup Shot,1,2,436,0012500037
+0012500037,623,PT04M39.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,,,0,h,Green REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,437,0012500037
+0012500037,624,PT04M39.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,Made,1,128,116,244,h,Green Tip Dunk Shot (8 PTS),Made Shot,Tip Dunk Shot,1,2,438,0012500037
+0012500037,625,PT04M36.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Timeout: Regular (Reg.6 Short 0),Timeout,Regular,0,0,439,0012500037
+0012500037,626,PT04M36.00S,4,1610612745,HOU,1629006,Okogie,J. Okogie,0,0,0,,0,,,0,h,SUB: Matthews FOR Okogie,Substitution,,0,0,440,0012500037
+0012500037,628,PT04M24.00S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,60,73,9,Made,1,128,118,246,v,Clayton Jr. 9' Turnaround Fadeaway Bank Jump Shot (4 PTS),Made Shot,Turnaround Fadeaway Bank Jump Shot,1,2,441,0012500037
+0012500037,629,PT04M03.00S,4,1610612745,HOU,201145,Green,J. Green,80,47,9,Made,1,130,118,248,h,Green 9' Driving Floating Bank Jump Shot (10 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,442,0012500037
+0012500037,630,PT03M51.00S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,121,258,28,Made,1,130,121,251,v,Clayton Jr. 28' 3PT Pullup Jump Shot (7 PTS) (Nurkic 7 AST),Made Shot,Pullup Jump shot,1,3,443,0012500037
+0012500037,631,PT03M39.00S,4,1610612745,HOU,1631120,Davison,J. Davison,5,32,3,Missed,1,,,0,h,MISS Davison 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,444,0012500037
+0012500037,632,PT03M37.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic REBOUND (Off:1 Def:7),Rebound,Unknown,1,0,445,0012500037
+0012500037,634,PT03M31.00S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,-9,29,3,Missed,1,,,0,v,MISS Clayton Jr. 3' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,446,0012500037
+0012500037,634,PT03M31.00S,4,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,Davison BLOCK (1 BLK),,,1,2,447,0012500037
+0012500037,636,PT03M31.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,0,0,448,0012500037
+0012500037,639,PT03M24.00S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,-178,177,25,Missed,1,,,0,v,MISS Clayton Jr. 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,449,0012500037
+0012500037,640,PT03M23.00S,4,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,Davison REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,450,0012500037
+0012500037,641,PT03M09.00S,4,1610612745,HOU,201145,Green,J. Green,-104,130,17,Missed,1,,,0,h,MISS Green 17' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,451,0012500037
+0012500037,642,PT03M02.00S,4,1610612745,HOU,1643069,Matthews,C. Matthews,0,0,0,,0,,,0,h,Matthews REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,452,0012500037
+0012500037,643,PT03M02.00S,4,1610612745,HOU,1643069,Matthews,C. Matthews,0,0,0,Made,1,132,121,253,h,Matthews Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,453,0012500037
+0012500037,644,PT02M45.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic Out of Bounds Lost Ball Turnover (P4.T19),Turnover,Out of Bounds Lost Ball Turnover,1,0,454,0012500037
+0012500037,645,PT02M37.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,Nurkic S.FOUL (P4.PN) (A.Abazi),Foul,Shooting,1,0,455,0012500037
+0012500037,647,PT02M37.00S,4,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,MISS Davison Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,456,0012500037
+0012500037,648,PT02M37.00S,4,0,,1610612745,,,0,0,0,,0,,,0,h,ROCKETS Rebound,Rebound,Normal Rebound,0,0,457,0012500037
+0012500037,649,PT02M37.00S,4,1610612762,UTA,203994,Nurkić,J. Nurkić,0,0,0,,0,,,0,v,SUB: Hendricks FOR Nurkic,Substitution,,0,0,458,0012500037
+0012500037,651,PT02M37.00S,4,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,133,121,254,h,Davison Free Throw 2 of 2 (6 PTS),Free Throw,Free Throw 2 of 2,1,0,459,0012500037
+0012500037,652,PT02M22.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,31,32,4,Missed,1,,,0,v,MISS Sensabaugh 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,460,0012500037
+0012500037,652,PT02M22.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,,,0,h,Green BLOCK (1 BLK),,,1,2,461,0012500037
+0012500037,653,PT02M22.00S,4,0,,1610612762,,,0,0,0,,0,,,0,v,Jazz Rebound,Rebound,Unknown,1,0,462,0012500037
+0012500037,655,PT02M16.00S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,228,42,0,Missed,1,,,0,v,MISS Mykhailiuk 3PT Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,3,463,0012500037
+0012500037,656,PT02M16.00S,4,1610612745,HOU,1631120,Davison,J. Davison,0,0,0,,0,,,0,h,Davison REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,464,0012500037
+0012500037,657,PT02M09.00S,4,1610612745,HOU,1642384,Crawford,I. Crawford,-12,2,1,Made,1,135,121,256,h,Crawford 1' Cutting Layup Shot (2 PTS) (Harris 1 AST),Made Shot,Cutting Layup Shot,1,2,465,0012500037
+0012500037,660,PT01M41.00S,4,1610612762,UTA,1629004,Mykhailiuk,S. Mykhailiuk,-227,105,25,Missed,1,,,0,v,MISS Mykhailiuk 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,466,0012500037
+0012500037,661,PT01M40.00S,4,1610612762,UTA,1642846,Bailey,A. Bailey,0,0,0,,0,,,0,v,Bailey REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,467,0012500037
+0012500037,662,PT01M39.00S,4,1610612762,UTA,1642846,Bailey,A. Bailey,36,74,8,Made,1,135,123,258,v,Bailey 8' Jump Shot (25 PTS),Made Shot,Jump Shot,1,2,468,0012500037
+0012500037,663,PT01M26.00S,4,1610612745,HOU,201145,Green,J. Green,156,206,26,Missed,1,,,0,h,MISS Green 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,469,0012500037
+0012500037,664,PT01M23.00S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,0,0,0,,0,,,0,v,Sensabaugh REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,470,0012500037
+0012500037,665,PT01M21.00S,4,1610612745,HOU,201145,Green,J. Green,0,0,0,,0,,,0,h,Green S.FOUL (P1.T1) (A.Abazi),Foul,Shooting,1,0,471,0012500037
+0012500037,667,PT01M21.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,135,124,259,v,Hendricks Free Throw 1 of 2 (15 PTS),Free Throw,Free Throw 1 of 2,1,0,472,0012500037
+0012500037,668,PT01M21.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,MISS Hendricks Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,473,0012500037
+0012500037,669,PT01M21.00S,4,1610612745,HOU,1642384,Crawford,I. Crawford,0,0,0,,0,,,0,h,Crawford REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,474,0012500037
+0012500037,670,PT01M11.00S,4,1610612745,HOU,1630284,Harris,K. Harris,-230,15,0,Missed,1,,,0,h,MISS Harris 3PT Jump Shot,Missed Shot,Jump Shot,1,3,475,0012500037
+0012500037,671,PT01M09.00S,4,1610612762,UTA,1641707,Hendricks,T. Hendricks,0,0,0,,0,,,0,v,Hendricks REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,476,0012500037
+0012500037,672,PT00M53.50S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. Bad Pass Turnover (P3.T20),Turnover,Bad Pass,1,0,477,0012500037
+0012500037,672,PT00M53.50S,4,1610612745,HOU,1642384,Crawford,I. Crawford,0,0,0,,0,,,0,h,Crawford STEAL (1 STL),,,1,0,478,0012500037
+0012500037,674,PT00M50.30S,4,1610612745,HOU,1631120,Davison,J. Davison,1,13,1,Made,1,137,124,261,h,Davison 1' Running Layup (8 PTS) (Matthews 1 AST),Made Shot,Running Layup Shot,1,2,479,0012500037
+0012500037,675,PT00M35.70S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,119,242,27,Missed,1,,,0,v,MISS Clayton Jr. 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,480,0012500037
+0012500037,676,PT00M33.60S,4,1610612745,HOU,1642384,Crawford,I. Crawford,0,0,0,,0,,,0,h,Crawford REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,481,0012500037
+0012500037,677,PT00M30.90S,4,1610612762,UTA,1642383,Clayton Jr.,W. Clayton Jr.,0,0,0,,0,,,0,v,Clayton Jr. S.FOUL (P3.PN) (A.Abazi),Foul,Shooting,1,0,482,0012500037
+0012500037,680,PT00M30.90S,4,1610612745,HOU,1630284,Harris,K. Harris,0,0,0,,0,138,124,262,h,Harris Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,483,0012500037
+0012500037,681,PT00M30.90S,4,1610612745,HOU,1630284,Harris,K. Harris,0,0,0,,0,,,0,h,MISS Harris Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,484,0012500037
+0012500037,682,PT00M30.90S,4,1610612745,HOU,1630284,Harris,K. Harris,0,0,0,,0,,,0,h,Harris REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,485,0012500037
+0012500037,683,PT00M26.40S,4,1610612745,HOU,1630284,Harris,K. Harris,38,20,4,Made,1,140,124,264,h,Harris 4' Layup (3 PTS),Made Shot,Layup Shot,1,2,486,0012500037
+0012500037,684,PT00M08.70S,4,1610612762,UTA,1641729,Sensabaugh,B. Sensabaugh,-178,192,26,Made,1,140,127,267,v,Sensabaugh 26' 3PT Jump Shot (24 PTS) (Bailey 3 AST),Made Shot,Jump Shot,1,3,487,0012500037
+0012500037,686,PT00M00.00S,4,0,,0,,,0,0,0,,0,140,127,267,,End of 4th Period (10:19 PM EST),period,end,1,0,488,0012500037

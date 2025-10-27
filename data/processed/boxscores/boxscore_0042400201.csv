@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,24:37,5,8,0.625,4,6,0.667,3,4,0.75,2,6,8,0,0,1,3,5,17,9.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,33:40,6,15,0.4,2,5,0.4,3,3,1.0,1,7,8,4,1,0,2,1,17,16.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,33:06,5,9,0.556,1,3,0.333,2,2,1.0,1,10,11,1,3,2,3,3,13,11.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,37:04,7,10,0.7,5,6,0.833,4,4,1.0,0,0,0,6,0,0,0,1,23,21.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,36:11,9,15,0.6,2,6,0.333,2,2,1.0,0,3,3,13,1,3,1,1,22,11.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,8:48,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,2,2,-14.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,23:23,4,10,0.4,3,5,0.6,0,0,0.0,2,3,5,1,0,1,1,3,11,0.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,15:16,3,5,0.6,1,1,1.0,0,0,0.0,0,1,1,2,0,0,2,1,7,-6.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,14:43,3,6,0.5,1,2,0.5,0,0,0.0,1,4,5,2,1,1,2,2,7,7.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,7:29,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-8.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,5:43,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,1,1,0,2,-2.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,31:55,2,9,0.222,2,8,0.25,1,2,0.5,2,5,7,3,2,1,0,4,7,-6.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,35:45,9,13,0.692,2,5,0.4,0,0,0.0,4,6,10,2,2,0,4,3,20,-20.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,30:06,6,7,0.857,0,0,0.0,0,0,0.0,1,4,5,1,2,0,1,1,12,-9.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,G,,,17:50,2,5,0.4,2,5,0.4,0,0,0.0,1,3,4,4,0,0,0,2,6,-10.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:40,13,30,0.433,1,11,0.091,6,9,0.667,0,5,5,4,1,0,0,2,33,-19.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,29:27,8,20,0.4,1,4,0.25,4,5,0.8,2,1,3,8,1,0,1,1,21,10.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,30:12,4,8,0.5,1,2,0.5,2,2,1.0,1,3,4,1,0,0,1,1,11,7.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,16:04,0,2,0.0,0,1,0.0,0,0,0.0,0,3,3,0,0,0,0,2,0,-1.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,15:01,1,4,0.25,0,2,0.0,0,0,0.0,2,0,2,2,0,0,0,0,2,3.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201
+0042400201,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400201

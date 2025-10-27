@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,35:11,7,14,0.5,4,8,0.5,3,4,0.75,1,4,5,2,1,0,0,2,21,5.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,35:27,9,16,0.563,1,5,0.2,2,2,1.0,2,1,3,5,0,0,1,0,21,16.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,37:42,5,12,0.417,0,1,0.0,10,10,1.0,3,9,12,11,4,0,1,2,20,9.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,G,,,36:43,9,12,0.75,3,5,0.6,4,5,0.8,0,4,4,2,0,1,0,1,25,20.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,G,,,31:15,6,10,0.6,5,7,0.714,1,2,0.5,0,1,1,4,1,0,1,1,18,12.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,25:22,3,5,0.6,0,2,0.0,1,1,1.0,0,4,4,1,0,1,1,5,7,-5.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,16:45,2,11,0.182,0,4,0.0,1,1,1.0,2,2,4,4,1,0,3,2,5,-4.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,11:17,0,3,0.0,0,2,0.0,1,2,0.5,1,6,7,1,0,0,0,2,1,-12.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,,,10:18,2,3,0.667,0,0,0.0,2,4,0.5,3,2,5,0,0,3,0,1,6,-1.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1628427,Vlatko,Čančar,V. Čančar,vlatko-čančar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1641790,PJ,Hall,P. Hall,pj-hall,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,39:44,8,26,0.308,0,5,0.0,6,7,0.857,2,2,4,4,0,1,1,3,22,-16.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,F,,,37:42,6,9,0.667,2,3,0.667,3,3,1.0,2,7,9,4,0,0,1,2,17,-9.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,38:47,6,10,0.6,0,1,0.0,1,1,1.0,4,8,12,2,0,1,0,5,13,-3.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,43:43,10,20,0.5,4,8,0.5,3,4,0.75,0,0,0,11,0,0,4,2,27,-8.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,32:29,7,12,0.583,6,11,0.545,0,0,0.0,0,6,6,2,1,2,1,3,20,-13.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,9:13,1,4,0.25,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,1,2,-5.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,14:30,3,5,0.6,3,5,0.6,0,0,0.0,1,1,2,1,0,0,0,2,9,6.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,17:57,1,4,0.25,1,2,0.5,1,2,0.5,1,2,3,1,0,1,1,3,4,6.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,5:55,1,2,0.5,0,0,0.0,0,0,0.0,1,1,2,0,1,0,0,1,2,2.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1629056,Terence,Davis,T. Davis,terence-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165
+0022401165,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401165

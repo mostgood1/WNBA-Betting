@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,F,,,41:04,3,5,0.6,0,1,0.0,0,0,0.0,0,4,4,3,2,0,3,4,6,12.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,203076,Anthony,Davis,A. Davis,anthony-davis,F,,,28:51,5,19,0.263,1,5,0.2,4,7,0.571,1,6,7,2,1,0,0,1,15,-9.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1630539,Kai,Jones,K. Jones,kai-jones,C,,,6:58,2,2,1.0,0,0,0.0,0,0,0.0,1,4,5,0,0,1,1,1,4,2.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,25:32,5,10,0.5,2,4,0.5,0,0,0.0,0,4,4,0,0,0,1,1,12,-7.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,24:38,2,7,0.286,0,2,0.0,3,4,0.75,0,4,4,4,2,0,4,2,7,-6.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1631108,Max,Christie,M. Christie,max-christie,,,,29:23,3,6,0.5,2,3,0.667,4,4,1.0,0,3,3,2,2,0,1,0,12,0.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,17:14,2,4,0.5,0,0,0.0,1,2,0.5,0,4,4,2,1,0,0,2,5,11.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,18:59,2,3,0.667,0,0,0.0,0,0,0.0,2,1,3,2,0,0,0,2,4,10.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,27:02,6,10,0.6,1,1,1.0,1,1,1.0,1,2,3,6,2,0,4,3,14,21.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,20:19,7,12,0.583,5,6,0.833,3,4,0.75,0,3,3,0,0,0,0,1,22,11.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401060
+0022401060,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,35:46,8,21,0.381,0,5,0.0,4,4,1.0,2,7,9,2,1,0,4,0,20,-14.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,37:45,13,21,0.619,1,5,0.2,8,12,0.667,2,8,10,4,1,0,6,4,35,-8.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,27:47,5,10,0.5,1,4,0.25,1,1,1.0,2,3,5,1,0,2,2,5,12,-11.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,33:28,0,4,0.0,0,3,0.0,0,0,0.0,1,3,4,0,1,0,1,0,0,-4.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,G,,,21:43,2,6,0.333,2,5,0.4,0,0,0.0,0,2,2,1,0,0,0,3,6,0.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,11:49,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,1.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,18:18,1,2,0.5,0,0,0.0,1,2,0.5,1,4,5,2,1,1,0,3,3,-7.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,26:17,5,10,0.5,1,4,0.25,3,3,1.0,0,3,3,3,0,2,2,2,14,-9.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,14:32,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,2,0,-5.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,,,,6:12,0,4,0.0,0,2,0.0,2,2,1.0,1,0,1,0,0,0,0,0,2,2.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,6:23,0,1,0.0,0,1,0.0,0,0,0.0,1,3,4,1,0,0,1,0,0,10.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401060
+0022401060,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401060

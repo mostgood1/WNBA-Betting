@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,F,,,22:19,2,8,0.25,1,6,0.167,2,2,1.0,0,3,3,0,0,0,0,2,7,-18.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,29:04,8,15,0.533,1,4,0.25,1,2,0.5,3,0,3,4,1,0,0,3,18,-17.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,C,,,25:28,1,10,0.1,0,5,0.0,4,4,1.0,1,3,4,0,0,0,1,1,6,-1.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,28:42,7,12,0.583,4,6,0.667,1,1,1.0,0,9,9,8,0,0,1,2,19,-3.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,29:58,5,12,0.417,0,3,0.0,2,3,0.667,0,3,3,2,3,1,4,0,12,-17.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,202330,Gordon,Hayward,G. Hayward,gordon-hayward,,,,14:24,0,3,0.0,0,1,0.0,0,0,0.0,1,1,2,3,0,0,1,0,0,-10.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,8:09,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,1,0,0,0,1,0,-10.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,8:08,2,5,0.4,2,4,0.5,0,0,0.0,1,0,1,0,0,0,0,0,6,-13.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,18:56,2,7,0.286,0,3,0.0,2,2,1.0,1,3,4,2,1,0,0,3,6,-16.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,,,,24:22,2,9,0.222,1,7,0.143,0,0,0.0,1,1,2,0,2,0,1,3,5,-9.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,6:44,2,4,0.5,1,3,0.333,1,1,1.0,0,0,0,0,0,0,0,0,6,-2.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,203488,Mike,Muscala,M. Muscala,mike-muscala,,,,0:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,,,18:02,2,3,0.667,0,0,0.0,4,5,0.8,2,1,3,0,1,0,2,1,8,-8.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,5:24,0,0,0.0,0,0,0.0,0,2,0.0,0,0,0,0,1,0,2,0,0,-1.0,0022301030
+0022301030,1610612760,Oklahoma City,Thunder,OKC,thunder,1630846,Olivier,Sarr,O. Sarr,olivier-sarr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,27:18,5,11,0.455,1,5,0.2,0,0,0.0,2,8,10,10,0,1,5,3,11,10.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,33:39,13,18,0.722,0,0,0.0,4,6,0.667,8,11,19,4,0,1,3,3,30,7.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,22:35,5,11,0.455,2,5,0.4,2,3,0.667,1,2,3,2,1,1,0,1,14,14.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,25:22,3,6,0.5,2,5,0.4,0,0,0.0,0,2,2,0,1,0,1,2,8,7.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,33:06,4,12,0.333,2,5,0.4,1,1,1.0,0,6,6,5,0,0,1,2,11,18.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,27:37,7,13,0.538,0,2,0.0,1,2,0.5,1,5,6,2,3,0,3,3,15,17.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,17:56,4,4,1.0,2,2,1.0,0,0,0.0,0,2,2,2,1,0,0,1,10,10.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,19:07,5,9,0.556,1,5,0.2,0,0,0.0,0,1,1,1,0,0,1,2,11,17.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,14:57,0,2,0.0,0,1,0.0,1,2,0.5,1,3,4,4,0,2,0,1,1,12.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,4:09,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,4.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,4:09,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,1,0,1,0,3,4.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,3:39,0,0,0.0,0,0,0.0,0,0,0.0,2,1,3,2,0,0,1,1,0,3.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,3:13,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,1.0,0022301030
+0022301030,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,3:13,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,1.0,0022301030

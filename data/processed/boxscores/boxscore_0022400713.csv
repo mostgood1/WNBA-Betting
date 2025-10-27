@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400713,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,F,,,36:20,7,11,0.636,1,3,0.333,2,2,1.0,6,2,8,2,3,2,3,6,17,-14.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,36:40,7,17,0.412,1,4,0.25,0,0,0.0,1,6,7,6,1,0,0,2,15,3.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,38:46,10,19,0.526,2,3,0.667,5,5,1.0,9,11,20,2,0,1,2,1,27,13.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,41:12,7,13,0.538,1,4,0.25,2,2,1.0,0,2,2,2,2,0,4,2,17,14.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,33:57,10,21,0.476,2,7,0.286,6,8,0.75,0,1,1,5,2,1,1,2,28,1.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,18:57,3,3,1.0,0,0,0.0,0,1,0.0,1,4,5,2,0,0,0,0,6,8.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,20:33,2,5,0.4,0,1,0.0,0,0,0.0,0,0,0,1,2,0,0,0,4,0.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,13:25,1,5,0.2,1,3,0.333,4,5,0.8,0,0,0,6,0,0,1,2,7,5.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,0:11,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,F,,,29:08,5,7,0.714,3,4,0.75,0,0,0.0,0,1,1,0,2,0,2,3,13,-8.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,31:48,8,23,0.348,1,5,0.2,6,6,1.0,0,3,3,5,1,1,3,1,23,-18.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,14:49,2,4,0.5,0,0,0.0,1,1,1.0,2,0,2,2,1,0,0,1,5,-8.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,G,,,30:50,4,8,0.5,2,4,0.5,4,4,1.0,2,1,3,1,1,1,2,1,14,-2.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,20:42,3,5,0.6,1,3,0.333,2,2,1.0,0,1,1,5,1,0,1,2,9,-17.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,16:16,3,6,0.5,1,2,0.5,2,2,1.0,0,3,3,1,0,0,1,1,9,8.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,23:03,7,12,0.583,1,4,0.25,1,1,1.0,1,2,3,9,0,0,2,4,16,10.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,,,,22:32,3,5,0.6,1,3,0.333,0,0,0.0,1,2,3,0,1,1,0,1,7,3.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,,,21:33,5,7,0.714,1,3,0.333,0,0,0.0,3,6,9,3,0,0,2,5,11,-2.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,23:06,2,3,0.667,0,0,0.0,0,1,0.0,1,2,3,1,0,1,0,2,4,0.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,6:13,1,2,0.5,0,1,0.0,2,2,1.0,0,3,3,0,0,0,1,1,4,4.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713
+0022400713,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400713

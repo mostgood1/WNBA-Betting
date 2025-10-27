@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,F,,,32:48,4,8,0.5,3,5,0.6,2,2,1.0,0,4,4,2,2,1,3,2,13,-17.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,21:33,4,8,0.5,2,5,0.4,5,5,1.0,1,1,2,1,0,0,1,3,15,-12.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,C,,,17:42,5,5,1.0,0,0,0.0,0,0,0.0,2,2,4,0,0,0,1,1,10,-4.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,27:10,8,12,0.667,4,6,0.667,2,2,1.0,0,2,2,3,0,0,1,2,22,-23.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,25:20,3,5,0.6,1,1,1.0,0,0,0.0,0,1,1,7,2,1,0,0,7,-11.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,,,,17:35,2,5,0.4,0,0,0.0,1,2,0.5,1,2,3,0,1,0,2,1,5,-3.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,,,,27:38,7,15,0.467,0,2,0.0,6,9,0.667,4,3,7,4,1,0,0,2,20,-13.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,24:50,6,10,0.6,0,3,0.0,1,2,0.5,0,4,4,2,0,0,2,0,13,-16.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,17:18,1,7,0.143,0,4,0.0,2,2,1.0,2,3,5,1,0,0,0,1,4,-1.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,13:52,4,5,0.8,0,1,0.0,0,0,0.0,1,2,3,2,1,1,0,0,8,0.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,8:37,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,3,1,0,2,2,2,8.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,5:37,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,0,5,7.0,0022400925
+0022400925,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,30:16,7,12,0.583,2,3,0.667,0,0,0.0,2,2,4,7,2,0,1,1,16,6.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,29:52,5,14,0.357,2,6,0.333,2,2,1.0,6,1,7,10,0,1,0,2,14,10.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,19:48,7,8,0.875,0,0,0.0,2,2,1.0,3,5,8,2,2,0,1,4,16,18.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,30:12,10,15,0.667,2,5,0.4,3,3,1.0,1,2,3,3,1,0,3,0,25,11.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,23:20,4,8,0.5,3,5,0.6,2,2,1.0,0,5,5,5,0,0,0,3,13,17.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,27:14,6,10,0.6,4,8,0.5,1,2,0.5,0,2,2,3,0,0,2,4,17,4.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,26:54,8,15,0.533,4,8,0.5,0,0,0.0,1,6,7,4,0,2,2,2,20,7.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,24:09,3,6,0.5,2,3,0.667,2,2,1.0,0,2,2,2,1,0,1,0,10,13.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,13:04,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,1,0,0,0,0,3,0.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,7:45,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,1,0,-2.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,2:34,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,1.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,2:34,1,2,0.5,0,1,0.0,2,2,1.0,1,0,1,0,0,0,0,0,4,1.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,2:18,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,1,1,1,0,3,-1.0,0022400925
+0022400925,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400925

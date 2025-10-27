@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,34:25,9,15,0.6,2,3,0.667,7,9,0.778,1,7,8,1,0,0,5,4,27,3.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,43:52,11,25,0.44,2,8,0.25,9,9,1.0,2,9,11,5,2,1,4,2,33,6.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,28:09,3,9,0.333,0,4,0.0,0,0,0.0,1,5,6,0,0,1,0,0,6,11.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,30:27,1,6,0.167,1,4,0.25,2,2,1.0,1,6,7,3,1,0,0,2,5,5.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,42:58,6,11,0.545,4,8,0.5,0,0,0.0,1,6,7,5,3,1,2,0,16,6.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,25:48,3,5,0.6,3,4,0.75,2,2,1.0,1,0,1,1,0,0,1,1,11,4.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,19:28,4,5,0.8,0,0,0.0,1,2,0.5,3,3,6,0,0,1,2,3,9,-4.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,14:53,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,2,4.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,42:35,5,12,0.417,5,9,0.556,0,0,0.0,1,6,7,7,2,0,1,6,15,-4.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,21:14,1,8,0.125,0,4,0.0,0,1,0.0,2,1,3,2,0,1,0,3,2,-6.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,C,,,39:16,8,13,0.615,1,1,1.0,2,3,0.667,1,8,9,3,1,0,3,1,19,-1.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,G,,,38:41,9,18,0.5,1,8,0.125,0,0,0.0,1,4,5,3,2,1,1,2,19,-14.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,40:13,12,27,0.444,4,13,0.308,2,2,1.0,0,3,3,7,2,0,2,4,30,1.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,24:38,1,4,0.25,1,4,0.25,0,0,0.0,0,1,1,0,1,1,0,0,3,2.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,7:35,1,3,0.333,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,0,3,-1.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,17:10,2,7,0.286,2,7,0.286,1,1,1.0,1,1,2,2,0,0,0,1,7,-4.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,8:38,2,2,1.0,0,0,0.0,0,0,0.0,2,0,2,2,0,0,0,0,4,-8.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204
+0042300204,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300204

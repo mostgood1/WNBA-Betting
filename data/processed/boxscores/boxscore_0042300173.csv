@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042300173,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,24:32,4,7,0.571,0,0,0.0,1,1,1.0,1,8,9,2,0,0,4,2,9,-4.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,30:22,3,11,0.273,1,6,0.167,0,0,0.0,0,5,5,5,0,0,1,5,7,3.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,32:16,8,11,0.727,0,0,0.0,3,3,1.0,3,5,8,1,1,1,2,4,19,-5.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,22:47,0,3,0.0,0,2,0.0,2,2,1.0,3,0,3,2,0,0,0,3,2,-11.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,43:55,7,13,0.538,5,8,0.625,2,3,0.667,0,2,2,5,2,1,5,2,21,-21.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,19:14,0,7,0.0,0,4,0.0,1,2,0.5,0,3,3,1,1,2,2,2,1,-2.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,30:21,7,11,0.636,4,6,0.667,3,3,1.0,0,6,6,1,0,0,3,4,21,-11.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,17:30,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,1,0,0,-10.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,10:15,2,2,1.0,0,0,0.0,3,4,0.75,0,1,1,0,1,0,1,1,7,-6.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,3:15,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,4.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,2:47,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,4.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,2:47,1,2,0.5,0,0,0.0,1,2,0.5,1,0,1,0,0,0,0,0,3,4.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300173
+0042300173,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,27:14,4,8,0.5,1,3,0.333,2,2,1.0,2,1,3,0,0,1,0,1,11,12.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:13,5,10,0.5,0,4,0.0,0,0,0.0,2,3,5,1,3,1,0,2,10,23.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,25:38,4,5,0.8,0,0,0.0,0,0,0.0,3,1,4,0,2,3,0,1,8,9.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,36:35,8,17,0.471,3,7,0.429,2,2,1.0,0,4,4,6,2,0,2,4,21,17.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,40:21,7,25,0.28,3,14,0.214,5,7,0.714,1,9,10,9,2,0,5,2,22,11.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,15:25,6,8,0.75,0,0,0.0,1,2,0.5,0,2,2,0,0,2,1,2,13,5.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,25:10,3,5,0.6,1,2,0.5,1,2,0.5,2,3,5,0,1,0,0,0,8,-3.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,15:56,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,3,0,0,0,1,3,-6.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,11:34,0,4,0.0,0,3,0.0,0,0,0.0,1,0,1,1,1,0,0,1,0,0.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,2:47,0,0,0.0,0,0,0.0,2,2,1.0,0,1,1,0,0,0,0,1,2,-4.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,2:47,0,2,0.0,0,1,0.0,1,2,0.5,0,0,0,1,1,0,0,1,1,-4.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,2:21,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-5.0,0042300173
+0042300173,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300173

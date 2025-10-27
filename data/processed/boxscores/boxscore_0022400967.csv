@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400967,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,33:50,9,13,0.692,3,5,0.6,2,3,0.667,0,0,0,1,0,0,5,0,23,-11.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,37:15,6,13,0.462,2,8,0.25,0,0,0.0,3,5,8,2,2,0,1,1,14,-2.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,30:05,4,11,0.364,0,2,0.0,4,4,1.0,1,10,11,12,3,1,2,2,12,-8.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,36:13,7,13,0.538,2,6,0.333,5,6,0.833,0,3,3,2,1,0,2,3,21,-21.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,42:02,8,18,0.444,0,8,0.0,2,2,1.0,2,6,8,5,0,0,4,2,18,-4.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,21:36,2,2,1.0,0,0,0.0,3,3,1.0,0,1,1,1,1,0,2,3,7,-18.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,12:18,2,5,0.4,0,0,0.0,2,2,1.0,5,0,5,2,0,0,3,3,6,-15.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,16:17,1,4,0.25,1,3,0.333,0,0,0.0,0,2,2,0,0,0,0,3,3,-11.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,6:24,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,4.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,1:20,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,2.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,,,1:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,1:20,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022400967
+0022400967,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,33:30,6,16,0.375,2,9,0.222,2,2,1.0,2,3,5,3,4,0,1,3,16,5.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,36:26,7,15,0.467,4,6,0.667,4,4,1.0,2,2,4,6,1,2,4,0,22,14.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,C,,,15:42,1,3,0.333,0,0,0.0,0,0,0.0,1,4,5,1,1,0,0,3,2,-7.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,26:22,5,9,0.556,4,7,0.571,1,3,0.333,0,3,3,2,1,0,1,2,15,-1.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,37:10,8,17,0.471,4,10,0.4,2,2,1.0,1,3,4,13,1,0,3,1,22,9.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,32:18,4,5,0.8,0,0,0.0,3,4,0.75,1,5,6,1,1,1,1,3,11,23.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,11:27,1,3,0.333,1,1,1.0,2,2,1.0,0,1,1,2,1,0,0,1,5,15.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,20:36,3,4,0.75,3,4,0.75,0,0,0.0,0,3,3,1,2,0,1,2,9,10.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,,,,24:26,6,7,0.857,6,6,1.0,2,2,1.0,0,2,2,4,0,0,0,0,20,14.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,1:20,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,0:43,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,1628998,Cody,Martin,C. Martin,cody-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400967
+0022400967,1610612756,Phoenix,Suns,PHX,suns,203995,Vasilije,Micić,V. Micić,vasilije-micić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400967

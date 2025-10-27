@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,24:08,4,10,0.4,3,8,0.375,0,0,0.0,0,2,2,3,1,0,0,3,11,-21.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,38:14,9,15,0.6,3,7,0.429,1,2,0.5,3,11,14,1,3,1,3,2,22,-18.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,26:14,3,15,0.2,1,8,0.125,0,0,0.0,0,3,3,3,0,1,3,1,7,-19.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,G,,,34:02,3,13,0.231,0,4,0.0,2,2,1.0,1,2,3,1,1,0,3,5,8,-34.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,35:01,7,15,0.467,2,6,0.333,2,2,1.0,0,5,5,11,0,1,4,0,18,-18.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1641732,Colby,Jones,C. Jones,colby-jones,,,,32:00,1,5,0.2,0,2,0.0,1,2,0.5,1,6,7,5,1,0,1,1,3,-14.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1630550,JT,Thor,J. Thor,jt-thor,,,,24:19,1,4,0.25,0,1,0.0,1,2,0.5,1,3,4,0,1,0,1,1,3,-10.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,26:02,7,14,0.5,1,5,0.2,2,2,1.0,2,1,3,2,0,2,1,3,17,-16.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401176
+0022401176,1610612764,Washington,Wizards,WAS,wizards,203935,Marcus,Smart,M. Smart,marcus-smart,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,F,,,31:36,7,14,0.5,3,6,0.5,3,3,1.0,2,4,6,4,0,3,2,1,20,12.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,F,,,27:55,7,11,0.636,3,6,0.5,6,6,1.0,3,6,9,1,1,0,0,3,23,25.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,28:15,7,15,0.467,1,3,0.333,0,0,0.0,3,9,12,8,1,2,1,0,15,23.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,28:06,6,11,0.545,1,2,0.5,3,3,1.0,1,8,9,4,1,1,2,2,16,30.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,30:49,3,9,0.333,1,6,0.167,0,0,0.0,0,4,4,6,2,0,2,2,7,12.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,24:23,3,9,0.333,0,4,0.0,6,8,0.75,0,1,1,4,1,1,2,2,12,1.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,,,,23:27,2,7,0.286,1,4,0.25,0,0,0.0,1,2,3,1,1,0,0,3,5,7.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1628380,Zach,Collins,Z. Collins,zach-collins,,,,19:45,3,5,0.6,0,1,0.0,2,2,1.0,2,2,4,3,1,0,3,0,8,7.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,13:19,3,10,0.3,2,8,0.25,0,0,0.0,0,3,3,1,0,0,0,0,8,15.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,4:13,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,6.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,,,2:44,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,4.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1641801,Emanuel,Miller,E. Miller,emanuel-miller,,,,2:44,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1642443,Jahmir,Young,J. Young,jahmir-young,,,,2:44,1,1,1.0,1,1,1.0,0,0,0.0,1,0,1,0,0,0,0,0,3,4.0,0022401176
+0022401176,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401176

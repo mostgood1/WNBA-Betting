@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042300137,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,34:48,1,15,0.067,0,5,0.0,4,4,1.0,4,2,6,6,1,1,0,3,6,-13.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,41:57,10,28,0.357,3,6,0.5,15,18,0.833,4,12,16,2,3,1,5,3,38,-7.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,34:31,5,10,0.5,2,4,0.5,1,1,1.0,1,6,7,1,3,0,2,5,13,-4.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,39:36,2,13,0.154,2,10,0.2,4,5,0.8,4,5,9,4,1,0,5,4,10,-16.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,27:27,2,4,0.5,2,3,0.667,0,0,0.0,0,2,2,1,1,0,0,6,6,-7.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,13:05,4,6,0.667,0,0,0.0,0,0,0.0,1,0,1,0,1,0,1,2,8,-13.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,18:14,1,2,0.5,0,1,0.0,0,0,0.0,2,0,2,1,0,0,1,1,2,-8.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,11:32,1,2,0.5,1,1,1.0,0,0,0.0,1,1,2,0,1,1,2,2,3,-6.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,13:04,3,5,0.6,0,0,0.0,2,2,1.0,1,1,2,1,0,1,1,5,8,8.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,5:46,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,0,0,0,1,0,6.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,32:15,5,9,0.556,3,6,0.5,0,0,0.0,0,3,3,1,1,0,3,5,13,10.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,33:04,3,6,0.5,0,2,0.0,2,2,1.0,1,2,3,1,1,0,0,2,8,24.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,C,,,41:14,5,8,0.625,0,0,0.0,1,2,0.5,5,11,16,1,0,5,6,5,11,9.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,45:18,11,27,0.407,2,8,0.25,15,17,0.882,1,8,9,5,1,1,1,3,39,17.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,30:27,3,13,0.231,1,4,0.25,5,6,0.833,0,3,3,4,3,0,2,5,12,-3.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,7:03,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,1,0,0,0,0,-6.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,29:34,5,9,0.556,0,2,0.0,5,7,0.714,0,5,5,4,1,1,2,1,15,9.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,6:46,0,1,0.0,0,0,0.0,0,0,0.0,2,2,4,2,0,1,0,1,0,3.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,11:16,2,2,1.0,2,2,1.0,2,2,1.0,0,2,2,1,0,0,0,0,8,6.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,3:03,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-9.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137
+0042300137,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300137

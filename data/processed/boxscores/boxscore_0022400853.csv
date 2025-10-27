@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,29:53,5,8,0.625,1,4,0.25,0,0,0.0,0,2,2,1,3,0,2,1,11,0.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,35:38,6,11,0.545,4,7,0.571,3,4,0.75,0,3,3,4,1,0,2,3,19,27.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,27:59,5,8,0.625,0,0,0.0,2,7,0.286,3,4,7,3,0,2,1,3,12,22.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,35:53,9,14,0.643,4,6,0.667,3,5,0.6,1,3,4,5,0,1,3,3,25,15.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,31:25,6,11,0.545,2,6,0.333,0,0,0.0,1,2,3,6,1,0,2,0,14,15.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,26:40,4,9,0.444,1,6,0.167,3,4,0.75,0,3,3,9,3,1,4,3,12,18.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,17:14,2,4,0.5,0,1,0.0,1,2,0.5,3,3,6,3,2,0,1,3,5,3.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,24:33,8,11,0.727,3,4,0.75,4,5,0.8,1,7,8,0,1,0,3,1,23,11.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,3:59,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,2,0,-5.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,3:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,0,-5.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,2:47,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400853
+0022400853,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,24:17,4,11,0.364,2,6,0.333,4,4,1.0,1,3,4,4,2,0,3,2,14,-14.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,10:28,2,4,0.5,1,2,0.5,0,0,0.0,0,0,0,1,1,0,0,0,5,-13.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,23:15,6,9,0.667,0,0,0.0,4,5,0.8,2,3,5,3,0,0,0,1,16,-11.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,21:18,7,17,0.412,0,4,0.0,2,2,1.0,2,0,2,1,0,0,3,2,16,-13.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630165,Killian,Hayes,K. Hayes,killian-hayes,G,,,30:24,5,8,0.625,2,3,0.667,4,4,1.0,2,2,4,4,1,1,2,1,16,-12.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,,,,29:41,3,8,0.375,1,3,0.333,3,4,0.75,4,2,6,0,1,0,3,2,10,-9.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,23:10,2,8,0.25,0,4,0.0,5,6,0.833,2,3,5,1,1,0,2,5,9,2.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,24:57,2,8,0.25,1,5,0.2,0,0,0.0,4,0,4,2,3,0,2,1,5,-7.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,18:58,3,5,0.6,0,0,0.0,0,0,0.0,4,3,7,1,0,1,1,6,6,-10.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,16:11,2,6,0.333,0,0,0.0,1,2,0.5,0,3,3,2,2,0,3,3,5,-8.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,11:17,0,2,0.0,0,1,0.0,0,0,0.0,0,2,2,0,2,0,1,0,0,-4.0,0022400853
+0022400853,1610612751,Brooklyn,Nets,BKN,nets,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,6:04,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,1,0,0,1,0,0,4.0,0022400853

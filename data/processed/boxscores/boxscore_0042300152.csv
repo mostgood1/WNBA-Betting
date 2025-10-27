@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,37:48,1,7,0.143,0,2,0.0,1,2,0.5,0,5,5,0,0,0,0,2,3,-7.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,38:03,9,19,0.474,3,6,0.5,5,7,0.714,0,8,8,12,2,2,2,3,26,2.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,39:01,14,19,0.737,0,1,0.0,4,4,1.0,1,10,11,2,1,1,4,5,32,0.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,32:58,4,11,0.364,1,5,0.2,0,0,0.0,2,4,6,2,0,0,2,2,9,5.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,38:56,8,16,0.5,7,11,0.636,0,0,0.0,0,3,3,6,0,0,4,1,23,4.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,10:07,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,2,0,1,2,0,-9.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,21:38,2,3,0.667,2,3,0.667,0,0,0.0,0,3,3,0,0,0,0,2,6,2.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,15:11,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,1,1,0,1,1,0,-6.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,6:18,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,2,0,-1.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,38:05,8,13,0.615,6,10,0.6,0,0,0.0,0,9,9,1,2,0,0,0,22,-4.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,39:37,5,10,0.5,0,2,0.0,4,4,1.0,3,4,7,3,0,0,1,3,14,-4.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,41:24,9,16,0.563,2,4,0.5,7,7,1.0,4,16,20,10,2,0,3,2,27,1.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,35:16,2,7,0.286,0,4,0.0,2,2,1.0,0,1,1,3,0,1,2,4,6,-4.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,39:30,9,24,0.375,0,5,0.0,2,2,1.0,0,3,3,5,0,2,2,4,20,-2.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,11:52,1,4,0.25,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,0,2,11.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,8:30,0,5,0.0,0,3,0.0,0,0,0.0,0,0,0,1,0,0,1,1,0,4.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,13:02,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,1,2,0,0,1,0,2.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,12:44,5,8,0.625,0,3,0.0,0,2,0.0,2,0,2,0,0,1,0,2,10,6.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152
+0042300152,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300152

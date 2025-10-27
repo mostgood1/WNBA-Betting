@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400714,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,F,,,20:45,1,3,0.333,1,3,0.333,2,2,1.0,1,1,2,2,1,1,0,2,5,4.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,F,,,35:23,10,17,0.588,1,4,0.25,2,5,0.4,2,6,8,4,0,0,3,1,23,-9.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,C,,,30:41,8,12,0.667,1,2,0.5,0,0,0.0,4,8,12,1,1,0,0,2,17,-11.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,10:59,3,5,0.6,2,4,0.5,0,0,0.0,0,2,2,1,0,0,1,3,8,-8.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,36:22,5,15,0.333,3,11,0.273,10,11,0.909,0,8,8,9,0,0,6,3,23,-1.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,,,29:23,2,12,0.167,1,6,0.167,0,0,0.0,1,1,2,3,0,0,0,1,5,-7.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,35:51,7,10,0.7,5,7,0.714,1,2,0.5,0,2,2,2,0,0,2,1,20,-5.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,22:20,4,8,0.5,0,0,0.0,6,6,1.0,2,2,4,5,0,1,1,2,14,-6.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,,,18:16,3,8,0.375,3,7,0.429,0,0,0.0,1,3,4,2,2,1,0,2,9,-2.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1630528,Josh,Christopher,J. Christopher,josh-christopher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612748,Miami,Heat,MIA,heat,1626196,Josh,Richardson,J. Richardson,josh-richardson,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1630245,Ayo,Dosunmu,A. Dosunmu,ayo-dosunmu,F,,,28:48,8,11,0.727,2,2,1.0,3,3,1.0,0,2,2,9,1,1,1,4,21,3.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,F,,,29:47,8,14,0.571,2,5,0.4,6,8,0.75,1,4,5,7,1,0,2,2,24,7.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,33:16,5,13,0.385,2,5,0.4,0,2,0.0,3,8,11,2,1,0,1,1,12,1.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,31:43,7,16,0.438,4,7,0.571,4,4,1.0,0,3,3,7,0,0,2,0,22,11.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1628366,Lonzo,Ball,L. Ball,lonzo-ball,G,,,28:45,2,9,0.222,1,7,0.143,0,0,0.0,1,4,5,2,1,0,2,2,5,6.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,,,,30:55,3,8,0.375,2,5,0.4,2,2,1.0,2,5,7,4,0,0,1,1,10,18.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,,,,31:02,10,10,1.0,4,4,1.0,0,0,0.0,0,2,2,0,0,2,1,4,24,1.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,,,14:44,3,6,0.5,2,4,0.5,0,0,0.0,0,8,8,4,0,0,0,1,8,8.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,,,5:30,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-5.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,5:30,1,1,1.0,0,0,0.0,3,3,1.0,0,0,0,0,0,0,0,3,5,-5.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714
+0022400714,1610612741,Chicago,Bulls,CHI,bulls,1641801,Emanuel,Miller,E. Miller,emanuel-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400714

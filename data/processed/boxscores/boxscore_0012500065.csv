@@ -1,0 +1,37 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,23:08,2,4,0.5,2,3,0.667,0,0,0.0,0,3,3,1,0,1,0,2,6,1.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,33:24,12,20,0.6,6,11,0.545,4,5,0.8,2,8,10,3,0,0,4,5,34,-8.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,28:07,6,10,0.6,0,0,0.0,1,1,1.0,4,7,11,5,1,1,5,5,13,1.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,31:47,1,10,0.1,0,4,0.0,5,6,0.833,0,1,1,6,1,0,2,1,7,-9.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,G,,,22:10,1,4,0.25,0,3,0.0,1,2,0.5,0,1,1,5,1,0,4,3,3,-4.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,19:17,2,3,0.667,0,1,0.0,2,2,1.0,2,2,4,5,1,0,3,3,6,-6.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,28:25,8,14,0.571,4,8,0.5,0,0,0.0,1,1,2,0,1,0,0,4,20,1.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,,,,6:11,0,1,0.0,0,0,0.0,1,2,0.5,1,0,1,1,0,0,3,3,1,-4.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,10:55,3,5,0.6,1,2,0.5,0,0,0.0,3,3,6,0,0,0,0,1,7,-4.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,15:37,0,6,0.0,0,5,0.0,3,4,0.75,1,1,2,1,0,0,0,0,3,3.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,,,18:47,3,5,0.6,2,3,0.667,6,7,0.857,0,5,5,1,0,1,2,1,14,1.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1642962,Drake,Powell,D. Powell,drake-powell,,,,2:12,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1641761,Grant,Nelson,G. Nelson,grant-nelson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612751,Brooklyn,Nets,BKN,nets,1642874,Danny,Wolf,D. Wolf,danny-wolf,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,33:56,5,9,0.556,1,2,0.5,2,2,1.0,1,3,4,6,3,1,3,4,13,10.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,35:00,10,15,0.667,0,2,0.0,11,12,0.917,0,6,6,4,3,1,3,3,31,9.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,24:05,5,15,0.333,0,0,0.0,0,0,0.0,6,4,10,1,2,2,1,2,10,2.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,G,,,33:17,9,17,0.529,3,7,0.429,4,7,0.571,0,4,4,4,1,1,1,2,25,8.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,33:56,6,16,0.375,5,9,0.556,1,2,0.5,1,2,3,10,1,0,3,4,18,9.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,20:32,2,7,0.286,0,3,0.0,3,4,0.75,0,3,3,1,1,0,0,3,7,-2.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,,,,17:13,1,4,0.25,0,3,0.0,0,0,0.0,2,0,2,1,0,0,0,1,2,-6.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,17:34,5,6,0.833,0,1,0.0,0,0,0.0,3,2,5,2,1,1,1,3,10,-1.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,14:04,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,4,0,1,1,3,0,-4.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,,,,9:17,1,2,0.5,1,1,1.0,0,0,0.0,2,0,2,4,0,0,0,1,3,-1.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,1:07,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,1.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642935,Chucky,Hepburn,C. Hepburn,chucky-hepburn,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642918,Alijah,Martin,A. Martin,alijah-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642867,Collin,Murray-Boyles,C. Murray-Boyles,collin-murray-boyles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,1642882,Julian,Reese,J. Reese,julian-reese,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065
+0012500065,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500065

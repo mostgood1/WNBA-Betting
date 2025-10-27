@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,28:22,7,11,0.636,6,9,0.667,0,0,0.0,1,0,1,3,4,0,0,1,20,7.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,28:46,7,14,0.5,2,7,0.286,5,7,0.714,1,6,7,8,0,1,1,1,21,12.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,28:38,5,6,0.833,0,0,0.0,4,4,1.0,2,8,10,3,1,0,3,2,14,14.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,G,,,32:44,5,9,0.556,3,7,0.429,0,0,0.0,0,1,1,1,1,0,1,4,13,4.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,29:07,9,13,0.692,7,11,0.636,2,2,1.0,1,2,3,15,1,0,4,0,27,27.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1630585,Marcus,Garrett,M. Garrett,marcus-garrett,,,,18:53,1,6,0.167,1,2,0.5,2,2,1.0,1,0,1,3,0,1,1,2,5,-16.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,27:23,9,12,0.75,6,7,0.857,2,2,1.0,0,3,3,5,0,0,4,3,26,2.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,,,12:50,6,7,0.857,0,1,0.0,2,2,1.0,0,3,3,1,0,0,2,4,14,4.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,18:36,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,2,0,0,1,0,5,11.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,8:38,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,-2.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,6:03,0,2,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,1,0,0,-8.0,0022400964
+0022400964,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,F,,,31:22,9,16,0.563,3,7,0.429,1,1,1.0,1,2,3,3,1,1,0,3,22,-14.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,21:23,4,9,0.444,2,6,0.333,0,1,0.0,1,0,1,1,0,0,0,1,10,-18.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,C,,,21:29,0,0,0.0,0,0,0.0,0,0,0.0,1,1,2,4,3,1,2,1,0,-11.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,28:57,10,17,0.588,3,7,0.429,3,4,0.75,1,2,3,1,1,1,4,2,26,-16.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,17:30,1,3,0.333,1,1,1.0,0,0,0.0,0,1,1,3,0,0,2,2,3,-18.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,19:53,4,8,0.5,3,5,0.6,1,1,1.0,2,3,5,2,0,0,1,1,12,-8.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,22:23,4,11,0.364,1,4,0.25,3,3,1.0,2,3,5,3,1,0,0,1,12,-5.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,,,,16:08,4,9,0.444,1,4,0.25,5,6,0.833,4,0,4,2,2,0,0,1,14,-19.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,17:07,5,12,0.417,3,7,0.429,0,0,0.0,3,0,3,1,2,2,0,2,13,2.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,23:36,3,6,0.5,1,2,0.5,3,4,0.75,1,3,4,3,2,0,2,1,10,7.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,,,6:44,1,1,1.0,0,0,0.0,0,0,0.0,1,2,3,1,1,0,0,1,2,15.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,6:44,2,2,1.0,2,2,1.0,1,2,0.5,0,0,0,1,1,0,1,1,7,15.0,0022400964
+0022400964,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,6:44,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,2,0,0,1,0,3,15.0,0022400964

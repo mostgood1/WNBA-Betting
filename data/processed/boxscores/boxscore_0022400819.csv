@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,21:35,5,10,0.5,4,7,0.571,0,2,0.0,1,3,4,0,0,0,3,2,14,-8.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,25:26,9,18,0.5,1,5,0.2,3,6,0.5,0,3,3,4,2,1,1,5,22,7.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,24:31,2,5,0.4,0,0,0.0,2,4,0.5,8,1,9,0,1,1,2,3,6,-11.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,35:17,2,13,0.154,0,7,0.0,3,3,1.0,1,4,5,8,1,1,1,1,7,-2.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,34:17,6,13,0.462,2,4,0.5,7,7,1.0,0,2,2,10,0,0,1,5,21,-5.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,15:55,3,6,0.5,0,0,0.0,0,0,0.0,1,1,2,1,0,1,0,1,6,-2.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,28:47,6,11,0.545,3,6,0.5,0,0,0.0,0,6,6,1,1,1,0,1,15,-8.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,3:59,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-7.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,19:49,2,5,0.4,1,2,0.5,5,5,1.0,1,0,1,1,2,0,3,2,10,7.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,25:35,6,8,0.75,3,5,0.6,4,4,1.0,0,4,4,2,0,0,0,3,19,-2.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,4:49,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,1,0,2,2,3,1.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,30:36,3,8,0.375,3,8,0.375,2,2,1.0,4,4,8,3,0,1,1,3,11,11.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,36:01,10,20,0.5,1,8,0.125,4,6,0.667,4,9,13,8,0,3,3,1,25,9.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,31:10,6,8,0.75,0,0,0.0,1,4,0.25,3,7,10,1,1,0,3,3,13,7.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,G,,,19:04,2,5,0.4,1,4,0.25,1,2,0.5,1,3,4,0,0,1,0,0,6,-1.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,35:11,11,23,0.478,4,8,0.5,7,11,0.636,2,0,2,6,0,0,1,4,33,1.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,25:21,4,10,0.4,0,4,0.0,4,4,1.0,2,6,8,2,0,0,2,3,12,2.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,17:59,1,4,0.25,1,4,0.25,0,0,0.0,1,0,1,1,1,0,2,4,3,-2.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,22:38,9,16,0.563,3,7,0.429,5,6,0.833,2,3,5,4,2,0,1,4,26,4.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,17:21,0,3,0.0,0,3,0.0,0,0,0.0,3,3,6,0,0,0,1,3,0,0.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,4:41,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-1.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819
+0022400819,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400819

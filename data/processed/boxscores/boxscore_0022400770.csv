@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,28:38,7,12,0.583,2,5,0.4,0,0,0.0,0,0,0,1,1,0,1,1,16,-8.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,36:27,6,23,0.261,2,8,0.25,5,5,1.0,0,8,8,4,1,0,1,0,19,-18.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,15:39,3,5,0.6,0,1,0.0,3,4,0.75,1,7,8,1,1,1,1,1,9,2.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,G,,,16:14,1,5,0.2,0,2,0.0,0,0,0.0,0,1,1,3,0,0,1,0,2,8.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,203901,Elfrid,Payton,E. Payton,elfrid-payton,G,,,31:52,2,6,0.333,0,0,0.0,0,0,0.0,1,3,4,7,0,1,1,2,4,-6.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,21:37,4,6,0.667,0,0,0.0,2,2,1.0,4,8,12,0,0,1,3,4,10,-5.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1641878,Damion,Baugh,D. Baugh,damion-baugh,,,,27:00,5,8,0.625,2,4,0.5,4,4,1.0,0,5,5,3,1,0,2,3,16,-17.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1631209,Isaiah,Wong,I. Wong,isaiah-wong,,,,15:47,3,7,0.429,1,1,1.0,0,0,0.0,0,0,0,1,0,0,1,1,7,-10.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,20:19,1,5,0.2,1,2,0.5,0,0,0.0,0,3,3,1,0,0,0,1,3,-4.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,,,26:27,0,4,0.0,0,3,0.0,0,0,0.0,0,2,2,0,0,1,1,2,0,-22.0,0022400770
+0022400770,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,31:46,6,11,0.545,0,2,0.0,4,5,0.8,1,6,7,2,0,0,4,3,16,0.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,29:40,8,20,0.4,4,9,0.444,4,5,0.8,2,6,8,6,0,1,0,2,24,8.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,C,,,17:44,0,4,0.0,0,1,0.0,1,2,0.5,4,3,7,2,0,4,0,1,1,-9.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,16:12,1,5,0.2,0,4,0.0,0,0,0.0,1,2,3,0,0,0,0,2,2,-8.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,G,,,22:22,5,11,0.455,3,6,0.5,0,0,0.0,1,5,6,1,0,0,1,1,13,7.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,,,,27:41,4,8,0.5,0,1,0.0,3,4,0.75,2,9,11,0,0,0,2,1,11,27.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,12:24,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,1,0,16.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,25:40,2,8,0.25,2,8,0.25,0,0,0.0,1,1,2,5,2,1,0,0,6,15.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,23:36,8,13,0.615,2,4,0.5,0,1,0.0,1,3,4,3,1,2,1,1,18,14.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,,,,8:11,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,2,0,0,0,0,0,2.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,12:00,2,3,0.667,2,3,0.667,0,0,0.0,0,1,1,0,1,0,0,0,6,4.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,10:09,0,4,0.0,0,3,0.0,2,2,1.0,0,2,2,1,0,0,0,0,2,6.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,,,2:35,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,-2.0,0022400770
+0022400770,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400770

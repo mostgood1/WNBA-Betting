@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401188,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,0:06,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,0.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,F,,,29:14,2,5,0.4,2,4,0.5,0,0,0.0,1,1,2,0,1,1,1,5,6,-18.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,C,,,32:46,8,18,0.444,0,0,0.0,2,4,0.5,1,8,9,2,2,0,2,4,18,19.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,29:58,6,14,0.429,3,9,0.333,2,2,1.0,0,4,4,8,3,0,2,3,17,10.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,G,,,33:32,6,13,0.462,3,7,0.429,6,6,1.0,0,2,2,7,1,1,2,3,21,17.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,40:26,9,17,0.529,7,13,0.538,4,4,1.0,1,1,2,0,1,0,0,2,29,12.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,11:02,1,3,0.333,0,1,0.0,2,3,0.667,3,1,4,0,0,0,1,1,4,-3.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,14:28,1,5,0.2,1,4,0.25,2,2,1.0,2,1,3,4,0,0,3,1,5,-9.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,,,20:38,2,6,0.333,0,3,0.0,1,1,1.0,2,0,2,3,1,0,0,2,5,-2.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1641755,Kevin,McCullar Jr.,K. McCullar Jr.,kevin-mccullar-jr,,,,21:30,1,4,0.25,0,1,0.0,2,2,1.0,0,8,8,2,1,1,0,3,4,15.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,4:52,1,1,1.0,0,0,0.0,2,2,1.0,0,4,4,1,0,0,0,0,4,-4.0,0022401188
+0022401188,1610612752,New York,Knicks,NYK,knicks,1641817,Anton,Watson,A. Watson,anton-watson,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,F,,,37:58,6,11,0.545,5,8,0.625,1,3,0.333,0,4,4,4,0,0,0,2,18,-4.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,F,,,33:23,8,12,0.667,1,2,0.5,3,5,0.6,0,7,7,4,2,1,4,5,20,2.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,22:16,5,6,0.833,0,0,0.0,2,3,0.667,1,1,2,0,0,0,1,1,12,-2.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,36:44,5,13,0.385,1,8,0.125,3,4,0.75,2,7,9,4,1,0,4,5,14,-12.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,G,,,31:20,8,14,0.571,2,6,0.333,2,2,1.0,2,5,7,1,0,1,6,2,20,-3.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,20:26,0,1,0.0,0,0,0.0,2,2,1.0,0,4,4,5,1,0,1,4,2,-7.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1631166,Drew,Timme,D. Timme,drew-timme,,,,30:42,4,11,0.364,1,6,0.167,2,4,0.5,0,8,8,2,0,0,2,2,11,-3.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,,,17:09,1,3,0.333,1,3,0.333,2,2,1.0,0,0,0,1,0,0,0,1,5,-7.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,,,10:02,1,3,0.333,1,2,0.5,0,0,0.0,1,0,1,0,0,0,0,2,3,-4.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401188
+0022401188,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401188

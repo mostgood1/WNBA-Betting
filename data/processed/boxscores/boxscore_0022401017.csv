@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,F,,,23:30,3,10,0.3,3,6,0.5,2,2,1.0,0,0,0,1,0,1,1,1,11,-10.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,25:47,5,12,0.417,4,10,0.4,6,6,1.0,0,3,3,4,1,1,1,2,20,-18.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,23:59,2,5,0.4,1,2,0.5,1,1,1.0,1,8,9,5,1,1,0,3,6,-6.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,G,,,24:44,5,10,0.5,2,5,0.4,0,0,0.0,0,1,1,2,1,0,3,1,12,-16.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,G,,,32:44,2,4,0.5,2,3,0.667,4,4,1.0,0,1,1,8,1,0,2,1,10,-20.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,,,27:00,2,6,0.333,2,3,0.667,0,0,0.0,1,4,5,1,1,1,2,2,6,-20.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,21:55,6,8,0.75,0,0,0.0,0,0,0.0,3,4,7,3,1,0,2,0,12,-26.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,26:27,5,14,0.357,4,9,0.444,0,0,0.0,0,0,0,3,0,0,4,1,14,-23.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,22:01,5,8,0.625,1,3,0.333,0,0,0.0,0,0,0,2,0,0,1,1,11,-20.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,11:53,2,3,0.667,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,1,4,-16.0,0022401017
+0022401017,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,F,,,26:45,4,9,0.444,3,6,0.5,0,0,0.0,0,2,2,1,3,0,0,0,11,31.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,F,,,27:38,6,12,0.5,1,2,0.5,1,4,0.25,1,4,5,1,1,3,1,0,14,12.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,24:42,6,13,0.462,0,1,0.0,0,1,0.0,5,5,10,4,0,1,1,2,12,14.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,G,,,26:00,5,8,0.625,1,3,0.333,0,0,0.0,2,1,3,5,2,1,1,1,11,11.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,29:36,13,18,0.722,2,2,1.0,2,2,1.0,0,6,6,9,1,0,1,2,30,31.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,23:18,4,7,0.571,3,5,0.6,3,4,0.75,0,5,5,4,0,0,0,2,14,21.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,17:28,3,4,0.75,3,4,0.75,2,2,1.0,0,1,1,0,0,0,0,1,11,16.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,14:51,2,3,0.667,1,1,1.0,4,4,1.0,0,3,3,0,1,1,0,1,9,8.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,20:37,5,10,0.5,4,9,0.444,0,0,0.0,1,1,2,0,0,0,2,4,14,6.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,8:50,2,4,0.5,0,1,0.0,0,0,0.0,0,3,3,1,0,0,0,0,4,7.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,7:19,2,3,0.667,1,2,0.5,0,0,0.0,1,1,2,4,0,0,0,0,5,5.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1642382,Branden,Carlson,B. Carlson,branden-carlson,,,,6:45,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,1,0,0,3,9.0,0022401017
+0022401017,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,,,6:11,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,2,0,1,0,3,4.0,0022401017

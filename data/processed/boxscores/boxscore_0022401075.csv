@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,23:58,5,10,0.5,1,5,0.2,7,7,1.0,2,7,9,7,0,0,1,1,18,7.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,24:53,0,5,0.0,0,3,0.0,0,0,0.0,0,3,3,2,2,0,1,3,0,7.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,C,,,19:13,4,12,0.333,3,8,0.375,2,2,1.0,1,4,5,1,0,0,0,4,13,13.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,30:38,5,9,0.556,5,7,0.714,0,0,0.0,0,4,4,3,0,1,2,4,15,5.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,G,,,30:38,7,11,0.636,3,5,0.6,3,4,0.75,2,3,5,4,0,0,1,2,20,5.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1631166,Drew,Timme,D. Timme,drew-timme,,,,28:39,9,14,0.643,0,3,0.0,1,1,1.0,3,3,6,3,0,0,1,2,19,-12.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,23:15,5,9,0.556,4,7,0.571,6,6,1.0,2,5,7,3,0,0,1,1,20,-2.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,24:02,3,9,0.333,1,3,0.333,0,0,0.0,0,2,2,1,0,2,4,2,7,-4.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,17:22,1,6,0.167,1,4,0.25,0,0,0.0,1,3,4,0,0,1,1,3,3,-2.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,,,17:22,0,3,0.0,0,1,0.0,0,0,0.0,1,3,4,1,0,0,0,1,0,-2.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401075
+0022401075,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,F,,,42:15,6,14,0.429,3,7,0.429,5,6,0.833,0,1,1,4,0,1,2,1,20,-8.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,17:04,3,6,0.5,1,2,0.5,2,2,1.0,1,8,9,1,0,1,0,1,9,-12.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,24:44,4,12,0.333,0,5,0.0,4,4,1.0,0,4,4,1,0,3,1,0,12,-7.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,21:33,3,4,0.75,1,1,1.0,3,3,1.0,0,3,3,2,0,0,1,1,10,-4.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,20:46,2,9,0.222,2,8,0.25,6,6,1.0,1,1,2,4,0,0,1,3,12,-5.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1641732,Colby,Jones,C. Jones,colby-jones,,,,28:31,7,11,0.636,1,5,0.2,5,7,0.714,0,2,2,4,3,0,1,3,20,6.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1641798,Jaylen,Martin,J. Martin,jaylen-martin,,,,30:22,5,10,0.5,1,4,0.25,2,2,1.0,2,4,6,3,0,0,0,3,13,9.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,203935,Marcus,Smart,M. Smart,marcus-smart,,,,7:28,1,3,0.333,0,0,0.0,1,1,1.0,0,1,1,2,1,0,0,0,3,2.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,23:50,4,10,0.4,0,2,0.0,0,0,0.0,0,6,6,0,0,2,0,1,8,4.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1630550,JT,Thor,J. Thor,jt-thor,,,,23:27,2,6,0.333,0,0,0.0,1,2,0.5,3,3,6,0,1,0,0,2,5,0.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401075
+0022401075,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401075

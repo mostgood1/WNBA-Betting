@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,28:34,8,18,0.444,1,8,0.125,0,0,0.0,1,2,3,1,1,1,1,1,17,-20.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,35:41,5,10,0.5,1,2,0.5,6,7,0.857,3,8,11,0,2,1,5,4,17,-21.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,34:03,5,7,0.714,0,0,0.0,3,3,1.0,5,7,12,2,0,1,3,1,13,-26.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,G,,,28:34,6,15,0.4,3,10,0.3,1,2,0.5,0,1,1,4,0,0,1,3,16,-20.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,32:42,6,12,0.5,1,3,0.333,0,0,0.0,0,4,4,10,0,0,4,4,13,-16.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,32:18,2,9,0.222,1,6,0.167,6,6,1.0,0,2,2,8,0,0,5,0,11,1.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,5:04,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,-3.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,12:23,0,1,0.0,0,1,0.0,1,2,0.5,0,1,1,2,1,0,0,1,1,-9.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,17:54,4,8,0.5,3,7,0.429,3,4,0.75,2,2,4,2,0,0,0,2,14,1.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,9:50,3,4,0.75,2,3,0.667,1,1,1.0,0,1,1,0,2,0,0,0,9,13.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,,,2:57,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,5.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400768
+0022400768,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,29:07,8,14,0.571,3,6,0.5,2,2,1.0,2,4,6,0,2,0,1,4,21,16.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,29:00,10,17,0.588,3,7,0.429,1,2,0.5,1,6,7,8,1,0,7,2,24,24.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,C,,,23:17,6,6,1.0,0,0,0.0,0,0,0.0,0,2,2,2,3,1,0,3,12,12.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,31:53,6,10,0.6,3,5,0.6,7,7,1.0,3,6,9,4,1,1,0,1,22,27.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,23:33,5,14,0.357,1,7,0.143,3,3,1.0,1,4,5,4,0,0,1,3,14,15.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,,,25:41,1,4,0.25,0,3,0.0,2,2,1.0,0,4,4,1,2,0,0,2,4,13.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,17:42,4,9,0.444,3,8,0.375,0,0,0.0,0,0,0,4,0,0,0,1,11,17.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,17:13,0,3,0.0,0,1,0.0,0,0,0.0,0,2,2,1,0,0,1,1,0,4.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,21:40,8,11,0.727,1,2,0.5,0,0,0.0,3,5,8,1,2,0,0,1,17,0.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1629003,Shake,Milton,S. Milton,shake-milton,,,,7:47,0,2,0.0,0,2,0.0,2,2,1.0,0,1,1,1,0,0,0,0,2,-14.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,6:42,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,3,2,-11.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,202693,Markieff,Morris,M. Morris,markieff-morris,,,,6:25,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,2,0,0,0,1,3,-8.0,0022400768
+0022400768,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,DND - Personal,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400768

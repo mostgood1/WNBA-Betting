@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401184,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,F,,,35:57,6,11,0.545,2,3,0.667,2,4,0.5,0,2,2,1,1,0,1,3,16,0.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,42:20,10,21,0.476,2,3,0.667,6,6,1.0,1,6,7,3,1,0,0,3,28,5.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,35:47,8,10,0.8,0,0,0.0,1,1,1.0,2,9,11,0,0,0,1,1,17,10.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,22:22,2,6,0.333,0,3,0.0,0,0,0.0,0,2,2,0,0,0,1,3,4,10.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,42:36,8,15,0.533,2,6,0.333,5,7,0.714,2,9,11,10,2,1,5,2,23,3.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,,,,25:18,5,9,0.556,1,4,0.25,0,0,0.0,1,0,1,0,2,0,2,0,11,-14.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,21:24,1,6,0.167,0,2,0.0,0,0,0.0,1,1,2,2,0,0,1,2,2,2.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,1:57,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,2,0,-4.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1627732,Ben,Simmons,B. Simmons,ben-simmons,,,,12:20,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,2,0,1,0,3,0,-7.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1642280,Trentyn,Flowers,T. Flowers,trentyn-flowers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,40:04,6,20,0.3,1,5,0.2,3,4,0.75,1,2,3,8,0,0,0,2,16,-3.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,31:54,3,9,0.333,1,6,0.167,2,2,1.0,3,5,8,1,2,0,1,1,9,7.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,39:14,8,15,0.533,1,2,0.5,2,2,1.0,3,13,16,5,1,0,4,2,19,-5.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,40:54,9,23,0.391,4,12,0.333,4,4,1.0,0,4,4,5,0,0,1,3,26,-5.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,32:28,1,2,0.5,1,2,0.5,2,2,1.0,1,0,1,1,0,1,2,3,5,-8.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,29:41,4,5,0.8,1,2,0.5,0,0,0.0,3,4,7,0,0,0,1,2,9,-2.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,10:11,3,5,0.6,0,0,0.0,3,3,1.0,0,3,3,1,0,0,2,3,9,4.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,15:34,3,6,0.5,1,2,0.5,0,0,0.0,0,1,1,2,2,0,0,2,7,7.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1629056,Terence,Davis,T. Davis,terence-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184
+0022401184,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401184

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1628971,Bruce,Brown,B. Brown,bruce-brown,F,,,21:57,5,8,0.625,3,4,0.75,1,1,1.0,0,2,2,1,1,0,2,3,14,-25.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,F,,,22:29,4,4,1.0,1,1,1.0,1,2,0.5,1,2,3,4,1,0,3,2,10,-12.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,28:11,1,4,0.25,0,0,0.0,3,6,0.5,3,7,10,2,0,1,3,3,5,-31.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,28:00,6,15,0.4,1,7,0.143,2,2,1.0,0,2,2,3,4,0,6,2,15,-20.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,17:41,3,9,0.333,3,8,0.375,0,0,0.0,0,1,1,2,1,1,1,0,9,-4.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,28:55,2,6,0.333,1,5,0.2,2,3,0.667,2,2,4,0,2,0,2,2,7,-32.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,26:42,3,7,0.429,1,4,0.25,3,4,0.75,0,5,5,3,0,0,0,1,10,-22.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,19:49,3,4,0.75,0,1,0.0,2,4,0.5,1,0,1,2,1,1,1,3,8,-10.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1631232,Keion,Brooks Jr.,K. Brooks Jr.,keion-brooks-jr,,,,21:56,2,3,0.667,0,0,0.0,0,0,0.0,0,5,5,2,0,1,4,3,4,-16.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,12:20,5,5,1.0,1,1,1.0,0,0,0.0,0,0,0,0,1,0,1,0,11,-17.0,0022401016
+0022401016,1610612740,New Orleans,Pelicans,NOP,pelicans,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,12:00,0,3,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,2,1,0,-16.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,20:53,7,10,0.7,2,2,1.0,1,1,1.0,1,4,5,0,1,0,1,1,17,15.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,25:13,7,11,0.636,2,5,0.4,4,4,1.0,4,2,6,5,2,0,2,3,20,13.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,30:01,4,5,0.8,0,0,0.0,7,8,0.875,2,9,11,3,3,0,1,4,15,34.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,G,,,6:10,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,0,1,2,0,1.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,25:34,6,13,0.462,3,7,0.429,2,2,1.0,2,1,3,5,2,0,3,0,17,21.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,22:39,4,10,0.4,3,9,0.333,2,2,1.0,1,0,1,3,0,1,0,1,13,16.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,24:29,6,13,0.462,3,8,0.375,0,0,0.0,0,5,5,6,1,0,0,1,15,19.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,22:35,3,6,0.5,1,2,0.5,1,1,1.0,0,2,2,3,0,0,1,0,8,24.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,14:01,4,5,0.8,3,3,1.0,0,0,0.0,0,1,1,1,2,0,1,0,11,11.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,,,,10:21,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,6,1,0,1,0,0,18.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,9:20,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,2,0,0,0,1,0,7.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,7:52,4,4,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,0,9,8.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,7:52,0,1,0.0,0,1,0.0,2,2,1.0,0,0,0,1,1,0,0,1,2,8.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,6:30,2,4,0.5,0,1,0.0,0,0,0.0,0,0,0,2,1,0,1,1,4,5.0,0022401016
+0022401016,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,6:30,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,2,0,0,1,2,3,5.0,0022401016

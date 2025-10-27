@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,22:15,6,11,0.545,5,9,0.556,0,0,0.0,4,5,9,2,1,0,2,2,17,17.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,28:19,5,10,0.5,2,4,0.5,1,2,0.5,2,5,7,2,3,1,3,1,13,3.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,30:28,5,6,0.833,0,0,0.0,1,2,0.5,2,4,6,3,3,1,1,3,11,9.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,29:53,4,15,0.267,1,7,0.143,6,7,0.857,1,4,5,6,1,0,4,0,15,2.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,28:36,4,13,0.308,1,8,0.125,4,4,1.0,1,4,5,5,0,0,3,2,13,11.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,18:40,2,6,0.333,1,4,0.25,1,2,0.5,1,2,3,2,0,0,0,1,6,-2.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,18:23,3,9,0.333,1,3,0.333,2,2,1.0,0,1,1,1,1,0,0,3,9,7.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,19:56,3,6,0.5,3,5,0.6,0,0,0.0,0,2,2,1,1,0,0,1,9,7.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,15:13,3,3,1.0,3,3,1.0,0,0,0.0,0,3,3,1,1,0,0,1,9,23.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,16:05,2,3,0.667,1,2,0.5,0,0,0.0,1,0,1,1,0,0,1,1,5,11.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,3:03,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-7.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,3:03,1,3,0.333,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,2,-7.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,,,3:03,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,0,3,-7.0,0022400922
+0022400922,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,3:03,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-7.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,31:59,6,13,0.462,2,5,0.4,0,0,0.0,0,6,6,1,1,0,4,1,14,-12.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,33:40,13,24,0.542,0,0,0.0,4,8,0.5,4,5,9,3,2,0,4,1,30,-13.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,29:58,2,5,0.4,1,4,0.25,2,2,1.0,4,5,9,0,0,2,3,4,7,-6.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,29:46,2,7,0.286,2,6,0.333,0,0,0.0,0,2,2,3,1,0,2,2,6,-17.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,34:48,8,19,0.421,1,7,0.143,5,6,0.833,1,4,5,4,2,0,2,2,22,-8.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,19:35,1,3,0.333,0,2,0.0,0,0,0.0,0,3,3,0,0,0,1,2,2,-8.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,19:51,1,9,0.111,1,4,0.25,2,2,1.0,1,0,1,0,1,0,0,1,5,-7.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,18:02,0,1,0.0,0,0,0.0,0,0,0.0,4,6,10,3,1,0,0,0,0,-6.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,10:09,1,3,0.333,0,0,0.0,0,0,0.0,0,2,2,2,0,0,2,1,2,-11.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,,,3:03,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,7.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,3:03,0,0,0.0,0,0,0.0,0,0,0.0,1,1,2,1,0,0,0,1,0,7.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,3:03,4,5,0.8,2,3,0.667,0,0,0.0,0,1,1,0,0,0,0,0,10,7.0,0022400922
+0022400922,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,3:03,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,2,7.0,0022400922

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,37:55,6,15,0.4,1,4,0.25,1,1,1.0,4,4,8,3,2,0,3,5,14,-19.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,F,,,35:55,8,17,0.471,1,1,1.0,3,7,0.429,6,9,15,2,0,0,2,2,20,-10.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,30:44,7,12,0.583,0,2,0.0,6,9,0.667,3,2,5,1,0,0,2,3,20,-11.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,34:40,7,16,0.438,4,12,0.333,10,10,1.0,0,2,2,4,0,0,3,1,28,-6.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,G,,,39:45,3,11,0.273,0,3,0.0,0,0,0.0,0,2,2,5,0,0,0,1,6,-11.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,3:45,0,0,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,0,0,0,1,-10.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,,,,22:41,1,5,0.2,0,2,0.0,0,0,0.0,1,1,2,1,1,0,1,1,2,-19.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,16:26,1,4,0.25,1,2,0.5,0,0,0.0,1,4,5,1,0,0,1,1,3,-13.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,5:22,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,5:13,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,2,2,-3.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,,,2:32,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,-2.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,,,2:32,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,2,0,0,0,0,0,-2.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,2:30,1,1,1.0,0,0,0.0,0,3,0.0,0,0,0,0,0,0,0,0,2,-2.0,0042300126
+0042300126,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,29:31,5,10,0.5,3,7,0.429,2,2,1.0,0,3,3,1,0,0,1,5,15,15.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:11,9,15,0.6,1,3,0.333,0,0,0.0,1,6,7,4,1,0,1,4,19,19.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,23:27,1,6,0.167,0,3,0.0,3,4,0.75,2,3,5,1,0,1,1,4,5,12.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,37:02,6,9,0.667,1,3,0.333,1,1,1.0,1,4,5,4,2,1,1,2,14,11.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,31:38,7,16,0.438,2,10,0.2,1,1,1.0,1,5,6,10,0,0,2,1,17,12.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,22:51,7,9,0.778,2,2,1.0,4,4,1.0,0,2,2,9,4,0,1,4,20,22.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,24:27,8,15,0.533,3,10,0.3,2,2,1.0,2,6,8,2,0,1,2,1,21,9.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,19:00,1,3,0.333,1,2,0.5,0,0,0.0,0,4,4,1,0,0,0,1,3,8.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,10:25,1,1,1.0,0,0,0.0,2,3,0.667,0,4,4,0,0,0,0,3,4,2.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,2:30,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,2.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1631112,Kendall,Brown,K. Brown,kendall-brown,,,,2:06,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,2,-1.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,1:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300126
+0042300126,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300126

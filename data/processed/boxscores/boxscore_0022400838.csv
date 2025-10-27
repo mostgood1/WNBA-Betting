@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,202331,Paul,George,P. George,paul-george,F,,,42:05,9,20,0.45,4,9,0.444,3,4,0.75,2,6,8,7,3,0,7,3,25,-4.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,41:47,9,14,0.643,4,6,0.667,5,6,0.833,1,4,5,1,3,1,1,4,27,-9.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,29:22,3,6,0.5,0,0,0.0,1,2,0.5,4,5,9,5,2,1,1,1,7,0.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,20:38,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,0,1,1,1,1,3,-4.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,43:30,12,32,0.375,0,10,0.0,6,6,1.0,1,3,4,5,1,1,1,2,30,-3.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,,,,28:07,2,6,0.333,2,4,0.5,0,0,0.0,0,1,1,2,1,0,1,3,6,1.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,17:18,2,2,1.0,0,0,0.0,1,2,0.5,1,4,5,0,1,1,1,5,5,-3.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,10:50,1,4,0.25,0,2,0.0,0,0,0.0,0,1,1,0,0,1,0,0,2,-5.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,6:23,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,0,0,0,2.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1630215,Jared,Butler,J. Butler,jared-butler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612755,Philadelphia,76ers,PHI,sixers,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,42:05,5,15,0.333,1,6,0.167,5,5,1.0,0,9,9,3,2,0,1,2,16,4.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,38:36,3,5,0.6,0,0,0.0,1,4,0.25,3,14,17,4,1,1,7,2,7,11.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,C,,,16:03,4,5,0.8,0,0,0.0,0,0,0.0,2,0,2,0,0,1,3,3,8,1.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,41:22,12,18,0.667,3,5,0.6,1,2,0.5,0,2,2,3,2,1,1,1,28,1.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:29,8,17,0.471,3,5,0.6,15,16,0.938,0,3,3,7,1,0,2,1,34,3.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,17:06,3,4,0.75,0,1,0.0,0,0,0.0,0,2,2,1,0,1,0,4,6,-3.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,30:56,3,6,0.5,0,0,0.0,1,2,0.5,2,4,6,2,0,4,2,2,7,3.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,5:55,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,1.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,11:28,2,5,0.4,0,0,0.0,0,0,0.0,0,1,1,2,0,0,0,0,4,4.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838
+0022400838,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400838

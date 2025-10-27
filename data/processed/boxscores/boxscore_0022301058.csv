@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,31:11,7,13,0.538,3,6,0.5,0,0,0.0,2,3,5,0,1,0,0,2,17,3.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,35:38,7,16,0.438,2,7,0.286,1,2,0.5,3,6,9,2,5,1,3,0,17,1.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,30:29,7,15,0.467,1,4,0.25,4,7,0.571,2,6,8,6,0,5,6,4,19,10.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,38:40,12,20,0.6,4,8,0.5,3,4,0.75,0,4,4,6,1,0,4,3,31,2.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,31:45,0,2,0.0,0,0,0.0,3,4,0.75,0,4,4,10,0,0,4,2,3,4.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,15:11,0,0,0.0,0,0,0.0,1,2,0.5,0,2,2,4,0,0,1,0,1,5.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,15:06,1,3,0.333,0,0,0.0,2,2,1.0,0,0,0,6,0,1,1,5,4,-3.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,19:12,3,5,0.6,3,3,1.0,0,0,0.0,1,6,7,6,1,0,1,4,9,5.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,20:23,7,11,0.636,3,5,0.6,0,0,0.0,0,0,0,0,1,0,1,1,17,8.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,2:25,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,0,0.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301058
+0022301058,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,42:09,8,17,0.471,3,7,0.429,6,6,1.0,1,5,6,2,1,0,3,1,25,-3.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,33:04,3,8,0.375,2,6,0.333,0,0,0.0,0,8,8,1,2,1,0,3,8,6.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,C,,,22:45,5,10,0.5,2,4,0.5,6,6,1.0,1,4,5,1,2,0,4,3,18,2.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,38:19,11,20,0.55,2,6,0.333,2,2,1.0,1,1,2,9,2,1,3,3,26,1.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,39:35,5,12,0.417,2,6,0.333,2,2,1.0,0,1,1,8,0,0,5,2,14,-5.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,13:28,3,5,0.6,1,2,0.5,2,2,1.0,0,1,1,1,1,0,2,2,9,-8.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,5:51,2,4,0.5,1,2,0.5,0,0,0.0,1,0,1,0,0,0,2,0,5,-4.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,,,,21:53,1,3,0.333,0,0,0.0,2,2,1.0,2,4,6,1,0,2,2,0,4,-3.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,5:51,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-4.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,4:02,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,2,0,0,0,1,0,-4.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,,,9:41,0,0,0.0,0,0,0.0,0,2,0.0,0,5,5,0,0,0,0,1,0,-7.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,3:22,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-6.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,,DNP - League Suspension,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301058
+0022301058,1610612762,Utah,Jazz,UTA,jazz,1630554,Jason,Preston,J. Preston,jason-preston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301058

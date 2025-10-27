@@ -1,0 +1,43 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,22:29,4,8,0.5,1,4,0.25,1,1,1.0,2,5,7,2,0,2,0,1,10,32.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,11:54,3,6,0.5,1,1,1.0,4,4,1.0,0,0,0,2,0,0,1,1,11,12.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,C,,,24:27,7,8,0.875,0,0,0.0,4,6,0.667,5,6,11,3,2,1,3,3,18,25.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,14:04,3,3,1.0,2,2,1.0,0,1,0.0,0,3,3,4,0,0,1,1,8,16.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642848,Tre,Johnson,T. Johnson,tre-johnson,G,,,14:03,4,7,0.571,2,4,0.5,0,0,0.0,0,0,0,3,0,0,0,0,10,19.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,12:03,2,4,0.5,1,3,0.333,0,1,0.0,0,3,3,3,0,0,1,0,5,3.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,17:14,6,9,0.667,3,5,0.6,0,0,0.0,2,2,4,3,1,0,2,1,15,-3.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,9:54,3,4,0.75,1,2,0.5,0,0,0.0,0,2,2,2,0,0,1,3,7,3.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642860,Will,Riley,W. Riley,will-riley,,,,26:16,7,11,0.636,1,4,0.25,2,3,0.667,1,1,2,2,0,0,1,1,17,17.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,20:21,1,4,0.25,0,1,0.0,2,2,1.0,0,3,3,2,3,0,2,5,4,2.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1630536,Sharife,Cooper,S. Cooper,sharife-cooper,,,,21:11,1,5,0.2,1,1,1.0,0,0,0.0,0,0,0,2,1,0,0,3,3,4.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642364,Jamir,Watkins,J. Watkins,jamir-watkins,,,,17:21,2,5,0.4,1,3,0.333,4,8,0.5,1,5,6,0,0,1,1,0,9,-10.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,11:45,0,3,0.0,0,2,0.0,1,4,0.25,2,3,5,2,2,0,0,3,1,-18.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1631214,Alondes,Williams,A. Williams,alondes-williams,,,,11:16,0,3,0.0,0,3,0.0,0,0,0.0,0,0,0,1,0,0,1,1,0,-14.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642955,Kadary,Richmond,K. Richmond,kadary-richmond,,,,5:42,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-3.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,203468,CJ,McCollum,C. McCollum,cj-mccollum,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,203114,Khris,Middleton,K. Middleton,khris-middleton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,F,,,21:22,4,11,0.364,2,5,0.4,2,3,0.667,1,0,1,0,0,0,4,1,12,-29.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,F,,,24:52,2,7,0.286,2,6,0.333,2,2,1.0,2,4,6,0,0,0,1,2,8,-20.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,C,,,23:12,4,8,0.5,2,5,0.4,1,1,1.0,4,1,5,2,0,0,1,1,11,-33.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,G,,,18:22,2,7,0.286,0,1,0.0,0,0,0.0,1,1,2,3,1,0,0,4,4,-30.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,27:53,4,12,0.333,2,9,0.222,1,2,0.5,0,1,1,2,1,0,3,3,11,-26.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,22:45,7,13,0.538,1,5,0.2,5,5,1.0,1,3,4,6,1,0,0,3,20,10.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,19:18,1,6,0.167,1,5,0.2,3,3,1.0,0,2,2,2,1,0,0,0,6,-1.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,,,16:18,3,3,1.0,0,0,0.0,3,5,0.6,1,4,5,0,0,1,2,3,9,11.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1641755,Kevin,McCullar Jr.,K. McCullar Jr.,kevin-mccullar-jr,,,,23:10,3,6,0.5,1,3,0.333,1,1,1.0,0,2,2,5,0,1,3,2,8,-1.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,203458,Alex,Len,A. Len,alex-len,,,,11:53,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,3,2,3.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1642885,Mohamed,Diawara,M. Diawara,mohamed-diawara,,,,6:16,2,2,1.0,1,1,1.0,0,0,0.0,0,2,2,0,0,0,0,0,5,9.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,16:08,3,3,1.0,1,1,1.0,0,4,0.0,0,3,3,1,0,0,2,0,7,17.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,8:31,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,2,0,0,1,0,0,5.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054
+0012500054,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500054

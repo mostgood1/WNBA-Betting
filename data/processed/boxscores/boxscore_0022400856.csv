@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400856,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,28:39,2,6,0.333,1,2,0.5,7,8,0.875,0,4,4,6,1,1,3,5,12,-4.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,38:22,7,17,0.412,4,10,0.4,1,1,1.0,2,1,3,3,1,2,0,0,19,-4.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,31:17,4,11,0.364,1,5,0.2,2,3,0.667,1,6,7,2,0,1,1,5,11,-10.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,33:29,7,14,0.5,0,5,0.0,1,2,0.5,0,2,2,3,0,2,0,1,15,1.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:15,10,23,0.435,2,6,0.333,1,1,1.0,1,6,7,6,3,1,3,1,23,-2.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,12:21,3,4,0.75,0,0,0.0,0,0,0.0,1,4,5,1,0,0,0,1,6,11.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,28:09,7,11,0.636,3,5,0.6,0,0,0.0,2,2,4,3,2,0,0,0,17,9.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,15:37,2,2,1.0,1,1,1.0,0,0,0.0,0,0,0,2,1,0,0,0,5,-2.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,4:21,1,2,0.5,0,0,0.0,1,1,1.0,1,0,1,0,0,0,0,2,3,0.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,11:32,1,5,0.2,1,4,0.25,0,0,0.0,0,2,2,3,2,0,1,1,3,6.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,22:07,1,3,0.333,1,3,0.333,0,0,0.0,0,1,1,2,0,0,1,2,3,9.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,33:55,6,16,0.375,1,5,0.2,5,6,0.833,1,6,7,1,0,2,1,1,18,5.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,23:40,4,5,0.8,0,0,0.0,2,2,1.0,5,6,11,1,0,2,0,3,10,5.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,35:04,9,17,0.529,0,4,0.0,6,6,1.0,4,8,12,4,1,0,6,3,24,6.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,31:26,9,22,0.409,0,6,0.0,7,7,1.0,0,4,4,7,1,0,4,3,25,8.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,20:11,3,6,0.5,1,2,0.5,0,0,0.0,0,7,7,4,0,0,2,0,7,-19.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,16:40,5,5,1.0,0,0,0.0,1,1,1.0,4,3,7,2,0,0,1,2,11,-7.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,21:21,4,11,0.364,1,6,0.167,0,0,0.0,3,2,5,2,0,0,1,0,9,-5.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,11:59,0,2,0.0,0,1,0.0,0,0,0.0,2,1,3,0,0,0,1,3,0,-6.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,23:38,3,7,0.429,0,4,0.0,0,0,0.0,0,1,1,3,0,0,1,0,6,-1.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856
+0022400856,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400856

@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,F,,,30:34,5,12,0.417,4,7,0.571,0,0,0.0,1,4,5,4,2,0,2,1,14,14.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1630231,KJ,Martin,K. Martin,kj-martin,F,,,35:49,5,8,0.625,1,2,0.5,3,3,1.0,2,5,7,3,0,2,0,5,14,5.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,C,,,30:40,8,16,0.5,4,9,0.444,5,7,0.714,3,4,7,3,3,0,1,5,25,19.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,G,,,28:35,5,12,0.417,3,7,0.429,2,2,1.0,0,7,7,1,0,0,0,2,15,1.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,29:30,4,10,0.4,0,1,0.0,5,5,1.0,1,4,5,10,2,0,7,4,13,23.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,33:27,7,20,0.35,3,10,0.3,8,10,0.8,1,5,6,3,3,0,4,2,25,-14.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,16:05,2,4,0.5,1,2,0.5,2,2,1.0,1,3,4,0,0,1,1,0,7,-20.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,19:08,0,2,0.0,0,2,0.0,0,0,0.0,1,0,1,1,1,0,0,0,0,-29.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,16:12,3,9,0.333,2,6,0.333,1,2,0.5,0,2,2,0,1,1,2,2,9,-19.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1630531,Jaden,Springer,J. Springer,jaden-springer,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400924
+0022400924,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,F,,,28:42,3,13,0.231,1,8,0.125,4,4,1.0,1,3,4,2,1,0,2,4,11,-34.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,F,,,11:39,0,3,0.0,0,2,0.0,0,0,0.0,1,1,2,0,0,0,1,1,0,-18.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,203083,Andre,Drummond,A. Drummond,andre-drummond,C,,,10:00,2,6,0.333,0,1,0.0,2,2,1.0,2,0,2,0,0,1,0,0,6,-10.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,G,,,19:36,3,7,0.429,0,2,0.0,0,0,0.0,0,2,2,2,0,0,0,4,6,-7.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,G,,,27:23,6,13,0.462,4,9,0.444,9,9,1.0,0,1,1,6,2,1,3,4,25,-17.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,34:03,8,18,0.444,3,9,0.333,6,6,1.0,1,10,11,5,1,0,2,1,25,8.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1630215,Jared,Butler,J. Butler,jared-butler,,,,29:26,5,8,0.625,3,6,0.5,2,2,1.0,0,0,0,9,1,1,3,3,15,16.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,31:40,7,13,0.538,0,0,0.0,0,0,0.0,7,8,15,1,2,5,3,2,14,22.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,20:37,3,7,0.429,2,5,0.4,0,0,0.0,0,3,3,2,1,0,1,3,8,21.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1642024,Alex,Reese,A. Reese,alex-reese,,,,15:02,2,3,0.667,1,2,0.5,1,2,0.5,2,7,9,0,3,1,1,1,6,29.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,11:52,4,5,0.8,2,3,0.667,0,0,0.0,0,1,1,0,0,0,1,0,10,10.0,0022400924
+0022400924,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400924

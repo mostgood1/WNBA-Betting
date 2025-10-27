@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401118,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,27:16,6,13,0.462,1,4,0.25,9,10,0.9,0,4,4,3,0,0,2,1,22,19.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,25:20,2,8,0.25,1,6,0.167,0,0,0.0,0,3,3,2,1,2,1,0,5,10.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,26:37,9,16,0.563,0,1,0.0,6,7,0.857,7,4,11,7,0,0,0,3,24,10.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,22:41,1,2,0.5,1,2,0.5,0,0,0.0,1,1,2,0,0,1,0,3,3,10.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,32:32,9,19,0.474,4,7,0.571,3,3,1.0,1,9,10,3,1,0,0,3,25,8.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,22:43,7,12,0.583,3,6,0.5,0,0,0.0,0,1,1,3,0,0,0,1,17,25.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,20:11,4,5,0.8,3,4,0.75,1,2,0.5,0,3,3,2,1,0,0,2,12,11.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,19:14,3,4,0.75,0,1,0.0,0,1,0.0,1,6,7,2,1,0,1,6,6,18.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,13:53,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,6,0,14.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,11:26,1,3,0.333,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,0,2,-1.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,7:14,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,0,0,0,1,2,3,-3.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,6:15,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,1,3,-3.0,0022401118
+0022401118,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,4:38,1,3,0.333,1,1,1.0,0,0,0.0,0,2,2,1,0,0,0,0,3,-3.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,F,,,32:18,3,7,0.429,1,4,0.25,1,2,0.5,0,4,4,1,0,0,0,2,8,-1.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,27:36,7,21,0.333,2,11,0.182,6,6,1.0,0,2,2,1,0,0,2,2,22,-25.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,24:03,3,10,0.3,0,1,0.0,2,2,1.0,3,5,8,3,0,1,3,4,8,-17.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,G,,,22:45,3,7,0.429,1,4,0.25,2,2,1.0,0,6,6,1,0,0,0,0,9,-6.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,G,,,33:07,6,10,0.6,1,4,0.25,0,0,0.0,0,1,1,4,1,0,1,0,13,-7.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,28:53,3,12,0.25,2,7,0.286,5,5,1.0,2,3,5,2,0,0,0,1,13,-17.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,11:52,1,3,0.333,0,2,0.0,4,5,0.8,1,2,3,0,1,1,0,2,6,-13.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,22:50,6,9,0.667,0,0,0.0,3,4,0.75,3,8,11,0,0,0,2,4,15,-1.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1631301,Jaylen,Sims,J. Sims,jaylen-sims,,,,20:45,1,3,0.333,1,2,0.5,4,4,1.0,0,1,1,4,0,0,3,2,7,-14.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,,,15:51,0,1,0.0,0,0,0.0,1,4,0.25,2,2,4,1,0,0,1,2,1,-14.0,0022401118
+0022401118,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401118

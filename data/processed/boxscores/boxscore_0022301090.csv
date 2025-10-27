@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,29:11,2,7,0.286,1,4,0.25,2,2,1.0,2,3,5,1,3,0,0,3,7,8.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,40:21,7,15,0.467,2,6,0.333,2,3,0.667,3,6,9,5,0,0,0,2,18,0.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,36:00,10,18,0.556,0,0,0.0,0,0,0.0,4,8,12,3,0,0,2,4,20,-8.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,31:26,4,11,0.364,3,6,0.5,0,0,0.0,0,1,1,2,1,0,1,3,11,-11.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,34:48,6,16,0.375,1,5,0.2,0,0,0.0,2,6,8,9,0,0,5,5,13,-10.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,35:23,8,17,0.471,4,8,0.5,6,8,0.75,0,5,5,5,3,2,1,1,26,1.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,13:12,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,2,1,0,0,1,2,9.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,16:30,1,4,0.25,0,2,0.0,0,0,0.0,0,3,3,0,1,1,0,1,2,8.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,,,3:09,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,4,-2.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,32:38,6,10,0.6,1,2,0.5,7,9,0.778,1,5,6,1,0,0,1,2,20,7.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,35:45,6,17,0.353,2,7,0.286,1,2,0.5,0,4,4,4,0,1,2,1,15,9.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,31:12,6,10,0.6,1,4,0.25,4,7,0.571,3,10,13,5,3,1,2,2,17,13.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,G,,,34:39,5,10,0.5,2,6,0.333,2,2,1.0,0,4,4,2,1,0,1,3,14,9.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,32:46,5,8,0.625,2,5,0.4,3,3,1.0,0,3,3,7,0,2,2,1,15,10.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,17:24,2,4,0.5,0,1,0.0,2,2,1.0,1,3,4,0,0,2,1,1,6,-12.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,15:22,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,2,0,0,1,2,0,-6.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,15:14,3,6,0.5,1,3,0.333,2,2,1.0,0,3,3,1,0,0,2,0,9,-9.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,13:09,0,6,0.0,0,0,0.0,0,0,0.0,3,0,3,4,0,0,2,2,0,-8.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,11:51,3,4,0.75,2,3,0.667,0,0,0.0,1,0,1,0,0,0,1,3,8,-8.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1630284,Kevon,Harris,K. Harris,kevon-harris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090
+0022301090,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301090

@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,F,,,26:46,3,8,0.375,1,3,0.333,0,0,0.0,1,3,4,2,1,1,0,0,7,-5.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,35:28,12,25,0.48,2,7,0.286,11,14,0.786,6,5,11,5,0,0,1,3,37,-4.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,31:09,3,11,0.273,1,4,0.25,0,0,0.0,7,11,18,1,2,1,0,4,7,-4.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,34:40,7,23,0.304,1,8,0.125,2,2,1.0,0,2,2,5,1,0,1,2,17,-9.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,G,,,33:38,9,22,0.409,2,6,0.333,1,2,0.5,0,3,3,3,0,1,1,4,21,4.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,27:25,3,9,0.333,2,8,0.25,0,0,0.0,1,4,5,2,0,1,0,1,8,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,19:51,3,7,0.429,1,3,0.333,0,0,0.0,3,3,6,4,0,0,0,3,7,-1.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,20:38,3,9,0.333,1,3,0.333,0,0,0.0,1,3,4,0,2,1,1,1,7,-2.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,10:25,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,1,1,0,1,3,2,-4.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DND - Concussion Protocol,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,F,,,34:15,3,10,0.3,3,7,0.429,0,0,0.0,0,2,2,1,0,1,1,2,9,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1641824,Matas,Buzelis,M. Buzelis,matas-buzelis,F,,,33:34,5,10,0.5,2,4,0.5,0,1,0.0,2,10,12,1,0,3,3,2,12,8.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,202696,Nikola,Vučević,N. Vučević,nikola-vučević,C,,,33:22,13,22,0.591,2,3,0.667,3,3,1.0,3,9,12,2,0,2,3,2,31,2.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1629632,Coby,White,C. White,coby-white,G,,,34:46,9,16,0.563,2,6,0.333,11,12,0.917,0,5,5,7,0,0,4,2,31,-2.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,39:14,4,13,0.308,0,1,0.0,7,9,0.778,5,14,19,12,0,0,2,2,15,10.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1631207,Dalen,Terry,D. Terry,dalen-terry,,,,14:38,0,2,0.0,0,1,0.0,0,0,0.0,1,3,4,1,1,1,1,2,0,1.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1630172,Patrick,Williams,P. Williams,patrick-williams,,,,14:26,1,5,0.2,0,2,0.0,0,0,0.0,0,5,5,0,0,0,1,0,2,-3.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,15:50,4,5,0.8,0,1,0.0,5,6,0.833,0,0,0,0,0,0,1,1,13,1.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1628380,Zach,Collins,Z. Collins,zach-collins,,,,14:38,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,0,1,1,1,3,5,3.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1641763,Julian,Phillips,J. Phillips,julian-phillips,,,,5:17,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,5.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1628975,Jevon,Carter,J. Carter,jevon-carter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1641801,Emanuel,Miller,E. Miller,emanuel-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1630188,Jalen,Smith,J. Smith,jalen-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122
+0022401122,1610612741,Chicago,Bulls,CHI,bulls,1642443,Jahmir,Young,J. Young,jahmir-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401122

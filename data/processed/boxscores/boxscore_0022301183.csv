@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,31:04,4,10,0.4,1,5,0.2,0,0,0.0,2,3,5,0,0,1,1,5,9,-1.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,F,,,32:08,3,5,0.6,1,2,0.5,1,3,0.333,2,3,5,4,0,2,1,1,8,-13.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,C,,,32:08,8,13,0.615,0,3,0.0,4,4,1.0,0,4,4,3,1,2,0,2,20,-1.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,G,,,35:16,6,12,0.5,0,1,0.0,5,6,0.833,6,9,15,6,0,0,2,1,17,15.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,34:56,10,20,0.5,5,10,0.5,1,1,1.0,0,9,9,1,0,0,3,0,26,-7.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,25:15,4,14,0.286,3,9,0.333,0,0,0.0,0,5,5,4,2,0,1,5,11,13.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,16:40,2,6,0.333,1,5,0.2,2,2,1.0,0,3,3,4,0,0,0,1,7,13.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,25:57,7,11,0.636,0,3,0.0,4,4,1.0,0,2,2,2,0,0,0,5,18,15.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,203493,Reggie,Bullock Jr.,R. Bullock Jr.,reggie-bullock-jr,,,,6:36,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,11.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1630207,Nate,Hinton,N. Hinton,nate-hinton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1626246,Boban,Marjanović,B. Marjanović,boban-marjanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1631257,Jermaine,Samuels Jr.,J. Samuels Jr.,jermaine-samuels-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,42:34,4,11,0.364,1,7,0.143,1,1,1.0,4,3,7,2,0,0,0,1,10,-4.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,14:25,3,4,0.75,1,1,1.0,2,4,0.5,1,4,5,0,0,0,1,1,9,-1.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,22:40,3,10,0.3,0,2,0.0,0,0,0.0,0,2,2,1,1,0,2,1,6,-2.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,26:14,1,6,0.167,1,4,0.25,1,2,0.5,1,1,2,5,1,0,1,0,4,-10.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,33:36,10,23,0.435,6,7,0.857,4,5,0.8,2,3,5,7,1,1,1,3,30,-9.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,38:24,9,26,0.346,2,10,0.2,8,9,0.889,0,10,10,3,1,2,1,1,28,-9.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,28:14,1,3,0.333,0,2,0.0,0,0,0.0,2,2,4,2,0,0,0,4,2,-8.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,19:06,3,7,0.429,1,2,0.5,3,4,0.75,1,3,4,0,0,2,0,1,10,-9.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,,,14:47,3,5,0.6,0,0,0.0,2,4,0.5,5,4,9,0,0,0,1,2,8,7.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183
+0022301183,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301183

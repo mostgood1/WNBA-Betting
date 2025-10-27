@@ -1,0 +1,32 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,F,,,17:43,2,2,1.0,1,1,1.0,0,0,0.0,1,0,1,2,0,0,2,1,5,-14.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,34:17,4,11,0.364,0,4,0.0,7,7,1.0,2,3,5,1,0,0,0,1,15,1.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,18:14,5,9,0.556,2,3,0.667,0,0,0.0,1,3,4,2,0,0,1,4,12,-1.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1642846,Ace,Bailey,A. Bailey,ace-bailey,G,,,38:46,8,13,0.615,2,5,0.4,2,2,1.0,2,5,7,1,2,0,2,4,20,-9.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,35:33,4,11,0.364,2,5,0.4,2,4,0.5,0,9,9,8,1,0,3,4,12,-8.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,25:37,4,8,0.5,1,3,0.333,3,4,0.75,1,3,4,2,1,0,0,3,12,23.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,27:43,6,13,0.462,2,8,0.25,12,12,1.0,0,0,0,1,2,0,1,4,26,-13.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,201567,Kevin,Love,K. Love,kevin-love,,,,15:51,2,2,1.0,2,2,1.0,2,2,1.0,0,3,3,0,0,0,0,5,8,-1.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,14:00,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,4,0,0,0,2,0,0.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1642383,Walter,Clayton Jr.,W. Clayton Jr.,walter-clayton-jr,,,,33:43,6,12,0.5,2,7,0.286,6,6,1.0,0,5,5,5,1,1,2,0,20,9.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1642910,John,Tonje,J. Tonje,john-tonje,,,,3:33,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-7.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1628964,Mo,Bamba,M. Bamba,mo-bamba,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500045
+0012500045,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,F,,,17:05,4,6,0.667,0,1,0.0,3,3,1.0,2,3,5,1,0,0,0,1,11,16.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,17:05,0,6,0.0,0,5,0.0,0,0,0.0,0,2,2,4,0,0,0,0,0,16.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,15:41,6,10,0.6,1,4,0.25,9,10,0.9,1,6,7,3,0,0,1,1,22,13.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,G,,,17:07,4,8,0.5,2,5,0.4,0,0,0.0,0,1,1,1,0,0,2,0,10,-7.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,21:52,6,8,0.75,2,4,0.5,4,5,0.8,1,3,4,2,1,0,1,2,18,3.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,18:16,2,4,0.5,0,0,0.0,3,4,0.75,2,4,6,3,0,2,1,1,7,15.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1642844,Dylan,Harper,D. Harper,dylan-harper,,,,18:07,4,6,0.667,1,3,0.333,0,0,0.0,0,0,0,3,0,0,0,2,9,20.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,20:25,2,6,0.333,2,6,0.333,3,4,0.75,0,2,2,2,0,0,0,2,9,-10.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1642868,Carter,Bryant,C. Bryant,carter-bryant,,,,27:22,2,8,0.25,2,5,0.4,0,0,0.0,2,2,4,1,0,1,4,3,6,-13.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,16:55,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,1,1,2,0,-1.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1642434,Riley,Minix,R. Minix,riley-minix,,,,8:26,0,3,0.0,0,2,0.0,0,0,0.0,1,1,2,2,0,0,2,3,0,-13.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,,,19:18,4,5,0.8,1,2,0.5,0,3,0.0,1,5,6,3,0,0,0,3,9,-6.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1630649,Stanley,Umude,S. Umude,stanley-umude,,,,21:38,4,7,0.571,2,4,0.5,3,4,0.75,0,2,2,0,0,0,0,4,13,-4.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,2:06,0,1,0.0,0,1,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,1.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1642357,David,Jones Garcia,D. Jones Garcia,david-jones-garcia,,,,17:09,6,13,0.462,0,5,0.0,8,9,0.889,2,2,4,4,1,0,2,0,20,0.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1630695,Micah,Potter,M. Potter,micah-potter,,,,6:28,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-10.0,0012500045
+0012500045,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500045

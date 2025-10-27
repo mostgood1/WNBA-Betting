@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1628971,Bruce,Brown,B. Brown,bruce-brown,F,,,19:43,4,7,0.571,1,1,1.0,0,0,0.0,0,3,3,1,0,0,0,0,9,-21.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,F,,,21:56,1,5,0.2,0,1,0.0,6,8,0.75,1,0,1,3,0,1,0,3,8,-21.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,18:52,4,6,0.667,0,0,0.0,1,3,0.333,3,2,5,0,0,0,1,0,9,-21.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,G,,,29:35,5,14,0.357,4,10,0.4,3,3,1.0,1,2,3,2,2,0,1,2,17,1.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,22:53,4,11,0.364,3,7,0.429,5,6,0.833,0,1,1,4,2,1,4,2,16,-25.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1631232,Keion,Brooks Jr.,K. Brooks Jr.,keion-brooks-jr,,,,23:12,4,6,0.667,1,2,0.5,5,5,1.0,0,5,5,0,0,1,1,3,14,8.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,26:08,8,11,0.727,0,2,0.0,1,2,0.5,0,4,4,1,1,2,3,3,17,18.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,23:13,0,3,0.0,0,1,0.0,3,4,0.75,1,5,6,10,2,1,3,1,3,14.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,18:26,1,5,0.2,1,3,0.333,0,0,0.0,2,7,9,2,1,0,1,0,3,5.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,19:43,1,6,0.167,1,5,0.2,0,0,0.0,0,2,2,3,0,0,1,3,3,7.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,16:19,7,8,0.875,1,1,1.0,0,0,0.0,1,2,3,0,2,0,2,1,15,10.0,0022401150
+0022401150,1610612740,New Orleans,Pelicans,NOP,pelicans,1630283,Kylor,Kelley,K. Kelley,kylor-kelley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,F,,,22:47,7,8,0.875,2,3,0.667,6,6,1.0,0,3,3,5,0,0,3,2,22,23.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,16:56,2,5,0.4,2,5,0.4,3,4,0.75,0,4,4,1,0,2,1,2,9,10.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,16:42,6,9,0.667,1,1,1.0,0,0,0.0,2,2,4,3,3,0,0,0,13,11.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,G,,,21:11,3,9,0.333,2,7,0.286,1,2,0.5,2,2,4,3,1,0,1,2,9,8.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,G,,,31:02,0,3,0.0,0,0,0.0,0,0,0.0,2,2,4,10,3,0,1,3,0,14.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,,,25:35,3,9,0.333,3,9,0.333,2,2,1.0,0,1,1,1,0,0,2,3,11,-16.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,23:38,3,8,0.375,2,3,0.667,5,5,1.0,0,4,4,2,1,1,3,0,13,-13.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,28:03,5,13,0.385,0,4,0.0,2,2,1.0,1,4,5,2,1,1,3,4,12,-12.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1641727,Dariq,Whitehead,D. Whitehead,dariq-whitehead,,,,24:38,5,9,0.556,4,7,0.571,0,0,0.0,0,2,2,2,2,0,1,3,14,8.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1631166,Drew,Timme,D. Timme,drew-timme,,,,29:28,7,10,0.7,1,1,1.0,1,3,0.333,0,9,9,1,0,0,1,3,16,-8.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401150
+0022401150,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401150

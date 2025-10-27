@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,F,,,24:18,2,4,0.5,0,2,0.0,2,2,1.0,1,4,5,2,1,0,0,1,6,-23.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,F,,,31:01,3,5,0.6,1,2,0.5,2,2,1.0,1,5,6,1,1,1,0,2,9,-19.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,27:51,5,13,0.385,0,0,0.0,1,1,1.0,2,2,4,1,2,0,2,0,11,-25.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,G,,,26:53,3,15,0.2,1,4,0.25,1,2,0.5,0,3,3,4,0,0,1,2,8,-10.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,G,,,32:44,4,13,0.308,3,8,0.375,0,0,0.0,1,1,2,4,1,0,2,3,11,-20.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,27:49,4,9,0.444,0,2,0.0,1,1,1.0,1,4,5,3,5,1,1,2,9,20.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,34:03,18,25,0.72,5,9,0.556,9,12,0.75,0,6,6,5,3,0,4,2,50,14.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,203095,Evan,Fournier,E. Fournier,evan-fournier,,,,15:12,0,5,0.0,0,3,0.0,0,0,0.0,0,1,1,2,1,0,0,0,0,6.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,,,,20:09,4,5,0.8,0,0,0.0,1,1,1.0,2,3,5,2,0,1,0,1,9,17.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1631205,Buddy,Boeheim,B. Boeheim,buddy-boeheim,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1629669,Jaylen,Nowell,J. Nowell,jaylen-nowell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612765,Detroit,Pistons,DET,pistons,1630649,Stanley,Umude,S. Umude,stanley-umude,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,35:27,11,16,0.688,3,6,0.5,1,3,0.333,0,7,7,4,0,0,5,1,26,14.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,F,,,36:43,10,14,0.714,2,4,0.5,6,7,0.857,2,12,14,11,4,1,3,0,28,12.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,30:27,5,9,0.556,0,0,0.0,1,2,0.5,2,14,16,1,0,2,1,1,11,30.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,G,,,33:09,4,15,0.267,2,10,0.2,0,0,0.0,0,2,2,4,2,2,1,2,10,9.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,35:26,10,21,0.476,2,8,0.25,2,3,0.667,1,3,4,11,1,0,5,1,24,20.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,17:33,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,3,0,1,0,4,0,-22.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,19:10,3,3,1.0,3,3,1.0,0,0,0.0,0,3,3,0,0,0,0,2,9,-17.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,19:31,2,4,0.5,0,2,0.0,0,0,0.0,0,0,0,1,0,0,1,1,4,6.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1641723,Kobe,Bufkin,K. Bufkin,kobe-bufkin,,,,12:34,4,8,0.5,1,5,0.2,0,0,0.0,1,0,1,1,2,2,0,1,9,-12.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,1641754,Seth,Lundy,S. Lundy,seth-lundy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104
+0022301104,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301104

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,35:32,2,6,0.333,0,3,0.0,1,2,0.5,0,1,1,4,2,1,1,2,5,-6.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,F,,,33:41,4,8,0.5,1,3,0.333,1,1,1.0,1,2,3,0,2,1,2,4,10,-7.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,32:54,5,10,0.5,0,0,0.0,5,6,0.833,5,8,13,5,0,1,0,1,15,-18.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,G,,,37:44,6,16,0.375,2,5,0.4,2,2,1.0,1,4,5,6,1,1,3,3,16,-13.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,35:03,8,21,0.381,0,6,0.0,3,3,1.0,1,1,2,4,0,0,2,2,19,-9.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,23:31,3,7,0.429,3,7,0.429,1,1,1.0,0,3,3,1,0,0,0,0,10,-5.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,26:29,4,10,0.4,1,5,0.2,2,2,1.0,0,7,7,1,0,0,4,0,11,-12.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,15:06,2,3,0.667,0,0,0.0,1,2,0.5,2,5,7,1,1,1,0,2,5,5.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,32:11,6,10,0.6,2,4,0.5,1,4,0.25,2,2,4,0,3,2,5,1,15,15.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,F,,,25:58,7,15,0.467,3,8,0.375,1,1,1.0,0,3,3,3,1,0,1,3,18,10.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,37:11,4,8,0.5,0,0,0.0,1,4,0.25,6,9,15,1,0,2,1,2,9,10.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,34:43,6,17,0.353,1,1,1.0,3,4,0.75,2,11,13,5,0,0,3,1,16,12.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,32:08,8,15,0.533,3,6,0.5,2,3,0.667,0,2,2,6,1,1,0,1,21,6.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,26:57,5,9,0.556,0,0,0.0,0,0,0.0,3,3,6,5,3,0,0,0,10,2.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,14:27,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,1,4,0,1.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628420,Monté,Morris,M. Morris,monté-morris,,,,17:51,1,5,0.2,1,2,0.5,0,0,0.0,0,0,0,3,0,0,0,0,3,4.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,18:34,4,4,1.0,4,4,1.0,0,0,0.0,0,2,2,4,1,0,0,0,12,5.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014
+0022301014,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203933,T.J.,Warren,T. Warren,tj-warren,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301014

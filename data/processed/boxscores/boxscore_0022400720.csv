@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,31:16,5,9,0.556,0,3,0.0,1,1,1.0,2,8,10,11,2,1,6,2,11,22.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,30:19,6,8,0.75,5,7,0.714,0,0,0.0,0,7,7,3,1,1,1,4,17,17.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,C,,,26:30,4,5,0.8,0,0,0.0,1,1,1.0,0,5,5,3,0,1,0,3,9,17.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,29:52,6,15,0.4,3,10,0.3,4,4,1.0,1,2,3,8,1,0,3,2,19,18.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,35:28,5,8,0.625,4,6,0.667,2,2,1.0,0,4,4,10,1,0,1,1,16,15.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,29:49,7,13,0.538,3,6,0.5,0,0,0.0,0,2,2,3,0,0,1,4,17,2.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1627763,Malcolm,Brogdon,M. Brogdon,malcolm-brogdon,,,,16:42,3,6,0.5,1,1,1.0,0,0,0.0,1,0,1,1,1,0,1,0,7,6.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,18:37,4,9,0.444,2,5,0.4,2,4,0.5,2,4,6,1,0,0,1,3,12,0.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,17:23,4,8,0.5,2,5,0.4,1,2,0.5,1,1,2,0,0,0,0,2,11,-2.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,2:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,2:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022400720
+0022400720,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,24:43,5,13,0.385,3,9,0.333,4,4,1.0,1,2,3,2,0,0,1,1,17,-25.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,F,,,18:24,1,8,0.125,0,3,0.0,2,2,1.0,2,1,3,0,0,0,0,2,4,-16.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,24:27,2,3,0.667,0,0,0.0,1,2,0.5,1,5,6,2,0,2,0,0,5,-26.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,32:14,9,18,0.5,4,9,0.444,3,3,1.0,2,4,6,3,2,0,0,3,25,-15.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,15:54,2,7,0.286,0,3,0.0,1,2,0.5,0,0,0,2,0,0,4,1,5,-9.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1627732,Ben,Simmons,B. Simmons,ben-simmons,,,,18:17,2,5,0.4,0,0,0.0,0,0,0.0,1,4,5,6,1,0,0,1,4,-6.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,29:32,2,4,0.5,2,4,0.5,1,2,0.5,1,2,3,4,2,0,1,2,7,12.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,16:20,5,7,0.714,1,1,1.0,0,0,0.0,2,2,4,2,1,0,2,3,11,7.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,,,,27:20,6,11,0.545,1,3,0.333,2,4,0.5,1,4,5,1,0,1,0,3,15,-8.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,19:02,2,5,0.4,2,5,0.4,2,2,1.0,1,1,2,2,0,0,1,3,8,1.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,13:47,0,2,0.0,0,1,0.0,1,2,0.5,0,0,0,2,1,0,1,1,1,0.0,0022400720
+0022400720,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400720

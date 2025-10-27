@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,24:34,4,11,0.364,1,3,0.333,0,0,0.0,1,2,3,1,1,0,0,3,9,-5.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,F,,,14:15,5,13,0.385,1,5,0.2,0,0,0.0,3,2,5,0,0,1,0,1,11,8.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,40:06,7,15,0.467,1,4,0.25,5,7,0.714,3,11,14,2,2,2,1,3,20,6.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,32:53,7,12,0.583,3,4,0.75,0,0,0.0,2,4,6,5,1,0,2,1,17,0.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,39:37,8,20,0.4,2,9,0.222,7,7,1.0,1,3,4,12,1,0,5,2,25,-1.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,15:47,4,5,0.8,3,4,0.75,0,0,0.0,0,1,1,0,0,0,0,1,11,-18.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,7:54,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,1,3,0,-8.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,24:08,4,10,0.4,1,4,0.25,5,6,0.833,1,3,4,5,0,0,2,1,14,0.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1629611,Terance,Mann,T. Mann,terance-mann,,,,20:48,1,4,0.25,1,1,1.0,2,2,1.0,0,3,3,2,1,0,0,1,5,11.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1627777,Georges,Niang,G. Niang,georges-niang,,,,19:58,2,6,0.333,2,5,0.4,0,0,0.0,0,2,2,1,1,0,0,3,6,-3.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401109
+0022401109,1610612737,Atlanta,Hawks,ATL,hawks,1631342,Daeqwon,Plowden,D. Plowden,daeqwon-plowden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,F,,,34:37,2,6,0.333,0,3,0.0,2,2,1.0,0,2,2,8,0,0,0,1,6,-10.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,203076,Anthony,Davis,A. Davis,anthony-davis,F,,,29:54,14,23,0.609,2,4,0.5,4,4,1.0,2,13,15,2,1,5,4,2,34,3.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,15:53,1,1,1.0,0,0,0.0,2,4,0.5,1,4,5,1,0,1,0,1,4,-2.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,29:09,6,11,0.545,5,9,0.556,0,0,0.0,0,4,4,2,1,1,1,1,17,-2.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,33:08,5,11,0.455,2,5,0.4,2,2,1.0,0,4,4,10,2,0,3,1,14,-1.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1631108,Max,Christie,M. Christie,max-christie,,,,25:21,3,10,0.3,2,7,0.286,3,3,1.0,0,3,3,0,0,0,1,1,11,9.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,,,,20:11,5,7,0.714,0,0,0.0,1,2,0.5,1,5,6,0,0,1,0,5,11,1.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,27:36,2,4,0.5,1,1,1.0,3,4,0.75,0,1,1,1,2,0,2,3,8,5.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,21:46,5,9,0.556,3,4,0.75,0,0,0.0,0,1,1,3,1,0,2,0,13,5.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1630539,Kai,Jones,K. Jones,kai-jones,,,,2:25,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,2,2.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401109
+0022401109,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401109

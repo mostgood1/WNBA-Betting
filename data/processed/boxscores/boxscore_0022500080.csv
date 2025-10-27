@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,19:27,4,6,0.667,2,3,0.667,3,3,1.0,1,0,1,1,1,0,1,4,13,4.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,25:18,5,15,0.333,2,7,0.286,0,2,0.0,1,3,4,5,0,0,0,2,12,-19.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,22:59,8,12,0.667,0,1,0.0,1,2,0.5,2,2,4,2,0,0,1,0,17,-11.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,24:04,2,9,0.222,0,2,0.0,11,13,0.846,0,1,1,2,0,1,2,2,15,-19.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,G,,,20:01,2,7,0.286,0,3,0.0,4,6,0.667,1,6,7,4,0,0,0,2,8,-6.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,14:51,0,3,0.0,0,2,0.0,1,2,0.5,1,2,3,1,1,0,0,1,1,-18.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,,,22:19,4,6,0.667,4,6,0.667,2,2,1.0,0,5,5,2,1,0,2,3,14,-6.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,14:04,6,7,0.857,1,2,0.5,1,2,0.5,1,3,4,0,1,2,5,5,14,-13.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,20:15,1,6,0.167,1,3,0.333,2,2,1.0,2,2,4,2,0,0,1,2,5,-7.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,25:55,2,8,0.25,1,5,0.2,0,0,0.0,3,0,3,5,2,0,3,1,5,0.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,14:42,3,5,0.6,2,4,0.5,0,0,0.0,0,0,0,0,0,0,1,1,8,10.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1642962,Drake,Powell,D. Powell,drake-powell,,,,7:12,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,1,4,2,-2.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,,,,8:53,1,3,0.333,1,2,0.5,0,0,0.0,0,0,0,1,2,0,0,1,3,-8.0,0022500080
+0022500080,1610612751,Brooklyn,Nets,BKN,nets,1642874,Danny,Wolf,D. Wolf,danny-wolf,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1642851,Kon,Knueppel,K. Knueppel,kon-knueppel,F,,,25:29,4,6,0.667,3,4,0.75,0,0,0.0,0,5,5,1,0,0,2,3,11,10.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,30:51,6,11,0.545,3,6,0.5,3,4,0.75,2,9,11,4,1,0,1,1,18,7.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1641750,Ryan,Kalkbrenner,R. Kalkbrenner,ryan-kalkbrenner,C,,,26:46,5,6,0.833,0,0,0.0,0,0,0.0,5,6,11,1,0,2,4,4,10,11.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,30:30,8,19,0.421,2,9,0.222,7,10,0.7,0,0,0,7,1,1,1,4,25,14.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1630163,LaMelo,Ball,L. Ball,lamelo-ball,G,,,33:34,7,15,0.467,4,8,0.5,2,5,0.4,1,1,2,8,0,0,3,3,20,10.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1629012,Collin,Sexton,C. Sexton,collin-sexton,,,,17:11,4,9,0.444,1,2,0.5,6,7,0.857,0,1,1,3,1,0,1,2,15,5.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1642883,Sion,James,S. James,sion-james,,,,16:37,1,3,0.333,0,1,0.0,0,0,0.0,1,3,4,2,0,1,0,2,2,3.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,21:14,5,7,0.714,0,0,0.0,3,4,0.75,4,5,9,0,1,1,2,3,13,8.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,17:09,4,7,0.571,2,3,0.667,0,0,0.0,0,4,4,1,0,0,0,2,10,12.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,,,,20:39,4,7,0.571,2,3,0.667,2,3,0.667,1,2,3,6,1,0,2,1,12,15.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,1642862,Liam,McNeeley,L. McNeeley,liam-mcneeley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500080
+0022500080,1610612766,Charlotte,Hornets,CHA,hornets,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500080

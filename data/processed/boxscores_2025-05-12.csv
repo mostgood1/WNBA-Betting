@@ -1,0 +1,60 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,32:33,7,16,0.438,2,8,0.25,4,6,0.667,1,6,7,2,0,0,4,5,20,-1.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,39:37,16,28,0.571,7,16,0.438,3,3,1.0,0,8,8,4,4,2,4,3,42,-9.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,37:30,1,2,0.5,1,2,0.5,2,2,1.0,0,5,5,4,2,0,0,4,5,-8.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,34:27,2,5,0.4,0,2,0.0,0,0,0.0,1,3,4,3,0,0,0,3,4,-12.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,43:31,6,12,0.5,6,11,0.545,5,7,0.714,2,1,3,2,0,0,2,0,23,-10.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,,,,24:16,2,6,0.333,0,2,0.0,3,6,0.5,3,1,4,0,1,0,1,1,7,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,20:21,4,10,0.4,2,7,0.286,2,2,1.0,0,0,0,0,1,0,1,0,12,2.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,7:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1628470,Torrey,Craig,T. Craig,torrey-craig,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1631120,JD,Davison,J. Davison,jd-davison,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1631248,Baylor,Scheierman,B. Scheierman,baylor-scheierman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,39:39,8,14,0.571,4,8,0.5,0,0,0.0,1,2,3,2,0,0,0,3,20,4.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,29:35,2,7,0.286,1,3,0.333,1,2,0.5,2,7,9,5,1,0,3,5,6,8.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,35:52,11,15,0.733,0,3,0.0,1,1,1.0,3,8,11,1,0,1,4,5,23,-1.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,44:11,11,21,0.524,1,6,0.167,0,0,0.0,1,6,7,3,4,1,3,1,23,14.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,40:24,14,25,0.56,4,8,0.5,7,9,0.778,1,4,5,12,0,0,1,2,39,12.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,25:08,2,2,1.0,0,0,0.0,0,0,0.0,5,3,8,2,0,0,1,3,4,6.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,19:53,2,4,0.5,2,3,0.667,0,0,0.0,0,0,0,0,0,0,0,0,6,3.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,4:29,0,3,0.0,0,3,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,0:49,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400214,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400214,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,40:18,4,8,0.5,0,1,0.0,2,2,1.0,1,12,13,2,1,1,1,5,10,15.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,40:49,11,21,0.524,4,8,0.5,5,6,0.833,0,5,5,3,1,1,4,2,31,11.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,29:46,2,4,0.5,0,0,0.0,4,4,1.0,3,3,6,1,0,1,0,1,8,13.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,33:17,11,21,0.524,6,11,0.545,2,3,0.667,0,4,4,5,2,0,3,5,30,6.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,29:23,2,9,0.222,2,6,0.333,5,5,1.0,2,1,3,5,0,0,0,2,11,17.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,25:40,2,7,0.286,2,4,0.5,3,4,0.75,0,3,3,3,1,0,2,4,9,-9.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,23:33,2,4,0.5,1,3,0.333,0,0,0.0,0,2,2,1,3,1,5,3,5,-11.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,17:14,5,5,1.0,1,1,1.0,2,2,1.0,0,2,2,2,1,1,4,1,13,-7.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,34:21,5,9,0.556,0,1,0.0,4,5,0.8,3,3,6,3,0,1,2,2,14,-30.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,33:53,6,14,0.429,2,6,0.333,0,0,0.0,1,6,7,2,0,0,2,4,14,-18.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,C,,,19:14,2,2,1.0,0,0,0.0,1,2,0.5,1,2,3,1,0,0,0,3,5,-18.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,G,,,34:44,4,11,0.364,2,6,0.333,3,4,0.75,1,3,4,1,2,0,4,3,13,-11.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,33:01,3,14,0.214,0,4,0.0,5,6,0.833,1,2,3,1,4,0,2,2,11,-9.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,15:52,1,5,0.2,1,2,0.5,0,0,0.0,3,0,3,2,1,0,2,3,3,-3.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,29:31,6,13,0.462,0,2,0.0,11,12,0.917,0,0,0,1,1,0,2,1,23,-13.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,13:51,3,5,0.6,0,0,0.0,2,2,1.0,3,5,8,0,0,0,0,2,8,3.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1630296,Braxton,Key,B. Key,braxton-key,,,,0:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,6:53,1,3,0.333,1,3,0.333,0,0,0.0,0,1,1,3,0,0,0,2,3,11.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,4:38,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,0,0,2,14.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,4:38,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,1,2,14.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,4:38,3,4,0.75,1,1,1.0,0,0,0.0,0,1,1,2,2,0,0,1,7,14.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,4:38,2,4,0.5,1,2,0.5,0,0,0.0,1,1,2,1,0,0,0,1,5,14.0,0042400234,2025-05-12
+0042400234,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400234,2025-05-12

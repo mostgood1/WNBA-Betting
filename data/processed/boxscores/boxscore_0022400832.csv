@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400832,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,42:35,8,19,0.421,3,7,0.429,7,7,1.0,0,8,8,7,1,0,4,1,26,-9.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,F,,,31:42,8,11,0.727,2,4,0.5,5,6,0.833,0,8,8,1,0,2,1,2,23,-12.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,C,,,16:22,3,7,0.429,0,0,0.0,0,0,0.0,0,4,4,0,0,1,0,5,6,4.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,34:59,12,20,0.6,2,4,0.5,2,2,1.0,2,1,3,10,0,0,5,6,28,3.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,43:00,9,20,0.45,4,6,0.667,2,2,1.0,0,5,5,11,2,1,2,2,24,-1.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,33:33,3,3,1.0,0,0,0.0,1,2,0.5,3,4,7,3,2,1,0,4,7,-3.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,14:36,3,5,0.6,3,4,0.75,1,2,0.5,2,2,4,1,1,0,0,0,10,2.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,,,,29:49,6,10,0.6,6,9,0.667,3,5,0.6,0,3,3,3,0,1,2,4,21,1.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,,,,12:14,1,3,0.333,1,3,0.333,0,0,0.0,0,3,3,3,0,0,2,0,3,3.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,,,6:12,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-3.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,203995,Vasilije,Micić,V. Micić,vasilije-micić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612756,Phoenix,Suns,PHX,suns,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,39:37,7,12,0.583,5,7,0.714,0,0,0.0,0,5,5,2,0,0,0,1,19,6.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,31:49,11,13,0.846,3,3,1.0,3,5,0.6,1,5,6,1,1,2,2,6,28,-2.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,20:08,3,4,0.75,0,0,0.0,2,2,1.0,2,6,8,1,0,1,1,2,8,-9.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,42:42,8,15,0.533,3,9,0.333,6,6,1.0,1,2,3,9,2,0,1,1,25,12.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,37:22,7,25,0.28,1,12,0.083,14,14,1.0,0,4,4,8,2,0,5,5,29,6.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,31:47,6,9,0.667,5,7,0.714,0,0,0.0,0,6,6,5,3,0,1,1,17,6.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,8:26,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,3,0,0,1,1,0,-1.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,20:55,6,10,0.6,0,0,0.0,2,3,0.667,3,2,5,2,0,1,0,3,14,5.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,13:22,2,6,0.333,1,5,0.2,0,0,0.0,0,0,0,0,1,0,1,1,5,-3.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,18:53,2,5,0.4,2,5,0.4,0,0,0.0,0,0,0,5,1,0,0,1,6,-5.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832
+0022400832,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400832

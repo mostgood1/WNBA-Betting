@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,28:58,3,10,0.3,2,6,0.333,2,2,1.0,3,3,6,5,1,0,1,3,10,26.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,23:29,3,7,0.429,2,6,0.333,1,2,0.5,1,4,5,3,0,0,1,1,9,7.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,22:52,8,12,0.667,2,3,0.667,1,2,0.5,1,2,3,1,1,2,1,2,19,13.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,29:42,8,16,0.5,2,4,0.5,3,3,1.0,1,3,4,6,1,1,1,0,21,20.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,24:15,7,8,0.875,2,2,1.0,0,0,0.0,3,2,5,10,1,0,0,4,16,28.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,23:28,3,9,0.333,2,7,0.286,0,0,0.0,1,2,3,6,1,0,1,2,8,14.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,17:50,6,13,0.462,1,6,0.167,2,2,1.0,2,4,6,0,0,1,1,2,15,23.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,21:38,5,7,0.714,3,5,0.6,2,2,1.0,0,4,4,1,0,0,2,1,15,31.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,,,,21:20,5,8,0.625,2,2,1.0,3,3,1.0,4,3,7,2,2,0,0,5,15,11.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,19:37,3,5,0.6,2,3,0.667,0,0,0.0,1,6,7,3,0,0,0,1,8,8.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,6:51,1,3,0.333,0,1,0.0,2,2,1.0,0,2,2,1,0,0,0,0,4,4.0,0022401050
+0022401050,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,F,,,28:18,3,9,0.333,2,5,0.4,0,0,0.0,0,1,1,1,0,0,0,2,8,-13.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,F,,,24:26,4,6,0.667,2,3,0.667,3,3,1.0,0,2,2,0,1,0,2,0,13,-24.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,28:11,3,6,0.5,1,1,1.0,0,0,0.0,4,5,9,1,1,2,2,3,7,-23.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,G,,,17:43,4,10,0.4,1,5,0.2,6,6,1.0,0,3,3,5,2,0,1,0,15,-16.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,27:54,7,13,0.538,4,8,0.5,3,5,0.6,0,3,3,4,1,0,6,3,21,-21.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,,,17:50,2,4,0.5,0,0,0.0,2,3,0.667,0,3,3,0,0,0,0,1,6,-5.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1630231,KJ,Martin,K. Martin,kj-martin,,,,23:34,2,5,0.4,0,2,0.0,1,1,1.0,0,2,2,1,0,0,0,2,5,-13.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,22:38,1,8,0.125,1,6,0.167,3,4,0.75,0,1,1,1,0,0,1,2,6,-29.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,21:07,3,5,0.6,3,5,0.6,0,0,0.0,0,1,1,5,1,1,1,2,9,-17.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,18:19,5,10,0.5,3,6,0.5,0,0,0.0,0,1,1,5,0,0,0,1,13,-11.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1630531,Jaden,Springer,J. Springer,jaden-springer,,,,0:11,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,9:49,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-13.0,0022401050
+0022401050,1610612762,Utah,Jazz,UTA,jazz,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401050

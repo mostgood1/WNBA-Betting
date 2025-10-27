@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1630182,Josh,Green,J. Green,josh-green,F,,,22:33,2,7,0.286,0,3,0.0,1,1,1.0,0,2,2,1,1,1,3,0,5,-8.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,F,,,30:44,4,20,0.2,1,9,0.111,2,2,1.0,0,4,4,6,1,1,3,0,11,-13.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1631109,Mark,Williams,M. Williams,mark-williams,C,,,29:25,9,9,1.0,0,0,0.0,0,0,0.0,1,11,12,5,0,1,2,2,18,-4.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,G,,,26:29,6,9,0.667,3,5,0.6,0,0,0.0,1,4,5,2,2,1,2,3,15,-7.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1642354,KJ,Simpson,K. Simpson,kj-simpson,G,,,25:10,5,11,0.455,3,5,0.6,1,2,0.5,0,2,2,3,1,0,3,5,14,-6.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,24:47,2,14,0.143,1,5,0.2,2,2,1.0,0,1,1,3,0,0,1,0,7,-6.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,203552,Seth,Curry,S. Curry,seth-curry,,,,26:02,1,6,0.167,0,1,0.0,0,0,0.0,1,3,4,3,0,0,1,1,2,-6.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,,,17:29,1,6,0.167,1,1,1.0,1,2,0.5,2,4,6,5,0,0,1,0,4,-3.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1642275,Tidjane,Salaün,T. Salaün,tidjane-salaün,,,,24:28,5,8,0.625,0,2,0.0,2,3,0.667,5,9,14,1,0,0,1,1,12,-2.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1631217,Moussa,Diabaté,M. Diabaté,moussa-diabaté,,,,12:53,4,6,0.667,0,0,0.0,1,3,0.333,3,3,6,0,0,1,0,0,9,0.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,201959,Taj,Gibson,T. Gibson,taj-gibson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401069
+0022401069,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,F,,,32:28,1,7,0.143,0,5,0.0,0,0,0.0,1,3,4,2,2,0,1,1,2,10.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,27:03,6,14,0.429,2,6,0.333,4,6,0.667,1,5,6,6,0,1,2,1,18,8.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1627751,Jakob,Poeltl,J. Poeltl,jakob-poeltl,C,,,26:07,12,14,0.857,0,0,0.0,0,1,0.0,3,9,12,3,0,1,1,1,24,9.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,G,,,29:53,3,8,0.375,3,7,0.429,2,2,1.0,1,1,2,1,2,0,1,1,11,8.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,27:18,6,15,0.4,5,8,0.625,2,2,1.0,0,1,1,9,1,0,1,2,19,9.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,,,,24:43,2,8,0.25,1,4,0.25,0,0,0.0,2,3,5,2,1,0,0,2,5,7.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,22:21,7,16,0.438,1,7,0.143,2,2,1.0,0,4,4,4,2,0,0,2,17,2.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,,,21:53,2,5,0.4,1,1,1.0,0,2,0.0,3,7,10,1,1,0,0,3,5,2.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1631306,Cole,Swider,C. Swider,cole-swider,,,,19:02,2,5,0.4,1,4,0.25,0,0,0.0,0,0,0,0,0,1,0,2,5,7.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,9:12,1,3,0.333,0,2,0.0,0,0,0.0,0,1,1,0,0,2,0,0,2,-7.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401069
+0022401069,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401069

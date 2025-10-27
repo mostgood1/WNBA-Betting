@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,F,,,35:54,4,11,0.364,2,5,0.4,4,4,1.0,2,3,5,5,0,1,1,1,14,6.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,38:11,7,12,0.583,3,6,0.5,0,0,0.0,0,6,6,2,1,0,1,1,17,10.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,39:36,15,20,0.75,1,2,0.5,4,5,0.8,2,16,18,8,1,1,1,4,35,8.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,G,,,32:44,6,10,0.6,3,5,0.6,1,2,0.5,2,3,5,7,0,1,2,3,16,2.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,39:59,11,22,0.5,3,7,0.429,9,9,1.0,2,2,4,6,2,0,0,3,34,14.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,24:28,6,7,0.857,4,4,1.0,0,0,0.0,0,1,1,0,0,2,2,3,16,7.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,11:16,0,0,0.0,0,0,0.0,0,0,0.0,1,2,3,3,1,0,3,2,0,9.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,17:52,3,4,0.75,2,3,0.667,0,0,0.0,0,1,1,1,1,0,2,1,8,9.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1641725,Trey,Alexander,T. Alexander,trey-alexander,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1628427,Vlatko,Čančar,V. Čančar,vlatko-čančar,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1641790,PJ,Hall,P. Hall,pj-hall,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,13:33,5,10,0.5,1,3,0.333,1,2,0.5,0,2,2,6,0,0,1,0,12,8.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,F,,,28:51,3,11,0.273,0,5,0.0,2,3,0.667,0,4,4,1,0,2,1,1,8,-20.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,25:40,8,16,0.5,0,1,0.0,4,4,1.0,2,5,7,2,0,0,0,4,20,1.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,G,,,34:15,9,16,0.563,8,14,0.571,0,0,0.0,3,4,7,0,4,1,0,3,26,-8.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,36:13,8,14,0.571,3,7,0.429,6,6,1.0,1,2,3,7,1,2,3,2,25,-18.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,,,22:01,3,8,0.375,2,4,0.5,0,0,0.0,1,3,4,1,1,0,0,1,8,-9.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,,,,29:07,5,8,0.625,2,3,0.667,0,0,0.0,3,0,3,8,3,1,1,1,12,-6.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,20:15,5,8,0.625,2,4,0.5,1,1,1.0,0,1,1,0,0,0,3,0,13,-20.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,10:21,0,4,0.0,0,3,0.0,0,0,0.0,0,3,3,0,0,0,0,2,0,-3.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,16:12,1,5,0.2,1,3,0.333,0,0,0.0,2,0,2,3,0,0,1,2,3,4.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,1:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,,,,1:46,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,0,0,0,3.0,0022400936
+0022400936,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400936

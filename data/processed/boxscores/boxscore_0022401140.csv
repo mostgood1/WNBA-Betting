@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,33:52,2,7,0.286,0,4,0.0,0,0,0.0,6,2,8,2,1,0,2,4,4,5.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,F,,,20:08,2,6,0.333,1,5,0.2,0,0,0.0,0,2,2,3,0,0,1,3,5,-11.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,C,,,24:52,2,2,1.0,0,0,0.0,1,1,1.0,0,2,2,0,1,1,0,3,5,-3.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,34:04,8,19,0.421,0,5,0.0,0,2,0.0,1,1,2,2,4,2,2,5,16,-12.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,40:25,16,29,0.552,2,7,0.286,6,7,0.857,3,1,4,3,1,0,4,4,40,-9.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,18:08,0,6,0.0,0,2,0.0,0,0,0.0,2,2,4,4,3,0,0,1,0,-7.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,23:08,4,4,1.0,0,0,0.0,0,0,0.0,2,1,3,3,0,0,0,1,8,-11.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,,,,21:59,4,13,0.308,0,6,0.0,7,7,1.0,0,6,6,1,0,0,2,1,15,-4.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1628998,Cody,Martin,C. Martin,cody-martin,,,,3:27,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-10.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,,,,19:57,1,5,0.2,1,5,0.2,2,2,1.0,1,3,4,2,1,0,1,0,5,-8.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,203995,Vasilije,Micić,V. Micić,vasilije-micić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,36:24,13,17,0.765,6,8,0.75,0,0,0.0,2,4,6,3,0,0,2,4,32,9.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,37:47,2,6,0.333,0,2,0.0,3,4,0.75,1,9,10,5,1,0,4,1,7,13.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,36:25,7,13,0.538,0,3,0.0,5,6,0.833,2,11,13,1,1,1,1,3,19,16.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,39:27,8,14,0.571,2,3,0.667,4,4,1.0,0,6,6,4,0,1,2,1,22,11.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,34:27,3,9,0.333,1,4,0.25,8,10,0.8,0,2,2,6,1,0,3,2,15,9.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,12:43,1,2,0.5,0,0,0.0,0,0,0.0,1,1,2,1,1,1,1,3,2,-4.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,13:31,2,3,0.667,1,2,0.5,0,0,0.0,0,1,1,0,0,0,1,1,5,7.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,15:43,3,6,0.5,2,4,0.5,0,0,0.0,0,0,0,2,2,0,0,2,8,4.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,13:33,1,4,0.25,0,2,0.0,0,0,0.0,0,1,1,6,0,0,0,1,2,5.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1641817,Anton,Watson,A. Watson,anton-watson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140
+0022401140,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401140

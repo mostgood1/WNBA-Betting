@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400732,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,37:16,9,16,0.563,1,4,0.25,3,4,0.75,1,3,4,7,1,3,0,3,22,5.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,35:09,5,10,0.5,2,4,0.5,0,0,0.0,2,5,7,1,0,0,1,3,12,7.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,29:16,2,6,0.333,1,3,0.333,5,6,0.833,4,10,14,4,1,1,4,6,10,5.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,36:48,8,19,0.421,3,9,0.333,3,4,0.75,0,4,4,1,0,1,0,2,22,-1.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,38:34,8,20,0.4,2,6,0.333,3,4,0.75,2,5,7,4,2,1,3,2,21,1.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,23:35,2,4,0.5,1,2,0.5,2,2,1.0,0,3,3,0,2,0,2,1,7,-11.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,13:41,1,3,0.333,0,1,0.0,0,0,0.0,0,2,2,1,1,0,0,1,2,-14.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,17:22,2,8,0.25,0,0,0.0,2,2,1.0,2,3,5,3,0,0,0,2,6,-12.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,8:19,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-10.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,36:56,4,11,0.364,2,7,0.286,2,2,1.0,0,4,4,2,1,3,0,4,12,5.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,35:56,2,13,0.154,0,4,0.0,0,0,0.0,5,9,14,2,1,1,1,4,4,-4.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,30:31,7,14,0.5,0,0,0.0,4,4,1.0,3,5,8,4,0,2,1,2,18,-2.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,17:42,3,6,0.5,2,4,0.5,1,2,0.5,0,4,4,0,0,0,2,2,9,-6.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,34:27,9,16,0.563,8,12,0.667,4,4,1.0,0,2,2,6,1,0,2,1,30,4.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,21:43,2,5,0.4,1,3,0.333,0,0,0.0,0,1,1,8,2,0,4,2,5,5.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,31:08,9,18,0.5,3,9,0.333,3,4,0.75,0,4,4,1,0,0,2,0,24,11.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,16:53,1,2,0.5,0,0,0.0,0,2,0.0,2,5,7,1,0,1,1,3,2,8.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,4:50,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,1.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,9:54,2,3,0.667,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,0,4,8.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732
+0022400732,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400732

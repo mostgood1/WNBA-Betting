@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,F,,,42:21,9,19,0.474,7,15,0.467,0,0,0.0,1,8,9,3,0,0,2,5,25,-7.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1630567,Scottie,Barnes,S. Barnes,scottie-barnes,F,,,36:34,15,23,0.652,2,2,1.0,3,4,0.75,3,8,11,8,0,0,4,0,35,-9.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,C,,,34:55,4,14,0.286,0,5,0.0,1,2,0.5,4,10,14,10,4,0,2,3,9,4.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,G,,,37:31,6,15,0.4,2,8,0.25,0,0,0.0,1,1,2,1,4,1,1,5,14,-10.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,G,,,36:13,4,12,0.333,2,5,0.4,1,2,0.5,2,2,4,9,0,0,3,3,11,-3.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1630658,Colin,Castleton,C. Castleton,colin-castleton,,,,29:16,5,7,0.714,0,0,0.0,0,1,0.0,1,1,2,0,0,0,0,6,10,-4.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,21:18,3,7,0.429,1,4,0.25,7,7,1.0,0,0,0,0,0,0,1,1,14,-5.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,1:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-1.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612761,Toronto,Raptors,TOR,raptors,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,34:45,5,9,0.556,4,6,0.667,0,0,0.0,1,5,6,1,0,1,0,1,14,2.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,34:12,4,10,0.4,2,7,0.286,8,8,1.0,1,4,5,1,3,0,0,0,18,4.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,C,,,14:03,1,3,0.333,0,0,0.0,0,0,0.0,1,6,7,0,0,0,1,1,2,12.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,37:16,5,16,0.313,1,3,0.333,9,9,1.0,1,7,8,6,0,0,4,2,20,2.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,33:51,5,13,0.385,2,6,0.333,3,4,0.75,1,6,7,6,4,0,1,2,15,6.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,18:58,6,8,0.75,0,2,0.0,0,0,0.0,0,4,4,4,1,0,1,1,12,-4.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,27:12,10,14,0.714,1,4,0.25,2,5,0.4,3,6,9,0,0,1,2,0,23,9.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,16:44,4,4,1.0,1,1,1.0,2,2,1.0,1,2,3,0,1,0,0,3,11,9.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,19:31,2,5,0.4,0,2,0.0,4,4,1.0,0,1,1,4,2,0,3,2,8,-5.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,3:28,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,0.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1629646,Charles,Bassey,C. Bassey,charles-bassey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1630561,David,Duke Jr.,D. Duke Jr.,david-duke-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197
+0022401197,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401197

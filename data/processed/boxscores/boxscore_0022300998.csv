@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,32:37,8,11,0.727,2,3,0.667,4,5,0.8,2,4,6,6,1,1,4,5,22,-9.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,F,,,14:58,3,5,0.6,1,3,0.333,0,0,0.0,0,2,2,2,0,0,1,4,7,3.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,21:15,2,5,0.4,2,4,0.5,2,2,1.0,0,2,2,4,0,2,2,4,8,-7.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,28:09,2,8,0.25,2,7,0.286,0,0,0.0,0,6,6,0,0,0,0,2,6,-2.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,36:08,11,21,0.524,6,10,0.6,4,4,1.0,0,4,4,6,1,1,4,1,32,1.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,33:05,11,20,0.55,2,3,0.667,0,1,0.0,5,10,15,0,0,1,2,3,24,-5.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,24:29,3,4,0.75,1,1,1.0,0,0,0.0,2,3,5,1,0,0,1,3,7,11.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,201976,Patrick,Beverley,P. Beverley,patrick-beverley,,,,22:29,3,5,0.6,1,2,0.5,2,2,1.0,0,0,0,0,0,0,0,1,9,-13.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,,,18:36,2,3,0.667,0,1,0.0,0,0,0.0,0,1,1,1,1,1,0,1,4,-8.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,8:15,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,14.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998
+0022300998,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,39:20,9,19,0.474,4,7,0.571,9,10,0.9,0,8,8,4,3,2,2,2,31,2.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,F,,,38:07,3,3,1.0,2,2,1.0,0,0,0.0,1,3,4,4,1,1,2,2,8,15.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,27:47,6,16,0.375,0,5,0.0,5,6,0.833,3,0,3,2,0,0,2,3,17,-8.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,G,,,37:05,6,15,0.4,2,4,0.5,7,10,0.7,4,4,8,2,1,0,1,3,21,-2.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,37:28,8,17,0.471,4,11,0.364,3,3,1.0,0,5,5,8,0,2,0,5,23,-7.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,31:29,7,11,0.636,5,8,0.625,0,0,0.0,2,4,6,3,0,0,1,2,19,2.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,,,14:28,0,2,0.0,0,2,0.0,0,0,0.0,1,2,3,2,1,0,1,1,0,-4.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,9:09,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,7.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,5:07,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,10.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1641809,Drew,Peterson,D. Peterson,drew-peterson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998
+0022300998,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300998

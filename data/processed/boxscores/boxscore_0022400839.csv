@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,36:57,4,14,0.286,1,7,0.143,6,7,0.857,1,5,6,1,1,1,2,1,15,0.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,31:32,4,8,0.5,0,2,0.0,3,4,0.75,5,0,5,2,3,0,1,6,11,-7.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,17:30,2,4,0.5,0,0,0.0,0,0,0.0,3,5,8,3,1,0,1,5,4,-11.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,5:42,2,4,0.5,0,1,0.0,1,2,0.5,1,1,2,1,0,0,2,1,5,-1.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,36:27,5,13,0.385,3,7,0.429,3,3,1.0,0,4,4,5,2,0,4,2,16,4.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,25:38,5,13,0.385,4,7,0.571,2,2,1.0,0,2,2,1,2,0,1,5,16,19.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,33:15,13,26,0.5,3,7,0.429,7,10,0.7,3,5,8,5,1,1,3,3,36,3.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,18:30,5,9,0.556,0,2,0.0,2,3,0.667,2,2,4,4,0,0,0,3,12,17.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,23:41,5,9,0.556,1,3,0.333,1,2,0.5,2,4,6,1,0,2,0,1,12,11.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,10:48,0,1,0.0,0,1,0.0,2,2,1.0,0,1,1,4,1,0,1,1,2,5.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,26:49,2,5,0.4,1,4,0.25,2,2,1.0,1,4,5,2,1,2,4,5,7,-13.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,24:01,3,9,0.333,0,4,0.0,2,4,0.5,0,4,4,5,0,1,0,2,8,10.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,C,,,18:56,7,7,1.0,0,0,0.0,6,6,1.0,2,3,5,2,0,0,1,4,20,12.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,G,,,35:12,7,9,0.778,0,2,0.0,2,6,0.333,0,2,2,3,2,1,3,1,16,-5.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,30:35,8,17,0.471,3,9,0.333,5,5,1.0,2,3,5,3,1,1,2,3,24,-1.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,,,,26:13,3,6,0.5,1,3,0.333,1,2,0.5,1,7,8,4,2,0,2,0,8,-12.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,26:25,6,13,0.462,5,6,0.833,3,4,0.75,0,3,3,1,0,1,0,5,20,-9.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,18:47,3,7,0.429,1,3,0.333,1,2,0.5,0,2,2,1,0,1,2,2,8,-13.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,203935,Marcus,Smart,M. Smart,marcus-smart,,,,20:24,4,9,0.444,1,4,0.25,1,2,0.5,0,2,2,3,1,0,2,4,10,-8.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,12:29,0,1,0.0,0,1,0.0,0,0,0.0,1,4,5,1,2,1,3,0,0,-1.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,0:09,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1641732,Colby,Jones,C. Jones,colby-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839
+0022400839,1610612764,Washington,Wizards,WAS,wizards,1641798,Jaylen,Martin,J. Martin,jaylen-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400839

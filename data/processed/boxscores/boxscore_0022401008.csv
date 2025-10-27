@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,20:55,1,7,0.143,0,2,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,-9.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,28:31,5,18,0.278,2,5,0.4,2,2,1.0,0,5,5,2,3,0,5,5,14,-23.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,10:57,2,4,0.5,0,0,0.0,2,2,1.0,2,1,3,2,0,0,2,5,6,-19.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,35:42,7,16,0.438,2,7,0.286,4,5,0.8,2,5,7,4,2,0,2,4,20,-15.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,G,,,25:21,3,7,0.429,0,2,0.0,0,0,0.0,0,3,3,3,2,0,0,0,6,-22.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,31:09,7,17,0.412,0,3,0.0,4,5,0.8,1,5,6,4,2,0,0,3,18,-4.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,5:26,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,26:43,6,10,0.6,2,4,0.5,2,3,0.667,1,4,5,1,0,0,0,0,16,-1.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,17:56,2,4,0.5,0,2,0.0,0,0,0.0,0,2,2,3,0,1,0,0,4,0.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,20:20,1,3,0.333,1,2,0.5,0,0,0.0,1,2,3,2,1,1,0,1,3,-8.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,13:03,2,4,0.5,1,3,0.333,3,4,0.75,1,2,3,2,1,2,1,1,8,11.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0022401008
+0022401008,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,2:00,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,38:45,9,18,0.5,5,8,0.625,8,9,0.889,3,13,16,8,0,2,4,3,31,27.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,31:58,6,11,0.545,3,5,0.6,0,2,0.0,1,1,2,3,0,0,1,1,15,19.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,26:04,2,4,0.5,1,1,1.0,2,2,1.0,4,7,11,0,0,3,1,5,7,21.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,30:19,6,13,0.462,3,8,0.375,2,2,1.0,0,7,7,5,1,0,2,1,17,22.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,35:60,8,24,0.333,2,9,0.222,4,4,1.0,3,2,5,3,1,0,2,1,22,23.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,19:52,2,10,0.2,1,7,0.143,0,0,0.0,1,2,3,5,0,0,3,2,5,-9.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,19:39,5,9,0.556,3,5,0.6,0,0,0.0,6,3,9,0,0,1,1,4,13,2.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,18:13,1,3,0.333,0,2,0.0,0,0,0.0,1,3,4,0,0,0,2,0,2,-5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,11:11,1,3,0.333,0,1,0.0,1,2,0.5,2,4,6,1,1,0,0,0,3,0.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,2:00,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,0,0,-5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401008
+0022401008,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401008

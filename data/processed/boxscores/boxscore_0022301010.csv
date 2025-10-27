@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,F,,,37:33,4,9,0.444,1,5,0.2,0,0,0.0,0,1,1,4,1,0,1,3,9,8.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,33:33,5,13,0.385,3,7,0.429,9,10,0.9,0,4,4,1,2,0,1,2,22,3.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,203991,Clint,Capela,C. Capela,clint-capela,C,,,24:46,5,10,0.5,0,0,0.0,3,5,0.6,5,5,10,2,0,2,0,2,13,12.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,G,,,36:09,6,13,0.462,4,7,0.571,0,1,0.0,1,1,2,3,1,0,0,3,16,-17.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1627749,Dejounte,Murray,D. Murray,dejounte-murray,G,,,39:43,11,26,0.423,3,10,0.3,4,5,0.8,2,7,9,10,4,0,5,2,29,-5.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,21:03,2,5,0.4,0,2,0.0,5,6,0.833,0,2,2,2,1,0,0,3,9,-16.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,,,,19:15,4,7,0.571,0,1,0.0,0,0,0.0,1,2,3,1,1,1,0,4,8,-19.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,202083,Wesley,Matthews,W. Matthews,wesley-matthews,,,,14:27,1,4,0.25,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,3,3,-16.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1630235,Trent,Forrest,T. Forrest,trent-forrest,,,,9:32,1,2,0.5,0,1,0.0,0,0,0.0,1,0,1,4,1,0,1,1,2,-9.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1628981,Bruno,Fernando,B. Fernando,bruno-fernando,,,,3:59,1,2,0.5,0,0,0.0,2,2,1.0,2,1,3,0,0,0,0,0,4,-6.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1629685,Dylan,Windler,D. Windler,dylan-windler,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,35:47,4,8,0.5,3,7,0.429,2,2,1.0,0,3,3,4,1,2,0,2,13,-6.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,36:56,5,15,0.333,2,8,0.25,7,7,1.0,1,3,4,2,0,3,5,1,19,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,C,,,31:35,1,5,0.2,0,0,0.0,5,8,0.625,3,7,10,2,1,0,2,3,7,-5.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,37:04,4,7,0.571,2,4,0.5,2,2,1.0,1,3,4,9,0,1,5,3,12,17.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,31:52,10,15,0.667,6,8,0.75,4,4,1.0,1,3,4,2,0,0,2,5,30,-10.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,201569,Eric,Gordon,E. Gordon,eric-gordon,,,,24:06,8,11,0.727,4,6,0.667,1,1,1.0,0,1,1,5,2,0,0,1,21,17.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,16:25,3,4,0.75,0,0,0.0,1,1,1.0,1,3,4,0,0,3,1,2,7,18.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,15:17,5,7,0.714,4,6,0.667,0,0,0.0,0,5,5,2,0,1,1,1,14,13.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,10:58,1,2,0.5,1,2,0.5,2,2,1.0,0,3,3,2,0,1,1,1,5,21.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1629642,Nassir,Little,N. Little,nassir-little,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,202738,Isaiah,Thomas,I. Thomas,isaiah-thomas,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,1630688,Ish,Wainright,I. Wainright,ish-wainright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010
+0022301010,1610612756,Phoenix,Suns,PHX,suns,201152,Thaddeus,Young,T. Young,thaddeus-young,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301010

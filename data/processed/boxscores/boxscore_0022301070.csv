@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301070,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,F,,,49:00,7,13,0.538,6,12,0.5,0,0,0.0,0,6,6,2,2,0,0,2,20,-10.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,41:51,4,13,0.308,2,5,0.4,2,2,1.0,4,8,12,8,1,0,2,3,12,20.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,28:17,3,7,0.429,0,0,0.0,1,2,0.5,1,3,4,4,1,0,3,6,7,10.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,43:20,25,47,0.532,5,13,0.385,6,6,1.0,1,3,4,6,1,0,1,2,61,20.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,45:52,3,9,0.333,1,4,0.25,0,0,0.0,2,0,2,3,4,0,1,3,7,-5.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,19:38,3,9,0.333,0,0,0.0,1,2,0.5,7,5,12,0,0,0,1,1,7,-10.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,15:41,3,3,1.0,0,0,0.0,0,0,0.0,2,3,5,0,0,1,1,4,6,-30.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,15:20,2,7,0.286,0,3,0.0,0,0,0.0,1,1,2,0,0,0,2,2,4,-16.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,,,6:01,1,2,0.5,0,0,0.0,0,0,0.0,0,3,3,1,1,0,0,1,2,1.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070
+0022301070,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,28:24,4,8,0.5,2,4,0.5,2,2,1.0,1,4,5,2,0,0,2,1,12,-6.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,16:45,2,3,0.667,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,4,-3.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,37:42,13,22,0.591,4,9,0.444,10,12,0.833,5,15,20,7,2,1,4,2,40,1.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,44:41,10,22,0.455,3,10,0.3,0,0,0.0,0,2,2,7,1,0,2,0,23,-9.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,35:29,4,6,0.667,3,5,0.6,2,2,1.0,0,4,4,4,0,0,2,2,13,13.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1628380,Zach,Collins,Z. Collins,zach-collins,,,,15:09,1,4,0.25,0,3,0.0,1,2,0.5,1,2,3,2,0,1,1,2,3,5.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,34:50,4,8,0.5,2,6,0.333,7,8,0.875,1,4,5,4,0,0,2,2,17,23.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,12:50,1,1,1.0,0,0,0.0,2,2,1.0,0,5,5,3,0,0,1,4,4,0.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,20:27,2,4,0.5,0,1,0.0,0,0,0.0,0,0,0,2,0,0,0,2,4,-9.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,18:43,3,4,0.75,2,2,1.0,2,4,0.5,0,2,2,2,0,0,1,0,10,5.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070
+0022301070,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301070

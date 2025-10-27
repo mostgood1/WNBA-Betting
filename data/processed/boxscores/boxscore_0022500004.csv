@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,25:24,1,3,0.333,1,2,0.5,2,3,0.667,1,3,4,2,1,0,0,1,5,15.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,30:18,3,7,0.429,1,3,0.333,0,0,0.0,0,2,2,1,0,0,2,2,7,27.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,29:41,15,21,0.714,1,2,0.5,9,11,0.818,1,14,15,1,1,3,0,4,40,31.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,30:56,6,14,0.429,1,4,0.25,0,1,0.0,1,2,3,4,2,0,0,0,13,25.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,28:32,8,12,0.667,1,3,0.333,5,10,0.5,2,5,7,6,2,0,5,2,22,24.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,15:47,1,3,0.333,0,0,0.0,0,0,0.0,1,3,4,3,0,2,1,3,2,5.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,24:39,5,6,0.833,1,1,1.0,0,0,0.0,2,3,5,2,1,0,0,2,11,10.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1642844,Dylan,Harper,D. Harper,dylan-harper,,,,22:41,7,14,0.5,1,2,0.5,0,2,0.0,1,3,4,2,0,0,4,5,15,5.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,8:08,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,1,1,0,0,1,2,3.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1642868,Carter,Bryant,C. Bryant,carter-bryant,,,,9:16,0,2,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,5.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,4:56,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,2,0,2,2,0,3.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,,,4:04,1,1,1.0,1,1,1.0,0,0,0.0,1,0,1,0,0,0,0,0,3,4.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1642357,David,Jones Garcia,D. Jones Garcia,david-jones-garcia,,,,4:04,2,2,1.0,0,0,0.0,1,1,1.0,1,0,1,2,0,0,0,2,5,4.0,0022500004
+0022500004,1610612759,San Antonio,Spurs,SAS,spurs,1642434,Riley,Minix,R. Minix,riley-minix,,,,1:34,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,4.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,29:25,7,11,0.636,2,3,0.667,1,1,1.0,1,4,5,1,0,1,2,4,17,-20.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,203076,Anthony,Davis,A. Davis,anthony-davis,F,,,32:29,7,22,0.318,2,4,0.5,6,6,1.0,4,9,13,1,2,1,0,4,22,-24.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,C,,,10:19,1,2,0.5,0,0,0.0,2,2,1.0,1,1,2,3,0,0,1,5,4,-5.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,G,,,22:20,4,13,0.308,1,5,0.2,1,1,1.0,1,1,2,1,0,0,1,1,10,-23.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1642843,Cooper,Flagg,C. Flagg,cooper-flagg,G,,,31:32,4,13,0.308,0,1,0.0,2,2,1.0,1,9,10,0,1,0,3,3,10,-29.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,22:34,0,2,0.0,0,0,0.0,3,4,0.75,0,1,1,1,0,0,0,2,3,-17.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1631108,Max,Christie,M. Christie,max-christie,,,,25:57,3,4,0.75,3,4,0.75,0,0,0.0,0,0,0,1,0,1,2,0,9,-13.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,,,,15:04,1,6,0.167,0,1,0.0,4,6,0.667,0,2,2,3,0,0,1,2,6,-4.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1642948,Ryan,Nembhard,R. Nembhard,ryan-nembhard,,,,15:31,3,5,0.6,0,1,0.0,2,2,1.0,0,0,0,5,0,0,3,0,8,-4.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,7:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,1,0,1,2,0,-5.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,11:34,0,1,0.0,0,0,0.0,0,2,0.0,0,0,0,2,1,0,1,0,0,-8.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,7:15,1,3,0.333,1,2,0.5,0,0,0.0,0,1,1,0,0,0,0,1,3,-5.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,4:04,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,1,0,0,-4.0,0022500004
+0022500004,1610612742,Dallas,Mavericks,DAL,mavericks,1630619,Moussa,Cisse,M. Cisse,moussa-cisse,,,,4:04,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022500004

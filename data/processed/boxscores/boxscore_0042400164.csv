@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,41:09,9,16,0.563,5,10,0.5,0,0,0.0,1,4,5,1,0,0,0,3,23,0.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,46:14,5,9,0.556,2,4,0.5,15,18,0.833,3,9,12,8,3,3,3,2,27,-4.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,C,,,4:21,1,2,0.5,0,0,0.0,0,0,0.0,1,2,3,1,0,0,0,2,2,1.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,35:08,6,14,0.429,5,12,0.417,0,0,0.0,1,6,7,4,1,2,1,5,17,5.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,45:49,13,28,0.464,5,12,0.417,7,7,1.0,0,1,1,2,1,1,4,3,38,-3.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,,,40:37,2,7,0.286,2,6,0.333,0,0,0.0,4,4,8,6,0,1,2,3,6,-5.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,,,,12:49,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,1,0,0,2,0,-7.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,6:43,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,-3.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,7:11,0,2,0.0,0,1,0.0,0,0,0.0,1,1,2,1,0,0,0,3,0,1.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,203458,Alex,Len,A. Len,alex-len,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612747,Los Angeles,Lakers,LAL,lakers,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,38:28,6,11,0.545,2,3,0.667,2,3,0.667,1,10,11,3,1,0,2,4,16,8.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,42:40,9,22,0.409,3,8,0.375,4,4,1.0,2,5,7,3,1,0,0,4,25,8.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,26:10,1,6,0.167,0,0,0.0,3,4,0.75,7,3,10,0,1,0,3,3,5,-11.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,44:22,12,23,0.522,5,10,0.5,14,17,0.824,4,5,9,6,0,1,1,2,43,3.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,24:59,1,5,0.2,0,4,0.0,0,0,0.0,1,0,1,2,0,1,0,0,2,-1.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,28:34,3,11,0.273,1,4,0.25,1,1,1.0,1,1,2,2,5,0,0,4,8,2.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,19:38,4,7,0.571,2,4,0.5,2,4,0.5,1,3,4,2,0,0,1,2,12,9.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,11:45,2,4,0.5,1,3,0.333,0,0,0.0,0,1,1,0,0,0,2,0,5,-5.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,3:24,0,1,0.0,0,0,0.0,0,0,0.0,1,3,4,1,0,0,0,0,0,2.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164
+0042400164,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400164

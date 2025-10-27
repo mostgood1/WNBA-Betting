@@ -1,0 +1,467 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0042300214,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (3:41 PM EST),period,start,0,0,1,0042300214
+0042300214,4,PT12M00.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Jump Ball Turner vs. Hartenstein: Tip to DiVincenzo,Jump Ball,,1,0,2,0042300214
+0042300214,7,PT11M37.00S,1,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,10,9,1,Made,1,0,2,2,v,Hartenstein 1' Driving Dunk (2 PTS) (Brunson 1 AST),Made Shot,Driving Dunk Shot,1,2,3,0042300214
+0042300214,9,PT11M16.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,-225,152,27,Missed,1,,,0,h,MISS Nesmith 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,4,0042300214
+0042300214,10,PT11M12.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,5,0042300214
+0042300214,11,PT11M05.00S,1,1610612752,NYK,1628404,Hart,J. Hart,-16,17,2,Missed,1,,,0,v,MISS Hart 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,6,0042300214
+0042300214,12,PT11M03.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,7,0042300214
+0042300214,13,PT10M59.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P1.T1) (T.Brothers),Foul,Shooting,1,0,8,0042300214
+0042300214,15,PT10M59.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,MISS Achiuwa Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,9,0042300214
+0042300214,16,PT10M59.00S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Normal Rebound,0,0,10,0042300214
+0042300214,17,PT10M59.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,MISS Achiuwa Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,11,0042300214
+0042300214,18,PT10M58.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,12,0042300214
+0042300214,19,PT10M53.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,27,16,3,Made,1,2,2,4,h,Nembhard 3' Running Layup (2 PTS),Made Shot,Running Layup Shot,1,2,13,0042300214
+0042300214,20,PT10M31.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,164,216,27,Missed,1,,,0,v,MISS DiVincenzo 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,14,0042300214
+0042300214,21,PT10M28.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,15,0042300214
+0042300214,22,PT10M24.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,-151,254,30,Made,1,5,2,7,h,Haliburton 30' 3PT Running Pull-Up Jump Shot (3 PTS),Made Shot,Running Pull-Up Jump Shot,1,3,16,0042300214
+0042300214,23,PT09M56.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,49,74,9,Missed,1,,,0,v,MISS DiVincenzo 9' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,17,0042300214
+0042300214,24,PT09M54.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,18,0042300214
+0042300214,25,PT09M54.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith P.FOUL (P1.T2) (E.Malloy),Foul,Personal,1,0,19,0042300214
+0042300214,27,PT09M50.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,109,226,25,Missed,1,,,0,v,MISS Brunson 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,20,0042300214
+0042300214,28,PT09M47.00S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,21,0042300214
+0042300214,30,PT09M38.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,65,155,17,Missed,1,,,0,v,MISS Brunson 17' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,22,0042300214
+0042300214,31,PT09M34.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,23,0042300214
+0042300214,32,PT09M21.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner Lost Ball Turnover (P1.T1),Turnover,Lost Ball,1,0,24,0042300214
+0042300214,32,PT09M21.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson STEAL (1 STL),,,1,0,25,0042300214
+0042300214,34,PT09M06.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,6,8,1,Made,1,5,4,9,v,Achiuwa 1' Cutting Layup Shot (2 PTS) (DiVincenzo 1 AST),Made Shot,Cutting Layup Shot,1,2,26,0042300214
+0042300214,36,PT08M55.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,-17,113,11,Made,1,7,4,11,h,Siakam 11' Floating Jump Shot (2 PTS) (Nembhard 1 AST),Made Shot,Floating Jump shot,1,2,27,0042300214
+0042300214,38,PT08M29.00S,1,1610612752,NYK,1628404,Hart,J. Hart,21,115,12,Missed,1,,,0,v,MISS Hart 12' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,28,0042300214
+0042300214,39,PT08M26.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,29,0042300214
+0042300214,40,PT08M16.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,-109,253,28,Missed,1,,,0,h,MISS Nembhard 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,30,0042300214
+0042300214,41,PT08M12.00S,1,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,31,0042300214
+0042300214,42,PT07M54.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,162,231,28,Missed,1,,,0,v,MISS DiVincenzo 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,32,0042300214
+0042300214,43,PT07M51.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,33,0042300214
+0042300214,44,PT07M43.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,59,277,28,Made,1,10,4,14,h,Haliburton 28' 3PT Jump Shot (6 PTS) (Nesmith 1 AST),Made Shot,Jump Shot,1,3,34,0042300214
+0042300214,46,PT07M31.00S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,35,0042300214
+0042300214,47,PT07M31.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,SUB: Sheppard FOR Nesmith,Substitution,,0,0,36,0042300214
+0042300214,49,PT07M18.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,-16,8,2,Missed,1,,,0,v,MISS Achiuwa 2' Cutting Dunk Shot,Missed Shot,Cutting Dunk Shot,1,2,37,0042300214
+0042300214,49,PT07M18.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner BLOCK (1 BLK),,,1,2,38,0042300214
+0042300214,50,PT07M17.00S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,0,0,39,0042300214
+0042300214,52,PT06M58.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,-157,212,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,40,0042300214
+0042300214,53,PT06M53.00S,1,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,41,0042300214
+0042300214,54,PT06M41.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,-31,177,18,Missed,1,,,0,v,MISS Brunson 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,42,0042300214
+0042300214,55,PT06M39.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,43,0042300214
+0042300214,57,PT06M34.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,SUB: Toppin FOR Nembhard,Substitution,,0,0,44,0042300214
+0042300214,58,PT06M34.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: McConnell FOR Siakam,Substitution,,0,0,45,0042300214
+0042300214,61,PT06M16.00S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,235,1,24,Missed,1,,,0,h,MISS Sheppard 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,46,0042300214
+0042300214,62,PT06M11.00S,1,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,47,0042300214
+0042300214,63,PT06M01.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,48,0042300214
+0042300214,63,PT06M01.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell STEAL (1 STL),,,1,0,49,0042300214
+0042300214,65,PT05M58.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,-4,16,2,Made,1,12,4,16,h,Haliburton 2' Running Dunk (8 PTS) (McConnell 1 AST),Made Shot,Running Dunk Shot,1,2,50,0042300214
+0042300214,67,PT05M38.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,105,261,28,Missed,1,,,0,v,MISS Brunson 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,51,0042300214
+0042300214,68,PT05M34.00S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,52,0042300214
+0042300214,69,PT05M30.00S,1,1610612754,IND,204456,McConnell,T. McConnell,21,21,3,Made,1,14,4,18,h,McConnell 3' Running Reverse Layup (2 PTS) (Turner 1 AST),Made Shot,Running Reverse Layup Shot,1,2,53,0042300214
+0042300214,71,PT05M11.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,-2,3,0,Made,1,14,6,20,v,Achiuwa Cutting Dunk Shot (4 PTS) (DiVincenzo 2 AST),Made Shot,Cutting Dunk Shot,1,2,54,0042300214
+0042300214,73,PT04M43.00S,1,1610612754,IND,1626167,Turner,M. Turner,23,275,28,Made,1,17,6,23,h,Turner 28' 3PT Fadeaway Jumper (3 PTS),Made Shot,Fadeaway Jump Shot,1,3,55,0042300214
+0042300214,74,PT04M22.00S,1,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,21,19,3,Missed,1,,,0,v,MISS Hartenstein 3' Hook Shot,Missed Shot,Hook Shot,1,2,56,0042300214
+0042300214,74,PT04M22.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner BLOCK (2 BLK),,,1,2,57,0042300214
+0042300214,76,PT04M19.00S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,58,0042300214
+0042300214,77,PT04M15.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,170,196,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,59,0042300214
+0042300214,78,PT04M11.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,60,0042300214
+0042300214,79,PT04M11.00S,1,1610612754,IND,1626167,Turner,M. Turner,7,12,1,Made,1,19,6,25,h,Turner 1' Putback Layup (5 PTS),Made Shot,Putback Layup Shot,1,2,61,0042300214
+0042300214,80,PT04M01.00S,1,1610612752,NYK,1628404,Hart,J. Hart,27,29,4,Missed,1,,,0,v,MISS Hart 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,62,0042300214
+0042300214,82,PT04M01.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,63,0042300214
+0042300214,83,PT03M59.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,17,4,2,Made,1,19,8,27,v,Achiuwa 2' Putback Layup (6 PTS),Made Shot,Putback Layup Shot,1,2,64,0042300214
+0042300214,84,PT03M48.00S,1,1610612754,IND,204456,McConnell,T. McConnell,-18,26,3,Made,1,21,8,29,h,McConnell 3' Driving Layup (4 PTS),Made Shot,Driving Layup Shot,1,2,65,0042300214
+0042300214,85,PT03M48.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson S.FOUL (P1.T1) (E.Malloy),Foul,Shooting,1,0,66,0042300214
+0042300214,87,PT03M48.00S,1,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,SUB: McBride FOR Achiuwa,Substitution,,0,0,67,0042300214
+0042300214,88,PT03M48.00S,1,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,SUB: Sims FOR Hartenstein,Substitution,,0,0,68,0042300214
+0042300214,91,PT03M48.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,22,8,30,h,McConnell Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,69,0042300214
+0042300214,92,PT03M40.00S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Turnover: 8 Second Violation (T#2),Turnover,8 Second Violation,0,0,70,0042300214
+0042300214,93,PT03M30.00S,1,1610612754,IND,204456,McConnell,T. McConnell,-13,20,2,Made,1,24,8,32,h,McConnell 2' Driving Layup (7 PTS),Made Shot,Driving Layup Shot,1,2,71,0042300214
+0042300214,94,PT03M19.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell P.FOUL (P1.T3) (T.Brothers),Foul,Personal,1,0,72,0042300214
+0042300214,97,PT03M19.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,SUB: Siakam FOR Turner,Substitution,,0,0,73,0042300214
+0042300214,99,PT03M06.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,-229,-13,0,Made,1,24,11,35,v,DiVincenzo 3PT Jump Shot (3 PTS) (Hart 1 AST),Made Shot,Jump Shot,1,3,74,0042300214
+0042300214,101,PT02M53.00S,1,1610612754,IND,1630167,Toppin,O. Toppin,-40,83,9,Made,1,26,11,37,h,Toppin 9' Driving Floating Jump Shot (2 PTS) (McConnell 2 AST),Made Shot,Driving Floating Jump Shot,1,2,75,0042300214
+0042300214,103,PT02M43.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,11,19,2,Missed,1,,,0,v,MISS DiVincenzo 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,76,0042300214
+0042300214,104,PT02M41.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,77,0042300214
+0042300214,105,PT02M34.00S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,-237,25,24,Made,1,29,11,40,h,Sheppard 24' 3PT Jump Shot (3 PTS) (Toppin 1 AST),Made Shot,Jump Shot,1,3,78,0042300214
+0042300214,107,PT02M23.00S,1,1610612752,NYK,1628973,Brunson,J. Brunson,53,256,26,Missed,1,,,0,v,MISS Brunson 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,79,0042300214
+0042300214,108,PT02M20.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,80,0042300214
+0042300214,109,PT02M14.00S,1,1610612754,IND,1630167,Toppin,O. Toppin,-192,191,27,Made,1,32,11,43,h,Toppin 27' 3PT Jump Shot (5 PTS) (Siakam 1 AST),Made Shot,Jump Shot,1,3,81,0042300214
+0042300214,111,PT02M07.00S,1,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,82,0042300214
+0042300214,111,PT02M07.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell STEAL (2 STL),,,1,0,83,0042300214
+0042300214,113,PT02M04.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,-146,62,16,Missed,1,,,0,h,MISS Siakam 16' Jump Shot,Missed Shot,Jump Shot,1,2,84,0042300214
+0042300214,114,PT02M01.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,85,0042300214
+0042300214,115,PT01M43.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,5,284,28,Missed,1,,,0,v,MISS DiVincenzo 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,86,0042300214
+0042300214,116,PT01M40.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,87,0042300214
+0042300214,117,PT01M34.00S,1,1610612754,IND,1630167,Toppin,O. Toppin,-6,10,1,Made,1,34,11,45,h,Toppin 1' Alley Oop Dunk (7 PTS) (McConnell 3 AST),Made Shot,Alley Oop Dunk Shot,1,2,88,0042300214
+0042300214,119,PT01M27.00S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,89,0042300214
+0042300214,120,PT01M27.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,SUB: Nembhard FOR Haliburton,Substitution,,0,0,90,0042300214
+0042300214,121,PT01M27.00S,1,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,SUB: Burks FOR DiVincenzo,Substitution,,0,0,91,0042300214
+0042300214,124,PT01M20.00S,1,1610612752,NYK,1628404,Hart,J. Hart,-18,15,2,Made,1,34,13,47,v,Hart 2' Driving Layup (2 PTS) (Brunson 2 AST),Made Shot,Driving Layup Shot,1,2,92,0042300214
+0042300214,126,PT00M58.60S,1,1610612754,IND,1630167,Toppin,O. Toppin,205,160,26,Missed,1,,,0,h,MISS Toppin 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,93,0042300214
+0042300214,127,PT00M56.70S,1,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,94,0042300214
+0042300214,128,PT00M49.70S,1,1610612752,NYK,1630540,McBride,M. McBride,222,15,0,Missed,1,,,0,v,MISS McBride 3PT Jump Shot,Missed Shot,Jump Shot,1,3,95,0042300214
+0042300214,129,PT00M46.10S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,96,0042300214
+0042300214,130,PT00M33.90S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,-216,180,28,Missed,1,,,0,h,MISS Sheppard 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,97,0042300214
+0042300214,131,PT00M30.60S,1,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,98,0042300214
+0042300214,132,PT00M26.60S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard S.FOUL (P1.T4) (E.Malloy),Foul,Shooting,1,0,99,0042300214
+0042300214,134,PT00M26.60S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,100,0042300214
+0042300214,135,PT00M26.60S,1,0,,132,Morton,D. Morton,0,0,0,,0,34,13,47,,Instant Replay1st Period (4:05 PM EST),Instant Replay,Coach Challenge Ruling Stands,1,0,101,0042300214
+0042300214,136,PT00M26.60S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,34,14,48,v,Brunson Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,102,0042300214
+0042300214,137,PT00M26.60S,1,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,MISS Brunson Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,103,0042300214
+0042300214,138,PT00M25.40S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,104,0042300214
+0042300214,139,PT00M07.50S,1,1610612754,IND,204456,McConnell,T. McConnell,29,28,4,Missed,1,,,0,h,MISS McConnell 4' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,105,0042300214
+0042300214,140,PT00M04.80S,1,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,106,0042300214
+0042300214,141,PT00M01.20S,1,1610612752,NYK,1630540,McBride,M. McBride,16,36,4,Missed,1,,,0,v,MISS McBride 4' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,107,0042300214
+0042300214,142,PT00M01.20S,1,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,108,0042300214
+0042300214,143,PT00M00.00S,1,0,,0,,,0,0,0,,0,34,14,48,,End of 1st Period (4:07 PM EST),period,end,1,0,109,0042300214
+0042300214,150,PT12M00.00S,2,0,,0,,,0,0,0,,0,34,14,48,,Start of 2nd Period (4:11 PM EST),period,start,0,0,110,0042300214
+0042300214,151,PT11M44.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein P.FOUL (P1.T1) (E.Malloy),Foul,Personal,1,0,111,0042300214
+0042300214,153,PT11M40.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell Traveling Turnover (P1.T2),Turnover,Traveling,1,0,112,0042300214
+0042300214,154,PT11M34.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell P.FOUL (P2.T1) (T.Brothers),Foul,Personal,1,0,113,0042300214
+0042300214,156,PT11M28.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,23,19,3,Made,1,34,16,50,v,Brunson 3' Driving Finger Roll Layup (3 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,114,0042300214
+0042300214,157,PT11M21.00S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks P.FOUL (P1.T2) (T.Brothers),Foul,Personal,1,0,115,0042300214
+0042300214,159,PT11M09.00S,2,1610612754,IND,204456,McConnell,T. McConnell,-22,23,3,Missed,1,,,0,h,MISS McConnell 3' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,116,0042300214
+0042300214,160,PT11M05.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,117,0042300214
+0042300214,161,PT11M05.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,15,12,2,Made,1,36,16,52,h,Jackson 2' Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,118,0042300214
+0042300214,162,PT10M46.00S,2,1610612752,NYK,1630540,McBride,M. McBride,-23,258,26,Made,1,36,19,55,v,McBride 26' 3PT Jump Shot (3 PTS) (Brunson 3 AST),Made Shot,Jump Shot,1,3,119,0042300214
+0042300214,164,PT10M31.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,-110,47,12,Made,1,38,19,57,h,Siakam 12' Turnaround Bank Shot (4 PTS),Made Shot,Turnaround Bank shot,1,2,120,0042300214
+0042300214,165,PT10M15.00S,2,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart Traveling Turnover (P2.T4),Turnover,Traveling,1,0,121,0042300214
+0042300214,166,PT10M15.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,SUB: DiVincenzo FOR Brunson,Substitution,,0,0,122,0042300214
+0042300214,168,PT10M06.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,-43,44,6,Made,1,40,19,59,h,Siakam 6' Hook Shot (6 PTS) (McConnell 4 AST),Made Shot,Hook Shot,1,2,123,0042300214
+0042300214,170,PT09M56.00S,2,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,124,0042300214
+0042300214,171,PT09M42.00S,2,1610612752,NYK,1628404,Hart,J. Hart,4,253,25,Missed,1,,,0,v,MISS Hart 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,125,0042300214
+0042300214,172,PT09M37.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,126,0042300214
+0042300214,173,PT09M27.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,-237,31,24,Missed,1,,,0,h,MISS Nesmith 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,127,0042300214
+0042300214,174,PT09M23.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,128,0042300214
+0042300214,175,PT09M23.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,Missed,1,,,0,h,MISS Jackson Tip Dunk Shot,Missed Shot,Tip Dunk Shot,1,2,129,0042300214
+0042300214,176,PT09M22.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,130,0042300214
+0042300214,177,PT09M13.00S,2,1610612754,IND,204456,McConnell,T. McConnell,-54,47,7,Missed,1,,,0,h,MISS McConnell 7' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,131,0042300214
+0042300214,178,PT09M12.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,132,0042300214
+0042300214,179,PT09M12.00S,2,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart S.FOUL (P1.T3) (B.Taylor),Foul,Shooting,1,0,133,0042300214
+0042300214,181,PT09M12.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,41,19,60,h,Jackson Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,134,0042300214
+0042300214,182,PT09M12.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,42,19,61,h,Jackson Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,135,0042300214
+0042300214,183,PT08M58.00S,2,1610612752,NYK,1630540,McBride,M. McBride,227,127,26,Missed,1,,,0,v,MISS McBride 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,136,0042300214
+0042300214,184,PT08M55.00S,2,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,137,0042300214
+0042300214,185,PT08M48.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,-225,34,0,Missed,1,,,0,h,MISS Nesmith 3PT Jump Shot,Missed Shot,Jump Shot,1,3,138,0042300214
+0042300214,186,PT08M45.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,139,0042300214
+0042300214,187,PT08M42.00S,2,1610612754,IND,204456,McConnell,T. McConnell,-12,23,3,Missed,1,,,0,h,MISS McConnell 3' Layup,Missed Shot,Layup Shot,1,2,140,0042300214
+0042300214,188,PT08M40.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,141,0042300214
+0042300214,189,PT08M35.00S,2,1610612752,NYK,202692,Burks,A. Burks,-237,80,25,Missed,1,,,0,v,MISS Burks 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,142,0042300214
+0042300214,190,PT08M32.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,143,0042300214
+0042300214,191,PT08M28.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,-22,23,3,Made,1,44,19,63,h,Siakam 3' Running Finger Roll Layup (8 PTS),Made Shot,Running Finger Roll Layup Shot,1,2,144,0042300214
+0042300214,192,PT08M13.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein Bad Pass Turnover (P1.T5),Turnover,Bad Pass,1,0,145,0042300214
+0042300214,192,PT08M13.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson STEAL (1 STL),,,1,0,146,0042300214
+0042300214,194,PT08M06.00S,2,1610612754,IND,204456,McConnell,T. McConnell,4,262,26,Made,1,47,19,66,h,McConnell 26' 3PT Jump Shot (10 PTS) (Siakam 2 AST),Made Shot,Jump Shot,1,3,147,0042300214
+0042300214,196,PT07M45.00S,2,1610612752,NYK,202692,Burks,A. Burks,7,8,1,Made,1,47,21,68,v,Burks 1' Driving Finger Roll Layup (2 PTS) (McBride 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,148,0042300214
+0042300214,198,PT07M31.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell Traveling Turnover (P2.T3),Turnover,Traveling,1,0,149,0042300214
+0042300214,199,PT07M31.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,SUB: Haliburton FOR McConnell,Substitution,,0,0,150,0042300214
+0042300214,200,PT07M31.00S,2,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,SUB: Turner FOR Jackson,Substitution,,0,0,151,0042300214
+0042300214,201,PT07M31.00S,2,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,SUB: Achiuwa FOR McBride,Substitution,,0,0,152,0042300214
+0042300214,202,PT07M31.00S,2,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,SUB: Brunson FOR Hart,Substitution,,0,0,153,0042300214
+0042300214,207,PT07M09.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,48,30,6,Missed,1,,,0,v,MISS Brunson 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,154,0042300214
+0042300214,208,PT07M06.00S,2,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:3 Def:0),Rebound,Unknown,1,0,155,0042300214
+0042300214,209,PT07M01.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,-23,22,3,Missed,1,,,0,v,MISS DiVincenzo 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,156,0042300214
+0042300214,209,PT07M01.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner BLOCK (3 BLK),,,1,2,157,0042300214
+0042300214,211,PT06M58.00S,2,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:4 Def:0),Rebound,Unknown,1,0,158,0042300214
+0042300214,212,PT06M55.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,-244,-8,24,Missed,1,,,0,v,MISS DiVincenzo 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,159,0042300214
+0042300214,212,PT06M55.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith BLOCK (1 BLK),,,1,3,160,0042300214
+0042300214,214,PT06M53.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson REBOUND (Off:2 Def:1),Rebound,Unknown,0,0,161,0042300214
+0042300214,230,PT06M53.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson Step Out of Bounds Turnover (P2.T6),Turnover,Step Out of Bounds Turnover,1,0,162,0042300214
+0042300214,216,PT06M53.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Toppin FOR Siakam,Substitution,,0,0,163,0042300214
+0042300214,218,PT06M34.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-40,73,8,Missed,1,,,0,h,MISS Haliburton 8' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,164,0042300214
+0042300214,218,PT06M34.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo BLOCK (1 BLK),,,1,2,165,0042300214
+0042300214,220,PT06M32.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,166,0042300214
+0042300214,221,PT06M25.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,-36,9,4,Made,1,47,23,70,v,Hartenstein 4' Driving Layup (4 PTS) (DiVincenzo 3 AST),Made Shot,Driving Layup Shot,1,2,167,0042300214
+0042300214,223,PT06M19.00S,2,1610612754,IND,1641767,Sheppard,B. Sheppard,234,-4,0,Missed,1,,,0,h,MISS Sheppard 3PT Jump Shot,Missed Shot,Jump Shot,1,3,168,0042300214
+0042300214,224,PT06M15.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,169,0042300214
+0042300214,225,PT06M12.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,15,10,2,Made,1,47,25,72,v,Brunson 2' Running Layup (5 PTS) (DiVincenzo 4 AST),Made Shot,Running Layup Shot,1,2,170,0042300214
+0042300214,227,PT06M11.00S,2,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,171,0042300214
+0042300214,228,PT06M11.00S,2,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,SUB: Nembhard FOR Sheppard,Substitution,,0,0,172,0042300214
+0042300214,231,PT05M57.00S,2,1610612754,IND,1626167,Turner,M. Turner,6,159,16,Made,1,49,25,74,h,Turner 16' Jump Shot (7 PTS) (Nembhard 2 AST),Made Shot,Jump Shot,1,2,173,0042300214
+0042300214,233,PT05M31.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,-25,15,3,Made,1,49,27,76,v,Brunson 3' Driving Finger Roll Layup (7 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,174,0042300214
+0042300214,234,PT05M17.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,228,4,0,Made,1,52,27,79,h,Toppin 3PT Jump Shot (10 PTS) (Nembhard 3 AST),Made Shot,Jump Shot,1,3,175,0042300214
+0042300214,236,PT04M57.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,4,121,12,Missed,1,,,0,v,MISS Brunson 12' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,176,0042300214
+0042300214,237,PT04M54.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,177,0042300214
+0042300214,238,PT04M43.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,-58,275,28,Made,1,55,27,82,h,Nembhard 28' 3PT Jump Shot (5 PTS) (Haliburton 1 AST),Made Shot,Jump Shot,1,3,178,0042300214
+0042300214,240,PT04M24.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith P.FOUL (P2.T2) (T.Brothers),Foul,Personal,1,0,179,0042300214
+0042300214,242,PT04M18.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,45,67,8,Missed,1,,,0,v,MISS DiVincenzo 8' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,180,0042300214
+0042300214,243,PT04M14.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,181,0042300214
+0042300214,244,PT04M14.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,Made,1,55,29,84,v,DiVincenzo Tip Layup Shot (5 PTS),Made Shot,Tip Layup Shot,1,2,182,0042300214
+0042300214,245,PT03M55.00S,2,1610612754,IND,1626167,Turner,M. Turner,192,176,26,Made,1,58,29,87,h,Turner 26' 3PT Jump Shot (10 PTS) (Nembhard 4 AST),Made Shot,Jump Shot,1,3,183,0042300214
+0042300214,247,PT03M39.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard P.FOUL (P2.T3) (E.Malloy),Foul,Personal,1,0,184,0042300214
+0042300214,249,PT03M39.00S,2,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,SUB: Hart FOR Hartenstein,Substitution,,0,0,185,0042300214
+0042300214,251,PT03M32.00S,2,1610612752,NYK,202692,Burks,A. Burks,-4,124,12,Made,1,58,31,89,v,Burks 12' Driving Floating Jump Shot (4 PTS),Made Shot,Driving Floating Jump Shot,1,2,186,0042300214
+0042300214,252,PT03M32.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton S.FOUL (P1.T4) (T.Brothers),Foul,Shooting,1,0,187,0042300214
+0042300214,254,PT03M32.00S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,58,32,90,v,Burks Free Throw 1 of 1 (5 PTS),Free Throw,Free Throw 1 of 1,1,0,188,0042300214
+0042300214,255,PT03M17.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,23,17,3,Missed,1,,,0,h,MISS Toppin 3' Cutting Layup Shot,Missed Shot,Cutting Layup Shot,1,2,189,0042300214
+0042300214,256,PT03M14.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,190,0042300214
+0042300214,257,PT03M11.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,191,0042300214
+0042300214,257,PT03M11.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin STEAL (1 STL),,,1,0,192,0042300214
+0042300214,259,PT03M06.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,193,0042300214
+0042300214,259,PT03M06.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo STEAL (1 STL),,,1,0,194,0042300214
+0042300214,261,PT02M54.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton S.FOUL (P2.PN) (B.Taylor),Foul,Shooting,1,0,195,0042300214
+0042300214,263,PT02M54.00S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,58,33,91,v,Burks Free Throw 1 of 2 (6 PTS),Free Throw,Free Throw 1 of 2,1,0,196,0042300214
+0042300214,264,PT02M54.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,SUB: Siakam FOR Toppin,Substitution,,0,0,197,0042300214
+0042300214,266,PT02M54.00S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,58,34,92,v,Burks Free Throw 2 of 2 (7 PTS),Free Throw,Free Throw 2 of 2,1,0,198,0042300214
+0042300214,267,PT02M41.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,10,36,4,Made,1,60,34,94,h,Nembhard 4' Driving Layup (7 PTS) (Turner 2 AST),Made Shot,Driving Layup Shot,1,2,199,0042300214
+0042300214,269,PT02M28.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P2.PN) (T.Brothers),Foul,Shooting,1,0,200,0042300214
+0042300214,271,PT02M28.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,MISS Brunson Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,201,0042300214
+0042300214,272,PT02M28.00S,2,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Normal Rebound,0,0,202,0042300214
+0042300214,273,PT02M28.00S,2,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,60,35,95,v,Brunson Free Throw 2 of 2 (8 PTS),Free Throw,Free Throw 2 of 2,1,0,203,0042300214
+0042300214,274,PT02M20.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner OFF.Foul (P1) (T.Brothers),Foul,Offensive,1,0,204,0042300214
+0042300214,276,PT02M20.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner Offensive Foul Turnover (P2.T5),Turnover,Offensive Foul Turnover,1,0,205,0042300214
+0042300214,277,PT02M04.00S,2,1610612752,NYK,202692,Burks,A. Burks,-104,90,14,Made,1,60,37,97,v,Burks 14' Pullup Jump Shot (9 PTS) (Hart 2 AST),Made Shot,Pullup Jump shot,1,2,206,0042300214
+0042300214,278,PT01M43.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-138,252,29,Missed,1,,,0,h,MISS Haliburton 29' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,207,0042300214
+0042300214,279,PT01M39.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,208,0042300214
+0042300214,280,PT01M38.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,25,21,3,Made,1,62,37,99,h,Nesmith 3' Putback Layup (2 PTS),Made Shot,Putback Layup Shot,1,2,209,0042300214
+0042300214,282,PT01M28.00S,2,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,2,5,1,Missed,1,,,0,v,MISS DiVincenzo 1' Driving Layup,Missed Shot,Driving Layup Shot,1,2,210,0042300214
+0042300214,283,PT01M26.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,211,0042300214
+0042300214,284,PT01M21.00S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks P.FOUL (P2.T4) (E.Malloy),Foul,Personal,1,0,212,0042300214
+0042300214,286,PT01M13.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,39,133,14,Made,1,64,37,101,h,Siakam 14' Fadeaway Jumper (10 PTS),Made Shot,Fadeaway Jump Shot,1,2,213,0042300214
+0042300214,287,PT00M52.70S,2,1610612752,NYK,202692,Burks,A. Burks,-26,124,13,Missed,1,,,0,v,MISS Burks 13' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,214,0042300214
+0042300214,288,PT00M48.80S,2,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:5 Def:0),Rebound,Unknown,1,0,215,0042300214
+0042300214,289,PT00M48.80S,2,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,Missed,1,,,0,v,MISS Achiuwa Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,216,0042300214
+0042300214,290,PT00M48.80S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,217,0042300214
+0042300214,291,PT00M32.10S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-12,41,4,Made,1,66,37,103,h,Haliburton 4' Driving Finger Roll Layup (10 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,218,0042300214
+0042300214,292,PT00M15.30S,2,1610612752,NYK,1628973,Brunson,J. Brunson,-32,11,3,Made,1,66,39,105,v,Brunson 3' Layup (10 PTS),Made Shot,Layup Shot,1,2,219,0042300214
+0042300214,293,PT00M05.90S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-151,244,29,Made,1,69,39,108,h,Haliburton 29' 3PT Step Back Jump Shot (13 PTS),Made Shot,Step Back Jump shot,1,3,220,0042300214
+0042300214,294,PT00M00.90S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P3.PN) (B.Taylor),Foul,Shooting,1,0,221,0042300214
+0042300214,296,PT00M00.90S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,69,40,109,v,Burks Free Throw 1 of 2 (10 PTS),Free Throw,Free Throw 1 of 2,1,0,222,0042300214
+0042300214,297,PT00M00.90S,2,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,69,41,110,v,Burks Free Throw 2 of 2 (11 PTS),Free Throw,Free Throw 2 of 2,1,0,223,0042300214
+0042300214,298,PT00M00.00S,2,0,,0,,,0,0,0,,0,69,41,110,,End of 2nd Period (4:40 PM EST),period,end,1,0,224,0042300214
+0042300214,303,PT12M00.00S,3,0,,0,,,0,0,0,,0,69,41,110,,Start of 3rd Period (4:56 PM EST),period,start,0,0,225,0042300214
+0042300214,304,PT11M42.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,36,78,9,Made,1,71,41,112,h,Nembhard 9' Fadeaway Jumper (9 PTS),Made Shot,Fadeaway Jump Shot,1,2,226,0042300214
+0042300214,305,PT11M23.00S,3,1610612752,NYK,1630540,McBride,M. McBride,-230,21,0,Missed,1,,,0,v,MISS McBride 3PT Jump Shot,Missed Shot,Jump Shot,1,3,227,0042300214
+0042300214,306,PT11M20.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,228,0042300214
+0042300214,307,PT11M04.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,-31,21,4,Made,1,73,41,114,h,Nesmith 4' Driving Layup (4 PTS) (Haliburton 2 AST),Made Shot,Driving Layup Shot,1,2,229,0042300214
+0042300214,309,PT10M48.00S,3,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein Bad Pass Turnover (P2.T8),Turnover,Bad Pass,1,0,230,0042300214
+0042300214,309,PT10M48.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner STEAL (1 STL),,,1,0,231,0042300214
+0042300214,311,PT10M41.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith Lost Ball Turnover (P1.T6),Turnover,Lost Ball,1,0,232,0042300214
+0042300214,311,PT10M41.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride STEAL (1 STL),,,1,0,233,0042300214
+0042300214,313,PT10M29.00S,3,1610612752,NYK,1630540,McBride,M. McBride,-23,25,3,Made,1,73,43,116,v,McBride 3' Driving Layup (5 PTS) (Brunson 4 AST),Made Shot,Driving Layup Shot,1,2,234,0042300214
+0042300214,315,PT10M20.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard Offensive Charge Foul (P3) (B.Taylor),Foul,Offensive Charge,1,0,235,0042300214
+0042300214,317,PT10M20.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard Offensive Foul Turnover (P2.T7),Turnover,Offensive Foul Turnover,1,0,236,0042300214
+0042300214,318,PT09M57.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,-39,53,7,Made,1,73,45,118,v,Brunson 7' Driving Layup (12 PTS),Made Shot,Driving Layup Shot,1,2,237,0042300214
+0042300214,319,PT09M44.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,54,56,8,Made,1,75,45,120,h,Siakam 8' Layup (12 PTS) (Haliburton 3 AST),Made Shot,Layup Shot,1,2,238,0042300214
+0042300214,321,PT09M26.00S,3,1610612752,NYK,1628404,Hart,J. Hart,-228,20,0,Missed,1,,,0,v,MISS Hart 3PT Jump Shot,Missed Shot,Jump Shot,1,3,239,0042300214
+0042300214,322,PT09M24.00S,3,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,240,0042300214
+0042300214,324,PT09M23.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride Bad Pass Turnover (P1.T9),Turnover,Bad Pass,1,0,241,0042300214
+0042300214,324,PT09M23.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam STEAL (1 STL),,,1,0,242,0042300214
+0042300214,326,PT09M20.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,10,9,1,Made,1,77,45,122,h,Siakam 1' Running Dunk (14 PTS),Made Shot,Running Dunk Shot,1,2,243,0042300214
+0042300214,327,PT09M19.00S,3,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,244,0042300214
+0042300214,328,PT08M56.00S,3,1610612752,NYK,1630540,McBride,M. McBride,237,28,24,Missed,1,,,0,v,MISS McBride 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,245,0042300214
+0042300214,329,PT08M52.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:4),Rebound,Unknown,1,0,246,0042300214
+0042300214,330,PT08M45.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,-212,134,25,Missed,1,,,0,h,MISS Nesmith 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,247,0042300214
+0042300214,331,PT08M42.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,248,0042300214
+0042300214,332,PT08M41.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,108,255,28,Missed,1,,,0,h,MISS Haliburton 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,249,0042300214
+0042300214,333,PT08M37.00S,3,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,Hart REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,250,0042300214
+0042300214,334,PT08M34.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,-16,37,4,Missed,1,,,0,v,MISS Brunson 4' Running Finger Roll Layup,Missed Shot,Running Finger Roll Layup Shot,1,2,251,0042300214
+0042300214,335,PT08M32.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:5),Rebound,Unknown,1,0,252,0042300214
+0042300214,336,PT08M17.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride P.FOUL (P1.T1) (E.Malloy),Foul,Personal,1,0,253,0042300214
+0042300214,338,PT08M17.00S,3,1610612752,NYK,1628404,Hart,J. Hart,0,0,0,,0,,,0,v,SUB: Achiuwa FOR Hart,Substitution,,0,0,254,0042300214
+0042300214,340,PT08M10.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,37,156,16,Missed,1,,,0,h,MISS Siakam 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,255,0042300214
+0042300214,341,PT08M08.00S,3,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,0,0,0,,0,,,0,v,Achiuwa REBOUND (Off:5 Def:1),Rebound,Unknown,1,0,256,0042300214
+0042300214,342,PT08M01.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,-67,50,8,Missed,1,,,0,v,MISS Brunson 8' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,257,0042300214
+0042300214,343,PT07M58.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:6),Rebound,Unknown,1,0,258,0042300214
+0042300214,344,PT07M53.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-201,147,25,Made,1,80,45,125,h,Haliburton 25' 3PT Running Jump Shot (16 PTS) (Nembhard 5 AST),Made Shot,Running Jump Shot,1,3,259,0042300214
+0042300214,346,PT07M43.00S,3,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,7,13,1,Made,1,80,47,127,v,Achiuwa 1' Driving Dunk (8 PTS) (Brunson 5 AST),Made Shot,Driving Dunk Shot,1,2,260,0042300214
+0042300214,348,PT07M27.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,188,197,27,Missed,1,,,0,h,MISS Haliburton 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,261,0042300214
+0042300214,349,PT07M24.00S,3,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,Hartenstein REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,262,0042300214
+0042300214,350,PT07M20.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,213,139,25,Missed,1,,,0,v,MISS Brunson 25' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,263,0042300214
+0042300214,351,PT07M17.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,264,0042300214
+0042300214,352,PT07M08.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-9,166,17,Made,1,82,47,129,h,Haliburton 17' Driving Floating Jump Shot (18 PTS),Made Shot,Driving Floating Jump Shot,1,2,265,0042300214
+0042300214,353,PT06M54.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,1,32,3,Made,1,82,49,131,v,Brunson 3' Driving Finger Roll Layup (14 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,266,0042300214
+0042300214,354,PT06M54.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith S.FOUL (P3.T1) (T.Brothers),Foul,Shooting,1,0,267,0042300214
+0042300214,356,PT06M54.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,SUB: McConnell FOR Nesmith,Substitution,,0,0,268,0042300214
+0042300214,357,PT06M54.00S,3,1610612752,NYK,1628392,Hartenstein,I. Hartenstein,0,0,0,,0,,,0,v,SUB: Burks FOR Hartenstein,Substitution,,0,0,269,0042300214
+0042300214,360,PT06M54.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,MISS Brunson Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,270,0042300214
+0042300214,361,PT06M53.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,271,0042300214
+0042300214,362,PT06M38.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-214,142,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,272,0042300214
+0042300214,363,PT06M34.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,273,0042300214
+0042300214,364,PT06M23.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,-22,26,3,Made,1,82,51,133,v,DiVincenzo 3' Driving Finger Roll Layup (7 PTS) (Burks 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,274,0042300214
+0042300214,366,PT06M22.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,275,0042300214
+0042300214,367,PT06M22.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Toppin FOR Siakam,Substitution,,0,0,276,0042300214
+0042300214,369,PT06M07.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-6,15,2,Made,1,84,51,135,h,Haliburton 2' Cutting Dunk Shot (20 PTS) (McConnell 5 AST),Made Shot,Cutting Dunk Shot,1,2,277,0042300214
+0042300214,371,PT05M52.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,175,204,27,Missed,1,,,0,v,MISS Brunson 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,278,0042300214
+0042300214,372,PT05M48.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,279,0042300214
+0042300214,373,PT05M41.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo OFF.Foul (P1) (T.Brothers),Foul,Offensive,1,0,280,0042300214
+0042300214,375,PT05M41.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo Offensive Foul Turnover (P2.T10),Turnover,Offensive Foul Turnover,1,0,281,0042300214
+0042300214,376,PT05M28.00S,3,1610612754,IND,204456,McConnell,T. McConnell,13,5,1,Made,1,86,51,137,h,McConnell 1' Driving Layup (12 PTS),Made Shot,Driving Layup Shot,1,2,282,0042300214
+0042300214,377,PT05M09.00S,3,1610612752,NYK,1630540,McBride,M. McBride,45,153,16,Made,1,86,53,139,v,McBride 16' Pullup Jump Shot (7 PTS) (Burks 2 AST),Made Shot,Pullup Jump shot,1,2,283,0042300214
+0042300214,379,PT04M59.00S,3,1610612754,IND,1626167,Turner,M. Turner,-74,260,27,Made,1,89,53,142,h,Turner 27' 3PT Jump Shot (13 PTS) (Haliburton 4 AST),Made Shot,Jump Shot,1,3,284,0042300214
+0042300214,381,PT04M45.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner S.FOUL (P2.T2) (B.Taylor),Foul,Shooting,1,0,285,0042300214
+0042300214,383,PT04M45.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,89,54,143,v,Brunson Free Throw 1 of 2 (15 PTS),Free Throw,Free Throw 1 of 2,1,0,286,0042300214
+0042300214,384,PT04M45.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,89,55,144,v,Brunson Free Throw 2 of 2 (16 PTS),Free Throw,Free Throw 2 of 2,0,0,287,0042300214
+0042300214,385,PT04M24.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,28,172,17,Missed,1,,,0,h,MISS Toppin 17' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,288,0042300214
+0042300214,386,PT04M20.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,289,0042300214
+0042300214,387,PT04M19.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner Lost Ball Turnover (P3.T8),Turnover,Lost Ball,1,0,290,0042300214
+0042300214,387,PT04M19.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,Brunson STEAL (2 STL),,,1,0,291,0042300214
+0042300214,389,PT04M14.00S,3,1610612752,NYK,1630540,McBride,M. McBride,-205,154,26,Missed,1,,,0,v,MISS McBride 26' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,292,0042300214
+0042300214,390,PT04M09.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,293,0042300214
+0042300214,391,PT04M02.00S,3,1610612754,IND,204456,McConnell,T. McConnell,227,-2,0,Made,1,92,55,147,h,McConnell 3PT Jump Shot (15 PTS) (Haliburton 5 AST),Made Shot,Jump Shot,1,3,294,0042300214
+0042300214,393,PT03M50.00S,3,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell S.FOUL (P3.T3) (T.Brothers),Foul,Shooting,1,0,295,0042300214
+0042300214,395,PT03M50.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,92,56,148,v,Brunson Free Throw 1 of 2 (17 PTS),Free Throw,Free Throw 1 of 2,1,0,296,0042300214
+0042300214,396,PT03M50.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,SUB: Sheppard FOR Nembhard,Substitution,,0,0,297,0042300214
+0042300214,398,PT03M50.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,92,57,149,v,Brunson Free Throw 2 of 2 (18 PTS),Free Throw,Free Throw 2 of 2,1,0,298,0042300214
+0042300214,399,PT03M27.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,80,22,8,Missed,1,,,0,h,MISS Toppin 8' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,299,0042300214
+0042300214,400,PT03M23.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,300,0042300214
+0042300214,404,PT03M13.00S,3,1610612752,NYK,1630540,McBride,M. McBride,-228,-3,0,Missed,1,,,0,v,MISS McBride 3PT Jump Shot,Missed Shot,Jump Shot,1,3,301,0042300214
+0042300214,405,PT03M11.00S,3,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,302,0042300214
+0042300214,406,PT03M09.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,1,21,2,Made,1,94,57,151,h,Toppin 2' Running Alley Oop Dunk Shot (12 PTS) (McConnell 6 AST),Made Shot,Running Alley Oop Dunk Shot,1,2,303,0042300214
+0042300214,408,PT02M54.00S,3,1610612752,NYK,202692,Burks,A. Burks,114,246,27,Missed,1,,,0,v,MISS Burks 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,304,0042300214
+0042300214,408,PT02M54.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin BLOCK (1 BLK),,,1,3,305,0042300214
+0042300214,410,PT02M52.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,306,0042300214
+0042300214,411,PT02M50.00S,3,1610612752,NYK,202692,Burks,A. Burks,-147,63,16,Missed,1,,,0,v,MISS Burks 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,307,0042300214
+0042300214,412,PT02M48.00S,3,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,308,0042300214
+0042300214,413,PT02M43.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,4,19,2,Missed,1,,,0,h,MISS Toppin 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,309,0042300214
+0042300214,415,PT02M42.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,310,0042300214
+0042300214,416,PT02M35.00S,3,1610612752,NYK,202692,Burks,A. Burks,-196,185,27,Made,1,94,60,154,v,Burks 27' 3PT Jump Shot (14 PTS) (McBride 2 AST),Made Shot,Jump Shot,1,3,311,0042300214
+0042300214,418,PT02M32.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,312,0042300214
+0042300214,419,PT02M32.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,SUB: Nesmith FOR Haliburton,Substitution,,0,0,313,0042300214
+0042300214,420,PT02M32.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,SUB: Jackson FOR Turner,Substitution,,0,0,314,0042300214
+0042300214,421,PT02M32.00S,3,1610612752,NYK,1628973,Brunson,J. Brunson,0,0,0,,0,,,0,v,SUB: Milton FOR Brunson,Substitution,,0,0,315,0042300214
+0042300214,425,PT02M19.00S,3,1610612754,IND,204456,McConnell,T. McConnell,33,117,12,Missed,1,,,0,h,MISS McConnell 12' Pullup Jump Shot,Missed Shot,Pullup Jump shot,0,2,316,0042300214
+0042300214,426,PT02M15.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,317,0042300214
+0042300214,427,PT02M09.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,-12,270,27,Missed,1,,,0,v,MISS DiVincenzo 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,318,0042300214
+0042300214,428,PT02M05.00S,3,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,319,0042300214
+0042300214,429,PT02M03.00S,3,1610612752,NYK,1629003,Milton,S. Milton,87,252,27,Missed,1,,,0,v,MISS Milton 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,320,0042300214
+0042300214,430,PT01M59.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,Burks REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,321,0042300214
+0042300214,431,PT01M59.00S,3,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell S.FOUL (P4.T4) (T.Brothers),Foul,Shooting,1,0,322,0042300214
+0042300214,433,PT01M59.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,94,61,155,v,Burks Free Throw 1 of 3 (15 PTS),Free Throw,Free Throw 1 of 3,1,0,323,0042300214
+0042300214,434,PT01M59.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,94,62,156,v,Burks Free Throw 2 of 3 (16 PTS),Free Throw,Free Throw 2 of 3,1,0,324,0042300214
+0042300214,435,PT01M59.00S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,MISS Burks Free Throw 3 of 3,Free Throw,Free Throw 3 of 3,1,0,325,0042300214
+0042300214,436,PT01M57.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:7),Rebound,Unknown,1,0,326,0042300214
+0042300214,437,PT01M47.00S,3,1610612754,IND,1641767,Sheppard,B. Sheppard,-22,6,2,Made,1,96,62,158,h,Sheppard 2' Cutting Finger Roll Layup Shot (5 PTS) (Toppin 2 AST),Made Shot,Cutting Finger Roll Layup Shot,1,2,327,0042300214
+0042300214,439,PT01M47.00S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,DiVincenzo S.FOUL (P2.T2) (T.Brothers),Foul,Shooting,1,0,328,0042300214
+0042300214,441,PT01M47.00S,3,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,97,62,159,h,Sheppard Free Throw 1 of 1 (6 PTS),Free Throw,Free Throw 1 of 1,1,0,329,0042300214
+0042300214,442,PT01M27.00S,3,1610612752,NYK,1630173,Achiuwa,P. Achiuwa,-67,62,9,Missed,1,,,0,v,MISS Achiuwa 9' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,330,0042300214
+0042300214,443,PT01M27.00S,3,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,331,0042300214
+0042300214,445,PT01M13.00S,3,1610612752,NYK,1630540,McBride,M. McBride,-161,209,26,Missed,1,,,0,v,MISS McBride 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,332,0042300214
+0042300214,446,PT01M09.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:8),Rebound,Unknown,1,0,333,0042300214
+0042300214,447,PT00M55.90S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,58,16,6,Made,1,99,62,161,h,Nesmith 6' Driving Layup (6 PTS) (McConnell 7 AST),Made Shot,Driving Layup Shot,1,2,334,0042300214
+0042300214,449,PT00M44.30S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith S.FOUL (P4.PN) (T.Brothers),Foul,Shooting,1,0,335,0042300214
+0042300214,451,PT00M44.30S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,99,63,162,v,Burks Free Throw 1 of 2 (17 PTS),Free Throw,Free Throw 1 of 2,1,0,336,0042300214
+0042300214,452,PT00M44.30S,3,1610612752,NYK,1628978,DiVincenzo,D. DiVincenzo,0,0,0,,0,,,0,v,SUB: Jeffries FOR DiVincenzo,Substitution,,0,0,337,0042300214
+0042300214,454,PT00M44.30S,3,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,MISS Burks Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,338,0042300214
+0042300214,455,PT00M41.30S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:9),Rebound,Unknown,1,0,339,0042300214
+0042300214,456,PT00M22.40S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,100,88,13,Made,1,101,63,164,h,Nesmith 13' Pullup Jump Shot (8 PTS),Made Shot,Pullup Jump shot,1,2,340,0042300214
+0042300214,457,PT00M16.50S,3,1610612752,NYK,1629610,Jeffries,D. Jeffries,227,21,0,Missed,1,,,0,v,MISS Jeffries 3PT Jump Shot,Missed Shot,Jump Shot,1,3,341,0042300214
+0042300214,458,PT00M12.40S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:2 Def:10),Rebound,Unknown,1,0,342,0042300214
+0042300214,459,PT00M01.20S,3,1610612754,IND,1641767,Sheppard,B. Sheppard,-234,-10,0,Missed,1,,,0,h,MISS Sheppard 3PT Jump Shot,Missed Shot,Jump Shot,1,3,343,0042300214
+0042300214,460,PT00M01.20S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,1,0,344,0042300214
+0042300214,461,PT00M00.00S,3,0,,0,,,0,0,0,,0,101,63,164,,End of 3rd Period (5:24 PM EST),period,end,1,0,345,0042300214
+0042300214,466,PT12M00.00S,4,0,,0,,,0,0,0,,0,101,63,164,,Start of 4th Period (5:28 PM EST),period,start,0,0,346,0042300214
+0042300214,467,PT11M47.00S,4,1610612752,NYK,202692,Burks,A. Burks,208,165,27,Missed,1,,,0,v,MISS Burks 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,347,0042300214
+0042300214,468,PT11M42.00S,4,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:6),Rebound,Unknown,1,0,348,0042300214
+0042300214,469,PT11M34.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,,0,,,0,v,Jeffries P.FOUL (P1.T1) (E.Malloy),Foul,Personal,1,0,349,0042300214
+0042300214,471,PT11M30.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,13,161,16,Missed,1,,,0,h,MISS Jackson 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,350,0042300214
+0042300214,472,PT11M27.00S,4,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,0,0,351,0042300214
+0042300214,474,PT11M13.00S,4,1610612752,NYK,1630540,McBride,M. McBride,100,26,10,Missed,1,,,0,v,MISS McBride 10' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,352,0042300214
+0042300214,475,PT11M09.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,353,0042300214
+0042300214,476,PT11M06.00S,4,1610612754,IND,1630167,Toppin,O. Toppin,4,13,1,Made,1,103,63,166,h,Toppin 1' Running Dunk (14 PTS) (McConnell 8 AST),Made Shot,Running Dunk Shot,1,2,354,0042300214
+0042300214,478,PT10M49.00S,4,1610612752,NYK,202692,Burks,A. Burks,222,125,25,Missed,1,,,0,v,MISS Burks 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,355,0042300214
+0042300214,479,PT10M45.00S,4,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:7),Rebound,Unknown,1,0,356,0042300214
+0042300214,480,PT10M38.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,10,-6,1,Made,1,105,63,168,h,Jackson 1' Alley Oop Layup (6 PTS) (McConnell 9 AST),Made Shot,Alley Oop Layup shot,1,2,357,0042300214
+0042300214,482,PT10M26.00S,4,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard S.FOUL (P1.T1) (T.Brothers),Foul,Shooting,1,0,358,0042300214
+0042300214,484,PT10M26.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,105,64,169,v,Sims Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,359,0042300214
+0042300214,485,PT10M26.00S,4,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,SUB: Smith FOR Toppin,Substitution,,0,0,360,0042300214
+0042300214,487,PT10M26.00S,4,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,SUB: Brown FOR Sheppard,Substitution,,0,0,361,0042300214
+0042300214,489,PT10M26.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,105,65,170,v,Sims Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,362,0042300214
+0042300214,490,PT10M15.00S,4,1610612754,IND,204456,McConnell,T. McConnell,-36,58,7,Missed,1,,,0,h,MISS McConnell 7' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,363,0042300214
+0042300214,491,PT10M12.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,,0,,,0,v,Jeffries REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,364,0042300214
+0042300214,492,PT10M02.00S,4,1610612752,NYK,1630540,McBride,M. McBride,224,34,0,Missed,1,,,0,v,MISS McBride 3PT Jump Shot,Missed Shot,Jump Shot,1,3,365,0042300214
+0042300214,493,PT09M56.00S,4,1610612754,IND,1631112,Brown,K. Brown,0,0,0,,0,,,0,h,Brown REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,366,0042300214
+0042300214,494,PT09M40.00S,4,1610612754,IND,1630188,Smith,J. Smith,-136,230,27,Made,1,108,65,173,h,Smith 27' 3PT Jump Shot (3 PTS) (McConnell 10 AST),Made Shot,Jump Shot,1,3,367,0042300214
+0042300214,496,PT09M25.00S,4,1610612752,NYK,202692,Burks,A. Burks,92,274,29,Made,1,108,68,176,v,Burks 29' 3PT Jump Shot (20 PTS) (McBride 3 AST),Made Shot,Jump Shot,1,3,368,0042300214
+0042300214,498,PT09M18.00S,4,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,369,0042300214
+0042300214,499,PT09M18.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,SUB: Walker FOR McConnell,Substitution,,0,0,370,0042300214
+0042300214,501,PT09M18.00S,4,1610612752,NYK,202692,Burks,A. Burks,0,0,0,,0,,,0,v,SUB: Diakite FOR Burks,Substitution,,0,0,371,0042300214
+0042300214,505,PT09M11.00S,4,1610612754,IND,203926,McDermott,D. McDermott,-240,52,25,Missed,1,,,0,h,MISS McDermott 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,372,0042300214
+0042300214,506,PT09M07.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,373,0042300214
+0042300214,507,PT09M00.00S,4,1610612752,NYK,1630540,McBride,M. McBride,-156,206,26,Made,1,108,71,179,v,McBride 26' 3PT Step Back Jump Shot (10 PTS),Made Shot,Step Back Jump shot,1,3,374,0042300214
+0042300214,508,PT08M46.00S,4,1610612754,IND,203926,McDermott,D. McDermott,0,0,0,,0,,,0,h,McDermott Bad Pass Turnover (P1.T9),Turnover,Bad Pass,1,0,375,0042300214
+0042300214,508,PT08M46.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite STEAL (1 STL),,,1,0,376,0042300214
+0042300214,510,PT08M39.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson S.FOUL (P1.T2) (T.Brothers),Foul,Shooting,1,0,377,0042300214
+0042300214,512,PT08M39.00S,4,1610612752,NYK,1629003,Milton,S. Milton,0,0,0,,0,108,72,180,v,Milton Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,378,0042300214
+0042300214,513,PT08M39.00S,4,1610612752,NYK,1629003,Milton,S. Milton,0,0,0,,0,,,0,v,MISS Milton Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,379,0042300214
+0042300214,514,PT08M36.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,380,0042300214
+0042300214,515,PT08M28.00S,4,1610612752,NYK,1629003,Milton,S. Milton,-118,222,25,Missed,1,,,0,v,MISS Milton 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,381,0042300214
+0042300214,516,PT08M24.00S,4,1610612754,IND,1631112,Brown,K. Brown,0,0,0,,0,,,0,h,Brown REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,382,0042300214
+0042300214,517,PT08M17.00S,4,1610612754,IND,1631112,Brown,K. Brown,-25,51,6,Missed,1,,,0,h,MISS Brown 6' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,383,0042300214
+0042300214,518,PT08M15.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,384,0042300214
+0042300214,519,PT08M04.00S,4,1610612752,NYK,1629003,Milton,S. Milton,-21,25,3,Missed,1,,,0,v,MISS Milton 3' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,385,0042300214
+0042300214,519,PT08M04.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,,,0,h,Smith BLOCK (1 BLK),,,1,2,386,0042300214
+0042300214,521,PT08M00.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,387,0042300214
+0042300214,522,PT08M00.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,Made,1,108,74,182,v,Sims Tip Dunk Shot (4 PTS),Made Shot,Tip Dunk Shot,1,2,388,0042300214
+0042300214,523,PT07M51.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson OFF.Foul (P2) (E.Malloy),Foul,Offensive,1,0,389,0042300214
+0042300214,525,PT07M51.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson Offensive Foul Turnover (P1.T10),Turnover,Offensive Foul Turnover,1,0,390,0042300214
+0042300214,526,PT07M36.00S,4,1610612752,NYK,1630540,McBride,M. McBride,-104,236,26,Made,1,108,77,185,v,McBride 26' 3PT Pullup Jump Shot (13 PTS),Made Shot,Pullup Jump shot,1,3,391,0042300214
+0042300214,527,PT07M24.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride P.FOUL (P2.T2) (T.Brothers),Foul,Personal,1,0,392,0042300214
+0042300214,529,PT07M16.00S,4,1610612754,IND,1630188,Smith,J. Smith,-17,50,5,Made,1,110,77,187,h,Smith 5' Driving Layup (5 PTS) (Walker 1 AST),Made Shot,Driving Layup Shot,1,2,393,0042300214
+0042300214,531,PT07M16.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite Violation:Defensive Goaltending (E.Malloy),Violation,Defensive Goaltending,1,0,394,0042300214
+0042300214,532,PT07M04.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride Bad Pass Turnover (P2.T11),Turnover,Bad Pass,1,0,395,0042300214
+0042300214,532,PT07M04.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson STEAL (2 STL),,,1,0,396,0042300214
+0042300214,534,PT06M59.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,18,31,4,Missed,1,,,0,h,MISS Jackson 4' Running Alley Oop Dunk Shot,Missed Shot,Running Alley Oop Dunk Shot,1,2,397,0042300214
+0042300214,534,PT06M59.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite BLOCK (1 BLK),,,1,2,398,0042300214
+0042300214,536,PT06M56.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,,0,,,0,v,Jeffries REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,399,0042300214
+0042300214,537,PT06M53.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,7,38,4,Missed,1,,,0,v,MISS Diakite 4' Running Layup,Missed Shot,Running Layup Shot,1,2,400,0042300214
+0042300214,537,PT06M53.00S,4,1610612754,IND,1631112,Brown,K. Brown,0,0,0,,0,,,0,h,Brown BLOCK (1 BLK),,,1,2,401,0042300214
+0042300214,539,PT06M53.00S,4,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,402,0042300214
+0042300214,542,PT06M51.00S,4,1610612754,IND,203926,McDermott,D. McDermott,0,0,0,,0,,,0,h,McDermott S.FOUL (P1.T3) (T.Brothers),Foul,Shooting,1,0,403,0042300214
+0042300214,544,PT06M51.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,110,78,188,v,Diakite Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,404,0042300214
+0042300214,545,PT06M51.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,110,79,189,v,Diakite Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,405,0042300214
+0042300214,546,PT06M41.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker Out of Bounds - Bad Pass Turnover Turnover (P1.T11),Turnover,Out of Bounds - Bad Pass Turnover,1,0,406,0042300214
+0042300214,547,PT06M22.00S,4,1610612752,NYK,1630540,McBride,M. McBride,189,25,19,Missed,1,,,0,v,MISS McBride 19' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,407,0042300214
+0042300214,548,PT06M17.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:3 Def:2),Rebound,Unknown,1,0,408,0042300214
+0042300214,549,PT06M10.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,189,185,26,Missed,1,,,0,v,MISS Jeffries 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,409,0042300214
+0042300214,550,PT06M06.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,,,0,h,Smith REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,410,0042300214
+0042300214,551,PT05M58.00S,4,1610612754,IND,1641716,Walker,J. Walker,94,155,18,Missed,1,,,0,h,MISS Walker 18' Jump Shot,Missed Shot,Jump Shot,1,2,411,0042300214
+0042300214,552,PT05M54.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,412,0042300214
+0042300214,553,PT05M48.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,-168,200,26,Missed,1,,,0,v,MISS Diakite 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,413,0042300214
+0042300214,554,PT05M48.00S,4,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Rebound,Rebound,Unknown,1,0,414,0042300214
+0042300214,555,PT05M47.00S,4,1610612754,IND,203926,McDermott,D. McDermott,0,0,0,,0,,,0,h,McDermott L.B.FOUL (P2.T4) (B.Taylor),Foul,Loose Ball,1,0,415,0042300214
+0042300214,557,PT05M42.00S,4,1610612752,NYK,1629003,Milton,S. Milton,-48,33,6,Missed,1,,,0,v,MISS Milton 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,416,0042300214
+0042300214,558,PT05M39.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,,,0,h,Smith REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,417,0042300214
+0042300214,559,PT05M29.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride S.FOUL (P3.T3) (B.Taylor),Foul,Shooting,1,0,418,0042300214
+0042300214,561,PT05M29.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,MISS Walker Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,419,0042300214
+0042300214,562,PT05M29.00S,4,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Normal Rebound,0,0,420,0042300214
+0042300214,563,PT05M29.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,111,79,190,h,Walker Free Throw 2 of 2 (1 PTS),Free Throw,Free Throw 2 of 2,1,0,421,0042300214
+0042300214,564,PT05M11.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson S.FOUL (P3.PN) (E.Malloy),Foul,Shooting,1,0,422,0042300214
+0042300214,566,PT05M11.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,111,80,191,v,McBride Free Throw 1 of 2 (14 PTS),Free Throw,Free Throw 1 of 2,1,0,423,0042300214
+0042300214,567,PT05M11.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,MISS McBride Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,424,0042300214
+0042300214,568,PT05M10.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,425,0042300214
+0042300214,569,PT05M03.00S,4,1610612754,IND,1641716,Walker,J. Walker,-96,47,11,Made,1,113,80,193,h,Walker 11' Driving Floating Bank Jump Shot (3 PTS),Made Shot,Driving Floating Bank Jump Shot,1,2,426,0042300214
+0042300214,570,PT04M44.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,-34,62,7,Missed,1,,,0,v,MISS Jeffries 7' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,427,0042300214
+0042300214,571,PT04M42.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,,0,,,0,v,Jeffries REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,428,0042300214
+0042300214,572,PT04M42.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,Made,1,113,82,195,v,Jeffries Tip Layup Shot (2 PTS),Made Shot,Tip Layup Shot,1,2,429,0042300214
+0042300214,575,PT04M27.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite AWAY.FROM.PLAY.FOUL (P1.T4) (B.Taylor),Foul,Away From Play,1,0,430,0042300214
+0042300214,577,PT04M27.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite T.FOUL (P1.T4) (T.Brothers),Foul,Technical,1,0,431,0042300214
+0042300214,578,PT04M27.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,114,82,196,h,Smith Free Throw Technical (6 PTS),Free Throw,Free Throw Technical,1,0,432,0042300214
+0042300214,579,PT04M27.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,115,82,197,h,Smith Free Throw 1 of 1 (7 PTS),Free Throw,Free Throw 1 of 1,1,0,433,0042300214
+0042300214,580,PT04M18.00S,4,1610612754,IND,1631112,Brown,K. Brown,0,0,0,,0,,,0,h,Brown Bad Pass Turnover (P1.T12),Turnover,Bad Pass,1,0,434,0042300214
+0042300214,580,PT04M18.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims STEAL (1 STL),,,1,0,435,0042300214
+0042300214,582,PT04M12.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,-18,26,3,Missed,1,,,0,v,MISS Jeffries 3' Running Layup,Missed Shot,Running Layup Shot,1,2,436,0042300214
+0042300214,583,PT04M10.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,,,0,h,Smith REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,437,0042300214
+0042300214,584,PT03M57.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker Lost Ball Turnover (P2.T13),Turnover,Lost Ball,1,0,438,0042300214
+0042300214,584,PT03M57.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,0,0,0,,0,,,0,v,Jeffries STEAL (1 STL),,,1,0,439,0042300214
+0042300214,587,PT03M47.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite Lost Ball Turnover (P1.T12),Turnover,Lost Ball,1,0,440,0042300214
+0042300214,587,PT03M47.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker STEAL (1 STL),,,1,0,441,0042300214
+0042300214,589,PT03M34.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,15,15,2,Made,1,117,82,199,h,Jackson 2' Alley Oop Dunk (8 PTS) (Walker 2 AST),Made Shot,Alley Oop Dunk Shot,1,2,442,0042300214
+0042300214,591,PT03M17.00S,4,1610612752,NYK,1630540,McBride,M. McBride,-116,158,20,Made,1,117,84,201,v,McBride 20' Pullup Jump Shot (16 PTS) (Milton 1 AST),Made Shot,Pullup Jump shot,1,2,443,0042300214
+0042300214,593,PT02M52.00S,4,1610612754,IND,1641716,Walker,J. Walker,27,215,22,Made,1,119,84,203,h,Walker 22' Step Back Jump Shot (5 PTS) (McDermott 1 AST),Made Shot,Step Back Jump shot,1,2,444,0042300214
+0042300214,595,PT02M31.00S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,-227,20,0,Made,1,119,87,206,v,Jeffries 3PT Jump Shot (5 PTS) (McBride 4 AST),Made Shot,Jump Shot,1,3,445,0042300214
+0042300214,597,PT02M16.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker Bad Pass Turnover (P3.T14),Turnover,Bad Pass,1,0,446,0042300214
+0042300214,597,PT02M16.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims STEAL (2 STL),,,1,0,447,0042300214
+0042300214,599,PT02M11.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker S.FOUL (P1.PN) (T.Brothers),Foul,Shooting,1,0,448,0042300214
+0042300214,601,PT02M11.00S,4,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,449,0042300214
+0042300214,602,PT02M11.00S,4,1610612752,NYK,1629003,Milton,S. Milton,0,0,0,,0,119,88,207,v,Milton Free Throw 1 of 2 (2 PTS),Free Throw,Free Throw 1 of 2,1,0,450,0042300214
+0042300214,603,PT02M11.00S,4,1610612752,NYK,1629003,Milton,S. Milton,0,0,0,,0,119,89,208,v,Milton Free Throw 2 of 2 (3 PTS),Free Throw,Free Throw 2 of 2,1,0,451,0042300214
+0042300214,604,PT01M55.00S,4,1610612754,IND,1631112,Brown,K. Brown,123,52,13,Missed,1,,,0,h,MISS Brown 13' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,452,0042300214
+0042300214,605,PT01M51.00S,4,1610612752,NYK,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,453,0042300214
+0042300214,606,PT01M43.00S,4,1610612752,NYK,1629003,Milton,S. Milton,102,23,10,Missed,1,,,0,v,MISS Milton 10' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,454,0042300214
+0042300214,607,PT01M40.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:3 Def:2),Rebound,Unknown,1,0,455,0042300214
+0042300214,608,PT01M29.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,20,27,3,Missed,1,,,0,h,MISS Jackson 3' Layup,Missed Shot,Layup Shot,1,2,456,0042300214
+0042300214,609,PT01M26.00S,4,1610612752,NYK,1629603,Diakite,M. Diakite,0,0,0,,0,,,0,v,Diakite REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,457,0042300214
+0042300214,610,PT01M19.00S,4,1610612752,NYK,1630540,McBride,M. McBride,0,0,0,,0,,,0,v,McBride Bad Pass Turnover (P3.T13),Turnover,Bad Pass,1,0,458,0042300214
+0042300214,610,PT01M19.00S,4,1610612754,IND,1630188,Smith,J. Smith,0,0,0,,0,,,0,h,Smith STEAL (1 STL),,,1,0,459,0042300214
+0042300214,612,PT01M16.00S,4,1610612754,IND,1630543,Jackson,I. Jackson,-1,3,0,Made,1,121,89,210,h,Jackson Running Dunk (10 PTS) (Smith 1 AST),Made Shot,Running Dunk Shot,1,2,460,0042300214
+0042300214,614,PT00M57.60S,4,1610612752,NYK,1629610,Jeffries,D. Jeffries,-214,147,26,Missed,1,,,0,v,MISS Jeffries 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,461,0042300214
+0042300214,615,PT00M54.40S,4,1610612754,IND,1630543,Jackson,I. Jackson,0,0,0,,0,,,0,h,Jackson REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,462,0042300214
+0042300214,616,PT00M30.90S,4,1610612754,IND,1641716,Walker,J. Walker,-34,194,20,Missed,1,,,0,h,MISS Walker 20' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,463,0042300214
+0042300214,617,PT00M27.30S,4,1610612752,NYK,1629003,Milton,S. Milton,0,0,0,,0,,,0,v,Milton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,464,0042300214
+0042300214,618,PT00M04.60S,4,0,,1610612752,,,0,0,0,,0,,,0,v,Knicks Turnover: Shot Clock (T#14),Turnover,Shot Clock Turnover,1,0,465,0042300214
+0042300214,619,PT00M00.00S,4,0,,0,,,0,0,0,,0,121,89,210,,End of 4th Period (5:56 PM EST),period,end,1,0,466,0042300214

@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1642348,Justin,Edwards,J. Edwards,justin-edwards,F,,,35:28,6,18,0.333,5,9,0.556,2,2,1.0,0,3,3,2,2,0,1,3,19,-4.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,F,,,32:56,4,9,0.444,2,6,0.333,2,3,0.667,5,4,9,4,1,1,0,2,12,2.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1627824,Guerschon,Yabusele,G. Yabusele,guerschon-yabusele,C,,,28:47,4,9,0.444,2,6,0.333,2,2,1.0,2,5,7,4,1,0,1,2,12,0.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,G,,,31:50,2,11,0.182,1,5,0.2,3,4,0.75,1,5,6,4,0,0,2,1,8,0.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1630215,Jared,Butler,J. Butler,jared-butler,G,,,32:47,8,16,0.5,3,7,0.429,0,0,0.0,2,0,2,2,3,0,3,2,19,-1.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1641737,Adem,Bona,A. Bona,adem-bona,,,,19:13,3,4,0.75,0,0,0.0,0,0,0.0,2,5,7,1,2,1,0,2,6,-13.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1641720,Jalen,Hood-Schifino,J. Hood-Schifino,jalen-hood-schifino,,,,19:06,3,9,0.333,1,4,0.25,2,2,1.0,0,0,0,0,0,1,2,0,9,-27.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,21:48,3,8,0.375,0,3,0.0,6,6,1.0,0,1,1,2,1,3,2,3,12,-9.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1630542,Marcus,Bagley,M. Bagley,marcus-bagley,,,,18:06,1,3,0.333,0,2,0.0,0,0,0.0,0,2,2,0,1,0,0,1,2,-13.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1629656,Quentin,Grimes,Q. Grimes,quentin-grimes,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401041
+0022401041,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1631232,Keion,Brooks Jr.,K. Brooks Jr.,keion-brooks-jr,F,,,28:19,4,9,0.444,2,4,0.5,0,0,0.0,0,2,2,1,1,0,0,1,10,-2.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,F,,,30:24,5,8,0.625,1,2,0.5,3,3,1.0,3,8,11,7,3,0,4,2,14,3.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,25:30,6,7,0.857,0,0,0.0,4,4,1.0,4,5,9,2,0,1,0,1,16,-9.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,G,,,23:38,4,14,0.286,1,9,0.111,0,2,0.0,1,4,5,1,0,0,4,2,9,-1.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,27:45,3,12,0.25,1,6,0.167,2,2,1.0,0,3,3,6,3,0,4,2,9,3.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,22:30,7,11,0.636,3,4,0.75,2,2,1.0,2,6,8,3,0,1,0,5,19,22.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,19:45,3,4,0.75,1,2,0.5,0,0,0.0,2,3,5,1,1,0,0,1,7,24.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,203901,Elfrid,Payton,E. Payton,elfrid-payton,,,,24:39,3,8,0.375,0,0,0.0,0,0,0.0,1,5,6,14,1,2,3,1,6,14.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,24:22,6,10,0.6,5,7,0.714,0,0,0.0,0,2,2,1,1,1,0,1,17,14.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1631311,Lester,Quinones,L. Quinones,lester-quinones,,,,10:53,2,3,0.667,1,1,1.0,0,0,0.0,0,0,0,0,1,0,1,1,5,2.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,2:15,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022401041
+0022401041,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401041

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,37:52,9,17,0.529,5,12,0.417,8,8,1.0,1,7,8,3,2,0,0,1,31,22.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,33:13,7,18,0.389,0,0,0.0,8,9,0.889,2,5,7,3,1,1,2,1,22,11.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,20:49,5,12,0.417,0,2,0.0,1,2,0.5,2,6,8,5,2,0,0,0,11,18.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,37:47,1,5,0.2,1,4,0.25,4,4,1.0,2,2,4,2,2,0,1,2,7,29.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,33:48,10,19,0.526,5,10,0.5,4,4,1.0,1,4,5,3,2,0,1,0,29,18.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,19:34,0,2,0.0,0,1,0.0,2,2,1.0,4,0,4,2,2,0,1,0,2,-3.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,19:41,1,6,0.167,0,5,0.0,0,0,0.0,0,0,0,1,1,0,0,2,2,1.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,,,,28:05,2,4,0.5,0,1,0.0,0,0,0.0,0,6,6,5,1,1,3,1,4,-6.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,2:20,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-10.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,2:20,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-10.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,2:20,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,-10.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,,,2:11,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,0,-10.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630792,Malcolm,Hill,M. Hill,malcolm-hill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157
+0022301157,1610612740,New Orleans,Pelicans,NOP,pelicans,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,37:19,4,8,0.5,4,6,0.667,2,2,1.0,3,2,5,2,1,2,4,5,14,-8.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,28:15,2,5,0.4,0,1,0.0,0,0,0.0,2,8,10,0,0,0,1,2,4,-18.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,35:40,15,22,0.682,0,1,0.0,0,0,0.0,3,10,13,1,1,0,3,2,30,-26.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,33:13,2,9,0.222,2,6,0.333,0,0,0.0,0,4,4,4,0,0,1,1,6,1.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,40:32,7,18,0.389,2,10,0.2,3,3,1.0,2,1,3,15,1,0,8,4,19,-31.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,31:18,4,11,0.364,2,8,0.25,2,2,1.0,0,3,3,3,0,1,4,1,12,5.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,12:13,5,8,0.625,2,3,0.667,0,1,0.0,2,3,5,1,0,0,0,2,12,18.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,21:30,1,4,0.25,1,3,0.333,0,0,0.0,1,3,4,2,0,0,0,2,3,9.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157
+0022301157,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301157

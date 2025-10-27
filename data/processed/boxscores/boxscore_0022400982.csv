@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,F,,,18:38,0,3,0.0,0,2,0.0,0,0,0.0,1,5,6,5,1,0,1,3,0,16.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,F,,,35:28,6,9,0.667,2,4,0.5,2,4,0.5,1,7,8,3,0,0,2,3,16,4.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,32:26,11,15,0.733,0,0,0.0,2,3,0.667,2,10,12,3,0,0,2,3,24,23.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,G,,,27:01,4,7,0.571,1,2,0.5,0,0,0.0,1,3,4,1,1,0,1,2,9,4.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,33:35,11,27,0.407,0,5,0.0,9,11,0.818,1,1,2,8,0,1,1,1,31,8.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,6:13,0,0,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,0,0,7.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,13:47,1,1,1.0,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,4,3,-6.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,22:58,4,6,0.667,0,1,0.0,2,3,0.667,0,3,3,5,1,1,1,2,10,10.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,29:39,6,12,0.5,5,9,0.556,2,2,1.0,0,6,6,2,0,0,1,1,19,4.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,,,19:11,3,8,0.375,1,4,0.25,2,2,1.0,2,2,4,3,0,1,0,0,9,9.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,1:05,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,1.0,0022400982
+0022400982,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,26:12,4,11,0.364,2,5,0.4,0,0,0.0,0,1,1,2,0,1,1,5,10,-12.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,35:57,7,15,0.467,0,0,0.0,7,12,0.583,3,9,12,10,1,2,1,1,21,-13.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,32:43,3,8,0.375,0,3,0.0,2,2,1.0,2,3,5,0,1,2,2,3,8,-11.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,24:41,3,6,0.5,0,2,0.0,0,1,0.0,0,1,1,1,2,0,1,1,6,-15.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,29:07,3,9,0.333,2,4,0.5,11,11,1.0,0,1,1,2,1,0,1,0,19,-15.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,18:33,3,9,0.333,3,4,0.75,2,2,1.0,0,4,4,1,0,0,0,2,11,5.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,25:10,4,11,0.364,3,9,0.333,1,2,0.5,0,1,1,2,2,0,0,2,12,-11.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,11:58,0,2,0.0,0,0,0.0,0,0,0.0,3,1,4,1,0,1,1,2,0,1.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,18:39,3,5,0.6,2,4,0.5,0,0,0.0,0,2,2,1,0,0,1,3,8,-10.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,4:37,1,2,0.5,0,1,0.0,0,0,0.0,1,1,2,0,0,0,1,2,2,2.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,4:37,0,1,0.0,0,0,0.0,2,2,1.0,0,0,0,1,0,0,0,1,2,2.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,3:50,2,3,0.667,1,2,0.5,1,1,1.0,0,1,1,0,0,2,0,1,6,1.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,,,1:58,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,,,1:58,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400982
+0022400982,1610612749,Milwaukee,Bucks,MIL,bucks,1631250,Pete,Nance,P. Nance,pete-nance,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400982

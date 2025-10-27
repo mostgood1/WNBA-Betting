@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301052,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,35:34,7,19,0.368,0,3,0.0,3,4,0.75,4,5,9,3,2,2,1,2,17,5.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,33:42,7,18,0.389,5,8,0.625,3,3,1.0,2,8,10,4,1,1,2,4,22,4.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,27:25,5,7,0.714,0,0,0.0,1,1,1.0,1,3,4,0,1,1,0,3,11,-4.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,25:49,5,10,0.5,2,7,0.286,2,2,1.0,2,5,7,0,0,0,1,2,14,-5.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,38:34,6,15,0.4,3,9,0.333,1,2,0.5,0,5,5,14,2,1,1,1,16,1.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,17:00,2,8,0.25,0,1,0.0,2,2,1.0,2,0,2,2,0,0,1,0,6,-6.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,6:52,0,0,0.0,0,0,0.0,1,2,0.5,0,3,3,0,0,0,0,1,1,3.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,29:24,5,7,0.714,1,2,0.5,0,2,0.0,0,3,3,2,1,0,0,0,11,3.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,22:18,3,5,0.6,3,5,0.6,1,2,0.5,0,0,0,3,1,0,0,2,10,6.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,,,,3:23,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1629875,Xavier,Moon,X. Moon,xavier-moon,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,38:00,6,17,0.353,0,3,0.0,5,5,1.0,2,9,11,2,1,0,3,4,17,-4.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,38:09,5,9,0.556,2,3,0.667,2,2,1.0,0,7,7,2,0,2,2,3,14,1.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,C,,,18:49,5,8,0.625,0,1,0.0,2,2,1.0,3,8,11,0,0,2,1,3,12,2.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,22:13,2,4,0.5,2,4,0.5,1,2,0.5,0,0,0,1,1,0,2,1,7,3.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,43:54,9,20,0.45,3,8,0.375,5,6,0.833,0,7,7,8,1,2,2,1,26,1.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,27:56,3,6,0.5,3,6,0.5,0,0,0.0,0,4,4,3,0,1,1,1,9,-7.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,21:03,2,4,0.5,0,0,0.0,1,2,0.5,3,4,7,0,0,3,0,2,5,3.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,25:50,7,11,0.636,3,7,0.429,0,0,0.0,1,2,3,1,0,1,1,3,17,-2.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,4:06,0,3,0.0,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-2.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052
+0022301052,1610612755,Philadelphia,76ers,PHI,sixers,1628391,D.J.,Wilson,D. Wilson,dj-wilson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301052

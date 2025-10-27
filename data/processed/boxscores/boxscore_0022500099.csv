@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,26:34,7,17,0.412,5,10,0.5,2,2,1.0,3,0,3,2,2,0,4,5,21,-15.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,16:50,3,5,0.6,0,1,0.0,0,0,0.0,3,2,5,0,0,0,1,4,6,-7.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,C,,,20:21,4,7,0.571,0,0,0.0,1,3,0.333,1,5,6,1,0,0,1,2,9,-1.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,G,,,28:43,4,12,0.333,3,9,0.333,1,1,1.0,1,0,1,5,1,1,0,2,12,-11.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,27:56,5,10,0.5,1,4,0.25,7,7,1.0,0,3,3,7,0,0,3,2,18,-22.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,27:55,4,11,0.364,3,10,0.3,0,0,0.0,1,3,4,1,2,1,2,3,11,-22.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,28:05,5,12,0.417,3,8,0.375,0,0,0.0,1,4,5,5,1,1,3,1,13,-18.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1631109,Mark,Williams,M. Williams,mark-williams,,,,13:56,1,5,0.2,0,0,0.0,0,0,0.0,3,3,6,0,0,0,0,4,2,-18.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1628502,Nigel,Hayes-Davis,N. Hayes-Davis,nigel-hayes-davis,,,,21:19,3,4,0.75,1,2,0.5,0,0,0.0,1,1,2,0,3,0,0,0,7,-12.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,,,,8:57,1,3,0.333,0,0,0.0,0,0,0.0,1,0,1,0,1,0,1,0,2,-7.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1642853,Rasheer,Fleming,R. Fleming,rasheer-fleming,,,,8:33,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,2,1,0,0,2,0,0.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1630692,Jordan,Goodwin,J. Goodwin,jordan-goodwin,,,,6:05,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,1,0,3,0,0,-1.0,0022500099
+0022500099,1610612756,Phoenix,Suns,PHX,suns,1642863,Khaman,Maluach,K. Maluach,khaman-maluach,,,,4:46,0,0,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,1,0,0,1,-1.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,32:43,11,21,0.524,1,4,0.25,4,5,0.8,1,4,5,5,1,1,2,0,27,9.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,23:14,6,6,1.0,5,5,1.0,0,0,0.0,1,3,4,2,1,1,0,2,17,12.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,24:40,3,5,0.6,0,0,0.0,2,3,0.667,0,5,5,4,0,0,3,2,8,15.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,203078,Bradley,Beal,B. Beal,bradley-beal,G,,,20:06,2,4,0.5,0,0,0.0,2,2,1.0,1,0,1,2,0,0,1,1,6,2.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,28:25,8,12,0.667,5,7,0.714,9,9,1.0,0,7,7,7,0,1,4,2,30,22.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1628381,John,Collins,J. Collins,john-collins,,,,23:59,3,5,0.6,0,1,0.0,4,5,0.8,2,4,6,2,2,0,2,3,10,23.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,8:18,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,1,0,0,2,3,14.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,201572,Brook,Lopez,B. Lopez,brook-lopez,,,,18:27,2,5,0.4,2,4,0.5,0,0,0.0,1,6,7,1,0,2,1,2,6,11.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,21:29,5,8,0.625,2,4,0.5,2,2,1.0,1,1,2,1,3,0,0,1,14,18.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,101108,Chris,Paul,C. Paul,chris-paul,,,,19:35,0,1,0.0,0,1,0.0,0,0,0.0,2,1,3,8,3,0,2,3,0,5.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,4:46,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,1.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1642920,Kobe,Sanders,K. Sanders,kobe-sanders,,,,4:46,1,3,0.333,0,1,0.0,0,0,0.0,0,0,0,0,1,0,1,0,2,1.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1642949,Yanic Konan,Niederhäuser,Y. Niederhäuser,yanic-konan-niederhäuser,,,,4:46,3,3,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,6,1.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,,,4:46,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,1,0,0,1.0,0022500099
+0022500099,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500099

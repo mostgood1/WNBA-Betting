@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,42:11,4,10,0.4,3,8,0.375,0,0,0.0,1,4,5,4,0,0,4,2,11,-49.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,34:30,1,6,0.167,0,2,0.0,2,3,0.667,1,2,3,2,0,0,1,2,4,-38.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,24:43,9,15,0.6,0,1,0.0,0,0,0.0,1,7,8,1,1,0,1,1,18,-32.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,26:25,3,6,0.5,0,1,0.0,0,0,0.0,2,2,4,3,1,0,3,5,6,-38.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,41:07,8,18,0.444,1,5,0.2,3,5,0.6,1,5,6,6,2,1,7,1,20,-58.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,30:10,5,19,0.263,1,7,0.143,1,1,1.0,2,7,9,2,0,0,5,2,12,-44.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,7:04,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,2,0,0,0,1,0,-8.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1631303,Justin,Minaya,J. Minaya,justin-minaya,,,,10:33,1,2,0.5,0,0,0.0,0,0,0.0,1,1,2,0,0,1,1,3,2,-5.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,14:06,3,8,0.375,0,4,0.0,0,0,0.0,0,2,2,0,0,0,1,0,6,-12.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,,,9:11,1,1,1.0,0,0,0.0,1,2,0.5,1,2,3,0,0,0,0,2,3,-16.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301068
+0022301068,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,24:50,2,4,0.5,1,3,0.333,3,3,1.0,0,4,4,8,1,0,0,1,8,42.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,17:17,2,3,0.667,1,2,0.5,0,0,0.0,0,2,2,3,3,0,0,1,5,17.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,26:13,9,12,0.75,2,3,0.667,1,3,0.333,0,12,12,9,2,1,4,3,21,29.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,201988,Patty,Mills,P. Mills,patty-mills,G,,,27:30,5,8,0.625,2,5,0.4,5,5,1.0,0,0,0,1,3,0,1,0,17,33.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,27:18,8,17,0.471,6,10,0.6,0,0,0.0,0,3,3,6,1,0,1,0,22,29.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,9:24,1,2,0.5,1,2,0.5,0,0,0.0,0,2,2,3,1,0,0,0,3,14.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,25:26,6,9,0.667,0,1,0.0,0,0,0.0,0,3,3,5,1,0,0,3,12,28.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,21:47,11,17,0.647,1,3,0.333,3,4,0.75,6,6,12,1,2,2,0,0,26,31.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,27:41,7,9,0.778,5,6,0.833,1,3,0.333,0,6,6,1,1,0,1,1,20,40.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,,,20:34,2,7,0.286,1,2,0.5,0,0,0.0,0,0,0,1,2,0,0,1,5,21.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,,,12:00,1,4,0.25,1,2,0.5,0,0,0.0,0,0,0,3,0,1,1,3,3,16.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301068
+0022301068,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301068

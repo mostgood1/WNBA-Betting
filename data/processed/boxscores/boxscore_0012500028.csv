@@ -1,0 +1,37 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,12:00,3,4,0.75,1,1,1.0,2,2,1.0,0,2,2,1,0,0,0,1,9,12.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,F,,,12:00,4,6,0.667,2,2,1.0,0,0,0.0,1,0,1,0,0,0,0,1,10,12.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,12:00,3,4,0.75,0,0,0.0,0,0,0.0,0,3,3,3,2,0,0,2,6,12.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,12:00,3,5,0.6,2,4,0.5,0,0,0.0,0,1,1,6,1,1,0,2,8,12.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,G,,,23:26,3,10,0.3,1,4,0.25,0,0,0.0,1,1,2,9,0,0,4,4,7,4.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,22:05,5,8,0.625,3,4,0.75,5,6,0.833,0,3,3,3,1,0,1,3,18,5.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642866,Joan,Beringer,J. Beringer,joan-beringer,,,,22:39,6,8,0.75,0,0,0.0,2,3,0.667,3,1,4,0,0,1,0,5,14,-6.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,20:04,1,4,0.25,0,1,0.0,0,0,0.0,2,0,2,0,1,1,0,1,2,0.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,16:10,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,4,0,0,1,0,3,2.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,20:52,2,9,0.222,0,2,0.0,7,8,0.875,0,4,4,4,0,0,1,1,11,2.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642911,Rocco,Zikarsky,R. Zikarsky,rocco-zikarsky,,,,13:21,3,8,0.375,0,0,0.0,3,4,0.75,5,3,8,0,1,0,1,2,9,4.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,19:50,6,13,0.462,3,7,0.429,1,2,0.5,1,5,6,0,1,0,0,1,16,-4.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628993,Alize,Johnson,A. Johnson,alize-johnson,,,,7:32,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,2.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641803,Tristen,Newton,T. Newton,tristen-newton,,,,3:08,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,2.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642389,Zyon,Pullin,Z. Pullin,zyon-pullin,,,,10:19,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,0,2,-2.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,8:24,3,3,1.0,2,2,1.0,1,1,1.0,0,2,2,0,0,0,1,1,9,-4.0,0012500028
+0012500028,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631262,Jules,Bernard,J. Bernard,jules-bernard,,,,4:10,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-3.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,14:37,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,1,0,1,1,1,2,-5.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,15:04,4,4,1.0,1,1,1.0,5,6,0.833,0,3,3,1,0,0,1,0,14,-4.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,18:48,4,5,0.8,0,0,0.0,6,6,1.0,0,5,5,2,1,0,1,0,14,-6.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,G,,,15:25,2,2,1.0,1,1,1.0,2,4,0.5,0,3,3,0,0,0,1,2,7,-9.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,16:23,3,6,0.5,1,3,0.333,5,5,1.0,0,1,1,5,0,1,2,3,12,0.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,14:58,0,3,0.0,0,2,0.0,3,4,0.75,0,2,2,3,0,0,1,3,3,-1.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,17:48,5,5,1.0,0,0,0.0,0,0,0.0,0,4,4,0,0,0,0,0,10,-10.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,15:41,1,3,0.333,0,0,0.0,0,0,0.0,0,1,1,2,2,1,1,2,2,-12.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,,,17:39,3,6,0.5,1,1,1.0,0,1,0.0,0,3,3,0,0,0,1,0,7,-9.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,13:16,3,5,0.6,0,0,0.0,0,0,0.0,0,1,1,2,1,1,4,5,6,-6.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1642461,Spencer,Jones,S. Jones,spencer-jones,,,,10:12,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,2,0,0,2,0,2.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,,,14:15,5,9,0.556,3,4,0.75,0,0,0.0,1,2,3,4,0,0,1,3,13,-7.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,,,11:46,2,6,0.333,0,2,0.0,0,0,0.0,2,0,2,1,1,0,0,0,4,-1.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,,,15:08,3,5,0.6,3,5,0.6,0,0,0.0,1,2,3,0,1,0,1,0,9,4.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1642938,Curtis,Jones,C. Jones,curtis-jones,,,,12:00,0,5,0.0,0,4,0.0,0,0,0.0,0,1,1,4,0,0,0,0,0,6.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1641747,DaRon,Holmes II,D. Holmes II,daron-holmes-ii,,,,8:40,1,2,0.5,1,2,0.5,2,2,1.0,1,0,1,2,0,0,0,0,5,2.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1629650,Moses,Brown,M. Brown,moses-brown,,,,4:10,4,5,0.8,0,0,0.0,0,0,0.0,2,1,3,0,0,0,0,0,8,3.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1642926,Tamar,Bates,T. Bates,tamar-bates,,,,4:10,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,1,0,3.0,0012500028
+0012500028,1610612743,Denver,Nuggets,DEN,nuggets,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500028

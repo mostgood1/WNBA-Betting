@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,24:43,3,9,0.333,2,5,0.4,5,6,0.833,0,4,4,2,0,0,4,2,13,-31.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,F,,,20:48,3,7,0.429,1,4,0.25,3,3,1.0,1,4,5,2,1,0,0,1,10,-8.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,19:06,3,6,0.5,0,0,0.0,0,1,0.0,0,6,6,0,0,1,0,0,6,-31.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,G,,,21:46,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,0,0,0,2,3,6,-22.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,27:38,4,13,0.308,2,5,0.4,4,4,1.0,0,2,2,6,0,1,4,2,14,-32.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,,,,15:39,0,0,0.0,0,0,0.0,2,2,1.0,1,0,1,1,0,0,0,1,2,-30.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,9:44,1,5,0.2,1,3,0.333,0,0,0.0,0,0,0,0,0,0,0,2,3,-16.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,17:25,1,7,0.143,0,5,0.0,0,0,0.0,0,3,3,0,1,1,0,0,2,-8.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,,,16:11,2,5,0.4,1,3,0.333,0,0,0.0,0,0,0,2,0,0,1,2,5,-12.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,17:20,0,6,0.0,0,6,0.0,2,2,1.0,1,4,5,3,1,0,2,3,2,-7.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1642349,Ajay,Mitchell,A. Mitchell,ajay-mitchell,,,,18:58,6,11,0.545,1,4,0.25,1,1,1.0,0,0,0,1,1,0,0,2,14,-12.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,14:08,4,6,0.667,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,1,8,-3.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,9:39,4,5,0.8,2,2,1.0,0,0,0.0,2,1,3,1,1,0,0,1,10,2.0,0042400313,2025-05-24
+0042400313,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,,,,6:55,2,2,1.0,2,2,1.0,0,0,0.0,0,1,1,0,0,0,0,0,6,0.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,26:16,3,9,0.333,2,4,0.5,2,2,1.0,4,2,6,4,0,0,0,2,10,28.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,29:57,9,15,0.6,2,5,0.4,4,4,1.0,0,4,4,3,0,0,0,4,24,38.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,28:10,3,6,0.5,0,0,0.0,1,2,0.5,2,5,7,2,2,1,0,2,7,23.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,29:42,12,17,0.706,5,8,0.625,1,2,0.5,1,8,9,6,2,0,4,2,30,36.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,21:42,2,8,0.25,2,6,0.333,0,0,0.0,0,3,3,2,1,0,1,0,6,12.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,16:19,2,2,1.0,2,2,1.0,0,0,0.0,0,1,1,3,0,0,0,2,6,24.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,18:58,4,6,0.667,2,3,0.667,0,0,0.0,0,8,8,2,0,1,0,4,10,23.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,18:24,5,9,0.556,2,4,0.5,0,1,0.0,2,1,3,2,0,0,3,0,12,15.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,13:12,5,8,0.625,1,3,0.333,4,4,1.0,0,2,2,1,1,0,0,2,15,11.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,9:02,2,2,1.0,0,0,0.0,0,0,0.0,0,3,3,1,0,0,0,0,4,2.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,7:50,0,2,0.0,0,1,0.0,1,2,0.5,0,1,1,4,0,0,0,0,1,0.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,7:41,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,1,1,0,0,0.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,7:41,5,6,0.833,1,1,1.0,0,0,0.0,2,1,3,0,0,0,1,0,11,0.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,5:06,3,3,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,7,-2.0,0042400313,2025-05-24
+0042400313,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400313,2025-05-24

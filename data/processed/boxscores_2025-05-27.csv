@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042400304,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,39:43,7,16,0.438,1,7,0.143,7,9,0.778,1,3,4,1,3,2,2,5,22,-1.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,37:04,8,15,0.533,1,2,0.5,7,9,0.778,3,9,12,3,0,0,2,4,24,3.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,C,,,18:49,2,3,0.667,0,0,0.0,2,2,1.0,5,2,7,1,1,0,0,4,6,-20.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,34:29,6,15,0.4,4,5,0.8,1,1,1.0,0,3,3,2,0,0,3,4,17,-13.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:48,9,19,0.474,2,6,0.333,11,12,0.917,0,2,2,5,2,1,3,3,31,-16.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,,,,35:59,3,5,0.6,1,2,0.5,5,6,0.833,4,7,11,1,0,0,5,6,12,-1.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,14:31,1,3,0.333,1,3,0.333,0,0,0.0,0,2,2,0,0,0,1,0,3,-14.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,2:24,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,,,9:04,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,1,1,1,1,0,3,11.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,11:09,1,4,0.25,1,2,0.5,0,0,0.0,0,2,2,3,0,0,0,1,3,6.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,32:25,5,9,0.556,2,6,0.333,4,4,1.0,0,3,3,1,2,0,3,3,16,20.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,35:11,11,21,0.524,3,4,0.75,5,6,0.833,3,2,5,2,1,1,1,4,30,9.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,33:10,5,8,0.625,1,3,0.333,2,3,0.667,1,2,3,1,0,3,4,6,13,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,28:52,1,9,0.111,1,2,0.5,0,0,0.0,0,2,2,3,1,0,1,4,3,3.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,37:31,11,23,0.478,5,12,0.417,5,6,0.833,0,12,12,15,4,0,0,4,32,16.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,14:10,1,2,0.5,0,1,0.0,0,0,0.0,0,3,3,0,0,0,0,1,2,-13.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,17:40,2,3,0.667,1,2,0.5,0,0,0.0,0,2,2,2,2,0,0,3,5,-1.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,18:33,3,4,0.75,0,0,0.0,0,0,0.0,0,0,0,3,1,0,2,0,6,3.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,10:00,1,1,1.0,0,0,0.0,1,2,0.5,1,0,1,0,0,0,0,1,3,10.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,12:30,5,8,0.625,0,2,0.0,10,11,0.909,0,2,2,2,0,0,0,1,20,-2.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27
+0042400304,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400304,2025-05-27

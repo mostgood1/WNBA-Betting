@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,26:53,7,13,0.538,4,8,0.5,0,0,0.0,1,6,7,3,2,1,2,4,18,-17.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,30:59,12,19,0.632,3,4,0.75,1,3,0.333,0,5,5,2,2,0,0,3,28,-9.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,24:15,1,9,0.111,0,6,0.0,4,4,1.0,1,2,3,2,0,1,4,1,6,-15.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,30:13,2,8,0.25,0,1,0.0,2,2,1.0,0,1,1,5,1,0,0,2,6,-18.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,31:34,5,11,0.455,4,9,0.444,0,0,0.0,1,6,7,10,0,1,1,2,14,-23.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,16:02,4,9,0.444,0,4,0.0,2,3,0.667,0,2,2,1,1,1,2,1,10,-6.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,21:24,1,2,0.5,1,1,1.0,0,0,0.0,1,3,4,2,1,0,2,3,3,1.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,16:36,0,4,0.0,0,0,0.0,0,0,0.0,0,4,4,5,0,0,1,0,0,3.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,13:42,4,8,0.5,0,4,0.0,1,1,1.0,0,3,3,0,1,0,2,2,9,-8.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,15:26,2,5,0.4,1,4,0.25,0,0,0.0,1,1,2,0,0,0,0,1,5,3.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,5:50,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,1.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,3:33,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,4.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,3:33,0,0,0.0,0,0,0.0,0,0,0.0,2,0,2,2,0,0,0,0,0,4.0,0042400133
+0042400133,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,20:36,4,9,0.444,1,2,0.5,0,0,0.0,0,3,3,2,0,1,2,3,9,-1.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,32:12,14,19,0.737,0,0,0.0,9,10,0.9,3,9,12,6,1,0,5,2,37,24.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,14:36,0,3,0.0,0,3,0.0,0,0,0.0,1,1,2,2,0,0,1,3,0,5.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,34:05,11,16,0.688,9,12,0.75,6,7,0.857,0,3,3,0,4,0,0,1,37,20.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,31:38,2,12,0.167,1,8,0.125,2,2,1.0,0,3,3,5,2,2,1,4,7,16.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,25:46,4,8,0.5,4,8,0.5,0,0,0.0,0,4,4,4,0,0,0,1,12,19.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,32:13,5,13,0.385,0,4,0.0,0,0,0.0,2,6,8,3,1,1,3,1,10,15.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,26:23,0,5,0.0,0,2,0.0,1,2,0.5,0,4,4,6,0,0,1,2,1,-5.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,3:07,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,3.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,14:34,2,2,1.0,0,0,0.0,0,1,0.0,4,4,8,0,0,0,0,0,4,-8.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,,,,2:25,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,2:25,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0042400133
+0042400133,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400133

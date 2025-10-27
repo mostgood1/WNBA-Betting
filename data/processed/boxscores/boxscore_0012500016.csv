@@ -1,0 +1,38 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1627742,Brandon,Ingram,B. Ingram,brandon-ingram,F,,,23:19,7,15,0.467,5,7,0.714,2,2,1.0,1,5,6,3,0,0,0,3,21,10.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,19:59,3,7,0.429,1,2,0.5,0,0,0.0,0,2,2,1,2,0,1,2,7,-5.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642367,Jonathan,Mogbo,J. Mogbo,jonathan-mogbo,C,,,18:34,2,3,0.667,0,0,0.0,1,2,0.5,3,4,7,2,1,0,3,4,5,-2.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,G,,,23:01,3,11,0.273,3,5,0.6,4,6,0.667,0,2,2,4,1,0,0,2,13,18.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1630193,Immanuel,Quickley,I. Quickley,immanuel-quickley,G,,,22:07,2,9,0.222,1,4,0.25,3,3,1.0,0,2,2,4,0,0,3,1,8,13.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,17:05,2,4,0.5,1,3,0.333,0,1,0.0,1,4,5,0,1,1,1,1,5,16.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642867,Collin,Murray-Boyles,C. Murray-Boyles,collin-murray-boyles,,,,22:57,4,8,0.5,1,2,0.5,3,3,1.0,3,4,7,6,0,2,0,3,12,9.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642347,Jamal,Shead,J. Shead,jamal-shead,,,,15:49,3,5,0.6,1,2,0.5,0,0,0.0,0,2,2,3,2,0,2,2,7,8.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642266,Ja'Kobe,Walter,J. Walter,jakobe-walter,,,,22:00,4,7,0.571,2,3,0.667,5,5,1.0,2,1,3,3,1,1,1,1,15,8.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,,,,15:10,6,7,0.857,1,2,0.5,1,1,1.0,1,1,2,1,1,1,1,2,14,10.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642935,Chucky,Hepburn,C. Hepburn,chucky-hepburn,,,,10:04,3,6,0.5,1,3,0.333,2,2,1.0,0,1,1,3,2,0,0,3,9,-13.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642419,Jamison,Battle,J. Battle,jamison-battle,,,,9:57,1,2,0.5,1,1,1.0,0,0,0.0,0,1,1,1,0,0,0,2,3,-10.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1642918,Alijah,Martin,A. Martin,alijah-martin,,,,8:32,2,3,0.667,1,1,1.0,0,0,0.0,0,0,0,1,0,1,4,0,5,-12.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,5:43,2,4,0.5,1,2,0.5,1,2,0.5,0,1,1,0,0,0,0,1,6,-5.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1630846,Olivier,Sarr,O. Sarr,olivier-sarr,,,,5:43,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-5.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,23:02,2,6,0.333,1,2,0.5,1,1,1.0,0,6,6,4,0,1,1,1,6,-8.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,24:38,2,9,0.222,0,4,0.0,2,3,0.667,1,2,3,0,1,4,0,1,6,-8.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,22:47,7,10,0.7,0,2,0.0,5,6,0.833,0,4,4,1,1,2,4,3,19,-22.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,14:43,5,7,0.714,3,5,0.6,3,3,1.0,1,0,1,1,0,0,1,0,16,5.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,23:59,1,5,0.2,0,2,0.0,3,4,0.75,0,6,6,1,0,0,1,2,5,-10.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1629234,Drew,Eubanks,D. Eubanks,drew-eubanks,,,,13:13,1,3,0.333,0,1,0.0,2,2,1.0,1,3,4,0,1,3,2,2,4,3.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,9:50,1,3,0.333,1,2,0.5,0,0,0.0,0,1,1,0,0,0,2,2,3,-16.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,16:26,3,5,0.6,1,3,0.333,1,2,0.5,0,1,1,0,1,0,1,3,8,-12.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,14:08,2,5,0.4,1,3,0.333,3,4,0.75,0,2,2,2,1,0,0,2,8,-17.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1642363,Nique,Clifford,N. Clifford,nique-clifford,,,,24:08,3,7,0.429,0,2,0.0,4,4,1.0,0,3,3,9,2,0,3,4,10,-4.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,16:02,3,6,0.5,1,3,0.333,1,2,0.5,1,2,3,3,1,0,1,0,8,10.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1631342,Daeqwon,Plowden,D. Plowden,daeqwon-plowden,,,,3:00,1,3,0.333,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,0.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1642928,Dylan,Cardwell,D. Cardwell,dylan-cardwell,,,,13:32,6,7,0.857,0,0,0.0,0,2,0.0,2,1,3,1,0,1,1,0,12,16.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1642875,Maxime,Raynaud,M. Raynaud,maxime-raynaud,,,,12:00,2,5,0.4,0,2,0.0,3,4,0.75,3,3,6,0,2,0,0,2,7,11.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1641815,Isaiah,Stevens,I. Stevens,isaiah-stevens,,,,8:32,3,3,1.0,1,1,1.0,0,0,0.0,0,0,0,3,0,0,1,0,7,12.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1629056,Terence,Davis,T. Davis,terence-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,1641926,Dexter,Dennis,D. Dennis,dexter-dennis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016
+0012500016,1610612758,Sacramento,Kings,SAC,kings,203967,Dario,Šarić,D. Šarić,dario-šarić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500016

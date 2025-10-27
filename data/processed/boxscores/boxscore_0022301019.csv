@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,36:39,7,14,0.5,4,9,0.444,0,0,0.0,0,4,4,5,1,0,3,1,18,-12.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,31:34,3,7,0.429,3,6,0.5,4,4,1.0,0,2,2,2,1,0,0,3,13,-13.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,30:56,2,5,0.4,0,0,0.0,1,2,0.5,3,6,9,2,1,2,1,0,5,-8.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,36:01,6,14,0.429,1,5,0.2,6,6,1.0,0,5,5,6,0,0,5,0,19,-29.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,33:47,4,14,0.286,1,4,0.25,0,0,0.0,2,5,7,3,0,3,2,1,9,-13.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,,,21:15,1,5,0.2,0,4,0.0,0,0,0.0,0,4,4,2,0,0,0,4,2,-7.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,,,12:02,4,6,0.667,1,3,0.333,0,0,0.0,0,2,2,1,0,0,1,0,9,-1.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,10:24,2,4,0.5,0,0,0.0,1,1,1.0,3,1,4,2,0,1,0,3,5,-2.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,,,14:08,3,4,0.75,1,2,0.5,1,2,0.5,0,0,0,1,2,0,2,1,8,-2.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,6:46,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,1,0,0,1,1,2,9.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,2:10,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,1,0,0,0,1,3,6.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,2:10,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,6.0,0022301019
+0022301019,1610612751,Brooklyn,Nets,BKN,nets,1628966,Keita,Bates-Diop,K. Bates-Diop,keita-bates-diop,,,,2:10,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,6.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,F,,,40:52,12,24,0.5,4,13,0.308,3,4,0.75,2,4,6,5,2,1,2,3,31,10.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,44:06,3,8,0.375,0,3,0.0,0,1,0.0,3,10,13,5,1,1,0,2,6,15.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,26:11,8,10,0.8,0,0,0.0,1,2,0.5,4,5,9,2,4,2,3,1,17,13.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,32:49,7,24,0.292,3,4,0.75,0,0,0.0,1,3,4,8,1,0,1,1,17,12.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,48:00,9,16,0.563,6,12,0.5,2,2,1.0,1,1,2,3,1,0,0,4,26,12.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,7:29,0,2,0.0,0,1,0.0,0,2,0.0,2,1,3,1,0,0,0,0,0,-9.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,,,15:11,2,9,0.222,1,5,0.2,0,1,0.0,1,1,2,1,0,0,0,0,5,0.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,7:08,1,2,0.5,1,2,0.5,0,0,0.0,0,1,1,0,0,0,1,1,3,2.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,,,18:14,0,2,0.0,0,0,0.0,0,0,0.0,2,5,7,0,1,0,2,3,0,5.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301019
+0022301019,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301019

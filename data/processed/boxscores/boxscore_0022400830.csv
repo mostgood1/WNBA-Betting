@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,20:56,6,9,0.667,5,7,0.714,0,0,0.0,1,0,1,2,1,0,1,1,17,14.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,27:48,6,9,0.667,1,2,0.5,4,6,0.667,1,7,8,2,0,2,3,0,17,19.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,24:39,4,7,0.571,0,0,0.0,0,0,0.0,1,6,7,1,0,1,0,0,8,15.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,G,,,23:39,2,4,0.5,2,2,1.0,2,2,1.0,2,2,4,2,1,1,0,2,8,25.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,23:14,5,12,0.417,1,4,0.25,0,0,0.0,1,2,3,5,0,0,2,1,11,16.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,26:45,5,8,0.625,4,5,0.8,3,4,0.75,0,3,3,2,0,0,0,1,17,19.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,18:47,1,4,0.25,1,4,0.25,2,2,1.0,0,2,2,1,0,0,0,2,5,18.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,21:07,7,12,0.583,4,6,0.667,2,2,1.0,0,2,2,2,1,0,3,3,20,20.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,19:29,2,3,0.667,1,1,1.0,0,0,0.0,1,6,7,2,2,0,1,2,5,23.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,11:11,1,3,0.333,0,1,0.0,0,0,0.0,0,2,2,5,0,1,1,0,2,8.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,8:23,2,3,0.667,0,0,0.0,0,0,0.0,1,1,2,1,0,0,0,1,4,11.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,,,,6:18,2,2,1.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,0,4,8.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,3:52,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,2.0,0022400830
+0022400830,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,,,,3:52,1,3,0.333,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,0,2,2.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,34:30,9,21,0.429,1,3,0.333,0,0,0.0,1,4,5,4,1,1,2,4,19,-18.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,32:18,9,22,0.409,1,7,0.143,7,9,0.778,1,4,5,4,1,1,2,1,26,-22.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,26:06,4,10,0.4,0,1,0.0,1,1,1.0,4,2,6,1,1,1,1,2,9,-22.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,22:29,4,5,0.8,1,1,1.0,0,0,0.0,0,0,0,2,0,0,0,1,9,-8.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,G,,,20:38,2,6,0.333,2,3,0.667,0,0,0.0,1,4,5,4,0,0,0,1,6,-11.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,203914,Gary,Harris,G. Harris,gary-harris,,,,11:09,0,3,0.0,0,1,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-19.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1641783,Tristan,da Silva,T. da Silva,tristan-da-silva,,,,21:02,0,5,0.0,0,4,0.0,0,0,0.0,1,1,2,1,0,1,1,2,0,-26.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,,,21:40,1,5,0.2,0,2,0.0,0,0,0.0,0,4,4,2,1,1,4,1,2,-23.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,13:40,0,3,0.0,0,2,0.0,2,2,1.0,4,1,5,1,2,0,0,0,2,-8.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,,,7:37,0,0,0.0,0,0,0.0,1,2,0.5,0,1,1,0,0,1,0,1,1,-8.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,,,16:15,1,3,0.333,0,2,0.0,0,0,0.0,0,2,2,1,0,1,0,1,2,-19.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1630243,Trevelin,Queen,T. Queen,trevelin-queen,,,,6:18,2,5,0.4,0,1,0.0,0,0,0.0,0,0,0,0,0,1,0,0,4,-8.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,,,,6:18,1,2,0.5,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,2,-8.0,0022400830
+0022400830,1610612753,Orlando,Magic,ORL,magic,202709,Cory,Joseph,C. Joseph,cory-joseph,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400830

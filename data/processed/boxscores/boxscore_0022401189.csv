@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,F,,,31:07,5,13,0.385,1,5,0.2,0,0,0.0,0,8,8,5,2,0,0,1,11,-17.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,F,,,12:15,3,6,0.5,1,3,0.333,0,0,0.0,1,2,3,0,2,0,2,1,7,-6.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,12:43,3,4,0.75,1,2,0.5,2,2,1.0,0,1,1,1,0,1,1,1,9,-9.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,G,,,14:22,4,7,0.571,1,2,0.5,1,1,1.0,2,2,4,1,1,0,1,2,10,-11.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,14:28,1,8,0.125,1,3,0.333,0,0,0.0,0,0,0,4,0,0,2,1,3,-8.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,41:26,5,16,0.313,1,7,0.143,4,4,1.0,2,7,9,5,1,1,3,5,15,12.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,17:59,3,6,0.5,1,4,0.25,0,0,0.0,1,2,3,0,0,0,0,0,7,-14.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,18:47,4,8,0.5,0,0,0.0,0,0,0.0,0,0,0,1,1,0,1,1,8,-24.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,39:33,7,16,0.438,0,4,0.0,7,7,1.0,1,5,6,2,4,0,1,2,21,22.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,27:18,6,13,0.462,0,0,0.0,2,4,0.5,5,9,14,1,0,5,1,2,14,31.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,31:09,2,8,0.25,0,3,0.0,4,4,1.0,2,6,8,1,1,1,1,1,8,29.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,1642484,RayJ,Dennis,R. Dennis,rayj-dennis,,,,28:53,5,14,0.357,3,9,0.333,0,0,0.0,0,5,5,6,3,2,0,3,13,35.0,0022401189
+0022401189,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,F,,,46:00,12,25,0.48,4,12,0.333,3,4,0.75,3,4,7,4,3,1,5,3,31,0.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,F,,,46:45,8,21,0.381,2,8,0.25,6,8,0.75,6,6,12,2,0,1,1,6,24,9.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,0:41,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,2.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629750,Javonte,Green,J. Green,javonte-green,G,,,19:47,4,12,0.333,0,5,0.0,0,0,0.0,2,1,3,2,2,1,0,5,8,17.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,G,,,42:45,7,19,0.368,4,9,0.444,2,4,0.5,1,4,5,5,0,2,7,2,20,-22.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,42:42,1,4,0.25,0,0,0.0,1,6,0.167,2,18,20,1,1,2,3,3,3,-25.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,,,21:51,1,5,0.2,1,5,0.2,0,0,0.0,1,3,4,2,0,1,0,0,3,2.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,,,27:40,2,9,0.222,0,5,0.0,0,0,0.0,3,5,8,2,0,0,3,1,4,-1.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,,,41:49,9,19,0.474,7,15,0.467,0,0,0.0,0,6,6,2,0,1,2,2,25,-22.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401189
+0022401189,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,DND - Rest,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401189

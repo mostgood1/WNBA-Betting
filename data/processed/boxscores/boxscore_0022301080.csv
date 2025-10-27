@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,F,,,36:59,10,20,0.5,6,11,0.545,6,7,0.857,2,5,7,3,2,2,4,2,32,25.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,30:02,8,13,0.615,1,3,0.333,4,4,1.0,3,6,9,3,0,3,1,2,21,8.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,C,,,13:19,1,3,0.333,0,2,0.0,2,2,1.0,0,4,4,1,1,1,1,1,4,1.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,37:50,4,6,0.667,3,5,0.6,0,0,0.0,1,0,1,10,1,2,2,3,11,7.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1626166,Cameron,Payne,C. Payne,cameron-payne,G,,,37:37,9,16,0.563,6,10,0.6,0,0,0.0,0,1,1,3,0,0,2,3,24,15.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,28:18,7,8,0.875,5,6,0.833,0,0,0.0,1,5,6,2,2,0,0,0,19,5.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,17:47,4,7,0.571,0,1,0.0,1,3,0.333,0,2,2,0,0,1,0,3,9,1.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,21:51,5,7,0.714,3,5,0.6,0,0,0.0,0,3,3,3,0,1,3,1,13,5.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1630288,Jeff,Dowtin Jr.,J. Dowtin Jr.,jeff-dowtin-jr,,,,4:45,0,1,0.0,0,0,0.0,0,0,0.0,1,0,1,1,0,0,2,1,0,-2.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,10:18,1,2,0.5,0,0,0.0,0,0,0.0,1,4,5,2,0,0,0,1,2,9.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,1:14,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,1.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301080
+0022301080,1610612755,Philadelphia,76ers,PHI,sixers,1628391,D.J.,Wilson,D. Wilson,dj-wilson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,F,,,31:06,3,8,0.375,1,3,0.333,5,7,0.714,0,0,0,2,2,0,2,2,12,-14.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1628971,Bruce,Brown,B. Brown,bruce-brown,F,,,33:53,7,9,0.778,3,4,0.75,1,2,0.5,1,3,4,6,2,0,2,4,18,-13.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,C,,,31:56,7,8,0.875,1,2,0.5,3,4,0.75,2,3,5,11,3,0,5,3,18,-2.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,31:50,10,20,0.5,3,9,0.333,0,0,0.0,0,2,2,2,2,0,1,1,23,-10.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1631241,Javon,Freeman-Liberty,J. Freeman-Liberty,javon-freeman-liberty,G,,,31:18,4,11,0.364,1,3,0.333,2,2,1.0,1,6,7,2,1,0,1,2,11,-7.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,,,30:26,8,18,0.444,2,7,0.286,1,1,1.0,2,2,4,3,0,1,1,0,19,-4.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,9:22,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,2,2,-8.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1628424,Kobi,Simmons,K. Simmons,kobi-simmons,,,,15:31,3,6,0.5,0,1,0.0,0,0,0.0,0,1,1,3,0,0,0,0,6,-8.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,,,17:56,3,6,0.5,0,1,0.0,2,2,1.0,0,4,4,1,0,0,0,0,8,-4.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1631338,Mouhamadou,Gueye,M. Gueye,mouhamadou-gueye,,,,6:42,1,2,0.5,0,0,0.0,1,2,0.5,1,0,1,1,0,1,0,0,3,-5.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1629628,RJ,Barrett,R. Barrett,rj-barrett,,DND-Return to Competition Reconditioning,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301080
+0022301080,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301080

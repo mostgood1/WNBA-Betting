@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,29:43,4,7,0.571,2,4,0.5,0,0,0.0,1,4,5,1,1,0,2,3,10,10.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,34:42,13,22,0.591,5,10,0.5,0,0,0.0,1,9,10,5,1,0,2,2,31,18.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,35:51,5,5,1.0,0,0,0.0,3,4,0.75,0,8,8,4,0,0,1,3,13,17.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,37:47,13,19,0.684,7,11,0.636,11,13,0.846,1,4,5,3,1,1,5,3,44,15.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,26:38,2,7,0.286,0,4,0.0,4,4,1.0,1,1,2,9,1,1,2,5,8,29.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,,,,21:20,3,5,0.6,3,5,0.6,0,0,0.0,0,0,0,4,1,1,2,3,9,-7.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,23:55,4,13,0.308,1,5,0.2,5,5,1.0,3,3,6,1,0,0,2,5,14,-7.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,24:33,3,8,0.375,2,5,0.4,2,2,1.0,1,4,5,2,1,0,0,1,10,-8.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,3:13,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,7.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,0:46,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,2.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,0:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,0:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,2.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401170
+0022401170,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,F,,,17:56,2,4,0.5,1,2,0.5,0,0,0.0,0,3,3,1,0,0,1,2,5,-12.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,37:13,8,18,0.444,4,7,0.571,3,3,1.0,1,0,1,1,2,0,2,5,23,-13.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,29:52,2,4,0.5,0,0,0.0,3,4,0.75,4,5,9,0,0,1,1,4,7,-3.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,38:52,11,18,0.611,6,10,0.6,0,0,0.0,0,6,6,9,1,1,3,3,28,-14.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,35:39,13,27,0.481,5,13,0.385,5,7,0.714,1,0,1,6,1,0,5,3,36,-3.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,29:51,2,4,0.5,1,2,0.5,0,0,0.0,0,4,4,5,0,0,1,1,5,-13.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,3:55,0,0,0.0,0,0,0.0,0,0,0.0,0,3,3,0,0,0,0,0,0,-7.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,32:14,6,11,0.545,0,0,0.0,4,7,0.571,2,1,3,4,1,0,2,3,16,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,7:10,1,1,1.0,1,1,1.0,0,0,0.0,0,2,2,0,0,0,0,0,3,-3.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,1:28,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,1:28,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,1:26,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0022401170
+0022401170,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401170

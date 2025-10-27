@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,38:40,7,18,0.389,3,7,0.429,4,4,1.0,3,3,6,2,1,2,1,2,21,-2.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,39:31,7,16,0.438,2,7,0.286,4,4,1.0,1,6,7,1,1,0,2,3,20,-1.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,37:52,9,17,0.529,0,0,0.0,1,1,1.0,9,13,22,4,1,3,1,1,19,-7.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,G,,,23:15,2,9,0.222,2,8,0.25,3,4,0.75,2,1,3,3,1,0,0,1,9,7.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,34:59,7,15,0.467,1,4,0.25,0,0,0.0,0,4,4,13,1,0,4,2,15,-6.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,35:29,6,16,0.375,2,9,0.222,4,4,1.0,0,3,3,4,0,1,1,4,18,-12.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,11:27,1,2,0.5,1,2,0.5,0,0,0.0,1,2,3,1,0,0,1,2,3,-5.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,,,,15:08,5,10,0.5,1,3,0.333,0,1,0.0,8,3,11,1,0,1,0,0,11,-3.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,15:56,3,9,0.333,1,5,0.2,0,0,0.0,0,1,1,0,0,0,0,1,7,-12.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,12:43,1,5,0.2,0,3,0.0,2,2,1.0,1,2,3,0,0,0,0,0,4,1.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1641989,Elijah,Harkless,E. Harkless,elijah-harkless,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740
+0022400740,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,35:40,7,19,0.368,7,14,0.5,0,0,0.0,2,5,7,6,2,1,0,2,21,12.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,F,,,30:25,4,11,0.364,4,11,0.364,0,0,0.0,0,3,3,4,0,4,0,2,12,-7.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,C,,,23:17,4,7,0.571,0,0,0.0,4,4,1.0,5,9,14,0,0,4,0,2,12,-10.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,48:52,18,33,0.545,3,10,0.3,8,9,0.889,1,5,6,11,1,0,4,4,47,7.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,38:21,4,13,0.308,4,11,0.364,4,4,1.0,0,6,6,6,1,1,2,0,16,5.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,29:42,0,1,0.0,0,0,0.0,2,2,1.0,2,4,6,1,2,1,1,3,2,17.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,,,14:33,2,4,0.5,1,2,0.5,1,2,0.5,1,2,3,0,0,1,0,3,6,-1.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,24:13,5,8,0.625,2,5,0.4,0,0,0.0,0,3,3,1,0,3,0,0,12,10.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,,,14:39,2,5,0.4,1,2,0.5,0,0,0.0,0,0,0,2,0,0,0,0,5,5.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,,,5:18,1,3,0.333,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,2.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1641779,Jalen,Bridges,J. Bridges,jalen-bridges,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740
+0022400740,1610612756,Phoenix,Suns,PHX,suns,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400740

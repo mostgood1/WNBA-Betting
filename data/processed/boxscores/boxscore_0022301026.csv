@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,35:09,5,12,0.417,1,5,0.2,1,2,0.5,3,6,9,3,0,0,2,2,12,-3.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,36:55,8,21,0.381,0,2,0.0,6,8,0.75,8,4,12,5,0,3,1,0,22,-6.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,C,,,19:59,4,7,0.571,0,0,0.0,3,3,1.0,2,6,8,3,1,1,2,3,11,10.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,34:33,4,6,0.667,3,5,0.6,2,2,1.0,0,3,3,1,2,2,2,3,13,-5.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,G,,,28:55,7,12,0.583,1,4,0.25,8,11,0.727,0,0,0,5,2,0,3,2,23,-10.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,35:55,7,15,0.467,1,3,0.333,2,4,0.5,4,4,8,6,3,1,1,2,17,5.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,19:05,4,10,0.4,2,4,0.5,1,2,0.5,0,3,3,1,0,0,2,3,11,13.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,15:13,1,6,0.167,0,1,0.0,1,1,1.0,2,3,5,1,0,2,0,2,3,5.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,14:16,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,6.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1630643,Jay,Huff,J. Huff,jay-huff,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1630296,Braxton,Key,B. Key,braxton-key,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,39:11,5,13,0.385,1,6,0.167,0,0,0.0,3,4,7,1,1,1,1,1,11,0.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,39:20,6,11,0.545,2,4,0.5,2,2,1.0,4,3,7,6,1,1,1,2,16,8.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,C,,,26:20,9,14,0.643,3,6,0.5,3,3,1.0,2,6,8,2,1,2,2,5,24,9.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,15:47,1,2,0.5,0,0,0.0,1,1,1.0,0,1,1,5,0,0,2,1,3,-8.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,28:20,9,20,0.45,2,4,0.5,2,2,1.0,1,3,4,6,2,0,4,5,22,-6.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,32:44,5,19,0.263,1,6,0.167,3,4,0.75,0,3,3,1,0,0,1,4,14,-1.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,21:25,0,3,0.0,0,1,0.0,2,2,1.0,1,2,3,6,2,2,2,4,2,-1.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,25:51,6,7,0.857,1,1,1.0,2,2,1.0,1,8,9,0,1,0,1,1,15,-8.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,,,11:03,2,4,0.5,0,0,0.0,0,1,0.0,2,1,3,0,0,2,1,1,4,-8.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026
+0022301026,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301026

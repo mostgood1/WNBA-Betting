@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,F,,,47:35,10,20,0.5,4,11,0.364,5,6,0.833,2,12,14,10,0,2,1,3,29,-2.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,38:39,7,14,0.5,0,2,0.0,2,2,1.0,4,10,14,1,0,0,1,2,16,-6.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,203076,Anthony,Davis,A. Davis,anthony-davis,C,,,51:52,12,31,0.387,3,8,0.375,7,7,1.0,7,16,23,2,2,4,4,1,34,1.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,42:14,1,8,0.125,1,5,0.2,4,4,1.0,0,2,2,4,0,1,1,4,7,8.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,50:23,7,22,0.318,5,12,0.417,10,10,1.0,1,6,7,12,2,1,4,0,29,10.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,28:01,3,10,0.3,1,5,0.2,2,2,1.0,0,4,4,1,0,0,3,0,9,10.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,,,16:56,1,1,1.0,0,0,0.0,0,1,0.0,1,3,4,0,0,0,3,3,2,-4.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,,,6:55,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,7:25,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,6.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,38:35,4,15,0.267,2,7,0.286,2,2,1.0,2,4,6,7,1,0,1,5,12,-2.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,46:25,14,25,0.56,0,1,0.0,1,6,0.167,8,13,21,11,2,3,7,3,29,-13.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,33:10,4,7,0.571,1,4,0.25,0,0,0.0,1,5,6,1,1,0,0,2,9,4.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1627736,Malik,Beasley,M. Beasley,malik-beasley,G,,,40:12,8,18,0.444,5,14,0.357,0,0,0.0,0,3,3,1,1,1,1,3,21,1.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,203081,Damian,Lillard,D. Lillard,damian-lillard,G,,,49:13,9,29,0.31,3,14,0.214,6,7,0.857,1,4,5,8,1,0,2,6,27,-5.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1626171,Bobby,Portis,B. Portis,bobby-portis,,,,30:20,7,15,0.467,2,3,0.667,2,2,1.0,3,10,13,0,1,1,1,3,18,5.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,203109,Jae,Crowder,J. Crowder,jae-crowder,,,,18:14,2,4,0.5,1,2,0.5,0,0,0.0,0,2,2,0,1,0,0,2,5,-8.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,21:46,1,4,0.25,1,4,0.25,0,0,0.0,0,3,3,9,0,0,2,1,3,-6.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,12:04,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,0,1,0,0,1,0,4.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,203648,Thanasis,Antetokounmpo,T. Antetokounmpo,thanasis-antetokounmpo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,201568,Danilo,Gallinari,D. Gallinari,danilo-gallinari,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045
+0022301045,1610612749,Milwaukee,Bucks,MIL,bucks,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301045

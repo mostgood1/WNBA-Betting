@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,F,,,32:25,2,6,0.333,1,4,0.25,1,1,1.0,2,4,6,1,1,0,3,3,6,7.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,34:07,9,18,0.5,3,6,0.5,5,5,1.0,1,1,2,5,0,1,2,4,26,8.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,C,,,33:30,7,13,0.538,1,6,0.167,1,2,0.5,0,9,9,4,0,2,1,3,16,16.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630581,Josh,Giddey,J. Giddey,josh-giddey,G,,,30:41,10,14,0.714,5,8,0.625,0,0,0.0,1,8,9,4,0,0,3,1,25,9.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,38:15,9,20,0.45,1,3,0.333,5,6,0.833,2,3,5,8,2,0,0,1,24,14.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,202330,Gordon,Hayward,G. Hayward,gordon-hayward,,,,10:00,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-19.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,13:31,1,1,1.0,1,1,1.0,0,0,0.0,0,7,7,2,0,0,3,2,3,-7.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,16:14,2,4,0.5,2,4,0.5,0,0,0.0,0,3,3,2,1,0,0,1,6,3.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,,,,13:11,3,4,0.75,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,1,7,0.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,18:06,3,4,0.75,0,1,0.0,0,0,0.0,1,2,3,2,1,0,0,1,6,4.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,203488,Mike,Muscala,M. Muscala,mike-muscala,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630846,Olivier,Sarr,O. Sarr,olivier-sarr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,38:53,6,10,0.6,4,6,0.667,0,1,0.0,0,6,6,2,0,1,0,2,16,-8.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,F,,,38:30,10,17,0.588,0,0,0.0,9,10,0.9,1,4,5,10,3,0,5,4,29,-2.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,C,,,10:30,2,4,0.5,0,1,0.0,2,3,0.667,2,4,6,1,0,0,0,0,6,-11.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630529,Herbert,Jones,H. Jones,herbert-jones,G,,,30:56,4,12,0.333,2,8,0.25,6,6,1.0,0,2,2,4,1,1,2,5,16,-21.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,41:23,8,24,0.333,4,11,0.364,3,3,1.0,0,6,6,5,0,0,0,2,23,-7.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,32:33,2,4,0.5,0,0,0.0,0,0,0.0,1,1,2,0,1,0,0,0,4,-3.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,16:07,3,7,0.429,2,6,0.333,0,0,0.0,1,2,3,3,1,0,0,2,8,-5.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,23:23,3,6,0.5,1,4,0.25,0,0,0.0,0,4,4,1,1,0,1,3,7,15.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,2:48,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,0.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,4:57,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,0,0,0,1,0,0,7.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,1630346,Matt,Ryan,M. Ryan,matt-ryan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046
+0022301046,1610612740,New Orleans,Pelicans,NOP,pelicans,203469,Cody,Zeller,C. Zeller,cody-zeller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301046

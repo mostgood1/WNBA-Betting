@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,30:34,3,7,0.429,1,3,0.333,0,0,0.0,3,3,6,3,2,0,0,2,7,-11.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,37:36,5,15,0.333,3,9,0.333,3,4,0.75,0,6,6,4,2,0,0,2,16,-6.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,26:15,4,7,0.571,0,1,0.0,2,2,1.0,3,2,5,2,1,0,0,5,10,-25.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,32:17,11,25,0.44,5,12,0.417,13,13,1.0,0,2,2,0,0,0,3,0,40,-7.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,G,,,14:41,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,5,1,0,0,3,0,-8.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,,,18:46,1,5,0.2,1,5,0.2,0,0,0.0,1,3,4,1,0,0,2,3,3,-6.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,13:07,1,4,0.25,1,4,0.25,2,2,1.0,1,0,1,0,1,0,0,5,5,-1.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,15:18,3,4,0.75,0,1,0.0,0,0,0.0,2,1,3,1,2,0,4,4,6,15.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,23:48,2,8,0.25,2,7,0.286,1,1,1.0,0,3,3,2,0,0,0,3,7,-5.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,12:18,1,4,0.25,0,2,0.0,2,2,1.0,1,1,2,3,0,0,1,1,4,2.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,15:20,3,4,0.75,3,4,0.75,0,0,0.0,0,1,1,1,0,0,1,2,9,-3.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105
+0022500105,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,31:20,4,5,0.8,3,4,0.75,2,3,0.667,0,6,6,2,0,0,0,3,13,1.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,25:12,2,9,0.222,0,5,0.0,0,0,0.0,3,0,3,1,0,0,2,1,4,-6.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,36:28,9,21,0.429,3,6,0.5,10,15,0.667,1,13,14,4,3,6,2,3,31,13.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,35:26,6,12,0.5,4,6,0.667,0,0,0.0,0,3,3,1,1,0,2,2,16,12.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,30:05,5,10,0.5,0,2,0.0,3,5,0.6,2,4,6,3,0,0,5,4,13,-7.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1642844,Dylan,Harper,D. Harper,dylan-harper,,,,29:19,8,11,0.727,0,0,0.0,4,4,1.0,1,5,6,8,2,0,0,4,20,33.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,28:41,5,9,0.556,2,4,0.5,7,7,1.0,3,3,6,1,1,0,0,1,19,19.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,11:32,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,2,0,-2.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1642868,Carter,Bryant,C. Bryant,carter-bryant,,,,4:32,0,0,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,1,2,2,-1.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,7:25,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-7.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1642357,David,Jones Garcia,D. Jones Garcia,david-jones-garcia,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105
+0022500105,1610612759,San Antonio,Spurs,SAS,spurs,1642434,Riley,Minix,R. Minix,riley-minix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500105

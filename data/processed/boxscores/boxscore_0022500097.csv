@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,24:08,4,7,0.571,1,2,0.5,7,7,1.0,3,5,8,3,2,0,4,3,16,-11.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,F,,,20:32,4,7,0.571,3,4,0.75,1,2,0.5,0,3,3,5,0,0,5,4,12,-13.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,C,,,15:54,2,4,0.5,1,2,0.5,0,0,0.0,3,1,4,1,0,0,1,0,5,-3.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,G,,,26:43,3,7,0.429,0,2,0.0,8,10,0.8,1,2,3,4,1,0,1,1,14,-10.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,27:18,12,22,0.545,7,14,0.5,4,4,1.0,1,5,6,3,1,2,4,1,35,-13.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,11:38,0,2,0.0,0,1,0.0,2,2,1.0,0,0,0,3,0,0,1,1,2,5.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,,,21:17,1,6,0.167,1,3,0.333,4,6,0.667,0,2,2,0,1,0,2,1,7,-12.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,16:33,2,5,0.4,0,0,0.0,2,2,1.0,1,3,4,1,1,1,1,3,6,-1.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,,,,22:27,2,9,0.222,1,3,0.333,3,4,0.75,1,4,5,0,2,0,2,1,8,-17.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1642954,Will,Richard,W. Richard,will-richard,,,,24:37,2,4,0.5,1,3,0.333,2,2,1.0,0,2,2,2,2,0,2,4,7,-13.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,10:55,2,4,0.5,0,1,0.0,0,0,0.0,1,1,2,1,1,0,0,1,4,-7.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,7:01,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-1.0,0022500097
+0022500097,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,10:57,1,2,0.5,1,2,0.5,0,0,0.0,1,0,1,1,1,0,2,2,3,-4.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,29:29,11,18,0.611,4,6,0.667,0,0,0.0,2,3,5,6,0,0,3,4,26,16.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,32:44,7,13,0.538,3,7,0.429,2,2,1.0,2,5,7,2,3,0,1,4,19,23.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,21:39,4,6,0.667,1,2,0.5,5,5,1.0,4,4,8,2,0,1,0,4,14,2.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,25:01,5,15,0.333,1,6,0.167,6,6,1.0,0,4,4,1,1,0,2,4,17,0.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,28:01,5,12,0.417,2,4,0.5,0,0,0.0,1,4,5,11,1,0,4,1,12,19.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,,,,27:36,6,10,0.6,2,4,0.5,8,10,0.8,0,2,2,2,1,0,2,4,22,19.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1642905,Hansen,Yang,H. Yang,hansen-yang,,,,7:14,1,3,0.333,0,0,0.0,0,0,0.0,0,1,1,0,0,2,1,0,2,-3.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,19:54,2,6,0.333,0,2,0.0,0,0,0.0,1,1,2,4,2,0,2,3,4,1.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,26:32,6,7,0.857,1,1,1.0,0,0,0.0,0,1,1,1,2,1,1,2,13,7.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,,,15:11,3,3,1.0,2,2,1.0,2,2,1.0,0,2,2,0,3,0,1,2,10,22.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,3:43,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,0,0,-3.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,2:56,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,0,0,-3.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,203081,Damian,Lillard,D. Lillard,damian-lillard,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500097
+0022500097,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DND-Return to Competition Reconditioning,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500097

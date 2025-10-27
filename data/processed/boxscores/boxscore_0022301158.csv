@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,F,,,35:42,7,21,0.333,2,10,0.2,6,6,1.0,0,2,2,2,2,1,1,2,22,-13.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,F,,,37:18,4,13,0.308,2,5,0.4,6,6,1.0,2,4,6,3,1,4,1,2,16,7.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,C,,,35:56,2,7,0.286,0,0,0.0,0,0,0.0,2,7,9,3,1,4,1,2,4,-17.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,G,,,40:00,10,18,0.556,8,11,0.727,4,5,0.8,1,6,7,1,2,1,5,1,32,-16.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,35:46,7,15,0.467,2,4,0.5,2,2,1.0,2,2,4,6,2,0,3,3,18,4.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641851,Timmy,Allen,T. Allen,timmy-allen,,,,16:17,1,2,0.5,0,0,0.0,0,0,0.0,0,4,4,1,0,0,0,6,2,-13.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630285,Zavier,Simpson,Z. Simpson,zavier-simpson,,,,24:22,2,5,0.4,0,1,0.0,0,0,0.0,1,7,8,4,1,0,1,5,4,-7.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631298,Jack,White,J. White,jack-white,,,,14:39,0,3,0.0,0,1,0.0,0,0,0.0,2,2,4,1,1,0,1,0,0,-5.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158
+0022301158,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,29:42,3,5,0.6,2,3,0.667,0,1,0.0,1,5,6,1,1,0,0,2,8,-1.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,31:27,4,10,0.4,2,4,0.5,2,2,1.0,3,9,12,1,3,4,4,1,12,12.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,33:37,7,13,0.538,0,1,0.0,2,2,1.0,6,4,10,5,0,3,1,1,16,-2.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,33:37,9,17,0.529,5,10,0.5,6,7,0.857,1,3,4,8,3,1,3,2,29,2.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,30:40,5,13,0.385,2,9,0.222,4,5,0.8,0,6,6,9,0,1,3,2,16,23.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,17:57,1,3,0.333,1,2,0.5,1,2,0.5,0,2,2,1,0,1,1,2,4,19.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,27:31,6,13,0.462,2,4,0.5,4,4,1.0,0,2,2,2,2,0,1,3,18,12.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,26:33,2,5,0.4,1,4,0.25,2,6,0.333,0,4,4,0,1,0,0,1,7,13.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631250,Pete,Nance,P. Nance,pete-nance,,,,1:50,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-4.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,1:50,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630600,Isaiah,Mobley,I. Mobley,isaiah-mobley,,,,1:50,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,0,-4.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,,,1:50,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,,,1:35,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158
+0022301158,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301158

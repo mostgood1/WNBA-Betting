@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295539,Liu,Yancheng,L. Yancheng,liu-yancheng,F,,,21:49,2,4,0.5,1,3,0.333,0,0,0.0,0,2,2,0,0,0,2,4,5,-28.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295528,Li,Xiangbo,L. Xiangbo,li-xiangbo,F,,,17:31,0,3,0.0,0,1,0.0,1,2,0.5,1,1,2,1,0,0,0,2,1,-26.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1626163,Frank,Kaminsky,F. Kaminsky,frank-kaminsky,C,,,23:24,4,9,0.444,0,4,0.0,2,2,1.0,2,6,8,1,0,3,2,1,10,-34.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203506,Victor,Oladipo,V. Oladipo,victor-oladipo,G,,,28:15,5,14,0.357,1,4,0.25,3,3,1.0,0,1,1,1,1,0,3,1,14,-40.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,204025,Tim,Frazier,T. Frazier,tim-frazier,G,,,22:59,3,9,0.333,1,5,0.2,1,1,1.0,0,0,0,3,0,0,2,3,8,-34.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,18:20,0,4,0.0,0,4,0.0,2,2,1.0,0,3,3,3,1,1,1,1,2,-23.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295532,Guan,Ziyu,G. Ziyu,guan-ziyu,,,,20:29,1,5,0.2,0,2,0.0,0,0,0.0,0,2,2,0,1,0,1,0,2,-23.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295531,Chen,Guohao,C. Guohao,chen-guohao,,,,19:16,1,5,0.2,0,2,0.0,4,4,1.0,0,2,2,1,1,0,0,1,6,-18.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1629126,Deonte,Burton,D. Burton,deonte-burton,,,,17:06,4,8,0.5,0,0,0.0,0,0,0.0,1,1,2,0,4,0,1,2,8,-18.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295533,Pang,Yanjun,P. Yanjun,pang-yanjun,,,,20:09,1,4,0.25,0,2,0.0,5,6,0.833,0,1,1,0,2,1,3,3,7,-25.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1628994,George,King,G. King,george-king,,,,20:18,3,6,0.5,2,3,0.667,0,0,0.0,0,2,2,0,0,0,1,2,8,-24.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295530,Zhang,Wenjie,Z. Wenjie,zhang-wenjie,,,,4:52,0,1,0.0,0,1,0.0,2,2,1.0,0,0,0,1,0,0,1,0,2,-1.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295526,Zhang,Huafei,Z. Huafei,zhang-huafei,,,,2:46,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-3.0,0012500055
+0012500055,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295529,Li,Xiaotong,L. Xiaotong,li-xiaotong,,,,2:46,0,0,0.0,0,0,0.0,1,2,0.5,0,0,0,0,0,0,0,0,1,-3.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,F,,,24:58,5,8,0.625,4,6,0.667,1,1,1.0,1,1,2,4,0,0,3,2,15,33.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,F,,,23:18,6,8,0.75,1,1,1.0,2,2,1.0,1,10,11,1,0,1,1,2,15,25.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642866,Joan,Beringer,J. Beringer,joan-beringer,C,,,22:05,5,8,0.625,0,0,0.0,0,0,0.0,5,5,10,1,0,2,2,1,10,36.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630538,Bones,Hyland,B. Hyland,bones-hyland,G,,,16:18,0,5,0.0,0,4,0.0,0,0,0.0,0,6,6,7,0,1,2,2,0,19.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,G,,,28:03,10,14,0.714,4,4,1.0,3,4,0.75,0,2,2,9,2,0,1,1,27,32.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642911,Rocco,Zikarsky,R. Zikarsky,rocco-zikarsky,,,,25:55,6,7,0.857,0,0,0.0,4,6,0.667,1,2,3,2,1,1,1,1,16,24.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,20:06,6,11,0.545,3,6,0.5,2,2,1.0,2,3,5,2,2,0,2,1,17,27.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642402,Enrique,Freeman,E. Freeman,enrique-freeman,,,,20:25,2,4,0.5,2,4,0.5,2,3,0.667,1,5,6,1,0,0,0,2,8,23.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641803,Tristen,Newton,T. Newton,tristen-newton,,,,18:48,4,7,0.571,1,3,0.333,0,0,0.0,0,3,3,1,1,0,1,0,9,24.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631262,Jules,Bernard,J. Bernard,jules-bernard,,,,13:35,3,6,0.5,2,4,0.5,3,4,0.75,1,1,2,2,1,0,1,5,11,19.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628993,Alize,Johnson,A. Johnson,alize-johnson,,,,11:03,3,3,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,2,6,18.0,0012500055
+0012500055,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642389,Zyon,Pullin,Z. Pullin,zyon-pullin,,,,15:26,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,3,2,0,1,0,0,20.0,0012500055

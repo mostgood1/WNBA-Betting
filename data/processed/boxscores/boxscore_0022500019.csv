@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,27:02,5,12,0.417,0,4,0.0,0,0,0.0,1,1,2,0,0,1,0,5,10,-14.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203944,Julius,Randle,J. Randle,julius-randle,F,,,29:37,9,16,0.563,4,8,0.5,4,5,0.8,3,6,9,6,0,0,3,0,26,-15.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,28:10,1,2,0.5,0,0,0.0,0,0,0.0,5,2,7,2,0,0,1,3,2,-6.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,34:41,11,19,0.579,3,6,0.5,6,9,0.667,0,4,4,5,0,1,2,0,31,-17.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,28:16,4,8,0.5,3,7,0.429,2,3,0.667,0,0,0,4,2,0,0,2,13,-6.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,22:46,2,9,0.222,1,4,0.25,0,0,0.0,1,4,5,2,1,1,1,3,5,-15.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,,,,9:12,0,3,0.0,0,1,0.0,0,0,0.0,1,1,2,1,0,0,2,4,0,-11.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,13:28,0,3,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,2,2,0,-13.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,,,,13:27,3,5,0.6,1,1,1.0,2,2,1.0,2,1,3,1,0,0,0,4,9,-8.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,16:23,4,6,0.667,1,3,0.333,0,0,0.0,0,0,0,2,1,0,0,1,9,-3.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,0:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-2.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642866,Joan,Beringer,J. Beringer,joan-beringer,,,,4:47,1,1,1.0,0,0,0.0,0,0,0.0,1,3,4,0,0,0,0,0,2,5.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,3:59,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,5.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,3:59,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,1,1,2,5.0,0022500019
+0022500019,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,3:14,0,2,0.0,0,2,0.0,1,2,0.5,1,0,1,0,0,0,0,1,1,5.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,F,,,36:35,9,15,0.6,2,5,0.4,5,5,1.0,0,7,7,11,0,0,1,1,25,17.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,31:51,10,13,0.769,2,4,0.5,1,2,0.5,1,1,2,0,0,0,0,1,23,11.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,30:52,7,11,0.636,0,0,0.0,1,2,0.5,3,5,8,0,0,1,2,3,15,9.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629216,Gabe,Vincent,G. Vincent,gabe-vincent,G,,,24:06,2,5,0.4,1,3,0.333,0,0,0.0,1,1,2,5,1,0,0,3,5,-1.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,34:55,14,23,0.609,5,12,0.417,16,19,0.842,1,10,11,8,0,0,3,4,49,18.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,27:42,2,3,0.667,1,2,0.5,1,2,0.5,0,0,0,1,1,0,1,2,6,14.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,203935,Marcus,Smart,M. Smart,marcus-smart,,,,20:40,1,2,0.5,1,1,1.0,0,0,0.0,0,0,0,1,2,0,2,1,3,24.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1642261,Dalton,Knecht,D. Knecht,dalton-knecht,,,,7:28,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,-3.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629020,Jarred,Vanderbilt,J. Vanderbilt,jarred-vanderbilt,,,,19:36,0,2,0.0,0,1,0.0,2,2,1.0,1,6,7,0,2,2,1,2,2,12.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1642355,Bronny,James,B. James,bronny-james,,,,3:14,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-5.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1631132,Christian,Koloko,C. Koloko,christian-koloko,,,,3:01,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,-6.0,0022500019
+0022500019,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500019

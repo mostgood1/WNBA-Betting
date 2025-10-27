@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,F,,,32:08,3,6,0.5,0,2,0.0,0,1,0.0,1,2,3,0,0,1,1,3,6,7.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,F,,,41:32,4,17,0.235,1,3,0.333,5,5,1.0,3,19,22,2,0,1,0,4,14,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,37:14,12,22,0.545,0,1,0.0,0,0,0.0,6,10,16,2,0,0,2,1,24,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,G,,,34:46,1,5,0.2,0,1,0.0,2,2,1.0,1,4,5,1,1,0,3,4,4,1.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,G,,,37:03,9,16,0.563,4,7,0.571,0,2,0.0,0,1,1,10,1,0,6,3,22,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,,,33:54,5,13,0.385,1,4,0.25,1,2,0.5,0,2,2,3,2,0,2,0,12,5.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,10:46,3,10,0.3,1,6,0.167,0,0,0.0,1,2,3,0,0,0,0,2,7,3.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1630204,Ashton,Hagans,A. Hagans,ashton-hagans,,,,12:37,0,4,0.0,0,2,0.0,0,0,0.0,2,1,3,1,0,0,1,2,0,-1.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1630641,Ibou,Badji,I. Badji,ibou-badji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1629650,Moses,Brown,M. Brown,moses-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102
+0022301102,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,F,,,27:09,2,7,0.286,1,6,0.167,2,2,1.0,0,1,1,4,4,0,1,3,7,-5.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,F,,,27:26,4,5,0.8,0,1,0.0,1,1,1.0,0,5,5,1,0,1,1,1,9,3.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,C,,,33:25,1,6,0.167,1,3,0.333,2,2,1.0,0,7,7,11,0,0,1,3,5,-5.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1641706,Brandon,Miller,B. Miller,brandon-miller,G,,,29:54,9,20,0.45,1,8,0.125,2,3,0.667,0,2,2,1,2,1,2,1,21,-3.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,G,,,34:46,4,11,0.364,0,6,0.0,3,4,0.75,0,3,3,2,3,0,2,1,11,2.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1630197,Aleksej,Pokusevski,A. Pokusevski,aleksej-pokusevski,,,,20:34,2,6,0.333,1,3,0.333,6,8,0.75,1,2,3,1,0,2,0,2,11,-6.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,18:29,2,9,0.222,0,2,0.0,0,0,0.0,0,3,3,1,0,0,1,1,4,-8.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,18:27,3,9,0.333,1,2,0.5,0,0,0.0,0,3,3,0,0,1,1,2,7,0.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1629716,Marques,Bolden,M. Bolden,marques-bolden,,,,14:35,3,3,1.0,0,0,0.0,1,2,0.5,1,7,8,0,1,1,0,0,7,2.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,,,15:15,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,2,0,1,4,5.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,1628970,Miles,Bridges,M. Bridges,miles-bridges,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102
+0022301102,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301102

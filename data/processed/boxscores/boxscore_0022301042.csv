@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,201587,Nicolas,Batum,N. Batum,nicolas-batum,F,,,20:59,0,3,0.0,0,2,0.0,0,0,0.0,2,1,3,0,0,0,1,0,0,-11.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,25:42,5,15,0.333,0,2,0.0,2,2,1.0,0,8,8,0,0,0,2,2,12,-13.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1628964,Mo,Bamba,M. Bamba,mo-bamba,C,,,12:09,1,3,0.333,0,1,0.0,3,3,1.0,5,1,6,0,0,0,0,4,5,-2.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,200768,Kyle,Lowry,K. Lowry,kyle-lowry,G,,,25:23,1,4,0.25,1,4,0.25,0,0,0.0,1,1,2,1,1,0,2,3,3,-22.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1630178,Tyrese,Maxey,T. Maxey,tyrese-maxey,G,,,34:30,10,16,0.625,5,7,0.714,4,6,0.667,0,3,3,2,0,0,2,3,29,-15.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1630194,Paul,Reed,P. Reed,paul-reed,,,,22:33,3,5,0.6,0,0,0.0,2,2,1.0,1,7,8,2,1,1,4,2,8,-3.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1630231,KJ,Martin,K. Martin,kj-martin,,,,18:59,2,6,0.333,0,2,0.0,0,0,0.0,2,3,5,1,0,1,2,5,4,6.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,32:05,3,9,0.333,0,6,0.0,1,1,1.0,1,4,5,3,0,0,0,0,7,-2.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,24:43,3,10,0.3,2,5,0.4,0,0,0.0,1,2,3,6,0,0,2,4,8,-6.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1641741,Ricky,Council IV,R. Council IV,ricky-council-iv,,,,9:00,2,5,0.4,1,3,0.333,5,6,0.833,1,1,2,1,0,0,0,1,10,4.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1628391,D.J.,Wilson,D. Wilson,dj-wilson,,,,13:57,4,6,0.667,2,2,1.0,0,0,0.0,1,1,2,2,0,2,0,1,10,4.0,0022301042
+0022301042,1610612755,Philadelphia,76ers,PHI,sixers,1626162,Kelly,Oubre Jr.,K. Oubre Jr.,kelly-oubre-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,26:21,2,8,0.25,1,4,0.25,1,1,1.0,0,3,3,1,0,0,1,1,6,-2.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,37:35,9,20,0.45,3,11,0.273,2,3,0.667,0,3,3,4,1,1,0,2,23,19.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,33:22,3,5,0.6,0,0,0.0,5,8,0.625,5,8,13,10,0,1,3,4,11,15.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,23:56,2,5,0.4,1,3,0.333,0,0,0.0,1,1,2,1,0,1,0,4,5,8.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,36:48,8,18,0.444,2,6,0.333,5,6,0.833,2,6,8,5,2,1,0,2,23,16.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,26:29,4,11,0.364,0,5,0.0,3,3,1.0,1,3,4,4,1,0,1,1,11,9.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,24:47,6,9,0.667,3,4,0.75,3,4,0.75,1,1,2,0,0,0,0,2,18,8.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,12:49,1,5,0.2,0,4,0.0,2,2,1.0,0,0,0,0,1,0,0,1,4,-2.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,10:32,3,3,1.0,0,0,0.0,1,1,1.0,1,4,5,0,0,2,1,0,7,7.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,,,1:28,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-6.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,,,2:27,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-6.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,2:27,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-6.0,0022301042
+0022301042,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,,,0:59,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,0.0,0022301042

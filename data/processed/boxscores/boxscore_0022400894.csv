@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1630231,KJ,Martin,K. Martin,kj-martin,F,,,27:37,2,6,0.333,1,2,0.5,0,0,0.0,1,4,5,1,0,0,0,0,5,-6.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,F,,,30:07,5,15,0.333,2,9,0.222,3,3,1.0,1,3,4,3,0,1,4,4,15,-12.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,C,,,28:45,10,17,0.588,1,4,0.25,2,3,0.667,5,8,13,0,0,1,1,2,23,-3.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,G,,,29:41,10,15,0.667,5,9,0.556,2,3,0.667,1,6,7,2,0,1,1,4,27,1.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,31:22,7,14,0.5,0,2,0.0,5,9,0.556,1,5,6,6,2,0,4,4,19,-9.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,32:54,4,9,0.444,2,4,0.5,2,2,1.0,2,1,3,2,2,0,2,4,12,2.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,18:53,4,15,0.267,3,8,0.375,0,0,0.0,0,1,1,6,0,0,1,1,11,8.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,21:26,2,4,0.5,0,2,0.0,0,0,0.0,2,4,6,1,1,0,1,0,4,4.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,,,19:15,3,6,0.5,0,0,0.0,0,0,0.0,4,9,13,0,0,0,0,0,6,0.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894
+0022400894,1610612762,Utah,Jazz,UTA,jazz,1630531,Jaden,Springer,J. Springer,jaden-springer,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,34:53,8,17,0.471,3,9,0.333,4,5,0.8,1,6,7,2,1,1,3,2,23,9.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,25:38,5,12,0.417,1,3,0.333,3,3,1.0,1,5,6,6,2,1,1,2,14,6.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,29:11,8,12,0.667,2,4,0.5,3,4,0.75,2,3,5,4,1,2,1,4,21,8.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,G,,,34:20,5,10,0.5,1,2,0.5,0,0,0.0,2,3,5,0,2,3,1,2,11,-2.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,34:22,4,10,0.4,0,3,0.0,4,5,0.8,0,5,5,9,2,2,1,4,12,4.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,22:30,5,9,0.556,4,7,0.571,3,3,1.0,0,3,3,2,0,0,1,1,17,-1.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,,,,23:03,1,6,0.167,1,4,0.25,3,5,0.6,1,2,3,3,0,1,0,1,6,-1.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,17:51,2,10,0.2,2,8,0.25,2,2,1.0,3,4,7,1,1,2,1,1,8,-3.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,203935,Marcus,Smart,M. Smart,marcus-smart,,,,18:13,4,9,0.444,3,7,0.429,2,2,1.0,0,4,4,5,0,0,0,1,13,-5.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894
+0022400894,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400894

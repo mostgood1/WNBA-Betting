@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,37:10,12,20,0.6,1,5,0.2,0,0,0.0,2,4,6,6,1,1,4,5,25,10.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,F,,,27:01,5,10,0.5,2,4,0.5,2,2,1.0,2,1,3,2,1,0,0,3,14,7.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,32:28,5,9,0.556,0,0,0.0,2,2,1.0,6,8,14,4,0,2,1,5,12,5.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,G,,,38:04,9,18,0.5,8,13,0.615,0,0,0.0,2,9,11,2,0,0,0,1,26,15.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,33:54,8,26,0.308,3,5,0.6,13,16,0.813,0,0,0,8,0,2,0,5,32,18.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,14:00,2,5,0.4,1,3,0.333,0,0,0.0,3,5,8,3,1,0,1,2,5,12.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,22:51,2,6,0.333,2,4,0.5,0,0,0.0,3,5,8,4,2,0,0,2,6,3.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,25:06,1,7,0.143,1,6,0.167,0,0,0.0,2,2,4,0,0,0,2,3,3,-6.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,7:42,1,3,0.333,0,1,0.0,0,1,0.0,1,0,1,0,0,0,0,1,2,1.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,0:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1642382,Branden,Carlson,B. Carlson,branden-carlson,,,,0:52,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,12:06,1,4,0.25,0,2,0.0,0,0,0.0,3,0,3,0,0,0,0,3,2,-13.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,F,,,35:06,7,14,0.5,2,3,0.667,3,6,0.5,0,3,3,2,3,3,4,4,19,5.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641744,Zach,Edey,Z. Edey,zach-edey,C,,,12:59,2,3,0.667,0,0,0.0,1,1,1.0,1,1,2,0,1,1,0,3,5,-5.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,36:07,7,15,0.467,3,7,0.429,3,3,1.0,0,9,9,5,2,0,3,2,20,-10.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629630,Ja,Morant,J. Morant,ja-morant,G,,,36:00,6,19,0.316,2,4,0.5,2,4,0.5,1,4,5,7,0,2,1,2,16,-12.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,,,,24:39,6,8,0.75,1,3,0.333,5,5,1.0,2,4,6,4,0,0,1,2,18,-5.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,21:47,1,3,0.333,0,0,0.0,3,4,0.75,3,4,7,1,0,1,1,1,5,-23.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,,,,20:11,3,7,0.429,2,4,0.5,3,6,0.5,0,1,1,0,0,0,2,0,11,-12.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,,,,8:20,1,2,0.5,0,1,0.0,4,5,0.8,0,2,2,0,0,2,0,0,6,1.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628379,Luke,Kennard,L. Kennard,luke-kennard,,,,15:34,1,3,0.333,1,2,0.5,0,0,0.0,0,2,2,1,1,0,1,2,3,-1.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,,,14:38,1,3,0.333,1,2,0.5,4,5,0.8,0,0,0,1,0,0,0,2,7,10.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630643,Jay,Huff,J. Huff,jay-huff,,,,0:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629723,John,Konchar,J. Konchar,john-konchar,,,,0:52,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642389,Zyon,Pullin,Z. Pullin,zyon-pullin,,,,0:50,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746
+0022400746,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642530,Yuki,Kawamura,Y. Kawamura,yuki-kawamura,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400746

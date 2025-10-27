@@ -1,0 +1,40 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1642954,Will,Richard,W. Richard,will-richard,F,,,29:15,4,7,0.571,3,5,0.6,2,4,0.5,2,4,6,2,1,0,5,4,13,10.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,F,,,17:59,3,5,0.6,0,0,0.0,1,1,1.0,0,6,6,4,0,0,2,2,7,1.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,201143,Al,Horford,A. Horford,al-horford,C,,,21:29,3,7,0.429,2,3,0.667,0,0,0.0,1,3,4,1,1,2,1,2,8,-4.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,25:05,1,9,0.111,1,6,0.167,1,2,0.5,0,2,2,4,1,0,2,3,4,10.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,26:34,6,15,0.4,4,11,0.364,12,13,0.923,0,6,6,5,0,0,5,2,28,13.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,21:54,2,5,0.4,2,4,0.5,2,3,0.667,0,6,6,2,0,0,4,0,8,-11.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,19:48,5,11,0.455,3,9,0.333,3,3,1.0,3,2,5,1,1,1,3,5,16,16.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,21:26,3,10,0.3,1,7,0.143,1,2,0.5,0,3,3,2,2,0,1,3,8,-6.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1642050,Jackson,Rowe,J. Rowe,jackson-rowe,,,,14:04,3,3,1.0,1,1,1.0,1,2,0.5,0,2,2,0,1,0,0,4,8,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,17:12,5,8,0.625,1,2,0.5,0,0,0.0,1,2,3,0,0,0,1,1,11,-2.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,16:40,2,5,0.4,0,0,0.0,3,3,1.0,4,6,10,3,0,0,1,0,7,4.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1643018,LJ,Cryer,L. Cryer,lj-cryer,,,,8:34,0,2,0.0,0,2,0.0,0,0,0.0,0,2,2,2,0,0,0,0,0,4.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1629716,Marques,Bolden,M. Bolden,marques-bolden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,203552,Seth,Curry,S. Curry,seth-curry,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1641795,Taevion,Kinsey,T. Kinsey,taevion-kinsey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1629001,De'Anthony,Melton,D. Melton,deanthony-melton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612744,Golden State,Warriors,GSW,warriors,1642893,Alex,Toohey,A. Toohey,alex-toohey,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,26:54,5,11,0.455,2,6,0.333,3,4,0.75,0,7,7,3,1,0,5,5,15,2.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,23:32,3,11,0.273,1,6,0.167,7,7,1.0,2,4,6,1,0,0,2,3,14,21.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,C,,,19:53,6,11,0.545,1,1,1.0,2,6,0.333,7,4,11,1,2,0,0,1,15,-6.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,G,,,27:06,7,16,0.438,1,5,0.2,3,5,0.6,1,3,4,2,3,0,2,4,18,16.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,26:33,6,12,0.5,0,4,0.0,1,1,1.0,1,3,4,6,0,0,2,1,13,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,19:32,0,5,0.0,0,3,0.0,0,0,0.0,0,1,1,5,1,0,2,3,0,-19.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,24:21,2,4,0.5,0,0,0.0,0,0,0.0,2,5,7,1,3,0,1,0,4,-2.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1642905,Hansen,Yang,H. Yang,hansen-yang,,,,20:11,4,11,0.364,1,4,0.25,0,0,0.0,1,5,6,1,0,1,1,4,9,-12.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631321,Sidy,Cissoko,S. Cissoko,sidy-cissoko,,,,21:31,1,5,0.2,0,4,0.0,3,4,0.75,1,1,2,0,1,0,2,2,5,-25.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631126,Caleb,Love,C. Love,caleb-love,,,,20:31,6,16,0.375,3,9,0.333,2,2,1.0,2,0,2,1,1,0,2,3,17,-4.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,5:32,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,1,0,0,0,0,-5.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1631451,Javonte,Cooke,J. Cooke,javonte-cooke,,,,4:24,0,1,0.0,0,0,0.0,1,2,0.5,1,0,1,0,0,0,0,0,1,-1.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,203081,Damian,Lillard,D. Lillard,damian-lillard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1629680,Matisse,Thybulle,M. Thybulle,matisse-thybulle,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021
+0012500021,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500021

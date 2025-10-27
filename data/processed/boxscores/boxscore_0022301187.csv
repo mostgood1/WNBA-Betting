@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,F,,,29:43,6,14,0.429,2,6,0.333,4,4,1.0,1,2,3,4,0,1,0,0,18,-7.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1630550,JT,Thor,J. Thor,jt-thor,F,,,41:06,8,11,0.727,3,6,0.5,1,2,0.5,0,9,9,4,2,3,0,2,20,11.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1629716,Marques,Bolden,M. Bolden,marques-bolden,C,,,29:52,7,10,0.7,0,1,0.0,0,0,0.0,4,4,8,2,1,4,1,1,14,5.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1630544,Tre,Mann,T. Mann,tre-mann,G,,,24:14,4,11,0.364,3,6,0.5,0,0,0.0,0,4,4,6,1,0,2,2,11,-3.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,203995,Vasilije,Micić,V. Micić,vasilije-micić,G,,,9:30,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,4,0,0,1,0,3,-8.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1641733,Nick,Smith Jr.,N. Smith Jr.,nick-smith-jr,,,,32:34,9,20,0.45,6,11,0.545,0,0,0.0,1,5,6,3,1,0,1,0,24,9.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1641778,Leaky,Black,L. Black,leaky-black,,,,32:02,4,4,1.0,2,2,1.0,1,1,1.0,0,6,6,5,2,1,0,3,11,22.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1641735,Amari,Bailey,A. Bailey,amari-bailey,,,,21:38,4,10,0.4,1,2,0.5,2,2,1.0,4,1,5,5,2,0,1,1,11,17.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1630197,Aleksej,Pokusevski,A. Pokusevski,aleksej-pokusevski,,,,19:21,3,7,0.429,1,3,0.333,1,2,0.5,0,5,5,3,1,0,3,2,8,4.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,202722,Davis,Bertans,D. Bertans,davis-bertans,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1630208,Nick,Richards,N. Richards,nick-richards,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301187
+0022301187,1610612766,Charlotte,Hornets,CHA,hornets,1629684,Grant,Williams,G. Williams,grant-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,F,,,29:03,3,6,0.5,3,4,0.75,2,2,1.0,0,3,3,6,0,0,0,0,11,12.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,25:24,5,13,0.385,0,1,0.0,4,4,1.0,3,3,6,5,0,0,0,0,14,10.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,22:34,7,7,1.0,0,0,0.0,0,0,0.0,1,6,7,2,2,0,3,1,14,9.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,G,,,30:35,5,12,0.417,4,6,0.667,0,0,0.0,3,7,10,11,0,0,3,0,14,-7.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,G,,,9:30,1,2,0.5,0,0,0.0,0,0,0.0,0,3,3,2,1,1,0,1,2,8.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627777,Georges,Niang,G. Niang,georges-niang,,,,22:34,6,9,0.667,4,7,0.571,0,0,0.0,0,1,1,1,0,0,0,2,16,7.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202694,Marcus,Morris Sr.,M. Morris Sr.,marcus-morris-sr,,,,18:48,3,9,0.333,1,4,0.25,0,0,0.0,1,2,3,0,0,0,1,2,7,3.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641734,Emoni,Bates,E. Bates,emoni-bates,,,,29:25,3,12,0.25,1,5,0.2,0,0,0.0,0,3,3,3,0,0,6,0,7,-22.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,11:53,3,7,0.429,0,0,0.0,0,2,0.0,2,1,3,0,0,0,0,0,6,-22.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630600,Isaiah,Mobley,I. Mobley,isaiah-mobley,,,,16:14,5,9,0.556,1,3,0.333,0,1,0.0,2,1,3,0,1,0,1,0,11,-12.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1627745,Damian,Jones,D. Jones,damian-jones,,,,12:00,2,4,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,1,5,-18.0,0022301187
+0022301187,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631250,Pete,Nance,P. Nance,pete-nance,,,,12:00,1,3,0.333,1,1,1.0,0,0,0.0,0,1,1,0,0,0,0,1,3,-18.0,0022301187

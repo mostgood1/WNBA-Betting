@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,25:58,4,13,0.308,1,6,0.167,0,0,0.0,1,1,2,2,1,0,1,1,9,-15.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,203507,Giannis,Antetokounmpo,G. Antetokounmpo,giannis-antetokounmpo,F,,,43:00,13,21,0.619,0,1,0.0,10,14,0.714,0,15,15,10,0,1,3,1,36,17.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,29:42,7,11,0.636,1,4,0.25,2,2,1.0,0,5,5,0,0,1,1,4,17,-1.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1627752,Taurean,Prince,T. Prince,taurean-prince,G,,,37:51,3,6,0.5,0,3,0.0,3,3,1.0,0,5,5,2,5,0,1,3,9,-14.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1631157,Ryan,Rollins,R. Rollins,ryan-rollins,G,,,14:16,2,3,0.667,1,1,1.0,0,0,0.0,0,1,1,2,0,1,2,4,5,-9.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,,,,23:12,1,7,0.143,0,4,0.0,0,0,0.0,0,1,1,1,0,0,0,1,2,6.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1629645,Kevin,Porter Jr.,K. Porter Jr.,kevin-porter-jr,,,,39:31,8,16,0.5,2,2,1.0,6,7,0.857,1,11,12,8,0,0,1,0,24,13.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1631260,AJ,Green,A. Green,aj-green,,,,33:36,3,5,0.6,2,2,1.0,2,3,0.667,0,3,3,2,0,0,0,2,10,19.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1641748,Andre,Jackson Jr.,A. Jackson Jr.,andre-jackson-jr,,,,3:22,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-2.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1626192,Pat,Connaughton,P. Connaughton,pat-connaughton,,,,14:33,4,5,0.8,1,1,1.0,0,0,0.0,0,2,2,2,0,0,0,1,9,16.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1641753,Chris,Livingston,C. Livingston,chris-livingston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1641890,Tyler,Smith,T. Smith,tyler-smith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612749,Milwaukee,Bucks,MIL,bucks,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,F,,,31:11,6,15,0.4,4,10,0.4,0,0,0.0,0,2,2,3,0,0,1,1,16,2.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,F,,,42:33,11,25,0.44,3,7,0.429,6,6,1.0,2,10,12,5,2,1,2,1,31,-11.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,C,,,18:50,3,4,0.75,0,0,0.0,1,2,0.5,2,4,6,1,0,0,1,4,7,5.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,G,,,34:47,8,18,0.444,6,14,0.429,2,2,1.0,1,4,5,2,0,0,1,2,24,7.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,G,,,39:07,1,8,0.125,1,6,0.167,0,0,0.0,0,4,4,3,0,0,2,3,3,3.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,39:23,8,15,0.533,1,5,0.2,3,4,0.75,1,1,2,5,1,0,2,2,20,-10.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,22:36,1,5,0.2,0,3,0.0,0,0,0.0,2,4,6,2,0,0,1,3,2,-11.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,32:09,5,10,0.5,0,0,0.0,2,2,1.0,4,10,14,3,1,0,0,5,12,-7.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,,,4:24,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-8.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1630528,Josh,Christopher,J. Christopher,josh-christopher,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1642352,Keshad,Johnson,K. Johnson,keshad-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,1641815,Isaiah,Stevens,I. Stevens,isaiah-stevens,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131
+0022401131,1610612748,Miami,Heat,MIA,heat,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401131

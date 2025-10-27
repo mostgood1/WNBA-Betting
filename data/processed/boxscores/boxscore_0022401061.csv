@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,18:35,4,7,0.571,3,5,0.6,0,0,0.0,1,3,4,0,0,0,2,2,11,12.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,22:47,6,8,0.75,1,1,1.0,0,0,0.0,1,1,2,5,1,0,1,0,13,14.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,21:24,5,7,0.714,4,6,0.667,3,4,0.75,0,5,5,2,0,0,1,2,17,21.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,20:11,2,3,0.667,1,2,0.5,2,2,1.0,1,3,4,8,1,0,1,0,7,8.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,24:57,9,15,0.6,7,10,0.7,4,5,0.8,0,2,2,6,1,1,1,2,29,29.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,21:44,2,7,0.286,0,5,0.0,6,6,1.0,1,1,2,1,1,0,3,0,10,30.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,16:28,7,9,0.778,1,3,0.333,0,0,0.0,0,2,2,4,1,0,0,1,15,25.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,17:11,5,7,0.714,0,0,0.0,0,0,0.0,3,6,9,8,0,0,1,1,10,26.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,,,24:40,6,10,0.6,4,5,0.8,0,0,0.0,1,4,5,5,0,1,1,4,16,31.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,13:58,4,5,0.8,2,2,1.0,2,2,1.0,2,5,7,0,0,0,0,2,12,20.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,12:00,2,4,0.5,2,4,0.5,0,0,0.0,1,1,2,2,0,0,0,1,6,16.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,9:23,4,6,0.667,0,2,0.0,0,0,0.0,0,2,2,0,0,0,1,2,8,10.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,9:01,2,3,0.667,1,1,1.0,0,0,0.0,1,1,2,7,3,0,0,0,5,12.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,7:41,1,1,1.0,1,1,1.0,0,0,0.0,1,1,2,0,0,0,0,2,3,11.0,0022401061
+0022401061,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,F,,,33:17,6,9,0.667,0,2,0.0,3,4,0.75,4,3,7,1,2,0,2,1,15,-33.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,203114,Khris,Middleton,K. Middleton,khris-middleton,F,,,14:02,3,7,0.429,1,3,0.333,1,2,0.5,0,1,1,2,1,0,0,1,8,-17.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1642259,Alex,Sarr,A. Sarr,alex-sarr,C,,,27:31,8,15,0.533,1,4,0.25,5,6,0.833,4,3,7,1,1,1,3,4,22,-27.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,24:30,6,13,0.462,4,8,0.5,2,2,1.0,0,0,0,3,2,0,2,1,18,-24.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,30:39,5,12,0.417,3,6,0.5,0,0,0.0,0,4,4,6,0,1,2,3,13,-19.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1642358,AJ,Johnson,A. Johnson,aj-johnson,,,,26:36,1,7,0.143,0,2,0.0,0,0,0.0,1,2,3,0,0,0,0,0,2,-41.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1641798,Jaylen,Martin,J. Martin,jaylen-martin,,,,22:31,2,3,0.667,0,0,0.0,0,0,0.0,1,0,1,2,0,0,1,0,4,-37.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1641732,Colby,Jones,C. Jones,colby-jones,,,,29:38,3,7,0.429,2,3,0.667,4,4,1.0,0,2,2,2,3,0,1,1,12,-24.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,,,,13:18,2,5,0.4,0,0,0.0,5,6,0.833,2,1,3,1,0,0,0,1,9,-13.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,3:25,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-2.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,14:33,1,6,0.167,0,2,0.0,2,2,1.0,0,2,2,1,0,0,4,3,4,-28.0,0022401061
+0022401061,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401061

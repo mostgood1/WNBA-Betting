@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301096,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,F,,,35:15,11,21,0.524,6,15,0.4,3,3,1.0,0,4,4,4,4,0,4,3,31,-17.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,45:35,1,3,0.333,0,0,0.0,0,0,0.0,1,5,6,7,2,0,2,3,2,-4.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,18:20,2,2,1.0,0,0,0.0,0,0,0.0,0,1,1,2,3,1,0,1,4,5.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:19,5,18,0.278,1,6,0.167,9,10,0.9,0,2,2,10,0,0,5,2,20,-9.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,G,,,44:45,9,16,0.563,4,8,0.5,2,2,1.0,0,2,2,2,0,1,2,3,24,-4.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,10:09,0,1,0.0,0,0,0.0,0,2,0.0,1,0,1,0,1,0,0,2,0,-6.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,26:56,1,4,0.25,0,0,0.0,0,0,0.0,3,3,6,0,1,0,0,2,2,-9.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,19:26,6,10,0.6,1,4,0.25,3,4,0.75,2,4,6,0,0,0,1,1,16,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,,,3:15,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,-6.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1629718,Charlie,Brown Jr.,C. Brown Jr.,charlie-brown-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612752,New York,Knicks,NYK,knicks,1631210,Jacob,Toppin,J. Toppin,jacob-toppin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,38:41,5,12,0.417,1,3,0.333,6,6,1.0,1,4,5,6,0,0,4,3,17,10.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,F,,,25:19,1,2,0.5,1,2,0.5,2,2,1.0,0,3,3,6,1,0,1,1,5,13.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,C,,,32:32,6,9,0.667,0,0,0.0,3,4,0.75,2,7,9,1,1,0,1,0,15,13.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,28:60,2,7,0.286,2,7,0.286,0,0,0.0,0,2,2,1,1,0,2,4,6,-6.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,G,,,34:54,10,15,0.667,8,11,0.727,6,6,1.0,0,5,5,3,0,1,3,0,34,10.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1628997,Caleb,Martin,C. Martin,caleb-martin,,,,23:35,3,8,0.375,1,3,0.333,0,0,0.0,0,2,2,3,0,2,3,4,7,5.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,,,,12:25,1,2,0.5,0,1,0.0,1,1,1.0,0,2,2,0,1,0,2,2,3,9.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,,,15:30,2,8,0.25,2,7,0.286,2,2,1.0,0,3,3,3,0,1,1,1,8,-3.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,,,28:04,6,11,0.545,2,4,0.5,0,0,0.0,4,4,8,1,1,0,0,2,14,-1.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1631288,Jamal,Cain,J. Cain,jamal-cain,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1631115,Orlando,Robinson,O. Robinson,orlando-robinson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1631306,Cole,Swider,C. Swider,cole-swider,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096
+0022301096,1610612748,Miami,Heat,MIA,heat,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301096

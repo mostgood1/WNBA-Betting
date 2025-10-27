@@ -1,0 +1,131 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,33:48,4,9,0.444,1,4,0.25,1,2,0.5,2,4,6,1,2,2,0,3,10,10.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,34:31,6,15,0.4,1,4,0.25,6,6,1.0,4,4,8,4,0,0,0,0,19,10.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,C,,,29:56,5,8,0.625,1,3,0.333,2,2,1.0,1,3,4,8,2,1,4,2,13,8.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,39:26,7,17,0.412,2,7,0.286,2,2,1.0,0,5,5,4,4,1,1,2,18,1.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,35:18,7,17,0.412,5,13,0.385,8,9,0.889,1,4,5,3,0,0,1,2,27,7.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,13:56,1,5,0.2,0,4,0.0,0,0,0.0,0,1,1,0,1,1,0,0,2,3.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,12:43,2,7,0.286,0,0,0.0,2,2,1.0,0,1,1,1,1,1,1,2,6,-2.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,15:48,2,4,0.5,0,0,0.0,1,2,0.5,1,8,9,2,1,0,2,5,5,8.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,17:22,1,4,0.25,1,3,0.333,2,2,1.0,0,2,2,2,2,0,1,2,5,-7.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,7:13,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-3.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400784,1610612744,Golden State,Warriors,GSW,warriors,1642050,Jackson,Rowe,J. Rowe,jackson-rowe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,F,,,29:33,2,7,0.286,0,0,0.0,0,0,0.0,4,5,9,5,0,2,5,1,4,-14.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,21:02,2,6,0.333,2,3,0.667,1,2,0.5,0,0,0,1,0,0,2,2,7,-13.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,26:34,4,10,0.4,0,1,0.0,2,4,0.5,1,12,13,4,1,0,3,3,10,-19.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,22:07,3,10,0.3,2,4,0.5,1,3,0.333,0,0,0,1,0,0,4,1,9,-10.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,G,,,37:25,10,20,0.5,2,9,0.222,3,3,1.0,2,6,8,4,1,0,1,5,25,-7.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,,,26:34,1,5,0.2,1,2,0.5,0,2,0.0,2,3,5,3,1,1,1,4,3,11.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,10:24,2,7,0.286,1,4,0.25,1,2,0.5,1,0,1,1,1,0,0,0,6,-8.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,5:38,0,0,0.0,0,0,0.0,0,0,0.0,0,3,3,0,1,0,1,0,0,-3.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,21:28,3,10,0.3,2,8,0.25,2,2,1.0,1,2,3,1,0,0,0,1,10,4.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,5:09,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-7.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,18:18,5,9,0.556,1,3,0.333,0,0,0.0,1,1,2,3,1,2,3,2,11,16.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,,,15:48,6,9,0.667,1,2,0.5,0,0,0.0,3,5,8,1,1,0,0,1,13,15.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1642368,N'Faly,Dante,N. Dante,nfaly-dante,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400784,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400784,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,43:13,5,16,0.313,1,4,0.25,9,9,1.0,0,4,4,5,0,0,0,4,20,-2.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,35:30,5,11,0.455,3,9,0.333,0,0,0.0,2,6,8,3,1,0,0,3,13,7.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,42:37,10,16,0.625,1,2,0.5,1,2,0.5,13,15,28,5,0,0,5,1,22,-2.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,45:18,12,24,0.5,5,12,0.417,3,3,1.0,1,1,2,10,3,0,3,1,32,-10.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,42:43,8,24,0.333,4,12,0.333,4,4,1.0,1,5,6,9,1,1,4,4,24,-4.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,22:44,3,10,0.3,1,4,0.25,0,0,0.0,1,2,3,1,1,0,0,1,7,-11.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,13:41,2,3,0.667,0,0,0.0,0,2,0.0,1,1,2,2,1,0,0,2,4,-8.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,10:30,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,0,1,0,1,1,3,-3.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,8:44,3,4,0.75,1,1,1.0,1,1,1.0,2,2,4,3,0,0,1,2,8,-2.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612758,Sacramento,Kings,SAC,kings,1630227,Daishen,Nix,D. Nix,daishen-nix,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1629750,Javonte,Green,J. Green,javonte-green,F,,,33:53,4,7,0.571,1,4,0.25,0,0,0.0,0,7,7,2,5,1,0,2,9,16.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1630530,Trey,Murphy III,T. Murphy III,trey-murphy-iii,F,,,43:45,4,17,0.235,1,9,0.111,9,12,0.75,1,8,9,11,0,0,3,1,18,10.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1642274,Yves,Missi,Y. Missi,yves-missi,C,,,11:52,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,0,0,1,0,0,2,-15.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,203468,CJ,McCollum,C. McCollum,cj-mccollum,G,,,41:10,16,25,0.64,7,12,0.583,4,6,0.667,2,5,7,2,0,0,2,1,43,8.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,G,,,34:21,6,12,0.5,4,8,0.5,2,2,1.0,1,4,5,8,3,0,1,2,18,19.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1641722,Jordan,Hawkins,J. Hawkins,jordan-hawkins,,,,26:10,5,8,0.625,3,5,0.6,3,4,0.75,0,2,2,4,0,2,1,0,16,-4.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,16:47,1,5,0.2,0,2,0.0,3,4,0.75,0,4,4,2,0,0,1,4,5,-6.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1631255,Karlo,Matković,K. Matković,karlo-matković,,,,26:60,5,6,0.833,1,2,0.5,2,2,1.0,1,4,5,2,2,3,2,3,13,22.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1641810,Antonio,Reeves,A. Reeves,antonio-reeves,,,,11:48,0,3,0.0,0,2,0.0,0,0,0.0,1,1,2,0,0,0,0,2,0,2.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1630526,Jeremiah,Robinson-Earl,J. Robinson-Earl,jeremiah-robinson-earl,,,,18:14,4,7,0.571,4,6,0.667,4,4,1.0,1,1,2,1,1,0,0,2,16,-17.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,NWT - Not With Team,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400785,1610612740,New Orleans,Pelicans,NOP,pelicans,1629627,Zion,Williamson,Z. Williamson,zion-williamson,,DND-Return to Competition Reconditioning,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400785,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1631170,Jaime,Jaquez Jr.,J. Jaquez Jr.,jaime-jaquez-jr,F,,,22:37,3,7,0.429,0,1,0.0,0,0,0.0,2,4,6,3,2,0,3,0,6,-1.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,203937,Kyle,Anderson,K. Anderson,kyle-anderson,F,,,27:09,6,10,0.6,0,0,0.0,3,6,0.5,6,4,10,3,0,2,0,3,15,13.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1642276,Kel'el,Ware,K. Ware,kelel-ware,C,,,32:05,8,14,0.571,0,3,0.0,1,2,0.5,5,4,9,1,1,1,2,2,17,-8.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1629639,Tyler,Herro,T. Herro,tyler-herro,G,,,37:22,15,30,0.5,3,14,0.214,7,9,0.778,1,7,8,3,3,0,3,1,40,-8.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,G,,,37:48,1,4,0.25,1,1,1.0,2,2,1.0,0,0,0,4,2,1,1,1,5,-11.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1631107,Nikola,Jović,N. Jović,nikola-jović,,,,24:51,3,11,0.273,0,4,0.0,0,0,0.0,0,1,1,1,0,0,2,1,6,-6.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,202692,Alec,Burks,A. Burks,alec-burks,,,,28:24,3,7,0.429,2,5,0.4,4,7,0.571,2,5,7,4,1,0,1,1,12,-2.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,,,,19:58,3,7,0.429,3,7,0.429,0,0,0.0,0,1,1,4,0,0,1,1,9,10.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1641796,Pelle,Larsson,P. Larsson,pelle-larsson,,,,9:46,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,4,3,-12.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1628389,Bam,Adebayo,B. Adebayo,bam-adebayo,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1629312,Haywood,Highsmith,H. Highsmith,haywood-highsmith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,201567,Kevin,Love,K. Love,kevin-love,,NWT - Personal,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,1626179,Terry,Rozier,T. Rozier,terry-rozier,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612748,Miami,Heat,MIA,heat,203952,Andrew,Wiggins,A. Wiggins,andrew-wiggins,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1631108,Max,Christie,M. Christie,max-christie,F,,,38:44,8,19,0.421,3,11,0.273,0,0,0.0,1,4,5,5,3,1,4,2,19,4.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,F,,,22:42,5,9,0.556,0,1,0.0,0,0,0.0,0,3,3,0,1,0,0,0,10,-3.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,C,,,39:55,6,12,0.5,3,4,0.75,0,0,0.0,4,5,9,3,0,0,0,1,15,10.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,G,,,24:08,11,13,0.846,2,2,1.0,3,3,1.0,1,2,3,4,2,1,1,2,27,8.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,G,,,35:59,6,13,0.462,1,7,0.143,5,5,1.0,0,3,3,6,0,0,4,3,18,-4.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1630230,Naji,Marshall,N. Marshall,naji-marshall,,,,32:35,4,7,0.571,2,3,0.667,2,2,1.0,4,5,9,4,1,0,1,2,12,0.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,18:36,0,8,0.0,0,4,0.0,2,4,0.5,0,5,5,3,0,0,0,1,2,4.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1630314,Brandon,Williams,B. Williams,brandon-williams,,,,24:40,4,7,0.571,2,4,0.5,1,2,0.5,0,1,1,3,0,0,3,5,11,7.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1630283,Kylor,Kelley,K. Kelley,kylor-kelley,,,,2:41,2,2,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,4,-1.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,202691,Klay,Thompson,K. Thompson,klay-thompson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400786,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400786,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,34:01,8,17,0.471,0,4,0.0,4,5,0.8,0,3,3,5,1,1,1,1,20,-4.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1631096,Chet,Holmgren,C. Holmgren,chet-holmgren,F,,,30:05,3,7,0.429,1,2,0.5,4,6,0.667,4,8,12,2,2,2,2,2,11,-3.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,27:15,5,6,0.833,0,0,0.0,0,0,0.0,4,8,12,1,0,2,4,2,10,0.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,G,,,31:52,6,10,0.6,2,6,0.333,0,0,0.0,0,3,3,0,0,0,0,3,14,-3.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,33:40,6,21,0.286,1,2,0.5,11,11,1.0,2,6,8,9,0,0,1,2,24,-12.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,8:08,0,0,0.0,0,0,0.0,0,0,0.0,1,2,3,2,0,0,0,0,0,-7.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,,,,18:40,4,8,0.5,2,4,0.5,0,0,0.0,0,3,3,1,0,1,0,2,10,-26.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,8:39,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-7.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,21:05,0,5,0.0,0,4,0.0,1,2,0.5,0,1,1,3,0,0,0,2,1,-15.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,19:03,4,9,0.444,1,4,0.25,0,0,0.0,1,2,3,1,1,0,1,1,9,-2.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,3:46,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,0,0,1,0,0,2,2.0,0022400787,2025-02-13
+0022400787,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,,,3:46,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,1,0,2.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641740,Jaylen,Clark,J. Clark,jaylen-clark,F,,,24:04,1,6,0.167,0,4,0.0,2,2,1.0,2,1,3,1,2,0,0,4,4,0.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,36:56,9,18,0.5,1,6,0.167,2,3,0.667,1,5,6,5,0,0,0,3,21,12.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,C,,,37:35,11,18,0.611,3,9,0.333,2,2,1.0,4,10,14,7,0,1,0,1,27,10.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,36:17,5,18,0.278,3,12,0.25,10,11,0.909,1,6,7,7,3,0,2,0,23,10.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,G,,,30:28,5,11,0.455,4,9,0.444,0,0,0.0,1,5,6,2,0,0,2,4,14,6.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630545,Terrence,Shannon Jr.,T. Shannon Jr.,terrence-shannon-jr,,,,28:38,4,10,0.4,1,4,0.25,4,4,1.0,3,3,6,1,0,0,1,2,13,23.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1642265,Rob,Dillingham,R. Dillingham,rob-dillingham,,,,21:19,3,7,0.429,0,0,0.0,0,0,0.0,2,1,3,5,0,0,0,1,6,18.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,,,14:45,4,7,0.571,0,0,0.0,0,0,0.0,6,2,8,0,0,0,1,2,8,11.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,,,3:42,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,1,1,0,0,-6.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,2:12,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-1.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1641803,Tristen,Newton,T. Newton,tristen-newton,,,,2:02,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-4.0,0022400787,2025-02-13
+0022400787,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,,,2:02,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022400787,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,F,,,45:44,13,26,0.5,5,10,0.5,10,13,0.769,1,2,3,1,1,0,3,2,41,13.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,23:00,3,9,0.333,1,2,0.5,1,2,0.5,0,2,2,0,1,0,1,4,8,-1.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,25:11,4,12,0.333,0,0,0.0,2,2,1.0,6,2,8,0,2,1,1,2,10,-3.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,37:49,2,6,0.333,0,1,0.0,0,0,0.0,3,4,7,6,3,0,2,4,4,6.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,49:16,8,19,0.421,5,13,0.385,11,15,0.733,1,9,10,7,3,2,3,4,32,11.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,,,23:10,3,10,0.3,1,6,0.167,0,0,0.0,0,1,1,2,3,0,0,3,7,-4.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1627732,Ben,Simmons,B. Simmons,ben-simmons,,,,27:02,4,5,0.8,0,0,0.0,4,4,1.0,0,7,7,6,3,1,0,1,12,-1.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,29:47,2,5,0.4,2,4,0.5,0,0,0.0,2,3,5,0,0,1,0,2,6,4.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,4:01,0,2,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1630539,Kai,Jones,K. Jones,kai-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612746,LA,Clippers,LAC,clippers,201988,Patty,Mills,P. Mills,patty-mills,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,38:00,8,16,0.5,2,6,0.333,2,2,1.0,1,5,6,1,0,0,3,2,20,-7.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1628381,John,Collins,J. Collins,john-collins,F,,,41:05,5,11,0.455,2,7,0.286,5,6,0.833,1,6,7,1,1,1,2,4,17,2.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1642271,Kyle,Filipowski,K. Filipowski,kyle-filipowski,C,,,37:01,8,12,0.667,3,6,0.5,1,1,1.0,1,9,10,0,0,0,2,6,20,-9.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,G,,,28:03,2,6,0.333,1,5,0.2,2,2,1.0,1,2,3,1,1,0,2,2,7,-8.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1642268,Isaiah,Collier,I. Collier,isaiah-collier,G,,,31:32,5,9,0.556,3,6,0.5,3,4,0.75,1,3,4,8,4,0,7,1,16,-2.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,12:33,1,1,1.0,0,0,0.0,1,1,1.0,2,7,9,0,0,0,2,1,3,4.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,,,,36:59,3,12,0.25,2,7,0.286,5,6,0.833,1,3,4,9,0,0,4,2,13,-4.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1642262,Cody,Williams,C. Williams,cody-williams,,,,16:08,0,1,0.0,0,0,0.0,2,2,1.0,0,0,0,0,0,0,3,4,2,7.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,11:33,3,5,0.6,3,4,0.75,1,2,0.5,1,0,1,2,0,0,0,1,10,9.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,12:06,3,5,0.6,2,4,0.5,0,0,0.0,0,3,3,1,1,0,1,2,8,-12.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13
+0022401004,1610612762,Utah,Jazz,UTA,jazz,1630231,KJ,Martin,K. Martin,kj-martin,,DND-Return to Competition Reconditioning,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401004,2025-02-13

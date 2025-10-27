@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,F,,,22:57,2,12,0.167,0,3,0.0,2,2,1.0,1,4,5,2,0,0,3,3,6,-19.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1642964,Brooks,Barnhizer,B. Barnhizer,brooks-barnhizer,F,,,38:17,6,12,0.5,2,2,1.0,2,5,0.4,3,8,11,1,2,0,1,2,16,-14.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,C,,,28:31,3,12,0.25,2,8,0.25,2,2,1.0,0,6,6,3,2,0,2,4,10,-14.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1641717,Cason,Wallace,C. Wallace,cason-wallace,G,,,16:39,2,8,0.25,1,4,0.25,2,2,1.0,0,2,2,2,0,1,0,1,7,-8.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1642349,Ajay,Mitchell,A. Mitchell,ajay-mitchell,G,,,15:08,6,8,0.75,0,1,0.0,4,5,0.8,0,1,1,3,2,1,2,1,16,-2.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1642502,Malevy,Leons,M. Leons,malevy-leons,,,,28:46,3,8,0.375,0,2,0.0,1,1,1.0,1,2,3,1,2,0,2,4,7,1.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,6:31,1,1,1.0,1,1,1.0,1,1,1.0,0,1,1,1,0,0,0,1,4,1.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1642959,Chris,Youngblood,C. Youngblood,chris-youngblood,,,,30:51,6,11,0.545,4,9,0.444,9,10,0.9,2,3,5,3,0,0,1,2,25,-7.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1643113,Zack,Austin,Z. Austin,zack-austin,,,,28:38,1,6,0.167,1,6,0.167,2,2,1.0,0,1,1,0,3,3,3,5,5,-1.0,0012500046
+0012500046,1610612760,Oklahoma City,Thunder,OKC,thunder,1641789,Jazian,Gortman,J. Gortman,jazian-gortman,,,,23:42,2,5,0.4,1,1,1.0,0,0,0.0,0,2,2,2,2,0,4,4,5,-12.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,F,,,31:20,3,10,0.3,1,6,0.167,3,4,0.75,0,8,8,7,1,0,2,0,10,21.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,F,,,16:51,6,10,0.6,2,6,0.333,0,0,0.0,0,4,4,3,1,0,1,1,14,6.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,C,,,11:49,1,2,0.5,0,0,0.0,1,1,1.0,1,2,3,1,1,1,1,1,3,-4.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,G,,,16:23,4,9,0.444,1,4,0.25,7,9,0.778,2,4,6,1,0,0,2,2,16,7.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1626166,Cameron,Payne,C. Payne,cameron-payne,G,,,19:00,0,4,0.0,0,4,0.0,0,0,0.0,0,1,1,3,0,1,2,3,0,5.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1631245,Quenton,Jackson,Q. Jackson,quenton-jackson,,,,11:04,6,8,0.75,2,4,0.5,0,0,0.0,2,0,2,2,0,0,1,2,14,10.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1643007,Taelon,Peter,T. Peter,taelon-peter,,,,27:18,6,11,0.545,4,8,0.5,2,3,0.667,2,3,5,5,2,0,1,2,18,3.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,,,11:24,3,6,0.5,0,3,0.0,2,2,1.0,1,2,3,0,1,0,0,2,8,4.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1630643,Jay,Huff,J. Huff,jay-huff,,,,16:35,3,3,1.0,0,0,0.0,2,2,1.0,1,1,2,1,0,3,3,5,8,11.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1642440,Gabe,McGlothan,G. McGlothan,gabe-mcglothan,,,,22:28,1,9,0.111,0,4,0.0,0,0,0.0,0,4,4,2,0,0,1,2,2,4.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,,,20:31,0,2,0.0,0,2,0.0,0,0,0.0,1,7,8,2,1,1,1,4,0,-1.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,5:36,0,0,0.0,0,0,0.0,2,4,0.5,0,3,3,1,1,0,0,0,2,10.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1642484,RayJ,Dennis,R. Dennis,rayj-dennis,,,,17:41,4,9,0.444,2,7,0.286,1,2,0.5,0,0,0,3,1,0,5,0,11,0.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1630164,James,Wiseman,J. Wiseman,james-wiseman,,,,12:00,4,4,1.0,0,0,0.0,2,2,1.0,1,4,5,0,0,0,1,0,10,-1.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500046
+0012500046,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500046

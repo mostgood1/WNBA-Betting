@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,22:35,7,13,0.538,2,8,0.25,0,0,0.0,1,1,2,0,0,0,2,3,16,-12.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,F,,,16:55,1,4,0.25,0,3,0.0,0,0,0.0,1,1,2,1,0,3,0,2,2,-12.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,32:27,7,11,0.636,1,2,0.5,6,7,0.857,2,13,15,1,3,3,1,3,21,9.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,34:19,6,11,0.545,1,2,0.5,1,4,0.25,3,3,6,7,4,1,3,1,14,8.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,39:02,9,18,0.5,3,5,0.6,7,8,0.875,0,6,6,12,2,0,6,1,28,0.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,26:39,3,6,0.5,2,5,0.4,0,0,0.0,0,1,1,2,2,1,0,3,8,-2.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1629611,Terance,Mann,T. Mann,terance-mann,,,,25:55,5,12,0.417,0,3,0.0,3,3,1.0,1,0,1,1,0,0,1,0,13,-15.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1627777,Georges,Niang,G. Niang,georges-niang,,,,26:35,4,14,0.286,2,9,0.222,2,2,1.0,2,2,4,1,1,0,1,3,12,1.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,15:33,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,2,0,3,0,1,0,-17.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1630552,Jalen,Johnson,J. Johnson,jalen-johnson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1627747,Caris,LeVert,C. LeVert,caris-levert,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978
+0022400978,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,F,,,35:51,7,16,0.438,4,8,0.5,10,10,1.0,0,4,4,7,0,0,3,2,28,3.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,F,,,30:12,5,11,0.455,2,4,0.5,1,1,1.0,3,1,4,6,0,0,0,1,13,-6.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,30:03,3,6,0.5,0,0,0.0,1,4,0.25,3,3,6,2,2,1,1,2,7,-12.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630553,Keon,Johnson,K. Johnson,keon-johnson,G,,,28:53,8,20,0.4,4,9,0.444,2,2,1.0,3,5,8,5,1,1,3,4,22,3.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,G,,,32:59,6,13,0.462,3,7,0.429,1,2,0.5,1,5,6,3,1,0,2,3,16,8.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,26:41,4,8,0.5,1,2,0.5,4,4,1.0,0,1,1,5,1,1,4,2,13,7.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,22:23,4,7,0.571,2,4,0.5,0,0,0.0,0,1,1,2,2,0,1,1,10,17.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,17:57,4,7,0.571,0,0,0.0,0,0,0.0,0,7,7,2,0,2,1,2,8,20.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1641736,Reece,Beekman,R. Beekman,reece-beekman,,,,15:01,2,2,1.0,1,1,1.0,0,0,0.0,2,1,3,1,0,0,0,1,5,0.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978
+0022400978,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400978

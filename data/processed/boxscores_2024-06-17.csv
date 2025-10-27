@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,22:20,4,8,0.5,1,4,0.25,1,2,0.5,0,0,0,0,0,1,0,0,10,-8.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:29,2,7,0.286,0,5,0.0,0,0,0.0,0,6,6,3,0,2,4,3,4,-26.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,10:54,3,5,0.6,0,0,0.0,0,0,0.0,2,1,3,0,0,0,0,1,6,-7.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,41:07,5,16,0.313,3,9,0.333,2,2,1.0,1,2,3,9,1,0,1,2,15,-11.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,43:23,12,25,0.48,2,9,0.222,2,5,0.4,0,12,12,5,3,0,7,3,28,-19.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,24:05,1,2,0.5,0,0,0.0,0,0,0.0,2,2,4,0,0,1,1,5,2,-6.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1630182,Josh,Green,J. Green,josh-green,,,,22:22,5,8,0.625,4,6,0.667,0,0,0.0,1,1,2,0,0,0,0,1,14,-8.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,13:26,1,3,0.333,0,2,0.0,0,0,0.0,1,2,3,1,0,0,0,2,2,-12.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,8:49,1,1,1.0,1,1,1.0,1,2,0.5,0,0,0,0,0,0,0,0,4,-6.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,8:37,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,3,0,1.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,2:37,1,2,0.5,0,0,0.0,1,2,0.5,0,0,0,0,0,0,0,0,3,3.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,2:37,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,3.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,2:37,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,3.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,2:37,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,3.0,0042300405,2024-06-17
+0042300405,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,44:15,7,23,0.304,2,9,0.222,5,6,0.833,0,8,8,6,2,0,1,4,21,20.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,44:57,11,24,0.458,1,7,0.143,8,8,1.0,1,7,8,11,2,0,2,2,31,18.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,201143,Al,Horford,A. Horford,al-horford,C,,,31:35,3,6,0.5,2,3,0.667,1,2,0.5,2,7,9,2,2,0,0,3,9,20.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,38:08,4,10,0.4,4,8,0.5,2,2,1.0,4,4,8,1,2,1,2,0,14,1.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,43:08,7,14,0.5,1,3,0.333,0,0,0.0,4,7,11,4,0,1,2,3,15,21.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,,,,16:05,2,4,0.5,0,2,0.0,1,2,0.5,0,1,1,0,0,0,0,2,5,8.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,17:07,3,7,0.429,2,6,0.333,0,0,0.0,3,1,4,1,1,0,0,1,8,3.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1630202,Payton,Pritchard,P. Pritchard,payton-pritchard,,,,1:25,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,0,0,3,1.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,2:02,0,0,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-2.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1629052,Oshae,Brissett,O. Brissett,oshae-brissett,,,,0:39,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1629004,Svi,Mykhailiuk,S. Mykhailiuk,svi-mykhailiuk,,,,0:39,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1630531,Jaden,Springer,J. Springer,jaden-springer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17
+0042300405,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300405,2024-06-17

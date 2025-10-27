@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1629060,Rui,Hachimura,R. Hachimura,rui-hachimura,F,,,35:37,11,14,0.786,7,8,0.875,3,4,0.75,0,10,10,1,0,2,0,1,32,35.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,2544,LeBron,James,L. James,lebron-james,F,,,34:45,8,14,0.571,0,1,0.0,7,11,0.636,0,14,14,12,1,0,4,1,23,33.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1629637,Jaxson,Hayes,J. Hayes,jaxson-hayes,C,,,30:30,6,7,0.857,0,0,0.0,2,2,1.0,1,6,7,1,1,1,1,5,14,6.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1630559,Austin,Reaves,A. Reaves,austin-reaves,G,,,35:03,4,12,0.333,0,4,0.0,5,5,1.0,1,1,2,11,0,0,2,1,13,31.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1626156,D'Angelo,Russell,D. Russell,dangelo-russell,G,,,29:09,7,16,0.438,5,9,0.556,4,4,1.0,1,1,2,4,1,0,4,5,23,1.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,203915,Spencer,Dinwiddie,S. Dinwiddie,spencer-dinwiddie,,,,25:22,4,7,0.571,3,4,0.75,3,3,1.0,1,6,7,1,1,1,2,2,14,-11.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1627752,Taurean,Prince,T. Prince,taurean-prince,,,,23:26,4,5,0.8,3,4,0.75,4,6,0.667,0,1,1,1,0,0,2,4,15,-3.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1629629,Cam,Reddish,C. Reddish,cam-reddish,,,,10:11,0,2,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-17.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1628385,Harry,Giles III,H. Giles III,harry-giles-iii,,,,5:08,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,0,1,0,0,0,0,-12.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1631108,Max,Christie,M. Christie,max-christie,,,,6:52,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,3.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1630219,Skylar,Mays,S. Mays,skylar-mays,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1641721,Maxwell,Lewis,M. Lewis,maxwell-lewis,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022301055
+0022301055,1610612747,Los Angeles,Lakers,LAL,lakers,1630658,Colin,Castleton,C. Castleton,colin-castleton,,,,1:19,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,F,,,28:44,3,9,0.333,2,6,0.333,2,2,1.0,0,4,4,0,0,0,3,3,10,-18.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630583,Santi,Aldama,S. Aldama,santi-aldama,F,,,27:17,2,6,0.333,2,6,0.333,0,0,0.0,1,2,3,1,1,0,0,2,6,-15.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1628991,Jaren,Jackson Jr.,J. Jackson Jr.,jaren-jackson-jr,C,,,34:38,6,16,0.375,0,4,0.0,5,6,0.833,4,5,9,3,3,1,1,5,17,-26.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630217,Desmond,Bane,D. Bane,desmond-bane,G,,,39:35,8,17,0.471,4,9,0.444,6,6,1.0,0,4,4,16,1,0,4,5,26,-7.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,25:37,4,9,0.444,2,4,0.5,1,2,0.5,0,2,2,2,2,1,2,4,11,-26.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,31:59,9,14,0.643,7,9,0.778,0,1,0.0,4,2,6,4,1,0,4,2,25,7.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,,,20:51,3,7,0.429,0,1,0.0,0,1,0.0,3,2,5,1,1,0,0,1,6,15.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630610,DeJon,Jarreau,D. Jarreau,dejon-jarreau,,,,9:30,4,4,1.0,0,0,0.0,0,0,0.0,0,1,1,1,0,1,0,1,8,8.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630205,Lamar,Stevens,L. Stevens,lamar-stevens,,,,20:30,5,13,0.385,0,4,0.0,1,1,1.0,0,4,4,2,1,0,0,0,11,0.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641970,Maozinha,Pereira,M. Pereira,maozinha-pereira,,,,1:19,2,2,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,4,2.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1631246,Vince,Williams Jr.,V. Williams Jr.,vince-williams-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301055
+0022301055,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301055

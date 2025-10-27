@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,15:27,1,2,0.5,0,1,0.0,2,2,1.0,0,1,1,0,0,0,1,1,4,-2.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,34:01,3,8,0.375,2,5,0.4,0,0,0.0,1,5,6,0,0,1,0,1,8,-18.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,24:11,5,7,0.714,0,0,0.0,3,4,0.75,0,8,8,3,1,1,1,4,13,7.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,40:26,6,27,0.222,2,12,0.167,4,5,0.8,0,10,10,16,1,0,4,0,18,5.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,38:25,13,21,0.619,0,5,0.0,2,2,1.0,1,6,7,3,2,0,1,3,28,-10.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,16:03,5,7,0.714,0,0,0.0,2,2,1.0,1,4,5,1,0,1,0,3,12,-4.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,27:58,5,8,0.625,4,4,1.0,2,2,1.0,0,1,1,2,0,0,2,1,16,16.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,17:11,2,5,0.4,1,2,0.5,0,0,0.0,0,1,1,1,2,0,0,0,5,6.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,21:48,2,2,1.0,1,1,1.0,0,0,0.0,0,1,1,4,0,0,0,3,5,27.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,4:30,2,4,0.5,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,2,4,3.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300994
+0022300994,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,19:38,2,5,0.4,2,5,0.4,0,0,0.0,0,3,3,1,0,1,0,2,6,3.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,F,,,29:49,4,15,0.267,3,9,0.333,2,4,0.5,3,7,10,6,0,0,2,2,13,-3.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,32:07,3,13,0.231,0,4,0.0,6,7,0.857,3,8,11,3,1,6,5,4,12,5.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,36:24,9,18,0.5,0,3,0.0,1,1,1.0,0,6,6,3,3,0,3,1,19,-18.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1630200,Tre,Jones,T. Jones,tre-jones,G,,,33:23,8,11,0.727,4,5,0.8,2,2,1.0,0,3,3,9,0,0,1,0,22,7.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,15:53,2,4,0.5,0,0,0.0,0,0,0.0,0,1,1,5,1,0,0,0,4,-11.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,13:26,0,2,0.0,0,1,0.0,1,2,0.5,0,4,4,0,1,1,1,1,1,-11.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,28:17,5,10,0.5,3,6,0.5,1,2,0.5,1,5,6,2,0,0,1,1,14,-8.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,,,20:01,4,7,0.571,1,3,0.333,2,3,0.667,2,2,4,1,0,0,1,1,11,5.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1626224,Cedi,Osman,C. Osman,cedi-osman,,,,11:02,2,4,0.5,1,3,0.333,0,0,0.0,0,0,0,1,0,2,1,2,5,1.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1628984,Devonte',Graham,D. Graham,devonte-graham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300994
+0022300994,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300994

@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,20:09,1,2,0.5,0,1,0.0,0,0,0.0,2,3,5,1,0,0,1,1,2,-10.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,32:57,9,18,0.5,1,4,0.25,3,3,1.0,0,1,1,3,0,0,3,2,22,-22.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,C,,,25:19,0,4,0.0,0,0,0.0,1,4,0.25,2,8,10,0,0,1,1,4,1,-18.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,34:37,11,18,0.611,2,6,0.333,13,14,0.929,0,4,4,5,0,0,5,3,37,-17.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,24:23,3,9,0.333,3,7,0.429,0,0,0.0,0,0,0,2,1,0,1,0,9,-15.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,,,,24:26,4,8,0.5,1,2,0.5,4,4,1.0,0,0,0,3,0,0,2,3,13,-15.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,,,,22:55,1,3,0.333,1,3,0.333,0,0,0.0,1,3,4,2,2,0,2,2,3,-6.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,16:42,1,4,0.25,0,0,0.0,0,0,0.0,4,3,7,1,0,0,1,3,2,-2.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,14:17,2,5,0.4,1,4,0.25,0,0,0.0,0,3,3,1,0,0,0,1,5,5.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,,,4:51,3,5,0.6,0,2,0.0,1,1,1.0,0,0,0,0,2,0,0,0,7,1.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,4:51,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,1,2,1.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,,,4:51,1,3,0.333,1,2,0.5,0,0,0.0,0,0,0,1,0,0,0,0,3,1.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,4:51,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,1,0,1,0,1,0,1.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,4:51,1,3,0.333,0,2,0.0,0,0,0.0,1,0,1,1,0,0,1,0,2,1.0,0022400694
+0022400694,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,203924,Jerami,Grant,J. Grant,jerami-grant,F,,,32:57,5,10,0.5,1,3,0.333,9,9,1.0,0,1,1,3,0,2,0,2,20,16.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1641739,Toumani,Camara,T. Camara,toumani-camara,F,,,36:08,7,11,0.636,2,4,0.5,2,2,1.0,4,6,10,0,4,0,1,2,18,24.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1629028,Deandre,Ayton,D. Ayton,deandre-ayton,C,,,32:55,11,12,0.917,0,0,0.0,2,3,0.667,1,6,7,2,0,1,2,3,24,25.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1630166,Deni,Avdija,D. Avdija,deni-avdija,G,,,21:52,3,7,0.429,1,4,0.25,3,3,1.0,0,5,5,3,0,0,0,4,10,0.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1629014,Anfernee,Simons,A. Simons,anfernee-simons,G,,,29:25,6,15,0.4,1,7,0.143,3,4,0.75,1,3,4,7,1,1,1,2,16,3.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1631101,Shaedon,Sharpe,S. Sharpe,shaedon-sharpe,,,,25:13,5,12,0.417,3,5,0.6,3,4,0.75,0,1,1,0,1,0,2,3,16,15.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1630703,Scoot,Henderson,S. Henderson,scoot-henderson,,,,24:17,5,12,0.417,1,5,0.2,2,2,1.0,0,3,3,9,2,0,0,1,13,31.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1642270,Donovan,Clingan,D. Clingan,donovan-clingan,,,,11:06,1,2,0.5,0,0,0.0,0,0,0.0,2,2,4,0,0,1,1,2,2,0.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1631200,Kris,Murray,K. Murray,kris-murray,,,,13:07,1,3,0.333,0,1,0.0,0,2,0.0,1,3,4,0,2,0,0,0,2,5.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1641871,Duop,Reath,D. Reath,duop-reath,,,,3:15,1,2,0.5,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,0,2,-6.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1631133,Jabari,Walker,J. Walker,jabari-walker,,,,3:15,0,1,0.0,0,1,0.0,0,0,0.0,0,3,3,0,0,0,0,0,0,-6.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1641712,Rayan,Rupert,R. Rupert,rayan-rupert,,,,3:15,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,-6.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1631121,Bryce,McGowens,B. McGowens,bryce-mcgowens,,,,3:15,1,2,0.5,0,0,0.0,2,2,1.0,0,0,0,0,1,0,1,1,4,-6.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1630625,Dalano,Banton,D. Banton,dalano-banton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400694
+0022400694,1610612757,Portland,Trail Blazers,POR,blazers,1629057,Robert,Williams III,R. Williams III,robert-williams-iii,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400694

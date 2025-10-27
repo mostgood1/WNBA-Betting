@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1641711,Gradey,Dick,G. Dick,gradey-dick,F,,,33:39,6,13,0.462,3,8,0.375,2,2,1.0,0,2,2,2,0,1,0,3,17,-7.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1630534,Ochai,Agbaji,O. Agbaji,ochai-agbaji,F,,,32:02,6,12,0.5,0,5,0.0,0,3,0.0,5,4,9,2,1,2,1,0,12,-2.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,C,,,32:22,4,11,0.364,0,1,0.0,6,6,1.0,1,5,6,10,2,1,3,5,14,3.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1630186,Jahmi'us,Ramsey,J. Ramsey,jahmius-ramsey,G,,,18:05,3,5,0.6,2,4,0.5,0,0,0.0,0,4,4,1,0,0,0,2,8,9.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1629018,Gary,Trent Jr.,G. Trent Jr.,gary-trent-jr,G,,,34:26,10,26,0.385,1,7,0.143,10,10,1.0,1,3,4,2,3,0,0,2,31,5.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1628971,Bruce,Brown,B. Brown,bruce-brown,,,,32:30,5,13,0.385,0,1,0.0,1,3,0.333,5,1,6,3,1,0,3,1,11,-6.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1631241,Javon,Freeman-Liberty,J. Freeman-Liberty,javon-freeman-liberty,,,,23:00,1,5,0.2,0,2,0.0,2,2,1.0,1,3,4,4,2,0,3,1,4,-7.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,202066,Garrett,Temple,G. Temple,garrett-temple,,,,10:51,1,2,0.5,1,2,0.5,0,0,0.0,0,5,5,2,0,1,0,3,3,0.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1629670,Jordan,Nwora,J. Nwora,jordan-nwora,,,,15:42,3,6,0.5,1,3,0.333,0,0,0.0,0,2,2,1,0,1,2,2,7,-1.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1631338,Mouhamadou,Gueye,M. Gueye,mouhamadou-gueye,,,,7:23,1,1,1.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,0,1,2,-9.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1628449,Chris,Boucher,C. Boucher,chris-boucher,,NWT - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301022
+0022301022,1610612761,Toronto,Raptors,TOR,raptors,1629667,Jalen,McDaniels,J. McDaniels,jalen-mcdaniels,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,35:49,8,19,0.421,3,8,0.375,3,6,0.5,3,10,13,5,1,0,1,2,22,0.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,34:17,7,18,0.389,0,3,0.0,2,4,0.5,0,9,9,5,0,0,4,4,16,-4.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1626158,Richaun,Holmes,R. Holmes,richaun-holmes,C,,,28:13,6,9,0.667,0,0,0.0,3,4,0.75,7,7,14,0,0,2,2,3,15,7.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,G,,,33:08,7,12,0.583,4,6,0.667,0,0,0.0,0,1,1,2,1,0,2,2,18,-1.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,38:07,6,14,0.429,2,8,0.25,4,4,1.0,1,3,4,12,3,0,3,3,18,7.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,17:12,2,3,0.667,0,1,0.0,0,0,0.0,0,1,1,1,1,1,0,0,4,6.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,,,,16:24,4,7,0.571,1,2,0.5,1,1,1.0,3,5,8,0,0,2,1,0,10,1.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,2:55,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,1,0,0,1,0,0,-3.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,11:04,1,3,0.333,0,2,0.0,0,0,0.0,1,0,1,0,0,3,1,1,2,-1.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,19:51,3,7,0.429,1,5,0.2,0,0,0.0,1,1,2,2,1,0,2,3,7,5.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,3:00,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-2.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1631262,Jules,Bernard,J. Bernard,jules-bernard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301022
+0022301022,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301022

@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,24:18,4,7,0.571,3,6,0.5,1,2,0.5,0,2,2,1,1,1,0,1,12,-13.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,7:52,1,2,0.5,0,0,0.0,1,2,0.5,0,2,2,0,0,0,0,0,3,-7.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,C,,,30:35,2,6,0.333,2,6,0.333,2,4,0.5,1,4,5,1,3,1,5,3,8,-13.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,14:08,0,5,0.0,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-11.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,37:20,6,15,0.4,4,9,0.444,4,4,1.0,0,5,5,9,1,1,6,0,20,-3.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,12:06,0,3,0.0,0,1,0.0,0,0,0.0,1,0,1,1,1,0,1,2,0,-4.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,24:39,4,9,0.444,4,8,0.5,0,0,0.0,0,2,2,1,1,0,0,0,12,-4.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,15:45,2,4,0.5,1,3,0.333,0,0,0.0,1,3,4,1,0,0,0,2,5,-7.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,13:13,2,3,0.667,0,0,0.0,1,2,0.5,2,2,4,3,0,0,0,1,5,-6.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,10:42,1,3,0.333,0,1,0.0,1,2,0.5,0,1,1,1,0,0,2,4,3,-8.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1630228,Jonathan,Kuminga,J. Kuminga,jonathan-kuminga,,,,26:04,4,12,0.333,2,5,0.4,1,2,0.5,1,2,3,2,0,1,1,2,11,-3.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,12:18,5,7,0.714,1,1,1.0,0,0,0.0,0,1,1,1,0,0,0,2,11,-2.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,3:40,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,1,2,2.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1630296,Braxton,Key,B. Key,braxton-key,,,,3:40,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,2,0,0,0,2.0,0042400152
+0042400152,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,3:40,1,3,0.333,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,2,2.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1628415,Dillon,Brooks,D. Brooks,dillon-brooks,F,,,24:48,6,12,0.5,2,5,0.4,2,2,1.0,0,3,3,1,0,1,3,4,16,12.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,F,,,22:42,4,7,0.571,0,1,0.0,3,4,0.75,0,1,1,3,0,0,0,3,11,15.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,36:47,6,15,0.4,1,2,0.5,4,5,0.8,6,10,16,7,2,0,3,4,17,28.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1630224,Jalen,Green,J. Green,jalen-green,G,,,35:20,13,25,0.52,8,18,0.444,4,5,0.8,0,4,4,6,3,0,2,1,38,19.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1627832,Fred,VanVleet,F. VanVleet,fred-vanvleet,G,,,42:14,2,8,0.25,1,7,0.143,2,2,1.0,0,6,6,2,3,1,0,2,7,19.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,,,,24:19,6,9,0.667,2,2,1.0,0,0,0.0,3,3,6,1,0,0,1,2,14,-4.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1631095,Jabari,Smith Jr.,J. Smith Jr.,jabari-smith-jr,,,,23:51,2,4,0.5,1,3,0.333,0,0,0.0,0,5,5,0,0,1,1,0,5,5.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,203500,Steven,Adams,S. Adams,steven-adams,,,,16:48,0,0,0.0,0,0,0.0,1,2,0.5,1,2,3,0,1,1,0,0,1,2.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,5:12,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,1,0,-1.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,,,2:00,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,0,0,-5.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1641715,Cam,Whitmore,C. Whitmore,cam-whitmore,,,,2:00,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-5.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1631466,Nate,Williams,N. Williams,nate-williams,,,,2:00,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,,,,2:00,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-5.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1629111,Jock,Landale,J. Landale,jock-landale,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400152
+0042400152,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400152

@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id,date
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630183,Jaden,McDaniels,J. McDaniels,jaden-mcdaniels,F,,,39:08,0,7,0.0,0,2,0.0,0,0,0.0,3,5,8,1,0,1,1,1,0,14.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,F,,,30:49,8,13,0.615,2,4,0.5,2,4,0.5,0,4,4,3,0,0,1,5,20,6.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203497,Rudy,Gobert,R. Gobert,rudy-gobert,C,,,35:17,3,6,0.5,0,0,0.0,0,0,0.0,1,12,13,3,1,3,0,4,6,12.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630162,Anthony,Edwards,A. Edwards,anthony-edwards,G,,,42:14,17,29,0.586,3,7,0.429,6,6,1.0,2,5,7,3,1,2,1,1,43,10.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,201144,Mike,Conley,M. Conley,mike-conley,G,,,31:06,5,8,0.625,3,4,0.75,1,1,1.0,0,4,4,10,1,0,4,3,14,20.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629675,Naz,Reid,N. Reid,naz-reid,,,,23:07,7,11,0.636,2,4,0.5,0,1,0.0,1,3,4,3,1,0,3,0,16,-7.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629638,Nickeil,Alexander-Walker,N. Alexander-Walker,nickeil-alexander-walker,,,,22:40,2,6,0.333,1,5,0.2,0,0,0.0,0,0,0,0,0,0,3,2,5,-16.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203937,Kyle,Anderson,K. Anderson,kyle-anderson,,,,12:15,1,1,1.0,0,0,0.0,0,0,0.0,0,2,2,1,0,0,1,4,2,-9.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1628420,Monté,Morris,M. Morris,monté-morris,,,,3:24,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,5.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1630568,Luka,Garza,L. Garza,luka-garza,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631159,Leonard,Miller,L. Miller,leonard-miller,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631169,Josh,Minott,J. Minott,josh-minott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,1631111,Wendell,Moore Jr.,W. Moore Jr.,wendell-moore-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612750,Minnesota,Timberwolves,MIN,timberwolves,203933,T.J.,Warren,T. Warren,tj-warren,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,40:06,6,13,0.462,4,7,0.571,4,6,0.667,0,6,6,1,3,1,2,1,20,-9.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,203932,Aaron,Gordon,A. Gordon,aaron-gordon,F,,,32:33,4,6,0.667,0,1,0.0,1,3,0.333,1,2,3,6,2,0,1,4,9,-23.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,203999,Nikola,Jokić,N. Jokić,nikola-jokić,C,,,40:56,11,25,0.44,2,9,0.222,8,8,1.0,1,7,8,9,3,0,7,4,32,-12.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,203484,Kentavious,Caldwell-Pope,K. Caldwell-Pope,kentavious-caldwell-pope,G,,,37:26,2,4,0.5,2,4,0.5,0,0,0.0,0,2,2,3,2,1,1,2,6,-9.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1627750,Jamal,Murray,J. Murray,jamal-murray,G,,,34:17,6,14,0.429,2,4,0.5,3,3,1.0,0,1,1,4,0,0,1,4,17,-22.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,16:29,1,3,0.333,1,3,0.333,0,0,0.0,0,5,5,0,1,0,0,0,3,19.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,202704,Reggie,Jackson,R. Jackson,reggie-jackson,,,,13:43,2,3,0.667,1,1,1.0,0,0,0.0,1,2,3,1,1,0,0,1,5,15.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1631128,Christian,Braun,C. Braun,christian-braun,,,,19:00,3,5,0.6,1,1,1.0,0,0,0.0,0,2,2,0,0,0,0,0,7,4.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1631212,Peyton,Watson,P. Watson,peyton-watson,,,,5:30,0,2,0.0,0,1,0.0,0,0,0.0,0,4,4,0,0,0,0,2,0,2.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,201599,DeAndre,Jordan,D. Jordan,deandre-jordan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1630192,Zeke,Nnaji,Z. Nnaji,zeke-nnaji,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1629618,Jalen,Pickett,J. Pickett,jalen-pickett,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1631124,Julian,Strawther,J. Strawther,julian-strawther,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04
+0042300231,1610612743,Denver,Nuggets,DEN,nuggets,1641816,Hunter,Tyson,H. Tyson,hunter-tyson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042300231,2024-05-04

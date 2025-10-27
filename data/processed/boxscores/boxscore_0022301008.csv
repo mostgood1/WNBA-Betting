@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,28:24,2,4,0.5,1,3,0.333,0,0,0.0,0,2,2,0,1,0,1,5,5,-7.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1628374,Lauri,Markkanen,L. Markkanen,lauri-markkanen,F,,,35:47,6,20,0.3,1,9,0.111,8,8,1.0,0,3,3,2,2,0,0,1,21,-19.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1631117,Walker,Kessler,W. Kessler,walker-kessler,C,,,27:29,7,7,1.0,0,0,0.0,0,0,0.0,1,8,9,2,0,0,2,3,14,-7.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,33:04,6,16,0.375,1,6,0.167,5,5,1.0,0,2,2,5,1,0,6,0,18,-9.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,19:37,2,3,0.667,0,1,0.0,0,0,0.0,0,4,4,5,1,1,4,5,4,10.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1629012,Collin,Sexton,C. Sexton,collin-sexton,,,,33:48,9,14,0.643,0,3,0.0,2,2,1.0,1,3,4,5,0,0,3,2,20,-21.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,19:31,1,7,0.143,0,4,0.0,1,2,0.5,1,7,8,5,1,2,2,1,3,-5.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,,,,20:31,4,7,0.571,1,2,0.5,1,2,0.5,2,3,5,2,0,0,0,2,10,-9.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,,,,7:31,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,3,0,-7.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,,,6:53,1,2,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-6.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,,,7:25,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,3,0,0,0,1,0,0.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1630554,Jason,Preston,J. Preston,jason-preston,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301008
+0022301008,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,24:27,4,4,1.0,0,0,0.0,4,6,0.667,0,4,4,2,0,1,0,1,12,21.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1629023,P.J.,Washington,P. Washington,pj-washington,F,,,33:20,3,9,0.333,0,4,0.0,0,0,0.0,1,4,5,1,2,2,1,5,6,9.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1629655,Daniel,Gafford,D. Gafford,daniel-gafford,C,,,27:16,10,11,0.909,0,0,0.0,4,6,0.667,3,4,7,5,1,0,1,2,24,25.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,202681,Kyrie,Irving,K. Irving,kyrie-irving,G,,,34:37,7,19,0.368,2,8,0.25,0,0,0.0,1,4,5,7,2,0,1,1,16,37.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1629029,Luka,Dončić,L. Dončić,luka-dončić,G,,,34:40,11,23,0.478,4,10,0.4,8,12,0.667,1,8,9,8,4,0,4,2,34,-3.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,203957,Danté,Exum,D. Exum,danté-exum,,,,15:09,0,1,0.0,0,0,0.0,0,0,0.0,0,2,2,2,0,0,2,2,0,-8.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,203501,Tim,Hardaway Jr.,T. Hardaway Jr.,tim-hardaway-jr,,,,16:53,0,4,0.0,0,3,0.0,0,0,0.0,0,1,1,0,0,0,1,0,0,-5.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1641726,Dereck,Lively II,D. Lively II,dereck-lively-ii,,,,15:29,3,5,0.6,0,0,0.0,0,2,0.0,3,2,5,1,0,0,1,0,6,-17.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1628467,Maxi,Kleber,M. Kleber,maxi-kleber,,,,17:47,2,3,0.667,2,3,0.667,1,2,0.5,1,1,2,2,3,0,1,3,7,15.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,17:10,2,5,0.4,2,4,0.5,0,0,0.0,1,1,2,5,0,0,1,4,6,6.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1630639,A.J.,Lawson,A. Lawson,aj-lawson,,,,1:04,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,2,0.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,,,,1:04,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,203939,Dwight,Powell,D. Powell,dwight-powell,,,,1:04,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022301008
+0022301008,1610612742,Dallas,Mavericks,DAL,mavericks,202693,Markieff,Morris,M. Morris,markieff-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301008

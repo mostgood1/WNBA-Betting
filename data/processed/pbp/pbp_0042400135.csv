@@ -1,0 +1,530 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0042400135,2,PT12M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,,Start of 1st Period (6:07 PM EST),period,start,0,0,1,0042400135
+0042400135,4,PT12M00.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Jump Ball Turner vs. Portis: Tip to Nembhard,Jump Ball,,1,0,2,0042400135
+0042400135,7,PT11M33.00S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Turnover: Shot Clock (T#1),Turnover,Shot Clock Turnover,1,0,3,0042400135
+0042400135,8,PT11M15.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,9,159,16,Missed,1,,,0,v,MISS Antetokounmpo 16' Floating Jump Shot,Missed Shot,Floating Jump shot,1,2,4,0042400135
+0042400135,9,PT11M13.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,5,0042400135
+0042400135,10,PT10M52.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,96,182,21,Missed,1,,,0,h,MISS Siakam 21' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,6,0042400135
+0042400135,11,PT10M49.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,7,0042400135
+0042400135,13,PT10M32.00S,1,1610612749,MIL,1631260,Green,A. Green,-110,259,28,Made,1,0,3,3,v,Green 28' 3PT Jump Shot (3 PTS) (Antetokounmpo 1 AST),Made Shot,Jump Shot,1,3,8,0042400135
+0042400135,15,PT10M10.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis S.FOUL (P1.T1) (B.Forte),Foul,Shooting,1,0,9,0042400135
+0042400135,17,PT10M10.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,MISS Turner Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,10,0042400135
+0042400135,18,PT10M10.00S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Normal Rebound,0,0,11,0042400135
+0042400135,19,PT10M10.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,MISS Turner Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,12,0042400135
+0042400135,20,PT10M09.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,13,0042400135
+0042400135,21,PT09M55.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-212,148,26,Made,1,0,6,6,v,Antetokounmpo 26' 3PT Jump Shot (3 PTS) (Portis 1 AST),Made Shot,Jump Shot,1,3,14,0042400135
+0042400135,23,PT09M34.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard Lost Ball Turnover (P1.T2),Turnover,Lost Ball,1,0,15,0042400135
+0042400135,23,PT09M34.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo STEAL (1 STL),,,1,0,16,0042400135
+0042400135,25,PT09M18.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-150,226,27,Made,1,0,9,9,v,Portis 27' 3PT Jump Shot (3 PTS) (Porter Jr. 1 AST),Made Shot,Jump Shot,1,3,17,0042400135
+0042400135,27,PT09M01.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,240,55,25,Missed,1,,,0,h,MISS Nesmith 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,18,0042400135
+0042400135,28,PT08M59.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,19,0042400135
+0042400135,29,PT08M51.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,10,1,1,Made,1,0,11,11,v,Antetokounmpo 1' Driving Finger Roll Layup (5 PTS) (Trent Jr. 1 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,20,0042400135
+0042400135,31,PT08M50.00S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,21,0042400135
+0042400135,32,PT08M38.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,-120,43,13,Missed,1,,,0,h,MISS Nembhard 13' Driving Floating Bank Jump Shot,Missed Shot,Driving Floating Bank Jump Shot,1,2,22,0042400135
+0042400135,33,PT08M37.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,23,0042400135
+0042400135,34,PT08M29.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard Violation:Kicked Ball (C.Kirkland),Violation,Kicked Ball,0,0,24,0042400135
+0042400135,35,PT08M21.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton P.FOUL (P1.T1) (B.Forte),Foul,Personal,1,0,25,0042400135
+0042400135,37,PT08M09.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-10,12,2,Made,1,0,13,13,v,Antetokounmpo 2' Layup (7 PTS) (Porter Jr. 2 AST),Made Shot,Layup Shot,1,2,26,0042400135
+0042400135,39,PT07M49.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo P.FOUL (P1.T2) (C.Kirkland),Foul,Personal,1,0,27,0042400135
+0042400135,41,PT07M43.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,-94,267,28,Missed,1,,,0,h,MISS Haliburton 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,28,0042400135
+0042400135,42,PT07M38.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,29,0042400135
+0042400135,43,PT07M32.00S,1,1610612754,IND,1626167,Turner,M. Turner,-131,224,26,Made,1,3,13,16,h,Turner 26' 3PT Jump Shot (3 PTS) (Haliburton 1 AST),Made Shot,Jump Shot,1,3,30,0042400135
+0042400135,45,PT07M05.00S,1,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Turnover: Shot Clock (T#1),Turnover,Shot Clock Turnover,1,0,31,0042400135
+0042400135,46,PT06M54.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,-201,64,21,Missed,1,,,0,h,MISS Nembhard 21' Jump Shot,Missed Shot,Jump Shot,1,2,32,0042400135
+0042400135,47,PT06M52.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,33,0042400135
+0042400135,48,PT06M47.00S,1,1610612749,MIL,1626171,Portis,B. Portis,-175,194,26,Missed,1,,,0,v,MISS Portis 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,34,0042400135
+0042400135,49,PT06M44.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,35,0042400135
+0042400135,50,PT06M31.00S,1,1610612754,IND,1626167,Turner,M. Turner,-13,253,25,Missed,1,,,0,h,MISS Turner 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,36,0042400135
+0042400135,51,PT06M28.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,37,0042400135
+0042400135,52,PT06M22.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Offensive Charge Foul (P2) (D.Guthrie),Foul,Offensive Charge,1,0,38,0042400135
+0042400135,54,PT06M22.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Offensive Foul Turnover (P1.T2),Turnover,Offensive Foul Turnover,1,0,39,0042400135
+0042400135,55,PT06M22.00S,1,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.1 Short 0),Timeout,Regular,0,0,40,0042400135
+0042400135,56,PT06M22.00S,1,0,,52,Williams,M. Williams,0,0,0,,0,3,13,16,,Instant Replay1st Period (6:19 PM EST),Instant Replay,Coach Challenge Ruling Stands,1,0,41,0042400135
+0042400135,57,PT06M22.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Walker FOR Siakam,Substitution,,0,0,42,0042400135
+0042400135,59,PT06M12.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,43,0042400135
+0042400135,59,PT06M12.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (1 STL),,,1,0,44,0042400135
+0042400135,61,PT06M08.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-23,21,3,Made,1,3,15,18,v,Trent Jr. 3' Running Layup (2 PTS),Made Shot,Running Layup Shot,1,2,45,0042400135
+0042400135,62,PT05M53.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,-137,224,26,Missed,1,,,0,h,MISS Nesmith 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,46,0042400135
+0042400135,63,PT05M51.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,47,0042400135
+0042400135,64,PT05M49.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,-27,131,13,Made,1,5,15,20,h,Nesmith 13' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,48,0042400135
+0042400135,65,PT05M27.00S,1,1610612749,MIL,1631260,Green,A. Green,2,133,13,Missed,1,,,0,v,MISS Green 13' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,49,0042400135
+0042400135,66,PT05M24.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,50,0042400135
+0042400135,67,PT05M05.00S,1,1610612754,IND,1641716,Walker,J. Walker,151,281,32,Missed,1,,,0,h,MISS Walker 32' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,51,0042400135
+0042400135,68,PT05M02.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,52,0042400135
+0042400135,69,PT04M54.00S,1,1610612749,MIL,1631260,Green,A. Green,-230,36,0,Made,1,5,18,23,v,Green 3PT Jump Shot (6 PTS) (Antetokounmpo 2 AST),Made Shot,Jump Shot,1,3,53,0042400135
+0042400135,71,PT04M44.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,23,20,3,Made,1,7,18,25,h,Nembhard 3' Driving Finger Roll Layup (2 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,54,0042400135
+0042400135,72,PT04M36.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,-27,58,6,Made,1,7,20,27,v,Porter Jr. 6' Driving Floating Jump Shot (2 PTS),Made Shot,Driving Floating Jump Shot,1,2,55,0042400135
+0042400135,73,PT04M29.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,29,20,4,Missed,1,,,0,h,MISS Nembhard 4' Driving Reverse Layup,Missed Shot,Driving Reverse Layup Shot,1,2,56,0042400135
+0042400135,74,PT04M28.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,57,0042400135
+0042400135,75,PT04M22.00S,1,1610612749,MIL,1631260,Green,A. Green,-219,133,26,Missed,1,,,0,v,MISS Green 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,58,0042400135
+0042400135,76,PT04M19.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,59,0042400135
+0042400135,77,PT04M06.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. S.FOUL (P1.T3) (D.Guthrie),Foul,Shooting,1,0,60,0042400135
+0042400135,79,PT04M06.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,8,20,28,h,Turner Free Throw 1 of 2 (4 PTS),Free Throw,Free Throw 1 of 2,1,0,61,0042400135
+0042400135,80,PT04M06.00S,1,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,SUB: Mathurin FOR Nembhard,Substitution,,0,0,62,0042400135
+0042400135,81,PT04M06.00S,1,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,SUB: McConnell FOR Nesmith,Substitution,,0,0,63,0042400135
+0042400135,82,PT04M06.00S,1,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,SUB: Siakam FOR Walker,Substitution,,0,0,64,0042400135
+0042400135,83,PT04M06.00S,1,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,SUB: Sims FOR Antetokounmpo,Substitution,,0,0,65,0042400135
+0042400135,88,PT04M06.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,9,20,29,h,Turner Free Throw 2 of 2 (5 PTS),Free Throw,Free Throw 2 of 2,1,0,66,0042400135
+0042400135,89,PT03M51.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,114,110,16,Missed,1,,,0,v,MISS Porter Jr. 16' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,67,0042400135
+0042400135,90,PT03M49.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,68,0042400135
+0042400135,91,PT03M43.00S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin Bad Pass Turnover (P1.T4),Turnover,Bad Pass,1,0,69,0042400135
+0042400135,91,PT03M43.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (2 STL),,,1,0,70,0042400135
+0042400135,93,PT03M39.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-29,23,4,Made,1,9,22,31,v,Trent Jr. 4' Running Layup (4 PTS),Made Shot,Running Layup Shot,1,2,71,0042400135
+0042400135,94,PT03M19.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,-77,245,26,Missed,1,,,0,h,MISS Siakam 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,72,0042400135
+0042400135,95,PT03M17.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,73,0042400135
+0042400135,96,PT03M10.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-112,138,18,Made,1,9,24,33,v,Trent Jr. 18' Pullup Jump Shot (6 PTS),Made Shot,Pullup Jump shot,1,2,74,0042400135
+0042400135,97,PT02M55.00S,1,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green P.FOUL (P1.T4) (D.Guthrie),Foul,Personal,1,0,75,0042400135
+0042400135,99,PT02M55.00S,1,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,SUB: Toppin FOR Turner,Substitution,,0,0,76,0042400135
+0042400135,101,PT02M52.00S,1,1610612754,IND,204456,McConnell,T. McConnell,21,9,2,Missed,1,,,0,h,MISS McConnell 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,77,0042400135
+0042400135,102,PT02M49.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,78,0042400135
+0042400135,103,PT02M33.00S,1,1610612749,MIL,1626171,Portis,B. Portis,108,10,11,Missed,1,,,0,v,MISS Portis 11' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,79,0042400135
+0042400135,104,PT02M29.00S,1,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,80,0042400135
+0042400135,105,PT02M26.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. S.FOUL (P2.PN) (B.Forte),Foul,Shooting,1,0,81,0042400135
+0042400135,107,PT02M26.00S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,MISS Mathurin Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,82,0042400135
+0042400135,108,PT02M26.00S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Normal Rebound,0,0,83,0042400135
+0042400135,109,PT02M26.00S,1,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,SUB: Sheppard FOR Haliburton,Substitution,,0,0,84,0042400135
+0042400135,110,PT02M26.00S,1,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,SUB: Kuzma FOR Trent Jr.,Substitution,,0,0,85,0042400135
+0042400135,111,PT02M26.00S,1,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,SUB: Lopez FOR Portis,Substitution,,0,0,86,0042400135
+0042400135,115,PT02M26.00S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,MISS Mathurin Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,87,0042400135
+0042400135,116,PT02M25.00S,1,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,88,0042400135
+0042400135,117,PT02M06.00S,1,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. Bad Pass Turnover (P1.T3),Turnover,Bad Pass,1,0,89,0042400135
+0042400135,117,PT02M06.00S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin STEAL (1 STL),,,1,0,90,0042400135
+0042400135,119,PT02M01.00S,1,1610612754,IND,204456,McConnell,T. McConnell,-27,-1,3,Made,1,11,24,35,h,McConnell 3' Running Finger Roll Layup (2 PTS) (Mathurin 1 AST),Made Shot,Running Finger Roll Layup Shot,1,2,91,0042400135
+0042400135,121,PT01M49.00S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin S.FOUL (P1.T2) (C.Kirkland),Foul,Shooting,1,0,92,0042400135
+0042400135,123,PT01M49.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,11,25,36,v,Lopez Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,93,0042400135
+0042400135,124,PT01M49.00S,1,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,11,26,37,v,Lopez Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,94,0042400135
+0042400135,126,PT01M34.00S,1,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma S.FOUL (P1.PN) (B.Forte),Foul,Shooting,1,0,95,0042400135
+0042400135,128,PT01M34.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,12,26,38,h,McConnell Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,96,0042400135
+0042400135,129,PT01M34.00S,1,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,13,26,39,h,McConnell Free Throw 2 of 2 (4 PTS),Free Throw,Free Throw 2 of 2,1,0,97,0042400135
+0042400135,131,PT01M15.00S,1,1610612749,MIL,1631260,Green,A. Green,222,75,0,Missed,1,,,0,v,MISS Green 3PT Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,3,98,0042400135
+0042400135,132,PT01M12.00S,1,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,Sheppard REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,99,0042400135
+0042400135,133,PT00M59.10S,1,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin Traveling Turnover (P1.T5),Turnover,Traveling,1,0,100,0042400135
+0042400135,134,PT00M42.30S,1,1610612749,MIL,1628398,Kuzma,K. Kuzma,-142,83,16,Made,1,13,28,41,v,Kuzma 16' Pullup Jump Shot (2 PTS),Made Shot,Pullup Jump shot,1,2,101,0042400135
+0042400135,135,PT00M31.60S,1,1610612754,IND,1631097,Mathurin,B. Mathurin,-62,260,27,Missed,1,,,0,h,MISS Mathurin 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,102,0042400135
+0042400135,136,PT00M26.40S,1,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,103,0042400135
+0042400135,137,PT00M07.10S,1,1610612749,MIL,1630579,Sims,J. Sims,-10,21,2,Made,1,13,30,43,v,Sims 2' Alley Oop Dunk (2 PTS) (Porter Jr. 3 AST),Made Shot,Alley Oop Dunk Shot,1,2,104,0042400135
+0042400135,139,PT00M00.40S,1,1610612754,IND,204456,McConnell,T. McConnell,-7,67,7,Missed,1,,,0,h,MISS McConnell 7' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,105,0042400135
+0042400135,140,PT00M00.40S,1,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,0,0,106,0042400135
+0042400135,141,PT00M00.00S,1,0,,0,,,0,0,0,,0,13,30,43,,End of 1st Period (6:34 PM EST),period,end,1,0,107,0042400135
+0042400135,144,PT12M00.00S,2,0,,0,,,0,0,0,,0,13,30,43,,Start of 2nd Period (6:38 PM EST),period,start,0,0,108,0042400135
+0042400135,145,PT11M41.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims Out of Bounds Lost Ball Turnover (P1.T4),Turnover,Out of Bounds Lost Ball Turnover,0,0,109,0042400135
+0042400135,146,PT11M32.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,-27,17,3,Missed,1,,,0,h,MISS Toppin 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,110,0042400135
+0042400135,147,PT11M30.00S,2,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,111,0042400135
+0042400135,148,PT11M26.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,118,220,25,Made,1,13,33,46,v,Kuzma 25' 3PT Running Pull-Up Jump Shot (5 PTS) (Porter Jr. 4 AST),Made Shot,Running Pull-Up Jump Shot,1,3,112,0042400135
+0042400135,149,PT11M15.00S,2,1610612754,IND,204456,McConnell,T. McConnell,91,90,13,Missed,1,,,0,h,MISS McConnell 13' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,113,0042400135
+0042400135,150,PT11M13.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,114,0042400135
+0042400135,151,PT11M06.00S,2,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,193,-12,19,Missed,1,,,0,v,MISS Porter Jr. 19' Jump Shot,Missed Shot,Jump Shot,1,2,115,0042400135
+0042400135,152,PT11M02.00S,2,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,116,0042400135
+0042400135,153,PT10M55.00S,2,1610612754,IND,1631097,Mathurin,B. Mathurin,50,43,7,Made,1,15,33,48,h,Mathurin 7' Driving Floating Bank Jump Shot (2 PTS) (McConnell 1 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,117,0042400135
+0042400135,154,PT10M42.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims Bad Pass Turnover (P2.T5),Turnover,Bad Pass,1,0,118,0042400135
+0042400135,154,PT10M42.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin STEAL (1 STL),,,1,0,119,0042400135
+0042400135,156,PT10M39.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma S.FOUL (P2.T1) (D.Guthrie),Foul,Shooting,1,0,120,0042400135
+0042400135,158,PT10M39.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,16,33,49,h,Toppin Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,121,0042400135
+0042400135,159,PT10M39.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,17,33,50,h,Toppin Free Throw 2 of 2 (2 PTS),Free Throw,Free Throw 2 of 2,1,0,122,0042400135
+0042400135,160,PT10M25.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma Out of Bounds - Bad Pass Turnover Turnover (P1.T6),Turnover,Out of Bounds - Bad Pass Turnover,1,0,123,0042400135
+0042400135,161,PT10M25.00S,2,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,SUB: Antetokounmpo FOR Porter Jr.,Substitution,,0,0,124,0042400135
+0042400135,164,PT10M04.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,-76,125,15,Missed,1,,,0,h,MISS Toppin 15' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,125,0042400135
+0042400135,165,PT10M01.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,126,0042400135
+0042400135,166,PT09M54.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,107,263,28,Missed,1,,,0,v,MISS Lopez 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,127,0042400135
+0042400135,167,PT09M50.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,128,0042400135
+0042400135,168,PT09M34.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,108,67,13,Made,1,19,33,52,h,Siakam 13' Turnaround Jump Shot (2 PTS),Made Shot,Turnaround Jump Shot,1,2,129,0042400135
+0042400135,169,PT09M16.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,-16,104,11,Missed,1,,,0,v,MISS Kuzma 11' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,130,0042400135
+0042400135,170,PT09M13.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,131,0042400135
+0042400135,171,PT09M11.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-178,197,27,Missed,1,,,0,v,MISS Trent Jr. 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,132,0042400135
+0042400135,172,PT09M09.00S,2,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,1,0,133,0042400135
+0042400135,173,PT09M09.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims L.B.FOUL (P1.T2) (D.Guthrie),Foul,Loose Ball,1,0,134,0042400135
+0042400135,175,PT09M09.00S,2,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,SUB: Prince FOR Sims,Substitution,,0,0,135,0042400135
+0042400135,178,PT08M51.00S,2,1610612754,IND,204456,McConnell,T. McConnell,50,103,11,Made,1,21,33,54,h,McConnell 11' Jump Shot (6 PTS) (Toppin 1 AST),Made Shot,Jump Shot,1,2,136,0042400135
+0042400135,180,PT08M34.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,6,81,8,Made,1,21,35,56,v,Trent Jr. 8' Pullup Jump Shot (8 PTS) (Antetokounmpo 3 AST),Made Shot,Pullup Jump shot,1,2,137,0042400135
+0042400135,182,PT08M19.00S,2,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin Lost Ball Turnover (P2.T6),Turnover,Lost Ball,1,0,138,0042400135
+0042400135,182,PT08M19.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (3 STL),,,1,0,139,0042400135
+0042400135,184,PT08M16.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin P.FOUL (P1.T1) (B.Forte),Foul,Personal,1,0,140,0042400135
+0042400135,186,PT08M16.00S,2,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,SUB: Nembhard FOR Mathurin,Substitution,,0,0,141,0042400135
+0042400135,187,PT08M16.00S,2,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,SUB: Haliburton FOR Toppin,Substitution,,0,0,142,0042400135
+0042400135,188,PT08M16.00S,2,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,SUB: Turner FOR McConnell,Substitution,,0,0,143,0042400135
+0042400135,189,PT08M16.00S,2,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,SUB: Portis FOR Lopez,Substitution,,0,0,144,0042400135
+0042400135,190,PT08M16.00S,2,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,SUB: Green FOR Kuzma,Substitution,,0,0,145,0042400135
+0042400135,196,PT08M16.00S,2,1610612754,IND,1641767,Sheppard,B. Sheppard,0,0,0,,0,,,0,h,SUB: Nesmith FOR Sheppard,Substitution,,0,0,146,0042400135
+0042400135,198,PT08M08.00S,2,1610612749,MIL,1626171,Portis,B. Portis,-31,107,11,Made,1,21,37,58,v,Portis 11' Jump Shot (5 PTS) (Antetokounmpo 4 AST),Made Shot,Jump Shot,1,2,147,0042400135
+0042400135,200,PT07M48.00S,2,1610612754,IND,1626167,Turner,M. Turner,15,9,2,Made,1,23,37,60,h,Turner 2' Layup (7 PTS),Made Shot,Layup Shot,1,2,148,0042400135
+0042400135,201,PT07M33.00S,2,1610612749,MIL,1631260,Green,A. Green,-243,38,25,Made,1,23,40,63,v,Green 25' 3PT Pullup Jump Shot (9 PTS) (Antetokounmpo 5 AST),Made Shot,Pullup Jump shot,1,3,149,0042400135
+0042400135,203,PT07M21.00S,2,1610612754,IND,1626167,Turner,M. Turner,235,32,24,Missed,1,,,0,h,MISS Turner 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,150,0042400135
+0042400135,204,PT07M18.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,151,0042400135
+0042400135,205,PT07M10.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-124,232,26,Missed,1,,,0,v,MISS Trent Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,152,0042400135
+0042400135,206,PT07M06.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,153,0042400135
+0042400135,207,PT06M52.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner Bad Pass Turnover (P1.T7),Turnover,Bad Pass,1,0,154,0042400135
+0042400135,207,PT06M52.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (4 STL),,,1,0,155,0042400135
+0042400135,209,PT06M42.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Traveling Turnover (P2.T7),Turnover,Traveling,1,0,156,0042400135
+0042400135,210,PT06M42.00S,2,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 2 Short 0),Timeout,Regular,0,0,157,0042400135
+0042400135,211,PT06M42.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Walker FOR Siakam,Substitution,,0,0,158,0042400135
+0042400135,213,PT06M32.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-1,19,2,Made,1,25,40,65,h,Haliburton 2' Driving Layup (2 PTS) (Nembhard 1 AST),Made Shot,Driving Layup Shot,1,2,159,0042400135
+0042400135,215,PT06M18.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-115,147,19,Missed,1,,,0,v,MISS Antetokounmpo 19' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,160,0042400135
+0042400135,216,PT06M16.00S,2,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,161,0042400135
+0042400135,217,PT06M02.00S,2,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker Bad Pass Turnover (P1.T8),Turnover,Bad Pass,1,0,162,0042400135
+0042400135,217,PT06M02.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis STEAL (1 STL),,,1,0,163,0042400135
+0042400135,219,PT05M50.00S,2,1610612749,MIL,1627752,Prince,T. Prince,-241,-3,24,Missed,1,,,0,v,MISS Prince 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,164,0042400135
+0042400135,220,PT05M49.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,165,0042400135
+0042400135,221,PT05M39.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,22,2,Missed,1,,,0,h,MISS Turner 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,166,0042400135
+0042400135,221,PT05M39.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince BLOCK (1 BLK),,,1,2,167,0042400135
+0042400135,222,PT05M37.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:2 Def:3),Rebound,Unknown,1,0,168,0042400135
+0042400135,223,PT05M37.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,Missed,1,,,0,h,MISS Turner Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,169,0042400135
+0042400135,225,PT05M35.00S,2,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,170,0042400135
+0042400135,224,PT05M29.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,Prince Lost Ball Turnover (P1.T8),Turnover,Lost Ball,1,0,171,0042400135
+0042400135,224,PT05M29.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton STEAL (1 STL),,,1,0,172,0042400135
+0042400135,227,PT05M20.00S,2,1610612754,IND,1641716,Walker,J. Walker,130,246,28,Missed,1,,,0,h,MISS Walker 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,173,0042400135
+0042400135,228,PT05M18.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,174,0042400135
+0042400135,229,PT05M10.00S,2,1610612749,MIL,1626171,Portis,B. Portis,234,16,0,Missed,1,,,0,v,MISS Portis 3PT Jump Shot,Missed Shot,Jump Shot,1,3,175,0042400135
+0042400135,230,PT05M08.00S,2,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,176,0042400135
+0042400135,231,PT04M58.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,-230,8,0,Made,1,28,40,68,h,Nesmith 3PT Jump Shot (5 PTS) (Haliburton 2 AST),Made Shot,Jump Shot,1,3,177,0042400135
+0042400135,233,PT04M55.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.2 Short 0),Timeout,Regular,0,0,178,0042400135
+0042400135,235,PT04M55.00S,2,1610612749,MIL,1627752,Prince,T. Prince,0,0,0,,0,,,0,v,SUB: Porter Jr. FOR Prince,Substitution,,0,0,179,0042400135
+0042400135,237,PT04M45.00S,2,1610612749,MIL,1626171,Portis,B. Portis,-21,16,3,Made,1,28,42,70,v,Portis 3' Cutting Layup Shot (7 PTS) (Antetokounmpo 6 AST),Made Shot,Cutting Layup Shot,1,2,180,0042400135
+0042400135,239,PT04M39.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,211,10,21,Made,1,30,42,72,h,Nembhard 21' Jump Shot (4 PTS) (Nesmith 1 AST),Made Shot,Jump Shot,1,2,181,0042400135
+0042400135,241,PT04M28.00S,2,1610612749,MIL,1626171,Portis,B. Portis,140,99,17,Missed,1,,,0,v,MISS Portis 17' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,182,0042400135
+0042400135,242,PT04M27.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,183,0042400135
+0042400135,243,PT04M20.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,29,9,3,Made,1,32,42,74,h,Haliburton 3' Driving Layup (4 PTS),Made Shot,Driving Layup Shot,1,2,184,0042400135
+0042400135,244,PT03M59.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,91,131,16,Missed,1,,,0,v,MISS Trent Jr. 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,185,0042400135
+0042400135,244,PT03M59.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton BLOCK (1 BLK),,,1,2,186,0042400135
+0042400135,246,PT03M57.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,187,0042400135
+0042400135,247,PT03M56.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Step Out of Bounds Turnover (P3.T9),Turnover,Step Out of Bounds Turnover,1,0,188,0042400135
+0042400135,248,PT03M49.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,16,24,3,Missed,1,,,0,h,MISS Nembhard 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,189,0042400135
+0042400135,249,PT03M47.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,190,0042400135
+0042400135,251,PT03M32.00S,2,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,SUB: Siakam FOR Walker,Substitution,,0,0,191,0042400135
+0042400135,253,PT03M25.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-186,256,32,Missed,1,,,0,v,MISS Trent Jr. 32' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,192,0042400135
+0042400135,254,PT03M22.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,193,0042400135
+0042400135,255,PT03M10.00S,2,1610612754,IND,1626167,Turner,M. Turner,232,6,0,Made,1,35,42,77,h,Turner 3PT Jump Shot (10 PTS) (Haliburton 3 AST),Made Shot,Jump Shot,1,3,194,0042400135
+0042400135,257,PT02M45.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Lost Ball Turnover (P4.T10),Turnover,Lost Ball,1,0,195,0042400135
+0042400135,257,PT02M45.00S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard STEAL (1 STL),,,1,0,196,0042400135
+0042400135,259,PT02M34.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,-12,62,6,Missed,1,,,0,h,MISS Haliburton 6' Driving Layup,Missed Shot,Driving Layup Shot,1,2,197,0042400135
+0042400135,259,PT02M34.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green BLOCK (1 BLK),,,1,2,198,0042400135
+0042400135,261,PT02M33.00S,2,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,1,0,199,0042400135
+0042400135,263,PT02M32.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Violation: Delay of game Violation,Violation,Delay Of Game,0,0,200,0042400135
+0042400135,264,PT02M27.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,-12,113,11,Missed,1,,,0,h,MISS Siakam 11' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,201,0042400135
+0042400135,265,PT02M24.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,202,0042400135
+0042400135,266,PT02M17.00S,2,1610612749,MIL,1631260,Green,A. Green,-159,227,28,Made,1,35,45,80,v,Green 28' 3PT Pullup Jump Shot (12 PTS) (Antetokounmpo 7 AST),Made Shot,Pullup Jump shot,1,3,203,0042400135
+0042400135,268,PT02M00.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam OFF.Foul (P1) (C.Kirkland),Foul,Offensive,1,0,204,0042400135
+0042400135,270,PT02M00.00S,2,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam Offensive Foul Turnover (P1.T9),Turnover,Offensive Foul Turnover,1,0,205,0042400135
+0042400135,271,PT01M51.00S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner S.FOUL (P1.T2) (B.Forte),Foul,Shooting,1,0,206,0042400135
+0042400135,273,PT01M51.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,207,0042400135
+0042400135,274,PT01M51.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,0,0,208,0042400135
+0042400135,275,PT01M51.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,35,46,81,v,Antetokounmpo Free Throw 2 of 2 (8 PTS),Free Throw,Free Throw 2 of 2,1,0,209,0042400135
+0042400135,276,PT01M35.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Bucks T.Foul (Def. 3 Sec Antetokounmpo ) (D.Guthrie),Foul,Defense 3 Second,1,0,210,0042400135
+0042400135,277,PT01M35.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,36,46,82,h,Haliburton Free Throw Technical (5 PTS),Free Throw,Free Throw Technical,1,0,211,0042400135
+0042400135,278,PT01M34.00S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,-225,21,0,Made,1,39,46,85,h,Nesmith 3PT Jump Shot (8 PTS) (Nembhard 2 AST),Made Shot,Jump Shot,1,3,212,0042400135
+0042400135,280,PT01M13.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-59,168,18,Missed,1,,,0,v,MISS Antetokounmpo 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,213,0042400135
+0042400135,281,PT01M10.00S,2,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,214,0042400135
+0042400135,282,PT01M06.00S,2,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton S.FOUL (P2.PN) (C.Kirkland),Foul,Shooting,1,0,215,0042400135
+0042400135,284,PT01M06.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,MISS Trent Jr. Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,216,0042400135
+0042400135,285,PT01M06.00S,2,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,0,0,217,0042400135
+0042400135,286,PT01M06.00S,2,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,39,47,86,v,Trent Jr. Free Throw 2 of 2 (9 PTS),Free Throw,Free Throw 2 of 2,1,0,218,0042400135
+0042400135,287,PT00M55.60S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,37,31,5,Made,1,41,47,88,h,Nesmith 5' Driving Floating Bank Jump Shot (10 PTS) (Haliburton 4 AST),Made Shot,Driving Floating Bank Jump Shot,1,2,219,0042400135
+0042400135,289,PT00M36.00S,2,1610612749,MIL,1626171,Portis,B. Portis,-182,50,19,Missed,1,,,0,v,MISS Portis 19' Jump Shot,Missed Shot,Jump Shot,1,2,220,0042400135
+0042400135,290,PT00M32.40S,2,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,221,0042400135
+0042400135,291,PT00M10.70S,2,1610612754,IND,1630174,Nesmith,A. Nesmith,-118,69,14,Missed,1,,,0,h,MISS Nesmith 14' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,222,0042400135
+0042400135,292,PT00M08.20S,2,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:3 Def:3),Rebound,Unknown,1,0,223,0042400135
+0042400135,294,PT00M06.30S,2,1610612754,IND,1627783,Siakam,P. Siakam,234,106,26,Missed,1,,,0,h,MISS Siakam 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,224,0042400135
+0042400135,295,PT00M03.00S,2,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,225,0042400135
+0042400135,296,PT00M00.00S,2,0,,0,,,0,0,0,,0,41,47,88,,End of 2nd Period (7:05 PM EST),period,end,1,0,226,0042400135
+0042400135,297,PT12M00.00S,3,0,,0,,,0,0,0,,0,41,47,88,,Start of 3rd Period (7:20 PM EST),period,start,0,0,227,0042400135
+0042400135,298,PT11M41.00S,3,1610612749,MIL,1626171,Portis,B. Portis,18,6,2,Made,1,41,49,90,v,Portis 2' Reverse Layup (9 PTS) (Trent Jr. 2 AST),Made Shot,Reverse Layup Shot,1,2,228,0042400135
+0042400135,300,PT11M17.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. S.FOUL (P1.T1) (B.Forte),Foul,Shooting,1,0,229,0042400135
+0042400135,302,PT11M17.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,42,49,91,h,Turner Free Throw 1 of 2 (11 PTS),Free Throw,Free Throw 1 of 2,1,0,230,0042400135
+0042400135,303,PT11M17.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,43,49,92,h,Turner Free Throw 2 of 2 (12 PTS),Free Throw,Free Throw 2 of 2,1,0,231,0042400135
+0042400135,304,PT11M03.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,-39,19,4,Made,1,43,51,94,v,Porter Jr. 4' Driving Layup (4 PTS),Made Shot,Driving Layup Shot,1,2,232,0042400135
+0042400135,305,PT10M52.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-9,285,29,Made,1,46,51,97,h,Haliburton 29' 3PT Jump Shot (8 PTS) (Nembhard 3 AST),Made Shot,Jump Shot,1,3,233,0042400135
+0042400135,307,PT10M37.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-125,227,26,Missed,1,,,0,v,MISS Trent Jr. 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,234,0042400135
+0042400135,308,PT10M34.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,1,0,235,0042400135
+0042400135,310,PT10M21.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam Lost Ball Turnover (P2.T10),Turnover,Lost Ball,1,0,236,0042400135
+0042400135,310,PT10M21.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. STEAL (5 STL),,,1,0,237,0042400135
+0042400135,312,PT10M11.00S,3,1610612749,MIL,1631260,Green,A. Green,-235,66,24,Missed,1,,,0,v,MISS Green 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,238,0042400135
+0042400135,313,PT10M08.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,239,0042400135
+0042400135,314,PT10M02.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,230,16,0,Made,1,49,51,100,h,Nembhard 3PT Running Jump Shot (7 PTS) (Nesmith 2 AST),Made Shot,Running Jump Shot,1,3,240,0042400135
+0042400135,316,PT09M41.00S,3,1610612749,MIL,1626171,Portis,B. Portis,-194,40,20,Missed,1,,,0,v,MISS Portis 20' Jump Shot,Missed Shot,Jump Shot,1,2,241,0042400135
+0042400135,317,PT09M41.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,242,0042400135
+0042400135,318,PT09M31.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,170,185,25,Missed,1,,,0,h,MISS Nesmith 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,243,0042400135
+0042400135,319,PT09M30.00S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,244,0042400135
+0042400135,320,PT09M25.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P2.T1) (B.Forte),Foul,Shooting,1,0,245,0042400135
+0042400135,322,PT09M25.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,246,0042400135
+0042400135,323,PT09M25.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Normal Rebound,0,0,247,0042400135
+0042400135,324,PT09M25.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,248,0042400135
+0042400135,325,PT09M23.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,249,0042400135
+0042400135,326,PT09M03.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,-40,299,30,Made,1,52,51,103,h,Nembhard 30' 3PT Step Back Jump Shot (10 PTS),Made Shot,Step Back Jump shot,1,3,250,0042400135
+0042400135,327,PT09M00.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.3 Short 0),Timeout,Regular,0,0,251,0042400135
+0042400135,328,PT08M43.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis Out of Bounds - Bad Pass Turnover Turnover (P1.T11),Turnover,Out of Bounds - Bad Pass Turnover,1,0,252,0042400135
+0042400135,329,PT08M36.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,-4,31,3,Missed,1,,,0,h,MISS Nembhard 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,253,0042400135
+0042400135,330,PT08M36.00S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,254,0042400135
+0042400135,331,PT08M29.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton P.FOUL (P3.T2) (C.Kirkland),Foul,Personal,1,0,255,0042400135
+0042400135,333,PT08M21.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,31,62,7,Missed,1,,,0,v,MISS Trent Jr. 7' Driving Layup,Missed Shot,Driving Layup Shot,1,2,256,0042400135
+0042400135,333,PT08M21.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton BLOCK (2 BLK),,,1,2,257,0042400135
+0042400135,335,PT08M20.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,0,0,258,0042400135
+0042400135,336,PT08M20.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. L.B.FOUL (P2.T2) (C.Kirkland),Foul,Loose Ball,1,0,259,0042400135
+0042400135,339,PT08M04.00S,3,1610612754,IND,1626167,Turner,M. Turner,-1,102,10,Missed,1,,,0,h,MISS Turner 10' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,260,0042400135
+0042400135,340,PT08M01.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,261,0042400135
+0042400135,341,PT07M54.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-44,96,11,Made,1,52,53,105,v,Antetokounmpo 11' Turnaround Fadeaway (10 PTS),Made Shot,Turnaround Fadeaway shot,1,2,262,0042400135
+0042400135,342,PT07M42.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. S.FOUL (P3.T3) (D.Guthrie),Foul,Shooting,1,0,263,0042400135
+0042400135,344,PT07M42.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,MISS Siakam Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,264,0042400135
+0042400135,345,PT07M42.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Normal Rebound,0,0,265,0042400135
+0042400135,346,PT07M42.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,MISS Siakam Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,266,0042400135
+0042400135,347,PT07M41.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:7),Rebound,Unknown,1,0,267,0042400135
+0042400135,348,PT07M27.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Bad Pass Turnover (P5.T12),Turnover,Bad Pass,1,0,268,0042400135
+0042400135,348,PT07M27.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton STEAL (2 STL),,,1,0,269,0042400135
+0042400135,350,PT07M23.00S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green S.FOUL (P2.T4) (B.Forte),Foul,Shooting,1,0,270,0042400135
+0042400135,353,PT07M23.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 3 Short 0),Timeout,Regular,0,0,271,0042400135
+0042400135,354,PT07M23.00S,3,0,,350,,,0,0,0,,0,52,53,105,,Instant Replay3rd Period (7:34 PM EST),Instant Replay,Coach Challenge Overturn Ruling,1,0,272,0042400135
+0042400135,355,PT07M23.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Walker FOR Siakam,Substitution,,0,0,273,0042400135
+0042400135,357,PT07M23.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,53,53,106,h,Nembhard Free Throw 1 of 2 (11 PTS),Free Throw,Free Throw 1 of 2,1,0,274,0042400135
+0042400135,358,PT07M23.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,54,53,107,h,Nembhard Free Throw 2 of 2 (12 PTS),Free Throw,Free Throw 2 of 2,1,0,275,0042400135
+0042400135,359,PT07M11.00S,3,1610612749,MIL,1626171,Portis,B. Portis,-10,17,2,Missed,1,,,0,v,MISS Portis 2' Reverse Layup,Missed Shot,Reverse Layup Shot,1,2,276,0042400135
+0042400135,360,PT07M08.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,277,0042400135
+0042400135,361,PT07M08.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,Missed,1,,,0,v,MISS Portis Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,278,0042400135
+0042400135,362,PT07M08.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,279,0042400135
+0042400135,363,PT07M00.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,29,63,7,Missed,1,,,0,h,MISS Nembhard 7' Driving Layup,Missed Shot,Driving Layup Shot,1,2,280,0042400135
+0042400135,363,PT07M00.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo BLOCK (1 BLK),,,1,2,281,0042400135
+0042400135,365,PT06M58.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,282,0042400135
+0042400135,366,PT06M49.00S,3,1610612749,MIL,1626171,Portis,B. Portis,-26,255,26,Made,1,54,56,110,v,Portis 26' 3PT Jump Shot (12 PTS) (Porter Jr. 5 AST),Made Shot,Jump Shot,1,3,283,0042400135
+0042400135,369,PT06M35.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo S.FOUL (P3.PN) (D.Guthrie),Foul,Shooting,1,0,284,0042400135
+0042400135,371,PT06M35.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,55,56,111,h,Turner Free Throw 1 of 2 (13 PTS),Free Throw,Free Throw 1 of 2,1,0,285,0042400135
+0042400135,372,PT06M35.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,SUB: Kuzma FOR Trent Jr.,Substitution,,0,0,286,0042400135
+0042400135,375,PT06M35.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Lane,Violation,Lane,0,0,287,0042400135
+0042400135,374,PT06M35.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,56,56,112,h,Turner Free Throw 2 of 2 (14 PTS),Free Throw,Free Throw 2 of 2,1,0,288,0042400135
+0042400135,376,PT06M23.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,6,206,21,Missed,1,,,0,v,MISS Antetokounmpo 21' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,289,0042400135
+0042400135,377,PT06M21.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,0,0,290,0042400135
+0042400135,379,PT06M15.00S,3,1610612754,IND,1626167,Turner,M. Turner,-71,258,27,Made,1,59,56,115,h,Turner 27' 3PT Jump Shot (17 PTS) (Nembhard 4 AST),Made Shot,Jump Shot,1,3,291,0042400135
+0042400135,381,PT05M59.00S,3,1610612749,MIL,1631260,Green,A. Green,38,253,26,Made,1,59,59,118,v,Green 26' 3PT Jump Shot (15 PTS) (Portis 2 AST),Made Shot,Jump Shot,1,3,292,0042400135
+0042400135,383,PT05M46.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-119,249,28,Missed,1,,,0,h,MISS Haliburton 28' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,293,0042400135
+0042400135,384,PT05M44.00S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,1,0,294,0042400135
+0042400135,385,PT05M44.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith L.B.FOUL (P1.T3) (C.Kirkland),Foul,Loose Ball,1,0,295,0042400135
+0042400135,387,PT05M35.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,9,1,Made,1,59,61,120,v,Porter Jr. 1' Driving Dunk (6 PTS),Made Shot,Driving Dunk Shot,1,2,296,0042400135
+0042400135,388,PT05M17.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,13,17,2,Made,1,61,61,122,h,Haliburton 2' Driving Layup (10 PTS) (Nembhard 5 AST),Made Shot,Driving Layup Shot,1,2,297,0042400135
+0042400135,390,PT05M09.00S,3,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,Walker S.FOUL (P1.T4) (D.Guthrie),Foul,Shooting,1,0,298,0042400135
+0042400135,392,PT05M09.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,61,62,123,v,Antetokounmpo Free Throw 1 of 2 (11 PTS),Free Throw,Free Throw 1 of 2,1,0,299,0042400135
+0042400135,393,PT05M09.00S,3,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,SUB: Mathurin FOR Nembhard,Substitution,,0,0,300,0042400135
+0042400135,394,PT05M09.00S,3,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,SUB: McConnell FOR Nesmith,Substitution,,0,0,301,0042400135
+0042400135,397,PT05M09.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,302,0042400135
+0042400135,398,PT05M08.00S,3,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,303,0042400135
+0042400135,399,PT05M01.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,-194,153,25,Made,1,61,65,126,v,Porter Jr. 25' 3PT Jump Shot (9 PTS) (Antetokounmpo 8 AST),Made Shot,Jump Shot,1,3,304,0042400135
+0042400135,401,PT04M59.00S,3,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 4 Short 0),Timeout,Regular,0,0,305,0042400135
+0042400135,402,PT04M59.00S,3,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,SUB: Toppin FOR Walker,Substitution,,0,0,306,0042400135
+0042400135,404,PT04M39.00S,3,1610612754,IND,1630167,Toppin,O. Toppin,-235,16,24,Made,1,64,65,129,h,Toppin 24' 3PT Jump Shot (5 PTS) (Haliburton 5 AST),Made Shot,Jump Shot,1,3,307,0042400135
+0042400135,406,PT04M27.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-127,-6,13,Made,1,64,67,131,v,Antetokounmpo 13' Turnaround Jump Shot (13 PTS),Made Shot,Turnaround Jump Shot,1,2,308,0042400135
+0042400135,407,PT04M03.00S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin Lost Ball Turnover (P3.T11),Turnover,Lost Ball,1,0,309,0042400135
+0042400135,407,PT04M03.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo STEAL (2 STL),,,1,0,310,0042400135
+0042400135,409,PT04M01.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner S.FOUL (P2.PN) (C.Kirkland),Foul,Shooting,1,0,311,0042400135
+0042400135,411,PT04M01.00S,3,0,,409,,,0,0,0,,0,64,67,131,,Instant Replay3rd Period (7:47 PM EST),Instant Replay,Ruling Stands,0,0,312,0042400135
+0042400135,412,PT04M01.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,64,68,132,v,Antetokounmpo Free Throw 1 of 2 (14 PTS),Free Throw,Free Throw 1 of 2,1,0,313,0042400135
+0042400135,413,PT04M01.00S,3,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,SUB: Siakam FOR Turner,Substitution,,0,0,314,0042400135
+0042400135,414,PT04M01.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,SUB: Trent Jr. FOR Porter Jr.,Substitution,,0,0,315,0042400135
+0042400135,417,PT04M01.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,64,69,133,v,Antetokounmpo Free Throw 2 of 2 (15 PTS),Free Throw,Free Throw 2 of 2,1,0,316,0042400135
+0042400135,418,PT03M45.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,-120,155,20,Made,1,66,69,135,h,Haliburton 20' Step Back Jump Shot (12 PTS),Made Shot,Step Back Jump shot,1,2,317,0042400135
+0042400135,419,PT03M34.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam P.FOUL (P3.PN) (B.Forte),Foul,Personal,1,0,318,0042400135
+0042400135,421,PT03M34.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,66,70,136,v,Antetokounmpo Free Throw 1 of 2 (16 PTS),Free Throw,Free Throw 1 of 2,1,0,319,0042400135
+0042400135,422,PT03M34.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,66,71,137,v,Antetokounmpo Free Throw 2 of 2 (17 PTS),Free Throw,Free Throw 2 of 2,1,0,320,0042400135
+0042400135,423,PT03M20.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,99,242,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,321,0042400135
+0042400135,424,PT03M17.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:8),Rebound,Unknown,1,0,322,0042400135
+0042400135,425,PT03M12.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Bad Pass Turnover (P6.T13),Turnover,Bad Pass,1,0,323,0042400135
+0042400135,425,PT03M12.00S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin STEAL (2 STL),,,1,0,324,0042400135
+0042400135,427,PT03M05.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo S.FOUL (P4.PN) (B.Forte),Foul,Shooting,1,0,325,0042400135
+0042400135,429,PT03M05.00S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,67,71,138,h,Mathurin Free Throw 1 of 2 (3 PTS),Free Throw,Free Throw 1 of 2,1,0,326,0042400135
+0042400135,430,PT03M05.00S,3,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,SUB: Sims FOR Green,Substitution,,0,0,327,0042400135
+0042400135,431,PT03M05.00S,3,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,SUB: Porter Jr. FOR Antetokounmpo,Substitution,,0,0,328,0042400135
+0042400135,434,PT03M05.00S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,MISS Mathurin Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,329,0042400135
+0042400135,435,PT03M03.00S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:1 Def:7),Rebound,Unknown,1,0,330,0042400135
+0042400135,436,PT02M55.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,224,109,25,Missed,1,,,0,v,MISS Trent Jr. 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,331,0042400135
+0042400135,437,PT02M52.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,332,0042400135
+0042400135,438,PT02M47.00S,3,1610612754,IND,204456,McConnell,T. McConnell,-5,126,13,Made,1,69,71,140,h,McConnell 13' Running Pull-Up Jump Shot (8 PTS),Made Shot,Running Pull-Up Jump Shot,1,2,333,0042400135
+0042400135,439,PT02M30.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,104,46,11,Missed,1,,,0,v,MISS Trent Jr. 11' Turnaround Jump Shot,Missed Shot,Turnaround Jump Shot,1,2,334,0042400135
+0042400135,440,PT02M29.00S,3,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,335,0042400135
+0042400135,441,PT02M22.00S,3,1610612749,MIL,1628398,Kuzma,K. Kuzma,-224,89,24,Missed,1,,,0,v,MISS Kuzma 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,336,0042400135
+0042400135,442,PT02M21.00S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,337,0042400135
+0042400135,443,PT02M07.00S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,234,14,0,Missed,1,,,0,h,MISS Haliburton 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,338,0042400135
+0042400135,444,PT02M06.00S,3,1610612749,MIL,1628398,Kuzma,K. Kuzma,0,0,0,,0,,,0,v,Kuzma REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,339,0042400135
+0042400135,445,PT02M02.00S,3,1610612749,MIL,1628398,Kuzma,K. Kuzma,29,15,3,Missed,1,,,0,v,MISS Kuzma 3' Driving Layup,Missed Shot,Driving Layup Shot,1,2,340,0042400135
+0042400135,446,PT02M00.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,341,0042400135
+0042400135,447,PT01M50.00S,3,1610612749,MIL,1626171,Portis,B. Portis,21,99,10,Missed,1,,,0,v,MISS Portis 10' Hook Shot,Missed Shot,Hook Shot,1,2,342,0042400135
+0042400135,448,PT01M46.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,343,0042400135
+0042400135,449,PT01M43.00S,3,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,9,276,28,Missed,1,,,0,v,MISS Trent Jr. 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,344,0042400135
+0042400135,450,PT01M40.00S,3,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:3 Def:1),Rebound,Unknown,1,0,345,0042400135
+0042400135,451,PT01M40.00S,3,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,Made,1,69,73,142,v,Sims Tip Dunk Shot (4 PTS),Made Shot,Tip Dunk Shot,1,2,346,0042400135
+0042400135,452,PT01M36.00S,3,1610612754,IND,1627783,Siakam,P. Siakam,1,34,3,Made,1,71,73,144,h,Siakam 3' Dunk (4 PTS) (Haliburton 6 AST),Made Shot,Dunk Shot,1,2,347,0042400135
+0042400135,454,PT01M18.00S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,-4,155,16,Missed,1,,,0,v,MISS Porter Jr. 16' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,348,0042400135
+0042400135,455,PT01M15.00S,3,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,349,0042400135
+0042400135,456,PT01M01.00S,3,1610612754,IND,204456,McConnell,T. McConnell,-108,34,11,Made,1,73,73,146,h,McConnell 11' Fadeaway Jumper (10 PTS),Made Shot,Fadeaway Jump Shot,1,2,350,0042400135
+0042400135,457,PT00M40.90S,3,1610612749,MIL,1626171,Portis,B. Portis,-140,8,14,Missed,1,,,0,v,MISS Portis 14' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,351,0042400135
+0042400135,458,PT00M37.60S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,352,0042400135
+0042400135,459,PT00M34.60S,3,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,Toppin Out of Bounds Lost Ball Turnover (P2.T12),Turnover,Out of Bounds Lost Ball Turnover,1,0,353,0042400135
+0042400135,460,PT00M34.60S,3,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,SUB: Lopez FOR Portis,Substitution,,0,0,354,0042400135
+0042400135,462,PT00M34.60S,3,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,SUB: Nesmith FOR Haliburton,Substitution,,0,0,355,0042400135
+0042400135,464,PT00M34.60S,3,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.4 Short 0),Timeout,Regular,0,0,356,0042400135
+0042400135,465,PT00M34.60S,3,1610612754,IND,1630167,Toppin,O. Toppin,0,0,0,,0,,,0,h,SUB: Turner FOR Toppin,Substitution,,0,0,357,0042400135
+0042400135,467,PT00M16.60S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. Lost Ball Turnover (P2.T14),Turnover,Lost Ball,1,0,358,0042400135
+0042400135,467,PT00M16.60S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin STEAL (3 STL),,,1,0,359,0042400135
+0042400135,469,PT00M09.50S,3,1610612754,IND,204456,McConnell,T. McConnell,-20,23,3,Made,1,75,73,148,h,McConnell 3' Finger Roll Layup (12 PTS) (Nesmith 3 AST),Made Shot,Finger Roll Layup Shot,1,2,360,0042400135
+0042400135,471,PT00M00.80S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,Mathurin S.FOUL (P2.PN) (B.Forte),Foul,Shooting,1,0,361,0042400135
+0042400135,473,PT00M00.80S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,75,74,149,v,Porter Jr. Free Throw 1 of 3 (10 PTS),Free Throw,Free Throw 1 of 3,1,0,362,0042400135
+0042400135,474,PT00M00.80S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,75,75,150,v,Porter Jr. Free Throw 2 of 3 (11 PTS),Free Throw,Free Throw 2 of 3,1,0,363,0042400135
+0042400135,475,PT00M00.80S,3,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,SUB: Bryant FOR Mathurin,Substitution,,0,0,364,0042400135
+0042400135,477,PT00M00.80S,3,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,MISS Porter Jr. Free Throw 3 of 3,Free Throw,Free Throw 3 of 3,1,0,365,0042400135
+0042400135,478,PT00M00.80S,3,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,Sims REBOUND (Off:4 Def:1),Rebound,Unknown,1,0,366,0042400135
+0042400135,479,PT00M00.00S,3,0,,0,,,0,0,0,,0,75,75,150,,End of 3rd Period (7:59 PM EST),period,end,1,0,367,0042400135
+0042400135,486,PT12M00.00S,4,0,,0,,,0,0,0,,0,75,75,150,,Start of 4th Period (8:02 PM EST),period,start,0,0,368,0042400135
+0042400135,487,PT11M46.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,99,95,14,Made,1,77,75,152,h,Nesmith 14' Pullup Jump Shot (12 PTS) (McConnell 2 AST),Made Shot,Pullup Jump shot,1,2,369,0042400135
+0042400135,489,PT11M27.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,246,20,25,Missed,1,,,0,v,MISS Trent Jr. 25' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,370,0042400135
+0042400135,490,PT11M24.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,371,0042400135
+0042400135,491,PT11M14.00S,4,1610612754,IND,204456,McConnell,T. McConnell,17,16,2,Made,1,79,75,154,h,McConnell 2' Driving Reverse Layup (14 PTS),Made Shot,Driving Reverse Layup Shot,1,2,372,0042400135
+0042400135,492,PT10M58.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-71,110,13,Missed,1,,,0,v,MISS Antetokounmpo 13' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,373,0042400135
+0042400135,493,PT10M56.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,374,0042400135
+0042400135,494,PT10M53.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,McConnell Bad Pass Turnover (P1.T13),Turnover,Bad Pass,1,0,375,0042400135
+0042400135,494,PT10M53.00S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. STEAL (1 STL),,,1,0,376,0042400135
+0042400135,496,PT10M48.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P4.T1) (C.Kirkland),Foul,Shooting,1,0,377,0042400135
+0042400135,498,PT10M48.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,79,76,155,v,Antetokounmpo Free Throw 1 of 2 (18 PTS),Free Throw,Free Throw 1 of 2,1,0,378,0042400135
+0042400135,499,PT10M48.00S,4,1610612749,MIL,1630579,Sims,J. Sims,0,0,0,,0,,,0,v,SUB: Lopez FOR Sims,Substitution,,0,0,379,0042400135
+0042400135,501,PT10M48.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,79,77,156,v,Antetokounmpo Free Throw 2 of 2 (19 PTS),Free Throw,Free Throw 2 of 2,1,0,380,0042400135
+0042400135,502,PT10M33.00S,4,1610612754,IND,204456,McConnell,T. McConnell,-7,159,16,Made,1,81,77,158,h,McConnell 16' Pullup Jump Shot (16 PTS),Made Shot,Pullup Jump shot,1,2,381,0042400135
+0042400135,503,PT10M05.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-230,103,25,Made,1,81,80,161,v,Trent Jr. 25' 3PT Jump Shot (12 PTS) (Antetokounmpo 9 AST),Made Shot,Jump Shot,1,3,382,0042400135
+0042400135,505,PT09M46.00S,4,1610612754,IND,204456,McConnell,T. McConnell,33,69,8,Missed,1,,,0,h,MISS McConnell 8' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,383,0042400135
+0042400135,506,PT09M45.00S,4,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:4 Def:3),Rebound,Unknown,1,0,384,0042400135
+0042400135,507,PT09M45.00S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. P.FOUL (P3.T1) (C.Kirkland),Foul,Personal,1,0,385,0042400135
+0042400135,511,PT09M45.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Walker FOR Siakam,Substitution,,0,0,386,0042400135
+0042400135,512,PT09M45.00S,4,1610612749,MIL,201572,Lopez,B. Lopez,0,0,0,,0,,,0,v,SUB: Portis FOR Lopez,Substitution,,0,0,387,0042400135
+0042400135,514,PT09M40.00S,4,1610612754,IND,1631097,Mathurin,B. Mathurin,-27,42,5,Made,1,83,80,163,h,Mathurin 5' Driving Finger Roll Layup (5 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,388,0042400135
+0042400135,515,PT09M30.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-18,20,3,Made,1,83,82,165,v,Antetokounmpo 3' Driving Reverse Layup (21 PTS),Made Shot,Driving Reverse Layup Shot,1,2,389,0042400135
+0042400135,516,PT09M14.00S,4,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green P.FOUL (P3.T2) (C.Kirkland),Foul,Personal,1,0,390,0042400135
+0042400135,518,PT09M01.00S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. S.FOUL (P4.T3) (D.Guthrie),Foul,Shooting,1,0,391,0042400135
+0042400135,520,PT09M01.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,84,82,166,h,McConnell Free Throw 1 of 2 (17 PTS),Free Throw,Free Throw 1 of 2,1,0,392,0042400135
+0042400135,521,PT09M01.00S,4,1610612754,IND,1631097,Mathurin,B. Mathurin,0,0,0,,0,,,0,h,SUB: Nembhard FOR Mathurin,Substitution,,0,0,393,0042400135
+0042400135,523,PT09M01.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,85,82,167,h,McConnell Free Throw 2 of 2 (18 PTS),Free Throw,Free Throw 2 of 2,1,0,394,0042400135
+0042400135,524,PT08M41.00S,4,1610612749,MIL,1626171,Portis,B. Portis,-184,173,25,Missed,1,,,0,v,MISS Portis 25' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,395,0042400135
+0042400135,525,PT08M38.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,396,0042400135
+0042400135,526,PT08M34.00S,4,1610612754,IND,1626167,Turner,M. Turner,-7,27,3,Made,1,87,82,169,h,Turner 3' Running Dunk (19 PTS) (McConnell 3 AST),Made Shot,Running Dunk Shot,1,2,397,0042400135
+0042400135,528,PT08M31.00S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.5 Short 0),Timeout,Regular,0,0,398,0042400135
+0042400135,529,PT08M13.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,21,52,6,Made,1,87,84,171,v,Antetokounmpo 6' Driving Hook Shot (23 PTS),Made Shot,Driving Hook Shot,1,2,399,0042400135
+0042400135,531,PT07M58.00S,4,1610612754,IND,204456,McConnell,T. McConnell,0,0,0,,0,,,0,h,SUB: Haliburton FOR McConnell,Substitution,,0,0,400,0042400135
+0042400135,533,PT07M57.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis P.FOUL (P2.T4) (C.Kirkland),Foul,Personal,1,0,401,0042400135
+0042400135,535,PT07M46.00S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,27,29,4,Missed,1,,,0,h,MISS Haliburton 4' Driving Finger Roll Layup,Missed Shot,Driving Finger Roll Layup Shot,1,2,402,0042400135
+0042400135,536,PT07M43.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:9),Rebound,Unknown,1,0,403,0042400135
+0042400135,537,PT07M39.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,216,189,29,Made,1,87,87,174,v,Trent Jr. 29' 3PT Running Jump Shot (15 PTS) (Antetokounmpo 10 AST),Made Shot,Running Jump Shot,1,3,404,0042400135
+0042400135,539,PT07M14.00S,4,1610612754,IND,1629614,Nembhard,A. Nembhard,-102,29,11,Missed,1,,,0,h,MISS Nembhard 11' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,405,0042400135
+0042400135,540,PT07M11.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:10),Rebound,Unknown,1,0,406,0042400135
+0042400135,541,PT07M07.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith S.FOUL (P2.T2) (C.Kirkland),Foul,Shooting,1,0,407,0042400135
+0042400135,543,PT07M07.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,87,88,175,v,Antetokounmpo Free Throw 1 of 2 (24 PTS),Free Throw,Free Throw 1 of 2,1,0,408,0042400135
+0042400135,544,PT07M07.00S,4,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,SUB: Siakam FOR Walker,Substitution,,0,0,409,0042400135
+0042400135,546,PT07M07.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,87,89,176,v,Antetokounmpo Free Throw 2 of 2 (25 PTS),Free Throw,Free Throw 2 of 2,1,0,410,0042400135
+0042400135,547,PT06M48.00S,4,1610612754,IND,1629614,Nembhard,A. Nembhard,228,16,0,Missed,1,,,0,h,MISS Nembhard 3PT Jump Shot,Missed Shot,Jump Shot,1,3,411,0042400135
+0042400135,548,PT06M45.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:11),Rebound,Unknown,1,0,412,0042400135
+0042400135,549,PT06M23.00S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,37,92,10,Missed,1,,,0,v,MISS Porter Jr. 10' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,413,0042400135
+0042400135,550,PT06M20.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:2 Def:7),Rebound,Unknown,1,0,414,0042400135
+0042400135,551,PT06M19.00S,4,1610612749,MIL,1626171,Portis,B. Portis,-64,11,6,Made,1,87,91,178,v,Portis 6' Turnaround Hook Shot (14 PTS),Made Shot,Turnaround Hook Shot,1,2,415,0042400135
+0042400135,552,PT06M07.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,77,55,9,Missed,1,,,0,h,MISS Nesmith 9' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,416,0042400135
+0042400135,553,PT06M05.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:1 Def:12),Rebound,Unknown,1,0,417,0042400135
+0042400135,554,PT05M44.00S,4,1610612749,MIL,1631260,Green,A. Green,-205,225,30,Missed,1,,,0,v,MISS Green 30' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,418,0042400135
+0042400135,555,PT05M42.00S,4,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:4 Def:4),Rebound,Unknown,1,0,419,0042400135
+0042400135,556,PT05M37.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,15,10,2,Missed,1,,,0,h,MISS Siakam 2' Running Layup,Missed Shot,Running Layup Shot,1,2,420,0042400135
+0042400135,556,PT05M37.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo BLOCK (2 BLK),,,1,2,421,0042400135
+0042400135,558,PT05M34.00S,4,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,422,0042400135
+0042400135,559,PT05M30.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,-5,-1,1,Made,1,89,91,180,h,Siakam 1' Layup (6 PTS) (Haliburton 7 AST),Made Shot,Layup Shot,1,2,423,0042400135
+0042400135,561,PT05M27.00S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.6 Short 0),Timeout,Regular,0,0,424,0042400135
+0042400135,562,PT05M13.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,235,24,24,Made,1,89,94,183,v,Trent Jr. 24' 3PT Jump Shot (18 PTS) (Green 1 AST),Made Shot,Jump Shot,1,3,425,0042400135
+0042400135,564,PT04M49.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,-10,106,11,Made,1,91,94,185,h,Siakam 11' Turnaround Jump Shot (8 PTS),Made Shot,Turnaround Jump Shot,1,2,426,0042400135
+0042400135,565,PT04M23.00S,4,1610612749,MIL,1626171,Portis,B. Portis,15,21,3,Missed,1,,,0,v,MISS Portis 3' Layup,Missed Shot,Layup Shot,1,2,427,0042400135
+0042400135,565,PT04M23.00S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton BLOCK (3 BLK),,,1,2,428,0042400135
+0042400135,567,PT04M20.00S,4,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h,Turner REBOUND (Off:4 Def:5),Rebound,Unknown,1,0,429,0042400135
+0042400135,568,PT04M06.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,-4,37,4,Made,1,93,94,187,h,Siakam 4' Driving Finger Roll Layup (10 PTS) (Haliburton 8 AST),Made Shot,Driving Finger Roll Layup Shot,1,2,430,0042400135
+0042400135,569,PT03M51.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo Lost Ball Turnover (P7.T15),Turnover,Lost Ball,1,0,431,0042400135
+0042400135,569,PT03M51.00S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton STEAL (3 STL),,,1,0,432,0042400135
+0042400135,571,PT03M48.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,-9,2,1,Made,1,95,94,189,h,Nesmith 1' Running Layup (14 PTS) (Haliburton 9 AST),Made Shot,Running Layup Shot,1,2,433,0042400135
+0042400135,574,PT03M30.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,81,157,18,Missed,1,,,0,v,MISS Antetokounmpo 18' Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,2,434,0042400135
+0042400135,575,PT03M27.00S,4,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis REBOUND (Off:3 Def:7),Rebound,Unknown,1,0,435,0042400135
+0042400135,576,PT03M18.00S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,86,252,27,Missed,1,,,0,v,MISS Porter Jr. 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,436,0042400135
+0042400135,577,PT03M14.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:12),Rebound,Unknown,1,0,437,0042400135
+0042400135,578,PT03M13.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam S.FOUL (P5.T3) (D.Guthrie),Foul,Shooting,1,0,438,0042400135
+0042400135,580,PT03M13.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,95,95,190,v,Antetokounmpo Free Throw 1 of 2 (26 PTS),Free Throw,Free Throw 1 of 2,1,0,439,0042400135
+0042400135,581,PT03M13.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,440,0042400135
+0042400135,582,PT03M12.00S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,Haliburton REBOUND (Off:0 Def:5),Rebound,Unknown,1,0,441,0042400135
+0042400135,583,PT02M52.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,-110,78,13,Missed,1,,,0,h,MISS Siakam 13' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,442,0042400135
+0042400135,584,PT02M47.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:13),Rebound,Unknown,1,0,443,0042400135
+0042400135,585,PT02M43.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-228,116,26,Missed,1,,,0,v,MISS Trent Jr. 26' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,444,0042400135
+0042400135,586,PT02M41.00S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:6),Rebound,Unknown,1,0,445,0042400135
+0042400135,587,PT02M21.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. S.FOUL (P4.PN) (D.Guthrie),Foul,Shooting,1,0,446,0042400135
+0042400135,589,PT02M21.00S,4,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,96,95,191,h,Turner Free Throw 1 of 2 (20 PTS),Free Throw,Free Throw 1 of 2,1,0,447,0042400135
+0042400135,590,PT02M21.00S,4,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,97,95,192,h,Turner Free Throw 2 of 2 (21 PTS),Free Throw,Free Throw 2 of 2,1,0,448,0042400135
+0042400135,591,PT01M58.00S,4,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-54,246,25,Made,1,97,98,195,v,Trent Jr. 25' 3PT Jump Shot (21 PTS) (Porter Jr. 6 AST),Made Shot,Jump Shot,1,3,449,0042400135
+0042400135,593,PT01M39.00S,4,1610612754,IND,1629614,Nembhard,A. Nembhard,225,4,0,Missed,1,,,0,h,MISS Nembhard 3PT Jump Shot,Missed Shot,Jump Shot,1,3,450,0042400135
+0042400135,594,PT01M38.00S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:14),Rebound,Unknown,1,0,451,0042400135
+0042400135,595,PT01M20.00S,4,1610612749,MIL,1631260,Green,A. Green,26,253,25,Made,1,97,101,198,v,Green 25' 3PT Pullup Jump Shot (18 PTS) (Antetokounmpo 11 AST),Made Shot,Pullup Jump shot,1,3,452,0042400135
+0042400135,596,PT01M19.00S,4,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 5 Short 0),Timeout,Regular,0,0,453,0042400135
+0042400135,597,PT01M13.00S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,18,20,3,Made,1,99,101,200,h,Haliburton 3' Driving Layup (14 PTS),Made Shot,Driving Layup Shot,1,2,454,0042400135
+0042400135,598,PT00M53.10S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,2,72,7,Made,1,99,103,202,v,Antetokounmpo 7' Driving Floating Jump Shot (28 PTS),Made Shot,Driving Floating Jump Shot,1,2,455,0042400135
+0042400135,599,PT00M53.10S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith S.FOUL (P3.T4) (D.Guthrie),Foul,Shooting,1,0,456,0042400135
+0042400135,602,PT00M53.10S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,MISS Antetokounmpo Free Throw 1 of 1,Free Throw,Free Throw 1 of 1,1,0,457,0042400135
+0042400135,603,PT00M52.30S,4,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:7),Rebound,Unknown,1,0,458,0042400135
+0042400135,604,PT00M39.80S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo S.FOUL (P5.PN) (D.Guthrie),Foul,Shooting,1,0,459,0042400135
+0042400135,606,PT00M39.80S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,100,103,203,h,Haliburton Free Throw 1 of 2 (15 PTS),Free Throw,Free Throw 1 of 2,1,0,460,0042400135
+0042400135,607,PT00M39.80S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,101,103,204,h,Haliburton Free Throw 2 of 2 (16 PTS),Free Throw,Free Throw 2 of 2,1,0,461,0042400135
+0042400135,608,PT00M25.80S,4,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,93,143,17,Missed,1,,,0,v,MISS Porter Jr. 17' Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,2,462,0042400135
+0042400135,609,PT00M23.00S,4,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,463,0042400135
+0042400135,610,PT00M10.80S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,2,20,2,Made,1,103,103,206,h,Haliburton 2' Driving Dunk (18 PTS),Made Shot,Driving Dunk Shot,1,2,464,0042400135
+0042400135,611,PT00M10.80S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.7 Short 0),Timeout,Regular,0,0,465,0042400135
+0042400135,612,PT00M10.80S,4,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,,,0,h,SUB: Sheppard FOR Haliburton,Substitution,,0,0,466,0042400135
+0042400135,614,PT00M01.50S,4,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-153,32,16,Missed,1,,,0,v,MISS Antetokounmpo 16' Turnaround Fadeaway Shot,Missed Shot,Turnaround Fadeaway shot,1,2,467,0042400135
+0042400135,615,PT00M01.50S,4,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,0,0,468,0042400135
+0042400135,616,PT00M00.00S,4,0,,0,,,0,0,0,,0,103,103,206,,End of 4th Period (8:36 PM EST),period,end,1,0,469,0042400135
+0042400135,619,PT05M00.00S,5,0,,0,,,0,0,0,,0,103,103,206,,Start of 1st OT (8:39 PM EST),period,start,0,0,470,0042400135
+0042400135,621,PT05M00.00S,5,1610612754,IND,1626167,Turner,M. Turner,0,0,0,,0,,,0,h, ,Jump Ball,,1,0,471,0042400135
+0042400135,624,PT05M00.00S,5,1610612749,MIL,1626171,Portis,B. Portis,0,0,0,,0,,,0,v,Portis L.B.FOUL (P3.T1) (C.Kirkland),Foul,Loose Ball,1,0,472,0042400135
+0042400135,626,PT04M40.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,10,39,4,Missed,1,,,0,h,MISS Nesmith 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,473,0042400135
+0042400135,627,PT04M38.00S,5,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Rebound,Rebound,Unknown,0,0,474,0042400135
+0042400135,629,PT04M29.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,183,185,26,Made,1,106,103,209,h,Haliburton 26' 3PT Jump Shot (21 PTS) (Siakam 1 AST),Made Shot,Jump Shot,1,3,475,0042400135
+0042400135,631,PT04M03.00S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,25,261,26,Missed,1,,,0,v,MISS Antetokounmpo 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,476,0042400135
+0042400135,632,PT03M58.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:1 Def:8),Rebound,Unknown,1,0,477,0042400135
+0042400135,633,PT03M38.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,16,17,2,Missed,1,,,0,h,MISS Haliburton 2' Driving Layup,Missed Shot,Driving Layup Shot,1,2,478,0042400135
+0042400135,634,PT03M36.00S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:15),Rebound,Unknown,1,0,479,0042400135
+0042400135,635,PT03M31.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,-222,20,0,Made,1,106,106,212,v,Trent Jr. 3PT Jump Shot (24 PTS) (Porter Jr. 7 AST),Made Shot,Jump Shot,1,3,480,0042400135
+0042400135,637,PT03M05.00S,5,1610612754,IND,1627783,Siakam,P. Siakam,-61,53,8,Missed,1,,,0,h,MISS Siakam 8' Turnaround Hook Shot,Missed Shot,Turnaround Hook Shot,1,2,481,0042400135
+0042400135,638,PT03M05.00S,5,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,0,0,482,0042400135
+0042400135,640,PT02M51.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,224,113,25,Made,1,106,109,215,v,Trent Jr. 25' 3PT Step Back Jump Shot (27 PTS),Made Shot,Step Back Jump shot,1,3,483,0042400135
+0042400135,641,PT02M37.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,104,233,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,484,0042400135
+0042400135,642,PT02M32.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:3 Def:8),Rebound,Unknown,1,0,485,0042400135
+0042400135,643,PT02M32.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,Missed,1,,,0,h,MISS Nesmith Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,486,0042400135
+0042400135,644,PT02M32.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:3 Def:8),Rebound,Unknown,1,0,487,0042400135
+0042400135,645,PT02M29.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,-15,254,25,Missed,1,,,0,h,MISS Haliburton 25' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,488,0042400135
+0042400135,646,PT02M25.00S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:16),Rebound,Unknown,1,0,489,0042400135
+0042400135,648,PT02M18.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,21,36,4,Missed,1,,,0,v,MISS Trent Jr. 4' Driving Layup,Missed Shot,Driving Layup Shot,1,2,490,0042400135
+0042400135,648,PT02M18.00S,5,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard BLOCK (1 BLK),,,1,2,491,0042400135
+0042400135,650,PT02M16.00S,5,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard REBOUND (Off:1 Def:5),Rebound,Unknown,1,0,492,0042400135
+0042400135,651,PT02M04.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,140,220,26,Missed,1,,,0,h,MISS Haliburton 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,493,0042400135
+0042400135,652,PT02M01.00S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:17),Rebound,Unknown,1,0,494,0042400135
+0042400135,653,PT01M46.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,121,225,26,Made,1,106,112,218,v,Trent Jr. 26' 3PT Pullup Jump Shot (30 PTS) (Antetokounmpo 12 AST),Made Shot,Pullup Jump shot,1,3,495,0042400135
+0042400135,655,PT01M45.00S,5,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 6 Short 0),Timeout,Regular,0,0,496,0042400135
+0042400135,656,PT01M40.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,15,273,27,Made,1,109,112,221,h,Nesmith 27' 3PT Jump Shot (17 PTS) (Nembhard 6 AST),Made Shot,Jump Shot,1,3,497,0042400135
+0042400135,658,PT01M24.00S,5,1610612749,MIL,1629645,Porter Jr.,K. Porter Jr.,0,0,0,,0,,,0,v,Porter Jr. Lost Ball Turnover (P3.T16),Turnover,Lost Ball,1,0,498,0042400135
+0042400135,658,PT01M24.00S,5,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard STEAL (2 STL),,,1,0,499,0042400135
+0042400135,660,PT01M19.00S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,20,15,3,Missed,1,,,0,h,MISS Haliburton 3' Running Layup,Missed Shot,Running Layup Shot,1,2,500,0042400135
+0042400135,661,PT01M19.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith REBOUND (Off:4 Def:8),Rebound,Unknown,1,0,501,0042400135
+0042400135,662,PT01M18.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,Made,1,111,112,223,h,Nesmith Tip Layup Shot (19 PTS),Made Shot,Tip Layup Shot,1,2,502,0042400135
+0042400135,663,PT01M08.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,185,200,27,Made,1,111,115,226,v,Trent Jr. 27' 3PT Jump Shot (33 PTS) (Antetokounmpo 13 AST),Made Shot,Jump Shot,1,3,503,0042400135
+0042400135,665,PT00M58.80S,5,1610612754,IND,1626167,Turner,M. Turner,223,50,0,Missed,1,,,0,h,MISS Turner 3PT Jump Shot,Missed Shot,Jump Shot,1,3,504,0042400135
+0042400135,666,PT00M54.40S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. REBOUND (Off:1 Def:4),Rebound,Unknown,1,0,505,0042400135
+0042400135,667,PT00M47.50S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,-4,19,2,Made,1,111,117,228,v,Antetokounmpo 2' Driving Finger Roll Layup (30 PTS),Made Shot,Driving Finger Roll Layup Shot,1,2,506,0042400135
+0042400135,668,PT00M47.50S,5,0,,1610612754,,,0,0,0,,0,,,0,h,PACERS Timeout: Regular (Full 7 Short 0),Timeout,Regular,0,0,507,0042400135
+0042400135,669,PT00M45.80S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,23,267,27,Missed,1,,,0,h,MISS Haliburton 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,508,0042400135
+0042400135,670,PT00M43.00S,5,1610612749,MIL,203507,Antetokounmpo,G. Antetokounmpo,0,0,0,,0,,,0,v,Antetokounmpo REBOUND (Off:2 Def:18),Rebound,Unknown,1,0,509,0042400135
+0042400135,671,PT00M42.50S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith P.FOUL (P4.T1) (C.Kirkland),Foul,Personal,1,0,510,0042400135
+0042400135,673,PT00M40.00S,5,1610612754,IND,1630174,Nesmith,A. Nesmith,0,0,0,,0,,,0,h,Nesmith P.FOUL (P5.PN) (C.Kirkland),Foul,Personal,1,0,511,0042400135
+0042400135,675,PT00M40.00S,5,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,111,118,229,v,Green Free Throw 1 of 2 (19 PTS),Free Throw,Free Throw 1 of 2,1,0,512,0042400135
+0042400135,676,PT00M40.00S,5,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,MISS Green Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,513,0042400135
+0042400135,677,PT00M39.00S,5,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:0 Def:4),Rebound,Unknown,1,0,514,0042400135
+0042400135,678,PT00M34.50S,5,1610612754,IND,1629614,Nembhard,A. Nembhard,-12,330,33,Made,1,114,118,232,h,Nembhard 33' 3PT Running Pull-Up Jump Shot (15 PTS),Made Shot,Running Pull-Up Jump Shot,1,3,515,0042400135
+0042400135,679,PT00M32.70S,5,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.8 Short 0),Timeout,Regular,0,0,516,0042400135
+0042400135,680,PT00M32.70S,5,1610612754,IND,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Walker FOR Siakam,Substitution,,0,0,517,0042400135
+0042400135,682,PT00M29.20S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. Bad Pass Turnover (P1.T17),Turnover,Bad Pass,1,0,518,0042400135
+0042400135,682,PT00M29.20S,5,1610612754,IND,1629614,Nembhard,A. Nembhard,0,0,0,,0,,,0,h,Nembhard STEAL (3 STL),,,1,0,519,0042400135
+0042400135,684,PT00M17.10S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,-18,25,3,Made,1,116,118,234,h,Haliburton 3' Driving Layup (23 PTS),Made Shot,Driving Layup Shot,1,2,520,0042400135
+0042400135,685,PT00M17.10S,5,1610612749,MIL,1631260,Green,A. Green,0,0,0,,0,,,0,v,Green S.FOUL (P4.T2) (D.Guthrie),Foul,Shooting,1,0,521,0042400135
+0042400135,687,PT00M17.10S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,0,0,0,,0,117,118,235,h,Haliburton Free Throw 1 of 1 (24 PTS),Free Throw,Free Throw 1 of 1,1,0,522,0042400135
+0042400135,688,PT00M17.10S,5,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Timeout: Regular (Reg.9 Short 0),Timeout,Regular,0,0,523,0042400135
+0042400135,689,PT00M10.80S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,0,0,0,,0,,,0,v,Trent Jr. Out of Bounds Lost Ball Turnover (P2.T18),Turnover,Out of Bounds Lost Ball Turnover,1,0,524,0042400135
+0042400135,690,PT00M10.80S,5,1610612754,IND,1641716,Walker,J. Walker,0,0,0,,0,,,0,h,SUB: Siakam FOR Walker,Substitution,,0,0,525,0042400135
+0042400135,692,PT00M01.40S,5,1610612754,IND,1630169,Haliburton,T. Haliburton,10,36,4,Made,1,119,118,237,h,Haliburton 4' Driving Layup (26 PTS),Made Shot,Driving Layup Shot,1,2,526,0042400135
+0042400135,693,PT00M00.00S,5,1610612749,MIL,1629018,Trent Jr.,G. Trent Jr.,163,600,62,Missed,1,,,0,v,MISS Trent Jr. 62' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,527,0042400135
+0042400135,694,PT00M00.00S,5,0,,1610612749,,,0,0,0,,0,,,0,v,Bucks Rebound,Rebound,Unknown,0,0,528,0042400135
+0042400135,695,PT00M00.00S,5,0,,0,,,0,0,0,,0,119,118,237,,End of 1st OT (8:55 PM EST),period,end,1,0,529,0042400135

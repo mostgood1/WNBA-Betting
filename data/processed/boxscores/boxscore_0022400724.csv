@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,29:44,3,9,0.333,3,7,0.429,0,0,0.0,0,2,2,3,0,0,2,0,9,-14.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,F,,,28:38,6,10,0.6,6,9,0.667,0,0,0.0,0,5,5,1,0,0,0,2,18,-15.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1630208,Nick,Richards,N. Richards,nick-richards,C,,,21:14,3,3,1.0,0,0,0.0,0,0,0.0,2,4,6,0,1,0,2,4,6,-10.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1626164,Devin,Booker,D. Booker,devin-booker,G,,,30:36,3,9,0.333,0,3,0.0,13,15,0.867,0,2,2,3,0,0,6,1,19,-38.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,29:17,4,9,0.444,2,6,0.333,0,0,0.0,0,0,0,3,0,0,2,1,10,-22.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,203078,Bradley,Beal,B. Beal,bradley-beal,,,,29:12,7,11,0.636,1,2,0.5,10,10,1.0,0,3,3,6,0,0,1,3,25,-12.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,18:25,0,1,0.0,0,0,0.0,0,0,0.0,1,4,5,2,1,0,3,2,0,-19.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,,,,11:09,1,4,0.25,0,3,0.0,0,0,0.0,0,5,5,0,0,0,0,1,2,-15.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,,,8:21,1,5,0.2,0,1,0.0,2,2,1.0,0,2,2,1,0,0,0,1,4,-2.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,,,,8:21,1,2,0.5,0,1,0.0,4,5,0.8,0,1,1,2,0,0,0,1,6,-2.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1641779,Jalen,Bridges,J. Bridges,jalen-bridges,,,,8:21,1,1,1.0,1,1,1.0,0,0,0.0,0,0,0,0,0,0,2,0,3,-2.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,8:21,1,4,0.25,1,3,0.333,0,0,0.0,0,1,1,1,1,0,0,1,3,-2.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,8:21,2,2,1.0,0,0,0.0,0,1,0.0,0,3,3,2,0,2,0,0,4,-2.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400724
+0022400724,1610612756,Phoenix,Suns,PHX,suns,203994,Jusuf,Nurkić,J. Nurkić,jusuf-nurkić,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1629652,Luguentz,Dort,L. Dort,luguentz-dort,F,,,26:13,3,7,0.429,1,5,0.2,0,0,0.0,1,1,2,1,4,1,0,3,7,31.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1631114,Jalen,Williams,J. Williams,jalen-williams,F,,,25:32,6,12,0.5,1,3,0.333,0,0,0.0,1,2,3,4,2,0,0,0,13,17.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,25:32,3,6,0.5,0,0,0.0,3,4,0.75,2,2,4,4,1,0,1,4,9,17.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1630598,Aaron,Wiggins,A. Wiggins,aaron-wiggins,G,,,24:54,6,8,0.75,1,2,0.5,4,4,1.0,4,2,6,1,1,0,0,2,17,26.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1628983,Shai,Gilgeous-Alexander,S. Gilgeous-Alexander,shai-gilgeous-alexander,G,,,34:15,18,29,0.621,3,7,0.429,11,12,0.917,2,6,8,5,2,1,1,3,50,42.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1631119,Jaylin,Williams,J. Williams,jaylin-williams,,,,21:49,0,9,0.0,0,7,0.0,4,4,1.0,3,9,12,3,0,1,0,0,4,14.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1631172,Ousmane,Dieng,O. Dieng,ousmane-dieng,,,,8:47,2,4,0.5,1,2,0.5,0,0,0.0,0,0,0,0,1,0,1,1,5,9.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1627936,Alex,Caruso,A. Caruso,alex-caruso,,,,17:12,2,6,0.333,1,5,0.2,0,0,0.0,1,0,1,2,1,1,1,4,5,5.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1630198,Isaiah,Joe,I. Joe,isaiah-joe,,,,21:16,5,8,0.625,2,5,0.4,0,0,0.0,1,2,3,1,1,0,0,1,12,15.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1629026,Kenrich,Williams,K. Williams,kenrich-williams,,,,16:15,2,3,0.667,1,2,0.5,0,0,0.0,1,2,3,1,1,0,0,2,5,-14.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1641794,Dillon,Jones,D. Jones,dillon-jones,,,,6:30,2,4,0.5,0,1,0.0,2,3,0.667,1,1,2,2,0,0,1,2,6,0.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1642505,Alex,Ducas,A. Ducas,alex-ducas,,,,6:04,0,2,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,-2.0,0022400724
+0022400724,1610612760,Oklahoma City,Thunder,OKC,thunder,1641745,Adam,Flagler,A. Flagler,adam-flagler,,,,5:41,3,4,0.75,1,2,0.5,0,0,0.0,0,0,0,0,1,0,0,1,7,-5.0,0022400724

@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1629677,Luka,Samanic,L. Samanic,luka-samanic,F,,,27:39,4,9,0.444,0,3,0.0,3,5,0.6,3,3,6,2,1,0,2,0,11,-2.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,F,,,22:44,3,5,0.6,1,3,0.333,0,0,0.0,1,4,5,1,0,0,0,2,7,-2.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1630209,Omer,Yurtseven,O. Yurtseven,omer-yurtseven,C,,,12:37,1,4,0.25,0,1,0.0,2,2,1.0,1,9,10,3,0,0,1,1,4,0.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1630548,Johnny,Juzang,J. Juzang,johnny-juzang,G,,,22:43,4,6,0.667,2,3,0.667,2,2,1.0,0,0,0,2,2,0,1,2,12,10.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1641718,Keyonte,George,K. George,keyonte-george,G,,,28:18,5,15,0.333,2,7,0.286,2,3,0.667,0,1,1,2,0,0,5,1,14,-4.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1629659,Talen,Horton-Tucker,T. Horton-Tucker,talen-horton-tucker,,,,28:41,5,12,0.417,0,5,0.0,2,2,1.0,0,1,1,4,0,0,2,1,12,1.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1641729,Brice,Sensabaugh,B. Sensabaugh,brice-sensabaugh,,,,20:57,3,8,0.375,0,4,0.0,3,3,1.0,1,2,3,1,1,2,0,0,9,-6.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1629647,Darius,Bazley,D. Bazley,darius-bazley,,,,23:12,5,7,0.714,1,2,0.5,1,1,1.0,2,3,5,1,2,1,2,1,12,-1.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1631254,Kenneth,Lofton Jr.,K. Lofton Jr.,kenneth-lofton-jr,,,,35:23,10,16,0.625,0,5,0.0,7,7,1.0,4,5,9,8,1,0,3,5,27,1.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1630554,Jason,Preston,J. Preston,jason-preston,,,,17:46,1,6,0.167,0,2,0.0,0,0,0.0,2,4,6,2,0,1,0,1,2,8.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1630184,Kira,Lewis Jr.,K. Lewis Jr.,kira-lewis-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301184
+0022301184,1610612762,Utah,Jazz,UTA,jazz,1630695,Micah,Potter,M. Potter,micah-potter,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,200782,P.J.,Tucker,P. Tucker,pj-tucker,F,,,20:44,0,1,0.0,0,1,0.0,0,0,0.0,2,3,5,0,1,0,0,0,0,3.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,202331,Paul,George,P. George,paul-george,F,,,8:24,3,5,0.6,2,3,0.667,2,2,1.0,1,0,1,1,1,1,1,0,10,11.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,10:19,5,6,0.833,0,0,0.0,0,0,0.0,2,0,2,0,0,1,0,0,10,8.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1629611,Terance,Mann,T. Mann,terance-mann,G,,,5:06,2,2,1.0,1,1,1.0,0,0,0.0,1,0,1,0,0,0,0,1,5,8.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,9:58,1,4,0.25,0,2,0.0,2,3,0.667,0,0,0,5,0,0,1,0,4,8.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,201566,Russell,Westbrook,R. Westbrook,russell-westbrook,,,,9:00,2,4,0.5,0,0,0.0,0,2,0.0,0,0,0,0,0,0,1,2,4,-2.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1629599,Amir,Coffey,A. Coffey,amir-coffey,,,,30:56,6,15,0.4,3,9,0.333,1,2,0.5,1,5,6,1,0,1,0,4,16,-11.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1626181,Norman,Powell,N. Powell,norman-powell,,,,15:36,2,7,0.286,0,3,0.0,0,0,0.0,0,1,1,1,0,0,0,0,4,-12.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1630538,Bones,Hyland,B. Hyland,bones-hyland,,,,29:47,7,17,0.412,3,11,0.273,3,4,0.75,0,5,5,6,3,1,1,2,20,-18.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,,,,13:37,1,2,0.5,0,0,0.0,1,2,0.5,2,2,4,2,0,0,2,0,3,-15.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1628464,Daniel,Theis,D. Theis,daniel-theis,,,,26:49,6,9,0.667,0,2,0.0,2,2,1.0,3,4,7,0,0,2,1,1,14,1.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1630527,Brandon,Boston,B. Boston,brandon-boston,,,,24:00,4,12,0.333,0,2,0.0,2,2,1.0,2,3,5,1,1,0,4,4,10,0.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,18:49,3,8,0.375,1,3,0.333,0,0,0.0,4,0,4,2,3,0,1,1,7,6.0,0022301184
+0022301184,1610612746,LA,Clippers,LAC,clippers,1629875,Xavier,Moon,X. Moon,xavier-moon,,,,16:55,1,4,0.25,0,2,0.0,0,0,0.0,2,1,3,4,0,1,1,2,2,8.0,0022301184

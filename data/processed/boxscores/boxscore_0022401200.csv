@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1628960,Grayson,Allen,G. Allen,grayson-allen,F,,,27:42,8,13,0.615,4,7,0.571,0,0,0.0,0,2,2,5,0,0,3,1,20,-10.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1642346,Ryan,Dunn,R. Dunn,ryan-dunn,F,,,29:46,5,11,0.455,2,6,0.333,0,0,0.0,6,4,10,3,1,1,1,1,12,8.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,203486,Mason,Plumlee,M. Plumlee,mason-plumlee,C,,,21:59,2,4,0.5,0,1,0.0,0,0,0.0,0,5,5,3,0,0,0,0,4,-18.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1631221,Collin,Gillespie,C. Gillespie,collin-gillespie,G,,,28:13,4,7,0.571,3,6,0.5,1,2,0.5,0,3,3,3,2,0,1,1,12,-14.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1626145,Tyus,Jones,T. Jones,tyus-jones,G,,,25:55,7,13,0.538,3,7,0.429,0,0,0.0,0,2,2,4,1,0,1,0,17,1.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1642345,Oso,Ighodaro,O. Ighodaro,oso-ighodaro,,,,26:01,5,7,0.714,0,0,0.0,0,0,0.0,2,2,4,3,1,0,3,2,10,7.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1626220,Royce,O'Neale,R. O'Neale,royce-oneale,,,,21:05,2,9,0.222,1,8,0.125,0,0,0.0,0,3,3,3,1,0,1,1,5,-11.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1628998,Cody,Martin,C. Martin,cody-martin,,,,12:25,1,3,0.333,0,2,0.0,0,0,0.0,0,2,2,1,0,0,1,1,2,-4.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1628420,Monté,Morris,M. Morris,monté-morris,,,,21:02,3,7,0.429,2,4,0.5,0,0,0.0,1,2,3,2,0,0,0,2,8,-14.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,12:59,1,5,0.2,0,1,0.0,0,2,0.0,0,1,1,1,0,0,0,0,2,2.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1627814,Damion,Lee,D. Lee,damion-lee,,,,5:33,2,4,0.5,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,0,4,1.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1629626,Bol,Bol,B. Bol,bol-bol,,,,4:34,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022401200
+0022401200,1610612756,Phoenix,Suns,PHX,suns,1641779,Jalen,Bridges,J. Bridges,jalen-bridges,,,,2:46,0,1,0.0,0,1,0.0,2,2,1.0,0,1,1,0,0,0,0,0,2,0.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,27:33,4,9,0.444,0,0,0.0,0,0,0.0,0,0,0,5,0,0,2,1,8,4.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,22:43,3,8,0.375,0,3,0.0,0,0,0.0,0,7,7,2,0,0,0,0,6,12.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,23:43,8,10,0.8,4,4,1.0,0,0,0.0,4,8,12,6,3,0,2,0,20,8.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,26:34,6,11,0.545,4,6,0.667,0,0,0.0,0,0,0,2,0,0,2,0,16,5.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,28:45,4,8,0.5,1,5,0.2,0,0,0.0,0,2,2,3,1,2,0,2,9,9.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,20:58,10,11,0.909,0,0,0.0,2,2,1.0,3,7,10,4,0,0,2,2,22,9.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,24:45,4,10,0.4,2,7,0.286,1,1,1.0,0,2,2,1,1,0,0,0,11,4.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,22:30,2,7,0.286,1,2,0.5,0,0,0.0,2,3,5,1,1,0,1,1,5,4.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,14:43,2,8,0.25,2,6,0.333,0,0,0.0,0,0,0,2,0,0,0,0,6,6.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,12:00,2,3,0.667,0,0,0.0,0,0,0.0,0,2,2,4,0,1,1,1,4,0.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1642403,Isaac,Jones,I. Jones,isaac-jones,,,,7:53,1,1,1.0,0,0,0.0,0,0,0.0,1,1,2,0,0,1,1,0,2,-3.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,1629056,Terence,Davis,T. Davis,terence-davis,,,,7:53,0,2,0.0,0,1,0.0,0,0,0.0,0,1,1,1,0,0,0,0,0,-3.0,0022401200
+0022401200,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401200

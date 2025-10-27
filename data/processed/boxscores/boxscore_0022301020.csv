@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301020,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,36:54,3,10,0.3,0,4,0.0,3,4,0.75,1,3,4,0,0,0,1,1,9,8.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,37:51,8,12,0.667,6,7,0.857,0,0,0.0,1,6,7,2,0,2,0,5,22,21.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,39:31,7,14,0.5,1,3,0.333,6,6,1.0,1,13,14,8,1,0,2,3,21,9.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,G,,,36:52,7,12,0.583,4,9,0.444,1,2,0.5,1,4,5,6,2,1,0,1,19,18.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,35:50,10,22,0.455,3,12,0.25,8,9,0.889,2,6,8,2,3,0,2,3,31,14.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,22:13,0,11,0.0,0,2,0.0,0,0,0.0,0,1,1,5,0,0,1,3,0,-22.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,12:18,1,3,0.333,0,1,0.0,0,0,0.0,0,2,2,3,0,0,0,0,2,-12.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,10:00,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,2,5,-19.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,8:31,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,2,1,1,0,-7.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1630532,Franz,Wagner,F. Wagner,franz-wagner,F,,,35:06,8,14,0.571,1,4,0.25,1,2,0.5,1,2,3,4,0,0,0,4,18,-27.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1631094,Paolo,Banchero,P. Banchero,paolo-banchero,F,,,37:35,8,18,0.444,1,6,0.167,5,5,1.0,0,7,7,5,0,1,4,2,22,-13.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1628976,Wendell,Carter Jr.,W. Carter Jr.,wendell-carter-jr,C,,,22:32,1,6,0.167,0,3,0.0,1,2,0.5,3,8,11,1,0,0,1,1,3,-20.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1631216,Caleb,Houstan,C. Houstan,caleb-houstan,G,,,11:17,2,5,0.4,2,5,0.4,0,0,0.0,2,0,2,0,1,0,0,0,6,-7.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1630591,Jalen,Suggs,J. Suggs,jalen-suggs,G,,,35:51,3,10,0.3,1,5,0.2,2,4,0.5,0,3,3,4,0,0,2,3,9,-8.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,18:57,2,5,0.4,0,0,0.0,0,0,0.0,0,1,1,2,2,0,1,2,4,21.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1628371,Jonathan,Isaac,J. Isaac,jonathan-isaac,,,,22:47,10,13,0.769,3,4,0.75,2,3,0.667,2,5,7,0,1,2,0,3,25,26.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1630175,Cole,Anthony,C. Anthony,cole-anthony,,,,30:38,7,15,0.467,2,7,0.286,0,0,0.0,3,4,7,6,1,0,1,1,16,9.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1629021,Moritz,Wagner,M. Wagner,moritz-wagner,,,,13:06,1,2,0.5,0,1,0.0,2,2,1.0,0,5,5,2,0,0,2,3,4,3.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,204060,Joe,Ingles,J. Ingles,joe-ingles,,,,12:11,0,0,0.0,0,0,0.0,0,0,0.0,1,2,3,3,0,0,2,1,0,6.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1629048,Goga,Bitadze,G. Bitadze,goga-bitadze,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1641710,Anthony,Black,A. Black,anthony-black,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1641724,Jett,Howard,J. Howard,jett-howard,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1629643,Chuma,Okeke,C. Okeke,chuma-okeke,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020
+0022301020,1610612753,Orlando,Magic,ORL,magic,1629678,Admiral,Schofield,A. Schofield,admiral-schofield,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301020

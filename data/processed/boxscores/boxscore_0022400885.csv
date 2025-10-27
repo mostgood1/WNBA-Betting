@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,34:52,6,12,0.5,0,3,0.0,7,9,0.778,1,3,4,4,0,0,1,2,19,1.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,26:37,4,8,0.5,1,4,0.25,0,0,0.0,2,2,4,2,1,0,0,1,9,21.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,C,,,34:36,2,4,0.5,0,1,0.0,4,4,1.0,2,7,9,8,2,0,1,4,8,14.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,33:06,10,21,0.476,5,9,0.556,3,3,1.0,0,7,7,9,2,0,2,0,28,23.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,31:53,8,16,0.5,2,6,0.333,1,1,1.0,1,4,5,4,1,0,1,1,19,-3.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,14:44,4,6,0.667,1,1,1.0,0,0,0.0,0,1,1,2,1,1,1,0,9,14.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,23:03,6,13,0.462,3,10,0.3,0,0,0.0,1,5,6,0,0,1,2,1,15,-4.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,14:04,1,1,1.0,0,0,0.0,0,2,0.0,1,3,4,0,0,2,0,1,2,-6.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,12:14,1,3,0.333,0,1,0.0,0,0,0.0,1,0,1,1,0,2,0,1,2,-5.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,14:52,1,4,0.25,1,2,0.5,0,0,0.0,0,3,3,0,0,1,3,3,3,5.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885
+0022400885,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,41:46,11,19,0.579,4,9,0.444,3,5,0.6,2,1,3,3,0,0,4,4,29,-10.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,33:05,1,8,0.125,0,4,0.0,0,0,0.0,1,7,8,3,0,0,2,1,2,-22.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,C,,,15:19,3,6,0.5,0,0,0.0,1,1,1.0,4,1,5,0,0,0,1,2,7,-10.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,35:42,7,15,0.467,1,5,0.2,0,0,0.0,1,3,4,4,0,1,1,3,15,-21.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,37:17,9,18,0.5,1,7,0.143,6,7,0.857,0,2,2,7,1,0,4,1,25,-15.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,30:02,4,10,0.4,0,1,0.0,0,0,0.0,4,11,15,0,0,1,0,2,8,-2.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,23:48,2,7,0.286,0,2,0.0,2,2,1.0,2,2,4,5,1,0,0,2,6,8.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,12:18,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,0,1,0,5,9.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,10:43,2,6,0.333,1,3,0.333,0,0,0.0,0,1,1,4,2,0,0,2,5,3.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885
+0022400885,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400885

@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1627759,Jaylen,Brown,J. Brown,jaylen-brown,F,,,29:49,6,9,0.667,1,4,0.25,1,2,0.5,0,2,2,4,0,0,2,3,14,1.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1628369,Jayson,Tatum,J. Tatum,jayson-tatum,F,,,35:53,10,22,0.455,2,9,0.222,7,7,1.0,1,9,10,8,0,1,1,1,29,9.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,204001,Kristaps,Porziņģis,K. Porziņģis,kristaps-porziņģis,C,,,25:17,4,11,0.364,1,4,0.25,2,2,1.0,3,5,8,1,0,2,3,5,11,-3.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1628401,Derrick,White,D. White,derrick-white,G,,,40:01,4,13,0.308,3,12,0.25,2,3,0.667,1,7,8,6,0,1,2,1,13,10.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,201950,Jrue,Holiday,J. Holiday,jrue-holiday,G,,,34:52,8,12,0.667,5,7,0.714,0,0,0.0,1,5,6,6,0,0,0,2,21,14.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,31:14,7,10,0.7,0,0,0.0,1,2,0.5,7,9,16,4,1,0,0,3,15,21.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1631248,Baylor,Scheierman,B. Scheierman,baylor-scheierman,,,,18:57,2,4,0.5,2,4,0.5,1,2,0.5,1,1,2,2,0,0,1,1,7,-1.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1630573,Sam,Hauser,S. Hauser,sam-hauser,,,,23:57,4,13,0.308,3,11,0.273,0,0,0.0,1,1,2,1,1,0,0,2,11,-1.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1628470,Torrey,Craig,T. Craig,torrey-craig,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1641936,Miles,Norris,M. Norris,miles-norris,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1629674,Neemias,Queta,N. Queta,neemias-queta,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1630214,Xavier,Tillman,X. Tillman,xavier-tillman,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612738,Boston,Celtics,BOS,celtics,1641775,Jordan,Walsh,J. Walsh,jordan-walsh,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,F,,,29:31,7,18,0.389,1,7,0.143,7,10,0.7,0,2,2,8,1,0,0,2,22,-11.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,24:19,5,11,0.455,3,8,0.375,0,0,0.0,1,2,3,2,2,0,0,1,13,-5.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,C,,,31:26,4,12,0.333,0,4,0.0,10,12,0.833,4,4,8,3,2,0,2,3,18,2.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,G,,,37:41,5,12,0.417,4,6,0.667,0,0,0.0,0,5,5,3,1,0,0,0,14,-12.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,35:13,5,8,0.625,2,5,0.4,0,0,0.0,0,5,5,5,0,0,1,2,12,-4.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,33:38,9,12,0.75,2,3,0.667,3,3,1.0,1,5,6,3,0,0,1,3,23,1.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,,,16:07,1,5,0.2,1,2,0.5,0,0,0.0,2,1,3,0,0,0,0,2,3,1.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,15:31,0,4,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,0,0,2,0,-10.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,,,16:34,2,5,0.4,1,2,0.5,1,2,0.5,2,0,2,0,0,1,0,1,6,-12.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080
+0022401080,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401080

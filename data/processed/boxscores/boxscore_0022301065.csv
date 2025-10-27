@@ -1,0 +1,26 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1628972,Troy,Brown Jr.,T. Brown Jr.,troy-brown-jr,F,,,18:53,1,4,0.25,1,2,0.5,1,2,0.5,0,2,2,0,1,0,1,1,4,2.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1641787,Tosan,Evbuomwan,T. Evbuomwan,tosan-evbuomwan,F,,,33:03,2,3,0.667,0,1,0.0,4,4,1.0,1,3,4,2,1,0,1,2,8,12.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,34:41,9,11,0.818,0,0,0.0,2,2,1.0,5,12,17,1,3,3,3,4,20,18.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,36:56,13,33,0.394,2,5,0.4,5,5,1.0,1,7,8,7,2,0,3,3,33,16.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1631093,Jaden,Ivey,J. Ivey,jaden-ivey,G,,,37:27,5,17,0.294,1,6,0.167,2,2,1.0,1,6,7,5,0,1,1,3,13,11.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1629002,Chimezie,Metu,C. Metu,chimezie-metu,,,,26:05,2,9,0.222,0,4,0.0,1,1,1.0,0,3,3,1,1,1,1,0,5,4.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1630164,James,Wiseman,J. Wiseman,james-wiseman,,,,13:19,0,3,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,2,4,0,-9.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1630201,Malachi,Flynn,M. Flynn,malachi-flynn,,,,14:02,1,3,0.333,0,2,0.0,1,2,0.5,0,2,2,3,1,0,1,0,3,-8.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,203095,Evan,Fournier,E. Fournier,evan-fournier,,,,25:34,4,6,0.667,2,4,0.5,0,2,0.0,0,2,2,0,0,0,0,1,10,-1.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1631205,Buddy,Boeheim,B. Boeheim,buddy-boeheim,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1631197,Jared,Rhoden,J. Rhoden,jared-rhoden,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301065
+0022301065,1610612765,Detroit,Pistons,DET,pistons,1630649,Stanley,Umude,S. Umude,stanley-umude,,DNP - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1630166,Deni,Avdija,D. Avdija,deni-avdija,F,,,38:46,6,14,0.429,2,6,0.333,4,4,1.0,2,9,11,9,0,0,5,2,18,0.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1628398,Kyle,Kuzma,K. Kuzma,kyle-kuzma,F,,,36:37,5,22,0.227,0,6,0.0,2,4,0.5,0,8,8,3,0,1,5,1,12,-22.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1628963,Marvin,Bagley III,M. Bagley III,marvin-bagley-iii,C,,,27:09,7,9,0.778,1,1,1.0,0,0,0.0,3,8,11,1,0,2,0,1,15,-9.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1630557,Corey,Kispert,C. Kispert,corey-kispert,G,,,37:58,9,12,0.75,5,7,0.714,0,0,0.0,1,5,6,0,0,0,1,4,23,-12.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1629673,Jordan,Poole,J. Poole,jordan-poole,G,,,37:14,3,15,0.2,1,8,0.125,0,0,0.0,0,3,3,6,0,1,5,3,7,-12.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1631098,Johnny,Davis,J. Davis,johnny-davis,,,,9:59,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,1,1,0,0,0,0,2.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,,,17:51,3,8,0.375,0,1,0.0,0,0,0.0,2,1,3,0,0,0,0,4,6,7.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1630215,Jared,Butler,J. Butler,jared-butler,,,,20:17,3,4,0.75,0,0,0.0,0,0,0.0,0,1,1,2,1,0,2,1,6,11.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,,,2:24,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,0,0,2.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,7:09,0,1,0.0,0,1,0.0,0,0,0.0,1,0,1,0,0,0,0,2,0,-8.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1631262,Jules,Bernard,J. Bernard,jules-bernard,,,,4:36,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-4.0,0022301065
+0022301065,1610612764,Washington,Wizards,WAS,wizards,1626145,Tyus,Jones,T. Jones,tyus-jones,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301065

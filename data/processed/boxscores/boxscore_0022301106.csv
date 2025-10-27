@@ -1,0 +1,27 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,27:55,4,7,0.571,0,3,0.0,1,1,1.0,2,3,5,2,0,0,0,5,9,-4.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,34:41,12,27,0.444,0,3,0.0,2,4,0.5,3,6,9,3,1,0,2,3,26,-20.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1630188,Jalen,Smith,J. Smith,jalen-smith,C,,,22:15,4,11,0.364,0,3,0.0,0,0,0.0,3,6,9,2,1,2,0,1,8,-19.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,28:32,3,6,0.5,0,1,0.0,2,2,1.0,1,1,2,3,1,0,2,2,8,-11.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,36:58,9,22,0.409,5,14,0.357,1,1,1.0,1,2,3,8,2,2,0,0,24,3.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,22:10,3,6,0.5,0,0,0.0,0,0,0.0,4,1,5,1,0,2,1,3,6,17.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,22:25,2,8,0.25,2,7,0.286,2,2,1.0,1,0,1,2,2,0,1,0,8,-5.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,20:00,5,9,0.556,3,6,0.5,1,1,1.0,3,5,8,1,1,3,2,2,14,17.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,19:06,4,6,0.667,0,0,0.0,0,0,0.0,1,2,3,5,0,0,1,5,8,6.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,,,5:57,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-4.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1631112,Kendall,Brown,K. Brown,kendall-brown,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1631131,Oscar,Tshiebwe,O. Tshiebwe,oscar-tshiebwe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,F,,,35:58,6,13,0.462,3,6,0.5,2,3,0.667,2,5,7,4,2,1,2,1,17,17.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,F,,,35:35,4,7,0.571,1,4,0.25,1,2,0.5,1,1,2,1,1,0,2,3,10,13.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,31:20,7,10,0.7,0,0,0.0,0,2,0.0,4,9,13,2,0,4,3,2,14,18.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,39:20,9,21,0.429,3,11,0.273,6,8,0.75,1,3,4,1,0,2,2,0,27,3.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,203471,Dennis,Schröder,D. Schröder,dennis-schröder,G,,,35:35,5,14,0.357,1,3,0.333,1,1,1.0,0,6,6,11,0,0,2,4,12,17.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1629661,Cameron,Johnson,C. Johnson,cameron-johnson,,,,22:29,2,8,0.25,1,4,0.25,0,0,0.0,1,2,3,2,1,0,0,1,5,-14.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,16:48,7,9,0.778,3,4,0.75,5,7,0.714,5,5,10,1,0,1,1,4,22,-14.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1630570,Trendon,Watford,T. Watford,trendon-watford,,,,12:34,1,4,0.25,0,0,0.0,2,2,1.0,0,1,1,0,0,0,1,0,4,-11.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,,,10:22,1,1,1.0,0,0,0.0,2,2,1.0,1,3,4,0,0,0,0,1,4,-9.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1628372,Dennis,Smith Jr.,D. Smith Jr.,dennis-smith-jr,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106
+0022301106,1610612751,Brooklyn,Nets,BKN,nets,1629022,Lonnie,Walker IV,L. Walker IV,lonnie-walker-iv,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022301106

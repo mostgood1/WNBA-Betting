@@ -1,0 +1,129 @@
+gameId,actionNumber,clock,period,teamId,teamTricode,personId,playerName,playerNameI,xLegacy,yLegacy,shotDistance,shotResult,isFieldGoal,scoreHome,scoreAway,pointsTotal,location,description,actionType,subType,videoAvailable,shotValue,actionId,game_id
+0032400031,2,PT00M00.00S,1,0,,0,,,0,0,0,,0,0,0,0,, ,period,start,0,0,1,0032400031
+0032400031,4,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,,0,,,0,h,Jump Ball Towns vs. Durant: Tip to Lillard,Jump Ball,,1,0,2,0032400031
+0032400031,7,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,57,258,26,Made,1,0,3,3,v,Curry 26' 3PT Floating Jump Shot (3 PTS),Made Shot,Floating Jump shot,1,3,3,0032400031
+0032400031,8,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,163,201,26,Missed,1,,,0,h,MISS Mitchell 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,4,0032400031
+0032400031,9,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,5,0032400031
+0032400031,10,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,114,295,32,Missed,1,,,0,v,MISS Curry 32' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,6,0032400031
+0032400031,11,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,7,0032400031
+0032400031,12,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,184,180,26,Missed,1,,,0,h,MISS Gilgeous-Alexander 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,8,0032400031
+0032400031,13,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,Jokic REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,9,0032400031
+0032400031,14,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,0,0,0,,0,,,0,v,Durant S.FOUL (P1.T1) (E.Dalen),Foul,Shooting,1,0,10,0032400031
+0032400031,16,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,MISS Jokic Free Throw 1 of 2,Free Throw,Free Throw 1 of 2,1,0,11,0032400031
+0032400031,17,PT00M00.00S,1,0,,1610616851,,,0,0,0,,0,,,0,h,GLOBAL STARS Rebound,Rebound,Normal Rebound,1,0,12,0032400031
+0032400031,18,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,MISS Jokic Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,13,0032400031
+0032400031,19,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,0,0,0,,0,,,0,v,Tatum REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,14,0032400031
+0032400031,20,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-6,29,3,Made,1,0,5,5,v,Tatum 3' Driving Dunk (2 PTS),Made Shot,Driving Dunk Shot,1,2,15,0032400031
+0032400031,21,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,151,221,27,Missed,1,,,0,h,MISS Towns 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,16,0032400031
+0032400031,22,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,Jokic REBOUND (Off:2 Def:0),Rebound,Unknown,1,0,17,0032400031
+0032400031,23,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,-109,191,22,Missed,1,,,0,h,MISS Mitchell 22' Jump Shot,Missed Shot,Jump Shot,1,2,18,0032400031
+0032400031,24,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,19,0032400031
+0032400031,25,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,Missed,1,,,0,h,MISS Gilgeous-Alexander Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,20,0032400031
+0032400031,26,PT00M00.00S,1,1610616851,CHK,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,Siakam REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,21,0032400031
+0032400031,27,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,-218,160,27,Missed,1,,,0,h,MISS Mitchell 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,22,0032400031
+0032400031,28,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,0,0,0,,0,,,0,v,Durant REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,23,0032400031
+0032400031,29,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry Out of Bounds - Bad Pass Turnover Turnover (P1.T1),Turnover,Out of Bounds - Bad Pass Turnover,1,0,24,0032400031
+0032400031,30,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,201,174,27,Missed,1,,,0,h,MISS Gilgeous-Alexander 27' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,25,0032400031
+0032400031,31,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,0,0,0,,0,,,0,v,Tatum REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,26,0032400031
+0032400031,32,PT00M00.00S,1,1610616852,SHQ,203081,Lillard,D. Lillard,175,205,27,Missed,1,,,0,v,MISS Lillard 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,27,0032400031
+0032400031,33,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,28,0032400031
+0032400031,34,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,176,206,27,Made,1,0,8,8,v,Tatum 27' 3PT Pullup Jump Shot (5 PTS) (Curry 1 AST),Made Shot,Pullup Jump shot,1,3,29,0032400031
+0032400031,36,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,9,54,5,Missed,1,,,0,h,MISS Mitchell 5' Driving Floating Jump Shot,Missed Shot,Driving Floating Jump Shot,1,2,30,0032400031
+0032400031,37,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,,0,,,0,h,Towns REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,31,0032400031
+0032400031,38,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,Missed,1,,,0,h,MISS Towns Tip Layup Shot,Missed Shot,Tip Layup Shot,1,2,32,0032400031
+0032400031,39,PT00M00.00S,1,1610616852,SHQ,201935,Harden,J. Harden,0,0,0,,0,,,0,v,Harden REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,33,0032400031
+0032400031,41,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-147,222,27,Made,1,0,11,11,v,Tatum 27' 3PT Jump Shot (8 PTS) (Lillard 1 AST),Made Shot,Jump Shot,1,3,34,0032400031
+0032400031,43,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,0,0,0,,0,,,0,v,Tatum S.FOUL (P1.T2) (K.Scott),Foul,Shooting,1,0,35,0032400031
+0032400031,45,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,1,11,12,h,Gilgeous-Alexander Free Throw 1 of 2 (1 PTS),Free Throw,Free Throw 1 of 2,1,0,36,0032400031
+0032400031,46,PT00M00.00S,1,1610616852,SHQ,203081,Lillard,D. Lillard,0,0,0,,0,,,0,v,SUB: Irving FOR Lillard,Substitution,,0,0,37,0032400031
+0032400031,48,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,MISS Gilgeous-Alexander Free Throw 2 of 2,Free Throw,Free Throw 2 of 2,1,0,38,0032400031
+0032400031,49,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,0,0,0,,0,,,0,v,Durant REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,39,0032400031
+0032400031,50,PT00M00.00S,1,1610616852,SHQ,201935,Harden,J. Harden,-163,201,26,Missed,1,,,0,v,MISS Harden 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,40,0032400031
+0032400031,51,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,,0,,,0,h,Towns REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,41,0032400031
+0032400031,52,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,181,185,26,Missed,1,,,0,h,MISS Mitchell 26' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,42,0032400031
+0032400031,53,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,43,0032400031
+0032400031,54,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving Out of Bounds - Bad Pass Turnover Turnover (P1.T2),Turnover,Out of Bounds - Bad Pass Turnover,1,0,44,0032400031
+0032400031,55,PT00M00.00S,1,0,,1610616851,,,0,0,0,,0,,,0,h,GLOBAL STARS Timeout: Regular (Full 1 Short 0),Timeout,Regular,0,0,45,0032400031
+0032400031,56,PT00M00.00S,1,1610616851,CHK,1627783,Siakam,P. Siakam,0,0,0,,0,,,0,h,SUB: Wembanyama FOR Siakam,Substitution,,0,0,46,0032400031
+0032400031,57,PT00M00.00S,1,1610616852,SHQ,201935,Harden,J. Harden,0,0,0,,0,,,0,v,SUB: Brown FOR Harden,Substitution,,0,0,47,0032400031
+0032400031,60,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,17,13,2,Made,1,3,11,14,h,Towns 2' Driving Layup (2 PTS) (Jokic 1 AST),Made Shot,Driving Layup Shot,1,2,48,0032400031
+0032400031,63,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,-44,22,5,Missed,1,,,0,v,MISS Durant 5' Driving Layup,Missed Shot,Driving Layup Shot,1,2,49,0032400031
+0032400031,63,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama BLOCK (1 BLK),,,1,2,50,0032400031
+0032400031,65,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,51,0032400031
+0032400031,66,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,-134,242,28,Made,1,6,11,17,h,Wembanyama 28' 3PT Running Jump Shot (3 PTS) (Mitchell 1 AST),Made Shot,Running Jump Shot,1,3,52,0032400031
+0032400031,68,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-65,256,26,Made,1,6,14,20,v,Tatum 26' 3PT Step Back Jump Shot (11 PTS),Made Shot,Step Back Jump shot,1,3,53,0032400031
+0032400031,69,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,87,248,26,Missed,1,,,0,h,MISS Jokic 26' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,54,0032400031
+0032400031,70,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,0,0,0,,0,,,0,v,Tatum REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,55,0032400031
+0032400031,71,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-156,205,26,Missed,1,,,0,v,MISS Tatum 26' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,56,0032400031
+0032400031,72,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,57,0032400031
+0032400031,73,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,136,232,27,Missed,1,,,0,h,MISS Wembanyama 27' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,58,0032400031
+0032400031,74,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,59,0032400031
+0032400031,75,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,-74,261,27,Missed,1,,,0,v,MISS Curry 27' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,60,0032400031
+0032400031,76,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,61,0032400031
+0032400031,77,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,1,36,4,Made,1,8,14,22,h,Wembanyama 4' Running Dunk (5 PTS),Made Shot,Running Dunk Shot,1,2,62,0032400031
+0032400031,78,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,137,234,27,Missed,1,,,0,v,MISS Brown 27' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,63,0032400031
+0032400031,79,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,,0,,,0,h,Towns REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,64,0032400031
+0032400031,80,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,Gilgeous-Alexander Bad Pass Turnover (P1.T1),Turnover,Bad Pass,1,0,65,0032400031
+0032400031,80,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,0,0,0,,0,,,0,v,Durant STEAL (1 STL),,,1,0,66,0032400031
+0032400031,82,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,-32,3,3,Missed,1,,,0,v,MISS Irving 3' Running Layup,Missed Shot,Running Layup Shot,1,2,67,0032400031
+0032400031,83,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,0,0,0,,0,,,0,v,Brown REBOUND (Off:1 Def:0),Rebound,Unknown,1,0,68,0032400031
+0032400031,84,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,0,0,0,Made,1,8,16,24,v,Brown Putback Dunk (2 PTS),Made Shot,Putback Dunk Shot,1,2,69,0032400031
+0032400031,85,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,121,11,12,Missed,1,,,0,h,MISS Wembanyama 12' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,70,0032400031
+0032400031,86,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,71,0032400031
+0032400031,87,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,-27,8,3,Missed,1,,,0,v,MISS Brown 3' Running Layup,Missed Shot,Running Layup Shot,1,2,72,0032400031
+0032400031,88,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,Jokic REBOUND (Off:2 Def:1),Rebound,Unknown,1,0,73,0032400031
+0032400031,89,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,Jokic Lost Ball Turnover (P1.T2),Turnover,Lost Ball,1,0,74,0032400031
+0032400031,89,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving STEAL (1 STL),,,1,0,75,0032400031
+0032400031,91,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,-227,29,0,Made,1,8,19,27,v,Irving 3PT Running Jump Shot (3 PTS) (Tatum 1 AST),Made Shot,Running Jump Shot,1,3,76,0032400031
+0032400031,93,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,-235,7,24,Made,1,11,19,30,h,Gilgeous-Alexander 24' 3PT Jump Shot (4 PTS) (Towns 1 AST),Made Shot,Jump Shot,1,3,77,0032400031
+0032400031,96,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry Out of Bounds - Bad Pass Turnover Turnover (P2.T3),Turnover,Out of Bounds - Bad Pass Turnover,1,0,78,0032400031
+0032400031,97,PT00M00.00S,1,1610616851,CHK,1628983,Gilgeous-Alexander,S. Gilgeous-Alexander,0,0,0,,0,,,0,h,SUB: Young FOR Gilgeous-Alexander,Substitution,,0,0,79,0032400031
+0032400031,98,PT00M00.00S,1,1610616852,SHQ,201142,Durant,K. Durant,0,0,0,,0,,,0,v,SUB: Harden FOR Durant,Substitution,,0,0,80,0032400031
+0032400031,101,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama Lost Ball Turnover (P1.T3),Turnover,Lost Ball,1,0,81,0032400031
+0032400031,101,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry STEAL (1 STL),,,1,0,82,0032400031
+0032400031,103,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,-40,-5,4,Made,1,11,21,32,v,Irving 4' Driving Layup (5 PTS) (Harden 1 AST),Made Shot,Driving Layup Shot,1,2,83,0032400031
+0032400031,105,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving P.FOUL (P1.T3) (K.Scott),Foul,Personal,1,0,84,0032400031
+0032400031,107,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell Lost Ball Turnover (P1.T4),Turnover,Lost Ball,1,0,85,0032400031
+0032400031,107,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving STEAL (2 STL),,,1,0,86,0032400031
+0032400031,109,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,0,30,3,Made,1,11,23,34,v,Brown 3' Running Dunk (4 PTS) (Harden 2 AST),Made Shot,Running Dunk Shot,1,2,87,0032400031
+0032400031,111,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,-38,7,4,Made,1,13,23,36,h,Towns 4' Cutting Dunk Shot (4 PTS) (Jokic 2 AST),Made Shot,Cutting Dunk Shot,1,2,88,0032400031
+0032400031,113,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving Bad Pass Turnover (P2.T4),Turnover,Bad Pass,1,0,89,0032400031
+0032400031,113,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell STEAL (1 STL),,,1,0,90,0032400031
+0032400031,114,PT00M00.00S,1,1610616851,CHK,1629027,Young,T. Young,-183,274,33,Missed,1,,,0,h,MISS Young 33' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,91,0032400031
+0032400031,116,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,,0,,,0,h,Wembanyama REBOUND (Off:1 Def:2),Rebound,Unknown,1,0,92,0032400031
+0032400031,117,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,0,0,0,Made,1,15,23,38,h,Wembanyama Putback Dunk (7 PTS),Made Shot,Putback Dunk Shot,1,2,93,0032400031
+0032400031,118,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,16,394,39,Made,1,15,26,41,v,Curry 39' 3PT Pullup Jump Shot (6 PTS),Made Shot,Pullup Jump shot,1,3,94,0032400031
+0032400031,119,PT00M00.00S,1,1610616851,CHK,1629027,Young,T. Young,-169,304,35,Missed,1,,,0,h,MISS Young 35' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,95,0032400031
+0032400031,120,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry REBOUND (Off:1 Def:3),Rebound,Unknown,1,0,96,0032400031
+0032400031,121,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,-62,436,44,Missed,1,,,0,v,MISS Curry 44' 3PT Running Pull-Up Jump Shot,Missed Shot,Running Pull-Up Jump Shot,1,3,97,0032400031
+0032400031,122,PT00M00.00S,1,1610616851,CHK,1629027,Young,T. Young,0,0,0,,0,,,0,h,Young REBOUND (Off:0 Def:1),Rebound,Unknown,1,0,98,0032400031
+0032400031,123,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,238,17,24,Missed,1,,,0,h,MISS Jokic 24' 3PT Running Jump Shot,Missed Shot,Running Jump Shot,1,3,99,0032400031
+0032400031,124,PT00M00.00S,1,1610616852,SHQ,1627759,Brown,J. Brown,0,0,0,,0,,,0,v,Brown REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,100,0032400031
+0032400031,125,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,-7,29,3,Made,1,15,28,43,v,Irving 3' Running Dunk (7 PTS) (Tatum 2 AST),Made Shot,Running Dunk Shot,1,2,101,0032400031
+0032400031,127,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,-5,6,1,Made,1,17,28,45,h,Wembanyama 1' Cutting Dunk Shot (9 PTS) (Young 1 AST),Made Shot,Cutting Dunk Shot,1,2,102,0032400031
+0032400031,129,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-15,11,2,Made,1,17,30,47,v,Tatum 2' Cutting Dunk Shot (13 PTS) (Irving 1 AST),Made Shot,Cutting Dunk Shot,1,2,103,0032400031
+0032400031,131,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,-34,6,3,Made,1,19,30,49,h,Towns 3' Layup (6 PTS) (Young 2 AST),Made Shot,Layup Shot,1,2,104,0032400031
+0032400031,133,PT00M00.00S,1,1610616852,SHQ,201935,Harden,J. Harden,15,268,27,Made,1,19,33,52,v,Harden 27' 3PT Step Back Jump Shot (3 PTS),Made Shot,Step Back Jump shot,1,3,105,0032400031
+0032400031,134,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,184,206,28,Missed,1,,,0,h,MISS Towns 28' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,106,0032400031
+0032400031,135,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,0,0,0,,0,,,0,v,Irving REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,107,0032400031
+0032400031,136,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,206,169,27,Missed,1,,,0,v,MISS Curry 27' 3PT Step Back Jump Shot,Missed Shot,Step Back Jump shot,1,3,108,0032400031
+0032400031,137,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell REBOUND (Off:0 Def:3),Rebound,Unknown,1,0,109,0032400031
+0032400031,138,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,27,18,3,Made,1,21,33,54,h,Jokic 3' Running Layup (2 PTS) (Mitchell 2 AST),Made Shot,Running Layup Shot,1,2,110,0032400031
+0032400031,140,PT00M00.00S,1,1610616852,SHQ,202681,Irving,K. Irving,108,45,12,Missed,1,,,0,v,MISS Irving 12' Finger Roll Layup,Missed Shot,Finger Roll Layup Shot,1,2,111,0032400031
+0032400031,141,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,Jokic REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,112,0032400031
+0032400031,143,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,0,0,0,,0,,,0,h,Mitchell Bad Pass Turnover (P2.T5),Turnover,Bad Pass,1,0,113,0032400031
+0032400031,143,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,0,0,0,,0,,,0,v,Curry STEAL (2 STL),,,1,0,114,0032400031
+0032400031,145,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,26,262,26,Made,1,21,36,57,v,Curry 26' 3PT Running Jump Shot (9 PTS) (Irving 2 AST),Made Shot,Running Jump Shot,1,3,115,0032400031
+0032400031,147,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,169,8,17,Missed,1,,,0,h,MISS Mitchell 17' Fadeaway Jumper,Missed Shot,Fadeaway Jump Shot,1,2,116,0032400031
+0032400031,148,PT00M00.00S,1,1610616852,SHQ,201935,Harden,J. Harden,0,0,0,,0,,,0,v,Harden REBOUND (Off:0 Def:2),Rebound,Unknown,1,0,117,0032400031
+0032400031,149,PT00M00.00S,1,1610616852,SHQ,201939,Curry,S. Curry,-170,232,29,Made,1,21,39,60,v,Curry 29' 3PT Pullup Jump Shot (12 PTS) (Harden 3 AST),Made Shot,Pullup Jump shot,1,3,118,0032400031
+0032400031,151,PT00M00.00S,1,1610616851,CHK,1628378,Mitchell,D. Mitchell,181,205,27,Missed,1,,,0,h,MISS Mitchell 27' 3PT Pullup Jump Shot,Missed Shot,Pullup Jump shot,1,3,119,0032400031
+0032400031,152,PT00M00.00S,1,1610616851,CHK,1629027,Young,T. Young,0,0,0,,0,,,0,h,Young REBOUND (Off:1 Def:1),Rebound,Unknown,1,0,120,0032400031
+0032400031,153,PT00M00.00S,1,1610616851,CHK,1629027,Young,T. Young,-238,5,24,Missed,1,,,0,h,MISS Young 24' 3PT Jump Shot,Missed Shot,Jump Shot,1,3,121,0032400031
+0032400031,154,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,0,0,0,,0,,,0,h,Towns REBOUND (Off:2 Def:2),Rebound,Unknown,1,0,122,0032400031
+0032400031,155,PT00M00.00S,1,1610616851,CHK,1626157,Towns,K. Towns,-11,16,2,Made,1,23,39,62,h,Towns 2' Putback Layup (8 PTS),Made Shot,Putback Layup Shot,1,2,123,0032400031
+0032400031,156,PT00M00.00S,1,0,,1610616852,,,0,0,0,,0,,,0,v,OGs Turnover: 8 Second Violation (T#5),Turnover,8 Second Violation,1,0,124,0032400031
+0032400031,157,PT00M00.00S,1,1610616851,CHK,203999,Jokić,N. Jokić,0,0,0,,0,,,0,h,SUB: Sengun FOR Jokic,Substitution,,0,0,125,0032400031
+0032400031,159,PT00M00.00S,1,1610616851,CHK,1641705,Wembanyama,V. Wembanyama,7,5,1,Made,1,25,39,64,h,Wembanyama 1' Driving Dunk (11 PTS),Made Shot,Driving Dunk Shot,1,2,126,0032400031
+0032400031,160,PT00M00.00S,1,1610616852,SHQ,1628369,Tatum,J. Tatum,-15,22,3,Made,1,25,41,66,v,Tatum 3' Cutting Dunk Shot (15 PTS) (Harden 4 AST),Made Shot,Cutting Dunk Shot,1,2,127,0032400031
+0032400031,162,PT00M00.00S,1,0,,0,,,0,0,0,,0,25,41,66,, ,period,end,1,0,128,0032400031

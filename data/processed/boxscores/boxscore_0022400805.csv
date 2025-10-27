@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1630541,Moses,Moody,M. Moody,moses-moody,F,,,28:32,8,11,0.727,5,8,0.625,1,1,1.0,1,1,2,4,0,1,1,2,22,16.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,202710,Jimmy,Butler III,J. Butler III,jimmy-butler-iii,F,,,31:33,5,10,0.5,0,1,0.0,7,7,1.0,2,1,3,7,3,0,0,0,17,19.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,203110,Draymond,Green,D. Green,draymond-green,C,,,28:27,3,7,0.429,0,2,0.0,0,0,0.0,2,6,8,9,0,2,2,2,6,23.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1641764,Brandin,Podziemski,B. Podziemski,brandin-podziemski,G,,,30:07,9,20,0.45,2,9,0.222,1,1,1.0,0,3,3,5,1,0,1,2,21,21.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,201939,Stephen,Curry,S. Curry,stephen-curry,G,,,30:45,7,13,0.538,4,9,0.444,2,2,1.0,0,1,1,6,2,0,1,0,20,0.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1627741,Buddy,Hield,B. Hield,buddy-hield,,,,25:45,8,11,0.727,5,8,0.625,1,1,1.0,0,3,3,2,1,0,0,3,22,8.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1627780,Gary,Payton II,G. Payton II,gary-payton-ii,,,,15:18,2,2,1.0,0,0,0.0,0,0,0.0,0,0,0,1,2,0,0,4,4,3.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1626172,Kevon,Looney,K. Looney,kevon-looney,,,,14:18,1,5,0.2,0,0,0.0,0,0,0.0,2,3,5,1,2,0,2,1,2,1.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1630611,Gui,Santos,G. Santos,gui-santos,,,,12:42,0,3,0.0,0,2,0.0,0,0,0.0,1,2,3,3,1,0,1,4,0,4.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1642366,Quinten,Post,Q. Post,quinten-post,,,,13:42,3,5,0.6,3,3,1.0,0,0,0.0,1,4,5,0,1,0,3,0,9,19.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1628995,Kevin,Knox II,K. Knox II,kevin-knox-ii,,,,2:57,2,3,0.667,1,1,1.0,0,0,0.0,1,0,1,0,0,0,0,0,5,2.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1630311,Pat,Spencer,P. Spencer,pat-spencer,,,,2:57,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,2,0,0,0,1,0,2.0,0022400805
+0022400805,1610612744,Golden State,Warriors,GSW,warriors,1631218,Trayce,Jackson-Davis,T. Jackson-Davis,trayce-jackson-davis,,,,2:57,2,2,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,1,0,4,2.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,201942,DeMar,DeRozan,D. DeRozan,demar-derozan,F,,,33:52,10,14,0.714,4,7,0.571,10,10,1.0,0,4,4,6,1,0,1,1,34,-8.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,33:41,5,10,0.5,3,5,0.6,0,0,0.0,2,3,5,0,1,1,1,3,13,-5.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,31:32,6,10,0.6,1,3,0.333,1,2,0.5,3,11,14,9,1,0,4,1,14,-2.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,203897,Zach,LaVine,Z. LaVine,zach-lavine,G,,,33:47,5,12,0.417,2,7,0.286,1,1,1.0,0,5,5,3,1,0,5,4,13,-24.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,G,,,30:11,6,11,0.545,1,4,0.25,0,0,0.0,0,0,0,4,1,1,2,2,13,-11.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,23:41,0,6,0.0,0,4,0.0,2,2,1.0,2,0,2,1,1,1,1,2,2,-18.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1631222,Jake,LaRavia,J. LaRavia,jake-laravia,,,,16:01,0,5,0.0,0,2,0.0,0,0,0.0,3,1,4,0,2,0,2,0,0,-18.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,202685,Jonas,Valančiūnas,J. Valančiūnas,jonas-valančiūnas,,,,9:05,2,4,0.5,0,0,0.0,2,2,1.0,1,1,2,1,0,0,0,1,6,-12.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1626168,Trey,Lyles,T. Lyles,trey-lyles,,,,8:27,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,2,1,0,-8.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1628365,Markelle,Fultz,M. Fultz,markelle-fultz,,,,9:36,4,5,0.8,0,0,0.0,0,0,0.0,0,0,0,1,0,0,3,0,8,-2.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,,,3:35,1,1,1.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,2,-5.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1630222,Mason,Jones,M. Jones,mason-jones,,,,3:35,1,1,1.0,0,0,0.0,1,1,1.0,0,0,0,1,0,0,0,1,3,-5.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,1642269,Devin,Carter,D. Carter,devin-carter,,,,2:57,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,203109,Jae,Crowder,J. Crowder,jae-crowder,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400805
+0022400805,1610612758,Sacramento,Kings,SAC,kings,203926,Doug,McDermott,D. McDermott,doug-mcdermott,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400805

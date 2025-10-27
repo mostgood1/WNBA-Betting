@@ -1,0 +1,36 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203506,Victor,Oladipo,V. Oladipo,victor-oladipo,F,,,26:48,8,12,0.667,2,4,0.5,6,7,0.857,0,0,0,5,2,1,4,4,24,-17.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295528,Li,Xiangbo,L. Xiangbo,li-xiangbo,F,,,14:11,1,2,0.5,1,2,0.5,2,2,1.0,0,0,0,0,0,0,2,6,5,-14.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1626163,Frank,Kaminsky,F. Kaminsky,frank-kaminsky,C,,,27:21,2,6,0.333,1,3,0.333,2,2,1.0,0,2,2,5,0,0,3,1,7,-27.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295539,Liu,Yancheng,L. Yancheng,liu-yancheng,G,,,23:33,4,5,0.8,4,5,0.8,0,0,0.0,0,1,1,0,0,0,0,2,12,-21.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,204025,Tim,Frazier,T. Frazier,tim-frazier,G,,,17:52,3,10,0.3,2,5,0.4,3,3,1.0,1,4,5,5,1,0,3,0,11,-24.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295532,Guan,Ziyu,G. Ziyu,guan-ziyu,,,,22:45,2,6,0.333,1,4,0.25,1,2,0.5,0,1,1,0,0,0,4,2,6,-26.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,203200,Justin,Holiday,J. Holiday,justin-holiday,,,,24:03,3,9,0.333,2,5,0.4,2,2,1.0,1,5,6,0,2,0,1,1,10,-16.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295531,Chen,Guohao,C. Guohao,chen-guohao,,,,17:52,3,8,0.375,2,3,0.667,5,7,0.714,2,3,5,0,0,0,0,2,13,-30.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1629126,Deonte,Burton,D. Burton,deonte-burton,,,,19:45,1,3,0.333,0,1,0.0,0,0,0.0,1,1,2,0,1,0,2,2,2,-20.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295533,Pang,Yanjun,P. Yanjun,pang-yanjun,,,,17:36,0,4,0.0,0,2,0.0,2,2,1.0,0,0,0,2,0,0,0,5,2,-20.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,1628994,George,King,G. King,george-king,,,,16:00,1,6,0.167,0,2,0.0,0,1,0.0,1,1,2,2,1,0,1,2,2,-18.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295530,Zhang,Wenjie,Z. Wenjie,zhang-wenjie,,,,5:58,0,2,0.0,0,1,0.0,1,2,0.5,0,0,0,0,0,0,0,1,1,-1.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295526,Zhang,Huafei,Z. Huafei,zhang-huafei,,,,4:14,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,0,0,0.0,0012500043
+0012500043,15018,Guangzhou,Loong-Lions,GUA,loong-lions,196295529,Li,Xiaotong,L. Xiaotong,li-xiaotong,,,,2:04,0,1,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,-1.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,7:45,2,3,0.667,2,3,0.667,0,0,0.0,0,1,1,0,0,0,0,0,6,7.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,17:49,6,10,0.6,5,8,0.625,1,2,0.5,0,0,0,2,0,0,1,1,18,8.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1627826,Ivica,Zubac,I. Zubac,ivica-zubac,C,,,16:19,7,8,0.875,0,0,0.0,1,4,0.25,2,3,5,2,1,0,0,1,15,2.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,G,,,2:10,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,1,0,-2.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,201935,James,Harden,J. Harden,james-harden,G,,,15:44,2,3,0.667,0,1,0.0,1,2,0.5,0,2,2,9,0,0,3,1,5,4.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,11:52,4,6,0.667,2,4,0.5,1,1,1.0,1,1,2,3,0,0,0,2,11,30.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,101108,Chris,Paul,C. Paul,chris-paul,,,,16:54,4,6,0.667,4,5,0.8,3,3,1.0,0,6,6,4,1,2,2,1,15,26.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1628381,John,Collins,J. Collins,john-collins,,,,16:54,6,8,0.75,1,2,0.5,2,2,1.0,2,2,4,0,1,0,2,2,15,26.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,,,,11:25,0,2,0.0,0,2,0.0,4,4,1.0,1,2,3,2,2,1,0,1,4,12.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,11:20,2,5,0.4,1,4,0.25,0,0,0.0,1,2,3,2,1,1,0,1,5,12.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,201572,Brook,Lopez,B. Lopez,brook-lopez,,,,16:19,4,7,0.571,1,4,0.25,0,1,0.0,0,2,2,3,0,1,1,3,9,28.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1642280,Trentyn,Flowers,T. Flowers,trentyn-flowers,,,,17:28,4,5,0.8,1,1,1.0,1,1,1.0,0,3,3,0,0,1,0,3,10,-2.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1641738,Kobe,Brown,K. Brown,kobe-brown,,,,7:59,1,2,0.5,0,0,0.0,0,0,0.0,3,1,4,1,1,0,0,0,2,-3.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1643141,Jahmyl,Telfort,J. Telfort,jahmyl-telfort,,,,6:51,0,0,0.0,0,0,0.0,0,0,0.0,0,2,2,0,0,0,0,1,0,19.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1630554,Jason,Preston,J. Preston,jason-preston,,,,15:22,1,2,0.5,0,0,0.0,1,2,0.5,1,2,3,7,1,0,1,1,3,17.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1631116,Patrick,Baldwin Jr.,P. Baldwin Jr.,patrick-baldwin-jr,,,,11:08,3,4,0.75,1,2,0.5,0,0,0.0,0,1,1,2,1,2,3,2,7,17.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1642949,Yanic Konan,Niederhäuser,Y. Niederhäuser,yanic-konan-niederhäuser,,,,15:22,1,2,0.5,0,0,0.0,1,2,0.5,1,2,3,0,0,2,2,4,3,17.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,,,5:05,2,4,0.5,0,1,0.0,1,1,1.0,0,1,1,1,0,0,0,0,5,9.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1642920,Kobe,Sanders,K. Sanders,kobe-sanders,,,,12:00,2,4,0.5,2,4,0.5,0,0,0.0,0,1,1,3,1,0,1,2,6,8.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,1642967,John,Poulakidas,J. Poulakidas,john-poulakidas,,,,4:14,1,2,0.5,1,2,0.5,0,0,0.0,0,0,0,0,0,0,0,1,3,0.0,0012500043
+0012500043,1610612746,LA,Clippers,LAC,clippers,203078,Bradley,Beal,B. Beal,bradley-beal,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0012500043

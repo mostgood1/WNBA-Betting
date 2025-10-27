@@ -1,0 +1,31 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1630174,Aaron,Nesmith,A. Nesmith,aaron-nesmith,F,,,32:38,4,7,0.571,2,3,0.667,2,2,1.0,2,5,7,1,1,1,2,4,12,12.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1627783,Pascal,Siakam,P. Siakam,pascal-siakam,F,,,32:51,15,23,0.652,3,5,0.6,6,8,0.75,0,5,5,3,1,0,1,4,39,16.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1626167,Myles,Turner,M. Turner,myles-turner,C,,,32:46,5,10,0.5,1,4,0.25,5,7,0.714,1,2,3,1,1,2,1,2,16,17.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1630169,Tyrese,Haliburton,T. Haliburton,tyrese-haliburton,G,,,35:08,5,16,0.313,3,10,0.3,1,2,0.5,2,6,8,11,2,0,1,2,14,-2.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1629614,Andrew,Nembhard,A. Nembhard,andrew-nembhard,G,,,36:48,5,8,0.625,2,2,1.0,0,0,0.0,0,3,3,2,1,0,0,2,12,0.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1630167,Obi,Toppin,O. Toppin,obi-toppin,,,,19:22,2,6,0.333,0,1,0.0,0,0,0.0,0,2,2,2,0,0,1,2,4,-11.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,10:43,0,2,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,-12.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,,,4:27,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,1,2,0,-9.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,204456,T.J.,McConnell,T. McConnell,tj-mcconnell,,,,14:27,5,8,0.625,0,2,0.0,0,0,0.0,1,1,2,4,0,0,1,2,10,5.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1628396,Tony,Bradley,T. Bradley,tony-bradley,,,,8:06,0,0,0.0,0,0,0.0,1,2,0.5,1,1,2,0,0,0,1,1,1,1.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1641767,Ben,Sheppard,B. Sheppard,ben-sheppard,,,,12:43,2,3,0.667,2,3,0.667,0,0,0.0,0,0,0,1,0,0,0,2,6,8.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1642277,Johnny,Furphy,J. Furphy,johnny-furphy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,201949,James,Johnson,J. Johnson,james-johnson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612754,Indiana,Pacers,IND,pacers,1641716,Jarace,Walker,J. Walker,jarace-walker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,35:54,6,11,0.545,2,6,0.333,2,2,1.0,1,4,5,1,2,0,1,2,16,5.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,28:30,2,3,0.667,0,0,0.0,2,2,1.0,2,4,6,1,1,1,2,3,6,-10.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,27:41,6,14,0.429,2,5,0.4,6,6,1.0,2,5,7,0,0,0,1,3,20,-20.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,45:08,9,18,0.5,1,3,0.333,1,2,0.5,1,6,7,2,2,0,2,3,20,-7.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,38:58,13,27,0.481,5,12,0.417,5,5,1.0,0,3,3,11,1,0,3,3,36,4.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1629011,Mitchell,Robinson,M. Robinson,mitchell-robinson,,,,29:20,2,3,0.667,0,0,0.0,2,4,0.5,4,5,9,0,0,3,0,2,6,6.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,25:29,2,5,0.4,1,4,0.25,0,0,0.0,0,1,1,2,0,0,2,3,5,6.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,9:01,0,3,0.0,0,2,0.0,0,0,0.0,0,0,0,1,0,0,1,0,0,-9.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302
+0042400302,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0042400302

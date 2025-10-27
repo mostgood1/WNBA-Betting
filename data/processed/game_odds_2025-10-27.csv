@@ -1,12 +1,12 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-10-27,2025-10-28T00:00:00Z,Chicago Bulls,Atlanta Hawks,113.45454545454545,-135.36363636363637,2.5,-2.5,243.0,oddsapi_consensus
-2025-10-27,2025-10-28T01:40:00Z,Minnesota Timberwolves,Denver Nuggets,201.54545454545453,-245.8181818181818,6.5,-6.5,229.5,oddsapi_consensus
-2025-10-27,2025-10-28T00:00:00Z,Houston Rockets,Brooklyn Nets,-1301.090909090909,772.6363636363636,-15.5,15.5,224.5,oddsapi_consensus
-2025-10-27,2025-10-28T00:40:00Z,Dallas Mavericks,Oklahoma City Thunder,285.27272727272725,-361.90909090909093,8.5,-8.5,226.5,oddsapi_consensus
-2025-10-27,2025-10-27T23:00:00Z,Detroit Pistons,Cleveland Cavaliers,116.0,-138.0909090909091,2.5,-2.5,231.5,oddsapi_consensus
-2025-10-27,2025-10-28T02:40:00Z,Los Angeles Lakers,Portland Trail Blazers,122.45454545454545,-145.54545454545453,2.5,-2.5,226.5,oddsapi_consensus
-2025-10-27,2025-10-28T02:00:00Z,Golden State Warriors,Memphis Grizzlies,-341.45454545454544,269.45454545454544,-8.5,8.5,239.5,oddsapi_consensus
-2025-10-27,2025-10-28T00:00:00Z,New Orleans Pelicans,Boston Celtics,87.36363636363636,-126.45454545454545,2.0,-2.0,231.5,oddsapi_consensus
-2025-10-27,2025-10-28T01:00:00Z,Utah Jazz,Phoenix Suns,-118.45454545454545,25.818181818181817,-1.0,1.0,230.5,oddsapi_consensus
-2025-10-27,2025-10-27T23:00:00Z,Philadelphia 76ers,Orlando Magic,195.63636363636363,-238.9090909090909,6.5,-6.5,227.5,oddsapi_consensus
-2025-10-27,2025-10-28T00:00:00Z,San Antonio Spurs,Toronto Raptors,-193.8181818181818,162.1818181818182,-4.5,4.5,232.5,oddsapi_consensus
+2025-10-27,2025-10-28T00:00:00Z,Chicago Bulls,Atlanta Hawks,123.72727272727273,-146.8181818181818,3.0,-3.0,243.5,oddsapi_consensus
+2025-10-27,2025-10-28T01:40:00Z,Minnesota Timberwolves,Denver Nuggets,197.54545454545453,-242.0909090909091,6.5,-6.5,229.5,oddsapi_consensus
+2025-10-27,2025-10-28T00:00:00Z,Houston Rockets,Brooklyn Nets,-1269.2727272727273,757.1818181818181,-16.0,16.0,225.0,oddsapi_consensus
+2025-10-27,2025-10-28T00:40:00Z,Dallas Mavericks,Oklahoma City Thunder,289.90909090909093,-369.1818181818182,9.0,-9.0,226.5,oddsapi_consensus
+2025-10-27,2025-10-27T23:13:09Z,Detroit Pistons,Cleveland Cavaliers,3.5,-135.125,1.5,-1.5,237.5,oddsapi_consensus
+2025-10-27,2025-10-28T02:40:00Z,Los Angeles Lakers,Portland Trail Blazers,123.45454545454545,-146.36363636363637,3.0,-3.0,226.5,oddsapi_consensus
+2025-10-27,2025-10-28T02:00:00Z,Golden State Warriors,Memphis Grizzlies,-342.8181818181818,272.1818181818182,-8.5,8.5,239.5,oddsapi_consensus
+2025-10-27,2025-10-28T00:00:00Z,New Orleans Pelicans,Boston Celtics,153.8181818181818,-182.9090909090909,4.5,-4.5,230.5,oddsapi_consensus
+2025-10-27,2025-10-28T01:00:00Z,Utah Jazz,Phoenix Suns,-118.63636363636364,7.818181818181818,-1.0,1.0,230.5,oddsapi_consensus
+2025-10-27,2025-10-27T23:10:39Z,Philadelphia 76ers,Orlando Magic,122.125,-159.375,2.5,-2.5,231.5,oddsapi_consensus
+2025-10-27,2025-10-28T00:00:00Z,San Antonio Spurs,Toronto Raptors,-186.9090909090909,156.8181818181818,-4.5,4.5,232.5,oddsapi_consensus

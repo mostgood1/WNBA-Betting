@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,F,,,22:35,3,4,0.75,2,3,0.667,0,0,0.0,1,3,4,1,3,1,1,3,8,-1.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,34:14,5,12,0.417,1,4,0.25,2,4,0.5,3,5,8,5,0,2,3,2,13,-8.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,30:25,8,11,0.727,0,1,0.0,6,9,0.667,2,5,7,4,2,1,2,2,22,24.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,G,,,26:20,6,11,0.545,6,10,0.6,4,4,1.0,1,0,1,5,1,1,4,4,22,14.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,34:52,10,15,0.667,6,10,0.6,9,12,0.75,0,2,2,5,3,0,3,3,35,22.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628366,Lonzo,Ball,L. Ball,lonzo-ball,,,,22:30,0,4,0.0,0,2,0.0,2,2,1.0,0,2,2,8,2,0,2,0,2,0.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,26:57,2,7,0.286,1,6,0.167,1,1,1.0,1,5,6,1,0,0,0,2,6,-8.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,14:25,6,6,1.0,2,2,1.0,0,0,0.0,0,2,2,2,1,0,0,0,14,8.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642878,Tyrese,Proctor,T. Proctor,tyrese-proctor,,,,11:57,0,4,0.0,0,3,0.0,0,0,0.0,0,1,1,0,1,0,2,2,0,-11.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,15:46,4,8,0.5,0,1,0.0,1,3,0.333,1,2,3,1,1,0,0,0,9,-5.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628418,Thomas,Bryant,T. Bryant,thomas-bryant,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1631247,Luke,Travers,L. Travers,luke-travers,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1629611,Terance,Mann,T. Mann,terance-mann,F,,,24:12,2,6,0.333,0,4,0.0,0,0,0.0,1,0,1,2,1,0,0,4,4,-12.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1629008,Michael,Porter Jr.,M. Porter Jr.,michael-porter-jr,F,,,36:25,13,22,0.591,5,10,0.5,0,0,0.0,0,8,8,3,1,0,2,3,31,-1.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1629651,Nic,Claxton,N. Claxton,nic-claxton,C,,,31:10,5,14,0.357,0,1,0.0,0,0,0.0,5,4,9,4,3,0,2,5,10,-18.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630560,Cam,Thomas,C. Thomas,cam-thomas,G,,,34:30,12,24,0.5,3,11,0.273,6,6,1.0,0,2,2,9,0,0,3,3,33,-11.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1642879,Ben,Saraf,B. Saraf,ben-saraf,G,,,18:28,1,2,0.5,0,0,0.0,0,0,0.0,0,0,0,1,0,0,3,2,2,-11.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630533,Ziaire,Williams,Z. Williams,ziaire-williams,,,,27:27,9,13,0.692,6,9,0.667,1,1,1.0,1,1,2,0,2,0,0,4,25,12.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1642856,Egor,Dëmin,E. Dëmin,egor-dëmin,,,,24:36,3,5,0.6,3,5,0.6,0,0,0.0,1,5,6,4,0,0,3,4,9,4.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630549,Day'Ron,Sharpe,D. Sharpe,dayron-sharpe,,,,14:24,1,2,0.5,0,0,0.0,0,0,0.0,0,2,2,3,1,0,2,3,2,6.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1631213,Tyrese,Martin,T. Martin,tyrese-martin,,,,8:45,1,4,0.25,1,2,0.5,0,0,0.0,0,3,3,1,0,0,0,0,3,-8.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1641730,Noah,Clowney,N. Clowney,noah-clowney,,,,20:04,2,4,0.5,1,3,0.333,0,0,0.0,2,3,5,3,1,0,4,0,5,4.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630623,Tyson,Etienne,T. Etienne,tyson-etienne,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630604,E.J.,Liddell,E. Liddell,ej-liddell,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1642849,Nolan,Traore,N. Traore,nolan-traore,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091
+0022500091,1610612751,Brooklyn,Nets,BKN,nets,1630592,Jalen,Wilson,J. Wilson,jalen-wilson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500091

@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022401128,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,32:20,5,8,0.625,2,2,1.0,4,5,0.8,0,9,9,11,4,0,4,3,16,3.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,34:38,9,17,0.529,2,4,0.5,4,5,0.8,0,4,4,4,1,3,0,1,24,24.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,32:59,10,15,0.667,2,3,0.667,8,9,0.889,2,9,11,3,0,0,3,1,30,27.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,32:31,9,13,0.692,2,3,0.667,0,0,0.0,1,2,3,5,0,0,1,2,20,24.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,G,,,28:55,4,7,0.571,2,4,0.5,0,0,0.0,0,1,1,2,2,0,1,0,10,18.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,25:18,3,8,0.375,0,0,0.0,0,0,0.0,1,2,3,0,0,2,1,2,6,-10.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,30:17,4,11,0.364,4,10,0.4,0,0,0.0,1,3,4,2,1,0,3,2,12,4.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,21:29,1,5,0.2,1,3,0.333,0,0,0.0,1,2,3,5,0,0,0,2,3,-7.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1641755,Kevin,McCullar Jr.,K. McCullar Jr.,kevin-mccullar-jr,,,,1:33,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1630699,MarJon,Beauchamp,M. Beauchamp,marjon-beauchamp,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,200782,P.J.,Tucker,P. Tucker,pj-tucker,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612752,New York,Knicks,NYK,knicks,1641817,Anton,Watson,A. Watson,anton-watson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,26:08,5,10,0.5,2,6,0.333,0,0,0.0,2,2,4,1,0,1,2,3,12,-14.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,F,,,17:18,2,3,0.667,0,0,0.0,2,2,1.0,1,2,3,1,0,1,0,1,6,7.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,27:13,2,4,0.5,0,2,0.0,2,4,0.5,1,4,5,2,1,0,4,4,6,-27.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,26:38,5,8,0.625,1,2,0.5,1,2,0.5,2,0,2,1,2,1,1,0,12,-27.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,31:32,5,15,0.333,3,7,0.429,3,3,1.0,0,1,1,9,1,0,3,1,16,-22.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1627777,Georges,Niang,G. Niang,georges-niang,,,,25:14,5,16,0.313,3,13,0.231,0,0,0.0,0,4,4,1,0,0,3,2,13,-23.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,19:54,6,11,0.545,1,4,0.25,1,1,1.0,1,3,4,3,3,1,0,0,14,-13.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,14:51,1,4,0.25,0,2,0.0,0,0,0.0,1,2,3,1,1,1,1,4,2,10.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1629611,Terance,Mann,T. Mann,terance-mann,,,,21:03,6,8,0.75,2,3,0.667,0,0,0.0,1,5,6,1,2,0,0,1,14,3.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,19:08,3,6,0.5,2,5,0.4,0,0,0.0,0,3,3,1,0,1,0,1,8,7.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1630811,Keaton,Wallace,K. Wallace,keaton-wallace,,,,6:04,1,2,0.5,0,0,0.0,0,0,0.0,0,1,1,3,1,1,1,0,2,11.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1631342,Daeqwon,Plowden,D. Plowden,daeqwon-plowden,,,,4:57,0,1,0.0,0,1,0.0,0,0,0.0,0,2,2,0,0,0,0,1,0,8.0,0022401128
+0022401128,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022401128

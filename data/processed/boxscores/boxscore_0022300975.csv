@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022300975,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,38:54,2,7,0.286,0,2,0.0,5,6,0.833,1,12,13,3,1,0,0,4,9,1.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,33:06,1,8,0.125,0,4,0.0,0,0,0.0,1,5,6,2,1,3,3,2,2,6.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1628392,Isaiah,Hartenstein,I. Hartenstein,isaiah-hartenstein,C,,,27:49,3,3,1.0,0,0,0.0,1,1,1.0,4,10,14,3,1,4,1,3,7,5.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1628978,Donte,DiVincenzo,D. DiVincenzo,donte-divincenzo,G,,,29:38,5,16,0.313,3,12,0.25,2,3,0.667,1,1,2,2,1,0,0,4,15,-6.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,36:14,17,28,0.607,5,10,0.5,3,4,0.75,1,3,4,2,4,1,6,1,42,5.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,,,,20:11,1,2,0.5,0,0,0.0,0,0,0.0,1,4,5,4,0,1,1,3,2,2.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,202711,Bojan,Bogdanović,B. Bogdanović,bojan-bogdanović,,,,24:00,4,11,0.364,1,5,0.2,0,0,0.0,0,4,4,1,0,0,3,2,9,7.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,11:46,0,1,0.0,0,1,0.0,0,0,0.0,0,1,1,0,0,0,0,1,0,2.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,202692,Alec,Burks,A. Burks,alec-burks,,,,18:22,4,10,0.4,2,5,0.4,2,2,1.0,1,2,3,2,0,0,0,1,12,13.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1629603,Mamadi,Diakite,M. Diakite,mamadi-diakite,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1629610,DaQuan,Jeffries,D. Jeffries,daquan-jeffries,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1629003,Shake,Milton,S. Milton,shake-milton,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612752,New York,Knicks,NYK,knicks,1630579,Jericho,Sims,J. Sims,jericho-sims,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,36:22,5,13,0.385,2,7,0.286,4,4,1.0,4,2,6,3,1,0,2,1,16,-6.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1631099,Keegan,Murray,K. Murray,keegan-murray,F,,,33:31,3,12,0.25,1,7,0.143,4,4,1.0,1,5,6,1,0,1,0,3,11,-8.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1627734,Domantas,Sabonis,D. Sabonis,domantas-sabonis,C,,,40:11,9,16,0.563,1,1,1.0,2,5,0.4,3,11,14,2,1,0,5,1,21,-13.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,G,,,15:58,0,3,0.0,0,2,0.0,0,0,0.0,0,1,1,2,1,0,0,1,0,-1.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,36:26,5,19,0.263,2,7,0.286,8,10,0.8,1,6,7,9,2,0,3,4,20,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1628370,Malik,Monk,M. Monk,malik-monk,,,,28:18,6,14,0.429,3,9,0.333,3,3,1.0,1,2,3,4,0,0,2,4,18,-2.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1630558,Davion,Mitchell,D. Mitchell,davion-mitchell,,,,11:58,0,2,0.0,0,2,0.0,0,0,0.0,0,1,1,1,0,0,0,2,0,-7.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1631165,Keon,Ellis,K. Ellis,keon-ellis,,,,29:19,2,4,0.5,1,2,0.5,0,0,0.0,0,3,3,0,2,1,0,4,5,-4.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,203458,Alex,Len,A. Len,alex-len,,,,7:17,0,2,0.0,0,0,0.0,0,0,0.0,1,0,1,0,0,3,0,0,0,6.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1630556,Kessler,Edwards,K. Edwards,kessler-edwards,,,,0:32,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1630537,Chris,Duarte,C. Duarte,chris-duarte,,,,0:08,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1630259,Jordan,Ford,J. Ford,jordan-ford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1641732,Colby,Jones,C. Jones,colby-jones,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,201580,JaVale,McGee,J. McGee,javale-mcgee,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975
+0022300975,1610612758,Sacramento,Kings,SAC,kings,1641771,Jalen,Slawson,J. Slawson,jalen-slawson,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022300975

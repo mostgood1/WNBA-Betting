@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400797,1610612752,New York,Knicks,NYK,knicks,1630173,Precious,Achiuwa,P. Achiuwa,precious-achiuwa,F,,,27:35,3,10,0.3,0,0,0.0,1,2,0.5,5,5,10,1,0,0,1,1,7,-25.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,26:45,2,6,0.333,1,3,0.333,0,0,0.0,0,0,0,0,1,0,2,1,5,-23.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,28:32,10,15,0.667,1,3,0.333,2,3,0.667,2,5,7,4,1,1,4,1,23,-21.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,29:12,6,13,0.462,2,5,0.4,0,0,0.0,1,0,1,5,1,0,1,1,14,-22.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,27:36,10,17,0.588,2,4,0.5,4,4,1.0,0,4,4,4,1,0,3,3,26,-17.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1630540,Miles,McBride,M. McBride,miles-mcbride,,,,20:53,2,5,0.4,1,3,0.333,0,0,0.0,0,3,3,0,0,0,1,0,5,-20.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,19:14,2,2,1.0,0,0,0.0,0,2,0.0,1,1,2,3,1,1,2,4,4,-16.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,18:48,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,0,0,0,1,1,2,-15.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1626166,Cameron,Payne,C. Payne,cameron-payne,,,,16:00,1,7,0.143,1,3,0.333,2,2,1.0,0,0,0,4,0,0,0,0,5,-17.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,,,12:00,3,7,0.429,1,3,0.333,0,1,0.0,0,1,1,0,2,0,1,0,7,-6.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1626153,Delon,Wright,D. Wright,delon-wright,,,,9:01,1,2,0.5,0,1,0.0,2,4,0.5,0,1,1,2,1,1,0,0,4,0.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1630346,Matt,Ryan,M. Ryan,matt-ryan,,,,4:24,1,3,0.333,1,2,0.5,0,0,0.0,0,1,1,2,0,0,0,0,3,-3.0,0022400797
+0022400797,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629622,Max,Strus,M. Strus,max-strus,F,,,21:17,2,4,0.5,1,3,0.333,0,0,0.0,0,2,2,8,1,0,2,1,5,21.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630596,Evan,Mobley,E. Mobley,evan-mobley,F,,,24:46,9,11,0.818,1,1,1.0,2,2,1.0,2,6,8,4,3,1,2,1,21,23.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628386,Jarrett,Allen,J. Allen,jarrett-allen,C,,,19:42,5,6,0.833,0,0,0.0,0,0,0.0,1,2,3,0,0,0,0,0,10,20.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1628378,Donovan,Mitchell,D. Mitchell,donovan-mitchell,G,,,26:09,10,15,0.667,5,7,0.714,2,3,0.667,0,3,3,5,1,1,1,2,27,22.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,24:59,2,12,0.167,1,6,0.167,4,6,0.667,0,4,4,5,1,0,1,0,9,25.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629660,Ty,Jerome,T. Jerome,ty-jerome,,,,18:59,7,11,0.636,3,4,0.75,2,3,0.667,2,1,3,2,2,0,1,1,19,15.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,,,,19:13,6,7,0.857,4,4,1.0,0,0,0.0,0,0,0,1,0,0,1,2,16,13.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630241,Sam,Merrill,S. Merrill,sam-merrill,,,,17:19,2,4,0.5,1,3,0.333,0,0,0.0,1,3,4,4,3,0,0,2,5,13.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1629731,Dean,Wade,D. Wade,dean-wade,,,,14:45,1,2,0.5,0,1,0.0,0,0,0.0,0,2,2,2,0,0,1,2,2,11.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1630171,Isaac,Okoro,I. Okoro,isaac-okoro,,,,18:25,3,6,0.5,0,2,0.0,0,0,0.0,1,4,5,1,0,0,1,1,6,10.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641854,Craig,Porter Jr.,C. Porter Jr.,craig-porter-jr,,,,12:00,5,6,0.833,3,3,1.0,0,0,0.0,3,3,6,3,0,0,2,1,13,6.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1642281,Jaylon,Tyson,J. Tyson,jaylon-tyson,,,,7:29,2,3,0.667,0,1,0.0,0,0,0.0,0,0,0,3,1,0,1,0,4,2.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,1641772,Nae'Qwan,Tomlin,N. Tomlin,naeqwan-tomlin,,,,7:29,2,4,0.5,0,2,0.0,1,1,1.0,1,2,3,0,0,0,1,1,5,2.0,0022400797
+0022400797,1610612739,Cleveland,Cavaliers,CLE,cavaliers,202684,Tristan,Thompson,T. Thompson,tristan-thompson,,,,7:29,0,1,0.0,0,0,0.0,0,0,0.0,0,4,4,0,0,0,1,1,0,2.0,0022400797

@@ -1,0 +1,28 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,F,,,33:53,9,18,0.5,2,8,0.25,0,0,0.0,0,3,3,4,4,0,1,1,20,5.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,203084,Harrison,Barnes,H. Barnes,harrison-barnes,F,,,23:03,6,10,0.6,1,2,0.5,0,0,0.0,3,3,6,1,1,0,0,1,13,5.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,31:26,8,15,0.533,2,5,0.4,6,8,0.75,4,8,12,2,0,1,1,5,24,-12.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,37:08,11,22,0.5,2,7,0.286,0,0,0.0,1,4,5,13,3,0,1,3,24,-4.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,101108,Chris,Paul,C. Paul,chris-paul,G,,,30:00,4,9,0.444,3,6,0.5,0,0,0.0,1,3,4,9,0,0,1,2,11,4.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,,,,22:14,2,6,0.333,1,3,0.333,0,0,0.0,1,2,3,2,5,1,1,2,5,8.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,,,,26:33,7,8,0.875,0,1,0.0,1,2,0.5,1,3,4,2,1,0,1,3,15,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,,,,20:14,3,9,0.333,0,2,0.0,5,6,0.833,0,2,2,3,1,1,3,2,11,3.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,15:29,1,4,0.25,1,3,0.333,0,0,0.0,0,2,2,0,1,0,1,1,3,-4.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1631103,Malaki,Branham,M. Branham,malaki-branham,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1630561,David,Duke Jr.,D. Duke Jr.,david-duke-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1631127,Harrison,Ingram,H. Ingram,harrison-ingram,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1630572,Sandro,Mamukelashvili,S. Mamukelashvili,sandro-mamukelashvili,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612759,San Antonio,Spurs,SAS,spurs,1631104,Blake,Wesley,B. Wesley,blake-wesley,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1642258,Zaccharie,Risacher,Z. Risacher,zaccharie-risacher,F,,,23:16,3,8,0.375,0,3,0.0,0,0,0.0,0,1,1,0,0,0,0,3,6,0.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1629631,De'Andre,Hunter,D. Hunter,deandre-hunter,F,,,38:33,8,15,0.533,6,11,0.545,0,0,0.0,1,9,10,5,2,0,3,2,22,4.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1630168,Onyeka,Okongwu,O. Okongwu,onyeka-okongwu,C,,,30:47,13,16,0.813,3,5,0.6,1,2,0.5,4,8,12,5,0,1,1,2,30,12.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1630700,Dyson,Daniels,D. Daniels,dyson-daniels,G,,,38:21,8,14,0.571,1,2,0.5,2,2,1.0,2,6,8,7,2,0,2,2,19,5.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1629027,Trae,Young,T. Young,trae-young,G,,,42:56,10,21,0.476,3,11,0.273,9,11,0.818,0,2,2,12,1,0,9,1,32,4.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1630811,Keaton,Wallace,K. Wallace,keaton-wallace,,,,11:54,2,3,0.667,1,2,0.5,0,0,0.0,0,0,0,0,0,1,1,1,5,3.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1626204,Larry,Nance Jr.,L. Nance Jr.,larry-nance-jr,,,,17:13,0,1,0.0,0,1,0.0,1,2,0.5,0,3,3,1,0,0,0,1,1,-13.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1630249,Vít,Krejčí,V. Krejčí,vít-krejčí,,,,18:53,2,4,0.5,1,2,0.5,0,0,0.0,1,4,5,2,0,0,3,1,5,-6.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1629726,Garrison,Mathews,G. Mathews,garrison-mathews,,,,7:11,0,3,0.0,0,3,0.0,0,0,0.0,0,1,1,1,0,0,1,0,0,-8.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1631230,Dominick,Barlow,D. Barlow,dominick-barlow,,,,10:56,2,6,0.333,1,2,0.5,0,1,0.0,0,3,3,0,0,3,0,1,5,-6.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1631243,Mouhamed,Gueye,M. Gueye,mouhamed-gueye,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
+0022400719,1610612737,Atlanta,Hawks,ATL,hawks,1631223,David,Roddy,D. Roddy,david-roddy,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022400719
