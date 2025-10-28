@@ -107,36 +107,51 @@ class NPUGamePredictor:
         """Load ONNX models and fallback sklearn models"""
         print("[INFO][LOADING] Loading NBA Game Models with NPU acceleration...")
         
-        # Load feature columns
-        feature_path = self.models_dir / "feature_columns.joblib"
-        if feature_path.exists():
-            self.feature_columns = joblib.load(feature_path)
-            print(f"[OK] Loaded {len(self.feature_columns)} game features")
-        else:
-            raise FileNotFoundError(f"Feature columns not found: {feature_path}")
+        # Load feature columns (prefer enhanced)
+        feature_paths = [
+            self.models_dir / "feature_columns_enhanced.joblib",
+            self.models_dir / "feature_columns.joblib",
+        ]
+        for feature_path in feature_paths:
+            if feature_path.exists():
+                self.feature_columns = joblib.load(feature_path)
+                print(f"[OK] Loaded {len(self.feature_columns)} game features from {feature_path.name}")
+                break
+        if self.feature_columns is None:
+            raise FileNotFoundError("Feature columns not found: feature_columns_enhanced.joblib or feature_columns.joblib")
         
         # Load main game models (win_prob, spread_margin, totals)
         for model_name, model_type in self.model_types.items():
             # Try to load ONNX version first
-            onnx_path = self.models_dir / f"{model_name}.onnx"
-            if onnx_path.exists() and self.npu_available:
-                try:
-                    session = self._create_npu_session(str(onnx_path))
-                    self.npu_sessions[model_name] = session
-                    print(f"[OK] {model_name.upper()} loaded with NPU acceleration")
-                except Exception as e:
-                    print(f"[WARN] {model_name.upper()} NPU failed, using CPU: {e}")
+            onnx_candidates = [
+                self.models_dir / f"{model_name}_enhanced.onnx",
+                self.models_dir / f"{model_name}.onnx",
+            ]
+            for onnx_path in onnx_candidates:
+                if onnx_path.exists() and self.npu_available:
+                    try:
+                        session = self._create_npu_session(str(onnx_path))
+                        self.npu_sessions[model_name] = session
+                        print(f"[OK] {model_name.upper()} loaded with NPU acceleration ({onnx_path.name})")
+                        break
+                    except Exception as e:
+                        print(f"[WARN] {model_name.upper()} NPU failed for {onnx_path.name}: {e}")
             
             # Load sklearn fallback (only if sklearn available)
-            sklearn_path = self.models_dir / f"{model_name}.joblib"
-            if sklearn_path.exists() and SKLEARN_AVAILABLE:
-                try:
-                    self.fallback_models[model_name] = joblib.load(sklearn_path)
-                    if model_name not in self.npu_sessions:
-                        print(f"[OK] {model_name.upper()} loaded (CPU fallback)")
-                except (ImportError, ModuleNotFoundError):
-                    # Skip sklearn fallback if sklearn not available
-                    pass
+            sklearn_candidates = [
+                self.models_dir / f"{model_name}_enhanced.joblib",
+                self.models_dir / f"{model_name}.joblib",
+            ]
+            for sklearn_path in sklearn_candidates:
+                if sklearn_path.exists() and SKLEARN_AVAILABLE and model_name not in self.fallback_models:
+                    try:
+                        self.fallback_models[model_name] = joblib.load(sklearn_path)
+                        if model_name not in self.npu_sessions:
+                            print(f"[OK] {model_name.upper()} loaded (CPU fallback from {sklearn_path.name})")
+                        break
+                    except (ImportError, ModuleNotFoundError):
+                        # Skip sklearn fallback if sklearn not available
+                        pass
         
         # Load halves models (ONNX for NPU, fallback to joblib if needed)
         halves_onnx_count = 0
@@ -146,27 +161,34 @@ class NPUGamePredictor:
             self.period_models["halves"][half] = {}
             for model_type in ["win", "margin", "total"]:
                 # Try ONNX first
-                onnx_path = self.models_dir / f"halves_{half}_{model_type}.onnx"
-                if onnx_path.exists() and self.npu_available:
-                    try:
-                        session = self._create_npu_session(str(onnx_path))
-                        self.period_models["halves"][half][model_type] = ("onnx", session)
-                        halves_onnx_count += 1
-                    except Exception as e:
-                        print(f"[WARN] {half}_{model_type} ONNX failed, trying sklearn: {e}")
+                onnx_candidates = [
+                    self.models_dir / f"halves_{half}_{model_type}_enhanced.onnx",
+                    self.models_dir / f"halves_{half}_{model_type}.onnx",
+                ]
+                for onnx_path in onnx_candidates:
+                    if onnx_path.exists() and self.npu_available:
+                        try:
+                            session = self._create_npu_session(str(onnx_path))
+                            self.period_models["halves"][half][model_type] = ("onnx", session)
+                            halves_onnx_count += 1
+                            break
+                        except Exception as e:
+                            print(f"[WARN] {half}_{model_type} ONNX failed for {onnx_path.name}, trying others: {e}")
                 
                 # Fallback to sklearn joblib if ONNX not available
                 if model_type not in self.period_models["halves"][half]:
-                    halves_joblib_path = self.models_dir / "halves_models.joblib"
-                    if halves_joblib_path.exists() and SKLEARN_AVAILABLE:
-                        try:
-                            if "halves_joblib" not in self.__dict__:
-                                self.halves_joblib = joblib.load(halves_joblib_path)
-                            if half in self.halves_joblib and model_type in self.halves_joblib[half]:
-                                self.period_models["halves"][half][model_type] = ("sklearn", self.halves_joblib[half][model_type])
-                                halves_cpu_count += 1
-                        except (ImportError, ModuleNotFoundError):
-                            pass
+                    for halves_joblib_path in [self.models_dir / "halves_models_enhanced.joblib", self.models_dir / "halves_models.joblib"]:
+                        if halves_joblib_path.exists() and SKLEARN_AVAILABLE:
+                            try:
+                                if "halves_joblib" not in self.__dict__ or getattr(self, "_halves_loaded_from", None) != str(halves_joblib_path):
+                                    self.halves_joblib = joblib.load(halves_joblib_path)
+                                    self._halves_loaded_from = str(halves_joblib_path)
+                                if half in self.halves_joblib and model_type in self.halves_joblib[half]:
+                                    self.period_models["halves"][half][model_type] = ("sklearn", self.halves_joblib[half][model_type])
+                                    halves_cpu_count += 1
+                                    break
+                            except (ImportError, ModuleNotFoundError):
+                                pass
         
         if halves_onnx_count > 0:
             print(f"[OK] Loaded halves models: {halves_onnx_count} NPU, {halves_cpu_count} CPU")
@@ -181,27 +203,34 @@ class NPUGamePredictor:
             self.period_models["quarters"][quarter] = {}
             for model_type in ["win", "margin", "total"]:
                 # Try ONNX first
-                onnx_path = self.models_dir / f"quarters_{quarter}_{model_type}.onnx"
-                if onnx_path.exists() and self.npu_available:
-                    try:
-                        session = self._create_npu_session(str(onnx_path))
-                        self.period_models["quarters"][quarter][model_type] = ("onnx", session)
-                        quarters_onnx_count += 1
-                    except Exception as e:
-                        print(f"[WARN] {quarter}_{model_type} ONNX failed, trying sklearn: {e}")
+                onnx_candidates = [
+                    self.models_dir / f"quarters_{quarter}_{model_type}_enhanced.onnx",
+                    self.models_dir / f"quarters_{quarter}_{model_type}.onnx",
+                ]
+                for onnx_path in onnx_candidates:
+                    if onnx_path.exists() and self.npu_available:
+                        try:
+                            session = self._create_npu_session(str(onnx_path))
+                            self.period_models["quarters"][quarter][model_type] = ("onnx", session)
+                            quarters_onnx_count += 1
+                            break
+                        except Exception as e:
+                            print(f"[WARN] {quarter}_{model_type} ONNX failed for {onnx_path.name}, trying others: {e}")
                 
                 # Fallback to sklearn joblib if ONNX not available
                 if model_type not in self.period_models["quarters"][quarter]:
-                    quarters_joblib_path = self.models_dir / "quarters_models.joblib"
-                    if quarters_joblib_path.exists() and SKLEARN_AVAILABLE:
-                        try:
-                            if "quarters_joblib" not in self.__dict__:
-                                self.quarters_joblib = joblib.load(quarters_joblib_path)
-                            if quarter in self.quarters_joblib and model_type in self.quarters_joblib[quarter]:
-                                self.period_models["quarters"][quarter][model_type] = ("sklearn", self.quarters_joblib[quarter][model_type])
-                                quarters_cpu_count += 1
-                        except (ImportError, ModuleNotFoundError):
-                            pass
+                    for quarters_joblib_path in [self.models_dir / "quarters_models_enhanced.joblib", self.models_dir / "quarters_models.joblib"]:
+                        if quarters_joblib_path.exists() and SKLEARN_AVAILABLE:
+                            try:
+                                if "quarters_joblib" not in self.__dict__ or getattr(self, "_quarters_loaded_from", None) != str(quarters_joblib_path):
+                                    self.quarters_joblib = joblib.load(quarters_joblib_path)
+                                    self._quarters_loaded_from = str(quarters_joblib_path)
+                                if quarter in self.quarters_joblib and model_type in self.quarters_joblib[quarter]:
+                                    self.period_models["quarters"][quarter][model_type] = ("sklearn", self.quarters_joblib[quarter][model_type])
+                                    quarters_cpu_count += 1
+                                    break
+                            except (ImportError, ModuleNotFoundError):
+                                pass
         
         if quarters_onnx_count > 0:
             print(f"[OK] Loaded quarters models: {quarters_onnx_count} NPU, {quarters_cpu_count} CPU")
@@ -493,7 +522,7 @@ def train_game_models_npu(retrain: bool = True):
     print("[INFO][LOADING] NPU game model conversion complete!")
 
 
-def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -> pd.DataFrame:
+def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True, calibrate_periods: bool = True) -> pd.DataFrame:
     """Predict game outcomes using NPU-accelerated models"""
     predictor = NPUGamePredictor()
     
@@ -554,7 +583,17 @@ def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -
     
     print(f"[PERF] NPU game predictions complete: {len(features_df)} games in {total_inference_time:.1f}ms")
     print(f"[PERF] Average per game: {total_inference_time/len(features_df):.2f}ms")
-    
+
+    # Optional calibration of period predictions to enforce constraints and add team tendencies
+    if include_periods and calibrate_periods:
+        try:
+            from .period_calibration import calibrate_period_predictions, CalibrationConfig
+            cfg = CalibrationConfig()
+            pred_df = calibrate_period_predictions(pred_df, cfg)
+            print("[CAL] Applied period calibration (totals/margins constrained and blended)")
+        except Exception as e:
+            print(f"[CAL][WARN] Period calibration skipped: {e}")
+
     return pred_df
 
 

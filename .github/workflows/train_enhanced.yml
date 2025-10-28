@@ -1,0 +1,53 @@
+name: Train Enhanced Models + ONNX
+
+on:
+  workflow_dispatch:
+    inputs:
+      fetch_data:
+        description: "Fetch 2 seasons of games via NBA API before training"
+        type: boolean
+        default: true
+      python_version:
+        description: "Python version"
+        type: string
+        default: "3.11"
+
+jobs:
+  train-enhanced:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ inputs.python_version }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # Ensure training/conversion deps available
+          pip install scikit-learn>=1.5 skl2onnx>=1.16 onnx>=1.16 onnxruntime>=1.19
+
+      - name: Fetch data (optional)
+        if: inputs.fetch_data == true
+        run: |
+          python -m nba_betting.cli fetch --years 2 --with-periods --verbose --rate-delay 0.6
+
+      - name: Train enhanced + convert to ONNX
+        run: |
+          python -m nba_betting.cli train-games-enhanced-onnx
+
+      - name: Upload ONNX models
+        uses: actions/upload-artifact@v4
+        with:
+          name: enhanced-onnx-models
+          path: |
+            models/*_enhanced.onnx
+            models/halves_*_*_enhanced.onnx
+            models/quarters_*_*_enhanced.onnx
+            models/feature_columns_enhanced.joblib
+          if-no-files-found: warn
+          retention-days: 14

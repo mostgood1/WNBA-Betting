@@ -25,7 +25,7 @@ function Get-MonthRanges([DateTime]$s, [DateTime]$e) {
         $mEnd = (Get-Date $mStart).AddMonths(1).AddDays(-1)
         if ($mEnd -gt $e) { $mEnd = $e }
         if ($mEnd -lt $mStart) { break }
-        $out += ,@($mStart, $mEnd)
+        $out += [PSCustomObject]@{ Start = $mStart; End = $mEnd }
         $cur = (Get-Date $mStart).AddMonths(1)
     }
     return $out
@@ -38,18 +38,33 @@ $ranges = Get-MonthRanges -s $s -e $e
 Write-Host ("Backfill two years: {0} to {1} | months={2}" -f ($s.ToString('yyyy-MM-dd')), ($e.ToString('yyyy-MM-dd')), $ranges.Count) -ForegroundColor Cyan
 
 foreach ($pair in $ranges) {
-    $ms = $pair[0].ToString('yyyy-MM-dd')
-    $me = $pair[1].ToString('yyyy-MM-dd')
+    $ms = ($pair.Start).ToString('yyyy-MM-dd')
+    $me = ($pair.End).ToString('yyyy-MM-dd')
     Write-Host ("\n=== Month: $ms .. $me ===") -ForegroundColor Yellow
     $flag = if ($IncludeLive) { "--include-live" } else { "--finals-only" }
 
     # Boxscores
     & $Python -m nba_betting.cli backfill-boxscores --start $ms --end $me $flag --rate-delay $RateDelay
-    if ($LASTEXITCODE -ne 0) { Write-Host "Boxscores backfill failed for $ms..$me" -ForegroundColor Red }
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "Boxscores backfill failed for $ms..$me (exit=$LASTEXITCODE)" -ForegroundColor Red
+        $hadErrors = $true
+        $LASTEXITCODE = 0
+    }
 
     # PBP
     & $Python -m nba_betting.cli backfill-pbp --start $ms --end $me $flag --rate-delay $RateDelay
-    if ($LASTEXITCODE -ne 0) { Write-Host "PBP backfill failed for $ms..$me" -ForegroundColor Red }
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "PBP backfill failed for $ms..$me (exit=$LASTEXITCODE)" -ForegroundColor Red
+        $hadErrors = $true
+        $LASTEXITCODE = 0
+    }
 }
 
-Write-Host "\nBackfill complete." -ForegroundColor Green
+if ($hadErrors) {
+    Write-Host "\nBackfill completed with some errors. See logs above." -ForegroundColor Yellow
+    exit 2
+}
+else {
+    Write-Host "\nBackfill complete." -ForegroundColor Green
+    exit 0
+}

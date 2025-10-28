@@ -1464,11 +1464,62 @@ def train_games_npu_cmd(retrain: bool):
         console.print(f"Failed to train NPU game models: {e}", style="red")
 
 
+@cli.command("train-games-enhanced-onnx")
+def train_games_enhanced_onnx_cmd():
+    """Train enhanced (45-feature) game + period models on all available data, then convert to ONNX.
+
+    Outputs enhanced sklearn models (*.joblib with _enhanced suffix) and ONNX models (*.onnx with _enhanced suffix) under models/.
+    """
+    console.rule("Train Enhanced Models + Convert to ONNX")
+    try:
+        games_file = paths.data_raw / "games_nba_api.csv"
+        if not games_file.exists():
+            console.print(f"Games file not found: {games_file}. Run 'nba-betting fetch' first.", style="red"); return
+        console.print(f"Loading games from {games_file}...")
+        games = pd.read_csv(games_file)
+        # Normalize common column names from NBA API output
+        rename_map = {}
+        if 'home_team_tri' in games.columns:
+            rename_map.update({
+                'home_team_tri': 'home_team',
+                'visitor_team_tri': 'visitor_team',
+            })
+        if 'date_est' in games.columns:
+            rename_map['date_est'] = 'date'
+        if 'home_score' in games.columns:
+            rename_map['home_score'] = 'home_pts'
+        if 'visitor_score' in games.columns:
+            rename_map['visitor_score'] = 'visitor_pts'
+        if rename_map:
+            games = games.rename(columns=rename_map)
+
+        from .features_enhanced import build_features_enhanced
+        console.print("Building enhanced features (45 features incl. injuries)...", style="cyan")
+        df = build_features_enhanced(games, include_advanced_stats=True, include_injuries=True)
+
+        from .train_enhanced import train_models_enhanced
+        console.print("Training enhanced models (win/spread/total + halves/quarters)...", style="cyan")
+        metrics = train_models_enhanced(df, use_enhanced_features=True)
+        console.print({k: (None if v is None else (round(v,4) if isinstance(v, float) else v)) for k, v in metrics.items()})
+
+        # Convert to ONNX
+        console.print("Converting enhanced models to ONNX...", style="cyan")
+        try:
+            from convert_enhanced_to_onnx import convert_enhanced_models
+            convert_enhanced_models()
+        except ImportError as e:
+            console.print(f"skl2onnx not installed; install to convert to ONNX: {e}", style="yellow")
+            console.print("You can still use sklearn CPU models; NPU/ONNX requires conversion.", style="yellow")
+        console.print("Enhanced training + ONNX conversion complete.")
+    except Exception as e:
+        console.print(f"Failed to train/convert enhanced models: {e}", style="red")
+
 @cli.command("predict-games-npu")
 @click.option("--date", "date_str", type=str, required=True, help="Prediction date YYYY-MM-DD")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path (default games_predictions_npu_YYYY-MM-DD.csv)")
 @click.option("--periods/--no-periods", default=True, show_default=True, help="Include halves and quarters predictions")
-def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
+@click.option("--calibrate-periods/--no-calibrate-periods", default=True, show_default=True, help="Calibrate halves/quarters to team shares and enforce sum constraints")
+def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, calibrate_periods: bool):
     """Predict game outcomes using NPU-accelerated models for ultra-fast inference."""
     console.rule("Predict Games (NPU)")
     try:
@@ -1591,9 +1642,9 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
             except Exception:
                 console.print(f"No games found for {date_str}", style="yellow")
                 return
-    
+        
         from .games_npu import predict_games_npu
-        preds = predict_games_npu(features_df, include_periods=periods)
+        preds = predict_games_npu(features_df, include_periods=periods, calibrate_periods=calibrate_periods)
     except ImportError as e:
         console.print(f"NPU dependencies not available: {e}", style="red"); return
     except FileNotFoundError:
@@ -1604,7 +1655,7 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
     if not out_path:
         out_path = str(paths.data_processed / f"games_predictions_npu_{date_str}.csv")
     preds.to_csv(out_path, index=False)
-    console.print(f"Saved NPU game predictions to {out_path} (rows={len(preds)}; periods={periods})")
+    console.print(f"Saved NPU game predictions to {out_path} (rows={len(preds)}; periods={periods}; calibrated={calibrate_periods})")
 
 
 @cli.command("benchmark-games-npu")
@@ -2160,6 +2211,20 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
                         res.loc[i, f"quarters_{q}_win"] = r["quarters"][q].get("win", 0.5)
                         res.loc[i, f"quarters_{q}_margin"] = r["quarters"][q].get("margin", 0.0)
                         res.loc[i, f"quarters_{q}_total"] = r["quarters"][q].get("total", 50.0)
+
+        # Apply optional period calibration if all required fields present
+        try:
+            from .period_calibration import calibrate_period_predictions, CalibrationConfig
+            cfg = CalibrationConfig()
+            if {"home_team", "visitor_team", "pred_total", "pred_margin"}.issubset(set(res.columns)) or {"home_team", "visitor_team", "pred_total", "spread_margin"}.issubset(set(res.columns)):
+                # Ensure unified column names expected by calibrator
+                if "pred_total" in res.columns and "totals" not in res.columns:
+                    res.rename(columns={"pred_total": "totals"}, inplace=True)
+                if "pred_margin" in res.columns and "spread_margin" not in res.columns:
+                    res.rename(columns={"pred_margin": "spread_margin"}, inplace=True)
+                res = calibrate_period_predictions(res, cfg)
+        except Exception:
+            pass
         
     except (FileNotFoundError, ImportError) as e:
         console.print(f"⚠️  NPU predictor not available: {e}", style="yellow")
@@ -4399,6 +4464,373 @@ def run_all_improvements():
         console.print(f"[ERROR] Error generating report: {e}", style="red")
     
     console.print("\n[OK] All improvements completed!", style="green bold")
+
+
+@cli.command("backtest-period-calibration")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+@click.option("--weights", type=str, default="0.0,0.3,0.6,0.8,1.0", show_default=True, help="Comma-separated blend weights to test (0=model only, 1=shares only)")
+def backtest_period_calibration_cmd(start_date: str, end_date: str, weights: str):
+    """Backtest quarter/half calibration over a date range and report MAE for totals and margins.
+
+    For each date:
+    - Generates predictions with periods using NPU models (uncalibrated first)
+    - Applies calibration across a list of blend weights without re-running models
+    - Compares to actual line scores from data/raw/games_nba_api.csv
+    - Reports aggregate MAE per weight for: Q1..Q4 totals, H1/H2 totals, game total, and quarter margins
+    """
+    console.rule("Backtest Period Calibration")
+    try:
+        s = pd.to_datetime(start_date).date(); e = pd.to_datetime(end_date).date()
+    except Exception:
+        console.print("Invalid --start/--end (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+    # Parse weight list
+    try:
+        w_list = [float(x.strip()) for x in weights.split(',') if x.strip()]
+        w_list = [w for w in w_list if 0.0 <= w <= 1.0]
+        assert len(w_list) > 0
+    except Exception:
+        console.print("--weights must be comma-separated floats in [0,1]", style="red"); return
+
+    # Load raw games for actuals
+    raw_csv = paths.data_raw / "games_nba_api.csv"
+    if not raw_csv.exists():
+        console.print(f"Raw games not found: {raw_csv}. Run fetch first.", style="red"); return
+    raw = pd.read_csv(raw_csv)
+    # Normalize columns
+    rename_map = {}
+    if 'date_est' in raw.columns:
+        rename_map['date_est'] = 'date'
+    if 'home_team_tri' in raw.columns:
+        rename_map.update({'home_team_tri': 'home_team', 'visitor_team_tri': 'visitor_team'})
+    if 'home_score' in raw.columns:
+        rename_map['home_score'] = 'home_pts'
+    if 'visitor_score' in raw.columns:
+        rename_map['visitor_score'] = 'visitor_pts'
+    if rename_map:
+        raw = raw.rename(columns=rename_map)
+    # Restrict to date range and required cols
+    need_cols = [
+        'date','home_team','visitor_team','home_pts','visitor_pts',
+        'home_q1','home_q2','home_q3','home_q4','visitor_q1','visitor_q2','visitor_q3','visitor_q4'
+    ]
+    for c in need_cols:
+        if c not in raw.columns:
+            console.print(f"Raw games missing column: {c}", style="red"); return
+    raw['date'] = pd.to_datetime(raw['date'], errors='coerce').dt.date
+    raw = raw[(raw['date'] >= s) & (raw['date'] <= e)].copy()
+    if raw.empty:
+        console.print("No raw games in date range", style="yellow"); return
+
+    # Normalize team names to tricodes for robust merging
+    try:
+        from .teams import to_tricode as _to_tri
+        raw['home_tri'] = raw['home_team'].astype(str).map(lambda x: _to_tri(x))
+        raw['visitor_tri'] = raw['visitor_team'].astype(str).map(lambda x: _to_tri(x))
+    except Exception:
+        raw['home_tri'] = raw['home_team'].astype(str).str.upper()
+        raw['visitor_tri'] = raw['visitor_team'].astype(str).str.upper()
+
+    # Build date list
+    dates = sorted(raw['date'].unique())
+
+    # Accumulators per weight
+    metrics = {w: {
+        'sum_abs_q_total': 0.0,
+        'cnt_q_total': 0,
+        'sum_abs_h_total': 0.0,
+        'cnt_h_total': 0,
+        'sum_abs_game_total': 0.0,
+        'cnt_game_total': 0,
+        'sum_abs_q_margin': 0.0,
+        'cnt_q_margin': 0,
+    } for w in w_list}
+
+    from .games_npu import predict_games_npu
+    from .period_calibration import calibrate_period_predictions, CalibrationConfig, load_or_build_team_period_shares
+
+    # Baseline aggregators
+    metrics_equal = {
+        'sum_abs_q_total': 0.0,
+        'cnt_q_total': 0,
+        'sum_abs_h_total': 0.0,
+        'cnt_h_total': 0,
+        'sum_abs_game_total': 0.0,
+        'cnt_game_total': 0,
+        'sum_abs_q_margin': 0.0,
+        'cnt_q_margin': 0,
+    }
+    metrics_league = {k: 0 if isinstance(v, int) else 0.0 for k, v in metrics_equal.items()}
+    # Load league shares once for league-only baseline
+    try:
+        _team_shares_df, _league_share_vec = load_or_build_team_period_shares(force_recompute=False)
+    except Exception:
+        _team_shares_df, _league_share_vec = None, np.array([0.25,0.25,0.25,0.25], dtype=float)
+
+    for d in track(dates, description="Backtesting", total=len(dates)):
+        ds = pd.Timestamp(d).strftime('%Y-%m-%d')
+        # Build features for this date using the same path as predict-games-npu
+        features_path = paths.data_processed / "features.parquet"
+        csv_fallback = paths.data_processed / "features.csv"
+        features_df = None
+        try:
+            if features_path.exists():
+                df_fe = pd.read_parquet(features_path)
+                df_fe['date'] = pd.to_datetime(df_fe['date']).dt.date
+                features_df = df_fe[df_fe['date'] == d]
+            elif csv_fallback.exists():
+                df_fe = pd.read_csv(csv_fallback)
+                if 'date' in df_fe.columns:
+                    df_fe['date'] = pd.to_datetime(df_fe['date']).dt.date
+                    features_df = df_fe[df_fe['date'] == d]
+        except Exception:
+            features_df = None
+        if features_df is None or features_df.empty:
+            # Fallback: construct slate directly from raw for this date
+            try:
+                day_raw = raw[raw['date'] == d][['date','home_team','visitor_team']].dropna()
+                if not day_raw.empty:
+                    slate_df = day_raw.copy()
+                    slate_df['home_pts'] = np.nan
+                    slate_df['visitor_pts'] = np.nan
+                    # Combine with raw history to let feature builder compute form/adv stats
+                    games = pd.concat([raw.copy(), slate_df], ignore_index=True, sort=False)
+                    games['date'] = pd.to_datetime(games['date'])
+                    from .features_enhanced import build_features_enhanced
+                    feats2 = build_features_enhanced(games, include_advanced_stats=True, include_injuries=True, season=2025)
+                    feats2['date'] = pd.to_datetime(feats2['date']).dt.date
+                    features_df = feats2[feats2['date'] == d]
+            except Exception:
+                pass
+        if features_df is None or features_df.empty:
+            continue
+
+        # Predict once (uncalibrated) to get period columns
+        try:
+            base_preds = predict_games_npu(features_df, include_periods=True, calibrate_periods=False)
+        except Exception:
+            continue
+
+        # Join with actuals for that date
+        act = raw[raw['date'] == d].copy()
+        # Compute actual totals and margins per quarter and halves
+        act["q1_total"] = act["home_q1"] + act["visitor_q1"]
+        act["q2_total"] = act["home_q2"] + act["visitor_q2"]
+        act["q3_total"] = act["home_q3"] + act["visitor_q3"]
+        act["q4_total"] = act["home_q4"] + act["visitor_q4"]
+        act["h1_total"] = act["q1_total"] + act["q2_total"]
+        act["h2_total"] = act["q3_total"] + act["q4_total"]
+        act["game_total"] = act["home_pts"] + act["visitor_pts"]
+        act["q1_margin"] = act["home_q1"] - act["visitor_q1"]
+        act["q2_margin"] = act["home_q2"] - act["visitor_q2"]
+        act["q3_margin"] = act["home_q3"] - act["visitor_q3"]
+        act["q4_margin"] = act["home_q4"] - act["visitor_q4"]
+
+        # Merge keys (tricodes preferred)
+        try:
+            from .teams import to_tricode as _to_tri
+            base_preds['home_tri'] = base_preds['home_team'].astype(str).map(lambda x: _to_tri(x))
+            base_preds['visitor_tri'] = base_preds['visitor_team'].astype(str).map(lambda x: _to_tri(x))
+            act['home_tri'] = act['home_team'].astype(str).map(lambda x: _to_tri(x))
+            act['visitor_tri'] = act['visitor_team'].astype(str).map(lambda x: _to_tri(x))
+        except Exception:
+            base_preds['home_tri'] = base_preds['home_team'].astype(str).str.upper()
+            base_preds['visitor_tri'] = base_preds['visitor_team'].astype(str).str.upper()
+            act['home_tri'] = act['home_team'].astype(str).str.upper()
+            act['visitor_tri'] = act['visitor_team'].astype(str).str.upper()
+        merged_base = pd.merge(
+            base_preds,
+            act[[
+                'home_tri','visitor_tri','q1_total','q2_total','q3_total','q4_total',
+                'h1_total','h2_total','game_total','q1_margin','q2_margin','q3_margin','q4_margin']
+            ],
+            left_on=['home_tri','visitor_tri'], right_on=['home_tri','visitor_tri'], how='inner'
+        )
+        if merged_base.empty:
+            continue
+
+        # Evaluate each weight by applying calibration
+        import numpy as _np
+        for w in w_list:
+            cfg = CalibrationConfig(totals_blend_weight=w)
+            try:
+                preds = calibrate_period_predictions(merged_base.copy(), cfg)
+            except Exception:
+                continue
+            # Collect absolute errors with NaN-safe handling and proper counts
+            # Quarter totals (stack all quarters)
+            q_abs = []
+            for i in (1,2,3,4):
+                diff = _np.abs(preds.get(f"quarters_q{i}_total", _np.nan) - preds.get(f"q{i}_total", _np.nan))
+                q_abs.append(diff.values)
+            q_abs = _np.concatenate(q_abs, axis=0)
+            if q_abs.size:
+                q_mask = _np.isfinite(q_abs)
+                metrics[w]['sum_abs_q_total'] += float(_np.nansum(q_abs[q_mask]))
+                metrics[w]['cnt_q_total'] += int(q_mask.sum())
+
+            # Halves totals
+            h1 = _np.abs(preds.get("halves_h1_total", _np.nan) - preds.get("h1_total", _np.nan)).values
+            h2 = _np.abs(preds.get("halves_h2_total", _np.nan) - preds.get("h2_total", _np.nan)).values
+            for h_arr in (h1, h2):
+                h_mask = _np.isfinite(h_arr)
+                metrics[w]['sum_abs_h_total'] += float(_np.nansum(h_arr[h_mask]))
+                metrics[w]['cnt_h_total'] += int(h_mask.sum())
+
+            # Game totals (prefer 'totals' else 'pred_total')
+            g_col = 'totals' if 'totals' in preds.columns else ('pred_total' if 'pred_total' in preds.columns else None)
+            if g_col is not None:
+                g_abs = _np.abs(preds[g_col].values - preds["game_total"].values)
+                g_mask = _np.isfinite(g_abs)
+                metrics[w]['sum_abs_game_total'] += float(_np.nansum(g_abs[g_mask]))
+                metrics[w]['cnt_game_total'] += int(g_mask.sum())
+
+            # Quarter margins
+            qm_abs = []
+            for i in (1,2,3,4):
+                diff = _np.abs(preds.get(f"quarters_q{i}_margin", _np.nan) - preds.get(f"q{i}_margin", _np.nan))
+                qm_abs.append(diff.values)
+            qm_abs = _np.concatenate(qm_abs, axis=0)
+            if qm_abs.size:
+                qm_mask = _np.isfinite(qm_abs)
+                metrics[w]['sum_abs_q_margin'] += float(_np.nansum(qm_abs[qm_mask]))
+                metrics[w]['cnt_q_margin'] += int(qm_mask.sum())
+
+        # Baseline A: Equal split of predicted game total (and uniform margin)
+        try:
+            preds_eq = merged_base.copy()
+            g_col = 'totals' if 'totals' in preds_eq.columns else ('pred_total' if 'pred_total' in preds_eq.columns else None)
+            if g_col is not None:
+                g = preds_eq[g_col].astype(float)
+                sp = preds_eq.get('spread_margin', 0.0).astype(float)
+                for i in (1,2,3,4):
+                    preds_eq[f'quarters_q{i}_total'] = g / 4.0
+                    preds_eq[f'quarters_q{i}_margin'] = sp / 4.0
+                preds_eq['halves_h1_total'] = preds_eq['quarters_q1_total'] + preds_eq['quarters_q2_total']
+                preds_eq['halves_h2_total'] = preds_eq['quarters_q3_total'] + preds_eq['quarters_q4_total']
+                preds_eq['halves_h1_margin'] = preds_eq['quarters_q1_margin'] + preds_eq['quarters_q2_margin']
+                preds_eq['halves_h2_margin'] = preds_eq['quarters_q3_margin'] + preds_eq['quarters_q4_margin']
+                # Accumulate
+                q_abs = []
+                for i in (1,2,3,4):
+                    diff = _np.abs(preds_eq.get(f"quarters_q{i}_total", _np.nan) - preds_eq.get(f"q{i}_total", _np.nan))
+                    q_abs.append(diff.values)
+                q_abs = _np.concatenate(q_abs, axis=0)
+                if q_abs.size:
+                    q_mask = _np.isfinite(q_abs)
+                    metrics_equal['sum_abs_q_total'] += float(_np.nansum(q_abs[q_mask]))
+                    metrics_equal['cnt_q_total'] += int(q_mask.sum())
+                for h_pred, h_act in (("halves_h1_total","h1_total"),("halves_h2_total","h2_total")):
+                    arr = _np.abs(preds_eq.get(h_pred, _np.nan) - preds_eq.get(h_act, _np.nan)).values
+                    m = _np.isfinite(arr)
+                    metrics_equal['sum_abs_h_total'] += float(_np.nansum(arr[m]))
+                    metrics_equal['cnt_h_total'] += int(m.sum())
+                if g_col is not None and 'game_total' in preds_eq.columns:
+                    g_abs = _np.abs(preds_eq[g_col].values - preds_eq['game_total'].values)
+                    g_mask = _np.isfinite(g_abs)
+                    metrics_equal['sum_abs_game_total'] += float(_np.nansum(g_abs[g_mask]))
+                    metrics_equal['cnt_game_total'] += int(g_mask.sum())
+                qm_abs = []
+                for i in (1,2,3,4):
+                    diff = _np.abs(preds_eq.get(f"quarters_q{i}_margin", _np.nan) - preds_eq.get(f"q{i}_margin", _np.nan))
+                    qm_abs.append(diff.values)
+                qm_abs = _np.concatenate(qm_abs, axis=0)
+                if qm_abs.size:
+                    qm_mask = _np.isfinite(qm_abs)
+                    metrics_equal['sum_abs_q_margin'] += float(_np.nansum(qm_abs[qm_mask]))
+                    metrics_equal['cnt_q_margin'] += int(qm_mask.sum())
+        except Exception:
+            pass
+
+        # Baseline B: League-average shares split (and uniform margin)
+        try:
+            preds_league = merged_base.copy()
+            g_col = 'totals' if 'totals' in preds_league.columns else ('pred_total' if 'pred_total' in preds_league.columns else None)
+            if g_col is not None:
+                g = preds_league[g_col].astype(float)
+                sp = preds_league.get('spread_margin', 0.0).astype(float)
+                # Apply constant league shares to every row
+                for i, share in enumerate(_league_share_vec, start=1):
+                    preds_league[f'quarters_q{i}_total'] = g * float(share)
+                    preds_league[f'quarters_q{i}_margin'] = sp / 4.0
+                preds_league['halves_h1_total'] = preds_league['quarters_q1_total'] + preds_league['quarters_q2_total']
+                preds_league['halves_h2_total'] = preds_league['quarters_q3_total'] + preds_league['quarters_q4_total']
+                preds_league['halves_h1_margin'] = preds_league['quarters_q1_margin'] + preds_league['quarters_q2_margin']
+                preds_league['halves_h2_margin'] = preds_league['quarters_q3_margin'] + preds_league['quarters_q4_margin']
+                # Accumulate
+                q_abs = []
+                for i in (1,2,3,4):
+                    diff = _np.abs(preds_league.get(f"quarters_q{i}_total", _np.nan) - preds_league.get(f"q{i}_total", _np.nan))
+                    q_abs.append(diff.values)
+                q_abs = _np.concatenate(q_abs, axis=0)
+                if q_abs.size:
+                    q_mask = _np.isfinite(q_abs)
+                    metrics_league['sum_abs_q_total'] += float(_np.nansum(q_abs[q_mask]))
+                    metrics_league['cnt_q_total'] += int(q_mask.sum())
+                for h_pred, h_act in (("halves_h1_total","h1_total"),("halves_h2_total","h2_total")):
+                    arr = _np.abs(preds_league.get(h_pred, _np.nan) - preds_league.get(h_act, _np.nan)).values
+                    m = _np.isfinite(arr)
+                    metrics_league['sum_abs_h_total'] += float(_np.nansum(arr[m]))
+                    metrics_league['cnt_h_total'] += int(m.sum())
+                if g_col is not None and 'game_total' in preds_league.columns:
+                    g_abs = _np.abs(preds_league[g_col].values - preds_league['game_total'].values)
+                    g_mask = _np.isfinite(g_abs)
+                    metrics_league['sum_abs_game_total'] += float(_np.nansum(g_abs[g_mask]))
+                    metrics_league['cnt_game_total'] += int(g_mask.sum())
+                qm_abs = []
+                for i in (1,2,3,4):
+                    diff = _np.abs(preds_league.get(f"quarters_q{i}_margin", _np.nan) - preds_league.get(f"q{i}_margin", _np.nan))
+                    qm_abs.append(diff.values)
+                qm_abs = _np.concatenate(qm_abs, axis=0)
+                if qm_abs.size:
+                    qm_mask = _np.isfinite(qm_abs)
+                    metrics_league['sum_abs_q_margin'] += float(_np.nansum(qm_abs[qm_mask]))
+                    metrics_league['cnt_q_margin'] += int(qm_mask.sum())
+        except Exception:
+            pass
+
+    # Summarize
+    rows = []
+    for w in w_list:
+        rows.append({
+            'method': 'calibrated',
+            'weight': w,
+            'games': metrics[w]['cnt_game_total'],
+            'MAE_quarters_total': round((metrics[w]['sum_abs_q_total'] / metrics[w]['cnt_q_total']) if metrics[w]['cnt_q_total'] else float('nan'), 3),
+            'MAE_halves_total': round((metrics[w]['sum_abs_h_total'] / metrics[w]['cnt_h_total']) if metrics[w]['cnt_h_total'] else float('nan'), 3),
+            'MAE_game_total': round((metrics[w]['sum_abs_game_total'] / metrics[w]['cnt_game_total']) if metrics[w]['cnt_game_total'] else float('nan'), 3),
+            'MAE_quarters_margin': round((metrics[w]['sum_abs_q_margin'] / metrics[w]['cnt_q_margin']) if metrics[w]['cnt_q_margin'] else float('nan'), 3),
+        })
+    # Append baselines
+    rows.append({
+        'method': 'baseline_equal',
+        'weight': None,
+        'games': metrics_equal['cnt_game_total'],
+        'MAE_quarters_total': round((metrics_equal['sum_abs_q_total'] / metrics_equal['cnt_q_total']) if metrics_equal['cnt_q_total'] else float('nan'), 3),
+        'MAE_halves_total': round((metrics_equal['sum_abs_h_total'] / metrics_equal['cnt_h_total']) if metrics_equal['cnt_h_total'] else float('nan'), 3),
+        'MAE_game_total': round((metrics_equal['sum_abs_game_total'] / metrics_equal['cnt_game_total']) if metrics_equal['cnt_game_total'] else float('nan'), 3),
+        'MAE_quarters_margin': round((metrics_equal['sum_abs_q_margin'] / metrics_equal['cnt_q_margin']) if metrics_equal['cnt_q_margin'] else float('nan'), 3),
+    })
+    rows.append({
+        'method': 'baseline_league',
+        'weight': None,
+        'games': metrics_league['cnt_game_total'],
+        'MAE_quarters_total': round((metrics_league['sum_abs_q_total'] / metrics_league['cnt_q_total']) if metrics_league['cnt_q_total'] else float('nan'), 3),
+        'MAE_halves_total': round((metrics_league['sum_abs_h_total'] / metrics_league['cnt_h_total']) if metrics_league['cnt_h_total'] else float('nan'), 3),
+        'MAE_game_total': round((metrics_league['sum_abs_game_total'] / metrics_league['cnt_game_total']) if metrics_league['cnt_game_total'] else float('nan'), 3),
+        'MAE_quarters_margin': round((metrics_league['sum_abs_q_margin'] / metrics_league['cnt_q_margin']) if metrics_league['cnt_q_margin'] else float('nan'), 3),
+    })
+    out_df = pd.DataFrame(rows).sort_values('MAE_quarters_total')
+    console.print(out_df)
+    # Save optional CSV summary
+    try:
+        p = paths.data_processed / f"backtest_period_calibration_{start_date}_to_{end_date}.csv"
+        out_df.to_csv(p, index=False)
+        console.print({"summary": str(p)})
+    except Exception:
+        pass
 
 
 if __name__ == "__main__":
