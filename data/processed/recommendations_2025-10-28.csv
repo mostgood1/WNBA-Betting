@@ -1,13 +1,13 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Milwaukee Bucks,Milwaukee Bucks,New York Knicks,2025-10-28,0.18630470028331791,67.9090909090909,0.5955603681645912,,,,,,High
+ML,Milwaukee Bucks,Milwaukee Bucks,New York Knicks,2025-10-28,0.4856105965107279,110.27272727272728,0.4755728491137051,,,,,,High
 ATS,Milwaukee Bucks,Milwaukee Bucks,New York Knicks,2025-10-28,,,,8.548797607421875,2.0,6.548797607421875,-2.0,,High
-ML,Miami Heat,Miami Heat,Charlotte Hornets,2025-10-28,0.12269957053609626,-228.9090909090909,0.6959646213377557,,,,,,High
-ATS,Miami Heat,Miami Heat,Charlotte Hornets,2025-10-28,,,,5.735261917114258,-6.0,11.735261917114258,6.0,,High
-TOTAL,Under,Miami Heat,Charlotte Hornets,2025-10-28,,,,-14.301193237304688,241.5,,,227.1988067626953,High
-ML,Los Angeles Clippers,Golden State Warriors,Los Angeles Clippers,2025-10-28,0.12270468774341925,-130.0,0.5652173913043478,,,,,,High
-TOTAL,Over,Golden State Warriors,Los Angeles Clippers,2025-10-28,,,,1.83709716796875,225.5,,,227.33709716796875,Low
-ML,Washington Wizards,Washington Wizards,Philadelphia 76ers,2025-10-28,0.5334053249055614,149.36363636363637,0.4010207801676996,,,,,,High
-ATS,Washington Wizards,Washington Wizards,Philadelphia 76ers,2025-10-28,,,,4.896060109138489,4.0,0.8960601091384888,-4.0,,High
-TOTAL,Under,Washington Wizards,Philadelphia 76ers,2025-10-28,,,,-14.539138793945312,238.5,,,223.9608612060547,High
-ML,Sacramento Kings,Oklahoma City Thunder,Sacramento Kings,2025-10-28,0.13424213370025484,371.45454545454544,0.21210952564596994,,,,,,High
-TOTAL,Over,Oklahoma City Thunder,Sacramento Kings,2025-10-28,,,,3.3382110595703125,227.5,,,230.8382110595703,Medium
+ML,Miami Heat,Miami Heat,Charlotte Hornets,2025-10-28,0.1472574784755462,-213.54545454545453,0.6810669759350537,,,,,,High
+ATS,Miami Heat,Miami Heat,Charlotte Hornets,2025-10-28,,,,6.235261917114258,-5.5,11.735261917114258,5.5,,High
+TOTAL,Under,Miami Heat,Charlotte Hornets,2025-10-28,,,,-13.301193237304688,240.5,,,227.1988067626953,High
+ML,Los Angeles Clippers,Golden State Warriors,Los Angeles Clippers,2025-10-28,0.14039064690761938,-125.45454545454544,0.5564516129032258,,,,,,High
+TOTAL,Over,Golden State Warriors,Los Angeles Clippers,2025-10-28,,,,2.83709716796875,224.5,,,227.33709716796875,Medium
+ML,Washington Wizards,Washington Wizards,Philadelphia 76ers,2025-10-28,0.6055195381439199,161.0909090909091,0.38300835654596094,,,,,,High
+ATS,Washington Wizards,Washington Wizards,Philadelphia 76ers,2025-10-28,,,,5.396060109138489,4.5,0.8960601091384888,-4.5,,High
+TOTAL,Under,Washington Wizards,Philadelphia 76ers,2025-10-28,,,,-15.039138793945312,239.0,,,223.9608612060547,High
+ATS,Oklahoma City Thunder,Oklahoma City Thunder,Sacramento Kings,2025-10-28,,,,1.125920295715332,-9.0,10.125920295715332,9.0,,Low
+TOTAL,Over,Oklahoma City Thunder,Sacramento Kings,2025-10-28,,,,4.3382110595703125,226.5,,,230.8382110595703,High
