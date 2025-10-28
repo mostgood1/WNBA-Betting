@@ -1,6 +1,1 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ATS,Detroit Pistons,Detroit Pistons,Cleveland Cavaliers,2025-10-27,,,,6.926929473876953,1.5,5.426929473876953,-1.5,,High
-TOTAL,Under,Detroit Pistons,Cleveland Cavaliers,2025-10-27,,,,-10.725006103515597,237.5,,,226.7749938964844,High
-ML,Orlando Magic,Philadelphia 76ers,Orlando Magic,2025-10-27,0.2236617007579223,-156.625,0.6103263516804676,,,,,,High
-ATS,Orlando Magic,Philadelphia 76ers,Orlando Magic,2025-10-27,,,,-6.741127967834473,-2.5,-9.241127967834473,-2.5,,High
-TOTAL,Under,Philadelphia 76ers,Orlando Magic,2025-10-27,,,,-7.255920410156278,230.5,,,223.24407958984372,High
