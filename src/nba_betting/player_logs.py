@@ -36,6 +36,10 @@ def fetch_player_logs(seasons: Iterable[str]) -> pd.DataFrame:
     out = pd.concat(frames, ignore_index=True)
     out_dir = paths.data_processed
     out_dir.mkdir(parents=True, exist_ok=True)
-    out.to_parquet(out_dir / 'player_logs.parquet', index=False)
+    # Write parquet if engine available; otherwise skip parquet gracefully
+    try:
+        out.to_parquet(out_dir / 'player_logs.parquet', index=False)
+    except Exception:
+        pass
     out.to_csv(out_dir / 'player_logs.csv', index=False)
     return out

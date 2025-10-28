@@ -497,8 +497,15 @@ def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -
     """Predict game outcomes using NPU-accelerated models"""
     predictor = NPUGamePredictor()
     
-    # Prepare features
-    X = features_df[predictor.feature_columns].values.astype(np.float32)
+    # Prepare features (fill missing for inference stability)
+    X = (
+        features_df[predictor.feature_columns]
+        .copy()
+        .apply(pd.to_numeric, errors="coerce")
+        .fillna(0.0)
+        .values
+        .astype(np.float32)
+    )
     
     # Get predictions for all games
     predictions = []
@@ -517,7 +524,8 @@ def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True) -
         # Add period predictions if requested
         if include_periods:
             for period_type, period_data in pred_dict.items():
-                if period_type.startswith("_") or period_type in predictor.model_types:
+                # Skip internal keys, main models, and any non-dict entries (e.g., blended floats)
+                if period_type.startswith("_") or period_type in predictor.model_types or not isinstance(period_data, dict):
                     continue
                 for period_name, period_preds in period_data.items():
                     for pred_type, value in period_preds.items():

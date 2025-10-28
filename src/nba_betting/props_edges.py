@@ -241,6 +241,13 @@ def compute_props_edges(
             preds = _apply_biases(preds, biases)
         except Exception:
             pass
+        # Persist predictions for downstream consumers (e.g., recommendations export)
+        try:
+            out_p = paths.data_processed / f"props_predictions_{pd.to_datetime(target_date).date()}.csv"
+            out_p.parent.mkdir(parents=True, exist_ok=True)
+            preds.to_csv(out_p, index=False)
+        except Exception:
+            pass
     # Prepare prediction columns
     pred_map = {
         "pts": "pred_pts",

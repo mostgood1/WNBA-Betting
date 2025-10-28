@@ -3,6 +3,7 @@ from __future__ import annotations
 import click
 import os
 import pandas as pd
+import numpy as np
 import subprocess
 from rich.console import Console
 from rich.progress import track
@@ -15,6 +16,8 @@ import joblib
 from .elo import Elo
 from .schedule import compute_rest_for_matchups, fetch_schedule_2025_26
 from .rosters import fetch_rosters
+from .league_status import build_league_status
+from .roster_audit import audit_roster_for_date
 from .player_logs import fetch_player_logs
 from .teams import normalize_team
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
@@ -25,6 +28,8 @@ from .props_actuals import fetch_prop_actuals_via_nbastatr, upsert_props_actuals
 from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_via_nbaapi
 from .props_features import build_props_features, build_features_for_date
 from .finals import fetch_finals, write_finals_csv
+from .pbp import fetch_pbp_for_date, backfill_pbp
+from .boxscores import fetch_boxscores_for_date, backfill_boxscores
 # from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
 from .props_linear import train_linear_props_models, export_linear_to_onnx
@@ -226,21 +231,42 @@ def fetch(years: int, with_periods: bool, verbose: bool, rate_delay: float, max_
 def build_features_cmd():
     """Build features and save processed dataset"""
     console.rule("Build features")
-    # Prefer parquet then CSV; NBA API outputs
+    # Prefer CSV (engine-free) then parquet; NBA API outputs
     candidates = [
-        paths.data_raw / "games_nba_api.parquet",
         paths.data_raw / "games_nba_api.csv",
+        paths.data_raw / "games_nba_api.parquet",
     ]
     raw = next((p for p in candidates if p.exists()), None)
     if raw is None:
         console.print("No raw games file found. Run fetch first.", style="red")
         return
-    df = pd.read_parquet(raw) if raw.suffix == ".parquet" else pd.read_csv(raw)
+    # Read raw with fallback if parquet engine is missing
+    if raw.suffix == ".parquet":
+        try:
+            df = pd.read_parquet(raw)
+        except Exception:
+            alt = paths.data_raw / "games_nba_api.csv"
+            if alt.exists():
+                df = pd.read_csv(alt)
+            else:
+                raise
+    else:
+        df = pd.read_csv(raw)
     feats = build_features(df)
-    out = paths.data_processed / "features.parquet"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    feats.to_parquet(out, index=False)
-    console.print(f"Saved features to {out}")
+    out_dir = paths.data_processed
+    out_dir.mkdir(parents=True, exist_ok=True)
+    # Always write CSV for maximum compatibility (no extra deps)
+    out_csv = out_dir / "features.csv"
+    feats.to_csv(out_csv, index=False)
+    wrote_parquet = False
+    try:
+        out_pq = out_dir / "features.parquet"
+        feats.to_parquet(out_pq, index=False)
+        wrote_parquet = True
+        console.print(f"Saved features to {out_pq}")
+    except Exception as e:
+        console.print(f"Parquet write skipped (engine missing): {e}", style="yellow")
+        console.print(f"Saved features to {out_csv}")
 
 
 @cli.command()
@@ -309,6 +335,74 @@ def fetch_player_logs_cmd(seasons: str):
     console.print({"rows": int(len(df)), "players": int(df['PLAYER_ID'].nunique()), "games": int(df['GAME_ID'].nunique())})
 
 
+@cli.command("fetch-pbp")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--include-live/--finals-only", "include_live", default=False, show_default=True, help="Include in-progress games as well (may be partial logs)")
+@click.option("--rate-delay", type=float, default=0.35, show_default=True, help="Delay between game fetches (seconds)")
+def fetch_pbp_cmd(date_str: str, include_live: bool, rate_delay: float):
+    """Fetch PlayByPlay logs for all games on a date and write CSVs under data/processed.
+
+    - Per-game files under data/processed/pbp/pbp_<gameId>.csv
+    - Combined file under data/processed/pbp_<date>.csv
+    """
+    console.rule("Fetch PBP Logs")
+    try:
+        df, gids = fetch_pbp_for_date(date_str, only_final=(not include_live), rate_delay=rate_delay)
+        console.print({"date": date_str, "games": len(gids), "rows": 0 if df is None else int(len(df))})
+    except Exception as e:
+        console.print(f"Failed to fetch PBP: {e}", style="red")
+
+
+@cli.command("fetch-boxscores")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--include-live/--finals-only", "include_live", default=False, show_default=True, help="Include in-progress games as well (may be partial)")
+@click.option("--rate-delay", type=float, default=0.35, show_default=True, help="Delay between game fetches (seconds)")
+def fetch_boxscores_cmd(date_str: str, include_live: bool, rate_delay: float):
+    """Fetch BoxScoreTraditionalV3 player stats for all games on a date.
+
+    - Per-game files under data/processed/boxscores/boxscore_<gameId>.csv
+    - Combined file under data/processed/boxscores_<date>.csv
+    """
+    console.rule("Fetch Boxscores")
+    try:
+        df, gids = fetch_boxscores_for_date(date_str, only_final=(not include_live), rate_delay=rate_delay)
+        console.print({"date": date_str, "games": len(gids), "rows": 0 if df is None else int(len(df))})
+    except Exception as e:
+        console.print(f"Failed to fetch boxscores: {e}", style="red")
+
+
+@cli.command("backfill-pbp")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+@click.option("--finals-only/--include-live", "finals_only", default=True, show_default=True, help="Fetch only final games (recommended)")
+@click.option("--rate-delay", type=float, default=0.35, show_default=True, help="Delay between requests")
+def backfill_pbp_cmd(start_date: str, end_date: str, finals_only: bool, rate_delay: float):
+    """Backfill PBP logs over a date range, skipping dates that already exist."""
+    console.rule("Backfill PBP")
+    try:
+        df = backfill_pbp(start_date, end_date, only_final=finals_only, rate_delay=rate_delay)
+        rows = 0 if df is None else int(len(df))
+        console.print({"start": start_date, "end": end_date, "rows": rows})
+    except Exception as e:
+        console.print(f"Failed to backfill PBP: {e}", style="red")
+
+
+@cli.command("backfill-boxscores")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+@click.option("--finals-only/--include-live", "finals_only", default=True, show_default=True, help="Fetch only final games (recommended)")
+@click.option("--rate-delay", type=float, default=0.35, show_default=True, help="Delay between requests")
+def backfill_boxscores_cmd(start_date: str, end_date: str, finals_only: bool, rate_delay: float):
+    """Backfill boxscores over a date range, skipping dates that already exist."""
+    console.rule("Backfill Boxscores")
+    try:
+        df = backfill_boxscores(start_date, end_date, only_final=finals_only, rate_delay=rate_delay)
+        rows = 0 if df is None else int(len(df))
+        console.print({"start": start_date, "end": end_date, "rows": rows})
+    except Exception as e:
+        console.print(f"Failed to backfill boxscores: {e}", style="red")
+
+
 @cli.command("backfill-scoreboard")
 @click.option("--seasons", type=str, required=True, help="Comma-separated season end years (e.g., 2018,2019,2020)")
 @click.option("--rate-delay", type=float, default=0.8, help="Delay between day requests in seconds")
@@ -364,6 +458,40 @@ def finals_export_cmd(date_str: str | None, since_str: str | None, until_str: st
         except Exception as e:
             out.append({"date": d, "error": str(e)})
     console.print({"count": len(out), "items": out})
+
+
+@cli.command("build-league-status")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD to build league_status_<date>.csv")
+def build_league_status_cmd(date_str: str):
+    """Build unified league roster+injury status for a date and write data/processed/league_status_<date>.csv."""
+    console.rule("Build League Status")
+    try:
+        df = build_league_status(date_str)
+        rows = 0 if df is None else int(len(df))
+        out_path = (paths.data_processed / f"league_status_{date_str}.csv")
+        exists = out_path.exists()
+        console.print({"date": date_str, "rows": rows, "path": str(out_path), "wrote_file": bool(exists)})
+    except Exception as e:
+        console.print(f"Failed to build league status: {e}", style="red")
+
+
+@cli.command("audit-rosters")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD to audit league_status vs boxscores")
+def audit_rosters_cmd(date_str: str):
+    """Audit roster team assignment accuracy by comparing league_status_<date>.csv vs boxscores_<date>.csv.
+
+    Writes data/processed/roster_audit_<date>.csv and prints summary metrics.
+    """
+    console.rule("Audit Rosters")
+    try:
+        audit, summary = audit_roster_for_date(date_str)
+        if audit is None or audit.empty:
+            console.print({"date": date_str, "rows": 0, "summary": summary}, style="yellow")
+            return
+        out_path = paths.data_processed / f"roster_audit_{date_str}.csv"
+        console.print({"date": date_str, "rows": int(len(audit)), "output": str(out_path), **summary})
+    except Exception as e:
+        console.print(f"Failed to audit rosters: {e}", style="red")
 
 
 @cli.command("backfill-player-props")
@@ -565,6 +693,189 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             feats = build_features_for_date(date_str)
     except Exception as e:
         console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
+    # League-wide team cleanup (before slate filter): fix feats['team'] using latest roster, overrides, NBA API fallback; also integrate league_status
+    try:
+        import re as _re
+        from .config import paths as _paths
+        from .teams import to_tricode as _to_tri
+        import pandas as _pd
+        from pathlib import Path as _Path
+        # Load latest roster file (avoid cross-season contamination)
+        def _load_latest_roster_df():
+            try:
+                proc = _paths.data_processed
+                files = sorted(proc.glob("rosters_*.csv"))
+                if not files:
+                    return _pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+                p = files[-1]
+                df = _pd.read_csv(p)
+                if df is None or df.empty:
+                    return _pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+                cols = {c.upper(): c for c in df.columns}
+                if "TEAM_ABBREVIATION" not in cols:
+                    df["TEAM_ABBREVIATION"] = None
+                return df
+            except Exception:
+                return _pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+        # Normalize name
+        _SUFFIXES = {"jr","sr","ii","iii","iv","v"}
+        def _norm_name_key(s: str) -> str:
+            s = (s or "").strip().lower()
+            s = _re.sub(r"[^a-z0-9\s]", "", s)
+            s = _re.sub(r"\s+", " ", s).strip()
+            toks = [t for t in s.split(" ") if t and t not in _SUFFIXES]
+            return " ".join(toks)
+        # Build pid->team and name->team from latest roster
+        pid_to_tri, name_to_tri = {}, {}
+        rost = _load_latest_roster_df()
+        if not rost.empty:
+            rcols = {c.upper(): c for c in rost.columns}
+            pid_col = rcols.get("PLAYER_ID"); name_col = rcols.get("PLAYER"); tri_col = rcols.get("TEAM_ABBREVIATION")
+            if pid_col and name_col and tri_col:
+                tmp = rost[[pid_col, name_col, tri_col]].copy()
+                tmp[tri_col] = tmp[tri_col].astype(str).map(lambda x: (_to_tri(str(x)) or str(x).strip().upper()))
+                for _, r in tmp.iterrows():
+                    try:
+                        tri = str(r[tri_col]).strip().upper()
+                        if not tri:
+                            continue
+                        try:
+                            pid = int(_pd.to_numeric(r[pid_col], errors="coerce"))
+                            pid_to_tri[pid] = tri
+                        except Exception:
+                            pass
+                        try:
+                            nkey = _norm_name_key(str(r[name_col]))
+                            if nkey:
+                                name_to_tri[nkey] = tri
+                        except Exception:
+                            pass
+                    except Exception:
+                        continue
+        # Apply global roster overrides if present
+        try:
+            ov = _paths.root / "data" / "overrides" / "roster_overrides.csv"
+            if ov.exists():
+                odf = _pd.read_csv(ov)
+                if odf is not None and not odf.empty:
+                    ocols = {c.upper(): c for c in odf.columns}
+                    opid = ocols.get("PLAYER_ID"); oname = ocols.get("PLAYER"); otri = ocols.get("TEAM_ABBREVIATION")
+                    if otri and (opid or oname):
+                        tmpo = odf[[c for c in [opid, oname, otri] if c]].copy()
+                        tmpo[otri] = tmpo[otri].astype(str).map(lambda x: (_to_tri(str(x)) or str(x).strip().upper()))
+                        for _, r in tmpo.iterrows():
+                            try:
+                                tri = str(r[otri]).strip().upper()
+                                if not tri:
+                                    continue
+                                if opid and _pd.notna(r.get(opid)):
+                                    try:
+                                        pid = int(_pd.to_numeric(r[opid], errors="coerce"))
+                                        pid_to_tri[pid] = tri
+                                    except Exception:
+                                        pass
+                                if oname and _pd.notna(r.get(oname)):
+                                    try:
+                                        nkey = _norm_name_key(str(r[oname]))
+                                        if nkey:
+                                            name_to_tri[nkey] = tri
+                                    except Exception:
+                                        pass
+                            except Exception:
+                                continue
+        except Exception:
+            pass
+        # Load cache and resolver using nba_api CommonPlayerInfo
+        cache_p = _paths.data_processed / "player_team_cache.csv"
+        cache = {}
+        if cache_p.exists():
+            try:
+                cdf = _pd.read_csv(cache_p)
+                if cdf is not None and not cdf.empty and {"player_id","team"}.issubset(set(cdf.columns)):
+                    for _, r in cdf.iterrows():
+                        try:
+                            cache[int(_pd.to_numeric(r["player_id"], errors="coerce"))] = str(r["team"]).strip().upper()
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+        def _resolve_pid_team(pid: int) -> str | None:
+            if pid in pid_to_tri:
+                return pid_to_tri[pid]
+            if pid in cache:
+                return cache[pid]
+            # NBA API call with small timeout and graceful failure
+            try:
+                from nba_api.stats.endpoints import commonplayerinfo as _cpi
+                resp = _cpi.CommonPlayerInfo(player_id=int(pid), timeout=10)
+                nd = resp.get_normalized_dict()
+                rows = nd.get("CommonPlayerInfo", [])
+                if rows:
+                    tri = str(rows[0].get("TEAM_ABBREVIATION") or "").strip().upper()
+                    if tri:
+                        cache[pid] = tri
+                        return tri
+            except Exception:
+                return None
+            return None
+        # Apply mapping to feats
+        if not feats.empty and ("team" in feats.columns):
+            try:
+                feats = feats.copy()
+                # Prefer pid, then name
+                if "player_id" in feats.columns:
+                    feats["player_id"] = _pd.to_numeric(feats["player_id"], errors="coerce")
+                if "player_name" in feats.columns:
+                    feats["_name_key"] = feats["player_name"].astype(str).map(_norm_name_key)
+                # Resolve team
+                def _team_row(row):
+                    # roster override via pid
+                    pid = row.get("player_id") if "player_id" in row else None
+                    tri = None
+                    if pid is not None and _pd.notna(pid):
+                        tri = _resolve_pid_team(int(pid))
+                    if not tri and "_name_key" in row and row.get("_name_key"):
+                        tri = name_to_tri.get(row.get("_name_key"))
+                    if not tri:
+                        # keep existing but normalize
+                        tri = _to_tri(str(row.get("team"))) or str(row.get("team") or "").strip().upper()
+                    return tri
+                feats["team"] = feats.apply(_team_row, axis=1)
+                # Clean up
+                feats.drop(columns=["_name_key"], inplace=True, errors="ignore")
+            except Exception:
+                pass
+        # Persist cache
+        try:
+            if cache:
+                rows = [(k, v) for k, v in cache.items()]
+                _pd.DataFrame(rows, columns=["player_id","team"]).to_csv(cache_p, index=False)
+        except Exception:
+            pass
+        # Integrate league_status (ensures FA/non-playing dropped and team corrected)
+        try:
+            ls = build_league_status(date_str)
+            if ls is not None and not ls.empty and {"player_id","team","injury_status","team_on_slate","playing_today"}.issubset(set(ls.columns)) and ("player_id" in feats.columns):
+                feats = feats.copy()
+                feats["player_id"] = _pd.to_numeric(feats["player_id"], errors="coerce")
+                ls2 = ls[["player_id","team","injury_status","team_on_slate","playing_today"]].copy()
+                ls2["player_id"] = _pd.to_numeric(ls2["player_id"], errors="coerce")
+                feats = feats.merge(ls2, on="player_id", how="left", suffixes=("","_ls"))
+                feats["team"] = feats["team"].where(feats["team"].astype(str).str.len()>0, feats["team_ls"]).fillna(feats["team_ls"])
+                def _ok(row):
+                    t = str(row.get("team") or "").strip().upper()
+                    if not t:
+                        return False
+                    pt = row.get("playing_today")
+                    if _pd.notna(pt) and (pt is False):
+                        return False
+                    return True
+                feats = feats[feats.apply(_ok, axis=1)].drop(columns=[c for c in feats.columns if c.endswith("_ls")], errors="ignore")
+        except Exception as _ee:
+            pass
+    except Exception:
+        pass
+
     # Optional slate filter using ScoreboardV2, with fallback to OddsAPI game odds
     if slate_only:
         slate_applied = False
@@ -670,6 +981,8 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         if not grp_cols:
                             grp_cols = ["player"]
                         latest = inj.groupby(grp_cols, as_index=False).tail(1)
+                        # Ensure a standalone copy before column assignments to avoid SettingWithCopyWarning
+                        latest = latest.copy()
                         latest["team_tri"] = latest["team"].astype(str).map(lambda x: _to_tri(str(x)))
                         latest["player_key"] = latest["player"].astype(str).map(_norm_name_key)
                         latest["status_norm"] = latest["status"].astype(str).str.upper()
@@ -724,6 +1037,126 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                 feats = tmp.drop(columns=["team_tri","player_key"], errors="ignore")
     except Exception as _e:
         console.print(f"Injury filter skipped: {_e}", style="yellow")
+
+    # Enforce slate participants via OddsAPI player props (today-only hard filter to remove misassigned players)
+    try:
+        from .config import paths as _paths
+        import pandas as _pd
+        import re as _re
+        raw_props = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+        if raw_props.exists() and not feats.empty and ("player_name" in feats.columns):
+            props = _pd.read_csv(raw_props)
+            if props is not None and not props.empty:
+                name_col = next((c for c in props.columns if c.lower() in ("player","player_name","name")), None)
+                if name_col:
+                    def _norm(s: str) -> str:
+                        s = (s or "").strip().lower()
+                        s = _re.sub(r"[^a-z0-9\s]", "", s)
+                        s = _re.sub(r"\s+", " ", s).strip()
+                        toks = [t for t in s.split(" ") if t not in {"jr","sr","ii","iii","iv","v"}]
+                        return " ".join(toks)
+                    pset = set(props[name_col].astype(str).map(_norm).tolist())
+                    feats["_pkey"] = feats["player_name"].astype(str).map(_norm)
+                    before = len(feats)
+                    feats = feats[feats["_pkey"].isin(pset)].drop(columns=["_pkey"], errors="ignore")
+                    removed = before - len(feats)
+                    if removed > 0:
+                        console.print(f"Pruned non-participants via OddsAPI props: removed {removed} rows", style="yellow")
+    except Exception as _e:
+        console.print(f"Participants filter skipped: {_e}", style="yellow")
+
+    # Sanity filter using latest team from player logs (and name->id fallback):
+    # drop rows whose last known team is neither their current team nor one of today's slate teams
+    try:
+        from .config import paths as _paths
+        from .teams import to_tricode as _to_tri
+        import pandas as _pd
+        if not feats.empty and ("player_id" in feats.columns) and ("team" in feats.columns):
+            logs_p = _paths.data_processed / "player_logs.csv"
+            if logs_p.exists():
+                lg = _pd.read_csv(logs_p)
+                if lg is not None and not lg.empty:
+                    c = {c.upper(): c for c in lg.columns}
+                    pid_c = c.get("PLAYER_ID"); team_c = c.get("TEAM_ABBREVIATION"); date_c = c.get("GAME_DATE") or c.get("GAME_DATE_EST")
+                    if pid_c and team_c:
+                        tmp = lg.copy()
+                        if date_c:
+                            tmp[date_c] = _pd.to_datetime(tmp[date_c], errors="coerce")
+                            tmp = tmp.sort_values([pid_c, date_c])
+                            last = tmp.groupby(pid_c, as_index=False).tail(1)
+                        else:
+                            last = tmp.drop_duplicates(subset=[pid_c], keep="last")
+                        last = last[[pid_c, team_c]].copy().rename(columns={pid_c:"player_id", team_c:"last_team"})
+                        last["player_id"] = _pd.to_numeric(last["player_id"], errors="coerce")
+                        last["last_team"] = last["last_team"].astype(str).map(lambda x: (_to_tri(str(x)) or str(x).strip().upper()))
+                        feats = feats.merge(last, on="player_id", how="left")
+                        # Fallback: resolve missing last_team by mapping name -> player_id via nba_api static players
+                        if "last_team" in feats.columns:
+                            missing = feats["last_team"].isna()
+                        else:
+                            feats["last_team"] = _pd.NA
+                            missing = feats["last_team"].isna()
+                        if missing.any():
+                            try:
+                                from nba_api.stats.static import players as _static_players
+                                plist = _static_players.get_players()
+                                if plist:
+                                    pdf = _pd.DataFrame(plist)
+                                    cpl = {c.lower(): c for c in pdf.columns}
+                                    if cpl.get("id") and cpl.get("full_name"):
+                                        pdf = pdf.rename(columns={cpl["id"]: "pid", cpl["full_name"]: "pname"})
+                                        def _norm(s: str) -> str:
+                                            import re as __re
+                                            s = (s or "").strip().lower()
+                                            s = __re.sub(r"[^a-z0-9\s]", "", s)
+                                            s = __re.sub(r"\s+", " ", s).strip()
+                                            toks = [t for t in s.split(" ") if t not in {"jr","sr","ii","iii","iv","v"}]
+                                            return " ".join(toks)
+                                        pdf["_key"] = pdf["pname"].astype(str).map(_norm)
+                                        feats["_key"] = feats["player_name"].astype(str).map(_norm)
+                                        kmap = pdf[["_key","pid"]].drop_duplicates()
+                                        feats = feats.merge(kmap, on="_key", how="left")
+                                        # fill last_team using logs by name-resolved pid
+                                        last2 = last.rename(columns={"player_id":"pid"})
+                                        feats = feats.merge(last2, on="pid", how="left", suffixes=("","_byname"))
+                                        feats["last_team"] = feats["last_team"].fillna(feats.get("last_team_byname"))
+                                        feats = feats.drop(columns=[c for c in ["_key","pid","last_team_byname"] if c in feats.columns], errors="ignore")
+                            except Exception:
+                                pass
+                        # Build today's event team set
+                        slate_teams = set()
+                        try:
+                            go_path = _paths.data_processed / f"game_odds_{date_str}.csv"
+                            go = _pd.read_csv(go_path) if go_path.exists() else _pd.DataFrame()
+                            if not go.empty:
+                                hcol = "home_team" if "home_team" in go.columns else None
+                                acol = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                                if hcol and acol:
+                                    for _, r in go.iterrows():
+                                        h = _to_tri(str(r.get(hcol) or "")); a = _to_tri(str(r.get(acol) or ""))
+                                        if h: slate_teams.add(h)
+                                        if a: slate_teams.add(a)
+                        except Exception:
+                            pass
+                        def _keep(row):
+                            t = str(row.get("team") or "").strip().upper()
+                            lt = str(row.get("last_team") or "").strip().upper()
+                            if not lt:
+                                return True
+                            if lt == t:
+                                return True
+                            if slate_teams and (lt in slate_teams):
+                                # allow if last team is one of today's teams (recent trade edge case)
+                                return True
+                            return False
+                        before = len(feats)
+                        feats = feats[feats.apply(_keep, axis=1)]
+                        dropped = before - len(feats)
+                        if dropped > 0:
+                            console.print(f"Dropped {dropped} rows by last-team sanity filter", style="yellow")
+                        feats = feats.drop(columns=["last_team"], errors="ignore")
+    except Exception as _e:
+        console.print(f"Logs-based sanity filter skipped: {_e}", style="yellow")
 
     # Predict using pure ONNX only
     # Predict using pure ONNX only
@@ -1039,13 +1472,28 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
     """Predict game outcomes using NPU-accelerated models for ultra-fast inference."""
     console.rule("Predict Games (NPU)")
     try:
-        # Load features for the date
+        # Load features for the date (prefer parquet; fallback to CSV to avoid parquet engine dependency)
         features_path = paths.data_processed / "features.parquet"
-        if not features_path.exists():
+        csv_fallback = paths.data_processed / "features.csv"
+        if not features_path.exists() and not csv_fallback.exists():
             console.print("Features not found. Run build-features first.", style="red")
             return
-        
-        features_df = pd.read_parquet(features_path)
+
+        try:
+            if features_path.exists():
+                features_df = pd.read_parquet(features_path)
+            else:
+                raise FileNotFoundError
+        except Exception:
+            # Parquet engine likely missing; try CSV fallback
+            if csv_fallback.exists():
+                features_df = pd.read_csv(csv_fallback)
+            else:
+                console.print(
+                    "Failed to read features.parquet (pyarrow/fastparquet missing) and CSV fallback not found.",
+                    style="red",
+                )
+                return
         
         # Filter to the specific date if provided
         if 'date' in features_df.columns:
@@ -1054,8 +1502,95 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool):
             features_df = features_df[features_df['date'] == target_date]
         
         if features_df.empty:
-            console.print(f"No games found for {date_str}", style="yellow")
-            return
+            # Fallbacks to build enhanced slate features even without parquet engine or prewritten odds:
+            # 1) If standardized game odds CSV exists, use it to derive slate
+            # 2) Else, fall back to processed season schedule to derive slate (no market lines, but teams/pairs)
+            try:
+                odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                raw_games_csv = paths.data_raw / "games_nba_api.csv"
+                slate_df = None
+
+                if odds_path.exists():
+                    slate = pd.read_csv(odds_path)
+                    # normalize team columns
+                    home_col = "home_team" if "home_team" in slate.columns else ("home" if "home" in slate.columns else None)
+                    away_col = "visitor_team" if "visitor_team" in slate.columns else ("away" if "away" in slate.columns else None)
+                    if home_col and away_col:
+                        slate_df = pd.DataFrame({
+                            "date": pd.to_datetime(date_str),
+                            "home_team": slate[home_col].astype(str),
+                            "visitor_team": slate[away_col].astype(str),
+                            "home_pts": np.nan,
+                            "visitor_pts": np.nan,
+                        })
+
+                # Fallback to schedule if odds are unavailable
+                if slate_df is None:
+                    try:
+                        # Infer schedule filename for current season (e.g., schedule_2025_26.csv)
+                        d = pd.to_datetime(date_str)
+                        season_end = d.year if d.month >= 7 else d.year  # 2025-26 season still ends in 2026 but filename includes 2025_26
+                        season_str = f"{season_end}_26" if str(season_end).endswith("25") else "2025_26"  # conservative default
+                        sched_path = paths.data_processed / f"schedule_{season_str}.csv"
+                        if not sched_path.exists():
+                            # Try known current schedule file if present
+                            sched_path = paths.data_processed / "schedule_2025_26.csv"
+                        if sched_path.exists():
+                            sch = pd.read_csv(sched_path)
+                            # Normalize columns
+                            cols = {c.lower(): c for c in sch.columns}
+                            if all(k in cols for k in ["date_utc","home_tricode","away_tricode"]) or all(k in cols for k in ["date_utc","home_team_id","away_team_id"]):
+                                sch[cols.get("date_utc")] = pd.to_datetime(sch[cols.get("date_utc")], errors="coerce").dt.date
+                                td = pd.to_datetime(date_str).date()
+                                day = sch[sch[cols.get("date_utc")] == td].copy()
+                                if not day.empty:
+                                    # Prefer tricodes if available; otherwise attempt to map IDs later via normalization
+                                    if "home_tricode" in (c.lower() for c in sch.columns) and "away_tricode" in (c.lower() for c in sch.columns):
+                                        # Build from tricodes
+                                        hc = cols.get("home_tricode"); ac = cols.get("away_tricode")
+                                        slate_df = pd.DataFrame({
+                                            "date": pd.to_datetime(date_str),
+                                            "home_team": day[hc].astype(str),
+                                            "visitor_team": day[ac].astype(str),
+                                            "home_pts": np.nan,
+                                            "visitor_pts": np.nan,
+                                        })
+                                    elif all(k in cols for k in ["home_team_id","away_team_id"]):
+                                        # If only IDs present, we will later rely on normalization utilities
+                                        hc = cols.get("home_team_id"); ac = cols.get("away_team_id")
+                                        slate_df = pd.DataFrame({
+                                            "date": pd.to_datetime(date_str),
+                                            "home_team": day[hc].astype(str),
+                                            "visitor_team": day[ac].astype(str),
+                                            "home_pts": np.nan,
+                                            "visitor_pts": np.nan,
+                                        })
+                    except Exception:
+                        pass
+
+                if slate_df is not None and not slate_df.empty and raw_games_csv.exists():
+                    raw_games = pd.read_csv(raw_games_csv)
+                    # Ensure columns exist
+                    for col in ["date","home_team","visitor_team","home_pts","visitor_pts"]:
+                        if col not in raw_games.columns:
+                            raw_games[col] = np.nan
+                    # Normalize date type
+                    raw_games["date"] = pd.to_datetime(raw_games["date"], errors="coerce")
+                    games = pd.concat([raw_games, slate_df], ignore_index=True, sort=False)
+                    # Build enhanced features (adds pace/ratings + injuries)
+                    from .features_enhanced import build_features_enhanced
+                    feats2 = build_features_enhanced(games, include_advanced_stats=True, include_injuries=True, season=2025)
+                    # Filter to target date
+                    feats2["date"] = pd.to_datetime(feats2["date"]).dt.date
+                    target_date = pd.to_datetime(date_str).date()
+                    features_df = feats2[feats2["date"] == target_date]
+
+                if features_df.empty:
+                    console.print(f"No games found for {date_str}", style="yellow")
+                    return
+            except Exception:
+                console.print(f"No games found for {date_str}", style="yellow")
+                return
     
         from .games_npu import predict_games_npu
         preds = predict_games_npu(features_df, include_periods=periods)
@@ -1185,10 +1720,13 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         d = pd.to_datetime(date_str).date()
     except Exception:
         console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+    # Prefer NPU game predictions if available, else fall back to baseline predictions
+    pred_npu = paths.data_processed / f"games_predictions_npu_{date_str}.csv"
     pred = paths.data_processed / f"predictions_{date_str}.csv"
-    if not pred.exists():
-        console.print(f"Predictions not found: {pred}", style="red"); return
-    df = pd.read_csv(pred)
+    use_path = pred_npu if pred_npu.exists() else pred
+    if not use_path.exists():
+        console.print(f"Predictions not found: {use_path}", style="red"); return
+    df = pd.read_csv(use_path)
     # Optional: try merge standardized game_odds CSV
     odds_csv = paths.data_processed / f"game_odds_{date_str}.csv"
     if odds_csv.exists():
@@ -1263,7 +1801,12 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         try:
             home = r.get("home_team"); away = r.get("visitor_team")
             # ML
+            # Prefer explicit home_win_prob; fall back to NPU names
             p_home = _num(r.get("home_win_prob"))
+            if p_home is None:
+                p_home = _num(r.get("win_prob"))
+            if p_home is None:
+                p_home = _num(r.get("win_prob_from_spread"))
             ev_h = _ev(p_home, r.get("home_ml")) if p_home is not None else None
             ev_a = _ev((1-p_home) if p_home is not None else None, r.get("away_ml"))
             if ev_h is not None or ev_a is not None:
@@ -1283,7 +1826,11 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
                         "tier": _tier('ML', float(ev_ml), None),
                     })
             # ATS
-            pm = _num(r.get("pred_margin")); hs = _num(r.get("home_spread"))
+            # Use model margin from baseline or NPU column
+            pm = _num(r.get("pred_margin"))
+            if pm is None:
+                pm = _num(r.get("spread_margin"))
+            hs = _num(r.get("home_spread"))
             if pm is not None and hs is not None:
                 edge_spread = pm - (-hs)
                 if abs(edge_spread) >= 1.0:
@@ -1302,7 +1849,11 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
                         "tier": _tier('ATS', None, float(edge_spread)),
                     })
             # TOTAL
-            pt = _num(r.get("pred_total")); tot = _num(r.get("total"))
+            # Use model total from baseline or NPU column
+            pt = _num(r.get("pred_total"))
+            if pt is None:
+                pt = _num(r.get("totals"))
+            tot = _num(r.get("total"))
             if pt is not None and tot is not None:
                 edge_total = pt - tot
                 if abs(edge_total) >= 1.5:

@@ -528,6 +528,27 @@ def _get_slate_team_tricodes(date_str: str) -> set[str]:
         pass
     return teams
 
+def _load_latest_rosters() -> pd.DataFrame:
+    """Load the most recent season rosters_*.csv from processed; return empty DF if not found."""
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        files = sorted(proc.glob("rosters_*.csv"))
+        if not files:
+            return pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+        p = files[-1]
+        df = pd.read_csv(p)
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            return pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+        # Normalize expected columns
+        cols = {c.upper(): c for c in df.columns}
+        if "PLAYER" not in cols or "PLAYER_ID" not in cols:
+            return pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+        if "TEAM_ABBREVIATION" not in cols:
+            df["TEAM_ABBREVIATION"] = None
+        return df
+    except Exception:
+        return pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
+
 def _build_roster_team_maps() -> tuple[dict[int, str], dict[str, str]]:
     """Return maps for player_id->team_tri and name_key->team_tri from processed rosters.
 
@@ -536,7 +557,8 @@ def _build_roster_team_maps() -> tuple[dict[int, str], dict[str, str]]:
     pid_to_tri: dict[int, str] = {}
     name_to_tri: dict[str, str] = {}
     try:
-        rost = _ensure_rosters_loaded()
+        # Use only the latest season roster file to avoid cross-season contamination
+        rost = _load_latest_rosters()
         if isinstance(rost, pd.DataFrame) and not rost.empty:
             cols = {c.upper(): c for c in rost.columns}
             pid_col = cols.get("PLAYER_ID"); name_col = cols.get("PLAYER"); tri_col = cols.get("TEAM_ABBREVIATION")
@@ -704,6 +726,27 @@ def _correct_props_long_with_roster_and_games(long: pd.DataFrame, date_str: str)
         return tmp
     except Exception:
         return long
+
+# Lightweight team validation via NBA API for specific player_ids (cached)
+_pid_team_cache: dict[int, str] = {}
+def _team_for_player_via_nba_api(pid: int) -> Optional[str]:
+    try:
+        if pid in _pid_team_cache:
+            return _pid_team_cache[pid]
+        try:
+            from nba_api.stats.endpoints import commonplayerinfo as _cpi
+            r = _cpi.CommonPlayerInfo(player_id=int(pid), timeout=10)
+            nd = r.get_normalized_dict()
+            rows = nd.get("CommonPlayerInfo", [])
+            if rows:
+                tri = str(rows[0].get("TEAM_ABBREVIATION") or "").strip().upper()
+                if tri:
+                    _pid_team_cache[int(pid)] = tri
+                    return tri
+        except Exception:
+            return None
+    except Exception:
+        return None
 
 # ---- Finals export helpers (module-level) ----
 def _finals_from_cdn_all(date_str_local: str) -> pd.DataFrame:
@@ -2403,6 +2446,20 @@ def api_props():
             long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
             long["stat"] = long["stat_col"].map(use)
             long.drop(columns=["stat_col"], inplace=True)
+            # Limit to today's slate teams unless explicitly overridden
+            try:
+                slate_param = (request.args.get("slateOnly", request.args.get("slate-only", "1")) or "1").strip().lower()
+                slate_only = slate_param not in ("0","false","no")
+            except Exception:
+                slate_only = True
+            if slate_only:
+                try:
+                    tris = _get_slate_team_tricodes(d)
+                    if tris:
+                        long["_team_tri"] = long["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                        long = long[long["_team_tri"].isin(tris)].drop(columns=["_team_tri"], errors="ignore")
+                except Exception:
+                    pass
             # Exclude injured players by default (excludeInjured=1)
             try:
                 excl_param = (request.args.get("excludeInjured", "1") or "1").strip().lower()
@@ -2442,6 +2499,45 @@ def api_props():
                     long = long[long["_team_tri"].isin(want)].drop(columns=["_team_tri"], errors="ignore")
                 except Exception:
                     long = long[long["team"].astype(str).str.strip().str.upper().isin(want)]
+                # Optional per-day team roster overrides: data/overrides/team_roster_<date>.csv
+                try:
+                    ov = BASE_DIR / "data" / "overrides" / f"team_roster_{d}.csv"
+                    if ov.exists():
+                        ovdf = pd.read_csv(ov)
+                        if not ovdf.empty:
+                            ocols = {c.upper(): c for c in ovdf.columns}
+                            tcol = ocols.get("TEAM_ABBREVIATION") or ocols.get("TEAM")
+                            ncol = ocols.get("PLAYER")
+                            if tcol and ncol:
+                                subset = ovdf[ovdf[tcol].astype(str).str.upper().isin(want)][[tcol, ncol]].copy()
+                                if not subset.empty:
+                                    subset["_name_key"] = subset[ncol].astype(str).map(_norm_player_name)
+                                    long["_name_key"] = long["player_name"].astype(str).map(_norm_player_name)
+                                    allow = set(subset["_name_key"].unique().tolist())
+                                    long = long[long["_name_key"].isin(allow)].drop(columns=["_name_key"], errors="ignore")
+                except Exception:
+                    pass
+                # Optional precise validation against NBA API for single-team queries
+                try:
+                    validate = (request.args.get("validateTeam", "1") or "1").strip().lower() not in ("0","false","no")
+                except Exception:
+                    validate = True
+                if validate and len(want) == 1 and "player_id" in long.columns:
+                    try:
+                        target = next(iter(want))
+                        tmp = long.copy()
+                        tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
+                        # Resolve team via NBA API for present player_ids (cached) and filter mismatches
+                        def _chk(row):
+                            pid = row.get("player_id")
+                            if pd.isna(pid):
+                                return True  # cannot validate
+                            tri = _team_for_player_via_nba_api(int(pid))
+                            return (tri is None) or (tri == target)
+                        mask = tmp.apply(_chk, axis=1)
+                        long = tmp[mask]
+                    except Exception:
+                        pass
             player_q = (request.args.get("player") or "").strip().lower()
             if player_q:
                 long = long[long.get("player_name").astype(str).str.lower().str.contains(player_q)]
