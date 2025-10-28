@@ -1,6 +1,6 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-10-28,2025-10-28T23:30:00Z,Miami Heat,Charlotte Hornets,-210.1818181818182,174.9090909090909,-5.5,5.5,240.5,oddsapi_consensus
-2025-10-28,2025-10-29T03:00:00Z,Golden State Warriors,Los Angeles Clippers,103.81818181818181,-124.36363636363636,2.0,-2.0,224.5,oddsapi_consensus
-2025-10-28,2025-10-28T23:10:00Z,Washington Wizards,Philadelphia 76ers,158.8181818181818,-189.8181818181818,4.5,-4.5,239.5,oddsapi_consensus
-2025-10-28,2025-10-29T00:00:00Z,Milwaukee Bucks,New York Knicks,110.36363636363636,-131.54545454545453,2.0,-2.0,229.5,oddsapi_consensus
-2025-10-28,2025-10-29T00:10:00Z,Oklahoma City Thunder,Sacramento Kings,-401.54545454545456,311.09090909090907,-9.0,9.0,226.5,oddsapi_consensus
+2025-10-28,2025-10-28T23:30:00Z,Miami Heat,Charlotte Hornets,-187.54545454545453,157.0,-4.5,4.5,240.5,oddsapi_consensus
+2025-10-28,2025-10-29T03:00:00Z,Golden State Warriors,Los Angeles Clippers,103.81818181818181,-124.18181818181819,2.0,-2.0,224.5,oddsapi_consensus
+2025-10-28,2025-10-28T23:10:00Z,Washington Wizards,Philadelphia 76ers,159.54545454545453,-190.0909090909091,4.5,-4.5,239.5,oddsapi_consensus
+2025-10-28,2025-10-29T00:00:00Z,Milwaukee Bucks,New York Knicks,110.72727272727273,-131.72727272727272,2.0,-2.0,228.5,oddsapi_consensus
+2025-10-28,2025-10-29T00:10:00Z,Oklahoma City Thunder,Sacramento Kings,-398.8181818181818,309.27272727272725,-9.0,9.0,226.5,oddsapi_consensus
