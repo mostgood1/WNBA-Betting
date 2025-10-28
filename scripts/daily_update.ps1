@@ -211,6 +211,15 @@ try {
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
+# 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
+try {
+  $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
+  Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
+  $rcLogs = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr)
+  Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
+} catch {
+  Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)
+}
 # Optional: Report roster overrides applied
 try {
   $ovDir = Join-Path $RepoRoot 'data/overrides'
@@ -316,6 +325,15 @@ print('OK' if ok else f'NO:{why}')
   }
 } catch { Write-Log ("Odds fetch block failed: {0}" -f $_.Exception.Message) }
 
+# 1.5) NPU game predictions using enhanced features (CSV-based; no parquet engine required)
+try {
+  Write-Log ("Running NPU game predictions for {0}" -f $Date)
+  $rcNpu = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
+  Write-Log ("predict-games-npu exit code: {0}" -f $rcNpu)
+} catch {
+  Write-Log ("predict-games-npu failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2) Reconcile yesterday's games (best-effort)
 try {
   $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
@@ -342,6 +360,33 @@ try {
   Write-Log ("finals-export failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.3) Fetch yesterday's play-by-play logs (finals-only)
+try {
+  Write-Log ("Fetching PBP logs for {0} (finals only)" -f $yesterday)
+  $rc_pbp = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-pbp','--date', $yesterday, '--finals-only')
+  Write-Log ("fetch-pbp exit code: {0}" -f $rc_pbp)
+} catch {
+  Write-Log ("fetch-pbp error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4) Fetch yesterday's boxscores (finals-only)
+try {
+  Write-Log ("Fetching boxscores for {0} (finals only)" -f $yesterday)
+  $rc_bs = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-boxscores','--date', $yesterday, '--finals-only')
+  Write-Log ("fetch-boxscores exit code: {0}" -f $rc_bs)
+} catch {
+  Write-Log ("fetch-boxscores error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
+try {
+  Write-Log ("Running roster audit for {0}" -f $yesterday)
+  $rc_audit = Invoke-PyMod -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday)
+  Write-Log ("audit-rosters exit code: {0}" -f $rc_audit)
+} catch {
+  Write-Log ("audit-rosters error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.1) Best-effort finals export for yesterday (writes data/processed/finals_<date>.csv)
 try {
   Write-Log ("Exporting finals CSV for {0}" -f $yesterday)
@@ -362,12 +407,28 @@ else:
   if ($outF -match 'WROTE:') { Write-Log ("Finals export result: {0}" -f $outF) } else { Write-Log ("Finals export returned: {0}" -f $outF) }
 } catch { Write-Log ("Finals export block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
-# 2.5) Fetch injuries before building props projections (ensures inactive players are filtered)
+# 2.6) Fetch injuries before building props projections (ensures inactive players are filtered)
 try {
   Write-Log "Fetching injuries from ESPN before props predictions"
   $rcInj = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-injuries')
   Write-Log ("fetch-injuries exit code: {0}" -f $rcInj)
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
+
+# 2.6) Build unified league_status for today (roster + injuries; consumed by predictions)
+try {
+  Write-Log "Building league_status for today's slate"
+  $rcLS = Invoke-PyMod -plist @('-m','nba_betting.cli','build-league-status','--date', $Date)
+  Write-Log ("build-league-status exit code: {0}" -f $rcLS)
+  $lsPath = Join-Path $RepoRoot ("data/processed/league_status_{0}.csv" -f $Date)
+  if (Test-Path $lsPath) {
+    try {
+      $rows = (Import-Csv -Path $lsPath | Measure-Object).Count
+      Write-Log ("league_status rows: {0}" -f $rows)
+    } catch { }
+  } else {
+    Write-Log "league_status file missing after build; predictions will still run but may be less accurate"
+  }
+} catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
@@ -525,20 +586,29 @@ Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object La
 if (-not $GitPush) {
   Write-Log 'Local daily update complete (no Git push requested).'
 } else {
-  # Optionally commit and push updated artifacts (LAST STEP)
+  # Use standardized commit script to stage and push only date-scoped processed artifacts
   try {
-    Write-Log 'Git: staging and pushing updated artifacts (final step)'
-    & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-    # Try to include predictions.csv at root if present (legacy)
-    if (Test-Path 'predictions.csv') { git add -- predictions.csv | Out-Null }
-    $cached = & git diff --cached --name-only
-    if ($cached) {
-      $msg = "local daily: $Date (predictions/odds/props)"
-      & git commit -m $msg 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-      & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-      & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    Write-Log 'Git: committing processed artifacts via scripts/commit_processed.ps1 (yesterday then today)'
+    $commitScript = Join-Path $RepoRoot 'scripts/commit_processed.ps1'
+    if (Test-Path $commitScript) {
+      # First, commit yesterday's finals/reconcile outputs without push
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson -DryRun | Tee-Object -FilePath $LogFile -Append | Out-Null
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
+      # Then, commit and push today's predictions/edges/odds
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $Date -IncludeJson -Push | Tee-Object -FilePath $LogFile -Append | Out-Null
     } else {
-      Write-Log 'Git: no staged changes; skipping push'
+      Write-Log 'Commit script missing; falling back to broad staging (data/processed)'
+      & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      if (Test-Path 'predictions.csv') { git add -- predictions.csv | Out-Null }
+      $cached = & git diff --cached --name-only
+      if ($cached) {
+        $msg = "local daily: $Date (predictions/odds/props)"
+        & git commit -m $msg 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+        & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+        & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      } else {
+        Write-Log 'Git: no staged changes; skipping push'
+      }
     }
   } catch {
     Write-Log ("Git push failed: {0}" -f $_.Exception.Message)

@@ -198,6 +198,23 @@ This produces an edges CSV you can sort by EV or edge for actionable picks witho
 - Rscript not found: install R, add `Rscript.exe` to PATH, or set `RSCRIPT_PATH` to the full path.
 - OddsAPI 422 for player props: the API may not have props at your snapshot timestamp; re-run with `--mode current` near tip-off or try a different date.
 
+## Deployment helpers: commit/push daily artifacts
+
+To keep the repo clean and the site up-to-date, use the helper to commit only the processed files for a specific date:
+
+PowerShell (manual):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\commit_processed.ps1 -Date 2025-10-27 -IncludeJson -Push
+```
+
+VS Code tasks:
+- Data: commit processed (today) — commits today’s `data/processed/*_YYYY-MM-DD.{csv,json}` and pushes.
+- Data: commit processed (pick date) — prompts for a date, commits those artifacts, and pushes.
+
+Daily automation:
+The `scripts/daily_update.ps1` now calls `scripts/commit_processed.ps1` at the end (when `-GitPush` is enabled), committing yesterday’s reconciliation/finals first and then today’s predictions/edges with a push.
+
 ## Frontend & Render Deployment (mirrors NHL-Betting)
 
 This repo deploys like the NHL site: a minimal Flask app serves the cards at `/` using the static assets in `web/`. Gunicorn runs the Flask app on Render.

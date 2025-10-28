@@ -12,3 +12,32 @@ logs/
 data/processed/props_actuals.csv
 # Local server cron token (do not commit)
 .cron_token
+
+# Local caches and test artifacts
+.pytest_cache/
+http_cache.sqlite
+.http_cache.sqlite
+
+# Temporary and scratch files/scripts
+temp_*.py
+
+# Ignore most processed data by default; whitelist site-facing daily artifacts
+data/processed/**
+!data/processed/
+# Game predictions and publishables
+!data/processed/games_predictions_npu_*.csv
+!data/processed/predictions_*.csv
+!data/processed/recommendations_*.csv
+!data/processed/recon_games_*.csv
+!data/processed/finals_*.csv
+# Odds snapshots consumed by web/app.js (closing/market/consensus/bovada)
+!data/processed/closing_lines_*.csv
+!data/processed/market_*.csv
+!data/processed/odds_*.csv
+!data/processed/game_odds_*.csv
+# Props artifacts
+!data/processed/props_edges_*.csv
+!data/processed/props_recommendations_*.csv
+!data/processed/props_predictions_*.csv
+# Season schedule for UI
+!data/processed/schedule_*.json

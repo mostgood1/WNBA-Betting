@@ -96,6 +96,70 @@
 				"$eslint-stylish"
 			],
 			"group": "build"
+		},
+		{
+			"label": "Backfill: two years (finals-only)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\backfill_two_years.ps1",
+				"-Start",
+				"2023-10-01",
+				"-End",
+				"2025-10-26"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		}
+		,
+		{
+			"label": "Data: commit processed (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\commit_processed.ps1",
+				"-Date",
+				"$(Get-Date -Format 'yyyy-MM-dd')",
+				"-IncludeJson",
+				"-Push"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Data: commit processed (pick date)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\commit_processed.ps1",
+				"-Date",
+				"${input:commitDate}",
+				"-IncludeJson",
+				"-Push"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+	],
+	"inputs": [
+		{
+			"id": "commitDate",
+			"type": "promptString",
+			"description": "Enter date to commit (yyyy-MM-dd)",
+			"default": "$(Get-Date -Format 'yyyy-MM-dd')"
 		}
 	]
 }
