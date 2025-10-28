@@ -2865,20 +2865,31 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
             res['edge_win'] = res['home_win_prob'] - res['home_implied_prob']
         if 'home_spread' in res.columns:
             res['market_home_margin'] = -res['home_spread']
-            res['edge_spread'] = res['pred_margin'] - res['market_home_margin']
+            # Use whichever prediction column exists: prefer 'pred_margin', else 'spread_margin'
+            pred_col = 'pred_margin' if 'pred_margin' in res.columns else ('spread_margin' if 'spread_margin' in res.columns else None)
+            if pred_col is not None:
+                res['edge_spread'] = res[pred_col] - res['market_home_margin']
         if 'total' in res.columns:
-            res['edge_total'] = res['pred_total'] - res['total']
+            # Use available total prediction column
+            total_pred_col = 'pred_total' if 'pred_total' in res.columns else ('totals' if 'totals' in res.columns else None)
+            if total_pred_col is not None:
+                res['edge_total'] = res[total_pred_col] - res['total']
         # Period edges if columns present
         for half in ("h1","h2"):
             sp_col = f"{half}_spread"; tot_col = f"{half}_total"
-            if sp_col in res.columns and f"{half}_pred_margin" in res.columns:
-                res[f"edge_{half}_spread"] = res[f"{half}_pred_margin"] - (-res[sp_col])
+            if sp_col in res.columns:
+                # Prefer calibrated pred margin if available, else use generic naming if present
+                half_pred_col = f"{half}_pred_margin" if f"{half}_pred_margin" in res.columns else None
+                if half_pred_col is not None:
+                    res[f"edge_{half}_spread"] = res[half_pred_col] - (-res[sp_col])
             if tot_col in res.columns and f"{half}_pred_total" in res.columns:
                 res[f"edge_{half}_total"] = res[f"{half}_pred_total"] - res[tot_col]
         for q in ("q1","q2","q3","q4"):
             sp_col = f"{q}_spread"; tot_col = f"{q}_total"
-            if sp_col in res.columns and f"{q}_pred_margin" in res.columns:
-                res[f"edge_{q}_spread"] = res[f"{q}_pred_margin"] - (-res[sp_col])
+            if sp_col in res.columns:
+                q_pred_col = f"{q}_pred_margin" if f"{q}_pred_margin" in res.columns else None
+                if q_pred_col is not None:
+                    res[f"edge_{q}_spread"] = res[q_pred_col] - (-res[sp_col])
             if tot_col in res.columns and f"{q}_pred_total" in res.columns:
                 res[f"edge_{q}_total"] = res[f"{q}_pred_total"] - res[tot_col]
 
@@ -3253,41 +3264,75 @@ def export_closing_lines_csv_cmd(date_str: str, out_path: str | None):
     clos_parq = paths.data_processed / "closing_lines.parquet"
     wide = None
     if clos_parq.exists():
-        wide = pd.read_parquet(clos_parq)
+        try:
+            wide = pd.read_parquet(clos_parq)
+        except Exception as e:
+            # No parquet engine available on ARM64? Fallback to computing from raw odds files
+            console.print(f"Unable to read {clos_parq} ({e}); falling back to raw odds.", style="yellow")
+            wide = None
     else:
         # Fallback: compute from raw odds
         odds_parq = paths.data_raw / "odds_nba.parquet"
         odds_csv = paths.data_raw / "odds_nba.csv"
         if odds_parq.exists():
-            odds_df = pd.read_parquet(odds_parq)
+            try:
+                odds_df = pd.read_parquet(odds_parq)
+            except Exception as e:
+                console.print(f"Unable to read {odds_parq} ({e}); trying CSV fallback...", style="yellow")
+                odds_df = None
         elif odds_csv.exists():
             odds_df = pd.read_csv(odds_csv)
         else:
             console.print("No odds data found. Run backfill-odds or make-closing-lines first.", style="red"); return
+        if odds_df is None and odds_csv.exists():
+            odds_df = pd.read_csv(odds_csv)
+        if odds_df is None or odds_df.empty:
+            console.print("No odds data available to compute closings.", style="yellow"); return
         wide = consensus_lines_at_close(odds_df)
 
     if wide is None or wide.empty:
-        console.print("No closing lines available.", style="yellow"); return
+        # Last-resort fallback: use per-date game_odds_{date}.csv if present
+        game_odds_csv = paths.data_processed / f"game_odds_{target_date}.csv"
+        if game_odds_csv.exists():
+            console.print(f"No precomputed closing lines; using {game_odds_csv} as fallback.", style="yellow")
+            try:
+                wide = pd.read_csv(game_odds_csv)
+            except Exception as e:
+                console.print(f"Failed to read {game_odds_csv}: {e}", style="red"); return
+        else:
+            console.print("No closing lines available.", style="yellow"); return
 
     # Filter to the requested date by US/Eastern calendar day (handles international/UTC offsets)
     df = wide.copy()
-    try:
-        df["date"] = pd.to_datetime(df["commence_time"], utc=True).dt.tz_convert("US/Eastern").dt.date
-    except Exception:
-        # Fallback: naive date (UTC)
-        df["date"] = pd.to_datetime(df["commence_time"]).dt.date
+    if "commence_time" in df.columns:
+        try:
+            df["date"] = pd.to_datetime(df["commence_time"], utc=True).dt.tz_convert("US/Eastern").dt.date
+        except Exception:
+            # Fallback: naive date (UTC)
+            df["date"] = pd.to_datetime(df["commence_time"]).dt.date
+    elif "date" in df.columns:
+        # Already present in fallback game_odds
+        try:
+            df["date"] = pd.to_datetime(df["date"]).dt.date
+        except Exception:
+            pass
     df = df[df["date"] == target_date]
     if df.empty:
         console.print(f"No events found on {target_date}.", style="yellow"); return
 
     # Normalize and map to export schema
-    df["home_team"] = df["home_team"].apply(normalize_team)
+    if "home_team" in df.columns:
+        df["home_team"] = df["home_team"].apply(normalize_team)
     # Visitor team = away team normalized
-    df["visitor_team"] = df["away_team"].apply(normalize_team)
+    if "visitor_team" not in df.columns and "away_team" in df.columns:
+        df["visitor_team"] = df["away_team"].apply(normalize_team)
     # Map numeric columns
-    df["home_spread"] = df.get("spread_point")
-    df["total"] = df.get("total_point")
-    df["bookmaker"] = "consensus"
+    if "home_spread" not in df.columns:
+        df["home_spread"] = df.get("spread_point")
+    if "total" not in df.columns:
+        df["total"] = df.get("total_point")
+    if "bookmaker" not in df.columns:
+        df["bookmaker"] = "consensus"
 
     keep = [
         "date","home_team","visitor_team",
