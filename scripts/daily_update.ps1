@@ -599,7 +599,7 @@ if (-not $GitPush) {
     } else {
       Write-Log 'Commit script missing; falling back to broad staging (data/processed)'
       & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-      if (Test-Path 'predictions.csv') { git add -- predictions.csv | Out-Null }
+    # Legacy root predictions.csv intentionally not staged (Render UI reads date-scoped processed files)
       $cached = & git diff --cached --name-only
       if ($cached) {
         $msg = "local daily: $Date (predictions/odds/props)"

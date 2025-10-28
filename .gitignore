@@ -41,3 +41,6 @@ data/processed/**
 !data/processed/props_predictions_*.csv
 # Season schedule for UI
 !data/processed/schedule_*.json
+
+# Legacy root predictions snapshot (not used by Render UI)
+predictions.csv
