@@ -1,0 +1,25 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Dallas Mavericks,Indiana Pacers,2025-10-29,1.1283944944855462,199.3636363636364,0.33404190707561493,,,,,,High
+ATS,Indiana Pacers,Dallas Mavericks,Indiana Pacers,2025-10-29,,,,-12.837556838989258,6.0,-6.837556838989258,6.0,,High
+ML,Memphis Grizzlies,Phoenix Suns,Memphis Grizzlies,2025-10-29,0.08899117661800776,-129.0909090909091,0.5634920634920635,,,,,,High
+ATS,Phoenix Suns,Phoenix Suns,Memphis Grizzlies,2025-10-29,,,,1.1814095973968506,2.0,-0.8185904026031494,-2.0,,Low
+TOTAL,Under,Phoenix Suns,Memphis Grizzlies,2025-10-29,,,,-13.867111206054688,241.0,,,227.1328887939453,High
+ML,Detroit Pistons,Detroit Pistons,Orlando Magic,2025-10-29,0.24526762350470144,106.0,0.4854368932038835,,,,,,High
+ATS,Detroit Pistons,Detroit Pistons,Orlando Magic,2025-10-29,,,,1.7699421644210815,1.5,0.2699421644210815,-1.5,,Medium
+TOTAL,Under,Toronto Raptors,Houston Rockets,2025-10-29,,,,-3.278045654296875,232.5,,,229.22195434570312,Medium
+ML,Los Angeles Lakers,Minnesota Timberwolves,Los Angeles Lakers,2025-10-29,0.05124282019474402,232.54545454545453,0.3007107709130673,,,,,,High
+ATS,Los Angeles Lakers,Minnesota Timberwolves,Los Angeles Lakers,2025-10-29,,,,-1.8914217948913574,7.0,5.108578205108643,7.0,,Medium
+TOTAL,Over,Minnesota Timberwolves,Los Angeles Lakers,2025-10-29,,,,1.9026641845703125,225.5,,,227.4026641845703,Low
+ML,New Orleans Pelicans,Denver Nuggets,New Orleans Pelicans,2025-10-29,0.4039785001208238,513.4545454545455,0.1630112625963248,,,,,,High
+ATS,New Orleans Pelicans,Denver Nuggets,New Orleans Pelicans,2025-10-29,,,,-1.5260295867919922,12.5,10.973970413208008,12.5,,Medium
+TOTAL,Under,Denver Nuggets,New Orleans Pelicans,2025-10-29,,,,-5.86517333984375,237.0,,,231.13482666015625,High
+ML,Portland Trail Blazers,Utah Jazz,Portland Trail Blazers,2025-10-29,0.1598544501140684,-150.1818181818182,0.6002906976744186,,,,,,High
+ATS,Portland Trail Blazers,Utah Jazz,Portland Trail Blazers,2025-10-29,,,,-2.3904876708984375,-3.5,-5.8904876708984375,-3.5,,Medium
+ML,Boston Celtics,Boston Celtics,Cleveland Cavaliers,2025-10-29,0.5663594120723122,142.27272727272728,0.41275797373358347,,,,,,High
+ATS,Boston Celtics,Boston Celtics,Cleveland Cavaliers,2025-10-29,,,,6.304333686828613,3.5,2.8043336868286133,-3.5,,High
+TOTAL,Under,Boston Celtics,Cleveland Cavaliers,2025-10-29,,,,-10.943511962890653,233.5,,,222.55648803710935,High
+ML,Brooklyn Nets,Brooklyn Nets,Atlanta Hawks,2025-10-29,0.10707299321449948,261.45454545454544,0.27665995975855134,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Atlanta Hawks,2025-10-29,,,,2.270549774169922,8.0,-5.729450225830078,-8.0,,Medium
+TOTAL,Under,Brooklyn Nets,Atlanta Hawks,2025-10-29,,,,-6.2889404296875,238.5,,,232.2110595703125,High
+ML,Chicago Bulls,Chicago Bulls,Sacramento Kings,2025-10-29,0.04031449718275115,-196.1818181818182,0.6623695518723143,,,,,,High
+TOTAL,Under,Chicago Bulls,Sacramento Kings,2025-10-29,,,,-9.856781005859347,238.5,,,228.64321899414065,High
