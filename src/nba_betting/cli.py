@@ -22,6 +22,7 @@ from .player_logs import fetch_player_logs
 from .teams import normalize_team
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
+from .pbp_markets import train_all_pbp_markets, predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
 from .odds_api import fetch_game_odds_current
 from .odds_bovada import fetch_bovada_odds_current
 from .props_actuals import fetch_prop_actuals_via_nbastatr, upsert_props_actuals
@@ -42,6 +43,14 @@ import subprocess
 from pathlib import Path
 import sys
 import time
+from typing import Optional
+from datetime import date as _date
+
+from .pbp_markets import _game_ids_for_date as _pbp_game_ids_for_date  # reuse for backtest
+from .pbp_markets import _first_fg_event as _pbp_first_fg_event
+from .pbp_markets import _jump_ball_event as _pbp_jump_ball_event
+from .pbp_markets import _desc_cols as _pbp_desc_cols
+from .pbp_markets import build_early_threes_dataset as _build_early_threes_dataset
 
 console = Console()
 
@@ -1545,6 +1554,264 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                     style="red",
                 )
                 return
+
+
+            @cli.command("backtest-pbp-markets")
+            @click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD (season start)")
+            @click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default=today")
+            @click.option("--ensure-preds", is_flag=True, default=True, show_default=True, help="Generate predictions for any missing days in range")
+            @click.option("--ensure-pbp", is_flag=True, default=False, show_default=True, help="Fetch PBP logs if missing for games in range (finals only)")
+            def backtest_pbp_markets_cmd(start_date: str, end_date: str | None, ensure_preds: bool, ensure_pbp: bool):
+                """Backtest PBP-derived markets (tip, first-basket, early-threes) over a date range.
+
+                Metrics reported:
+                - tip: Brier score, log loss (if outcome available), accuracy at 0.5 threshold, n
+                - first-basket: top-1 accuracy, top-5 coverage, mean prob(actual), n
+                - early-threes: MAE, RMSE for expected_threes_0_3, and Brier for prob_ge_1 vs indicator, n
+                """
+                console.rule("Backtest PBP-derived Markets")
+                try:
+                    s = pd.to_datetime(start_date).date()
+                except Exception:
+                    console.print("Invalid --start (YYYY-MM-DD)", style="red"); return
+                if end_date:
+                    try:
+                        e = pd.to_datetime(end_date).date()
+                    except Exception:
+                        console.print("Invalid --end (YYYY-MM-DD)", style="red"); return
+                else:
+                    e = _date.today()
+                if e < s:
+                    console.print("--end must be >= --start", style="red"); return
+
+                # Optionally ensure PBP exists (finals only)
+                if ensure_pbp:
+                    try:
+                        _ = backfill_pbp(str(s), str(e), only_final=True, rate_delay=0.35)
+                    except Exception as ex:
+                        console.print({"warning": f"PBP fetch failed/skipped: {ex}"}, style="yellow")
+
+                # Iterate days and evaluate
+                dates = list(pd.date_range(s, e, freq="D").date)
+                # Accumulators
+                tip_probs = []; tip_outcomes = []
+                fb_top1 = 0; fb_top5 = 0; fb_total = 0; fb_probs_actual = []
+                thr_errs = []; thr_ge1_probs = []; thr_ge1_outcomes = []
+                # Lightweight cache for CDN scoreboard home/away maps
+                _gid_to_homeaway: dict[str, tuple[str,str]] = {}
+
+                def _cdn_map_for_date(ds: str) -> dict[str, tuple[str,str]]:
+                    # Reuse pbp_markets helper that hits CDN endpoints
+                    from .pbp_markets import _gid_team_map_for_date as _map
+                    try:
+                        m = _map(ds) or {}
+                        return {str(k): (v[0], v[1]) for k, v in m.items()}
+                    except Exception:
+                        return {}
+
+                for d in track(dates, description="Backtesting"):
+                    ds = str(d)
+                    # Load or generate predictions
+                    tip_path = paths.data_processed / f"tip_winner_probs_{ds}.csv"
+                    fb_path = paths.data_processed / f"first_basket_probs_{ds}.csv"
+                    thr_path = paths.data_processed / f"early_threes_{ds}.csv"
+                    if ensure_preds:
+                        try:
+                            if not tip_path.exists() or not fb_path.exists() or not thr_path.exists():
+                                _ = predict_tip_for_date(ds)
+                                _ = predict_first_basket_for_date(ds)
+                                _ = predict_early_threes_for_date(ds)
+                        except Exception:
+                            pass
+                    # Read available predictions
+                    tip = pd.read_csv(tip_path) if tip_path.exists() else pd.DataFrame()
+                    fb = pd.read_csv(fb_path) if fb_path.exists() else pd.DataFrame()
+                    thr = pd.read_csv(thr_path) if thr_path.exists() else pd.DataFrame()
+                    if tip.empty and fb.empty and thr.empty:
+                        continue
+
+                    # Load PBP combined for outcomes (if exists)
+                    pbp_comb = paths.data_processed / f"pbp_{ds}.csv"
+                    pbp_map: dict[str, pd.DataFrame] = {}
+                    if pbp_comb.exists():
+                        df = pd.read_csv(pbp_comb)
+                        if "game_id" in df.columns:
+                            for gid, grp in df.groupby("game_id"):
+                                pbp_map[str(gid)] = grp.copy()
+                    else:
+                        # fallback to per-game files
+                        dpg = paths.data_processed / "pbp"
+                        if dpg.exists():
+                            for f in dpg.glob("pbp_*.csv"):
+                                try:
+                                    gid = f.stem.replace("pbp_", "")
+                                    gidd = str(int(gid)) if gid.isdigit() else gid
+                                    pbp_map[gidd] = pd.read_csv(f)
+                                except Exception:
+                                    continue
+
+                    # Early threes outcomes and errors
+                    if not thr.empty:
+                        # Build actuals for games present in thr
+                        actuals = {}
+                        if pbp_map:
+                            for gid, gdf in pbp_map.items():
+                                # count threes in first 180 sec using existing helper
+                                cnt = 0
+                                desc_cols = _pbp_desc_cols(gdf)
+                                c_time = "PCTIMESTRING" if "PCTIMESTRING" in gdf.columns else ("clock" if "clock" in gdf.columns else None)
+                                c_per = "PERIOD" if "PERIOD" in gdf.columns else ("period" if "period" in gdf.columns else None)
+                                tmp = gdf.copy()
+                                if c_per: tmp = tmp[tmp[c_per] == 1]
+                                if c_time: tmp = tmp.sort_values(c_time, ascending=False)
+                                for _, r in tmp.iterrows():
+                                    # reuse internal computation via _time_elapsed_q1 would require row-based; inline mini here
+                                    t = r.get("PCTIMESTRING") or r.get("clock") or r.get("time")
+                                    sec_left = None
+                                    if isinstance(t, str) and ":" in t:
+                                        try:
+                                            m, s2 = t.split(":"); sec_left = int(m)*60+int(s2)
+                                        except Exception:
+                                            sec_left = None
+                                    if sec_left is None: continue
+                                    elapsed = 12*60 - sec_left
+                                    if elapsed is None or elapsed > 180:
+                                        continue
+                                    text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
+                                    if ("3pt" in text) and ("makes" in text or "made" in text):
+                                        cnt += 1
+                                actuals[str(gid)] = int(cnt)
+                        # Join predictions with actuals
+                        for _, row in thr.iterrows():
+                            gid = str(row.get("game_id"))
+                            if not gid:
+                                continue
+                            yhat = float(row.get("expected_threes_0_3", row.get("threes_0_3_pred", 0.0)) or 0.0)
+                            a = actuals.get(gid)
+                            if a is None:
+                                continue
+                            thr_errs.append(float(a - yhat))
+                            p_ge1 = float(row.get("prob_ge_1", 1.0 - float(np.exp(-max(0.0, yhat)))))
+                            thr_ge1_probs.append(p_ge1)
+                            thr_ge1_outcomes.append(1.0 if a >= 1 else 0.0)
+
+                    # First basket outcomes
+                    if not fb.empty and pbp_map:
+                        # Map actual first scorer per game
+                        actual_first: dict[str, dict] = {}
+                        for gid, gdf in pbp_map.items():
+                            ev = _pbp_first_fg_event(gdf)
+                            if ev:
+                                actual_first[str(gid)] = ev
+                        for gid, grp in fb.groupby("game_id"):
+                            gid = str(gid)
+                            ev = actual_first.get(gid)
+                            if not ev:
+                                continue
+                            fb_total += 1
+                            pid_first = ev.get("player_id")
+                            pname_first = (ev.get("player_name") or "").strip().lower()
+                            # Top-1
+                            sub = grp.copy().sort_values("prob_first_basket", ascending=False)
+                            top = sub.iloc[0]
+                            top_hit = False
+                            if pd.notna(pid_first) and pd.notna(top.get("player_id")):
+                                try:
+                                    top_hit = int(top.get("player_id")) == int(pid_first)
+                                except Exception:
+                                    top_hit = False
+                            if not top_hit and pname_first:
+                                top_hit = pname_first in str(top.get("player_name","")) .lower()
+                            if top_hit:
+                                fb_top1 += 1
+                            # Top-5 coverage and prob(actual)
+                            hit5 = False
+                            prob_actual = None
+                            for _, r in sub.head(5).iterrows():
+                                if pd.notna(pid_first) and pd.notna(r.get("player_id")):
+                                    try:
+                                        if int(r.get("player_id")) == int(pid_first):
+                                            hit5 = True; prob_actual = float(r.get("prob_first_basket", np.nan)); break
+                                    except Exception:
+                                        pass
+                                if (not hit5) and pname_first:
+                                    if pname_first in str(r.get("player_name","")) .lower():
+                                        hit5 = True; prob_actual = float(r.get("prob_first_basket", np.nan)); break
+                            if hit5:
+                                fb_top5 += 1
+                            if prob_actual is None:
+                                # if not found in top5, try full list
+                                m = sub[sub["player_name"].astype(str).str.lower().str.contains(pname_first)].head(1)
+                                if not m.empty:
+                                    prob_actual = float(m.iloc[0].get("prob_first_basket", np.nan))
+                            if prob_actual is not None and not np.isnan(prob_actual):
+                                fb_probs_actual.append(float(prob_actual))
+
+                    # Tip outcomes
+                    if not tip.empty and pbp_map:
+                        # Build home/away map for this date
+                        if not _gid_to_homeaway:
+                            _gid_to_homeaway = _cdn_map_for_date(ds)
+                        for _, r in tip.iterrows():
+                            gid = str(r.get("game_id"))
+                            if gid not in pbp_map:
+                                continue
+                            pbp = pbp_map[gid]
+                            ev = _pbp_jump_ball_event(pbp)
+                            if not ev:
+                                continue
+                            winner_text = (ev.get("winner_text") or "").strip().lower()
+                            if not winner_text:
+                                continue
+                            # Map winner to home/away by roster lookup
+                            home, away = _gid_to_homeaway.get(gid) or _gid_to_homeaway.get(gid.zfill(10)) or (None, None)
+                            if not (home and away):
+                                continue
+                            outcome = None
+                            try:
+                                # try matching name in rosters for each team; lazy-load roster
+                                from .pbp_markets import _load_rosters_latest as _load_rost
+                                rost = _load_rost()
+                                if not rost.empty:
+                                    def _has_name(team):
+                                        tri_col = "TEAM_ABBREVIATION" if "TEAM_ABBREVIATION" in rost.columns else ("teamTricode" if "teamTricode" in rost.columns else None)
+                                        sub = rost[rost[tri_col].astype(str).str.upper() == str(team).upper()].copy() if tri_col else rost
+                                        names = sub.get("PLAYER") or sub.get("PLAYER_NAME") or pd.Series(dtype=str)
+                                        names = names.astype(str).str.lower()
+                                        return names.str.contains(winner_text).any()
+                                    if _has_name(home): outcome = 1.0
+                                    elif _has_name(away): outcome = 0.0
+                            except Exception:
+                                outcome = None
+                            p_home = float(r.get("prob_home_tip", 0.5))
+                            if outcome is not None:
+                                tip_probs.append(p_home)
+                                tip_outcomes.append(outcome)
+
+                # Aggregate metrics
+                def _brier(p, y):
+                    return float(np.mean([(pi-yi)**2 for pi, yi in zip(p, y)])) if p and y else np.nan
+                def _logloss(p, y, eps=1e-9):
+                    import math
+                    if not p or not y:
+                        return np.nan
+                    return float(np.mean([-(yi*math.log(max(eps, pi)) + (1-yi)*math.log(max(eps, 1-pi))) for pi, yi in zip(p, y)]))
+                tip_brier = _brier(tip_probs, tip_outcomes)
+                tip_logloss = _logloss(tip_probs, tip_outcomes)
+                tip_acc = float(np.mean([int((pi>=0.5)==(yi==1.0)) for pi, yi in zip(tip_probs, tip_outcomes)])) if tip_probs else np.nan
+                fb_top1_acc = (fb_top1 / fb_total) if fb_total else np.nan
+                fb_top5_cov = (fb_top5 / fb_total) if fb_total else np.nan
+                fb_mean_prob_actual = float(np.mean(fb_probs_actual)) if fb_probs_actual else np.nan
+                thr_mae = float(np.mean([abs(e) for e in thr_errs])) if thr_errs else np.nan
+                thr_rmse = float(np.sqrt(np.mean([e*e for e in thr_errs]))) if thr_errs else np.nan
+                thr_brier = _brier(thr_ge1_probs, thr_ge1_outcomes)
+
+                console.print({
+                    "range": f"{start_date}..{str(e)}",
+                    "tip": {"n": len(tip_outcomes), "brier": tip_brier, "logloss": tip_logloss, "acc@0.5": tip_acc},
+                    "first_basket": {"n": fb_total, "top1_acc": fb_top1_acc, "top5_cov": fb_top5_cov, "mean_prob_actual": fb_mean_prob_actual},
+                    "early_threes": {"n": len(thr_errs), "mae": thr_mae, "rmse": thr_rmse, "brier_ge1": thr_brier},
+                })
         
         # Filter to the specific date if provided
         if 'date' in features_df.columns:
@@ -2074,6 +2341,417 @@ def odds_refresh_cmd(date_str: str | None, api_key: str | None, min_prop_edge: f
         console.print({"props_edges_rows": int(len(edges)), "output": str(out)})
     except Exception as e:
         console.print(f"Props edges computation failed: {e}", style="yellow")
+
+
+@cli.command("odds-snapshots")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
+def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
+    """Write standardized OddsAPI snapshots for a given date.
+
+    Produces CSVs under data/processed:
+    - oddsapi_events_<date>.csv: events on the US/Eastern calendar day with has_odds flag
+    - game_odds_<date>.csv: consensus moneyline/spread/total from current event odds
+
+    Notes:
+    - Requires ODDS_API_KEY
+    - CSV-first; no parquet dependency
+    """
+    console.rule("Odds Snapshots (events + consensus lines)")
+    import datetime as _dt
+    import requests as _requests
+    from .odds_api import ODDS_HOST, NBA_SPORT_KEY, OddsApiConfig, fetch_game_odds_current, consensus_lines_at_close
+
+    try:
+        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+
+    if not api_key:
+        api_key = _load_dotenv_key("ODDS_API_KEY")
+    if not api_key:
+        console.print("Provide --api-key, set ODDS_API_KEY env, or add to .env at repo root.", style="red"); return
+
+    # 1) Fetch events list and filter to US/Eastern day; write oddsapi_events_<date>.csv
+    events_out = paths.data_processed / f"oddsapi_events_{target_date}.csv"
+    # Also write an allowlisted alias for the site (tracked by !data/processed/odds_*.csv)
+    events_out_alias = paths.data_processed / f"odds_events_{target_date}.csv"
+    try:
+        ev_resp = _requests.get(f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events", params={"apiKey": api_key}, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=45)
+        ev_resp.raise_for_status()
+        events = ev_resp.json() or []
+    except Exception as e:
+        console.print(f"Events fetch failed: {e}", style="yellow")
+        events = []
+
+    def _et_date(iso_str: str):
+        try:
+            ct_raw = pd.to_datetime(iso_str, utc=True)
+        except Exception:
+            return None
+        for tzname in ("America/New_York", "US/Eastern"):
+            try:
+                return ct_raw.tz_convert(tzname).date()
+            except Exception:
+                continue
+        try:
+            month = int(ct_raw.month)
+            offset_hours = 4 if 3 <= month <= 11 else 5
+            return (ct_raw - pd.Timedelta(hours=offset_hours)).date()
+        except Exception:
+            return ct_raw.date()
+
+    ev_rows: list[dict] = []
+    # If we also fetch game odds later, capture event_ids with odds
+    have_ids: set[str] = set()
+
+    # 2) Fetch current game odds and write consensus game_odds_<date>.csv
+    game_odds_out = paths.data_processed / f"game_odds_{target_date}.csv"
+    try:
+        cfg = OddsApiConfig(api_key=api_key)
+        long_df = fetch_game_odds_current(cfg, pd.to_datetime(target_date))
+        if long_df is not None and not long_df.empty:
+            try:
+                have_ids = set([str(x) for x in long_df["event_id"].dropna().astype(str).unique()])
+            except Exception:
+                have_ids = set()
+            wide = consensus_lines_at_close(long_df)
+            if wide is not None and not wide.empty:
+                tmp = wide.copy()
+                tmp["date"] = pd.to_datetime(tmp["commence_time"], utc=True).dt.tz_convert("US/Eastern").dt.strftime("%Y-%m-%d")
+                tmp = tmp.rename(columns={"away_team":"visitor_team"})
+                if "spread_point" in tmp.columns:
+                    tmp["home_spread"] = tmp["spread_point"]
+                    tmp["away_spread"] = tmp["home_spread"].apply(lambda x: -x if pd.notna(x) else pd.NA)
+                if "total_point" in tmp.columns:
+                    tmp["total"] = tmp["total_point"]
+                cols = [c for c in ["date","commence_time","home_team","visitor_team","home_ml","away_ml","home_spread","away_spread","total"] if c in tmp.columns]
+                out_df = tmp[cols].copy()
+                out_df["bookmaker"] = "oddsapi_consensus"
+                out_df.to_csv(game_odds_out, index=False)
+                console.print({"game_odds_rows": int(len(out_df)), "output": str(game_odds_out)})
+            else:
+                console.print("No consensus rows from current game odds", style="yellow")
+        else:
+            console.print("No game odds returned (OddsAPI)", style="yellow")
+    except Exception as e:
+        console.print(f"Game odds fetch failed: {e}", style="yellow")
+
+    try:
+        tgt = pd.to_datetime(target_date).date()
+        for ev in events:
+            try:
+                ct_et = _et_date(ev.get("commence_time"))
+            except Exception:
+                ct_et = None
+            if ct_et == tgt:
+                eid = ev.get("id")
+                ev_rows.append({
+                    "event_id": eid,
+                    "commence_time": ev.get("commence_time"),
+                    "home_team": ev.get("home_team"),
+                    "away_team": ev.get("away_team"),
+                    "has_odds": (str(eid) in have_ids) if eid else False,
+                })
+        if ev_rows:
+            df_ev = pd.DataFrame(ev_rows)
+            df_ev.to_csv(events_out, index=False)
+            # Write alias for site allowlist
+            try:
+                df_ev.to_csv(events_out_alias, index=False)
+            except Exception:
+                pass
+            console.print({"events_rows": int(len(ev_rows)), "output": str(events_out), "alias": str(events_out_alias)})
+        else:
+            console.print("No events found for target date (ET)", style="yellow")
+    except Exception as e:
+        console.print(f"Events snapshot write failed: {e}", style="yellow")
+
+@cli.command("train-pbp-markets")
+@click.option("--start", type=str, required=False, help="Optional start date YYYY-MM-DD to fetch PBP if needed")
+@click.option("--end", type=str, required=False, help="Optional end date YYYY-MM-DD to fetch PBP if needed")
+def train_pbp_markets_cmd(start: str | None, end: str | None):
+    """Train ONNX-exportable models for:
+    - Tip winner (home_won_tip probability)
+    - First basket scorer (per-player scoring model; normalized at inference)
+    - Total 3s made in first 3 minutes (regression + Poisson approx)
+
+    Uses existing processed PBP/boxscores when available. If --start/--end are provided,
+    will attempt to backfill missing PBP for that range before training.
+    """
+    console.rule("Train PBP-derived Markets")
+    # Best-effort backfill if requested
+    if start and end:
+        try:
+            from .pbp import backfill_pbp
+            _ = backfill_pbp(start, end, only_final=True, rate_delay=0.35)
+        except Exception as e:
+            console.print(f"PBP backfill failed: {e}", style="yellow")
+    try:
+        arts = train_all_pbp_markets()
+        out = {
+            k: {"model": str(v.model_path), "onnx": (str(v.onnx_path) if v.onnx_path else None)}
+            for k, v in arts.items()
+        }
+        console.print(out)
+    except Exception as e:
+        console.print(f"Training failed: {e}", style="red")
+
+@cli.command("predict-pbp-markets")
+@click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD (games on this day)")
+def predict_pbp_markets_cmd(date_str: str):
+    """Generate predictions for PBP-derived markets for a given date.
+
+    Outputs under data/processed:
+    - tip_winner_probs_<date>.csv
+    - first_basket_probs_<date>.csv
+    - early_threes_<date>.csv
+    """
+    console.rule("Predict PBP-derived Markets")
+    try:
+        tip = predict_tip_for_date(date_str)
+        fb = predict_first_basket_for_date(date_str)
+        thr = predict_early_threes_for_date(date_str)
+        console.print({
+            "tip_rows": int(len(tip) if tip is not None else 0),
+            "first_basket_rows": int(len(fb) if fb is not None else 0),
+            "early_threes_rows": int(len(thr) if thr is not None else 0),
+        })
+    except Exception as e:
+        console.print(f"Prediction failed: {e}", style="red")
+
+
+@cli.command("backfill-pbp-markets")
+@click.option("--start", "start_date", type=str, required=False, help="Start date YYYY-MM-DD; default = season start (Oct 1) of current season")
+@click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default = today (local)")
+@click.option("--with-pbp", "with_pbp", is_flag=True, default=False, help="Also backfill PBP logs for the range (finals-only)")
+def backfill_pbp_markets_cmd(start_date: str | None, end_date: str | None, with_pbp: bool):
+    """Backfill PBP-derived market predictions over a date range.
+
+    Writes per-day CSVs under data/processed for:
+    - tip_winner_probs_<date>.csv
+    - first_basket_probs_<date>.csv
+    - early_threes_<date>.csv
+    """
+    console.rule("Backfill PBP-derived Markets")
+    import datetime as _dt
+    # Defaults
+    today = _dt.date.today()
+    if end_date is None:
+        e = today
+    else:
+        try:
+            e = pd.to_datetime(end_date).date()
+        except Exception:
+            console.print("Invalid --end (YYYY-MM-DD)", style="red"); return
+    if start_date is None:
+        # Compute season start: Oct 1 of season year (season year = year if >= Jul else year-1)
+        yr = today.year
+        if today.month < 7:
+            yr -= 1
+        s = _dt.date(yr, 10, 1)
+    else:
+        try:
+            s = pd.to_datetime(start_date).date()
+        except Exception:
+            console.print("Invalid --start (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+    # Ensure boxscores exist for the date range to build candidates
+    try:
+        _ = backfill_boxscores(str(s), str(e), only_final=True, rate_delay=0.35)
+    except Exception as ex:
+        console.print({"warning": f"boxscores backfill failed: {ex}"}, style="yellow")
+    if with_pbp:
+        try:
+            _ = backfill_pbp(str(s), str(e), only_final=True, rate_delay=0.35)
+        except Exception as ex:
+            console.print({"warning": f"pbp backfill failed: {ex}"}, style="yellow")
+    dates = list(pd.date_range(s, e, freq="D").date)
+    total = {"tip": 0, "first_basket": 0, "early_threes": 0}
+    for d in track(dates, description="Backfilling PBP markets"):
+        ds = str(d)
+        try:
+            tip = predict_tip_for_date(ds)
+            fb = predict_first_basket_for_date(ds)
+            thr = predict_early_threes_for_date(ds)
+            total["tip"] += 0 if tip is None else len(tip)
+            total["first_basket"] += 0 if fb is None else len(fb)
+            total["early_threes"] += 0 if thr is None else len(thr)
+        except Exception as ex:
+            console.print({"date": ds, "error": str(ex)}, style="yellow")
+    console.print({
+        "start": str(s),
+        "end": str(e),
+        "days": len(dates),
+        "rows_tip": int(total["tip"]),
+        "rows_first_basket": int(total["first_basket"]),
+        "rows_early_threes": int(total["early_threes"]),
+    })
+
+
+@cli.command("export-game-cards")
+@click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD")
+def export_game_cards_cmd(date_str: str):
+    """Export compact per-game cards for a date by merging PBP markets and odds.
+
+    Writes data/processed/game_cards_<date>.csv with columns:
+    - date, game_id, home_team, visitor_team, commence_time
+    - prob_home_tip
+    - early_threes_expected, early_threes_prob_ge_1
+    - first_basket_top5 ("TEAM: Player (p%)"; semicolon-separated)
+    """
+    console.rule("Export Game Cards")
+    from .teams import to_tricode as _to_tri
+    out_path = paths.data_processed / f"game_cards_{date_str}.csv"
+
+    # Load odds for matchup framing (home/visitor and time)
+    odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+    if odds_path.exists():
+        go = pd.read_csv(odds_path)
+    else:
+        go = pd.DataFrame(columns=["home_team","visitor_team","commence_time"])  # fallback blank
+
+    # Build gameId mapping from boxscores_<date>
+    gid_map = {}
+    box_path = paths.data_processed / f"boxscores_{date_str}.csv"
+    if box_path.exists():
+        bs = pd.read_csv(box_path)
+        if not bs.empty:
+            # For each gameId, collect team tricodes
+            grp = bs.groupby("gameId")["teamTricode"].unique().reset_index()
+            for _, r in grp.iterrows():
+                game_id = str(r["gameId"]) if pd.notna(r["gameId"]) else None
+                arr = r["teamTricode"]
+                vals = arr.tolist() if hasattr(arr, "tolist") else (list(arr) if isinstance(arr, (list, tuple)) else [arr])
+                teams = set(str(x) for x in vals if isinstance(x, str) and x)
+                if game_id and len(teams) == 2:
+                    key = tuple(sorted(list(teams)))
+                    gid_map[key] = game_id
+
+    # Fallback (pregame): derive (HOME,AWAY)->game_id map from NBA CDN (public)
+    if not gid_map:
+        try:
+            import requests  # type: ignore
+            from datetime import datetime as _dt, date as _date
+            target = _dt.strptime(date_str, "%Y-%m-%d").date()
+            today = _date.today()
+            # a) Today's live scoreboard
+            if target == today:
+                u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
+                r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=10)
+                if r.ok:
+                    j = r.json() or {}
+                    games = (j.get("scoreboard") or {}).get("games") or []
+                    for g in games:
+                        gid = str(g.get("gameId") or "").strip()
+                        home = str((g.get("homeTeam") or {}).get("teamTricode") or "").upper()
+                        away = str((g.get("awayTeam") or {}).get("teamTricode") or "").upper()
+                        if gid and home and away:
+                            key = tuple(sorted([home, away]))
+                            gid_map[key] = gid
+            # b) Season schedule
+            if not gid_map:
+                u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
+                r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
+                if r.ok:
+                    j = r.json() or {}
+                    league = j.get("leagueSchedule") or {}
+                    game_dates = league.get("gameDates") or []
+                    for gd in game_dates:
+                        if str(gd.get("gameDate") or "").split("T")[0] != date_str:
+                            continue
+                        for g in (gd.get("games") or []):
+                            gid = str(g.get("gameId") or "").strip()
+                            home = str(((g.get("homeTeam") or {}).get("teamTricode")) or "").upper()
+                            away = str(((g.get("awayTeam") or {}).get("teamTricode")) or "").upper()
+                            if gid and home and away:
+                                key = tuple(sorted([home, away]))
+                                gid_map[key] = gid
+        except Exception:
+            pass
+
+    # Load PBP market outputs
+    tip = None; fb = None; thr = None
+    tip_path = paths.data_processed / f"tip_winner_probs_{date_str}.csv"
+    if tip_path.exists():
+        try:
+            tip = pd.read_csv(tip_path)
+            if tip is not None and tip.empty:
+                tip = None
+        except Exception:
+            tip = None
+    fb_path = paths.data_processed / f"first_basket_probs_{date_str}.csv"
+    if fb_path.exists():
+        try:
+            fb = pd.read_csv(fb_path)
+            if fb is not None and fb.empty:
+                fb = None
+        except Exception:
+            fb = None
+    thr_path = paths.data_processed / f"early_threes_{date_str}.csv"
+    if thr_path.exists():
+        try:
+            thr = pd.read_csv(thr_path)
+            if thr is not None and thr.empty:
+                thr = None
+        except Exception:
+            thr = None
+
+    rows: list[dict] = []
+    # If odds available, iterate matchups; else iterate game IDs from tip/thr/fb
+    def _build_row(game_id: Optional[str], home: Optional[str], away: Optional[str], ctime: Optional[str]) -> dict:
+        row = {"date": date_str, "game_id": game_id, "home_team": home, "visitor_team": away, "commence_time": ctime}
+        # Attach tip
+        if tip is not None and game_id is not None:
+            trow = tip[tip["game_id"].astype(str) == str(game_id)]
+            if not trow.empty and "prob_home_tip" in trow.columns:
+                row["prob_home_tip"] = float(trow.iloc[0]["prob_home_tip"])
+        # Attach early threes
+        if thr is not None and game_id is not None:
+            h = thr[thr["game_id"].astype(str) == str(game_id)]
+            if not h.empty:
+                row["early_threes_expected"] = float(h.iloc[0].get("expected_threes_0_3", h.iloc[0].get("threes_0_3_pred", np.nan)))
+                row["early_threes_prob_ge_1"] = float(h.iloc[0].get("prob_ge_1", np.nan))
+        # Attach first basket top5
+        if fb is not None and game_id is not None:
+            sub = fb[fb["game_id"].astype(str) == str(game_id)].copy()
+            if not sub.empty:
+                sub = sub.sort_values("prob_first_basket", ascending=False).head(5)
+                parts = []
+                for _, r in sub.iterrows():
+                    t = str(r.get("team","")); p = str(r.get("player_name","")); pr = float(r.get("prob_first_basket", 0))*100.0
+                    parts.append(f"{t}: {p} ({pr:.1f}%)")
+                row["first_basket_top5"] = "; ".join(parts)
+        return row
+
+    if go is not None and not go.empty and {"home_team","visitor_team"}.issubset(go.columns):
+        # Normalize to tricodes for matching
+        def _tri(x):
+            try:
+                return _to_tri(str(x))
+            except Exception:
+                return str(x)
+        go = go.copy()
+        go["home_tri"] = go["home_team"].map(_tri)
+        go["away_tri"] = go["visitor_team"].map(_tri)
+        for _, r in go.iterrows():
+            home = r.get("home_team"); away = r.get("visitor_team"); ctime = r.get("commence_time")
+            key = tuple(sorted([str(r.get("home_tri")), str(r.get("away_tri"))]))
+            gid = gid_map.get(key)
+            rows.append(_build_row(gid, home, away, ctime))
+    else:
+        # Fallback: derive from tip/first basket files (game_id only)
+        gid_set = set()
+        for df in (tip, thr, fb):
+            if df is not None and not df.empty and "game_id" in df.columns:
+                gid_set.update(str(x) for x in df["game_id"].dropna().unique().tolist())
+        for gid in sorted(gid_set):
+            rows.append(_build_row(gid, None, None, None))
+
+    cards = pd.DataFrame(rows)
+    cards.to_csv(out_path, index=False)
+    console.print({"rows": int(len(cards)), "output": str(out_path)})
 
 
 @cli.command()

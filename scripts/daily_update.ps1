@@ -579,6 +579,24 @@ Write-Log ("export-recommendations exit code: {0}" -f $rc5)
 $rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
 Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 
+# 7) PBP-derived markets for today's slate (tip winner, first basket, early threes)
+try {
+  Write-Log ("Predicting PBP-derived markets for {0}" -f $Date)
+  $rcPbp = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-pbp-markets','--date', $Date)
+  Write-Log ("predict-pbp-markets exit code: {0}" -f $rcPbp)
+} catch {
+  Write-Log ("predict-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 7.1) Export compact game cards for frontend
+try {
+  Write-Log ("Exporting game cards for {0}" -f $Date)
+  $rcCards = Invoke-PyMod -plist @('-m','nba_betting.cli','export-game-cards','--date', $Date)
+  Write-Log ("export-game-cards exit code: {0}" -f $rcCards)
+} catch {
+  Write-Log ("export-game-cards failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # Simple retention: keep last 21 local_daily_update_* logs
 Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object LastWriteTime -Descending | Select-Object -Skip 21 | ForEach-Object { Remove-Item $_.FullName -ErrorAction SilentlyContinue }
 

@@ -363,3 +363,20 @@ Invoke-RestMethod -Method Post -Uri "$base/api/cron/reconcile-games?date=$y" -He
 Scheduling on Render:
 - Use Render Cron Jobs to hit these endpoints on your cadence. Include the Bearer header.
 - If you attach a Render Disk, ensure `data/` points to that disk path (default here is repo-relative). Update paths in `src/nba_betting/config.py` if needed.
+
+## Period calibration (quarters/halves)
+
+Quarter and half totals are calibrated using a blend of model outputs and team/league scoring shares while enforcing constraints (quarters sum to game total; halves sum to quarters; quarter margins sum to spread).
+
+- Default blend weight: 0.8 (shares-heavy). Override at runtime with the environment variable `NBA_CALIB_TOTALS_WEIGHT` (0.0=model-only .. 1.0=shares-only).
+- Decision note: see `PERIOD_CALIBRATION_DECISION.md` for the sweep and rationale.
+- Backtest calibration and baselines over a date range:
+
+```powershell
+python -m nba_betting.cli backtest-period-calibration --start 2024-11-01 --end 2024-12-01
+```
+
+This writes a CSV summary to `data/processed/backtest_period_calibration_<start>_to_<end>.csv` with:
+- method: calibrated or baselines (baseline_equal, baseline_league)
+- weight (for calibrated rows)
+- MAE for quarter totals, half totals, game totals, and quarter margins

@@ -1,0 +1,21 @@
+game_id,team,player_id,player_name,prob_first_basket
+22500005,OKC,1628983,Shai Gilgeous-Alexander,0.1
+22500005,OKC,1629652,Luguentz Dort,0.1
+22500005,OKC,1631096,Chet Holmgren,0.1
+22500005,OKC,1642349,Ajay Mitchell,0.1
+22500005,OKC,1628392,Isaiah Hartenstein,0.1
+22500005,IND,1631097,Bennedict Mathurin,0.1
+22500005,IND,1627783,Pascal Siakam,0.1
+22500005,IND,1630167,Obi Toppin,0.1
+22500005,IND,1641767,Ben Sheppard,0.1
+22500005,IND,1641716,Jarace Walker,0.1
+22500006,DEN,203999,Nikola Jokić,0.1
+22500006,DEN,1627750,Jamal Murray,0.1
+22500006,DEN,203932,Aaron Gordon,0.1
+22500006,DEN,1631128,Christian Braun,0.1
+22500006,DEN,1629661,Cameron Johnson,0.1
+22500006,GSW,202710,Jimmy Butler III,0.1
+22500006,GSW,201939,Stephen Curry,0.1
+22500006,GSW,1630228,Jonathan Kuminga,0.1
+22500006,GSW,1641764,Brandin Podziemski,0.1
+22500006,GSW,203110,Draymond Green,0.1

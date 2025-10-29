@@ -90,7 +90,14 @@
 		{
 			"label": "Run Flask locally on port 5051",
 			"type": "shell",
-			"command": "set PORT=5051; python app.py",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$env:PORT='5051'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' app.py"
+			],
 			"isBackground": true,
 			"problemMatcher": [
 				"$eslint-stylish"
@@ -152,6 +159,22 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Train: enhanced models -> ONNX",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli train-games-enhanced-onnx"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"detail": "Run on x86_64 where scikit-learn wheels are available; produces *_enhanced.onnx in models/."
 		}
 	],
 	"inputs": [

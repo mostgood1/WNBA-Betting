@@ -29,6 +29,7 @@ data/processed/**
 !data/processed/predictions_*.csv
 !data/processed/recommendations_*.csv
 !data/processed/recon_games_*.csv
+!data/processed/recon_props_*.csv
 !data/processed/finals_*.csv
 # Odds snapshots consumed by web/app.js (closing/market/consensus/bovada)
 !data/processed/closing_lines_*.csv
@@ -41,6 +42,14 @@ data/processed/**
 !data/processed/props_predictions_*.csv
 # Season schedule for UI
 !data/processed/schedule_*.json
+
+# PBP-derived market predictions
+!data/processed/tip_winner_probs_*.csv
+!data/processed/first_basket_probs_*.csv
+!data/processed/early_threes_*.csv
+
+# Game cards (frontend consumption)
+!data/processed/game_cards_*.csv
 
 # Legacy root predictions snapshot (not used by Render UI)
 predictions.csv

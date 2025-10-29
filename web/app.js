@@ -17,6 +17,7 @@ const state = {
   predsByKey: new Map(),
   oddsByKey: new Map(),
   reconByKey: new Map(),
+  gameCardsByKey: new Map(),
   reconProps: [],
   propsEdges: [],
   propsFilters: { minEdge: 0.05, minEV: 0.0 },
@@ -443,6 +444,39 @@ async function maybeLoadPredictions(dateStr){
         if (obj[k]!==undefined) obj[k] = Number(obj[k]);
       }
       state.predsByKey.set(key, obj);
+    }
+  }catch(_){ /* ignore */ }
+}
+
+// Load compact per-game cards merged from PBP markets and odds
+async function maybeLoadGameCards(dateStr){
+  try{
+    state.gameCardsByKey.clear();
+    const path = `/data/processed/game_cards_${dateStr}.csv?v=${Date.now()}`;
+    const res = await fetch(path);
+    if (!res.ok) return;
+    const text = await res.text();
+    if (!text || !text.trim()) return;
+    const rows = parseCSV(text);
+    if (!rows || rows.length < 2) return;
+    const headers = rows[0];
+    const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+    const pick = (names)=>{ for (const n of names){ if (idx[n]!==undefined) return n; } return null; };
+    const hCol = pick(['home_team','home','home_name','home_tricode']);
+    const aCol = pick(['visitor_team','away','away_name','away_tricode']);
+    for (let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const h = hCol ? r[idx[hCol]] : null; const a = aCol ? r[idx[aCol]] : null;
+      if (!h || !a) continue;
+      const home = tricodeFromName(h);
+      const away = tricodeFromName(a);
+      const key = `${dateStr}|${home}|${away}`;
+      const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
+      // Coerce numeric fields when present
+      for (const k of ['prob_home_tip','early_threes_expected','early_threes_prob_ge_1']){
+        if (obj[k]!==undefined) obj[k] = toNum(obj[k]);
+      }
+      state.gameCardsByKey.set(key, obj);
     }
   }catch(_){ /* ignore */ }
 }
@@ -1152,6 +1186,28 @@ function renderDate(dateStr){
         </div></div>`;
     }
 
+    // PBP markets summary from game cards (if available)
+    let pbpHtml = '';
+    try{
+      const gc = state.gameCardsByKey.get(key);
+      if (gc){
+        const tip = (gc.prob_home_tip!=null) ? `Tip: Home ${(Number(gc.prob_home_tip)*100).toFixed(1)}%` : '';
+        const thrExp = (gc.early_threes_expected!=null) ? `Early 3s E[X]: ${Number(gc.early_threes_expected).toFixed(2)}` : '';
+        const thrP1 = (gc.early_threes_prob_ge_1!=null) ? `P(≥1): ${(Number(gc.early_threes_prob_ge_1)*100).toFixed(1)}%` : '';
+        const thr = (thrExp || thrP1) ? `Threes 0–3m: ${[thrExp, thrP1].filter(Boolean).join(' • ')}` : '';
+        const fb = (gc.first_basket_top5 ? `First Basket: ${gc.first_basket_top5}` : '');
+        const lines = [tip, thr, fb].filter(Boolean);
+        if (lines.length){
+          pbpHtml = `<div class="row details small"><div class="detail-col">${lines.map(x=>`<div>${x}</div>`).join('')}</div></div>`;
+        }
+      } else {
+        // Subtle placeholder for today's slate to indicate section without data yet
+        if (dateStr === localYMD()){
+          pbpHtml = `<div class=\"row details small\"><div class=\"detail-col subtle\">PBP markets: pending</div></div>`;
+        }
+      }
+    }catch(_){ /* ignore */ }
+
     // Build quarters line score (traditional format)
     let periodsHtml = '';
     if (pred && pred.quarters_q1_total!=null){
@@ -1253,6 +1309,7 @@ function renderDate(dateStr){
         </div>
       </div>
       ${recHtml}
+  ${pbpHtml}
       ${periodsHtml}
       
       ${propsBadges ? `<div class=\"row details small\"><div class=\"detail-col\">${propsBadges}</div></div>` : ''}
@@ -1595,6 +1652,7 @@ function setupControls(){
     }
     await maybeLoadPredictions(d);
     await maybeLoadOdds(d);
+  await maybeLoadGameCards(d);
     await maybeLoadPropsEdges(d);
     await maybeLoadRecon(d);
     renderDate(d);
