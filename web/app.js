@@ -465,6 +465,10 @@ async function maybeLoadGameCards(dateStr){
     const hCol = pick(['home_team','home','home_name','home_tricode']);
     const aCol = pick(['visitor_team','away','away_name','away_tricode']);
     for (let i=1;i<rows.length;i++){
+    // Allow alternate prediction column names
+    const totCol = pick(['pred_total','totals','total_pred','model_total']);
+    const marCol = pick(['pred_margin','spread_margin','margin_pred','model_margin']);
+    const wpCol = pick(['home_win_prob','home_win_prob_raw','home_win_prob_model']);
       const r = rows[i];
       const h = hCol ? r[idx[hCol]] : null; const a = aCol ? r[idx[aCol]] : null;
       if (!h || !a) continue;
@@ -472,9 +476,16 @@ async function maybeLoadGameCards(dateStr){
       const away = tricodeFromName(a);
       const key = `${dateStr}|${home}|${away}`;
       const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
-      // Coerce numeric fields when present
-      for (const k of ['prob_home_tip','early_threes_expected','early_threes_prob_ge_1']){
-        if (obj[k]!==undefined) obj[k] = toNum(obj[k]);
+      // Normalize core fields with fallbacks
+      const tVal = totCol ? Number(r[idx[totCol]]) : null;
+      const mVal = marCol ? Number(r[idx[marCol]]) : null;
+      const wVal = wpCol ? Number(r[idx[wpCol]]) : null;
+      if (tVal!=null && Number.isFinite(tVal)) obj.pred_total = tVal;
+      if (mVal!=null && Number.isFinite(mVal)) obj.pred_margin = mVal;
+      if (wVal!=null && Number.isFinite(wVal)) obj.home_win_prob = wVal;
+      for (const k of ['edge_total','edge_spread']){
+        if (obj[k]!==undefined) obj[k] = Number(obj[k]);
+      }
       }
       state.gameCardsByKey.set(key, obj);
     }
