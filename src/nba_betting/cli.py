@@ -2677,6 +2677,9 @@ def export_game_cards_cmd(date_str: str):
     if tip_path.exists():
         try:
             tip = pd.read_csv(tip_path)
+            # Normalize game_id to zero-padded 10-char strings
+            if tip is not None and "game_id" in tip.columns:
+                tip["game_id"] = tip["game_id"].astype(str).str.replace(".0$", "", regex=True).str.replace("^nan$","", regex=True).str.replace("^None$","", regex=True).str.replace("^\s+$","", regex=True).str.zfill(10)
             if tip is not None and tip.empty:
                 tip = None
         except Exception:
@@ -2685,6 +2688,8 @@ def export_game_cards_cmd(date_str: str):
     if fb_path.exists():
         try:
             fb = pd.read_csv(fb_path)
+            if fb is not None and "game_id" in fb.columns:
+                fb["game_id"] = fb["game_id"].astype(str).str.replace(".0$", "", regex=True).str.replace("^nan$","", regex=True).str.replace("^None$","", regex=True).str.replace("^\s+$","", regex=True).str.zfill(10)
             if fb is not None and fb.empty:
                 fb = None
         except Exception:
@@ -2693,6 +2698,8 @@ def export_game_cards_cmd(date_str: str):
     if thr_path.exists():
         try:
             thr = pd.read_csv(thr_path)
+            if thr is not None and "game_id" in thr.columns:
+                thr["game_id"] = thr["game_id"].astype(str).str.replace(".0$", "", regex=True).str.replace("^nan$","", regex=True).str.replace("^None$","", regex=True).str.replace("^\s+$","", regex=True).str.zfill(10)
             if thr is not None and thr.empty:
                 thr = None
         except Exception:
@@ -2704,18 +2711,22 @@ def export_game_cards_cmd(date_str: str):
         row = {"date": date_str, "game_id": game_id, "home_team": home, "visitor_team": away, "commence_time": ctime}
         # Attach tip
         if tip is not None and game_id is not None:
-            trow = tip[tip["game_id"].astype(str) == str(game_id)]
+            gid_norm = str(game_id).strip()
+            gid_norm = gid_norm.zfill(10)
+            trow = tip[tip["game_id"].astype(str).str.zfill(10) == gid_norm]
             if not trow.empty and "prob_home_tip" in trow.columns:
                 row["prob_home_tip"] = float(trow.iloc[0]["prob_home_tip"])
         # Attach early threes
         if thr is not None and game_id is not None:
-            h = thr[thr["game_id"].astype(str) == str(game_id)]
+            gid_norm = str(game_id).strip().zfill(10)
+            h = thr[thr["game_id"].astype(str).str.zfill(10) == gid_norm]
             if not h.empty:
                 row["early_threes_expected"] = float(h.iloc[0].get("expected_threes_0_3", h.iloc[0].get("threes_0_3_pred", np.nan)))
                 row["early_threes_prob_ge_1"] = float(h.iloc[0].get("prob_ge_1", np.nan))
         # Attach first basket top5
         if fb is not None and game_id is not None:
-            sub = fb[fb["game_id"].astype(str) == str(game_id)].copy()
+            gid_norm = str(game_id).strip().zfill(10)
+            sub = fb[fb["game_id"].astype(str).str.zfill(10) == gid_norm].copy()
             if not sub.empty:
                 sub = sub.sort_values("prob_first_basket", ascending=False).head(5)
                 parts = []

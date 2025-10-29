@@ -1,6 +1,6 @@
-date,game_id,home_team,visitor_team,commence_time
-2025-10-28,0022500124,Miami Heat,Charlotte Hornets,2025-10-28T23:30:00Z
-2025-10-28,0022500127,Golden State Warriors,Los Angeles Clippers,2025-10-29T03:00:00Z
-2025-10-28,0022500123,Washington Wizards,Philadelphia 76ers,2025-10-28T23:10:00Z
-2025-10-28,0022500125,Milwaukee Bucks,New York Knicks,2025-10-29T00:00:00Z
-2025-10-28,0022500126,Oklahoma City Thunder,Sacramento Kings,2025-10-29T00:10:00Z
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2025-10-28,0022500124,Miami Heat,Charlotte Hornets,2025-10-28T23:30:00Z,0.5,1.2438248219427186,0.7117205111248364,CHA: LaMelo Ball (11.6%); MIA: Bam Adebayo (11.2%); CHA: Miles Bridges (11.0%); MIA: Norman Powell (10.4%); CHA: Kon Knueppel (10.1%)
+2025-10-28,0022500127,Golden State Warriors,Los Angeles Clippers,2025-10-29T03:00:00Z,0.65,1.2601909380209124,0.7164001286683686,GSW: Jimmy Butler III (11.1%); LAC: Kawhi Leonard (10.9%); LAC: James Harden (10.7%); GSW: Stephen Curry (10.6%); GSW: Jonathan Kuminga (10.5%)
+2025-10-28,0022500123,Washington Wizards,Philadelphia 76ers,2025-10-28T23:10:00Z,0.5,1.227458705864525,0.7069636762671675,PHI: Tyrese Maxey (13.2%); PHI: VJ Edgecombe (12.8%); PHI: Kelly Oubre Jr. (11.7%); WAS: CJ McCollum (9.7%); WAS: Kyshawn George (9.7%)
+2025-10-28,0022500125,Milwaukee Bucks,New York Knicks,2025-10-29T00:00:00Z,0.4850044983805899,1.396575238672526,0.7525570524937936,NYK: Mikal Bridges (11.2%); NYK: OG Anunoby (11.0%); NYK: Jalen Brunson (11.0%); NYK: Karl-Anthony Towns (10.6%); MIL: Giannis Antetokounmpo (10.4%)
+2025-10-28,0022500126,Oklahoma City Thunder,Sacramento Kings,2025-10-29T00:10:00Z,0.5,1.170177299590847,0.6896880817882872,OKC: Shai Gilgeous-Alexander (11.4%); SAC: DeMar DeRozan (11.1%); SAC: Zach LaVine (10.9%); OKC: Luguentz Dort (10.7%); OKC: Chet Holmgren (9.9%)
