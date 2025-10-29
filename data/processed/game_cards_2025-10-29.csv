@@ -1,11 +1,11 @@
-date,game_id,home_team,visitor_team,commence_time
-2025-10-29,,Phoenix Suns,Memphis Grizzlies,2025-10-30T02:10:00Z
-2025-10-29,,Detroit Pistons,Orlando Magic,2025-10-29T23:10:00Z
-2025-10-29,,Toronto Raptors,Houston Rockets,2025-10-29T22:40:00Z
-2025-10-29,,Minnesota Timberwolves,Los Angeles Lakers,2025-10-30T01:40:00Z
-2025-10-29,,Denver Nuggets,New Orleans Pelicans,2025-10-30T01:00:00Z
-2025-10-29,,Utah Jazz,Portland Trail Blazers,2025-10-30T01:00:00Z
-2025-10-29,,Boston Celtics,Cleveland Cavaliers,2025-10-29T23:10:00Z
-2025-10-29,,Brooklyn Nets,Atlanta Hawks,2025-10-29T23:30:00Z
-2025-10-29,,Dallas Mavericks,Indiana Pacers,2025-10-30T00:30:00Z
-2025-10-29,,Chicago Bulls,Sacramento Kings,2025-10-30T00:10:00Z
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2025-10-29,0022500137,Phoenix Suns,Memphis Grizzlies,2025-10-30T02:10:00Z,0.6394890530391661,4.542360159008255,0.9893517546791684,PHX: Devin Booker (14.6%); PHX: Grayson Allen (13.8%); PHX: Royce O'Neale (12.3%); PHX: Dillon Brooks (11.0%); MEM: Ja Morant (9.1%)
+2025-10-29,0022500129,Detroit Pistons,Orlando Magic,2025-10-29T23:10:00Z,0.6666666666665029,4.118139709407095,0.9837252379146674,ORL: Paolo Banchero (12.9%); ORL: Franz Wagner (12.3%); DET: Cade Cunningham (12.2%); ORL: Desmond Bane (10.9%); DET: Tobias Harris (10.3%)
+2025-10-29,0022500131,Toronto Raptors,Houston Rockets,2025-10-29T22:40:00Z,0.6798640670137952,4.118139709407095,0.9837252379146674,HOU: Alperen Sengun (13.8%); HOU: Kevin Durant (12.3%); HOU: Jabari Smith Jr. (11.7%); TOR: Scottie Barnes (10.5%); TOR: Immanuel Quickley (10.2%)
+2025-10-29,0022500136,Minnesota Timberwolves,Los Angeles Lakers,2025-10-30T01:40:00Z,0.7054001385652955,4.138534923330227,0.9840538032000848,LAL: Luka Dončić (12.9%); LAL: Austin Reaves (12.8%); LAL: Rui Hachimura (11.7%); MIN: Julius Randle (11.4%); LAL: Deandre Ayton (10.9%)
+2025-10-29,0022500134,Denver Nuggets,New Orleans Pelicans,2025-10-30T01:00:00Z,0.6798640670137952,4.179325351176493,0.9846911678307944,NOP: Trey Murphy III (12.3%); DEN: Nikola Jokić (11.8%); DEN: Jamal Murray (11.8%); NOP: Jordan Poole (11.3%); NOP: Zion Williamson (11.1%)
+2025-10-29,0022500135,Utah Jazz,Portland Trail Blazers,2025-10-30T01:00:00Z,0.6666666666665029,4.516526221372287,0.9890730844979322,UTA: Lauri Markkanen (14.0%); UTA: Keyonte George (12.6%); POR: Toumani Camara (10.9%); POR: Deni Avdija (10.3%); UTA: Walker Kessler (10.1%)
+2025-10-29,0022500128,Boston Celtics,Cleveland Cavaliers,2025-10-29T23:10:00Z,0.7878787878786647,4.554597287362134,0.9894812645930406,BOS: Payton Pritchard (12.5%); BOS: Derrick White (12.2%); CLE: Evan Mobley (11.9%); CLE: Donovan Mitchell (11.8%); BOS: Jaylen Brown (11.4%)
+2025-10-29,0022500130,Brooklyn Nets,Atlanta Hawks,2025-10-29T23:30:00Z,,,,
+2025-10-29,0022500133,Dallas Mavericks,Indiana Pacers,2025-10-30T00:30:00Z,0.6666666666665029,4.293538549146036,0.9863434845535112,IND: Bennedict Mathurin (12.6%); DAL: Anthony Davis (12.1%); IND: Pascal Siakam (12.1%); DAL: P.J. Washington (11.4%); DAL: Cooper Flagg (10.0%)
+2025-10-29,0022500132,Chicago Bulls,Sacramento Kings,2025-10-30T00:10:00Z,0.6113872432501585,4.201080246027835,0.985020613345562,SAC: DeMar DeRozan (13.0%); SAC: Zach LaVine (13.0%); SAC: Domantas Sabonis (11.6%); CHI: Nikola Vučević (10.7%); SAC: Dennis Schröder (10.6%)
