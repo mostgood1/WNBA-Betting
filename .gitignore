@@ -48,6 +48,11 @@ data/processed/**
 !data/processed/first_basket_probs_*.csv
 !data/processed/early_threes_*.csv
 
+# PBP outcomes (for backtests and validation)
+!data/processed/pbp_*.csv
+!data/processed/pbp/
+!data/processed/pbp/pbp_*.csv
+
 # Game cards (frontend consumption)
 !data/processed/game_cards_*.csv
 
