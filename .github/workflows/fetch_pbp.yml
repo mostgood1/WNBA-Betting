@@ -53,6 +53,9 @@ jobs:
 
       - name: Run R PBP fetcher for range
         shell: bash
+        working-directory: ${{ github.workspace }}
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
         run: |
           set -euo pipefail
           START=${{ steps.dates.outputs.start }}
@@ -61,7 +64,7 @@ jobs:
           cur="$START"
           while [ "$(date -u -d "$cur" +%s)" -le "$(date -u -d "$END" +%s)" ]; do
             echo "Fetching $cur"
-            Rscript scripts/pbp_fetch_nbastatr.R --date "$cur" || true
+            Rscript "$GITHUB_WORKSPACE/scripts/pbp_fetch_nbastatr.R" --date "$cur" || true
             cur=$(date -u -d "$cur + 1 day" +%F)
           done
 
@@ -71,7 +74,7 @@ jobs:
           set -e
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          git add data/processed/* || true
+          git add -A data/processed || true
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
