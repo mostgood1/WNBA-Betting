@@ -378,6 +378,24 @@ try {
   Write-Log ("fetch-boxscores error (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4a) Reconcile PBP-derived markets for yesterday (tip, first-basket, early-threes)
+try {
+  Write-Log ("Reconciling PBP markets for {0}" -f $yesterday)
+  $rc_pbp_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-pbp-markets','--date', $yesterday)
+  Write-Log ("reconcile-pbp-markets exit code: {0}" -f $rc_pbp_recon)
+} catch {
+  Write-Log ("reconcile-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4b) Update calibration for PBP markets using rolling window
+try {
+  Write-Log ("Calibrating PBP markets from reconciliation (window=7) anchored at {0}" -f $yesterday)
+  $rc_pbp_cal = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-pbp-markets','--anchor', $yesterday, '--window', '7')
+  Write-Log ("calibrate-pbp-markets exit code: {0}" -f $rc_pbp_cal)
+} catch {
+  Write-Log ("calibrate-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
   Write-Log ("Running roster audit for {0}" -f $yesterday)

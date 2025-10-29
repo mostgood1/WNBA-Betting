@@ -361,6 +361,51 @@ def fetch_pbp_cmd(date_str: str, include_live: bool, rate_delay: float):
     except Exception as e:
         console.print(f"Failed to fetch PBP: {e}", style="red")
 
+@cli.command("fetch-pbp-r")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD")
+@click.option("--start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", type=str, required=False, help="End date YYYY-MM-DD")
+def fetch_pbp_r_cmd(date_str: str | None, start: str | None, end: str | None):
+    """Fetch PBP using an R helper (hoopR preferred, nbastatR fallback).
+
+    Requires R installed locally and either hoopR or nbastatR available in R.
+    Writes per-game CSVs to data/processed/pbp and combined per-date CSVs.
+    """
+    console.rule("Fetch PBP via R")
+    import subprocess, sys, shutil
+    from pathlib import Path
+    script = str(paths.root / "scripts" / "pbp_fetch_nbastatr.R")
+    # Prefer Rscript on PATH; otherwise probe common install locations
+    rscript = shutil.which("Rscript")
+    if not rscript:
+        candidates = []
+        for base in (Path("C:/Program Files/R"), Path("C:/Program Files (x86)/R")):
+            try:
+                for p in base.glob("R-*/bin/Rscript.exe"):
+                    candidates.append(str(p))
+            except Exception:
+                pass
+        rscript = candidates[0] if candidates else None
+    if not rscript:
+        console.print("Rscript not found. Please install R or add Rscript.exe to PATH.", style="red")
+        return
+    args = [rscript, script]
+    if date_str:
+        args += ["--date", date_str]
+    if start and end and not date_str:
+        args += ["--start", start, "--end", end]
+    try:
+        r = subprocess.run(args, cwd=str(paths.root), capture_output=True, text=True, check=False)
+        console.print({"cmd": " ".join(args), "returncode": r.returncode})
+        if r.stdout:
+            console.print(r.stdout)
+        if r.stderr:
+            console.print(r.stderr, style="yellow")
+    except FileNotFoundError:
+        console.print("Rscript not found. Please install R and ensure Rscript is on PATH.", style="red")
+    except Exception as e:
+        console.print(f"Failed to run R script: {e}", style="red")
+
 
 @cli.command("fetch-boxscores")
 @click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
@@ -2708,7 +2753,15 @@ def export_game_cards_cmd(date_str: str):
     rows: list[dict] = []
     # If odds available, iterate matchups; else iterate game IDs from tip/thr/fb
     def _build_row(game_id: Optional[str], home: Optional[str], away: Optional[str], ctime: Optional[str]) -> dict:
-        row = {"date": date_str, "game_id": game_id, "home_team": home, "visitor_team": away, "commence_time": ctime}
+        # Normalize game_id to 10-digit zero-padded string for consistent frontend merges
+        gid_norm = None
+        if game_id is not None and str(game_id).strip():
+            gid_norm = str(game_id).strip()
+            # Some sources may already be zero-padded; enforce 10-digit
+            gid_norm = gid_norm.replace('.0', '') if gid_norm.endswith('.0') else gid_norm
+            if gid_norm.isdigit():
+                gid_norm = gid_norm.zfill(10)
+        row = {"date": date_str, "game_id": gid_norm, "home_team": home, "visitor_team": away, "commence_time": ctime}
         # Attach tip
         if tip is not None and game_id is not None:
             gid_norm = str(game_id).strip()
@@ -2763,6 +2816,729 @@ def export_game_cards_cmd(date_str: str):
     cards = pd.DataFrame(rows)
     cards.to_csv(out_path, index=False)
     console.print({"rows": int(len(cards)), "output": str(out_path)})
+
+
+@cli.command("reconcile-pbp-markets")
+@click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD to reconcile PBP-derived markets")
+def reconcile_pbp_markets_cmd(date_str: str):
+    """Reconcile PBP-derived markets (tip, first-basket, early-threes) for a date.
+
+    Writes per-game reconciliation to data/processed/pbp_reconcile_<date>.csv and prints summary metrics.
+    """
+    console.rule("Reconcile PBP-derived Markets")
+    try:
+        _ = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+
+    # Load predictions (safe reader to handle blank files)
+    def _read_csv_safe(path: Path) -> pd.DataFrame:
+        try:
+            return pd.read_csv(path)
+        except Exception:
+            return pd.DataFrame()
+    tip_path = paths.data_processed / f"tip_winner_probs_{date_str}.csv"
+    fb_path = paths.data_processed / f"first_basket_probs_{date_str}.csv"
+    thr_path = paths.data_processed / f"early_threes_{date_str}.csv"
+    tip = _read_csv_safe(tip_path) if tip_path.exists() else pd.DataFrame()
+    fb = _read_csv_safe(fb_path) if fb_path.exists() else pd.DataFrame()
+    thr = _read_csv_safe(thr_path) if thr_path.exists() else pd.DataFrame()
+
+    # Build PBP map by game_id using combined file if available; else per-game files by discovered IDs
+    pbp_map: dict[str, pd.DataFrame] = {}
+    pbp_comb = paths.data_processed / f"pbp_{date_str}.csv"
+    if pbp_comb.exists():
+        try:
+            df = pd.read_csv(pbp_comb)
+            if "game_id" in df.columns and not df.empty:
+                for gid, grp in df.groupby("game_id"):
+                    key_raw = str(gid).strip()
+                    # Accept only numeric gameIds to avoid 'NA' and placeholders
+                    if not key_raw or not key_raw.isdigit():
+                        continue
+                    pbp_map[key_raw.zfill(10)] = grp.copy()
+        except Exception:
+            pbp_map = {}
+    if not pbp_map:
+        # Discover game IDs from any available predictions or CDN schedule
+        gids = set()
+        for df in (tip, fb, thr):
+            if not df.empty and "game_id" in df.columns:
+                gids.update(str(x) for x in df["game_id"].dropna().astype(str).tolist())
+        if not gids:
+            try:
+                from .pbp_markets import _game_ids_for_date as _ids
+                gids = set(_ids(date_str))
+            except Exception:
+                gids = set()
+        dpg = paths.data_processed / "pbp"
+        for gid in gids:
+            # Only consider numeric gids
+            gid_s = str(gid).strip()
+            if not gid_s.isdigit():
+                continue
+            gzp = gid_s.zfill(10)
+            for name in (f"pbp_{gid_s}.csv", f"pbp_{gzp}.csv"):
+                fpath = dpg / name
+                if fpath.exists():
+                    try:
+                        pbp_map[gzp] = pd.read_csv(fpath)
+                        break
+                    except Exception:
+                        continue
+
+    # Home/away map for this date (for tip winner mapping)
+    _gid_to_homeaway: dict[str, tuple[str,str]] = {}
+    try:
+        from .pbp_markets import _gid_team_map_for_date as _map
+        m = _map(date_str) or {}
+        _gid_to_homeaway = {str(k): (v[0], v[1]) for k, v in m.items()}
+    except Exception:
+        _gid_to_homeaway = {}
+
+    # Helpers
+    def _count_early_threes_q1(gdf: pd.DataFrame) -> int:
+        if gdf is None or gdf.empty:
+            return 0
+        desc_cols = _pbp_desc_cols(gdf)
+        c_per = "PERIOD" if "PERIOD" in gdf.columns else ("period" if "period" in gdf.columns else None)
+        tmp = gdf.copy()
+        if c_per:
+            try:
+                tmp = tmp[tmp[c_per] == 1]
+            except Exception:
+                pass
+        # Prefer actionNumber ordering; else compute elapsed via shared parser
+        if "actionNumber" in gdf.columns:
+            try:
+                tmp = tmp.sort_values("actionNumber", ascending=True)
+            except Exception:
+                pass
+        # else: leave original order; we'll guard with per-row elapsed checks
+        cnt = 0
+        for _, r in tmp.iterrows():
+            # Compute elapsed using shared helper
+            try:
+                from .pbp_markets import _to_sec_left as _sec
+            except Exception:
+                _sec = None
+            t = r.get("PCTIMESTRING") or r.get("clock") or r.get("time")
+            sec_left = _sec(t) if _sec else None
+            if sec_left is None:
+                continue
+            elapsed = 12*60 - sec_left
+            if elapsed is None or elapsed > 180:
+                continue
+            text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
+            # Handle both textual and structured formats
+            made_three_text = ("3pt" in text) and ("made" in text or "makes" in text or "jump shot" in text)
+            made_three_struct = False
+            try:
+                if (str(r.get("shotResult")).lower() == "made") and int(r.get("shotValue") or 0) == 3:
+                    made_three_struct = True
+            except Exception:
+                made_three_struct = False
+            if made_three_text or made_three_struct:
+                cnt += 1
+        return int(cnt)
+
+    # Build reconciliation rows
+    rows: list[dict] = []
+    # Build union of game_ids from predictions and pbp_map
+    gid_set = set()
+    for df in (tip, fb, thr):
+        if not df.empty and "game_id" in df.columns:
+            gid_set.update(str(x) for x in df["game_id"].dropna().astype(str).tolist())
+    gid_set.update(pbp_map.keys())
+
+    for gid in sorted(gid_set):
+        gid_key = str(gid)
+        gid_norm = gid_key.zfill(10) if gid_key.isdigit() else gid_key
+        rec: dict = {"date": date_str, "game_id": gid_norm}
+        # Team tricodes if available
+        home, away = _gid_to_homeaway.get(gid_key) or _gid_to_homeaway.get(gid_norm) or (None, None)
+        # If not available, attempt to derive from the game's PBP (location h/v)
+        gdf = None
+        for _k in (gid_key, gid_norm):
+            if _k in pbp_map:
+                gdf = pbp_map[_k]
+                break
+        if (home is None or away is None) and gdf is not None and not gdf.empty:
+            try:
+                if {"teamTricode","location"}.issubset(set(gdf.columns)):
+                    tri_h = gdf[gdf["location"].astype(str).str.lower()=="h"].get("teamTricode").dropna()
+                    tri_v = gdf[gdf["location"].astype(str).str.lower()=="v"].get("teamTricode").dropna()
+                    h0 = str(tri_h.iloc[0]).upper() if len(tri_h)>0 else None
+                    v0 = str(tri_v.iloc[0]).upper() if len(tri_v)>0 else None
+                    if h0 and v0:
+                        home, away = h0, v0
+            except Exception:
+                pass
+        rec.update({"home_team": home, "visitor_team": away})
+
+        # Tip reconciliation
+        p_home = None
+        if not tip.empty:
+            m = tip[tip["game_id"].astype(str).str.zfill(10) == gid_norm]
+            if not m.empty and "prob_home_tip" in m.columns:
+                try:
+                    p_home = float(m.iloc[0]["prob_home_tip"])
+                except Exception:
+                    p_home = None
+        rec["tip_prob_home"] = p_home
+        outcome = None
+        if gdf is not None and not gdf.empty:
+            ev = _pbp_jump_ball_event(gdf)
+            if ev:
+                winner_text = (ev.get("winner_text") or "").strip()
+                if winner_text:
+                    # Try to infer the winner's team directly from PBP player names
+                    try:
+                        name_cols = [c for c in ("playerName","PLAYER1_NAME","player1_name") if c in gdf.columns]
+                        team_cols = [c for c in ("teamTricode","PLAYER1_TEAM_ABBREVIATION","team_abbr") if c in gdf.columns]
+                        t_winner = None
+                        if name_cols and team_cols:
+                            nl = winner_text.lower()
+                            for _, rr in gdf.iterrows():
+                                nm = None
+                                for c in name_cols:
+                                    nv = rr.get(c)
+                                    if isinstance(nv, str) and nv.strip():
+                                        nm = nv; break
+                                if not nm:
+                                    continue
+                                if nl in str(nm).lower():
+                                    tv = None
+                                    for tc in team_cols:
+                                        tv = rr.get(tc)
+                                        if isinstance(tv, str) and tv.strip():
+                                            break
+                                    if tv:
+                                        t_winner = str(tv).upper()
+                                        break
+                        if t_winner and home and away:
+                            if t_winner == str(home).upper():
+                                outcome = 1.0
+                            elif t_winner == str(away).upper():
+                                outcome = 0.0
+                    except Exception:
+                        pass
+        rec["tip_outcome_home"] = outcome
+        if p_home is not None and outcome is not None:
+            try:
+                brier = (float(p_home) - float(outcome))**2
+                import math
+                logloss = -(float(outcome)*math.log(max(1e-9, float(p_home))) + (1-float(outcome))*math.log(max(1e-9, 1-float(p_home))))
+            except Exception:
+                brier = None; logloss = None
+        else:
+            brier = None; logloss = None
+        rec["tip_brier"] = brier
+        rec["tip_logloss"] = logloss
+
+        # First basket reconciliation
+        fb_sub = fb[fb["game_id"].astype(str).str.zfill(10) == gid_norm] if not fb.empty else pd.DataFrame()
+        fb_top1_name = None; fb_top1_prob = None; fb_actual_name = None; fb_hit_top1 = None; fb_hit_top5 = None; fb_prob_actual = None
+        if gdf is not None and not gdf.empty:
+            ev = _pbp_first_fg_event(gdf)
+            if ev:
+                fb_actual_name = (ev.get("player_name") or "").strip()
+        if not fb_sub.empty:
+            sub = fb_sub.copy().sort_values("prob_first_basket", ascending=False)
+            try:
+                fb_top1_name = str(sub.iloc[0].get("player_name"))
+                fb_top1_prob = float(sub.iloc[0].get("prob_first_basket"))
+            except Exception:
+                pass
+            if fb_actual_name:
+                name_l = fb_actual_name.lower()
+                # Top-1
+                fb_hit_top1 = name_l in str(fb_top1_name or "").lower()
+                # Top-5
+                hit5 = False; p_act = None
+                for _, r in sub.head(5).iterrows():
+                    if name_l in str(r.get("player_name","")) .lower():
+                        hit5 = True; p_act = float(r.get("prob_first_basket", np.nan)); break
+                fb_hit_top5 = hit5
+                if p_act is None:
+                    m2 = sub[sub["player_name"].astype(str).str.lower().str.contains(name_l)].head(1)
+                    if not m2.empty:
+                        try:
+                            p_act = float(m2.iloc[0].get("prob_first_basket"))
+                        except Exception:
+                            p_act = None
+                fb_prob_actual = p_act
+        rec.update({
+            "first_basket_top1_name": fb_top1_name,
+            "first_basket_top1_prob": fb_top1_prob,
+            "first_basket_actual_name": fb_actual_name,
+            "first_basket_hit_top1": fb_hit_top1,
+            "first_basket_hit_top5": fb_hit_top5,
+            "first_basket_prob_actual": fb_prob_actual,
+        })
+
+        # Early threes reconciliation
+        yhat = None; p_ge1 = None
+        if not thr.empty:
+            m = thr[thr["game_id"].astype(str).str.zfill(10) == gid_norm]
+            if not m.empty:
+                try:
+                    yhat = float(m.iloc[0].get("expected_threes_0_3", m.iloc[0].get("threes_0_3_pred", np.nan)))
+                except Exception:
+                    yhat = None
+                try:
+                    p_ge1 = float(m.iloc[0].get("prob_ge_1", np.nan))
+                except Exception:
+                    p_ge1 = None
+        actual_thr = None; err_thr = None; brier_ge1 = None
+        if gdf is not None and not gdf.empty:
+            actual_thr = _count_early_threes_q1(gdf)
+            if yhat is not None:
+                try:
+                    err_thr = float(actual_thr) - float(yhat)
+                except Exception:
+                    err_thr = None
+            if p_ge1 is None and yhat is not None:
+                p_ge1 = 1.0 - float(np.exp(-max(0.0, float(yhat))))
+            if p_ge1 is not None and actual_thr is not None:
+                brier_ge1 = (float(p_ge1) - (1.0 if int(actual_thr) >= 1 else 0.0))**2
+        rec.update({
+            "early_threes_expected": yhat,
+            "early_threes_prob_ge_1": p_ge1,
+            "early_threes_actual": actual_thr,
+            "early_threes_error": err_thr,
+            "early_threes_brier_ge1": brier_ge1,
+        })
+
+        rows.append(rec)
+
+    out = paths.data_processed / f"pbp_reconcile_{date_str}.csv"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    pd.DataFrame(rows).to_csv(out, index=False)
+
+    # Print summary metrics
+    df = pd.DataFrame(rows)
+    tip_brier = float(pd.to_numeric(df.get("tip_brier"), errors="coerce").dropna().mean()) if not df.empty else float("nan")
+    tip_acc = float(np.mean([(float(p)>=0.5)==(float(y)==1.0) for p, y in zip(pd.to_numeric(df.get("tip_prob_home"), errors="coerce").dropna(), pd.to_numeric(df.get("tip_outcome_home"), errors="coerce").dropna())])) if ("tip_prob_home" in df.columns and "tip_outcome_home" in df.columns) else float("nan")
+    if {"first_basket_hit_top1","first_basket_hit_top5"}.issubset(set(df.columns)) and not df.empty:
+        fb_df = df.dropna(subset=["first_basket_hit_top1","first_basket_hit_top5"], how="all")
+        fb_top1_acc = float(pd.to_numeric(fb_df.get("first_basket_hit_top1"), errors="coerce").dropna().mean()) if not fb_df.empty else float("nan")
+        fb_top5_cov = float(pd.to_numeric(fb_df.get("first_basket_hit_top5"), errors="coerce").dropna().mean()) if not fb_df.empty else float("nan")
+    else:
+        fb_top1_acc = float("nan"); fb_top5_cov = float("nan")
+    _thr_col = df.get("early_threes_error")
+    if isinstance(_thr_col, pd.Series):
+        thr_errs = pd.to_numeric(_thr_col, errors="coerce").dropna()
+    else:
+        thr_errs = pd.Series(dtype=float)
+    thr_mae = float(thr_errs.abs().mean()) if len(thr_errs) > 0 else float("nan")
+    thr_rmse = float(np.sqrt((thr_errs**2).mean())) if len(thr_errs) > 0 else float("nan")
+    thr_brier = float(pd.to_numeric(df.get("early_threes_brier_ge1"), errors="coerce").dropna().mean()) if not df.empty else float("nan")
+    console.print({
+        "date": date_str,
+        "output": str(out),
+        "tip": {"brier": tip_brier, "acc@0.5": tip_acc},
+        "first_basket": {"top1_acc": fb_top1_acc, "top5_cov": fb_top5_cov},
+        "early_threes": {"mae": thr_mae, "rmse": thr_rmse, "brier_ge1": thr_brier},
+    })
+
+
+@cli.command("backtest-pbp-markets")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD (season start)")
+@click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default=today")
+@click.option("--ensure-preds", is_flag=True, default=True, show_default=True, help="Generate predictions for any missing days in range")
+@click.option("--ensure-pbp", is_flag=True, default=False, show_default=True, help="Fetch PBP logs if missing for games in range (finals only)")
+def backtest_pbp_markets_cmd(start_date: str, end_date: str | None, ensure_preds: bool, ensure_pbp: bool):
+    """Backtest PBP-derived markets (tip, first-basket, early-threes) over a date range.
+
+    Metrics reported:
+    - tip: Brier score, log loss (if outcome available), accuracy at 0.5 threshold, n
+    - first-basket: top-1 accuracy, top-5 coverage, mean prob(actual), n
+    - early-threes: MAE, RMSE for expected_threes_0_3, and Brier for prob_ge_1 vs indicator, n
+    """
+    console.rule("Backtest PBP-derived Markets")
+    try:
+        s = pd.to_datetime(start_date).date()
+    except Exception:
+        console.print("Invalid --start (YYYY-MM-DD)", style="red"); return
+    if end_date:
+        try:
+            e = pd.to_datetime(end_date).date()
+        except Exception:
+            console.print("Invalid --end (YYYY-MM-DD)", style="red"); return
+    else:
+        e = _date.today()
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+
+    # Optionally ensure PBP exists (finals only)
+    if ensure_pbp:
+        try:
+            _ = backfill_pbp(str(s), str(e), only_final=True, rate_delay=0.35)
+        except Exception as ex:
+            console.print({"warning": f"PBP fetch failed/skipped: {ex}"}, style="yellow")
+
+    # Iterate days and evaluate
+    dates = list(pd.date_range(s, e, freq="D").date)
+    # Accumulators
+    tip_probs = []; tip_outcomes = []
+    fb_top1 = 0; fb_top5 = 0; fb_total = 0; fb_probs_actual = []
+    thr_errs = []; thr_ge1_probs = []; thr_ge1_outcomes = []
+    # Lightweight cache for CDN scoreboard home/away maps
+    _gid_to_homeaway: dict[str, tuple[str,str]] = {}
+
+    def _cdn_map_for_date(ds: str) -> dict[str, tuple[str,str]]:
+        # Reuse pbp_markets helper that hits CDN endpoints
+        from .pbp_markets import _gid_team_map_for_date as _map
+        try:
+            m = _map(ds) or {}
+            return {str(k): (v[0], v[1]) for k, v in m.items()}
+        except Exception:
+            return {}
+
+    def _read_csv_safe(path: Path) -> pd.DataFrame:
+        try:
+            return pd.read_csv(path)
+        except Exception:
+            return pd.DataFrame()
+
+    for d in track(dates, description="Backtesting"):
+        ds = str(d)
+        # Load or generate predictions
+        tip_path = paths.data_processed / f"tip_winner_probs_{ds}.csv"
+        fb_path = paths.data_processed / f"first_basket_probs_{ds}.csv"
+        thr_path = paths.data_processed / f"early_threes_{ds}.csv"
+        if ensure_preds:
+            try:
+                if not tip_path.exists() or not fb_path.exists() or not thr_path.exists():
+                    _ = predict_tip_for_date(ds)
+                    _ = predict_first_basket_for_date(ds)
+                    _ = predict_early_threes_for_date(ds)
+            except Exception:
+                pass
+        # Read available predictions
+        tip = _read_csv_safe(tip_path) if tip_path.exists() else pd.DataFrame()
+        fb = _read_csv_safe(fb_path) if fb_path.exists() else pd.DataFrame()
+        thr = _read_csv_safe(thr_path) if thr_path.exists() else pd.DataFrame()
+        if tip.empty and fb.empty and thr.empty:
+            continue
+
+        # Load PBP combined for outcomes (if exists)
+        pbp_comb = paths.data_processed / f"pbp_{ds}.csv"
+        pbp_map: dict[str, pd.DataFrame] = {}
+        if pbp_comb.exists():
+            df = pd.read_csv(pbp_comb)
+            if "game_id" in df.columns:
+                for gid, grp in df.groupby("game_id"):
+                    key_raw = str(gid).strip()
+                    if not key_raw.isdigit():
+                        continue
+                    pbp_map[key_raw.zfill(10)] = grp.copy()
+        else:
+            # fallback to per-game files
+            dpg = paths.data_processed / "pbp"
+            if dpg.exists():
+                for f in dpg.glob("pbp_*.csv"):
+                    try:
+                        gid = f.stem.replace("pbp_", "").strip()
+                        if not gid.isdigit():
+                            continue
+                        pbp_map[gid.zfill(10)] = pd.read_csv(f)
+                    except Exception:
+                        continue
+
+        # Early threes outcomes and errors
+        if not thr.empty:
+            # Build actuals for games present in thr
+            actuals = {}
+            if pbp_map:
+                for gid, gdf in pbp_map.items():
+                    # count threes in first 180 sec using existing helper
+                    cnt = 0
+                    desc_cols = _pbp_desc_cols(gdf)
+                    c_time = "PCTIMESTRING" if "PCTIMESTRING" in gdf.columns else ("clock" if "clock" in gdf.columns else None)
+                    c_per = "PERIOD" if "PERIOD" in gdf.columns else ("period" if "period" in gdf.columns else None)
+                    tmp = gdf.copy()
+                    if c_per: tmp = tmp[tmp[c_per] == 1]
+                    if c_time: tmp = tmp.sort_values(c_time, ascending=False)
+                    for _, r in tmp.iterrows():
+                        t = r.get("PCTIMESTRING") or r.get("clock") or r.get("time")
+                        sec_left = None
+                        if isinstance(t, str) and ":" in t:
+                            try:
+                                m, s2 = t.split(":"); sec_left = int(m)*60+int(s2)
+                            except Exception:
+                                sec_left = None
+                        if sec_left is None: continue
+                        elapsed = 12*60 - sec_left
+                        if elapsed is None or elapsed > 180:
+                            continue
+                        text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
+                        if ("3pt" in text) and ("makes" in text or "made" in text):
+                            cnt += 1
+                    actuals[str(gid)] = int(cnt)
+            # Join predictions with actuals
+            for _, row in thr.iterrows():
+                gid = str(row.get("game_id"))
+                if not gid:
+                    continue
+                yhat = float(row.get("expected_threes_0_3", row.get("threes_0_3_pred", 0.0)) or 0.0)
+                a = actuals.get(gid)
+                if a is None:
+                    continue
+                thr_errs.append(float(a - yhat))
+                p_ge1 = float(row.get("prob_ge_1", 1.0 - float(np.exp(-max(0.0, yhat)))))
+                thr_ge1_probs.append(p_ge1)
+                thr_ge1_outcomes.append(1.0 if a >= 1 else 0.0)
+
+        # First basket outcomes
+        if not fb.empty and pbp_map:
+            # Map actual first scorer per game
+            actual_first: dict[str, dict] = {}
+            for gid, gdf in pbp_map.items():
+                ev = _pbp_first_fg_event(gdf)
+                if ev:
+                    actual_first[str(gid)] = ev
+            for gid, grp in fb.groupby("game_id"):
+                gid = str(gid)
+                ev = actual_first.get(gid)
+                if not ev:
+                    continue
+                fb_total += 1
+                pname_first = (ev.get("player_name") or "").strip().lower()
+                # Top-1
+                sub = grp.copy().sort_values("prob_first_basket", ascending=False)
+                top = sub.iloc[0]
+                top_hit = pname_first in str(top.get("player_name","")) .lower()
+                if top_hit:
+                    fb_top1 += 1
+                # Top-5 coverage and prob(actual)
+                hit5 = False; prob_actual = None
+                for _, r in sub.head(5).iterrows():
+                    if pname_first in str(r.get("player_name","")) .lower():
+                        hit5 = True; prob_actual = float(r.get("prob_first_basket", np.nan)); break
+                if hit5:
+                    fb_top5 += 1
+                if prob_actual is None:
+                    m = sub[sub["player_name"].astype(str).str.lower().str.contains(pname_first)].head(1)
+                    if not m.empty:
+                        prob_actual = float(m.iloc[0].get("prob_first_basket", np.nan))
+                if prob_actual is not None and not np.isnan(prob_actual):
+                    fb_probs_actual.append(float(prob_actual))
+
+        # Tip outcomes
+        if not tip.empty and pbp_map:
+            # Build home/away map for this date
+            if not _gid_to_homeaway:
+                _gid_to_homeaway = _cdn_map_for_date(ds)
+            for _, r in tip.iterrows():
+                gid = str(r.get("game_id"))
+                if gid not in pbp_map:
+                    continue
+                pbp = pbp_map[gid]
+                ev = _pbp_jump_ball_event(pbp)
+                if not ev:
+                    continue
+                winner_text = (ev.get("winner_text") or "").strip().lower()
+                if not winner_text:
+                    continue
+                home, away = _gid_to_homeaway.get(gid) or _gid_to_homeaway.get(gid.zfill(10)) or (None, None)
+                if not (home and away):
+                    continue
+                outcome = None
+                try:
+                    from .pbp_markets import _load_rosters_latest as _load_rost
+                    rost = _load_rost()
+                    if not rost.empty:
+                        def _has_name(team):
+                            tri_col = "TEAM_ABBREVIATION" if "TEAM_ABBREVIATION" in rost.columns else ("teamTricode" if "teamTricode" in rost.columns else None)
+                            sub = rost[rost[tri_col].astype(str).str.upper() == str(team).upper()].copy() if tri_col else rost
+                            names = sub.get("PLAYER") or sub.get("PLAYER_NAME") or pd.Series(dtype=str)
+                            names = names.astype(str).str.lower()
+                            return names.str.contains(winner_text).any()
+                        if _has_name(home): outcome = 1.0
+                        elif _has_name(away): outcome = 0.0
+                except Exception:
+                    outcome = None
+                p_home = float(r.get("prob_home_tip", 0.5))
+                if outcome is not None:
+                    tip_probs.append(p_home)
+                    tip_outcomes.append(outcome)
+
+    # Aggregate metrics
+    def _brier(p, y):
+        return float(np.mean([(pi-yi)**2 for pi, yi in zip(p, y)])) if p and y else np.nan
+    def _logloss(p, y, eps=1e-9):
+        import math
+        if not p or not y:
+            return np.nan
+        return float(np.mean([-(yi*math.log(max(eps, pi)) + (1-yi)*math.log(max(eps, 1-pi))) for pi, yi in zip(p, y)]))
+    tip_brier = _brier(tip_probs, tip_outcomes)
+    tip_logloss = _logloss(tip_probs, tip_outcomes)
+    tip_acc = float(np.mean([int((pi>=0.5)==(yi==1.0)) for pi, yi in zip(tip_probs, tip_outcomes)])) if tip_probs else np.nan
+    fb_top1_acc = (fb_top1 / fb_total) if fb_total else np.nan
+    fb_top5_cov = (fb_top5 / fb_total) if fb_total else np.nan
+    fb_mean_prob_actual = float(np.mean(fb_probs_actual)) if fb_probs_actual else np.nan
+    thr_mae = float(np.mean([abs(e) for e in thr_errs])) if thr_errs else np.nan
+    thr_rmse = float(np.sqrt(np.mean([e*e for e in thr_errs]))) if thr_errs else np.nan
+    thr_brier = _brier(thr_ge1_probs, thr_ge1_outcomes)
+
+    console.print({
+        "range": f"{start_date}..{str(e)}",
+        "tip": {"n": len(tip_outcomes), "brier": tip_brier, "logloss": tip_logloss, "acc@0.5": tip_acc},
+        "first_basket": {"n": fb_total, "top1_acc": fb_top1_acc, "top5_cov": fb_top5_cov, "mean_prob_actual": fb_mean_prob_actual},
+        "early_threes": {"n": len(thr_errs), "mae": thr_mae, "rmse": thr_rmse, "brier_ge1": thr_brier},
+    })
+
+
+@cli.command("calibrate-pbp-markets")
+@click.option("--anchor", "anchor_date", type=str, required=False, help="Anchor date YYYY-MM-DD (default=yesterday)")
+@click.option("--window", "window_days", type=int, default=7, show_default=True, help="Lookback window in days for calibration")
+def calibrate_pbp_markets_cmd(anchor_date: str | None, window_days: int):
+    """Compute lightweight calibration for PBP markets using recent reconciliation files.
+
+    Outputs to data/processed/pbp_calibration.csv (appends a row):
+    - thr_bias: additive bias for expected_threes_0_3 (early threes)
+    - tip_logit_bias: intercept shift in log-odds space for tip prob_home
+    - fb_temp: temperature scaling for first-basket candidate score normalization
+    """
+    console.rule("Calibrate PBP-derived Markets")
+    import datetime as _dt
+    if anchor_date:
+        try:
+            anchor = pd.to_datetime(anchor_date).date()
+        except Exception:
+            console.print("Invalid --anchor (YYYY-MM-DD)", style="red"); return
+    else:
+        anchor = (_dt.date.today() - _dt.timedelta(days=1))
+    start = anchor - _dt.timedelta(days=max(0, int(window_days)-1))
+    dates = list(pd.date_range(start, anchor, freq="D").date)
+    rows = []
+    for d in dates:
+        p = paths.data_processed / f"pbp_reconcile_{d}.csv"
+        if p.exists():
+            try:
+                df = pd.read_csv(p)
+                df["date"] = str(d)
+                rows.append(df)
+            except Exception:
+                continue
+    if not rows:
+        console.print("No reconciliation files in window; skipping calibration", style="yellow"); return
+    all_df = pd.concat(rows, ignore_index=True)
+    # Early threes intercept bias = mean(actual - expected)
+    thr_err = pd.to_numeric(all_df.get("early_threes_error"), errors="coerce").dropna()
+    thr_bias = float(thr_err.mean()) if len(thr_err)>0 else 0.0
+
+    # Tip: fit a logit intercept b such that mean(sigmoid(logit(p)+b)) ~= mean(y)
+    tip_b = 0.0
+    try:
+        p = pd.to_numeric(all_df.get("tip_prob_home"), errors="coerce").dropna().astype(float).tolist()
+        y = pd.to_numeric(all_df.get("tip_outcome_home"), errors="coerce").dropna().astype(float).tolist()
+        # Align lengths by inner join on rows with both
+        if "tip_prob_home" in all_df.columns and "tip_outcome_home" in all_df.columns:
+            tmp = all_df.dropna(subset=["tip_prob_home","tip_outcome_home"]).copy()
+            pp = pd.to_numeric(tmp["tip_prob_home"], errors="coerce").astype(float).tolist()
+            yy = pd.to_numeric(tmp["tip_outcome_home"], errors="coerce").astype(float).tolist()
+            if len(pp) >= 5:
+                import math
+                probs = [min(max(float(t), 1e-6), 1-1e-6) for t in pp]
+                ys = [1.0 if float(t)>=0.5 else 0.0 for t in yy]  # ensure 0/1
+                ybar = float(np.mean(ys)) if ys else None
+                if ybar is not None:
+                    logits = [math.log(pv/(1-pv)) for pv in probs]
+                    # Bisection to find b s.t. mean(sigmoid(logit+b)) = ybar
+                    def _mean_after(b):
+                        vals = [1.0/(1.0+math.exp(-(lv + b))) for lv in logits]
+                        return float(np.mean(vals))
+                    lo, hi = -5.0, 5.0
+                    m_lo, m_hi = _mean_after(lo), _mean_after(hi)
+                    # If ybar out of achievable range, pick closest bound
+                    if ybar <= m_lo:
+                        tip_b = lo
+                    elif ybar >= m_hi:
+                        tip_b = hi
+                    else:
+                        for _ in range(40):
+                            mid = 0.5*(lo+hi)
+                            m_mid = _mean_after(mid)
+                            if m_mid < ybar:
+                                lo = mid
+                            else:
+                                hi = mid
+                        tip_b = 0.5*(lo+hi)
+    except Exception:
+        tip_b = 0.0
+
+    # First-basket: choose temperature that maximizes mean probability assigned to actual first scorer
+    fb_temp = 1.0
+    try:
+        # Build per-game actual names from reconciliation in window
+        recon = all_df.dropna(subset=["game_id","first_basket_actual_name"]).copy()
+        if not recon.empty:
+            recon["game_id"] = recon["game_id"].astype(str)
+            # Load candidate audits per day in window
+            candidate_frames = []
+            for d in dates:
+                f = paths.data_processed / f"first_basket_candidates_{d}.csv"
+                if f.exists():
+                    try:
+                        cdf = pd.read_csv(f)
+                        cdf["game_id"] = cdf["game_id"].astype(str)
+                        candidate_frames.append(cdf)
+                    except Exception:
+                        continue
+            if candidate_frames:
+                all_cand = pd.concat(candidate_frames, ignore_index=True)
+                # For stability add epsilon to raw_score and clip >= 0
+                all_cand["raw_score"] = pd.to_numeric(all_cand.get("raw_score"), errors="coerce").fillna(0.0).clip(lower=0.0) + 1e-9
+                # Grid search tau in [0.6, 1.5]
+                taus = [round(x,2) for x in np.linspace(0.6, 1.5, 19)]
+                best_tau, best_mean = 1.0, -1.0
+                eval_counts = 0
+                for tau in taus:
+                    probs_actual: list[float] = []
+                    # Iterate games that have both recon actual and candidates
+                    for gid, sub in all_cand.groupby("game_id"):
+                        row = recon[recon["game_id"].astype(str).str.zfill(10) == str(gid).zfill(10)]
+                        if row.empty:
+                            continue
+                        actual = str(row.iloc[0].get("first_basket_actual_name") or "").strip().lower()
+                        if not actual:
+                            continue
+                        sc = sub.copy()
+                        sc["player_name_l"] = sc["player_name"].astype(str).str.lower()
+                        denom = float(np.power(sc["raw_score"].values, 1.0/float(tau)).sum())
+                        if denom <= 0:
+                            continue
+                        sc["prob_tau"] = np.power(sc["raw_score"].values, 1.0/float(tau)) / denom
+                        # find actual row
+                        m = sc[sc["player_name_l"].str.contains(actual, na=False)]
+                        if not m.empty:
+                            probs_actual.append(float(m.iloc[0]["prob_tau"]))
+                    if probs_actual:
+                        eval_counts += 1
+                        avg = float(np.mean(probs_actual))
+                        # Maximize avg; tie-breaker by closeness to 1.0
+                        if (avg > best_mean) or (abs(avg - best_mean) <= 1e-9 and abs(tau-1.0) < abs(best_tau-1.0)):
+                            best_mean = avg; best_tau = float(tau)
+                if eval_counts >= 3:  # require at least 3 games evaluated
+                    fb_temp = float(best_tau)
+    except Exception:
+        fb_temp = 1.0
+    cal_path = paths.data_processed / "pbp_calibration.csv"
+    cal_path.parent.mkdir(parents=True, exist_ok=True)
+    new_row = pd.DataFrame([{ "date": str(anchor), "window_days": int(window_days), "thr_bias": thr_bias, "tip_logit_bias": tip_b, "fb_temp": fb_temp }])
+    try:
+        if cal_path.exists():
+            prev = pd.read_csv(cal_path)
+            out = pd.concat([prev, new_row], ignore_index=True)
+        else:
+            out = new_row
+        out.to_csv(cal_path, index=False)
+    except Exception as e:
+        console.print(f"Failed to write calibration: {e}", style="red"); return
+    console.print({"anchor": str(anchor), "window_days": int(window_days), "thr_bias": thr_bias, "tip_logit_bias": tip_b, "fb_temp": fb_temp, "output": str(cal_path)})
 
 
 @cli.command()

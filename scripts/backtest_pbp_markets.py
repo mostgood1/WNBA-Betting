@@ -83,8 +83,22 @@ def run_backtest(start_date: str, end_date: str | None, ensure_preds: bool, ensu
         pbp_map: dict[str, pd.DataFrame] = {}
         if pbp_comb.exists():
             df = pd.read_csv(pbp_comb)
+            # If teams_key present (from BRef fallback), map to NBA game_id using CDN map
+            if 'teams_key' in df.columns and 'game_id' not in df.columns:
+                gid2ha = _cdn_map_for_date(ds)
+                # build reverse map on sorted pair
+                rev = {}
+                for gid, (h,a) in gid2ha.items():
+                    key = '|'.join(sorted([str(h).upper(), str(a).upper()]))
+                    rev[key] = str(gid)
+                if 'home_tri' in df.columns and 'away_tri' in df.columns and 'teams_key' not in df.columns:
+                    df['teams_key'] = df['home_tri'].astype(str).str.upper() + '|' + df['away_tri'].astype(str).str.upper()
+                df['teams_key_norm'] = df['teams_key'].astype(str).str.upper().apply(lambda k: '|'.join(sorted(k.split('|'))) if '|' in k else k)
+                df['game_id'] = df['teams_key_norm'].map(rev)
             if 'game_id' in df.columns:
                 for gid, grp in df.groupby('game_id'):
+                    if pd.isna(gid) or gid is None or str(gid).strip()=='' :
+                        continue
                     pbp_map[str(gid)] = grp.copy()
         else:
             dpg = paths.data_processed / 'pbp'
@@ -93,7 +107,24 @@ def run_backtest(start_date: str, end_date: str | None, ensure_preds: bool, ensu
                     try:
                         gid = f.stem.replace('pbp_', '')
                         gidd = str(int(gid)) if gid.isdigit() else gid
-                        pbp_map[gidd] = pd.read_csv(f)
+                        df = pd.read_csv(f)
+                        if 'game_id' in df.columns and df['game_id'].notna().any():
+                            for gg, grp in df.groupby('game_id'):
+                                if pd.isna(gg) or not str(gg).strip():
+                                    continue
+                                pbp_map[str(gg)] = grp.copy()
+                        elif 'teams_key' in df.columns:
+                            gid2ha = _cdn_map_for_date(ds)
+                            rev = {'|'.join(sorted([v[0],v[1]])): k for k,v in gid2ha.items()}
+                            df['teams_key_norm'] = df['teams_key'].astype(str).str.upper().apply(lambda k: '|'.join(sorted(k.split('|'))) if '|' in k else k)
+                            df['game_id'] = df['teams_key_norm'].map(rev)
+                            for gg, grp in df.groupby('game_id'):
+                                if pd.isna(gg) or not str(gg).strip():
+                                    continue
+                                pbp_map[str(gg)] = grp.copy()
+                        else:
+                            # as a last resort, bucket entire file under synthetic key
+                            pbp_map[gidd] = df
                     except Exception:
                         continue
         # Early threes

@@ -152,7 +152,18 @@ def _cdn_games_for_date(date_str: str) -> List[dict]:
     try:
         target = _dt.strptime(date_str, "%Y-%m-%d").date()
         today = _date.today()
-        headers = {"Accept":"application/json","User-Agent":"nba-betting/1.0"}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Referer": "https://www.nba.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+        }
         if target == today:
             u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
             r = requests.get(u, headers=headers, timeout=15)
@@ -170,9 +181,31 @@ def _cdn_games_for_date(date_str: str) -> List[dict]:
                         "status": g.get("gameStatus")
                     })
                 return out
+        else:
+            # Past or future specific day scoreboard (more reliable than static schedule for finals)
+            ymd = target.strftime("%Y%m%d")
+            u_day = f"https://cdn.nba.com/static/json/liveData/scoreboard/scoreboard_{ymd}.json"
+            r = requests.get(u_day, headers=headers, timeout=20)
+            if r.ok:
+                j = r.json() or {}
+                games = (j.get("scoreboard") or {}).get("games") or []
+                out = []
+                for g in games:
+                    out.append({
+                        "gameId": str(g.get("gameId") or "").strip(),
+                        "home": ((g.get("homeTeam") or {}).get("teamTricode") or "").upper(),
+                        "away": ((g.get("awayTeam") or {}).get("teamTricode") or "").upper(),
+                        "statusText": g.get("gameStatusText"),
+                        "status": g.get("gameStatus")
+                    })
+                return out
         # else static schedule
         u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
         r = requests.get(u, headers=headers, timeout=20)
+        if not r.ok:
+            # S3 fallback for schedule
+            u2 = "https://nba-prod-us-east-1-mediaops-stats.s3.amazonaws.com/NBA/staticData/scheduleLeagueV2_1.json"
+            r = requests.get(u2, headers=headers, timeout=20)
         if not r.ok:
             return []
         j = r.json() or {}
@@ -210,7 +243,18 @@ def _fetch_pbp_cdn_for_game(game_id: str, rate_delay: float = 0.2) -> pd.DataFra
     Produces columns compatible with downstream helpers: period, clock, description, game_id, and best-effort name/id fields.
     """
     try:
-        headers = {"Accept":"application/json","User-Agent":"nba-betting/1.0"}
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Referer": "https://www.nba.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+        }
         gid = str(game_id)
         u = f"https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_00_{gid}.json"
         r = requests.get(u, headers=headers, timeout=15)

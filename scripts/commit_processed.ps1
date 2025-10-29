@@ -15,7 +15,7 @@ if (-not (Test-Path $processedDir)) {
     exit 1
 }
 
-# Build target globs for the date
+# Build target globs for the date (CSV only by default)
 $patterns = @("*_$Date.csv")
 if ($IncludeJson) { $patterns += "*_$Date.json" }
 
@@ -24,6 +24,29 @@ $files = @()
 foreach ($pat in $patterns) {
     $files += Get-ChildItem -Path $processedDir -Filter $pat -File -ErrorAction SilentlyContinue
 }
+
+# Whitelist only Render/UI-facing artifacts to keep pushes minimal
+$allowedPrefixes = @(
+    "predictions_",
+    "recommendations_",
+    "recon_games_",
+    "recon_props_",
+    "finals_",
+    "closing_lines_",
+    "market_",
+    "odds_",
+    "game_odds_",
+    "game_cards_",
+    # Frontend-consumed season/game predictions snapshot
+    "games_predictions_npu_",
+    # Props artifacts surfaced in the UI
+    "props_edges_",
+    "props_predictions_",
+    "props_recommendations_"
+)
+
+# Filter files to allowed prefixes
+$files = $files | Where-Object { $name = $_.Name; $allowedPrefixes | ForEach-Object { if ($name.StartsWith($_)) { $true; break } } }
 
 if (-not $files -or $files.Count -eq 0) {
     Write-Host "No processed artifacts found for date $Date. Nothing to commit."

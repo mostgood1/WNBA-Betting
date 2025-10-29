@@ -58,53 +58,120 @@ normalize_pbp <- function(df){
   # Attempt to normalize to: period, clock, description, player1_name, player1_id, teamTricode, game_id
   # Different sources have different columns; map what we can.
   cols <- names(df)
+  pick_first <- function(cands){
+    for (nm in cands){ if (nm %in% cols) return(df[[nm]]) }
+    return(NULL)
+  }
+  # period candidates
+  period_vec <- pick_first(c("period","periodNumber","PERIOD","qtr","quarter"))
+  # clock candidates
+  clock_vec <- pick_first(c("clock","gameClock","PCTIMESTRING","time_remaining","remaining_time"))
+  # description candidates
+  desc_vec <- pick_first(c("description","desc","playDescription"))
+  if (is.null(desc_vec)){
+    # synthesize from known components commonly present in NBA liveData/hoopR
+    comp_names <- c("HOMEDESCRIPTION","NEUTRALDESCRIPTION","VISITORDESCRIPTION",
+                    "actionType","action_type","eventActionType","eventType","subType","shotResult",
+                    "playerName","player_name","playerNameI","teamTricode","teamAbbreviation")
+    comps <- list()
+    for (nm in comp_names){ if (nm %in% cols) comps[[nm]] <- df[[nm]] }
+    if (length(comps) > 0){
+      # build string row-wise
+      mat <- do.call(cbind, lapply(comps, function(x) ifelse(is.na(x), "", as.character(x))))
+      if (!is.matrix(mat)) mat <- matrix(mat, ncol = length(comps))
+      desc_vec <- apply(mat, 1, function(r){
+        v <- r[r != ""]
+        if (length(v)==0) return(NA_character_)
+        paste(v, collapse = " ")
+      })
+    }
+  }
+  # player name/id candidates
+  name_vec <- pick_first(c("playerName","player_name","PLAYER1_NAME"))
+  pid_vec  <- pick_first(c("personId","playerId","player_id","PLAYER1_ID"))
+  team_vec <- pick_first(c("teamTricode","teamAbbreviation","PLAYER1_TEAM_ABBREVIATION","TEAM_ABBREVIATION","teamTricodeHome","teamTricodeAway"))
+  gid_vec  <- pick_first(c("gameId","game_id","game_id_clean","GAME_ID","idGame"))
   out <- tibble(
-    period = if ("period" %in% cols) df$period else if ("PERIOD" %in% cols) df$PERIOD else NA_integer_,
-    clock = if ("clock" %in% cols) df$clock else if ("PCTIMESTRING" %in% cols) df$PCTIMESTRING else NA_character_,
-    description = if ("description" %in% cols) df$description else if ("HOMEDESCRIPTION" %in% cols) paste(df$HOMEDESCRIPTION %||% '', df$NEUTRALDESCRIPTION %||% '', df$VISITORDESCRIPTION %||% '') else NA_character_,
-    player1_name = if ("playerName" %in% cols) df$playerName else if ("PLAYER1_NAME" %in% cols) df$PLAYER1_NAME else NA_character_,
-    player1_id = if ("personId" %in% cols) df$personId else if ("PLAYER1_ID" %in% cols) df$PLAYER1_ID else NA_character_,
-    teamTricode = if ("teamTricode" %in% cols) df$teamTricode else if ("PLAYER1_TEAM_ABBREVIATION" %in% cols) df$PLAYER1_TEAM_ABBREVIATION else NA_character_,
-    game_id = if ("gameId" %in% cols) df$gameId else if ("GAME_ID" %in% cols) df$GAME_ID else NA_character_
+    period = if (!is.null(period_vec)) as.integer(period_vec) else NA_integer_,
+    clock = if (!is.null(clock_vec)) as.character(clock_vec) else NA_character_,
+    description = if (!is.null(desc_vec)) as.character(desc_vec) else NA_character_,
+    player1_name = if (!is.null(name_vec)) as.character(name_vec) else NA_character_,
+    player1_id = if (!is.null(pid_vec)) as.character(pid_vec) else NA_character_,
+    teamTricode = if (!is.null(team_vec)) as.character(team_vec) else NA_character_,
+    game_id = if (!is.null(gid_vec)) as.character(gid_vec) else NA_character_
   )
   # zero-pad game_id
-  out$game_id <- sprintf("%010s", as.character(out$game_id))
+  out$game_id <- ifelse(is.na(out$game_id) | out$game_id=="", NA_character_, sprintf("%010s", as.character(out$game_id)))
   out
 }
 
 `%||%` <- function(a,b){ if (is.null(a) || is.na(a)) b else a }
 
 fetch_one_date <- function(d){
+  # normalize d to Date to avoid tz()/numeric month errors
+  if (!inherits(d, "Date")) {
+    d <- tryCatch(as.Date(d), error=function(e) tryCatch(as.Date(d, origin = "1970-01-01"), error=function(e2) as.Date(as.character(d))))
+  }
   ymd <- format(as.Date(d), "%Y-%m-%d")
   message(sprintf("Fetching PBP for %s", ymd))
   if (has_hoopr){
-    # hoopR: load_nba_pbp returns a tibble with NBA PBP; filter by date
+    # hoopR approach: get schedule for the season, filter by date, then fetch PBP per game id
     suppressPackageStartupMessages(library(hoopR))
-    pbp <- tryCatch({ hoopR::load_nba_pbp(seasons = unique(year(d) + (month(d) >= 7))) }, error=function(e) NULL)
-    if (!is.null(pbp) && nrow(pbp)>0){
-      # filter by ymd if column available
-      date_col <- intersect(c("game_date", "dateGame", "game_date_time"), names(pbp))
+    season <- unique(lubridate::year(d) + (lubridate::month(d) >= 7))
+    sched <- tryCatch({ hoopR::nba_schedule(seasons = season) }, error=function(e) NULL)
+    if (!is.null(sched) && nrow(sched) > 0){
+      # Find a date column and normalize to Date
+      date_col <- intersect(c("game_date","gamedate","dateGame","gameDate","game_date_time"), names(sched))
       if (length(date_col) > 0){
-        dd <- as.Date(pbp[[date_col[1]]])
-        pbp <- pbp[dd == d, , drop=FALSE]
+        raw <- sched[[date_col[1]]]
+        # Normalize to Date robustly
+        to_date <- function(x){
+          if (inherits(x, "Date")) return(as.Date(x))
+          if (inherits(x, "POSIXt")) return(as.Date(x))
+          if (is.numeric(x)) { # Excel/epoch-like numeric dates
+            # Assume seconds since epoch
+            return(as.Date(as.POSIXct(x, origin = "1970-01-01", tz = "UTC")))
+          }
+          xs <- as.character(x)
+          xs <- sub("T.*$", "", xs) # strip time part if ISO
+          suppressWarnings(as.Date(xs))
+        }
+        dd <- to_date(raw)
+        sched <- sched[dd == as.Date(d), , drop = FALSE]
+      } else {
+        sched <- sched[0,]
       }
-      if (nrow(pbp)>0){
-        pbp_n <- normalize_pbp(pbp)
-        if (nrow(pbp_n)>0){
-          # write per-game
-          by_game <- split(pbp_n, pbp_n$game_id)
-          files <- c()
-          for (gid in names(by_game)){
-            if (is.na(gid) || gid=="") next
-            path_g <- file.path("data","processed","pbp", sprintf("pbp_%s.csv", gid))
-            readr::write_csv(by_game[[gid]], path_g)
-            files <- c(files, path_g)
+      if (nrow(sched) > 0){
+        gid_col <- intersect(c("game_id","gameId","gameIdPrevious","GAME_ID"), names(sched))
+        if (length(gid_col) > 0){
+          gids <- unique(as.character(sched[[gid_col[1]]]))
+          gids <- sprintf("%010s", gids)
+          pbp_list <- list()
+          for (gid in gids){
+            if (is.na(gid) || gid == "") next
+            pbp_g <- tryCatch({ hoopR::nba_pbp(game_id = gid) }, error=function(e) NULL)
+            if (is.null(pbp_g) || nrow(pbp_g) == 0) next
+            pbp_g$game_id <- gid
+            pbp_list[[length(pbp_list)+1]] <- pbp_g
             Sys.sleep(opt$`rate-delay`)
           }
-          # write combined
-          out_path <- file.path("data","processed", sprintf("pbp_%s.csv", ymd))
-          readr::write_csv(pbp_n, out_path)
-          return(invisible(files))
+          if (length(pbp_list) > 0){
+            pbp_all <- dplyr::bind_rows(pbp_list)
+            pbp_n <- normalize_pbp(pbp_all)
+            # write per-game
+            by_game <- split(pbp_n, pbp_n$game_id)
+            files <- c()
+            for (gid in names(by_game)){
+              if (is.na(gid) || gid=="") next
+              path_g <- file.path("data","processed","pbp", sprintf("pbp_%s.csv", gid))
+              readr::write_csv(by_game[[gid]], path_g)
+              files <- c(files, path_g)
+            }
+            # write combined
+            out_path <- file.path("data","processed", sprintf("pbp_%s.csv", ymd))
+            readr::write_csv(pbp_n, out_path)
+            return(invisible(files))
+          }
         }
       }
     }

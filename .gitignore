@@ -43,15 +43,9 @@ data/processed/**
 # Season schedule for UI
 !data/processed/schedule_*.json
 
-# PBP-derived market predictions
-!data/processed/tip_winner_probs_*.csv
-!data/processed/first_basket_probs_*.csv
-!data/processed/early_threes_*.csv
-
-# PBP outcomes (for backtests and validation)
-!data/processed/pbp_*.csv
-!data/processed/pbp/
-!data/processed/pbp/pbp_*.csv
+# Note: exclude PBP-derived predictions/outcomes from git to keep Render pushes light
+# (these are used only for offline backtests/validation and not consumed by the frontend)
+# If needed locally, they remain available on disk and via CI artifacts.
 
 # Game cards (frontend consumption)
 !data/processed/game_cards_*.csv

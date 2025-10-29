@@ -16,9 +16,32 @@ SECONDS_Q = 12 * 60
 
 
 def _to_sec_left(s: str) -> Optional[int]:
+    """Parse various clock formats to seconds left in period.
+
+    Supports:
+    - MM:SS (e.g., '11:45')
+    - ISO8601-like NBA strings: 'PT11M45.00S'
+    - Plain integers or floats representing seconds
+    Returns None on failure.
+    """
     try:
+        if s is None:
+            return None
+        if isinstance(s, (int, float, np.integer, np.floating)):
+            v = float(s)
+            if np.isnan(v):
+                return None
+            return int(v)
         if not isinstance(s, str):
             s = str(s)
+        s = s.strip()
+        # ISO8601-ish format 'PT11M45.00S'
+        m_iso = re.match(r"^PT(?:(\d+)M)?(?:(\d+)(?:\.\d+)?)S$", s)
+        if m_iso:
+            mm = int(m_iso.group(1) or 0)
+            ss = int(m_iso.group(2) or 0)
+            return mm * 60 + ss
+        # Classic mm:ss
         parts = s.split(":")
         if len(parts) == 2:
             m = int(parts[0]); sec = int(parts[1])
@@ -49,19 +72,54 @@ def _desc_cols(df: pd.DataFrame) -> List[str]:
 def _first_fg_event(df: pd.DataFrame) -> Optional[dict]:
     if df is None or df.empty:
         return None
-    desc_cols = _desc_cols(df)
-    c_time = "PCTIMESTRING" if "PCTIMESTRING" in df.columns else ("clock" if "clock" in df.columns else None)
-    c_per = "PERIOD" if "PERIOD" in df.columns else ("period" if "period" in df.columns else None)
+    # Prefer structured columns if present (newer per-game CSVs from NBA liveData)
+    # Logic: in Q1, first row with isFieldGoal==1 and shotResult=='Made' and actionType!='Free Throw'
+    cols = set(df.columns)
     tmp = df.copy()
-    if c_per: tmp = tmp[tmp[c_per] == 1]
-    if c_time: tmp = tmp.sort_values(c_time, ascending=False)
+    c_per = "PERIOD" if "PERIOD" in cols else ("period" if "period" in cols else None)
+    if c_per:
+        try:
+            tmp = tmp[tmp[c_per] == 1]
+        except Exception:
+            pass
+    # Order by actionNumber if available, else try clock descending (time left), else as-is
+    if "actionNumber" in cols:
+        try:
+            tmp = tmp.sort_values("actionNumber", ascending=True)
+        except Exception:
+            pass
+    else:
+        c_time = "PCTIMESTRING" if "PCTIMESTRING" in cols else ("clock" if "clock" in cols else None)
+        if c_time:
+            try:
+                # Convert to elapsed to sort ascending
+                tmp["__elapsed"] = tmp.apply(lambda r: (SECONDS_Q - (_to_sec_left(r.get(c_time)) or SECONDS_Q+1)), axis=1)
+                tmp = tmp.sort_values("__elapsed", ascending=True)
+            except Exception:
+                pass
+    if {"isFieldGoal","shotResult"}.issubset(cols):
+        for _, r in tmp.iterrows():
+            try:
+                is_fg = int(r.get("isFieldGoal") or 0) == 1
+            except Exception:
+                is_fg = bool(r.get("isFieldGoal"))
+            shot_res = str(r.get("shotResult") or "").lower()
+            a_type = str(r.get("actionType") or "").lower()
+            if is_fg and shot_res == "made" and ("free throw" not in a_type):
+                pid = r.get("personId") or r.get("PLAYER1_ID") or r.get("player1_id")
+                pname = r.get("playerName") or r.get("PLAYER1_NAME") or r.get("player1_name")
+                team = r.get("teamTricode") or r.get("PLAYER1_TEAM_ABBREVIATION") or r.get("team_abbr")
+                return {"player_id": pid, "player_name": pname, "team": team}
+    # Fallback to text-based detection for legacy schemas
+    desc_cols = _desc_cols(df)
     for _, r in tmp.iterrows():
         text = " ".join([str(r.get(c, "")) for c in desc_cols]).lower()
         if not text:
             continue
-        if ("makes" in text or "made" in text) and ("free throw" not in text):
-            pid = r.get("PLAYER1_ID") or r.get("player1_id")
-            pname = r.get("PLAYER1_NAME") or r.get("player1_name")
+        # Accept either explicit verbs or NBA phrasing like "Bridges 3PT Jump Shot (3 PTS)"
+        if ("makes" in text or "made" in text) or ("jump shot" in text and "free throw" not in text):
+            pid = r.get("PLAYER1_ID") or r.get("player1_id") or r.get("personId")
+            pname = r.get("PLAYER1_NAME") or r.get("player1_name") or r.get("playerName")
             team = r.get("PLAYER1_TEAM_ABBREVIATION") or r.get("teamTricode") or r.get("team_abbr")
             return {"player_id": pid, "player_name": pname, "team": team}
     return None
@@ -70,23 +128,36 @@ def _first_fg_event(df: pd.DataFrame) -> Optional[dict]:
 def _jump_ball_event(df: pd.DataFrame) -> Optional[dict]:
     if df is None or df.empty:
         return None
-    desc_cols = _desc_cols(df)
-    c_time = "PCTIMESTRING" if "PCTIMESTRING" in df.columns else ("clock" if "clock" in df.columns else None)
-    c_per = "PERIOD" if "PERIOD" in df.columns else ("period" if "period" in df.columns else None)
+    cols = set(df.columns)
     tmp = df.copy()
-    if c_per: tmp = tmp[tmp[c_per] == 1]
-    if c_time: tmp = tmp.sort_values(c_time, ascending=False)
+    c_per = "PERIOD" if "PERIOD" in cols else ("period" if "period" in cols else None)
+    if c_per:
+        try:
+            tmp = tmp[tmp[c_per] == 1]
+        except Exception:
+            pass
+    if "actionNumber" in cols:
+        try:
+            tmp = tmp.sort_values("actionNumber", ascending=True)
+        except Exception:
+            pass
+    desc_cols = _desc_cols(df)
     jb_pat = re.compile(r"jump ball", re.IGNORECASE)
     for _, r in tmp.iterrows():
+        a_type = str(r.get("actionType") or "").lower()
         text = " ".join([str(r.get(c, "")) for c in desc_cols])
-        if not text:
+        if not text and not a_type:
             continue
-        if jb_pat.search(text):
-            tlow = text.lower()
+        if ("jump ball" in a_type) or jb_pat.search(text or ""):
+            tlow = (text or "").lower()
             winner: Optional[str] = None
-            m = re.search(r"-\s*([\w\.'\-\s]+)\s+gains\s+possession", tlow)
-            if m:
-                winner = m.group(1).strip()
+            # Handle both classic '- X gains possession' and liveData 'Tip to X'
+            m1 = re.search(r"-\s*([\w\.'\-\s]+)\s+gains\s+possession", tlow)
+            m2 = re.search(r"tip\s+to\s+([\w\.'\-\s]+)", tlow)
+            if m1:
+                winner = m1.group(1).strip()
+            elif m2:
+                winner = m2.group(1).strip()
             return {"raw": text, "winner_text": winner}
     return None
 
@@ -365,7 +436,14 @@ def _load_pbp_frames(source: str | None = None) -> Dict[str, pd.DataFrame]:
             df = pd.read_csv(p)
             if "game_id" in df.columns:
                 for gid, grp in df.groupby("game_id"):
-                    out[str(gid)] = grp.copy()
+                    # Skip malformed IDs such as NA/None/blank or non-numeric placeholders
+                    key_raw = str(gid).strip()
+                    if not key_raw or key_raw.lower() in ("na", "nan", "none"):
+                        continue
+                    if not key_raw.isdigit():
+                        continue
+                    key = key_raw.zfill(10)
+                    out[key] = grp.copy()
             else:
                 out["unknown"] = df
             return out
@@ -375,9 +453,12 @@ def _load_pbp_frames(source: str | None = None) -> Dict[str, pd.DataFrame]:
         for f in d.glob("pbp_*.csv"):
             try:
                 df = pd.read_csv(f)
-                gid = re.findall(r"(\d{10})", f.name)
-                key = gid[0] if gid else f.stem.replace("pbp_", "")
-                out[str(key)] = df
+                # Derive a valid numeric gameId from filename; skip files like 'pbp_        NA.csv'
+                m = re.findall(r"(\d{9,12})", f.name)
+                key = m[0] if m else f.stem.replace("pbp_", "").strip()
+                if not key or (not key.isdigit()):
+                    continue
+                out[str(key.zfill(10))] = df
             except Exception:
                 continue
     return out
@@ -513,8 +594,11 @@ def _game_ids_for_date(date_str: str) -> List[str]:
             df = pd.read_csv(p1)
             col = "game_id" if "game_id" in df.columns else None
             if col:
-                gids = [str(x) for x in df[col].dropna().unique().tolist()]
-                return gids
+                gids = [str(x).strip() for x in df[col].dropna().unique().tolist()]
+                # Keep only numeric IDs and zero-pad to 10
+                gids = [g.zfill(10) for g in gids if g.isdigit()]
+                if gids:
+                    return gids
     except Exception:
         pass
     # 2) boxscores_<date>.csv
@@ -524,8 +608,10 @@ def _game_ids_for_date(date_str: str) -> List[str]:
             df = pd.read_csv(p2)
             col = "gameId" if "gameId" in df.columns else ("game_id" if "game_id" in df.columns else None)
             if col:
-                gids = [str(x) for x in df[col].dropna().unique().tolist()]
-                return gids
+                gids = [str(x).strip() for x in df[col].dropna().unique().tolist()]
+                gids = [g.zfill(10) for g in gids if g.isdigit()]
+                if gids:
+                    return gids
     except Exception:
         pass
     # 3) NBA CDN fallbacks (no auth, browser-accessible)
@@ -826,6 +912,21 @@ def predict_tip_for_date(date_str: str) -> pd.DataFrame:
                     if hs:
                         return float(max(hs))
         return None
+    # Optional calibration: tip logit intercept bias from pbp_calibration.csv (last <= date)
+    tip_logit_bias = 0.0
+    try:
+        cal_path = paths.data_processed / "pbp_calibration.csv"
+        if cal_path.exists():
+            cdf = pd.read_csv(cal_path)
+            if not cdf.empty and "tip_logit_bias" in cdf.columns:
+                cdf["date"] = pd.to_datetime(cdf["date"], errors="coerce").dt.date
+                target = pd.to_datetime(date_str).date()
+                cdf = cdf[cdf["date"] <= target]
+                if not cdf.empty:
+                    tip_logit_bias = float(pd.to_numeric(cdf["tip_logit_bias"], errors="coerce").iloc[-1])
+    except Exception:
+        tip_logit_bias = 0.0
+
     rows = []
     for gid in gids:
         # Estimate height diff if we know teams; else 0 baseline
@@ -858,6 +959,15 @@ def predict_tip_for_date(date_str: str) -> pd.DataFrame:
                 ph = max(0.35, min(0.65, ph))
             except Exception:
                 ph = 0.5
+        # Apply calibration in logit space if configured
+        try:
+            if tip_logit_bias != 0.0:
+                p0 = float(min(max(ph, 1e-6), 1-1e-6))
+                logit = np.log(p0/(1-p0))
+                p_adj = 1.0/(1.0 + np.exp(-(logit + tip_logit_bias)))
+                ph = float(min(max(p_adj, 0.0), 1.0))
+        except Exception:
+            pass
         rows.append({"game_id": gid, "prob_home_tip": ph})
     out = pd.DataFrame(rows)
     out_path = paths.data_processed / f"tip_winner_probs_{date_str}.csv"
@@ -881,6 +991,21 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
     box_dir = paths.data_processed / "boxscores"
     # Determine games on date
     gids = _game_ids_for_date(date_str)
+    # Optional calibration: global temperature for candidate score normalization (fb_temp)
+    fb_temp = 1.0
+    try:
+        cal_path = paths.data_processed / "pbp_calibration.csv"
+        if cal_path.exists():
+            cdf = pd.read_csv(cal_path)
+            if not cdf.empty and "fb_temp" in cdf.columns:
+                cdf["date"] = pd.to_datetime(cdf["date"], errors="coerce").dt.date
+                target = pd.to_datetime(date_str).date()
+                cdf = cdf[cdf["date"] <= target]
+                if not cdf.empty:
+                    fb_temp = float(pd.to_numeric(cdf["fb_temp"], errors="coerce").iloc[-1])
+    except Exception:
+        fb_temp = 1.0
+
     rows = []
     audit_rows = []
     for gid in gids:
@@ -943,7 +1068,14 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                         pname = (str(s.get("firstName","")) + " " + str(s.get("familyName",""))).strip()
                         candidates.append((s.get("personId"), pname, t, raw_p, "roster", minutes))
         if candidates:
-            scores = np.array([c[3] for c in candidates], dtype=float)
+            scores = np.array([max(0.0, float(c[3])) for c in candidates], dtype=float)
+            try:
+                if fb_temp is not None and fb_temp > 0 and abs(fb_temp - 1.0) > 1e-6:
+                    # Temperature scaling on scores: higher fb_temp flattens, lower sharpens
+                    # Use exponent 1/fb_temp to match standard temperature behavior
+                    scores = np.power(scores + 1e-9, 1.0/float(fb_temp))
+            except Exception:
+                pass
             denom = scores.sum()
             if denom <= 0:
                 probs = np.full_like(scores, 1.0 / len(scores))
@@ -1004,6 +1136,21 @@ def predict_early_threes_for_date(date_str: str) -> pd.DataFrame:
         except Exception:
             team_3pa_avg = None
             league_3pa_avg = None
+    # Optional calibration: apply intercept bias learned from recent reconciliation
+    cal_bias = 0.0
+    try:
+        cal_path = paths.data_processed / "pbp_calibration.csv"
+        if cal_path.exists():
+            cdf = pd.read_csv(cal_path)
+            if not cdf.empty:
+                cdf["date"] = pd.to_datetime(cdf["date"], errors="coerce").dt.date
+                target = pd.to_datetime(date_str).date()
+                cdf = cdf[cdf["date"] <= target]
+                if not cdf.empty and "thr_bias" in cdf.columns:
+                    cal_bias = float(pd.to_numeric(cdf["thr_bias"], errors="coerce").iloc[-1])
+    except Exception:
+        cal_bias = 0.0
+
     rows = []
     for gid in gids:
         X = np.zeros((1,1), dtype=np.float32)
@@ -1025,6 +1172,11 @@ def predict_early_threes_for_date(date_str: str) -> pd.DataFrame:
             a_rate = float(team_3pa_avg.get(away, league_3pa_avg))
             factor = max(0.6, min(1.4, 0.5 * (h_rate + a_rate) / league_3pa_avg))
             yhat = float(yhat * factor)
+        # Apply calibration bias (additive on expected threes) and clamp
+        try:
+            yhat = max(0.0, float(yhat + cal_bias))
+        except Exception:
+            yhat = max(0.0, yhat)
         rows.append({"game_id": gid, "expected_threes_0_3": yhat, "prob_ge_1": 1.0 - float(np.exp(-max(0.0, yhat)))})
     out = pd.DataFrame(rows)
     out_path = paths.data_processed / f"early_threes_{date_str}.csv"
