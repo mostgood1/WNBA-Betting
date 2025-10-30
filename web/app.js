@@ -434,6 +434,10 @@ async function maybeLoadPredictions(dateStr){
     const dateCol = pick(['date']);
     const hCol = pick(['home_team','home']);
     const aCol = pick(['visitor_team','away']);
+    // Fallbacks for model columns; normalize into pred_total/pred_margin/home_win_prob
+    const totCol = pick(['pred_total','total','totals','model_total']);
+    const marCol = pick(['pred_margin','margin','spread_margin','model_margin']);
+    const wpCol  = pick(['home_win_prob','home_win_prob_raw','home_win_prob_model','home_wp','p_home_win']);
     for (let i=1;i<rows.length;i++){
       const r = rows[i];
       const date = dateCol ? String(r[idx[dateCol]]||'').slice(0,10) : dateStr;
@@ -441,8 +445,21 @@ async function maybeLoadPredictions(dateStr){
       if (!home || !away) continue;
       const key = `${date}|${tricodeFromName(home)}|${tricodeFromName(away)}`;
       const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
+      // Normalize numeric fields and map fallbacks
       for (const k of ['pred_total','pred_margin','home_win_prob','edge_total','edge_spread']){
         if (obj[k]!==undefined) obj[k] = Number(obj[k]);
+      }
+      if (obj.pred_total==null && totCol){
+        const v = Number(r[idx[totCol]]);
+        if (Number.isFinite(v)) obj.pred_total = v;
+      }
+      if (obj.pred_margin==null && marCol){
+        const v = Number(r[idx[marCol]]);
+        if (Number.isFinite(v)) obj.pred_margin = v;
+      }
+      if (obj.home_win_prob==null && wpCol){
+        const v = Number(r[idx[wpCol]]);
+        if (Number.isFinite(v)) obj.home_win_prob = v;
       }
       state.predsByKey.set(key, obj);
     }
