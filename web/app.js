@@ -486,7 +486,6 @@ async function maybeLoadGameCards(dateStr){
       for (const k of ['edge_total','edge_spread']){
         if (obj[k]!==undefined) obj[k] = Number(obj[k]);
       }
-      }
       state.gameCardsByKey.set(key, obj);
     }
   }catch(_){ /* ignore */ }
