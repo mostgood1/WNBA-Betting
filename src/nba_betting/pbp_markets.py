@@ -991,6 +991,8 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
     box_dir = paths.data_processed / "boxscores"
     # Determine games on date
     gids = _game_ids_for_date(date_str)
+    # Map game -> (home, away) to enable optional coupling with tip probability
+    team_map = _gid_team_map_for_date(date_str)
     # Optional calibration: global temperature for candidate score normalization (fb_temp)
     fb_temp = 1.0
     try:
@@ -1005,6 +1007,46 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                     fb_temp = float(pd.to_numeric(cdf["fb_temp"], errors="coerce").iloc[-1])
     except Exception:
         fb_temp = 1.0
+
+    # Optional coupling: weight team-level chances by tip winner probability.
+    # Controlled by calibration parameter fb_tip_alpha in [0,1]. If absent, default small effect.
+    fb_tip_alpha = 0.0
+    try:
+        cal_path = paths.data_processed / "pbp_calibration.csv"
+        if cal_path.exists():
+            cdf = pd.read_csv(cal_path)
+            if not cdf.empty and "fb_tip_alpha" in cdf.columns:
+                cdf["date"] = pd.to_datetime(cdf["date"], errors="coerce").dt.date
+                target = pd.to_datetime(date_str).date()
+                cdf = cdf[cdf["date"] <= target]
+                if not cdf.empty:
+                    fb_tip_alpha = float(pd.to_numeric(cdf["fb_tip_alpha"], errors="coerce").iloc[-1])
+    except Exception:
+        fb_tip_alpha = 0.0
+
+    # Load tip probabilities if coupling is enabled; generate if missing and possible
+    tip_probs: dict[str, float] = {}
+    if fb_tip_alpha and fb_tip_alpha > 0:
+        tp_path = paths.data_processed / f"tip_winner_probs_{date_str}.csv"
+        tp_df = None
+        try:
+            if tp_path.exists():
+                tp_df = pd.read_csv(tp_path)
+            else:
+                # Try to compute on the fly (best-effort)
+                try:
+                    tp_df = predict_tip_for_date(date_str)
+                except Exception:
+                    tp_df = None
+        except Exception:
+            tp_df = None
+        if tp_df is not None and not tp_df.empty and {"game_id","prob_home_tip"}.issubset(tp_df.columns):
+            for _, r in tp_df.iterrows():
+                gid_key = str(r.get("game_id")).zfill(10)
+                try:
+                    tip_probs[gid_key] = float(r.get("prob_home_tip", 0.5))
+                except Exception:
+                    tip_probs[gid_key] = 0.5
 
     rows = []
     audit_rows = []
@@ -1038,7 +1080,6 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                     candidates.append((r.get("personId"), pname, r.get("teamTricode"), raw_p, "boxscore", minutes))
         else:
             # Pregame fallback: derive teams for this gid and pick likely starters from latest rosters
-            team_map = _gid_team_map_for_date(date_str)
             if gid in team_map:
                 home, away = team_map[gid]
             else:
@@ -1068,7 +1109,31 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                         pname = (str(s.get("firstName","")) + " " + str(s.get("familyName",""))).strip()
                         candidates.append((s.get("personId"), pname, t, raw_p, "roster", minutes))
         if candidates:
-            scores = np.array([max(0.0, float(c[3])) for c in candidates], dtype=float)
+            # Optional team weighting from tip probabilities
+            team_weights: dict[str, float] = {}
+            gid_key = str(gid).zfill(10)
+            if fb_tip_alpha and fb_tip_alpha > 0 and gid_key in tip_probs and (gid in team_map or gid_key in team_map):
+                pair = team_map.get(gid) or team_map.get(gid_key)
+                if pair:
+                    home_tri, away_tri = pair
+                    ph = float(tip_probs.get(gid_key, 0.5))
+                    # Team weight: interpolate between 0.5 and tip probability with alpha
+                    w_home = 0.5 + float(fb_tip_alpha) * (ph - 0.5)
+                    w_away = 1.0 - w_home
+                    team_weights[home_tri] = float(max(0.0, min(1.0, w_home)))
+                    team_weights[away_tri] = float(max(0.0, min(1.0, w_away)))
+            # Build scores and apply team weights if any
+            scores = []
+            for c in candidates:
+                base = max(0.0, float(c[3]))
+                ttri = str(c[2]) if c[2] is not None else ""
+                w = team_weights.get(ttri, 0.5 if fb_tip_alpha and fb_tip_alpha > 0 else 1.0)
+                # If coupling enabled but team not in map, default to neutral 0.5 multiplier; else 1.0
+                if fb_tip_alpha and fb_tip_alpha > 0:
+                    scores.append(base * w)
+                else:
+                    scores.append(base)
+            scores = np.array(scores, dtype=float)
             try:
                 if fb_temp is not None and fb_temp > 0 and abs(fb_temp - 1.0) > 1e-6:
                     # Temperature scaling on scores: higher fb_temp flattens, lower sharpens
@@ -1093,6 +1158,8 @@ def predict_first_basket_for_date(date_str: str) -> pd.DataFrame:
                     "source": src,
                     "raw_score": float(raw_p),
                     "probability": float(pr),
+                    "tip_prob_home": float(tip_probs.get(str(gid).zfill(10), np.nan)) if (fb_tip_alpha and fb_tip_alpha > 0) else np.nan,
+                    "team_weight": float(team_weights.get(str(t), np.nan)) if (fb_tip_alpha and fb_tip_alpha > 0) else np.nan,
                 })
     out = pd.DataFrame(rows)
     out_path = paths.data_processed / f"first_basket_probs_{date_str}.csv"

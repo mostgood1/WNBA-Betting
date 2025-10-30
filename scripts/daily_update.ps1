@@ -396,6 +396,84 @@ try {
   Write-Log ("calibrate-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4c) Log daily PBP market health metrics for yesterday (CSV-first)
+try {
+  Write-Log ("Logging daily PBP market metrics for {0}" -f $yesterday)
+  $pyMetrics = @'
+import os, pandas as pd, numpy as np
+
+root = os.environ.get("ROOT")
+date = os.environ.get("DATE")
+out = os.environ.get("OUT")
+if not (root and date and out):
+    print("NO:missing_env"); raise SystemExit(0)
+rec = os.path.join(root, "data", "processed", f"pbp_reconcile_{date}.csv")
+if not os.path.exists(rec):
+    print("NO:missing_reconcile"); raise SystemExit(0)
+df = pd.read_csv(rec)
+
+def _mean(s):
+    s = pd.to_numeric(s, errors="coerce").dropna()
+    return float(s.mean()) if len(s) > 0 else float("nan")
+
+tip_brier = _mean(df.get("tip_brier"))
+tip_logloss = _mean(df.get("tip_logloss"))
+tip_prob = pd.to_numeric(df.get("tip_prob_home"), errors="coerce") if "tip_prob_home" in df.columns else pd.Series(dtype=float)
+tip_out = pd.to_numeric(df.get("tip_outcome_home"), errors="coerce") if "tip_outcome_home" in df.columns else pd.Series(dtype=float)
+tip_acc = float(np.mean([(ph >= 0.5) == (oh == 1.0) for ph, oh in zip(tip_prob.dropna(), tip_out.dropna())])) if (len(tip_prob.dropna()) > 0 and len(tip_out.dropna()) > 0) else float("nan")
+tip_n = int(pd.notna(df.get("tip_brier")).sum()) if "tip_brier" in df.columns else 0
+
+fb_hit1 = pd.to_numeric(df.get("first_basket_hit_top1"), errors="coerce").dropna() if "first_basket_hit_top1" in df.columns else pd.Series(dtype=float)
+fb_hit5 = pd.to_numeric(df.get("first_basket_hit_top5"), errors="coerce").dropna() if "first_basket_hit_top5" in df.columns else pd.Series(dtype=float)
+fb_prob_act = pd.to_numeric(df.get("first_basket_prob_actual"), errors="coerce").dropna() if "first_basket_prob_actual" in df.columns else pd.Series(dtype=float)
+fb_top1 = float(fb_hit1.mean()) if len(fb_hit1) > 0 else float("nan")
+fb_top5 = float(fb_hit5.mean()) if len(fb_hit5) > 0 else float("nan")
+fb_mean_prob_actual = float(fb_prob_act.mean()) if len(fb_prob_act) > 0 else float("nan")
+fb_n = int(max(len(fb_hit1), len(fb_hit5))) if (len(fb_hit1) > 0 or len(fb_hit5) > 0) else 0
+
+thr_err = pd.to_numeric(df.get("early_threes_error"), errors="coerce").dropna() if "early_threes_error" in df.columns else pd.Series(dtype=float)
+thr_mae = float(thr_err.abs().mean()) if len(thr_err) > 0 else float("nan")
+thr_rmse = float(np.sqrt((thr_err ** 2).mean())) if len(thr_err) > 0 else float("nan")
+thr_brier = _mean(df.get("early_threes_brier_ge1"))
+thr_n = int(len(thr_err))
+
+row = {
+    "date": date,
+    "tip_n": tip_n, "tip_brier": tip_brier, "tip_logloss": tip_logloss, "tip_acc": tip_acc,
+    "fb_n": fb_n, "fb_top1": fb_top1, "fb_top5": fb_top5, "fb_mean_prob_actual": fb_mean_prob_actual,
+    "thr_n": thr_n, "thr_mae": thr_mae, "thr_rmse": thr_rmse, "thr_brier_ge1": thr_brier,
+}
+
+cols = list(row.keys())
+if os.path.exists(out):
+    try:
+        ex = pd.read_csv(out)
+        if not ex.empty and "date" in ex.columns:
+            ex = ex[ex["date"].astype(str) != str(date)]
+        ex = pd.concat([ex, pd.DataFrame([row])], ignore_index=True)
+        ex.to_csv(out, index=False)
+    except Exception:
+        pd.DataFrame([row])[cols].to_csv(out, index=False)
+else:
+    pd.DataFrame([row])[cols].to_csv(out, index=False)
+print("OK")
+'@
+  $metricsYear = ($yesterday.Substring(0,4))
+  $env:ROOT = $RepoRoot
+  $env:DATE = $yesterday
+  $env:OUT = (Join-Path $RepoRoot ("data/processed/pbp_metrics_daily_{0}.csv" -f $metricsYear))
+  $tmpPyM = Join-Path $LogPath ("pbp_metrics_daily_{0}.py" -f $Stamp)
+  Set-Content -Path $tmpPyM -Value $pyMetrics -Encoding UTF8
+  $outM = & $Python $tmpPyM 2>&1 | Tee-Object -FilePath $LogFile -Append
+  if ($outM -match 'OK') {
+    Write-Log ("Logged PBP metrics -> {0}" -f $env:OUT)
+  } else {
+    Write-Log ("PBP metrics logging returned: {0}" -f $outM)
+  }
+} catch {
+  Write-Log ("PBP metrics logging failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
   Write-Log ("Running roster audit for {0}" -f $yesterday)
@@ -632,6 +710,24 @@ if (-not $GitPush) {
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
       # Then, commit and push today's predictions/edges/odds
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $Date -IncludeJson -Push | Tee-Object -FilePath $LogFile -Append | Out-Null
+
+      # Additionally stage and push yearly PBP metrics CSV if present/changed
+      try {
+        $metricsYear = ($yesterday.Substring(0,4))
+        $metricsPath = Join-Path $RepoRoot ("data/processed/pbp_metrics_daily_{0}.csv" -f $metricsYear)
+        if (Test-Path $metricsPath) {
+          & git add -- $metricsPath 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+          $mchanged = & git diff --cached --name-only -- $metricsPath
+          if ($mchanged) {
+            $msg2 = "data(processed): update pbp metrics daily ($yesterday)"
+            & git commit -m $msg2 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+            & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+            Write-Log 'Git: pushed pbp_metrics_daily update'
+          } else {
+            Write-Log 'Git: no changes in pbp_metrics_daily to push'
+          }
+        }
+      } catch { Write-Log ("Git: push pbp_metrics_daily failed: {0}" -f $_.Exception.Message) }
     } else {
       Write-Log 'Commit script missing; falling back to broad staging (data/processed)'
       & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
