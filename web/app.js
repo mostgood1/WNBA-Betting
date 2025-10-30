@@ -1159,9 +1159,11 @@ function renderDate(dateStr){
       const modelBadge = `<span class=\"model-badge\" title=\"Model pick\">PICK</span>`;
       // Push probability (approximate)
       const pushProb = (pOver!=null && pUnder!=null) ? Math.max(0, 1 - pOver - pUnder) : null;
+      const fairTotTxt = (T!=null ? T.toFixed(1) : '');
       chipsTotals = `
         <div class=\"row chips\">
-          <div class=\"chip title\">Totals ${Number.isFinite(tot)? tot.toFixed(1): ''}</div>
+          <div class=\"chip title\">Totals ${Number.isFinite(tot)? tot.toFixed(1): ''}</div>\
+          ${T!=null ? `<div class=\"chip neutral\">Fair ${fairTotTxt}</div>` : ''}\
           <div class=\"chip ${clsO} ${isModelOver?'model-pick':''}\">Over ${overOddsTxt} · ${overProbTxt} ${bookBadge} ${evOBadge} ${isModelOver?modelBadge:''}</div>
           <div class=\"chip ${clsU} ${isModelUnder?'model-pick':''}\">Under ${underOddsTxt} · ${underProbTxt} ${bookBadge} ${evUBadge} ${isModelUnder?modelBadge:''}</div>
           ${pushProb!=null ? `<div class=\"chip neutral\">Push · ${(pushProb*100).toFixed(1)}%</div>` : ''}
@@ -1196,9 +1198,12 @@ function renderDate(dateStr){
         const bookAbbr = book ? (book.toUpperCase().slice(0,2)) : '';
         const bookBadge = bookAbbr ? `<span class=\"book-badge\" title=\"${book}\">${bookAbbr}</span>` : '';
         const modelBadge = `<span class=\"model-badge\" title=\"Model pick\">PICK</span>`;
+        const fairHome = (M!=null ? -M : null);
+        const fairHomeTxt = (fairHome!=null ? (fairHome>0?`+${fmtNum(fairHome)}`:fmtNum(fairHome)) : '');
         chipsSpread = `
           <div class=\"row chips\">
             <div class=\"chip title\">Spread</div>
+            ${fairHome!=null ? `<div class=\"chip neutral\">Fair Home ${fairHomeTxt}</div>` : ''}\
             <div class=\"chip ${clsA} ${modelAway?'model-pick':''}\">Away ${sprA>0?`+${fmtNum(sprA)}`:fmtNum(sprA)} ${aOddsTxt} · ${aProbTxt} ${bookBadge} ${evABadge} ${modelAway?modelBadge:''}</div>
             <div class=\"chip ${clsH} ${modelHome?'model-pick':''}\">Home ${sprH>0?`+${fmtNum(sprH)}`:fmtNum(sprH)} ${hOddsTxt} · ${hProbTxt} ${bookBadge} ${evHBadge} ${modelHome?modelBadge:''}</div>
           </div>`;
