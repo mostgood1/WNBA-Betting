@@ -51,8 +51,19 @@ $allowedPrefixes = @(
     "props_recommendations_"
 )
 
-# Filter files to allowed prefixes
-$files = $files | Where-Object { $name = $_.Name; $allowedPrefixes | ForEach-Object { if ($name.StartsWith($_)) { $true; break } } }
+# Filter files to allowed prefixes (robust boolean predicate)
+$files = $files | Where-Object {
+    $name = $_.Name
+    $match = $false
+    foreach ($p in $allowedPrefixes) {
+        if ($name.StartsWith($p)) { $match = $true; break }
+    }
+    return $match
+}
+
+# Debug: list filtered candidates
+Write-Host "Filtered artifacts (allowed prefixes):" -ForegroundColor DarkCyan
+$files | ForEach-Object { Write-Host " - "$_.Name }
 
 if (-not $files -or $files.Count -eq 0) {
     Write-Host "No processed artifacts found for date $Date. Nothing to commit."
