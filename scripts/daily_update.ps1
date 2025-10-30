@@ -389,6 +389,50 @@ try {
   Write-Log ("fetch-boxscores error (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.5) Backfill missing recon files for the season to date (idempotent)
+try {
+  $seasonStart = '2025-10-21'
+  Write-Log ("Recon backfill scan from {0} to {1}" -f $seasonStart, $yesterday)
+  $d0 = [datetime]::ParseExact($seasonStart, 'yyyy-MM-dd', $null)
+  $d1 = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
+  $cur = $d0
+  $toBuild = @()
+  while ($cur -le $d1) {
+    $ds = $cur.ToString('yyyy-MM-dd')
+    $p = Join-Path $RepoRoot ("data/processed/recon_games_{0}.csv" -f $ds)
+    if (-not (Test-Path $p)) { $toBuild += $ds }
+    $cur = $cur.AddDays(1)
+  }
+  if ($toBuild.Count -gt 0) {
+    Write-Log ("Recon backfill missing dates: {0}" -f ($toBuild -join ', '))
+    $built = @()
+    foreach ($ds in $toBuild) {
+      Write-Log ("Build recon for {0}" -f $ds)
+      $rc_bf = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $ds)
+      Write-Log ("reconcile-date ({0}) exit code: {1}" -f $ds, $rc_bf)
+      $pp = Join-Path $RepoRoot ("data/processed/recon_games_{0}.csv" -f $ds)
+      if ($rc_bf -eq 0 -and (Test-Path $pp)) { $built += $pp }
+    }
+    if ($built.Count -gt 0) {
+      try {
+        foreach ($bf in $built) { & git add -- $bf 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null }
+        $changedBf = & git diff --cached --name-only -- data/processed/recon_games_*.csv
+        if ($changedBf) {
+          $msgBf = "data(processed): backfill recon games ($seasonStart..$yesterday)"
+          & git commit -m $msgBf 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+          & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+          & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+          Write-Log 'Git: pushed recon backfill commit'
+        } else {
+          Write-Log 'Git: no recon backfill changes to push'
+        }
+      } catch { Write-Log ("Git push (recon backfill) failed: {0}" -f $_.Exception.Message) }
+    }
+  } else {
+    Write-Log 'Recon backfill: no missing dates'
+  }
+} catch { Write-Log ("Recon backfill block failed: {0}" -f $_.Exception.Message) }
+
 # 2.4a) Reconcile PBP-derived markets for yesterday (tip, first-basket, early-threes)
 try {
   Write-Log ("Reconciling PBP markets for {0}" -f $yesterday)
