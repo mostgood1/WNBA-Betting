@@ -1,5 +1,5 @@
-date,game_id,home_team,visitor_team,commence_time
-2025-10-30,,Milwaukee Bucks,Golden State Warriors,2025-10-31T00:10:00Z
-2025-10-30,,Charlotte Hornets,Orlando Magic,2025-10-30T23:10:00Z
-2025-10-30,,San Antonio Spurs,Miami Heat,2025-10-31T00:30:00Z
-2025-10-30,,Oklahoma City Thunder,Washington Wizards,2025-10-31T00:10:00Z
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
+2025-10-30,0022500139,Milwaukee Bucks,Golden State Warriors,2025-10-31T00:10:00Z,0.4940246660804074,5.153962400058203,0.9942235293677496
+2025-10-30,0022500138,Charlotte Hornets,Orlando Magic,2025-10-30T23:10:00Z,0.4940246660804074,5.153962400058203,0.9942235293677496
+2025-10-30,0022500141,San Antonio Spurs,Miami Heat,2025-10-31T00:30:00Z,0.4940246660804074,5.153962400058203,0.9942235293677496
+2025-10-30,0022500140,Oklahoma City Thunder,Washington Wizards,2025-10-31T00:10:00Z,,,
