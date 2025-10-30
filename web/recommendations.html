@@ -82,13 +82,21 @@
     function pillClass(c){ return c==='High'?'pill-high': (c==='Medium'?'pill-medium':'pill-low'); }
     function fmtEV(ev){ if(ev==null || isNaN(ev)) return ''; return (ev*100).toFixed(1)+'%'; }
     function fmtEdge(e){ if(e==null || isNaN(e)) return ''; return Number(e).toFixed(2); }
+    function fmtOddsAmerican(x){
+      if(x==null || x==='') return '';
+      const n = Number(x);
+      if(!Number.isFinite(n)) return '';
+      const v = Math.round(n);
+      return v>0 ? ('+'+v) : String(v);
+    }
     function parseDateStr(d){ try{ return new Date(d+'T00:00:00'); }catch(_){ return null; } }
     async function loadRecs(){
       const date = document.getElementById('datePicker').value || localYMD();
       const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
       const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
       const url = `/api/recommendations?date=${date}&spread_edge=${minSp}&total_edge=${minTot}`;
-      const res = await fetch(url, {cache:'no-store'}); const js = await res.json();
+      const res = await fetch(url, {cache:'no-store'});
+      const js = await res.json();
       const rows = Array.isArray(js.rows)? js.rows: [];
       // Derive confidence & normalized fields
       rows.forEach(r=>{ r.confidence = impliedConfidence(r); });
@@ -96,8 +104,10 @@
       const finals = await fetchReconGames(date);
       const lines = await fetchPredictionLines(date);
       annotateResults(rows, finals, lines);
+      // Render summary and tables
       renderSummary(rows);
-      const rowsMeta = document.getElementById('rowsMeta'); if(rowsMeta){ rowsMeta.textContent = `${rows.length} rows (filtered)`; }
+      const rowsMeta = document.getElementById('rowsMeta');
+      if(rowsMeta){ rowsMeta.textContent = `${rows.length} rows (filtered)`; }
       renderTables(rows, date);
     }
     async function fetchReconGames(date){
@@ -105,14 +115,17 @@
         const r = await fetch(`/data/processed/recon_games_${date}.csv`, {cache:'no-store'});
         if(!r.ok) return new Map();
         const txt = await r.text();
-        const lines = txt.trim().split(/\r?\n/); if(lines.length<2) return new Map();
+        const lines = txt.trim().split(/\r?\n/);
+        if(lines.length<2) return new Map();
         const hdr = lines[0].split(',');
         const col = (name)=> hdr.indexOf(name);
         const m = new Map();
         for(let i=1;i<lines.length;i++){
           const parts = lines[i].split(',');
-          const home = (parts[col('home_team')]||'').trim(); const away=(parts[col('visitor_team')]||'').trim();
-          const hp = parseFloat(parts[col('home_pts')]||''); const ap = parseFloat(parts[col('visitor_pts')]||'');
+          const home = (parts[col('home_team')]||'').trim();
+          const away = (parts[col('visitor_team')]||'').trim();
+          const hp = parseFloat(parts[col('home_pts')]||'');
+          const ap = parseFloat(parts[col('visitor_pts')]||'');
           if(home && away){ m.set(home+'@@'+away, {home,away,hp:isNaN(hp)?null:hp, ap:isNaN(ap)?null:ap}); }
         }
         return m;
@@ -121,7 +134,8 @@
     async function fetchPredictionLines(date){
       try{
         const r = await fetch(`/api/predictions?date=${date}`, {cache:'no-store'});
-        const js = await r.json(); const rows = Array.isArray(js.rows)? js.rows: [];
+        const js = await r.json();
+        const rows = Array.isArray(js.rows)? js.rows: [];
         const m = new Map();
         rows.forEach(x=>{
           const k = String(x.home_team||'').trim()+'@@'+String(x.visitor_team||'').trim();
@@ -145,14 +159,14 @@
         if(r.market==='ML'){
           const pickHome = r.side===r.home; const amer = pickHome? (ln?ln.home_ml:null): (ln?ln.away_ml:null);
           r.odds = (amer!=null? amer: null);
-          r.selectionLabel = `${r.side} ML ${r.confidence? '('+r.confidence+')':''}`;
+          r.selectionLabel = `${r.side} ML`;
           if(f && f.hp!=null && f.ap!=null){ const homeWon = f.hp>f.ap; r.result = (pickHome===homeWon)? 'Win':'Loss'; }
         } else if(r.market==='ATS'){
           const hs = ln? ln.home_spread: null; if(hs!=null){
             const lineHome = Number(hs); const isHome = r.side===r.home;
             const lineDisp = isHome? (lineHome>0?`+${lineHome}`:`${lineHome}`) : ((-lineHome)>0?`+${-lineHome}`:`${-lineHome}`);
-            r.selectionLabel = `${r.side} ${lineDisp} ${r.confidence? '('+r.confidence+')':''}`;
-          } else { r.selectionLabel = `${r.side} ${r.confidence? '('+r.confidence+')':''}`; }
+            r.selectionLabel = `${r.side} ${lineDisp}`;
+          } else { r.selectionLabel = `${r.side}`; }
           r.odds = -110;
           if(f && f.hp!=null && f.ap!=null && hs!=null){
             const margin = f.hp - f.ap; const diff = (r.side===r.home)? (margin + Number(hs)) : (-margin - Number(hs));
@@ -160,7 +174,7 @@
           }
         } else if(r.market==='TOTAL'){
           const tot = ln? ln.total: null; const side = String(r.side||'').toLowerCase();
-          r.selectionLabel = tot!=null? `${r.side} ${Number(tot)} ${r.confidence? '('+r.confidence+')':''}`: `${r.side} ${r.confidence? '('+r.confidence+')':''}`;
+          r.selectionLabel = tot!=null? `${r.side} ${Number(tot)}`: `${r.side}`;
           r.odds = -110;
           if(f && f.hp!=null && f.ap!=null && tot!=null){ const pts = f.hp + f.ap; const diff = side.startsWith('o')? (pts-Number(tot)) : (Number(tot)-pts); r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss'); }
         }
@@ -204,9 +218,9 @@
       const sorted=sortRows(rows);
       const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
       sorted.forEach(r=>{ const t=r.confidence||'Low'; groups.get(t).push(r); });
-      groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = r.selectionLabel || ((r.market==='ML'? r.side : (r.side||'')) + (r.confidence? ` (${r.confidence})`:'')); const oddsDisp = (r.market==='ML' && r.odds!=null)? String(r.odds): ((r.market!=='ML')? '-110' : ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; tr.innerHTML=`<td>${game}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${r.confidence? `<span class="pill ${pillClass(r.confidence)}">${r.confidence}</span>`:''}</td><td class="tar">${oddsDisp}</td><td class="tar">${evDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+      groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); const oddsDisp = (r.market==='ML' && r.odds!=null)? fmtOddsAmerican(r.odds): ((r.market!=='ML')? '-110' : ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; tr.innerHTML=`<td>${game}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${r.confidence? `<span class="pill ${pillClass(r.confidence)}">${r.confidence}</span>`:''}</td><td class="tar">${oddsDisp}</td><td class="tar">${evDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
     }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET'}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } loadRecs(); });
   </script>
 </body>
 </html>

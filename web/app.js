@@ -1262,7 +1262,18 @@ function renderDate(dateStr){
         const thrExp = (gc.early_threes_expected!=null) ? `Early 3s E[X]: ${Number(gc.early_threes_expected).toFixed(2)}` : '';
         const thrP1 = (gc.early_threes_prob_ge_1!=null) ? `P(≥1): ${(Number(gc.early_threes_prob_ge_1)*100).toFixed(1)}%` : '';
         const thr = (thrExp || thrP1) ? `Threes 0–3m: ${[thrExp, thrP1].filter(Boolean).join(' • ')}` : '';
-        const fb = (gc.first_basket_top5 ? `First Basket: ${gc.first_basket_top5}` : '');
+        // If we have detailed First Basket Picks for this game, suppress the compact summary line to avoid duplication
+        let hasDetailedFB = false;
+        try{
+          if (gc && gc.game_id!=null){
+            const raw = String(gc.game_id).trim().replace(/\.0$/, '');
+            const digits = raw.replace(/[^0-9]/g,'');
+            const gid = digits ? digits.padStart(10,'0') : null;
+            const picks = gid ? (state.fbRecsByGid.get(gid) || []) : [];
+            hasDetailedFB = picks.length > 0;
+          }
+        }catch(_){ /* ignore */ }
+        const fb = (!hasDetailedFB && gc.first_basket_top5) ? `First Basket: ${gc.first_basket_top5}` : '';
         const lines = [tip, thr, fb].filter(Boolean);
         if (lines.length){
           pbpHtml = `<div class="row details small"><div class="detail-col">${lines.map(x=>`<div>${x}</div>`).join('')}</div></div>`;
