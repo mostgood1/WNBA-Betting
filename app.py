@@ -315,6 +315,72 @@ def data_static(path: str):
     data_dir = BASE_DIR / "data"
     return send_from_directory(str(data_dir), path)
 
+# --- Minimal cron endpoint to reconcile game results for a date ---
+@app.route("/api/cron/reconcile-games", methods=["GET"])  # keep simple GET to match callers
+def api_cron_reconcile_games():
+    """Trigger reconciliation of game results for a given date.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+      - push: ignored here (reserved for external automation)
+
+    Auth:
+      If ADMIN_KEY env var is set, require header X-Admin-Key to match; otherwise allow.
+    """
+    try:
+        # Admin key gate (optional)
+        admin_key = os.environ.get("ADMIN_KEY")
+        if admin_key:
+            provided = request.headers.get("X-Admin-Key", "")
+            if provided != admin_key:
+                return jsonify({"error": "unauthorized"}), 401
+
+        date_str = (request.args.get("date") or "").strip()
+        if not date_str:
+            return jsonify({"error": "missing date"}), 400
+
+        # Validate date format
+        try:
+            _ = datetime.strptime(date_str, "%Y-%m-%d")
+        except Exception:
+            return jsonify({"error": "invalid date format, expected YYYY-MM-DD"}), 400
+
+        # Invoke CLI: nba_betting.cli reconcile-date --date <date>
+        py = _resolve_python()
+        cmd = [py, "-m", "nba_betting.cli", "reconcile-date", "--date", date_str]
+        try:
+            proc = subprocess.run(cmd, cwd=str(BASE_DIR), capture_output=True, text=True, timeout=300)
+        except Exception as e:
+            return jsonify({"error": f"failed to start process: {e}"}), 500
+
+        ok = (proc.returncode == 0)
+        # Determine output path and existence
+        out_path = BASE_DIR / "data" / "processed" / f"recon_games_{date_str}.csv"
+        exists = out_path.exists()
+        payload: Dict[str, Any] = {
+            "ok": ok,
+            "code": proc.returncode,
+            "stdout": (proc.stdout or "").strip()[-2000:],  # tail to limit size
+            "stderr": (proc.stderr or "").strip()[-2000:],
+            "output": f"/data/processed/recon_games_{date_str}.csv",
+            "exists": bool(exists),
+        }
+        status = 200 if ok else 500
+        # If the file exists, include row count
+        if exists:
+            try:
+                import csv as _csv
+                with out_path.open("r", encoding="utf-8") as f:
+                    reader = _csv.reader(f)
+                    rows = sum(1 for _ in reader)
+                # subtract header if present
+                payload["rows"] = max(0, rows - 1)
+            except Exception:
+                pass
+        return jsonify(payload), status
+    except Exception as e:  # pragma: no cover
+        return jsonify({"error": str(e)}), 500
+
 # Friendly routes to mirror NHL site paths (serve static HTML files)
 @app.route("/recommendations")
 def route_recommendations():
