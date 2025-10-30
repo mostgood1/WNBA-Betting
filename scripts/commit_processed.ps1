@@ -31,6 +31,12 @@ $allowedPrefixes = @(
     "recommendations_",
     "recon_games_",
     "recon_props_",
+    # PBP-derived and reconciliation artifacts we want available to the site (and for debugging)
+    "pbp_reconcile_",
+    "tip_winner_probs_",
+    "first_basket_probs_",
+    "early_threes_",
+    "pbp_metrics_daily_",
     "finals_",
     "closing_lines_",
     "market_",
