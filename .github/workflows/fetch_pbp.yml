@@ -43,71 +43,71 @@ jobs:
           mkdir -p scripts
           if [ ! -f scripts/pbp_fetch_nbastatr.R ]; then
             cat > scripts/pbp_fetch_nbastatr.R << 'EOF'
-#!/usr/bin/env Rscript
-suppressPackageStartupMessages({
-  library(optparse); library(dplyr); library(lubridate); library(readr)
-})
+            #!/usr/bin/env Rscript
+            suppressPackageStartupMessages({
+              library(optparse); library(dplyr); library(lubridate); library(readr)
+            })
 
-opt <- OptionParser(option_list=list(
-  make_option(c("--date"), type="character", default=NULL)
-)) |> parse_args()
+            opt <- OptionParser(option_list=list(
+              make_option(c("--date"), type="character", default=NULL)
+            )) |> parse_args()
 
-if (is.null(opt$date)) { stop("--date is required") }
-d <- as.Date(opt$date)
-season <- unique(year(d) + (month(d) >= 7))
+            if (is.null(opt$date)) { stop("--date is required") }
+            d <- as.Date(opt$date)
+            season <- unique(year(d) + (month(d) >= 7))
 
-ok <- requireNamespace("hoopR", quietly = TRUE)
-if (!ok) { stop("hoopR not available") }
-suppressPackageStartupMessages(library(hoopR))
+            ok <- requireNamespace("hoopR", quietly = TRUE)
+            if (!ok) { stop("hoopR not available") }
+            suppressPackageStartupMessages(library(hoopR))
 
-pbp <- tryCatch({ hoopR::load_nba_pbp(seasons=season) }, error=function(e) NULL)
-if (is.null(pbp) || nrow(pbp)==0) { quit(status=0) }
+            pbp <- tryCatch({ hoopR::load_nba_pbp(seasons=season) }, error=function(e) NULL)
+            if (is.null(pbp) || nrow(pbp)==0) { quit(status=0) }
 
-# find a date column
-date_col <- intersect(c("game_date","dateGame","gameDate","game_date_time"), names(pbp))
-if (length(date_col)==0) { quit(status=0) }
-dd <- as.Date(pbp[[date_col[1]]])
-pbp <- pbp[dd == d, , drop=FALSE]
-if (nrow(pbp)==0) { quit(status=0) }
+            # find a date column
+            date_col <- intersect(c("game_date","dateGame","gameDate","game_date_time"), names(pbp))
+            if (length(date_col)==0) { quit(status=0) }
+            dd <- as.Date(pbp[[date_col[1]]])
+            pbp <- pbp[dd == d, , drop=FALSE]
+            if (nrow(pbp)==0) { quit(status=0) }
 
-dir.create(file.path("data","processed","pbp"), recursive = TRUE, showWarnings = FALSE)
+            dir.create(file.path("data","processed","pbp"), recursive = TRUE, showWarnings = FALSE)
 
-# normalize minimum columns
-nm <- names(pbp)
-col_game <- intersect(c("game_id","gameId","game_id_clean"), nm)
-if (length(col_game)==0) col_game <- "game_id"
-if (!(col_game %in% nm)) {
-  if ("game_id" %in% nm) {
-    pbp[[col_game]] <- as.character(pbp$game_id)
-  } else if ("gameId" %in% nm) {
-    pbp[[col_game]] <- as.character(pbp$gameId)
-  } else {
-    pbp[[col_game]] <- as.character(NA)
-  }
-}
+            # normalize minimum columns
+            nm <- names(pbp)
+            col_game <- intersect(c("game_id","gameId","game_id_clean"), nm)
+            if (length(col_game)==0) col_game <- "game_id"
+            if (!(col_game %in% nm)) {
+              if ("game_id" %in% nm) {
+                pbp[[col_game]] <- as.character(pbp$game_id)
+              } else if ("gameId" %in% nm) {
+                pbp[[col_game]] <- as.character(pbp$gameId)
+              } else {
+                pbp[[col_game]] <- as.character(NA)
+              }
+            }
 
-col_period <- intersect(c("period","qtr","quarter"), nm)
-if (length(col_period)==0) { pbp$period <- NA_integer_ } else { names(pbp)[names(pbp)==col_period[1]] <- "period" }
+            col_period <- intersect(c("period","qtr","quarter"), nm)
+            if (length(col_period)==0) { pbp$period <- NA_integer_ } else { names(pbp)[names(pbp)==col_period[1]] <- "period" }
 
-col_clock <- intersect(c("clock","time_remaining","remaining_time"), nm)
-if (length(col_clock)==0) { pbp$clock <- NA_character_ } else { names(pbp)[names(pbp)==col_clock[1]] <- "clock" }
+            col_clock <- intersect(c("clock","time_remaining","remaining_time"), nm)
+            if (length(col_clock)==0) { pbp$clock <- NA_character_ } else { names(pbp)[names(pbp)==col_clock[1]] <- "clock" }
 
-col_desc <- intersect(c("description","play_desc","msg"), nm)
-if (length(col_desc)==0) { pbp$description <- NA_character_ } else { names(pbp)[names(pbp)==col_desc[1]] <- "description" }
+            col_desc <- intersect(c("description","play_desc","msg"), nm)
+            if (length(col_desc)==0) { pbp$description <- NA_character_ } else { names(pbp)[names(pbp)==col_desc[1]] <- "description" }
 
-out_min <- pbp |> select(all_of(c(col_game, "period","clock","description")))
+            out_min <- pbp |> select(all_of(c(col_game, "period","clock","description")))
 
-ymd <- format(d, "%Y-%m-%d")
-readr::write_csv(out_min, file.path("data","processed", sprintf("pbp_%s.csv", ymd)))
+            ymd <- format(d, "%Y-%m-%d")
+            readr::write_csv(out_min, file.path("data","processed", sprintf("pbp_%s.csv", ymd)))
 
-by_game <- split(out_min, out_min[[col_game]])
-for (gid in names(by_game)){
-  df <- by_game[[gid]]
-  if (!is.null(df) && nrow(df)>0){
-    readr::write_csv(df, file.path("data","processed","pbp", sprintf("pbp_%s.csv", gid)))
-  }
-}
-EOF
+            by_game <- split(out_min, out_min[[col_game]])
+            for (gid in names(by_game)){
+              df <- by_game[[gid]]
+              if (!is.null(df) && nrow(df)>0){
+                readr::write_csv(df, file.path("data","processed","pbp", sprintf("pbp_%s.csv", gid)))
+              }
+            }
+            EOF
             chmod +x scripts/pbp_fetch_nbastatr.R
           fi
 
