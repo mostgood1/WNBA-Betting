@@ -614,9 +614,42 @@ def _game_ids_for_date(date_str: str) -> List[str]:
                     return gids
     except Exception:
         pass
+    # 2.5) Odds-driven mapping via local season schedule helper (maps HOME/AWAY tricodes -> gameId)
+    try:
+        odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+        if odds_path.exists():
+            go = pd.read_csv(odds_path)
+            if go is not None and not go.empty and {"home_team","visitor_team"}.issubset(go.columns):
+                try:
+                    from .teams import to_tricode as _to_tri
+                except Exception:
+                    _to_tri = lambda x: str(x)  # fallback no-op
+                try:
+                    from .schedule import fetch_schedule_2025_26 as _fetch_sched
+                    sched = _fetch_sched()
+                except Exception:
+                    sched = None
+                if sched is not None and not sched.empty:
+                    ds = pd.to_datetime(date_str).date()
+                    day = sched[pd.to_datetime(sched.get("date_est"), errors="coerce").dt.date == ds].copy()
+                    gids = set()
+                    for _, r in go.iterrows():
+                        h = _to_tri(str(r.get("home_team")))
+                        a = _to_tri(str(r.get("visitor_team")))
+                        cand = day[((day.get("home_tricode").astype(str).str.upper()==h.upper()) & (day.get("away_tricode").astype(str).str.upper()==a.upper()))
+                                   | ((day.get("home_tricode").astype(str).str.upper()==a.upper()) & (day.get("away_tricode").astype(str).str.upper()==h.upper()))]
+                        if not cand.empty:
+                            gid = str(cand.iloc[0].get("game_id") or "").strip()
+                            if gid and gid.isdigit():
+                                gids.add(gid.zfill(10))
+                    if gids:
+                        return sorted(gids)
+    except Exception:
+        pass
+
     # 3) NBA CDN fallbacks (no auth, browser-accessible)
     #    a) If target date is today, use liveData/todaysScoreboard_00.json
-    #    b) Otherwise, use static season schedule and filter by date
+    #    b) Otherwise, use static season schedule and filter by ET calendar day
     try:
         import requests  # type: ignore
         from datetime import datetime as _dt, date as _date
@@ -645,11 +678,27 @@ def _game_ids_for_date(date_str: str) -> List[str]:
             game_dates = league.get("gameDates") or []
             out: List[str] = []
             for gd in game_dates:
-                if str(gd.get("gameDate") or "").split("T")[0] != date_str:
-                    continue
                 for g in (gd.get("games") or []):
                     gid = str(g.get("gameId") or "").strip()
-                    if gid:
+                    if not gid:
+                        continue
+                    # Prefer startTimeUTC to determine ET calendar day; fall back to gd.gameDate on failure
+                    ds_ok = False
+                    st = g.get("gameDateTimeUTC") or g.get("startTimeUTC") or g.get("startTimeUTCFormatted")
+                    if st:
+                        try:
+                            dt = pd.to_datetime(st, utc=True)
+                            ds_et = dt.tz_convert("US/Eastern").strftime("%Y-%m-%d")
+                            ds_ok = (ds_et == date_str)
+                        except Exception:
+                            ds_ok = False
+                    if not ds_ok:
+                        try:
+                            gd_str = str(gd.get("gameDate") or "").split("T")[0]
+                            ds_ok = (gd_str == date_str)
+                        except Exception:
+                            ds_ok = False
+                    if ds_ok:
                         out.append(gid)
             if out:
                 return out
@@ -669,23 +718,21 @@ def _gid_team_map_for_date(date_str: str) -> Dict[str, tuple[str, str]]:
         from datetime import datetime as _dt, date as _date
         target = _dt.strptime(date_str, "%Y-%m-%d").date()
         today = _date.today()
-        # Today's live scoreboard
+        # Today's live scoreboard (augment; do not return early)
+        out: Dict[str, tuple[str, str]] = {}
         if target == today:
             u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
             r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=10)
             if r.ok:
                 j = r.json() or {}
                 games = (j.get("scoreboard") or {}).get("games") or []
-                out: Dict[str, tuple[str, str]] = {}
                 for g in games:
                     gid = str(g.get("gameId") or "").strip()
                     home = str(((g.get("homeTeam") or {}).get("teamTricode")) or "").upper()
                     away = str(((g.get("awayTeam") or {}).get("teamTricode")) or "").upper()
                     if gid and home and away:
                         out[gid] = (home, away)
-                if out:
-                    return out
-        # Static season schedule
+        # Static season schedule (filter by ET calendar day)
         u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
         r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
         if r.ok:
@@ -694,10 +741,28 @@ def _gid_team_map_for_date(date_str: str) -> Dict[str, tuple[str, str]]:
             game_dates = league.get("gameDates") or []
             out: Dict[str, tuple[str, str]] = {}
             for gd in game_dates:
-                if str(gd.get("gameDate") or "").split("T")[0] != date_str:
-                    continue
                 for g in (gd.get("games") or []):
                     gid = str(g.get("gameId") or "").strip()
+                    if not gid:
+                        continue
+                    # Determine ET day for the game using startTimeUTC if available
+                    ds_ok = False
+                    st = g.get("gameDateTimeUTC") or g.get("startTimeUTC") or g.get("startTimeUTCFormatted")
+                    if st:
+                        try:
+                            dt = pd.to_datetime(st, utc=True)
+                            ds_et = dt.tz_convert("US/Eastern").strftime("%Y-%m-%d")
+                            ds_ok = (ds_et == date_str)
+                        except Exception:
+                            ds_ok = False
+                    if not ds_ok:
+                        try:
+                            gd_str = str(gd.get("gameDate") or "").split("T")[0]
+                            ds_ok = (gd_str == date_str)
+                        except Exception:
+                            ds_ok = False
+                    if not ds_ok:
+                        continue
                     home = str(((g.get("homeTeam") or {}).get("teamTricode")) or "").upper()
                     away = str(((g.get("awayTeam") or {}).get("teamTricode")) or "").upper()
                     if gid and home and away:

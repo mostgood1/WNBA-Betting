@@ -2471,6 +2471,24 @@ def export_game_cards_cmd(date_str: str):
                                 gid_map[key] = gid
                 except Exception:
                     pass
+            # d) Local schedule helper as a final fallback (stable schema + ET dates)
+            if not gid_map:
+                try:
+                    from .schedule import fetch_schedule_2025_26 as _fetch_sched
+                    df = _fetch_sched()
+                    if df is not None and not df.empty:
+                        # date_est is a date; compare to date_str
+                        ds = pd.to_datetime(date_str).date()
+                        day = df[pd.to_datetime(df.get("date_est"), errors="coerce").dt.date == ds].copy()
+                        for _, r in day.iterrows():
+                            gid = str(r.get("game_id") or "").strip()
+                            home = str(r.get("home_tricode") or "").upper()
+                            away = str(r.get("away_tricode") or "").upper()
+                            if gid and home and away:
+                                key = tuple(sorted([home, away]))
+                                gid_map[key] = gid
+                except Exception:
+                    pass
         except Exception:
             pass
 
@@ -2547,6 +2565,17 @@ def export_game_cards_cmd(date_str: str):
                 row["first_basket_top5"] = "; ".join(parts)
         return row
 
+    # Preload schedule day for a last-resort gid lookup by tricodes
+    _sched_day = None
+    try:
+        from .schedule import fetch_schedule_2025_26 as _fetch_sched
+        _df_sched = _fetch_sched()
+        if _df_sched is not None and not _df_sched.empty:
+            ds = pd.to_datetime(date_str).date()
+            _sched_day = _df_sched[pd.to_datetime(_df_sched.get("date_est"), errors="coerce").dt.date == ds].copy()
+    except Exception:
+        _sched_day = None
+
     if go is not None and not go.empty and {"home_team","visitor_team"}.issubset(go.columns):
         # Normalize to tricodes for matching
         def _tri(x):
@@ -2561,6 +2590,16 @@ def export_game_cards_cmd(date_str: str):
             home = r.get("home_team"); away = r.get("visitor_team"); ctime = r.get("commence_time")
             key = tuple(sorted([str(r.get("home_tri")), str(r.get("away_tri"))]))
             gid = gid_map.get(key)
+            if (not gid) and (_sched_day is not None and not _sched_day.empty):
+                try:
+                    tri_home = str(r.get("home_tri") or "").upper()
+                    tri_away = str(r.get("away_tri") or "").upper()
+                    cand = _sched_day[((_sched_day["home_tricode"].astype(str).str.upper()==tri_home) & (_sched_day["away_tricode"].astype(str).str.upper()==tri_away))
+                                      | ((_sched_day["home_tricode"].astype(str).str.upper()==tri_away) & (_sched_day["away_tricode"].astype(str).str.upper()==tri_home))]
+                    if not cand.empty:
+                        gid = str(cand.iloc[0].get("game_id") or "").strip()
+                except Exception:
+                    pass
             rows.append(_build_row(gid, home, away, ctime))
     else:
         # Fallback: derive from tip/first basket files (game_id only)
@@ -2572,6 +2611,68 @@ def export_game_cards_cmd(date_str: str):
             rows.append(_build_row(gid, None, None, None))
 
     cards = pd.DataFrame(rows)
+    # Post-attach PBP fields via merges to ensure no row misses due to per-row attach edge cases
+    try:
+        if not cards.empty:
+            cards["gid10"] = cards.get("game_id").astype(str).str.replace(".0$","", regex=True).str.replace("^nan$","", regex=True).str.replace("^None$","", regex=True).str.replace("^\\s+$","", regex=True).str.zfill(10)
+            # Tip merge
+            if tip is not None and not tip.empty and {"game_id","prob_home_tip"}.issubset(set(tip.columns)):
+                tp = tip.copy()
+                tp["gid10"] = tp["game_id"].astype(str).str.replace(".0$","", regex=True).str.zfill(10)
+                cards = cards.merge(tp[["gid10","prob_home_tip"]], on="gid10", how="left")
+            # Early threes merge
+            if thr is not None and not thr.empty and "game_id" in thr.columns:
+                th = thr.copy()
+                th["gid10"] = th["game_id"].astype(str).str.replace(".0$","", regex=True).str.zfill(10)
+                # Prefer expected_threes_0_3 if present; else threes_0_3_pred
+                exp_col = "expected_threes_0_3" if "expected_threes_0_3" in th.columns else ("threes_0_3_pred" if "threes_0_3_pred" in th.columns else None)
+                if exp_col is not None:
+                    th = th[["gid10", exp_col, "prob_ge_1"]].rename(columns={exp_col:"early_threes_expected", "prob_ge_1":"early_threes_prob_ge_1"})
+                    cards = cards.merge(th, on="gid10", how="left")
+            # First basket top5 aggregation
+            if fb is not None and not fb.empty and {"game_id","team","player_name","prob_first_basket"}.issubset(set(fb.columns)):
+                f = fb.copy()
+                f["gid10"] = f["game_id"].astype(str).str.replace(".0$","", regex=True).str.zfill(10)
+                f = f.sort_values(["gid10","prob_first_basket"], ascending=[True, False])
+                top5 = f.groupby("gid10").head(5).copy()
+                top5["part"] = top5.apply(lambda r: f"{str(r.get('team',''))}: {str(r.get('player_name',''))} ({float(r.get('prob_first_basket',0))*100:.1f}%)", axis=1)
+                agg = top5.groupby("gid10")["part"].apply(lambda s: "; ".join(s.tolist())).reset_index().rename(columns={"part":"first_basket_top5"})
+                cards = cards.merge(agg, on="gid10", how="left")
+            # Coalesce into clean canonical columns
+            for to_col in ("prob_home_tip","early_threes_expected","early_threes_prob_ge_1","first_basket_top5"):
+                cols = []
+                if f"{to_col}_x" in cards.columns: cols.append(f"{to_col}_x")
+                if f"{to_col}_y" in cards.columns: cols.append(f"{to_col}_y")
+                if to_col in cards.columns: cols.append(to_col)
+                if cols:
+                    ser = None
+                    for c in cols:
+                        s = cards.get(c)
+                        if ser is None:
+                            ser = s
+                        else:
+                            try:
+                                ser = ser.where(ser.notna(), s)
+                            except Exception:
+                                pass
+                    if ser is not None:
+                        cards[to_col] = ser
+            # Drop suffix variants after coalescing
+            drop_cols = [c for c in cards.columns if c.endswith("_x") or c.endswith("_y")]
+            if drop_cols:
+                try:
+                    cards = cards.drop(columns=drop_cols)
+                except Exception:
+                    for c in drop_cols:
+                        try:
+                            cards = cards.drop(columns=[c])
+                        except Exception:
+                            pass
+            # Drop helper key
+            cards = cards.drop(columns=["gid10"]) 
+    except Exception as ex:
+        console.print({"warning": f"post-merge of PBP fields failed: {ex}"}, style="yellow")
+
     cards.to_csv(out_path, index=False)
     console.print({"rows": int(len(cards)), "output": str(out_path)})
 
