@@ -1,0 +1,11 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2025-10-29,Boston Celtics,Cleveland Cavaliers,BOS,CLE,125,105,,,20,230,,
+2025-10-29,Detroit Pistons,Orlando Magic,DET,ORL,135,116,,,19,251,,
+2025-10-29,Brooklyn Nets,Atlanta Hawks,BKN,ATL,112,117,,,-5,229,,
+2025-10-29,Toronto Raptors,Houston Rockets,TOR,HOU,121,139,,,-18,260,,
+2025-10-29,Chicago Bulls,Sacramento Kings,CHI,SAC,126,113,,,13,239,,
+2025-10-29,Dallas Mavericks,Indiana Pacers,DAL,IND,107,105,,,2,212,,
+2025-10-29,Denver Nuggets,New Orleans Pelicans,DEN,NOP,122,88,,,34,210,,
+2025-10-29,Utah Jazz,Portland Trail Blazers,UTA,POR,134,136,,,-2,270,,
+2025-10-29,Minnesota Timberwolves,Los Angeles Lakers,MIN,LAL,115,116,,,-1,231,,
+2025-10-29,Phoenix Suns,Memphis Grizzlies,PHX,MEM,113,114,,,-1,227,,
