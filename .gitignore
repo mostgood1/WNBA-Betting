@@ -49,6 +49,8 @@ data/processed/**
 
 # Game cards (frontend consumption)
 !data/processed/game_cards_*.csv
+# PBP: first-basket recommendations (frontend consumption)
+!data/processed/first_basket_recs_*.csv
 
 # Legacy root predictions snapshot (not used by Render UI)
 predictions.csv

@@ -35,6 +35,7 @@ $allowedPrefixes = @(
     "pbp_reconcile_",
     "tip_winner_probs_",
     "first_basket_probs_",
+    "first_basket_recs_",
     "early_threes_",
     "pbp_metrics_daily_",
     "finals_",

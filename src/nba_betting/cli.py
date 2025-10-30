@@ -3002,6 +3002,76 @@ def reconcile_pbp_markets_cmd(date_str: str):
     })
 
 
+@cli.command("first-basket-recs")
+@click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD")
+@click.option("--topk", type=int, default=3, show_default=True, help="Max picks per game")
+@click.option("--min-prob", "min_prob", type=float, default=0.08, show_default=True, help="Minimum probability threshold to include a pick")
+@click.option("--cum-target", "cum_target", type=float, default=0.45, show_default=True, help="Stop adding picks when cumulative coverage reaches this threshold")
+def first_basket_recs_cmd(date_str: str, topk: int, min_prob: float, cum_target: float):
+    """Export first-basket scorer recommendations per game using model probabilities.
+
+    Produces data/processed/first_basket_recs_<date>.csv with columns:
+    - date, game_id, team, player_id, player_name, prob_first_basket
+    - fair_decimal, fair_american, rank, cum_prob
+    """
+    console.rule("First Basket: Recommendations")
+    probs_path = paths.data_processed / f"first_basket_probs_{date_str}.csv"
+    if not probs_path.exists():
+        console.print(f"Missing probabilities: {probs_path}", style="red"); return
+    try:
+        df = pd.read_csv(probs_path)
+    except Exception as e:
+        console.print(f"Failed to read probabilities: {e}", style="red"); return
+    required = {"game_id","team","player_id","player_name","prob_first_basket"}
+    if not required.issubset(set(df.columns)):
+        console.print(f"Missing required columns in {probs_path.name}: {required - set(df.columns)}", style="red"); return
+    # Normalize gid
+    df = df.copy()
+    # Normalize game_id robustly: coerce to integer (drops any stray decimals), then zero-pad to 10
+    try:
+        _gid_num = pd.to_numeric(df["game_id"], errors="coerce").astype("Int64")
+        df["gid10"] = _gid_num.astype(str).str.replace("<NA>", "", regex=False).str.zfill(10)
+    except Exception:
+        df["gid10"] = df["game_id"].astype(str).str.replace(".0$","", regex=True).str.replace("^nan$","", regex=True).str.replace("^None$","", regex=True).str.replace("^\\s+$","", regex=True).str.zfill(10)
+    # Per-game selections
+    rows: list[dict] = []
+    for gid, grp in df.groupby("gid10"):
+        sub = grp.sort_values("prob_first_basket", ascending=False).copy()
+        cum = 0.0; picked = 0; rank = 0
+        for _, r in sub.iterrows():
+            p = float(r.get("prob_first_basket", 0.0) or 0.0)
+            if p < float(min_prob):
+                continue
+            rank += 1
+            # Fair odds
+            fair_dec = float("inf") if p <= 0 else (1.0/float(p))
+            if p >= 0.5:
+                # negative american
+                fair_am = -round((p/(1.0-p))*100)
+            else:
+                fair_am = round(((1.0-p)/p)*100)
+            rows.append({
+                "date": date_str,
+                "game_id": gid,
+                "team": r.get("team"),
+                "player_id": r.get("player_id"),
+                "player_name": r.get("player_name"),
+                "prob_first_basket": p,
+                "fair_decimal": fair_dec,
+                "fair_american": fair_am,
+                "rank": rank,
+                "cum_prob": cum + p,
+            })
+            picked += 1
+            cum += p
+            if picked >= int(topk) or cum >= float(cum_target):
+                break
+    out = pd.DataFrame(rows)
+    out_path = paths.data_processed / f"first_basket_recs_{date_str}.csv"
+    out.to_csv(out_path, index=False)
+    console.print({"date": date_str, "games": int(out["game_id"].nunique() if not out.empty else 0), "rows": int(len(out)), "output": str(out_path)})
+
+
 @cli.command("backtest-pbp-markets")
 @click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD (season start)")
 @click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default=today")
