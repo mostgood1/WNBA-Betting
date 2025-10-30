@@ -1143,8 +1143,8 @@ function renderDate(dateStr){
   const priceUnder = (odds.total_under_price!=null && odds.total_under_price!=='') ? Number(odds.total_under_price) : -110;
   const evO = (pOver!=null && priceOver!=null) ? evFromProbAndAmerican(pOver, priceOver) : null;
   const evU = (pUnder!=null && priceUnder!=null) ? evFromProbAndAmerican(pUnder, priceUnder) : null;
-      const clsO = (evO==null? 'neutral' : (evO>0? 'positive' : (evO<0? 'negative' : 'neutral')));
-      const clsU = (evU==null? 'neutral' : (evU>0? 'positive' : (evU<0? 'negative' : 'neutral')));
+    const clsO = (evO==null? 'neutral' : (evO>0? 'positive' : (evO<0? 'negative' : 'neutral')));
+    const clsU = (evU==null? 'neutral' : (evU>0? 'positive' : (evU<0? 'negative' : 'neutral')));
       const evOBadge = (evO==null? '' : `<span class="ev-badge ${evO>0?'pos':(evO<0?'neg':'neu')}">EV ${(evO>0?'+':'')}${(evO*100).toFixed(1)}%</span>`);
       const evUBadge = (evU==null? '' : `<span class="ev-badge ${evU>0?'pos':(evU<0?'neg':'neu')}">EV ${(evU>0?'+':'')}${(evU*100).toFixed(1)}%</span>`);
       const book = (odds.bookmaker || '').toString();
@@ -1226,9 +1226,22 @@ function renderDate(dateStr){
       const evHBadge = (evH==null? '' : `<span class=\"ev-badge ${evH>0?'pos':(evH<0?'neg':'neu')}\">EV ${(evH>0?'+':'')}${(evH*100).toFixed(1)}%</span>`);
       const isModelHome = (pH!=null) ? (pH >= 0.5) : false;
       const isModelAway = (pH!=null) ? (!isModelHome) : false;
+      // Fair American odds from probabilities (inverse of impliedProbAmerican)
+      const fairFromProb = (p)=>{
+        const v = Number(p);
+        if (!Number.isFinite(v) || v<=0 || v>=1) return null;
+        if (v >= 0.5) return - (100 * v / (1 - v));
+        return 100 * (1 - v) / v;
+      };
+      const fairAway = (pA!=null ? fairFromProb(pA) : null);
+      const fairHome = (pH!=null ? fairFromProb(pH) : null);
+      const fairAwayTxt = (fairAway!=null ? fmtOddsAmerican(fairAway) : '');
+      const fairHomeTxt = (fairHome!=null ? fmtOddsAmerican(fairHome) : '');
       chipsMoney = `
         <div class=\"row chips\">
           <div class=\"chip title\">Moneyline</div>
+          ${fairAwayTxt? `<div class=\"chip neutral\">Fair Away ${fairAwayTxt}</div>` : ''}\\
+          ${fairHomeTxt? `<div class=\"chip neutral\">Fair Home ${fairHomeTxt}</div>` : ''}\\
           <div class=\"chip ${clsA} ${isModelAway?'model-pick':''}\">Away ${aOddsTxt} · ${aProbTxt} ${bookBadge} ${evABadge} ${isModelAway?modelBadge:''}</div>
           <div class=\"chip ${clsH} ${isModelHome?'model-pick':''}\">Home ${hOddsTxt} · ${hProbTxt} ${bookBadge} ${evHBadge} ${isModelHome?modelBadge:''}</div>
         </div>`;
