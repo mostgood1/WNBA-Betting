@@ -185,7 +185,15 @@ if ($UseServer) {
       $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
     } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
     $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
-    try { $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180; ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message) }
+    try {
+      $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180 -ErrorAction Stop
+      ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
+      if (($r5.StatusCode -ge 400) -or ($r5.Content -match '"ok"\s*:\s*false' -or $r5.Content -match '"error"')) {
+        throw "reconcile endpoint reported failure: $($r5.StatusCode)"
+      }
+    } catch {
+      Write-Log ("reconcile-games call failed (server warm stage): {0}" -f $_.Exception.Message)
+    }
     Write-Log "Server props-edges warm + reconcile attempted"
   } catch {
     Write-Log ("Server calls failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -342,8 +350,11 @@ Write-Log ("Reconcile games for {0} via server endpoint (if available), else CLI
 try {
   $headers = $ServerHeaders
   $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
-  $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
+  $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120 -ErrorAction Stop
   ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
+  if (($r2.StatusCode -ge 400) -or ($r2.Content -match '"ok"\s*:\s*false' -or $r2.Content -match '"error"')) {
+    throw "reconcile endpoint reported failure: $($r2.StatusCode)"
+  }
 } catch {
   Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message)
   # Fallback: run reconcile via CLI
