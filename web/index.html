@@ -83,13 +83,8 @@
         const js = await res.json();
         if(!js || !js.buckets){ root.innerHTML=''; return; }
         const tiers = ['Overall','High','Medium','Low'];
-        const frag = document.createDocumentFragment();
-        // Optional label to clarify range
-        const label = document.createElement('div');
-        label.className = 'subtle';
-        label.style.margin = '6px 0 8px 0';
-        label.textContent = `YTD since 2025-10-21${until?` through ${until}`:''}`;
-        frag.appendChild(label);
+  const frag = document.createDocumentFragment();
+  // Removed YTD label to avoid extra left space before first card
         tiers.forEach(t=>{
           const b = js.buckets[t]; if(!b) return;
           const card = document.createElement('div'); card.className='card ytd-card';
