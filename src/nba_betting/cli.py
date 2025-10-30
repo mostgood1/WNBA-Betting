@@ -2416,7 +2416,7 @@ def export_game_cards_cmd(date_str: str):
                         if gid and home and away:
                             key = tuple(sorted([home, away]))
                             gid_map[key] = gid
-            # b) Season schedule
+            # b) Season schedule (broad scan; avoid strict string-date equals in case of UTC/ET drift)
             if not gid_map:
                 u = "https://cdn.nba.com/static/json/staticData/scheduleLeagueV2_1.json"
                 r = requests.get(u, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
@@ -2425,15 +2425,52 @@ def export_game_cards_cmd(date_str: str):
                     league = j.get("leagueSchedule") or {}
                     game_dates = league.get("gameDates") or []
                     for gd in game_dates:
-                        if str(gd.get("gameDate") or "").split("T")[0] != date_str:
-                            continue
                         for g in (gd.get("games") or []):
                             gid = str(g.get("gameId") or "").strip()
                             home = str(((g.get("homeTeam") or {}).get("teamTricode")) or "").upper()
                             away = str(((g.get("awayTeam") or {}).get("teamTricode")) or "").upper()
+                            if not (gid and home and away):
+                                continue
+                            # Filter by ET calendar day using startTimeUTC if present; else fall back to gd.gameDate
+                            try:
+                                from datetime import datetime as _dt
+                                from zoneinfo import ZoneInfo as _ZI
+                                et = _ZI("US/Eastern")
+                            except Exception:
+                                et = None
+                            ok_day = False
+                            st = g.get("gameDateTimeUTC") or g.get("startTimeUTC") or g.get("startTimeUTCFormatted")
+                            if st:
+                                try:
+                                    dt = pd.to_datetime(st, utc=True)
+                                    ds = dt.tz_convert("US/Eastern").strftime("%Y-%m-%d") if et else dt.strftime("%Y-%m-%d")
+                                    ok_day = (ds == date_str)
+                                except Exception:
+                                    ok_day = False
+                            if not ok_day:
+                                gd_str = str(gd.get("gameDate") or "").split("T")[0]
+                                ok_day = (gd_str == date_str)
+                            if ok_day:
+                                key = tuple(sorted([home, away]))
+                                gid_map[key] = gid
+            # c) Legacy data.nba.net scoreboard for the specific date (robust for historical + today)
+            if not gid_map:
+                try:
+                    ymd = date_str.replace("-", "")
+                    u2 = f"https://data.nba.net/prod/v1/{ymd}/scoreboard.json"
+                    r2 = requests.get(u2, headers={"Accept":"application/json","User-Agent":"nba-betting/1.0"}, timeout=15)
+                    if r2.ok:
+                        js = r2.json() or {}
+                        games = (js.get("games") or [])
+                        for g in games:
+                            gid = str(g.get("gameId") or "").strip()
+                            home = str(((g.get("hTeam") or {}).get("triCode")) or "").upper()
+                            away = str(((g.get("vTeam") or {}).get("triCode")) or "").upper()
                             if gid and home and away:
                                 key = tuple(sorted([home, away]))
                                 gid_map[key] = gid
+                except Exception:
+                    pass
         except Exception:
             pass
 
