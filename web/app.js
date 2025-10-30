@@ -21,6 +21,7 @@ const state = {
   reconProps: [],
   propsEdges: [],
   propsFilters: { minEdge: 0.05, minEV: 0.0 },
+  fbRecsByGid: new Map(),
   poll: {
     timer: null,
     date: null,
@@ -487,6 +488,62 @@ async function maybeLoadGameCards(dateStr){
         if (obj[k]!==undefined) obj[k] = Number(obj[k]);
       }
       state.gameCardsByKey.set(key, obj);
+    }
+  }catch(_){ /* ignore */ }
+}
+
+// Load first-basket recommendations for the date and index by zero-padded game_id (gid10)
+async function maybeLoadFirstBasketRecs(dateStr){
+  try{
+    state.fbRecsByGid = new Map();
+    const path = `/data/processed/first_basket_recs_${dateStr}.csv?v=${Date.now()}`;
+    const res = await fetch(path);
+    if (!res.ok) return;
+    const text = await res.text();
+    if (!text || !text.trim()) return;
+    const rows = parseCSV(text);
+    if (!rows || rows.length < 2) return;
+    const headers = rows[0];
+    const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+    const need = ['game_id','team','player_name','prob_first_basket','fair_american','rank','cum_prob'];
+    // Helper: normalize game_id to 10-digit numeric string
+    const normGid = (s)=>{
+      try{
+        const raw = String(s||'').trim().replace(/\.0$/, '');
+        const digits = raw.replace(/[^0-9]/g,'');
+        if (!digits) return null;
+        return digits.padStart(10,'0');
+      }catch(_){ return null; }
+    };
+    const map = new Map();
+    for (let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const gid = normGid(r[idx.game_id]);
+      if (!gid) continue;
+      const item = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
+      const obj = {
+        game_id: gid,
+        team: String(item.team||'').toUpperCase(),
+        player_name: String(item.player_name||''),
+        prob_first_basket: toNum(item.prob_first_basket),
+        fair_american: toNum(item.fair_american),
+        rank: toNum(item.rank),
+        cum_prob: toNum(item.cum_prob),
+      };
+      if (!map.has(gid)) map.set(gid, []);
+      map.get(gid).push(obj);
+    }
+    // Sort each gid's picks by rank then prob desc for stability
+    for (const [gid, arr] of map.entries()){
+      const sorted = arr.slice().sort((a,b)=>{
+        const ra = (a.rank==null? Number.POSITIVE_INFINITY : a.rank);
+        const rb = (b.rank==null? Number.POSITIVE_INFINITY : b.rank);
+        if (ra !== rb) return ra - rb;
+        const pa = (a.prob_first_basket==null? -1 : a.prob_first_basket);
+        const pb = (b.prob_first_basket==null? -1 : b.prob_first_basket);
+        return pb - pa;
+      });
+      state.fbRecsByGid.set(gid, sorted);
     }
   }catch(_){ /* ignore */ }
 }
@@ -1218,6 +1275,28 @@ function renderDate(dateStr){
       }
     }catch(_){ /* ignore */ }
 
+    // First Basket Picks section (from first_basket_recs_<date>.csv)
+    let fbRecsHtml = '';
+    try{
+      const gc = state.gameCardsByKey.get(key);
+      let gid = null;
+      if (gc && gc.game_id!=null){
+        const raw = String(gc.game_id).trim().replace(/\.0$/, '');
+        const digits = raw.replace(/[^0-9]/g,'');
+        gid = digits ? digits.padStart(10,'0') : null;
+      }
+      const picks = gid ? (state.fbRecsByGid.get(gid) || []) : [];
+      if (picks.length){
+        const parts = picks.map(p=>{
+          const pct = (p.prob_first_basket!=null) ? `${(p.prob_first_basket*100).toFixed(1)}%` : '—';
+          const fair = (p.fair_american!=null) ? fmtOddsAmerican(p.fair_american) : '—';
+          const tm = String(p.team||'').toUpperCase();
+          return `<div>${p.player_name}${tm?` (${tm})`:''} · ${pct} · Fair ${fair}</div>`;
+        }).join('');
+        fbRecsHtml = `<div class="row details small"><div class="detail-col"><div>First Basket Picks:</div>${parts}</div></div>`;
+      }
+    }catch(_){ /* ignore */ }
+
     // Build quarters line score (traditional format)
     let periodsHtml = '';
     if (pred && pred.quarters_q1_total!=null){
@@ -1320,6 +1399,7 @@ function renderDate(dateStr){
       </div>
       ${recHtml}
   ${pbpHtml}
+    ${fbRecsHtml}
       ${periodsHtml}
       
       ${propsBadges ? `<div class=\"row details small\"><div class=\"detail-col\">${propsBadges}</div></div>` : ''}
@@ -1663,6 +1743,7 @@ function setupControls(){
     await maybeLoadPredictions(d);
     await maybeLoadOdds(d);
   await maybeLoadGameCards(d);
+    await maybeLoadFirstBasketRecs(d);
     await maybeLoadPropsEdges(d);
     await maybeLoadRecon(d);
     renderDate(d);

@@ -684,6 +684,15 @@ try {
   Write-Log ("predict-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 7.1a) First-basket recommendations for today's slate
+try {
+  Write-Log ("Exporting first-basket recommendations for {0}" -f $Date)
+  $rcFbRecs = Invoke-PyMod -plist @('-m','nba_betting.cli','first-basket-recs','--date', $Date)
+  Write-Log ("first-basket-recs exit code: {0}" -f $rcFbRecs)
+} catch {
+  Write-Log ("first-basket-recs failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 7.1) Export compact game cards for frontend
 try {
   Write-Log ("Exporting game cards for {0}" -f $Date)
