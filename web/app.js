@@ -445,21 +445,21 @@ async function maybeLoadPredictions(dateStr){
       if (!home || !away) continue;
       const key = `${date}|${tricodeFromName(home)}|${tricodeFromName(away)}`;
       const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
-      // Normalize numeric fields and map fallbacks
+      // Normalize numeric fields using toNum (treat blanks/NaN as null)
       for (const k of ['pred_total','pred_margin','home_win_prob','edge_total','edge_spread']){
-        if (obj[k]!==undefined) obj[k] = Number(obj[k]);
+        if (obj[k]!==undefined) obj[k] = toNum(obj[k]);
       }
-      if (obj.pred_total==null && totCol){
-        const v = Number(r[idx[totCol]]);
-        if (Number.isFinite(v)) obj.pred_total = v;
+      if ((obj.pred_total==null || obj.pred_total===undefined) && totCol){
+        const v = toNum(r[idx[totCol]]);
+        if (v!=null) obj.pred_total = v;
       }
-      if (obj.pred_margin==null && marCol){
-        const v = Number(r[idx[marCol]]);
-        if (Number.isFinite(v)) obj.pred_margin = v;
+      if ((obj.pred_margin==null || obj.pred_margin===undefined) && marCol){
+        const v = toNum(r[idx[marCol]]);
+        if (v!=null) obj.pred_margin = v;
       }
-      if (obj.home_win_prob==null && wpCol){
-        const v = Number(r[idx[wpCol]]);
-        if (Number.isFinite(v)) obj.home_win_prob = v;
+      if ((obj.home_win_prob==null || obj.home_win_prob===undefined) && wpCol){
+        const v = toNum(r[idx[wpCol]]);
+        if (v!=null) obj.home_win_prob = v;
       }
       state.predsByKey.set(key, obj);
     }
@@ -1238,12 +1238,12 @@ function renderDate(dateStr){
       const fairAwayTxt = (fairAway!=null ? fmtOddsAmerican(fairAway) : '');
       const fairHomeTxt = (fairHome!=null ? fmtOddsAmerican(fairHome) : '');
       chipsMoney = `
-        <div class=\"row chips\">
-          <div class=\"chip title\">Moneyline</div>
-          ${fairAwayTxt? `<div class=\"chip neutral\">Fair Away ${fairAwayTxt}</div>` : ''}\\
-          ${fairHomeTxt? `<div class=\"chip neutral\">Fair Home ${fairHomeTxt}</div>` : ''}\\
-          <div class=\"chip ${clsA} ${isModelAway?'model-pick':''}\">Away ${aOddsTxt} · ${aProbTxt} ${bookBadge} ${evABadge} ${isModelAway?modelBadge:''}</div>
-          <div class=\"chip ${clsH} ${isModelHome?'model-pick':''}\">Home ${hOddsTxt} · ${hProbTxt} ${bookBadge} ${evHBadge} ${isModelHome?modelBadge:''}</div>
+        <div class=\"row chips\">\
+          <div class=\"chip title\">Moneyline</div>\
+          ${fairAwayTxt? `<div class=\"chip neutral\">Fair Away ${fairAwayTxt}</div>` : ''}
+          ${fairHomeTxt? `<div class=\"chip neutral\">Fair Home ${fairHomeTxt}</div>` : ''}
+          <div class=\"chip ${clsA} ${isModelAway?'model-pick':''}\">Away ${aOddsTxt} · ${aProbTxt} ${bookBadge} ${evABadge} ${isModelAway?modelBadge:''}</div>\
+          <div class=\"chip ${clsH} ${isModelHome?'model-pick':''}\">Home ${hOddsTxt} · ${hProbTxt} ${bookBadge} ${evHBadge} ${isModelHome?modelBadge:''}</div>\
         </div>`;
     }
 
