@@ -529,6 +529,17 @@ print("OK")
   Write-Log ("PBP metrics logging failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4c.pre) Ensure PBP inputs exist for recent days to support recon_quarters backfill
+try {
+  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-21).ToString('yyyy-MM-dd')
+  $end = $yesterday
+  Write-Log ("Backfilling PBP for {0}..{1} (finals-only) to enable recon_quarters" -f $start, $end)
+  $rc_bfpbp = Invoke-PyMod -plist @('-m','nba_betting.cli','backfill-pbp','--start', $start, '--end', $end, '--finals-only')
+  Write-Log ("backfill-pbp exit code: {0}" -f $rc_bfpbp)
+} catch {
+  Write-Log ("backfill-pbp failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.4d) Reconcile quarters/halves vs predictions for yesterday
 try {
   Write-Log ("Reconciling quarters for {0}" -f $yesterday)

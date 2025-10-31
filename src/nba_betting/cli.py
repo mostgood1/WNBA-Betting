@@ -3081,7 +3081,260 @@ def reconcile_quarters_cmd(date_str: str):
     except Exception:
         raw_day = raw[raw.get("date").astype(str) == date_str].copy()
     if raw_day is None or raw_day.empty:
-        console.print(f"No raw games found on {date_str}", style="yellow"); return
+        # Fallback: derive actual per-period totals from Play-by-Play when raw line scores are missing
+        console.print(f"No raw games found on {date_str}; attempting PBP-based fallback", style="yellow")
+
+        # Build PBP frames map for the date
+        pbp_map: dict[str, pd.DataFrame] = {}
+        pbp_comb = paths.data_processed / f"pbp_{date_str}.csv"
+        if pbp_comb.exists():
+            try:
+                dfc = pd.read_csv(pbp_comb)
+                if (dfc is not None) and (not dfc.empty):
+                    # Support alternative column names
+                    gid_col = "game_id" if "game_id" in dfc.columns else ("GAME_ID" if "GAME_ID" in dfc.columns else None)
+                    if gid_col is not None:
+                        for gid, grp in dfc.groupby(gid_col):
+                            key = str(gid).strip()
+                            pbp_map[key.zfill(10) if key.isdigit() else key] = grp.copy()
+            except Exception:
+                pbp_map = {}
+        if not pbp_map:
+            # Try per-game files under data/processed/pbp
+            try:
+                dpg = paths.data_processed / "pbp"
+                if dpg.exists():
+                    for f in dpg.glob("pbp_*.csv"):
+                        try:
+                            gid = f.stem.replace("pbp_", "").strip()
+                            key = gid.zfill(10) if gid.isdigit() else gid
+                            pbp_map[key] = pd.read_csv(f)
+                        except Exception:
+                            continue
+            except Exception:
+                pbp_map = {}
+        if not pbp_map:
+            console.print("PBP logs not found; cannot build quarter reconciliation for this date", style="red"); return
+
+        # Map game_id -> (home_tri, away_tri)
+        # Prefer reusing prior pbp reconciliation if available for this date
+        try:
+            pbp_recon_path = paths.data_processed / f"pbp_reconcile_{date_str}.csv"
+            if pbp_recon_path.exists():
+                pr = pd.read_csv(pbp_recon_path)
+                if (pr is not None) and (not pr.empty) and {"game_id","home_team","visitor_team"}.issubset(set(pr.columns)):
+                    # Normalize keys to string game_id
+                    _m = {}
+                    for _, r in pr.iterrows():
+                        gid = str(r.get("game_id")).strip()
+                        h = str(r.get("home_team") or "").upper()
+                        a = str(r.get("visitor_team") or "").upper()
+                        if gid and h and a:
+                            _m[gid] = (h, a)
+                    # If we got any, filter pbp_map to just these game IDs
+                    if _m:
+                        # Normalize pbp_map keys similarly (both raw and zfilled forms)
+                        keep_keys = set(_m.keys()) | set(k.zfill(10) for k in _m.keys() if k.isdigit())
+                        pbp_map = {k: v for k, v in pbp_map.items() if (k in keep_keys) or (k.strip() in keep_keys)}
+                        if pbp_map:
+                            gid_team_map = _m
+        except Exception:
+            pass
+        try:
+            from .pbp_markets import _gid_team_map_for_date as _map
+            gid_team_map = _map(date_str) or {}
+        except Exception:
+            gid_team_map = {}
+        if not gid_team_map:
+            # Derive mapping directly from PBP frames when structured columns are available
+            derived: dict[str, tuple[str,str]] = {}
+            # Restrict to matchups we actually predicted for this date
+            valid_pairs = set(zip(preds["home_tri"].astype(str).str.upper(), preds["away_tri"].astype(str).str.upper()))
+            for gid, gdf in pbp_map.items():
+                try:
+                    cols = set(gdf.columns)
+                    # Prefer structured liveData schema
+                    if {"teamTricode","location"}.issubset(cols):
+                        tri_h = gdf[gdf["location"].astype(str).str.lower()=="h"].get("teamTricode").dropna()
+                        tri_v = gdf[gdf["location"].astype(str).str.lower()=="v"].get("teamTricode").dropna()
+                        h0 = str(tri_h.iloc[0]).upper() if len(tri_h)>0 else None
+                        v0 = str(tri_v.iloc[0]).upper() if len(tri_v)>0 else None
+                        if h0 and v0:
+                            pair = (h0, v0)
+                            if not valid_pairs or pair in valid_pairs:
+                                # Only keep first mapping per pair to avoid duplicates
+                                if pair not in derived.values():
+                                    derived[str(gid)] = pair
+                            continue
+                    # Legacy schema heuristic: look for PLAYER_TEAM abbreviations tagged by home/away if present
+                    # As a last resort, take the first two distinct tricodes observed and assume order is (home, away) if 'location' missing
+                    tri_col = None
+                    for c in ("PLAYER1_TEAM_ABBREVIATION","team_abbr","TEAM_ABBREVIATION","teamTricode"):
+                        if c in cols:
+                            tri_col = c; break
+                    if tri_col:
+                        tri_vals = [str(x).upper() for x in gdf[tri_col].dropna().astype(str).tolist()]
+                        uniq = []
+                        for t in tri_vals:
+                            if t and t not in uniq:
+                                uniq.append(t)
+                            if len(uniq) >= 2:
+                                break
+                        if len(uniq) >= 2:
+                            pair = (uniq[0], uniq[1])
+                            if not valid_pairs or pair in valid_pairs:
+                                if pair not in derived.values():
+                                    derived[str(gid)] = pair
+                except Exception:
+                    continue
+            gid_team_map = derived
+        if not gid_team_map:
+            console.print("Could not map game IDs to teams from PBP; skipping PBP fallback", style="red"); return
+
+        # Helper to extract cumulative home/away score from a PBP row
+        def _scores_from_row(r: pd.Series) -> tuple[float|None, float|None]:
+            # Prefer explicit numeric columns if present
+            for hc, ac in (("scoreHome","scoreAway"), ("home_score","visitor_score"), ("HOME_SCORE","VISITOR_SCORE")):
+                if (hc in r.index) and (ac in r.index):
+                    try:
+                        h = float(pd.to_numeric(r.get(hc), errors="coerce"))
+                        a = float(pd.to_numeric(r.get(ac), errors="coerce"))
+                        if not (np.isnan(h) or np.isnan(a)):
+                            return h, a
+                    except Exception:
+                        pass
+            # Else parse combined score like "102-99" in SCORE/score
+            for sc in ("SCORE","score","combinedScore"):
+                if sc in r.index:
+                    s = str(r.get(sc) or "")
+                    if "-" in s:
+                        parts = [p.strip() for p in s.split("-")]
+                        if len(parts) == 2:
+                            try:
+                                return float(parts[0]), float(parts[1])
+                            except Exception:
+                                pass
+            return None, None
+
+        # Build rows by iterating PBP games and computing per-period cumulative scores
+        rows: list[dict] = []
+        for gid, gdf in pbp_map.items():
+            if gid not in gid_team_map:
+                continue
+            htri, atri = gid_team_map[gid]
+            htri = str(htri or "").upper(); atri = str(atri or "").upper()
+            if (not htri) or (not atri):
+                continue
+            # Ensure period column exists and is numeric
+            if "period" not in gdf.columns:
+                # Try alternative capitalization
+                if "PERIOD" in gdf.columns:
+                    gdf = gdf.rename(columns={"PERIOD":"period"})
+                else:
+                    continue
+            tmp = gdf.copy()
+            # Sort by period asc, then by clock desc if present so last row per period is end-of-period
+            clk = "clock" if "clock" in tmp.columns else ("PCTIMESTRING" if "PCTIMESTRING" in tmp.columns else None)
+            if clk:
+                tmp = tmp.sort_values(["period", clk], ascending=[True, False])
+            # Compute end-of-period cumulative scores
+            per_end: dict[int, tuple[float,float]] = {}
+            for p in [1,2,3,4]:
+                sub = tmp[tmp["period"] == p]
+                if sub is None or sub.empty:
+                    continue
+                # First row after sort is end-of-period (clock=0:00)
+                rlast = sub.iloc[0]
+                hs, as_ = _scores_from_row(rlast)
+                if (hs is None) or (as_ is None):
+                    # Try scanning within period for last non-null score
+                    hs2, as2 = None, None
+                    for _, rr in sub.iterrows():
+                        hs2, as2 = _scores_from_row(rr)
+                        if (hs2 is not None) and (as2 is not None):
+                            hs, as_ = hs2, as2
+                    # If still None, skip
+                if (hs is None) or (as_ is None):
+                    continue
+                per_end[p] = (float(hs), float(as_))
+
+            # Derive per-period totals by differences of cumulative scores
+            aq = {}
+            last_h, last_a = 0.0, 0.0
+            for p in [1,2,3,4]:
+                if p in per_end:
+                    hs, as_ = per_end[p]
+                    aq[f"q{p}"] = max(0.0, (hs - last_h) + (as_ - last_a))
+                    last_h, last_a = hs, as_
+                else:
+                    aq[f"q{p}"] = pd.NA
+            ah1 = (aq.get("q1") if pd.notna(aq.get("q1")) else 0.0) + (aq.get("q2") if pd.notna(aq.get("q2")) else 0.0)
+            ah2 = (aq.get("q3") if pd.notna(aq.get("q3")) else 0.0) + (aq.get("q4") if pd.notna(aq.get("q4")) else 0.0)
+            atot = (last_h + last_a) if (last_h is not None and last_a is not None) else pd.NA
+
+            # Match prediction by tri pair
+            m = preds[(preds["home_tri"].astype(str).str.upper() == htri) & (preds["away_tri"].astype(str).str.upper() == atri)]
+            pred_row = m.iloc[0] if not m.empty else None
+
+            rec: dict = {
+                "date": date_str,
+                "home_team": pred_row.get("home_team") if (pred_row is not None) else None,
+                "visitor_team": pred_row.get("visitor_team") if (pred_row is not None) else None,
+                "home_tri": htri,
+                "away_tri": atri,
+            }
+            for i in range(1,5):
+                rec[f"actual_q{i}_total"] = aq.get(f"q{i}")
+            rec["actual_h1_total"] = ah1 if pd.notna(ah1) else pd.NA
+            rec["actual_h2_total"] = ah2 if pd.notna(ah2) else pd.NA
+            rec["actual_game_total"] = atot
+
+            # Predictions
+            if pred_row is not None:
+                for i in range(1,5):
+                    pk = f"quarters_q{i}_total"
+                    rec[f"pred_q{i}_total"] = float(pred_row.get(pk)) if pk in pred_row.index and pd.notna(pred_row.get(pk)) else pd.NA
+                for hi, parts in [(1, (1,2)), (2, (3,4))]:
+                    hk = f"halves_h{hi}_total"
+                    val = float(pred_row.get(hk)) if hk in pred_row.index and pd.notna(pred_row.get(hk)) else pd.NA
+                    if (pd.isna(val)) and all(pd.notna(rec.get(f"pred_q{j}_total")) for j in parts):
+                        val = float(rec.get(f"pred_q{parts[0]}_total", 0.0)) + float(rec.get(f"pred_q{parts[1]}_total", 0.0))
+                    rec[f"pred_h{hi}_total"] = val
+                if game_pred_col is not None:
+                    try:
+                        rec["pred_game_total"] = float(pred_row.get(game_pred_col))
+                    except Exception:
+                        rec["pred_game_total"] = pd.NA
+                else:
+                    if all(pd.notna(rec.get(f"pred_q{i}_total")) for i in range(1,5)):
+                        rec["pred_game_total"] = sum(float(rec.get(f"pred_q{i}_total", 0.0)) for i in range(1,5))
+                    else:
+                        rec["pred_game_total"] = pd.NA
+            else:
+                for i in range(1,5):
+                    rec[f"pred_q{i}_total"] = pd.NA
+                rec["pred_h1_total"] = pd.NA
+                rec["pred_h2_total"] = pd.NA
+                rec["pred_game_total"] = pd.NA
+
+            # Errors (actual - pred)
+            for i in range(1,5):
+                a = rec.get(f"actual_q{i}_total"); p = rec.get(f"pred_q{i}_total")
+                rec[f"err_q{i}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+            for hi, ak in [(1, "actual_h1_total"), (2, "actual_h2_total")]:
+                a = rec.get(ak); p = rec.get(f"pred_h{hi}_total")
+                rec[f"err_h{hi}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+            a = rec.get("actual_game_total"); p = rec.get("pred_game_total")
+            rec["err_game_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+
+            rows.append(rec)
+
+        if not rows:
+            console.print("PBP fallback produced no rows; nothing to write", style="yellow"); return
+        out = paths.data_processed / f"recon_quarters_{date_str}.csv"
+        pd.DataFrame(rows).to_csv(out, index=False)
+        console.print({"date": date_str, "rows": int(len(rows)), "output": str(out), "source": "pbp"})
+        return
     # Compute tricodes
     raw_day = raw_day.copy()
     raw_day["home_tri"] = raw_day["home_team"].astype(str).map(_to_tri)
