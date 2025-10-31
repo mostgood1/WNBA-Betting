@@ -3221,7 +3221,7 @@ def calibrate_totals_cmd(anchor_date: str, window: int, prior_games: float):
     all_rows: list[pd.DataFrame] = []
     for d in dates:
         ds = d.strftime("%Y-%m-%d")
-        # Prefer recon_quarters if exists; else derive on the fly
+        # 1) Prefer recon_quarters if exists (already has pred/actual totals)
         rq = paths.data_processed / f"recon_quarters_{ds}.csv"
         if rq.exists():
             try:
@@ -3231,45 +3231,121 @@ def calibrate_totals_cmd(anchor_date: str, window: int, prior_games: float):
                 continue
             except Exception:
                 pass
-        # Fallback: attempt live reconciliation for the day
+        # 2) Fallback: recon_games for the day (game-level totals)
+        rg = paths.data_processed / f"recon_games_{ds}.csv"
+        if rg.exists():
+            try:
+                gdf = pd.read_csv(rg)
+                cols = {c.lower(): c for c in gdf.columns}
+                # recon_games has actual totals but may lack pred_total; if so, merge with predictions
+                have_actual = {"home_tri","away_tri","total_actual"}.issubset(set(cols.keys()))
+                if have_actual:
+                    gsel = gdf[[cols["home_tri"], cols["away_tri"], cols["total_actual"]]].copy()
+                    gsel.columns = ["home_tri","away_tri","actual_game_total"]
+                    # Attach predictions for pred_game_total
+                    from .teams import to_tricode as _tri, normalize_team as _norm
+                    pred_candidates = [
+                        paths.data_processed / f"games_predictions_npu_{ds}.csv",
+                        paths.data_processed / f"predictions_{ds}.csv",
+                        paths.root / f"predictions_{ds}.csv",
+                    ]
+                    pred_path = next((p for p in pred_candidates if p.exists()), None)
+                    if pred_path is None:
+                        # If recon has pred_total column populated, use it; else skip
+                        if "pred_total" in cols:
+                            tmp = gdf[[cols["home_tri"], cols["away_tri"], cols["pred_total"], cols["total_actual"]]].copy()
+                            tmp.columns = ["home_tri","away_tri","pred_game_total","actual_game_total"]
+                            tmp["date"] = ds
+                            all_rows.append(tmp)
+                            continue
+                    else:
+                        pr = pd.read_csv(pred_path)
+                        pr = pr.copy(); pr["home_tri"] = pr.get("home_team","").astype(str).map(_norm).map(_tri); pr["away_tri"] = pr.get("visitor_team","").astype(str).map(_norm).map(_tri)
+                        def _pick_col(df, names):
+                            for n in names:
+                                if n in df.columns:
+                                    return n
+                            return None
+                        pcol = _pick_col(pr, ["totals","pred_total","model_total","total"])
+                        if pcol is not None:
+                            pr2 = pr[["home_tri","away_tri", pcol]].copy().rename(columns={pcol: "pred_game_total"})
+                            merged = gsel.merge(pr2, on=["home_tri","away_tri"], how="inner")
+                            if not merged.empty:
+                                merged["date"] = ds
+                                all_rows.append(merged[["date","home_tri","away_tri","pred_game_total","actual_game_total"]])
+                                continue
+            except Exception:
+                pass
+        # 3) Fallback: join finals_<date>.csv with predictions for that date
         try:
-            # Reuse logic via function call
-            # Minimal inline derivation: match predictions with raw
+            from .teams import to_tricode as _tri, normalize_team as _norm
             pred_candidates = [
                 paths.data_processed / f"games_predictions_npu_{ds}.csv",
                 paths.data_processed / f"predictions_{ds}.csv",
                 paths.root / f"predictions_{ds}.csv",
             ]
             pred_path = next((p for p in pred_candidates if p.exists()), None)
-            raw_csv = paths.data_raw / "games_nba_api.csv"
-            if pred_path is None or (not raw_csv.exists()):
-                continue
-            from .teams import to_tricode as _tri, normalize_team as _norm
-            pr = pd.read_csv(pred_path)
-            pr = pr.copy(); pr["home_tri"] = pr.get("home_team","").astype(str).map(_norm).map(_tri); pr["away_tri"] = pr.get("visitor_team","").astype(str).map(_norm).map(_tri)
-            rw = pd.read_csv(raw_csv)
-            rw = rw.copy(); rw["date"] = pd.to_datetime(rw["date"]).dt.strftime("%Y-%m-%d"); rw = rw[rw["date"] == ds]
-            rw["home_tri"] = rw["home_team"].astype(str).map(_tri); rw["away_tri"] = rw["visitor_team"].astype(str).map(_tri)
-            if pr.empty or rw.empty:
-                continue
-            rows_local = []
-            for _, rg in rw.iterrows():
-                h = str(rg.get("home_tri") or "").upper(); a2 = str(rg.get("away_tri") or "").upper()
-                m = pr[(pr["home_tri"].astype(str).str.upper()==h) & (pr["away_tri"].astype(str).str.upper()==a2)]
-                if m.empty:
+            finals_path = paths.data_processed / f"finals_{ds}.csv"
+            if pred_path is None or (not finals_path.exists()):
+                # 4) Last resort: raw line scores if finals missing
+                raw_csv = paths.data_raw / "games_nba_api.csv"
+                if pred_path is None or (not raw_csv.exists()):
                     continue
-                r0 = m.iloc[0]
-                # Pred game total selection
-                def _pick(dfrow, names):
+                pr = pd.read_csv(pred_path)
+                pr = pr.copy(); pr["home_tri"] = pr.get("home_team","").astype(str).map(_norm).map(_tri); pr["away_tri"] = pr.get("visitor_team","").astype(str).map(_norm).map(_tri)
+                rw = pd.read_csv(raw_csv)
+                rw = rw.copy(); rw["date"] = pd.to_datetime(rw["date"], errors="coerce").dt.strftime("%Y-%m-%d"); rw = rw[rw["date"] == ds]
+                rw["home_tri"] = rw["home_team"].astype(str).map(_tri); rw["away_tri"] = rw["visitor_team"].astype(str).map(_tri)
+                if pr.empty or rw.empty:
+                    continue
+                rows_local = []
+                for _, rgrow in rw.iterrows():
+                    h = str(rgrow.get("home_tri") or "").upper(); a2 = str(rgrow.get("away_tri") or "").upper()
+                    m = pr[(pr["home_tri"].astype(str).str.upper()==h) & (pr["away_tri"].astype(str).str.upper()==a2)]
+                    if m.empty:
+                        continue
+                    r0 = m.iloc[0]
+                    def _pick(dfrow, names):
+                        for n in names:
+                            if n in dfrow.index and pd.notna(dfrow.get(n)):
+                                return float(dfrow.get(n))
+                        return None
+                    pg = _pick(r0, ["totals","pred_total","model_total","total"]) or float("nan")
+                    at = float(rgrow.get("home_pts") or 0.0) + float(rgrow.get("visitor_pts") or 0.0)
+                    rows_local.append({"date": ds, "home_tri": h, "away_tri": a2, "pred_game_total": pg, "actual_game_total": at})
+                if rows_local:
+                    all_rows.append(pd.DataFrame(rows_local))
+            else:
+                pr = pd.read_csv(pred_path)
+                pr = pr.copy(); pr["home_tri"] = pr.get("home_team","").astype(str).map(_norm).map(_tri); pr["away_tri"] = pr.get("visitor_team","").astype(str).map(_norm).map(_tri)
+                fn = pd.read_csv(finals_path)
+                # Normalize finals columns
+                fcols = {c.lower(): c for c in fn.columns}
+                # We need home_tri, away_tri, home_pts, visitor_pts
+                needf = {"home_tri","away_tri","home_pts","visitor_pts"}
+                if not needf.issubset(set(fcols.keys())):
+                    continue
+                fn2 = fn[[fcols["home_tri"], fcols["away_tri"], fcols["home_pts"], fcols["visitor_pts"]]].copy()
+                fn2.columns = ["home_tri","away_tri","home_pts","visitor_pts"]
+                # Select prediction total column
+                def _pick_col(df, names):
                     for n in names:
-                        if n in dfrow.index and pd.notna(dfrow.get(n)):
-                            return float(dfrow.get(n))
+                        if n in df.columns:
+                            return n
                     return None
-                pg = _pick(r0, ["totals","pred_total","model_total","total"]) or float("nan")
-                at = float(rg.get("home_pts") or 0.0) + float(rg.get("visitor_pts") or 0.0)
-                rows_local.append({"date": ds, "home_tri": h, "away_tri": a2, "pred_game_total": pg, "actual_game_total": at})
-            if rows_local:
-                all_rows.append(pd.DataFrame(rows_local))
+                pred_col = _pick_col(pr, ["totals","pred_total","model_total","total"])
+                if pred_col is None:
+                    continue
+                pr2 = pr[["home_tri","away_tri", pred_col]].copy().rename(columns={pred_col: "pred_game_total"})
+                merged = pr2.merge(fn2, on=["home_tri","away_tri"], how="inner")
+                if merged.empty:
+                    continue
+                merged["actual_game_total"] = pd.to_numeric(merged.get("home_pts"), errors="coerce") + pd.to_numeric(merged.get("visitor_pts"), errors="coerce")
+                merged["date"] = ds
+                out_part = merged[["date","home_tri","away_tri","pred_game_total","actual_game_total"]].copy()
+                out_part = out_part.dropna(subset=["pred_game_total","actual_game_total"], how="any")
+                if not out_part.empty:
+                    all_rows.append(out_part)
         except Exception:
             continue
 
