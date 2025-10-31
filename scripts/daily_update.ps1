@@ -538,6 +538,32 @@ try {
   Write-Log ("reconcile-quarters failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4d.a) Backfill recent recon_quarters (last 21 days) to seed calibration
+try {
+  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-21)
+  $end = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
+  $cur = $start
+  $missing = @()
+  while ($cur -le $end) {
+    $ds = $cur.ToString('yyyy-MM-dd')
+    $p = Join-Path $RepoRoot ("data/processed/recon_quarters_{0}.csv" -f $ds)
+    if (-not (Test-Path $p)) { $missing += $ds }
+    $cur = $cur.AddDays(1)
+  }
+  if ($missing.Count -gt 0) {
+    Write-Log ("Recon quarters backfill (last 21d) missing: {0}" -f ($missing -join ', '))
+    foreach ($ds in $missing) {
+      try {
+        Write-Log ("Build recon-quarters for {0}" -f $ds)
+        $rc_rq = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-quarters','--date', $ds)
+        Write-Log ("reconcile-quarters ({0}) exit code: {1}" -f $ds, $rc_rq)
+      } catch { Write-Log ("reconcile-quarters ({0}) failed: {1}" -f $ds, $_.Exception.Message) }
+    }
+  } else {
+    Write-Log 'Recon quarters backfill: none missing in last 21 days'
+  }
+} catch { Write-Log ("Recon quarters backfill block failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 2.4e) Calibrate game totals (global + team) using rolling window anchored at yesterday
 try {
   Write-Log ("Calibrating game totals (window=14) anchored at {0}" -f $yesterday)
