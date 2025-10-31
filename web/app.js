@@ -820,7 +820,6 @@ function renderDate(dateStr){
       const odds = state.oddsByKey.get(`${dateStr}|${home}|${away}`);
       const ct = odds && odds.commence_time ? new Date(odds.commence_time) : null;
       if (ct && !isNaN(ct)) return ct.getTime();
-  <div class="row details small"><div class="detail-col"><div>Debug: ${dateStr} | ${home}-${away} | hasOdds=${hasAnyOdds?1:0} | hasPred=${pred?1:0} | T=${(pred&&Number.isFinite(Number(pred.pred_total)))?Number(pred.pred_total).toFixed(1):'—'} | M=${(pred&&Number.isFinite(Number(pred.pred_margin)))?Number(pred.pred_margin).toFixed(1):'—'}</div></div></div>
       const iso = g.datetime_utc || g.datetime_est || (g.date_utc?`${g.date_utc}T00:00:00Z`: (g.date_est?`${g.date_est}T00:00:00Z`: null));
       const d = iso ? new Date(iso) : null;
       return (d && !isNaN(d)) ? d.getTime() : Number.MAX_SAFE_INTEGER;
