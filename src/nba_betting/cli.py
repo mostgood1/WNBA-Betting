@@ -3186,6 +3186,47 @@ def reconcile_quarters_cmd(date_str: str):
     pd.DataFrame(rows).to_csv(out, index=False)
     console.print({"date": date_str, "rows": int(len(rows)), "output": str(out)})
 
+
+@cli.command("reconcile-quarters-range")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+def reconcile_quarters_range_cmd(start_date: str, end_date: str):
+    """Backfill recon_quarters_<date>.csv for a date range.
+
+    Iterates [start..end] inclusive and invokes reconcile-quarters for each date.
+    """
+    console.rule("Reconcile Quarters: Range")
+    try:
+        s = pd.to_datetime(start_date).date(); e = pd.to_datetime(end_date).date()
+    except Exception:
+        console.print("Invalid --start/--end (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+    dates = list(pd.date_range(s, e, freq="D").date)
+    ok = 0; fail = 0
+    for d in track(dates, description="Reconciling"):
+        ds = str(d)
+        try:
+            reconcile_quarters_cmd.callback  # type: ignore[attr-defined]
+            # Some Click versions wrap functions; call directly regardless
+        except Exception:
+            pass
+        try:
+            reconcile_quarters_cmd(ds)  # type: ignore[misc]
+            ok += 1
+        except SystemExit:
+            # Click may raise SystemExit on parameter parsing; try direct logic
+            try:
+                # Fallback: inline call equivalent by reusing function body via a nested call
+                # We simply re-invoke through the CLI group
+                cli.main(["reconcile-quarters", "--date", ds], standalone_mode=False)  # type: ignore
+                ok += 1
+            except Exception:
+                fail += 1
+        except Exception:
+            fail += 1
+    console.print({"start": str(s), "end": str(e), "ok": int(ok), "fail": int(fail)})
+
 @cli.command("calibrate-totals")
 @click.option("--anchor", "anchor_date", type=str, required=True, help="Anchor date YYYY-MM-DD (typically yesterday)")
 @click.option("--window", type=int, default=14, show_default=True, help="Lookback window in days (excludes anchor)")
@@ -3364,6 +3405,26 @@ def calibrate_totals_cmd(anchor_date: str, window: int, prior_games: float):
     g_err = _winsorize(df["err_game_total"], 0.05, 0.95)
     global_bias = float(g_err.mean()) if len(g_err) > 0 else 0.0
 
+    # Optional: per-quarter and per-half biases when available (from recon_quarters)
+    q_biases: dict[str, float] = {}
+    h_biases: dict[str, float] = {}
+    # If df has per-quarter actual/pred columns, compute err and mean
+    have_q = all([(f"actual_q{i}_total" in df.columns) and (f"pred_q{i}_total" in df.columns) for i in range(1,5)])
+    if have_q:
+        for i in range(1,5):
+            aq = pd.to_numeric(df.get(f"actual_q{i}_total"), errors="coerce")
+            pq = pd.to_numeric(df.get(f"pred_q{i}_total"), errors="coerce")
+            e = _winsorize(aq - pq)
+            q_biases[f"q{i}"] = float(e.mean()) if len(e) > 0 else 0.0
+    have_h = ("actual_h1_total" in df.columns and "pred_h1_total" in df.columns and
+              "actual_h2_total" in df.columns and "pred_h2_total" in df.columns)
+    if have_h:
+        for i in (1,2):
+            ah = pd.to_numeric(df.get(f"actual_h{i}_total"), errors="coerce")
+            ph = pd.to_numeric(df.get(f"pred_h{i}_total"), errors="coerce")
+            e = _winsorize(ah - ph)
+            h_biases[f"h{i}"] = float(e.mean()) if len(e) > 0 else 0.0
+
     # Per-team bias with shrinkage toward global
     # Approximate team predicted points by splitting total using predicted margin if available
     # home_pred_pts = (total + margin)/2; away_pred_pts = total - home_pred_pts
@@ -3415,7 +3476,11 @@ def calibrate_totals_cmd(anchor_date: str, window: int, prior_games: float):
         "anchor": str(a),
         "window_days": int(window),
         "generated_at": pd.Timestamp.utcnow().isoformat(),
-        "global": {"game_total_bias": float(global_bias)},
+        "global": {
+            "game_total_bias": float(global_bias),
+            **({"quarters": q_biases} if q_biases else {}),
+            **({"halves": h_biases} if h_biases else {}),
+        },
         "team": team_bias,
     }
     out_json = paths.data_processed / f"calibration_totals_{anchor_date}.json"
@@ -3496,7 +3561,10 @@ def apply_totals_calibration_cmd(date_str: str, calib_date: str | None, in_path:
     df["away_tri"] = df["visitor_team"].astype(str).map(_to_tri)
 
     # Fetch calibration pieces
-    g_bias = float(calib.get("global", {}).get("game_total_bias", 0.0) or 0.0)
+    g = calib.get("global", {}) or {}
+    g_bias = float(g.get("game_total_bias", 0.0) or 0.0)
+    g_quarters = (g.get("quarters") or {}) if isinstance(g.get("quarters"), dict) else {}
+    g_halves = (g.get("halves") or {}) if isinstance(g.get("halves"), dict) else {}
     team_bias: dict = calib.get("team", {}) or {}
 
     # Column helpers
@@ -3509,6 +3577,24 @@ def apply_totals_calibration_cmd(date_str: str, calib_date: str | None, in_path:
     # Period columns presence
     q_cols = [c for c in [f"quarters_q{i}_total" for i in range(1,5)] if c in df.columns]
     h_cols = [c for c in [f"halves_h1_total", "halves_h2_total"] if c in df.columns]
+
+    def _weights_from_bias_map(bmap: dict[str, float], keys: list[str]) -> list[float]:
+        # Produce non-negative weights from a bias map; if degenerate, return equal weights
+        vals = [float(bmap.get(k, 0.0) or 0.0) for k in keys]
+        if not vals:
+            return []
+        mn = min(vals)
+        w = [max(0.0, v - mn) for v in vals]
+        s = sum(w)
+        if s <= 1e-9:
+            return [1.0/float(len(vals)) for _ in vals]
+        return [x/s for x in w]
+
+    # Precompute weights if any
+    q_keys = [f"q{i}" for i in range(1,5)]
+    h_keys = [f"h{i}" for i in range(1,3)]
+    q_w = _weights_from_bias_map(g_quarters, q_keys) if g_quarters else []
+    h_w = _weights_from_bias_map(g_halves, h_keys) if g_halves else []
 
     # Apply per-row
     def _row_adjust(r: pd.Series) -> pd.Series:
@@ -3527,19 +3613,25 @@ def apply_totals_calibration_cmd(date_str: str, calib_date: str | None, in_path:
                 pass
         # Distribute to halves/quarters if present
         if q_cols:
-            add = delta / 4.0
-            for qc in q_cols:
+            if q_w and len(q_w) == len(q_cols):
+                adds = [delta * w for w in q_w]
+            else:
+                adds = [delta/4.0 for _ in q_cols]
+            for qc, add in zip(q_cols, adds):
                 if pd.notna(r.get(qc)):
                     try:
-                        r[qc] = float(r.get(qc)) + add
+                        r[qc] = float(r.get(qc)) + float(add)
                     except Exception:
                         pass
         if h_cols:
-            addh = delta / 2.0
-            for hc in h_cols:
+            if h_w and len(h_w) == len(h_cols):
+                adds_h = [delta * w for w in h_w]
+            else:
+                adds_h = [delta/2.0 for _ in h_cols]
+            for hc, addh in zip(h_cols, adds_h):
                 if pd.notna(r.get(hc)):
                     try:
-                        r[hc] = float(r.get(hc)) + addh
+                        r[hc] = float(r.get(hc)) + float(addh)
                     except Exception:
                         pass
         return r
