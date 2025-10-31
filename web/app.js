@@ -430,14 +430,23 @@ async function maybeLoadPredictions(dateStr){
     if (!rows || rows.length < 2) return;
     const headers = rows[0];
     const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
-    const pick = (names)=>{ for (const n of names){ if (idx[n]!==undefined) return n; } return null; };
-    const dateCol = pick(['date']);
-    const hCol = pick(['home_team','home']);
-    const aCol = pick(['visitor_team','away']);
-    // Fallbacks for model columns; normalize into pred_total/pred_margin/home_win_prob
-    const totCol = pick(['pred_total','total','totals','model_total']);
-    const marCol = pick(['pred_margin','margin','spread_margin','model_margin']);
-    const wpCol  = pick(['home_win_prob','home_win_prob_raw','home_win_prob_model','home_wp','p_home_win']);
+    const has = (name)=> idx[name]!==undefined;
+    const firstExisting = (names)=> names.find(n=>has(n)) || null;
+    const getFirstVal = (r, names)=>{
+      for (const n of names){
+        if (!has(n)) continue;
+        const v = r[idx[n]];
+        if (v!==undefined && v!==null && String(v).trim()!=='') return toNum(v);
+      }
+      return null;
+    };
+    const dateCol = firstExisting(['date']);
+    const hCol = firstExisting(['home_team','home']);
+    const aCol = firstExisting(['visitor_team','away']);
+    // Prefer model columns over market snapshots; fall back to market only if model is missing per-row
+    const totPrefs = ['pred_total','totals','model_total','total'];
+    const marPrefs = ['pred_margin','spread_margin','model_margin','margin'];
+    const wpPrefs  = ['home_win_prob','home_win_prob_raw','home_win_prob_model','home_wp','p_home_win'];
     for (let i=1;i<rows.length;i++){
       const r = rows[i];
       // Force-key predictions to the selected slate date.
@@ -452,16 +461,17 @@ async function maybeLoadPredictions(dateStr){
       for (const k of ['pred_total','pred_margin','home_win_prob','edge_total','edge_spread']){
         if (obj[k]!==undefined) obj[k] = toNum(obj[k]);
       }
-      if ((obj.pred_total==null || obj.pred_total===undefined) && totCol){
-        const v = toNum(r[idx[totCol]]);
+      // Per-row fallbacks: choose the first non-empty value among preferred columns
+      if (obj.pred_total==null || obj.pred_total===undefined){
+        const v = getFirstVal(r, totPrefs);
         if (v!=null) obj.pred_total = v;
       }
-      if ((obj.pred_margin==null || obj.pred_margin===undefined) && marCol){
-        const v = toNum(r[idx[marCol]]);
+      if (obj.pred_margin==null || obj.pred_margin===undefined){
+        const v = getFirstVal(r, marPrefs);
         if (v!=null) obj.pred_margin = v;
       }
-      if ((obj.home_win_prob==null || obj.home_win_prob===undefined) && wpCol){
-        const v = toNum(r[idx[wpCol]]);
+      if (obj.home_win_prob==null || obj.home_win_prob===undefined){
+        const v = getFirstVal(r, wpPrefs);
         if (v!=null) obj.home_win_prob = v;
       }
       state.predsByKey.set(key, obj);
