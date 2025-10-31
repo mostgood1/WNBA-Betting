@@ -1282,6 +1282,14 @@ def predict_early_threes_for_date(date_str: str) -> pd.DataFrame:
                     cal_bias = float(pd.to_numeric(cdf["thr_bias"], errors="coerce").iloc[-1])
     except Exception:
         cal_bias = 0.0
+    # Sanity clamp calibration bias to a realistic range
+    try:
+        if not np.isfinite(cal_bias):
+            cal_bias = 0.0
+        else:
+            cal_bias = float(max(-1.0, min(1.0, cal_bias)))
+    except Exception:
+        cal_bias = 0.0
 
     rows = []
     for gid in gids:
@@ -1296,20 +1304,28 @@ def predict_early_threes_for_date(date_str: str) -> pd.DataFrame:
                 yhat = float(reg.predict(X)[0])
             except Exception:
                 yhat = 1.2
+        # Guard against overly large baseline from model intercept; baseline should be around ~2.0–2.5
+        try:
+            yhat = float(min(2.4, max(0.0, yhat)))
+        except Exception:
+            yhat = min(2.4, max(0.0, yhat))
         # Apply heuristic scaling by team 3PA if available
         pair = team_map.get(gid) or team_map.get(str(gid).zfill(10))
         if pair and team_3pa_avg is not None and league_3pa_avg and league_3pa_avg > 0:
             home, away = pair
             h_rate = float(team_3pa_avg.get(home, league_3pa_avg))
             a_rate = float(team_3pa_avg.get(away, league_3pa_avg))
-            factor = max(0.6, min(1.4, 0.5 * (h_rate + a_rate) / league_3pa_avg))
+            # Keep scaling conservative; early-3s E[X] should typically be ~2–3 in first 3 minutes
+            factor = max(0.7, min(1.3, 0.5 * (h_rate + a_rate) / league_3pa_avg))
             yhat = float(yhat * factor)
         # Apply calibration bias (additive on expected threes) and clamp
         try:
             yhat = max(0.0, float(yhat + cal_bias))
         except Exception:
             yhat = max(0.0, yhat)
-        rows.append({"game_id": gid, "expected_threes_0_3": yhat, "prob_ge_1": 1.0 - float(np.exp(-max(0.0, yhat)))})
+        # Final safety clamp: realistic range for first 3 minutes is roughly [0, 3.2]
+        yhat = float(max(0.0, min(3.2, yhat)))
+        rows.append({"game_id": gid, "expected_threes_0_3": yhat, "prob_ge_1": 1.0 - float(np.exp(-yhat))})
     out = pd.DataFrame(rows)
     out_path = paths.data_processed / f"early_threes_{date_str}.csv"
     out.to_csv(out_path, index=False)

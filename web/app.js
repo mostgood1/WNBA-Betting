@@ -440,7 +440,10 @@ async function maybeLoadPredictions(dateStr){
     const wpCol  = pick(['home_win_prob','home_win_prob_raw','home_win_prob_model','home_wp','p_home_win']);
     for (let i=1;i<rows.length;i++){
       const r = rows[i];
-      const date = dateCol ? String(r[idx[dateCol]]||'').slice(0,10) : dateStr;
+      // Force-key predictions to the selected slate date.
+      // Some generators write UTC calendar dates causing 8pm+ ET games to appear on the next day.
+      // Since this file is date-scoped by name, use dateStr for consistent matching with schedule/odds.
+      const date = dateStr;
       const home = r[idx[hCol]]; const away = r[idx[aCol]];
       if (!home || !away) continue;
       const key = `${date}|${tricodeFromName(home)}|${tricodeFromName(away)}`;
