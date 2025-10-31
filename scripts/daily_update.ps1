@@ -6,6 +6,8 @@ Param(
   [switch]$GitPush,
   # If set, do a 'git pull --rebase' before running to reduce conflicts
   [switch]$GitSyncFirst,
+  # If set, skip applying totals calibration to predictions (safety valve)
+  [switch]$SkipTotalsCalib,
   # Optional: Remote server base URL (updated to the correct Render site)
   [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
   # Optional: Bare -CronToken flag is accepted (no value) to avoid task failures
@@ -23,6 +25,12 @@ if (-not $PSBoundParameters.ContainsKey('GitPush')) {
   $always = $env:DAILY_UPDATE_ALWAYS_PUSH
   if ($null -eq $always -or $always -eq '') { $always = '1' }
   if ($always -match '^(1|true|yes)$') { $GitPush = $true } else { $GitPush = $false }
+}
+
+# Default behavior for totals calibration: allow skipping via env DAILY_SKIP_TOTALS_CALIB
+if (-not $PSBoundParameters.ContainsKey('SkipTotalsCalib')) {
+  $stc = $env:DAILY_SKIP_TOTALS_CALIB
+  if ($null -ne $stc -and $stc -match '^(1|true|yes)$') { $SkipTotalsCalib = $true } else { $SkipTotalsCalib = $false }
 }
 
 # Resolve paths
@@ -585,12 +593,88 @@ try {
 }
 
 # 2.4f) Apply totals calibration to today's predictions (adjusts totals and period totals if present)
-try {
-  Write-Log ("Applying totals calibration from {0} to predictions for {1}" -f $yesterday, $Date)
-  $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday)
-  Write-Log ("apply-totals-calibration exit code: {0}" -f $rc_apply_tot)
-} catch {
-  Write-Log ("apply-totals-calibration failed (non-fatal): {0}" -f $_.Exception.Message)
+if (-not $SkipTotalsCalib) {
+  try {
+    Write-Log ("Applying totals calibration from {0} to predictions for {1}" -f $yesterday, $Date)
+
+    # Back up the predictions file before applying calibration (safety valve)
+    $predPath = Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $Date)
+    $backupPath = Join-Path $RepoRoot ("data/processed/_predictions_backup_{0}.csv" -f $Date)
+    if (Test-Path $predPath) {
+      try { Copy-Item -Path $predPath -Destination $backupPath -Force } catch { Write-Log ("Backup create failed (non-fatal): {0}" -f $_.Exception.Message) }
+    } else {
+      Write-Log "No predictions CSV found prior to calibration; skipping backup"
+    }
+
+    $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday)
+    Write-Log ("apply-totals-calibration exit code: {0}" -f $rc_apply_tot)
+
+    # Validate predictions after apply; if invalid, restore backup
+    try {
+      $tmpPy = Join-Path $LogPath ("validate_predictions_{0}.py" -f $Stamp)
+      $pyCode = @"
+import sys, pandas as pd
+from pathlib import Path
+pred_path = Path(r"$predPath")
+ok=True; why=[]
+if not pred_path.exists():
+    print("NO:file_missing"); sys.exit(0)
+df = pd.read_csv(pred_path)
+def in_range(s, lo, hi):
+    import pandas as _pd
+    s = _pd.to_numeric(s, errors="coerce")
+    if s.isna().all():
+        return False
+    return bool(((s >= lo) & (s <= hi)).all())
+cols = set(df.columns)
+if ("totals" not in cols) or (not in_range(df["totals"], 120, 300)):
+    ok=False; why.append("totals_out_of_range")
+for c, lo, hi in [
+    ("quarters_q1_total", 15, 80),
+    ("quarters_q2_total", 15, 80),
+    ("quarters_q3_total", 15, 80),
+    ("quarters_q4_total", 15, 80),
+    ("halves_h1_total", 30, 160),
+    ("halves_h2_total", 30, 160),
+]:
+    if c in cols and not in_range(df[c], lo, hi):
+        ok=False; why.append(f"{c}_out_of_range")
+# Optional: quarter sum approx equals game totals within tolerance where all quarters present
+try:
+    need = ["quarters_q1_total","quarters_q2_total","quarters_q3_total","quarters_q4_total","totals"]
+    if all(n in cols for n in need):
+        import pandas as _pd
+        qsum = sum(_pd.to_numeric(df[n], errors="coerce") for n in need[:-1])
+        tot = _pd.to_numeric(df["totals"], errors="coerce")
+        diff = (qsum - tot).abs()
+        # Allow lenient tolerance (<= 25 pts) to avoid rejecting reasonable calibrations
+        if not (diff <= 25).fillna(True).all():
+            ok=False; why.append("quarter_sum_mismatch")
+except Exception:
+    pass
+print("OK" if ok else ("NO:"+",".join(why)))
+"@
+      Set-Content -Path $tmpPy -Value $pyCode -Encoding UTF8
+      $valOut = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
+      if ($valOut -notmatch '^OK') {
+        Write-Log ("Calibration validation failed: {0}" -f $valOut)
+        if ((Test-Path $backupPath) -and (Test-Path $predPath)) {
+          try {
+            Copy-Item -Path $backupPath -Destination $predPath -Force
+            Write-Log "Restored predictions CSV from backup due to failed validation"
+          } catch { Write-Log ("Restore from backup failed: {0}" -f $_.Exception.Message) }
+        }
+      } else {
+        Write-Log "Calibration validation: OK"
+      }
+    } catch {
+      Write-Log ("Validation block failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+  } catch {
+    Write-Log ("apply-totals-calibration failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+} else {
+  Write-Log 'Skipping totals calibration (SkipTotalsCalib=true)'
 }
 
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
