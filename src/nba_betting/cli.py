@@ -3001,6 +3001,483 @@ def reconcile_pbp_markets_cmd(date_str: str):
         "early_threes": {"mae": thr_mae, "rmse": thr_rmse, "brier_ge1": thr_brier},
     })
 
+@cli.command("reconcile-quarters")
+@click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD to reconcile quarters/halves vs predictions")
+def reconcile_quarters_cmd(date_str: str):
+    """Reconcile per-quarter and half totals for a date by joining predictions with raw line scores.
+
+    Writes data/processed/recon_quarters_<date>.csv with columns including:
+    - date, home_team, visitor_team, home_tri, away_tri
+    - actual_q{1..4}_total, actual_h1_total, actual_h2_total, actual_game_total
+    - pred_q{1..4}_total, pred_h1_total, pred_h2_total, pred_game_total
+    - err_q{1..4}_total, err_h1_total, err_h2_total, err_game_total (actual - pred)
+    """
+    console.rule("Reconcile Quarters")
+    try:
+        _ = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+
+    from .teams import to_tricode as _to_tri, normalize_team as _norm
+    # Locate predictions for the date (prefer NPU periods if available)
+    pred_candidates = [
+        paths.data_processed / f"games_predictions_npu_{date_str}.csv",
+        paths.data_processed / f"predictions_{date_str}.csv",
+        paths.root / f"predictions_{date_str}.csv",
+    ]
+    pred_path = next((p for p in pred_candidates if p.exists()), None)
+    if pred_path is None:
+        console.print(f"No predictions found for {date_str}", style="red"); return
+    try:
+        preds = pd.read_csv(pred_path)
+    except Exception as e:
+        console.print(f"Failed to read predictions: {e}", style="red"); return
+    if preds is None or preds.empty:
+        console.print("Predictions file is empty", style="red"); return
+
+    # Normalize prediction team names and tricodes
+    preds = preds.copy()
+    for c in ("home_team","visitor_team"):
+        if c in preds.columns:
+            preds[c] = preds[c].apply(_norm)
+        else:
+            preds[c] = pd.NA
+    preds["home_tri"] = preds["home_team"].astype(str).map(_to_tri)
+    preds["away_tri"] = preds["visitor_team"].astype(str).map(_to_tri)
+
+    # Identify prediction columns
+    def _first_col(df: pd.DataFrame, names: list[str]) -> str | None:
+        for n in names:
+            if n in df.columns:
+                return n
+        return None
+    # Game total and per-period predicted totals columns (model naming from games_npu.predict_game)
+    game_pred_col = _first_col(preds, ["totals","pred_total","model_total","total"])
+    # Period columns usually: quarters_q{i}_total and halves_h{1,2}_total
+    have_quarters = any((f"quarters_q{i}_total" in preds.columns) for i in range(1,5))
+    have_halves = any((f"halves_h{i}_total" in preds.columns) for i in range(1,3))
+
+    # Load raw games with line scores and filter to date
+    raw_csv = paths.data_raw / "games_nba_api.csv"
+    raw_parq = paths.data_raw / "games_nba_api.parquet"
+    raw = None
+    if raw_parq.exists():
+        try:
+            raw = pd.read_parquet(raw_parq)
+        except Exception:
+            raw = None
+    if raw is None and raw_csv.exists():
+        try:
+            raw = pd.read_csv(raw_csv)
+        except Exception:
+            raw = None
+    if raw is None or raw.empty:
+        console.print("Raw games with line scores not found. Run fetch or enrich-periods.", style="red"); return
+    # Filter to date
+    try:
+        raw_day = raw.copy()
+        raw_day["date"] = pd.to_datetime(raw_day["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+        raw_day = raw_day[raw_day["date"] == date_str]
+    except Exception:
+        raw_day = raw[raw.get("date").astype(str) == date_str].copy()
+    if raw_day is None or raw_day.empty:
+        console.print(f"No raw games found on {date_str}", style="yellow"); return
+    # Compute tricodes
+    raw_day = raw_day.copy()
+    raw_day["home_tri"] = raw_day["home_team"].astype(str).map(_to_tri)
+    raw_day["away_tri"] = raw_day["visitor_team"].astype(str).map(_to_tri)
+
+    # Build reconciliation rows by matchup key (home_tri,away_tri)
+    rows: list[dict] = []
+    for _, g in raw_day.iterrows():
+        htri = str(g.get("home_tri") or "").upper(); atri = str(g.get("away_tri") or "").upper()
+        if not htri or not atri:
+            continue
+        # Match prediction by tricode pair
+        m = preds[(preds["home_tri"].astype(str).str.upper() == htri) & (preds["away_tri"].astype(str).str.upper() == atri)]
+        if m.empty:
+            # Try reversed (in case of naming mismatch)
+            m = preds[(preds["home_tri"].astype(str).str.upper() == htri) & (preds["visitor_team"].astype(str).map(_to_tri).str.upper() == atri)]
+        pred_row = m.iloc[0] if not m.empty else None
+
+        rec: dict = {
+            "date": date_str,
+            "home_team": g.get("home_team"),
+            "visitor_team": g.get("visitor_team"),
+            "home_tri": htri,
+            "away_tri": atri,
+        }
+        # Actuals from raw line scores
+        aq = {}
+        for i in range(1,5):
+            hq = g.get(f"home_q{i}"); vq = g.get(f"visitor_q{i}")
+            try:
+                aq[f"q{i}"] = (float(hq) if pd.notna(hq) else 0.0) + (float(vq) if pd.notna(vq) else 0.0)
+            except Exception:
+                aq[f"q{i}"] = pd.NA
+        # Halves
+        def _sum2(a,b):
+            try:
+                return (float(a) if pd.notna(a) else 0.0) + (float(b) if pd.notna(b) else 0.0)
+            except Exception:
+                return pd.NA
+        ah1 = _sum2(g.get("home_q1"), g.get("visitor_q1"))
+        ah1 = (ah1 + _sum2(g.get("home_q2"), g.get("visitor_q2"))) if pd.notna(ah1) else pd.NA
+        ah2 = _sum2(g.get("home_q3"), g.get("visitor_q3"))
+        ah2 = (ah2 + _sum2(g.get("home_q4"), g.get("visitor_q4"))) if pd.notna(ah2) else pd.NA
+        atot = None
+        try:
+            atot = (float(g.get("home_pts")) if pd.notna(g.get("home_pts")) else 0.0) + (float(g.get("visitor_pts")) if pd.notna(g.get("visitor_pts")) else 0.0)
+        except Exception:
+            atot = pd.NA
+
+        for i in range(1,5):
+            rec[f"actual_q{i}_total"] = aq.get(f"q{i}")
+        rec["actual_h1_total"] = ah1
+        rec["actual_h2_total"] = ah2
+        rec["actual_game_total"] = atot
+
+        # Predictions
+        if pred_row is not None:
+            # Quarter preds
+            for i in range(1,5):
+                pk = f"quarters_q{i}_total"
+                rec[f"pred_q{i}_total"] = float(pred_row.get(pk)) if pk in pred_row.index and pd.notna(pred_row.get(pk)) else pd.NA
+            # Halves from columns or derive from quarters if missing
+            for hi, parts in [(1, (1,2)), (2, (3,4))]:
+                hk = f"halves_h{hi}_total"
+                val = float(pred_row.get(hk)) if hk in pred_row.index and pd.notna(pred_row.get(hk)) else pd.NA
+                if (pd.isna(val)) and all(pd.notna(rec.get(f"pred_q{j}_total")) for j in parts):
+                    val = float(rec.get(f"pred_q{parts[0]}_total", 0.0)) + float(rec.get(f"pred_q{parts[1]}_total", 0.0))
+                rec[f"pred_h{hi}_total"] = val
+            # Game total prediction
+            if game_pred_col is not None:
+                try:
+                    rec["pred_game_total"] = float(pred_row.get(game_pred_col))
+                except Exception:
+                    rec["pred_game_total"] = pd.NA
+            else:
+                # Sum quarters if available
+                if all(pd.notna(rec.get(f"pred_q{i}_total")) for i in range(1,5)):
+                    rec["pred_game_total"] = sum(float(rec.get(f"pred_q{i}_total", 0.0)) for i in range(1,5))
+                else:
+                    rec["pred_game_total"] = pd.NA
+        else:
+            # No prediction available; leave pred_* as NA
+            for i in range(1,5):
+                rec[f"pred_q{i}_total"] = pd.NA
+            rec["pred_h1_total"] = pd.NA
+            rec["pred_h2_total"] = pd.NA
+            rec["pred_game_total"] = pd.NA
+
+        # Errors (actual - pred)
+        for i in range(1,5):
+            a = rec.get(f"actual_q{i}_total"); p = rec.get(f"pred_q{i}_total")
+            rec[f"err_q{i}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+        for hi, ak in [(1, "actual_h1_total"), (2, "actual_h2_total")]:
+            a = rec.get(ak); p = rec.get(f"pred_h{hi}_total")
+            rec[f"err_h{hi}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+        a = rec.get("actual_game_total"); p = rec.get("pred_game_total")
+        rec["err_game_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+
+        rows.append(rec)
+
+    out = paths.data_processed / f"recon_quarters_{date_str}.csv"
+    pd.DataFrame(rows).to_csv(out, index=False)
+    console.print({"date": date_str, "rows": int(len(rows)), "output": str(out)})
+
+@cli.command("calibrate-totals")
+@click.option("--anchor", "anchor_date", type=str, required=True, help="Anchor date YYYY-MM-DD (typically yesterday)")
+@click.option("--window", type=int, default=14, show_default=True, help="Lookback window in days (excludes anchor)")
+@click.option("--prior-games", type=float, default=20.0, show_default=True, help="Empirical-Bayes prior strength for per-team shrinkage")
+def calibrate_totals_cmd(anchor_date: str, window: int, prior_games: float):
+    """Compute rolling bias calibration for game and quarter totals.
+
+    Produces data/processed/calibration_totals_<anchor>.json with keys:
+    - global: game_total_bias, q{1..4}_bias
+    - team: per-team overrides with shrinkage toward global
+    """
+    console.rule("Calibrate Totals (rolling)")
+    try:
+        a = pd.to_datetime(anchor_date).date()
+    except Exception:
+        console.print("Invalid --anchor (YYYY-MM-DD)", style="red"); return
+    if window <= 0:
+        console.print("--window must be > 0", style="red"); return
+    # Build date range excluding anchor
+    dates = list(pd.date_range(a - pd.Timedelta(days=window), a - pd.Timedelta(days=1), freq="D").date)
+    if not dates:
+        console.print("Empty window; nothing to calibrate", style="yellow"); return
+
+    # Helper to winsorize errors (robustness against outliers)
+    def _winsorize(s: pd.Series, lo: float = 0.05, hi: float = 0.95) -> pd.Series:
+        s = pd.to_numeric(s, errors="coerce").dropna()
+        if s.empty:
+            return s
+        ql, qh = s.quantile(lo), s.quantile(hi)
+        return s.clip(lower=ql, upper=qh)
+
+    # Accumulate errors across dates
+    all_rows: list[pd.DataFrame] = []
+    for d in dates:
+        ds = d.strftime("%Y-%m-%d")
+        # Prefer recon_quarters if exists; else derive on the fly
+        rq = paths.data_processed / f"recon_quarters_{ds}.csv"
+        if rq.exists():
+            try:
+                part = pd.read_csv(rq)
+                part["date"] = ds
+                all_rows.append(part)
+                continue
+            except Exception:
+                pass
+        # Fallback: attempt live reconciliation for the day
+        try:
+            # Reuse logic via function call
+            # Minimal inline derivation: match predictions with raw
+            pred_candidates = [
+                paths.data_processed / f"games_predictions_npu_{ds}.csv",
+                paths.data_processed / f"predictions_{ds}.csv",
+                paths.root / f"predictions_{ds}.csv",
+            ]
+            pred_path = next((p for p in pred_candidates if p.exists()), None)
+            raw_csv = paths.data_raw / "games_nba_api.csv"
+            if pred_path is None or (not raw_csv.exists()):
+                continue
+            from .teams import to_tricode as _tri, normalize_team as _norm
+            pr = pd.read_csv(pred_path)
+            pr = pr.copy(); pr["home_tri"] = pr.get("home_team","").astype(str).map(_norm).map(_tri); pr["away_tri"] = pr.get("visitor_team","").astype(str).map(_norm).map(_tri)
+            rw = pd.read_csv(raw_csv)
+            rw = rw.copy(); rw["date"] = pd.to_datetime(rw["date"]).dt.strftime("%Y-%m-%d"); rw = rw[rw["date"] == ds]
+            rw["home_tri"] = rw["home_team"].astype(str).map(_tri); rw["away_tri"] = rw["visitor_team"].astype(str).map(_tri)
+            if pr.empty or rw.empty:
+                continue
+            rows_local = []
+            for _, rg in rw.iterrows():
+                h = str(rg.get("home_tri") or "").upper(); a2 = str(rg.get("away_tri") or "").upper()
+                m = pr[(pr["home_tri"].astype(str).str.upper()==h) & (pr["away_tri"].astype(str).str.upper()==a2)]
+                if m.empty:
+                    continue
+                r0 = m.iloc[0]
+                # Pred game total selection
+                def _pick(dfrow, names):
+                    for n in names:
+                        if n in dfrow.index and pd.notna(dfrow.get(n)):
+                            return float(dfrow.get(n))
+                    return None
+                pg = _pick(r0, ["totals","pred_total","model_total","total"]) or float("nan")
+                at = float(rg.get("home_pts") or 0.0) + float(rg.get("visitor_pts") or 0.0)
+                rows_local.append({"date": ds, "home_tri": h, "away_tri": a2, "pred_game_total": pg, "actual_game_total": at})
+            if rows_local:
+                all_rows.append(pd.DataFrame(rows_local))
+        except Exception:
+            continue
+
+    if not all_rows:
+        console.print("No data found in window; skipping calibration", style="yellow"); return
+    df = pd.concat(all_rows, ignore_index=True)
+    # Ensure numeric
+    df["pred_game_total"] = pd.to_numeric(df.get("pred_game_total", pd.NA), errors="coerce")
+    df["actual_game_total"] = pd.to_numeric(df.get("actual_game_total", pd.NA), errors="coerce")
+    df = df.dropna(subset=["pred_game_total","actual_game_total"], how="any")
+    if df.empty:
+        console.print("No comparable rows after filtering", style="yellow"); return
+    df["err_game_total"] = df["actual_game_total"] - df["pred_game_total"]
+
+    # Global bias (winsorized mean)
+    g_err = _winsorize(df["err_game_total"], 0.05, 0.95)
+    global_bias = float(g_err.mean()) if len(g_err) > 0 else 0.0
+
+    # Per-team bias with shrinkage toward global
+    # Approximate team predicted points by splitting total using predicted margin if available
+    # home_pred_pts = (total + margin)/2; away_pred_pts = total - home_pred_pts
+    # If margin unavailable, split evenly
+    # Collect per-team rows
+    team_rows = []
+    # Try to attach margin from predictions if available (best-effort merge by date+matchup)
+    # We won't refetch; simply compute team error from finals and implied split
+    for _, r in df.iterrows():
+        try:
+            h = str(r.get("home_tri") or r.get("home_team") or "").upper()
+            a2 = str(r.get("away_tri") or r.get("visitor_team") or "").upper()
+        except Exception:
+            h = None; a2 = None
+        if not h or not a2:
+            continue
+        # Without per-row margin, assume even split for calibration baseline (robust)
+        tot = float(r.get("pred_game_total"))
+        hp = tot/2.0; ap = tot/2.0
+        # Actual team totals require finals; try to load per-date finals quickly
+        ds = str(r.get("date"))
+        try:
+            fin = pd.read_csv(paths.data_processed / f"finals_{ds}.csv")
+        except Exception:
+            fin = pd.DataFrame()
+        if not fin.empty:
+            fin["home_tri"] = fin.get("home_tri").astype(str).str.upper(); fin["away_tri"] = fin.get("away_tri").astype(str).str.upper()
+            mm = fin[(fin["home_tri"]==h) & (fin["away_tri"]==a2)]
+            if not mm.empty:
+                hh = pd.to_numeric(mm.iloc[0].get("home_pts"), errors="coerce")
+                vv = pd.to_numeric(mm.iloc[0].get("visitor_pts"), errors="coerce")
+                if pd.notna(hh):
+                    team_rows.append({"team": h, "err": float(hh) - float(hp)})
+                if pd.notna(vv):
+                    team_rows.append({"team": a2, "err": float(vv) - float(ap)})
+    team_df = pd.DataFrame(team_rows)
+    team_bias: dict[str, float] = {}
+    if not team_df.empty:
+        for team, grp in team_df.groupby("team"):
+            errs = _winsorize(pd.to_numeric(grp["err"], errors="coerce"))
+            n = len(errs)
+            if n == 0:
+                continue
+            mu = float(errs.mean())
+            w = float(n) / (float(n) + float(prior_games))
+            team_bias[team] = float(w * mu + (1.0 - w) * global_bias)
+
+    calib = {
+        "anchor": str(a),
+        "window_days": int(window),
+        "generated_at": pd.Timestamp.utcnow().isoformat(),
+        "global": {"game_total_bias": float(global_bias)},
+        "team": team_bias,
+    }
+    out_json = paths.data_processed / f"calibration_totals_{anchor_date}.json"
+    try:
+        import json
+        with open(out_json, "w", encoding="utf-8") as f:
+            json.dump(calib, f, indent=2)
+        console.print({"output": str(out_json), "global_game_total_bias": float(global_bias), "teams": int(len(team_bias))})
+    except Exception as e:
+        console.print(f"Failed to write calibration JSON: {e}", style="red")
+
+
+@cli.command("apply-totals-calibration")
+@click.option("--date", "date_str", type=str, required=True, help="Target slate date YYYY-MM-DD to adjust predictions for")
+@click.option("--calib-date", type=str, required=False, help="Calibration anchor date; defaults to yesterday")
+@click.option("--in", "in_path", type=click.Path(dir_okay=False), required=False, help="Input predictions CSV (defaults to data/processed/predictions_<date>.csv if present, else games_predictions_npu_<date>.csv)")
+@click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV; default overwrites input")
+def apply_totals_calibration_cmd(date_str: str, calib_date: str | None, in_path: str | None, out_path: str | None):
+    """Apply saved totals calibration JSON to a predictions CSV.
+
+    Adjusts:
+    - Game total: totals/pred_total columns
+    - Halves/quarters totals if present (evenly distributes delta)
+    """
+    console.rule("Apply Totals Calibration")
+    try:
+        target = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+    if calib_date:
+        try:
+            _ = pd.to_datetime(calib_date).date()
+        except Exception:
+            console.print("Invalid --calib-date (YYYY-MM-DD)", style="red"); return
+    else:
+        # Default to yesterday
+        from datetime import date as _d, timedelta as _td
+        calib_date = (_d.today() - _td(days=1)).isoformat()
+
+    calib_path = paths.data_processed / f"calibration_totals_{calib_date}.json"
+    if not calib_path.exists():
+        console.print(f"Calibration not found: {calib_path}", style="yellow"); return
+    try:
+        import json
+        with open(calib_path, "r", encoding="utf-8") as f:
+            calib = json.load(f)
+    except Exception as e:
+        console.print(f"Failed to read calibration JSON: {e}", style="red"); return
+
+    # Select input predictions
+    in_file: Path
+    if in_path:
+        in_file = Path(in_path)
+    else:
+        cands = [
+            paths.data_processed / f"predictions_{date_str}.csv",
+            paths.data_processed / f"games_predictions_npu_{date_str}.csv",
+            paths.root / f"predictions_{date_str}.csv",
+        ]
+        in_file = next((p for p in cands if p.exists()), None)  # type: ignore
+        if in_file is None:
+            console.print(f"Predictions not found for {date_str}", style="red"); return
+    try:
+        df = pd.read_csv(in_file)
+    except Exception as e:
+        console.print(f"Failed to read predictions CSV: {e}", style="red"); return
+    if df is None or df.empty:
+        console.print("Predictions CSV is empty; nothing to adjust", style="yellow"); return
+
+    from .teams import to_tricode as _to_tri, normalize_team as _norm
+    df = df.copy()
+    for c in ("home_team","visitor_team"):
+        if c in df.columns:
+            df[c] = df[c].apply(_norm)
+        else:
+            df[c] = pd.NA
+    df["home_tri"] = df["home_team"].astype(str).map(_to_tri)
+    df["away_tri"] = df["visitor_team"].astype(str).map(_to_tri)
+
+    # Fetch calibration pieces
+    g_bias = float(calib.get("global", {}).get("game_total_bias", 0.0) or 0.0)
+    team_bias: dict = calib.get("team", {}) or {}
+
+    # Column helpers
+    def _pick_col(names: list[str]) -> str | None:
+        for n in names:
+            if n in df.columns:
+                return n
+        return None
+    game_col = _pick_col(["totals","pred_total","model_total","total"])  # adjust this
+    # Period columns presence
+    q_cols = [c for c in [f"quarters_q{i}_total" for i in range(1,5)] if c in df.columns]
+    h_cols = [c for c in [f"halves_h1_total", "halves_h2_total"] if c in df.columns]
+
+    # Apply per-row
+    def _row_adjust(r: pd.Series) -> pd.Series:
+        try:
+            h = str(r.get("home_tri") or "").upper(); a2 = str(r.get("away_tri") or "").upper()
+        except Exception:
+            h = ""; a2 = ""
+        tb_h = float(team_bias.get(h, 0.0) or 0.0) if h else 0.0
+        tb_a = float(team_bias.get(a2, 0.0) or 0.0) if a2 else 0.0
+        delta = float(g_bias + 0.5 * (tb_h + tb_a))
+        # Game total
+        if game_col and pd.notna(r.get(game_col)):
+            try:
+                r[game_col] = float(r.get(game_col)) + delta
+            except Exception:
+                pass
+        # Distribute to halves/quarters if present
+        if q_cols:
+            add = delta / 4.0
+            for qc in q_cols:
+                if pd.notna(r.get(qc)):
+                    try:
+                        r[qc] = float(r.get(qc)) + add
+                    except Exception:
+                        pass
+        if h_cols:
+            addh = delta / 2.0
+            for hc in h_cols:
+                if pd.notna(r.get(hc)):
+                    try:
+                        r[hc] = float(r.get(hc)) + addh
+                    except Exception:
+                        pass
+        return r
+
+    df = df.apply(_row_adjust, axis=1)
+
+    # Output
+    if out_path:
+        out_file = Path(out_path)
+    else:
+        out_file = in_file
+    df.to_csv(out_file, index=False)
+    console.print({"input": str(in_file), "output": str(out_file), "calibration": str(calib_path)})
+
 
 @cli.command("first-basket-recs")
 @click.option("--date", "date_str", type=str, required=True, help="Target date YYYY-MM-DD")

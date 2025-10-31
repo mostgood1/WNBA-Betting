@@ -529,6 +529,33 @@ print("OK")
   Write-Log ("PBP metrics logging failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4d) Reconcile quarters/halves vs predictions for yesterday
+try {
+  Write-Log ("Reconciling quarters for {0}" -f $yesterday)
+  $rc_qrecon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-quarters','--date', $yesterday)
+  Write-Log ("reconcile-quarters exit code: {0}" -f $rc_qrecon)
+} catch {
+  Write-Log ("reconcile-quarters failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4e) Calibrate game totals (global + team) using rolling window anchored at yesterday
+try {
+  Write-Log ("Calibrating game totals (window=14) anchored at {0}" -f $yesterday)
+  $rc_cal_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-totals','--anchor', $yesterday, '--window', '14')
+  Write-Log ("calibrate-totals exit code: {0}" -f $rc_cal_tot)
+} catch {
+  Write-Log ("calibrate-totals failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4f) Apply totals calibration to today's predictions (adjusts totals and period totals if present)
+try {
+  Write-Log ("Applying totals calibration from {0} to predictions for {1}" -f $yesterday, $Date)
+  $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday)
+  Write-Log ("apply-totals-calibration exit code: {0}" -f $rc_apply_tot)
+} catch {
+  Write-Log ("apply-totals-calibration failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
   Write-Log ("Running roster audit for {0}" -f $yesterday)
