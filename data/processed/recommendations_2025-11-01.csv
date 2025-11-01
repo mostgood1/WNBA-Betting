@@ -1,0 +1,16 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Indiana Pacers,Golden State Warriors,2025-11-01,2.0210040593134693,367.3636363636364,0.21396615444466058,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Golden State Warriors,2025-11-01,,,,13.296140193939209,10.5,2.796140193939209,-10.5,,High
+TOTAL,Under,Indiana Pacers,Golden State Warriors,2025-11-01,,,,-3.3827056884765625,230.0,,,226.61729431152344,Medium
+ML,Milwaukee Bucks,Milwaukee Bucks,Sacramento Kings,2025-11-01,0.0454437840227046,-217.72727272727272,0.6852646638054363,,,,,,High
+ATS,Milwaukee Bucks,Milwaukee Bucks,Sacramento Kings,2025-11-01,,,,1.6921749114990234,-5.5,7.192174911499023,5.5,,Medium
+TOTAL,Under,Milwaukee Bucks,Sacramento Kings,2025-11-01,,,,-1.504638671875,232.5,,,230.995361328125,Low
+ML,Minnesota Timberwolves,Charlotte Hornets,Minnesota Timberwolves,2025-11-01,0.16182561033259923,-217.63636363636363,0.685174585002862,,,,,,High
+ATS,Minnesota Timberwolves,Charlotte Hornets,Minnesota Timberwolves,2025-11-01,,,,-7.369663238525391,-5.5,-12.86966323852539,-5.5,,High
+TOTAL,Under,Charlotte Hornets,Minnesota Timberwolves,2025-11-01,,,,-6.249862670898409,231.0,,,224.7501373291016,High
+TOTAL,Under,Washington Wizards,Orlando Magic,2025-11-01,,,,-14.29248046875,235.0,,,220.70751953125,High
+ML,Dallas Mavericks,Detroit Pistons,Dallas Mavericks,2025-11-01,0.00750009349994285,243.72727272727272,0.29092832583972494,,,,,,Low
+ATS,Dallas Mavericks,Detroit Pistons,Dallas Mavericks,2025-11-01,,,,-1.427067756652832,8.0,6.572932243347168,8.0,,Low
+ML,Boston Celtics,Boston Celtics,Houston Rockets,2025-11-01,0.9506029030460895,183.1818181818182,0.35313001605136435,,,,,,High
+ATS,Boston Celtics,Boston Celtics,Houston Rockets,2025-11-01,,,,11.419248580932617,6.0,5.419248580932617,-6.0,,High
+TOTAL,Under,Boston Celtics,Houston Rockets,2025-11-01,,,,-2.10430908203125,225.0,,,222.89569091796875,Medium
