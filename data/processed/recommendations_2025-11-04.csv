@@ -1,0 +1,17 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Phoenix Suns,Golden State Warriors,Phoenix Suns,2025-11-04,0.15985381568997203,315.72727272727275,0.24054231357970696,,,,,,High
+ATS,Phoenix Suns,Golden State Warriors,Phoenix Suns,2025-11-04,,,,-2.0051393508911133,9.5,7.494860649108887,9.5,,Medium
+TOTAL,Under,Golden State Warriors,Phoenix Suns,2025-11-04,,,,-10.713485717773438,232.5,,,221.78651428222656,High
+ML,Chicago Bulls,Chicago Bulls,Philadelphia 76ers,2025-11-04,0.45580573503510935,-123.45454545454544,0.5524816924328723,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Philadelphia 76ers,2025-11-04,,,,12.030343055725098,-1.5,13.530343055725098,1.5,,High
+TOTAL,Under,Chicago Bulls,Philadelphia 76ers,2025-11-04,,,,-11.308700561523438,240.0,,,228.69129943847656,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Oklahoma City Thunder,2025-11-04,1.2607011488250026,259.45454545454544,0.278199291856348,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Oklahoma City Thunder,2025-11-04,,,,10.238562226295471,8.5,1.7385622262954712,-8.5,,High
+TOTAL,Over,Los Angeles Clippers,Oklahoma City Thunder,2025-11-04,,,,14.351089477539034,219.0,,,233.35108947753903,High
+ML,Milwaukee Bucks,Toronto Raptors,Milwaukee Bucks,2025-11-04,0.6222128309666286,123.1818181818182,0.4480651731160896,,,,,,High
+ATS,Milwaukee Bucks,Toronto Raptors,Milwaukee Bucks,2025-11-04,,,,-10.883209228515625,3.0,-7.883209228515625,3.0,,High
+TOTAL,Under,Toronto Raptors,Milwaukee Bucks,2025-11-04,,,,-6.2330474853515625,237.5,,,231.26695251464844,High
+ML,Atlanta Hawks,Atlanta Hawks,Orlando Magic,2025-11-04,0.4501597576965827,139.1818181818182,0.41809198023565186,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,Orlando Magic,2025-11-04,,,,3.87804114818573,3.5,0.37804114818573,-3.5,,High
+ML,New Orleans Pelicans,New Orleans Pelicans,Charlotte Hornets,2025-11-04,0.10390592915109459,-146.72727272727272,0.5946941783345615,,,,,,High
+TOTAL,Under,New Orleans Pelicans,Charlotte Hornets,2025-11-04,,,,-3.288589477539091,229.5,,,226.2114105224609,Medium
