@@ -1,4 +1,4 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Los Angeles Clippers,Phoenix Suns,Los Angeles Clippers,2025-11-06,0.6321592290219097,122.5,0.449438202247191,,,,,,High
-ATS,Los Angeles Clippers,Phoenix Suns,Los Angeles Clippers,2025-11-06,,,,-10.832712173461914,2.5,-8.332712173461914,2.5,,High
+ML,Los Angeles Clippers,Phoenix Suns,Los Angeles Clippers,2025-11-06,0.6637020815378387,126.8,0.4409171075837742,,,,,,High
+ATS,Los Angeles Clippers,Phoenix Suns,Los Angeles Clippers,2025-11-06,,,,-11.332712173461914,3.0,-8.332712173461914,3.0,,High
 TOTAL,Over,Phoenix Suns,Los Angeles Clippers,2025-11-06,,,,3.05438232421875,224.5,,,227.55438232421875,Medium
