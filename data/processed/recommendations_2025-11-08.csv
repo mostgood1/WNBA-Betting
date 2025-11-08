@@ -1,0 +1,22 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Denver Nuggets,Indiana Pacers,2025-11-08,1.1098644658934567,435.09090909090907,0.1868841318382603,,,,,,High
+ATS,Indiana Pacers,Denver Nuggets,Indiana Pacers,2025-11-08,,,,-11.15798819065094,11.5,0.34201180934906,11.5,,High
+TOTAL,Under,Denver Nuggets,Indiana Pacers,2025-11-08,,,,-4.600189208984403,235.5,,,230.8998107910156,High
+ML,New Orleans Pelicans,San Antonio Spurs,New Orleans Pelicans,2025-11-08,0.6019444444662911,404.8181818181818,0.1980911219160814,,,,,,High
+ATS,New Orleans Pelicans,San Antonio Spurs,New Orleans Pelicans,2025-11-08,,,,-5.967369556427002,11.0,5.032630443572998,11.0,,High
+TOTAL,Over,San Antonio Spurs,New Orleans Pelicans,2025-11-08,,,,4.991607666015597,224.5,,,229.4916076660156,High
+ML,Toronto Raptors,Philadelphia 76ers,Toronto Raptors,2025-11-08,0.6894821575826402,167.27272727272728,0.3741496598639456,,,,,,High
+ATS,Toronto Raptors,Philadelphia 76ers,Toronto Raptors,2025-11-08,,,,-7.4313085079193115,5.5,-1.9313085079193115,5.5,,High
+TOTAL,Under,Philadelphia 76ers,Toronto Raptors,2025-11-08,,,,-9.338516235351562,236.5,,,227.16148376464844,High
+ML,Chicago Bulls,Cleveland Cavaliers,Chicago Bulls,2025-11-08,0.3161341167362014,280.27272727272725,0.2629691608893139,,,,,,High
+ATS,Chicago Bulls,Cleveland Cavaliers,Chicago Bulls,2025-11-08,,,,-5.246374130249023,8.5,3.253625869750977,8.5,,High
+TOTAL,Under,Cleveland Cavaliers,Chicago Bulls,2025-11-08,,,,-8.942977905273438,240.0,,,231.05702209472656,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Phoenix Suns,2025-11-08,0.17513051966053977,-199.4,0.665998663994656,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Phoenix Suns,2025-11-08,,,,6.831822395324709,-5.0,11.831822395324709,5.0,,High
+ML,Dallas Mavericks,Washington Wizards,Dallas Mavericks,2025-11-08,0.021363196111447436,-181.9090909090909,0.6452757175104805,,,,,,Medium
+TOTAL,Under,Washington Wizards,Dallas Mavericks,2025-11-08,,,,-8.049774169921932,229.5,,,221.45022583007807,High
+ML,Atlanta Hawks,Atlanta Hawks,Los Angeles Lakers,2025-11-08,0.4838944634808183,140.36363636363637,0.416036308623298,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,Los Angeles Lakers,2025-11-08,,,,4.5418925285339355,3.5,1.0418925285339355,-3.5,,High
+ML,Miami Heat,Miami Heat,Portland Trail Blazers,2025-11-08,0.49378223353949957,135.54545454545453,0.4245465071401004,,,,,,High
+ATS,Miami Heat,Miami Heat,Portland Trail Blazers,2025-11-08,,,,5.55581521987915,3.5,2.0558152198791504,-3.5,,High
+TOTAL,Under,Miami Heat,Portland Trail Blazers,2025-11-08,,,,-12.623031616210966,240.5,,,227.87696838378903,High
