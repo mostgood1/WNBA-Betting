@@ -1,0 +1,8 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-09,2025-11-10T02:10:00Z,Sacramento Kings,Minnesota Timberwolves,179.63636363636363,-216.72727272727272,5.5,-5.5,236.0,oddsapi_consensus
+2025-11-09,2025-11-09T23:10:00Z,Memphis Grizzlies,Oklahoma City Thunder,389.0,-524.4545454545455,10.5,-10.5,232.5,oddsapi_consensus
+2025-11-09,2025-11-09T23:00:00Z,New York Knicks,Brooklyn Nets,-1224.3636363636363,736.0,-15.5,15.5,227.5,oddsapi_consensus
+2025-11-09,2025-11-10T01:40:00Z,Golden State Warriors,Indiana Pacers,-664.0,471.90909090909093,-12.5,12.5,228.5,oddsapi_consensus
+2025-11-09,2025-11-09T20:30:00Z,Milwaukee Bucks,Houston Rockets,147.63636363636363,-175.8181818181818,4.0,-4.0,232.0,oddsapi_consensus
+2025-11-09,2025-11-09T23:10:00Z,Orlando Magic,Boston Celtics,-161.0,135.9090909090909,-3.5,3.5,227.5,oddsapi_consensus
+2025-11-09,2025-11-10T00:30:00Z,Philadelphia 76ers,Detroit Pistons,143.0909090909091,-169.9090909090909,4.0,-4.0,232.0,oddsapi_consensus

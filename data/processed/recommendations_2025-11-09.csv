@@ -1,0 +1,18 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ATS,Boston Celtics,Orlando Magic,Boston Celtics,2025-11-09,,,,-4.120161771774292,3.5,-0.620161771774292,3.5,,High
+TOTAL,Under,Orlando Magic,Boston Celtics,2025-11-09,,,,-10.142150878906278,227.5,,,217.35784912109372,High
+ATS,Sacramento Kings,Sacramento Kings,Minnesota Timberwolves,2025-11-09,,,,2.508280992507935,5.5,-2.991719007492065,-5.5,,Medium
+TOTAL,Under,Sacramento Kings,Minnesota Timberwolves,2025-11-09,,,,-9.30108642578125,236.0,,,226.69891357421875,High
+ML,Memphis Grizzlies,Memphis Grizzlies,Oklahoma City Thunder,2025-11-09,0.48416959747994603,389.0,0.20449897750511248,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,Oklahoma City Thunder,2025-11-09,,,,4.594288825988769,10.5,-5.905711174011231,-10.5,,High
+ML,Brooklyn Nets,New York Knicks,Brooklyn Nets,2025-11-09,1.1905056719224818,736.0,0.11961722488038277,,,,,,High
+ATS,Brooklyn Nets,New York Knicks,Brooklyn Nets,2025-11-09,,,,-6.867343902587891,15.5,8.63265609741211,15.5,,High
+TOTAL,Under,New York Knicks,Brooklyn Nets,2025-11-09,,,,-3.2291107177734375,227.5,,,224.27088928222656,Medium
+ML,Indiana Pacers,Golden State Warriors,Indiana Pacers,2025-11-09,1.1873948317344891,471.9090909090909,0.17485296455253538,,,,,,High
+ATS,Indiana Pacers,Golden State Warriors,Indiana Pacers,2025-11-09,,,,-11.44767439365387,12.5,1.0523256063461304,12.5,,High
+TOTAL,Under,Golden State Warriors,Indiana Pacers,2025-11-09,,,,-2.5767974853515625,228.5,,,225.92320251464844,Medium
+ML,Milwaukee Bucks,Milwaukee Bucks,Houston Rockets,2025-11-09,0.6961059811245932,147.63636363636363,0.4038179148311307,,,,,,High
+ATS,Milwaukee Bucks,Milwaukee Bucks,Houston Rockets,2025-11-09,,,,9.173761367797852,4.0,5.173761367797852,-4.0,,High
+ML,Detroit Pistons,Philadelphia 76ers,Detroit Pistons,2025-11-09,0.15436642800530553,-169.9090909090909,0.6295048837992591,,,,,,High
+ATS,Detroit Pistons,Philadelphia 76ers,Detroit Pistons,2025-11-09,,,,-3.871352195739746,-4.0,-7.871352195739746,-4.0,,High
+TOTAL,Under,Philadelphia 76ers,Detroit Pistons,2025-11-09,,,,-2.450912475585909,232.0,,,229.5490875244141,Medium
