@@ -1,0 +1,10 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-10,2025-11-11T03:30:00Z,Los Angeles Clippers,Atlanta Hawks,-183.36363636363637,154.0,-4.5,4.5,221.5,oddsapi_consensus
+2025-11-10,2025-11-11T00:10:00Z,Charlotte Hornets,Los Angeles Lakers,249.9090909090909,-313.45454545454544,7.5,-7.5,230.5,oddsapi_consensus
+2025-11-10,2025-11-11T01:10:00Z,Chicago Bulls,San Antonio Spurs,137.0,-163.27272727272728,3.5,-3.5,236.5,oddsapi_consensus
+2025-11-10,2025-11-11T01:30:00Z,Dallas Mavericks,Milwaukee Bucks,108.27272727272727,-129.1818181818182,2.0,-2.0,230.5,oddsapi_consensus
+2025-11-10,2025-11-11T00:10:00Z,Orlando Magic,Portland Trail Blazers,-133.8181818181818,112.0909090909091,-2.5,2.5,235.5,oddsapi_consensus
+2025-11-10,2025-11-11T00:30:00Z,Miami Heat,Cleveland Cavaliers,240.54545454545453,-298.0,7.5,-7.5,247.5,oddsapi_consensus
+2025-11-10,2025-11-11T02:10:00Z,Phoenix Suns,New Orleans Pelicans,-345.09090909090907,270.6363636363636,-8.5,8.5,227.0,oddsapi_consensus
+2025-11-10,2025-11-11T02:00:00Z,Utah Jazz,Minnesota Timberwolves,241.63636363636363,-300.45454545454544,7.5,-7.5,234.5,oddsapi_consensus
+2025-11-10,2025-11-11T00:00:00Z,Detroit Pistons,Washington Wizards,-638.5454545454545,455.72727272727275,-11.5,11.5,235.5,oddsapi_consensus
