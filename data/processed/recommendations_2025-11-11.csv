@@ -1,0 +1,16 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Memphis Grizzlies,New York Knicks,Memphis Grizzlies,2025-11-11,0.5579165377382154,334.45454545454544,0.2301736765013601,,,,,,High
+ATS,Memphis Grizzlies,New York Knicks,Memphis Grizzlies,2025-11-11,,,,-7.506549835205078,10.0,2.493450164794922,10.0,,High
+TOTAL,Under,New York Knicks,Memphis Grizzlies,2025-11-11,,,,-4.713729858398409,231.5,,,226.7862701416016,High
+ML,Brooklyn Nets,Brooklyn Nets,Toronto Raptors,2025-11-11,1.69629735028913,353.6363636363636,0.22044088176352705,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Toronto Raptors,2025-11-11,,,,10.1624276638031,10.5,-0.3375723361968994,-10.5,,High
+TOTAL,Under,Brooklyn Nets,Toronto Raptors,2025-11-11,,,,-6.01739501953125,233.5,,,227.48260498046875,High
+ML,Boston Celtics,Philadelphia 76ers,Boston Celtics,2025-11-11,7.275830166582142,-10.454545454545457,0.0946502057613169,,,,,,High
+ATS,Boston Celtics,Philadelphia 76ers,Boston Celtics,2025-11-11,,,,-12.882938385009766,1.0,-11.882938385009766,1.0,,High
+TOTAL,Under,Philadelphia 76ers,Boston Celtics,2025-11-11,,,,-10.57763671875,230.5,,,219.92236328125,High
+ML,Indiana Pacers,Utah Jazz,Indiana Pacers,2025-11-11,0.27684168949392085,-141.0,0.5850622406639004,,,,,,High
+ATS,Indiana Pacers,Utah Jazz,Indiana Pacers,2025-11-11,,,,-6.754921913146973,-2.5,-9.254921913146973,-2.5,,High
+TOTAL,Over,Utah Jazz,Indiana Pacers,2025-11-11,,,,3.8134155273437216,232.5,,,236.31341552734372,Medium
+ML,Sacramento Kings,Sacramento Kings,Denver Nuggets,2025-11-11,0.4664739281298047,279.3,0.26364355391510674,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Denver Nuggets,2025-11-11,,,,7.697284698486328,8.5,-0.8027153015136719,-8.5,,High
+TOTAL,Under,Sacramento Kings,Denver Nuggets,2025-11-11,,,,-13.8109130859375,242.5,,,228.6890869140625,High
