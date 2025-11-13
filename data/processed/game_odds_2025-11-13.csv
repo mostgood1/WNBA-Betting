@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-13,2025-11-14T02:10:00Z,Utah Jazz,Atlanta Hawks,118.63636363636364,-141.0909090909091,2.5,-2.5,232.0,oddsapi_consensus
+2025-11-13,2025-11-14T00:10:00Z,Cleveland Cavaliers,Toronto Raptors,-301.1818181818182,242.0909090909091,-7.5,7.5,238.5,oddsapi_consensus
+2025-11-13,2025-11-14T02:10:00Z,Phoenix Suns,Indiana Pacers,-184.1818181818182,154.63636363636363,-4.5,4.5,233.5,oddsapi_consensus
