@@ -722,8 +722,7 @@ try {
   if (Test-Path $lsPath) {
     try {
       $rows = (Import-Csv -Path $lsPath | Measure-Object).Count
-      Write-Log ("league_status rows: {0}" -f $rows)
-    } catch { }
+      Write-Log ("league_status rows: {0}" -f $rows)   } catch { }
   } else {
     Write-Log "league_status file missing after build; predictions will still run but may be less accurate"
   }
@@ -732,7 +731,17 @@ try {
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
 # IMPORTANT: Restrict predictions to today's slate only (do NOT generate for all rostered players)
-$rc3a = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-props','--date', $Date, '--slate-only','--calibrate','--calib-window','7','--use-pure-onnx')
+$rc3a = Invoke-PyMod -plist @(
+  '-m','nba_betting.cli','predict-props',
+  '--date', $Date,
+  '--slate-only',
+  '--calibrate','--calib-window','7',
+  '--calibrate-player','--player-calib-window','30','--player-min-pairs','6','--player-shrink-k','8',
+  # Per-stat tuning: tighten REB/AST (higher shrinkage, slightly higher min-pairs)
+  '--player-shrink-k-by-stat','reb:12,ast:12',
+  '--player-min-pairs-by-stat','reb:8,ast:8',
+  '--use-pure-onnx'
+)
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
 # 3.1) Post-process props_predictions to drop OUT players (ensures downstream CSVs have no injured players at all)

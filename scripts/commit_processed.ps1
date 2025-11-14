@@ -2,7 +2,9 @@ param(
     [string]$Date = (Get-Date -Format 'yyyy-MM-dd'),
     [switch]$Push,
     [switch]$IncludeJson,
-    [switch]$DryRun
+    [switch]$DryRun,
+    # Include evaluation artifacts that are not tied to a single date (props_eval_compare_*.csv)
+    [switch]$IncludeEval
 )
 
 # Ensure we run from repo root (script is in scripts/)
@@ -23,6 +25,13 @@ if ($IncludeJson) { $patterns += "*_$Date.json" }
 $files = @()
 foreach ($pat in $patterns) {
     $files += Get-ChildItem -Path $processedDir -Filter $pat -File -ErrorAction SilentlyContinue
+}
+
+# Optionally include evaluation compare CSVs (range-based filenames)
+if ($IncludeEval) {
+    try {
+        $files += Get-ChildItem -Path $processedDir -Filter 'props_eval_compare_*.csv' -File -ErrorAction SilentlyContinue
+    } catch { }
 }
 
 # Whitelist only Render/UI-facing artifacts to keep pushes minimal
@@ -51,7 +60,9 @@ $allowedPrefixes = @(
     "props_predictions_",
     "props_recommendations_",
     # New: per-player calibration artifact for diagnostics/analysis
-    "props_player_calibration_"
+    "props_player_calibration_",
+    # New: evaluation compare outputs (daily + summary)
+    "props_eval_compare_"
 )
 
 # Filter files to allowed prefixes (robust boolean predicate)

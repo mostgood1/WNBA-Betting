@@ -704,9 +704,12 @@ def props_backtest_cmd(targets: str, start: str | None, end: str | None):
 @click.option("--player-calib-window", type=int, default=30, show_default=True, help="Lookback days for per-player calibration (excludes today)")
 @click.option("--player-min-pairs", type=int, default=6, show_default=True, help="Minimum matched rows per player/stat to apply adjustment")
 @click.option("--player-shrink-k", type=int, default=8, show_default=True, help="Empirical-Bayes shrinkage K for per-player adjustments")
+@click.option("--player-shrink-k-by-stat", type=str, required=False, help="Optional per-stat shrinkage mapping, e.g., 'reb:12,ast:12' (others default to --player-shrink-k)")
+@click.option("--player-min-pairs-by-stat", type=str, required=False, help="Optional per-stat min-pairs mapping, e.g., 'reb:8,ast:8' (others default to --player-min-pairs)")
 @click.option("--use-pure-onnx/--no-use-pure-onnx", default=True, show_default=True, help="Use pure ONNX models with NPU acceleration (no sklearn dependency)")
 def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int,
                       calibrate_player: bool, player_calib_window: int, player_min_pairs: int, player_shrink_k: int,
+                      player_shrink_k_by_stat: str | None, player_min_pairs_by_stat: str | None,
                       use_pure_onnx: bool):
     """Predict player props for a slate date using rolling-history models.
 
@@ -1219,11 +1222,33 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     if calibrate_player:
         try:
             from .props_calibration import compute_player_biases, apply_player_biases, save_player_calibration
+            # Parse per-stat overrides if provided (format: 'stat:value,stat:value')
+            def _parse_map(s: str | None, to_float: bool = True):
+                if not s:
+                    return None
+                out: dict[str, float] | dict[str, int] = {}
+                try:
+                    parts = [p.strip() for p in s.split(',') if p.strip()]
+                    for p in parts:
+                        if ':' not in p:
+                            continue
+                        k, v = p.split(':', 1)
+                        k = k.strip().lower()
+                        if not k:
+                            continue
+                        out[k] = float(v) if to_float else int(float(v))
+                    return out
+                except Exception:
+                    return None
+            k_map = _parse_map(player_shrink_k_by_stat, to_float=True)
+            n_map = _parse_map(player_min_pairs_by_stat, to_float=False)
             pb = compute_player_biases(
                 anchor_date=date_str,
                 window_days=int(player_calib_window),
                 min_pairs_per_player=int(player_min_pairs),
                 shrink_k=float(player_shrink_k),
+                shrink_k_by_stat=k_map,  # type: ignore[arg-type]
+                min_pairs_by_stat=n_map,  # type: ignore[arg-type]
             )
             if pb is not None and not pb.empty:
                 preds = apply_player_biases(preds, pb)
@@ -1485,6 +1510,167 @@ def predict_props_npu_cmd(date_str: str, out_path: str | None, slate_only: bool,
         out_path = str(paths.data_processed / f"props_predictions_npu_{date_str}.csv")
     preds.to_csv(out_path, index=False)
     console.print(f"Saved NPU props predictions to {out_path} (rows={len(preds)}; calibrated={calibrate})")
+
+
+@cli.command("evaluate-props-calibration-compare")
+@click.option("--start", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", type=str, required=True, help="End date YYYY-MM-DD")
+@click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Restrict predictions to scoreboard slate")
+@click.option("--calib-window", type=int, default=7, show_default=True, help="Global calibration window days")
+@click.option("--player-calib-window", type=int, default=30, show_default=True, help="Per-player calibration window days")
+@click.option("--player-min-pairs", type=int, default=6, show_default=True, help="Minimum pairs per player/stat")
+@click.option("--player-shrink-k", type=int, default=8, show_default=True, help="Shrinkage K for per-player")
+def evaluate_props_calibration_compare_cmd(start: str, end: str, slate_only: bool, calib_window: int,
+                                           player_calib_window: int, player_min_pairs: int, player_shrink_k: float):
+    """Compare metrics with global-only calibration vs global + per-player calibration over a date range.
+
+    For each date, runs predict-props twice (saving to temp files), then joins to actuals and computes MAE/RMSE per stat.
+    Outputs a summary CSV under data/processed.
+    """
+    console.rule("Props Calibration: Global vs Per-Player Compare")
+    import sys as _sys, subprocess as _sp, datetime as _dt
+    # Load actuals store: try parquet first; on failure, fall back to daily CSVs
+    act_p = paths.data_processed / "props_actuals.parquet"
+    actuals = None
+    if act_p.exists():
+        try:
+            actuals = pd.read_parquet(act_p)
+        except Exception:
+            actuals = None
+    if actuals is None or (hasattr(actuals, "empty") and actuals.empty):
+        try:
+            daily = sorted(paths.data_processed.glob("props_actuals_*.csv"))
+            frames = []
+            for pp in daily:
+                try:
+                    dfp = pd.read_csv(pp)
+                    if dfp is not None and not dfp.empty:
+                        frames.append(dfp)
+                except Exception:
+                    continue
+            if frames:
+                actuals = pd.concat(frames, ignore_index=True)
+        except Exception:
+            actuals = None
+    if actuals is None or actuals.empty:
+        console.print("No actuals available; run fetch-prop-actuals for the range first.", style="red"); return
+    actuals["date"] = pd.to_datetime(actuals["date"]).dt.strftime("%Y-%m-%d")
+
+    # Iterate dates
+    try:
+        start_d = _dt.datetime.strptime(start, "%Y-%m-%d").date()
+        end_d = _dt.datetime.strptime(end, "%Y-%m-%d").date()
+    except Exception:
+        console.print("Invalid --start/--end date. Use YYYY-MM-DD.", style="red"); return
+    stats = [
+        ("pts","pred_pts"),
+        ("reb","pred_reb"),
+        ("ast","pred_ast"),
+        ("threes","pred_threes"),
+        ("pra","pred_pra"),
+    ]
+    rows = []
+    for d in pd.date_range(start=start_d, end=end_d, freq="D").date:
+        ds = str(d)
+        try:
+            # Temporary outputs for both variants
+            out_g = paths.data_processed / f"_props_predictions_global_{ds}.csv"
+            out_p = paths.data_processed / f"_props_predictions_player_{ds}.csv"
+            # Build base CLI args
+            base = [
+                _sys.executable, "-m", "nba_betting.cli", "predict-props",
+                "--date", ds,
+                "--calibrate", "--calib-window", str(int(calib_window)),
+                "--use-pure-onnx",
+            ]
+            if slate_only:
+                base.append("--slate-only")
+            # Run global-only
+            args_g = base + ["--out", str(out_g), "--no-calibrate-player"]
+            _sp.run(args_g, check=False)
+            # Run global + per-player
+            args_p = base + [
+                "--out", str(out_p),
+                "--calibrate-player", "--player-calib-window", str(int(player_calib_window)),
+                "--player-min-pairs", str(int(player_min_pairs)),
+                "--player-shrink-k", str(int(player_shrink_k)),
+            ]
+            _sp.run(args_p, check=False)
+            if (not out_g.exists()) or (not out_p.exists()):
+                continue
+            g = pd.read_csv(out_g); p = pd.read_csv(out_p)
+            # Filter to players with actuals that day
+            act_d = actuals[actuals["date"] == ds].copy()
+            if act_d.empty:
+                continue
+            # Join on player_id if present, else on name
+            key_cols = ["player_id"] if ("player_id" in g.columns and "player_id" in act_d.columns) else ["player_name"]
+            # Normalize key types to avoid dtype mismatches (e.g., object vs int64)
+            if key_cols == ["player_id"]:
+                try:
+                    g["player_id"] = g["player_id"].astype(str)
+                    p["player_id"] = p["player_id"].astype(str)
+                    act_d["player_id"] = act_d["player_id"].astype(str)
+                except Exception:
+                    pass
+            else:
+                # Name-based fallback: normalize case/whitespace
+                for _df in (g, p, act_d):
+                    if "player_name" in _df.columns:
+                        _df["player_name"] = _df["player_name"].astype(str).str.strip()
+            mg = g.merge(act_d, on=key_cols, how="inner", suffixes=("","_act"))
+            mp = p.merge(act_d, on=key_cols, how="inner", suffixes=("","_act"))
+            # Lightweight diagnostics per date to aid debugging if needed
+            try:
+                console.print({
+                    "date": ds,
+                    "pred_global": int(len(g)),
+                    "pred_player": int(len(p)),
+                    "actuals": int(len(act_d)),
+                    "joined_global": int(len(mg)),
+                    "joined_player": int(len(mp)),
+                })
+            except Exception:
+                pass
+            if mg.empty or mp.empty:
+                continue
+            # Compute per-stat metrics
+            for target, pred_col in stats:
+                if (target in mg.columns) and (pred_col in mg.columns) and (pred_col in mp.columns):
+                    y = pd.to_numeric(mg[target], errors="coerce"); pg = pd.to_numeric(mg[pred_col], errors="coerce"); pp = pd.to_numeric(mp[pred_col], errors="coerce")
+                    mask = y.notna() & pg.notna() & pp.notna()
+                    if mask.any():
+                        import numpy as _np
+                        yy = y[mask].to_numpy(dtype=float)
+                        pgv = pg[mask].to_numpy(dtype=float)
+                        ppv = pp[mask].to_numpy(dtype=float)
+                        rmse_g = float(_np.sqrt(_np.mean((yy - pgv) ** 2)))
+                        rmse_p = float(_np.sqrt(_np.mean((yy - ppv) ** 2)))
+                        mae_g = float(_np.mean(_np.abs(yy - pgv)))
+                        mae_p = float(_np.mean(_np.abs(yy - ppv)))
+                        rows.append({
+                            "date": ds, "stat": target, "n": int(mask.sum()),
+                            "rmse_global": rmse_g, "rmse_player": rmse_p, "delta_rmse": rmse_p - rmse_g,
+                            "mae_global": mae_g, "mae_player": mae_p, "delta_mae": mae_p - mae_g,
+                        })
+        except Exception:
+            continue
+    if not rows:
+        console.print("No comparable rows produced; check actuals availability and predictions.", style="yellow"); return
+    df = pd.DataFrame(rows)
+    # Aggregate by stat across range
+    agg = df.groupby("stat").agg(
+        n=("n","sum"),
+        rmse_global=("rmse_global","mean"), rmse_player=("rmse_player","mean"), delta_rmse=("delta_rmse","mean"),
+        mae_global=("mae_global","mean"), mae_player=("mae_player","mean"), delta_mae=("delta_mae","mean"),
+    ).reset_index()
+    console.print("Per-stat averages across range:")
+    console.print(agg)
+    out_detail = paths.data_processed / f"props_eval_compare_daily_{start}_{end}.csv"
+    out_summary = paths.data_processed / f"props_eval_compare_summary_{start}_{end}.csv"
+    df.to_csv(out_detail, index=False)
+    agg.to_csv(out_summary, index=False)
+    console.print({"saved_detail": str(out_detail), "saved_summary": str(out_summary)})
 
 
 @cli.command("benchmark-npu")
