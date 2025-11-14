@@ -49,7 +49,9 @@ $allowedPrefixes = @(
     # Props artifacts surfaced in the UI
     "props_edges_",
     "props_predictions_",
-    "props_recommendations_"
+    "props_recommendations_",
+    # New: per-player calibration artifact for diagnostics/analysis
+    "props_player_calibration_"
 )
 
 # Filter files to allowed prefixes (robust boolean predicate)

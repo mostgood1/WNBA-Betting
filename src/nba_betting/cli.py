@@ -700,8 +700,14 @@ def props_backtest_cmd(targets: str, start: str | None, end: str | None):
 @click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Filter predictions to teams on the scoreboard slate and add opponent/home flags")
 @click.option("--calibrate/--no-calibrate", default=True, show_default=True, help="Apply rolling bias calibration from recent recon vs predictions")
 @click.option("--calib-window", type=int, default=7, show_default=True, help="Lookback days for calibration window (excludes today)")
+@click.option("--calibrate-player/--no-calibrate-player", default=False, show_default=True, help="Apply per-player rolling bias calibration when enough matches exist")
+@click.option("--player-calib-window", type=int, default=30, show_default=True, help="Lookback days for per-player calibration (excludes today)")
+@click.option("--player-min-pairs", type=int, default=6, show_default=True, help="Minimum matched rows per player/stat to apply adjustment")
+@click.option("--player-shrink-k", type=int, default=8, show_default=True, help="Empirical-Bayes shrinkage K for per-player adjustments")
 @click.option("--use-pure-onnx/--no-use-pure-onnx", default=True, show_default=True, help="Use pure ONNX models with NPU acceleration (no sklearn dependency)")
-def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int, use_pure_onnx: bool):
+def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int,
+                      calibrate_player: bool, player_calib_window: int, player_min_pairs: int, player_shrink_k: int,
+                      use_pure_onnx: bool):
     """Predict player props for a slate date using rolling-history models.
 
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
@@ -1209,6 +1215,24 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             console.print({"calibration": biases})
         except Exception as _e:
             console.print(f"Calibration skipped due to error: {_e}", style="yellow")
+    # Optional per-player calibration (rolling intercept per player/stat)
+    if calibrate_player:
+        try:
+            from .props_calibration import compute_player_biases, apply_player_biases, save_player_calibration
+            pb = compute_player_biases(
+                anchor_date=date_str,
+                window_days=int(player_calib_window),
+                min_pairs_per_player=int(player_min_pairs),
+                shrink_k=float(player_shrink_k),
+            )
+            if pb is not None and not pb.empty:
+                preds = apply_player_biases(preds, pb)
+                _saved = save_player_calibration(pb, anchor_date=date_str, window_days=int(player_calib_window))
+                console.print({"player_calibration_rows": int(len(pb)), "saved": str(_saved)})
+            else:
+                console.print("Per-player calibration: no eligible players this window.", style="yellow")
+        except Exception as _e:
+            console.print(f"Per-player calibration skipped due to error: {_e}", style="yellow")
     if not out_path:
         out_path = str(paths.data_processed / f"props_predictions_{date_str}.csv")
     preds.to_csv(out_path, index=False)
