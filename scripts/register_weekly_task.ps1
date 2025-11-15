@@ -20,9 +20,9 @@ $argLine = $psArgs -join ' '
 
 $action = New-ScheduledTaskAction -Execute $psExe -Argument $argLine -WorkingDirectory $repoRoot
 
-# Parse day of week
+# Parse day of week (case-insensitive)
 try {
-  $dow = [System.DayOfWeek]::Parse([string]$DayOfWeek)
+  $dow = [System.Enum]::Parse([System.DayOfWeek], [string]$DayOfWeek, $true)
 } catch { throw "Invalid -DayOfWeek '$DayOfWeek' (e.g., Sunday)" }
 
 # Parse time
