@@ -23,10 +23,14 @@ Write-Host "Running props calibration compare: $start .. $end" -ForegroundColor 
 $opts = @('-m','nba_betting.cli','evaluate-props-calibration-compare','--start', $start,'--end',$end)
 if ($NoSlateOnly) { $opts += '--no-slate-only' }
 
-# Run evaluator
-& $Python @($opts) 2>&1 | Tee-Object -FilePath (Join-Path $RepoRoot "logs\eval_compare_$((Get-Date).ToString('yyyyMMdd_HHmmss')).log") -Append | Out-Null
+# Run evaluator (tolerate stderr warnings from native tools like cpuinfo/onnxruntime)
+$logPath = Join-Path $RepoRoot "logs\eval_compare_$((Get-Date).ToString('yyyyMMdd_HHmmss')).log"
+$prevErr = $ErrorActionPreference
+$ErrorActionPreference = 'Continue'
+& $Python @($opts) 2>&1 | Tee-Object -FilePath $logPath -Append | Out-Null
 $code = $LASTEXITCODE
-Write-Host ("Evaluator exit: {0}" -f $code)
+$ErrorActionPreference = $prevErr
+Write-Host ("Evaluator exit: {0} (log: {1})" -f $code, $logPath)
 
 # Post-process: build a simple health summary JSON (improvements vs regressions)
 try {
