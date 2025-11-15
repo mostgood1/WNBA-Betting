@@ -42,6 +42,20 @@ data/processed/**
 !data/processed/props_predictions_*.csv
 # Season schedule for UI
 !data/processed/schedule_*.json
+# Additional PBP-derived and diagnostics artifacts we want committed
+!data/processed/pbp_reconcile_*.csv
+!data/processed/tip_winner_probs_*.csv
+!data/processed/first_basket_probs_*.csv
+!data/processed/first_basket_recs_*.csv
+!data/processed/early_threes_*.csv
+!data/processed/pbp_metrics_daily_*.csv
+!data/processed/game_cards_*.csv
+!data/processed/props_player_calibration_*.csv
+!data/processed/props_player_calibration_config.json
+# Evaluation compare outputs (health/alerts/weekly summaries)
+!data/processed/props_eval_compare_*.csv
+!data/processed/props_eval_compare_*.json
+!data/processed/props_eval_compare_*.md
 
 # Note: exclude PBP-derived predictions/outcomes from git to keep Render pushes light
 # (these are used only for offline backtests/validation and not consumed by the frontend)

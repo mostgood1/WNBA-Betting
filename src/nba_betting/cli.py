@@ -55,6 +55,47 @@ from .pbp_markets import build_early_threes_dataset as _build_early_threes_datas
 
 console = Console()
 
+# --- Calibration config helpers ---
+def _load_player_calib_overrides():
+    """Load per-stat player calibration overrides from processed config JSON.
+
+    File format (example):
+    {
+      "updated_at": "2025-11-14",
+      "window_days": 14,
+      "criterion": "mae",
+      "per_stat": {
+        "pts": {"K": 8, "min_pairs": 6},
+        "reb": {"K": 12, "min_pairs": 8}
+      }
+    }
+    Returns: (k_map: dict[str,float], n_map: dict[str,int]) or (None, None)
+    """
+    try:
+        import json as _json
+        p = paths.data_processed / "props_player_calibration_config.json"
+        if not p.exists():
+            return None, None
+        with open(p, "r", encoding="utf-8") as f:
+            cfg = _json.load(f)
+        ps = cfg.get("per_stat") or {}
+        k_map: dict[str, float] = {}
+        n_map: dict[str, int] = {}
+        for k, v in ps.items():
+            try:
+                k_map[str(k).lower()] = float(v.get("K"))
+            except Exception:
+                pass
+            try:
+                n_map[str(k).lower()] = int(v.get("min_pairs"))
+            except Exception:
+                pass
+        if not k_map and not n_map:
+            return None, None
+        return (k_map if k_map else None), (n_map if n_map else None)
+    except Exception:
+        return None, None
+
 
 @click.group()
 def cli():
@@ -1242,6 +1283,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     return None
             k_map = _parse_map(player_shrink_k_by_stat, to_float=True)
             n_map = _parse_map(player_min_pairs_by_stat, to_float=False)
+            # If not provided explicitly, load from config file if available
+            if k_map is None and n_map is None:
+                cfg_k, cfg_n = _load_player_calib_overrides()
+                if cfg_k or cfg_n:
+                    k_map = cfg_k or k_map
+                    n_map = cfg_n or n_map
             pb = compute_player_biases(
                 anchor_date=date_str,
                 window_days=int(player_calib_window),
@@ -1256,6 +1303,32 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                 console.print({"player_calibration_rows": int(len(pb)), "saved": str(_saved)})
             else:
                 console.print("Per-player calibration: no eligible players this window.", style="yellow")
+            # Write metadata of calibration parameters used for this date
+            try:
+                import json as __json
+                meta = {
+                    "date": date_str,
+                    "window_days": int(player_calib_window),
+                    "global": {"K": float(player_shrink_k), "min_pairs": int(player_min_pairs)},
+                    "by_stat": {
+                        **({} if not k_map else {k: {"K": float(v)} for k, v in k_map.items()}),
+                    },
+                }
+                # Merge min_pairs map into by_stat
+                if n_map:
+                    for sk, nv in n_map.items():
+                        if sk not in meta["by_stat"]:
+                            meta["by_stat"][sk] = {}
+                        try:
+                            meta["by_stat"][sk]["min_pairs"] = int(nv)
+                        except Exception:
+                            pass
+                out_meta = paths.data_processed / f"props_player_calibration_used_{date_str}.json"
+                with open(out_meta, "w", encoding="utf-8") as f:
+                    __json.dump(meta, f, indent=2)
+                console.print({"calibration_used": str(out_meta)})
+            except Exception as __e:
+                console.print(f"Failed to write calibration used meta: {__e}", style="yellow")
         except Exception as _e:
             console.print(f"Per-player calibration skipped due to error: {_e}", style="yellow")
     if not out_path:
@@ -1671,6 +1744,196 @@ def evaluate_props_calibration_compare_cmd(start: str, end: str, slate_only: boo
     df.to_csv(out_detail, index=False)
     agg.to_csv(out_summary, index=False)
     console.print({"saved_detail": str(out_detail), "saved_summary": str(out_summary)})
+
+
+@cli.command("tune-props-player-calibration")
+@click.option("--start", type=str, required=False, help="Start date YYYY-MM-DD (range start)")
+@click.option("--end", type=str, required=False, help="End date YYYY-MM-DD (range end)")
+@click.option("--days", type=int, required=False, help="If set, tunes over [today-days, yesterday]")
+@click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Limit to slate players")
+@click.option("--k-grid", type=str, default="6,8,10,12", show_default=True, help="Comma list of K candidates")
+@click.option("--min-grid", type=str, default="6,8,10", show_default=True, help="Comma list of min-pairs candidates")
+@click.option("--criterion", type=click.Choice(["mae","rmse"], case_sensitive=False), default="mae", show_default=True, help="Selection criterion")
+def tune_props_player_calibration_cmd(start: str | None, end: str | None, days: int | None, slate_only: bool, k_grid: str, min_grid: str, criterion: str):
+    """Grid-search per-stat per-player shrinkage (K) and min_pairs over a trailing range.
+
+    Writes data/processed/props_player_calibration_config.json with chosen params for predict-props to consume.
+    """
+    console.rule("Tune Per-Player Calibration (per stat)")
+    import datetime as _dt, sys as _sys, subprocess as _sp, json as _json
+    # Resolve date range
+    if days and (not start and not end):
+        today = _dt.date.today()
+        end_d = today - _dt.timedelta(days=1)
+        start_d = end_d - _dt.timedelta(days=int(days))
+    else:
+        if not start or not end:
+            console.print("Provide --start and --end or --days", style="red"); return
+        try:
+            start_d = _dt.datetime.strptime(start, "%Y-%m-%d").date()
+            end_d = _dt.datetime.strptime(end, "%Y-%m-%d").date()
+        except Exception:
+            console.print("Invalid --start/--end format (YYYY-MM-DD)", style="red"); return
+    if end_d < start_d:
+        console.print("--end must be >= --start", style="red"); return
+
+    # Load actuals store: parquet preferred, CSV snapshots fallback
+    act_p = paths.data_processed / "props_actuals.parquet"
+    actuals = None
+    if act_p.exists():
+        try:
+            actuals = pd.read_parquet(act_p)
+        except Exception:
+            actuals = None
+    if actuals is None or (hasattr(actuals, "empty") and actuals.empty):
+        try:
+            daily = sorted(paths.data_processed.glob("props_actuals_*.csv"))
+            frames = []
+            for pp in daily:
+                try:
+                    dfp = pd.read_csv(pp)
+                    if dfp is not None and not dfp.empty:
+                        frames.append(dfp)
+                except Exception:
+                    continue
+            if frames:
+                actuals = pd.concat(frames, ignore_index=True)
+        except Exception:
+            actuals = None
+    if actuals is None or actuals.empty:
+        console.print("No actuals available; run fetch-prop-actuals first.", style="red"); return
+    actuals["date"] = pd.to_datetime(actuals["date"]).dt.strftime("%Y-%m-%d")
+
+    # Parse candidate grids
+    try:
+        K_vals = [float(x.strip()) for x in k_grid.split(',') if x.strip()]
+        N_vals = [int(float(x.strip())) for x in min_grid.split(',') if x.strip()]
+    except Exception:
+        console.print("Invalid --k-grid or --min-grid", style="red"); return
+
+    stats = [("pts","pred_pts"),("reb","pred_reb"),("ast","pred_ast"),("threes","pred_threes"),("pra","pred_pra")]
+    best: dict[str, tuple[float,int,float,int]] = {}  # stat -> (K, min_pairs, score, n_days)
+
+    # For each stat, grid-search across dates, aggregate average score
+    for stat_name, pred_col in stats:
+        per_day_scores: list[dict] = []
+        d = start_d
+        while d <= end_d:
+            ds = d.strftime("%Y-%m-%d")
+            # Ensure we have actuals that day; skip otherwise
+            act_d = actuals[actuals["date"] == ds]
+            if act_d is None or act_d.empty:
+                d += _dt.timedelta(days=1); continue
+            # Run predictions for each grid point (target stat override only)
+            for K in K_vals:
+                for N in N_vals:
+                    out_p = paths.data_processed / f"_tune_{stat_name}_K{int(K)}_N{int(N)}_{ds}.csv"
+                    # Predict with global calibration and per-player calibration enabled; override only target stat
+                    args = [
+                        _sys.executable, "-m", "nba_betting.cli", "predict-props",
+                        "--date", ds,
+                        "--out", str(out_p),
+                        "--calibrate", "--calib-window", "7",
+                        "--calibrate-player", "--player-calib-window", "30",
+                        "--player-min-pairs", str(int(N)), "--player-shrink-k", str(int(K)),
+                        "--player-shrink-k-by-stat", f"{stat_name}:{int(K)}",
+                        "--player-min-pairs-by-stat", f"{stat_name}:{int(N)}",
+                        "--use-pure-onnx",
+                    ]
+                    if slate_only:
+                        args.append("--slate-only")
+                    else:
+                        args.append("--no-slate-only")
+                    try:
+                        _sp.run(args, check=False, capture_output=True)
+                    except Exception:
+                        continue
+            # Evaluate each grid for this date
+            for K in K_vals:
+                for N in N_vals:
+                    path = paths.data_processed / f"_tune_{stat_name}_K{int(K)}_N{int(N)}_{ds}.csv"
+                    if not path.exists():
+                        continue
+                    try:
+                        pr = pd.read_csv(path)
+                        # Normalize join keys
+                        key = "player_id" if ("player_id" in pr.columns and "player_id" in act_d.columns) else "player_name"
+                        pr_j = pr.copy(); act_j = act_d.copy()
+                        if key == "player_id":
+                            pr_j[key] = pr_j[key].astype(str); act_j[key] = act_j[key].astype(str)
+                        else:
+                            pr_j[key] = pr_j[key].astype(str).str.strip(); act_j[key] = act_j[key].astype(str).str.strip()
+                        m = pr_j.merge(act_j, on=[key], how="inner", suffixes=("","_act"))
+                        if m.empty or (stat_name not in m.columns) or (pred_col not in m.columns):
+                            continue
+                        y = pd.to_numeric(m[stat_name], errors="coerce"); p = pd.to_numeric(m[pred_col], errors="coerce")
+                        mask = y.notna() & p.notna()
+                        if not mask.any():
+                            continue
+                        yy = y[mask].to_numpy(dtype=float); pp = p[mask].to_numpy(dtype=float)
+                        if criterion.lower() == "mae":
+                            score = float(np.mean(np.abs(yy - pp)))
+                        else:
+                            score = float(np.sqrt(np.mean((yy - pp) ** 2)))
+                        per_day_scores.append({"date": ds, "K": float(K), "min_pairs": int(N), "score": score})
+                    except Exception:
+                        continue
+            d += _dt.timedelta(days=1)
+        if not per_day_scores:
+            console.print({"stat": stat_name, "status": "no_scores"}, style="yellow")
+            continue
+        df = pd.DataFrame(per_day_scores)
+        agg = df.groupby(["K","min_pairs"]).agg(n_days=("score","count"), score=("score","mean")).reset_index().sort_values("score")
+        if agg.empty:
+            console.print({"stat": stat_name, "status": "no_agg"}, style="yellow")
+            continue
+        K_best = float(agg.iloc[0]["K"]); N_best = int(agg.iloc[0]["min_pairs"]); S_best = float(agg.iloc[0]["score"]); n_days = int(agg.iloc[0]["n_days"])
+        best[stat_name] = (K_best, N_best, S_best, n_days)
+        console.print({"stat": stat_name, "best": {"K": K_best, "min_pairs": N_best, "score": S_best, "n_days": n_days}})
+
+    if not best:
+        console.print("Tuning produced no results", style="red"); return
+    # Write config JSON
+    cfg = {
+        "updated_at": _dt.date.today().strftime("%Y-%m-%d"),
+        "window_days": int((end_d - start_d).days) + 1,
+        "criterion": criterion.lower(),
+        "per_stat": {s: {"K": v[0], "min_pairs": v[1]} for s, v in best.items()},
+    }
+    out_cfg = paths.data_processed / "props_player_calibration_config.json"
+    try:
+        with open(out_cfg, "w", encoding="utf-8") as f:
+            _json.dump(cfg, f, indent=2)
+        console.print({"saved": str(out_cfg), "per_stat": cfg.get("per_stat")})
+        # Append to history CSV for auditing/evolution tracking
+        try:
+            hist_rows = []
+            for s, v in best.items():
+                Kb, Nb, Sb, n_days = v
+                hist_rows.append({
+                    "updated_at": cfg.get("updated_at"),
+                    "window_days": cfg.get("window_days"),
+                    "criterion": cfg.get("criterion"),
+                    "stat": s,
+                    "K": Kb,
+                    "min_pairs": Nb,
+                    "score": Sb,
+                    "n_days": n_days,
+                })
+            if hist_rows:
+                out_hist = paths.data_processed / "props_player_calibration_history.csv"
+                try:
+                    ex = pd.read_csv(out_hist) if out_hist.exists() else pd.DataFrame()
+                except Exception:
+                    ex = pd.DataFrame()
+                new_df = pd.DataFrame(hist_rows)
+                ex = pd.concat([ex, new_df], ignore_index=True)
+                ex.to_csv(out_hist, index=False)
+                console.print({"history_appended": len(hist_rows), "path": str(out_hist)})
+        except Exception as _e:
+            console.print(f"Failed to append history: {_e}", style="yellow")
+    except Exception as e:
+        console.print(f"Failed to write config JSON: {e}", style="red")
 
 
 @cli.command("benchmark-npu")

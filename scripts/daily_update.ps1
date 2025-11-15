@@ -737,9 +737,6 @@ $rc3a = Invoke-PyMod -plist @(
   '--slate-only',
   '--calibrate','--calib-window','7',
   '--calibrate-player','--player-calib-window','30','--player-min-pairs','6','--player-shrink-k','8',
-  # Per-stat tuning: tighten REB/AST (higher shrinkage, slightly higher min-pairs)
-  '--player-shrink-k-by-stat','reb:12,ast:12',
-  '--player-min-pairs-by-stat','reb:8,ast:8',
   '--use-pure-onnx'
 )
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)

@@ -4,7 +4,9 @@ param(
     [switch]$IncludeJson,
     [switch]$DryRun,
     # Include evaluation artifacts that are not tied to a single date (props_eval_compare_*.csv)
-    [switch]$IncludeEval
+    [switch]$IncludeEval,
+    # Include per-player calibration config JSON (range-based, no date in filename)
+    [switch]$IncludeCalibConfig
 )
 
 # Ensure we run from repo root (script is in scripts/)
@@ -31,6 +33,18 @@ foreach ($pat in $patterns) {
 if ($IncludeEval) {
     try {
         $files += Get-ChildItem -Path $processedDir -Filter 'props_eval_compare_*.csv' -File -ErrorAction SilentlyContinue
+        $files += Get-ChildItem -Path $processedDir -Filter 'props_eval_compare_*.json' -File -ErrorAction SilentlyContinue
+        $files += Get-ChildItem -Path $processedDir -Filter 'props_eval_compare_*.md' -File -ErrorAction SilentlyContinue
+    } catch { }
+}
+
+# Optionally include per-player calibration config JSON (no date pattern)
+if ($IncludeCalibConfig) {
+    try {
+        $cfgPath = Join-Path $processedDir 'props_player_calibration_config.json'
+        if (Test-Path $cfgPath) {
+            $files += Get-Item -Path $cfgPath -ErrorAction SilentlyContinue
+        }
     } catch { }
 }
 
