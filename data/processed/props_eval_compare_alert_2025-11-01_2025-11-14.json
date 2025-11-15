@@ -1,0 +1,10 @@
+﻿{
+    "start":  "2025-11-01",
+    "end":  "2025-11-14",
+    "worsened_over_threshold":  [
+
+                                ],
+    "mae_threshold":  0.25,
+    "rmse_threshold":  0.25,
+    "ok":  true
+}
