@@ -736,7 +736,7 @@ $rc3a = Invoke-PyMod -plist @(
   '--date', $Date,
   '--slate-only',
   '--calibrate','--calib-window','7',
-  '--calibrate-player','--player-calib-window','30','--player-min-pairs','6','--player-shrink-k','8',
+  '--calibrate-player','--player-calib-window','30',
   '--use-pure-onnx'
 )
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)

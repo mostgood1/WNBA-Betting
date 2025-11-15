@@ -1662,11 +1662,10 @@ def evaluate_props_calibration_compare_cmd(start: str, end: str, slate_only: boo
             args_g = base + ["--out", str(out_g), "--no-calibrate-player"]
             _sp.run(args_g, check=False)
             # Run global + per-player
+            # Use tuned config by default: do not pass per-player K/min overrides here
             args_p = base + [
                 "--out", str(out_p),
                 "--calibrate-player", "--player-calib-window", str(int(player_calib_window)),
-                "--player-min-pairs", str(int(player_min_pairs)),
-                "--player-shrink-k", str(int(player_shrink_k)),
             ]
             _sp.run(args_p, check=False)
             if (not out_g.exists()) or (not out_p.exists()):
