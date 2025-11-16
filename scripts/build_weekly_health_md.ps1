@@ -5,8 +5,8 @@ param(
 $ErrorActionPreference = 'Stop'
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $RepoRoot = (Resolve-Path (Join-Path $ScriptDir '..')).Path
-$healthPath = Join-Path $RepoRoot ("data/processed/props_eval_compare_health_{0}_{1}.json" -f $Start, $End)
-$alertPath = Join-Path $RepoRoot ("data/processed/props_eval_compare_alert_{0}_{1}.json" -f $Start, $End)
+$healthPath = Join-Path $RepoRoot "data/processed/props_eval_compare_health_${Start}_${End}.json"
+$alertPath = Join-Path $RepoRoot "data/processed/props_eval_compare_alert_${Start}_${End}.json"
 if (-not (Test-Path $healthPath)) { Write-Host "HEALTH_NOT_FOUND:$healthPath"; exit 1 }
 try { $health = Get-Content -Path $healthPath -Raw | ConvertFrom-Json } catch { Write-Host "INVALID_HEALTH_JSON"; exit 1 }
 $alert = $null
@@ -46,8 +46,8 @@ foreach ($kv in $health.by_stat.PSObject.Properties) {
   $stat = $kv.Name
   $d_mae = [double]$kv.Value.delta_mae
   $d_rmse = [double]$kv.Value.delta_rmse
-  $d_mae_str = ("{0:N3}" -f $d_mae)
-  $d_rmse_str = ("{0:N3}" -f $d_rmse)
+  $d_mae_str = ([double]$d_mae).ToString("N3")
+  $d_rmse_str = ([double]$d_rmse).ToString("N3")
   $lines += "- $($stat): delta_mae=$d_mae_str, delta_rmse=$d_rmse_str"
 }
 if ($alert) {
@@ -58,13 +58,13 @@ if ($alert) {
   } else {
     $lines += "- Thresholds: MAE>$($alert.mae_threshold), RMSE>$($alert.rmse_threshold)"
     foreach ($w in $alert.worsened_over_threshold) {
-      $w_mae = ("{0:N3}" -f ([double]$w.delta_mae))
-      $w_rmse = ("{0:N3}" -f ([double]$w.delta_rmse))
+  $w_mae = ([double]$w.delta_mae).ToString("N3")
+  $w_rmse = ([double]$w.delta_rmse).ToString("N3")
       $lines += "  - $($w.stat): delta_mae=$w_mae, delta_rmse=$w_rmse"
     }
   }
 }
 
-$out = Join-Path $RepoRoot ("data/processed/props_eval_compare_health_{0}_{1}.md" -f $Start, $End)
+$out = Join-Path $RepoRoot "data/processed/props_eval_compare_health_${Start}_${End}.md"
 Set-Content -Path $out -Value ($lines -join "`r`n") -Encoding UTF8
-Write-Host ("WROTE: {0}" -f $out)
+Write-Host "WROTE: $out"
