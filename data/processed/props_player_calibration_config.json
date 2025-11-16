@@ -1,0 +1,27 @@
+{
+  "updated_at": "2025-11-16",
+  "window_days": 15,
+  "criterion": "mae",
+  "per_stat": {
+    "pts": {
+      "K": 8.0,
+      "min_pairs": 6
+    },
+    "reb": {
+      "K": 10.0,
+      "min_pairs": 10
+    },
+    "ast": {
+      "K": 8.0,
+      "min_pairs": 10
+    },
+    "threes": {
+      "K": 8.0,
+      "min_pairs": 6
+    },
+    "pra": {
+      "K": 6.0,
+      "min_pairs": 6
+    }
+  }
+}
