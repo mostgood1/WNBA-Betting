@@ -1,9 +1,9 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-11-16,2025-11-17T01:00:00Z,Phoenix Suns,Atlanta Hawks,26.09090909090909,-118.81818181818181,1.5,-1.5,230.0,oddsapi_consensus
-2025-11-16,2025-11-17T00:00:00Z,Houston Rockets,Orlando Magic,-311.8181818181818,249.63636363636363,-8.0,8.0,226.0,oddsapi_consensus
-2025-11-16,2025-11-17T00:00:00Z,New Orleans Pelicans,Golden State Warriors,380.72727272727275,-510.8181818181818,10.5,-10.5,228.5,oddsapi_consensus
-2025-11-16,2025-11-17T01:00:00Z,Utah Jazz,Chicago Bulls,154.9090909090909,-184.54545454545453,4.5,-4.5,243.5,oddsapi_consensus
-2025-11-16,2025-11-16T20:30:00Z,Boston Celtics,Los Angeles Clippers,-207.9090909090909,173.1818181818182,-5.5,5.5,221.0,oddsapi_consensus
-2025-11-16,2025-11-16T23:00:00Z,Washington Wizards,Brooklyn Nets,-145.45454545454547,122.9090909090909,-3.0,3.0,233.5,oddsapi_consensus
-2025-11-16,2025-11-17T00:30:00Z,Dallas Mavericks,Portland Trail Blazers,138.9090909090909,-165.45454545454547,4.0,-4.0,234.0,oddsapi_consensus
-2025-11-16,2025-11-16T21:00:00Z,San Antonio Spurs,Sacramento Kings,-336.72727272727275,266.3636363636364,-8.5,8.5,239.5,oddsapi_consensus
+2025-11-16,2025-11-17T01:00:00Z,Phoenix Suns,Atlanta Hawks,26.181818181818183,-118.81818181818181,1.5,-1.5,229.0,oddsapi_consensus
+2025-11-16,2025-11-17T00:00:00Z,Houston Rockets,Orlando Magic,-312.27272727272725,250.0909090909091,-8.0,8.0,226.0,oddsapi_consensus
+2025-11-16,2025-11-17T00:00:00Z,New Orleans Pelicans,Golden State Warriors,378.72727272727275,-505.3636363636364,10.5,-10.5,227.5,oddsapi_consensus
+2025-11-16,2025-11-17T01:00:00Z,Utah Jazz,Chicago Bulls,155.8181818181818,-185.36363636363637,4.5,-4.5,243.5,oddsapi_consensus
+2025-11-16,2025-11-16T20:30:00Z,Boston Celtics,Los Angeles Clippers,-212.72727272727272,176.45454545454547,-5.5,5.5,219.5,oddsapi_consensus
+2025-11-16,2025-11-16T23:00:00Z,Washington Wizards,Brooklyn Nets,-144.0,121.45454545454545,-2.5,2.5,233.5,oddsapi_consensus
+2025-11-16,2025-11-17T00:30:00Z,Dallas Mavericks,Portland Trail Blazers,138.9090909090909,-165.27272727272728,4.0,-4.0,233.5,oddsapi_consensus
+2025-11-16,2025-11-16T21:00:00Z,San Antonio Spurs,Sacramento Kings,-338.54545454545456,266.45454545454544,-8.5,8.5,240.0,oddsapi_consensus
