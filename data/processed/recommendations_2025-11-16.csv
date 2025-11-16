@@ -1,0 +1,21 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Portland Trail Blazers,Dallas Mavericks,Portland Trail Blazers,2025-11-16,0.05575496928052709,-165.45454545454547,0.6232876712328766,,,,,,High
+TOTAL,Under,Dallas Mavericks,Portland Trail Blazers,2025-11-16,,,,-10.716552734375,234.0,,,223.283447265625,High
+ML,Atlanta Hawks,Phoenix Suns,Atlanta Hawks,2025-11-16,0.15655426656678872,-118.8181818181818,0.5429995845450768,,,,,,High
+ML,Orlando Magic,Houston Rockets,Orlando Magic,2025-11-16,0.350151624696623,249.63636363636363,0.28601144045761834,,,,,,High
+ATS,Orlando Magic,Houston Rockets,Orlando Magic,2025-11-16,,,,-7.169196963310242,8.0,0.8308030366897583,8.0,,High
+ML,New Orleans Pelicans,New Orleans Pelicans,Golden State Warriors,2025-11-16,0.25780802750483633,380.7272727272728,0.208018154311649,,,,,,High
+ATS,New Orleans Pelicans,New Orleans Pelicans,Golden State Warriors,2025-11-16,,,,1.8417749404907227,10.5,-8.658225059509277,-10.5,,Medium
+TOTAL,Under,New Orleans Pelicans,Golden State Warriors,2025-11-16,,,,-2.1458892822265625,228.5,,,226.35411071777344,Medium
+ML,Chicago Bulls,Utah Jazz,Chicago Bulls,2025-11-16,0.1292859521655046,-184.54545454545453,0.6485623003194889,,,,,,High
+ATS,Chicago Bulls,Utah Jazz,Chicago Bulls,2025-11-16,,,,-3.7556495666503906,-4.5,-8.25564956665039,-4.5,,High
+TOTAL,Under,Utah Jazz,Chicago Bulls,2025-11-16,,,,-6.803314208984403,243.5,,,236.6966857910156,High
+ML,Los Angeles Clippers,Boston Celtics,Los Angeles Clippers,2025-11-16,0.09225540501825469,173.1818181818182,0.36605657237936773,,,,,,High
+ATS,Los Angeles Clippers,Boston Celtics,Los Angeles Clippers,2025-11-16,,,,-5.489636182785034,5.5,0.0103638172149658,5.5,,High
+TOTAL,Over,Boston Celtics,Los Angeles Clippers,2025-11-16,,,,2.3377532958984375,221.0,,,223.33775329589844,Medium
+ML,Brooklyn Nets,Washington Wizards,Brooklyn Nets,2025-11-16,0.37406462114859507,122.9090909090909,0.44861337683523655,,,,,,High
+ATS,Brooklyn Nets,Washington Wizards,Brooklyn Nets,2025-11-16,,,,-3.98598051071167,3.0,-0.98598051071167,3.0,,High
+TOTAL,Under,Washington Wizards,Brooklyn Nets,2025-11-16,,,,-10.395950317382812,233.5,,,223.1040496826172,High
+ML,Sacramento Kings,San Antonio Spurs,Sacramento Kings,2025-11-16,1.279920532494208,266.3636363636364,0.27295285359801486,,,,,,High
+ATS,Sacramento Kings,San Antonio Spurs,Sacramento Kings,2025-11-16,,,,-9.840039730072021,8.5,-1.3400397300720217,8.5,,High
+TOTAL,Under,San Antonio Spurs,Sacramento Kings,2025-11-16,,,,-11.861618041992188,239.5,,,227.6383819580078,High
