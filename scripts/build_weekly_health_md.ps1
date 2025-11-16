@@ -21,12 +21,12 @@ $flat = $health.flat -join ', '
 $lines = @()
 $lines += "# Weekly Props Calibration Health"
 $lines += ""
-$lines += ("Range: {0} .. {1}" -f $Start, $End)
+$lines += "Range: $Start .. $End"
 $lines += ""
 $lines += "## Summary"
-if ($improved -and $improved.Trim().Length -gt 0) { $lines += ("- Improved: {0}" -f $improved) } else { $lines += "- Improved: (none)" }
-if ($worsened -and $worsened.Trim().Length -gt 0) { $lines += ("- Worsened: {0}" -f $worsened) } else { $lines += "- Worsened: (none)" }
-if ($flat -and $flat.Trim().Length -gt 0) { $lines += ("- Flat: {0}" -f $flat) } else { $lines += "- Flat: (none)" }
+if ($improved -and $improved.Trim().Length -gt 0) { $lines += "- Improved: $improved" } else { $lines += "- Improved: (none)" }
+if ($worsened -and $worsened.Trim().Length -gt 0) { $lines += "- Worsened: $worsened" } else { $lines += "- Worsened: (none)" }
+if ($flat -and $flat.Trim().Length -gt 0) { $lines += "- Flat: $flat" } else { $lines += "- Flat: (none)" }
 $lines += ""
 $lines += "## Per-stat deltas (negative = improvement)"
 $lines += ""
@@ -34,7 +34,9 @@ foreach ($kv in $health.by_stat.PSObject.Properties) {
   $stat = $kv.Name
   $d_mae = [double]$kv.Value.delta_mae
   $d_rmse = [double]$kv.Value.delta_rmse
-  $lines += ("- {0}: delta_mae={1:N3}, delta_rmse={2:N3}" -f $stat, $d_mae, $d_rmse)
+  $d_mae_str = ("{0:N3}" -f $d_mae)
+  $d_rmse_str = ("{0:N3}" -f $d_rmse)
+  $lines += "- $($stat): delta_mae=$d_mae_str, delta_rmse=$d_rmse_str"
 }
 if ($alert) {
   $lines += ""
@@ -42,9 +44,11 @@ if ($alert) {
   if ($alert.ok) {
     $lines += "- OK: No stats worsened beyond thresholds."
   } else {
-    $lines += ("- Thresholds: MAE>{0}, RMSE>{1}" -f $alert.mae_threshold, $alert.rmse_threshold)
+    $lines += "- Thresholds: MAE>$($alert.mae_threshold), RMSE>$($alert.rmse_threshold)"
     foreach ($w in $alert.worsened_over_threshold) {
-      $lines += ("  - {0}: delta_mae={1:N3}, delta_rmse={2:N3}" -f $w.stat, [double]$w.delta_mae, [double]$w.delta_rmse)
+      $w_mae = ("{0:N3}" -f ([double]$w.delta_mae))
+      $w_rmse = ("{0:N3}" -f ([double]$w.delta_rmse))
+      $lines += "  - $($w.stat): delta_mae=$w_mae, delta_rmse=$w_rmse"
     }
   }
 }
