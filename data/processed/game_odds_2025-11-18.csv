@@ -1,7 +1,7 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-11-18,2025-11-19T01:10:00Z,Atlanta Hawks,Detroit Pistons,-111.42857142857143,-108.71428571428571,-1.0,1.0,228.5,oddsapi_consensus
-2025-11-18,2025-11-19T00:10:00Z,Orlando Magic,Golden State Warriors,133.5,-158.7,3.5,-3.5,223.5,oddsapi_consensus
-2025-11-18,2025-11-19T01:10:00Z,San Antonio Spurs,Memphis Grizzlies,-237.7,194.5,-6.0,6.0,232.5,oddsapi_consensus
-2025-11-18,2025-11-19T03:40:00Z,Los Angeles Lakers,Utah Jazz,-667.7,474.5,-12.5,12.5,237.5,oddsapi_consensus
-2025-11-18,2025-11-19T00:40:00Z,Brooklyn Nets,Boston Celtics,406.6,-552.3,11.0,-11.0,223.5,oddsapi_consensus
-2025-11-18,2025-11-19T04:10:00Z,Portland Trail Blazers,Phoenix Suns,-138.8,116.5,-2.5,2.5,236.5,oddsapi_consensus
+2025-11-18,2025-11-19T01:10:00Z,Atlanta Hawks,Detroit Pistons,-105.4,-114.4,1.0,-1.0,230.5,oddsapi_consensus
+2025-11-18,2025-11-19T00:10:00Z,Orlando Magic,Golden State Warriors,135.36363636363637,-161.0909090909091,3.0,-3.0,223.0,oddsapi_consensus
+2025-11-18,2025-11-19T01:10:00Z,San Antonio Spurs,Memphis Grizzlies,-235.27272727272728,193.1818181818182,-6.0,6.0,233.0,oddsapi_consensus
+2025-11-18,2025-11-19T03:40:00Z,Los Angeles Lakers,Utah Jazz,-677.8181818181819,477.8181818181818,-12.5,12.5,238.0,oddsapi_consensus
+2025-11-18,2025-11-19T00:40:00Z,Brooklyn Nets,Boston Celtics,409.45454545454544,-559.3636363636364,11.0,-11.0,223.5,oddsapi_consensus
+2025-11-18,2025-11-19T04:10:00Z,Portland Trail Blazers,Phoenix Suns,-137.27272727272728,115.0909090909091,-2.5,2.5,236.5,oddsapi_consensus

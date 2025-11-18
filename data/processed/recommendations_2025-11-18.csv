@@ -1,17 +1,18 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Brooklyn Nets,Brooklyn Nets,Boston Celtics,2025-11-18,0.2069215087252222,406.6,0.1973943939992104,,,,,,High
+ML,Brooklyn Nets,Brooklyn Nets,Boston Celtics,2025-11-18,0.21372216468006777,409.45454545454544,0.19628836545324768,,,,,,High
 TOTAL,Under,Brooklyn Nets,Boston Celtics,2025-11-18,,,,-3.3368682861328125,223.5,,,220.1631317138672,Medium
-ML,Atlanta Hawks,Atlanta Hawks,Detroit Pistons,2025-11-18,0.19360250128979783,-111.42857142857144,0.5270270270270271,,,,,,High
-TOTAL,Over,Atlanta Hawks,Detroit Pistons,2025-11-18,,,,6.234893798828068,228.5,,,234.73489379882807,High
-ML,Orlando Magic,Orlando Magic,Golden State Warriors,2025-11-18,0.45376550812413285,133.5,0.4282655246252677,,,,,,High
-ATS,Orlando Magic,Orlando Magic,Golden State Warriors,2025-11-18,,,,4.857304096221924,3.5,1.3573040962219238,-3.5,,High
-TOTAL,Under,Orlando Magic,Golden State Warriors,2025-11-18,,,,-2.6697540283203125,223.5,,,220.8302459716797,Medium
-ML,Memphis Grizzlies,San Antonio Spurs,Memphis Grizzlies,2025-11-18,0.8277587914521898,194.5,0.3395585738539898,,,,,,High
+ML,Atlanta Hawks,Atlanta Hawks,Detroit Pistons,2025-11-18,0.22589263511360258,-105.4,0.513145082765336,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,Detroit Pistons,2025-11-18,,,,2.746724247932434,1.0,1.746724247932434,-1.0,,Medium
+TOTAL,Over,Atlanta Hawks,Detroit Pistons,2025-11-18,,,,4.234893798828068,230.5,,,234.73489379882807,High
+ML,Orlando Magic,Orlando Magic,Golden State Warriors,2025-11-18,0.46536846429175793,135.36363636363637,0.4248744689069138,,,,,,High
+ATS,Orlando Magic,Orlando Magic,Golden State Warriors,2025-11-18,,,,4.357304096221924,3.0,1.3573040962219238,-3.0,,High
+TOTAL,Under,Orlando Magic,Golden State Warriors,2025-11-18,,,,-2.1697540283203125,223.0,,,220.8302459716797,Medium
+ML,Memphis Grizzlies,San Antonio Spurs,Memphis Grizzlies,2025-11-18,0.81957774423007,193.1818181818182,0.34108527131782945,,,,,,High
 ATS,Memphis Grizzlies,San Antonio Spurs,Memphis Grizzlies,2025-11-18,,,,-7.238969564437866,6.0,-1.2389695644378662,6.0,,High
-TOTAL,Under,San Antonio Spurs,Memphis Grizzlies,2025-11-18,,,,-2.6527557373046875,232.5,,,229.8472442626953,Medium
-ML,Utah Jazz,Los Angeles Lakers,Utah Jazz,2025-11-18,0.37706323470049075,474.5,0.17406440382941687,,,,,,High
+TOTAL,Under,San Antonio Spurs,Memphis Grizzlies,2025-11-18,,,,-3.1527557373046875,233.0,,,229.8472442626953,Medium
+ML,Utah Jazz,Los Angeles Lakers,Utah Jazz,2025-11-18,0.3850168399013085,477.8181818181818,0.17306482064191317,,,,,,High
 ATS,Utah Jazz,Los Angeles Lakers,Utah Jazz,2025-11-18,,,,-2.310824394226074,12.5,10.189175605773926,12.5,,Medium
-TOTAL,Under,Los Angeles Lakers,Utah Jazz,2025-11-18,,,,-3.0513763427734375,237.5,,,234.44862365722656,Medium
-ML,Portland Trail Blazers,Portland Trail Blazers,Phoenix Suns,2025-11-18,0.17060526782257818,-138.8,0.5812395309882747,,,,,,High
+TOTAL,Under,Los Angeles Lakers,Utah Jazz,2025-11-18,,,,-3.5513763427734375,238.0,,,234.44862365722656,Medium
+ML,Portland Trail Blazers,Portland Trail Blazers,Phoenix Suns,2025-11-18,0.1760591843421016,-137.27272727272728,0.578544061302682,,,,,,High
 ATS,Portland Trail Blazers,Portland Trail Blazers,Phoenix Suns,2025-11-18,,,,2.3907151222229004,-2.5,4.8907151222229,2.5,,Medium
 TOTAL,Under,Portland Trail Blazers,Phoenix Suns,2025-11-18,,,,-14.447799682617188,236.5,,,222.0522003173828,High
