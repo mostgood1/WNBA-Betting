@@ -1,0 +1,45 @@
+﻿{
+    "start":  "2025-11-05",
+    "end":  "2025-11-18",
+    "improved":  [
+                     "ast",
+                     "pra",
+                     "pts",
+                     "reb",
+                     "threes"
+                 ],
+    "worsened":  [
+
+                 ],
+    "flat":  [
+
+             ],
+    "by_stat":  {
+                    "threes":  {
+                                   "delta_rmse":  -0.027214513042790513,
+                                   "delta_mae":  -0.030597871481359642,
+                                   "stat":  "threes"
+                               },
+                    "pra":  {
+                                "delta_rmse":  -0.29333356753745016,
+                                "delta_mae":  -0.3051606255051168,
+                                "stat":  "pra"
+                            },
+                    "pts":  {
+                                "delta_rmse":  -0.18494372203083431,
+                                "delta_mae":  -0.19694168042350427,
+                                "stat":  "pts"
+                            },
+                    "ast":  {
+                                "delta_rmse":  0.00097908022301657874,
+                                "delta_mae":  -0.0066713036943322679,
+                                "stat":  "ast"
+                            },
+                    "reb":  {
+                                "delta_rmse":  -0.0090008203255821685,
+                                "delta_mae":  -0.0096325371658804969,
+                                "stat":  "reb"
+                            }
+                },
+    "note":  "Negative deltas indicate improvement (player \u003c global)"
+}
