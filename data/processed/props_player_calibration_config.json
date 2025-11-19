@@ -1,15 +1,15 @@
 {
-  "updated_at": "2025-11-16",
+  "updated_at": "2025-11-18",
   "window_days": 15,
   "criterion": "mae",
   "per_stat": {
     "pts": {
-      "K": 8.0,
+      "K": 6.0,
       "min_pairs": 6
     },
     "reb": {
       "K": 10.0,
-      "min_pairs": 10
+      "min_pairs": 12
     },
     "ast": {
       "K": 8.0,
