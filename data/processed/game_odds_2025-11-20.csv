@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-20,2025-11-21T01:10:00Z,Memphis Grizzlies,Sacramento Kings,-141.63636363636363,119.27272727272727,-2.5,2.5,234.5,oddsapi_consensus
+2025-11-20,2025-11-21T01:10:00Z,Milwaukee Bucks,Philadelphia 76ers,114.72727272727273,-136.54545454545453,2.5,-2.5,224.5,oddsapi_consensus
+2025-11-20,2025-11-21T01:10:00Z,San Antonio Spurs,Atlanta Hawks,-113.36363636363636,-106.27272727272727,-1.0,1.0,232.5,oddsapi_consensus
+2025-11-20,2025-11-21T00:10:00Z,Orlando Magic,Los Angeles Clippers,-217.63636363636363,180.54545454545453,-5.5,5.5,219.0,oddsapi_consensus
