@@ -12,12 +12,20 @@ Param(
   [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
   # Optional: Bare -CronToken flag is accepted (no value) to avoid task failures
   [switch]$CronToken,
-  # Optional: Pass cron token explicitly (overrides env/.env/file discovery). Alias provided for clarity.
-  [Alias('CronTokenText','Token')]
-  [string]$CronTokenParam
+  # Explicit cron token text (overrides env/.env/file discovery)
+  [string]$CronTokenParam,
+  # Bare -Token should behave like -CronToken (switch); -TokenValue supplies a token string
+  [switch]$Token,
+  [string]$TokenValue
 )
 
 $ErrorActionPreference = 'Stop'
+
+# Normalize token inputs:
+# -Token (switch) -> treat as request to attempt server auth (but without value)
+# -TokenValue <text> -> explicit token text
+if ($Token) { $CronToken = $true }
+if ($TokenValue -and $TokenValue.Trim().Length -gt 0) { $CronTokenParam = $TokenValue }
 
 # Default behavior: push to Git at the end unless explicitly disabled.
 # If caller omitted -GitPush, honor env DAILY_UPDATE_ALWAYS_PUSH (default = true)

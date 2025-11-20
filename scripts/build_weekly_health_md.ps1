@@ -24,17 +24,17 @@ $lines += ""
 $lines += "Range: $Start .. $End"
 $lines += ""
 $lines += "## Summary"
-if ($improved -and $improved.Trim().Length -gt 0) {
+if ($improved -and $improved.Trim() -and $improved.Trim().Length -gt 0) {
   $lines += "- Improved: $improved"
 } else {
   $lines += "- Improved: (none)"
 }
-if ($worsened -and $worsened.Trim().Length -gt 0) {
+if ($worsened -and $worsened.Trim() -and $worsened.Trim().Length -gt 0) {
   $lines += "- Worsened: $worsened"
 } else {
   $lines += "- Worsened: (none)"
 }
-if ($flat -and $flat.Trim().Length -gt 0) {
+if ($flat -and $flat.Trim() -and $flat.Trim().Length -gt 0) {
   $lines += "- Flat: $flat"
 } else {
   $lines += "- Flat: (none)"
