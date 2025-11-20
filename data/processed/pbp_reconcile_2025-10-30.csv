@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-10-30,0022500138,CHA,ORL,0.5090234017999763,,,,Paolo Banchero,0.1312339837171653,,,,,2.1107505070993917,0.8788529893853791,,,
+2025-10-30,0022500139,MIL,GSW,0.4790366779780262,,,,Jimmy Butler III,0.1168451159053331,,,,,2.3038539553752533,0.9001268057715709,,,
+2025-10-30,0022500140,OKC,WAS,0.5090234017999763,,,,Shai Gilgeous-Alexander,0.131573037017117,,,,,2.2713995943204863,0.896832313917303,,,
+2025-10-30,0022500141,SAS,MIA,0.5538151222260791,,,,Devin Vassell,0.1200567338888507,,,,,2.1115618661257605,0.8789512432409926,,,
