@@ -74,7 +74,6 @@ $allowedPrefixes = @(
     "props_predictions_",
     "props_recommendations_",
     # New: per-player calibration artifact for diagnostics/analysis
-    "props_player_calibration_",
     # New: evaluation compare outputs (daily + summary)
     "props_eval_compare_"
 )

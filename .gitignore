@@ -50,8 +50,9 @@ data/processed/**
 !data/processed/early_threes_*.csv
 !data/processed/pbp_metrics_daily_*.csv
 !data/processed/game_cards_*.csv
-!data/processed/props_player_calibration_*.csv
+#! Calibration artifacts: keep only config + aggregated history (drop daily anchors)
 !data/processed/props_player_calibration_config.json
+!data/processed/props_player_calibration_history.csv
 # Evaluation compare outputs (health/alerts/weekly summaries)
 !data/processed/props_eval_compare_*.csv
 !data/processed/props_eval_compare_*.json
