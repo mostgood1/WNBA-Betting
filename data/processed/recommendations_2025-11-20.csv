@@ -1,11 +1,11 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Atlanta Hawks,San Antonio Spurs,Atlanta Hawks,2025-11-20,0.23190047883035692,-106.27272727272728,0.5152049360951961,,,,,,High
+ML,Atlanta Hawks,San Antonio Spurs,Atlanta Hawks,2025-11-20,0.23037176055896025,-106.54545454545456,0.5158450704225352,,,,,,High
 ATS,Atlanta Hawks,San Antonio Spurs,Atlanta Hawks,2025-11-20,,,,-3.0861103534698486,1.0,-2.0861103534698486,1.0,,High
 ML,Memphis Grizzlies,Memphis Grizzlies,Sacramento Kings,2025-11-20,0.08035418492778601,-141.63636363636363,0.5861550037622272,,,,,,High
 TOTAL,Under,Memphis Grizzlies,Sacramento Kings,2025-11-20,,,,-6.563323974609347,234.5,,,227.93667602539065,High
-ML,Milwaukee Bucks,Milwaukee Bucks,Philadelphia 76ers,2025-11-20,0.7714330104663795,114.72727272727272,0.4657070279424217,,,,,,High
+ML,Milwaukee Bucks,Milwaukee Bucks,Philadelphia 76ers,2025-11-20,0.7729329537436584,114.9090909090909,0.4653130287648054,,,,,,High
 ATS,Milwaukee Bucks,Milwaukee Bucks,Philadelphia 76ers,2025-11-20,,,,17.772850036621094,2.5,15.272850036621094,-2.5,,High
 TOTAL,Over,Milwaukee Bucks,Philadelphia 76ers,2025-11-20,,,,6.2823028564453125,224.5,,,230.7823028564453,High
-ML,Los Angeles Clippers,Orlando Magic,Los Angeles Clippers,2025-11-20,0.8113147798703644,180.54545454545453,0.3564484769928711,,,,,,High
+ML,Los Angeles Clippers,Orlando Magic,Los Angeles Clippers,2025-11-20,0.8083800508038215,180.0909090909091,0.3570269393054203,,,,,,High
 ATS,Los Angeles Clippers,Orlando Magic,Los Angeles Clippers,2025-11-20,,,,-8.250401258468628,5.5,-2.750401258468628,5.5,,High
 TOTAL,Over,Orlando Magic,Los Angeles Clippers,2025-11-20,,,,6.992904663085966,219.0,,,225.99290466308597,High
