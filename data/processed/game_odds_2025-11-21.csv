@@ -1,0 +1,10 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-21,2025-11-22T03:10:00Z,Golden State Warriors,Portland Trail Blazers,-318.8181818181818,253.9090909090909,-7.5,7.5,238.0,oddsapi_consensus
+2025-11-21,2025-11-22T00:00:00Z,Cleveland Cavaliers,Indiana Pacers,-939.3636363636364,608.7272727272727,-14.0,14.0,239.5,oddsapi_consensus
+2025-11-21,2025-11-22T00:40:00Z,Boston Celtics,Brooklyn Nets,-1113.909090909091,696.9090909090909,-15.0,15.0,222.5,oddsapi_consensus
+2025-11-21,2025-11-22T00:40:00Z,Toronto Raptors,Washington Wizards,-962.7272727272727,623.3636363636364,-14.0,14.0,240.5,oddsapi_consensus
+2025-11-21,2025-11-22T01:10:00Z,Chicago Bulls,Miami Heat,-138.8181818181818,116.63636363636364,-2.5,2.5,250.0,oddsapi_consensus
+2025-11-21,2025-11-22T02:40:00Z,Houston Rockets,Denver Nuggets,-140.45454545454547,118.36363636363636,-2.5,2.5,235.0,oddsapi_consensus
+2025-11-21,2025-11-22T02:10:00Z,Phoenix Suns,Minnesota Timberwolves,142.36363636363637,-169.36363636363637,3.5,-3.5,233.5,oddsapi_consensus
+2025-11-21,2025-11-22T03:10:00Z,Utah Jazz,Oklahoma City Thunder,833.8181818181819,-1459.8181818181818,16.5,-16.5,235.0,oddsapi_consensus
+2025-11-21,2025-11-22T01:40:00Z,Dallas Mavericks,New Orleans Pelicans,-168.45454545454547,141.8181818181818,-3.5,3.5,233.5,oddsapi_consensus
