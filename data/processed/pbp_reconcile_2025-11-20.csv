@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-11-20,0022500264,ORL,LAC,0.65,,,,James Harden,0.1162099074497529,,,,,1.1152801549607434,0.6721765753251896,,,
+2025-11-20,0022500265,MEM,SAC,0.5299640517645717,,,,Zach LaVine,0.1154067453714625,,,,,1.1358312469250915,0.6788449487996322,,,
+2025-11-20,0022500266,MIL,PHI,0.4850044983805899,,,,Tyrese Maxey,0.1276552849635572,,,,,1.174249519589787,0.6909491707290192,,,
+2025-11-20,0022500267,SAS,ATL,0.5299640517645717,,,,Victor Wembanyama,0.1084827694374178,,,,,1.1586061510796115,0.6860765620782814,,,
