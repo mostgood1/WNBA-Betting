@@ -1,8 +1,8 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-11-22,2025-11-22T18:10:00Z,Charlotte Hornets,Los Angeles Clippers,-105.3,-114.3,1.0,-1.0,227.0,oddsapi_consensus
-2025-11-22,2025-11-23T00:10:00Z,New Orleans Pelicans,Atlanta Hawks,305.8181818181818,-392.72727272727275,8.5,-8.5,230.5,oddsapi_consensus
-2025-11-22,2025-11-23T01:40:00Z,Dallas Mavericks,Memphis Grizzlies,-115.36363636363636,-104.45454545454545,-1.0,1.0,228.5,oddsapi_consensus
-2025-11-22,2025-11-23T01:10:00Z,Milwaukee Bucks,Detroit Pistons,277.3636363636364,-355.6363636363636,8.5,-8.5,223.0,oddsapi_consensus
-2025-11-22,2025-11-22T22:10:00Z,Orlando Magic,New York Knicks,-114.8,-104.8,-1.0,1.0,230.5,oddsapi_consensus
-2025-11-22,2025-11-23T03:10:00Z,Denver Nuggets,Sacramento Kings,-563.4545454545455,410.6363636363636,-11.0,11.0,236.5,oddsapi_consensus
-2025-11-22,2025-11-23T01:10:00Z,Chicago Bulls,Washington Wizards,-712.5454545454545,498.3636363636364,-12.5,12.5,243.5,oddsapi_consensus
+2025-11-22,2025-11-22T18:10:00Z,Charlotte Hornets,Los Angeles Clippers,-106.6,-113.1,1.0,-1.0,227.5,oddsapi_consensus
+2025-11-22,2025-11-23T00:10:00Z,New Orleans Pelicans,Atlanta Hawks,310.45454545454544,-399.54545454545456,8.5,-8.5,230.5,oddsapi_consensus
+2025-11-22,2025-11-23T01:40:00Z,Dallas Mavericks,Memphis Grizzlies,-116.27272727272727,-85.54545454545455,-1.0,1.0,227.5,oddsapi_consensus
+2025-11-22,2025-11-23T01:10:00Z,Milwaukee Bucks,Detroit Pistons,272.3636363636364,-346.8181818181818,8.0,-8.0,223.0,oddsapi_consensus
+2025-11-22,2025-11-22T22:10:00Z,Orlando Magic,New York Knicks,-115.3,-84.4,-1.0,1.0,230.5,oddsapi_consensus
+2025-11-22,2025-11-23T03:10:00Z,Denver Nuggets,Sacramento Kings,-557.0909090909091,409.0,-11.0,11.0,236.5,oddsapi_consensus
+2025-11-22,2025-11-23T01:10:00Z,Chicago Bulls,Washington Wizards,-706.1818181818181,496.09090909090907,-12.5,12.5,243.5,oddsapi_consensus
