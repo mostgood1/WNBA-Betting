@@ -1,0 +1,20 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Sacramento Kings,Denver Nuggets,Sacramento Kings,2025-11-22,0.6571142459076348,410.6363636363636,0.19583407512907247,,,,,,High
+ATS,Sacramento Kings,Denver Nuggets,Sacramento Kings,2025-11-22,,,,-6.416233062744141,11.0,4.583766937255859,11.0,,High
+TOTAL,Under,Denver Nuggets,Sacramento Kings,2025-11-22,,,,-7.539794921875,236.5,,,228.960205078125,High
+ML,Los Angeles Clippers,Charlotte Hornets,Los Angeles Clippers,2025-11-22,0.5490479406476773,-114.3,0.5333644423705086,,,,,,High
+ATS,Los Angeles Clippers,Charlotte Hornets,Los Angeles Clippers,2025-11-22,,,,-14.381800651550291,-1.0,-15.381800651550291,-1.0,,High
+ML,New Orleans Pelicans,New Orleans Pelicans,Atlanta Hawks,2025-11-22,0.21872301248466497,305.8181818181818,0.246415770609319,,,,,,High
+ATS,New Orleans Pelicans,New Orleans Pelicans,Atlanta Hawks,2025-11-22,,,,2.3900928497314453,8.5,-6.109907150268555,-8.5,,Medium
+TOTAL,Over,New Orleans Pelicans,Atlanta Hawks,2025-11-22,,,,3.726577758789034,230.5,,,234.22657775878903,Medium
+ML,Memphis Grizzlies,Dallas Mavericks,Memphis Grizzlies,2025-11-22,0.2557882064043854,-104.45454545454544,0.5108937305469097,,,,,,High
+ATS,Memphis Grizzlies,Dallas Mavericks,Memphis Grizzlies,2025-11-22,,,,-3.50350022315979,1.0,-2.50350022315979,1.0,,High
+ML,Milwaukee Bucks,Milwaukee Bucks,Detroit Pistons,2025-11-22,1.627640432832124,277.3636363636364,0.26499638641291257,,,,,,High
+ATS,Milwaukee Bucks,Milwaukee Bucks,Detroit Pistons,2025-11-22,,,,14.394651889801025,8.5,5.894651889801025,-8.5,,High
+TOTAL,Over,Milwaukee Bucks,Detroit Pistons,2025-11-22,,,,11.135284423828068,223.0,,,234.13528442382807,High
+ML,Orlando Magic,Orlando Magic,New York Knicks,2025-11-22,0.24629722816076838,-114.8,0.5344506517690875,,,,,,High
+ATS,Orlando Magic,Orlando Magic,New York Knicks,2025-11-22,,,,3.001739501953125,-1.0,4.001739501953125,1.0,,High
+TOTAL,Under,Orlando Magic,New York Knicks,2025-11-22,,,,-9.478164672851562,230.5,,,221.02183532714844,High
+ML,Washington Wizards,Chicago Bulls,Washington Wizards,2025-11-22,0.1656563544469447,498.3636363636364,0.1671224551807961,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Washington Wizards,2025-11-22,,,,1.1024284362792969,-12.5,13.602428436279297,12.5,,Low
+TOTAL,Under,Chicago Bulls,Washington Wizards,2025-11-22,,,,-18.503082275390653,243.5,,,224.99691772460935,High
