@@ -1,0 +1,31 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Brooklyn Nets,Brooklyn Nets,New York Knicks,2025-11-24,1.100911281112843,583.6363636363636,0.14627659574468085,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,New York Knicks,2025-11-24,,,,8.33598518371582,14.0,-5.66401481628418,-14.0,,High
+TOTAL,Under,Brooklyn Nets,New York Knicks,2025-11-24,,,,-5.5322723388671875,229.5,,,223.9677276611328,High
+ML,Sacramento Kings,Sacramento Kings,Minnesota Timberwolves,2025-11-24,0.47529928357915385,321.3636363636364,0.2373247033441208,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Minnesota Timberwolves,2025-11-24,,,,6.4918434619903564,9.5,-3.008156538009644,-9.5,,High
+TOTAL,Under,Sacramento Kings,Minnesota Timberwolves,2025-11-24,,,,-11.602401733398409,238.0,,,226.3975982666016,High
+ML,Indiana Pacers,Indiana Pacers,Detroit Pistons,2025-11-24,2.065879653477892,351.6363636363636,0.2214170692431562,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Detroit Pistons,2025-11-24,,,,15.293005466461182,10.5,4.793005466461182,-10.5,,High
+TOTAL,Under,Indiana Pacers,Detroit Pistons,2025-11-24,,,,-3.411361694335909,235.5,,,232.0886383056641,Medium
+ML,Cleveland Cavaliers,Toronto Raptors,Cleveland Cavaliers,2025-11-24,0.2684000315510091,-132.1818181818182,0.5693030540328896,,,,,,High
+ATS,Cleveland Cavaliers,Toronto Raptors,Cleveland Cavaliers,2025-11-24,,,,-5.567439079284668,-2.0,-7.567439079284668,-2.0,,High
+TOTAL,Under,Toronto Raptors,Cleveland Cavaliers,2025-11-24,,,,-7.699798583984403,236.0,,,228.3002014160156,High
+ML,Dallas Mavericks,Miami Heat,Dallas Mavericks,2025-11-24,0.1001325814550943,275.72727272727275,0.26615049600774254,,,,,,High
+ATS,Dallas Mavericks,Miami Heat,Dallas Mavericks,2025-11-24,,,,-1.9070663452148438,8.5,6.592933654785156,8.5,,Medium
+TOTAL,Under,Miami Heat,Dallas Mavericks,2025-11-24,,,,-14.20928955078125,241.5,,,227.29071044921875,High
+ML,Chicago Bulls,New Orleans Pelicans,Chicago Bulls,2025-11-24,0.07756270265851306,-217.1818181818182,0.6847234164517053,,,,,,High
+ATS,Chicago Bulls,New Orleans Pelicans,Chicago Bulls,2025-11-24,,,,-3.1227569580078125,-5.5,-8.622756958007812,-5.5,,High
+TOTAL,Under,New Orleans Pelicans,Chicago Bulls,2025-11-24,,,,-13.29290771484375,244.0,,,230.70709228515625,High
+ML,Memphis Grizzlies,Memphis Grizzlies,Denver Nuggets,2025-11-24,0.41936018730673097,265.90909090909093,0.27329192546583847,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,Denver Nuggets,2025-11-24,,,,7.273759126663208,8.0,-0.726240873336792,-8.0,,High
+TOTAL,Under,Memphis Grizzlies,Denver Nuggets,2025-11-24,,,,-2.2378692626953125,232.5,,,230.2621307373047,Medium
+ML,Phoenix Suns,Phoenix Suns,Houston Rockets,2025-11-24,0.04094281344313877,196.63636363636363,0.3371130861170702,,,,,,High
+ATS,Phoenix Suns,Phoenix Suns,Houston Rockets,2025-11-24,,,,3.540009260177612,6.5,-2.959990739822388,-6.5,,High
+TOTAL,Over,Phoenix Suns,Houston Rockets,2025-11-24,,,,1.9494171142578125,224.5,,,226.4494171142578,Low
+ML,Utah Jazz,Golden State Warriors,Utah Jazz,2025-11-24,0.5621280772839592,605.6363636363636,0.14171605256377223,,,,,,High
+ATS,Utah Jazz,Golden State Warriors,Utah Jazz,2025-11-24,,,,-2.9707136154174805,14.5,11.52928638458252,14.5,,Medium
+TOTAL,Under,Golden State Warriors,Utah Jazz,2025-11-24,,,,-7.55511474609375,239.5,,,231.94488525390625,High
+ML,Milwaukee Bucks,Milwaukee Bucks,Portland Trail Blazers,2025-11-24,0.2596005577204964,-125.9090909090909,0.5573440643863179,,,,,,High
+ATS,Milwaukee Bucks,Milwaukee Bucks,Portland Trail Blazers,2025-11-24,,,,4.760062217712402,-1.5,6.260062217712402,1.5,,High
+TOTAL,Under,Milwaukee Bucks,Portland Trail Blazers,2025-11-24,,,,-3.8228759765625,232.5,,,228.6771240234375,Medium
