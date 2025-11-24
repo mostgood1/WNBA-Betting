@@ -1,9 +1,9 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-11-23,2025-11-23T23:10:00Z,Boston Celtics,Orlando Magic,-183.63636363636363,153.8181818181818,-4.5,4.5,222.5,oddsapi_consensus
-2025-11-23,2025-11-24T01:10:00Z,Phoenix Suns,San Antonio Spurs,-145.36363636363637,122.36363636363636,-3.0,3.0,234.5,oddsapi_consensus
-2025-11-23,2025-11-24T01:10:00Z,Utah Jazz,Los Angeles Lakers,327.72727272727275,-427.27272727272725,9.5,-9.5,245.5,oddsapi_consensus
-2025-11-23,2025-11-23T23:10:00Z,Cleveland Cavaliers,Los Angeles Clippers,-395.90909090909093,306.8181818181818,-8.5,8.5,228.5,oddsapi_consensus
-2025-11-23,2025-11-24T00:10:00Z,Oklahoma City Thunder,Portland Trail Blazers,-1200.4545454545455,728.0,-15.5,15.5,233.5,oddsapi_consensus
-2025-11-23,2025-11-23T23:10:00Z,Toronto Raptors,Brooklyn Nets,-754.1818181818181,520.0909090909091,-12.5,12.5,228.5,oddsapi_consensus
-2025-11-23,2025-11-23T23:10:00Z,Atlanta Hawks,Charlotte Hornets,-283.8181818181818,229.8181818181818,-7.5,7.5,231.5,oddsapi_consensus
-2025-11-23,2025-11-23T18:10:00Z,Philadelphia 76ers,Miami Heat,-115.81818181818181,-86.0909090909091,-1.0,1.0,241.5,oddsapi_consensus
+2025-11-23,2025-11-23T23:10:00Z,Boston Celtics,Orlando Magic,-182.27272727272728,152.72727272727272,-4.5,4.5,222.5,oddsapi_consensus
+2025-11-23,2025-11-24T01:10:00Z,Phoenix Suns,San Antonio Spurs,-141.0909090909091,118.63636363636364,-2.5,2.5,234.5,oddsapi_consensus
+2025-11-23,2025-11-24T01:10:00Z,Utah Jazz,Los Angeles Lakers,327.8181818181818,-427.27272727272725,9.5,-9.5,245.0,oddsapi_consensus
+2025-11-23,2025-11-23T23:10:00Z,Cleveland Cavaliers,Los Angeles Clippers,-386.0,300.45454545454544,-8.5,8.5,229.0,oddsapi_consensus
+2025-11-23,2025-11-24T00:10:00Z,Oklahoma City Thunder,Portland Trail Blazers,-1208.1818181818182,731.6363636363636,-15.5,15.5,233.5,oddsapi_consensus
+2025-11-23,2025-11-23T23:10:00Z,Toronto Raptors,Brooklyn Nets,-752.3636363636364,519.1818181818181,-12.5,12.5,228.5,oddsapi_consensus
+2025-11-23,2025-11-23T23:10:00Z,Atlanta Hawks,Charlotte Hornets,-287.0,232.0909090909091,-7.5,7.5,230.5,oddsapi_consensus
+2025-11-23,2025-11-23T18:10:00Z,Philadelphia 76ers,Miami Heat,-114.0,-106.5,-1.0,1.0,241.0,oddsapi_consensus
