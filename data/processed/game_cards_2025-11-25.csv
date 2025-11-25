@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2025-11-25,0022500057,Washington Wizards,Atlanta Hawks,2025-11-26T00:10:00Z,0.4700359482354282,1.163705434588641,0.6876732721897081,ATL: Jalen Johnson (11.5%); ATL: Dyson Daniels (11.2%); ATL: Nickeil Alexander-Walker (10.8%); WAS: Kyshawn George (10.6%); ATL: Onyeka Okongwu (10.0%)
+2025-11-25,0022500058,Philadelphia 76ers,Orlando Magic,2025-11-26T01:10:00Z,0.51499550161941,1.126148521129628,0.675720188817487,PHI: Tyrese Maxey (12.4%); PHI: VJ Edgecombe (11.4%); PHI: Kelly Oubre Jr. (10.7%); ORL: Franz Wagner (10.7%); ORL: Paolo Banchero (10.1%)
+2025-11-25,0022500059,Los Angeles Lakers,Los Angeles Clippers,2025-11-26T04:10:00Z,0.65,1.1141029564487963,0.6717904348400714,LAL: Luka Dončić (11.6%); LAL: Austin Reaves (11.4%); LAC: James Harden (11.1%); LAL: Rui Hachimura (10.5%); LAC: Kawhi Leonard (10.2%)
