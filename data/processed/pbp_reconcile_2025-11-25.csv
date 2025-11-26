@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-11-25,0022500057,WAS,ATL,0.4700359482354282,,,,Jalen Johnson,0.1148504490681901,,,,,1.163705434588641,0.6876732721897081,,,
+2025-11-25,0022500058,PHI,ORL,0.51499550161941,,,,Tyrese Maxey,0.1239831267698208,,,,,1.126148521129628,0.675720188817487,,,
+2025-11-25,0022500059,LAL,LAC,0.65,,,,Luka Dončić,0.1162437854980442,,,,,1.1141029564487963,0.6717904348400714,,,
