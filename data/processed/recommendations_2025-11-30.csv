@@ -1,0 +1,22 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+TOTAL,Under,New York Knicks,Toronto Raptors,2025-11-30,,,,-7.1903533935546875,232.5,,,225.3096466064453,High
+ML,Utah Jazz,Utah Jazz,Houston Rockets,2025-11-30,0.542335207463012,439.09090909090907,0.1854974704890388,,,,,,High
+ATS,Utah Jazz,Utah Jazz,Houston Rockets,2025-11-30,,,,4.971705436706543,12.0,-7.028294563293457,-12.0,,High
+TOTAL,Over,Utah Jazz,Houston Rockets,2025-11-30,,,,3.8612213134765625,232.5,,,236.36122131347656,Medium
+ML,Atlanta Hawks,Philadelphia 76ers,Atlanta Hawks,2025-11-30,0.4037306835681751,-105.0,0.5121951219512195,,,,,,High
+ATS,Atlanta Hawks,Philadelphia 76ers,Atlanta Hawks,2025-11-30,,,,-8.36153793334961,1.0,-7.361537933349609,1.0,,High
+ML,Sacramento Kings,Sacramento Kings,Memphis Grizzlies,2025-11-30,0.4110657083837933,122.8181818181818,0.44879640962872297,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Memphis Grizzlies,2025-11-30,,,,5.001500606536865,3.0,2.001500606536865,-3.0,,High
+TOTAL,Under,Sacramento Kings,Memphis Grizzlies,2025-11-30,,,,-5.349349975585909,233.5,,,228.1506500244141,High
+ML,Minnesota Timberwolves,Minnesota Timberwolves,San Antonio Spurs,2025-11-30,0.22814072968223525,-160.8181818181818,0.6165911467410248,,,,,,High
+ATS,Minnesota Timberwolves,Minnesota Timberwolves,San Antonio Spurs,2025-11-30,,,,6.472541809082031,-3.5,9.972541809082031,3.5,,High
+TOTAL,Under,Minnesota Timberwolves,San Antonio Spurs,2025-11-30,,,,-6.70635986328125,234.5,,,227.79364013671875,High
+ML,Boston Celtics,Cleveland Cavaliers,Boston Celtics,2025-11-30,0.22203556521513446,221.54545454545453,0.3109980209216851,,,,,,High
+ATS,Boston Celtics,Cleveland Cavaliers,Boston Celtics,2025-11-30,,,,-5.802044630050659,7.0,1.1979553699493408,7.0,,High
+TOTAL,Under,Cleveland Cavaliers,Boston Celtics,2025-11-30,,,,-8.051788330078125,230.5,,,222.44821166992188,High
+ML,Portland Trail Blazers,Portland Trail Blazers,Oklahoma City Thunder,2025-11-30,0.7557606122890823,458.54545454545456,0.17903645833333334,,,,,,High
+ATS,Portland Trail Blazers,Portland Trail Blazers,Oklahoma City Thunder,2025-11-30,,,,6.279921531677246,11.5,-5.220078468322754,-11.5,,High
+TOTAL,Under,Portland Trail Blazers,Oklahoma City Thunder,2025-11-30,,,,-4.9524688720703125,233.0,,,228.0475311279297,High
+ML,New Orleans Pelicans,Los Angeles Lakers,New Orleans Pelicans,2025-11-30,0.8792551431221856,689.2727272727273,0.12669891730016125,,,,,,High
+ATS,New Orleans Pelicans,Los Angeles Lakers,New Orleans Pelicans,2025-11-30,,,,-4.696372985839844,15.0,10.303627014160156,15.0,,High
+TOTAL,Under,Los Angeles Lakers,New Orleans Pelicans,2025-11-30,,,,-5.581298828125,233.5,,,227.918701171875,High

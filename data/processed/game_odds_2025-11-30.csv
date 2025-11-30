@@ -1,0 +1,9 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-11-30,2025-11-30T20:10:00Z,Utah Jazz,Houston Rockets,439.09090909090907,-604.6363636363636,12.0,-12.0,232.5,oddsapi_consensus
+2025-11-30,2025-11-30T23:10:00Z,Philadelphia 76ers,Atlanta Hawks,-114.81818181818181,-105.0,-1.0,1.0,230.5,oddsapi_consensus
+2025-11-30,2025-12-01T02:10:00Z,Sacramento Kings,Memphis Grizzlies,122.81818181818181,-145.8181818181818,3.0,-3.0,233.5,oddsapi_consensus
+2025-11-30,2025-12-01T00:10:00Z,Minnesota Timberwolves,San Antonio Spurs,-160.8181818181818,135.54545454545453,-3.5,3.5,234.5,oddsapi_consensus
+2025-11-30,2025-11-30T23:10:00Z,Cleveland Cavaliers,Boston Celtics,-273.27272727272725,221.54545454545453,-7.0,7.0,230.5,oddsapi_consensus
+2025-11-30,2025-11-30T23:10:00Z,Portland Trail Blazers,Oklahoma City Thunder,458.54545454545456,-638.3636363636364,11.5,-11.5,233.0,oddsapi_consensus
+2025-11-30,2025-11-30T23:10:00Z,New York Knicks,Toronto Raptors,-293.90909090909093,236.45454545454547,-7.5,7.5,232.5,oddsapi_consensus
+2025-11-30,2025-12-01T02:40:00Z,Los Angeles Lakers,New Orleans Pelicans,-1104.4545454545455,689.2727272727273,-15.0,15.0,233.5,oddsapi_consensus
