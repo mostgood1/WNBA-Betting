@@ -51,6 +51,24 @@ Set-Location -Path $RepoRoot
 $VenvPy = Join-Path $RepoRoot '.venv\Scripts\python.exe'
 $NpuPy = 'C:\Users\mostg\OneDrive\Coding\NBA NPU\.venv-arm64\Scripts\python.exe'
 
+# Remove stale git index.lock to avoid interactive prompts during unattended runs
+function Remove-StaleGitLock {
+  try {
+    $lock = Join-Path $RepoRoot '.git/index.lock'
+    if (Test-Path $lock) {
+      $age = (Get-Date) - (Get-Item $lock).LastWriteTime
+      if ($age.TotalSeconds -ge 60) {
+        Remove-Item $lock -Force -ErrorAction SilentlyContinue
+        Write-Log 'Git: removed stale index.lock'
+      } else {
+        Write-Log 'Git: index.lock present (fresh); leaving in place'
+      }
+    }
+  } catch {
+    Write-Log ("Git: lock cleanup failed: {0}" -f $_.Exception.Message)
+  }
+}
+
 # First try: use local venv if it exists and has pandas
 $Python = $null
 if (Test-Path $VenvPy) {
@@ -421,6 +439,7 @@ try {
   }
   if ($toBuild.Count -gt 0) {
     Write-Log ("Recon backfill missing dates: {0}" -f ($toBuild -join ', '))
+    Remove-StaleGitLock
     $built = @()
     foreach ($ds in $toBuild) {
       Write-Log ("Build recon for {0}" -f $ds)
@@ -435,6 +454,7 @@ try {
         $changedBf = & git diff --cached --name-only -- data/processed/recon_games_*.csv
         if ($changedBf) {
           $msgBf = "data(processed): backfill recon games ($seasonStart..$yesterday)"
+          Remove-StaleGitLock
           & git commit -m $msgBf 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
           & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
           & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
@@ -694,10 +714,12 @@ try {
   Write-Log ("audit-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
 
-# 2.1) Best-effort finals export for yesterday (writes data/processed/finals_<date>.csv)
+# 2.1) Finals export dedupe: only run custom export if CSV missing and CLI path didn't produce it
 try {
-  Write-Log ("Exporting finals CSV for {0}" -f $yesterday)
-  $pyFinals = @'
+  $finalsCsv = Join-Path $RepoRoot ("data/processed/finals_{0}.csv" -f $yesterday)
+  if (-not (Test-Path $finalsCsv)) {
+    Write-Log ("Exporting finals CSV for {0} (custom path)" -f $yesterday)
+    $pyFinals = @'
 import os
 from app import _write_finals_csv_for_date
 d = os.environ.get("YDAY")
@@ -707,11 +729,14 @@ if d:
 else:
     print("NO_DATE")
 '@
-  $env:YDAY = $yesterday
-  $tmpPyF = Join-Path $LogPath ("finals_export_{0}.py" -f $Stamp)
-  Set-Content -Path $tmpPyF -Value $pyFinals -Encoding UTF8
-  $outF = & $Python $tmpPyF 2>&1 | Tee-Object -FilePath $LogFile -Append
-  if ($outF -match 'WROTE:') { Write-Log ("Finals export result: {0}" -f $outF) } else { Write-Log ("Finals export returned: {0}" -f $outF) }
+    $env:YDAY = $yesterday
+    $tmpPyF = Join-Path $LogPath ("finals_export_{0}.py" -f $Stamp)
+    Set-Content -Path $tmpPyF -Value $pyFinals -Encoding UTF8
+    $outF = & $Python $tmpPyF 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outF -match 'WROTE:') { Write-Log ("Finals export result: {0}" -f $outF) } else { Write-Log ("Finals export returned: {0}" -f $outF) }
+  } else {
+    Write-Log ("Finals CSV already present for {0}; skipping custom export" -f $yesterday)
+  }
 } catch { Write-Log ("Finals export block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 2.6) Fetch injuries before building props projections (ensures inactive players are filtered)
@@ -931,10 +956,12 @@ if (-not $GitPush) {
     Write-Log 'Git: committing processed artifacts via scripts/commit_processed.ps1 (yesterday then today)'
     $commitScript = Join-Path $RepoRoot 'scripts/commit_processed.ps1'
     if (Test-Path $commitScript) {
+      Remove-StaleGitLock
       # First, commit yesterday's finals/reconcile outputs without push
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson -DryRun | Tee-Object -FilePath $LogFile -Append | Out-Null
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
       # Then, commit and push today's predictions/edges/odds
+      Remove-StaleGitLock
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $Date -IncludeJson -Push | Tee-Object -FilePath $LogFile -Append | Out-Null
 
       # Additionally stage and push yearly PBP metrics CSV if present/changed
@@ -946,6 +973,7 @@ if (-not $GitPush) {
           $mchanged = & git diff --cached --name-only -- $metricsPath
           if ($mchanged) {
             $msg2 = "data(processed): update pbp metrics daily ($yesterday)"
+            Remove-StaleGitLock
             & git commit -m $msg2 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
             & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
             Write-Log 'Git: pushed pbp_metrics_daily update'
@@ -956,11 +984,13 @@ if (-not $GitPush) {
       } catch { Write-Log ("Git: push pbp_metrics_daily failed: {0}" -f $_.Exception.Message) }
     } else {
       Write-Log 'Commit script missing; falling back to broad staging (data/processed)'
+      Remove-StaleGitLock
       & git add -- data data\processed 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
     # Legacy root predictions.csv intentionally not staged (Render UI reads date-scoped processed files)
       $cached = & git diff --cached --name-only
       if ($cached) {
         $msg = "local daily: $Date (predictions/odds/props)"
+        Remove-StaleGitLock
         & git commit -m $msg 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
         & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
         & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
