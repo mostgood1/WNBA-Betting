@@ -81,6 +81,7 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
         # Raw and calibrated variants if available
         p_raw = pred.get("home_win_prob_raw")
         p_cal = pred.get("home_win_prob_cal")
+        p_mkt = pred.get("home_win_prob_from_spread")  # market implied baseline
         # Build outcomes (1 if home won else 0)
         # Try robust merge on matchup key when available
         try:
@@ -114,6 +115,9 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
                 if p_cal is not None and p_cal.name in m.columns:
                     row["brier_cal"] = brier_score(m[p_cal.name], y)
                     row["logloss_cal"] = log_loss(m[p_cal.name], y)
+                if p_mkt is not None and p_mkt.name in m.columns:
+                    row["brier_mkt"] = brier_score(m[p_mkt.name], y)
+                    row["logloss_mkt"] = log_loss(m[p_mkt.name], y)
                 rows.append(row)
         except Exception:
             continue
@@ -155,7 +159,7 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
     # Instead simply build vectors from first pass (p_main vs y) by re-merging.
     # Collect vectors
     all_p_main = []; all_y = []
-    all_p_raw = []; all_p_cal = []
+    all_p_raw = []; all_p_cal = []; all_p_mkt = []
     for d in daterange(start, end):
         ds = d.strftime("%Y-%m-%d")
         pred = _load_csv(PROCESSED / f"predictions_{ds}.csv")
@@ -189,6 +193,8 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
             all_p_raw.append(pd.to_numeric(m["home_win_prob_raw"], errors="coerce"))
         if "home_win_prob_cal" in m.columns:
             all_p_cal.append(pd.to_numeric(m["home_win_prob_cal"], errors="coerce"))
+        if "home_win_prob_from_spread" in m.columns:
+            all_p_mkt.append(pd.to_numeric(m["home_win_prob_from_spread"], errors="coerce"))
     if all_p_main and all_y:
         p_main_concat = pd.concat(all_p_main, ignore_index=True)
         y_concat = pd.concat(all_y, ignore_index=True)
@@ -203,12 +209,19 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
             p_cal_concat = pd.concat(all_p_cal, ignore_index=True)
             out_g["ece_cal"] = _ece(p_cal_concat, y_concat)
             out_g["entropy_cal"] = _entropy(p_cal_concat)
+        if all_p_mkt:
+            p_mkt_concat = pd.concat(all_p_mkt, ignore_index=True)
+            out_g["ece_mkt"] = _ece(p_mkt_concat, y_concat)
+            out_g["entropy_mkt"] = _entropy(p_mkt_concat)
     if "brier_raw" in df.columns:
         out_g["brier_raw_mean"] = float(df["brier_raw"].mean())
         out_g["logloss_raw_mean"] = float(df.get("logloss_raw").mean())
     if "brier_cal" in df.columns:
         out_g["brier_cal_mean"] = float(df["brier_cal"].mean())
         out_g["logloss_cal_mean"] = float(df.get("logloss_cal").mean())
+    if "brier_mkt" in df.columns:
+        out_g["brier_mkt_mean"] = float(df["brier_mkt"].mean())
+        out_g["logloss_mkt_mean"] = float(df.get("logloss_mkt").mean())
     return out
 
 
@@ -236,6 +249,7 @@ def evaluate_totals(start: datetime, end: datetime) -> dict:
                         "date": ds,
                         "mae": mae(m["totals"], actual_total),
                         "rmse": rmse(m["totals"], actual_total),
+                        "pred_total_var": float(pd.to_numeric(m["totals"], errors="coerce").var())
                     })
         except Exception:
             continue
@@ -247,6 +261,7 @@ def evaluate_totals(start: datetime, end: datetime) -> dict:
             "n_days": int(df["date"].nunique()),
             "mae_mean": float(df["mae"].mean()),
             "rmse_mean": float(df["rmse"].mean()),
+            "pred_total_var_mean": float(df["pred_total_var"].mean()),
         }
     }
 

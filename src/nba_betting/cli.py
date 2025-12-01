@@ -282,6 +282,29 @@ def evaluate_reliability_cmd(start: str | None, end: str | None, days: int, bins
     except Exception as e:
         console.print(f"Reliability failed: {e}", style="red")
 
+@cli.command("evaluate-props-lite")
+@click.option("--start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", type=str, required=False, help="End date YYYY-MM-DD")
+@click.option("--days", type=int, default=14, show_default=True, help="If start/end not provided, evaluate last N days")
+def evaluate_props_lite_cmd(start: str | None, end: str | None, days: int):
+    """Lightweight props probability calibration (scaffold)."""
+    console.rule("Evaluate Props (Lite)")
+    try:
+        script = paths.root / "tools" / "evaluate_props.py"
+        if not script.exists():
+            console.print(f"Missing props lite script: {script}", style="red"); return
+        args = [sys.executable, str(script)]
+        if start and end:
+            args += ["--start", str(start), "--end", str(end)]
+        else:
+            args += ["--days", str(int(days))]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Props lite exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Props lite failed: {e}", style="red")
+
 
 @cli.command()
 @click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")

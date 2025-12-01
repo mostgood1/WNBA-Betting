@@ -458,6 +458,19 @@ try {
   }
 } catch { Write-Log ("Isotonic calibration block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 1.6b) Reliability curve + HTML (60d) automation
+try {
+  $relCsv = Join-Path $RepoRoot 'data/processed/reliability_games.csv'
+  $relHtml = Join-Path $RepoRoot 'data/processed/reliability_games.html'
+  Write-Log 'Computing reliability curve (60d)' 
+  $null = Invoke-PyMod -plist @('-m','nba_betting.cli','evaluate-reliability','--days','60')
+  if (Test-Path $relCsv) {
+    Write-Log 'Generating reliability HTML'
+    $plotScript = Join-Path $RepoRoot 'tools/plot_reliability.py'
+    if (Test-Path $plotScript) { & $Python $plotScript 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null }
+  } else { Write-Log 'Reliability CSV missing after compute step' }
+} catch { Write-Log ("Reliability automation failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
   Write-Log ("Export finals CSV for {0}" -f $yesterday)
