@@ -565,11 +565,11 @@ print("OK")
   Write-Log ("PBP metrics logging failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
-# 2.4c.pre) Ensure PBP inputs exist for recent days to support recon_quarters backfill
+# 2.4c.pre) Ensure PBP inputs exist for recent days to support recon_quarters backfill (7 days)
 try {
-  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-21).ToString('yyyy-MM-dd')
+  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-7).ToString('yyyy-MM-dd')
   $end = $yesterday
-  Write-Log ("Backfilling PBP for {0}..{1} (finals-only) to enable recon_quarters" -f $start, $end)
+  Write-Log ("Backfilling PBP for {0}..{1} (finals-only, last 7d) to enable recon_quarters" -f $start, $end)
   $rc_bfpbp = Invoke-PyMod -plist @('-m','nba_betting.cli','backfill-pbp','--start', $start, '--end', $end, '--finals-only')
   Write-Log ("backfill-pbp exit code: {0}" -f $rc_bfpbp)
 } catch {
@@ -585,9 +585,9 @@ try {
   Write-Log ("reconcile-quarters failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
-# 2.4d.a) Backfill recent recon_quarters (last 21 days) to seed calibration
+# 2.4d.a) Backfill recent recon_quarters (last 7 days) to seed calibration
 try {
-  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-21)
+  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-7)
   $end = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
   $cur = $start
   $missing = @()
@@ -598,7 +598,7 @@ try {
     $cur = $cur.AddDays(1)
   }
   if ($missing.Count -gt 0) {
-    Write-Log ("Recon quarters backfill (last 21d) missing: {0}" -f ($missing -join ', '))
+    Write-Log ("Recon quarters backfill (last 7d) missing: {0}" -f ($missing -join ', '))
     foreach ($ds in $missing) {
       try {
         Write-Log ("Build recon-quarters for {0}" -f $ds)
@@ -607,7 +607,7 @@ try {
       } catch { Write-Log ("reconcile-quarters ({0}) failed: {1}" -f $ds, $_.Exception.Message) }
     }
   } else {
-    Write-Log 'Recon quarters backfill: none missing in last 21 days'
+    Write-Log 'Recon quarters backfill: none missing in last 7 days'
   }
 } catch { Write-Log ("Recon quarters backfill block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
@@ -634,17 +634,19 @@ if (-not $SkipTotalsCalib) {
       Write-Log "No predictions CSV found prior to calibration; skipping backup"
     }
 
-    $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday)
+    # Apply into a temporary file first; only replace original if validation passes
+    $tmpOut = Join-Path $LogPath ("predictions_calib_tmp_{0}.csv" -f $Stamp)
+    $rc_apply_tot = Invoke-PyMod -plist @('-m','nba_betting.cli','apply-totals-calibration','--date', $Date, '--calib-date', $yesterday, '--in', $predPath, '--out', $tmpOut)
     Write-Log ("apply-totals-calibration exit code: {0}" -f $rc_apply_tot)
 
     # Validate predictions after apply; if invalid, restore backup
     try {
       $tmpPy = Join-Path $LogPath ("validate_predictions_{0}.py" -f $Stamp)
       $pyCode = @"
-import sys, pandas as pd
+import sys, pandas as pd, numpy as np
 from pathlib import Path
-pred_path = Path(r"$predPath")
-ok=True; why=[]
+pred_path = Path(r"$tmpOut")
+ok=True; why=[]; stats={}
 if not pred_path.exists():
     print("NO:file_missing"); sys.exit(0)
 df = pd.read_csv(pred_path)
@@ -653,7 +655,14 @@ def in_range(s, lo, hi):
     s = _pd.to_numeric(s, errors="coerce")
     if s.isna().all():
         return False
-    return bool(((s >= lo) & (s <= hi)).all())
+  v = s.dropna().astype(float)
+  try:
+    key = getattr(s, 'name', None) or 'col'
+    if len(v) > 0:
+      stats[key] = {'min': float(np.nanmin(v)), 'max': float(np.nanmax(v))}
+  except Exception:
+    pass
+  return bool(((s >= lo) & (s <= hi)).fillna(True).all())
 cols = set(df.columns)
 if ("totals" not in cols) or (not in_range(df["totals"], 120, 300)):
     ok=False; why.append("totals_out_of_range")
@@ -680,20 +689,27 @@ try:
             ok=False; why.append("quarter_sum_mismatch")
 except Exception:
     pass
-print("OK" if ok else ("NO:"+",".join(why)))
+if ok:
+  print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
+else:
+  print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
 "@
       Set-Content -Path $tmpPy -Value $pyCode -Encoding UTF8
       $valOut = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
       if ($valOut -notmatch '^OK') {
         Write-Log ("Calibration validation failed: {0}" -f $valOut)
+        try { if (Test-Path $tmpOut) { Remove-Item $tmpOut -Force } } catch { }
         if ((Test-Path $backupPath) -and (Test-Path $predPath)) {
-          try {
-            Copy-Item -Path $backupPath -Destination $predPath -Force
-            Write-Log "Restored predictions CSV from backup due to failed validation"
-          } catch { Write-Log ("Restore from backup failed: {0}" -f $_.Exception.Message) }
+          Write-Log "Kept original predictions (pre-calibration) due to failed validation"
         }
       } else {
         Write-Log "Calibration validation: OK"
+        try {
+          if (Test-Path $tmpOut) {
+            Copy-Item -Path $tmpOut -Destination $predPath -Force
+            Remove-Item $tmpOut -Force
+          }
+        } catch { Write-Log ("Finalizing calibrated predictions failed: {0}" -f $_.Exception.Message) }
       }
     } catch {
       Write-Log ("Validation block failed (non-fatal): {0}" -f $_.Exception.Message)
