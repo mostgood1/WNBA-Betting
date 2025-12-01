@@ -74,9 +74,13 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
         # Merge on home/visitor team names when possible
         cols = set(pred.columns)
         # Prob that home wins (from predictions), actual winner from recon
-        p = pred.get("home_win_prob") if "home_win_prob" in cols else pred.get("prob_home_win")
-        if p is None:
+        # Primary probability (prefer calibrated column if already replaced; avoid Series truth-value ambiguity)
+        p_main = pred["home_win_prob"] if "home_win_prob" in cols else (pred["prob_home_win"] if "prob_home_win" in cols else None)
+        if p_main is None:
             continue
+        # Raw and calibrated variants if available
+        p_raw = pred.get("home_win_prob_raw")
+        p_cal = pred.get("home_win_prob_cal")
         # Build outcomes (1 if home won else 0)
         # Try robust merge on matchup key when available
         try:
@@ -93,27 +97,119 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
                 m = pred_k.merge(rec_k, on=keys, suffixes=("_p","_r"))
                 if "home_final" in m.columns and "visitor_final" in m.columns:
                     y = (pd.to_numeric(m["home_final"], errors="coerce") > pd.to_numeric(m["visitor_final"], errors="coerce")).astype(float)
+                elif {"home_pts","visitor_pts"}.issubset(set(m.columns)):
+                    y = (pd.to_numeric(m["home_pts"], errors="coerce") > pd.to_numeric(m["visitor_pts"], errors="coerce")).astype(float)
                 elif "winner" in m.columns:
                     y = (m["winner"].astype(str).str.upper() == m["home_team"].astype(str).str.upper()).astype(float)
                 else:
                     continue
-                rows.append({
+                row = {
                     "date": ds,
-                    "brier": brier_score(m[p.name], y),
-                    "logloss": log_loss(m[p.name], y)
-                })
+                    "brier_main": brier_score(m[p_main.name], y),
+                    "logloss_main": log_loss(m[p_main.name], y)
+                }
+                if p_raw is not None and p_raw.name in m.columns:
+                    row["brier_raw"] = brier_score(m[p_raw.name], y)
+                    row["logloss_raw"] = log_loss(m[p_raw.name], y)
+                if p_cal is not None and p_cal.name in m.columns:
+                    row["brier_cal"] = brier_score(m[p_cal.name], y)
+                    row["logloss_cal"] = log_loss(m[p_cal.name], y)
+                rows.append(row)
         except Exception:
             continue
     if not rows:
         return {"games": {"n_days": 0}}
     df = pd.DataFrame(rows)
-    return {
-        "games": {
-            "n_days": int(df["date"].nunique()),
-            "brier_mean": float(df["brier"].mean()),
-            "logloss_mean": float(df["logloss"].mean()),
-        }
-    }
+    # Sharpness (variance) & entropy helper
+    def _entropy(p: pd.Series, eps: float = 1e-9) -> float:
+        q = pd.to_numeric(p, errors="coerce").clip(eps, 1 - eps)
+        if q.empty:
+            return float("nan")
+        return float((-q * np.log2(q) - (1 - q) * np.log2(1 - q)).mean())
+
+    # Expected Calibration Error (ECE) using quantile bins
+    def _ece(p: pd.Series, y: pd.Series, bins: int = 10) -> float:
+        pv = pd.to_numeric(p, errors="coerce").clip(0, 1)
+        yv = pd.to_numeric(y, errors="coerce")
+        m = (~pv.isna()) & (~yv.isna())
+        pv = pv[m]; yv = yv[m]
+        if len(pv) == 0:
+            return float("nan")
+        try:
+            q = pd.qcut(pv, q=bins, duplicates="drop")
+        except Exception:
+            return float("nan")
+        df_e = pd.DataFrame({"p": pv, "y": yv, "bin": q})
+        g = df_e.groupby("bin").agg(p_mean=("p", "mean"), y_rate=("y", "mean"), count=("p", "size"))
+        total = g["count"].sum()
+        ece = (g["count"] * (g["p_mean"] - g["y_rate"]).abs()).sum() / total if total > 0 else float("nan")
+        return float(ece)
+
+    out = {"games": {"n_days": int(df["date"].nunique())}}
+    out_g = out["games"]
+    out_g["brier_mean"] = float(df["brier_main"].mean())
+    out_g["logloss_mean"] = float(df["logloss_main"].mean())
+    # Reconstruct merged per-day probabilities/outcomes for ECE & entropy (approximate by averaging daily values)
+    # We'll reload all rows where brier_main was computed; reuse earlier merge logic by collecting again for aggregate metrics
+    # For efficiency we can approximate by concatenating daily merges already reduced; skip as sample size is small.
+    # Instead simply build vectors from first pass (p_main vs y) by re-merging.
+    # Collect vectors
+    all_p_main = []; all_y = []
+    all_p_raw = []; all_p_cal = []
+    for d in daterange(start, end):
+        ds = d.strftime("%Y-%m-%d")
+        pred = _load_csv(PROCESSED / f"predictions_{ds}.csv")
+        rec = _load_csv(PROCESSED / f"recon_games_{ds}.csv")
+        if pred is None or pred.empty or rec is None or rec.empty:
+            continue
+        pred_k = pred.copy(); rec_k = rec.copy()
+        for c in ("home_team","visitor_team","date"):
+            if c not in pred_k.columns and c.upper() in pred_k.columns:
+                pred_k[c] = pred_k[c.upper()]
+            if c not in rec_k.columns and c.upper() in rec_k.columns:
+                rec_k[c] = rec_k[c.upper()]
+        keys = [c for c in ("date","home_team","visitor_team") if c in pred_k.columns and c in rec_k.columns]
+        if len(keys) < 2:
+            continue
+        m = pred_k.merge(rec_k, on=keys, suffixes=("_p","_r"))
+        p_main_col = "home_win_prob" if "home_win_prob" in pred_k.columns else ("prob_home_win" if "prob_home_win" in pred_k.columns else None)
+        if p_main_col is None or p_main_col not in m.columns:
+            continue
+        if {"home_final","visitor_final"}.issubset(m.columns):
+            yv = (pd.to_numeric(m["home_final"], errors="coerce") > pd.to_numeric(m["visitor_final"], errors="coerce")).astype(float)
+        elif {"home_pts","visitor_pts"}.issubset(m.columns):
+            yv = (pd.to_numeric(m["home_pts"], errors="coerce") > pd.to_numeric(m["visitor_pts"], errors="coerce")).astype(float)
+        elif "winner" in m.columns:
+            yv = (m["winner"].astype(str).str.upper() == m["home_team"].astype(str).str.upper()).astype(float)
+        else:
+            continue
+        all_p_main.append(pd.to_numeric(m[p_main_col], errors="coerce"))
+        all_y.append(yv)
+        if "home_win_prob_raw" in m.columns:
+            all_p_raw.append(pd.to_numeric(m["home_win_prob_raw"], errors="coerce"))
+        if "home_win_prob_cal" in m.columns:
+            all_p_cal.append(pd.to_numeric(m["home_win_prob_cal"], errors="coerce"))
+    if all_p_main and all_y:
+        p_main_concat = pd.concat(all_p_main, ignore_index=True)
+        y_concat = pd.concat(all_y, ignore_index=True)
+        out_g["ece_main"] = _ece(p_main_concat, y_concat)
+        out_g["entropy_main"] = _entropy(p_main_concat)
+        out_g["sharpness_var_main"] = float(pd.to_numeric(p_main_concat, errors="coerce").var())
+        if all_p_raw:
+            p_raw_concat = pd.concat(all_p_raw, ignore_index=True)
+            out_g["ece_raw"] = _ece(p_raw_concat, y_concat)
+            out_g["entropy_raw"] = _entropy(p_raw_concat)
+        if all_p_cal:
+            p_cal_concat = pd.concat(all_p_cal, ignore_index=True)
+            out_g["ece_cal"] = _ece(p_cal_concat, y_concat)
+            out_g["entropy_cal"] = _entropy(p_cal_concat)
+    if "brier_raw" in df.columns:
+        out_g["brier_raw_mean"] = float(df["brier_raw"].mean())
+        out_g["logloss_raw_mean"] = float(df.get("logloss_raw").mean())
+    if "brier_cal" in df.columns:
+        out_g["brier_cal_mean"] = float(df["brier_cal"].mean())
+        out_g["logloss_cal_mean"] = float(df.get("logloss_cal").mean())
+    return out
 
 
 def evaluate_totals(start: datetime, end: datetime) -> dict:

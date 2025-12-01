@@ -402,22 +402,9 @@ try {
   if ($null -eq $skipBlend -or $skipBlend -notmatch '^(1|true|yes)$') {
     Write-Log ("Calibrating games probs via market blend (30d) -> today {0}" -f $Date)
     $tmpOut = Join-Path $LogPath ("predictions_games_blend_tmp_{0}.csv" -f $Stamp)
-    $pyCall = @(
-      '-c',
-      @"
-import os, sys, subprocess
-root = r'$RepoRoot'.replace('\\','\\\\')
-py = r'$Python'.replace('\\','\\\\')
-date = r'$Date'
-tmp = r'$tmpOut'.replace('\\','\\\\')
-script = root + r"\\tools\\games_blend.py"
-cmd = [py, script, '--train-days','30','--apply-date', date, '--out', tmp]
-cp = subprocess.run(cmd, capture_output=True, text=True)
-print(cp.stdout.strip())
-sys.exit(cp.returncode if cp.returncode else 0)
-"@
-    )
-    $null = & $Python @($pyCall) 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $blendScript = Join-Path $RepoRoot 'tools/games_blend.py'
+    $args = @($blendScript, '--train-days','30','--apply-date', $Date, '--out', $tmpOut)
+    $null = & $Python @args 2>&1 | Tee-Object -FilePath $LogFile -Append
     # Validate output: ensure home_win_prob_cal exists and within [0,1]
     if (Test-Path $tmpOut) {
       $ok = $false
@@ -453,6 +440,23 @@ else:
 } catch {
   Write-Log ("Games market blend failed (non-fatal): {0}" -f $_.Exception.Message)
 }
+
+# 1.6a) Optional isotonic calibration (adds home_win_prob_iso) if sufficient recent samples
+try {
+  $isoSkip = $env:DAILY_SKIP_ISOTONIC
+  if ($null -eq $isoSkip -or $isoSkip -notmatch '^(1|true|yes)$') {
+    Write-Log ("Attempt isotonic calibration for {0} (lookback=30d, min_samples=200)" -f $Date)
+    $isoScript = Join-Path $RepoRoot 'tools/calibrate_isotonic.py'
+    if (Test-Path $isoScript) {
+      $rcIso = & $Python $isoScript --date $Date --days 30 --min-samples 200 2>&1 | Tee-Object -FilePath $LogFile -Append
+      if ($rcIso -match 'train_brier_before') { Write-Log "Isotonic calibration attempted (see log for details)" } else { Write-Log "Isotonic calibration skipped or insufficient samples" }
+    } else {
+      Write-Log 'Isotonic script missing; skipping'
+    }
+  } else {
+    Write-Log 'Skipping isotonic calibration (DAILY_SKIP_ISOTONIC=1)'
+  }
+} catch { Write-Log ("Isotonic calibration block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
@@ -767,7 +771,7 @@ if (-not $SkipTotalsCalib) {
     print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
   else:
     print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
-  "@
+"@
       Set-Content -Path $tmpPy -Value $pyCode -Encoding UTF8
       $valOut = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
       if ($valOut -notmatch '^OK') {
@@ -936,19 +940,20 @@ try {
     $parq = Join-Path $RepoRoot 'data/processed/props_actuals.parquet'
     if (Test-Path $parq) {
       try {
-        # Use python to extract rows for that date
-        $pycode = @"
-import pandas as pd, sys
-parq = r'$parq'
-date = '$yesterday'
-out = r'$snapPath'
-df = pd.read_parquet(parq)
-if not df.empty:
-    df['date'] = pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d')
-    day = df[df['date'] == date]
-    if not day.empty:
-        day.to_csv(out, index=False)
-"@
+        # Use python to extract rows for that date (one-liner to avoid here-string parsing issues)
+        $pycode = (
+          "import pandas as pd; parq=r'" + $parq + "'; date='" + $yesterday + "'; out=r'" + $snapPath + "'; " +
+          "df=pd.read_parquet(parq); " +
+          "\nimport pandas as pd; " +
+          "\nimport numpy as np; " +
+          "\nimport sys; " +
+          "\n" +
+          "\n" +
+          "\nif not df.empty:\n" +
+          "    df['date']=pd.to_datetime(df['date']).dt.strftime('%Y-%m-%d');\n" +
+          "    day=df[df['date']==date];\n" +
+          "    (day.to_csv(out, index=False) if not day.empty else None)"
+        )
         $null = & $Python -c $pycode
         if (Test-Path $snapPath) { Write-Log "Derived missing snapshot for $yesterday" } else { Write-Log "No rows found in parquet for $yesterday; snapshot not created" }
       } catch { Write-Log ("Snapshot derive failed: {0}" -f $_.Exception.Message) }
