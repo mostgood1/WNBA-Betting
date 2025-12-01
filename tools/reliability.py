@@ -25,9 +25,11 @@ def reliability_curve(probs: pd.Series, outcomes: pd.Series, bins: int = 10) -> 
         return pd.DataFrame(columns=["bin","p_mean","y_rate","count","brier_mean"])
     q = pd.qcut(p, q=bins, duplicates="drop")
     df = pd.DataFrame({"p": p, "y": y, "bin": q})
-    out = df.groupby("bin").agg(
-        p_mean=("p", "mean"), y_rate=("y", "mean"), count=("p", "size"), brier_mean=(lambda s: ((s - df.loc[s.index, "y"]) ** 2).mean())
-    ).reset_index(drop=True)
+    grp = df.groupby("bin")
+    out = grp.agg(p_mean=("p", "mean"), y_rate=("y", "mean"), count=("p", "size")).reset_index(drop=True)
+    # compute Brier score per bin: mean((p - y)^2)
+    brier = grp.apply(lambda g: ((g["p"] - g["y"]) ** 2).mean())
+    out["brier_mean"] = brier.to_numpy()
     out.insert(0, "bin", np.arange(1, len(out) + 1))
     return out
 
@@ -60,8 +62,11 @@ def collect_games(start: datetime, end: datetime):
                 pcol = c; break
         if pcol is None:
             continue
+        # derive game outcome (home win = 1.0) from available columns
         if {"home_final","visitor_final"}.issubset(m.columns):
             y = (pd.to_numeric(m["home_final"], errors="coerce") > pd.to_numeric(m["visitor_final"], errors="coerce")).astype(float)
+        elif {"home_pts","visitor_pts"}.issubset(m.columns):
+            y = (pd.to_numeric(m["home_pts"], errors="coerce") > pd.to_numeric(m["visitor_pts"], errors="coerce")).astype(float)
         elif "winner" in m.columns:
             y = (m["winner"].astype(str).str.upper() == m["home_team"].astype(str).str.upper()).astype(float)
         else:
