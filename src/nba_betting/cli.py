@@ -230,6 +230,33 @@ def backfill_injuries_from_excluded_cmd(src_date: str, start_date: str, end_date
     console.print({"dates": f"{start_date}..{end_date}", "files": int(len(dates)), "rows": int(total_rows)})
 
 
+@cli.command("evaluate-models")
+@click.option("--start", "start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", "end", type=str, required=False, help="End date YYYY-MM-DD")
+@click.option("--days", "days", type=int, default=30, show_default=True, help="If start/end not provided, evaluate last N days")
+def evaluate_models_cmd(start: str | None, end: str | None, days: int):
+    """Run the evaluation harness over a date range.
+
+    Writes a rollup CSV to data/processed/metrics_eval_rollup.csv and prints a compact dict summary.
+    """
+    console.rule("Evaluate Models")
+    try:
+        script = paths.root / "tools" / "evaluate_models.py"
+        if not script.exists():
+            console.print(f"Missing evaluation script: {script}", style="red"); return
+        args = [sys.executable, str(script)]
+        if start and end:
+            args += ["--start", str(start), "--end", str(end)]
+        else:
+            args += ["--days", str(int(days))]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Evaluation exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Evaluation failed: {e}", style="red")
+
+
 @cli.command()
 @click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")
 def fetch_rosters_cmd(season: str):
