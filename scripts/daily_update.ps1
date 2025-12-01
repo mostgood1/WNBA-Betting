@@ -643,57 +643,73 @@ if (-not $SkipTotalsCalib) {
     try {
       $tmpPy = Join-Path $LogPath ("validate_predictions_{0}.py" -f $Stamp)
       $pyCode = @"
-import sys, pandas as pd, numpy as np
-from pathlib import Path
-pred_path = Path(r"$tmpOut")
-ok=True; why=[]; stats={}
-if not pred_path.exists():
+  import sys, os, pandas as pd, numpy as np
+  from pathlib import Path
+  pred_path = Path(r"$tmpOut")
+  ok=True; why=[]; stats={}
+  if not pred_path.exists():
     print("NO:file_missing"); sys.exit(0)
-df = pd.read_csv(pred_path)
-def in_range(s, lo, hi):
+  df = pd.read_csv(pred_path)
+
+  # Thresholds from environment with sensible defaults
+  def _getf(name, default):
+    try:
+      v = os.environ.get(name)
+      return float(v) if v is not None and str(v).strip() != '' else float(default)
+    except Exception:
+      return float(default)
+  TOT_MIN = _getf('TOTALS_MIN', 120)
+  TOT_MAX = _getf('TOTALS_MAX', 300)
+  QTR_MIN = _getf('QTR_MIN', 15)
+  QTR_MAX = _getf('QTR_MAX', 80)
+  HALF_MIN = _getf('HALF_MIN', 30)
+  HALF_MAX = _getf('HALF_MAX', 160)
+  QSUM_TOL = _getf('QSUM_TOL', 25)
+
+  def in_range(s, lo, hi):
     import pandas as _pd
     s = _pd.to_numeric(s, errors="coerce")
     if s.isna().all():
-        return False
-  v = s.dropna().astype(float)
-  try:
-    key = getattr(s, 'name', None) or 'col'
-    if len(v) > 0:
-      stats[key] = {'min': float(np.nanmin(v)), 'max': float(np.nanmax(v))}
-  except Exception:
-    pass
-  return bool(((s >= lo) & (s <= hi)).fillna(True).all())
-cols = set(df.columns)
-if ("totals" not in cols) or (not in_range(df["totals"], 120, 300)):
+      return False
+    v = s.dropna().astype(float)
+    try:
+      key = getattr(s, 'name', None) or 'col'
+      if len(v) > 0:
+        stats[key] = {'min': float(np.nanmin(v)), 'max': float(np.nanmax(v))}
+    except Exception:
+      pass
+    return bool(((s >= lo) & (s <= hi)).fillna(True).all())
+
+  cols = set(df.columns)
+  if ("totals" not in cols) or (not in_range(df["totals"], TOT_MIN, TOT_MAX)):
     ok=False; why.append("totals_out_of_range")
-for c, lo, hi in [
-    ("quarters_q1_total", 15, 80),
-    ("quarters_q2_total", 15, 80),
-    ("quarters_q3_total", 15, 80),
-    ("quarters_q4_total", 15, 80),
-    ("halves_h1_total", 30, 160),
-    ("halves_h2_total", 30, 160),
-]:
+  for c, lo, hi in [
+    ("quarters_q1_total", QTR_MIN, QTR_MAX),
+    ("quarters_q2_total", QTR_MIN, QTR_MAX),
+    ("quarters_q3_total", QTR_MIN, QTR_MAX),
+    ("quarters_q4_total", QTR_MIN, QTR_MAX),
+    ("halves_h1_total", HALF_MIN, HALF_MAX),
+    ("halves_h2_total", HALF_MIN, HALF_MAX),
+  ]:
     if c in cols and not in_range(df[c], lo, hi):
-        ok=False; why.append(f"{c}_out_of_range")
-# Optional: quarter sum approx equals game totals within tolerance where all quarters present
-try:
+      ok=False; why.append(f"{c}_out_of_range")
+  # Optional: quarter sum approx equals game totals within tolerance where all quarters present
+  try:
     need = ["quarters_q1_total","quarters_q2_total","quarters_q3_total","quarters_q4_total","totals"]
     if all(n in cols for n in need):
-        import pandas as _pd
-        qsum = sum(_pd.to_numeric(df[n], errors="coerce") for n in need[:-1])
-        tot = _pd.to_numeric(df["totals"], errors="coerce")
-        diff = (qsum - tot).abs()
-        # Allow lenient tolerance (<= 25 pts) to avoid rejecting reasonable calibrations
-        if not (diff <= 25).fillna(True).all():
-            ok=False; why.append("quarter_sum_mismatch")
-except Exception:
+      import pandas as _pd
+      qsum = sum(_pd.to_numeric(df[n], errors="coerce") for n in need[:-1])
+      tot = _pd.to_numeric(df["totals"], errors="coerce")
+      diff = (qsum - tot).abs()
+      if not (diff <= QSUM_TOL).fillna(True).all():
+        ok=False; why.append("quarter_sum_mismatch")
+  except Exception:
     pass
-if ok:
-  print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
-else:
-  print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
-"@
+  if ok:
+    print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
+  else:
+    print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
+  "@
       Set-Content -Path $tmpPy -Value $pyCode -Encoding UTF8
       $valOut = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
       if ($valOut -notmatch '^OK') {

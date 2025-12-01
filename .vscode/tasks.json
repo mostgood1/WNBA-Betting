@@ -125,6 +125,60 @@
 		}
 		,
 		{
+			"label": "Backfill: weekly (21d, finals-only)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\weekly_backfill.ps1",
+				"-Days",
+				"21",
+				"-FinalsOnly"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build",
+			"detail": "Runs PBP + reconcile-quarters backfill over the last 21 days."
+		},
+		{
+			"label": "Schedule: register weekly backfill",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_weekly_backfill_task.ps1",
+				"-DayOfWeek",
+				"Monday",
+				"-Time",
+				"09:30",
+				"-Days",
+				"21",
+				"-FinalsOnly"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister weekly backfill",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_weekly_backfill_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Data: commit processed (today)",
 			"type": "shell",
 			"command": "powershell",
