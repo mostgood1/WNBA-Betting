@@ -193,6 +193,34 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Eval: reliability (last 60 days)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli evaluate-reliability --days 60 --bins 10"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Calibrate: games market blend (apply today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\games_blend.py' --train-days 30 --apply-date $d"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Data: commit processed (today)",
 			"type": "shell",
 			"command": "powershell",

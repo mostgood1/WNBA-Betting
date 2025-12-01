@@ -396,6 +396,64 @@ try {
   Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 }
 
+# 1.6) Calibrate games probabilities via market blend (train over last 30 days, apply to today)
+try {
+  $skipBlend = $env:DAILY_SKIP_GAMES_BLEND
+  if ($null -eq $skipBlend -or $skipBlend -notmatch '^(1|true|yes)$') {
+    Write-Log ("Calibrating games probs via market blend (30d) -> today {0}" -f $Date)
+    $tmpOut = Join-Path $LogPath ("predictions_games_blend_tmp_{0}.csv" -f $Stamp)
+    $pyCall = @(
+      '-c',
+      @"
+import os, sys, subprocess
+root = r'$RepoRoot'.replace('\\','\\\\')
+py = r'$Python'.replace('\\','\\\\')
+date = r'$Date'
+tmp = r'$tmpOut'.replace('\\','\\\\')
+script = root + r"\\tools\\games_blend.py"
+cmd = [py, script, '--train-days','30','--apply-date', date, '--out', tmp]
+cp = subprocess.run(cmd, capture_output=True, text=True)
+print(cp.stdout.strip())
+sys.exit(cp.returncode if cp.returncode else 0)
+"@
+    )
+    $null = & $Python @($pyCall) 2>&1 | Tee-Object -FilePath $LogFile -Append
+    # Validate output: ensure home_win_prob_cal exists and within [0,1]
+    if (Test-Path $tmpOut) {
+      $ok = $false
+      try {
+        $pyVal = @"
+import pandas as pd, sys
+p = pd.read_csv(r'$tmpOut')
+if 'home_win_prob_cal' in p.columns:
+  s = pd.to_numeric(p['home_win_prob_cal'], errors='coerce')
+  ok = s.dropna().between(0.0, 1.0).all() and s.notna().any()
+  print('OK' if ok else 'NO')
+else:
+  print('NO')
+"@
+        $out = & $Python -c $pyVal
+        if ($out -match '^OK') { $ok = $true }
+      } catch {}
+      if ($ok) {
+        $predPath = Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $Date)
+        Copy-Item -Path $tmpOut -Destination $predPath -Force
+        Remove-Item $tmpOut -Force -ErrorAction SilentlyContinue
+        Write-Log "Games market blend applied -> predictions updated with home_win_prob_cal"
+      } else {
+        Write-Log "Games blend validation failed; keeping original predictions"
+        Remove-Item $tmpOut -Force -ErrorAction SilentlyContinue
+      }
+    } else {
+      Write-Log "Games blend wrote no output; skipping apply"
+    }
+  } else {
+    Write-Log 'Skipping games market blend (DAILY_SKIP_GAMES_BLEND=1)'
+  }
+} catch {
+  Write-Log ("Games market blend failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
   Write-Log ("Export finals CSV for {0}" -f $yesterday)

@@ -257,6 +257,32 @@ def evaluate_models_cmd(start: str | None, end: str | None, days: int):
         console.print(f"Evaluation failed: {e}", style="red")
 
 
+@cli.command("evaluate-reliability")
+@click.option("--start", "start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", "end", type=str, required=False, help="End date YYYY-MM-DD")
+@click.option("--days", "days", type=int, default=60, show_default=True, help="If start/end not provided, evaluate last N days")
+@click.option("--bins", "bins", type=int, default=10, show_default=True, help="Number of probability bins for reliability curve")
+def evaluate_reliability_cmd(start: str | None, end: str | None, days: int, bins: int):
+    """Compute reliability curves and write to processed metrics CSVs."""
+    console.rule("Evaluate Reliability")
+    try:
+        script = paths.root / "tools" / "reliability.py"
+        if not script.exists():
+            console.print(f"Missing reliability script: {script}", style="red"); return
+        args = [sys.executable, str(script)]
+        if start and end:
+            args += ["--start", str(start), "--end", str(end)]
+        else:
+            args += ["--days", str(int(days))]
+        args += ["--bins", str(int(bins))]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Reliability exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Reliability failed: {e}", style="red")
+
+
 @cli.command()
 @click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")
 def fetch_rosters_cmd(season: str):
