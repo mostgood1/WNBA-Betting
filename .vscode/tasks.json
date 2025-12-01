@@ -179,6 +179,20 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Eval: rollup metrics (last 30 days)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\evaluate_models.py' --days 30"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Data: commit processed (today)",
 			"type": "shell",
 			"command": "powershell",
