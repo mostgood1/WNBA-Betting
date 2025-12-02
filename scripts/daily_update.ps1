@@ -469,6 +469,12 @@ try {
     $plotScript = Join-Path $RepoRoot 'tools/plot_reliability.py'
     if (Test-Path $plotScript) { & $Python $plotScript 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null }
   } else { Write-Log 'Reliability CSV missing after compute step' }
+  # 1.6b+) Calibration comparison (raw vs blend vs market)
+  $calibCmp = Join-Path $RepoRoot 'tools/calibration_compare.py'
+  if (Test-Path $calibCmp) {
+    Write-Log 'Computing calibration comparison (60d)'
+    & $Python $calibCmp --date $Date --days 60 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+  }
 } catch { Write-Log ("Reliability automation failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 1.6c) Drift monitoring (reference 30d vs current 7d)
@@ -483,6 +489,12 @@ try {
       if (Test-Path $driftHtmlScript) {
         Write-Log 'Rendering drift HTML summary'
         & $Python $driftHtmlScript --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      }
+      # Produce weekly drift trend rollup (last 60 days)
+      $driftWeeklyScript = Join-Path $RepoRoot 'tools/drift_weekly.py'
+      if (Test-Path $driftWeeklyScript) {
+        Write-Log 'Rendering weekly drift trend (60d)'
+        & $Python $driftWeeklyScript 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
       }
     } else { Write-Log 'drift_monitor.py missing; skipping drift check' }
   } else { Write-Log 'Skipping drift monitor (DAILY_SKIP_DRIFT=1)' }
