@@ -471,6 +471,30 @@ try {
   } else { Write-Log 'Reliability CSV missing after compute step' }
 } catch { Write-Log ("Reliability automation failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 1.6c) Drift monitoring (reference 30d vs current 7d)
+try {
+  $driftScript = Join-Path $RepoRoot 'tools/drift_monitor.py'
+  $skipDrift = $env:DAILY_SKIP_DRIFT
+  if ($null -eq $skipDrift -or $skipDrift -notmatch '^(1|true|yes)$') {
+    if (Test-Path $driftScript) {
+      Write-Log 'Running drift monitor (ref=30d, cur=7d)'
+      & $Python $driftScript --date $Date --ref-days 30 --cur-days 7 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    } else { Write-Log 'drift_monitor.py missing; skipping drift check' }
+  } else { Write-Log 'Skipping drift monitor (DAILY_SKIP_DRIFT=1)' }
+} catch { Write-Log ("Drift monitoring failed (non-fatal): {0}" -f $_.Exception.Message) }
+
+# 1.6d) Interval estimation (spread/total)
+try {
+  $intScript = Join-Path $RepoRoot 'tools/interval_estimation.py'
+  $skipIntervals = $env:DAILY_SKIP_INTERVALS
+  if ($null -eq $skipIntervals -or $skipIntervals -notmatch '^(1|true|yes)$') {
+    if (Test-Path $intScript) {
+      Write-Log 'Estimating predictive intervals (ref=30d, z=1.96)'
+      & $Python $intScript --date $Date --ref-days 30 --z 1.96 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    } else { Write-Log 'interval_estimation.py missing; skipping intervals' }
+  } else { Write-Log 'Skipping interval estimation (DAILY_SKIP_INTERVALS=1)' }
+} catch { Write-Log ("Interval estimation failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
   Write-Log ("Export finals CSV for {0}" -f $yesterday)
