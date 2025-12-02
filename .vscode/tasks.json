@@ -122,8 +122,7 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"group": "build"
-		}
-		,
+		},
 		{
 			"label": "Backfill: weekly (21d, finals-only)",
 			"type": "shell",
@@ -255,8 +254,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Train: enhanced models -> ONNX",
 			"type": "shell",
@@ -271,6 +269,20 @@
 			"isBackground": false,
 			"problemMatcher": [],
 			"detail": "Run on x86_64 where scikit-learn wheels are available; produces *_enhanced.onnx in models/."
+		},
+		{
+			"label": "Backfill: predictions 60 days",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\backfill_predictions_60_days.ps1"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	],
 	"inputs": [

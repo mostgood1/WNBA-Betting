@@ -28,16 +28,18 @@ def load_drift_csvs(days: int = 60, pattern: str = 'data/processed/drift_games_*
 def weekly_rollup(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df
+    # Normalize flags: treat psi>0.3 severe, ks>0.3 severe (already encoded in original daily csv as boolean columns)
+    # Incoming columns from daily drift: feature, ref_count, cur_count, ref_mean, cur_mean, ref_std, cur_std, psi, ks, psi_flag, psi_severe, ks_flag
     df['week'] = df['date'].dt.to_period('W').dt.start_time
     agg = df.groupby(['week', 'feature'], as_index=False).agg({
         'psi': 'mean',
-        'ks_stat': 'mean',
+        'ks': 'mean',
         'ref_count': 'sum',
         'cur_count': 'sum',
-        'psi_flag': lambda s: (s == 'severe').sum(),
-        'ks_flag': lambda s: (s == 'severe').sum(),
+        'psi_severe': 'sum',
+        'ks_flag': 'sum',
     })
-    agg = agg.rename(columns={'psi_flag': 'severe_psi_count', 'ks_flag': 'severe_ks_count'})
+    agg = agg.rename(columns={'psi_severe': 'severe_psi_events', 'ks_flag': 'ks_flag_events'})
     return agg
 
 
@@ -46,7 +48,7 @@ def render_html_trend(weekly: pd.DataFrame, out_path: str):
         html = '<html><body><h3>No drift data found for trend.</h3></body></html>'
     else:
         pivot_psi = weekly.pivot(index='week', columns='feature', values='psi').fillna(0)
-        pivot_ks = weekly.pivot(index='week', columns='feature', values='ks_stat').fillna(0)
+        pivot_ks = weekly.pivot(index='week', columns='feature', values='ks').fillna(0)
         html = '<html><head><meta charset="utf-8"><title>Weekly Drift Trend</title>' \
                '<style>table{border-collapse:collapse}td,th{border:1px solid #ccc;padding:4px}</style></head><body>'
         html += '<h2>Weekly PSI (mean)</h2>'
