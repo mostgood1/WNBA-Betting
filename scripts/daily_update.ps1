@@ -479,6 +479,11 @@ try {
     if (Test-Path $driftScript) {
       Write-Log 'Running drift monitor (ref=30d, cur=7d)'
       & $Python $driftScript --date $Date --ref-days 30 --cur-days 7 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      $driftHtmlScript = Join-Path $RepoRoot 'tools/drift_report_html.py'
+      if (Test-Path $driftHtmlScript) {
+        Write-Log 'Rendering drift HTML summary'
+        & $Python $driftHtmlScript --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      }
     } else { Write-Log 'drift_monitor.py missing; skipping drift check' }
   } else { Write-Log 'Skipping drift monitor (DAILY_SKIP_DRIFT=1)' }
 } catch { Write-Log ("Drift monitoring failed (non-fatal): {0}" -f $_.Exception.Message) }

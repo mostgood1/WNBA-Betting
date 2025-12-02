@@ -21,6 +21,7 @@ import pandas as pd
 import numpy as np
 
 PROCESSED = Path("data/processed")
+PREDICTIONS_PREFIX = "predictions_"
 
 def _load_recon(date: datetime) -> pd.DataFrame:
     p = PROCESSED / f"recon_games_{date:%Y-%m-%d}.csv"
@@ -40,6 +41,24 @@ def build_window(end_date: datetime, days: int) -> pd.DataFrame:
             rows.append(df)
     return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
 
+def _load_predictions(date: datetime) -> pd.DataFrame:
+    p = PROCESSED / f"{PREDICTIONS_PREFIX}{date:%Y-%m-%d}.csv"
+    if p.exists():
+        try:
+            return pd.read_csv(p)
+        except Exception:
+            return pd.DataFrame()
+    return pd.DataFrame()
+
+def build_predictions_window(end_date: datetime, days: int) -> pd.DataFrame:
+    rows = []
+    for i in range(1, days + 1):
+        d = end_date - timedelta(days=i)
+        df = _load_predictions(d)
+        if not df.empty:
+            rows.append(df)
+    return pd.concat(rows, ignore_index=True) if rows else pd.DataFrame()
+
 def main():
     ap = argparse.ArgumentParser(description="Estimate predictive intervals for spread/total")
     ap.add_argument("--date", required=True, help="Anchor date (YYYY-MM-DD)")
@@ -50,8 +69,7 @@ def main():
     anchor = datetime.strptime(args.date, "%Y-%m-%d")
     ref_df = build_window(anchor, args.ref_days)
     if ref_df.empty:
-        print("No reference data; interval estimation skipped")
-        return
+        print("No recon reference data; attempting predictions-based residuals")
 
     # Compute residuals if predictions available in recon files
     have_spread_pred = "pred_margin" in ref_df.columns or "spread_margin" in ref_df.columns
@@ -66,7 +84,21 @@ def main():
         sigma_spread = float(np.std(resid_spread)) if len(resid_spread) else np.nan
         params.append({"target": "spread", "sigma": sigma_spread, "z": args.z, "half_width": args.z * sigma_spread})
     else:
-        params.append({"target": "spread", "sigma": np.nan, "z": args.z, "half_width": np.nan})
+        # Try predictions window for residuals
+        preds_df = build_predictions_window(anchor, args.ref_days)
+        if not preds_df.empty and {"home_team","visitor_team","pred_margin"}.issubset(set(preds_df.columns)):
+            # Join with recon to fetch actuals
+            if not ref_df.empty and {"home_team","visitor_team","home_pts","visitor_pts"}.issubset(set(ref_df.columns)):
+                m = pd.merge(preds_df, ref_df[["home_team","visitor_team","home_pts","visitor_pts"]], on=["home_team","visitor_team"], how="inner")
+                true_margin = pd.to_numeric(m["home_pts"], errors="coerce") - pd.to_numeric(m["visitor_pts"], errors="coerce")
+                pred_margin = pd.to_numeric(m["pred_margin"], errors="coerce")
+                resid_spread = (true_margin - pred_margin).dropna().to_numpy()
+                sigma_spread = float(np.std(resid_spread)) if len(resid_spread) else np.nan
+                params.append({"target": "spread", "sigma": sigma_spread, "z": args.z, "half_width": args.z * sigma_spread})
+            else:
+                params.append({"target": "spread", "sigma": np.nan, "z": args.z, "half_width": np.nan})
+        else:
+            params.append({"target": "spread", "sigma": np.nan, "z": args.z, "half_width": np.nan})
 
     if have_total_pred and "home_pts" in ref_df.columns and "visitor_pts" in ref_df.columns:
         true_total = pd.to_numeric(ref_df["home_pts"], errors="coerce") + pd.to_numeric(ref_df["visitor_pts"], errors="coerce")
@@ -75,7 +107,19 @@ def main():
         sigma_total = float(np.std(resid_total)) if len(resid_total) else np.nan
         params.append({"target": "total", "sigma": sigma_total, "z": args.z, "half_width": args.z * sigma_total})
     else:
-        params.append({"target": "total", "sigma": np.nan, "z": args.z, "half_width": np.nan})
+        preds_df = build_predictions_window(anchor, args.ref_days)
+        if not preds_df.empty and {"home_team","visitor_team","pred_total"}.issubset(set(preds_df.columns)):
+            if not ref_df.empty and {"home_team","visitor_team","home_pts","visitor_pts"}.issubset(set(ref_df.columns)):
+                m = pd.merge(preds_df, ref_df[["home_team","visitor_team","home_pts","visitor_pts"]], on=["home_team","visitor_team"], how="inner")
+                true_total = pd.to_numeric(m["home_pts"], errors="coerce") + pd.to_numeric(m["visitor_pts"], errors="coerce")
+                pred_total = pd.to_numeric(m["pred_total"], errors="coerce")
+                resid_total = (true_total - pred_total).dropna().to_numpy()
+                sigma_total = float(np.std(resid_total)) if len(resid_total) else np.nan
+                params.append({"target": "total", "sigma": sigma_total, "z": args.z, "half_width": args.z * sigma_total})
+            else:
+                params.append({"target": "total", "sigma": np.nan, "z": args.z, "half_width": np.nan})
+        else:
+            params.append({"target": "total", "sigma": np.nan, "z": args.z, "half_width": np.nan})
 
     out_params = pd.DataFrame(params)
     out_p = PROCESSED / f"interval_params_{anchor:%Y-%m-%d}.csv"
