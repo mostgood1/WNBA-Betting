@@ -1,7 +1,7 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-12-02,2025-12-03T04:10:00Z,Golden State Warriors,Oklahoma City Thunder,441.1111111111111,-613.0,12.0,-12.0,222.5,oddsapi_consensus
-2025-12-02,2025-12-03T00:10:00Z,Philadelphia 76ers,Washington Wizards,-806.7777777777778,542.4444444444445,-13.0,13.0,234.5,oddsapi_consensus
-2025-12-02,2025-12-03T01:10:00Z,New Orleans Pelicans,Minnesota Timberwolves,368.44444444444446,-495.6666666666667,10.0,-10.0,235.0,oddsapi_consensus
-2025-12-02,2025-12-03T01:10:00Z,Boston Celtics,New York Knicks,-113.28571428571429,-107.0,-1.0,1.0,230.5,oddsapi_consensus
-2025-12-02,2025-12-03T01:10:00Z,San Antonio Spurs,Memphis Grizzlies,-207.22222222222223,171.88888888888889,-5.0,5.0,231.5,oddsapi_consensus
+2025-12-02,2025-12-03T04:10:00Z,Golden State Warriors,Oklahoma City Thunder,441.25,-620.25,11.5,-11.5,222.5,oddsapi_consensus
+2025-12-02,2025-12-03T00:10:00Z,Philadelphia 76ers,Washington Wizards,-806.7777777777778,539.4444444444445,-13.0,13.0,235.0,oddsapi_consensus
+2025-12-02,2025-12-03T01:10:00Z,New Orleans Pelicans,Minnesota Timberwolves,369.55555555555554,-495.6666666666667,10.0,-10.0,235.0,oddsapi_consensus
+2025-12-02,2025-12-03T01:10:00Z,Boston Celtics,New York Knicks,-113.0,-107.14285714285714,-1.0,1.0,230.5,oddsapi_consensus
+2025-12-02,2025-12-03T01:10:00Z,San Antonio Spurs,Memphis Grizzlies,-208.22222222222223,172.55555555555554,-5.0,5.0,232.0,oddsapi_consensus
 2025-12-02,2025-12-03T00:40:00Z,Toronto Raptors,Portland Trail Blazers,-222.44444444444446,182.44444444444446,-5.5,5.5,232.0,oddsapi_consensus

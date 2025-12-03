@@ -1,0 +1,7 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-02,0022500318,PHI,WAS,0.5,,,,Tyrese Maxey,0.1289036693037272,,,,,1.1773792712056168,0.691914911009389,,,
+2025-12-02,0022500319,TOR,POR,0.4700359482354282,,,,Deni Avdija,0.1081537038185554,,,,,1.201555067310751,0.6992738013705376,,,
+2025-12-02,0022500320,BOS,NYK,0.5,,,,Mikal Bridges,0.113411867677473,,,,,1.3592104638474365,0.7431365000660641,,,
+2025-12-02,0022500321,NOP,MIN,0.4700359482354282,,,,Trey Murphy III,0.1120312490724415,,,,,1.1368408723655594,0.6791690314810697,,,
+2025-12-02,0022500322,SAS,MEM,0.51499550161941,,,,Victor Wembanyama,0.1145455557636004,,,,,1.2170621223377789,0.7039012076304871,,,
+2025-12-02,0022500323,GSW,OKC,0.4850044983805899,,,,Shai Gilgeous-Alexander,0.1115011763253788,,,,,1.318109790154436,0.7323592787324902,,,
