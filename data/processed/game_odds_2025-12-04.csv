@@ -1,0 +1,6 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-12-04,2025-12-05T01:10:00Z,New Orleans Pelicans,Minnesota Timberwolves,416.8181818181818,-570.7272727272727,11.5,-11.5,234.0,oddsapi_consensus
+2025-12-04,2025-12-05T00:10:00Z,Philadelphia 76ers,Golden State Warriors,-140.45454545454547,118.27272727272727,-2.5,2.5,223.5,oddsapi_consensus
+2025-12-04,2025-12-05T00:10:00Z,Washington Wizards,Boston Celtics,345.0,-450.3636363636364,10.0,-10.0,230.5,oddsapi_consensus
+2025-12-04,2025-12-05T00:40:00Z,Brooklyn Nets,Utah Jazz,157.9090909090909,-188.27272727272728,4.5,-4.5,232.5,oddsapi_consensus
+2025-12-04,2025-12-05T00:40:00Z,Toronto Raptors,Los Angeles Lakers,-135.45454545454547,113.63636363636364,-2.5,2.5,229.5,oddsapi_consensus
