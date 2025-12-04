@@ -1,13 +1,13 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Brooklyn Nets,Brooklyn Nets,Utah Jazz,2025-12-04,0.5993831404976361,157.9090909090909,0.3877335213253437,,,,,,High
-ATS,Brooklyn Nets,Brooklyn Nets,Utah Jazz,2025-12-04,,,,5.709089279174805,4.5,1.209089279174805,-4.5,,High
-ML,New Orleans Pelicans,New Orleans Pelicans,Minnesota Timberwolves,2025-12-04,0.23121097639372457,416.8181818181818,0.1934916446789798,,,,,,High
+ML,Brooklyn Nets,Brooklyn Nets,Utah Jazz,2025-12-04,0.5982556233030659,157.72727272727272,0.3880070546737213,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Utah Jazz,2025-12-04,,,,6.209089279174805,5.0,1.209089279174805,-5.0,,High
+ML,New Orleans Pelicans,New Orleans Pelicans,Minnesota Timberwolves,2025-12-04,0.22904525787764063,415.9090909090909,0.19383259911894274,,,,,,High
 ATS,New Orleans Pelicans,New Orleans Pelicans,Minnesota Timberwolves,2025-12-04,,,,1.2056598663330078,11.5,-10.294340133666992,-11.5,,Low
 TOTAL,Under,New Orleans Pelicans,Minnesota Timberwolves,2025-12-04,,,,-5.2604217529296875,234.0,,,228.7395782470703,High
-ML,Golden State Warriors,Philadelphia 76ers,Golden State Warriors,2025-12-04,0.6513013242811292,118.27272727272728,0.45814244064972925,,,,,,High
+ML,Golden State Warriors,Philadelphia 76ers,Golden State Warriors,2025-12-04,0.6272298764053108,115.0909090909091,0.46491969568892644,,,,,,High
 ATS,Golden State Warriors,Philadelphia 76ers,Golden State Warriors,2025-12-04,,,,-12.420814514160156,2.5,-9.920814514160156,2.5,,High
 ATS,Boston Celtics,Washington Wizards,Boston Celtics,2025-12-04,,,,-2.5298891067504883,-10.0,-12.529889106750488,-10.0,,Medium
 TOTAL,Under,Washington Wizards,Boston Celtics,2025-12-04,,,,-13.475784301757812,230.5,,,217.0242156982422,High
-ML,Los Angeles Lakers,Toronto Raptors,Los Angeles Lakers,2025-12-04,0.4552984488968991,113.63636363636364,0.46808510638297873,,,,,,High
+ML,Los Angeles Lakers,Toronto Raptors,Los Angeles Lakers,2025-12-04,0.4571562767040015,113.9090909090909,0.4674883127921802,,,,,,High
 ATS,Los Angeles Lakers,Toronto Raptors,Los Angeles Lakers,2025-12-04,,,,-7.440849304199219,2.5,-4.940849304199219,2.5,,High
-TOTAL,Under,Toronto Raptors,Los Angeles Lakers,2025-12-04,,,,-2.8980560302734375,229.5,,,226.60194396972656,Medium
+TOTAL,Under,Toronto Raptors,Los Angeles Lakers,2025-12-04,,,,-2.3980560302734375,229.0,,,226.60194396972656,Medium
