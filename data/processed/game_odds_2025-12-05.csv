@@ -1,0 +1,13 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-12-05,2025-12-06T01:10:00Z,Chicago Bulls,Indiana Pacers,-188.0909090909091,157.45454545454547,-4.5,4.5,238.5,oddsapi_consensus
+2025-12-05,2025-12-06T00:40:00Z,Detroit Pistons,Portland Trail Blazers,-300.54545454545456,241.54545454545453,-7.5,7.5,235.5,oddsapi_consensus
+2025-12-05,2025-12-06T00:40:00Z,Toronto Raptors,Charlotte Hornets,-292.27272727272725,235.1818181818182,-7.5,7.5,229.5,oddsapi_consensus
+2025-12-05,2025-12-06T00:10:00Z,Boston Celtics,Los Angeles Lakers,-250.27272727272728,203.45454545454547,-6.5,6.5,226.0,oddsapi_consensus
+2025-12-05,2025-12-06T01:10:00Z,Milwaukee Bucks,Philadelphia 76ers,-48.45454545454545,-116.72727272727273,1.0,-1.0,222.0,oddsapi_consensus
+2025-12-05,2025-12-06T00:40:00Z,New York Knicks,Utah Jazz,-1158.3636363636363,713.2727272727273,-15.5,15.5,239.5,oddsapi_consensus
+2025-12-05,2025-12-06T01:10:00Z,Houston Rockets,Phoenix Suns,-547.1818181818181,403.1818181818182,-11.0,11.0,221.5,oddsapi_consensus
+2025-12-05,2025-12-06T02:40:00Z,Oklahoma City Thunder,Dallas Mavericks,-1110.909090909091,691.7272727272727,-15.0,15.0,229.5,oddsapi_consensus
+2025-12-05,2025-12-06T00:10:00Z,Orlando Magic,Miami Heat,-209.0909090909091,173.9090909090909,-5.5,5.5,241.5,oddsapi_consensus
+2025-12-05,2025-12-06T01:10:00Z,Memphis Grizzlies,Los Angeles Clippers,109.27272727272727,-130.45454545454547,2.0,-2.0,224.0,oddsapi_consensus
+2025-12-05,2025-12-06T00:40:00Z,Cleveland Cavaliers,San Antonio Spurs,-176.45454545454547,147.9090909090909,-4.5,4.5,238.5,oddsapi_consensus
+2025-12-05,2025-12-06T00:40:00Z,Atlanta Hawks,Denver Nuggets,198.1818181818182,-241.45454545454547,6.0,-6.0,238.5,oddsapi_consensus
