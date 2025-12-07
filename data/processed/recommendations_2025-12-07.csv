@@ -1,18 +1,18 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
 ATS,Oklahoma City Thunder,Utah Jazz,Oklahoma City Thunder,2025-12-07,,,,-3.443998336791992,-9.5,-12.943998336791992,-9.5,,High
-ML,Chicago Bulls,Chicago Bulls,Golden State Warriors,2025-12-07,0.3826044778890302,-84.9,0.45916711736073557,,,,,,High
+ML,Chicago Bulls,Chicago Bulls,Golden State Warriors,2025-12-07,0.23789587682710545,-105.27272727272728,0.5128432240921169,,,,,,High
 ATS,Chicago Bulls,Chicago Bulls,Golden State Warriors,2025-12-07,,,,3.096104145050049,1.0,2.096104145050049,-1.0,,High
 TOTAL,Under,Chicago Bulls,Golden State Warriors,2025-12-07,,,,-2.0118103027344034,227.5,,,225.4881896972656,Medium
-ML,Charlotte Hornets,Charlotte Hornets,Denver Nuggets,2025-12-07,0.10676182096677689,376.3,0.2099517111064455,,,,,,High
+ML,Charlotte Hornets,Charlotte Hornets,Denver Nuggets,2025-12-07,0.0955026059843308,371.45454545454544,0.21210952564596994,,,,,,High
 TOTAL,Under,Charlotte Hornets,Denver Nuggets,2025-12-07,,,,-7.4426727294921875,233.5,,,226.0573272705078,High
-ML,Portland Trail Blazers,Memphis Grizzlies,Portland Trail Blazers,2025-12-07,0.29188091144229233,-42.0,0.29577464788732394,,,,,,High
+ML,Portland Trail Blazers,Memphis Grizzlies,Portland Trail Blazers,2025-12-07,2.974551637622567,-10.636363636363637,0.0961380443714051,,,,,,High
 TOTAL,Under,Memphis Grizzlies,Portland Trail Blazers,2025-12-07,,,,-5.7610321044921875,231.5,,,225.7389678955078,High
-ML,Los Angeles Lakers,Philadelphia 76ers,Los Angeles Lakers,2025-12-07,0.14312253856381368,-182.0,0.6453900709219859,,,,,,High
+ML,Los Angeles Lakers,Philadelphia 76ers,Los Angeles Lakers,2025-12-07,0.1409074423762312,-183.0,0.6466431095406361,,,,,,High
 ATS,Los Angeles Lakers,Philadelphia 76ers,Los Angeles Lakers,2025-12-07,,,,-4.117822647094727,-4.5,-8.617822647094727,-4.5,,High
-TOTAL,Under,Philadelphia 76ers,Los Angeles Lakers,2025-12-07,,,,-8.884140014648409,234.5,,,225.6158599853516,High
-ML,Boston Celtics,Toronto Raptors,Boston Celtics,2025-12-07,0.20787525981753835,-153.9,0.6061441512406459,,,,,,High
+TOTAL,Under,Philadelphia 76ers,Los Angeles Lakers,2025-12-07,,,,-7.884140014648409,233.5,,,225.6158599853516,High
+ML,Boston Celtics,Toronto Raptors,Boston Celtics,2025-12-07,0.19956450245068352,-156.63636363636363,0.610343606092809,,,,,,High
 ATS,Boston Celtics,Toronto Raptors,Boston Celtics,2025-12-07,,,,-4.73774528503418,-3.5,-8.23774528503418,-3.5,,High
-TOTAL,Under,Toronto Raptors,Boston Celtics,2025-12-07,,,,-3.674102783203125,224.0,,,220.32589721679688,Medium
-ML,New York Knicks,New York Knicks,Orlando Magic,2025-12-07,0.038460529825707634,-134.2,0.5730145175064048,,,,,,Medium
+TOTAL,Under,Toronto Raptors,Boston Celtics,2025-12-07,,,,-4.174102783203125,224.5,,,220.32589721679688,High
+ML,New York Knicks,New York Knicks,Orlando Magic,2025-12-07,0.04616133669926403,-131.9090909090909,0.568796550372403,,,,,,High
 ATS,Orlando Magic,New York Knicks,Orlando Magic,2025-12-07,,,,-2.796837568283081,2.5,-0.296837568283081,2.5,,Medium
 TOTAL,Under,New York Knicks,Orlando Magic,2025-12-07,,,,-9.489425659179688,230.5,,,221.0105743408203,High
