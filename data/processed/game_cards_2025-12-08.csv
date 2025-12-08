@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2025-12-08,0022500366,New Orleans Pelicans,San Antonio Spurs,2025-12-09T01:10:00Z,0.4551211076264199,1.1183132718150637,0.6731693956486381,NOP: Trey Murphy III (11.2%); SAS: Victor Wembanyama (10.8%); SAS: De'Aaron Fox (10.3%); SAS: Devin Vassell (10.2%); SAS: Stephon Castle (10.0%)
+2025-12-08,0022500365,Minnesota Timberwolves,Phoenix Suns,2025-12-09T00:40:00Z,0.5299640517645717,1.2541123141597297,0.7146709816305226,PHX: Devin Booker (11.0%); MIN: Anthony Edwards (10.8%); MIN: Julius Randle (10.6%); MIN: Jaden McDaniels (10.1%); MIN: Rudy Gobert (10.0%)
+2025-12-08,0022500364,Indiana Pacers,Sacramento Kings,2025-12-09T00:10:00Z,0.5,1.0973482748897632,0.6662450623398463,SAC: Keegan Murray (11.7%); IND: Pascal Siakam (10.6%); SAC: Zach LaVine (10.4%); SAC: Domantas Sabonis (10.3%); SAC: DeMar DeRozan (10.2%)
