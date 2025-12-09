@@ -1,5 +1,6 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Orlando Magic,Orlando Magic,Miami Heat,2025-12-09,0.28790953960837273,-106.3,0.5152690256907416,,,,,,High
-ATS,Orlando Magic,Orlando Magic,Miami Heat,2025-12-09,,,,4.849878787994385,1.0,3.8498787879943848,-1.0,,High
+ML,Orlando Magic,Orlando Magic,Miami Heat,2025-12-09,0.2680095964312512,-109.8,0.5233555767397521,,,,,,High
+ATS,Orlando Magic,Orlando Magic,Miami Heat,2025-12-09,,,,2.8498787879943848,-1.0,3.8498787879943848,1.0,,Medium
 TOTAL,Under,Orlando Magic,Miami Heat,2025-12-09,,,,-8.949279785156278,235.5,,,226.55072021484372,High
+ML,New York Knicks,Toronto Raptors,New York Knicks,2025-12-09,0.006450056202790433,-190.1818181818182,0.6553884711779449,,,,,,Low
 TOTAL,Under,Toronto Raptors,New York Knicks,2025-12-09,,,,-1.7891387939453125,226.0,,,224.2108612060547,Low
