@@ -1,0 +1,5 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+TOTAL,Under,Los Angeles Lakers,San Antonio Spurs,2025-12-10,,,,-14.249923706054688,241.5,,,227.2500762939453,High
+ML,Phoenix Suns,Oklahoma City Thunder,Phoenix Suns,2025-12-10,0.6166391195739596,663.3636363636364,0.1309991663689413,,,,,,High
+ATS,Phoenix Suns,Oklahoma City Thunder,Phoenix Suns,2025-12-10,,,,-2.241238594055176,14.5,12.258761405944824,14.5,,Medium
+TOTAL,Over,Oklahoma City Thunder,Phoenix Suns,2025-12-10,,,,3.39569091796875,224.0,,,227.39569091796875,Medium
