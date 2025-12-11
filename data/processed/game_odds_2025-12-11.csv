@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-12-11,2025-12-12T01:10:00Z,New Orleans Pelicans,Portland Trail Blazers,154.36363636363637,-185.36363636363637,4.5,-4.5,240.5,oddsapi_consensus
+2025-12-11,2025-12-12T01:10:00Z,Houston Rockets,Los Angeles Clippers,-412.90909090909093,318.09090909090907,-9.5,9.5,222.5,oddsapi_consensus
+2025-12-11,2025-12-12T03:10:00Z,Sacramento Kings,Denver Nuggets,354.1818181818182,-464.6363636363636,10.0,-10.0,240.0,oddsapi_consensus
+2025-12-11,2025-12-12T01:10:00Z,Milwaukee Bucks,Boston Celtics,306.72727272727275,-393.6363636363636,9.0,-9.0,223.5,oddsapi_consensus
