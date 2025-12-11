@@ -1,0 +1,3 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-10,0022501203,OKC,PHX,0.5,,,,Devin Booker,0.1146146216696702,,,,,1.2482470785251032,0.7129925422949499,,,
+2025-12-10,0022501204,LAL,SAS,0.440286350732807,,,,Luka Dončić,0.1116184360944409,,,,,1.1364351896586564,0.6790388495007988,,,
