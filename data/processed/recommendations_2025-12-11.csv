@@ -1,12 +1,12 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Sacramento Kings,Sacramento Kings,Denver Nuggets,2025-12-11,0.7535012133686485,354.1818181818182,0.2201761409127302,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Denver Nuggets,2025-12-11,0.7520972892586655,353.8181818181818,0.2203525641025641,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Denver Nuggets,2025-12-11,,,,9.16441035270691,10.0,-0.8355896472930908,-10.0,,High
-TOTAL,Under,Sacramento Kings,Denver Nuggets,2025-12-11,,,,-11.913543701171932,240.0,,,228.08645629882807,High
-ML,Portland Trail Blazers,New Orleans Pelicans,Portland Trail Blazers,2025-12-11,0.08162316128137237,-185.3636363636364,0.6495699267282575,,,,,,High
+TOTAL,Under,Sacramento Kings,Denver Nuggets,2025-12-11,,,,-11.413543701171932,239.5,,,228.08645629882807,High
+ML,Portland Trail Blazers,New Orleans Pelicans,Portland Trail Blazers,2025-12-11,0.09252371484778715,-180.1818181818182,0.6430889033095393,,,,,,High
 ATS,Portland Trail Blazers,New Orleans Pelicans,Portland Trail Blazers,2025-12-11,,,,-1.7959489822387695,-4.5,-6.2959489822387695,-4.5,,Medium
 TOTAL,Under,New Orleans Pelicans,Portland Trail Blazers,2025-12-11,,,,-14.132705688476562,240.5,,,226.36729431152344,High
-ML,Los Angeles Clippers,Houston Rockets,Los Angeles Clippers,2025-12-11,1.7806619888700825,318.09090909090907,0.2391824309632529,,,,,,High
+ML,Los Angeles Clippers,Houston Rockets,Los Angeles Clippers,2025-12-11,1.769778771692509,316.45454545454544,0.24012224405151714,,,,,,High
 ATS,Los Angeles Clippers,Houston Rockets,Los Angeles Clippers,2025-12-11,,,,-13.440151453018188,9.5,-3.940151453018189,9.5,,High
 TOTAL,Over,Houston Rockets,Los Angeles Clippers,2025-12-11,,,,9.365646362304688,222.5,,,231.8656463623047,High
-ML,Milwaukee Bucks,Milwaukee Bucks,Boston Celtics,2025-12-11,1.566496007562598,306.72727272727275,0.24586499776486365,,,,,,High
+ML,Milwaukee Bucks,Milwaukee Bucks,Boston Celtics,2025-12-11,1.588294587868226,310.1818181818182,0.24379432624113476,,,,,,High
 ATS,Milwaukee Bucks,Milwaukee Bucks,Boston Celtics,2025-12-11,,,,10.864433646202087,9.0,1.8644336462020876,-9.0,,High
