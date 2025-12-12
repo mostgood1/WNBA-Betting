@@ -1,0 +1,21 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Atlanta Hawks,Detroit Pistons,Atlanta Hawks,2025-12-12,0.20865250571829097,231.63636363636363,0.30153508771929827,,,,,,High
+ATS,Atlanta Hawks,Detroit Pistons,Atlanta Hawks,2025-12-12,,,,-5.361426115036011,7.5,2.1385738849639893,7.5,,High
+TOTAL,Over,Detroit Pistons,Atlanta Hawks,2025-12-12,,,,3.1006317138671875,232.5,,,235.6006317138672,Medium
+ATS,Memphis Grizzlies,Memphis Grizzlies,Utah Jazz,2025-12-12,,,,1.212111473083496,-7.0,8.212111473083496,7.0,,Low
+TOTAL,Under,Memphis Grizzlies,Utah Jazz,2025-12-12,,,,-5.52386474609375,241.0,,,235.47613525390625,High
+ML,Chicago Bulls,Charlotte Hornets,Chicago Bulls,2025-12-12,0.264264178925906,-158.36363636363637,0.6129486277269529,,,,,,High
+ATS,Chicago Bulls,Charlotte Hornets,Chicago Bulls,2025-12-12,,,,-7.75396728515625,-3.5,-11.25396728515625,-3.5,,High
+TOTAL,Under,Charlotte Hornets,Chicago Bulls,2025-12-12,,,,-4.80682373046875,230.5,,,225.69317626953125,High
+ML,Indiana Pacers,Philadelphia 76ers,Indiana Pacers,2025-12-12,1.381375207562825,209.27272727272728,0.32333921222810114,,,,,,High
+ATS,Indiana Pacers,Philadelphia 76ers,Indiana Pacers,2025-12-12,,,,-16.890097618103027,6.0,-10.890097618103027,6.0,,High
+TOTAL,Over,Philadelphia 76ers,Indiana Pacers,2025-12-12,,,,2.4828186035155966,224.5,,,226.9828186035156,Medium
+ML,Golden State Warriors,Golden State Warriors,Minnesota Timberwolves,2025-12-12,0.08975241789245647,-125.27272727272728,0.5560936238902341,,,,,,High
+ATS,Minnesota Timberwolves,Golden State Warriors,Minnesota Timberwolves,2025-12-12,,,,-1.1397106647491455,1.5,0.3602893352508545,1.5,,Low
+TOTAL,Under,Golden State Warriors,Minnesota Timberwolves,2025-12-12,,,,-7.0226287841796875,231.0,,,223.9773712158203,High
+ML,Washington Wizards,Washington Wizards,Cleveland Cavaliers,2025-12-12,0.6827388002909862,676.5454545454545,0.1287754624209787,,,,,,High
+ATS,Washington Wizards,Washington Wizards,Cleveland Cavaliers,2025-12-12,,,,2.617403030395508,14.5,-11.882596969604492,-14.5,,Medium
+TOTAL,Under,Washington Wizards,Cleveland Cavaliers,2025-12-12,,,,-17.923324584960966,242.5,,,224.57667541503903,High
+ML,Brooklyn Nets,Dallas Mavericks,Brooklyn Nets,2025-12-12,0.22028536074408478,258.6363636363636,0.27883396704689484,,,,,,High
+ATS,Brooklyn Nets,Dallas Mavericks,Brooklyn Nets,2025-12-12,,,,-4.388403415679932,8.0,3.611596584320069,8.0,,High
+TOTAL,Over,Dallas Mavericks,Brooklyn Nets,2025-12-12,,,,2.81085205078125,221.5,,,224.31085205078125,Medium
