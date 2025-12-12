@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-11,0022501205,HOU,LAC,0.65,,,,Alperen Sengun,0.112715324113147,,,,,1.0592050223268334,0.6532686555287573,,,
+2025-12-11,0022501206,MIL,BOS,0.4850044983805899,,,,Jaylen Brown,0.1141147349713965,,,,,1.318790077784888,0.7325412894877215,,,
+2025-12-11,0022501207,NOP,POR,0.4850044983805899,,,,Trey Murphy III,0.1131764290515671,,,,,1.1955480369482996,0.697461893319715,,,
+2025-12-11,0022501208,SAC,DEN,0.4850044983805899,,,,Keegan Murray,0.1159901827100952,,,,,1.0560919529668664,0.6521875749377927,,,
