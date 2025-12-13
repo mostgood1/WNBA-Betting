@@ -1,5 +1,5 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
 ATS,Oklahoma City Thunder,Oklahoma City Thunder,San Antonio Spurs,2025-12-13,,,,1.9842405319213885,-11.0,12.984240531921388,11.0,,Medium
-ML,Orlando Magic,Orlando Magic,New York Knicks,2025-12-13,0.8313111108973996,175.0909090909091,0.3635161929940515,,,,,,High
-ATS,Orlando Magic,Orlando Magic,New York Knicks,2025-12-13,,,,9.478727579116821,5.5,3.978727579116821,-5.5,,High
+ML,Orlando Magic,Orlando Magic,New York Knicks,2025-12-13,0.7713970990074979,166.0909090909091,0.3758114110010249,,,,,,High
+ATS,Orlando Magic,Orlando Magic,New York Knicks,2025-12-13,,,,8.978727579116821,5.0,3.978727579116821,-5.0,,High
 TOTAL,Under,Orlando Magic,New York Knicks,2025-12-13,,,,-3.9000091552734375,224.5,,,220.59999084472656,Medium
