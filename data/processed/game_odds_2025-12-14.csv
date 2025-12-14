@@ -1,9 +1,9 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-12-14,2025-12-15T01:10:00Z,Phoenix Suns,Los Angeles Lakers,-67.27272727272727,-116.27272727272727,1.0,-1.0,230.0,oddsapi_consensus
-2025-12-14,2025-12-14T20:40:00Z,Cleveland Cavaliers,Charlotte Hornets,-560.2727272727273,412.3636363636364,-11.0,11.0,231.5,oddsapi_consensus
-2025-12-14,2025-12-15T02:10:00Z,Portland Trail Blazers,Golden State Warriors,156.0909090909091,-186.0909090909091,4.5,-4.5,236.0,oddsapi_consensus
-2025-12-14,2025-12-15T00:10:00Z,Minnesota Timberwolves,Sacramento Kings,-696.7272727272727,489.1818181818182,-12.5,12.5,233.5,oddsapi_consensus
-2025-12-14,2025-12-15T00:10:00Z,Chicago Bulls,New Orleans Pelicans,-192.45454545454547,161.63636363636363,-4.5,4.5,247.0,oddsapi_consensus
-2025-12-14,2025-12-14T23:10:00Z,Brooklyn Nets,Milwaukee Bucks,104.18181818181819,-124.27272727272727,1.5,-1.5,216.5,oddsapi_consensus
-2025-12-14,2025-12-14T23:10:00Z,Atlanta Hawks,Philadelphia 76ers,-180.54545454545453,151.1818181818182,-4.5,4.5,226.0,oddsapi_consensus
-2025-12-14,2025-12-14T20:10:00Z,Indiana Pacers,Washington Wizards,-406.8181818181818,314.3636363636364,-9.5,9.5,235.0,oddsapi_consensus
+2025-12-14,2025-12-15T01:10:00Z,Phoenix Suns,Los Angeles Lakers,-67.36363636363636,-116.0909090909091,1.0,-1.0,230.0,oddsapi_consensus
+2025-12-14,2025-12-14T20:40:00Z,Cleveland Cavaliers,Charlotte Hornets,-557.0909090909091,411.0,-11.0,11.0,231.5,oddsapi_consensus
+2025-12-14,2025-12-15T02:10:00Z,Portland Trail Blazers,Golden State Warriors,159.9090909090909,-191.45454545454547,4.5,-4.5,236.0,oddsapi_consensus
+2025-12-14,2025-12-15T00:10:00Z,Minnesota Timberwolves,Sacramento Kings,-701.2727272727273,491.45454545454544,-12.5,12.5,233.5,oddsapi_consensus
+2025-12-14,2025-12-15T00:10:00Z,Chicago Bulls,New Orleans Pelicans,-187.45454545454547,157.27272727272728,-4.5,4.5,247.0,oddsapi_consensus
+2025-12-14,2025-12-14T23:10:00Z,Brooklyn Nets,Milwaukee Bucks,104.63636363636364,-124.72727272727273,1.5,-1.5,216.5,oddsapi_consensus
+2025-12-14,2025-12-14T23:10:00Z,Atlanta Hawks,Philadelphia 76ers,-181.9090909090909,152.54545454545453,-4.5,4.5,226.0,oddsapi_consensus
+2025-12-14,2025-12-14T20:10:00Z,Indiana Pacers,Washington Wizards,-401.8181818181818,311.1818181818182,-9.5,9.5,235.0,oddsapi_consensus
