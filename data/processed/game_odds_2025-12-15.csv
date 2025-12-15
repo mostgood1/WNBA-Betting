@@ -1,0 +1,6 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2025-12-15,2025-12-16T00:10:00Z,Boston Celtics,Detroit Pistons,-129.1818181818182,108.54545454545455,-2.0,2.0,230.0,oddsapi_consensus
+2025-12-15,2025-12-16T02:10:00Z,Utah Jazz,Dallas Mavericks,45.63636363636363,-120.72727272727273,1.5,-1.5,239.5,oddsapi_consensus
+2025-12-15,2025-12-16T03:40:00Z,Los Angeles Clippers,Memphis Grizzlies,-173.36363636363637,145.45454545454547,-4.5,4.5,228.5,oddsapi_consensus
+2025-12-15,2025-12-16T02:40:00Z,Denver Nuggets,Houston Rockets,-116.0909090909091,-67.36363636363636,-1.0,1.0,237.5,oddsapi_consensus
+2025-12-15,2025-12-16T00:40:00Z,Miami Heat,Toronto Raptors,-230.63636363636363,189.0909090909091,-6.0,6.0,235.5,oddsapi_consensus
