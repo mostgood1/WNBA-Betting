@@ -1,0 +1,5 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+TOTAL,Under,Minnesota Timberwolves,Memphis Grizzlies,2025-12-17,,,,-2.0235900878906534,230.5,,,228.47640991210935,Medium
+ML,Chicago Bulls,Chicago Bulls,Cleveland Cavaliers,2025-12-17,0.621614675197466,164.72727272727272,0.37774725274725274,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Cleveland Cavaliers,2025-12-17,,,,5.75387716293335,5.0,0.7538771629333496,-5.0,,High
+TOTAL,Under,Chicago Bulls,Cleveland Cavaliers,2025-12-17,,,,-12.6527099609375,242.0,,,229.3472900390625,High
