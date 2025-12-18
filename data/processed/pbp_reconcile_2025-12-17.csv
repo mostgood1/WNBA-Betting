@@ -1,0 +1,3 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-17,0022500367,CHI,CLE,0.65,,,,Donovan Mitchell,0.1132273059023167,,,,,1.337084349898976,0.7373897670101072,,,
+2025-12-17,0022500368,MIN,MEM,0.5,,,,Anthony Edwards,0.1137009232511319,,,,,1.2244648942106624,0.7060850661658324,,,
