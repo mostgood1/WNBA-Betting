@@ -1,0 +1,13 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,New York Knicks,New York Knicks,Philadelphia 76ers,2025-12-19,0.18663678839688247,-180.72727272727272,0.6437823834196891,,,,,,High
+ATS,New York Knicks,New York Knicks,Philadelphia 76ers,2025-12-19,,,,6.450043678283691,-4.0,10.450043678283691,4.0,,High
+TOTAL,Under,New York Knicks,Philadelphia 76ers,2025-12-19,,,,-5.057479858398409,229.0,,,223.9425201416016,High
+ML,Minnesota Timberwolves,Minnesota Timberwolves,Oklahoma City Thunder,2025-12-19,0.37422701137729963,256.54545454545456,0.2804691483936767,,,,,,High
+ATS,Minnesota Timberwolves,Minnesota Timberwolves,Oklahoma City Thunder,2025-12-19,,,,6.625309705734253,7.5,-0.8746902942657471,-7.5,,High
+ML,Chicago Bulls,Cleveland Cavaliers,Chicago Bulls,2025-12-19,0.14456567363301087,230.0,0.30303030303030304,,,,,,High
+ATS,Chicago Bulls,Cleveland Cavaliers,Chicago Bulls,2025-12-19,,,,-4.291302680969238,7.5,3.2086973190307617,7.5,,High
+TOTAL,Under,Cleveland Cavaliers,Chicago Bulls,2025-12-19,,,,-10.266571044921932,240.5,,,230.23342895507807,High
+TOTAL,Under,Boston Celtics,Miami Heat,2025-12-19,,,,-7.885650634765597,231.5,,,223.6143493652344,High
+ML,Atlanta Hawks,Atlanta Hawks,San Antonio Spurs,2025-12-19,0.5553621004567117,123.36363636363636,0.4477004477004477,,,,,,High
+ATS,Atlanta Hawks,Atlanta Hawks,San Antonio Spurs,2025-12-19,,,,8.395995140075684,2.5,5.895995140075684,-2.5,,High
+TOTAL,Under,Atlanta Hawks,San Antonio Spurs,2025-12-19,,,,-8.224807739257812,240.0,,,231.7751922607422,High
