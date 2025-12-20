@@ -1,0 +1,6 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-19,0022500381,BOS,MIA,0.5,,,,Jaylen Brown,0.1107931809711861,,,,,1.2651807516088354,0.7178117144560681,,,
+2025-12-19,0022500382,NYK,PHI,0.5,,,,Tyrese Maxey,0.1194519299678489,,,,,1.2594766880825004,0.7161974951208513,,,
+2025-12-19,0022500383,ATL,SAS,0.4700359482354282,,,,Jalen Johnson,0.1110006490133855,,,,,1.2153934848136094,0.7034067136237876,,,
+2025-12-19,0022500384,CLE,CHI,0.65,,,,Donovan Mitchell,0.1131453310049207,,,,,1.3331750820331485,0.7363611439935732,,,
+2025-12-19,0022500385,MIN,OKC,0.5299640517645717,,,,Anthony Edwards,0.1104961010696732,,,,,1.213793209361025,0.7029317026954048,,,
