@@ -2,27 +2,28 @@ market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_ho
 ML,Boston Celtics,Toronto Raptors,Boston Celtics,2025-12-20,0.34404651203241865,-119.72727272727272,0.5448903599503516,,,,,,High
 ATS,Boston Celtics,Toronto Raptors,Boston Celtics,2025-12-20,,,,-6.75199031829834,-1.5,-8.25199031829834,-1.5,,High
 TOTAL,Under,Toronto Raptors,Boston Celtics,2025-12-20,,,,-4.43524169921875,224.5,,,220.06475830078125,High
-ML,Washington Wizards,Memphis Grizzlies,Washington Wizards,2025-12-20,0.5124190019633232,529.9090909090909,0.15875306682060905,,,,,,High
+ML,Washington Wizards,Memphis Grizzlies,Washington Wizards,2025-12-20,0.4984494802248831,524.0909090909091,0.16023306627822287,,,,,,High
 ATS,Washington Wizards,Memphis Grizzlies,Washington Wizards,2025-12-20,,,,-2.8396501541137695,13.0,10.16034984588623,13.0,,Medium
-TOTAL,Under,Memphis Grizzlies,Washington Wizards,2025-12-20,,,,-6.830139160156278,231.0,,,224.16986083984372,High
-ML,Denver Nuggets,Denver Nuggets,Houston Rockets,2025-12-20,26.40192553443056,-2.4,0.023437499999999997,,,,,,High
+TOTAL,Under,Memphis Grizzlies,Washington Wizards,2025-12-20,,,,-7.330139160156278,231.5,,,224.16986083984372,High
+ML,Denver Nuggets,Denver Nuggets,Houston Rockets,2025-12-20,0.04625533858734848,62.90909090909091,0.6138392857142857,,,,,,High
 ATS,Denver Nuggets,Denver Nuggets,Houston Rockets,2025-12-20,,,,3.5434370040893555,1.0,2.5434370040893555,-1.0,,High
 TOTAL,Under,Denver Nuggets,Houston Rockets,2025-12-20,,,,-4.514404296875,235.0,,,230.485595703125,High
-ML,Dallas Mavericks,Philadelphia 76ers,Dallas Mavericks,2025-12-20,0.46996533551667885,126.27272727272728,0.44194455604660504,,,,,,High
+ML,Dallas Mavericks,Philadelphia 76ers,Dallas Mavericks,2025-12-20,0.47587118258585004,127.1818181818182,0.44017607042817125,,,,,,High
 ATS,Dallas Mavericks,Philadelphia 76ers,Dallas Mavericks,2025-12-20,,,,-5.99402642250061,3.0,-2.9940264225006104,3.0,,High
 TOTAL,Under,Philadelphia 76ers,Dallas Mavericks,2025-12-20,,,,-3.45733642578125,226.5,,,223.04266357421875,Medium
 TOTAL,Under,Utah Jazz,Orlando Magic,2025-12-20,,,,-6.632781982421932,237.5,,,230.86721801757807,High
-ML,Los Angeles Clippers,Los Angeles Clippers,Los Angeles Lakers,2025-12-20,0.18609912975624932,64.0909090909091,0.6094182825484764,,,,,,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Los Angeles Lakers,2025-12-20,0.05336116620458037,45.72727272727273,0.6862133499688086,,,,,,High
 ATS,Los Angeles Clippers,Los Angeles Clippers,Los Angeles Lakers,2025-12-20,,,,9.1155366897583,1.5,7.615536689758301,-1.5,,High
-ML,Golden State Warriors,Golden State Warriors,Phoenix Suns,2025-12-20,0.020798726692186076,-239.63636363636363,0.7055674518201285,,,,,,Medium
+TOTAL,Under,Los Angeles Clippers,Los Angeles Lakers,2025-12-20,,,,-1.5396118164062784,230.5,,,228.96038818359372,Low
+ML,Golden State Warriors,Golden State Warriors,Phoenix Suns,2025-12-20,0.018535501012376165,-241.45454545454547,0.7071352502662407,,,,,,Low
 ATS,Golden State Warriors,Golden State Warriors,Phoenix Suns,2025-12-20,,,,1.444453239440918,-6.0,7.444453239440918,6.0,,Low
 TOTAL,Under,Golden State Warriors,Phoenix Suns,2025-12-20,,,,-5.63751220703125,226.5,,,220.86248779296875,High
-ML,Indiana Pacers,New Orleans Pelicans,Indiana Pacers,2025-12-20,0.5760422938040084,109.36363636363636,0.4776378636561007,,,,,,High
-ATS,Indiana Pacers,New Orleans Pelicans,Indiana Pacers,2025-12-20,,,,-11.656000137329102,2.0,-9.656000137329102,2.0,,High
+ML,Indiana Pacers,New Orleans Pelicans,Indiana Pacers,2025-12-20,0.6410548938523718,118.0,0.45871559633027525,,,,,,High
+ATS,Indiana Pacers,New Orleans Pelicans,Indiana Pacers,2025-12-20,,,,-12.156000137329102,2.5,-9.656000137329102,2.5,,High
 TOTAL,Under,New Orleans Pelicans,Indiana Pacers,2025-12-20,,,,-5.298889160156278,235.0,,,229.70111083984372,High
-ML,Charlotte Hornets,Detroit Pistons,Charlotte Hornets,2025-12-20,0.05965292690031143,381.6363636363636,0.20762551906379767,,,,,,High
+ML,Charlotte Hornets,Detroit Pistons,Charlotte Hornets,2025-12-20,0.07825385596821033,390.09090909090907,0.20404377666481174,,,,,,High
 ATS,Detroit Pistons,Detroit Pistons,Charlotte Hornets,2025-12-20,,,,1.1319799423217756,-10.5,11.631979942321776,10.5,,Low
 TOTAL,Under,Detroit Pistons,Charlotte Hornets,2025-12-20,,,,-5.4368133544921875,232.5,,,227.0631866455078,High
-ML,Sacramento Kings,Sacramento Kings,Portland Trail Blazers,2025-12-20,0.5571743667240523,152.72727272727272,0.3956834532374101,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Portland Trail Blazers,2025-12-20,0.5560540973954738,152.54545454545453,0.3959683225341973,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Portland Trail Blazers,2025-12-20,,,,5.469414710998535,4.5,0.9694147109985352,-4.5,,High
 TOTAL,Under,Sacramento Kings,Portland Trail Blazers,2025-12-20,,,,-15.856353759765597,239.5,,,223.6436462402344,High
