@@ -1,0 +1,19 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Washington Wizards,Washington Wizards,San Antonio Spurs,2025-12-21,1.9146148124143445,788.0909090909091,0.11260108506500154,,,,,,High
+ATS,Washington Wizards,Washington Wizards,San Antonio Spurs,2025-12-21,,,,11.144121170043945,15.5,-4.355878829956055,-15.5,,High
+TOTAL,Under,Washington Wizards,San Antonio Spurs,2025-12-21,,,,-13.567718505859347,237.5,,,223.93228149414065,High
+ML,Milwaukee Bucks,Minnesota Timberwolves,Milwaukee Bucks,2025-12-21,1.0926432274272218,472.54545454545456,0.17465862178469357,,,,,,High
+ATS,Milwaukee Bucks,Minnesota Timberwolves,Milwaukee Bucks,2025-12-21,,,,-9.924734115600586,12.0,2.075265884399414,12.0,,High
+TOTAL,Over,Minnesota Timberwolves,Milwaukee Bucks,2025-12-21,,,,3.900390625,226.5,,,230.400390625,Medium
+ML,Miami Heat,New York Knicks,Miami Heat,2025-12-21,0.34655110594472116,260.09090909090907,0.2777076495834385,,,,,,High
+ATS,Miami Heat,New York Knicks,Miami Heat,2025-12-21,,,,-6.43463659286499,8.0,1.5653634071350098,8.0,,High
+TOTAL,Under,New York Knicks,Miami Heat,2025-12-21,,,,-7.9955596923828125,235.5,,,227.5044403076172,High
+ML,Sacramento Kings,Sacramento Kings,Houston Rockets,2025-12-21,2.417011740819885,471.6363636363636,0.17493638676844783,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Houston Rockets,2025-12-21,,,,11.865579843521118,12.0,-0.1344201564788818,-12.0,,High
+TOTAL,Over,Sacramento Kings,Houston Rockets,2025-12-21,,,,4.067626953125,223.5,,,227.567626953125,High
+ML,Chicago Bulls,Atlanta Hawks,Chicago Bulls,2025-12-21,0.0405507550001557,157.27272727272728,0.3886925795053004,,,,,,High
+ATS,Chicago Bulls,Atlanta Hawks,Chicago Bulls,2025-12-21,,,,-5.267272472381592,5.0,-0.2672724723815918,5.0,,High
+TOTAL,Under,Atlanta Hawks,Chicago Bulls,2025-12-21,,,,-14.347671508789091,247.0,,,232.6523284912109,High
+ML,Brooklyn Nets,Brooklyn Nets,Toronto Raptors,2025-12-21,0.41880864176106314,139.0,0.41841004184100417,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Toronto Raptors,2025-12-21,,,,3.1185948848724365,3.5,-0.3814051151275635,-3.5,,High
+TOTAL,Over,Brooklyn Nets,Toronto Raptors,2025-12-21,,,,10.179092407226562,216.5,,,226.67909240722656,High
