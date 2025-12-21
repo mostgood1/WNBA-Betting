@@ -1,7 +1,7 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
-2025-12-21,2025-12-22T00:10:00Z,Minnesota Timberwolves,Milwaukee Bucks,-667.9090909090909,472.54545454545456,-12.0,12.0,226.5,oddsapi_consensus
-2025-12-21,2025-12-21T23:10:00Z,New York Knicks,Miami Heat,-327.6363636363636,260.09090909090907,-8.0,8.0,235.5,oddsapi_consensus
-2025-12-21,2025-12-22T03:10:00Z,Sacramento Kings,Houston Rockets,471.6363636363636,-665.0909090909091,12.0,-12.0,223.5,oddsapi_consensus
-2025-12-21,2025-12-21T20:40:00Z,Atlanta Hawks,Chicago Bulls,-188.45454545454547,157.27272727272728,-5.0,5.0,247.0,oddsapi_consensus
-2025-12-21,2025-12-22T00:10:00Z,Washington Wizards,San Antonio Spurs,788.0909090909091,-1340.8181818181818,15.5,-15.5,237.5,oddsapi_consensus
-2025-12-21,2025-12-21T23:10:00Z,Brooklyn Nets,Toronto Raptors,139.0,-164.8181818181818,3.5,-3.5,216.5,oddsapi_consensus
+2025-12-21,2025-12-22T00:10:00Z,Minnesota Timberwolves,Milwaukee Bucks,-652.4545454545455,466.6363636363636,-12.0,12.0,226.5,oddsapi_consensus
+2025-12-21,2025-12-21T23:10:00Z,New York Knicks,Miami Heat,-311.09090909090907,248.36363636363637,-7.5,7.5,235.5,oddsapi_consensus
+2025-12-21,2025-12-22T03:10:00Z,Sacramento Kings,Houston Rockets,472.8181818181818,-665.5454545454545,12.0,-12.0,223.5,oddsapi_consensus
+2025-12-21,2025-12-21T20:40:00Z,Atlanta Hawks,Chicago Bulls,-179.0909090909091,150.45454545454547,-4.5,4.5,247.5,oddsapi_consensus
+2025-12-21,2025-12-22T00:10:00Z,Washington Wizards,San Antonio Spurs,785.4545454545455,-1329.0,15.5,-15.5,237.5,oddsapi_consensus
+2025-12-21,2025-12-21T23:10:00Z,Brooklyn Nets,Toronto Raptors,138.27272727272728,-164.27272727272728,3.5,-3.5,216.0,oddsapi_consensus
