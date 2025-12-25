@@ -1,0 +1,6 @@
+date,game_id,home_team,visitor_team,commence_time,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2025-12-25,0022500010,Oklahoma City Thunder,San Antonio Spurs,2025-12-25T19:30:00Z,,,,
+2025-12-25,0022500013,Denver Nuggets,Minnesota Timberwolves,2025-12-26T03:30:00Z,0.4850044983805899,1.1787300943361825,0.6923307985153084,DEN: Jamal Murray (10.8%); MIN: Anthony Edwards (10.8%); DEN: Nikola Jokić (10.8%); MIN: Julius Randle (10.5%); MIN: Jaden McDaniels (10.0%)
+2025-12-25,0022500011,Golden State Warriors,Dallas Mavericks,2025-12-25T22:00:00Z,0.4850044983805899,1.246059705229718,0.7123640627372743,DAL: Cooper Flagg (11.6%); DAL: P.J. Washington (10.7%); GSW: Stephen Curry (10.6%); GSW: Jimmy Butler III (10.6%); DAL: Anthony Davis (10.5%)
+2025-12-25,0022500012,Los Angeles Lakers,Houston Rockets,2025-12-26T01:00:00Z,0.51499550161941,1.038933689510763,0.6461682245927577,HOU: Amen Thompson (10.9%); LAL: Luka Dončić (10.8%); HOU: Kevin Durant (10.8%); LAL: Austin Reaves (10.7%); HOU: Alperen Sengun (10.6%)
+2025-12-25,0022500009,New York Knicks,Cleveland Cavaliers,2025-12-25T17:08:06Z,0.65,1.3512263005869545,0.7410774509931011,NYK: Jalen Brunson (11.0%); NYK: Mikal Bridges (11.0%); CLE: Evan Mobley (10.7%); CLE: Donovan Mitchell (10.6%); NYK: Karl-Anthony Towns (10.4%)

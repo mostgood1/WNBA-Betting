@@ -1,0 +1,14 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Los Angeles Lakers,Los Angeles Lakers,Houston Rockets,2025-12-25,0.3706697948302743,117.0,0.4608294930875576,,,,,,High
+ATS,Los Angeles Lakers,Los Angeles Lakers,Houston Rockets,2025-12-25,,,,4.402680158615112,2.5,1.9026801586151123,-2.5,,High
+TOTAL,Under,Los Angeles Lakers,Houston Rockets,2025-12-25,,,,-5.1881561279296875,233.0,,,227.8118438720703,High
+ML,Oklahoma City Thunder,Oklahoma City Thunder,San Antonio Spurs,2025-12-25,0.009392285653963134,-376.0,0.7899159663865546,,,,,,Low
+ATS,Oklahoma City Thunder,Oklahoma City Thunder,San Antonio Spurs,2025-12-25,,,,2.9710912704467756,-10.0,12.971091270446776,10.0,,Medium
+TOTAL,Under,Oklahoma City Thunder,San Antonio Spurs,2025-12-25,,,,-3.6020965576171875,234.5,,,230.8979034423828,Medium
+ML,Denver Nuggets,Denver Nuggets,Minnesota Timberwolves,2025-12-25,0.06629150762938735,-125.72727272727272,0.5569875151026983,,,,,,High
+ATS,Minnesota Timberwolves,Denver Nuggets,Minnesota Timberwolves,2025-12-25,,,,-2.3653647899627686,2.0,-0.3653647899627685,2.0,,Medium
+TOTAL,Under,Denver Nuggets,Minnesota Timberwolves,2025-12-25,,,,-10.827239990234403,239.5,,,228.6727600097656,High
+TOTAL,Under,Golden State Warriors,Dallas Mavericks,2025-12-25,,,,-8.280288696289091,229.5,,,221.2197113037109,High
+ML,Cleveland Cavaliers,New York Knicks,Cleveland Cavaliers,2025-12-25,0.8396637566210587,-53.09090909090909,0.34679334916864607,,,,,,High
+ATS,Cleveland Cavaliers,New York Knicks,Cleveland Cavaliers,2025-12-25,,,,-6.785876512527466,4.5,-2.285876512527466,4.5,,High
+TOTAL,Under,New York Knicks,Cleveland Cavaliers,2025-12-25,,,,-16.158233642578125,241.5,,,225.34176635742188,High
