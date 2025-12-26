@@ -1,0 +1,6 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2025-12-25,0022500009,NYK,CLE,0.65,,,,Jalen Brunson,0.1101844150272657,,,,,1.3512263005869545,0.7410774509931011,,,
+2025-12-25,0022500010,OKC,SAS,0.4551211076264199,,,,Shai Gilgeous-Alexander,0.1105361214276631,,,,,1.2061181250181312,0.7006429063409443,,,
+2025-12-25,0022500011,GSW,DAL,0.4850044983805899,,,,Cooper Flagg,0.1163556874244025,,,,,1.246059705229718,0.7123640627372743,,,
+2025-12-25,0022500012,LAL,HOU,0.51499550161941,,,,Amen Thompson,0.1093411696690297,,,,,1.038933689510763,0.6461682245927577,,,
+2025-12-25,0022500013,DEN,MIN,0.4850044983805899,,,,Jamal Murray,0.1080992934499765,,,,,1.1787300943361825,0.6923307985153084,,,
