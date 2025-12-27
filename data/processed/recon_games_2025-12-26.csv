@@ -1,0 +1,10 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2025-12-26,Atlanta Hawks,Miami Heat,ATL,MIA,111,126,,,-15,237,,
+2025-12-26,Orlando Magic,Charlotte Hornets,ORL,CHA,105,120,,,-15,225,,
+2025-12-26,Washington Wizards,Toronto Raptors,WAS,TOR,138,117,,,21,255,,
+2025-12-26,Indiana Pacers,Boston Celtics,IND,BOS,122,140,,,-18,262,,
+2025-12-26,Chicago Bulls,Philadelphia 76ers,CHI,PHI,109,102,,,7,211,,
+2025-12-26,Memphis Grizzlies,Milwaukee Bucks,MEM,MIL,125,104,,,21,229,,
+2025-12-26,New Orleans Pelicans,Phoenix Suns,NOP,PHX,108,115,,,-7,223,,
+2025-12-26,Utah Jazz,Detroit Pistons,UTA,DET,131,129,,,2,260,,
+2025-12-26,Portland Trail Blazers,Los Angeles Clippers,POR,LAC,103,119,,,-16,222,,
