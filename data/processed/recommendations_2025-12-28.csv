@@ -1,0 +1,16 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+TOTAL,Under,Washington Wizards,Memphis Grizzlies,2025-12-28,,,,-15.684066772460966,240.5,,,224.81593322753903,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Detroit Pistons,2025-12-28,0.7014980988528436,132.0,0.43103448275862066,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Detroit Pistons,2025-12-28,,,,11.32256031036377,3.0,8.32256031036377,-3.0,,High
+TOTAL,Over,Los Angeles Clippers,Detroit Pistons,2025-12-28,,,,7.67047119140625,224.5,,,232.17047119140625,High
+ML,Philadelphia 76ers,Oklahoma City Thunder,Philadelphia 76ers,2025-12-28,0.08551690855909677,652.0,0.13297872340425532,,,,,,High
+ATS,Oklahoma City Thunder,Oklahoma City Thunder,Philadelphia 76ers,2025-12-28,,,,2.6605682373046875,-15.5,18.160568237304688,15.5,,Medium
+TOTAL,Over,Oklahoma City Thunder,Philadelphia 76ers,2025-12-28,,,,3.281463623046875,226.5,,,229.78146362304688,Medium
+ML,Portland Trail Blazers,Portland Trail Blazers,Boston Celtics,2025-12-28,0.11666732925290346,213.1818181818182,0.3193033381712627,,,,,,High
+ATS,Portland Trail Blazers,Portland Trail Blazers,Boston Celtics,2025-12-28,,,,3.8830134868621826,6.5,-2.6169865131378174,-6.5,,High
+TOTAL,Under,Portland Trail Blazers,Boston Celtics,2025-12-28,,,,-11.697357177734403,229.5,,,217.8026428222656,High
+ML,Sacramento Kings,Los Angeles Lakers,Sacramento Kings,2025-12-28,0.932625690121816,476.1818181818182,0.1735563269170085,,,,,,High
+ATS,Sacramento Kings,Los Angeles Lakers,Sacramento Kings,2025-12-28,,,,-9.090960502624512,13.0,3.909039497375488,13.0,,High
+TOTAL,Under,Los Angeles Lakers,Sacramento Kings,2025-12-28,,,,-5.836273193359347,231.5,,,225.66372680664065,High
+ML,Golden State Warriors,Toronto Raptors,Golden State Warriors,2025-12-28,0.08982726095550347,-181.1818181818182,0.6443582282573553,,,,,,High
+ATS,Golden State Warriors,Toronto Raptors,Golden State Warriors,2025-12-28,,,,-1.7734298706054688,-4.5,-6.273429870605469,-4.5,,Medium
