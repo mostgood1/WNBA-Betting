@@ -1,0 +1,7 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2025-12-28,Toronto Raptors,Golden State Warriors,TOR,GSW,141,127,,,14,268,,
+2025-12-28,Oklahoma City Thunder,Philadelphia 76ers,OKC,PHI,129,104,,,25,233,,
+2025-12-28,Washington Wizards,Memphis Grizzlies,WAS,MEM,116,112,,,4,228,,
+2025-12-28,Portland Trail Blazers,Boston Celtics,POR,BOS,114,108,,,6,222,,
+2025-12-28,Los Angeles Clippers,Detroit Pistons,LAC,DET,112,99,,,13,211,,
+2025-12-28,Los Angeles Lakers,Sacramento Kings,LAL,SAC,125,101,,,24,226,,
