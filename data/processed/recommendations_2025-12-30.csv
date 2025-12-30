@@ -1,0 +1,12 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Boston Celtics,Utah Jazz,Boston Celtics,2025-12-30,0.015079290429669157,-301.6363636363636,0.7510185604345858,,,,,,Low
+ATS,Boston Celtics,Utah Jazz,Boston Celtics,2025-12-30,,,,-2.335430145263672,-8.0,-10.335430145263672,-8.0,,Medium
+TOTAL,Under,Utah Jazz,Boston Celtics,2025-12-30,,,,-13.354049682617188,241.0,,,227.6459503173828,High
+ML,Los Angeles Lakers,Los Angeles Lakers,Detroit Pistons,2025-12-30,0.4032599250284147,118.0,0.45871559633027525,,,,,,High
+ATS,Los Angeles Lakers,Los Angeles Lakers,Detroit Pistons,2025-12-30,,,,5.132337808609009,2.5,2.632337808609009,-2.5,,High
+TOTAL,Under,Los Angeles Lakers,Detroit Pistons,2025-12-30,,,,-3.314682006835909,232.5,,,229.1853179931641,Medium
+ML,Memphis Grizzlies,Memphis Grizzlies,Philadelphia 76ers,2025-12-30,0.8723464317476877,-68.0909090909091,0.4050838290968091,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,Philadelphia 76ers,2025-12-30,,,,11.05757999420166,1.0,10.05757999420166,-1.0,,High
+TOTAL,Under,Memphis Grizzlies,Philadelphia 76ers,2025-12-30,,,,-6.698226928710966,234.0,,,227.30177307128903,High
+ML,Sacramento Kings,Los Angeles Clippers,Sacramento Kings,2025-12-30,0.06364421357942096,328.72727272727275,0.23324851569126376,,,,,,High
+TOTAL,Over,Los Angeles Clippers,Sacramento Kings,2025-12-30,,,,7.0685272216796875,221.5,,,228.5685272216797,High
