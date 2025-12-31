@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Recommendations</title>
-  <meta name="description" content="EV-based betting recommendations for NBA games." />
+  <meta name="description" content="Unified betting recommendations (ML, ATS, TOTAL, First Basket, Early 3s, Props)." />
   <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://a.espncdn.com">
   <link rel="dns-prefetch" href="https://a.espncdn.com">
@@ -38,6 +38,14 @@
     .tar{text-align:right} .mt-1{margin-top:1rem} .mt-4{margin-top:4px} .lh-13{line-height:1.3}
     .table-wrap{overflow-x:auto}
     .summary-note{font-size:12px;color:var(--muted);margin-top:8px}
+    /* Sortable table headers */
+    .th-sortable{cursor:pointer;-webkit-user-select:none;-ms-user-select:none;user-select:none}
+    .th-sort-ind{margin-left:4px;color:var(--muted);font-size:11px}
+    /* Team logos and badges */
+    .team-badge{display:inline-flex;align-items:center;gap:6px;vertical-align:middle}
+    .team-logo{width:20px;height:20px;object-fit:contain;image-rendering:-webkit-optimize-contrast;border-radius:2px}
+    .color-dot{width:10px;height:10px;border-radius:50%;display:inline-block;border:1px solid var(--border)}
+    .team-text{font-weight:600}
     @media (max-width:760px){ .container{padding:0 10px;margin:12px auto} h1{font-size:20px;margin-bottom:6px} .nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px} .nav a{display:inline-block;margin-right:6px} table{font-size:12px} th,td{padding:6px 4px} thead th{font-size:11px} form.filters input, form.filters select{padding:4px 6px;font-size:12px} form.filters button{padding:4px 8px;font-size:12px} .pill{font-size:10px;padding:2px 6px;margin-left:4px} }
   </style>
 </head>
@@ -58,6 +66,13 @@
           <option value="edge">Edge</option>
         </select>
       </label>
+      <label class="ml-8">Prop markets:
+        <label><input type="checkbox" class="prop-mkt" value="pts" checked /> Pts</label>
+        <label><input type="checkbox" class="prop-mkt" value="reb" checked /> Reb</label>
+        <label><input type="checkbox" class="prop-mkt" value="ast" checked /> Ast</label>
+        <label><input type="checkbox" class="prop-mkt" value="threes" checked /> 3PT</label>
+        <label><input type="checkbox" class="prop-mkt" value="pra" /> PRA</label>
+      </label>
   <button type="submit">Apply</button>
   <button type="button" id="reconcileBtn" title="Reconcile this date (populate results)">Reconcile date</button>
       <button type="button" id="resetBtn">Reset</button>
@@ -66,7 +81,25 @@
   <div id="cardsSummary" class="cards-summary"></div>
   <div class="muted-small banner-small" id="rowsMeta"></div>
     <div id="recsRoot"></div>
-    <p class="summary-note lh-13">Sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs both available. Theme choice persists locally.</p>
+    <h2 class="mt-1">Props Recommendations</h2>
+    <div class="muted-small">Logic: We recommend props with positive expected value (EV) based on model projections vs market lines, showing the best-of-book price. Edge is model minus line in the direction of the pick; EV% estimates expected return per unit stake. We also show model vs line delta in "Why" to explain the signal. Use filters above to focus on markets like Pts/Reb/Ast/3PT/PRA.</div>
+    <form class="filters mt-4" id="propsSortForm" onsubmit="event.preventDefault();">
+      <label>Props sort by:
+        <select id="propsSortBy">
+          <option value="score" selected>Score (desc)</option>
+          <option value="player">Player (A→Z)</option>
+          <option value="team">Team (A→Z)</option>
+          <option value="ev">Top EV% (desc)</option>
+        </select>
+      </label>
+      <button type="button" id="propsSortApply">Apply</button>
+    </form>
+    <div id="propsRoot"></div>
+    <h2 class="mt-1">First Basket</h2>
+    <div id="fbRoot"></div>
+    <h2 class="mt-1">Early 3s (first ~3 min)</h2>
+    <div id="thrRoot"></div>
+    <p class="summary-note lh-13">Games sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs available. Props list top plays by EV%. Theme choice persists locally.</p>
   </div>
   <script>
     (function(){ try{ const body=document.body; const saved=localStorage.getItem('theme'); if(saved==='light') body.classList.add('light'); const t=document.getElementById('themeToggle'); if(t){ t.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); }}catch(e){} })();
@@ -94,26 +127,79 @@
       const v = Math.round(n);
       return v>0 ? ('+'+v) : String(v);
     }
+    // Team metadata for logos and colors
+    const TEAM_NAME_TO_TRI = {
+      "Atlanta Hawks": "ATL","Boston Celtics": "BOS","Brooklyn Nets": "BKN","Charlotte Hornets": "CHA","Chicago Bulls": "CHI","Cleveland Cavaliers": "CLE","Dallas Mavericks": "DAL","Denver Nuggets": "DEN","Detroit Pistons": "DET","Golden State Warriors": "GSW","Houston Rockets": "HOU","Indiana Pacers": "IND","Los Angeles Clippers": "LAC","Los Angeles Lakers": "LAL","Memphis Grizzlies": "MEM","Miami Heat": "MIA","Milwaukee Bucks": "MIL","Minnesota Timberwolves": "MIN","New Orleans Pelicans": "NOP","New York Knicks": "NYK","Oklahoma City Thunder": "OKC","Orlando Magic": "ORL","Philadelphia 76ers": "PHI","Phoenix Suns": "PHX","Portland Trail Blazers": "POR","Sacramento Kings": "SAC","San Antonio Spurs": "SAS","Toronto Raptors": "TOR","Utah Jazz": "UTA","Washington Wizards": "WAS"
+    };
+    const TEAM_META = { ATL:{color:"#E03A3E"}, BOS:{color:"#007A33"}, BKN:{color:"#000000"}, CHA:{color:"#00788C"}, CHI:{color:"#CE1141"}, CLE:{color:"#6F263D"}, DAL:{color:"#00538C"}, DEN:{color:"#0E2240"}, DET:{color:"#C8102E"}, GSW:{color:"#1D428A"}, HOU:{color:"#CE1141"}, IND:{color:"#002D62"}, LAC:{color:"#C8102E"}, LAL:{color:"#552583"}, MEM:{color:"#5D76A9"}, MIA:{color:"#98002E"}, MIL:{color:"#00471B"}, MIN:{color:"#0C2340"}, NOP:{color:"#0C2340"}, NYK:{color:"#006BB6"}, OKC:{color:"#007AC1"}, ORL:{color:"#0077C8"}, PHI:{color:"#006BB6"}, PHX:{color:"#E56020"}, POR:{color:"#E03A3E"}, SAC:{color:"#5A2D81"}, SAS:{color:"#000000"}, TOR:{color:"#CE1141"}, UTA:{color:"#002B5C"}, WAS:{color:"#E31837"} };
+    function teamTri(nameOrTri){ if(!nameOrTri) return null; const s=String(nameOrTri).trim(); const upper=s.toUpperCase(); if(TEAM_META[upper]) return upper; const tri=TEAM_NAME_TO_TRI[s] || TEAM_NAME_TO_TRI[s.replace(/\s+/g,' ').trim()]; return tri||null; }
+    function teamLogoUrl(tri){ if(!tri) return null; return `https://a.espncdn.com/i/teamlogos/nba/500/${tri.toLowerCase()}.png`; }
+    function teamBadge(nameOrTri){ const tri=teamTri(nameOrTri); const meta=tri?TEAM_META[tri]:null; const logo=tri?teamLogoUrl(tri):null; const color=meta?meta.color:'#667085'; const text=(typeof nameOrTri==='string')? nameOrTri: (tri||''); const dot=`<span class="color-dot" style="background:${color}"></span>`; const img=logo? `<img class="team-logo" src="${logo}" alt="${tri}" onerror="this.style.display='none'">`:''; return `<span class="team-badge">${img}${dot}<span class="team-text" style="color:${color}">${text}</span></span>`; }
     function parseDateStr(d){ try{ return new Date(d+'T00:00:00'); }catch(_){ return null; } }
     async function loadRecs(){
       const date = document.getElementById('datePicker').value || localYMD();
       const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
       const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
-      const url = `/api/recommendations?date=${date}&spread_edge=${minSp}&total_edge=${minTot}`;
-      const res = await fetch(url, {cache:'no-store'});
-      const js = await res.json();
-      const rows = Array.isArray(js.rows)? js.rows: [];
-      // Derive confidence & normalized fields
+      const propMkts = selectedPropMarkets();
+      // Fetch unified recommendations across categories (compact for explanations + scores)
+      const allUrl = `/api/recommendations/all?date=${date}&limit=500&compact=1`;
+      const allRes = await fetch(allUrl, {cache:'no-store'});
+      const all = await allRes.json();
+      const games = Array.isArray(all.games)? all.games: [];
+      const propsAll = Array.isArray(all.props)? all.props: [];
+      const props = filterPropsByMarkets(propsAll, propMkts);
+      const first = Array.isArray(all.first_basket)? all.first_basket: [];
+      const thr = Array.isArray(all.early_threes)? all.early_threes: [];
+      // Derive confidence & normalized fields for games; filter by thresholds locally
+      const rows = games.filter(r=>{
+        if(r.market==='ATS') return Math.abs(Number(r.edge||0)) >= minSp;
+        if(r.market==='TOTAL') return Math.abs(Number(r.edge||0)) >= minTot;
+        return true; // keep ML
+      });
       rows.forEach(r=>{ r.confidence = impliedConfidence(r); });
-      // Attach reconciliation results and odds for display
       const finals = await fetchReconGames(date);
       const lines = await fetchPredictionLines(date);
       annotateResults(rows, finals, lines);
-      // Render summary and tables
       renderSummary(rows);
       const rowsMeta = document.getElementById('rowsMeta');
-      if(rowsMeta){ rowsMeta.textContent = `${rows.length} rows (filtered)`; }
+      if(rowsMeta){ rowsMeta.textContent = `${rows.length} game picks | ${props.length} props | ${first.length} first-basket | ${thr.length} early-3s`; }
       renderTables(rows, date);
+      window.__lastProps = props; // cache for re-sorting without refetch
+      renderProps(props);
+      renderFirstBasket(first);
+      renderEarlyThrees(thr);
+    }
+    function selectedPropMarkets(){
+      try{
+        const els = document.querySelectorAll('.prop-mkt');
+        const arr = [];
+        els.forEach(el=>{ if(el.checked) arr.push(String(el.value||'').toLowerCase()); });
+        return arr;
+      }catch(_){ return []; }
+    }
+    function filterPropsByMarkets(rows, mkts){
+      try{
+        if(!Array.isArray(rows) || !rows.length) return [];
+        const set = new Set((mkts||[]).map(s=>String(s||'').toLowerCase()));
+        if(set.size===0) return rows;
+        const matchComposite = (m)=>{
+          const mm = String(m||'').toLowerCase();
+          if(set.has(mm)) return true;
+          // Composite mappings: include combo markets when components selected
+          if(mm==='pa') return (set.has('pts') || set.has('ast'));
+          if(mm==='pr') return (set.has('pts') || set.has('reb'));
+          if(mm==='ra') return (set.has('reb') || set.has('ast'));
+          if(mm==='pra') return (set.has('pra') || set.has('pts') || set.has('reb') || set.has('ast'));
+          // normalize 3pt to threes
+          if(mm==='3pt') return set.has('threes');
+          return false;
+        };
+        return rows.filter(r=>{
+          const plays = parsePlays(r.plays||r.top_play||'');
+          const list = Array.isArray(plays)? plays: ((plays && typeof plays==='object')? [plays] : []);
+          return list.some(p=> matchComposite(p.market));
+        });
+      }catch(_){ return rows||[]; }
     }
     async function fetchReconGames(date){
       try{
@@ -142,13 +228,20 @@
         const js = await r.json();
         const rows = Array.isArray(js.rows)? js.rows: [];
         const m = new Map();
+        const numOrNull = (v)=>{
+          if(v==null) return null;
+          const s = String(v).trim();
+          if(s==='') return null;
+          const n = Number(s);
+          return Number.isFinite(n)? n: null;
+        };
         rows.forEach(x=>{
           const k = String(x.home_team||'').trim()+'@@'+String(x.visitor_team||'').trim();
           m.set(k, {
-            home_spread: x.home_spread!=null? Number(x.home_spread): null,
-            total: x.total!=null? Number(x.total): null,
-            home_ml: x.home_ml!=null? Number(x.home_ml): null,
-            away_ml: x.away_ml!=null? Number(x.away_ml): null,
+            home_spread: numOrNull(x.home_spread),
+            total: numOrNull(x.total),
+            home_ml: numOrNull(x.home_ml),
+            away_ml: numOrNull(x.away_ml),
           });
         });
         return m;
@@ -162,26 +255,69 @@
         const ln = lines.get(key) || lines.get(String(r.away||'').trim()+'@@'+String(r.home||'').trim());
         r.odds = null; r.result = null; r.selectionLabel = '';
         if(r.market==='ML'){
-          const pickHome = r.side===r.home; const amer = pickHome? (ln?ln.home_ml:null): (ln?ln.away_ml:null);
+          const pickHome = r.side===r.home;
+          let amer = pickHome? (ln?ln.home_ml:null): (ln?ln.away_ml:null);
+          if(amer==null){
+            const ps = r.price;
+            if(ps!=null && String(ps).trim()!==''){
+              const v = Number(ps);
+              amer = (Number.isFinite(v) && v!==0) ? v : null;
+            }
+          }
           r.odds = (amer!=null? amer: null);
           r.selectionLabel = `${r.side} ML`;
           if(f && f.hp!=null && f.ap!=null){ const homeWon = f.hp>f.ap; r.result = (pickHome===homeWon)? 'Win':'Loss'; }
         } else if(r.market==='ATS'){
-          const hs = ln? ln.home_spread: null; if(hs!=null){
-            const lineHome = Number(hs); const isHome = r.side===r.home;
+          let hs = ln? ln.home_spread: null;
+          if(hs==null){
+            // Fallback: use row line; assume line refers to home_team spread
+            const ls = r.line;
+            if(ls!=null && String(ls).trim()!==''){
+              const v = Number(ls);
+              hs = Number.isFinite(v) ? v : null;
+            }
+          }
+          if(hs!=null && Number.isFinite(Number(hs))){
+            const lineHome = Number(hs);
+            const isHome = r.side===r.home;
             const lineDisp = isHome? (lineHome>0?`+${lineHome}`:`${lineHome}`) : ((-lineHome)>0?`+${-lineHome}`:`${-lineHome}`);
             r.selectionLabel = `${r.side} ${lineDisp}`;
           } else { r.selectionLabel = `${r.side}`; }
-          r.odds = -110;
-          if(f && f.hp!=null && f.ap!=null && hs!=null){
-            const margin = f.hp - f.ap; const diff = (r.side===r.home)? (margin + Number(hs)) : (-margin - Number(hs));
+          // Prefer enriched price from row when available
+          if(r.price!=null && String(r.price).trim()!==''){
+            const pv = Number(r.price);
+            r.odds = (Number.isFinite(pv) && pv!==0)? pv: -110;
+          } else {
+            r.odds = -110;
+          }
+          if(f && f.hp!=null && f.ap!=null && hs!=null && Number.isFinite(Number(hs))){
+            const margin = f.hp - f.ap;
+            const diff = (r.side===r.home)? (margin + Number(hs)) : (-margin - Number(hs));
             r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss');
           }
         } else if(r.market==='TOTAL'){
-          const tot = ln? ln.total: null; const side = String(r.side||'').toLowerCase();
-          r.selectionLabel = tot!=null? `${r.side} ${Number(tot)}`: `${r.side}`;
-          r.odds = -110;
-          if(f && f.hp!=null && f.ap!=null && tot!=null){ const pts = f.hp + f.ap; const diff = side.startsWith('o')? (pts-Number(tot)) : (Number(tot)-pts); r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss'); }
+          let tot = ln? ln.total: null;
+          if(tot==null){
+            const ls = r.line;
+            if(ls!=null && String(ls).trim()!==''){
+              const v = Number(ls);
+              tot = Number.isFinite(v) ? v : null;
+            }
+          }
+          const side = String(r.side||'').toLowerCase();
+          r.selectionLabel = (tot!=null && Number.isFinite(Number(tot)))? `${r.side} ${Number(tot)}`: `${r.side}`;
+          // Prefer enriched price from row when available (Over/Under specific)
+          if(r.price!=null && String(r.price).trim()!==''){
+            const pv = Number(r.price);
+            r.odds = (Number.isFinite(pv) && pv!==0)? pv: -110;
+          } else {
+            r.odds = -110;
+          }
+          if(f && f.hp!=null && f.ap!=null && tot!=null && Number.isFinite(Number(tot))){
+            const pts = f.hp + f.ap;
+            const diff = side.startsWith('o')? (pts-Number(tot)) : (Number(tot)-pts);
+            r.result = Math.abs(diff)<1e-9? 'Push': (diff>0? 'Win':'Loss');
+          }
         }
       });
     }
@@ -218,14 +354,109 @@
       }catch(_){ root.innerHTML='<div class="card">Failed to load YTD summary.</div>'; }
     }
     function sortRows(rows){ const mode=document.getElementById('sortBy').value; return rows.slice().sort((a,b)=>{ if(mode==='confidence'){ const order={High:0,Medium:1,Low:2}; const ca=order[a.confidence]??9; const cb=order[b.confidence]??9; if(ca!==cb) return ca-cb; return (b.ev||0)-(a.ev||0); } if(mode==='time'){ return 0; } if(mode==='type'){ return String(a.market).localeCompare(String(b.market)) || (b.ev||0)-(a.ev||0); } if(mode==='ev'){ return (b.ev||0)-(a.ev||0); } if(mode==='edge'){ const ae=Math.abs(a.edge||0); const be=Math.abs(b.edge||0); if(be!==ae) return be-ae; return (b.ev||0)-(a.ev||0); } return 0; }); }
+    function parseStartTimeMinutes(s){ try{ if(!s) return Number.POSITIVE_INFINITY; const str=String(s).trim();
+      const m = str.match(/^(\d{1,2}):(\d{2})\s*(am|pm)/i);
+      if(m){ let h=parseInt(m[1],10); const mm=parseInt(m[2],10); const ap=m[3].toLowerCase(); if(ap==='pm' && h<12) h+=12; if(ap==='am' && h===12) h=0; return h*60+mm; }
+      const d=new Date(str); if(!isNaN(d.getTime())){ return d.getHours()*60 + d.getMinutes(); }
+      return Number.POSITIVE_INFINITY; } catch(_){ return Number.POSITIVE_INFINITY; } }
     function renderTables(rows, date){
       const root=document.getElementById('recsRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No recommendations available.</div>'; return; }
-      const sorted=sortRows(rows);
+      const mode=document.getElementById('sortBy').value;
+      const sorted=rows.slice().sort((a,b)=>{
+        if(mode==='time'){
+          const ta=parseStartTimeMinutes(a.start_time), tb=parseStartTimeMinutes(b.start_time);
+          if(ta!==tb) return ta-tb;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0));
+        }
+        const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; const order={High:0,Medium:1,Low:2}; const ca=order[a.confidence]??9; const cb=order[b.confidence]??9; if(ca!==cb) return ca-cb; return (Number(b.ev||0))-(Number(a.ev||0));
+      });
       const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
-      sorted.forEach(r=>{ const t=r.confidence||'Low'; groups.get(t).push(r); });
-  groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody'); arr.forEach(r=>{ const tr=document.createElement('tr'); const game=`${r.away} @ ${r.home}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); const oddsDisp = (r.market==='ML' && r.odds!=null)? fmtOddsAmerican(r.odds): ((r.market!=='ML')? '-110' : ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; const pill = r.confidence? `<span class=\"pill ${pillClass(r.confidence)}\">${confidenceDisplay(r.confidence)}</span>`:''; tr.innerHTML=`<td>${game}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsDisp}</td><td class="tar">${evDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+      sorted.forEach(r=>{ const t=(r.tier||r.confidence||'Low'); groups.get(t).push(r); });
+  groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV/Edge</th><th class="tar">Score</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody');
+    // If sorting by time, order rows inside the tier by start_time
+    if(mode==='time'){
+      arr = arr.slice().sort((a,b)=>{ const ta=parseStartTimeMinutes(a.start_time), tb=parseStartTimeMinutes(b.start_time); if(ta!==tb) return ta-tb; const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0)); });
     }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } loadRecs(); });
+    arr.forEach(r=>{ const tr=document.createElement('tr'); const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const away = (r.away && String(r.away).trim())? String(r.away).trim(): (r.matchup? String(r.matchup).split(' @ ')[0]: ''); const home = (r.home && String(r.home).trim())? String(r.home).trim(): (r.matchup? String(r.matchup).split(' @ ')[1]: ''); const gameHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}${gidTxt}${timeTxt}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); let oddsDisp=''; if(r.odds!=null){ oddsDisp = fmtOddsAmerican(r.odds); } else { oddsDisp = (r.market!=='ML')? '-110' : ''; } const oddsHtml = oddsDisp + (r.book? ` <span class="muted-small">${String(r.book)}</span>`: ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; const pill = (r.tier||r.confidence)? `<span class="pill ${pillClass(r.tier||r.confidence)}">${confidenceDisplay(r.tier||r.confidence)}</span>`:''; tr.innerHTML=`<td>${gameHtml}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsHtml}</td><td class="tar">${evDisp}</td><td class="tar">${scoreDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+    }
+    function parsePlays(val){
+      try{
+        if(val==null) return [];
+        if(Array.isArray(val)) return val;
+        if(typeof val==='object') return val; // allow single top_play object
+        if(typeof val==='string'){
+          const s = val.trim();
+          if(!s) return [];
+          return JSON.parse(s.replace(/'/g,'"'));
+        }
+        return [];
+      }catch(_){ return []; }
+    }
+    function renderProps(rows){ const root=document.getElementById('propsRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No props recommendations.</div>'; return; }
+      const mode = (document.getElementById('propsSortBy')||{value:'score'}).value;
+      const topEV = (r)=>{
+        try{
+          const plays = parsePlays(r.plays||r.top_play||'');
+          const arr = Array.isArray(plays)? plays: (typeof plays==='object' && plays? [plays]: []);
+          const best = arr.slice().sort((a,b)=> Number(b.ev_pct||b.ev||0) - Number(a.ev_pct||a.ev||0))[0];
+          const val = best? (best.ev_pct!=null? Number(best.ev_pct): (best.ev!=null? Number(best.ev)*100: 0)) : 0;
+          return Number.isFinite(val)? val: 0;
+        }catch(_){ return 0; }
+      };
+      // Column header sort state
+      const sortState = window.__propsSort || { key: mode==='player'?'player': (mode==='team'?'team': (mode==='ev'?'ev':'score')), dir: 'desc' };
+      const sorted = rows.slice().sort((a,b)=>{
+        const key = sortState.key || mode;
+        const dir = sortState.dir || 'desc';
+        const mul = (dir==='asc')? -1 : 1; // invert comparator to reuse desc logic
+        if(key==='player'){
+          return String(a.player||a.player_name||'').localeCompare(String(b.player||b.player_name||''));
+        }
+        if(key==='team'){
+          return String(a.team||'').localeCompare(String(b.team||'')) || String(a.player||'').localeCompare(String(b.player||''));
+        }
+        if(key==='ev'){
+          const ea = topEV(a), eb = topEV(b);
+          if(eb!==ea) return (eb-ea)*mul; // toggle
+          const sa=Number(a.score||0), sb=Number(b.score||0); if(sb!==sa) return sb-sa;
+          return String(a.player||'').localeCompare(String(b.player||''));
+        }
+        // default score desc
+        const sa=Number(a.score||0), sb=Number(b.score||0);
+        if(sb!==sa) return (sb-sa)*mul;
+        return String(a.player||a.player_name||'').localeCompare(String(b.player||b.player_name||''));
+      });
+      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th class="th-sortable" data-key="player">Player<span class="th-sort-ind"></span></th><th class="th-sortable" data-key="team">Team<span class="th-sort-ind"></span></th><th>Top Plays</th><th class="th-sortable tar" data-key="score">Score<span class="th-sort-ind"></span></th><th>Why</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const tr=document.createElement('tr'); const plays = parsePlays(r.plays||r.top_play||''); let list = []; if(Array.isArray(plays)){ list = plays.slice().sort((a,b)=> (Number(b.ev_pct||b.ev||0) - Number(a.ev_pct||a.ev||0))).slice(0,3); } else if(typeof plays==='object' && plays){ list=[plays]; }
+        const disp = list.map(p=>{ const evp = (p.ev_pct!=null)? (Number(p.ev_pct).toFixed(1)+'%') : (p.ev!=null? (Number(p.ev*100).toFixed(1)+'%') : ''); const price = (p.price!=null)? ((Number(p.price)>0? '+'+Number(p.price): String(Number(p.price)))): ''; return `${String(p.market||'').toUpperCase()} ${String(p.side||'').toUpperCase()} ${p.line!=null? Number(p.line): ''} ${price} <span class="muted-small">${evp}${p.book? ' · '+p.book: ''}</span>`; }).join('<br/>'); const why = r.top_play_explain || '';
+        const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): '');
+        const teamHtml = r.team? teamBadge(r.team): '';
+        tr.innerHTML=`<td>${r.player||''}</td><td>${teamHtml}</td><td>${disp||''}</td><td class="tar">${scoreDisp}</td><td>${why}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+      // Apply sort indicators and click handlers
+      try{
+        const ths = tbl.querySelectorAll('thead th.th-sortable');
+        ths.forEach(th=>{
+          const k = th.getAttribute('data-key');
+          const ind = th.querySelector('.th-sort-ind');
+          if(ind){ ind.textContent = (sortState.key===k)? (sortState.dir==='asc'?'▲':'▼') : ''; }
+          th.addEventListener('click', ()=>{
+            const current = window.__propsSort || { key: 'score', dir: 'desc' };
+            const next = { key: k, dir: (current.key===k && current.dir==='desc')? 'asc':'desc' };
+            window.__propsSort = next;
+            if(window.__lastProps){ renderProps(window.__lastProps); }
+          });
+        });
+      }catch(_){ /* ignore */ }
+    function renderFirstBasket(rows){ const root=document.getElementById('fbRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No first-basket recommendations.</div>'; return; }
+      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Player</th><th>Team</th><th>Prob</th><th>Fair</th><th>Rank</th></tr></thead>'; const tb=document.createElement('tbody'); rows.slice(0,10).forEach(r=>{ const prob = (r.prob_first_basket!=null)? (Number(r.prob_first_basket*100).toFixed(1)+'%') : ''; const fair = (r.fair_american!=null)? ((Number(r.fair_american)>0? '+'+Number(r.fair_american): String(Number(r.fair_american)))): ''; const tr=document.createElement('tr'); const game = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): ''; const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const teamHtml = r.team? teamBadge(r.team): ''; tr.innerHTML=`<td>${game}${gidTxt}${timeTxt}</td><td>${r.player_name||''}</td><td>${teamHtml}</td><td class="tar">${prob}</td><td class="tar">${fair}</td><td class="tar">${r.rank||''}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+    function renderEarlyThrees(rows){ const root=document.getElementById('thrRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No early-3s signals.</div>'; return; }
+      const sorted = [...rows].sort((a,b)=>{
+        const pa = Number(a.prob_ge_1||0), pb = Number(b.prob_ge_1||0);
+        if(pb!==pa) return pb-pa; // prob desc
+        const ea = Number(a.expected||0), eb = Number(b.expected||0);
+        return eb-ea; // expected desc
+      });
+      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } loadRecs(); });
   </script>
 </body>
 </html>

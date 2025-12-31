@@ -1,0 +1,21 @@
+{
+  "games": {
+    "ml_ev": 0.6,
+    "ml_gap": 0.4,
+    "ats_scale": 3.0,
+    "total_scale": 5.0
+  },
+  "props": {
+    "ev_pct": 0.6,
+    "payout": 0.2,
+    "baseline": 0.2
+  },
+  "first_basket": {
+    "prob": 0.8,
+    "payout": 0.2
+  },
+  "early_threes": {
+    "prob": 0.5,
+    "expected": 0.5
+  }
+}

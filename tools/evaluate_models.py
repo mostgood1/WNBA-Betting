@@ -266,6 +266,130 @@ def evaluate_totals(start: datetime, end: datetime) -> dict:
     }
 
 
+def evaluate_lines_classification(start: datetime, end: datetime) -> dict:
+    """Evaluate classification accuracy for ATS (spread) and O/U (totals) using available market lines.
+
+    Rules:
+    - ATS: determine home cover vs the market home spread line.
+      If home_spread is negative (home favorite), cover if actual_margin > abs(line).
+      If home_spread is positive (home underdog), cover if actual_margin + line > 0.
+      Predicted ATS uses predicted margin if available (e.g., spread_margin) with same rule.
+      Pushes (exactly equal after adjustment) are excluded from accuracy counts.
+    - Totals: classify Over/Under relative to market total point; predicted uses model totals.
+    """
+    def _num(s: pd.Series) -> pd.Series:
+        return pd.to_numeric(s, errors="coerce")
+
+    def _ats_cover(actual_margin: pd.Series, line: pd.Series) -> pd.Series:
+        # Vectorized cover: True/False/NaN (push -> NaN)
+        am = _num(actual_margin)
+        ln = _num(line)
+        # Two cases: favorite (ln<0) uses am > abs(ln); underdog (ln>0) uses am + ln > 0
+        fav = ln < 0
+        und = ln > 0
+        res = pd.Series(index=am.index, dtype="float")
+        res[fav] = (am[fav] > (-ln[fav]).abs()).astype(float)
+        res[und] = ((am[und] + ln[und]) > 0).astype(float)
+        # Push handling: where equality holds, set NaN to exclude from accuracy
+        push_mask = pd.Series(False, index=am.index)
+        push_mask[fav] = am[fav] == (-ln[fav]).abs()
+        push_mask[und] = (am[und] + ln[und]) == 0
+        res[push_mask] = pd.NA
+        return res
+
+    def _ou_over(actual_total: pd.Series, line: pd.Series) -> pd.Series:
+        at = _num(actual_total)
+        ln = _num(line)
+        res = (at > ln).astype(float)
+        # Push where equal -> NaN
+        res[at == ln] = pd.NA
+        return res
+
+    rows = []
+    for d in daterange(start, end):
+        ds = d.strftime("%Y-%m-%d")
+        pred = _load_csv(PROCESSED / f"predictions_{ds}.csv")
+        finals = _load_csv(PROCESSED / f"finals_{ds}.csv")
+        # Prefer per-day current odds snapshot; fallback to closing lines
+        odds = _load_csv(PROCESSED / f"game_odds_{ds}.csv")
+        if odds is None or odds.empty:
+            odds = _load_csv(PROCESSED / f"closing_lines_{ds}.csv")
+        if pred is None or pred.empty or finals is None or finals.empty or odds is None or odds.empty:
+            continue
+        try:
+            p = pred.copy(); f = finals.copy(); o = odds.copy()
+            for df in (p, f, o):
+                for c in ("home_team","visitor_team","date"):
+                    if c not in df.columns and c.upper() in df.columns:
+                        df[c] = df[c.upper()]
+            keys = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in f.columns and c in o.columns]
+            if len(keys) < 2:
+                continue
+            m = p.merge(f, on=keys, suffixes=("_p","_f")).merge(o, on=keys)
+            # Actuals
+            if {"home_score","visitor_score"}.issubset(m.columns):
+                am = _num(m["home_score"]) - _num(m["visitor_score"])  # actual margin
+                at = _num(m["home_score"]) + _num(m["visitor_score"])  # actual total
+            elif {"home_pts","visitor_pts"}.issubset(m.columns):
+                am = _num(m["home_pts"]) - _num(m["visitor_pts"])  # actual margin
+                at = _num(m["home_pts"]) + _num(m["visitor_pts"])  # actual total
+            else:
+                continue
+            # Lines
+            sp_line = m.get("home_spread") if "home_spread" in m.columns else m.get("spread_point")
+            tot_line = m.get("total") if "total" in m.columns else m.get("total_point")
+            if sp_line is None or tot_line is None:
+                continue
+            # Predicted values
+            pred_margin = m.get("spread_margin") if "spread_margin" in m.columns else None
+            pred_total = m.get("totals") if "totals" in m.columns else None
+            # Actual ATS and O/U
+            y_ats = _ats_cover(am, sp_line)
+            y_ou = _ou_over(at, tot_line)
+            # Predicted ATS/O/U if we have model outputs
+            p_ats = None; p_ou = None
+            if pred_margin is not None:
+                pm = _num(pred_margin)
+                p_ats = _ats_cover(pm, sp_line)
+            if pred_total is not None:
+                p_ou = (_num(pred_total) > _num(tot_line)).astype(float)
+                # Push: predicted == line -> exclude
+                p_ou[_num(pred_total) == _num(tot_line)] = pd.NA
+
+            # Compute accuracies excluding NaNs (pushes or missing)
+            def _acc(p: pd.Series | None, y: pd.Series) -> float:
+                if p is None:
+                    return float("nan")
+                msk = (~pd.isna(p)) & (~pd.isna(y))
+                if msk.sum() == 0:
+                    return float("nan")
+                return float((p[msk] == y[msk]).mean())
+
+            rows.append({
+                "date": ds,
+                "ats_accuracy": _acc(p_ats, y_ats),
+                "ou_accuracy": _acc(p_ou, y_ou),
+                "ats_n": int((~pd.isna(y_ats)).sum()),
+                "ou_n": int((~pd.isna(y_ou)).sum()),
+            })
+        except Exception:
+            continue
+
+    if not rows:
+        return {"lines": {"n_days": 0}}
+    df = pd.DataFrame(rows)
+    out = {
+        "lines": {
+            "n_days": int(df["date"].nunique()),
+            "ats_acc_mean": float(pd.to_numeric(df["ats_accuracy"], errors="coerce").dropna().mean()),
+            "ou_acc_mean": float(pd.to_numeric(df["ou_accuracy"], errors="coerce").dropna().mean()),
+            "ats_games": int(pd.to_numeric(df["ats_n"], errors="coerce").fillna(0).sum()),
+            "ou_games": int(pd.to_numeric(df["ou_n"], errors="coerce").fillna(0).sum()),
+        }
+    }
+    return out
+
+
 def evaluate_pbp_markets(start: datetime, end: datetime) -> dict:
     # Uses pbp_reconcile_<date>.csv metrics when available
     rows = []
@@ -324,6 +448,7 @@ def main():
     res = {}
     res.update(evaluate_games(start, end))
     res.update(evaluate_totals(start, end))
+    res.update(evaluate_lines_classification(start, end))
     res.update(evaluate_pbp_markets(start, end))
 
     # Print and write a summary CSV

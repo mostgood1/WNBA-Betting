@@ -306,6 +306,34 @@ def evaluate_props_lite_cmd(start: str | None, end: str | None, days: int):
         console.print(f"Props lite failed: {e}", style="red")
 
 
+@cli.command("recommend-picks")
+@click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
+@click.option("--topN", type=int, default=10, show_default=True, help="Max picks per market type")
+@click.option("--minScore", type=float, default=0.15, show_default=True, help="Minimum confidence score threshold")
+def recommend_picks_cmd(date_str: str, topn: int, minscore: float):
+    """Generate daily high-confidence picks across moneyline, spread, and totals.
+
+    Reads predictions and odds/closing lines for the date, applies reliability-adjusted confidence,
+    and writes picks CSV to data/processed/picks_<date>.csv.
+    """
+    console.rule("Recommend Picks")
+    try:
+        _ = pd.to_datetime(date_str).date()
+    except Exception:
+        console.print("Invalid --date. Use YYYY-MM-DD.", style="red"); return
+    try:
+        script = paths.root / "tools" / "recommend_picks.py"
+        if not script.exists():
+            console.print(f"Missing recommend script: {script}", style="red"); return
+        args = [sys.executable, str(script), "--date", str(date_str), "--topN", str(int(topn)), "--minScore", str(float(minscore))]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Recommend exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Recommend failed: {e}", style="red")
+
+
 @cli.command()
 @click.option("--season", type=str, default="2025-26", show_default=True, help="NBA season string, e.g., 2025-26")
 def fetch_rosters_cmd(season: str):
@@ -2734,14 +2762,49 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
                 tmp = wide.copy()
                 tmp["date"] = pd.to_datetime(tmp["commence_time"], utc=True).dt.tz_convert("US/Eastern").dt.strftime("%Y-%m-%d")
                 tmp = tmp.rename(columns={"away_team":"visitor_team"})
+                # Map consensus point columns to canonical names
                 if "spread_point" in tmp.columns:
                     tmp["home_spread"] = tmp["spread_point"]
                     tmp["away_spread"] = tmp["home_spread"].apply(lambda x: -x if pd.notna(x) else pd.NA)
                 if "total_point" in tmp.columns:
                     tmp["total"] = tmp["total_point"]
-                cols = [c for c in ["date","commence_time","home_team","visitor_team","home_ml","away_ml","home_spread","away_spread","total"] if c in tmp.columns]
+                # Build output with price columns included
+                cols = [c for c in [
+                    "date","commence_time","home_team","visitor_team",
+                    "home_ml","away_ml",
+                    "home_spread","away_spread","home_spread_price","away_spread_price",
+                    "total","total_over_price","total_under_price"
+                ] if c in tmp.columns]
                 out_df = tmp[cols].copy()
                 out_df["bookmaker"] = "oddsapi_consensus"
+                # Persist Bovada odds and fill any missing fields (prefer OddsAPI values)
+                try:
+                    bov = fetch_bovada_odds_current(str(target_date))
+                    if isinstance(bov, pd.DataFrame) and not bov.empty:
+                        bov = bov.rename(columns={"away_team":"visitor_team"}).copy()
+                        bov["_key"] = bov.apply(lambda r: f"{str(r.get('home_team') or '').strip()}@@{str(r.get('visitor_team') or '').strip()}", axis=1)
+                        smap = bov.set_index("_key").to_dict(orient="index")
+                        def _fill_from_bov(row):
+                            k = f"{str(row.get('home_team') or '').strip()}@@{str(row.get('visitor_team') or '').strip()}"
+                            rec = smap.get(k)
+                            if not rec:
+                                return row
+                            def _fill(col):
+                                if col in row and pd.notna(row[col]) and str(row[col]).strip() != "":
+                                    return row[col]
+                                return rec.get(col)
+                            # Fill fields only if missing
+                            for c in [
+                                "home_ml","away_ml",
+                                "home_spread","away_spread","home_spread_price","away_spread_price",
+                                "total","total_over_price","total_under_price"
+                            ]:
+                                val = _fill(c)
+                                row[c] = val
+                            return row
+                        out_df = out_df.apply(_fill_from_bov, axis=1)
+                except Exception as ex:
+                    console.print({"warning":"Bovada fill failed","error":str(ex)}, style="yellow")
                 out_df.to_csv(game_odds_out, index=False)
                 console.print({"game_odds_rows": int(len(out_df)), "output": str(game_odds_out)})
             else:

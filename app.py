@@ -16,6 +16,8 @@ import subprocess as _subp
 
 import pandas as pd
 import numpy as np
+import math
+import json
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
 from pathlib import Path as _PathEarly
@@ -2086,8 +2088,10 @@ def api_recommendations():
                             "tier": _tier_for_pick("ML", ev, None),
                             "date": d,
                         })
-                # Spread rec
+                # Spread rec (fallback to baseline column names)
                 pred_m = _number(r.get("pred_margin"))
+                if pred_m is None:
+                    pred_m = _number(r.get("spread_margin"))
                 home_spread = _number(r.get("home_spread"))
                 if pred_m is not None and home_spread is not None:
                     market_home_margin = -home_spread
@@ -2108,8 +2112,10 @@ def api_recommendations():
                             "tier": _tier_for_pick("ATS", None, edge),
                             "date": d,
                         })
-                # Total rec
+                # Total rec (fallback to baseline column names)
                 pred_t = _number(r.get("pred_total"))
+                if pred_t is None:
+                    pred_t = _number(r.get("totals"))
                 total = _number(r.get("total"))
                 if pred_t is not None and total is not None:
                     edge_t = pred_t - total
@@ -2207,16 +2213,28 @@ def api_recommendations_summary():
         if de < ds:
             ds, de = de, ds
 
-        rec_files = []
+        # Discover recommendation exports; support both recommendations_*.csv and picks_*.csv
+        rec_files_map = {}
         if proc.exists():
+            # Picks exports (tools/recommend_picks.py) — canonicalize to same schema later
+            for p in sorted(proc.glob("picks_*.csv")):
+                try:
+                    dstr = p.stem.replace("picks_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_files_map[dstr] = p
+                except Exception:
+                    continue
+            # Recommendations exports — if present, prefer these over picks for the date
             for p in sorted(proc.glob("recommendations_*.csv")):
                 try:
                     dstr = p.stem.replace("recommendations_", "")
                     d = _parse_date(dstr)
                     if d and ds.date() <= d.date() <= de.date():
-                        rec_files.append((dstr, p))
+                        rec_files_map[dstr] = p
                 except Exception:
                     continue
+        rec_files = sorted([(dstr, fp) for dstr, fp in rec_files_map.items()])
 
         # Stats template per bucket
         def _empty_stats():
@@ -2260,15 +2278,46 @@ def api_recommendations_summary():
             def _norm(s):
                 return (str(s or "").strip())
 
+            # Unified accessors for different export schemas (recommendations_* vs picks_*)
+            cols = {c.lower(): c for c in rec.columns}
+
+            def _col(*names):
+                for n in names:
+                    c = cols.get(str(n).lower())
+                    if c:
+                        return c
+                return None
+
+            home_col = _col("home", "home_team")
+            away_col = _col("away", "visitor_team")
+            side_col = _col("side", "pick")
+            market_col = _col("market")
+            ev_col = _col("ev")
+            edge_col = _col("edge")
+            odds_col = _col("price", "odds")
+            prob_col = _col("implied_prob", "prob_adj")
+
             # Evaluate each recommendation
             for _, r in rec.iterrows():
                 try:
-                    market = str(r.get("market") or "").upper()
-                    side = str(r.get("side") or "").strip()
-                    home = _norm(r.get("home"))
-                    away = _norm(r.get("away"))
-                    ev = r.get("ev")
-                    edge = r.get("edge")
+                    market = str((r.get(market_col) if market_col else "") or "").upper()
+                    side = str((r.get(side_col) if side_col else "") or "").strip()
+                    home = _norm(r.get(home_col) if home_col else r.get("home"))
+                    away = _norm(r.get(away_col) if away_col else r.get("away"))
+                    ev = r.get(ev_col) if ev_col else None
+                    edge = r.get(edge_col) if edge_col else None
+                    # If EV is missing (common in picks_*), try to compute from probability + odds
+                    if (ev is None or pd.isna(ev)) and market == "ML":
+                        try:
+                            prob = r.get(prob_col) if prob_col else None
+                            price = r.get(odds_col) if odds_col else None
+                            prob = float(prob) if prob is not None and not pd.isna(prob) else None
+                            dec = _american_to_decimal(price) if price is not None and not pd.isna(price) else None
+                            if prob is not None and dec is not None:
+                                # EV per unit stake
+                                ev = (prob * (dec - 1.0)) - ((1.0 - prob) * 1.0)
+                        except Exception:
+                            ev = None
                     tier = _tier_for_row(market, ev, edge)
                     for key in ("Overall", tier):
                         buckets[key]["total"] += 1
@@ -2408,6 +2457,754 @@ def api_recommendations_summary():
             "buckets": buckets,
             "dates": [d for d, _ in rec_files],
         })
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recommendations/all")
+def api_recommendations_all():
+    """Unified recommendations endpoint across categories for a given date.
+
+    Aggregates:
+      - Games (ML/ATS/TOTAL): data/processed/recommendations_<date>.csv
+      - Props (cards): data/processed/props_recommendations_<date>.csv
+      - First Basket: data/processed/first_basket_recs_<date>.csv
+      - Early Threes: data/processed/early_threes_<date>.csv
+
+        Query params:
+            - date: YYYY-MM-DD
+            - limit: optional integer to cap items per category
+            - categories: comma-separated in {games,props,first_basket,early_threes}
+            - markets: comma-separated games markets in {ML,ATS,TOTAL} (applies to games only)
+            - compact: 1 to return minimal fields per category
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        out = {"date": d, "games": [], "props": [], "first_basket": [], "early_threes": []}
+
+        # Parse filters
+        try:
+            cats_q = (request.args.get("categories") or "").strip()
+            want_cats = set([v.strip().lower() for v in cats_q.replace(";", ",").split(",") if v.strip()])
+        except Exception:
+            want_cats = set()
+        try:
+            mkts_q = (request.args.get("markets") or "").strip()
+            want_mkts = set([v.strip().upper() for v in mkts_q.replace(";", ",").split(",") if v.strip()])
+        except Exception:
+            want_mkts = set()
+        compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
+        # Instrumentation: marker to confirm handler path and params
+        try:
+            print(f"[api_recommendations_all] date={d} compact={compact} cats={sorted(list(want_cats))} mkts={sorted(list(want_mkts))}")
+        except Exception:
+            pass
+
+        def _read(fp):
+            try:
+                return pd.read_csv(fp)
+            except Exception:
+                return pd.DataFrame()
+
+        # Games (ML/ATS/TOTAL)
+        if (not want_cats) or ("games" in want_cats):
+            games_p = proc / f"recommendations_{d}.csv"
+            games_df = _read(games_p)
+            if not games_df.empty:
+                try:
+                    df = games_df.copy()
+                    # Filter by markets if requested
+                    if want_mkts and ("market" in df.columns):
+                        df = df[df["market"].astype(str).str.upper().isin(want_mkts)]
+                    if compact:
+                        keep = [c for c in ["market","side","home","away","line","price","edge","ev","tier"] if c in df.columns]
+                        rows = df[keep].fillna("").to_dict(orient="records")
+                        # Enrich with bookmaker odds (ATS/TOTAL prices) from processed or live Bovada
+                        try:
+                            # Preferred: processed consolidated odds if available
+                            odds_p = proc / f"game_odds_{d}.csv"
+                            odds_df = _read(odds_p)
+                            try:
+                                print(f"[api_recommendations_all] odds_path={odds_p} exists={odds_p.exists()} rows={(0 if odds_df is None else len(odds_df))}")
+                            except Exception:
+                                pass
+                            # If absent or missing price fields, attempt live Bovada fetch
+                            if (odds_df is None or odds_df.empty or ("home_spread_price" not in odds_df.columns)) and (_fetch_bovada_odds_current is not None):
+                                try:
+                                    bov = _fetch_bovada_odds_current(d)
+                                    if isinstance(bov, pd.DataFrame) and not bov.empty:
+                                        odds_df = bov
+                                except Exception:
+                                    pass
+                            if isinstance(odds_df, pd.DataFrame) and not odds_df.empty:
+                                # Build map by team names; accept alt column names
+                                df_od = odds_df.copy()
+                                if "home_team" not in df_od.columns:
+                                    for alt in ("home", "team_home"):
+                                        if alt in df_od.columns:
+                                            df_od["home_team"] = df_od[alt]
+                                            break
+                                if "visitor_team" not in df_od.columns:
+                                    for alt in ("away", "team_away"):
+                                        if alt in df_od.columns:
+                                            df_od["visitor_team"] = df_od[alt]
+                                            break
+                                ok_cols = {
+                                    "home_team","visitor_team","home_ml","away_ml","home_spread","away_spread",
+                                    "home_spread_price","away_spread_price","total","total_over_price","total_under_price","bookmaker","date"
+                                }
+                                df_od = df_od[[c for c in df_od.columns if c in ok_cols]]
+                                # Normalize team keys (aliases + case-insensitive)
+                                _ALIASES = {
+                                    "ny knicks": "new york knicks",
+                                    "gs warriors": "golden state warriors",
+                                    "g state warriors": "golden state warriors",
+                                    "okc thunder": "oklahoma city thunder",
+                                    "no pelicans": "new orleans pelicans",
+                                    "la lakers": "los angeles lakers",
+                                    "lakers": "los angeles lakers",
+                                    "la clippers": "los angeles clippers",
+                                    "clippers": "los angeles clippers",
+                                }
+                                def _norm_team(x):
+                                    s = str(x or '').strip()
+                                    lx = s.lower()
+                                    return _ALIASES.get(lx, s)
+                                def _k(h, a):
+                                    hh = _norm_team(h)
+                                    aa = _norm_team(a)
+                                    return f"{str(hh or '').strip().lower()}@@{str(aa or '').strip().lower()}"
+                                df_od["_key"] = df_od.apply(lambda r: _k(r.get("home_team"), r.get("visitor_team")), axis=1)
+                                smap = df_od.set_index("_key").to_dict(orient="index")
+                                # Diagnostics: track match/miss stats
+                                matched_keys = 0
+                                missed_keys = 0
+                                missed_samples = []
+
+                                def _price_for(row):
+                                    try:
+                                        k = _k(row.get("home"), row.get("away"))
+                                        rec = smap.get(k)
+                                        if not rec:
+                                            # Try reversed key if naming differs
+                                            rk = _k(row.get("away"), row.get("home"))
+                                            rec = smap.get(rk)
+                                        if not rec:
+                                            nonlocal missed_keys, missed_samples
+                                            missed_keys += 1
+                                            if len(missed_samples) < 5:
+                                                missed_samples.append({"home": row.get("home"), "away": row.get("away"), "key": k})
+                                            return None, None
+                                        else:
+                                            nonlocal matched_keys
+                                            matched_keys += 1
+                                        m = str(row.get('market') or '').upper()
+                                        side = str(row.get('side') or '').strip()
+                                        # Determine home/away pick robustly
+                                        side_u = side.upper()
+                                        pick_home = side_u in {"HOME"} or (side == str(row.get('home') or ''))
+                                        if m == 'ML':
+                                            # Prefer existing ML price; otherwise use from odds
+                                            if row.get('price') not in (None, ""):
+                                                return row.get('price'), rec.get('bookmaker')
+                                            pr = rec.get('home_ml') if pick_home else rec.get('away_ml')
+                                            return pr, rec.get('bookmaker')
+                                        elif m == 'ATS':
+                                            pr = rec.get('home_spread_price') if pick_home else rec.get('away_spread_price')
+                                            # Default to -110 if missing
+                                            if pr in (None, ""):
+                                                pr = -110.0
+                                            return pr, rec.get('bookmaker')
+                                        elif m == 'TOTAL':
+                                            s = side_u
+                                            pr = rec.get('total_over_price') if s.startswith('O') else rec.get('total_under_price')
+                                            if pr in (None, ""):
+                                                pr = -110.0
+                                            return pr, rec.get('bookmaker')
+                                        return None, None
+                                    except Exception:
+                                        return None, None
+
+                                for r in rows:
+                                    pr, bk = _price_for(r)
+                                    if pr is not None and pr != "":
+                                        try:
+                                            r["price"] = float(pr)
+                                        except Exception:
+                                            r["price"] = pr
+                                    if bk:
+                                        r["book"] = bk
+                                # Final fallback: ensure ATS/TOTAL have a price
+                                for r in rows:
+                                    if str(r.get("market") or "").upper() in {"ATS","TOTAL"}:
+                                        if r.get("price") in (None, ""):
+                                            r["price"] = -110.0
+                                # Emit enrichment diagnostics
+                                try:
+                                    print(f"[api_recommendations_all] odds_enrich matched={matched_keys} missed={missed_keys} samples={missed_samples}")
+                                except Exception:
+                                    pass
+                                # Enrich matchup and start time for games via schedule
+                                try:
+                                    sched_p = proc / "schedule_2025_26.csv"
+                                    sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
+                                    if isinstance(sched_df, pd.DataFrame) and not sched_df.empty:
+                                        cols = {c.lower(): c for c in sched_df.columns}
+                                        gid_col = cols.get("game_id")
+                                        h_city = cols.get("home_city"); h_name = cols.get("home_name"); h_tri = cols.get("home_tricode")
+                                        a_city = cols.get("away_city"); a_name = cols.get("away_name"); a_tri = cols.get("away_tricode")
+                                        time_est = cols.get("time_est"); dt_est = cols.get("datetime_est")
+                                        def _full(row, city_col, name_col, fallback_col):
+                                            try:
+                                                city = str(row.get(city_col, '')).strip(); name = str(row.get(name_col, '')).strip()
+                                                if city and name:
+                                                    return f"{city} {name}"
+                                                val = str(row.get(name_col, '')).strip() or str(row.get(fallback_col, '')).strip()
+                                                return val or None
+                                            except Exception:
+                                                return None
+                                        _ALIASES = {
+                                            "ny knicks": "new york knicks",
+                                            "gs warriors": "golden state warriors",
+                                            "g state warriors": "golden state warriors",
+                                            "okc thunder": "oklahoma city thunder",
+                                            "no pelicans": "new orleans pelicans",
+                                            "la lakers": "los angeles lakers",
+                                            "lakers": "los angeles lakers",
+                                            "la clippers": "los angeles clippers",
+                                            "clippers": "los angeles clippers",
+                                        }
+                                        def _norm_team(x):
+                                            s = str(x or '').strip()
+                                            lx = s.lower()
+                                            return _ALIASES.get(lx, s).lower()
+                                        # Build map keyed by normalized home/away names
+                                        smap = {}
+                                        for _, rr in sched_df.iterrows():
+                                            try:
+                                                home_full = _full(rr, h_city, h_name, h_tri or h_city)
+                                                away_full = _full(rr, a_city, a_name, a_tri or a_city)
+                                                start = str(rr.get(time_est) or '').strip() or str(rr.get(dt_est) or '').strip()
+                                                gidv = rr.get(gid_col) if gid_col else None
+                                                hk = _norm_team(home_full)
+                                                ak = _norm_team(away_full)
+                                                if hk and ak:
+                                                    smap[f"{hk}@@{ak}"] = {"home_full": home_full, "away_full": away_full, "start_time": start, "game_id": (str(gidv) if gidv is not None else None)}
+                                            except Exception:
+                                                continue
+                                        # Apply to rows
+                                        for r in rows:
+                                            try:
+                                                h = _norm_team(r.get("home"))
+                                                a = _norm_team(r.get("away"))
+                                                key = f"{h}@@{a}"
+                                                rec = smap.get(key) or smap.get(f"{a}@@{h}")
+                                                # Always add a matchup label; prefer schedule full names when available
+                                                if rec:
+                                                    r["matchup"] = f"{rec.get('away_full') or (r.get('away') or '')} @ {rec.get('home_full') or (r.get('home') or '')}"
+                                                    r["start_time"] = rec.get("start_time")
+                                                    if rec.get("game_id") is not None:
+                                                        r["game_id"] = rec.get("game_id")
+                                                else:
+                                                    r["matchup"] = f"{str(r.get('away') or '').strip()} @ {str(r.get('home') or '').strip()}"
+                                            except Exception:
+                                                pass
+                                except Exception:
+                                    pass
+                        except Exception:
+                            pass
+                    else:
+                        rows = df.fillna("").to_dict(orient="records")
+                    out["games"] = rows
+                    try:
+                        total_games = len(rows)
+                        atst = sum(1 for r in rows if str(r.get("market") or "").upper() in {"ATS","TOTAL"})
+                        priced = sum(1 for r in rows if str(r.get("market") or "").upper() in {"ATS","TOTAL"} and str(r.get("price") or "") != "")
+                        print(f"[api_recommendations_all] games={total_games} ats_total={atst} priced={priced}")
+                    except Exception:
+                        pass
+                    # Global fallback: ensure ATS/TOTAL have a price even if enrichment failed
+                    try:
+                        for r in out.get("games", []):
+                            mk = str((r or {}).get("market") or "").upper()
+                            if mk in {"ATS","TOTAL"}:
+                                if (r or {}).get("price") in (None, ""):
+                                    r["price"] = -110.0
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
+
+        # Props recommendations
+        # Optional: load model baselines for props (for explanation and scoring)
+        props_pred_df = _read(proc / f"props_predictions_{d}.csv")
+        model_map: dict[tuple[str,str], dict] = {}
+        if isinstance(props_pred_df, pd.DataFrame) and not props_pred_df.empty:
+            try:
+                tmp = props_pred_df.copy()
+                for c in ("player_name","team"):
+                    if c not in tmp.columns:
+                        tmp[c] = None
+                # Build stat mapping per player/team
+                def _stat_map(row):
+                    m = {}
+                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                        if col in props_pred_df.columns:
+                            try:
+                                v = pd.to_numeric(row.get(col), errors="coerce")
+                                if pd.notna(v):
+                                    m[key] = float(v)
+                            except Exception:
+                                pass
+                    return m
+                tmp["_stat_map"] = tmp.apply(_stat_map, axis=1)
+                for _, r in tmp.iterrows():
+                    k = (str(r.get("player_name") or "").strip().lower(), str(r.get("team") or "").strip().upper())
+                    model_map[k] = r.get("_stat_map") or {}
+            except Exception:
+                model_map = {}
+
+        if (not want_cats) or ("props" in want_cats):
+            props_p = proc / f"props_recommendations_{d}.csv"
+            props_df = _read(props_p)
+            if not props_df.empty:
+                try:
+                    df = props_df.copy()
+                    if compact:
+                        # Derive top play per player if plays or top_play present
+                        import ast, json
+                        def _parse_obj(val):
+                            # Accept dict, list, JSON string, or Python literal string
+                            if isinstance(val, (list, dict)):
+                                return val
+                            s = str(val)
+                            if not s or s.strip() in {"", "None", "nan"}:
+                                return None
+                            try:
+                                return json.loads(s)
+                            except Exception:
+                                try:
+                                    return ast.literal_eval(s)
+                                except Exception:
+                                    return None
+                        def _top_play_general(row):
+                            try:
+                                plays = None
+                                if "plays" in row.index:
+                                    plays = _parse_obj(row.get("plays"))
+                                tp = None
+                                if "top_play" in row.index and not plays:
+                                    tp = _parse_obj(row.get("top_play"))
+                                if isinstance(plays, list) and plays:
+                                    lst = sorted(plays, key=lambda x: float(x.get("ev_pct", x.get("ev", 0)) or 0), reverse=True)
+                                    p = lst[0]
+                                elif isinstance(tp, dict) and tp:
+                                    p = tp
+                                else:
+                                    return None
+                                return {
+                                    "market": p.get("market"),
+                                    "side": p.get("side"),
+                                    "line": p.get("line"),
+                                    "price": p.get("price"),
+                                    "ev": p.get("ev"),
+                                    "ev_pct": p.get("ev_pct"),
+                                    "book": p.get("book"),
+                                }
+                            except Exception:
+                                return None
+                        df["top_play"] = df.apply(_top_play_general, axis=1)
+                        # Normalize player/team column names
+                        if "player" not in df.columns and "player_name" in df.columns:
+                            df["player"] = df["player_name"]
+                        # Build concise explanation for the top play
+                        def _explain(row):
+                            try:
+                                tp = row.get("top_play")
+                                if not isinstance(tp, dict) or not tp:
+                                    return ""
+                                m = str(tp.get("market") or "").upper()
+                                side = str(tp.get("side") or "").upper()
+                                line = tp.get("line")
+                                price = tp.get("price")
+                                ev = tp.get("ev")
+                                evp = tp.get("ev_pct")
+                                book = tp.get("book")
+                                # Attempt to fetch model baseline for this player/team/market
+                                player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+                                team = str(row.get("team") or "").strip().upper()
+                                base = None
+                                try:
+                                    stats = model_map.get((player, team)) or {}
+                                    base = stats.get(m.lower())  # keys are lower-case stat names
+                                except Exception:
+                                    base = None
+                                # Compose display strings
+                                def _odds(a):
+                                    try:
+                                        n = float(a)
+                                        return ("+"+str(int(round(n)))) if n>0 else str(int(round(n)))
+                                    except Exception:
+                                        return ""
+                                def _pct(v):
+                                    try:
+                                        return f"{float(v):.1f}%"
+                                    except Exception:
+                                        return ""
+                                ev_str = _pct(evp) if (evp is not None and not pd.isna(evp)) else (_pct(100.0*ev) if (ev is not None and not pd.isna(ev)) else "")
+                                price_str = _odds(price) if price is not None else ""
+                                line_str = (str(line) if line is not None else "")
+                                delta_str = ""
+                                if base is not None and line is not None:
+                                    try:
+                                        delta = float(base) - float(line)
+                                        sign = "+" if delta>=0 else ""
+                                        delta_str = f"model {float(base):.1f} vs line {float(line):.1f} ({sign}{float(delta):.1f})"
+                                    except Exception:
+                                        delta_str = ""
+                                # Only return the explanation to avoid repeating Top Plays details
+                                return delta_str.strip()
+                            except Exception:
+                                return ""
+                        df["top_play_explain"] = df.apply(_explain, axis=1)
+                        # Include baseline for score calculation clients
+                        def _baseline_val(row):
+                            try:
+                                tp = row.get("top_play")
+                                if not isinstance(tp, dict) or not tp:
+                                    return None
+                                player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+                                team = str(row.get("team") or "").strip().upper()
+                                stats = model_map.get((player, team)) or {}
+                                m = str(tp.get("market") or "").lower()
+                                return stats.get(m)
+                            except Exception:
+                                return None
+                        df["top_play_baseline"] = df.apply(_baseline_val, axis=1)
+                        keep = [c for c in ["player","team","top_play","top_play_explain"] if c in df.columns]
+                        rows = df[keep].fillna("").to_dict(orient="records")
+                    else:
+                        rows = df.fillna("").to_dict(orient="records")
+                    out["props"] = rows
+                except Exception:
+                    pass
+
+        # First basket recs
+        if (not want_cats) or ("first_basket" in want_cats):
+            fb_p = proc / f"first_basket_recs_{d}.csv"
+            fb_df = _read(fb_p)
+            if not fb_df.empty:
+                try:
+                    df = fb_df.copy()
+                    # Enrich matchup and start time via schedule
+                    try:
+                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
+                        if not sched_df.empty and ("game_id" in sched_df.columns):
+                            cols = {c.lower(): c for c in sched_df.columns}
+                            gid_col = cols.get("game_id")
+                            h_city = cols.get("home_city"); h_name = cols.get("home_name"); h_tri = cols.get("home_tricode")
+                            a_city = cols.get("away_city"); a_name = cols.get("away_name"); a_tri = cols.get("away_tricode")
+                            time_est = cols.get("time_est"); dt_est = cols.get("datetime_est")
+                            if gid_col:
+                                sched_df[gid_col] = sched_df[gid_col].astype(str)
+                                def _full(row, city_col, name_col, fallback_col):
+                                    try:
+                                        city = str(row.get(city_col, '')).strip(); name = str(row.get(name_col, '')).strip()
+                                        if city and name: return f"{city} {name}"
+                                        val = str(row.get(name_col, '')).strip() or str(row.get(fallback_col, '')).strip()
+                                        return val or None
+                                    except Exception:
+                                        return None
+                                smap = {}
+                                for _, r in sched_df.iterrows():
+                                    k = str(r[gid_col])
+                                    home_full = _full(r, h_city, h_name, h_tri or h_city)
+                                    away_full = _full(r, a_city, a_name, a_tri or a_city)
+                                    start = str(r.get(time_est) or '').strip() or str(r.get(dt_est) or '').strip()
+                                    smap[k] = {"home_full": home_full, "away_full": away_full, "start_time": start}
+                                df["_gid_str"] = df["game_id"].astype(str)
+                                df["matchup"] = df["_gid_str"].map(lambda x: (f"{(smap.get(x) or {}).get('away_full') or ''} @ {(smap.get(x) or {}).get('home_full') or ''}").strip())
+                                df["start_time"] = df["_gid_str"].map(lambda x: (smap.get(x) or {}).get("start_time"))
+                                df.drop(columns=["_gid_str"], inplace=True)
+                    except Exception:
+                        pass
+                    if compact:
+                        keep = [c for c in ["game_id","matchup","start_time","player_name","team","prob_first_basket","fair_american","rank"] if c in df.columns]
+                        rows = df[keep].fillna("").to_dict(orient="records")
+                    else:
+                        rows = df.fillna("").to_dict(orient="records")
+                    out["first_basket"] = rows
+                except Exception:
+                    pass
+
+        # Early threes model output (recommendations inferred)
+        if (not want_cats) or ("early_threes" in want_cats):
+            thr_p = proc / f"early_threes_{d}.csv"
+            thr_df = _read(thr_p)
+            if not thr_df.empty:
+                try:
+                    tmp = thr_df.copy()
+                    for c in ("game_id","home_team","visitor_team","prob_ge_1","expected_threes_0_3","threes_0_3_pred"):
+                        if c not in tmp.columns:
+                            tmp[c] = None
+                    # Fill team name fallbacks
+                    if "home_team" not in thr_df.columns and "home" in tmp.columns:
+                        tmp["home_team"] = tmp["home"]
+                    if "visitor_team" not in thr_df.columns and "away" in tmp.columns:
+                        tmp["visitor_team"] = tmp["away"]
+                    if "visitor_team" not in tmp.columns and "visitor" in tmp.columns:
+                        tmp["visitor_team"] = tmp["visitor"]
+                    # Enrich team names via schedule join when missing
+                    try:
+                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
+                        if not sched_df.empty and ("game_id" in sched_df.columns):
+                            # Build map from game_id to full names (city + name) preferred; fallback to name/tricode/city
+                            cols = {c.lower(): c for c in sched_df.columns}
+                            gid_col = cols.get("game_id")
+                            h_city = cols.get("home_city")
+                            h_name = cols.get("home_name")
+                            a_city = cols.get("away_city")
+                            a_name = cols.get("away_name")
+                            h_tricode = cols.get("home_tricode")
+                            a_tricode = cols.get("away_tricode")
+                            # Fallback columns if full components missing
+                            h_col = h_name or h_tricode or h_city
+                            a_col = a_name or a_tricode or a_city
+                            if gid_col and h_col and a_col:
+                                sched_df[gid_col] = sched_df[gid_col].astype(str)
+                                # Prepare full display names when possible
+                                def _full(row, city_col, name_col, fallback_col):
+                                    try:
+                                        city = str(row.get(city_col, '')).strip()
+                                        name = str(row.get(name_col, '')).strip()
+                                        if city and name:
+                                            return f"{city} {name}"
+                                        val = str(row.get(name_col, '')).strip() or str(row.get(fallback_col, '')).strip()
+                                        return val or None
+                                    except Exception:
+                                        return None
+                                # Build mapping dict
+                                smap = {}
+                                for _, r in sched_df.iterrows():
+                                    k = r[gid_col]
+                                    home_full = _full(r, h_city, h_name, h_tricode or h_city)
+                                    away_full = _full(r, a_city, a_name, a_tricode or a_city)
+                                    start = str(r.get(cols.get("time_est") or "") or '').strip() or str(r.get(cols.get("datetime_est") or "") or '').strip()
+                                    smap[k] = {"home_full": home_full, "away_full": away_full, "start_time": start,
+                                               "home": r.get(h_col), "away": r.get(a_col)}
+                                # Only fill blanks; do not override existing values
+                                tmp["_gid_str"] = tmp["game_id"].astype(str)
+                                fill_home_full = tmp["_gid_str"].map(lambda x: (smap.get(x) or {}).get("home_full") or (smap.get(x) or {}).get("home"))
+                                fill_away_full = tmp["_gid_str"].map(lambda x: (smap.get(x) or {}).get("away_full") or (smap.get(x) or {}).get("away"))
+                                fill_start = tmp["_gid_str"].map(lambda x: (smap.get(x) or {}).get("start_time"))
+                                home_is_blank = tmp["home_team"].astype(str).str.strip().isin(["", "None", "nan"]) | (tmp["home_team"].isna())
+                                away_is_blank = tmp["visitor_team"].astype(str).str.strip().isin(["", "None", "nan"]) | (tmp["visitor_team"].isna())
+                                tmp.loc[home_is_blank, "home_team"] = fill_home_full.loc[home_is_blank]
+                                tmp.loc[away_is_blank, "visitor_team"] = fill_away_full.loc[away_is_blank]
+                                # always add start_time
+                                tmp["start_time"] = fill_start
+                                tmp.drop(columns=["_gid_str"], inplace=True)
+                    except Exception:
+                        pass
+                    # Add explicit matchup display for clarity
+                    try:
+                        tmp["matchup"] = tmp.apply(lambda r: f"{str(r.get('visitor_team') or '').strip()} @ {str(r.get('home_team') or '').strip()}".strip(), axis=1)
+                    except Exception:
+                        tmp["matchup"] = tmp.apply(lambda r: f"Game {str(r.get('game_id') or '').strip()}".strip(), axis=1)
+                    tmp["prob_ge_1"] = pd.to_numeric(tmp["prob_ge_1"], errors="coerce")
+                    tmp["expected"] = pd.to_numeric(tmp.get("expected_threes_0_3", tmp.get("threes_0_3_pred")), errors="coerce")
+                    tmp["side"] = tmp.apply(lambda r: ("Yes" if float(r.get("prob_ge_1") or 0) >= 0.6 else "No"), axis=1)
+                    if compact:
+                        keep = [c for c in ["game_id","matchup","start_time","home_team","visitor_team","side","prob_ge_1","expected"] if c in tmp.columns]
+                        rows = tmp[keep].fillna("").to_dict(orient="records")
+                    else:
+                        rows = tmp.fillna("").to_dict(orient="records")
+                    out["early_threes"] = rows
+                except Exception:
+                    pass
+
+        # Optional cap per category
+        try:
+            limit = request.args.get("limit"); limit = int(limit) if (limit is not None and str(limit).strip() != "") else None
+        except Exception:
+            limit = None
+        # Multi-factor recommendation scoring (beyond EV) with optional weight overrides
+        # Default weights
+        weights = {
+            "games": {"ml_ev": 0.6, "ml_gap": 0.4, "ats_scale": 3.0, "total_scale": 5.0},
+            "props": {"ev_pct": 0.6, "payout": 0.2, "baseline": 0.2},
+            "first_basket": {"prob": 0.8, "payout": 0.2},
+            "early_threes": {"prob": 0.5, "expected": 0.5},
+        }
+        try:
+            wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
+            if wpath.exists():
+                with open(wpath, "r", encoding="utf-8") as fh:
+                    wjson = json.load(fh)
+                    # Merge shallowly
+                    for k in weights:
+                        if k in wjson and isinstance(wjson[k], dict):
+                            weights[k].update({kk: v for kk, v in wjson[k].items() if isinstance(v, (int, float))})
+        except Exception:
+            pass
+        def _clamp01(x):
+            try:
+                return 0.0 if (x is None or pd.isna(x)) else max(0.0, min(1.0, float(x)))
+            except Exception:
+                return 0.0
+        def _american_to_decimal(a):
+            try:
+                aa = float(a)
+            except Exception:
+                return None
+            if aa == 0:
+                return None
+            if aa > 0:
+                return 1.0 + (aa/100.0)
+            return 1.0 + (100.0/abs(aa))
+        def _score_game(row):
+            m = str(row.get("market") or "").upper()
+            if m == "ML":
+                ev = row.get("ev")
+                implied = row.get("implied_prob")
+                # Combine EV (clamped) with model-vs-market probability gap when available
+                try:
+                    ev_norm = _clamp01((float(ev) if ev is not None else 0.0) * 5.0)
+                except Exception:
+                    ev_norm = 0.0
+                try:
+                    gap = 0.0
+                    p = None
+                    # if implied present, derive model prob from price via EV relationship not straightforward; skip
+                    if implied is not None:
+                        p = float(implied)
+                        # favor lower implied when our EV is positive (market underestimates)
+                        gap = _clamp01(max(0.0, 0.5 - p) * 2.0)
+                except Exception:
+                    gap = 0.0
+                return round(weights["games"]["ml_ev"] * ev_norm + weights["games"]["ml_gap"] * gap, 3)
+            if m == "ATS":
+                try:
+                    edge = abs(float(row.get("edge") or 0.0))
+                    # diminishing returns; 3 pts ~ 0.6, 5+ pts ~ near 1
+                    scale = max(1e-6, float(weights["games"]["ats_scale"]))
+                    score = 1.0 - math.exp(-edge / scale)
+                    return round(_clamp01(score), 3)
+                except Exception:
+                    return 0.0
+            if m == "TOTAL":
+                try:
+                    edge = abs(float(row.get("edge") or 0.0))
+                    # totals edges typically larger; scale by 5
+                    scale = max(1e-6, float(weights["games"]["total_scale"]))
+                    score = 1.0 - math.exp(-edge / scale)
+                    return round(_clamp01(score), 3)
+                except Exception:
+                    return 0.0
+            return 0.0
+        def _score_props(row):
+            tp = row.get("top_play")
+            if isinstance(tp, dict) and tp:
+                evp = tp.get("ev_pct")
+                ev = tp.get("ev")
+                price = tp.get("price")
+                dec = _american_to_decimal(price) if price is not None else None
+                # Normalize features
+                evp_norm = _clamp01((float(evp) if evp is not None else (100.0 * float(ev) if ev is not None else 0.0)) / 100.0)
+                payout_norm = _clamp01(((float(dec) - 1.0) if dec is not None else 0.0) / 5.0)
+                # Baseline vs line contribution
+                try:
+                    base = row.get("top_play_baseline")
+                    line = tp.get("line")
+                    delta = abs(float(base) - float(line)) if (base is not None and line is not None) else 0.0
+                    # Market-specific scaling (rough heuristics)
+                    mk = str(tp.get("market") or "").lower()
+                    scales = {"pts": 6.0, "reb": 3.0, "ast": 3.0, "threes": 2.0, "pra": 8.0}
+                    s = scales.get(mk, 5.0)
+                    base_norm = _clamp01(delta / s)
+                except Exception:
+                    base_norm = 0.0
+                return round(weights["props"]["ev_pct"] * evp_norm + weights["props"]["payout"] * payout_norm + weights["props"]["baseline"] * base_norm, 3)
+            return 0.0
+        def _score_first_basket(row):
+            try:
+                p = _clamp01(float(row.get("prob_first_basket") or 0.0))
+            except Exception:
+                p = 0.0
+            try:
+                dec = float(row.get("fair_decimal") or 0.0)
+                payout_norm = _clamp01(max(0.0, dec - 1.0) / 10.0)
+            except Exception:
+                payout_norm = 0.0
+            return round(0.8 * p + 0.2 * payout_norm, 3)
+        def _score_early_threes(row):
+            try:
+                prob = _clamp01(float(row.get("prob_ge_1") or 0.0))
+            except Exception:
+                prob = 0.0
+            try:
+                expv = _clamp01(float(row.get("expected") or 0.0) / 3.0)
+            except Exception:
+                expv = 0.0
+            return round(0.5 * prob + 0.5 * expv, 3)
+        # Apply scores and derive tiers uniformly
+        def _tier_from_score(s):
+            try:
+                v = float(s)
+                if v >= 0.75:
+                    return "High"
+                if v >= 0.5:
+                    return "Medium"
+                return "Low"
+            except Exception:
+                return "Low"
+        try:
+            # Games
+            out["games"] = [
+                {**r, "score": _score_game(r), "tier": (r.get("tier") or _tier_from_score(_score_game(r)))}
+                for r in (out.get("games") or [])
+            ]
+            # Props
+            out["props"] = [
+                {**r, "score": _score_props(r), "tier": _tier_from_score(_score_props(r))}
+                for r in (out.get("props") or [])
+            ]
+            # First basket
+            # Ensure fair_decimal present for scoring if only American odds available
+            def _with_fair_decimal(r):
+                try:
+                    fa = r.get("fair_american")
+                    if fa is None or fa == "":
+                        return r
+                    aa = float(fa)
+                    dec = (1.0 + (aa/100.0)) if aa>0 else (1.0 + (100.0/abs(aa)))
+                    return {**r, "fair_decimal": dec}
+                except Exception:
+                    return r
+            out["first_basket"] = [
+                {**_with_fair_decimal(r), "score": _score_first_basket(_with_fair_decimal(r)), "tier": _tier_from_score(_score_first_basket(_with_fair_decimal(r)))}
+                for r in (out.get("first_basket") or [])
+            ]
+            # Early threes
+            out["early_threes"] = [
+                {**r, "score": _score_early_threes(r), "tier": _tier_from_score(_score_early_threes(r))}
+                for r in (out.get("early_threes") or [])
+            ]
+        except Exception:
+            pass
+        if limit and limit > 0:
+            for k in ("games","props","first_basket","early_threes"):
+                arr = out.get(k) or []
+                out[k] = arr[:limit]
+
+        # Include counts
+        out["counts"] = {k: int(len(out.get(k) or [])) for k in ("games","props","first_basket","early_threes")}
+        return jsonify(out)
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 

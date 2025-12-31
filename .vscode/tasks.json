@@ -283,6 +283,20 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		},
+		{
+			"label": "Odds: snapshot (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m nba_betting.cli odds-snapshots --date $d"
+			],
+			"isBackground": false,
+			"group": "build"
 		}
 	],
 	"inputs": [
