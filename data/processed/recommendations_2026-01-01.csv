@@ -1,10 +1,10 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.44309342229893045,320.27272727272725,0.23794073112697384,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.4449663534115831,320.8181818181818,0.23763231799524737,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,,,,6.079264879226685,9.5,-3.4207351207733154,-9.5,,High
-TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-9.765975952148409,229.0,,,219.2340240478516,High
+TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-10.265975952148409,229.5,,,219.2340240478516,High
 ATS,Miami Heat,Detroit Pistons,Miami Heat,2026-01-01,,,,-2.422647476196289,4.5,2.077352523803711,4.5,,Medium
 TOTAL,Under,Detroit Pistons,Miami Heat,2026-01-01,,,,-3.1518096923828125,236.5,,,233.3481903076172,Medium
-ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.42256095773245517,398.27272727272725,0.20069330414158001,,,,,,High
+ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.435538160412007,402.8181818181818,0.19887904538058218,,,,,,High
 ATS,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,,,,4.432456970214844,11.5,-7.067543029785156,-11.5,,High
 TOTAL,Over,Brooklyn Nets,Houston Rockets,2026-01-01,,,,8.89190673828125,218.5,,,227.39190673828125,High
 ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,0.47890006475592883,114.54545454545456,0.4661016949152542,,,,,,High
