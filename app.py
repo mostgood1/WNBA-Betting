@@ -2541,6 +2541,9 @@ def api_recommendations_all():
         # Games (ML/ATS/TOTAL)
         if (not want_cats) or ("games" in want_cats):
             games_p = proc / f"recommendations_{d}.csv"
+            # Attempt remote fetch if missing
+            if not games_p.exists():
+                _maybe_fetch_remote_processed(games_p.name)
             games_df = _read(games_p)
             if not games_df.empty:
                 try:
@@ -2764,6 +2767,43 @@ def api_recommendations_all():
                                     r["price"] = -110.0
                     except Exception:
                         pass
+                except Exception:
+                    pass
+            else:
+                # Fallback: use picks_<date>.csv if recommendations are missing
+                try:
+                    picks_p = proc / f"picks_{d}.csv"
+                    if not picks_p.exists():
+                        _maybe_fetch_remote_processed(picks_p.name)
+                    pdf = pd.read_csv(picks_p) if picks_p.exists() else pd.DataFrame()
+                    if isinstance(pdf, pd.DataFrame) and not pdf.empty:
+                        tmp = pdf.copy()
+                        for c in ("home_team","visitor_team","market","pick","odds","edge","score"):
+                            if c not in tmp.columns:
+                                tmp[c] = None
+                        def _canon_row(r):
+                            m = str(r.get("market") or "").strip().lower()
+                            mk = {"moneyline":"ML","spread":"ATS","total":"TOTAL"}.get(m, m.upper())
+                            pick = str(r.get("pick") or "").strip().upper()
+                            home = str(r.get("home_team") or "").strip()
+                            away = str(r.get("visitor_team") or "").strip()
+                            if mk == "ML":
+                                side = home if pick == "HOME" else away
+                            elif mk == "ATS":
+                                side = home if pick == "HOME" else away
+                            elif mk == "TOTAL":
+                                side = "OVER" if pick.startswith("O") else "UNDER"
+                            else:
+                                side = ""
+                            price = r.get("odds")
+                            edge = r.get("edge")
+                            sc = r.get("score")
+                            out_row = {"market": mk, "side": side, "home": home, "away": away, "price": price, "edge": edge}
+                            if sc is not None:
+                                out_row["score"] = sc
+                            return out_row
+                        rows = tmp.apply(_canon_row, axis=1).tolist()
+                        out["games"] = rows
                 except Exception:
                     pass
 
@@ -3193,9 +3233,17 @@ def api_recommendations_all():
             except Exception:
                 return "Low"
         try:
-            # Games
+            # Games: preserve existing score if present; otherwise compute
+            def _score_or_compute(row):
+                v = row.get("score")
+                try:
+                    if v is not None and not pd.isna(v):
+                        return float(v)
+                except Exception:
+                    pass
+                return _score_game(row)
             out["games"] = [
-                {**r, "score": _score_game(r), "tier": (r.get("tier") or _tier_from_score(_score_game(r)))}
+                {**r, "score": _score_or_compute(r), "tier": (r.get("tier") or _tier_from_score(_score_or_compute(r)))}
                 for r in (out.get("games") or [])
             ]
             # Props
