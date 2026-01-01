@@ -1,14 +1,15 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.4449663534115831,320.8181818181818,0.23763231799524737,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.44371773266981474,320.45454545454544,0.23783783783783785,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,,,,6.079264879226685,9.5,-3.4207351207733154,-9.5,,High
-TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-10.265975952148409,229.5,,,219.2340240478516,High
+TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-9.765975952148409,229.0,,,219.2340240478516,High
 ATS,Miami Heat,Detroit Pistons,Miami Heat,2026-01-01,,,,-2.422647476196289,4.5,2.077352523803711,4.5,,Medium
 TOTAL,Under,Detroit Pistons,Miami Heat,2026-01-01,,,,-3.1518096923828125,236.5,,,233.3481903076172,Medium
-ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.435538160412007,402.8181818181818,0.19887904538058218,,,,,,High
-ATS,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,,,,4.432456970214844,11.5,-7.067543029785156,-11.5,,High
-TOTAL,Over,Brooklyn Nets,Houston Rockets,2026-01-01,,,,8.89190673828125,218.5,,,227.39190673828125,High
-ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,0.47890006475592883,114.54545454545456,0.4661016949152542,,,,,,High
+ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.4812179138440289,418.8181818181818,0.1927457508323112,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,,,,5.432456970214844,12.5,-7.067543029785156,-12.5,,High
+TOTAL,Over,Brooklyn Nets,Houston Rockets,2026-01-01,,,,9.89190673828125,217.5,,,227.39190673828125,High
+ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,0.47702010704649334,114.27272727272728,0.46669495120916415,,,,,,High
 ATS,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,7.950901508331299,2.5,5.450901508331299,-2.5,,High
-TOTAL,Under,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,-5.1157684326171875,229.5,,,224.3842315673828,High
-ATS,Los Angeles Clippers,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,3.3289899826049805,-12.5,15.82898998260498,12.5,,High
-TOTAL,Over,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,4.009735107421875,232.5,,,236.50973510742188,High
+TOTAL,Under,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,-6.1157684326171875,230.5,,,224.3842315673828,High
+ML,Utah Jazz,Los Angeles Clippers,Utah Jazz,2026-01-01,0.14614780935411043,579.0909090909091,0.14725568942436412,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,1.3289899826049805,-14.5,15.82898998260498,14.5,,Low
+TOTAL,Over,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,6.009735107421875,230.5,,,236.50973510742188,High
