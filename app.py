@@ -291,6 +291,35 @@ def api_list_processed():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/processed/recon_games")
+def api_processed_recon_games():
+    """Serve recon_games_<date>.csv if present; otherwise return empty CSV.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+    """
+    try:
+        d = (request.args.get("date") or "").strip()
+        if not d:
+            return jsonify({"error": "missing date"}), 400
+        base = BASE_DIR / "data" / "processed"
+        fp = base / f"recon_games_{d}.csv"
+        if fp.exists():
+            try:
+                # Serve the file directly to avoid 404 logs on the static handler
+                return send_from_directory(str(base), f"recon_games_{d}.csv")
+            except Exception:
+                # Fallback: read text and return as CSV
+                txt = fp.read_text(encoding="utf-8")
+                from flask import Response as _Resp
+                return _Resp(txt, mimetype="text/csv")
+        # Not present: return empty CSV response (avoids 404 noise)
+        from flask import Response as _Resp
+        return _Resp("", mimetype="text/csv")
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
 
 @app.route("/")
 def root():

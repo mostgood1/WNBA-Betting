@@ -203,7 +203,7 @@
     }
     async function fetchReconGames(date){
       try{
-        const r = await fetch(`/data/processed/recon_games_${date}.csv`, {cache:'no-store'});
+        const r = await fetch(`/api/processed/recon_games?date=${date}`, {cache:'no-store'});
         if(!r.ok) return new Map();
         const txt = await r.text();
         const lines = txt.trim().split(/\r?\n/);
