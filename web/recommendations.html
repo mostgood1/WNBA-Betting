@@ -427,10 +427,21 @@
         return String(a.player||a.player_name||'').localeCompare(String(b.player||b.player_name||''));
       });
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th class="th-sortable" data-key="player">Player<span class="th-sort-ind"></span></th><th class="th-sortable" data-key="team">Team<span class="th-sort-ind"></span></th><th>Top Plays</th><th class="th-sortable tar" data-key="score">Score<span class="th-sort-ind"></span></th><th>Why</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const tr=document.createElement('tr'); const plays = parsePlays(r.plays||r.top_play||''); let list = []; if(Array.isArray(plays)){ list = plays.slice().sort((a,b)=> (Number(b.ev_pct||b.ev||0) - Number(a.ev_pct||a.ev||0))).slice(0,3); } else if(typeof plays==='object' && plays){ list=[plays]; }
-        const disp = list.map(p=>{ const evp = (p.ev_pct!=null)? (Number(p.ev_pct).toFixed(1)+'%') : (p.ev!=null? (Number(p.ev*100).toFixed(1)+'%') : ''); const price = (p.price!=null)? ((Number(p.price)>0? '+'+Number(p.price): String(Number(p.price)))): ''; return `${String(p.market||'').toUpperCase()} ${String(p.side||'').toUpperCase()} ${p.line!=null? Number(p.line): ''} ${price} <span class="muted-small">${evp}${p.book? ' · '+p.book: ''}</span>`; }).join('<br/>'); const why = r.top_play_explain || '';
+        const disp = list.map(p=>{ const evp = (p.ev_pct!=null)? (Number(p.ev_pct).toFixed(1)+'%') : (p.ev!=null? (Number(p.ev*100).toFixed(1)+'%') : ''); const price = (p.price!=null)? ((Number(p.price)>0? '+'+Number(p.price): String(Number(p.price)))): ''; return `${String(p.market||'').toUpperCase()} ${String(p.side||'').toUpperCase()} ${p.line!=null? Number(p.line): ''} ${price} <span class="muted-small">${evp}${p.book? ' · '+p.book: ''}</span>`; }).join('<br/>');
+        const explain = r.top_play_explain || '';
+        const reasons = Array.isArray(r.top_play_reasons)? r.top_play_reasons: [];
+        const reasonsHtml = [explain, ...reasons].filter(s=> (s && String(s).trim()!=='')).map(s=> `<span class="pill">${String(s)}</span>`).join(' ');
+        // Explicit badges derived from consensus/line-adv fields
+        const consNorm = Number(r.top_play_consensus||0);
+        let consBooks = Math.round(consNorm*4)+1; // inverse of (n-1)/4
+        if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
+        const consensusBadge = consBooks>=2 ? `<span class="pill">Consensus ${consBooks} books</span>` : '';
+        const lineAdvBadge = (Number(r.top_play_line_adv||0)>=1) ? `<span class="pill">Best line available</span>` : '';
         const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): '');
         const teamHtml = r.team? teamBadge(r.team): '';
-        tr.innerHTML=`<td>${r.player||''}</td><td>${teamHtml}</td><td>${disp||''}</td><td class="tar">${scoreDisp}</td><td>${why}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+        const tierPill = r.tier? `<span class="pill ${pillClass(r.tier)}">${confidenceDisplay(r.tier)}</span>`: '';
+        const whyCol = `${reasonsHtml} ${consensusBadge} ${lineAdvBadge}`.trim();
+        tr.innerHTML=`<td>${r.player||''} ${tierPill}</td><td>${teamHtml}</td><td>${disp||''}</td><td class="tar">${scoreDisp}</td><td>${whyCol}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
       // Apply sort indicators and click handlers
       try{
         const ths = tbl.querySelectorAll('thead th.th-sortable');
