@@ -1,15 +1,15 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.4440298878552569,320.54545454545456,0.23778642455685256,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.44090833600083545,319.6363636363636,0.23830155979202775,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,,,,6.079264879226685,9.5,-3.4207351207733154,-9.5,,High
 TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-9.765975952148409,229.0,,,219.2340240478516,High
 ATS,Miami Heat,Detroit Pistons,Miami Heat,2026-01-01,,,,-2.422647476196289,4.5,2.077352523803711,4.5,,Medium
 TOTAL,Under,Detroit Pistons,Miami Heat,2026-01-01,,,,-3.1518096923828125,236.5,,,233.3481903076172,Medium
-ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.5873714317627616,456.0,0.17985611510791366,,,,,,High
-ATS,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,,,,6.432456970214844,13.5,-7.067543029785156,-13.5,,High
+ML,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,0.5637529228859779,447.7272727272728,0.1825726141078838,,,,,,High
+ATS,Brooklyn Nets,Brooklyn Nets,Houston Rockets,2026-01-01,,,,5.932456970214844,13.0,-7.067543029785156,-13.0,,High
 TOTAL,Over,Brooklyn Nets,Houston Rockets,2026-01-01,,,,10.39190673828125,217.0,,,227.39190673828125,High
-ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,0.34166315196713715,94.63636363636364,0.5137786081270435,,,,,,High
+ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,0.47827341218611685,114.45454545454544,0.46629927935565924,,,,,,High
 ATS,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,7.950901508331299,2.5,5.450901508331299,-2.5,,High
 TOTAL,Under,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,-6.1157684326171875,230.5,,,224.3842315673828,High
-ML,Utah Jazz,Los Angeles Clippers,Utah Jazz,2026-01-01,0.11546112101798955,560.9090909090909,0.15130674002751032,,,,,,High
+ML,Utah Jazz,Los Angeles Clippers,Utah Jazz,2026-01-01,0.12221219245193604,564.9090909090909,0.1503964998632759,,,,,,High
 ATS,Los Angeles Clippers,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,1.3289899826049805,-14.5,15.82898998260498,14.5,,Low
 TOTAL,Over,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,6.009735107421875,230.5,,,236.50973510742188,High
