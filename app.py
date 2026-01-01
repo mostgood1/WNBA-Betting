@@ -2526,9 +2526,11 @@ def api_recommendations_all():
         except Exception:
             want_mkts = set()
         compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
+        # Optional: restrict props to regular-price lines (exclude ladder/alternate prices)
+        regular_only = str(request.args.get("regular_only", "1") or "1").strip().lower() in {"1","true","yes"}
         # Instrumentation: marker to confirm handler path and params
         try:
-            print(f"[api_recommendations_all] date={d} compact={compact} cats={sorted(list(want_cats))} mkts={sorted(list(want_mkts))}")
+            print(f"[api_recommendations_all] date={d} compact={compact} regular_only={regular_only} cats={sorted(list(want_cats))} mkts={sorted(list(want_mkts))}")
         except Exception:
             pass
 
@@ -2842,121 +2844,197 @@ def api_recommendations_all():
             if not props_df.empty:
                 try:
                     df = props_df.copy()
-                    if compact:
-                        # Derive top play per player if plays or top_play present
-                        import ast, json
-                        def _parse_obj(val):
-                            # Accept dict, list, JSON string, or Python literal string
-                            if isinstance(val, (list, dict)):
-                                return val
-                            s = str(val)
-                            if not s or s.strip() in {"", "None", "nan"}:
-                                return None
+                    # Derive top play and parse plays regardless of compact mode
+                    import ast, json
+                    def _parse_obj(val):
+                        # Accept dict, list, JSON string, or Python literal string
+                        if isinstance(val, (list, dict)):
+                            return val
+                        s = str(val)
+                        if not s or s.strip() in {"", "None", "nan"}:
+                            return None
+                        try:
+                            return json.loads(s)
+                        except Exception:
                             try:
-                                return json.loads(s)
+                                return ast.literal_eval(s)
                             except Exception:
+                                return None
+                    def _top_play_general(row):
+                        try:
+                            plays = None
+                            if "plays" in row.index:
+                                plays = _parse_obj(row.get("plays"))
+                            tp = None
+                            if "top_play" in row.index and not plays:
+                                tp = _parse_obj(row.get("top_play"))
+                            # Helper: determine if a price is within regular (non-ladder) range
+                            def _regular_price(pr):
                                 try:
-                                    return ast.literal_eval(s)
+                                    if pr is None or pd.isna(pr):
+                                        return False
+                                    v = float(pr)
+                                    return (-150.0 <= v <= 125.0)
                                 except Exception:
-                                    return None
-                        def _top_play_general(row):
-                            try:
-                                plays = None
-                                if "plays" in row.index:
-                                    plays = _parse_obj(row.get("plays"))
-                                tp = None
-                                if "top_play" in row.index and not plays:
-                                    tp = _parse_obj(row.get("top_play"))
-                                if isinstance(plays, list) and plays:
-                                    lst = sorted(plays, key=lambda x: float(x.get("ev_pct", x.get("ev", 0)) or 0), reverse=True)
-                                    p = lst[0]
-                                elif isinstance(tp, dict) and tp:
+                                    return False
+                            if isinstance(plays, list) and plays:
+                                # Prefer regular-price plays; fallback to all if none match
+                                regular = [p for p in plays if _regular_price(p.get("price"))]
+                                cand = regular if regular else plays
+                                lst = sorted(cand, key=lambda x: float(x.get("ev_pct", x.get("ev", 0)) or 0), reverse=True)
+                                p = lst[0]
+                            elif isinstance(tp, dict) and tp:
+                                # If only a single top_play exists, prefer it when regular-price; otherwise fallback to it
+                                if _regular_price(tp.get("price")):
                                     p = tp
                                 else:
-                                    return None
-                                return {
-                                    "market": p.get("market"),
-                                    "side": p.get("side"),
-                                    "line": p.get("line"),
-                                    "price": p.get("price"),
-                                    "ev": p.get("ev"),
-                                    "ev_pct": p.get("ev_pct"),
-                                    "book": p.get("book"),
-                                }
-                            except Exception:
+                                    p = tp
+                            else:
                                 return None
-                        df["top_play"] = df.apply(_top_play_general, axis=1)
-                        # Normalize player/team column names
-                        if "player" not in df.columns and "player_name" in df.columns:
-                            df["player"] = df["player_name"]
-                        # Build concise explanation for the top play
-                        def _explain(row):
-                            try:
-                                tp = row.get("top_play")
-                                if not isinstance(tp, dict) or not tp:
-                                    return ""
-                                m = str(tp.get("market") or "").upper()
-                                side = str(tp.get("side") or "").upper()
-                                line = tp.get("line")
-                                price = tp.get("price")
-                                ev = tp.get("ev")
-                                evp = tp.get("ev_pct")
-                                book = tp.get("book")
-                                # Attempt to fetch model baseline for this player/team/market
-                                player = str(row.get("player") or row.get("player_name") or "").strip().lower()
-                                team = str(row.get("team") or "").strip().upper()
-                                base = None
-                                try:
-                                    stats = model_map.get((player, team)) or {}
-                                    base = stats.get(m.lower())  # keys are lower-case stat names
-                                except Exception:
-                                    base = None
-                                # Compose display strings
-                                def _odds(a):
-                                    try:
-                                        n = float(a)
-                                        return ("+"+str(int(round(n)))) if n>0 else str(int(round(n)))
-                                    except Exception:
-                                        return ""
-                                def _pct(v):
-                                    try:
-                                        return f"{float(v):.1f}%"
-                                    except Exception:
-                                        return ""
-                                ev_str = _pct(evp) if (evp is not None and not pd.isna(evp)) else (_pct(100.0*ev) if (ev is not None and not pd.isna(ev)) else "")
-                                price_str = _odds(price) if price is not None else ""
-                                line_str = (str(line) if line is not None else "")
-                                delta_str = ""
-                                if base is not None and line is not None:
-                                    try:
-                                        delta = float(base) - float(line)
-                                        sign = "+" if delta>=0 else ""
-                                        delta_str = f"model {float(base):.1f} vs line {float(line):.1f} ({sign}{float(delta):.1f})"
-                                    except Exception:
-                                        delta_str = ""
-                                # Only return the explanation to avoid repeating Top Plays details
-                                return delta_str.strip()
-                            except Exception:
+                            return {
+                                "market": p.get("market"),
+                                "side": p.get("side"),
+                                "line": p.get("line"),
+                                "price": p.get("price"),
+                                "ev": p.get("ev"),
+                                "ev_pct": p.get("ev_pct"),
+                                "book": p.get("book"),
+                            }
+                        except Exception:
+                            return None
+                    df["_plays_list"] = df.apply(lambda r: _parse_obj(r.get("plays")), axis=1)
+                    df["top_play"] = df.apply(_top_play_general, axis=1)
+                    # Normalize player/team column names
+                    if "player" not in df.columns and "player_name" in df.columns:
+                        df["player"] = df["player_name"]
+                    # Build concise baseline delta explanation
+                    def _explain(row):
+                        try:
+                            tp = row.get("top_play")
+                            if not isinstance(tp, dict) or not tp:
                                 return ""
-                        df["top_play_explain"] = df.apply(_explain, axis=1)
-                        # Include baseline for score calculation clients
-                        def _baseline_val(row):
+                            m = str(tp.get("market") or "").upper()
+                            line = tp.get("line")
+                            player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+                            team = str(row.get("team") or "").strip().upper()
+                            base = None
                             try:
-                                tp = row.get("top_play")
-                                if not isinstance(tp, dict) or not tp:
-                                    return None
-                                player = str(row.get("player") or row.get("player_name") or "").strip().lower()
-                                team = str(row.get("team") or "").strip().upper()
                                 stats = model_map.get((player, team)) or {}
-                                m = str(tp.get("market") or "").lower()
-                                return stats.get(m)
+                                base = stats.get(m.lower())
                             except Exception:
+                                base = None
+                            if base is not None and line is not None:
+                                try:
+                                    delta = float(base) - float(line)
+                                    sign = "+" if delta>=0 else ""
+                                    return f"model {float(base):.1f} vs line {float(line):.1f} ({sign}{float(delta):.1f})"
+                                except Exception:
+                                    return ""
+                            return ""
+                        except Exception:
+                            return ""
+                    df["top_play_explain"] = df.apply(_explain, axis=1)
+                    # Include baseline for scoring calculation
+                    def _baseline_val(row):
+                        try:
+                            tp = row.get("top_play")
+                            if not isinstance(tp, dict) or not tp:
                                 return None
-                        df["top_play_baseline"] = df.apply(_baseline_val, axis=1)
-                        keep = [c for c in ["player","team","top_play","top_play_explain"] if c in df.columns]
+                            player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+                            team = str(row.get("team") or "").strip().upper()
+                            stats = model_map.get((player, team)) or {}
+                            m = str(tp.get("market") or "").lower()
+                            return stats.get(m)
+                        except Exception:
+                            return None
+                    df["top_play_baseline"] = df.apply(_baseline_val, axis=1)
+                    # Derive consensus and line-advantage metrics + reasons
+                    def _consensus_and_reasons(row):
+                        tp = row.get("top_play") or {}
+                        plays = row.get("_plays_list") or []
+                        reasons = []
+                        cons_norm = 0.0
+                        line_adv_norm = 0.0
+                        try:
+                            # Helper: regular price range check
+                            def _regular_price(pr):
+                                try:
+                                    if pr is None or pd.isna(pr):
+                                        return False
+                                    v = float(pr)
+                                    return (-150.0 <= v <= 125.0)
+                                except Exception:
+                                    return False
+                            # EV reason
+                            evp = tp.get("ev_pct")
+                            ev = tp.get("ev")
+                            if evp is not None and not pd.isna(evp):
+                                reasons.append(f"EV {float(evp):.1f}%")
+                            elif ev is not None and not pd.isna(ev):
+                                reasons.append(f"EV +{float(ev):.2f}")
+                            # Price friendliness
+                            pr = tp.get("price")
+                            if pr is not None:
+                                try:
+                                    if abs(float(pr) + 110.0) <= 10.0:
+                                        reasons.append("Friendly price (~-110)")
+                                    # Tag regular-price selections explicitly
+                                    if _regular_price(pr):
+                                        reasons.append("Regular price range")
+                                except Exception:
+                                    pass
+                            # Consensus across books on same side/market
+                            mk = str(tp.get("market") or "").lower()
+                            side = str(tp.get("side") or "").upper()
+                            # Consider consensus among regular-price plays first; fallback to all
+                            same_all = [p for p in (plays or []) if str(p.get("market") or "").lower() == mk and str(p.get("side") or "").upper() == side]
+                            same_regular = [p for p in same_all if _regular_price(p.get("price"))]
+                            same = same_regular if same_regular else same_all
+                            distinct_books = sorted(list(set([str(p.get("book") or "").lower() for p in same if p.get("book") is not None])))
+                            n_books = len(distinct_books)
+                            if n_books >= 3:
+                                reasons.append(f"Consensus: {n_books} books aligned")
+                            cons_norm = max(0.0, min(1.0, (n_books - 1) / 4.0))
+                            # Line advantage: best available line for OVER/UNDER
+                            try:
+                                lines = [float(p.get("line")) for p in same if p.get("line") is not None]
+                                tpl = float(tp.get("line")) if tp.get("line") is not None else None
+                                if lines and tpl is not None:
+                                    if side == "OVER":
+                                        best = min(lines)
+                                        if tpl <= best + 1e-6:
+                                            reasons.append("Best line available")
+                                            line_adv_norm = 1.0
+                                    elif side == "UNDER":
+                                        best = max(lines)
+                                        if tpl >= best - 1e-6:
+                                            reasons.append("Best line available")
+                                            line_adv_norm = 1.0
+                            except Exception:
+                                pass
+                        except Exception:
+                            pass
+                        return pd.Series({"top_play_consensus": cons_norm, "top_play_line_adv": line_adv_norm, "top_play_reasons": reasons})
+                    extra = df.apply(_consensus_and_reasons, axis=1)
+                    for col in ["top_play_consensus","top_play_line_adv","top_play_reasons"]:
+                        df[col] = extra[col]
+                    # Build output rows
+                    if compact:
+                        keep = [c for c in ["player","team","top_play","top_play_explain","top_play_reasons","top_play_baseline","top_play_consensus","top_play_line_adv"] if c in df.columns]
                         rows = df[keep].fillna("").to_dict(orient="records")
                     else:
                         rows = df.fillna("").to_dict(orient="records")
+                    # If requested, filter to regular-price lines
+                    if regular_only:
+                        def _regular_price(pr):
+                            try:
+                                if pr is None or pd.isna(pr):
+                                    return False
+                                v = float(pr)
+                                return (-150.0 <= v <= 125.0)
+                            except Exception:
+                                return False
+                        rows = [r for r in rows if isinstance(r.get("top_play"), dict) and _regular_price((r.get("top_play") or {}).get("price"))]
                     out["props"] = rows
                 except Exception:
                     pass
@@ -3106,7 +3184,7 @@ def api_recommendations_all():
         # Default weights
         weights = {
             "games": {"ml_ev": 0.6, "ml_gap": 0.4, "ats_scale": 3.0, "total_scale": 5.0},
-            "props": {"ev_pct": 0.6, "payout": 0.2, "baseline": 0.2},
+            "props": {"ev_pct": 0.45, "payout": 0.15, "baseline": 0.15, "consensus": 0.15, "line_adv": 0.1},
             "first_basket": {"prob": 0.8, "payout": 0.2},
             "early_threes": {"prob": 0.5, "expected": 0.5},
         }
@@ -3198,7 +3276,23 @@ def api_recommendations_all():
                     base_norm = _clamp01(delta / s)
                 except Exception:
                     base_norm = 0.0
-                return round(weights["props"]["ev_pct"] * evp_norm + weights["props"]["payout"] * payout_norm + weights["props"]["baseline"] * base_norm, 3)
+                # Consensus and line-advantage contributions
+                try:
+                    cons_norm = _clamp01(float(row.get("top_play_consensus") or 0.0))
+                except Exception:
+                    cons_norm = 0.0
+                try:
+                    line_adv_norm = _clamp01(float(row.get("top_play_line_adv") or 0.0))
+                except Exception:
+                    line_adv_norm = 0.0
+                return round(
+                    weights["props"]["ev_pct"] * evp_norm
+                    + weights["props"]["payout"] * payout_norm
+                    + weights["props"]["baseline"] * base_norm
+                    + weights["props"]["consensus"] * cons_norm
+                    + weights["props"]["line_adv"] * line_adv_norm,
+                    3,
+                )
             return 0.0
         def _score_first_basket(row):
             try:

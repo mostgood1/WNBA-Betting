@@ -92,6 +92,9 @@
           <option value="ev">Top EV% (desc)</option>
         </select>
       </label>
+      <label style="margin-left:12px;">
+        <input type="checkbox" id="propsRegularOnly" checked /> Regular-price only (−150 to +125)
+      </label>
       <button type="button" id="propsSortApply">Apply</button>
     </form>
     <div id="propsRoot"></div>
@@ -142,7 +145,8 @@
       const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
       const propMkts = selectedPropMarkets();
       // Fetch unified recommendations across categories (compact for explanations + scores)
-      const allUrl = `/api/recommendations/all?date=${date}&limit=500&compact=1`;
+      const regularOnly = !!(document.getElementById('propsRegularOnly') && document.getElementById('propsRegularOnly').checked);
+      const allUrl = `/api/recommendations/all?date=${date}&limit=500&compact=1&regular_only=${regularOnly?1:0}`;
       const allRes = await fetch(allUrl, {cache:'no-store'});
       const all = await allRes.json();
       const games = Array.isArray(all.games)? all.games: [];
@@ -467,7 +471,7 @@
         return eb-ea; // expected desc
       });
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
   </script>
 </body>
 </html>
