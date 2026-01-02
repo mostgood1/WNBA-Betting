@@ -1,0 +1,29 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Los Angeles Lakers,Los Angeles Lakers,Memphis Grizzlies,2026-01-02,0.06550379629484948,-166.8181818181818,0.6252129471890971,,,,,,High
+TOTAL,Under,Los Angeles Lakers,Memphis Grizzlies,2026-01-02,,,,-12.68768310546875,240.5,,,227.81231689453125,High
+ML,Brooklyn Nets,Washington Wizards,Brooklyn Nets,2026-01-02,0.16415162397934913,-112.875,0.5302407516147974,,,,,,High
+TOTAL,Under,Washington Wizards,Brooklyn Nets,2026-01-02,,,,-3.340072631835909,225.5,,,222.1599273681641,Medium
+ML,Indiana Pacers,Indiana Pacers,San Antonio Spurs,2026-01-02,1.2014827093677505,196.54545454545453,0.3372164316370325,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,San Antonio Spurs,2026-01-02,,,,14.933509826660156,6.0,8.933509826660156,-6.0,,High
+TOTAL,Under,Indiana Pacers,San Antonio Spurs,2026-01-02,,,,-9.531784057617188,238.5,,,228.9682159423828,High
+ML,Denver Nuggets,Cleveland Cavaliers,Denver Nuggets,2026-01-02,1.224702011357643,557.3636363636364,0.15212280459134284,,,,,,High
+ATS,Denver Nuggets,Cleveland Cavaliers,Denver Nuggets,2026-01-02,,,,-9.776074171066284,13.5,3.723925828933716,13.5,,High
+TOTAL,Under,Cleveland Cavaliers,Denver Nuggets,2026-01-02,,,,-10.284072875976562,240.5,,,230.21592712402344,High
+ML,Sacramento Kings,Phoenix Suns,Sacramento Kings,2026-01-02,2.7799623631463124,513.0909090909091,0.1631079478054567,,,,,,High
+ATS,Sacramento Kings,Phoenix Suns,Sacramento Kings,2026-01-02,,,,-13.493080615997314,12.5,-0.9930806159973145,12.5,,High
+TOTAL,Under,Phoenix Suns,Sacramento Kings,2026-01-02,,,,-2.921844482421932,226.5,,,223.57815551757807,Medium
+ML,Golden State Warriors,Golden State Warriors,Oklahoma City Thunder,2026-01-02,0.362426368416213,283.0,0.26109660574412535,,,,,,High
+ATS,Golden State Warriors,Golden State Warriors,Oklahoma City Thunder,2026-01-02,,,,6.33256459236145,9.0,-2.66743540763855,-9.0,,High
+TOTAL,Under,Golden State Warriors,Oklahoma City Thunder,2026-01-02,,,,-2.1622619628906534,229.0,,,226.83773803710935,Medium
+ML,Portland Trail Blazers,New Orleans Pelicans,Portland Trail Blazers,2026-01-02,0.3230627155218724,-113.36363636363636,0.5313165743502343,,,,,,High
+ATS,Portland Trail Blazers,New Orleans Pelicans,Portland Trail Blazers,2026-01-02,,,,-5.320056915283203,-1.0,-6.320056915283203,-1.0,,High
+TOTAL,Under,New Orleans Pelicans,Portland Trail Blazers,2026-01-02,,,,-19.074630737304688,245.0,,,225.9253692626953,High
+ML,Atlanta Hawks,New York Knicks,Atlanta Hawks,2026-01-02,0.3154466365995242,252.1818181818182,0.2839442436757873,,,,,,High
+ATS,Atlanta Hawks,New York Knicks,Atlanta Hawks,2026-01-02,,,,-5.908481240272522,7.5,1.591518759727478,7.5,,High
+TOTAL,Under,New York Knicks,Atlanta Hawks,2026-01-02,,,,-16.88592529296875,246.0,,,229.11407470703125,High
+ML,Milwaukee Bucks,Milwaukee Bucks,Charlotte Hornets,2026-01-02,0.1837734954158109,-236.3636363636364,0.7027027027027027,,,,,,High
+ATS,Milwaukee Bucks,Milwaukee Bucks,Charlotte Hornets,2026-01-02,,,,9.884718894958496,-6.0,15.884718894958496,6.0,,High
+TOTAL,Under,Milwaukee Bucks,Charlotte Hornets,2026-01-02,,,,-5.505432128906278,232.5,,,226.99456787109372,High
+ML,Chicago Bulls,Chicago Bulls,Orlando Magic,2026-01-02,0.7230668360604235,167.1818181818182,0.374276964954066,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Orlando Magic,2026-01-02,,,,7.705657958984375,5.0,2.705657958984375,-5.0,,High
+TOTAL,Under,Chicago Bulls,Orlando Magic,2026-01-02,,,,-9.1668701171875,233.5,,,224.3331298828125,High

@@ -1,0 +1,11 @@
+event_id,commence_time,home_team,away_team,has_odds
+14bc31e6584046b79f90aa3d42877f07,2026-01-03T00:10:00Z,Washington Wizards,Brooklyn Nets,True
+260d8a4037ed37bae3a5ad3725c11906,2026-01-03T00:10:00Z,Indiana Pacers,San Antonio Spurs,True
+8169427a266bd81487b2136378509cac,2026-01-03T00:40:00Z,New York Knicks,Atlanta Hawks,True
+283f17b8fb6ac7f514f74eba96db03ac,2026-01-03T00:40:00Z,Cleveland Cavaliers,Denver Nuggets,True
+8471751b12ee2bd1516db17adb92e246,2026-01-03T01:10:00Z,Milwaukee Bucks,Charlotte Hornets,True
+c8a2140f30daa18b21cf7285846c782b,2026-01-03T01:10:00Z,Chicago Bulls,Orlando Magic,True
+5df215c154156e2a4bd2cc8d916bc4cc,2026-01-03T01:10:00Z,New Orleans Pelicans,Portland Trail Blazers,True
+2b41febb0964133c93ca8f77bce7ed72,2026-01-03T02:10:00Z,Phoenix Suns,Sacramento Kings,True
+4337f25e5b76b9a54cc35833374a8213,2026-01-03T03:10:00Z,Golden State Warriors,Oklahoma City Thunder,True
+b9704c30e60eabed676cce7dcc882497,2026-01-03T03:40:00Z,Los Angeles Lakers,Memphis Grizzlies,True
