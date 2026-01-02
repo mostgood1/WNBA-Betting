@@ -111,6 +111,70 @@ python -m nba_betting.cli backfill-player-props --date 2025-10-24 --mode auto
 
 Notes: Some snapshots may return 422 if props aren’t available at that timestamp; try `--mode current` on game day.
 
+## Local-Only Daily Workflow
+
+All operations can run locally without remote tokens or servers.
+
+- Start the local server:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
+```
+
+- End-to-end daily run + health check (includes predictions, odds, props):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\render_smoke.ps1 -Date "2026-01-01" -RunDailyUpdate
+```
+
+- Unified recommendations API (compact + regular-priced props):
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/recommendations/all?date=2026-01-01&compact=1&regular_only=1' | Select-Object -ExpandProperty Content
+```
+
+### Timezone Defaults (USA)
+
+By default, the API resolves "today" using a US timezone to avoid UTC rollover into the next day.
+
+- Default timezone: `America/New_York` (US Eastern)
+- Override via environment variables before starting the server:
+
+```powershell
+$env:APP_TZ = 'America/Los_Angeles'   # or America/Chicago, America/Denver, America/New_York
+$env:APP_TZ_OFFSET_HOURS = '-8'       # optional explicit offset fallback
+powershell -NoProfile -ExecutionPolicy Bypass -Command "& '.\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
+```
+
+- Debug the resolved date:
+
+```powershell
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/debug/date' | Select-Object -ExpandProperty Content
+```
+
+- Fallback behavior: when no `date` parameter is provided and there are no artifacts for computed "today", endpoints may fall back to the previous day to avoid empty results late at night.
+
+- Schedule local tasks (Windows Task Scheduler):
+	- Daily updater at 10:00:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_daily_task.ps1 -Time 10:00 -GitPush
+```
+
+	- Weekly backfill (finals-only, 21 days):
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_weekly_backfill_task.ps1 -DayOfWeek Monday -Time 09:30 -Days 21 -FinalsOnly
+```
+
+	- Nightly props calibration at 23:15:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_nightly_calibration_task.ps1 -Time 23:15
+```
+
+The script `scripts\daily_update.ps1` ignores any token flags and enforces local-only execution.
+
 ## Player Prop Actuals (nbastatR)
 
 We use nbastatR (R) to fetch player game logs and compute actuals for props: PTS, REB, AST, 3PM, PRA.

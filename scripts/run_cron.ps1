@@ -1,17 +1,26 @@
-# Runs the composite daily cron against the local Flask server
+<#
+  Local-only cron runner: executes the daily update pipeline without any tokens
+  or server calls. This script delegates to scripts/daily_update.ps1.
+#>
 param(
   [string]$Date = (Get-Date -Format 'yyyy-MM-dd'),
   [switch]$Push
 )
-$token = $env:CRON_TOKEN
-if (-not $token) { Write-Host "CRON_TOKEN not set; requests will fall back to ADMIN_KEY if allowed." }
-$headers = @{ }
-if ($token) { $headers["Authorization"] = "Bearer $token" }
-$pushVal = if ($Push) { '1' } else { '0' }
-$uri = "http://127.0.0.1:5051/api/cron/run-all?date=$Date&push=$pushVal"
+
+$ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+$RepoRoot = (Resolve-Path (Join-Path $ScriptDir '..')).Path
+$DailyUpdate = Join-Path $ScriptDir 'daily_update.ps1'
+
+if (-not (Test-Path $DailyUpdate)) {
+  Write-Error "daily_update.ps1 not found at $DailyUpdate"
+  exit 1
+}
+
+$gitPushSwitch = $Push.IsPresent
+Write-Host "Running local daily update for date=$Date (GitPush=$gitPushSwitch)"
 try {
-  $resp = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120
-  $resp.Content | Write-Output
+  & $DailyUpdate -Date $Date -GitPush:$gitPushSwitch
 } catch {
   Write-Error $_
+  exit 1
 }

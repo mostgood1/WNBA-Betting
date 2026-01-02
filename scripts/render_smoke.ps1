@@ -1,8 +1,8 @@
 param(
-  [string]$BaseUrl = "https://nba-betting-5qgf.onrender.com",
+  [string]$BaseUrl = "http://localhost:5051",
   [string]$Date = (Get-Date -Format 'yyyy-MM-dd'),
   [int]$TimeoutSec = 180,
-  [switch]$UseAdmin
+  [switch]$RunDailyUpdate
 )
 
 $ErrorActionPreference = 'Stop'
@@ -11,15 +11,28 @@ function Write-Info($m){ Write-Host "[INFO] $m" -ForegroundColor Cyan }
 function Write-Warn($m){ Write-Host "[WARN] $m" -ForegroundColor Yellow }
 function Write-Err($m){ Write-Host "[ERR ] $m" -ForegroundColor Red }
 
-# Build headers
+# Local-only: no auth headers
 $headers = @{}
-if ($UseAdmin -and $env:ADMIN_KEY) {
-  $headers['X-Admin-Key'] = $env:ADMIN_KEY
-} elseif ($env:CRON_TOKEN) {
-  $headers['Authorization'] = "Bearer $env:CRON_TOKEN"
-}
 
 Write-Info "BaseUrl = $BaseUrl  Date = $Date"
+
+# Optional: run local daily update before hitting endpoints
+if ($RunDailyUpdate) {
+  try {
+    $root = Split-Path -Parent $MyInvocation.MyCommand.Path
+    $repoRoot = (Resolve-Path (Join-Path $root '..')).Path
+    $scriptPath = Join-Path $root 'daily_update.ps1'
+    if (Test-Path $scriptPath) {
+      Write-Info "Running local daily_update.ps1 before checks..."
+      powershell -NoProfile -ExecutionPolicy Bypass -File $scriptPath -Date $Date -GitPush
+      Write-Info "daily_update completed"
+    } else {
+      Write-Warn "daily_update.ps1 not found; skipping pre-flight"
+    }
+  } catch {
+    Write-Warn ("daily_update failed: {0}" -f $_.Exception.Message)
+  }
+}
 
 # Version check
 try {
@@ -31,7 +44,7 @@ try {
 
 # Trigger run-all
 try {
-  Write-Info "Triggering /api/cron/run-all ..."
+  Write-Info "Triggering /api/cron/run-all locally ..."
   $resp = Invoke-WebRequest -UseBasicParsing -Headers $headers -Method Post -Uri ("$BaseUrl/api/cron/run-all?date=$Date&push=1") -TimeoutSec 180
   Write-Info ("run-all status {0}" -f $resp.StatusCode)
 } catch {
@@ -69,4 +82,16 @@ foreach ($path in @('/', '/props', '/reconciliation')) {
   } catch {
     Write-Warn ("GET {0} failed: {1}" -f $path, $_.Exception.Message)
   }
+}
+
+# Verify recommendations API returns items
+try {
+  $u = "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1"
+  $content = Invoke-WebRequest -UseBasicParsing -Uri $u -TimeoutSec 60 | Select-Object -ExpandProperty Content
+  $json = $content | ConvertFrom-Json
+  $games = [int]$json.counts.games
+  $props = [int]$json.counts.props
+  Write-Info ("Recommendations: games={0} props={1}" -f $games, $props)
+} catch {
+  Write-Warn ("Recommendations check failed: {0}" -f $_.Exception.Message)
 }

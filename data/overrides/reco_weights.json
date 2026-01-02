@@ -1,0 +1,40 @@
+{
+  "games": {
+    "ml_ev": 0.50,
+    "ml_gap": 0.30,
+    "ml_injury": 0.08,
+    "ml_liquidity": 0.06,
+    "ml_b2b": 0.02,
+    "ml_travel_penalty": 0.02,
+    "ml_volatility_penalty": 0.04,
+    "ats_scale": 3.0,
+    "ats_injury": 0.10,
+    "ats_density": 0.05,
+    "ats_liquidity": 0.04,
+    "ats_travel_penalty": 0.02,
+    "ats_volatility_penalty": 0.04,
+    "total_scale": 5.0,
+    "total_injury": 0.05,
+    "total_pace": 0.06,
+    "total_threes": 0.06,
+    "total_bench": 0.02,
+    "total_b2b": 0.02,
+    "total_density": 0.03,
+    "total_offense": 0.05,
+    "total_liquidity": 0.04,
+    "total_volatility_penalty": 0.04
+  },
+  "props": {
+    "ev_pct": 0.42,
+    "payout": 0.14,
+    "baseline": 0.14,
+    "consensus": 0.15,
+    "line_adv": 0.10,
+    "injury": 0.05,
+    "liquidity": 0.06,
+    "density_penalty": 0.04,
+    "usage_boost": 0.06,
+    "travel_penalty": 0.02,
+    "volatility_penalty": 0.04
+  }
+}

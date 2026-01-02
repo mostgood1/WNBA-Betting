@@ -21,11 +21,11 @@ Param(
 
 $ErrorActionPreference = 'Stop'
 
-# Normalize token inputs:
-# -Token (switch) -> treat as request to attempt server auth (but without value)
-# -TokenValue <text> -> explicit token text
-if ($Token) { $CronToken = $true }
-if ($TokenValue -and $TokenValue.Trim().Length -gt 0) { $CronTokenParam = $TokenValue }
+# Ignore any token-related parameters to enforce local-only execution
+$CronToken = $false
+$CronTokenParam = $null
+$Token = $false
+$TokenValue = $null
 
 # Default behavior: push to Git at the end unless explicitly disabled.
 # If caller omitted -GitPush, honor env DAILY_UPDATE_ALWAYS_PUSH (default = true)
@@ -145,37 +145,56 @@ $env:PYTHONIOENCODING = 'utf-8'
 Write-Log "Starting NBA local daily update for date=$Date"
 Write-Log "Python: $Python"
 
-# Discover CRON token for server calls: precedence = param > env > repo .cron_token file
-$ServerToken = $null
-# If explicit token text provided via -CronTokenParam/-Token, use it
-if ($CronTokenParam -and $CronTokenParam.Trim().Length -gt 0) {
-  $ServerToken = $CronTokenParam
-  Write-Log "Server auth: using token from explicit parameter (redacted)"
-} elseif ($env:CRON_TOKEN) {
-  $ServerToken = $env:CRON_TOKEN
-  Write-Log "Server auth: using token from environment (redacted)"
-} else {
-  try {
-    $tokenPath1 = Join-Path $RepoRoot '.cron_token'
-    $tokenPath2 = Join-Path $ScriptDir '.cron_token'
-    $tp = $null
-    if (Test-Path $tokenPath1) { $tp = $tokenPath1 }
-    elseif (Test-Path $tokenPath2) { $tp = $tokenPath2 }
-    if ($tp) {
-      $raw = (Get-Content -Path $tp -Encoding UTF8 | Select-Object -First 1).Trim()
-      if ($raw) {
-        $ServerToken = $raw
-        $env:CRON_TOKEN = $raw  # propagate for child procs
-        Write-Log "Server auth: loaded token from file $tp (redacted)"
-      }
+# Early exit: skip full run on days with no NBA games
+try {
+  $pyCheck = @'
+import os, sys, json
+import pandas as pd
+from pathlib import Path
+
+repo = Path(os.environ.get("REPO_ROOT", ".")).resolve()
+proc = repo / "data" / "processed"
+jf = proc / "schedule_2025_26.json"
+df = None
+if jf.exists():
+    try:
+        df = pd.read_json(jf)
+    except Exception:
+        df = None
+if df is None or df.empty:
+    try:
+        from nba_betting.schedule import fetch_schedule_2025_26
+        df = fetch_schedule_2025_26()
+    except Exception as e:
+        print(f"ERR:{e}")
+        raise SystemExit(0)
+if "date_utc" in df.columns:
+    df["date_utc"] = pd.to_datetime(df["date_utc"], errors="coerce").dt.date.astype(str)
+mask = (df["date_utc"].astype(str) == os.environ.get("DATE"))
+cnt = int(df[mask].shape[0])
+print(f"COUNT:{cnt}")
+'@
+  $env:REPO_ROOT = $RepoRoot
+  $env:DATE = $Date
+  $out = & $Python -c $pyCheck 2>&1
+  if ($out -match 'COUNT:(\d+)') {
+    $games = [int]([regex]::Match($out, 'COUNT:(\d+)').Groups[1].Value)
+    if ($games -le 0) {
+      Write-Log "No NBA games scheduled today; exiting early"
+      return
+    } else {
+      Write-Log ("Slate size: {0} games" -f $games)
     }
-  } catch {
-    Write-Log ("Server auth: token file load failed (non-fatal): {0}" -f $_.Exception.Message)
+  } elseif ($out -match '^ERR:') {
+    Write-Log ("Schedule check encountered error (continuing): {0}" -f $out)
+  } else {
+    Write-Log ("Schedule check returned: {0}" -f $out)
   }
-}
+} catch { Write-Log ("Schedule gating failed (continuing): {0}" -f $_.Exception.Message) }
+
+# Disable remote server authentication; enforce local-only execution
 $ServerHeaders = @{}
-if ($ServerToken) { $ServerHeaders['Authorization'] = "Bearer $ServerToken" }
-else { Write-Log "Server auth: NO TOKEN AVAILABLE; server cron endpoints may return 401 (will fallback locally)" }
+Write-Log "Server auth: disabled; enforcing local-only run"
 
 # Optionally sync repo to reduce push conflicts
 if ($GitSyncFirst) {
@@ -198,41 +217,10 @@ function Invoke-PyMod {
   return $exitCode
 }
 
-# If local Flask app is running, prefer calling the composite cron endpoint (does props+predictions+recon)
-# Default to local; if RemoteBaseUrl is provided, try that first
-$BaseUrl = if ($RemoteBaseUrl) { $RemoteBaseUrl } else { "http://127.0.0.1:5050" }
+# Enforce local-only pipeline; skip any server detection/calls
+$BaseUrl = "http://127.0.0.1:5050"
 $UseServer = $false
-try {
-  $resp = Invoke-WebRequest -UseBasicParsing -Uri ($BaseUrl + '/health') -TimeoutSec 5
-  if ($resp.StatusCode -ge 200 -and $resp.StatusCode -lt 500) { $UseServer = $true }
-} catch { $UseServer = $false }
-
-if ($UseServer) {
-  Write-Log "Server detected at $BaseUrl; will call refresh/reconcile, but all model CSVs will still be generated locally."
-  try {
-    $headers = $ServerHeaders
-    # Warm server props edges via auto source (OddsAPI first) without pushing
-    $u2 = "$BaseUrl/api/cron/props-edges?date=$Date&source=auto&push=0"
-    try { $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u2 -TimeoutSec 180; ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null } catch { Write-Log ("props-edges warm call failed: {0}" -f $_.Exception.Message) }
-    # Reconcile yesterday on server (best effort)
-    try {
-      $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
-    } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
-    $u5 = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
-    try {
-      $r5 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $u5 -TimeoutSec 180 -ErrorAction Stop
-      ($r5.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
-      if (($r5.StatusCode -ge 400) -or ($r5.Content -match '"ok"\s*:\s*false' -or $r5.Content -match '"error"')) {
-        throw "reconcile endpoint reported failure: $($r5.StatusCode)"
-      }
-    } catch {
-      Write-Log ("reconcile-games call failed (server warm stage): {0}" -f $_.Exception.Message)
-    }
-    Write-Log "Server props-edges warm + reconcile attempted"
-  } catch {
-    Write-Log ("Server calls failed (non-fatal): {0}" -f $_.Exception.Message)
-  }
-}
+Write-Log 'Remote server calls disabled; running everything locally'
 
 # Always run local pipeline to produce site CSVs
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
@@ -302,21 +290,9 @@ try {
 try {
   $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
 } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
-Write-Log ("Reconcile games for {0} via server endpoint (if available), else CLI" -f $yesterday)
-try {
-  $headers = $ServerHeaders
-  $uri = "$BaseUrl/api/cron/reconcile-games?date=$yesterday&push=0"
-  $r2 = Invoke-WebRequest -UseBasicParsing -Headers $headers -Uri $uri -TimeoutSec 120 -ErrorAction Stop
-  ($r2.Content) | Tee-Object -FilePath $LogFile -Append | Out-Null
-  if (($r2.StatusCode -ge 400) -or ($r2.Content -match '"ok"\s*:\s*false' -or $r2.Content -match '"error"')) {
-    throw "reconcile endpoint reported failure: $($r2.StatusCode)"
-  }
-} catch {
-  Write-Log ("reconcile-games call failed: {0}" -f $_.Exception.Message)
-  # Fallback: run reconcile via CLI
-  $rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
-  Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
-}
+Write-Log ("Reconcile games for {0} via local CLI" -f $yesterday)
+$rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
+Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
 
 # 1.6) Calibrate games probabilities via market blend (train over last 30 days, apply to today)
 try {
@@ -816,6 +792,17 @@ try {
   Write-Log ("fetch-injuries exit code: {0}" -f $rcInj)
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 2.6a) Snapshot injuries counts (team-level + excluded players) for explainability caches
+try {
+  Write-Log ("Snapshot injuries counts cache for {0}" -f $Date)
+  $injTool = Join-Path $RepoRoot 'tools/snapshot_injuries.py'
+  if (Test-Path $injTool) {
+    & $Python $injTool --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+  } else {
+    Write-Log 'snapshot_injuries.py missing; skipping injuries cache'
+  }
+} catch { Write-Log ("Injuries snapshot failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 2.6) Build unified league_status for today (roster + injuries; consumed by predictions)
 try {
   Write-Log "Building league_status for today's slate"
@@ -997,6 +984,250 @@ try {
 # 6c) Props recommendations
 $rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
 Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
+
+# 6c.1) Post-process props_recommendations to prefer regular-priced plays and add explainability
+try {
+  Write-Log ("Post-processing props_recommendations for {0}: prefer regular-priced plays, add reasons" -f $Date)
+  $propsCsv = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $Date)
+  if (Test-Path $propsCsv) {
+  $tmpPy3 = Join-Path $LogPath ("props_recs_regular_patch_{0}.py" -f $Stamp)
+  $pycode3 = @'
+import json, ast, math
+import pandas as pd
+from pathlib import Path
+
+date_str = "{DATE_PLACEHOLDER}"
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+props_csv = repo_root / f"data/processed/props_recommendations_{date_str}.csv"
+preds_csv = repo_root / f"data/processed/props_predictions_{date_str}.csv"
+
+def _parse_obj(val):
+  if isinstance(val, (list, dict)):
+    return val
+  s = str(val)
+  if not s or s.strip() in {"", "None", "nan"}:
+    return None
+  try:
+    return json.loads(s)
+  except Exception:
+    try:
+      return ast.literal_eval(s)
+    except Exception:
+      return None
+
+  # 2.4d) Build opponent splits cache (allowed pts/reb/ast/threes, ranks) over recent window
+  try {
+    Write-Log ("Building opponent splits cache (window=21d) cutoff {0}" -f $Date)
+    $oppTool = Join-Path $RepoRoot 'tools/build_opponent_splits.py'
+    if (Test-Path $oppTool) {
+      & $Python $oppTool --date $Date --days 21 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    } else {
+      Write-Log 'build_opponent_splits.py missing; skipping opponent splits cache'
+    }
+  } catch { Write-Log ("Opponent splits build failed (non-fatal): {0}" -f $_.Exception.Message) }
+
+def _regular_price(pr):
+  try:
+    if pr is None or (isinstance(pr, float) and math.isnan(pr)):
+      return False
+    v = float(pr)
+    return (-150.0 <= v <= 125.0)
+  except Exception:
+    return False
+
+def _choose_top_play(plays):
+  if not isinstance(plays, list) or not plays:
+    return None
+  # Prefer regular-priced plays, fallback to any
+  regular = [p for p in plays if _regular_price(p.get("price"))]
+  cand = regular if regular else plays
+  def score(p):
+    evp = p.get("ev_pct")
+    if evp is not None:
+      try:
+        return float(evp)
+      except Exception:
+        pass
+    ev = p.get("ev")
+    try:
+      return float(ev) * 100.0 if ev is not None else 0.0
+    except Exception:
+      return 0.0
+  cand = sorted(cand, key=score, reverse=True)
+  p = cand[0]
+  return {
+    "market": p.get("market"),
+    "side": p.get("side"),
+    "line": p.get("line"),
+    "price": p.get("price"),
+    "ev": p.get("ev"),
+    "ev_pct": p.get("ev_pct"),
+    "book": p.get("book"),
+  }
+
+def _build_model_map(preds_df):
+  m = {}
+  if isinstance(preds_df, pd.DataFrame) and not preds_df.empty:
+    tmp = preds_df.copy()
+    for c in ("player_name","team"):
+      if c not in tmp.columns:
+        tmp[c] = None
+    def _stat_map(row):
+      out = {}
+      for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+        if col in tmp.columns:
+          try:
+            v = float(row.get(col))
+            if not math.isnan(v):
+              out[key] = v
+          except Exception:
+            pass
+      return out
+    tmp["_stat_map"] = tmp.apply(_stat_map, axis=1)
+    for _, r in tmp.iterrows():
+      k = (str(r.get("player_name") or "").strip().lower(), str(r.get("team") or "").strip().upper())
+      m[k] = r.get("_stat_map") or {}
+  return m
+
+def _explain_baseline(row, model_map):
+  tp = row.get("top_play")
+  if not isinstance(tp, dict) or not tp:
+    return ""
+  mkt = str(tp.get("market") or "").lower()
+  line = tp.get("line")
+  player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+  team = str(row.get("team") or "").strip().upper()
+  stats = model_map.get((player, team)) or {}
+  base = stats.get(mkt)
+  if base is not None and line is not None:
+    try:
+      delta = float(base) - float(line)
+      sign = "+" if delta >= 0 else ""
+      return f"model {float(base):.1f} vs line {float(line):.1f} ({sign}{float(delta):.1f})"
+    except Exception:
+      return ""
+  return ""
+
+def _consensus_line_adv(row):
+  tp = row.get("top_play") or {}
+  plays = row.get("_plays_list") or []
+  reasons = []
+  cons_norm = 0.0
+  line_adv_norm = 0.0
+  # EV reason
+  evp = tp.get("ev_pct")
+  ev = tp.get("ev")
+  if evp is not None:
+    try:
+      reasons.append(f"EV {float(evp):.1f}%")
+    except Exception:
+      pass
+  elif ev is not None:
+    try:
+      reasons.append(f"EV +{float(ev):.2f}")
+    except Exception:
+      pass
+  # Price friendliness and regular tag
+  pr = tp.get("price")
+  if pr is not None:
+    try:
+      if abs(float(pr) + 110.0) <= 10.0:
+        reasons.append("Friendly price (~-110)")
+      if _regular_price(pr):
+        reasons.append("Regular price range")
+    except Exception:
+      pass
+  # Consensus: same market/side across books (prefer regular-priced set)
+  mk = str(tp.get("market") or "").lower()
+  side = str(tp.get("side") or "").upper()
+  same_all = [p for p in (plays or []) if str(p.get("market") or "").lower() == mk and str(p.get("side") or "").upper() == side]
+  same_regular = [p for p in same_all if _regular_price(p.get("price"))]
+  same = same_regular if same_regular else same_all
+  distinct_books = sorted(list({str(p.get("book") or "").lower() for p in same if p.get("book") is not None})) )
+  n_books = len(distinct_books)
+  if n_books >= 3:
+    reasons.append(f"Consensus: {n_books} books aligned")
+  cons_norm = max(0.0, min(1.0, (n_books - 1) / 4.0))
+  # Line advantage
+  try:
+    lines = [float(p.get("line")) for p in same if p.get("line") is not None]
+    tpl = float(tp.get("line")) if tp.get("line") is not None else None
+    if lines and tpl is not None:
+      if side == "OVER":
+        best = min(lines)
+        if tpl <= best + 1e-6:
+          reasons.append("Best line available")
+          line_adv_norm = 1.0
+      elif side == "UNDER":
+        best = max(lines)
+        if tpl >= best - 1e-6:
+          reasons.append("Best line available")
+          line_adv_norm = 1.0
+  except Exception:
+    pass
+  return reasons, cons_norm, line_adv_norm
+
+df = pd.read_csv(props_csv)
+preds_df = pd.read_csv(preds_csv) if preds_csv.exists() else pd.DataFrame()
+model_map = _build_model_map(preds_df)
+
+# Parse plays and compute top_play
+df = df.copy()
+df["_plays_list"] = df.apply(lambda r: _parse_obj(r.get("plays")), axis=1)
+df["top_play"] = df["_plays_list"].map(_choose_top_play)
+
+# Explain baseline
+df["top_play_explain"] = df.apply(lambda r: _explain_baseline(r, model_map), axis=1)
+
+# Baseline raw value for scoring
+def _baseline_val(row):
+  tp = row.get("top_play")
+  if not isinstance(tp, dict) or not tp:
+    return None
+  player = str(row.get("player") or row.get("player_name") or "").strip().lower()
+  team = str(row.get("team") or "").strip().upper()
+  stats = model_map.get((player, team)) or {}
+  m = str(tp.get("market") or "").lower()
+  return stats.get(m)
+df["top_play_baseline"] = df.apply(_baseline_val, axis=1)
+
+# Consensus, line-advantage, reasons
+res = df.apply(lambda r: pd.Series({
+  "_reasons_cons_line": _consensus_line_adv(r)
+}), axis=1)
+df["top_play_reasons"] = res["_reasons_cons_line"].map(lambda x: (x[0] if isinstance(x, tuple) else []))
+df["top_play_consensus"] = res["_reasons_cons_line"].map(lambda x: (x[1] if isinstance(x, tuple) else 0.0))
+df["top_play_line_adv"] = res["_reasons_cons_line"].map(lambda x: (x[2] if isinstance(x, tuple) else 0.0))
+df.drop(columns=["_reasons_cons_line"], inplace=True, errors="ignore")
+
+# Write back with enriched columns; preserve existing columns
+df.to_csv(props_csv, index=False)
+print("OK")
+'@
+  $pycode3 = $pycode3.Replace('{DATE_PLACEHOLDER}', $Date).Replace('{REPO_PLACEHOLDER}', $RepoRoot)
+  Set-Content -Path $tmpPy3 -Value $pycode3 -Encoding UTF8
+  $out3 = & $Python $tmpPy3 2>&1 | Tee-Object -FilePath $LogFile -Append
+  if ($out3 -match 'OK') { Write-Log 'Props recommendations patched with regular-priced preference and reasons' } else { Write-Log ("Props recommendations patch returned: {0}" -f $out3) }
+  } else {
+  Write-Log 'No props_recommendations CSV found; skipping post-process'
+  }
+} catch {
+  Write-Log ("Props recommendations post-process failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 6c.2) Props reliability (60d) and probability calibration JSON (local-only)
+try {
+  Write-Log "Computing props reliability bins (60d)"
+  $relScript = Join-Path $RepoRoot 'tools/compute_props_reliability.py'
+  if (Test-Path $relScript) {
+    & $Python $relScript 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    $calScript = Join-Path $RepoRoot 'tools/calibrate_props_probability.py'
+    if (Test-Path $calScript) {
+      Write-Log "Generating props probability calibration JSON"
+      & $Python $calScript 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    } else { Write-Log 'Calibration script missing; skipping props_prob_calibration.json' }
+  } else { Write-Log 'Props reliability script missing; skipping' }
+} catch { Write-Log ("Props reliability/calibration block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 7) PBP-derived markets for today's slate (tip winner, first basket, early threes)
 try {

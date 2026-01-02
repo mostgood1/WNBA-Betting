@@ -106,6 +106,25 @@
   </div>
   <script>
     (function(){ try{ const body=document.body; const saved=localStorage.getItem('theme'); if(saved==='light') body.classList.add('light'); const t=document.getElementById('themeToggle'); if(t){ t.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); }}catch(e){} })();
+    // Format schedule start times to clean display; hide placeholders
+    function formatDisplayTime(s){
+      try{
+        const str = String(s||'').trim();
+        if(!str) return '';
+        // If already in "h:mm am/pm" form, append ET and normalize spacing
+        const m = str.match(/^(\d{1,2}):(\d{2})\s*(am|pm)$/i);
+        if(m){ const hh=m[1], mm=m[2], ap=m[3].toUpperCase(); return `${hh}:${mm} ${ap} ET`; }
+        // Hide known placeholder dates
+        if(/1900-01-01/i.test(str)) return '';
+        // Try parsing ISO and format to ET
+        const d = new Date(str);
+        if(!isNaN(d.getTime())){
+          const fmt = new Intl.DateTimeFormat('en-US', { hour:'numeric', minute:'2-digit', timeZone:'America/New_York', hour12:true });
+          return fmt.format(d)+ ' ET';
+        }
+        return '';
+      }catch(_){ return ''; }
+    }
     function localYMD(){
       try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
       catch(_){ const d=new Date(); return d.toISOString().slice(0,10); }
@@ -376,12 +395,27 @@
       });
       const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
       sorted.forEach(r=>{ const t=(r.tier||r.confidence||'Low'); groups.get(t).push(r); });
-  groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV/Edge</th><th class="tar">Score</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody');
+  groups.forEach((arr,tier)=>{ if(!arr.length) return; const h=document.createElement('h2'); h.className='mt-1'; h.textContent=tier+' confidence'; root.appendChild(h); const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Game</th><th>Type</th><th>Selection</th><th class="tar">Odds</th><th class="tar">EV/Edge</th><th class="tar">Score</th><th>Context</th><th>Result</th><th>Date</th></tr></thead>'; const tb=document.createElement('tbody');
     // If sorting by time, order rows inside the tier by start_time
     if(mode==='time'){
       arr = arr.slice().sort((a,b)=>{ const ta=parseStartTimeMinutes(a.start_time), tb=parseStartTimeMinutes(b.start_time); if(ta!==tb) return ta-tb; const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0)); });
     }
-    arr.forEach(r=>{ const tr=document.createElement('tr'); const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const away = (r.away && String(r.away).trim())? String(r.away).trim(): (r.matchup? String(r.matchup).split(' @ ')[0]: ''); const home = (r.home && String(r.home).trim())? String(r.home).trim(): (r.matchup? String(r.matchup).split(' @ ')[1]: ''); const gameHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}${gidTxt}${timeTxt}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); let oddsDisp=''; if(r.odds!=null){ oddsDisp = fmtOddsAmerican(r.odds); } else { oddsDisp = (r.market!=='ML')? '-110' : ''; } const oddsHtml = oddsDisp + (r.book? ` <span class="muted-small">${String(r.book)}</span>`: ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): ''); const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: ''; const pill = (r.tier||r.confidence)? `<span class="pill ${pillClass(r.tier||r.confidence)}">${confidenceDisplay(r.tier||r.confidence)}</span>`:''; tr.innerHTML=`<td>${gameHtml}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsHtml}</td><td class="tar">${evDisp}</td><td class="tar">${scoreDisp}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
+    arr.forEach(r=>{ const tr=document.createElement('tr'); const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const away = (r.away && String(r.away).trim())? String(r.away).trim(): (r.matchup? String(r.matchup).split(' @ ')[0]: ''); const home = (r.home && String(r.home).trim())? String(r.home).trim(): (r.matchup? String(r.matchup).split(' @ ')[1]: ''); const gameHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}${gidTxt}${timeTxt}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); let oddsDisp=''; if(r.odds!=null){ oddsDisp = fmtOddsAmerican(r.odds); } else { oddsDisp = (r.market!=='ML')? '-110' : ''; } const oddsHtml = oddsDisp + (r.book? ` <span class="muted-small">${String(r.book)}</span>`: ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): '');
+      // Context pills (injuries and opponent allowance ranks + why)
+      const reasons = Array.isArray(r.why_reasons)? r.why_reasons: [];
+      const whyTxt = (r.why_explain && String(r.why_explain).trim())? `<span class="pill">${String(r.why_explain).trim()}</span>`: '';
+      const hi = (r.home_injuries_out!=null && Number.isFinite(Number(r.home_injuries_out)) && Number(r.home_injuries_out)>0)? `<span class="pill">Home outs: ${Number(r.home_injuries_out)}</span>`: '';
+      const ai = (r.away_injuries_out!=null && Number.isFinite(Number(r.away_injuries_out)) && Number(r.away_injuries_out)>0)? `<span class="pill">Away outs: ${Number(r.away_injuries_out)}</span>`: '';
+      const hr = (r.home_allowed_pts_rank!=null && Number.isFinite(Number(r.home_allowed_pts_rank)))? Number(r.home_allowed_pts_rank): null;
+      const ar = (r.away_allowed_pts_rank!=null && Number.isFinite(Number(r.away_allowed_pts_rank)))? Number(r.away_allowed_pts_rank): null;
+      const avgRank = (hr!=null && ar!=null)? Math.round((hr+ar)/2): null;
+      const rankBadge = (avgRank!=null)? `<span class="pill">Avg PTS allow rank: ${avgRank}</span>`: ((hr!=null||ar!=null)? `<span class="pill">PTS ranks H:${hr??'—'} A:${ar??'—'}</span>`: '');
+      // Avoid duplicating reasons: if why_explain present, suppress individual reasons pills
+      const reasonsHtml = whyTxt? '' : reasons.map(s=> `<span class="pill">${String(s)}</span>`).join(' ');
+      const contextHtml = `${whyTxt} ${reasonsHtml} ${hi} ${ai} ${rankBadge}`.trim();
+      const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: '';
+      const pill = (r.tier||r.confidence)? `<span class="pill ${pillClass(r.tier||r.confidence)}">${confidenceDisplay(r.tier||r.confidence)}</span>`:'';
+      tr.innerHTML=`<td>${gameHtml}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsHtml}</td><td class="tar">${evDisp}</td><td class="tar">${scoreDisp}</td><td>${contextHtml}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
     }
     function parsePlays(val){
       try{
@@ -434,17 +468,41 @@
         const disp = list.map(p=>{ const evp = (p.ev_pct!=null)? (Number(p.ev_pct).toFixed(1)+'%') : (p.ev!=null? (Number(p.ev*100).toFixed(1)+'%') : ''); const price = (p.price!=null)? ((Number(p.price)>0? '+'+Number(p.price): String(Number(p.price)))): ''; return `${String(p.market||'').toUpperCase()} ${String(p.side||'').toUpperCase()} ${p.line!=null? Number(p.line): ''} ${price} <span class="muted-small">${evp}${p.book? ' · '+p.book: ''}</span>`; }).join('<br/>');
         const explain = r.top_play_explain || '';
         const reasons = Array.isArray(r.top_play_reasons)? r.top_play_reasons: [];
-        const reasonsHtml = [explain, ...reasons].filter(s=> (s && String(s).trim()!=='')).map(s=> `<span class="pill">${String(s)}</span>`).join(' ');
-        // Explicit badges derived from consensus/line-adv fields
-        const consNorm = Number(r.top_play_consensus||0);
-        let consBooks = Math.round(consNorm*4)+1; // inverse of (n-1)/4
-        if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
-        const consensusBadge = consBooks>=2 ? `<span class="pill">Consensus ${consBooks} books</span>` : '';
-        const lineAdvBadge = (Number(r.top_play_line_adv||0)>=1) ? `<span class="pill">Best line available</span>` : '';
+        const whyExplain = (r.why_explain && String(r.why_explain).trim())? String(r.why_explain).trim() : '';
+        // Compose label set and deduplicate; if unified why_explain exists, suppress individual reasons
+        const labels = [];
+        if(whyExplain) labels.push(whyExplain);
+        if(explain) labels.push(explain);
+        if(!whyExplain){ reasons.forEach(s=>{ if(s && String(s).trim()!==''){ labels.push(String(s).trim()); } }); }
+        // Explicit badges derived from consensus/line-adv fields (skip if unified why_explain is present)
+        if(!whyExplain){
+          const consNorm = Number(r.top_play_consensus||0);
+          let consBooks = Math.round(consNorm*4)+1; // inverse of (n-1)/4
+          if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
+          if(consBooks>=2){ labels.push(`Consensus ${consBooks} books`); }
+          if(Number(r.top_play_line_adv||0)>=1){ labels.push('Best line available'); }
+        }
+        // Opponent/injury badges (use backend-provided ranks)
+        const injImpact = (r.team_injury_impact!=null && Number.isFinite(Number(r.team_injury_impact)))? Number(r.team_injury_impact) : null;
+        if(injImpact!=null){ labels.push(`Injury impact: ${injImpact.toFixed(1)}`); }
+        try{
+          const firstPlay = Array.isArray(list) && list.length? list[0]: (typeof plays==='object' && plays? plays: null);
+          const mk = String(firstPlay&&firstPlay.market||'').toLowerCase();
+          if(mk==='threes' || mk==='3pt'){
+            const tr = (r.opp_allowed_threes_rank!=null && Number.isFinite(Number(r.opp_allowed_threes_rank)))? Number(r.opp_allowed_threes_rank) : null;
+            if(tr!=null){ labels.push(`Opp 3PT rank: ${tr}`); }
+          } else if(['pts','reb','ast','pra','pa','pr','ra'].includes(mk)){
+            const pr = (r.opp_allowed_pts_rank!=null && Number.isFinite(Number(r.opp_allowed_pts_rank)))? Number(r.opp_allowed_pts_rank) : null;
+            if(pr!=null){ labels.push(`Opp PTS rank: ${pr}`); }
+          }
+        }catch(_){ /* ignore */ }
         const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): '');
         const teamHtml = r.team? teamBadge(r.team): '';
         const tierPill = r.tier? `<span class="pill ${pillClass(r.tier)}">${confidenceDisplay(r.tier)}</span>`: '';
-        const whyCol = `${reasonsHtml} ${consensusBadge} ${lineAdvBadge}`.trim();
+        // Deduplicate labels and render pills
+        const uniq = Array.from(new Set(labels.map(s=> s.toLowerCase())));
+        const labelMap = new Map(labels.map(s=> [s.toLowerCase(), s]));
+        const whyCol = uniq.map(k=> `<span class="pill">${labelMap.get(k)}</span>`).join(' ');
         tr.innerHTML=`<td>${r.player||''} ${tierPill}</td><td>${teamHtml}</td><td>${disp||''}</td><td class="tar">${scoreDisp}</td><td>${whyCol}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
       // Apply sort indicators and click handlers
       try{
@@ -462,7 +520,7 @@
         });
       }catch(_){ /* ignore */ }
     function renderFirstBasket(rows){ const root=document.getElementById('fbRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No first-basket recommendations.</div>'; return; }
-      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Player</th><th>Team</th><th>Prob</th><th>Fair</th><th>Rank</th></tr></thead>'; const tb=document.createElement('tbody'); rows.slice(0,10).forEach(r=>{ const prob = (r.prob_first_basket!=null)? (Number(r.prob_first_basket*100).toFixed(1)+'%') : ''; const fair = (r.fair_american!=null)? ((Number(r.fair_american)>0? '+'+Number(r.fair_american): String(Number(r.fair_american)))): ''; const tr=document.createElement('tr'); const game = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): ''; const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const teamHtml = r.team? teamBadge(r.team): ''; tr.innerHTML=`<td>${game}${gidTxt}${timeTxt}</td><td>${r.player_name||''}</td><td>${teamHtml}</td><td class="tar">${prob}</td><td class="tar">${fair}</td><td class="tar">${r.rank||''}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Player</th><th>Team</th><th>Prob</th><th>Fair</th><th>Rank</th></tr></thead>'; const tb=document.createElement('tbody'); rows.slice(0,10).forEach(r=>{ const prob = (r.prob_first_basket!=null)? (Number(r.prob_first_basket*100).toFixed(1)+'%') : ''; const fair = (r.fair_american!=null)? ((Number(r.fair_american)>0? '+'+Number(r.fair_american): String(Number(r.fair_american)))): ''; const tr=document.createElement('tr'); const game = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): ''; const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const teamHtml = r.team? teamBadge(r.team): ''; tr.innerHTML=`<td>${game}${gidTxt}${timeTxt}</td><td>${r.player_name||''}</td><td>${teamHtml}</td><td class="tar">${prob}</td><td class="tar">${fair}</td><td class="tar">${r.rank||''}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
     function renderEarlyThrees(rows){ const root=document.getElementById('thrRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No early-3s signals.</div>'; return; }
       const sorted = [...rows].sort((a,b)=>{
         const pa = Number(a.prob_ge_1||0), pb = Number(b.prob_ge_1||0);
@@ -470,7 +528,7 @@
         const ea = Number(a.expected||0), eb = Number(b.expected||0);
         return eb-ea; // expected desc
       });
-      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const timeTxt = (r.start_time && String(r.start_time).trim())? ` <span class="muted-small">· ${String(r.start_time).trim()}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
+      const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
   window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
   </script>
 </body>

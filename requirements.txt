@@ -16,6 +16,7 @@ requests-cache>=1.2
 nba_api>=1.5.0
 Flask>=3.0
 gunicorn>=21.2
+waitress>=2.1
 onnx>=1.16
 onnxruntime>=1.19
 skl2onnx>=1.16

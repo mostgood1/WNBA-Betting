@@ -635,6 +635,27 @@ def consensus_lines_at_close(odds_df: pd.DataFrame) -> pd.DataFrame:
     tot_at_mode_under = tot_at_mode_under[tot_at_mode_under["point"] == tot_at_mode_under["mode_point"]]
     tot_price_under = tot_at_mode_under.groupby("event_id")["price"].apply(american_mean)
 
+    # Liquidity metrics: count distinct bookmakers contributing per event
+    try:
+        h2h_books = (h2h.groupby("event_id")["bookmaker"].nunique() if ("bookmaker" in h2h.columns) else pd.Series(dtype=int))
+    except Exception:
+        h2h_books = pd.Series(dtype=int)
+    try:
+        sp_books = (sp_at_mode.groupby("event_id")["bookmaker"].nunique() if ("bookmaker" in sp_at_mode.columns) else pd.Series(dtype=int))
+    except Exception:
+        sp_books = pd.Series(dtype=int)
+    try:
+        tot_books = (tot_at_mode.groupby("event_id")["bookmaker"].nunique() if ("bookmaker" in tot_at_mode.columns) else pd.Series(dtype=int))
+    except Exception:
+        tot_books = pd.Series(dtype=int)
+    # Combine: take max across markets as overall books_count
+    books_df = pd.DataFrame({
+        "books_h2h": h2h_books,
+        "books_spreads": sp_books,
+        "books_totals": tot_books,
+    })
+    books_df["books_count"] = books_df.fillna(0)[["books_h2h","books_spreads","books_totals"]].max(axis=1)
+
     wide = pd.DataFrame({
         "home_ml": h2h_home,
         "away_ml": h2h_away,
@@ -652,5 +673,10 @@ def consensus_lines_at_close(odds_df: pd.DataFrame) -> pd.DataFrame:
         "home_team":"last","away_team":"last","commence_time":"last"
     })
     wide = meta.join(wide, how="left")
+    # Attach liquidity counts
+    try:
+        wide = wide.join(books_df, how="left")
+    except Exception:
+        pass
     wide.reset_index(inplace=True)
     return wide

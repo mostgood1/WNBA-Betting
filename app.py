@@ -1,16 +1,4 @@
 from __future__ import annotations
-
-import base64
-import os
-from pathlib import Path
-import sys
-
-from flask import Flask, jsonify, redirect, request, send_from_directory
-import threading
-import subprocess
-import shlex
-import time
-from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional, Tuple
 import subprocess as _subp
 
@@ -18,6 +6,10 @@ import pandas as pd
 import numpy as np
 import math
 import json
+import base64
+import os
+from datetime import datetime, timedelta
+from flask import Flask, jsonify, request, send_from_directory
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
 from pathlib import Path as _PathEarly
@@ -217,6 +209,388 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
         pass
 
     return name_keys, short_keys
+
+# --- Opponent allowances and team injury counts (for props explainability) ---
+_OPP_ALLOWED_CACHE: dict[str, dict[str, dict[str, float]]] = {}
+_OPP_ALLOWED_RANKS_CACHE: dict[str, dict[str, dict[str, int]]] = {}
+_TEAM_INJURY_COUNTS_CACHE: dict[str, dict[str, int]] = {}
+_TEAM_INJURY_IDENTITY_CACHE: dict[str, tuple[dict[str, list[str]], dict[str, float]]] = {}
+
+def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, int]]]:
+    """Compute per-team opponent allowances for key prop markets over a recent window.
+
+    Returns two dicts keyed by team tricode:
+      - averages: {team: {"pts": avg_pts_allowed, "reb": avg_reb_allowed, "ast": avg_ast_allowed, "threes": avg_3pm_allowed}}
+      - ranks:    {team: {market: rank}} with 1=lowest allowed (stingy), 30=highest allowed (favorable)
+
+    Reads data/processed/boxscores_YYYY-MM-DD.csv files for the last N days and aggregates per game.
+    """
+    try:
+        if date_str in _OPP_ALLOWED_CACHE and date_str in _OPP_ALLOWED_RANKS_CACHE:
+            return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+        base = BASE_DIR / "data" / "processed"
+        if not base.exists():
+            _OPP_ALLOWED_CACHE[date_str] = {}
+            _OPP_ALLOWED_RANKS_CACHE[date_str] = {}
+            return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+        cutoff = pd.to_datetime(date_str, errors="coerce")
+        if pd.isna(cutoff):
+            from datetime import date as _date
+            cutoff = pd.Timestamp(_date.today())
+        start = cutoff - pd.Timedelta(days=days_back)
+
+        # Collect per-game team totals, then attribute opponent totals as "allowed" to the other team
+        needed_cols = {
+            "gameId": {"gameId", "GAME_ID", "game_id"},
+            "team": {"teamTricode", "TEAM_ABBREVIATION", "team", "slugTeam"},
+            "pts": {"points", "PTS"},
+            "reb": {"reboundsTotal", "REB", "TREB"},
+            "ast": {"assists", "AST"},
+            "threes": {"threePointersMade", "FG3M"},
+        }
+        per_game: dict[str, dict[str, dict[str, float]]] = {}
+
+        for p in sorted(base.glob("boxscores_*.csv")):
+            try:
+                dstr = p.stem.replace("boxscores_", "")
+                dval = pd.to_datetime(dstr, errors="coerce")
+                if pd.isna(dval) or not (start <= dval <= cutoff):
+                    continue
+                df = pd.read_csv(p)
+                cols = {c.lower(): c for c in df.columns}
+                def _col(keys: set[str]) -> str | None:
+                    for k in keys:
+                        if k.lower() in cols:
+                            return cols[k.lower()]
+                    return None
+                gid = _col(needed_cols["gameId"])
+                team = _col(needed_cols["team"])
+                c_pts = _col(needed_cols["pts"])
+                c_reb = _col(needed_cols["reb"])
+                c_ast = _col(needed_cols["ast"])
+                c_3 = _col(needed_cols["threes"])
+                if not gid or not team:
+                    continue
+                use_cols = [x for x in [gid, team, c_pts, c_reb, c_ast, c_3] if x]
+                tmp = df[use_cols].copy()
+                for c in [c_pts, c_reb, c_ast, c_3]:
+                    if c and c in tmp.columns:
+                        tmp[c] = pd.to_numeric(tmp[c], errors="coerce")
+                grp = tmp.groupby([gid, team], as_index=False).sum()
+                for gk, sub in grp.groupby(gid):
+                    rows = sub.to_dict(orient="records")
+                    if len(rows) < 2:
+                        continue
+                    # Attribute opponent totals as allowed to the other team
+                    for i in range(len(rows)):
+                        a = rows[i]; b = rows[1 - i] if len(rows) == 2 else None
+                        if not b:
+                            continue
+                        t = str(a.get(team) or "").strip().upper()
+                        if not t:
+                            continue
+                        per_game.setdefault(t, {})[gk] = {
+                            "pts": float(b.get(c_pts, 0.0) or 0.0) if c_pts else np.nan,
+                            "reb": float(b.get(c_reb, 0.0) or 0.0) if c_reb else np.nan,
+                            "ast": float(b.get(c_ast, 0.0) or 0.0) if c_ast else np.nan,
+                            "threes": float(b.get(c_3, 0.0) or 0.0) if c_3 else np.nan,
+                        }
+            except Exception:
+                continue
+
+        averages: dict[str, dict[str, float]] = {}
+        for team_key, game_map in per_game.items():
+            if not game_map:
+                continue
+            vals = pd.DataFrame(list(game_map.values()))
+            averages[team_key] = {
+                "pts": float(vals["pts"].mean()) if "pts" in vals.columns else np.nan,
+                "reb": float(vals["reb"].mean()) if "reb" in vals.columns else np.nan,
+                "ast": float(vals["ast"].mean()) if "ast" in vals.columns else np.nan,
+                "threes": float(vals["threes"].mean()) if "threes" in vals.columns else np.nan,
+            }
+
+        # Build ranks per market: higher allowed => higher rank (favorable for overs)
+        ranks: dict[str, dict[str, int]] = {}
+        for mk in ["pts","reb","ast","threes"]:
+            series = pd.Series({t: (averages.get(t, {}).get(mk, np.nan)) for t in averages.keys()})
+            # Drop NaN and rank among available teams
+            series = series.dropna()
+            if series.empty:
+                continue
+            # Rank ascending => lowest allowed rank 1; we want highest allowed => rank max
+            ord = series.rank(method="min", ascending=True)
+            max_rank = int(ord.max()) if len(ord) > 0 else 0
+            for t, r in ord.items():
+                ranks.setdefault(t, {})[mk] = int(r)
+            # Normalize ranks to 1..N where N=len(series)
+            # (already in that form via rank(min))
+        _OPP_ALLOWED_CACHE[date_str] = averages
+        _OPP_ALLOWED_RANKS_CACHE[date_str] = ranks
+        return averages, ranks
+    except Exception:
+        _OPP_ALLOWED_CACHE[date_str] = {}
+        _OPP_ALLOWED_RANKS_CACHE[date_str] = {}
+        return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
+
+def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dict[str, float], dict[str, int]]:
+    """Compute per-team recent offensive points averages and ranks over a window.
+
+    Returns two dicts keyed by team tricode:
+      - averages: {team: avg_points_scored}
+      - ranks:    {team: rank} with 1=lowest offense, 30=highest offense
+
+    Reads data/processed/boxscores_YYYY-MM-DD.csv files and aggregates per game.
+    """
+    try:
+        base = BASE_DIR / "data" / "processed"
+        if not base.exists():
+            return {}, {}
+        cutoff = pd.to_datetime(date_str, errors="coerce")
+        if pd.isna(cutoff):
+            from datetime import date as _date
+            cutoff = pd.Timestamp(_date.today())
+        start = cutoff - pd.Timedelta(days=days_back)
+
+        needed_cols = {
+            "gameId": {"gameId", "GAME_ID", "game_id"},
+            "team": {"teamTricode", "TEAM_ABBREVIATION", "team", "slugTeam"},
+            "pts": {"points", "PTS"},
+        }
+        per_team_points: dict[str, list[float]] = {}
+        for p in sorted(base.glob("boxscores_*.csv")):
+            try:
+                dstr = p.stem.replace("boxscores_", "")
+                dval = pd.to_datetime(dstr, errors="coerce")
+                if pd.isna(dval) or not (start <= dval <= cutoff):
+                    continue
+                df = pd.read_csv(p)
+                cols = {c.lower(): c for c in df.columns}
+                def _col(keys: set[str]) -> str | None:
+                    for k in keys:
+                        if k.lower() in cols:
+                            return cols[k.lower()]
+                    return None
+                c_team = _col(needed_cols["team"])
+                c_pts = _col(needed_cols["pts"])
+                if not c_team or not c_pts:
+                    continue
+                tmp = df[[c_team, c_pts]].copy()
+                tmp[c_pts] = pd.to_numeric(tmp[c_pts], errors="coerce")
+                grp = tmp.groupby(c_team, as_index=False).sum()
+                for _, r in grp.iterrows():
+                    tri = str(r.get(c_team) or "").strip().upper()
+                    if not tri:
+                        continue
+                    val = float(r.get(c_pts) or 0.0)
+                    per_team_points.setdefault(tri, []).append(val)
+            except Exception:
+                continue
+        averages: dict[str, float] = {}
+        for t, pts in per_team_points.items():
+            if pts:
+                try:
+                    averages[t] = float(np.mean([float(x) for x in pts if np.isfinite(float(x))]))
+                except Exception:
+                    continue
+        # Build ranks: higher offense => higher rank
+        ranks: dict[str, int] = {}
+        if averages:
+            series = pd.Series(averages)
+            series = series.dropna()
+            ord = series.rank(method="min", ascending=True)
+            for t, r in ord.items():
+                ranks[t] = int(r)
+        return averages, ranks
+    except Exception:
+        return {}, {}
+
+def _team_injury_counts(date_str: str) -> dict[str, int]:
+    """Return count of excluded-status injuries per team for the date (latest per player).
+
+    Uses data/raw/injuries.csv if present; filters to OUT/SUSPENDED/INACTIVE/REST and season-long/indefinite.
+    Excludes DOUBTFUL by default. Maps counts to both full team names and tricodes, and filters to roster membership for date.
+    """
+    try:
+        if date_str in _TEAM_INJURY_COUNTS_CACHE:
+            return _TEAM_INJURY_COUNTS_CACHE[date_str]
+        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        out: dict[str, int] = {}
+        if not inj_path.exists():
+            _TEAM_INJURY_COUNTS_CACHE[date_str] = out
+            return out
+        inj = pd.read_csv(inj_path)
+        if not isinstance(inj, pd.DataFrame) or inj.empty:
+            _TEAM_INJURY_COUNTS_CACHE[date_str] = out
+            return out
+        if "date" in inj.columns:
+            inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
+            inj = inj[inj["date"].notna()]
+            cutoff = pd.to_datetime(date_str, errors="coerce")
+            if pd.isna(cutoff):
+                from datetime import date as _date
+                cutoff = pd.Timestamp(_date.today())
+            inj = inj[inj["date"] <= cutoff.date()].copy()
+        sort_cols = [c for c in ["date"] if c in inj.columns]
+        if sort_cols:
+            inj = inj.sort_values(sort_cols)
+        grp_cols = [c for c in ["player","team"] if c in inj.columns] or ["player"]
+        latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
+        latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper()
+        # Exclude doubtful by default; count hard outs and season-ending/indefinite
+        EXCLUDE_STATUSES = {"OUT","SUSPENDED","INACTIVE","REST"}
+        def _excluded_status(u: str) -> bool:
+            try:
+                u = str(u).upper()
+            except Exception:
+                return False
+            if u in EXCLUDE_STATUSES:
+                return True
+            if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+                return True
+            return False
+        # Build roster-based filter and map to tricodes for reliable lookups
+        roster = _roster_players_for_date(date_str)
+        try:
+            latest["_name_key"] = latest["player"].astype(str).map(_norm_player_name)
+        except Exception:
+            latest["_name_key"] = latest.get("player", "").astype(str)
+        latest["team_tri"] = latest.get("team", "").astype(str).map(lambda t: (_get_tricode(t) or str(t).strip().upper()))
+        filt = latest[latest["status_norm"].map(_excluded_status)].copy()
+        if not filt.empty:
+            # Keep only players present on that team's roster for the date
+            try:
+                mask = filt.apply(lambda r: r["_name_key"] in (roster.get(str(r["team_tri"]).upper(), set()) or set()), axis=1)
+                filt = filt[mask].copy()
+            except Exception:
+                pass
+            # Count by full team name and tricode
+            for _, row in filt.iterrows():
+                t_full = str(row.get("team") or "").strip().upper()
+                t_tri = str(row.get("team_tri") or "").strip().upper()
+                if t_full:
+                    out[t_full] = int(out.get(t_full, 0) + 1)
+                if t_tri:
+                    out[t_tri] = int(out.get(t_tri, 0) + 1)
+        # Fallback: if counts empty, derive from identity-aware names for the date
+        if not out:
+            try:
+                names_map, _impact_map = _team_injury_identity(date_str)
+                if isinstance(names_map, dict) and names_map:
+                    for k, v in names_map.items():
+                        try:
+                            tk = str(k or "").strip().upper()
+                            cnt = len([n for n in (v or []) if str(n).strip()])
+                            if tk and cnt > 0:
+                                out[tk] = int(cnt)
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+        _TEAM_INJURY_COUNTS_CACHE[date_str] = out
+        return out
+    except Exception:
+        _TEAM_INJURY_COUNTS_CACHE[date_str] = {}
+        return {}
+
+def _team_injury_identity(date_str: str) -> tuple[dict[str, list[str]], dict[str, float]]:
+    """Return per-team key outs (names) and impact score for the date.
+
+    Prefers data/processed/injuries_counts_<date>.json from tools/snapshot_injuries.py.
+    Fallbacks to empty maps if unavailable.
+    """
+    try:
+        if date_str in _TEAM_INJURY_IDENTITY_CACHE:
+            return _TEAM_INJURY_IDENTITY_CACHE[date_str]
+        proc = BASE_DIR / "data" / "processed"
+        fp = proc / f"injuries_counts_{date_str}.json"
+        names_map: dict[str, list[str]] = {}
+        impact_map: dict[str, float] = {}
+        if fp.exists():
+            try:
+                with open(fp, "r", encoding="utf-8") as f:
+                    obj = json.load(f)
+                if isinstance(obj, dict):
+                    km = obj.get("team_key_outs") or {}
+                    im = obj.get("team_impact") or {}
+                    # Normalize keys to upper
+                    for k, v in (km.items() if isinstance(km, dict) else []):
+                        rawk = str(k or "").strip()
+                        tk = rawk.upper()
+                        if not tk:
+                            continue
+                        try:
+                            if isinstance(v, list):
+                                vals = [str(x or "") for x in v][:3]
+                                names_map[tk] = vals
+                                # Also map tricode if resolvable
+                                tri = _get_tricode(rawk)
+                                triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                                if triu:
+                                    names_map[triu] = vals
+                        except Exception:
+                            continue
+                    for k, v in (im.items() if isinstance(im, dict) else []):
+                        rawk = str(k or "").strip()
+                        tk = rawk.upper()
+                        if not tk:
+                            continue
+                        try:
+                            valf = float(v)
+                            impact_map[tk] = valf
+                            tri = _get_tricode(rawk)
+                            triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                            if triu:
+                                impact_map[triu] = valf
+                        except Exception:
+                            continue
+            except Exception:
+                pass
+        _TEAM_INJURY_IDENTITY_CACHE[date_str] = (names_map, impact_map)
+        return names_map, impact_map
+    except Exception:
+        _TEAM_INJURY_IDENTITY_CACHE[date_str] = ({}, {})
+        return {}, {}
+
+def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
+    """Return map of team tricode -> set of normalized player names for the date.
+
+    Prefers data/processed/league_status_<date>.csv; falls back to overrides/team_roster_<date>.csv.
+    """
+    out: dict[str, set[str]] = {}
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        fp = proc / f"league_status_{date_str}.csv"
+        if fp.exists():
+            df = pd.read_csv(fp)
+            cols = {c.upper(): c for c in df.columns}
+            tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
+            ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+            if tcol and ncol:
+                tmp = df[[tcol, ncol]].copy()
+                tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                tmp[ncol] = tmp[ncol].astype(str)
+                tmp["_name_key"] = tmp[ncol].map(_norm_player_name)
+                for tri, sg in tmp.groupby(tcol):
+                    out[str(tri).strip().upper()] = set(sg["_name_key"].dropna().astype(str).tolist())
+        else:
+            # fallback to overrides
+            ov = BASE_DIR / "data" / "overrides" / f"team_roster_{date_str}.csv"
+            if ov.exists():
+                df = pd.read_csv(ov)
+                cols = {c.upper(): c for c in df.columns}
+                tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
+                ncol = cols.get("PLAYER")
+                if tcol and ncol:
+                    tmp = df[[tcol, ncol]].copy()
+                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                    tmp[ncol] = tmp[ncol].astype(str)
+                    tmp["_name_key"] = tmp[ncol].map(_norm_player_name)
+                    for tri, sg in tmp.groupby(tcol):
+                        out[str(tri).strip().upper()] = set(sg["_name_key"].dropna().astype(str).tolist())
+    except Exception:
+        pass
+    return out
 
 # Helper to reliably resolve the Python interpreter for subprocess tasks
 def _resolve_python() -> str:
@@ -1071,10 +1445,51 @@ def _resolve_player_id(name: str | None, team: str | None = None) -> Optional[in
 def _parse_date_param(req, default_to_today: bool = True) -> str:
     val = (req.args.get("date") or req.args.get("d") or "").strip()
     if not val and default_to_today:
+        # Respect USA timing for "today" (avoid UTC rollover)
         try:
-            return datetime.utcnow().date().isoformat()
+            import os
+            from datetime import datetime as _dt, timedelta as _td
+            # Prefer explicit US timezone over system local time
+            tz_name = (os.environ.get("APP_TZ") or "America/New_York").strip()
+            try:
+                from zoneinfo import ZoneInfo  # Python 3.9+
+                dval = _dt.now(ZoneInfo(tz_name)).date().isoformat()
+                try:
+                    print(f"[_parse_date_param] tz={tz_name} via zoneinfo -> {dval}")
+                except Exception:
+                    pass
+                return dval
+            except Exception:
+                # Fallback: offset mapping for common US zones
+                tz_map = {
+                    "America/New_York": -5,
+                    "US/Eastern": -5,
+                    "America/Chicago": -6,
+                    "US/Central": -6,
+                    "America/Denver": -7,
+                    "US/Mountain": -7,
+                    "America/Los_Angeles": -8,
+                    "US/Pacific": -8,
+                }
+                off = tz_map.get(tz_name, None)
+                if off is None:
+                    # Allow override via APP_TZ_OFFSET_HOURS
+                    try:
+                        off = int((os.environ.get("APP_TZ_OFFSET_HOURS") or "-5").strip())
+                    except Exception:
+                        off = -5
+                dval = (_dt.utcnow() + _td(hours=off)).date().isoformat()
+                try:
+                    print(f"[_parse_date_param] tz={tz_name} via offset {off} -> {dval}")
+                except Exception:
+                    pass
+                return dval
         except Exception:
-            return ""
+            try:
+                # Last resort: pandas local time
+                return pd.Timestamp.now().date().isoformat()
+            except Exception:
+                return ""
     try:
         # normalize YYYY-MM-DD
         return pd.to_datetime(val).date().isoformat()
@@ -1942,6 +2357,15 @@ def api_last_updated():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/debug/date")
+def api_debug_date():
+    try:
+        d = _parse_date_param(request)
+        return jsonify({"args": dict(request.args), "resolved_date": d})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
 @app.route("/api/data-status")
 def api_data_status():
     """Quick status for a date: counts for predictions, game_odds, props edges, and recon.
@@ -1973,6 +2397,26 @@ def api_data_status():
         out["props_edges_rows"] = _count_csv_rows_quick(pe) if pe.exists() else 0
     except Exception:
         out["props_edges_rows"] = 0
+
+    # If no explicit date was provided and nothing exists for computed today,
+    # fall back to previous day (helps avoid UTC-next-day issues)
+    try:
+        if ("date" not in request.args and "d" not in request.args):
+            if (out.get("predictions_rows", 0) == 0 and out.get("game_odds_rows", 0) == 0 and out.get("props_edges_rows", 0) == 0):
+                prev = (pd.to_datetime(d) - pd.Timedelta(days=1)).date().isoformat()
+                p = _find_predictions_for_date(prev)
+                go = _find_game_odds_for_date(prev)
+                pe = BASE_DIR / "data" / "processed" / f"props_edges_{prev}.csv"
+                if (p or go or pe.exists()):
+                    out["date"] = prev
+                    out["predictions_path"] = str(p) if p else None
+                    out["predictions_rows"] = _count_csv_rows_quick(p) if p else 0
+                    out["game_odds_path"] = str(go) if go else None
+                    out["game_odds_rows"] = _count_csv_rows_quick(go) if go else 0
+                    out["props_edges_path"] = str(pe) if pe.exists() else None
+                    out["props_edges_rows"] = _count_csv_rows_quick(pe) if pe.exists() else 0
+    except Exception:
+        pass
     try:
         # Recon
         rg = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
@@ -2189,6 +2633,7 @@ def api_recommendations_summary():
       total, resolved, wins, losses, pushes, accuracy_pct, stake_total, profit_total, roi_pct
     """
     try:
+        from datetime import datetime
         since = (request.args.get("since") or "2025-10-21").strip()
         until = (request.args.get("until") or datetime.utcnow().date().isoformat()).strip()
         th_spread = float(request.args.get("spread_edge", 1.0))
@@ -2280,6 +2725,25 @@ def api_recommendations_summary():
             }
 
         buckets = {k: _empty_stats() for k in ["Overall", "High", "Medium", "Low"]}
+        props_buckets = {k: _empty_stats() for k in ["Overall", "High", "Medium", "Low"]}
+        props_dates: list[str] = []
+        # PBP-derived markets (metrics + tiered accuracy buckets)
+        first_basket_metrics: list[dict] = []
+        early_threes_metrics: list[dict] = []
+        first_basket_buckets = {k: _empty_stats() for k in ["Overall", "High", "Medium", "Low"]}
+        early_threes_buckets = {k: _empty_stats() for k in ["Overall", "High", "Medium", "Low"]}
+
+        # Local tier helper based on probability only (avoid cross-function deps)
+        def _tier_from_prob(p):
+            try:
+                v = float(p)
+                if v >= 0.75:
+                    return "High"
+                if v >= 0.5:
+                    return "Medium"
+                return "Low"
+            except Exception:
+                return "Low"
 
         for dstr, fp in rec_files:
             try:
@@ -2463,6 +2927,311 @@ def api_recommendations_summary():
                 except Exception:
                     continue
 
+            # Evaluate props recommendations for the same date using recon_props_*
+            props_path = BASE_DIR / "data" / "processed" / f"props_recommendations_{dstr}.csv"
+            recon_props_path = BASE_DIR / "data" / "processed" / f"recon_props_{dstr}.csv"
+            if props_path.exists() and recon_props_path.exists():
+                try:
+                    props_df = pd.read_csv(props_path)
+                    recon_df = pd.read_csv(recon_props_path)
+                except Exception:
+                    # Skip if files fail to load
+                    props_df = None
+                    recon_df = None
+                if isinstance(props_df, pd.DataFrame) and isinstance(recon_df, pd.DataFrame):
+                    props_dates.append(dstr)
+                    # Build player -> stat totals mapping per team for resolution
+                    def _norm_name(s) -> str:
+                        return str(s or "").strip().lower()
+                    def _tri_team(v) -> str:
+                        try:
+                            tri = _get_tricode(v)
+                            return (tri.upper() if isinstance(tri, str) and tri else str(v).strip().upper())
+                        except Exception:
+                            return str(v).strip().upper()
+                    recon_df = recon_df.copy()
+                    recon_df["_pname"] = recon_df.get("player_name", "").astype(str).str.lower()
+                    recon_df["_team"] = recon_df.get("team_abbr", "").astype(str).str.upper()
+                    recon_index: dict[tuple[str,str], dict[str,float]] = {}
+                    for _, rr in recon_df.iterrows():
+                        key = (_norm_name(rr.get("player_name")), str(rr.get("team_abbr") or "").strip().upper())
+                        recon_index[key] = {
+                            "pts": float(pd.to_numeric(rr.get("pts"), errors="coerce") or 0.0),
+                            "reb": float(pd.to_numeric(rr.get("reb"), errors="coerce") or 0.0),
+                            "ast": float(pd.to_numeric(rr.get("ast"), errors="coerce") or 0.0),
+                            "threes": float(pd.to_numeric(rr.get("threes"), errors="coerce") or 0.0),
+                            "pra": float(pd.to_numeric(rr.get("pra"), errors="coerce") or 0.0),
+                        }
+                    # Helper: parse plays column and select a top regular-price play
+                    import ast as _ast, json as _json
+                    def _parse_obj(val):
+                        if isinstance(val, (list, dict)):
+                            return val
+                        s = str(val or "")
+                        if s.strip() in {"", "None", "nan"}:
+                            return None
+                        try:
+                            return _json.loads(s)
+                        except Exception:
+                            try:
+                                return _ast.literal_eval(s)
+                            except Exception:
+                                return None
+                    def _is_regular_price(p) -> bool:
+                        try:
+                            v = float(p)
+                            return (v >= -150.0) and (v <= 125.0)
+                        except Exception:
+                            return False
+                    def _is_regular_market(m) -> bool:
+                        mm = str(m or "").lower()
+                        return mm not in {"dd","td"}
+                    def _top_play_from_row(row: pd.Series):
+                        try:
+                            plays = _parse_obj(row.get("plays"))
+                            if isinstance(plays, list) and plays:
+                                # Prefer regular-price plays; fallback to all
+                                regular = [p for p in plays if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
+                                cand = regular if regular else plays
+                                # Sort by ev_pct desc, then ev desc
+                                def _evp(p):
+                                    try:
+                                        v = p.get("ev_pct")
+                                        if v is not None and not pd.isna(v):
+                                            return float(v)
+                                        ve = p.get("ev")
+                                        return (float(ve)*100.0 if ve is not None and not pd.isna(ve) else -1e9)
+                                    except Exception:
+                                        return -1e9
+                                cand.sort(key=lambda p: (_evp(p), abs(p.get("edge") or 0.0)), reverse=True)
+                                tp = cand[0]
+                                return {
+                                    "market": tp.get("market"),
+                                    "side": tp.get("side"),
+                                    "line": tp.get("line"),
+                                    "price": tp.get("price"),
+                                    "ev": tp.get("ev"),
+                                    "edge": tp.get("edge"),
+                                }
+                        except Exception:
+                            return None
+                        return None
+                    # Evaluate each props card's top play
+                    for _, pr in props_df.iterrows():
+                        try:
+                            tp = _top_play_from_row(pr)
+                            if not isinstance(tp, dict) or not tp:
+                                continue
+                            player = _norm_name(pr.get("player"))
+                            team = _tri_team(pr.get("team"))
+                            stats = recon_index.get((player, team))
+                            if not isinstance(stats, dict) or not stats:
+                                # unresolved (e.g., player DNP or data missing)
+                                props_buckets["Overall"]["total"] += 1
+                                props_buckets[_tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))]["total"] += 1
+                                continue
+                            # Resolve against line
+                            mkt = str(tp.get("market") or "").lower()
+                            side = str(tp.get("side") or "").upper()
+                            line = tp.get("line")
+                            try:
+                                ln = float(line) if line is not None and not pd.isna(line) else None
+                            except Exception:
+                                ln = None
+                            actual = None
+                            if mkt == "pts":
+                                actual = stats.get("pts")
+                            elif mkt == "reb":
+                                actual = stats.get("reb")
+                            elif mkt == "ast":
+                                actual = stats.get("ast")
+                            elif mkt == "threes":
+                                actual = stats.get("threes")
+                            elif mkt == "pra":
+                                actual = stats.get("pra")
+                            elif mkt == "pr":
+                                actual = (stats.get("pts", 0.0) + stats.get("reb", 0.0))
+                            elif mkt == "ra":
+                                actual = (stats.get("reb", 0.0) + stats.get("ast", 0.0))
+                            elif mkt == "pa":
+                                actual = (stats.get("pts", 0.0) + stats.get("ast", 0.0))
+                            # Ignore unsupported markets (dd/td etc.)
+                            if ln is None or actual is None:
+                                # unresolved
+                                props_buckets["Overall"]["total"] += 1
+                                props_buckets[_tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))]["total"] += 1
+                                continue
+                            is_push = abs(float(actual) - float(ln)) < 1e-9
+                            is_win = False
+                            if not is_push:
+                                if side == "OVER":
+                                    is_win = (float(actual) > float(ln))
+                                elif side == "UNDER":
+                                    is_win = (float(actual) < float(ln))
+                            stake = 1.0
+                            profit = 0.0
+                            dec = _american_to_decimal(tp.get("price"))
+                            if dec is None:
+                                # default to -110 if missing
+                                dec = 1.909090909
+                            # Update buckets
+                            for key in ("Overall", _tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))):
+                                b = props_buckets[key]
+                                b["resolved"] += 1
+                                b["total"] += 1
+                                if is_push:
+                                    b["pushes"] += 1
+                                elif is_win:
+                                    b["wins"] += 1
+                                    profit = (float(dec) - 1.0) * stake
+                                else:
+                                    b["losses"] += 1
+                                    profit = -stake
+                                b["stake_total"] += stake
+                                b["profit_total"] += profit
+                        except Exception:
+                            # Skip this card on any unexpected error
+                            continue
+
+            # PBP recon metrics (first basket, early threes)
+            try:
+                pbp_recon = BASE_DIR / "data" / "processed" / f"pbp_reconcile_{dstr}.csv"
+                if pbp_recon.exists():
+                    dfp = pd.read_csv(pbp_recon)
+                    # Compute means per date for standard columns if present
+                    m: dict[str, Any] = {"date": dstr}
+                    for col in [
+                        "tip_brier","tip_logloss","first_basket_hit_top1","first_basket_hit_top5","early_threes_error","early_threes_brier_ge1"
+                    ]:
+                        if col in dfp.columns:
+                            s = pd.to_numeric(dfp[col], errors="coerce").dropna()
+                            if len(s) > 0:
+                                m[col] = float(s.mean())
+                    if ("first_basket_hit_top1" in m) or ("first_basket_hit_top5" in m):
+                        first_basket_metrics.append({
+                            "date": dstr,
+                            "top1_hit_pct": round(100.0 * float(m.get("first_basket_hit_top1", 0.0)), 1) if ("first_basket_hit_top1" in m) else None,
+                            "top5_hit_pct": round(100.0 * float(m.get("first_basket_hit_top5", 0.0)), 1) if ("first_basket_hit_top5" in m) else None,
+                        })
+                    if ("early_threes_error" in m) or ("early_threes_brier_ge1" in m):
+                        early_threes_metrics.append({
+                            "date": dstr,
+                            "mae": abs(float(m.get("early_threes_error", 0.0))) if ("early_threes_error" in m) else None,
+                            "brier_ge1": float(m.get("early_threes_brier_ge1", 0.0)) if ("early_threes_brier_ge1" in m) else None,
+                        })
+                    # Tiered accuracy for First Basket using PBP recon top-1 directly
+                    try:
+                        cols = {c.lower(): c for c in dfp.columns}
+                        prob_col = cols.get("first_basket_top1_prob")
+                        hit_col = cols.get("first_basket_hit_top1")
+                        name_pred_col = cols.get("first_basket_top1_name")
+                        name_act_col = cols.get("first_basket_actual_name")
+                        if prob_col and hit_col:
+                            dfp2 = dfp[[prob_col, hit_col]].copy()
+                            dfp2[prob_col] = pd.to_numeric(dfp2[prob_col], errors="coerce")
+                            dfp2[hit_col] = dfp2[hit_col].apply(lambda v: str(v).strip().lower() in {"true","1","yes"})
+                            valid = dfp2[prob_col].notna()
+                            if bool(valid.any()):
+                                # Prefer hit flag derived from name equality if both columns exist
+                                try:
+                                    if hit_col:
+                                        hit_all = dfp[hit_col].apply(lambda v: str(v).strip().lower() in {"true","1","yes"})
+                                    elif name_pred_col and name_act_col:
+                                        hit_all = (
+                                            dfp[name_pred_col].astype(str).str.strip()
+                                            == dfp[name_act_col].astype(str).str.strip()
+                                        )
+                                    else:
+                                        hit_all = pd.Series([False] * len(dfp))
+                                except Exception:
+                                    hit_all = dfp[hit_col].apply(lambda v: str(v).strip().lower() in {"true","1","yes"})
+                                probs_all = pd.to_numeric(dfp[prob_col], errors="coerce")
+                                # Masks by tier
+                                m_valid = probs_all.notna()
+                                m_high = m_valid & (probs_all >= 0.6)
+                                m_med = m_valid & (probs_all >= 0.5) & (probs_all < 0.6)
+                                m_low = m_valid & (probs_all < 0.5)
+                                def _upd(mask, tier_name):
+                                    try:
+                                        total = int(mask.sum())
+                                        wins = int((hit_all & mask).sum())
+                                        losses = total - wins
+                                        if total > 0:
+                                            # Overall
+                                            b_all = first_basket_buckets["Overall"]
+                                            b_all["total"] += total
+                                            b_all["resolved"] += total
+                                            b_all["wins"] += wins
+                                            b_all["losses"] += losses
+                                            # Tier-specific
+                                            b_t = first_basket_buckets[tier_name]
+                                            b_t["total"] += total
+                                            b_t["resolved"] += total
+                                            b_t["wins"] += wins
+                                            b_t["losses"] += losses
+                                    except Exception:
+                                        pass
+                                _upd(m_high, "High")
+                                _upd(m_med, "Medium")
+                                _upd(m_low, "Low")
+                            else:
+                                # Fallback: update Overall from hit flags only
+                                try:
+                                    t_count = int(dfp2[hit_col].sum())
+                                    f_count = int((~dfp2[hit_col]).sum())
+                                    b = first_basket_buckets["Overall"]
+                                    b["total"] += (t_count + f_count)
+                                    b["resolved"] += (t_count + f_count)
+                                    b["wins"] += t_count
+                                    b["losses"] += f_count
+                                except Exception:
+                                    pass
+                    except Exception:
+                        pass
+                    # Tiered accuracy for Early Threes (Yes/No on >=1 made in 0-3m)
+                    try:
+                        thr_p = BASE_DIR / "data" / "processed" / f"early_threes_{dstr}.csv"
+                        if thr_p.exists():
+                            th = pd.read_csv(thr_p)
+                            if not th.empty:
+                                # Normalize essential fields
+                                th["game_id"] = th.get("game_id").astype(str)
+                                th["prob_ge_1"] = pd.to_numeric(th.get("prob_ge_1"), errors="coerce")
+                                # recon actuals mapping
+                                cols = {c.lower(): c for c in dfp.columns}
+                                gid_col = cols.get("game_id")
+                                act_col = cols.get("early_threes_actual")
+                                if gid_col and act_col:
+                                    dfp[gid_col] = dfp[gid_col].astype(str)
+                                    amap = pd.to_numeric(dfp.set_index(gid_col)[act_col], errors="coerce").fillna(0.0).to_dict()
+                                    for _, rr in th.iterrows():
+                                        try:
+                                            gid = str(rr.get("game_id"))
+                                            prob = float(rr.get("prob_ge_1") or 0.0)
+                                            side_yes = (prob >= 0.6)
+                                            # Score and tier
+                                            # Tier purely from probability
+                                            tier = _tier_from_prob(prob)
+                                            for key in ("Overall", tier):
+                                                b = early_threes_buckets[key]
+                                                b["total"] += 1
+                                                # Resolve only if actual known
+                                                actual = amap.get(gid)
+                                                if actual is not None:
+                                                    b["resolved"] += 1
+                                                    hit = (float(actual) >= 1.0)
+                                                    if (side_yes and hit) or ((not side_yes) and (not hit)):
+                                                        b["wins"] += 1
+                                                    else:
+                                                        b["losses"] += 1
+                                        except Exception:
+                                            continue
+                    except Exception:
+                        pass
+            except Exception:
+                # Skip pbp metrics on error
+                pass
+
         # Finalize percentages
         for k, b in buckets.items():
             if b["resolved"] > 0:
@@ -2479,14 +3248,706 @@ def api_recommendations_summary():
                     b["roi_pct"] = None
             else:
                 b["roi_pct"] = None
+        for k, b in props_buckets.items():
+            if b["resolved"] > 0:
+                try:
+                    b["accuracy_pct"] = round(100.0 * b["wins"] / max(1, b["resolved"]), 1)
+                except Exception:
+                    b["accuracy_pct"] = None
+            else:
+                b["accuracy_pct"] = None
+            if b["stake_total"] > 0:
+                try:
+                    b["roi_pct"] = round(100.0 * b["profit_total"] / max(1e-9, b["stake_total"]), 1)
+                except Exception:
+                    b["roi_pct"] = None
+            else:
+                b["roi_pct"] = None
+        for k, b in first_basket_buckets.items():
+            if b["resolved"] > 0:
+                try:
+                    b["accuracy_pct"] = round(100.0 * b["wins"] / max(1, b["resolved"]), 1)
+                except Exception:
+                    b["accuracy_pct"] = None
+            else:
+                b["accuracy_pct"] = None
+            # ROI not computed; leave stake/profit as 0
+            b["roi_pct"] = None
+        for k, b in early_threes_buckets.items():
+            if b["resolved"] > 0:
+                try:
+                    b["accuracy_pct"] = round(100.0 * b["wins"] / max(1, b["resolved"]), 1)
+                except Exception:
+                    b["accuracy_pct"] = None
+            else:
+                b["accuracy_pct"] = None
+            b["roi_pct"] = None
 
         return jsonify({
             "since": since,
             "until": until,
+            "version": "summary-v2",
             "buckets": buckets,
             "dates": [d for d, _ in rec_files],
+            "props_buckets": props_buckets,
+            "props_dates": props_dates,
+            "first_basket_metrics": first_basket_metrics,
+            "early_threes_metrics": early_threes_metrics,
+            "first_basket_buckets": first_basket_buckets,
+            "early_threes_buckets": early_threes_buckets,
         })
     except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recommendations/summary/props")
+def api_recommendations_summary_props():
+    """Return props reliability summary computed from data/processed artifacts.
+
+    Prefers reliability_props_summary.json for speed. Falls back to parsing
+    reliability_props.csv and computing a concise summary.
+
+    Query params (optional):
+      - days: override window size description in payload (does not recompute)
+    """
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        json_path = proc / "reliability_props_summary.json"
+        csv_path = proc / "reliability_props.csv"
+        # Prefer JSON if available
+        if json_path.exists():
+            try:
+                with open(json_path, "r", encoding="utf-8") as f:
+                    data = json.load(f)
+                # Attach basic provenance
+                data_out = {
+                    "version": "props-reliability-v1",
+                    "source": str(json_path),
+                    "bins": len(data.get("top_roi_bins", [])) + len(data.get("largest_calibration_gap_bins", [])),
+                    "summary": data,
+                }
+                return jsonify(data_out)
+            except Exception:
+                pass
+        # Fallback: parse CSV bins and compute minimal summary inline
+        if not csv_path.exists():
+            return jsonify({"error": "missing reliability_props.csv"}), 404
+        try:
+            df = pd.read_csv(csv_path)
+        except Exception as e:
+            return jsonify({"error": f"failed to read csv: {e}"}), 500
+        # Required columns
+        req = {"n","hit_rate","avg_model_prob","roi"}
+        if not req.issubset(set(df.columns)):
+            return jsonify({"error": "csv schema missing required columns"}), 500
+        # Compute calibration gap and weighted metrics
+        try:
+            df["calibration_gap"] = pd.to_numeric(df["hit_rate"], errors="coerce") - pd.to_numeric(df["avg_model_prob"], errors="coerce")
+            w = pd.to_numeric(df["n"], errors="coerce").fillna(0)
+            hit = pd.to_numeric(df["hit_rate"], errors="coerce").fillna(0.0)
+            mp = pd.to_numeric(df["avg_model_prob"], errors="coerce").fillna(0.0)
+            roi = pd.to_numeric(df["roi"], errors="coerce").fillna(0.0)
+            gap = pd.to_numeric(df["calibration_gap"], errors="coerce").fillna(0.0)
+            total_bets = int(w.sum())
+            def _wavg(x):
+                try:
+                    return float(np.average(x, weights=w))
+                except Exception:
+                    return float(pd.Series(x).mean())
+            weighted_hit = _wavg(hit)
+            weighted_model_prob = _wavg(mp)
+            weighted_roi = _wavg(roi)
+            rmse_calibration = float(np.sqrt(_wavg(gap**2)))
+            # Top ROI bins and largest calibration gaps
+            cols = [c for c in ["bin_low","bin_high","n","roi","hit_rate","avg_model_prob","calibration_gap"] if c in df.columns]
+            top_roi_bins = df.sort_values("roi", ascending=False).head(3)[cols].to_dict(orient="records")
+            largest_gap_bins = df.reindex(df["calibration_gap"].abs().sort_values(ascending=False).index).head(3)[cols].to_dict(orient="records")
+            out = {
+                "version": "props-reliability-v1",
+                "source": str(csv_path),
+                "bins": int(len(df)),
+                "summary": {
+                    "total_bets": total_bets,
+                    "weighted": {
+                        "hit_rate": weighted_hit,
+                        "model_prob": weighted_model_prob,
+                        "roi": weighted_roi,
+                        "rmse_calibration": rmse_calibration,
+                    },
+                    "top_roi_bins": top_roi_bins,
+                    "largest_calibration_gap_bins": largest_gap_bins,
+                },
+            }
+            return jsonify(out)
+        except Exception as e:
+            return jsonify({"error": f"failed to compute summary: {e}"}), 500
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recommendations/summary/props_calibration")
+def api_recommendations_summary_props_calibration():
+    """Report windowed props calibration artifacts and basic metrics.
+
+    Returns stats for 30/60/90-day windows when files exist:
+      - reliability_csv, calibration_json, total_bets, rmse_calibration
+    """
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        windows = [30, 60, 90]
+        items = []
+        for d in windows:
+            rel_csv = proc / f"reliability_props_{d}.csv"
+            calib_json = proc / f"props_prob_calibration_{d}.json"
+            if (not rel_csv.exists()) or (not calib_json.exists()):
+                items.append({"days": d, "available": False})
+                continue
+            # Load bins to compute RMSE
+            try:
+                df = pd.read_csv(rel_csv)
+                df["n"] = pd.to_numeric(df.get("n"), errors="coerce").fillna(0)
+                df["avg_model_prob"] = pd.to_numeric(df.get("avg_model_prob"), errors="coerce").fillna(0.0)
+                df["hit_rate"] = pd.to_numeric(df.get("hit_rate"), errors="coerce").fillna(0.0)
+                total_bets = int(df["n"].sum())
+            except Exception:
+                df = None
+                total_bets = None
+            try:
+                import json as _json
+                with open(calib_json, "r", encoding="utf-8") as fh:
+                    calib = _json.load(fh)
+                xs = calib.get("x") or []
+                ys = calib.get("y") or []
+                rmse = None
+                if isinstance(df, pd.DataFrame) and isinstance(xs, list) and isinstance(ys, list) and len(xs) == len(ys) and len(xs) >= 2:
+                    import bisect, numpy as _np
+                    def _interp(p: float) -> float:
+                        p = max(0.0, min(1.0, float(p)))
+                        i = bisect.bisect_left(xs, p)
+                        if i <= 0:
+                            return float(ys[0])
+                        if i >= len(xs):
+                            return float(ys[-1])
+                        x0 = float(xs[i-1]); x1 = float(xs[i]); y0 = float(ys[i-1]); y1 = float(ys[i])
+                        t = (p - x0) / (x1 - x0) if (x1 > x0) else 0.0
+                        return float(y0 + t * (y1 - y0))
+                    w = df["n"].astype(float).values
+                    mp = df["avg_model_prob"].astype(float).values
+                    hr = df["hit_rate"].astype(float).values
+                    pred = _np.array([_interp(p) for p in mp], dtype=float)
+                    rmse = float(_np.sqrt(_np.average((pred - hr) ** 2, weights=w))) if float(_np.sum(w)) > 0 else None
+            except Exception:
+                rmse = None
+            items.append({
+                "days": d,
+                "available": True,
+                "reliability_csv": rel_csv.name,
+                "calibration_json": calib_json.name,
+                "total_bets": total_bets,
+                "rmse_calibration": rmse,
+            })
+        return jsonify({"version": "props-calibration-windows-v1", "windows": items})
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/evaluate/games")
+def api_evaluate_games():
+    """Evaluate games recommendations accuracy/ROI over the last N days.
+
+    Query params:
+      - days: integer window (default 30)
+      - markets: comma-separated subset of {ML,ATS,TOTAL}; default all
+      - tier: Overall|High|Medium|Low filter (optional)
+      - since/until: override window; if provided, 'days' is ignored
+    """
+    try:
+        from datetime import datetime, timedelta
+        def _parse_date(s: str):
+            try:
+                return datetime.strptime(s, "%Y-%m-%d")
+            except Exception:
+                return None
+        def _american_to_decimal(a):
+            try:
+                aa = float(a)
+            except Exception:
+                return None
+            if aa == 0:
+                return None
+            if aa > 0:
+                return 1.0 + (aa/100.0)
+            return 1.0 + (100.0/abs(aa))
+
+        days = int(request.args.get("days") or 30)
+        since_q = (request.args.get("since") or "").strip()
+        until_q = (request.args.get("until") or "").strip()
+        mkts_q = (request.args.get("markets") or "").strip()
+        tiers_q = (request.args.get("tier") or "").strip()
+        want_mkts = set([m.strip().upper() for m in mkts_q.replace(";", ",").split(",") if m.strip()])
+        tier_filter = tiers_q if tiers_q in {"Overall","High","Medium","Low"} else None
+        now = datetime.utcnow()
+        if since_q and until_q:
+            ds = _parse_date(since_q) or (now - timedelta(days=days))
+            de = _parse_date(until_q) or now
+        else:
+            de = now
+            ds = now - timedelta(days=days)
+        if de < ds:
+            ds, de = de, ds
+        proc = BASE_DIR / "data" / "processed"
+        # Discover files within window
+        rec_files = []
+        if proc.exists():
+            for p in sorted(proc.glob("recommendations_*.csv")):
+                try:
+                    dstr = p.stem.replace("recommendations_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_files.append((dstr, p))
+                except Exception:
+                    continue
+        # Buckets
+        def _empty():
+            return {"total":0,"resolved":0,"wins":0,"losses":0,"pushes":0,"stake_total":0.0,"profit_total":0.0}
+        buckets = {k: _empty() for k in ["Overall","High","Medium","Low"]}
+        # Local tier helper based on probability/edge
+        def _tier_for_row(market: str, ev: any, edge: any) -> str:
+            try:
+                if (market or "").upper() == "ML":
+                    v = float(ev)
+                    if v >= 0.04: return "High"
+                    if v >= 0.02: return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            try:
+                if (market or "").upper() in {"ATS","TOTAL"}:
+                    e = abs(float(edge))
+                    if e >= 4.0: return "High"
+                    if e >= 2.0: return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            return "Low"
+
+        for dstr, fp in rec_files:
+            try:
+                rec = pd.read_csv(fp)
+            except Exception:
+                continue
+            # Finals and odds
+            gfin = None; godds = None
+            try:
+                gpath = BASE_DIR / "data" / "processed" / f"recon_games_{dstr}.csv"
+                if gpath.exists():
+                    gfin = pd.read_csv(gpath)
+            except Exception: gfin = None
+            try:
+                op = _find_game_odds_for_date(dstr)
+                if op is not None:
+                    godds = pd.read_csv(op)
+            except Exception: godds = None
+
+            cols = {c.lower(): c for c in rec.columns}
+            def _col(*names):
+                for n in names:
+                    c = cols.get(str(n).lower());
+                    if c: return c
+                return None
+            home_col = _col("home","home_team"); away_col = _col("away","visitor_team")
+            side_col = _col("side","pick"); market_col = _col("market")
+            ev_col = _col("ev"); edge_col = _col("edge"); odds_col = _col("price","odds")
+
+            for _, r in rec.iterrows():
+                try:
+                    market = str((r.get(market_col) if market_col else "") or "").upper()
+                    if want_mkts and (market not in want_mkts):
+                        continue
+                    home = str(r.get(home_col) if home_col else r.get("home") or "").strip()
+                    away = str(r.get(away_col) if away_col else r.get("away") or "").strip()
+                    side = str(r.get(side_col) if side_col else r.get("side") or "").strip()
+                    ev = r.get(ev_col) if ev_col else None
+                    edge = r.get(edge_col) if edge_col else None
+                    tier = _tier_for_row(market, ev, edge)
+                    if tier_filter and tier != tier_filter:
+                        continue
+                    for key in ("Overall", tier):
+                        buckets[key]["total"] += 1
+
+                    hp = ap = None
+                    if isinstance(gfin, pd.DataFrame) and not gfin.empty:
+                        try:
+                            row = gfin[(gfin.get("home_team").astype(str) == home) & (gfin.get("visitor_team").astype(str) == away)]
+                            if row.empty:
+                                row = gfin[(gfin.get("home_team").astype(str) == away) & (gfin.get("visitor_team").astype(str) == home)]
+                            if not row.empty:
+                                hp = pd.to_numeric(row.iloc[0].get("home_pts"), errors="coerce")
+                                ap = pd.to_numeric(row.iloc[0].get("visitor_pts"), errors="coerce")
+                                if pd.isna(hp) or pd.isna(ap): hp = ap = None
+                        except Exception: hp = ap = None
+                    resolved = False; is_win = False; is_push = False; stake = 1.0; profit = 0.0
+                    if market == "ML":
+                        if hp is None or ap is None:
+                            pass
+                        else:
+                            resolved = True
+                            home_won = (float(hp) > float(ap))
+                            pick_home = (side == home)
+                            dec = None
+                            if isinstance(godds, pd.DataFrame) and not godds.empty:
+                                try:
+                                    o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                    if not o.empty:
+                                        dec = _american_to_decimal(o.iloc[0].get("home_ml")) if pick_home else _american_to_decimal(o.iloc[0].get("away_ml"))
+                                except Exception:
+                                    dec = None
+                            if dec is None: dec = 2.0
+                            if pick_home == home_won:
+                                is_win = True; profit = (float(dec) - 1.0) * stake
+                            else:
+                                profit = -stake
+                    elif market in {"ATS","TOTAL"}:
+                        if isinstance(godds, pd.DataFrame) and not godds.empty and (hp is not None and ap is not None):
+                            try:
+                                o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                if not o.empty:
+                                    dec = None; default_dec = 1.909090909
+                                    if market == "ATS":
+                                        hsp = pd.to_numeric(o.iloc[0].get("home_spread"), errors="coerce")
+                                        line_home = hsp if pd.notna(hsp) else None
+                                        margin = float(hp) - float(ap)
+                                        if side == home and line_home is not None:
+                                            diff = margin + float(line_home); is_push = abs(diff) < 1e-9; is_win = diff > 0; dec = default_dec
+                                        elif side == away and line_home is not None:
+                                            diff = -margin - float(line_home); is_push = abs(diff) < 1e-9; is_win = diff > 0; dec = default_dec
+                                    else:  # TOTAL
+                                        tot = pd.to_numeric(o.iloc[0].get("total"), errors="coerce")
+                                        if pd.notna(tot):
+                                            pts = float(hp) + float(ap)
+                                            diff = (pts - float(tot)) if str(side).lower().startswith("o") else (float(tot) - pts)
+                                            is_push = abs(diff) < 1e-9; is_win = diff > 0; dec = default_dec
+                                    if dec is not None:
+                                        resolved = True
+                                        if is_push: profit = 0.0
+                                        elif is_win: profit = (float(dec) - 1.0) * stake
+                                        else: profit = -stake
+                            except Exception:
+                                pass
+                    if resolved:
+                        for key in ("Overall", tier):
+                            b = buckets[key]; b["resolved"] += 1
+                            if is_push: b["pushes"] += 1
+                            elif is_win: b["wins"] += 1
+                            else: b["losses"] += 1
+                            b["stake_total"] += stake; b["profit_total"] += profit
+                except Exception:
+                    continue
+        # Finalize metrics
+        def _wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float | None, float | None]:
+            try:
+                if n <= 0:
+                    return None, None
+                p = 0.0 if k < 0 else (float(k) / float(n))
+                denom = 1.0 + (z*z)/n
+                center = p + (z*z)/(2.0*n)
+                rad = z * math.sqrt((p*(1.0-p)/n) + (z*z)/(4.0*n*n))
+                low = max(0.0, (center - rad) / denom)
+                high = min(1.0, (center + rad) / denom)
+                return low, high
+            except Exception:
+                return None, None
+        def _finalize(b):
+            try:
+                res = int(b["resolved"]) or 0
+                acc = (float(b["wins"]) / float(res)) if res > 0 else None
+                roi = (float(b["profit_total"]) / float(b["stake_total"])) if float(b["stake_total"]) > 0 else None
+                b["accuracy_pct"] = (round(100.0 * acc, 2) if acc is not None else None)
+                b["roi_pct"] = (round(100.0 * roi, 2) if roi is not None else None)
+                low, high = _wilson_ci(int(b["wins"]), res)
+                b["accuracy_ci_low_pct"] = (round(100.0 * low, 2) if low is not None else None)
+                b["accuracy_ci_high_pct"] = (round(100.0 * high, 2) if high is not None else None)
+            except Exception:
+                b["accuracy_pct"] = None; b["roi_pct"] = None; b["accuracy_ci_low_pct"] = None; b["accuracy_ci_high_pct"] = None
+            return b
+        out = {k: _finalize(v) for k, v in buckets.items()}
+        return jsonify({"window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "markets": sorted(list(want_mkts)) if want_mkts else ["ML","ATS","TOTAL"], "tier": (tier_filter or "All"), "buckets": out})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/evaluate/props")
+def api_evaluate_props():
+    """Evaluate props recommendations accuracy/ROI over the last N days.
+
+    Query params:
+      - days: integer window (default 30)
+      - tier: Overall|High|Medium|Low filter (optional)
+      - regular_only: 1 to restrict to regular-price top plays (default 1)
+      - since/until: override window; if provided, 'days' is ignored
+    """
+    try:
+        from datetime import datetime, timedelta
+        def _parse_date(s: str):
+            try:
+                return datetime.strptime(s, "%Y-%m-%d")
+            except Exception:
+                return None
+        def _american_to_decimal(a):
+            try:
+                aa = float(a)
+            except Exception:
+                return None
+            if aa == 0:
+                return None
+            if aa > 0:
+                return 1.0 + (aa/100.0)
+            return 1.0 + (100.0/abs(aa))
+        def _tier_for_row(ev: any, edge: any) -> str:
+            try:
+                v = float(ev)
+                if v >= 0.04: return "High"
+                if v >= 0.02: return "Medium"
+            except Exception:
+                pass
+            try:
+                e = abs(float(edge))
+                if e >= 4.0: return "High"
+                if e >= 2.0: return "Medium"
+            except Exception:
+                pass
+            return "Low"
+        days = int(request.args.get("days") or 30)
+        since_q = (request.args.get("since") or "").strip()
+        until_q = (request.args.get("until") or "").strip()
+        tier_filter = (request.args.get("tier") or "").strip()
+        regular_only = str(request.args.get("regular_only", "1") or "1").strip().lower() in {"1","true","yes"}
+        calib_window = (request.args.get("calib_window") or "").strip()
+        now = datetime.utcnow()
+        if since_q and until_q:
+            ds = _parse_date(since_q) or (now - timedelta(days=days))
+            de = _parse_date(until_q) or now
+        else:
+            de = now; ds = now - timedelta(days=days)
+        if de < ds: ds, de = de, ds
+        proc = BASE_DIR / "data" / "processed"
+        rec_files = []
+        if proc.exists():
+            for p in sorted(proc.glob("props_recommendations_*.csv")):
+                try:
+                    dstr = p.stem.replace("props_recommendations_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_files.append((dstr, p))
+                except Exception:
+                    continue
+        def _empty():
+            return {"total":0,"resolved":0,"wins":0,"losses":0,"pushes":0,"stake_total":0.0,"profit_total":0.0, "brier_sum":0.0, "brier_n":0, "logloss_sum":0.0, "logloss_n":0}
+        buckets = {k: _empty() for k in ["Overall","High","Medium","Low"]}
+        # Load props calibration mapping (supports windowed selection and auto)
+        _props_calib = None
+        try:
+            import json as _json
+            chosen_fp = None
+            _calib_selected_via = "default"
+            if calib_window and calib_window in {"30","60","90"}:
+                fp = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{calib_window}.json"
+                if fp.exists():
+                    chosen_fp = fp; _calib_selected_via = "param"
+            elif calib_window == "auto":
+                _calib_selected_via = "auto"
+            if chosen_fp is None:
+                summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                if summary_fp.exists():
+                    try:
+                        with open(summary_fp, "r", encoding="utf-8") as fh:
+                            win_sum = _json.load(fh)
+                        wins = win_sum.get("windows") or []
+                        best = None
+                        for it in wins:
+                            if not isinstance(it, dict): continue
+                            if not it.get("days"): continue
+                            if it.get("rmse_calibration") is None: continue
+                            if best is None or float(it["rmse_calibration"]) < float(best["rmse_calibration"]): best = it
+                        if isinstance(best, dict) and best.get("days"):
+                            dwin = str(best["days"]).strip()
+                            fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{dwin}.json"
+                            if fp2.exists(): chosen_fp = fp2; _calib_selected_via = "auto"
+                    except Exception: pass
+            if chosen_fp is None:
+                chosen_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"; _calib_selected_via = "default"
+            if chosen_fp.exists():
+                with open(chosen_fp, "r", encoding="utf-8") as fh:
+                    _props_calib = _json.load(fh)
+        except Exception:
+            _props_calib = None
+        def _calibrate_prob(p_raw: float) -> float:
+            try:
+                pv = max(0.0, min(1.0, float(p_raw)))
+                if not isinstance(_props_calib, dict): return pv
+                xs = _props_calib.get("x") or []; ys = _props_calib.get("y") or []
+                if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) == len(ys) and len(xs) >= 2): return pv
+                import bisect
+                i = bisect.bisect_left(xs, pv)
+                if i <= 0: return float(ys[0])
+                if i >= len(xs): return float(ys[-1])
+                x0 = float(xs[i-1]); x1 = float(xs[i]); y0 = float(ys[i-1]); y1 = float(ys[i])
+                t = (pv - x0) / (x1 - x0) if (x1 > x0) else 0.0
+                return float(y0 + t * (y1 - y0))
+            except Exception:
+                return float(p_raw)
+        import ast as _ast, json as _json
+        def _parse_obj(val):
+            if isinstance(val, (list, dict)): return val
+            s = str(val or "")
+            if s.strip() in {"", "None", "nan"}: return None
+            try: return _json.loads(s)
+            except Exception:
+                try: return _ast.literal_eval(s)
+                except Exception: return None
+        def _is_regular_price(p) -> bool:
+            try:
+                v = float(p); return (v >= -150.0) and (v <= 125.0)
+            except Exception: return False
+        def _is_regular_market(m) -> bool:
+            mm = str(m or "").lower(); return mm not in {"dd","td"}
+        for dstr, fp in rec_files:
+            recon_props_path = BASE_DIR / "data" / "processed" / f"recon_props_{dstr}.csv"
+            if not recon_props_path.exists():
+                continue
+            try:
+                props_df = pd.read_csv(fp); recon_df = pd.read_csv(recon_props_path)
+            except Exception:
+                continue
+            # Build player/team index
+            def _norm_name(s): return str(s or "").strip().lower()
+            def _tri_team(v):
+                try:
+                    tri = _get_tricode(v); return (tri.upper() if isinstance(tri, str) and tri else str(v).strip().upper())
+                except Exception: return str(v).strip().upper()
+            recon_df = recon_df.copy(); recon_df["_pname"] = recon_df.get("player_name", "").astype(str).str.lower(); recon_df["_team"] = recon_df.get("team_abbr", "").astype(str).str.upper()
+            recon_index: dict[tuple[str,str], dict[str,float]] = {}
+            for _, rr in recon_df.iterrows():
+                key = (_norm_name(rr.get("player_name")), str(rr.get("team_abbr") or "").strip().upper())
+                recon_index[key] = {
+                    "pts": float(pd.to_numeric(rr.get("pts"), errors="coerce") or 0.0),
+                    "reb": float(pd.to_numeric(rr.get("reb"), errors="coerce") or 0.0),
+                    "ast": float(pd.to_numeric(rr.get("ast"), errors="coerce") or 0.0),
+                    "threes": float(pd.to_numeric(rr.get("threes"), errors="coerce") or 0.0),
+                    "pra": float(pd.to_numeric(rr.get("pra"), errors="coerce") or 0.0),
+                }
+            # Evaluate each card top play
+            for _, pr in props_df.iterrows():
+                try:
+                    plays = _parse_obj(pr.get("plays"))
+                    if isinstance(plays, list) and plays:
+                        regular = [p for p in plays if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
+                        cand = (regular if regular else plays) if regular_only else plays
+                        if not cand: continue
+                        # Sort by ev_pct desc then ev desc
+                        def _evp(p):
+                            try:
+                                v = p.get("ev_pct");
+                                if v is not None and not pd.isna(v): return float(v)
+                                ve = p.get("ev"); return (float(ve)*100.0 if ve is not None and not pd.isna(ve) else -1e9)
+                            except Exception: return -1e9
+                        cand.sort(key=lambda p: (_evp(p), abs(p.get("edge") or 0.0)), reverse=True)
+                        tp = cand[0]
+                    else:
+                        continue
+                    player = _norm_name(pr.get("player")); team = _tri_team(pr.get("team"))
+                    stats = recon_index.get((player, team))
+                    ev = tp.get("ev"); edge = tp.get("edge")
+                    tier = _tier_for_row(ev, edge)
+                    if str(tier_filter or "") and tier != tier_filter: continue
+                    for key in ("Overall", tier): buckets[key]["total"] += 1
+                    # Resolve vs line
+                    mkt = str(tp.get("market") or "").lower(); side = str(tp.get("side") or "").upper(); ln = tp.get("line")
+                    try: ln = float(ln) if ln is not None and not pd.isna(ln) else None
+                    except Exception: ln = None
+                    actual = None
+                    if isinstance(stats, dict) and stats:
+                        if mkt == "pts": actual = stats.get("pts")
+                        elif mkt == "reb": actual = stats.get("reb")
+                        elif mkt == "ast": actual = stats.get("ast")
+                        elif mkt == "threes": actual = stats.get("threes")
+                        elif mkt == "pra": actual = stats.get("pra")
+                        elif mkt == "pr": actual = (stats.get("pts",0.0)+stats.get("reb",0.0))
+                        elif mkt == "ra": actual = (stats.get("reb",0.0)+stats.get("ast",0.0))
+                        elif mkt == "pa": actual = (stats.get("pts",0.0)+stats.get("ast",0.0))
+                    is_push = False; is_win = False
+                    if (ln is None) or (actual is None):
+                        # unresolved
+                        pass
+                    else:
+                        is_push = (abs(float(actual) - float(ln)) < 1e-9)
+                        if not is_push:
+                            if side == "OVER": is_win = (float(actual) > float(ln))
+                            elif side == "UNDER": is_win = (float(actual) < float(ln))
+                        # stake/profit
+                        stake = 1.0; profit = 0.0; dec = _american_to_decimal(tp.get("price")) or 1.909090909
+                        # Brier and log-loss using calibrated probability if ev_pct is present
+                        try:
+                            evp = tp.get("ev_pct")
+                            if evp is not None and not pd.isna(evp):
+                                p_raw = max(0.0, min(1.0, float(evp)/100.0))
+                                p = _calibrate_prob(p_raw)
+                                y = 1.0 if is_win else 0.0
+                                buckets["Overall"]["brier_sum"] += (p - y) ** 2; buckets["Overall"]["brier_n"] += 1
+                                buckets[tier]["brier_sum"] += (p - y) ** 2; buckets[tier]["brier_n"] += 1
+                                # log-loss with clipping
+                                eps = 1e-9
+                                p_clip = max(eps, min(1.0 - eps, p))
+                                ll = - (y * math.log(p_clip) + (1.0 - y) * math.log(1.0 - p_clip))
+                                buckets["Overall"]["logloss_sum"] += ll; buckets["Overall"]["logloss_n"] += 1
+                                buckets[tier]["logloss_sum"] += ll; buckets[tier]["logloss_n"] += 1
+                        except Exception:
+                            pass
+                        for key in ("Overall", tier):
+                            b = buckets[key]; b["resolved"] += 1; b["total"] += 1
+                            if is_push: b["pushes"] += 1
+                            elif is_win: b["wins"] += 1; profit = (float(dec) - 1.0) * stake
+                            else: b["losses"] += 1; profit = -stake
+                            b["stake_total"] += stake; b["profit_total"] += profit
+                except Exception:
+                    continue
+        def _wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float | None, float | None]:
+            try:
+                if n <= 0:
+                    return None, None
+                p = 0.0 if k < 0 else (float(k) / float(n))
+                denom = 1.0 + (z*z)/n
+                center = p + (z*z)/(2.0*n)
+                rad = z * math.sqrt((p*(1.0-p)/n) + (z*z)/(4.0*n*n))
+                low = max(0.0, (center - rad) / denom)
+                high = min(1.0, (center + rad) / denom)
+                return low, high
+            except Exception:
+                return None, None
+        def _finalize(b):
+            try:
+                res = int(b["resolved"]) or 0
+                acc = (float(b["wins"]) / float(res)) if res > 0 else None
+                roi = (float(b["profit_total"]) / float(b["stake_total"])) if float(b["stake_total"]) > 0 else None
+                b["accuracy_pct"] = (round(100.0 * acc, 2) if acc is not None else None)
+                b["roi_pct"] = (round(100.0 * roi, 2) if roi is not None else None)
+                low, high = _wilson_ci(int(b["wins"]), res)
+                b["accuracy_ci_low_pct"] = (round(100.0 * low, 2) if low is not None else None)
+                b["accuracy_ci_high_pct"] = (round(100.0 * high, 2) if high is not None else None)
+                # finalize brier/logloss
+                try:
+                    brier_n = int(b.get("brier_n") or 0)
+                    logloss_n = int(b.get("logloss_n") or 0)
+                    b["brier"] = (float(b.get("brier_sum") or 0.0) / float(brier_n)) if brier_n > 0 else None
+                    b["logloss"] = (float(b.get("logloss_sum") or 0.0) / float(logloss_n)) if logloss_n > 0 else None
+                except Exception:
+                    b["brier"] = None; b["logloss"] = None
+            except Exception:
+                b["accuracy_pct"] = None; b["roi_pct"] = None; b["accuracy_ci_low_pct"] = None; b["accuracy_ci_high_pct"] = None; b["brier"] = None; b["logloss"] = None
+            return b
+        out = {k: _finalize(v) for k, v in buckets.items()}
+        return jsonify({"window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "tier": (tier_filter or "All"), "regular_only": regular_only, "calibration_used": ("auto" if calib_window == "auto" else (calib_window or "default")), "buckets": out})
+    except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 
@@ -2539,6 +4000,103 @@ def api_recommendations_all():
                 return pd.read_csv(fp)
             except Exception:
                 return pd.DataFrame()
+        # Optional: load props probability calibration mapping (supports windowed selection via calib_window=30|60|90)
+        try:
+            import json as _json
+            calib_window = (request.args.get("calib_window") or "").strip()
+            chosen_fp = None
+            _calib_selected_via = "default"
+            _calib_window_days: int | None = None
+            # If user specified window (30/60/90) and file exists, use it.
+            # Special value 'auto' forces RMSE-based selection when available.
+            if calib_window and calib_window in {"30","60","90"}:
+                fp = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{calib_window}.json"
+                if fp.exists():
+                    chosen_fp = fp
+                    _calib_selected_via = "param"
+                    try:
+                        _calib_window_days = int(calib_window)
+                    except Exception:
+                        _calib_window_days = None
+            elif calib_window == "auto":
+                # Explicit auto selection if summary exists
+                _calib_selected_via = "auto"
+            # Else, auto-pick best RMSE window if summary exists
+            if chosen_fp is None:
+                summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                if summary_fp.exists():
+                    try:
+                        with open(summary_fp, "r", encoding="utf-8") as fh:
+                            win_sum = _json.load(fh)
+                        wins = win_sum.get("windows") or []
+                        best = None
+                        for it in wins:
+                            if not isinstance(it, dict):
+                                continue
+                            if not it.get("days"):
+                                continue
+                            if it.get("rmse_calibration") is None:
+                                continue
+                            if best is None or float(it["rmse_calibration"]) < float(best["rmse_calibration"]):
+                                best = it
+                        if isinstance(best, dict) and best.get("days"):
+                            days_str = str(best["days"]).strip()
+                            fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{days_str}.json"
+                            if fp2.exists():
+                                chosen_fp = fp2
+                                _calib_selected_via = "auto"
+                                try:
+                                    _calib_window_days = int(days_str)
+                                except Exception:
+                                    _calib_window_days = None
+                    except Exception:
+                        pass
+            # Fallback to default calibration file
+            if chosen_fp is None:
+                chosen_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"
+                _calib_selected_via = "default"
+                _calib_window_days = None
+
+            _props_calib = None
+            if chosen_fp.exists():
+                with open(chosen_fp, "r", encoding="utf-8") as fh:
+                    _props_calib = _json.load(fh)
+            # Attach metadata so clients can verify which calibration was used
+            try:
+                out.setdefault("meta", {})["props_calibration"] = {
+                    "props_prob_calibration_source": chosen_fp.name,
+                    "selected_via": _calib_selected_via,
+                    "window_days": _calib_window_days,
+                }
+            except Exception:
+                # Minimal top-level fallback key to satisfy grep/instrumentation
+                out["props_prob_calibration_source"] = chosen_fp.name
+        except Exception:
+            _props_calib = None
+        def _calibrate_prob(p):
+            try:
+                pv = float(p)
+            except Exception:
+                return p
+            try:
+                if not isinstance(_props_calib, dict):
+                    return pv
+                xs = _props_calib.get("x") or []
+                ys = _props_calib.get("y") or []
+                if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) == len(ys) and len(xs) >= 2):
+                    return pv
+                import bisect
+                pv = max(0.0, min(1.0, pv))
+                i = bisect.bisect_left(xs, pv)
+                if i <= 0:
+                    return float(ys[0])
+                if i >= len(xs):
+                    return float(ys[-1])
+                x0 = float(xs[i-1]); x1 = float(xs[i]); y0 = float(ys[i-1]); y1 = float(ys[i])
+                t = (pv - x0) / (x1 - x0) if (x1 > x0) else 0.0
+                return float(y0 + t * (y1 - y0))
+            except Exception:
+                return p
 
         # Games (ML/ATS/TOTAL)
         if (not want_cats) or ("games" in want_cats):
@@ -2547,6 +4105,10 @@ def api_recommendations_all():
             if not games_p.exists():
                 _maybe_fetch_remote_processed(games_p.name)
             games_df = _read(games_p)
+            try:
+                print(f"[api_recommendations_all] games_path={games_p} exists={games_p.exists()} rows={(0 if games_df is None else len(games_df))}")
+            except Exception:
+                pass
             if not games_df.empty:
                 try:
                     df = games_df.copy()
@@ -2588,7 +4150,8 @@ def api_recommendations_all():
                                             break
                                 ok_cols = {
                                     "home_team","visitor_team","home_ml","away_ml","home_spread","away_spread",
-                                    "home_spread_price","away_spread_price","total","total_over_price","total_under_price","bookmaker","date"
+                                    "home_spread_price","away_spread_price","total","total_over_price","total_under_price","bookmaker","date",
+                                    "books_count","books_h2h","books_spreads","books_totals"
                                 }
                                 df_od = df_od[[c for c in df_od.columns if c in ok_cols]]
                                 # Normalize team keys (aliases + case-insensitive)
@@ -2613,6 +4176,18 @@ def api_recommendations_all():
                                     return f"{str(hh or '').strip().lower()}@@{str(aa or '').strip().lower()}"
                                 df_od["_key"] = df_od.apply(lambda r: _k(r.get("home_team"), r.get("visitor_team")), axis=1)
                                 smap = df_od.set_index("_key").to_dict(orient="index")
+                                # Also build tricode-based keys to robustly match naming variants
+                                def _tri(s: object) -> str:
+                                    try:
+                                        t = _get_tricode(str(s or ""))
+                                        return str(t or "").upper()
+                                    except Exception:
+                                        return ""
+                                def _kt(h: object, a: object) -> str:
+                                    th = _tri(h); ta = _tri(a)
+                                    return f"{th}@@{ta}"
+                                df_od["_key_tri"] = df_od.apply(lambda r: _kt(r.get("home_team"), r.get("visitor_team")), axis=1)
+                                smap_tri = df_od.set_index("_key_tri").to_dict(orient="index")
                                 # Diagnostics: track match/miss stats
                                 matched_keys = 0
                                 missed_keys = 0
@@ -2627,11 +4202,18 @@ def api_recommendations_all():
                                             rk = _k(row.get("away"), row.get("home"))
                                             rec = smap.get(rk)
                                         if not rec:
+                                            # Try tricode-based keys (e.g., BKN@@HOU)
+                                            kt = _kt(row.get("home"), row.get("away"))
+                                            rec = smap_tri.get(kt)
+                                            if not rec:
+                                                rkt = _kt(row.get("away"), row.get("home"))
+                                                rec = smap_tri.get(rkt)
+                                        if not rec:
                                             nonlocal missed_keys, missed_samples
                                             missed_keys += 1
                                             if len(missed_samples) < 5:
                                                 missed_samples.append({"home": row.get("home"), "away": row.get("away"), "key": k})
-                                            return None, None
+                                            return None, None, None
                                         else:
                                             nonlocal matched_keys
                                             matched_keys += 1
@@ -2643,27 +4225,27 @@ def api_recommendations_all():
                                         if m == 'ML':
                                             # Prefer existing ML price; otherwise use from odds
                                             if row.get('price') not in (None, ""):
-                                                return row.get('price'), rec.get('bookmaker')
+                                                return row.get('price'), rec.get('bookmaker'), rec.get('books_count')
                                             pr = rec.get('home_ml') if pick_home else rec.get('away_ml')
-                                            return pr, rec.get('bookmaker')
+                                            return pr, rec.get('bookmaker'), rec.get('books_count')
                                         elif m == 'ATS':
                                             pr = rec.get('home_spread_price') if pick_home else rec.get('away_spread_price')
                                             # Default to -110 if missing
                                             if pr in (None, ""):
                                                 pr = -110.0
-                                            return pr, rec.get('bookmaker')
+                                            return pr, rec.get('bookmaker'), rec.get('books_count')
                                         elif m == 'TOTAL':
                                             s = side_u
                                             pr = rec.get('total_over_price') if s.startswith('O') else rec.get('total_under_price')
                                             if pr in (None, ""):
                                                 pr = -110.0
-                                            return pr, rec.get('bookmaker')
-                                        return None, None
+                                            return pr, rec.get('bookmaker'), rec.get('books_count')
+                                        return None, None, None
                                     except Exception:
-                                        return None, None
+                                        return None, None, None
 
                                 for r in rows:
-                                    pr, bk = _price_for(r)
+                                    pr, bk, bc = _price_for(r)
                                     if pr is not None and pr != "":
                                         try:
                                             r["price"] = float(pr)
@@ -2671,6 +4253,11 @@ def api_recommendations_all():
                                             r["price"] = pr
                                     if bk:
                                         r["book"] = bk
+                                    if bc is not None:
+                                        try:
+                                            r["books_count"] = int(bc)
+                                        except Exception:
+                                            r["books_count"] = bc
                                 # Final fallback: ensure ATS/TOTAL have a price
                                 for r in rows:
                                     if str(r.get("market") or "").upper() in {"ATS","TOTAL"}:
@@ -2769,6 +4356,253 @@ def api_recommendations_all():
                                     r["price"] = -110.0
                     except Exception:
                         pass
+                    # Opponent/injuries context enrichment for explainability
+                    try:
+                        averages, ranks = _compute_team_allowed_stats(d)
+                        # Recent offense form windows
+                        off_avgs, off_ranks = _compute_team_offense_stats(d)
+                        off_avgs_7, off_ranks_7 = _compute_team_offense_stats(d, days_back=7)
+                        off_avgs_30, off_ranks_30 = _compute_team_offense_stats(d, days_back=30)
+                        injuries = _team_injury_counts(d)
+                        key_outs_map, impact_map = _team_injury_identity(d)
+                        # Back-to-back flags from previous slate
+                        try:
+                            prev = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=1)).date().isoformat()
+                        except Exception:
+                            from datetime import date as _date, timedelta as _td
+                            prev = (_date.today() - _td(days=1)).isoformat()
+                        try:
+                            prev_teams = _get_slate_team_tricodes(prev)
+                        except Exception:
+                            prev_teams = set()
+                        # Schedule density windows (previous 2 and 3 days)
+                        try:
+                            prev2 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=2)).date().isoformat()
+                        except Exception:
+                            from datetime import date as _date, timedelta as _td
+                            prev2 = (_date.today() - _td(days=2)).isoformat()
+                        try:
+                            prev3 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=3)).date().isoformat()
+                        except Exception:
+                            from datetime import date as _date, timedelta as _td
+                            prev3 = (_date.today() - _td(days=3)).isoformat()
+                        try:
+                            prev2_teams = _get_slate_team_tricodes(prev2)
+                        except Exception:
+                            prev2_teams = set()
+                        try:
+                            prev3_teams = _get_slate_team_tricodes(prev3)
+                        except Exception:
+                            prev3_teams = set()
+                        # Compute dynamic quantile thresholds for allowed-PTS ranks
+                        q_low = None; q_high = None
+                        try:
+                            pts_ranks = [int(v.get("pts")) for v in ranks.values() if isinstance(v, dict) and (v.get("pts") is not None)]
+                            if pts_ranks:
+                                arr = np.array(pts_ranks, dtype=float)
+                                q_low = float(np.percentile(arr, 33))
+                                q_high = float(np.percentile(arr, 66))
+                        except Exception:
+                            q_low = None; q_high = None
+                        def _tri(v: Any) -> Optional[str]:
+                            try:
+                                t = _get_tricode(v)
+                                return (t.upper() if isinstance(t, str) and t else None)
+                            except Exception:
+                                return None
+                        def _mean(vals: list[Optional[float]]) -> Optional[float]:
+                            try:
+                                vc = [float(x) for x in vals if x is not None and np.isfinite(float(x))]
+                                if not vc:
+                                    return None
+                                return float(sum(vc) / len(vc))
+                            except Exception:
+                                return None
+                        for r in out.get("games", []):
+                            try:
+                                home = r.get("home")
+                                away = r.get("away")
+                                htri = _tri(home)
+                                atri = _tri(away)
+                                inj_h = (injuries.get(htri, 0) if htri else None)
+                                inj_a = (injuries.get(atri, 0) if atri else None)
+                                rank_h = (ranks.get(htri, {}).get("pts") if htri else None)
+                                rank_a = (ranks.get(atri, {}).get("pts") if atri else None)
+                                thr_rank_h = (ranks.get(htri, {}).get("threes") if htri else None)
+                                thr_rank_a = (ranks.get(atri, {}).get("threes") if atri else None)
+                                off_rank_h = (off_ranks.get(htri) if htri else None)
+                                off_rank_a = (off_ranks.get(atri) if atri else None)
+                                off7_rank_h = (off_ranks_7.get(htri) if htri else None)
+                                off7_rank_a = (off_ranks_7.get(atri) if atri else None)
+                                off30_rank_h = (off_ranks_30.get(htri) if htri else None)
+                                off30_rank_a = (off_ranks_30.get(atri) if atri else None)
+                                # Attach lightweight context fields
+                                r["home_injuries_out"] = (int(inj_h) if inj_h is not None else None)
+                                r["away_injuries_out"] = (int(inj_a) if inj_a is not None else None)
+                                r["home_allowed_pts_rank"] = (int(rank_h) if rank_h is not None else None)
+                                r["away_allowed_pts_rank"] = (int(rank_a) if rank_a is not None else None)
+                                r["home_allowed_threes_rank"] = (int(thr_rank_h) if thr_rank_h is not None else None)
+                                r["away_allowed_threes_rank"] = (int(thr_rank_a) if thr_rank_a is not None else None)
+                                r["home_offense_pts_rank"] = (int(off_rank_h) if off_rank_h is not None else None)
+                                r["away_offense_pts_rank"] = (int(off_rank_a) if off_rank_a is not None else None)
+                                r["home_offense_pts_rank_7"] = (int(off7_rank_h) if off7_rank_h is not None else None)
+                                r["away_offense_pts_rank_7"] = (int(off7_rank_a) if off7_rank_a is not None else None)
+                                r["home_offense_pts_rank_30"] = (int(off30_rank_h) if off30_rank_h is not None else None)
+                                r["away_offense_pts_rank_30"] = (int(off30_rank_a) if off30_rank_a is not None else None)
+                                # Back-to-back flags
+                                r["home_b2b"] = bool(htri and (htri in prev_teams))
+                                r["away_b2b"] = bool(atri and (atri in prev_teams))
+                                # 3-in-4 density flags (played on 2 of last 3 days)
+                                try:
+                                    h_recent = sum([1 if (htri and (htri in s)) else 0 for s in (prev_teams, prev2_teams, prev3_teams)])
+                                    a_recent = sum([1 if (atri and (atri in s)) else 0 for s in (prev_teams, prev2_teams, prev3_teams)])
+                                    r["home_3in4"] = bool(h_recent >= 2)
+                                    r["away_3in4"] = bool(a_recent >= 2)
+                                except Exception:
+                                    r["home_3in4"] = False
+                                    r["away_3in4"] = False
+                                # Attach identity-aware injury context: names + impact
+                                roster = _roster_players_for_date(d)
+                                def _filter_names(names: list[str] | None, tri: str | None) -> list[str] | None:
+                                    if not names or not tri:
+                                        return None
+                                    allowed = roster.get(tri, set())
+                                    if not allowed:
+                                        return names[:2]
+                                    nn = [n for n in names if _norm_player_name(n) in allowed]
+                                    return (nn[:2] if nn else None)
+                                if htri:
+                                    names_h = key_outs_map.get(htri)
+                                    filt_h = _filter_names(names_h, htri)
+                                    if filt_h:
+                                        r["home_key_outs"] = filt_h
+                                    imp_h = impact_map.get(htri)
+                                    if imp_h is not None:
+                                        r["home_injury_impact"] = float(imp_h)
+                                if atri:
+                                    names_a = key_outs_map.get(atri)
+                                    filt_a = _filter_names(names_a, atri)
+                                    if filt_a:
+                                        r["away_key_outs"] = filt_a
+                                    imp_a = impact_map.get(atri)
+                                    if imp_a is not None:
+                                        r["away_injury_impact"] = float(imp_a)
+                                # Compose reasons
+                                mk = str((r or {}).get("market") or "").upper()
+                                reasons = list(r.get("why_reasons") or [])
+                                if mk == "TOTAL":
+                                    avg_rank = _mean([rank_h, rank_a])
+                                    avg_thr_rank = _mean([thr_rank_h, thr_rank_a])
+                                    avg_off_rank = _mean([off_rank_h, off_rank_a])
+                                    avg_off_rank_7 = _mean([off7_rank_h, off7_rank_a])
+                                    avg_off_rank_30 = _mean([off30_rank_h, off30_rank_a])
+                                    side = str((r or {}).get("side") or "").upper()
+                                    if avg_rank is not None:
+                                        # Use quantile-based thresholds when available; fallback to fixed bands
+                                        if q_high is not None and side.startswith("O") and avg_rank >= q_high:
+                                            reasons.append("Opponents allow high scoring")
+                                        elif side.startswith("O") and avg_rank >= 20:
+                                            reasons.append("Opponents allow high scoring")
+                                        if q_low is not None and side.startswith("U") and avg_rank <= q_low:
+                                            reasons.append("Defenses stingy")
+                                        elif side.startswith("U") and avg_rank <= 10:
+                                            reasons.append("Defenses stingy")
+                                    # 3PT environment hint
+                                    if avg_thr_rank is not None:
+                                        if side.startswith("O") and avg_thr_rank >= 22:
+                                            reasons.append("High 3PT environment")
+                                        elif side.startswith("U") and avg_thr_rank <= 9:
+                                            reasons.append("Limited perimeter scoring")
+                                    # Recent offense form (multi-window)
+                                    if avg_off_rank is not None:
+                                        if side.startswith("O") and avg_off_rank >= 22:
+                                            reasons.append("Hot offenses")
+                                        elif side.startswith("U") and avg_off_rank <= 9:
+                                            reasons.append("Cold offenses")
+                                    if avg_off_rank_7 is not None:
+                                        if side.startswith("O") and avg_off_rank_7 >= 22:
+                                            reasons.append("Hot recent offenses (7d)")
+                                        elif side.startswith("U") and avg_off_rank_7 <= 9:
+                                            reasons.append("Cold recent offenses (7d)")
+                                    if avg_off_rank_30 is not None:
+                                        if side.startswith("O") and avg_off_rank_30 >= 22:
+                                            reasons.append("Sustained offense form (30d)")
+                                        elif side.startswith("U") and avg_off_rank_30 <= 9:
+                                            reasons.append("Sustained cold offense (30d)")
+                                    # Back-to-back fatigue/rest hints
+                                    try:
+                                        hb = bool(r.get("home_b2b")); ab = bool(r.get("away_b2b"))
+                                        if side.startswith("O") and (hb or ab):
+                                            reasons.append("Back-to-back fatigue")
+                                        elif side.startswith("U") and (not hb and not ab):
+                                            reasons.append("Well-rested defenses")
+                                    except Exception:
+                                        pass
+                                    # 3-in-4 schedule density hints
+                                    try:
+                                        h3 = bool(r.get("home_3in4")); a3 = bool(r.get("away_3in4"))
+                                        if side.startswith("O") and (h3 or a3):
+                                            reasons.append("Schedule density fatigue (3-in-4)")
+                                        elif side.startswith("U") and (not h3 and not a3):
+                                            reasons.append("No recent schedule fatigue")
+                                    except Exception:
+                                        pass
+                                    # Bench impact heuristic (outs elevate bench usage/variance)
+                                    try:
+                                        outs_total = (int(inj_h or 0) + int(inj_a or 0))
+                                        if outs_total >= 4:
+                                            reasons.append("Bench impact")
+                                    except Exception:
+                                        pass
+                                elif mk in {"ATS","ML"}:
+                                    # Health edge if pick side faces shorthanded opponent
+                                    side_name = str((r or {}).get("side") or "")
+                                    pick_home = (side_name.strip().lower() == str(home or "").strip().lower())
+                                    if inj_h is not None and inj_a is not None:
+                                        diff_ha = (inj_a - inj_h)
+                                        diff_ah = (inj_h - inj_a)
+                                        if pick_home and diff_ha >= 2:
+                                            reasons.append(f"Opponent shorthanded (+{diff_ha})")
+                                            # Add specific names if available for away team
+                                            if atri:
+                                                nm = key_outs_map.get(atri) or []
+                                                filt = _filter_names(nm, atri) or []
+                                                if filt:
+                                                    reasons.append("Missing: " + ", ".join(filt))
+                                        elif (not pick_home) and diff_ah >= 2:
+                                            reasons.append(f"Opponent shorthanded (+{diff_ah})")
+                                            if htri:
+                                                nm = key_outs_map.get(htri) or []
+                                                filt = _filter_names(nm, htri) or []
+                                                if filt:
+                                                    reasons.append("Missing: " + ", ".join(filt))
+                                    # Schedule density fatigue against opponent (3-in-4)
+                                    try:
+                                        h3 = bool(r.get("home_3in4")); a3 = bool(r.get("away_3in4"))
+                                        if pick_home and a3:
+                                            reasons.append("Opponent 3-in-4 fatigue")
+                                        elif (not pick_home) and h3:
+                                            reasons.append("Opponent 3-in-4 fatigue")
+                                    except Exception:
+                                        pass
+                                if reasons:
+                                    # Deduplicate while preserving order
+                                    try:
+                                        seen = set()
+                                        uniq = []
+                                        for x in reasons:
+                                            if x not in seen:
+                                                seen.add(x)
+                                                uniq.append(x)
+                                        reasons = uniq
+                                    except Exception:
+                                        pass
+                                    r["why_reasons"] = reasons
+                                    r["why_explain"] = "; ".join(reasons)
+                            except Exception:
+                                continue
+                    except Exception:
+                        pass
                 except Exception:
                     pass
             else:
@@ -2841,6 +4675,10 @@ def api_recommendations_all():
         if (not want_cats) or ("props" in want_cats):
             props_p = proc / f"props_recommendations_{d}.csv"
             props_df = _read(props_p)
+            try:
+                print(f"[api_recommendations_all] props_path={props_p} exists={props_p.exists()} rows={(0 if props_df is None else len(props_df))}")
+            except Exception:
+                pass
             if not props_df.empty:
                 try:
                     df = props_df.copy()
@@ -2877,9 +4715,13 @@ def api_recommendations_all():
                                     return (-150.0 <= v <= 125.0)
                                 except Exception:
                                     return False
+                            # Helper: filter out non-regular markets (e.g., dd/td)
+                            def _regular_market(m):
+                                mm = str(m or "").strip().lower()
+                                return mm not in {"dd", "td"}
                             if isinstance(plays, list) and plays:
-                                # Prefer regular-price plays; fallback to all if none match
-                                regular = [p for p in plays if _regular_price(p.get("price"))]
+                                # Prefer regular-price plays on regular markets; fallback if none match
+                                regular = [p for p in plays if _regular_market(p.get("market")) and _regular_price(p.get("price"))]
                                 cand = regular if regular else plays
                                 lst = sorted(cand, key=lambda x: float(x.get("ev_pct", x.get("ev", 0)) or 0), reverse=True)
                                 p = lst[0]
@@ -2903,6 +4745,26 @@ def api_recommendations_all():
                         except Exception:
                             return None
                     df["_plays_list"] = df.apply(lambda r: _parse_obj(r.get("plays")), axis=1)
+                    # Track whether a card has any regular-priced, regular-market options
+                    def _has_regular_option(row):
+                        try:
+                            lst = row.get("_plays_list")
+                            if not isinstance(lst, list) or not lst:
+                                return False
+                            for p in lst:
+                                try:
+                                    mm = str(p.get("market") or "").strip().lower()
+                                    pr = p.get("price")
+                                    if mm not in {"dd", "td"} and pr is not None and not pd.isna(pr):
+                                        v = float(pr)
+                                        if (-150.0 <= v <= 125.0):
+                                            return True
+                                except Exception:
+                                    continue
+                        except Exception:
+                            return False
+                        return False
+                    df["_has_regular_option"] = df.apply(_has_regular_option, axis=1)
                     df["top_play"] = df.apply(_top_play_general, axis=1)
                     # Normalize player/team column names
                     if "player" not in df.columns and "player_name" in df.columns:
@@ -2955,6 +4817,9 @@ def api_recommendations_all():
                         reasons = []
                         cons_norm = 0.0
                         line_adv_norm = 0.0
+                        books_count_val = 0
+                        price_std = None
+                        line_std = None
                         try:
                             # Helper: regular price range check
                             def _regular_price(pr):
@@ -2992,6 +4857,7 @@ def api_recommendations_all():
                             same = same_regular if same_regular else same_all
                             distinct_books = sorted(list(set([str(p.get("book") or "").lower() for p in same if p.get("book") is not None])))
                             n_books = len(distinct_books)
+                            books_count_val = int(n_books)
                             if n_books >= 3:
                                 reasons.append(f"Consensus: {n_books} books aligned")
                             cons_norm = max(0.0, min(1.0, (n_books - 1) / 4.0))
@@ -3010,32 +4876,223 @@ def api_recommendations_all():
                                         if tpl >= best - 1e-6:
                                             reasons.append("Best line available")
                                             line_adv_norm = 1.0
+                                # Volatility metrics
+                                try:
+                                    import numpy as _np
+                                    prices = [float(p.get("price")) for p in same if p.get("price") is not None]
+                                    price_std = float(_np.std(prices)) if prices else None
+                                    line_std = float(_np.std(lines)) if lines else None
+                                    if price_std is not None and price_std >= 25.0:
+                                        reasons.append("Volatile prices across books")
+                                    if line_std is not None and line_std >= 0.5:
+                                        reasons.append("Volatile lines across books")
+                                except Exception:
+                                    pass
                             except Exception:
                                 pass
                         except Exception:
                             pass
-                        return pd.Series({"top_play_consensus": cons_norm, "top_play_line_adv": line_adv_norm, "top_play_reasons": reasons})
+                        return pd.Series({"top_play_consensus": cons_norm, "top_play_line_adv": line_adv_norm, "top_play_reasons": reasons, "top_play_books_count": books_count_val, "top_play_price_std": price_std, "top_play_line_std": line_std})
                     extra = df.apply(_consensus_and_reasons, axis=1)
-                    for col in ["top_play_consensus","top_play_line_adv","top_play_reasons"]:
+                    for col in ["top_play_consensus","top_play_line_adv","top_play_reasons","top_play_books_count","top_play_price_std","top_play_line_std"]:
                         df[col] = extra[col]
                     # Build output rows
+                    # If requested, filter to regular-price lines at DataFrame level,
+                    # allowing fallback rows when no regular options exist.
+                    if regular_only:
+                        def _tp_price_val(x):
+                            try:
+                                if isinstance(x, dict):
+                                    pr = x.get("price")
+                                    if pr is None or pd.isna(pr):
+                                        return np.nan
+                                    return float(pr)
+                            except Exception:
+                                return np.nan
+                            return np.nan
+                        df["_top_play_price"] = df["top_play"].map(_tp_price_val)
+                        def _is_reg(v):
+                            try:
+                                if v is None or (isinstance(v, float) and pd.isna(v)):
+                                    return False
+                                return (-150.0 <= float(v) <= 125.0)
+                            except Exception:
+                                return False
+                        mask = df["_top_play_price"].apply(_is_reg) | (~df["_has_regular_option"].astype(bool))
+                        df = df[mask]
                     if compact:
-                        keep = [c for c in ["player","team","top_play","top_play_explain","top_play_reasons","top_play_baseline","top_play_consensus","top_play_line_adv"] if c in df.columns]
+                        keep = [c for c in [
+                            "player",
+                            "team",
+                            "top_play",
+                            "top_play_explain",
+                            "top_play_reasons",
+                            "top_play_baseline",
+                            "top_play_consensus",
+                            "top_play_line_adv",
+                            "top_play_books_count",
+                            "top_play_price_std",
+                            "top_play_line_std",
+                            # New explainability/diagnostic fields
+                            "why_explain",
+                            "team_injury_impact",
+                            "opp_allowed_pts_rank",
+                            "opp_allowed_threes_rank",
+                            # Travel/altitude indicators
+                            "home_tricode",
+                            "away_tricode",
+                            "team_is_away",
+                            "altitude_game",
+                            # Density flags
+                            "team_b2b",
+                            "team_3in4",
+                        ] if c in df.columns]
                         rows = df[keep].fillna("").to_dict(orient="records")
                     else:
                         rows = df.fillna("").to_dict(orient="records")
-                    # If requested, filter to regular-price lines
-                    if regular_only:
-                        def _regular_price(pr):
+                    # Note: regular_only filter applied pre-conversion to rows
+                    # Enrich props with team injuries and opponent context for explainability and scoring
+                    try:
+                        # Map teams on today's slate to their opponents via schedule
+                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
+                        opp_map: dict[str, str] = {}
+                        if isinstance(sched_df, pd.DataFrame) and not sched_df.empty:
+                            cols = {c.lower(): c for c in sched_df.columns}
+                            dcol = cols.get("date_est"); htri = cols.get("home_tricode"); atri = cols.get("away_tricode")
+                            if dcol and htri and atri:
+                                try:
+                                    day_df = sched_df[sched_df[dcol].astype(str) == str(d)]
+                                except Exception:
+                                    day_df = pd.DataFrame()
+                                for _, rr in day_df.iterrows():
+                                    try:
+                                        ht = str(rr.get(htri) or '').strip().upper()
+                                        at = str(rr.get(atri) or '').strip().upper()
+                                        if ht and at:
+                                            opp_map[ht] = at
+                                            opp_map[at] = ht
+                                    except Exception:
+                                        continue
+                        # Team injuries and opponent allowance ranks
+                        injuries = _team_injury_counts(d)
+                        _, impact_map = _team_injury_identity(d)
+                        _, ranks = _compute_team_allowed_stats(d)
+                        def _tri(v):
                             try:
-                                if pr is None or pd.isna(pr):
-                                    return False
-                                v = float(pr)
-                                return (-150.0 <= v <= 125.0)
+                                t = _get_tricode(v)
+                                return (t.upper() if isinstance(t, str) and t else None)
                             except Exception:
-                                return False
-                        rows = [r for r in rows if isinstance(r.get("top_play"), dict) and _regular_price((r.get("top_play") or {}).get("price"))]
+                                return None
+                        # Augment reasons per row
+                        for r in rows:
+                            try:
+                                team_tri = _tri(r.get("team"))
+                                if team_tri:
+                                    # Attach injury impact for scoring
+                                    imp = impact_map.get(team_tri)
+                                    if imp is not None:
+                                        r["team_injury_impact"] = float(imp)
+                                    # Bench usage hint when multiple outs
+                                    outs = injuries.get(team_tri, 0)
+                                    if outs is not None and int(outs) >= 3:
+                                        rs = list(r.get("top_play_reasons") or [])
+                                        rs.append("Bench usage likely elevated")
+                                        r["top_play_reasons"] = rs
+                                    # Usage uptick hint for OVER on volume markets when injury impact is high
+                                    try:
+                                        tp = r.get("top_play") or {}
+                                        mk = str(tp.get("market") or '').lower()
+                                        side = str(tp.get("side") or '').upper()
+                                        impv = float(imp) if imp is not None else 0.0
+                                        if side == "OVER" and mk in {"pts","pra","ast"} and impv >= 50.0:
+                                            rs = list(r.get("top_play_reasons") or [])
+                                            rs.append("Usage uptick expected")
+                                            r["top_play_reasons"] = rs
+                                        
+                                    except Exception:
+                                        pass
+                                # Opponent pace and perimeter context
+                                opp_tri = opp_map.get(team_tri or "") if team_tri else None
+                                tp = r.get("top_play") or {}
+                                mk = str(tp.get("market") or '').lower()
+                                side = str(tp.get("side") or '').upper()
+                                if opp_tri and opp_tri in ranks:
+                                    opp_r = ranks.get(opp_tri) or {}
+                                    # Attach opponent allowance ranks for explainability parity
+                                    try:
+                                        if isinstance(opp_r.get("pts"), (int, float)):
+                                            r["opp_allowed_pts_rank"] = int(opp_r.get("pts"))
+                                        if isinstance(opp_r.get("threes"), (int, float)):
+                                            r["opp_allowed_threes_rank"] = int(opp_r.get("threes"))
+                                    except Exception:
+                                        pass
+                                    rs = list(r.get("top_play_reasons") or [])
+                                    # Pace hints from opponent allowed-PTS ranks
+                                    try:
+                                        pr = opp_r.get("pts")
+                                        if isinstance(pr, (int, float)):
+                                            if mk in {"pts","pra","pa","reb","ast"}:
+                                                if side == "OVER" and pr >= 22:
+                                                    rs.append("Fast pace hint")
+                                                elif side == "UNDER" and pr <= 9:
+                                                    rs.append("Slow pace hint")
+                                    except Exception:
+                                        pass
+                                    # Threes environment hints from opponent allowed-threes ranks
+                                    try:
+                                        tr = opp_r.get("threes")
+                                        if isinstance(tr, (int, float)) and mk == "threes":
+                                            if side == "OVER" and tr >= 22:
+                                                rs.append("Favorable perimeter defense")
+                                            elif side == "UNDER" and tr <= 9:
+                                                rs.append("Perimeter defense stingy")
+                                    except Exception:
+                                        pass
+                                    # Deduplicate reasons while preserving order
+                                    try:
+                                        seen = set(); uniq = []
+                                        for x in rs:
+                                            if x not in seen:
+                                                seen.add(x); uniq.append(x)
+                                        r["top_play_reasons"] = uniq
+                                    except Exception:
+                                        r["top_play_reasons"] = rs
+                                # Travel/time-zone/altitude flags
+                                try:
+                                    # Determine home/away tricodes for this team from schedule
+                                    home_tri = None; away_tri = None
+                                    if isinstance(sched_df, pd.DataFrame) and not sched_df.empty:
+                                        cols = {c.lower(): c for c in sched_df.columns}
+                                        dcol = cols.get("date_est"); htri = cols.get("home_tricode"); atri = cols.get("away_tricode")
+                                        if dcol and htri and atri:
+                                            day_df = sched_df[sched_df[dcol].astype(str) == str(d)]
+                                            for _, rr in day_df.iterrows():
+                                                ht = str(rr.get(htri) or '').strip().upper()
+                                                at = str(rr.get(atri) or '').strip().upper()
+                                                if team_tri and (team_tri == ht or team_tri == at):
+                                                    home_tri = ht; away_tri = at; break
+                                    r["home_tricode"] = home_tri; r["away_tricode"] = away_tri
+                                    r["team_is_away"] = bool(away_tri and team_tri and (team_tri == away_tri))
+                                    r["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                                except Exception:
+                                    pass
+                                # Compose a unified explain string for props (parity with games/derivatives)
+                                try:
+                                    rs = r.get("top_play_reasons") or []
+                                    if isinstance(rs, list) and rs:
+                                        r["why_explain"] = "; ".join(rs)
+                                except Exception:
+                                    pass
+                            except Exception:
+                                continue
+                    except Exception:
+                        pass
                     out["props"] = rows
+                    try:
+                        print(f"[api_recommendations_all] props_rows={len(rows)} regular_only={regular_only} compact={compact}")
+                    except Exception:
+                        pass
                 except Exception:
                     pass
 
@@ -3079,9 +5136,66 @@ def api_recommendations_all():
                                 df.drop(columns=["_gid_str"], inplace=True)
                     except Exception:
                         pass
+                    # Enrich with team injury impact for scoring
+                    try:
+                        _, impact_map = _team_injury_identity(d)
+                        def _imp_for_team(v):
+                            try:
+                                tri = _get_tricode(v)
+                                triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                                val = impact_map.get(triu) if triu else None
+                                return (float(val) if val is not None else None)
+                            except Exception:
+                                return None
+                        df["team_injury_impact"] = df["team"].map(_imp_for_team)
+                    except Exception:
+                        pass
+                    # Pace hints for first basket using opponent allowed-PTS ranks via schedule tricodes
+                    try:
+                        sched_p = proc / "schedule_2025_26.csv"
+                        sched_df = pd.read_csv(sched_p) if sched_p.exists() else pd.DataFrame()
+                        averages, ranks = _compute_team_allowed_stats(d)
+                        if not sched_df.empty and ("game_id" in sched_df.columns):
+                            cols = {c.lower(): c for c in sched_df.columns}
+                            gid_col = cols.get("game_id")
+                            h_tri = cols.get("home_tricode")
+                            a_tri = cols.get("away_tricode")
+                            if gid_col and h_tri and a_tri:
+                                sched_df[gid_col] = sched_df[gid_col].astype(str)
+                                smap = {}
+                                for _, r in sched_df.iterrows():
+                                    k = str(r[gid_col])
+                                    smap[k] = {"home_tri": str(r[h_tri]).upper(), "away_tri": str(r[a_tri]).upper()}
+                                df["_gid_str"] = df["game_id"].astype(str)
+                                df["home_pts_rank"] = df["_gid_str"].map(lambda x: ranks.get((smap.get(x) or {}).get("home_tri"), {}).get("pts"))
+                                df["away_pts_rank"] = df["_gid_str"].map(lambda x: ranks.get((smap.get(x) or {}).get("away_tri"), {}).get("pts"))
+                                def _avg_rank(row):
+                                    try:
+                                        vals = [v for v in [row.get("home_pts_rank"), row.get("away_pts_rank")] if isinstance(v, (int, float))]
+                                        return (float(np.mean(vals)) if vals else None)
+                                    except Exception:
+                                        return None
+                                df["avg_pts_rank"] = df.apply(_avg_rank, axis=1)
+                                def _reasons(row):
+                                    rs = []
+                                    try:
+                                        avg_rank = row.get("avg_pts_rank")
+                                        if isinstance(avg_rank, (int, float)):
+                                            if avg_rank >= 22:
+                                                rs.append("Fast tip environment")
+                                            elif avg_rank <= 9:
+                                                rs.append("Slow tip environment")
+                                    except Exception:
+                                        pass
+                                    return rs
+                                df["why_reasons"] = df.apply(_reasons, axis=1)
+                                df["why_explain"] = df["why_reasons"].map(lambda r: "; ".join(r) if isinstance(r, list) and r else None)
+                                df.drop(columns=["_gid_str"], inplace=True)
+                    except Exception:
+                        pass
                     if compact:
-                        keep = [c for c in ["game_id","matchup","start_time","player_name","team","prob_first_basket","fair_american","rank"] if c in df.columns]
-                        rows = df[keep].fillna("").to_dict(orient="records")
+                        keep = [c for c in ["game_id","matchup","start_time","player_name","team","prob_first_basket","fair_american","rank","avg_pts_rank","why_explain"] if c in df.columns]
+                        rows = df[keep + (["team_injury_impact"] if "team_injury_impact" in df.columns else [])].fillna("").to_dict(orient="records")
                     else:
                         rows = df.fillna("").to_dict(orient="records")
                     out["first_basket"] = rows
@@ -3166,8 +5280,84 @@ def api_recommendations_all():
                     tmp["prob_ge_1"] = pd.to_numeric(tmp["prob_ge_1"], errors="coerce")
                     tmp["expected"] = pd.to_numeric(tmp.get("expected_threes_0_3", tmp.get("threes_0_3_pred")), errors="coerce")
                     tmp["side"] = tmp.apply(lambda r: ("Yes" if float(r.get("prob_ge_1") or 0) >= 0.6 else "No"), axis=1)
+                    # Enrich with home/away injury impacts for scoring
+                    try:
+                        _, impact_map = _team_injury_identity(d)
+                        def _imp_for_team(v):
+                            try:
+                                tri = _get_tricode(v)
+                                triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                                val = impact_map.get(triu) if triu else None
+                                return (float(val) if val is not None else None)
+                            except Exception:
+                                return None
+                        tmp["home_injury_impact"] = tmp["home_team"].map(_imp_for_team)
+                        tmp["away_injury_impact"] = tmp["visitor_team"].map(_imp_for_team)
+                    except Exception:
+                        pass
+                    # Enrich with opponent allowed-PTS ranks and add pace-based reasons
+                    try:
+                        averages, ranks = _compute_team_allowed_stats(d)
+                        def _tri(v):
+                            try:
+                                t = _get_tricode(v)
+                                return (t.upper() if isinstance(t, str) and t else None)
+                            except Exception:
+                                return None
+                        def _pts_rank_for_team(v):
+                            triu = _tri(v)
+                            return (ranks.get(triu, {}).get("pts") if triu else None)
+                        def _threes_rank_for_team(v):
+                            triu = _tri(v)
+                            return (ranks.get(triu, {}).get("threes") if triu else None)
+                        tmp["home_pts_rank"] = tmp["home_team"].map(_pts_rank_for_team)
+                        tmp["away_pts_rank"] = tmp["visitor_team"].map(_pts_rank_for_team)
+                        tmp["home_threes_rank"] = tmp["home_team"].map(_threes_rank_for_team)
+                        tmp["away_threes_rank"] = tmp["visitor_team"].map(_threes_rank_for_team)
+                        # Average rank for pace hint
+                        def _avg_rank(row):
+                            try:
+                                rv = [x for x in [row.get("home_pts_rank"), row.get("away_pts_rank")] if isinstance(x, (int, float))]
+                                if rv:
+                                    return float(np.mean(rv))
+                            except Exception:
+                                return None
+                            return None
+                        tmp["avg_pts_rank"] = tmp.apply(_avg_rank, axis=1)
+                        def _avg_thr_rank(row):
+                            try:
+                                rv = [x for x in [row.get("home_threes_rank"), row.get("away_threes_rank")] if isinstance(x, (int, float))]
+                                if rv:
+                                    return float(np.mean(rv))
+                            except Exception:
+                                return None
+                            return None
+                        tmp["avg_threes_rank"] = tmp.apply(_avg_thr_rank, axis=1)
+                        # Reasons
+                        def _reasons(row):
+                            rs = []
+                            try:
+                                avg_rank = row.get("avg_pts_rank")
+                                if isinstance(avg_rank, (int, float)):
+                                    if avg_rank >= 22:
+                                        rs.append("Fast start environment")
+                                    elif avg_rank <= 9:
+                                        rs.append("Slow start environment")
+                                avg_thr = row.get("avg_threes_rank")
+                                if isinstance(avg_thr, (int, float)):
+                                    if avg_thr >= 22:
+                                        rs.append("Favorable perimeter defense")
+                                    elif avg_thr <= 9:
+                                        rs.append("Perimeter defense stingy")
+                            except Exception:
+                                pass
+                            return rs
+                        tmp["why_reasons"] = tmp.apply(_reasons, axis=1)
+                        tmp["why_explain"] = tmp["why_reasons"].map(lambda r: "; ".join(r) if isinstance(r, list) and r else None)
+                    except Exception:
+                        pass
                     if compact:
-                        keep = [c for c in ["game_id","matchup","start_time","home_team","visitor_team","side","prob_ge_1","expected"] if c in tmp.columns]
+                        keep = [c for c in ["game_id","matchup","start_time","home_team","visitor_team","side","prob_ge_1","expected","home_injury_impact","away_injury_impact","avg_pts_rank","avg_threes_rank","why_explain"] if c in tmp.columns]
                         rows = tmp[keep].fillna("").to_dict(orient="records")
                     else:
                         rows = tmp.fillna("").to_dict(orient="records")
@@ -3183,10 +5373,34 @@ def api_recommendations_all():
         # Multi-factor recommendation scoring (beyond EV) with optional weight overrides
         # Default weights
         weights = {
-            "games": {"ml_ev": 0.6, "ml_gap": 0.4, "ats_scale": 3.0, "total_scale": 5.0},
-            "props": {"ev_pct": 0.45, "payout": 0.15, "baseline": 0.15, "consensus": 0.15, "line_adv": 0.1},
-            "first_basket": {"prob": 0.8, "payout": 0.2},
-            "early_threes": {"prob": 0.5, "expected": 0.5},
+            "games": {
+                "ml_ev": 0.50,
+                "ml_gap": 0.30,
+                "ml_injury": 0.08,
+                "ml_liquidity": 0.06,
+                "ml_b2b": 0.02,
+                "ml_travel_penalty": 0.02,
+                "ml_volatility_penalty": 0.04,
+                "ats_scale": 3.0,
+                "ats_injury": 0.10,
+                "ats_density": 0.05,
+                "ats_liquidity": 0.04,
+                "ats_travel_penalty": 0.02,
+                "ats_volatility_penalty": 0.04,
+                "total_scale": 5.0,
+                "total_injury": 0.05,
+                "total_pace": 0.06,
+                "total_threes": 0.06,
+                "total_bench": 0.02,
+                "total_b2b": 0.02,
+                "total_density": 0.03,
+                "total_offense": 0.05,
+                "total_liquidity": 0.04,
+                "total_volatility_penalty": 0.04
+            },
+            "props": {"ev_pct": 0.42, "payout": 0.14, "baseline": 0.14, "consensus": 0.15, "line_adv": 0.10, "injury": 0.05, "liquidity": 0.06, "density_penalty": 0.04, "usage_boost": 0.06, "travel_penalty": 0.02, "volatility_penalty": 0.04},
+            "first_basket": {"prob": 0.72, "payout": 0.20, "injury": 0.05, "pace": 0.03},
+            "early_threes": {"prob": 0.40, "expected": 0.40, "injury": 0.10, "pace": 0.06, "threes": 0.04},
         }
         try:
             wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
@@ -3215,6 +5429,20 @@ def api_recommendations_all():
                 return 1.0 + (aa/100.0)
             return 1.0 + (100.0/abs(aa))
         def _score_game(row):
+            # Shared helpers
+            def _tz_offset(tri):
+                m = {
+                    "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
+                    "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
+                    "PHI": -5, "TOR": -5, "WAS": -5,
+                    "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
+                    "DEN": -7, "UTA": -7, "PHX": -7,
+                    "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
+                }
+                try:
+                    return float(m.get(str(tri or "").upper(), 0.0))
+                except Exception:
+                    return 0.0
             m = str(row.get("market") or "").upper()
             if m == "ML":
                 ev = row.get("ev")
@@ -3234,14 +5462,144 @@ def api_recommendations_all():
                         gap = _clamp01(max(0.0, 0.5 - p) * 2.0)
                 except Exception:
                     gap = 0.0
-                return round(weights["games"]["ml_ev"] * ev_norm + weights["games"]["ml_gap"] * gap, 3)
+                # Injury differential: opponent impact minus pick-team impact (positive helps pick)
+                try:
+                    home = str(row.get("home") or "")
+                    away = str(row.get("away") or "")
+                    side = str(row.get("side") or "")
+                    pick_home = side.strip().lower() == home.strip().lower()
+                    imp_h = float(row.get("home_injury_impact") or 0.0)
+                    imp_a = float(row.get("away_injury_impact") or 0.0)
+                    diff = (imp_a - imp_h) if pick_home else (imp_h - imp_a)
+                    injury_norm = _clamp01(diff / 125.0)
+                except Exception:
+                    injury_norm = 0.0
+                # Liquidity confidence (books_count or bookmaker heuristic)
+                try:
+                    bc = row.get("books_count")
+                    if isinstance(bc, (int, float)) and bc is not None:
+                        liq_norm = _clamp01((float(bc) - 1.0) / 5.0)
+                    else:
+                        bk = str(row.get("book") or "").strip().lower()
+                        liq_norm = 1.0 if (bk and "oddsapi_consensus" in bk) else (0.6 if bk else 0.0)
+                    liq_norm = _clamp01(liq_norm)
+                except Exception:
+                    liq_norm = 0.0
+                base_score = (
+                    weights["games"]["ml_ev"] * ev_norm
+                    + weights["games"]["ml_gap"] * gap
+                    + weights["games"].get("ml_injury", 0.0) * injury_norm
+                    + weights["games"].get("ml_liquidity", 0.0) * liq_norm
+                )
+                # B2B heuristic: favor pick if opponent on back-to-back
+                try:
+                    hb = bool(row.get("home_b2b")); ab = bool(row.get("away_b2b"))
+                    side = str(row.get("side") or "")
+                    home = str(row.get("home") or "")
+                    pick_home = side.strip().lower() == home.strip().lower()
+                    b2b_norm = 1.0 if ((pick_home and ab) or ((not pick_home) and hb)) else 0.0
+                    base_score += weights["games"].get("ml_b2b", 0.0) * _clamp01(b2b_norm)
+                except Exception:
+                    pass
+                # Odds volatility downweight (price/line variance across books, if present)
+                try:
+                    ps = None
+                    for k in ("ml_price_std", "moneyline_price_std", "price_std"):
+                        v = row.get(k)
+                        if v is not None:
+                            ps = v; break
+                    psn = _clamp01((float(ps) if ps is not None else 0.0) / 75.0)
+                    vw = float(weights["games"].get("ml_volatility_penalty", 0.0))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, vw * psn)))
+                except Exception:
+                    pass
+                # Travel/time-zone/altitude penalty (apply if pick is away)
+                try:
+                    home_tri = row.get("home_tricode") or None
+                    away_tri = row.get("away_tricode") or None
+                    side = str(row.get("side") or "")
+                    home = str(row.get("home") or "")
+                    pick_home = side.strip().lower() == home.strip().lower()
+                    tz_diff = 0.0
+                    if home_tri and away_tri:
+                        tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                    altitude_game = bool(row.get("altitude_game"))
+                    level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and (not pick_home)) else 0.0)
+                    tw = float(weights["games"].get("ml_travel_penalty", 0.0))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, tw * _clamp01(level))))
+                except Exception:
+                    pass
+                return round(base_score, 3)
             if m == "ATS":
                 try:
                     edge = abs(float(row.get("edge") or 0.0))
                     # diminishing returns; 3 pts ~ 0.6, 5+ pts ~ near 1
                     scale = max(1e-6, float(weights["games"]["ats_scale"]))
                     score = 1.0 - math.exp(-edge / scale)
-                    return round(_clamp01(score), 3)
+                    # Injury differential term
+                    try:
+                        imp_h = float(row.get("home_injury_impact") or 0.0)
+                        imp_a = float(row.get("away_injury_impact") or 0.0)
+                        side = str(row.get("side") or "")
+                        home = str(row.get("home") or "")
+                        pick_home = side.strip().lower() == home.strip().lower()
+                        diff = (imp_a - imp_h) if pick_home else (imp_h - imp_a)
+                        injury_norm = _clamp01(diff / 125.0)
+                    except Exception:
+                        injury_norm = 0.0
+                    # Schedule density contribution (3-in-4): favor pick if opponent has density fatigue
+                    try:
+                        side = str(row.get("side") or "")
+                        home = str(row.get("home") or "")
+                        pick_home = side.strip().lower() == home.strip().lower()
+                        h3 = bool(row.get("home_3in4")); a3 = bool(row.get("away_3in4"))
+                        dens_norm = 1.0 if ((pick_home and a3) or ((not pick_home) and h3)) else 0.0
+                        dens_norm = _clamp01(dens_norm)
+                    except Exception:
+                        dens_norm = 0.0
+                    base_score = _clamp01(score) 
+                    base_score += weights["games"].get("ats_injury", 0.0) * injury_norm
+                    base_score += weights["games"].get("ats_density", 0.0) * dens_norm
+                    # Liquidity
+                    try:
+                        bc = row.get("books_count")
+                        if isinstance(bc, (int, float)) and bc is not None:
+                            liq_norm = _clamp01((float(bc) - 1.0) / 5.0)
+                        else:
+                            bk = str(row.get("book") or "").strip().lower()
+                            liq_norm = 1.0 if (bk and "oddsapi_consensus" in bk) else (0.6 if bk else 0.0)
+                        base_score += weights["games"].get("ats_liquidity", 0.0) * _clamp01(liq_norm)
+                    except Exception:
+                        pass
+                    # Volatility penalty on spread variance (if present)
+                    try:
+                        ls = None
+                        for k in ("spread_std", "spread_price_std", "line_std"):
+                            v = row.get(k)
+                            if v is not None:
+                                ls = v; break
+                        lsn = _clamp01((float(ls) if ls is not None else 0.0) / 1.5)
+                        vw = float(weights["games"].get("ats_volatility_penalty", 0.0))
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, vw * lsn)))
+                    except Exception:
+                        pass
+                    # Travel/time-zone/altitude penalty if pick is away
+                    try:
+                        home_tri = row.get("home_tricode") or None
+                        away_tri = row.get("away_tricode") or None
+                        side = str(row.get("side") or "")
+                        home = str(row.get("home") or "")
+                        pick_home = side.strip().lower() == home.strip().lower()
+                        tz_diff = 0.0
+                        if home_tri and away_tri:
+                            tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                        altitude_game = bool(row.get("altitude_game"))
+                        level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and (not pick_home)) else 0.0)
+                        tw = float(weights["games"].get("ats_travel_penalty", 0.0))
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, tw * _clamp01(level))))
+                    except Exception:
+                        pass
+                    return round(base_score, 3)
                 except Exception:
                     return 0.0
             if m == "TOTAL":
@@ -3250,7 +5608,140 @@ def api_recommendations_all():
                     # totals edges typically larger; scale by 5
                     scale = max(1e-6, float(weights["games"]["total_scale"]))
                     score = 1.0 - math.exp(-edge / scale)
-                    return round(_clamp01(score), 3)
+                    # Injury intensity contribution (both teams)
+                    try:
+                        imp_h = float(row.get("home_injury_impact") or 0.0)
+                        imp_a = float(row.get("away_injury_impact") or 0.0)
+                        intensity = _clamp01((imp_h + imp_a) / 250.0)
+                    except Exception:
+                        intensity = 0.0
+                    # Pace contribution from allowed-PTS ranks
+                    try:
+                        r_h = row.get("home_allowed_pts_rank")
+                        r_a = row.get("away_allowed_pts_rank")
+                        side = str(row.get("side") or "").upper()
+                        pace_norm = 0.0
+                        vals = [float(v) for v in [r_h, r_a] if isinstance(v, (int, float))]
+                        if vals:
+                            avg = float(np.mean(vals))
+                            p = max(1.0, min(30.0, avg)) / 30.0
+                            pace_norm = (p if side.startswith("O") else (1.0 - p))
+                        pace_norm = _clamp01(pace_norm)
+                    except Exception:
+                        pace_norm = 0.0
+                    # Threes environment contribution from allowed-threes ranks
+                    try:
+                        r3_h = row.get("home_allowed_threes_rank")
+                        r3_a = row.get("away_allowed_threes_rank")
+                        side = str(row.get("side") or "").upper()
+                        thr_norm = 0.0
+                        vals3 = [float(v) for v in [r3_h, r3_a] if isinstance(v, (int, float))]
+                        if vals3:
+                            avg3 = float(np.mean(vals3))
+                            t = max(1.0, min(30.0, avg3)) / 30.0
+                            thr_norm = (t if side.startswith("O") else (1.0 - t))
+                        thr_norm = _clamp01(thr_norm)
+                    except Exception:
+                        thr_norm = 0.0
+                    # Bench usage heuristic from injuries out counts
+                    try:
+                        outs_h = int(row.get("home_injuries_out") or 0)
+                        outs_a = int(row.get("away_injuries_out") or 0)
+                        bench_norm = _clamp01((outs_h + outs_a) / 6.0)
+                    except Exception:
+                        bench_norm = 0.0
+                    # Back-to-back heuristic (fatigue/rest), favor OVER if either b2b, UNDER if neither
+                    try:
+                        hb = bool(row.get("home_b2b")); ab = bool(row.get("away_b2b"))
+                        side = str(row.get("side") or "").upper()
+                        b2b_norm = 0.0
+                        if side.startswith("O"):
+                            b2b_norm = 1.0 if (hb or ab) else 0.0
+                        else:  # UNDER
+                            b2b_norm = 1.0 if (not hb and not ab) else 0.0
+                        b2b_norm = _clamp01(b2b_norm)
+                    except Exception:
+                        b2b_norm = 0.0
+                    # Recent offense contribution blending season/30d/7d ranks (weighted)
+                    try:
+                        ro_h = row.get("home_offense_pts_rank"); ro_a = row.get("away_offense_pts_rank")
+                        ro7_h = row.get("home_offense_pts_rank_7"); ro7_a = row.get("away_offense_pts_rank_7")
+                        ro30_h = row.get("home_offense_pts_rank_30"); ro30_a = row.get("away_offense_pts_rank_30")
+                        side = str(row.get("side") or "").upper()
+                        off_norm = 0.0
+                        def _blend_rank(r, r7, r30):
+                            parts = []
+                            weights = []
+                            if isinstance(r, (int, float)):
+                                parts.append(float(r)); weights.append(0.5)
+                            if isinstance(r30, (int, float)):
+                                parts.append(float(r30)); weights.append(0.3)
+                            if isinstance(r7, (int, float)):
+                                parts.append(float(r7)); weights.append(0.2)
+                            if not parts:
+                                return None
+                            wsum = sum(weights)
+                            if wsum <= 0:
+                                return None
+                            return sum(p*w for p, w in zip(parts, weights)) / wsum
+                        h_rank = _blend_rank(ro_h, ro7_h, ro30_h)
+                        a_rank = _blend_rank(ro_a, ro7_a, ro30_a)
+                        vals_off = [float(v) for v in [h_rank, a_rank] if isinstance(v, (int, float))]
+                        if vals_off:
+                            avg_off = float(np.mean(vals_off))
+                            o = max(1.0, min(30.0, avg_off)) / 30.0
+                            off_norm = (o if side.startswith("O") else (1.0 - o))
+                        off_norm = _clamp01(off_norm)
+                    except Exception:
+                        off_norm = 0.0
+                    # Schedule density contribution (3-in-4): favor OVER if either team has density; UNDER if neither
+                    try:
+                        h3 = bool(row.get("home_3in4")); a3 = bool(row.get("away_3in4"))
+                        side = str(row.get("side") or "").upper()
+                        dens_norm = 0.0
+                        if side.startswith("O"):
+                            dens_norm = 1.0 if (h3 or a3) else 0.0
+                        else:
+                            dens_norm = 1.0 if (not h3 and not a3) else 0.0
+                        dens_norm = _clamp01(dens_norm)
+                    except Exception:
+                        dens_norm = 0.0
+                    # Liquidity confidence: map books_count -> [0,1]; fallback to bookmaker heuristic
+                    try:
+                        bc = row.get("books_count")
+                        if isinstance(bc, (int, float)) and bc is not None:
+                            liq_norm = _clamp01((float(bc) - 1.0) / 5.0)  # ~1.0 at 6+ books
+                        else:
+                            bk = str(row.get("book") or "").strip().lower()
+                            if bk:
+                                liq_norm = 1.0 if ("oddsapi_consensus" in bk) else 0.6
+                            else:
+                                liq_norm = 0.0
+                        liq_norm = _clamp01(liq_norm)
+                    except Exception:
+                        liq_norm = 0.0
+                    base_score = _clamp01(score)
+                    base_score += weights["games"].get("total_injury", 0.0) * intensity
+                    base_score += weights["games"].get("total_pace", 0.0) * pace_norm
+                    base_score += weights["games"].get("total_threes", 0.0) * thr_norm
+                    base_score += weights["games"].get("total_bench", 0.0) * bench_norm
+                    base_score += weights["games"].get("total_b2b", 0.0) * b2b_norm
+                    base_score += weights["games"].get("total_density", 0.0) * dens_norm
+                    base_score += weights["games"].get("total_offense", 0.0) * off_norm
+                    base_score += weights["games"].get("total_liquidity", 0.0) * liq_norm
+                    # Volatility penalty on total line variance (if present)
+                    try:
+                        ts = None
+                        for k in ("total_std", "total_price_std"):
+                            v = row.get(k)
+                            if v is not None:
+                                ts = v; break
+                        tsn = _clamp01((float(ts) if ts is not None else 0.0) / 3.0)
+                        vw = float(weights["games"].get("total_volatility_penalty", 0.0))
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, vw * tsn)))
+                    except Exception:
+                        pass
+                    return round(base_score, 3)
                 except Exception:
                     return 0.0
             return 0.0
@@ -3262,7 +5753,24 @@ def api_recommendations_all():
                 price = tp.get("price")
                 dec = _american_to_decimal(price) if price is not None else None
                 # Normalize features
-                evp_norm = _clamp01((float(evp) if evp is not None else (100.0 * float(ev) if ev is not None else 0.0)) / 100.0)
+                try:
+                    if evp is not None and not pd.isna(evp):
+                        p_raw = max(0.0, min(1.0, float(evp) / 100.0))
+                        p_cal = _calibrate_prob(p_raw)
+                        evp_norm = _clamp01(float(p_cal))
+                    else:
+                        evp_norm = _clamp01(((100.0 * float(ev)) if ev is not None else 0.0) / 100.0)
+                    
+                except Exception:
+                    try:
+                        if evp is not None and not pd.isna(evp):
+                            p_raw = max(0.0, min(1.0, float(evp) / 100.0))
+                            p_cal = _calibrate_prob(p_raw)
+                            evp_norm = _clamp01(float(p_cal))
+                        else:
+                            evp_norm = _clamp01(((100.0 * float(ev)) if ev is not None else 0.0) / 100.0)
+                    except Exception:
+                        evp_norm = _clamp01((float(evp) if evp is not None else (100.0 * float(ev) if ev is not None else 0.0)) / 100.0)
                 payout_norm = _clamp01(((float(dec) - 1.0) if dec is not None else 0.0) / 5.0)
                 # Baseline vs line contribution
                 try:
@@ -3285,14 +5793,91 @@ def api_recommendations_all():
                     line_adv_norm = _clamp01(float(row.get("top_play_line_adv") or 0.0))
                 except Exception:
                     line_adv_norm = 0.0
-                return round(
+                # Liquidity contribution based on distinct books offering the market
+                try:
+                    bc = row.get("top_play_books_count")
+                    liq_norm = _clamp01(((float(bc) if bc is not None else 0.0) - 1.0) / 5.0)
+                except Exception:
+                    liq_norm = 0.0
+                # Injury impact contribution (team-level)
+                try:
+                    inj_imp = float(row.get("team_injury_impact") or 0.0)
+                    inj_norm = _clamp01(inj_imp / 125.0)
+                except Exception:
+                    inj_norm = 0.0
+                base_score = (
                     weights["props"]["ev_pct"] * evp_norm
                     + weights["props"]["payout"] * payout_norm
                     + weights["props"]["baseline"] * base_norm
                     + weights["props"]["consensus"] * cons_norm
-                    + weights["props"]["line_adv"] * line_adv_norm,
-                    3,
+                    + weights["props"]["line_adv"] * line_adv_norm
+                    + weights["props"].get("injury", 0.0) * inj_norm
+                    + weights["props"].get("liquidity", 0.0) * liq_norm
                 )
+                # Minutes/usage boost from key outs and injury impact
+                try:
+                    kouts = row.get("team_key_outs")
+                    kout_n = (len(kouts) if isinstance(kouts, list) else (len(str(kouts).split(",")) if kouts else 0))
+                    inj_imp2 = float(row.get("team_injury_impact") or 0.0)
+                    usage_base = _clamp01(inj_imp2 / 175.0)
+                    usage_norm = _clamp01(usage_base * (0.5 + 0.25 * min(3, int(kout_n))))
+                    side = str(tp.get("side") or "").upper()
+                    usage_contrib = (usage_norm if side == "OVER" else (-usage_norm * 0.5))
+                    base_score += weights["props"].get("usage_boost", 0.0) * usage_contrib
+                except Exception:
+                    pass
+                # Schedule density penalty (B2B / 3-in-4)
+                try:
+                    b2b = bool(row.get("team_b2b"))
+                    three_in_four = bool(row.get("team_3in4"))
+                    penalty_level = (0.6 if b2b else 0.0) + (0.4 if three_in_four else 0.0)
+                    penalty_weight = float(weights["props"].get("density_penalty", 0.0))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, penalty_weight * penalty_level)))
+                except Exception:
+                    pass
+                # Odds volatility downweight (prices/lines variance across books)
+                try:
+                    ps = row.get("top_play_price_std")
+                    ls = row.get("top_play_line_std")
+                    psn = _clamp01((float(ps) if ps is not None else 0.0) / 75.0)
+                    lsn = _clamp01((float(ls) if ls is not None else 0.0) / 1.5)
+                    level = _clamp01(0.5 * psn + 0.5 * lsn)
+                    vw = float(weights["props"].get("volatility_penalty", 0.0))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, vw * level)))
+                except Exception:
+                    pass
+                # Travel/time-zone/altitude penalty (away team only)
+                try:
+                    def _tz_offset(tri):
+                        m = {
+                            # Eastern
+                            "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
+                            "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
+                            "PHI": -5, "TOR": -5, "WAS": -5,
+                            # Central/South (mostly CT)
+                            "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
+                            # Mountain
+                            "DEN": -7, "UTA": -7, "PHX": -7,
+                            # Pacific
+                            "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
+                        }
+                        try:
+                            return float(m.get(str(tri or "").upper(), 0.0))
+                        except Exception:
+                            return 0.0
+                    is_away = bool(row.get("team_is_away"))
+                    home_tri = row.get("home_tricode") or None
+                    away_tri = row.get("away_tricode") or None
+                    tz_diff = 0.0
+                    if is_away and home_tri and away_tri:
+                        tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                    altitude_game = bool(row.get("altitude_game"))
+                    level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and is_away) else 0.0)
+                    tw = float(weights["props"].get("travel_penalty", 0.0))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, tw * level)))
+                except Exception:
+                    pass
+                return round(base_score, 3)
             return 0.0
         def _score_first_basket(row):
             try:
@@ -3304,7 +5889,25 @@ def api_recommendations_all():
                 payout_norm = _clamp01(max(0.0, dec - 1.0) / 10.0)
             except Exception:
                 payout_norm = 0.0
-            return round(0.8 * p + 0.2 * payout_norm, 3)
+            # Injury contribution: boost confidence modestly if team has key outs (usage consolidation)
+            try:
+                inj_imp = float(row.get("team_injury_impact") or 0.0)
+                inj_norm = _clamp01(inj_imp / 125.0)
+            except Exception:
+                inj_norm = 0.0
+            # Pace contribution from avg allowed-PTS ranks
+            try:
+                avg_rank = row.get("avg_pts_rank")
+                pace_norm = 0.0
+                if isinstance(avg_rank, (int, float)) and avg_rank > 0:
+                    pace_norm = max(1.0, min(30.0, float(avg_rank))) / 30.0
+                pace_norm = _clamp01(pace_norm)
+            except Exception:
+                pace_norm = 0.0
+            return round(weights["first_basket"]["prob"] * p
+                         + weights["first_basket"]["payout"] * payout_norm
+                         + weights["first_basket"].get("injury", 0.0) * inj_norm
+                         + weights["first_basket"].get("pace", 0.0) * pace_norm, 3)
         def _score_early_threes(row):
             try:
                 prob = _clamp01(float(row.get("prob_ge_1") or 0.0))
@@ -3314,7 +5917,35 @@ def api_recommendations_all():
                 expv = _clamp01(float(row.get("expected") or 0.0) / 3.0)
             except Exception:
                 expv = 0.0
-            return round(0.5 * prob + 0.5 * expv, 3)
+            try:
+                imp_h = float(row.get("home_injury_impact") or 0.0)
+                imp_a = float(row.get("away_injury_impact") or 0.0)
+                intensity = _clamp01((imp_h + imp_a) / 250.0)
+            except Exception:
+                intensity = 0.0
+            # Pace contribution from average allowed-PTS ranks
+            try:
+                avg_rank = row.get("avg_pts_rank")
+                side = str(row.get("side") or "").strip()
+                pace_norm = 0.0
+                if isinstance(avg_rank, (int, float)) and avg_rank > 0:
+                    p = max(1.0, min(30.0, float(avg_rank))) / 30.0
+                    pace_norm = (p if side == "Yes" else (1.0 - p))
+                pace_norm = _clamp01(pace_norm)
+            except Exception:
+                pace_norm = 0.0
+            # Threes environment contribution from average allowed-threes ranks
+            try:
+                avg_thr = row.get("avg_threes_rank")
+                side = str(row.get("side") or "").strip()
+                thr_norm = 0.0
+                if isinstance(avg_thr, (int, float)) and avg_thr > 0:
+                    t = max(1.0, min(30.0, float(avg_thr))) / 30.0
+                    thr_norm = (t if side == "Yes" else (1.0 - t))
+                thr_norm = _clamp01(thr_norm)
+            except Exception:
+                thr_norm = 0.0
+            return round(weights["early_threes"]["prob"] * prob + weights["early_threes"]["expected"] * expv + weights["early_threes"].get("injury", 0.0) * intensity + weights["early_threes"].get("pace", 0.0) * pace_norm + weights["early_threes"].get("threes", 0.0) * thr_norm, 3)
         # Apply scores and derive tiers uniformly
         def _tier_from_score(s):
             try:
@@ -3417,6 +6048,68 @@ def api_props():
             long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
             long["stat"] = long["stat_col"].map(use)
             long.drop(columns=["stat_col"], inplace=True)
+            # Enrich with opponent ranks (allowed stats) and team injury counts for context
+            try:
+                averages, ranks = _compute_team_allowed_stats(d)
+                injuries = _team_injury_counts(d)
+                key_outs_map, impact_map = _team_injury_identity(d)
+                def _ranks_for_team(v):
+                    try:
+                        tri = _get_tricode(v)
+                        triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                        return (ranks.get(triu, {}) if triu else {})
+                    except Exception:
+                        return {}
+                def _inj_for_team(v):
+                    try:
+                        tri = _get_tricode(v)
+                        triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                        val = injuries.get(triu, 0) if triu else None
+                        return (int(val) if val is not None else None)
+                    except Exception:
+                        return None
+                def _key_outs_for_team(v):
+                    try:
+                        tri = _get_tricode(v)
+                        triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                        names = key_outs_map.get(triu) if triu else None
+                        if isinstance(names, list) and names:
+                            return names[:2]
+                        return None
+                    except Exception:
+                        return None
+                def _impact_for_team(v):
+                    try:
+                        tri = _get_tricode(v)
+                        triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                        val = impact_map.get(triu) if triu else None
+                        return (float(val) if val is not None else None)
+                    except Exception:
+                        return None
+                if "opponent" in long.columns:
+                    long["opponent_ranks"] = long["opponent"].map(_ranks_for_team)
+                if "team" in long.columns:
+                    long["team_injuries_out"] = long["team"].map(_inj_for_team)
+                    # Identity-aware injury context (filtered by roster membership)
+                    roster = _roster_players_for_date(d)
+                    def _key_outs_filtered(v):
+                        try:
+                            tri = _get_tricode(v)
+                            triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                            names = _key_outs_for_team(v)
+                            if not names or not triu:
+                                return names
+                            allowed = roster.get(triu, set())
+                            if not allowed:
+                                return names
+                            nn = [n for n in names if _norm_player_name(n) in allowed]
+                            return nn
+                        except Exception:
+                            return _key_outs_for_team(v)
+                    long["team_key_outs"] = long["team"].map(_key_outs_filtered)
+                    long["team_injury_impact"] = long["team"].map(_impact_for_team)
+            except Exception:
+                pass
             # Limit to today's slate teams unless explicitly overridden
             try:
                 slate_param = (request.args.get("slateOnly", request.args.get("slate-only", "1")) or "1").strip().lower()
@@ -3748,6 +6441,31 @@ def api_props():
                         long.drop(columns=["stat_col"], inplace=True)
                     except Exception:
                         pass
+                # Enrich with opponent ranks and team injury counts
+                try:
+                    averages, ranks = _compute_team_allowed_stats(d)
+                    injuries = _team_injury_counts(d)
+                    def _ranks_for_team(v):
+                        try:
+                            tri = _get_tricode(v)
+                            triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                            return (ranks.get(triu, {}) if triu else {})
+                        except Exception:
+                            return {}
+                    def _inj_for_team(v):
+                        try:
+                            tri = _get_tricode(v)
+                            triu = (tri.upper() if isinstance(tri, str) and tri else None)
+                            val = injuries.get(triu, 0) if triu else None
+                            return (int(val) if val is not None else None)
+                        except Exception:
+                            return None
+                    if "opponent" in long.columns:
+                        long["opponent_ranks"] = long["opponent"].map(_ranks_for_team)
+                    if "team" in long.columns:
+                        long["team_injuries_out"] = long["team"].map(_inj_for_team)
+                except Exception:
+                    pass
                 rows = long.fillna("").to_dict(orient="records")
                 return jsonify({"date": d, "source": src, "rows": rows, "collapsed": False})
             except Exception:
@@ -3820,8 +6538,9 @@ def api_props_recommendations():
         pp = _read_csv_if_exists(props_preds_p)
         if not isinstance(pp, pd.DataFrame) or pp is None:
             pp = pd.DataFrame()
-        # Accept aliases from frontend (only_ev, min_ev_pct, sort)
+        # Accept aliases from frontend (only_ev, min_ev_pct, sort, compact, markets)
         sort_by = (request.args.get("sortBy") or request.args.get("sort") or "ev_desc").strip().lower()
+        compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
         onlyEV = str(request.args.get("onlyEV", request.args.get("only_ev", "0"))).lower() in {"1","true","yes"}
         try:
             minEV = float(request.args.get("minEV", request.args.get("min_ev_pct", "0") ) or 0)
@@ -3916,11 +6635,19 @@ def api_props_recommendations():
         for c in ("edge","line","price"):
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors="coerce")
-        # Filter by market if requested
+        # Filter by market if requested (support single 'market' or multi 'markets'/'mkts')
         market = (request.args.get("market") or "").strip().lower()
-        if market and ("stat" in df.columns):
-            mk = market
-            df = df[df["stat"].astype(str).str.lower() == mk]
+        mkts_param = (request.args.get("markets") or request.args.get("mkts") or "").strip().lower()
+        want_mkts: set[str] = set()
+        if mkts_param:
+            try:
+                want_mkts = {m.strip().lower() for m in mkts_param.split(",") if m.strip()}
+            except Exception:
+                want_mkts = set()
+        if market:
+            want_mkts.add(market)
+        if want_mkts and ("stat" in df.columns):
+            df = df[df["stat"].astype(str).str.lower().isin(want_mkts)]
         # Filter by EV threshold (percent) and onlyEV flag
         if df is not None and ("ev_pct" in df.columns):
             if onlyEV:
@@ -3988,6 +6715,12 @@ def api_props_recommendations():
                 df = df[df["team"].astype(str).isin(keep_teams)]
         # Build cards grouped by player/team regardless of games_df presence
         sort_by = (request.args.get("sortBy") or "ev_desc").strip().lower()
+        # Preference toggle: regular-priced lines for top play selection (default on)
+        try:
+            _regular_only_q = (request.args.get("regular_only", "1") or "1").strip().lower()
+            prefer_regular_only = _regular_only_q not in ("0","false","no")
+        except Exception:
+            prefer_regular_only = True
         player_col = next((c for c in ("player_name", "player") if c in df.columns), None)
         team_col = "team" if "team" in df.columns else None
         cards: list[dict] = []
@@ -4068,6 +6801,120 @@ def api_props_recommendations():
                         "ev_pct": r.get("ev_pct"),
                         "book": r.get("bookmaker"),
                     })
+                # Compute "top_play" and explainability based on preferences
+                top_play = None
+                top_play_baseline = None
+                top_play_reasons: list[str] = []
+                top_play_explain = None
+                try:
+                    # Helper: check if price within regular range [-150, +125]
+                    def _is_regular_price(p: object) -> bool:
+                        try:
+                            v = float(p)
+                            return (v >= -150.0) and (v <= 125.0)
+                        except Exception:
+                            return False
+                    # Candidate selection: prefer plays with EV available
+                    cand = [p for p in plays if p.get("ev_pct") is not None]
+                    # Exclude extreme markets (e.g., dd/td) for regular-only preference
+                    def _is_regular_market(m: object) -> bool:
+                        mm = str(m or "").lower()
+                        return mm not in {"dd","td"}
+                    if prefer_regular_only:
+                        cand_reg = [p for p in cand if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
+                        cand = cand_reg if cand_reg else cand
+                    # Sort by ev_pct desc, then absolute edge desc
+                    cand.sort(key=lambda p: ((p.get("ev_pct") or -1e9), abs(p.get("edge") or 0.0)), reverse=True)
+                    top_play = cand[0] if cand else None
+                    # Baseline from model for stat, if available
+                    if top_play is not None:
+                        stat_key = str(top_play.get("market") or "").lower()
+                        # Map combined markets to available baselines when possible
+                        baseline_map_key = stat_key
+                        if stat_key in {"pa","pr","ra"} and (stat_key not in (model.keys() if isinstance(model, dict) else [])):
+                            # No direct baseline for pa/pr/ra; skip baseline unless pra (for pr/ra/pa it's ambiguous)
+                            baseline_map_key = stat_key
+                        try:
+                            top_play_baseline = (model.get(baseline_map_key) if isinstance(model, dict) else None)
+                        except Exception:
+                            top_play_baseline = None
+                        # Reasons: consensus across books for same stat/side/line
+                        try:
+                            # Count distinct books for this (market, side, line)
+                            mkt = top_play.get("market")
+                            side = top_play.get("side")
+                            line_val = top_play.get("line")
+                            same = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                            if line_val is None:
+                                # For markets without numeric line (dd/td), use NaN line match
+                                same_books = same["bookmaker"].dropna().astype(str).unique().tolist()
+                            else:
+                                try:
+                                    same = same[pd.to_numeric(same.get("line"), errors="coerce") == float(line_val)]
+                                except Exception:
+                                    pass
+                                same_books = same["bookmaker"].dropna().astype(str).unique().tolist()
+                            if len(same_books) >= 3:
+                                top_play_reasons.append(f"Consensus across {len(same_books)} books")
+                        except Exception:
+                            pass
+                        # Reason: best price among books at same line
+                        try:
+                            mkt = top_play.get("market"); side = top_play.get("side"); line_val = top_play.get("line")
+                            comp = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                            if line_val is not None:
+                                try:
+                                    comp = comp[pd.to_numeric(comp.get("line"), errors="coerce") == float(line_val)]
+                                except Exception:
+                                    pass
+                            prices = pd.to_numeric(comp.get("price"), errors="coerce").dropna()
+                            cur_price = float(top_play.get("price")) if top_play.get("price") is not None else None
+                            if prices.size > 0 and cur_price is not None:
+                                # "Best" price == maximum numeric American odds (less negative or more positive)
+                                if cur_price >= float(prices.max()) - 1e-9:
+                                    top_play_reasons.append("Best price among books")
+                        except Exception:
+                            pass
+                        # Reason: regular price range
+                        try:
+                            if prefer_regular_only and _is_regular_price(top_play.get("price")) and _is_regular_market(top_play.get("market")):
+                                top_play_reasons.append("Regular price range (−150 to +125)")
+                        except Exception:
+                            pass
+                        # Reason: line advantage vs baseline
+                        try:
+                            bl = top_play_baseline
+                            ln = top_play.get("line")
+                            sd = str(top_play.get("side") or "").upper()
+                            if isinstance(bl, (int, float)) and (ln is not None):
+                                adv = (float(bl) - float(ln)) if sd == "OVER" else (float(ln) - float(bl))
+                                # Include the delta if sensible
+                                if np.isfinite(adv):
+                                    # Format concise explanation
+                                    top_play_reasons.append(f"Line advantage: model {bl:.2f} vs line {float(ln):.2f} (Δ {adv:+.2f})")
+                        except Exception:
+                            pass
+                        # Compose explain string
+                        try:
+                            parts = []
+                            # EV reason
+                            evp = top_play.get("ev_pct")
+                            if evp is not None:
+                                parts.append(f"EV {float(evp):.1f}%")
+                            # Deduplicate reasons while preserving order
+                            try:
+                                seen = set(); uniq = []
+                                for p in top_play_reasons:
+                                    if p and (p not in seen):
+                                        seen.add(p); uniq.append(p)
+                            except Exception:
+                                uniq = top_play_reasons
+                            parts += uniq
+                            top_play_explain = "; ".join([p for p in parts if p]) or None
+                        except Exception:
+                            top_play_explain = None
+                except Exception:
+                    top_play = None; top_play_reasons = []; top_play_explain = None; top_play_baseline = None
                 # Build consolidated ladders per market/side with best offer per distinct line,
                 # and compute a 'base' line per group (price closest to +100)
                 ladders: list[dict] = []
@@ -4167,6 +7014,142 @@ def api_props_recommendations():
                         opponent = away
                     elif str(team).strip().upper() == str(away).strip().upper():
                         opponent = home
+
+                # Attach opponent allowances and team injury counts, and enrich reasons
+                try:
+                    opp_avgs, opp_ranks = _compute_team_allowed_stats(d)
+                except Exception:
+                    opp_avgs, opp_ranks = ({}, {})
+                try:
+                    team_inj_counts = _team_injury_counts(d)
+                except Exception:
+                    team_inj_counts = {}
+                # Identity-aware injury context (key outs + impact)
+                try:
+                    key_outs_map, impact_map = _team_injury_identity(d)
+                except Exception:
+                    key_outs_map, impact_map = ({}, {})
+                try:
+                    t_tri = (str(team).strip().upper() if team else None)
+                    o_tri = (str(opponent).strip().upper() if opponent else None)
+                    opp_rank_obj = (opp_ranks.get(o_tri, {}) if isinstance(opp_ranks, dict) else {})
+                    team_injury_count = int(team_inj_counts.get(t_tri, 0)) if isinstance(team_inj_counts, dict) and t_tri else 0
+                    roster = _roster_players_for_date(d)
+                    team_key_outs_all = (key_outs_map.get(t_tri) if (isinstance(key_outs_map, dict) and t_tri) else None)
+                    # Filter identity names to roster membership
+                    team_key_outs = None
+                    try:
+                        if isinstance(team_key_outs_all, list) and t_tri:
+                            allowed = roster.get(t_tri, set())
+                            if allowed:
+                                nn = [n for n in team_key_outs_all if _norm_player_name(n) in allowed]
+                                team_key_outs = (nn if nn else None)
+                            else:
+                                team_key_outs = team_key_outs_all
+                    except Exception:
+                        team_key_outs = team_key_outs_all
+                    team_injury_impact = (impact_map.get(t_tri) if (isinstance(impact_map, dict) and t_tri) else None)
+                    # Add opponent allowance reason tailored to stat
+                    if top_play and opp_rank_obj:
+                        mk = str(top_play.get("market") or "").lower()
+                        sd = str(top_play.get("side") or "").upper()
+                        # Favorable if opponent rank is high (allows a lot) for OVER; low for UNDER
+                        rank_val = None
+                        if mk in {"pts","reb","ast","threes"}:
+                            rank_val = opp_rank_obj.get(mk)
+                        elif mk == "pra":
+                            # Use average of available ranks
+                            rv = [opp_rank_obj.get(k) for k in ("pts","reb","ast") if opp_rank_obj.get(k) is not None]
+                            rank_val = int(np.mean(rv)) if rv else None
+                        if isinstance(rank_val, int) and rank_val > 0:
+                            # Always surface opponent allowance rank for context
+                            top_play_reasons.append(f"Opponent {mk} allow rank: {rank_val}")
+                            # Use 22+ as favorable threshold out of ~30 teams
+                            if sd == "OVER" and rank_val >= 22:
+                                top_play_reasons.append(f"Opponent favorable (rank #{rank_val} allowed for {mk})")
+                            if sd == "UNDER" and rank_val <= 9:
+                                top_play_reasons.append(f"Opponent stingy (rank #{rank_val} allowed for {mk})")
+                            # Pace hint from opponent allowed points (fast vs slow environment)
+                            try:
+                                pts_rank = opp_rank_obj.get("pts")
+                                if isinstance(pts_rank, int) and pts_rank > 0:
+                                    if pts_rank >= 22:
+                                        top_play_reasons.append("Fast environment")
+                                    elif pts_rank <= 9:
+                                        top_play_reasons.append("Slow environment")
+                            except Exception:
+                                pass
+                    # Add team injuries boost reason if multiple outs
+                    if top_play and team_injury_count >= 2:
+                        top_play_reasons.append(f"Injuries boost (team outs: {team_injury_count})")
+                    # Bench usage hint when outs are elevated
+                    if top_play and team_injury_count >= 3:
+                        top_play_reasons.append("Bench usage likely elevated")
+                    # Add identity-aware missing teammates to reasons when available
+                    if top_play and isinstance(team_key_outs, list) and team_key_outs:
+                        try:
+                            names = [str(x).strip() for x in team_key_outs if str(x).strip()]
+                            if names:
+                                top_play_reasons.append("Missing teammates: " + ", ".join(names[:2]))
+                        except Exception:
+                            pass
+                    # Re-compose explain with new reasons
+                    try:
+                        parts = []
+                        evp = top_play.get("ev_pct") if top_play else None
+                        if evp is not None:
+                            parts.append(f"EV {float(evp):.1f}%")
+                        # Deduplicate reasons while preserving order
+                        try:
+                            seen = set(); uniq = []
+                            for p in top_play_reasons:
+                                if p and (p not in seen):
+                                    seen.add(p); uniq.append(p)
+                        except Exception:
+                            uniq = top_play_reasons
+                        parts += uniq
+                        top_play_explain = "; ".join([p for p in parts if p]) or None
+                    except Exception:
+                        pass
+                    # Compute numeric consensus and line-advantage metrics for scoring
+                    top_play_consensus = 0.0
+                    top_play_books_count = 0
+                    top_play_line_adv = 0.0
+                    try:
+                        if top_play:
+                            mkt = str(top_play.get("market") or "").lower()
+                            side = str(top_play.get("side") or "").upper()
+                            line_val = top_play.get("line")
+                            # Distinct books for same stat/side/(line when available)
+                            comp = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                            if line_val is not None:
+                                try:
+                                    comp = comp[pd.to_numeric(comp.get("line"), errors="coerce") == float(line_val)]
+                                except Exception:
+                                    pass
+                            distinct_books = sorted(list(set(comp.get("bookmaker").dropna().astype(str).str.lower().tolist()))) if ("bookmaker" in comp.columns) else []
+                            n_books = len(distinct_books)
+                            top_play_consensus = max(0.0, min(1.0, (n_books - 1) / 4.0))
+                            top_play_books_count = int(n_books)
+                            # Line advantage: is our line the best available among books
+                            try:
+                                lines = pd.to_numeric(comp.get("line"), errors="coerce").dropna().astype(float).tolist()
+                                tpl = float(line_val) if (line_val is not None and not pd.isna(line_val)) else None
+                                if lines and tpl is not None:
+                                    if side == "OVER":
+                                        best = min(lines)
+                                        if tpl <= best + 1e-6:
+                                            top_play_line_adv = 1.0
+                                    elif side == "UNDER":
+                                        best = max(lines)
+                                        if tpl >= best - 1e-6:
+                                            top_play_line_adv = 1.0
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+                except Exception:
+                    pass
                 
                 # Optional model predictions attached to card
                 model: dict[str,float] = {}
@@ -4242,6 +7225,10 @@ def api_props_recommendations():
                     "player": player,
                     "team": team,
                     "opponent": opponent,
+                    "opponent_ranks": opp_rank_obj if 'opp_rank_obj' in locals() else {},
+                    "team_injuries_out": team_injury_count if 'team_injury_count' in locals() else 0,
+                    "team_key_outs": team_key_outs if 'team_key_outs' in locals() else None,
+                    "team_injury_impact": (float(team_injury_impact) if ('team_injury_impact' in locals() and team_injury_impact is not None) else None),
                     "home_team": home,
                     "away_team": away,
                     "plays": plays,
@@ -4249,6 +7236,14 @@ def api_props_recommendations():
                     "model": model,
                     "photo": photo,
                     "team_logo": team_logo,
+                    # Top selection + explainability
+                    "top_play": top_play,
+                    "top_play_baseline": top_play_baseline,
+                    "top_play_reasons": top_play_reasons,
+                    "top_play_explain": top_play_explain,
+                    "top_play_consensus": top_play_consensus,
+                    "top_play_books_count": top_play_books_count,
+                    "top_play_line_adv": top_play_line_adv,
                     "_best_ev": best_ev,
                     "_best_edge": best_edge,
                 })
@@ -4291,10 +7286,276 @@ def api_props_recommendations():
                     cards.append(c2)
         except Exception:
             pass
+        # Optional strict regular-only pruning: if requested, drop cards whose top_play is not regular range or is a ladder-only market
+        def _is_regular_price(p: object) -> bool:
+            try:
+                v = float(p)
+                return (v >= -150.0) and (v <= 125.0)
+            except Exception:
+                return False
+        def _is_regular_market(m: object) -> bool:
+            mm = str(m or "").lower()
+            return mm not in {"dd","td"}
+        if prefer_regular_only:
+            cards = [c for c in cards if c.get("top_play") and _is_regular_market(c["top_play"].get("market")) and _is_regular_price(c["top_play"].get("price"))]
+        # If multi-market filter was provided, apply to chosen top_play to keep focused list
+        if want_mkts:
+            cards = [c for c in cards if c.get("top_play") and str(c["top_play"].get("market") or "").strip().lower() in want_mkts]
         # Strip internal fields
         for c in cards:
             c.pop('_best_ev', None); c.pop('_best_edge', None)
-        payload = {"date": d, "rows": len(cards), "games": games, "data": cards}
+        # Add schedule density flags for props scoring (B2B / 3-in-4)
+        try:
+            try:
+                prev = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=1)).date().isoformat()
+            except Exception:
+                from datetime import date as _date, timedelta as _td
+                prev = (_date.today() - _td(days=1)).isoformat()
+            try:
+                prev2 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=2)).date().isoformat()
+            except Exception:
+                from datetime import date as _date, timedelta as _td
+                prev2 = (_date.today() - _td(days=2)).isoformat()
+            try:
+                prev3 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=3)).date().isoformat()
+            except Exception:
+                from datetime import date as _date, timedelta as _td
+                prev3 = (_date.today() - _td(days=3)).isoformat()
+            try:
+                prev_teams = _get_slate_team_tricodes(prev)
+            except Exception:
+                prev_teams = set()
+            try:
+                prev2_teams = _get_slate_team_tricodes(prev2)
+            except Exception:
+                prev2_teams = set()
+            try:
+                prev3_teams = _get_slate_team_tricodes(prev3)
+            except Exception:
+                prev3_teams = set()
+            for c in cards:
+                try:
+                    tri = _get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper()
+                    b2b_flag = bool(tri and (tri in prev_teams))
+                    recent_count = int((1 if (tri and (tri in prev_teams)) else 0) + (1 if (tri and (tri in prev2_teams)) else 0) + (1 if (tri and (tri in prev3_teams)) else 0))
+                    c["team_b2b"] = b2b_flag
+                    c["team_3in4"] = bool(recent_count >= 2)
+                except Exception:
+                    c["team_b2b"] = False
+                    c["team_3in4"] = False
+            # Travel/time-zone/altitude enrichment
+            try:
+                for c in cards:
+                    try:
+                        team_tri = _get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper()
+                        home_tri = _get_tricode(str(c.get("home_team") or "")) or str(c.get("home_team") or "").strip().upper()
+                        away_tri = _get_tricode(str(c.get("away_team") or "")) or str(c.get("away_team") or "").strip().upper()
+                        c["home_tricode"] = home_tri
+                        c["away_tricode"] = away_tri
+                        c["team_is_away"] = bool(away_tri and team_tri and (away_tri == team_tri))
+                        c["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                    except Exception:
+                        c["team_is_away"] = False
+                        c["altitude_game"] = False
+            except Exception:
+                pass
+        except Exception:
+            pass
+        # Compute score and tier for each card using props weights
+        try:
+            import json as _json
+            # Default weights (can be overridden by data/overrides/reco_weights.json)
+            _weights_props = {"ev_pct": 0.40, "payout": 0.14, "baseline": 0.14, "consensus": 0.15, "line_adv": 0.10, "injury": 0.05, "pace": 0.02, "liquidity": 0.06, "density_penalty": 0.04, "usage_boost": 0.06, "travel_penalty": 0.02, "volatility_penalty": 0.04}
+            try:
+                wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
+                if wpath.exists():
+                    with open(wpath, "r", encoding="utf-8") as fh:
+                        wjson = _json.load(fh)
+                        if isinstance(wjson, dict) and isinstance(wjson.get("props"), dict):
+                            for k, v in wjson["props"].items():
+                                if isinstance(v, (int, float)):
+                                    _weights_props[k] = v
+            except Exception:
+                pass
+            def _clamp01(x):
+                try:
+                    return 0.0 if (x is None or pd.isna(x)) else max(0.0, min(1.0, float(x)))
+                except Exception:
+                    return 0.0
+            def _american_to_decimal(a):
+                try:
+                    aa = float(a)
+                except Exception:
+                    return None
+                if aa == 0:
+                    return None
+                if aa > 0:
+                    return 1.0 + (aa/100.0)
+                return 1.0 + (100.0/abs(aa))
+            def _score_card(row):
+                tp = row.get("top_play")
+                if isinstance(tp, dict) and tp:
+                    evp = tp.get("ev_pct")
+                    ev = tp.get("ev")
+                    price = tp.get("price")
+                    dec = _american_to_decimal(price) if price is not None else None
+                    evp_norm = _clamp01((float(evp) if evp is not None else (100.0 * float(ev) if ev is not None else 0.0)) / 100.0)
+                    payout_norm = _clamp01(((float(dec) - 1.0) if dec is not None else 0.0) / 5.0)
+                    # Baseline vs line contribution
+                    try:
+                        base = row.get("top_play_baseline")
+                        line = tp.get("line")
+                        delta = abs(float(base) - float(line)) if (base is not None and line is not None) else 0.0
+                        mk = str(tp.get("market") or "").lower()
+                        scales = {"pts": 6.0, "reb": 3.0, "ast": 3.0, "threes": 2.0, "pra": 8.0}
+                        s = scales.get(mk, 5.0)
+                        base_norm = _clamp01(delta / s)
+                    except Exception:
+                        base_norm = 0.0
+                    cons_norm = _clamp01(float(row.get("top_play_consensus") or 0.0))
+                    line_adv_norm = _clamp01(float(row.get("top_play_line_adv") or 0.0))
+                    # Liquidity contribution from distinct books
+                    try:
+                        bc = row.get("top_play_books_count")
+                        liq_norm = _clamp01(((float(bc) if bc is not None else 0.0) - 1.0) / 5.0)
+                    except Exception:
+                        liq_norm = 0.0
+                    # Pace contribution from opponent allowed points rank
+                    try:
+                        opp_ranks = row.get("opponent_ranks") or {}
+                        pts_rank = opp_ranks.get("pts")
+                        side = str(tp.get("side") or "").upper()
+                        pace_norm = 0.0
+                        if isinstance(pts_rank, int) and pts_rank > 0:
+                            # Normalize to [0,1]; favor higher ranks for OVER, lower ranks for UNDER
+                            p = max(1, min(30, int(pts_rank))) / 30.0
+                            pace_norm = (p if side == "OVER" else (1.0 - p))
+                        pace_norm = _clamp01(pace_norm)
+                    except Exception:
+                        pace_norm = 0.0
+                    try:
+                        inj_imp = float(row.get("team_injury_impact") or 0.0)
+                        inj_norm = _clamp01(inj_imp / 125.0)
+                    except Exception:
+                        inj_norm = 0.0
+                    base_score = (
+                        _weights_props["ev_pct"] * evp_norm
+                        + _weights_props["payout"] * payout_norm
+                        + _weights_props["baseline"] * base_norm
+                        + _weights_props["consensus"] * cons_norm
+                        + _weights_props["line_adv"] * line_adv_norm
+                        + _weights_props.get("liquidity", 0.0) * liq_norm
+                        + _weights_props.get("pace", 0.0) * pace_norm
+                        + _weights_props.get("injury", 0.0) * inj_norm
+                    )
+                    # Minutes/usage boost from key outs and injury impact
+                    try:
+                        kouts = row.get("team_key_outs")
+                        kout_n = (len(kouts) if isinstance(kouts, list) else (len(str(kouts).split(",")) if kouts else 0))
+                        inj_imp2 = float(row.get("team_injury_impact") or 0.0)
+                        usage_base = _clamp01(inj_imp2 / 175.0)
+                        usage_norm = _clamp01(usage_base * (0.5 + 0.25 * min(3, int(kout_n))))
+                        side = str(tp.get("side") or "").upper()
+                        usage_contrib = (usage_norm if side == "OVER" else (-usage_norm * 0.5))
+                        base_score += _weights_props.get("usage_boost", 0.0) * usage_contrib
+                    except Exception:
+                        pass
+                    # Schedule density penalty (B2B / 3-in-4)
+                    try:
+                        b2b = bool(row.get("team_b2b"))
+                        three_in_four = bool(row.get("team_3in4"))
+                        penalty_level = (0.6 if b2b else 0.0) + (0.4 if three_in_four else 0.0)
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, _weights_props.get("density_penalty", 0.0) * penalty_level)))
+                    except Exception:
+                        pass
+                    # Odds volatility downweight (prices/lines variance across books)
+                    try:
+                        ps = row.get("top_play_price_std")
+                        ls = row.get("top_play_line_std")
+                        psn = _clamp01((float(ps) if ps is not None else 0.0) / 75.0)
+                        lsn = _clamp01((float(ls) if ls is not None else 0.0) / 1.5)
+                        level = _clamp01(0.5 * psn + 0.5 * lsn)
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, _weights_props.get("volatility_penalty", 0.0) * level)))
+                    except Exception:
+                        pass
+                    # Travel/time-zone/altitude penalty (away team only)
+                    try:
+                        def _tz_offset(tri):
+                            m = {
+                                # Eastern
+                                "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
+                                "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
+                                "PHI": -5, "TOR": -5, "WAS": -5,
+                                # Central/South (mostly CT)
+                                "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
+                                # Mountain
+                                "DEN": -7, "UTA": -7, "PHX": -7,
+                                # Pacific
+                                "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
+                            }
+                            try:
+                                return float(m.get(str(tri or "").upper(), 0.0))
+                            except Exception:
+                                return 0.0
+                        is_away = bool(row.get("team_is_away"))
+                        home_tri = row.get("home_tricode") or None
+                        away_tri = row.get("away_tricode") or None
+                        tz_diff = 0.0
+                        if is_away and home_tri and away_tri:
+                            tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                        altitude_game = bool(row.get("altitude_game"))
+                        level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and is_away) else 0.0)
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, _weights_props.get("travel_penalty", 0.0) * level)))
+                    except Exception:
+                        pass
+                    return round(base_score, 3)
+                return 0.0
+            def _tier_from_score(s):
+                try:
+                    v = float(s)
+                    if v >= 0.75:
+                        return "High"
+                    if v >= 0.5:
+                        return "Medium"
+                    return "Low"
+                except Exception:
+                    return "Low"
+            # Attach score and tier to cards
+            for c in cards:
+                sc = _score_card(c)
+                c["score"] = sc
+                c["tier"] = _tier_from_score(sc)
+        except Exception:
+            pass
+        # Compact mode: return minimal fields for UI consumption
+        if compact:
+            compact_cards = []
+            for c in cards:
+                compact_cards.append({
+                    "player": c.get("player"),
+                    "team": c.get("team"),
+                    "opponent": c.get("opponent"),
+                    "opponent_ranks": c.get("opponent_ranks"),
+                    "team_injuries_out": c.get("team_injuries_out"),
+                    "team_key_outs": c.get("team_key_outs"),
+                    "team_injury_impact": c.get("team_injury_impact"),
+                    "team_b2b": c.get("team_b2b"),
+                    "team_3in4": c.get("team_3in4"),
+                    "home_team": c.get("home_team"),
+                    "away_team": c.get("away_team"),
+                    "photo": c.get("photo"),
+                    "team_logo": c.get("team_logo"),
+                    "top_play": c.get("top_play"),
+                    "top_play_baseline": c.get("top_play_baseline"),
+                    "top_play_reasons": c.get("top_play_reasons"),
+                    "top_play_explain": c.get("top_play_explain"),
+                    "top_play_books_count": c.get("top_play_books_count"),
+                    "score": c.get("score"),
+                    "tier": c.get("tier"),
+                })
+            payload = {"date": d, "rows": len(compact_cards), "games": games, "data": compact_cards, "regular_only": bool(prefer_regular_only)}
+        else:
+            payload = {"date": d, "rows": len(cards), "games": games, "data": cards, "regular_only": bool(prefer_regular_only)}
         return jsonify(_to_jsonable(payload))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -4399,6 +7660,41 @@ def api_odds_coverage():
                     "have_total": bool(pd.notna(r.get("total"))),
                 })
         return jsonify({"date": d, "rows": rows})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cache/flush")
+def api_cache_flush():
+    """Flush selected backend caches for a given date.
+
+    Query params:
+      - date: YYYY-MM-DD (optional; defaults to today). Flushes per-date caches.
+      - all: 1 to flush all dates.
+    """
+    try:
+        d = _parse_date_param(request)
+    except Exception:
+        d = None
+    try:
+        flush_all = str(request.args.get("all", "0") or "0").strip().lower() in {"1","true","yes"}
+    except Exception:
+        flush_all = False
+    try:
+        if flush_all:
+            _TEAM_INJURY_IDENTITY_CACHE.clear()
+            _TEAM_INJURY_COUNTS_CACHE.clear()
+            _OPP_ALLOWED_CACHE.clear()
+            _OPP_ALLOWED_RANKS_CACHE.clear()
+            return jsonify({"flushed": "all"})
+        else:
+            if d:
+                _TEAM_INJURY_IDENTITY_CACHE.pop(d, None)
+                _TEAM_INJURY_COUNTS_CACHE.pop(d, None)
+                _OPP_ALLOWED_CACHE.pop(d, None)
+                _OPP_ALLOWED_RANKS_CACHE.pop(d, None)
+                return jsonify({"flushed_date": d})
+            return jsonify({"note": "no date provided; nothing flushed"}), 400
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

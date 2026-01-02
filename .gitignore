@@ -40,6 +40,9 @@ data/processed/**
 !data/processed/props_edges_*.csv
 !data/processed/props_recommendations_*.csv
 !data/processed/props_predictions_*.csv
+!data/processed/reliability_props.csv
+!data/processed/reliability_props_summary.json
+!data/processed/reliability_props_summary.md
 # Season schedule for UI
 !data/processed/schedule_*.json
 # Additional PBP-derived and diagnostics artifacts we want committed

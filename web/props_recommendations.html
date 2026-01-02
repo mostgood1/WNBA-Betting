@@ -44,6 +44,7 @@
     .play { display:flex; justify-content:space-between; align-items:center; padding:8px; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; font-size:13px; }
     .play > div:first-child { font-weight:500; }
     .pill { display:inline-block; padding:3px 8px; background:var(--button-bg); border:1px solid var(--button-br); border-radius:12px; font-size:12px; margin-left:4px; }
+    .pill-muted { color: var(--muted); }
     .ev { color:var(--green); font-weight:600; margin-left:4px; }
     .edge { color:var(--blue); font-weight:600; margin-left:4px; }
     .model-baseline { font-size:12px; color:var(--muted); padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; margin-bottom:8px; }
@@ -182,6 +183,57 @@
           div.appendChild(baseline);
         }
         const playsWrap = document.createElement('div'); playsWrap.className='plays';
+        // Context pills: dedupe reasons and badges (prefer unified why_explain)
+        try{
+          const labels = [];
+          const whyExplain = (it.why_explain||'').trim();
+          const explain = (it.top_play_explain||'').trim();
+          const reasons = Array.isArray(it.top_play_reasons)? it.top_play_reasons: [];
+          if(whyExplain) labels.push(whyExplain);
+          if(explain) labels.push(explain);
+          if(!whyExplain){ (reasons||[]).forEach(s=>{ if(s && String(s).trim()!=='') labels.push(String(s).trim()); }); }
+          // Injury badges: prefer impact if available, else use outs count
+          const injImpact = (it.team_injury_impact!=null && Number.isFinite(Number(it.team_injury_impact)))? Number(it.team_injury_impact): null;
+          const injOuts = (it.team_injuries_out!=null && Number.isFinite(Number(it.team_injuries_out)) && Number(it.team_injuries_out)>0)? Number(it.team_injuries_out): null;
+          if(injImpact!=null) labels.push(`Injury impact: ${injImpact.toFixed(1)}`);
+          else if(injOuts!=null) labels.push(`Team outs: ${injOuts}`);
+          // Opponent rank for the top play's market when available
+          try{
+            let mk = '';
+            if(it.top_play && typeof it.top_play==='object') mk = String(it.top_play.market||'').toLowerCase();
+            if(mk==='threes' || mk==='3pt'){
+              const tr = (it.opp_allowed_threes_rank!=null && Number.isFinite(Number(it.opp_allowed_threes_rank)))? Number(it.opp_allowed_threes_rank): null;
+              if(tr!=null) labels.push(`Opp 3PT rank: ${tr}`);
+              else {
+                const opp = it.opponent_ranks||{}; const rk = opp.threes;
+                if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp 3PT rank: ${Number(rk)}`);
+              }
+            } else if(['pts','reb','ast','pra','pa','pr','ra'].includes(mk)){
+              const pr = (it.opp_allowed_pts_rank!=null && Number.isFinite(Number(it.opp_allowed_pts_rank)))? Number(it.opp_allowed_pts_rank): null;
+              if(pr!=null) labels.push(`Opp PTS rank: ${pr}`);
+              else {
+                const opp = it.opponent_ranks||{}; const key = (mk==='pra'?'pts':mk); const rk = opp[key];
+                if(rk!=null && Number.isFinite(Number(rk))) labels.push(`Opp ${key.toUpperCase()} rank: ${Number(rk)}`);
+              }
+            }
+          }catch(_){ /* ignore */ }
+          // Consensus and best line hints when normalized fields are present
+          try{
+            if(!whyExplain){
+              const consNorm = Number(it.top_play_consensus||0);
+              let consBooks = Math.round(consNorm*4)+1; if(!Number.isFinite(consBooks) || consBooks<2) consBooks = 0;
+              if(consBooks>=2) labels.push(`Consensus ${consBooks} books`);
+              if(Number(it.top_play_line_adv||0)>=1) labels.push('Best line available');
+            }
+          }catch(_){ /* ignore */ }
+          const uniq = Array.from(new Set(labels.map(s=> s.toLowerCase())));
+          const labelMap = new Map(labels.map(s=> [s.toLowerCase(), s]));
+          if(uniq.length){
+            const ctxRow = document.createElement('div'); ctxRow.className='play';
+            ctxRow.innerHTML = `<div>Context</div><div>${uniq.map(k=> `<span class="pill pill-muted">${labelMap.get(k)}</span>`).join(' ')}</div>`;
+            playsWrap.appendChild(ctxRow);
+          }
+        }catch(_){ /* ignore */ }
         const ladders = it.ladders || [];
         const usedKeys = new Set();
         ladders.forEach(l=>{
@@ -223,6 +275,26 @@
         root.appendChild(div);
       });
     }
+    async function loadReliability(){
+      try{
+        const resp = await fetch('/api/recommendations/summary/props');
+        if(!resp.ok) return;
+        const data = await resp.json();
+        const sum = data && data.summary ? data.summary : null;
+        const el = document.getElementById('reliabilityContent');
+        if(!sum || !el) return;
+        const w = sum.weighted || {};
+        const cards = [];
+        if(w.hit_rate!=null) cards.push(`<div class="pill">Hit ${(Number(w.hit_rate)*100).toFixed(1)}%</div>`);
+        if(w.model_prob!=null) cards.push(`<div class="pill">Model ${(Number(w.model_prob)*100).toFixed(1)}%</div>`);
+        if(w.roi!=null) cards.push(`<div class="pill">ROI ${(Number(w.roi)*100).toFixed(1)}%</div>`);
+        if(w.rmse_calibration!=null) cards.push(`<div class="pill">RMSE ${Number(w.rmse_calibration).toFixed(3)}</div>`);
+        const bins = Array.isArray(sum.top_roi_bins)? sum.top_roi_bins: [];
+        bins.forEach(b=>{ try{ cards.push(`<div class="pill pill-muted">Top ROI bin ${Number(b.bin_low).toFixed(3)}–${Number(b.bin_high).toFixed(3)} (${Number(b.roi*100).toFixed(1)}%)</div>`); }catch(_){ } });
+        el.innerHTML = cards.join(' ');
+        document.getElementById('reliability').style.display = 'flex';
+      }catch(_){ /* ignore */ }
+    }
     window.addEventListener('DOMContentLoaded',()=>{
       function localYMD(){
         try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
@@ -233,6 +305,7 @@
       const inp=document.getElementById('datePicker'); if(!inp.value) inp.value=(paramDate||today);
       ['datePicker','market','onlyEV','minEV','game','sortBy'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('change',loadData); });
       loadData();
+      loadReliability();
       const theme=localStorage.getItem('theme')||'dark';
       if(theme==='light') document.body.classList.add('light');
     });
@@ -249,6 +322,10 @@
       <a href="/reconciliation">Reconciliation</a>
       <a href="/odds-coverage">Odds Coverage</a>
       <button onclick="toggleTheme()">Toggle Theme</button>
+    </div>
+    <div id="reliability" class="controls" style="display:flex; flex-direction:column; align-items:flex-start; gap:8px;">
+      <div style="font-size:14px; color:var(--muted);">Props Reliability (last 60d)</div>
+      <div id="reliabilityContent" style="display:flex; flex-wrap:wrap; gap:12px; font-size:13px;"></div>
     </div>
     <div class="controls">
       <label for="datePicker">Date</label>

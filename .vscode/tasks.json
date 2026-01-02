@@ -36,8 +36,6 @@
 				"-File",
 				"${workspaceFolder}\\scripts\\daily_update.ps1",
 				"-GitPush",
-				"-Token",
-				"${env:CRON_TOKEN}"
 			],
 			"isBackground": false,
 			"problemMatcher": []
@@ -96,7 +94,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"$env:PORT='5051'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' app.py"
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' -m waitress --listen=0.0.0.0:5051 app:app"
 			],
 			"isBackground": true,
 			"problemMatcher": [
@@ -297,6 +295,85 @@
 			],
 			"isBackground": false,
 			"group": "build"
+		}
+		,
+		{
+			"label": "Calibrate: props probability (from reliability bins)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\calibrate_props_probability.py'"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Calibrate: props probability (windows 30/60/90)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\calibrate_props_probability_multi.py'"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Health: ping endpoints",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\health_check_endpoints.ps1"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Schedule: register nightly props calibration",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_nightly_calibration_task.ps1",
+				"-Time",
+				"23:15"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Schedule: unregister nightly props calibration",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_nightly_calibration_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
 		}
 	],
 	"inputs": [

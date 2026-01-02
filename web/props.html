@@ -28,6 +28,9 @@
     tr:nth-child(odd) td{ background:var(--row1); }
     tr:nth-child(even) td{ background:var(--row2); }
     .scroll-table{ overflow:auto; max-height:70vh; border:1px solid var(--table-br); border-radius:8px; }
+    /* pills for context */
+    .pill{ display:inline-block; margin:0 6px 0 0; padding:2px 8px; border-radius:999px; border:1px solid var(--table-br); font-size:12px; }
+    .pill-muted{ color: var(--muted); }
     /* utility */
     .hidden{ display:none !important; }
     .w160{ width:160px; } .w80{ width:80px; } .w60{ width:60px; } .w70{ width:70px; }
@@ -203,6 +206,7 @@
           ${makeTh('Player','player')}
           ${makeTh('Opp','opp')}
           ${makeTh('H/A','ha')}
+          <th>Context</th>
           ${STATS.map(s=> makeTh(s.label, s.key)).join('')}
         </tr>`;
 
@@ -245,11 +249,21 @@
         // Render body
         for (const p of pageItems) {
           const tr = document.createElement('tr');
+          // Context pills: injuries + opponent ranks (PTS by default)
+          const inj = (p.inj_out!=null && Number.isFinite(Number(p.inj_out)) && Number(p.inj_out)>0)? `<span class=\"pill pill-muted\">Team outs: ${Number(p.inj_out)}</span>`: '';
+          let rankBadge = '';
+          try{
+            const r = p.opp_ranks || {};
+            const rk = (r && typeof r==='object')? (Number(r.pts||r.threes||r.reb||r.ast)||null) : null;
+            if(rk!=null && Number.isFinite(rk)) rankBadge = `<span class=\"pill pill-muted\">Opp rank: ${rk}</span>`;
+          }catch(_){ rankBadge=''; }
+          const ctxHtml = `${inj} ${rankBadge}`.trim();
           tr.innerHTML = [
             p.team||'',
             p.player||'',
             p.opp||'',
             p.ha||'',
+            ctxHtml,
             'pts' in p && p.pts!=null? Number(p.pts).toFixed(2):'',
             'reb' in p && p.reb!=null? Number(p.reb).toFixed(2):'',
             'ast' in p && p.ast!=null? Number(p.ast).toFixed(2):'',
@@ -292,11 +306,18 @@
         }
       } else {
         thead.innerHTML = '<tr><th>Team</th><th>Player</th><th>Stat</th><th>Side</th><th>Line</th><th>Price</th><th>Edge</th><th>EV</th><th>Book</th></tr>';
-        for (const r of rows){
+        for (const r of rows) {
           const tr = document.createElement('tr');
           const ev = r.ev!=null? Number(r.ev).toFixed(2) : '';
           const edge = r.edge!=null? (Number(r.edge)*100).toFixed(1)+'%' : '';
-          tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${edge}</td><td>${ev}</td><td>${r.bookmaker||''}</td>`;
+          const inj = (r.team_injuries_out!=null && Number.isFinite(Number(r.team_injuries_out)) && Number(r.team_injuries_out)>0)? ` · outs: ${Number(r.team_injuries_out)}`: '';
+          let rankBadge = '';
+          try{
+            const opp = r.opponent_ranks || {};
+            const rk = (opp && typeof opp==='object')? (Number(opp.pts||opp.threes||opp.reb||opp.ast)||null) : null;
+            rankBadge = (rk!=null && Number.isFinite(rk))? ` · opp rank ${rk}`: '';
+          }catch(_){ rankBadge=''; }
+          tr.innerHTML = `<td>${r.team||''}</td><td>${r.player_name||''}</td><td>${(r.stat||'').toUpperCase()}</td><td>${r.side||''}</td><td>${r.line||''}</td><td>${r.price||''}</td><td>${edge}${inj}${rankBadge}</td><td>${ev}</td><td>${r.bookmaker||''}</td>`;
           tbody.appendChild(tr);
         }
         const collapsed = js.collapsed ? 'best-of-book' : 'all books';

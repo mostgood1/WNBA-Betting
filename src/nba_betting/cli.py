@@ -2768,12 +2768,13 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
                     tmp["away_spread"] = tmp["home_spread"].apply(lambda x: -x if pd.notna(x) else pd.NA)
                 if "total_point" in tmp.columns:
                     tmp["total"] = tmp["total_point"]
-                # Build output with price columns included
+                # Build output with price columns included (+ liquidity counts when available)
                 cols = [c for c in [
                     "date","commence_time","home_team","visitor_team",
                     "home_ml","away_ml",
                     "home_spread","away_spread","home_spread_price","away_spread_price",
-                    "total","total_over_price","total_under_price"
+                    "total","total_over_price","total_under_price",
+                    "books_count","books_h2h","books_spreads","books_totals"
                 ] if c in tmp.columns]
                 out_df = tmp[cols].copy()
                 out_df["bookmaker"] = "oddsapi_consensus"
