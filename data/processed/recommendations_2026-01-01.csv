@@ -1,10 +1,10 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.4846100619627327,332.3636363636364,0.23128679562657695,,,,,,High
-ATS,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,,,,6.579264879226685,10.0,-3.4207351207733154,-10.0,,High
-TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-10.265975952148409,229.5,,,219.2340240478516,High
-ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,1.8934115779636915,319.75,0.23823704586063132,,,,,,High
-ATS,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,13.950901508331299,8.5,5.450901508331299,-8.5,,High
-TOTAL,Under,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,-5.1157684326171875,229.5,,,224.3842315673828,High
-ML,Utah Jazz,Los Angeles Clippers,Utah Jazz,2026-01-01,0.10211241159177709,553.0,0.15313935681470137,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,0.23613453435080345,260.0,0.2777777777777778,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Boston Celtics,2026-01-01,,,,4.079264879226685,7.5,-3.4207351207733154,-7.5,,High
+TOTAL,Under,Sacramento Kings,Boston Celtics,2026-01-01,,,,-9.765975952148409,229.0,,,219.2340240478516,High
+ML,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,2.541370335149128,413.75,0.19464720194647203,,,,,,High
+ATS,Dallas Mavericks,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,12.950901508331299,7.5,5.450901508331299,-7.5,,High
+TOTAL,Under,Dallas Mavericks,Philadelphia 76ers,2026-01-01,,,,-6.1157684326171875,230.5,,,224.3842315673828,High
+ML,Utah Jazz,Los Angeles Clippers,Utah Jazz,2026-01-01,0.12819609667747978,568.4545454545455,0.1495988032095743,,,,,,High
 ATS,Los Angeles Clippers,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,1.8289899826049805,-14.0,15.82898998260498,14.0,,Medium
 TOTAL,Over,Los Angeles Clippers,Utah Jazz,2026-01-01,,,,6.509735107421875,230.0,,,236.50973510742188,High
