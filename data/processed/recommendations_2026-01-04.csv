@@ -1,14 +1,14 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Cleveland Cavaliers,Cleveland Cavaliers,Detroit Pistons,2026-01-04,0.030880966997321124,-197.9090909090909,0.6643271284711627,,,,,,Medium
+ML,Cleveland Cavaliers,Cleveland Cavaliers,Detroit Pistons,2026-01-04,0.03441361341807342,-195.9090909090909,0.6620583717357912,,,,,,Medium
 TOTAL,Under,Cleveland Cavaliers,Detroit Pistons,2026-01-04,,,,-6.168304443359347,237.5,,,231.33169555664065,High
 ATS,Minnesota Timberwolves,Washington Wizards,Minnesota Timberwolves,2026-01-04,,,,-2.1929206848144513,-10.0,-12.192920684814451,-10.0,,Medium
 TOTAL,Under,Washington Wizards,Minnesota Timberwolves,2026-01-04,,,,-12.698257446289091,235.5,,,222.8017425537109,High
-ML,Indiana Pacers,Orlando Magic,Indiana Pacers,2026-01-04,0.18094495411914713,199.54545454545453,0.3338391502276177,,,,,,High
+ML,Indiana Pacers,Orlando Magic,Indiana Pacers,2026-01-04,0.19169710848138533,202.27272727272728,0.33082706766917297,,,,,,High
 ATS,Indiana Pacers,Orlando Magic,Indiana Pacers,2026-01-04,,,,-6.1547157764434814,6.5,0.3452842235565185,6.5,,High
 TOTAL,Under,Orlando Magic,Indiana Pacers,2026-01-04,,,,-3.5838928222655966,227.5,,,223.9161071777344,Medium
-ML,Phoenix Suns,Phoenix Suns,Oklahoma City Thunder,2026-01-04,0.04646455796746518,305.72727272727275,0.24647098364328926,,,,,,High
+ML,Phoenix Suns,Phoenix Suns,Oklahoma City Thunder,2026-01-04,0.04880931386701126,306.6363636363636,0.2459199642298234,,,,,,High
 TOTAL,Under,Phoenix Suns,Oklahoma City Thunder,2026-01-04,,,,-2.3043670654296875,229.5,,,227.1956329345703,Medium
-ML,Sacramento Kings,Sacramento Kings,Milwaukee Bucks,2026-01-04,0.07092585902624482,207.27272727272728,0.3254437869822485,,,,,,High
+ML,Sacramento Kings,Sacramento Kings,Milwaukee Bucks,2026-01-04,0.08043111813002801,210.0,0.3225806451612903,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Milwaukee Bucks,2026-01-04,,,,3.39435076713562,6.5,-3.10564923286438,-6.5,,High
 ATS,Memphis Grizzlies,Los Angeles Lakers,Memphis Grizzlies,2026-01-04,,,,-1.4953694343566886,5.5,4.004630565643311,5.5,,Low
 TOTAL,Under,Los Angeles Lakers,Memphis Grizzlies,2026-01-04,,,,-12.727859497070312,240.5,,,227.7721405029297,High
