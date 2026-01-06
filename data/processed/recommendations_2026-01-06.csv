@@ -1,0 +1,16 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Indiana Pacers,Cleveland Cavaliers,2026-01-06,0.6995903060245641,172.72727272727272,0.36666666666666664,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Cleveland Cavaliers,2026-01-06,,,,6.892547369003296,5.5,1.392547369003296,-5.5,,High
+TOTAL,Under,Indiana Pacers,Cleveland Cavaliers,2026-01-06,,,,-6.648529052734403,236.0,,,229.3514709472656,High
+TOTAL,Under,Minnesota Timberwolves,Miami Heat,2026-01-06,,,,-7.903671264648409,237.5,,,229.5963287353516,High
+ML,Memphis Grizzlies,Memphis Grizzlies,San Antonio Spurs,2026-01-06,0.9413235811853005,185.54545454545453,0.35020694046482015,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,San Antonio Spurs,2026-01-06,,,,10.857143878936768,6.0,4.857143878936768,-6.0,,High
+TOTAL,Under,Memphis Grizzlies,San Antonio Spurs,2026-01-06,,,,-11.282669067382812,239.5,,,228.2173309326172,High
+ML,Los Angeles Lakers,New Orleans Pelicans,Los Angeles Lakers,2026-01-06,0.010202759437899167,-247.72727272727272,0.7124183006535947,,,,,,Low
+TOTAL,Under,New Orleans Pelicans,Los Angeles Lakers,2026-01-06,,,,-15.607772827148409,243.5,,,227.8922271728516,High
+ML,Sacramento Kings,Sacramento Kings,Dallas Mavericks,2026-01-06,0.9042093754292755,175.9,0.36245016310257344,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Dallas Mavericks,2026-01-06,,,,11.00543737411499,5.5,5.50543737411499,-5.5,,High
+TOTAL,Under,Sacramento Kings,Dallas Mavericks,2026-01-06,,,,-9.962692260742188,233.0,,,223.0373077392578,High
+ML,Orlando Magic,Washington Wizards,Orlando Magic,2026-01-06,0.011474247048035346,-297.1818181818182,0.748226138704509,,,,,,Low
+ATS,Orlando Magic,Washington Wizards,Orlando Magic,2026-01-06,,,,-2.440676689147949,-7.5,-9.94067668914795,-7.5,,Medium
+TOTAL,Under,Washington Wizards,Orlando Magic,2026-01-06,,,,-15.118270874023438,234.5,,,219.38172912597656,High

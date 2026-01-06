@@ -1,0 +1,7 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-06,2026-01-07T01:10:00Z,Minnesota Timberwolves,Miami Heat,-268.27272727272725,217.1818181818182,-7.0,7.0,-110.55555555555556,,237.5,-114.0,-105.0,11,11,9,5,oddsapi_consensus
+2026-01-06,2026-01-07T01:10:00Z,Memphis Grizzlies,San Antonio Spurs,185.54545454545453,-225.0909090909091,6.0,-6.0,-111.875,,239.5,-110.16666666666667,-108.83333333333333,11,11,8,6,oddsapi_consensus
+2026-01-06,2026-01-07T01:10:00Z,New Orleans Pelicans,Los Angeles Lakers,201.9090909090909,-247.72727272727272,6.5,-6.5,-110.14285714285714,,243.5,-113.0,-106.16666666666667,11,11,7,6,oddsapi_consensus
+2026-01-06,2026-01-07T04:10:00Z,Sacramento Kings,Dallas Mavericks,175.9,-211.9,5.5,-5.5,-112.6,,233.0,-110.4,-108.4,10,10,10,5,oddsapi_consensus
+2026-01-06,2026-01-07T00:10:00Z,Indiana Pacers,Cleveland Cavaliers,172.72727272727272,-207.54545454545453,5.5,-5.5,-110.0909090909091,,236.0,-109.5,-109.5,11,11,11,6,oddsapi_consensus
+2026-01-06,2026-01-07T00:10:00Z,Washington Wizards,Orlando Magic,239.36363636363637,-297.1818181818182,7.5,-7.5,-110.22222222222223,,234.5,-108.0,-112.0,11,11,9,5,oddsapi_consensus
