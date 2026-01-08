@@ -1,0 +1,12 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Utah Jazz,Utah Jazz,Dallas Mavericks,2026-01-08,0.14822291802340415,205.0,0.32786885245901637,,,,,,High
+ATS,Utah Jazz,Utah Jazz,Dallas Mavericks,2026-01-08,,,,5.586359262466431,7.0,-1.4136407375335691,-7.0,,High
+TOTAL,Under,Utah Jazz,Dallas Mavericks,2026-01-08,,,,-8.631118774414034,240.0,,,231.36888122558597,High
+ML,Indiana Pacers,Charlotte Hornets,Indiana Pacers,2026-01-08,0.8732947890827811,137.54545454545453,0.42097206276310756,,,,,,High
+ATS,Indiana Pacers,Charlotte Hornets,Indiana Pacers,2026-01-08,,,,-15.788305282592772,3.5,-12.288305282592772,3.5,,High
+TOTAL,Under,Charlotte Hornets,Indiana Pacers,2026-01-08,,,,-7.3329010009765625,232.0,,,224.66709899902344,High
+ML,Chicago Bulls,Chicago Bulls,Miami Heat,2026-01-08,1.142137427544564,217.1818181818182,0.31527658354829463,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Miami Heat,2026-01-08,,,,12.076625347137451,7.5,4.576625347137451,-7.5,,High
+TOTAL,Under,Chicago Bulls,Miami Heat,2026-01-08,,,,-6.512298583984403,237.5,,,230.9877014160156,High
+ML,Minnesota Timberwolves,Minnesota Timberwolves,Cleveland Cavaliers,2026-01-08,0.10304112050000652,-138.0909090909091,0.5799923634975181,,,,,,High
+TOTAL,Under,Minnesota Timberwolves,Cleveland Cavaliers,2026-01-08,,,,-11.52618408203125,239.0,,,227.47381591796875,High
