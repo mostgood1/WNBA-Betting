@@ -401,7 +401,7 @@
       arr = arr.slice().sort((a,b)=>{ const ta=parseStartTimeMinutes(a.start_time), tb=parseStartTimeMinutes(b.start_time); if(ta!==tb) return ta-tb; const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0)); });
     }
     arr.forEach(r=>{ const tr=document.createElement('tr'); const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const away = (r.away && String(r.away).trim())? String(r.away).trim(): (r.matchup? String(r.matchup).split(' @ ')[0]: ''); const home = (r.home && String(r.home).trim())? String(r.home).trim(): (r.matchup? String(r.matchup).split(' @ ')[1]: ''); const gameHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}${gidTxt}${timeTxt}`; const sel = r.selectionLabel || (r.market==='ML'? r.side : (r.side||'')); let oddsDisp=''; if(r.odds!=null){ oddsDisp = fmtOddsAmerican(r.odds); } else { oddsDisp = (r.market!=='ML')? '-110' : ''; } const oddsHtml = oddsDisp + (r.book? ` <span class="muted-small">${String(r.book)}</span>`: ''); const evDisp = r.market==='ML'? (r.ev!=null? fmtEV(r.ev): '') : (r.edge!=null? fmtEdge(r.edge): ''); const scoreDisp = (r.score!=null? Number(r.score).toFixed(2): '');
-      // Context pills (injuries and opponent allowance ranks + why)
+      // Context pills (injuries and opponent allowance ranks + why + simulation)
       const reasons = Array.isArray(r.why_reasons)? r.why_reasons: [];
       const whyTxt = (r.why_explain && String(r.why_explain).trim())? `<span class="pill">${String(r.why_explain).trim()}</span>`: '';
       const hi = (r.home_injuries_out!=null && Number.isFinite(Number(r.home_injuries_out)) && Number(r.home_injuries_out)>0)? `<span class="pill">Home outs: ${Number(r.home_injuries_out)}</span>`: '';
@@ -410,9 +410,16 @@
       const ar = (r.away_allowed_pts_rank!=null && Number.isFinite(Number(r.away_allowed_pts_rank)))? Number(r.away_allowed_pts_rank): null;
       const avgRank = (hr!=null && ar!=null)? Math.round((hr+ar)/2): null;
       const rankBadge = (avgRank!=null)? `<span class="pill">Avg PTS allow rank: ${avgRank}</span>`: ((hr!=null||ar!=null)? `<span class="pill">PTS ranks H:${hr??'—'} A:${ar??'—'}</span>`: '');
+      // Simulation outputs
+      let simBadges = '';
+      try{
+        const sp = r.sim_prob; const sev = r.ev_sim;
+        if(sp!=null && Number.isFinite(Number(sp))){ simBadges += ` <span class="pill">Sim P ${(Number(sp)*100).toFixed(1)}%</span>`; }
+        if(sev!=null && Number.isFinite(Number(sev))){ const sevDisp = Number(sev)>=0? `+${Number(sev).toFixed(2)}`: Number(sev).toFixed(2); simBadges += ` <span class="pill">Sim EV ${sevDisp}</span>`; }
+      }catch(_){ /* ignore */ }
       // Avoid duplicating reasons: if why_explain present, suppress individual reasons pills
       const reasonsHtml = whyTxt? '' : reasons.map(s=> `<span class="pill">${String(s)}</span>`).join(' ');
-      const contextHtml = `${whyTxt} ${reasonsHtml} ${hi} ${ai} ${rankBadge}`.trim();
+      const contextHtml = `${whyTxt} ${reasonsHtml} ${hi} ${ai} ${rankBadge} ${simBadges}`.trim();
       const res = r.result? `<span class="res ${r.result==='Win'?'res-win':(r.result==='Loss'?'res-loss':'res-push')}">${r.result}</span>`: '';
       const pill = (r.tier||r.confidence)? `<span class="pill ${pillClass(r.tier||r.confidence)}">${confidenceDisplay(r.tier||r.confidence)}</span>`:'';
       tr.innerHTML=`<td>${gameHtml}</td><td>${r.market==='ML'?'MONEYLINE':(r.market==='ATS'?'SPREAD':'TOTAL')}</td><td>${sel} ${pill}</td><td class="tar">${oddsHtml}</td><td class="tar">${evDisp}</td><td class="tar">${scoreDisp}</td><td>${contextHtml}</td><td>${res}</td><td>${date}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); });
