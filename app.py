@@ -4112,12 +4112,67 @@ def api_recommendations_all():
             if not games_df.empty:
                 try:
                     df = games_df.copy()
+                    # Attach simulation probabilities/EV if available
+                    try:
+                        sim_p = proc / f"games_sim_{d}.csv"
+                        sim_df = pd.read_csv(sim_p) if sim_p.exists() else pd.DataFrame()
+                        sim_map = {}
+                        if isinstance(sim_df, pd.DataFrame) and not sim_df.empty:
+                            # Build key by normalized home/away names
+                            def _norm(x: object) -> str:
+                                s = str(x or '').strip().lower()
+                                return s
+                            sim_df["_key"] = sim_df.apply(lambda r: f"{_norm(r.get('home_team'))}@@{_norm(r.get('visitor_team'))}", axis=1)
+                            sim_map = sim_df.set_index("_key").to_dict(orient="index")
+                        def _sim_attach(row: dict) -> dict:
+                            try:
+                                h = str(row.get("home") or "").strip().lower(); a = str(row.get("away") or "").strip().lower()
+                                rec = sim_map.get(f"{h}@@{a}") or sim_map.get(f"{a}@@{h}")
+                                if not rec:
+                                    return row
+                                # Common underlying means
+                                row["sim_adj_margin_mu"] = rec.get("adj_margin_mu")
+                                row["sim_adj_total_mu"] = rec.get("adj_total_mu")
+                                mk = str(row.get("market") or "").upper()
+                                side = str(row.get("side") or "").upper()
+                                # Map prob + ev fields per market/side
+                                if mk == "ML":
+                                    prob = rec.get("p_home_win") if (side == "HOME" or side == h.upper()) else rec.get("p_away_win")
+                                    ev = rec.get("ev_home_ml") if (side == "HOME" or side == h.upper()) else rec.get("ev_away_ml")
+                                elif mk == "ATS":
+                                    # For ATS rows, side is team name; choose home/away cover
+                                    pick_home = (side == "HOME" or side == h.upper())
+                                    prob = rec.get("p_home_cover") if pick_home else rec.get("p_away_cover")
+                                    ev = rec.get("ev_home_cover") if pick_home else rec.get("ev_away_cover")
+                                elif mk == "TOTAL":
+                                    prob = rec.get("p_total_over") if side.startswith("O") else rec.get("p_total_under")
+                                    ev = rec.get("ev_total_over") if side.startswith("O") else rec.get("ev_total_under")
+                                else:
+                                    prob = None; ev = None
+                                if prob is not None:
+                                    try:
+                                        row["sim_prob"] = float(prob)
+                                    except Exception:
+                                        row["sim_prob"] = prob
+                                if ev is not None:
+                                    try:
+                                        row["ev_sim"] = float(ev)
+                                    except Exception:
+                                        row["ev_sim"] = ev
+                            except Exception:
+                                pass
+                            return row
+                    except Exception:
+                        def _sim_attach(r):
+                            return r
                     # Filter by markets if requested
                     if want_mkts and ("market" in df.columns):
                         df = df[df["market"].astype(str).str.upper().isin(want_mkts)]
                     if compact:
                         keep = [c for c in ["market","side","home","away","line","price","edge","ev","tier"] if c in df.columns]
                         rows = df[keep].fillna("").to_dict(orient="records")
+                        # Attach sim fields in compact mode as well
+                        rows = [_sim_attach(r) for r in rows]
                         # Enrich with bookmaker odds (ATS/TOTAL prices) from processed or live Bovada
                         try:
                             # Preferred: processed consolidated odds if available
@@ -4339,6 +4394,7 @@ def api_recommendations_all():
                             pass
                     else:
                         rows = df.fillna("").to_dict(orient="records")
+                        rows = [_sim_attach(r) for r in rows]
                     out["games"] = rows
                     try:
                         total_games = len(rows)
