@@ -339,6 +339,15 @@ else:
   Write-Log ("Games market blend failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 1.7) Analytical simulations for ML/ATS/TOTAL using factor adjustments
+try {
+  Write-Log ("Running games simulations for {0}" -f $Date)
+  $rcSim = Invoke-PyMod -plist @('-m','nba_betting.cli','simulate-games','--date', $Date)
+  Write-Log ("simulate-games exit code: {0}" -f $rcSim)
+} catch {
+  Write-Log ("simulate-games failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 1.6a) Optional isotonic calibration (adds home_win_prob_iso) if sufficient recent samples
 try {
   $isoSkip = $env:DAILY_SKIP_ISOTONIC
