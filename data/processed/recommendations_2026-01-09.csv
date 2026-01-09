@@ -1,25 +1,25 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,New York Knicks,Phoenix Suns,New York Knicks,2026-01-09,0.15468590996740117,-119.0,0.54337899543379,,,,,,High
+ML,Phoenix Suns,Phoenix Suns,New York Knicks,2026-01-09,0.6296989830236688,-29.63636363636364,0.22861150070126232,,,,,,High
 TOTAL,Under,Phoenix Suns,New York Knicks,2026-01-09,,,,-6.662124633789091,228.0,,,221.3378753662109,High
-ML,Los Angeles Clippers,Brooklyn Nets,Los Angeles Clippers,2026-01-09,0.21246096548173804,-187.63636363636363,0.6523388116308471,,,,,,High
-ATS,Los Angeles Clippers,Brooklyn Nets,Los Angeles Clippers,2026-01-09,,,,-7.968756675720217,-4.5,-12.468756675720217,-4.5,,High
-TOTAL,Over,Brooklyn Nets,Los Angeles Clippers,2026-01-09,,,,12.974578857421875,215.0,,,227.97457885742188,High
-ML,Oklahoma City Thunder,Memphis Grizzlies,Oklahoma City Thunder,2026-01-09,0.02156235078483132,-215.27272727272728,0.6828143021914649,,,,,,Medium
-ML,Denver Nuggets,Denver Nuggets,Atlanta Hawks,2026-01-09,0.09997962547353123,66.0,0.6024096385542169,,,,,,High
+ML,Los Angeles Clippers,Brooklyn Nets,Los Angeles Clippers,2026-01-09,0.16385814001677906,-212.0909090909091,0.6795805418001747,,,,,,High
+ATS,Los Angeles Clippers,Brooklyn Nets,Los Angeles Clippers,2026-01-09,,,,-6.968756675720217,-5.5,-12.468756675720217,-5.5,,High
+TOTAL,Over,Brooklyn Nets,Los Angeles Clippers,2026-01-09,,,,11.974578857421875,216.0,,,227.97457885742188,High
+ML,Oklahoma City Thunder,Memphis Grizzlies,Oklahoma City Thunder,2026-01-09,0.01817721740530126,-217.54545454545453,0.6850844546235328,,,,,,Low
+ML,Denver Nuggets,Denver Nuggets,Atlanta Hawks,2026-01-09,0.36142056602967165,105.45454545454544,0.4867256637168142,,,,,,High
 ATS,Denver Nuggets,Denver Nuggets,Atlanta Hawks,2026-01-09,,,,5.789480447769165,2.0,3.789480447769165,-2.0,,High
-ML,Portland Trail Blazers,Portland Trail Blazers,Houston Rockets,2026-01-09,0.8616247372988787,204.8181818181818,0.3280644199224575,,,,,,High
-ATS,Portland Trail Blazers,Portland Trail Blazers,Houston Rockets,2026-01-09,,,,7.144124984741211,6.5,0.6441249847412109,-6.5,,High
+ML,Portland Trail Blazers,Portland Trail Blazers,Houston Rockets,2026-01-09,0.8655112190051394,205.45454545454547,0.32738095238095233,,,,,,High
+ATS,Portland Trail Blazers,Portland Trail Blazers,Houston Rockets,2026-01-09,,,,7.644124984741211,7.0,0.6441249847412109,-7.0,,High
 TOTAL,Over,Portland Trail Blazers,Houston Rockets,2026-01-09,,,,4.174224853515597,221.5,,,225.6742248535156,High
-ML,Orlando Magic,Orlando Magic,Philadelphia 76ers,2026-01-09,0.8042661088204015,127.27272727272728,0.44,,,,,,High
+ML,Orlando Magic,Orlando Magic,Philadelphia 76ers,2026-01-09,0.8078746410380422,127.72727272727272,0.43912175648702595,,,,,,High
 ATS,Orlando Magic,Orlando Magic,Philadelphia 76ers,2026-01-09,,,,15.698396682739258,3.0,12.698396682739258,-3.0,,High
 TOTAL,Under,Orlando Magic,Philadelphia 76ers,2026-01-09,,,,-4.674102783203125,227.0,,,222.32589721679688,High
-ATS,Boston Celtics,Boston Celtics,Toronto Raptors,2026-01-09,,,,1.0177192687988281,-11.0,12.017719268798828,11.0,,Low
-TOTAL,Under,Boston Celtics,Toronto Raptors,2026-01-09,,,,-2.92413330078125,223.5,,,220.57586669921875,Medium
-ML,Milwaukee Bucks,Los Angeles Lakers,Milwaukee Bucks,2026-01-09,0.4327705533234695,131.9090909090909,0.43120344962759705,,,,,,High
+ATS,Boston Celtics,Boston Celtics,Toronto Raptors,2026-01-09,,,,1.5177192687988281,-10.5,12.017719268798828,10.5,,Medium
+TOTAL,Under,Boston Celtics,Toronto Raptors,2026-01-09,,,,-3.92413330078125,224.5,,,220.57586669921875,Medium
+ML,Milwaukee Bucks,Los Angeles Lakers,Milwaukee Bucks,2026-01-09,0.4271540478223975,131.0,0.4329004329004329,,,,,,High
 ATS,Milwaukee Bucks,Los Angeles Lakers,Milwaukee Bucks,2026-01-09,,,,-4.069643974304199,3.0,-1.0696439743041992,3.0,,High
-ML,Sacramento Kings,Golden State Warriors,Sacramento Kings,2026-01-09,1.055476033270104,554.6363636363636,0.15275656158866824,,,,,,High
+ML,Sacramento Kings,Golden State Warriors,Sacramento Kings,2026-01-09,0.9983874057664216,536.4545454545455,0.1571204113698043,,,,,,High
 ATS,Sacramento Kings,Golden State Warriors,Sacramento Kings,2026-01-09,,,,-9.257422924041748,14.5,5.242577075958252,14.5,,High
 TOTAL,Under,Golden State Warriors,Sacramento Kings,2026-01-09,,,,-8.460525512695312,231.5,,,223.0394744873047,High
-ML,New Orleans Pelicans,Washington Wizards,New Orleans Pelicans,2026-01-09,0.04869716726142981,-142.0,0.5867768595041323,,,,,,High
-ATS,Washington Wizards,Washington Wizards,New Orleans Pelicans,2026-01-09,,,,1.5784735679626465,2.5,-0.9215264320373536,-2.5,,Medium
-TOTAL,Under,Washington Wizards,New Orleans Pelicans,2026-01-09,,,,-18.48162841796875,242.5,,,224.01837158203125,High
+ML,New Orleans Pelicans,Washington Wizards,New Orleans Pelicans,2026-01-09,0.03266710794386307,-147.45454545454547,0.5958853783982366,,,,,,Medium
+ATS,Washington Wizards,Washington Wizards,New Orleans Pelicans,2026-01-09,,,,2.0784735679626465,3.0,-0.9215264320373536,-3.0,,Medium
+TOTAL,Under,Washington Wizards,New Orleans Pelicans,2026-01-09,,,,-19.48162841796875,243.5,,,224.01837158203125,High
