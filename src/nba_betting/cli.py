@@ -97,6 +97,9 @@ def _load_player_calib_overrides():
         return None, None
 
 
+ 
+
+
 @click.group()
 def cli():
     """NBA Betting command-line interface."""
@@ -120,6 +123,29 @@ def _load_dotenv_key(name: str) -> str | None:
     except Exception:
         return None
 
+
+@cli.command("simulate-games")
+@click.option("--date", "date_str", required=True, help="YYYY-MM-DD date to simulate")
+@click.option("--sd-margin", type=float, default=7.0, help="Std dev for final margin (points)")
+@click.option("--sd-total", type=float, default=12.0, help="Std dev for final total (points)")
+def simulate_games_cmd(date_str: str, sd_margin: float, sd_total: float):
+    """Analytical simulation for ML/ATS/TOTAL probabilities using rich factor adjustments.
+
+    Reads odds (consensus-first), injuries impact, and opponent splits for the given date,
+    computes adjusted spread/total means, and outputs probabilities plus EV to
+    data/processed/games_sim_<date>.csv.
+    """
+    try:
+        from .sim_games import SimConfig, simulate_games_for_date
+    except Exception as e:
+        console.print(f"[red]Import error: {e}")
+        raise SystemExit(1)
+    cfg = SimConfig(sd_margin=sd_margin, sd_total=sd_total)
+    df = simulate_games_for_date(date_str, cfg)
+    if df is None or df.empty:
+        console.print(f"[yellow]No odds/factors available for {date_str}; wrote empty output if any.")
+    else:
+        console.print(f"[green]Wrote simulations for {date_str}: {len(df)} games")
 
 @cli.command("backfill-injuries-season")
 @click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
