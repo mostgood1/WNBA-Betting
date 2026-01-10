@@ -1,17 +1,16 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,1.2734216138410444,231.45454545454547,0.3017004936917169,,,,,,High
-ATS,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,,,,12.735020637512207,7.5,5.235020637512207,-7.5,,High
-TOTAL,Under,Indiana Pacers,Miami Heat,2026-01-10,,,,-3.1465454101562784,234.5,,,231.35345458984372,Medium
-ML,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,0.661245438258282,151.27272727272728,0.3979739507959479,,,,,,High
-ATS,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,,,,8.196909427642822,4.5,3.6969094276428223,-4.5,,High
-TOTAL,Under,Utah Jazz,Charlotte Hornets,2026-01-10,,,,-8.805587768554688,239.5,,,230.6944122314453,High
-ATS,Minnesota Timberwolves,Cleveland Cavaliers,Minnesota Timberwolves,2026-01-10,,,,-2.9760351181030273,4.5,1.5239648818969729,4.5,,Medium
-TOTAL,Under,Cleveland Cavaliers,Minnesota Timberwolves,2026-01-10,,,,-11.475143432617188,239.5,,,228.0248565673828,High
+ML,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,1.0695245025612798,201.72727272727272,0.33142512805061763,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,,,,11.735020637512207,6.5,5.235020637512207,-6.5,,High
+TOTAL,Under,Indiana Pacers,Miami Heat,2026-01-10,,,,-4.646545410156278,236.0,,,231.35345458984372,High
+ML,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,0.7441875042784132,163.8181818181818,0.3790489317711923,,,,,,High
+ATS,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,,,,9.196909427642822,5.5,3.6969094276428223,-5.5,,High
+TOTAL,Under,Utah Jazz,Charlotte Hornets,2026-01-10,,,,-8.305587768554688,239.0,,,230.6944122314453,High
+ML,Boston Celtics,Boston Celtics,San Antonio Spurs,2026-01-10,0.4722005660072298,-107.0909090909091,0.5171202809482002,,,,,,High
 ATS,Boston Celtics,Boston Celtics,San Antonio Spurs,2026-01-10,,,,11.26091766357422,1.0,10.26091766357422,-1.0,,High
 TOTAL,Under,Boston Celtics,San Antonio Spurs,2026-01-10,,,,-10.873519897460966,231.5,,,220.62648010253903,High
-ML,Chicago Bulls,Chicago Bulls,Dallas Mavericks,2026-01-10,0.25995746397930053,-143.9090909090909,0.5900111815132314,,,,,,High
+ML,Chicago Bulls,Chicago Bulls,Dallas Mavericks,2026-01-10,0.255428998977418,-145.1818181818182,0.5921394141638858,,,,,,High
 ATS,Chicago Bulls,Chicago Bulls,Dallas Mavericks,2026-01-10,,,,6.503169059753418,-2.5,9.003169059753418,2.5,,High
-TOTAL,Under,Chicago Bulls,Dallas Mavericks,2026-01-10,,,,-7.9442596435546875,233.0,,,225.0557403564453,High
-ML,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,0.9286469306001632,185.72727272727272,0.3499840916321985,,,,,,High
-ATS,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,-10.053610801696777,5.5,-4.553610801696777,5.5,,High
-TOTAL,Over,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,16.227920532226562,216.0,,,232.22792053222656,High
+TOTAL,Under,Chicago Bulls,Dallas Mavericks,2026-01-10,,,,-8.444259643554688,233.5,,,225.0557403564453,High
+ML,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,0.38509126686308903,105.2,0.4873294346978558,,,,,,High
+ATS,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,-6.553610801696777,2.0,-4.553610801696777,2.0,,High
+TOTAL,Over,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,17.727920532226562,214.5,,,232.22792053222656,High
