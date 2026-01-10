@@ -1,0 +1,17 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,1.2734216138410444,231.45454545454547,0.3017004936917169,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Miami Heat,2026-01-10,,,,12.735020637512207,7.5,5.235020637512207,-7.5,,High
+TOTAL,Under,Indiana Pacers,Miami Heat,2026-01-10,,,,-3.1465454101562784,234.5,,,231.35345458984372,Medium
+ML,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,0.661245438258282,151.27272727272728,0.3979739507959479,,,,,,High
+ATS,Utah Jazz,Utah Jazz,Charlotte Hornets,2026-01-10,,,,8.196909427642822,4.5,3.6969094276428223,-4.5,,High
+TOTAL,Under,Utah Jazz,Charlotte Hornets,2026-01-10,,,,-8.805587768554688,239.5,,,230.6944122314453,High
+ATS,Minnesota Timberwolves,Cleveland Cavaliers,Minnesota Timberwolves,2026-01-10,,,,-2.9760351181030273,4.5,1.5239648818969729,4.5,,Medium
+TOTAL,Under,Cleveland Cavaliers,Minnesota Timberwolves,2026-01-10,,,,-10.975143432617188,239.0,,,228.0248565673828,High
+ATS,Boston Celtics,Boston Celtics,San Antonio Spurs,2026-01-10,,,,11.26091766357422,1.0,10.26091766357422,-1.0,,High
+TOTAL,Under,Boston Celtics,San Antonio Spurs,2026-01-10,,,,-10.873519897460966,231.5,,,220.62648010253903,High
+ML,Chicago Bulls,Chicago Bulls,Dallas Mavericks,2026-01-10,0.2606109345321158,-143.72727272727272,0.5897053338306601,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Dallas Mavericks,2026-01-10,,,,6.503169059753418,-2.5,9.003169059753418,2.5,,High
+TOTAL,Under,Chicago Bulls,Dallas Mavericks,2026-01-10,,,,-7.9442596435546875,233.0,,,225.0557403564453,High
+ML,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,0.9470559054388543,188.45454545454547,0.3466750709108099,,,,,,High
+ATS,Los Angeles Clippers,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,-10.053610801696777,5.5,-4.553610801696777,5.5,,High
+TOTAL,Over,Detroit Pistons,Los Angeles Clippers,2026-01-10,,,,16.227920532226562,216.0,,,232.22792053222656,High

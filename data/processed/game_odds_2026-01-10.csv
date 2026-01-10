@@ -1,0 +1,7 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-10,2026-01-11T02:40:00Z,Utah Jazz,Charlotte Hornets,151.27272727272728,-180.0909090909091,4.5,-4.5,-83.44444444444444,-105,239.5,-109.42857142857143,-110.57142857142857,11,11,9,7,oddsapi_consensus
+2026-01-10,2026-01-10T18:10:00Z,Cleveland Cavaliers,Minnesota Timberwolves,-176.9090909090909,148.72727272727272,-4.5,4.5,-112.33333333333333,-115,239.0,-109.4,-109.4,11,11,9,5,oddsapi_consensus
+2026-01-10,2026-01-11T01:10:00Z,Boston Celtics,San Antonio Spurs,8.0,-118.72727272727273,1.0,-1.0,-109.5,-110,231.5,-109.375,-109.875,11,11,8,8,oddsapi_consensus
+2026-01-10,2026-01-11T01:10:00Z,Chicago Bulls,Dallas Mavericks,-143.72727272727272,121.0,-2.5,2.5,-109.4,130,233.0,-110.0,-110.0,11,11,10,5,oddsapi_consensus
+2026-01-10,2026-01-11T00:10:00Z,Indiana Pacers,Miami Heat,231.45454545454547,-287.72727272727275,7.5,-7.5,-112.85714285714286,-120,234.5,-110.0,-110.0,11,11,7,6,oddsapi_consensus
+2026-01-10,2026-01-11T00:40:00Z,Detroit Pistons,Los Angeles Clippers,-229.9090909090909,188.45454545454547,-5.5,5.5,-107.72727272727273,-115,216.0,-110.0,-110.0,11,11,11,5,oddsapi_consensus
