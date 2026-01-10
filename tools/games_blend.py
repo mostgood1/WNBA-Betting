@@ -61,22 +61,29 @@ def collect_training(days: int, end_date: datetime):
         pred = PROCESSED / f"predictions_{ds}.csv"
         rec = PROCESSED / f"recon_games_{ds}.csv"
         odds = PROCESSED / f"game_odds_{ds}.csv"
-        if not (pred.exists() and rec.exists() and odds.exists()):
+        # Require predictions + recon; odds are optional (can fallback to market columns embedded in predictions)
+        if not (pred.exists() and rec.exists()):
             continue
         try:
-            p = pd.read_csv(pred); r = pd.read_csv(rec); o = pd.read_csv(odds)
+            p = pd.read_csv(pred); r = pd.read_csv(rec)
+            o = pd.read_csv(odds) if odds.exists() else None
         except Exception:
             continue
-        for df in (p, r, o):
+        for df in (p, r, o) if o is not None else (p, r):
             for c in ("home_team","visitor_team","date"):
                 if c not in df.columns and c.upper() in df.columns:
                     df[c] = df[c].upper()
                 elif c in df.columns:
                     df[c] = df[c].astype(str).str.upper()
-        keys = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in r.columns and c in o.columns]
-        if len(keys) < 2:
+        # Build merge keys and join available frames
+        keys_base = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in r.columns]
+        if len(keys_base) < 2:
             continue
-        m = p.merge(r, on=keys, suffixes=("_p","_r")).merge(o, on=keys)
+        m = p.merge(r, on=keys_base, suffixes=("_p","_r"))
+        if o is not None:
+            keys_with_odds = [c for c in keys_base if c in o.columns]
+            if len(keys_with_odds) >= 2:
+                m = m.merge(o, on=keys_with_odds)
         pcol = None
         for c in ("home_win_prob","prob_home_win","home_win_prob_cal"):
             if c in m.columns:
@@ -86,12 +93,23 @@ def collect_training(days: int, end_date: datetime):
         # outcome
         if {"home_score","visitor_score"}.issubset(m.columns):
             y = (pd.to_numeric(m["home_score"], errors="coerce") > pd.to_numeric(m["visitor_score"], errors="coerce")).astype(float)
+        elif {"home_pts","visitor_pts"}.issubset(m.columns):
+            y = (pd.to_numeric(m["home_pts"], errors="coerce") > pd.to_numeric(m["visitor_pts"], errors="coerce")).astype(float)
+        elif "actual_margin" in m.columns:
+            y = (pd.to_numeric(m["actual_margin"], errors="coerce") > 0).astype(float)
         elif "winner" in m.columns:
             y = (m["winner"].astype(str).str.upper() == m["home_team"].astype(str).str.upper()).astype(float)
         else:
             continue
-        # market probs
-        if not {"home_ml","away_ml"}.issubset(m.columns):
+        # market probs: prefer odds file; else fallback to market columns in predictions
+        market_source_has_cols = {"home_ml","away_ml"}.issubset(m.columns)
+        if not market_source_has_cols:
+            # Try fallback: predictions often embed market columns
+            pred_has_market = {"home_ml","away_ml"}.issubset(p.columns)
+            if pred_has_market:
+                m = m.merge(p[[*keys_base, "home_ml", "away_ml"]], on=keys_base, how="left")
+                market_source_has_cols = {"home_ml","away_ml"}.issubset(m.columns)
+        if not market_source_has_cols:
             continue
         tmp = []
         for _, row in m.iterrows():
@@ -107,30 +125,50 @@ def collect_training(days: int, end_date: datetime):
 def apply_alpha_to_date(alpha: float, date_str: str, out_path: Path | None = None) -> Path | None:
     pred = PROCESSED / f"predictions_{date_str}.csv"
     odds = PROCESSED / f"game_odds_{date_str}.csv"
-    if not (pred.exists() and odds.exists()):
+    if not pred.exists():
         return None
-    p = pd.read_csv(pred); o = pd.read_csv(odds)
-    for df in (p, o):
+    p = pd.read_csv(pred)
+    o = pd.read_csv(odds) if odds.exists() else None
+    for df in (p, o) if o is not None else (p,):
         for c in ("home_team","visitor_team","date"):
             if c not in df.columns and c.upper() in df.columns:
                 df[c] = df[c].upper()
             elif c in df.columns:
                 df[c] = df[c].astype(str).str.upper()
-    keys = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in o.columns]
+    # Merge with odds if available; otherwise work with predictions-only
+    keys = [c for c in ("date","home_team","visitor_team") if c in p.columns]
     if len(keys) < 2:
         return None
-    m = p.merge(o, on=keys)
+    if o is not None:
+        keys_odds = [c for c in keys if c in o.columns]
+        if len(keys_odds) >= 2:
+            m = p.merge(o, on=keys_odds)
+        else:
+            m = p.copy()
+    else:
+        m = p.copy()
     pcol = None
     for c in ("home_win_prob","prob_home_win","home_win_prob_cal"):
         if c in m.columns:
             pcol = c; break
     if pcol is None:
         return None
-    ph_list = []
-    for _, row in m.iterrows():
-        ph, pa, _ = implied_probs(row.get("home_ml"), row.get("away_ml"))
-        ph_list.append(ph)
-    m["p_market"] = pd.Series(ph_list, index=m.index, dtype=float)
+    # Build market probs: prefer odds snapshot; fallback to market columns embedded in predictions
+    if {"home_ml","away_ml"}.issubset(m.columns):
+        ph_list = []
+        for _, row in m.iterrows():
+            ph, pa, _ = implied_probs(row.get("home_ml"), row.get("away_ml"))
+            ph_list.append(ph)
+        m["p_market"] = pd.Series(ph_list, index=m.index, dtype=float)
+    elif {"home_ml","away_ml"}.issubset(p.columns):
+        m = m.merge(p[[*keys, "home_ml", "away_ml"]], on=keys, how="left")
+        ph_list = []
+        for _, row in m.iterrows():
+            ph, pa, _ = implied_probs(row.get("home_ml"), row.get("away_ml"))
+            ph_list.append(ph)
+        m["p_market"] = pd.Series(ph_list, index=m.index, dtype=float)
+    else:
+        return None
     p_blend = (alpha * pd.to_numeric(m[pcol], errors="coerce").clip(0.001, 0.999) +
                (1 - alpha) * m["p_market"].clip(0.001, 0.999))
     m["home_win_prob_cal"] = p_blend.clip(0.001, 0.999)

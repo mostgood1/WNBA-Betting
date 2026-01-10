@@ -225,12 +225,8 @@
 				"-NoProfile",
 				"-ExecutionPolicy",
 				"Bypass",
-				"-File",
-				"${workspaceFolder}\\scripts\\commit_processed.ps1",
-				"-Date",
-				"$(Get-Date -Format 'yyyy-MM-dd')",
-				"-IncludeJson",
-				"-Push"
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\scripts\\commit_processed.ps1' -Date $d -IncludeJson -Push"
 			],
 			"isBackground": false,
 			"problemMatcher": []

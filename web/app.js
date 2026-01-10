@@ -848,8 +848,9 @@ function renderDate(dateStr){
   }
   for (const g of list){
   const time = g.datetime_est || g.datetime_utc || g.date_est || g.date_utc;
-  // Compute local date/time strings preferably from UTC timestamp
-  const dtIso = g.datetime_utc || g.datetime_est || null;
+  // Compute local date/time strings, preferring OddsAPI commence_time in ET
+  const oddsForGame = state.oddsByKey.get(`${dateStr}|${g.home_tricode}|${g.away_tricode}`);
+  const dtIso = (oddsForGame && oddsForGame.commence_time) ? oddsForGame.commence_time : (g.datetime_utc || g.datetime_est || null);
   const localTime = dtIso ? fmtLocalTime(dtIso) : (typeof time === 'string' ? (time.includes('T') ? time.split('T')[1].slice(0,5) : '') : fmtLocalTime(time));
   const localDate = dtIso ? fmtLocalDate(dtIso) : (typeof g.date_est === 'string' ? g.date_est.slice(0,10) : (typeof g.date_utc === 'string' ? g.date_utc.slice(0,10) : ''));
   const locBits = [];

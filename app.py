@@ -4117,6 +4117,7 @@ def api_recommendations_all():
                         sim_p = proc / f"games_sim_{d}.csv"
                         sim_df = pd.read_csv(sim_p) if sim_p.exists() else pd.DataFrame()
                         sim_map = {}
+                        sim_map_tri = {}
                         if isinstance(sim_df, pd.DataFrame) and not sim_df.empty:
                             # Build key by normalized home/away names
                             def _norm(x: object) -> str:
@@ -4124,29 +4125,52 @@ def api_recommendations_all():
                                 return s
                             sim_df["_key"] = sim_df.apply(lambda r: f"{_norm(r.get('home_team'))}@@{_norm(r.get('visitor_team'))}", axis=1)
                             sim_map = sim_df.set_index("_key").to_dict(orient="index")
+                            # Also build tricode-based keys as a robust fallback (e.g., BKN@@HOU)
+                            def _tri(s: object) -> str:
+                                try:
+                                    t = _get_tricode(str(s or ""))
+                                    return str(t or "").upper()
+                                except Exception:
+                                    return ""
+                            sim_df["_key_tri"] = sim_df.apply(lambda r: f"{_tri(r.get('home_team'))}@@{_tri(r.get('visitor_team'))}", axis=1)
+                            sim_map_tri = sim_df.set_index("_key_tri").to_dict(orient="index")
                         def _sim_attach(row: dict) -> dict:
                             try:
                                 h = str(row.get("home") or "").strip().lower(); a = str(row.get("away") or "").strip().lower()
                                 rec = sim_map.get(f"{h}@@{a}") or sim_map.get(f"{a}@@{h}")
+                                if not rec:
+                                    # Try tricode-based matching if name-based failed
+                                    try:
+                                        ht = _get_tricode(row.get("home"))
+                                        at = _get_tricode(row.get("away"))
+                                        ht = (str(ht or "").upper())
+                                        at = (str(at or "").upper())
+                                        rec = sim_map_tri.get(f"{ht}@@{at}") or sim_map_tri.get(f"{at}@@{ht}")
+                                    except Exception:
+                                        rec = rec
                                 if not rec:
                                     return row
                                 # Common underlying means
                                 row["sim_adj_margin_mu"] = rec.get("adj_margin_mu")
                                 row["sim_adj_total_mu"] = rec.get("adj_total_mu")
                                 mk = str(row.get("market") or "").upper()
-                                side = str(row.get("side") or "").upper()
+                                # Use case-insensitive matching for side/team names
+                                side_raw = str(row.get("side") or "")
+                                side_l = side_raw.strip().lower()
                                 # Map prob + ev fields per market/side
                                 if mk == "ML":
-                                    prob = rec.get("p_home_win") if (side == "HOME" or side == h.upper()) else rec.get("p_away_win")
-                                    ev = rec.get("ev_home_ml") if (side == "HOME" or side == h.upper()) else rec.get("ev_away_ml")
+                                    pick_home = (side_l == "home") or (side_l == h)
+                                    prob = rec.get("p_home_win") if pick_home else rec.get("p_away_win")
+                                    ev = rec.get("ev_home_ml") if pick_home else rec.get("ev_away_ml")
                                 elif mk == "ATS":
-                                    # For ATS rows, side is team name; choose home/away cover
-                                    pick_home = (side == "HOME" or side == h.upper())
+                                    # For ATS rows, side can be team name or "HOME"/"AWAY"; choose home/away cover (case-insensitive)
+                                    pick_home = (side_l == "home") or (side_l == h)
                                     prob = rec.get("p_home_cover") if pick_home else rec.get("p_away_cover")
                                     ev = rec.get("ev_home_cover") if pick_home else rec.get("ev_away_cover")
                                 elif mk == "TOTAL":
-                                    prob = rec.get("p_total_over") if side.startswith("O") else rec.get("p_total_under")
-                                    ev = rec.get("ev_total_over") if side.startswith("O") else rec.get("ev_total_under")
+                                    is_over = side_l.startswith("o")
+                                    prob = rec.get("p_total_over") if is_over else rec.get("p_total_under")
+                                    ev = rec.get("ev_total_over") if is_over else rec.get("ev_total_under")
                                 else:
                                     prob = None; ev = None
                                 if prob is not None:
@@ -4169,10 +4193,21 @@ def api_recommendations_all():
                     if want_mkts and ("market" in df.columns):
                         df = df[df["market"].astype(str).str.upper().isin(want_mkts)]
                     if compact:
-                        keep = [c for c in ["market","side","home","away","line","price","edge","ev","tier"] if c in df.columns]
-                        rows = df[keep].fillna("").to_dict(orient="records")
-                        # Attach sim fields in compact mode as well
-                        rows = [_sim_attach(r) for r in rows]
+                        # Build rows first, attach sim fields, then prune to keep keys
+                        base_rows = df.fillna("").to_dict(orient="records")
+                        base_rows = [_sim_attach(r) for r in base_rows]
+                        keep = [
+                            "market","side","home","away","line","price","edge","ev","tier",
+                            # Include simulation fields in compact output for UI sorting/pills
+                            "sim_prob","ev_sim","tier_sim","sim_adj_margin_mu","sim_adj_total_mu"
+                        ]
+                        rows = [{k: v for k, v in r.items() if k in keep} for r in base_rows]
+                        try:
+                            sim_prob_count = sum(1 for r in rows if r.get("sim_prob") is not None)
+                            ev_sim_count = sum(1 for r in rows if r.get("ev_sim") is not None)
+                            print(f"[api_recommendations_all] compact sim_attach: sim_prob={sim_prob_count} ev_sim={ev_sim_count} total={len(rows)}")
+                        except Exception:
+                            pass
                         # Enrich with bookmaker odds (ATS/TOTAL prices) from processed or live Bovada
                         try:
                             # Preferred: processed consolidated odds if available
@@ -4395,6 +4430,85 @@ def api_recommendations_all():
                     else:
                         rows = df.fillna("").to_dict(orient="records")
                         rows = [_sim_attach(r) for r in rows]
+                        try:
+                            sim_prob_count = sum(1 for r in rows if r.get("sim_prob") is not None)
+                            ev_sim_count = sum(1 for r in rows if r.get("ev_sim") is not None)
+                            print(f"[api_recommendations_all] full sim_attach: sim_prob={sim_prob_count} ev_sim={ev_sim_count} total={len(rows)}")
+                        except Exception:
+                            pass
+                    # Compute sim-weighted score and tier_sim for sorting/labeling
+                    try:
+                        def _score_row(row: dict) -> dict:
+                            try:
+                                mk = str(row.get("market") or "").upper()
+                                ev_sim = row.get("ev_sim")
+                                sim_prob = row.get("sim_prob")
+                                ev_base = row.get("ev")
+                                edge = row.get("edge")
+                                books_count = row.get("books_count")
+                                try:
+                                    bc = int(books_count) if books_count is not None else 0
+                                except Exception:
+                                    bc = 0
+                                consensus_norm = max(0.0, min(1.0, (float(bc) - 1.0) / 4.0)) if bc > 0 else 0.0
+                                try:
+                                    evs = float(ev_sim) if ev_sim is not None and np.isfinite(float(ev_sim)) else None
+                                except Exception:
+                                    evs = None
+                                try:
+                                    evb = float(ev_base) if ev_base is not None and np.isfinite(float(ev_base)) else 0.0
+                                except Exception:
+                                    evb = 0.0
+                                try:
+                                    prob = float(sim_prob) if sim_prob is not None and np.isfinite(float(sim_prob)) else 0.0
+                                except Exception:
+                                    prob = 0.0
+                                try:
+                                    edg = abs(float(edge)) if edge is not None and np.isfinite(float(edge)) else 0.0
+                                except Exception:
+                                    edg = 0.0
+                                # Market-specific scoring blend
+                                score = 0.0
+                                if mk == "ML":
+                                    score = (100.0 * (evs if evs is not None else evb)) + (15.0 * prob) + (20.0 * consensus_norm)
+                                elif mk == "ATS":
+                                    score = (8.0 * edg) + (80.0 * (evs if evs is not None else 0.0)) + (12.0 * prob) + (15.0 * consensus_norm)
+                                elif mk == "TOTAL":
+                                    score = (5.0 * edg) + (60.0 * (evs if evs is not None else 0.0)) + (10.0 * prob) + (15.0 * consensus_norm)
+                                row["score"] = round(float(score), 2)
+                                # Tier based on simulation (non-invasive: add tier_sim)
+                                tier_sim = "Low"
+                                if mk == "ML":
+                                    v = (evs if evs is not None else evb)
+                                    try:
+                                        if v >= 0.04:
+                                            tier_sim = "High"
+                                        elif v >= 0.02:
+                                            tier_sim = "Medium"
+                                    except Exception:
+                                        tier_sim = "Low"
+                                elif mk in {"ATS", "TOTAL"}:
+                                    p = prob
+                                    try:
+                                        if p >= 0.6:
+                                            tier_sim = "High"
+                                        elif p >= 0.5:
+                                            tier_sim = "Medium"
+                                        else:
+                                            # Fallback to edge magnitudes
+                                            if edg >= (4.0 if mk == "TOTAL" else 3.0):
+                                                tier_sim = "High"
+                                            elif edg >= (2.0 if mk == "TOTAL" else 1.5):
+                                                tier_sim = "Medium"
+                                    except Exception:
+                                        tier_sim = "Low"
+                                row["tier_sim"] = tier_sim
+                            except Exception:
+                                pass
+                            return row
+                        rows = [_score_row(r) for r in rows]
+                    except Exception:
+                        pass
                     out["games"] = rows
                     try:
                         total_games = len(rows)
@@ -4657,6 +4771,19 @@ def api_recommendations_all():
                                     r["why_explain"] = "; ".join(reasons)
                             except Exception:
                                 continue
+                    except Exception:
+                        pass
+                    # Final pass: in compact mode, ensure simulation fields are attached post-enrichment
+                    try:
+                        if compact:
+                            rows = [_sim_attach(r) for r in out.get("games", rows)]
+                            try:
+                                sim_prob_count = sum(1 for r in rows if r.get("sim_prob") is not None)
+                                ev_sim_count = sum(1 for r in rows if r.get("ev_sim") is not None)
+                                print(f"[api_recommendations_all] compact final sim_attach: sim_prob={sim_prob_count} ev_sim={ev_sim_count} total={len(rows)}")
+                            except Exception:
+                                pass
+                            out["games"] = rows
                     except Exception:
                         pass
                 except Exception:

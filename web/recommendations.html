@@ -64,6 +64,9 @@
           <option value="type">Bet type</option>
           <option value="ev">EV</option>
           <option value="edge">Edge</option>
+          <option value="sim_score">Sim Score</option>
+          <option value="sim_ev">Sim EV</option>
+          <option value="sim_prob">Sim Prob</option>
         </select>
       </label>
       <label class="ml-8">Prop markets:
@@ -391,6 +394,32 @@
           if(ta!==tb) return ta-tb;
           const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0));
         }
+        if(mode==='type'){
+          const m = String(a.market||'').localeCompare(String(b.market||''));
+          if(m!==0) return m;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return (Number(b.ev||0))-(Number(a.ev||0));
+        }
+        if(mode==='ev'){
+          const ea = Number(a.ev||0), eb = Number(b.ev||0);
+          if(eb!==ea) return eb-ea;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return 0;
+        }
+        if(mode==='edge'){
+          const ae = Math.abs(Number(a.edge||0)), be = Math.abs(Number(b.edge||0));
+          if(be!==ae) return be-ae;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return 0;
+        }
+        if(mode==='sim_ev'){
+          const seA = Number(a.ev_sim||0), seB = Number(b.ev_sim||0);
+          if(seB!==seA) return seB-seA;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return 0;
+        }
+        if(mode==='sim_prob'){
+          const spA = Number(a.sim_prob||0), spB = Number(b.sim_prob||0);
+          if(spB!==spA) return spB-spA;
+          const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; return 0;
+        }
+        // Default: score desc then confidence then EV
         const sa = Number(a.score||0), sb = Number(b.score||0); if(sb!==sa) return sb-sa; const order={High:0,Medium:1,Low:2}; const ca=order[a.confidence]??9; const cb=order[b.confidence]??9; if(ca!==cb) return ca-cb; return (Number(b.ev||0))-(Number(a.ev||0));
       });
       const groups = new Map([['High',[]],['Medium',[]],['Low',[]]]);
