@@ -1,0 +1,7 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-01-10,Cleveland Cavaliers,Minnesota Timberwolves,CLE,MIN,146,134,,,12,280,,
+2026-01-10,Indiana Pacers,Miami Heat,IND,MIA,123,99,,,24,222,,
+2026-01-10,Detroit Pistons,Los Angeles Clippers,DET,LAC,92,98,,,-6,190,,
+2026-01-10,Boston Celtics,San Antonio Spurs,BOS,SAS,95,100,,,-5,195,,
+2026-01-10,Chicago Bulls,Dallas Mavericks,CHI,DAL,125,107,,,18,232,,
+2026-01-10,Utah Jazz,Charlotte Hornets,UTA,CHA,95,150,,,-55,245,,
