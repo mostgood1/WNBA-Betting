@@ -1,17 +1,17 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,Indiana Pacers,Indiana Pacers,Boston Celtics,2026-01-12,0.7585729365521428,187.27272727272728,0.34810126582278483,,,,,,High
-ATS,Indiana Pacers,Indiana Pacers,Boston Celtics,2026-01-12,,,,6.729912877082825,6.0,0.7299128770828247,-6.0,,High
-TOTAL,Under,Indiana Pacers,Boston Celtics,2026-01-12,,,,-3.9822235107421875,225.5,,,221.5177764892578,Medium
-ML,Sacramento Kings,Sacramento Kings,Los Angeles Lakers,2026-01-12,1.388004648599746,299.54545454545456,0.2502844141069397,,,,,,High
+ML,Indiana Pacers,Indiana Pacers,Boston Celtics,2026-01-12,0.6444882998454373,168.63636363636363,0.37225042301184436,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Boston Celtics,2026-01-12,,,,5.729912877082825,5.0,0.7299128770828247,-5.0,,High
+TOTAL,Under,Indiana Pacers,Boston Celtics,2026-01-12,,,,-5.4822235107421875,227.0,,,221.5177764892578,High
+ML,Sacramento Kings,Sacramento Kings,Los Angeles Lakers,2026-01-12,1.3347567633749962,290.6363636363636,0.2559925529439144,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,Los Angeles Lakers,2026-01-12,,,,9.360819101333618,9.5,-0.1391808986663818,-9.5,,High
-TOTAL,Under,Sacramento Kings,Los Angeles Lakers,2026-01-12,,,,-3.2711639404296875,228.5,,,225.2288360595703,Medium
-ML,Los Angeles Clippers,Los Angeles Clippers,Charlotte Hornets,2026-01-12,0.3224911928472986,-184.3636363636364,0.6483375959079285,,,,,,High
-ATS,Los Angeles Clippers,Los Angeles Clippers,Charlotte Hornets,2026-01-12,,,,13.84111595153809,-4.5,18.34111595153809,4.5,,High
+TOTAL,Under,Sacramento Kings,Los Angeles Lakers,2026-01-12,,,,-4.7711639404296875,230.0,,,225.2288360595703,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Charlotte Hornets,2026-01-12,0.30293934189227395,-192.45454545454547,0.6580665216039788,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Charlotte Hornets,2026-01-12,,,,13.34111595153809,-5.0,18.34111595153809,5.0,,High
 TOTAL,Over,Los Angeles Clippers,Charlotte Hornets,2026-01-12,,,,2.052032470703125,223.5,,,225.55203247070312,Medium
-ML,Utah Jazz,Cleveland Cavaliers,Utah Jazz,2026-01-12,0.24446233275908313,502.7272727272728,0.16591251885369532,,,,,,High
-TOTAL,Under,Cleveland Cavaliers,Utah Jazz,2026-01-12,,,,-14.909378051757812,250.5,,,235.5906219482422,High
-ML,Toronto Raptors,Toronto Raptors,Philadelphia 76ers,2026-01-12,0.5704235700758669,129.63636363636363,0.435471100554236,,,,,,High
-ATS,Toronto Raptors,Toronto Raptors,Philadelphia 76ers,2026-01-12,,,,8.608209133148193,3.5,5.108209133148193,-3.5,,High
-TOTAL,Over,Toronto Raptors,Philadelphia 76ers,2026-01-12,,,,4.796142578125,221.0,,,225.796142578125,High
-ML,Dallas Mavericks,Dallas Mavericks,Brooklyn Nets,2026-01-12,0.07687842590587946,-157.8181818181818,0.6121297602256699,,,,,,High
-TOTAL,Over,Dallas Mavericks,Brooklyn Nets,2026-01-12,,,,2.688125610351591,221.0,,,223.6881256103516,Medium
+ML,Utah Jazz,Cleveland Cavaliers,Utah Jazz,2026-01-12,0.07590619779412722,421.09090909090907,0.19190509420795537,,,,,,High
+TOTAL,Under,Cleveland Cavaliers,Utah Jazz,2026-01-12,,,,-13.909378051757812,249.5,,,235.5906219482422,High
+ML,Toronto Raptors,Toronto Raptors,Philadelphia 76ers,2026-01-12,0.5542592736301137,127.27272727272728,0.44,,,,,,High
+ATS,Toronto Raptors,Toronto Raptors,Philadelphia 76ers,2026-01-12,,,,8.108209133148193,3.0,5.108209133148193,-3.0,,High
+TOTAL,Over,Toronto Raptors,Philadelphia 76ers,2026-01-12,,,,5.796142578125,220.0,,,225.796142578125,High
+ML,Dallas Mavericks,Dallas Mavericks,Brooklyn Nets,2026-01-12,0.05284202857364534,-167.45454545454547,0.6261046906866077,,,,,,High
+TOTAL,Over,Dallas Mavericks,Brooklyn Nets,2026-01-12,,,,4.188125610351591,219.5,,,223.6881256103516,High
