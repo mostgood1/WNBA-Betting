@@ -1,0 +1,11 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-01-11,Orlando Magic,New Orleans Pelicans,ORL,NOP,128,118,,,10,246,,
+2026-01-11,Memphis Grizzlies,Brooklyn Nets,MEM,BKN,103,98,,,5,201,,
+2026-01-11,Toronto Raptors,Philadelphia 76ers,TOR,PHI,116,115,,,1,231,,
+2026-01-11,Portland Trail Blazers,New York Knicks,POR,NYK,114,123,,,-9,237,,
+2026-01-11,Minnesota Timberwolves,San Antonio Spurs,MIN,SAS,104,103,,,1,207,,
+2026-01-11,Oklahoma City Thunder,Miami Heat,OKC,MIA,124,112,,,12,236,,
+2026-01-11,Denver Nuggets,Milwaukee Bucks,DEN,MIL,108,104,,,4,212,,
+2026-01-11,Phoenix Suns,Washington Wizards,PHX,WAS,112,93,,,19,205,,
+2026-01-11,Golden State Warriors,Atlanta Hawks,GSW,ATL,111,124,,,-13,235,,
+2026-01-11,Sacramento Kings,Houston Rockets,SAC,HOU,111,98,,,13,209,,
