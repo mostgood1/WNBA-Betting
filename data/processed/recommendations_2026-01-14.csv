@@ -1,18 +1,20 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
-ML,New Orleans Pelicans,New Orleans Pelicans,Brooklyn Nets,2026-01-14,0.26560912848979046,106.27272727272728,0.48479506390480387,,,,,,High
-ATS,New Orleans Pelicans,New Orleans Pelicans,Brooklyn Nets,2026-01-14,,,,2.81397545337677,2.0,0.81397545337677,-2.0,,Medium
-ATS,Los Angeles Clippers,Los Angeles Clippers,Washington Wizards,2026-01-14,,,,5.271745681762695,-12.5,17.771745681762695,12.5,,High
-ML,Cleveland Cavaliers,Philadelphia 76ers,Cleveland Cavaliers,2026-01-14,0.5121751155903946,-105.27272727272728,0.5128432240921169,,,,,,High
+ML,Brooklyn Nets,New Orleans Pelicans,Brooklyn Nets,2026-01-14,0.19458121514072202,-47.81818181818182,0.3234932349323493,,,,,,High
+TOTAL,Under,New Orleans Pelicans,Brooklyn Nets,2026-01-14,,,,-4.2660064697265625,231.5,,,227.23399353027344,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Washington Wizards,2026-01-14,0.024327671377133597,-493.6363636363636,0.8315467075038285,,,,,,Medium
+ATS,Los Angeles Clippers,Los Angeles Clippers,Washington Wizards,2026-01-14,,,,6.271745681762695,-11.5,17.771745681762695,11.5,,High
+ML,Cleveland Cavaliers,Philadelphia 76ers,Cleveland Cavaliers,2026-01-14,0.5115395104532773,-105.36363636363636,0.5130588756086764,,,,,,High
 ATS,Cleveland Cavaliers,Philadelphia 76ers,Cleveland Cavaliers,2026-01-14,,,,-12.29701328277588,1.0,-11.29701328277588,1.0,,High
-TOTAL,Under,Philadelphia 76ers,Cleveland Cavaliers,2026-01-14,,,,-10.65008544921875,237.0,,,226.34991455078125,High
-ML,Sacramento Kings,Sacramento Kings,New York Knicks,2026-01-14,1.965304038811818,378.27272727272725,0.20908572514731041,,,,,,High
+TOTAL,Under,Philadelphia 76ers,Cleveland Cavaliers,2026-01-14,,,,-9.65008544921875,236.0,,,226.34991455078125,High
+ML,Sacramento Kings,Sacramento Kings,New York Knicks,2026-01-14,1.8734309047448483,363.45454545454544,0.2157708905453119,,,,,,High
 ATS,Sacramento Kings,Sacramento Kings,New York Knicks,2026-01-14,,,,12.20116662979126,11.0,1.2011666297912598,-11.0,,High
 TOTAL,Under,Sacramento Kings,New York Knicks,2026-01-14,,,,-6.60198974609375,229.5,,,222.89801025390625,High
-ML,Indiana Pacers,Indiana Pacers,Toronto Raptors,2026-01-14,0.7098420528819037,122.9090909090909,0.44861337683523655,,,,,,High
-ATS,Indiana Pacers,Indiana Pacers,Toronto Raptors,2026-01-14,,,,13.176066398620604,2.5,10.676066398620604,-2.5,,High
-TOTAL,Over,Indiana Pacers,Toronto Raptors,2026-01-14,,,,5.156478881835966,223.5,,,228.65647888183597,High
-ML,Denver Nuggets,Dallas Mavericks,Denver Nuggets,2026-01-14,2.747406742334451,-22.5,0.1836734693877551,,,,,,High
-ATS,Denver Nuggets,Dallas Mavericks,Denver Nuggets,2026-01-14,,,,-6.386614799499512,1.0,-5.386614799499512,1.0,,High
-ML,Chicago Bulls,Chicago Bulls,Utah Jazz,2026-01-14,0.24194430015205026,-168.5,0.62756052141527,,,,,,High
-ATS,Chicago Bulls,Chicago Bulls,Utah Jazz,2026-01-14,,,,8.0873441696167,-3.5,11.5873441696167,3.5,,High
-TOTAL,Under,Chicago Bulls,Utah Jazz,2026-01-14,,,,-6.422149658203125,241.5,,,235.07785034179688,High
+ML,Indiana Pacers,Indiana Pacers,Toronto Raptors,2026-01-14,0.3976737264045731,-121.63636363636364,0.5488105004101723,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Toronto Raptors,2026-01-14,,,,9.176066398620604,-1.5,10.676066398620604,1.5,,High
+TOTAL,Over,Indiana Pacers,Toronto Raptors,2026-01-14,,,,8.156478881835966,220.5,,,228.65647888183597,High
+ML,Denver Nuggets,Dallas Mavericks,Denver Nuggets,2026-01-14,0.4792175482357658,114.9090909090909,0.4653130287648054,,,,,,High
+ATS,Denver Nuggets,Dallas Mavericks,Denver Nuggets,2026-01-14,,,,-7.886614799499512,2.5,-5.386614799499512,2.5,,High
+TOTAL,Over,Dallas Mavericks,Denver Nuggets,2026-01-14,,,,1.8602905273437216,224.5,,,226.36029052734372,Low
+ML,Chicago Bulls,Chicago Bulls,Utah Jazz,2026-01-14,0.1984248967507149,-186.0,0.6503496503496503,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Utah Jazz,2026-01-14,,,,7.087344169616699,-4.5,11.5873441696167,4.5,,High
+TOTAL,Under,Chicago Bulls,Utah Jazz,2026-01-14,,,,-5.922149658203125,241.0,,,235.07785034179688,High
