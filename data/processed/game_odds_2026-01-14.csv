@@ -1,8 +1,6 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-14,2026-01-15T03:40:00Z,Los Angeles Clippers,Washington Wizards,-493.6363636363636,369.3636363636364,-11.5,11.5,-108.9,,226.5,-109.77777777777777,-109.55555555555556,11,11,10,9,oddsapi_consensus
-2026-01-14,2026-01-15T00:10:00Z,Philadelphia 76ers,Cleveland Cavaliers,-114.45454545454545,-105.36363636363636,-1.0,1.0,-108.77777777777777,,236.0,-110.2,-108.6,11,11,9,5,oddsapi_consensus
-2026-01-14,2026-01-15T03:10:00Z,Sacramento Kings,New York Knicks,363.45454545454544,-482.6363636363636,11.0,-11.0,-108.75,,229.5,-111.2,-108.3,11,11,8,10,oddsapi_consensus
-2026-01-14,2026-01-15T00:10:00Z,Indiana Pacers,Toronto Raptors,-121.63636363636364,65.27272727272727,-1.5,1.5,-109.625,,220.5,-110.875,-109.125,11,11,8,8,oddsapi_consensus
-2026-01-14,2026-01-15T02:40:00Z,Dallas Mavericks,Denver Nuggets,-136.63636363636363,114.9090909090909,-2.5,2.5,-110.45454545454545,,224.5,-109.375,-109.875,11,11,11,8,oddsapi_consensus
-2026-01-14,2026-01-15T01:10:00Z,New Orleans Pelicans,Brooklyn Nets,-117.54545454545455,-47.81818181818182,-1.0,1.0,-111.5,,231.5,-109.0,-111.0,11,11,8,7,oddsapi_consensus
-2026-01-14,2026-01-15T01:10:00Z,Chicago Bulls,Utah Jazz,-186.0,156.0,-4.5,4.5,-111.0,,241.0,-110.0,-110.0,11,11,10,5,oddsapi_consensus
+2026-01-14,2026-01-15T03:40:00Z,Los Angeles Clippers,Washington Wizards,-536.6363636363636,395.90909090909093,-12.0,12.0,-109.33333333333333,,227.0,-110.4,-108.4,11,11,6,5,oddsapi_consensus
+2026-01-14,2026-01-15T03:10:00Z,Sacramento Kings,New York Knicks,350.6363636363636,-460.90909090909093,11.0,-11.0,-110.0,,229.5,-109.875,-110.125,11,11,6,8,oddsapi_consensus
+2026-01-14,2026-01-15T02:43:00Z,Dallas Mavericks,Denver Nuggets,95.14285714285714,-161.14285714285714,3.5,-3.5,-113.75,,223.5,-115.0,-112.5,7,7,4,2,oddsapi_consensus
+2026-01-14,2026-01-15T01:11:00Z,New Orleans Pelicans,Brooklyn Nets,-103.57142857142857,9.142857142857142,-3.5,3.5,-119.5,,228.5,-109.0,-121.0,7,7,2,2,oddsapi_consensus
+2026-01-14,2026-01-15T01:11:00Z,Chicago Bulls,Utah Jazz,-1525.5,700.0,-8.5,8.5,102.5,,248.5,-121.5,-108.0,6,6,2,2,oddsapi_consensus
