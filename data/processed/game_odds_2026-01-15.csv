@@ -1,10 +1,9 @@
-date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
-2026-01-15,Orlando Magic,Memphis Grizzlies,2026-01-15T19:00:00+00:00,-220,180,-5.0,5.0,-115,-105,228.0,-110,-110,bovada
-2026-01-15,Detroit Pistons,Phoenix Suns,2026-01-16T00:00:00+00:00,-270,220,-7.5,7.5,-110,-110,221.0,-110,-110,bovada
-2026-01-15,Miami Heat,Boston Celtics,2026-01-16T00:30:00+00:00,125,-145,-2.5,2.5,135,-180,234.0,-110,-110,bovada
-2026-01-15,Houston Rockets,Oklahoma City Thunder,2026-01-16T00:30:00+00:00,165,-195,5.0,-5.0,-110,-110,222.0,-110,-110,bovada
-2026-01-15,San Antonio Spurs,Milwaukee Bucks,2026-01-16T01:00:00+00:00,-275,225,-7.5,7.5,-115,-105,224.5,-110,-110,bovada
-2026-01-15,Dallas Mavericks,Utah Jazz,2026-01-16T01:30:00+00:00,-140,120,2.5,-2.5,-170,130,238.5,-110,-110,bovada
-2026-01-15,Portland Trail Blazers,Atlanta Hawks,2026-01-16T03:00:00+00:00,140,-165,4.0,-4.0,-110,-110,231.5,-110,-110,bovada
-2026-01-15,Golden State Warriors,New York Knicks,2026-01-16T03:00:00+00:00,-240,200,-7.0,7.0,-110,-110,228.5,-110,-110,bovada
-2026-01-15,Los Angeles Lakers,Charlotte Hornets,2026-01-16T03:30:00+00:00,-175,150,-4.0,4.0,-115,-105,233.5,-110,-110,bovada
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-15,2026-01-16T03:40:00Z,Los Angeles Lakers,Charlotte Hornets,-155.63636363636363,130.8181818181818,-3.5,3.5,-107.6,-105,234.0,-110.28571428571429,-108.85714285714286,11,11,5,7,oddsapi_consensus
+2026-01-15,2026-01-16T03:10:00Z,Portland Trail Blazers,Atlanta Hawks,141.9090909090909,-168.8181818181818,4.0,-4.0,-110.375,-110,229.5,-109.57142857142857,-109.57142857142857,11,11,8,7,oddsapi_consensus
+2026-01-15,2026-01-16T00:40:00Z,Houston Rockets,Oklahoma City Thunder,146.45454545454547,-174.27272727272728,4.5,-4.5,-111.57142857142857,-110,222.0,-109.4,-109.4,11,11,7,5,oddsapi_consensus
+2026-01-15,2026-01-16T01:10:00Z,San Antonio Spurs,Milwaukee Bucks,-260.54545454545456,211.54545454545453,-7.5,7.5,-108.11111111111111,-110,224.5,-109.0,-111.0,11,11,9,7,oddsapi_consensus
+2026-01-15,2026-01-16T01:40:00Z,Dallas Mavericks,Utah Jazz,-162.63636363636363,136.63636363636363,-3.5,3.5,-112.27272727272727,130,237.0,-109.5,-109.5,11,11,11,6,oddsapi_consensus
+2026-01-15,2026-01-16T00:40:00Z,Miami Heat,Boston Celtics,122.0909090909091,-145.0,2.5,-2.5,-108.0,-180,234.0,-109.4,-109.4,11,11,8,5,oddsapi_consensus
+2026-01-15,2026-01-16T03:10:00Z,Golden State Warriors,New York Knicks,-268.1818181818182,217.63636363636363,-7.5,7.5,-107.55555555555556,-110,228.0,-110.33333333333333,-108.66666666666667,11,11,9,6,oddsapi_consensus
+2026-01-15,2026-01-16T00:10:00Z,Detroit Pistons,Phoenix Suns,-273.3636363636364,220.54545454545453,-7.5,7.5,-108.63636363636364,-115,219.0,-109.0,-111.0,11,11,11,5,oddsapi_consensus
