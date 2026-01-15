@@ -3459,6 +3459,38 @@ def api_recommendations_summary_props_calibration():
                     rmse = float(_np.sqrt(_np.average((pred - hr) ** 2, weights=w))) if float(_np.sum(w)) > 0 else None
             except Exception:
                 rmse = None
+
+
+        @app.before_first_request
+        def _warm_caches_on_start():
+            """Warm slow caches on startup to avoid first-hit timeouts in production.
+
+            Performs a best-effort request to summary endpoints after a short delay.
+            """
+            try:
+                import threading, os, time
+                try:
+                    import requests as _rq  # type: ignore
+                except Exception:
+                    _rq = None
+                def _run():
+                    try:
+                        time.sleep(2)
+                        base = str(os.environ.get("RENDER_EXTERNAL_URL") or f"http://127.0.0.1:{os.environ.get('PORT','5000')}")
+                        # Only warm if requests is available
+                        if _rq is None:
+                            return
+                        # Warm recommendations summary cache (served from filesystem once computed)
+                        for path in ["/api/recommendations/summary"]:
+                            try:
+                                _rq.get(base + path, timeout=8)
+                            except Exception:
+                                pass
+                    except Exception:
+                        pass
+                threading.Thread(target=_run, daemon=True).start()
+            except Exception:
+                pass
             items.append({
                 "days": d,
                 "available": True,
