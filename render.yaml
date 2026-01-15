@@ -20,6 +20,12 @@ services:
         value: "1"
       - key: WEB_THREADS
         value: "4"
+      - key: ALLOW_REMOTE_ARTIFACTS
+        value: "1"
+      - key: GITHUB_REPOSITORY
+        value: mostgood1/NBA-Betting
+      - key: GIT_BRANCH
+        value: main
       # Secrets (set values in Render dashboard or via Blueprint instance; 'sync: false' preserves remote values)
       - key: ADMIN_KEY
         sync: false

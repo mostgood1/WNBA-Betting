@@ -108,6 +108,16 @@
     <p class="summary-note lh-13">Games sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs available. Props list top plays by EV%. Theme choice persists locally.</p>
   </div>
   <script>
+    // Global error handler: surface JS exceptions as a visible card to avoid blank page
+    window.addEventListener('error', function(ev){
+      try{
+        const root = document.getElementById('recsRoot');
+        if(root){
+          const msg = (ev && ev.error && ev.error.message) ? ev.error.message : (ev && ev.message ? ev.message : 'Unknown error');
+          root.innerHTML = `<div class="card">An error occurred while rendering: ${String(msg)}</div>`;
+        }
+      }catch(_){ /* ignore */ }
+    });
     (function(){ try{ const body=document.body; const saved=localStorage.getItem('theme'); if(saved==='light') body.classList.add('light'); const t=document.getElementById('themeToggle'); if(t){ t.addEventListener('click',()=>{ body.classList.toggle('light'); localStorage.setItem('theme', body.classList.contains('light')?'light':'dark'); }); }}catch(e){} })();
     // Format schedule start times to clean display; hide placeholders
     function formatDisplayTime(s){
@@ -169,13 +179,59 @@
       // Fetch unified recommendations across categories (compact for explanations + scores)
       const regularOnly = !!(document.getElementById('propsRegularOnly') && document.getElementById('propsRegularOnly').checked);
       const allUrl = `/api/recommendations/all?date=${date}&limit=500&compact=1&regular_only=${regularOnly?1:0}`;
-      const allRes = await fetch(allUrl, {cache:'no-store'});
-      const all = await allRes.json();
-      const games = Array.isArray(all.games)? all.games: [];
-      const propsAll = Array.isArray(all.props)? all.props: [];
+      let allRes;
+      let all;
+      try{
+        allRes = await fetch(allUrl, {cache:'no-store'});
+        if(!allRes.ok){ throw new Error(`HTTP ${allRes.status}`); }
+        all = await allRes.json();
+      }catch(e){
+        const root=document.getElementById('recsRoot'); if(root){ root.innerHTML='<div class="card">Failed to load recommendations.</div>'; }
+        const rowsMeta=document.getElementById('rowsMeta'); if(rowsMeta){ rowsMeta.textContent=''; }
+        return;
+      }
+      let games = Array.isArray(all.games)? all.games: [];
+      let propsAll = Array.isArray(all.props)? all.props: [];
       const props = filterPropsByMarkets(propsAll, propMkts);
-      const first = Array.isArray(all.first_basket)? all.first_basket: [];
-      const thr = Array.isArray(all.early_threes)? all.early_threes: [];
+      let first = Array.isArray(all.first_basket)? all.first_basket: [];
+      let thr = Array.isArray(all.early_threes)? all.early_threes: [];
+      // Show data date banner if backend used a fallback date
+      try{
+        const meta = all.meta||{}; const dd = meta.data_dates||{};
+        const vals = Object.values(dd).map(String);
+        const banner = document.getElementById('seasonBanner');
+        if(banner && vals.length){
+          // pick the most common date among categories
+          const cnt = new Map(); vals.forEach(v=> cnt.set(v, (cnt.get(v)||0)+1));
+          let best = null; let bestN = -1; cnt.forEach((n,k)=>{ if(n>bestN){ best=k; bestN=n; }});
+          if(best && best!==date){ banner.textContent = `Showing data from ${best} (fallback)`; }
+        } else if(banner){ banner.textContent='Season to date'; }
+      }catch(_){ /* ignore */ }
+      // Client-side fallback: if everything empty, try previous days up to 7
+      if(games.length===0 && props.length===0 && first.length===0 && thr.length===0){
+        try{
+          const start = new Date(date+'T00:00:00');
+          for(let i=1;i<=7;i++){
+            const cand = new Date(start.getTime() - i*24*60*60*1000);
+            const y = cand.getFullYear(); const m = String(cand.getMonth()+1).padStart(2,'0'); const d0 = String(cand.getDate()).padStart(2,'0');
+            const prev = `${y}-${m}-${d0}`;
+            const url2 = `/api/recommendations/all?date=${prev}&limit=500&compact=1&regular_only=${regularOnly?1:0}`;
+            const r2 = await fetch(url2, {cache:'no-store'});
+            if(!r2.ok){ continue; }
+            const js2 = await r2.json();
+            const g2 = Array.isArray(js2.games)? js2.games: [];
+            const p2 = filterPropsByMarkets(Array.isArray(js2.props)? js2.props: [], propMkts);
+            const f2 = Array.isArray(js2.first_basket)? js2.first_basket: [];
+            const t2 = Array.isArray(js2.early_threes)? js2.early_threes: [];
+            if(g2.length || p2.length || f2.length || t2.length){
+              // set banner and use this data
+              const banner=document.getElementById('seasonBanner'); if(banner){ banner.textContent = `Showing data from ${prev} (fallback)`; }
+              all = js2; games = g2; propsAll = Array.isArray(js2.props)? js2.props: []; props.splice(0, props.length, ...p2); first.splice(0, first.length, ...f2); thr.splice(0, thr.length, ...t2);
+              break;
+            }
+          }
+        }catch(_){ /* ignore */ }
+      }
       // Derive confidence & normalized fields for games; filter by thresholds locally
       const rows = games.filter(r=>{
         if(r.market==='ATS') return Math.abs(Number(r.edge||0)) >= minSp;

@@ -1,5 +1,7 @@
 param(
     [string]$BaseUrl = 'http://127.0.0.1:5051',
+    [string]$Date = $(Get-Date -Format 'yyyy-MM-dd'),
+    [string]$AuthToken = '',
     [int]$TimeoutSec = 10
 )
 
@@ -7,7 +9,8 @@ $ErrorActionPreference = 'Stop'
 
 function Invoke-HealthCheck {
     param(
-        [string]$Url
+        [string]$Url,
+        [hashtable]$Headers
     )
     $result = [ordered]@{
         url     = $Url
@@ -19,7 +22,11 @@ function Invoke-HealthCheck {
     }
     try {
         $sw = [System.Diagnostics.Stopwatch]::StartNew()
-        $r = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSec -Method GET
+        if ($Headers) {
+            $r = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSec -Method GET -Headers $Headers
+        } else {
+            $r = Invoke-WebRequest -UseBasicParsing -Uri $Url -TimeoutSec $TimeoutSec -Method GET
+        }
         $sw.Stop()
         $result.status = [int]$r.StatusCode
         $result.ok = ($r.StatusCode -eq 200)
@@ -36,17 +43,35 @@ function Invoke-HealthCheck {
     return $result
 }
 
-$today = Get-Date -Format 'yyyy-MM-dd'
+$headers = $null
+if ($AuthToken -and $AuthToken.Trim().Length -gt 0) {
+    $headers = @{ Authorization = "Bearer $AuthToken" }
+}
+
 $endpoints = @(
+    "$BaseUrl/health",
     "$BaseUrl/api/recommendations/summary",
     "$BaseUrl/api/recommendations/summary/props",
-    "$BaseUrl/api/recommendations/all?date=$today&compact=1&regular_only=1",
-    "$BaseUrl/api/recommendations/summary/props_calibration"
+    "$BaseUrl/api/recommendations/summary/props_calibration",
+    "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1",
+    "$BaseUrl/api/debug/recommendations/status?date=$Date",
+    "$BaseUrl/api/predictions?date=$Date",
+    "$BaseUrl/api/processed/recon_games?date=$Date"
+)
+
+# Cron endpoints (optional, may require AuthToken)
+$cronEndpoints = @(
+    "$BaseUrl/api/cron/refresh-bovada?date=$Date",
+    "$BaseUrl/api/cron/reconcile-games?date=$Date",
+    "$BaseUrl/api/cron/run-all?push=0"
 )
 
 $results = @()
 foreach ($u in $endpoints) {
-    $results += (Invoke-HealthCheck -Url $u)
+    $results += (Invoke-HealthCheck -Url $u -Headers $headers)
+}
+foreach ($u in $cronEndpoints) {
+    $results += (Invoke-HealthCheck -Url $u -Headers $headers)
 }
 
 $root = "c:/Users/mostg/OneDrive/Coding/NBA-Betting"
@@ -59,15 +84,16 @@ $outJson = Join-Path $outDir ("health_" + $stamp + ".json")
 $payload = [ordered]@{
     time = (Get-Date).ToString('s') + 'Z'
     base_url = $BaseUrl
+    date = $Date
     results = $results
 }
 
 # Extract calibration summary details if available
 try {
     $calUrl = "$BaseUrl/api/recommendations/summary/props_calibration"
-    $calRes = Invoke-HealthCheck -Url $calUrl
+    $calRes = Invoke-HealthCheck -Url $calUrl -Headers $headers
     if ($calRes.ok -and $calRes.status -eq 200) {
-        $json = Invoke-WebRequest -UseBasicParsing -Uri $calUrl -TimeoutSec $TimeoutSec -Method GET | Select-Object -ExpandProperty Content | ConvertFrom-Json
+        $json = Invoke-WebRequest -UseBasicParsing -Uri $calUrl -TimeoutSec $TimeoutSec -Method GET -Headers $headers | Select-Object -ExpandProperty Content | ConvertFrom-Json
         $wins = $json.windows
         if ($wins) {
             # choose best rmse among available windows
@@ -87,8 +113,8 @@ try {
 
 # Extract applied calibration meta from unified recommendations
 try {
-    $recoUrl = "$BaseUrl/api/recommendations/all?date=$today&compact=1&regular_only=1"
-    $recoRes = Invoke-WebRequest -UseBasicParsing -Uri $recoUrl -TimeoutSec $TimeoutSec -Method GET
+    $recoUrl = "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1"
+    $recoRes = Invoke-WebRequest -UseBasicParsing -Uri $recoUrl -TimeoutSec $TimeoutSec -Method GET -Headers $headers
     if ($recoRes.StatusCode -eq 200 -and $recoRes.Content) {
         $rj = $recoRes.Content | ConvertFrom-Json
         if ($rj.meta -and $rj.meta.props_calibration) {
@@ -99,6 +125,25 @@ try {
                 window_days = $pc.window_days
             }
         }
+        # Include category counts and data_dates for quick verification
+        try {
+            $gCount = 0; $pCount = 0; $fbCount = 0; $tCount = 0
+            if ($rj.games) { $gCount = [int]$rj.games.Count }
+            if ($rj.props) { $pCount = [int]$rj.props.Count }
+            if ($rj.first_basket) { $fbCount = [int]$rj.first_basket.Count }
+            if ($rj.early_threes) { $tCount = [int]$rj.early_threes.Count }
+            $dd = $null
+            if ($rj.meta -and $rj.meta.data_dates) { $dd = $rj.meta.data_dates }
+            $payload.recommendations = [ordered]@{
+                counts = [ordered]@{
+                    games = $gCount
+                    props = $pCount
+                    first_basket = $fbCount
+                    early_threes = $tCount
+                }
+                data_dates = $dd
+            }
+        } catch {}
     }
 } catch {}
 

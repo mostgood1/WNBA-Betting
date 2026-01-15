@@ -2634,6 +2634,7 @@ def api_recommendations_summary():
     """
     try:
         from datetime import datetime
+        import json as _json
         since = (request.args.get("since") or "2025-10-21").strip()
         until = (request.args.get("until") or datetime.utcnow().date().isoformat()).strip()
         th_spread = float(request.args.get("spread_edge", 1.0))
@@ -2679,6 +2680,18 @@ def api_recommendations_summary():
             except Exception:
                 pass
             return "Low"
+
+        # Fast path: serve cached summary if available
+        try:
+            _cache_p = BASE_DIR / "data" / "processed" / "recommendations_summary.json"
+            if _cache_p.exists():
+                with open(_cache_p, "r", encoding="utf-8") as fh:
+                    cached = _json.load(fh)
+                # Optional: basic sanity keys
+                if isinstance(cached, dict) and cached.get("version"):
+                    return jsonify(cached)
+        except Exception:
+            pass
 
         # Collect dates by existing recommendation files within range
         proc = BASE_DIR / "data" / "processed"
@@ -3283,7 +3296,7 @@ def api_recommendations_summary():
                 b["accuracy_pct"] = None
             b["roi_pct"] = None
 
-        return jsonify({
+        _out = {
             "since": since,
             "until": until,
             "version": "summary-v2",
@@ -3295,7 +3308,15 @@ def api_recommendations_summary():
             "early_threes_metrics": early_threes_metrics,
             "first_basket_buckets": first_basket_buckets,
             "early_threes_buckets": early_threes_buckets,
-        })
+        }
+        try:
+            _cache_p = BASE_DIR / "data" / "processed" / "recommendations_summary.json"
+            _cache_p.parent.mkdir(parents=True, exist_ok=True)
+            with open(_cache_p, "w", encoding="utf-8") as fh:
+                _json.dump(_out, fh)
+        except Exception:
+            pass
+        return jsonify(_out)
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 
@@ -4000,6 +4021,69 @@ def api_recommendations_all():
                 return pd.read_csv(fp)
             except Exception:
                 return pd.DataFrame()
+        # Helper: find latest available processed file for a given stem (e.g., 'recommendations')
+        # Returns (date_str, Path) or (None, None) if none found.
+        def _find_latest_date_file(stem):
+            try:
+                import re as _re, glob as _glob, os as _os
+                pat = _re.compile(rf"^{_re.escape(stem)}_(\d{4}-\d{2}-\d{2})\.csv$")
+                base = str(proc)
+                pattern = _os.path.join(base, f"{stem}_*.csv")
+                try:
+                    print(f"[api_recommendations_all] fallback_pattern stem={stem} pattern={pattern}")
+                except Exception:
+                    pass
+                names = _glob.glob(pattern)
+                candidates = []
+                for full in names:
+                    try:
+                        nm = _os.path.basename(full)
+                        m = pat.match(nm)
+                        if m:
+                            candidates.append((m.group(1), full))
+                    except Exception:
+                        continue
+                try:
+                    print(f"[api_recommendations_all] fallback_scan stem={stem} dir={proc} candidates={len(candidates)}")
+                except Exception:
+                    pass
+                if not candidates:
+                    return None, None
+                candidates.sort(key=lambda t: t[0])
+                date_used, full_path = candidates[-1]
+                return date_used, Path(full_path) if 'Path' in globals() else full_path
+            except Exception as e:
+                try:
+                    print(f"[api_recommendations_all] fallback_scan error stem={stem} err={e}")
+                except Exception:
+                    pass
+                return None, None
+        # Helper: step backwards by days to find the first available file
+        def _find_prev_available_date_file(stem, start_date_str, max_back: int = 7):
+            try:
+                import datetime as _dt
+                try:
+                    start = _dt.date.fromisoformat(str(start_date_str))
+                except Exception:
+                    return None, None
+                for i in range(1, max_back + 1):
+                    cand = start - _dt.timedelta(days=i)
+                    fp = proc / f"{stem}_{cand.isoformat()}.csv"
+                    if fp.exists():
+                        try:
+                            print(f"[api_recommendations_all] fallback_prev stem={stem} date={cand.isoformat()} path={fp}")
+                        except Exception:
+                            pass
+                        return cand.isoformat(), fp
+            except Exception:
+                pass
+            return None, None
+        # Initialize meta dates map for diagnostics
+        try:
+            out_meta = out.setdefault("meta", {})
+            out_meta.setdefault("data_dates", {})
+        except Exception:
+            pass
         # Optional: load props probability calibration mapping (supports windowed selection via calib_window=30|60|90)
         try:
             import json as _json
@@ -4105,11 +4189,28 @@ def api_recommendations_all():
             if not games_p.exists():
                 _maybe_fetch_remote_processed(games_p.name)
             games_df = _read(games_p)
+            _games_date_used = d
+            # Fallback: use previous available date (up to 7 days), then latest
+            if (games_df is None) or games_df.empty:
+                alt_date, alt_path = _find_prev_available_date_file("recommendations", d, max_back=7)
+                if not alt_date:
+                    alt_date, alt_path = _find_latest_date_file("recommendations")
+                if alt_date and alt_path and alt_path.exists():
+                    try:
+                        games_df = _read(alt_path)
+                        _games_date_used = alt_date
+                        print(f"[api_recommendations_all] games_fallback date={alt_date} path={alt_path} rows={(0 if games_df is None else len(games_df))}")
+                    except Exception:
+                        pass
             try:
                 print(f"[api_recommendations_all] games_path={games_p} exists={games_p.exists()} rows={(0 if games_df is None else len(games_df))}")
             except Exception:
                 pass
             if not games_df.empty:
+                try:
+                    out.setdefault("meta", {}).setdefault("data_dates", {})["games"] = _games_date_used
+                except Exception:
+                    pass
                 try:
                     df = games_df.copy()
                     # Attach simulation probabilities/EV if available
@@ -4857,12 +4958,31 @@ def api_recommendations_all():
 
         if (not want_cats) or ("props" in want_cats):
             props_p = proc / f"props_recommendations_{d}.csv"
+            # Attempt remote fetch if missing
+            if not props_p.exists():
+                _maybe_fetch_remote_processed(props_p.name)
             props_df = _read(props_p)
+            _props_date_used = d
+            if (props_df is None) or props_df.empty:
+                alt_date, alt_path = _find_prev_available_date_file("props_recommendations", d, max_back=7)
+                if not alt_date:
+                    alt_date, alt_path = _find_latest_date_file("props_recommendations")
+                if alt_date and alt_path and alt_path.exists():
+                    try:
+                        props_df = _read(alt_path)
+                        _props_date_used = alt_date
+                        print(f"[api_recommendations_all] props_fallback date={alt_date} path={alt_path} rows={(0 if props_df is None else len(props_df))}")
+                    except Exception:
+                        pass
             try:
                 print(f"[api_recommendations_all] props_path={props_p} exists={props_p.exists()} rows={(0 if props_df is None else len(props_df))}")
             except Exception:
                 pass
             if not props_df.empty:
+                try:
+                    out.setdefault("meta", {}).setdefault("data_dates", {})["props"] = _props_date_used
+                except Exception:
+                    pass
                 try:
                     df = props_df.copy()
                     # Derive top play and parse plays regardless of compact mode
@@ -5282,8 +5402,27 @@ def api_recommendations_all():
         # First basket recs
         if (not want_cats) or ("first_basket" in want_cats):
             fb_p = proc / f"first_basket_recs_{d}.csv"
+            # Attempt remote fetch if missing
+            if not fb_p.exists():
+                _maybe_fetch_remote_processed(fb_p.name)
             fb_df = _read(fb_p)
+            _fb_date_used = d
+            if (fb_df is None) or fb_df.empty:
+                alt_date, alt_path = _find_prev_available_date_file("first_basket_recs", d, max_back=7)
+                if not alt_date:
+                    alt_date, alt_path = _find_latest_date_file("first_basket_recs")
+                if alt_date and alt_path and alt_path.exists():
+                    try:
+                        fb_df = _read(alt_path)
+                        _fb_date_used = alt_date
+                        print(f"[api_recommendations_all] first_basket_fallback date={alt_date} path={alt_path} rows={(0 if fb_df is None else len(fb_df))}")
+                    except Exception:
+                        pass
             if not fb_df.empty:
+                try:
+                    out.setdefault("meta", {}).setdefault("data_dates", {})["first_basket"] = _fb_date_used
+                except Exception:
+                    pass
                 try:
                     df = fb_df.copy()
                     # Enrich matchup and start time via schedule
@@ -5388,8 +5527,27 @@ def api_recommendations_all():
         # Early threes model output (recommendations inferred)
         if (not want_cats) or ("early_threes" in want_cats):
             thr_p = proc / f"early_threes_{d}.csv"
+            # Attempt remote fetch if missing
+            if not thr_p.exists():
+                _maybe_fetch_remote_processed(thr_p.name)
             thr_df = _read(thr_p)
+            _thr_date_used = d
+            if (thr_df is None) or thr_df.empty:
+                alt_date, alt_path = _find_prev_available_date_file("early_threes", d, max_back=7)
+                if not alt_date:
+                    alt_date, alt_path = _find_latest_date_file("early_threes")
+                if alt_date and alt_path and alt_path.exists():
+                    try:
+                        thr_df = _read(alt_path)
+                        _thr_date_used = alt_date
+                        print(f"[api_recommendations_all] early_threes_fallback date={alt_date} path={alt_path} rows={(0 if thr_df is None else len(thr_df))}")
+                    except Exception:
+                        pass
             if not thr_df.empty:
+                try:
+                    out.setdefault("meta", {}).setdefault("data_dates", {})["early_threes"] = _thr_date_used
+                except Exception:
+                    pass
                 try:
                     tmp = thr_df.copy()
                     for c in ("game_id","home_team","visitor_team","prob_ge_1","expected_threes_0_3","threes_0_3_pred"):
@@ -6687,6 +6845,78 @@ def api_props():
         return jsonify({"date": d, "source": src, "rows": rows, "collapsed": collapsed})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/debug/recommendations/status")
+def api_debug_recommendations_status():
+    """Debug status for recommendations data availability.
+
+    Reports existence and row counts for required processed files for a date,
+    along with basic environment flags and simple fallback candidates.
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    proc = BASE_DIR / "data" / "processed"
+    def info(stem):
+        try:
+            p = proc / f"{stem}_{d}.csv"
+            rows = _count_csv_rows_quick(p)
+            return {"requested_path": str(p), "exists": bool(p.exists()), "rows": int(rows)}
+        except Exception:
+            return {"requested_path": None, "exists": False, "rows": 0}
+    def latest(stem):
+        try:
+            import re as _re, glob as _glob, os as _os
+            pat = _re.compile(rf"^{_re.escape(stem)}_(\d{4}-\d{2}-\d{2})\.csv$")
+            names = _glob.glob(_os.path.join(str(proc), f"{stem}_*.csv"))
+            cands = []
+            for full in names:
+                nm = _os.path.basename(full)
+                m = pat.match(nm)
+                if m:
+                    cands.append((m.group(1), full))
+            if not cands:
+                return None
+            cands.sort(key=lambda t: t[0])
+            best = cands[-1]
+            return {"date": best[0], "path": str(best[1])}
+        except Exception:
+            return None
+    def prev(stem, start_date_str, max_back=7):
+        try:
+            import datetime as _dt
+            start = _dt.date.fromisoformat(str(start_date_str))
+            for i in range(1, int(max_back)+1):
+                cand = start - _dt.timedelta(days=i)
+                p = proc / f"{stem}_{cand.isoformat()}.csv"
+                if p.exists():
+                    return {"date": cand.isoformat(), "path": str(p)}
+        except Exception:
+            pass
+        return None
+    env = {
+        "ALLOW_REMOTE_ARTIFACTS": str(os.environ.get("ALLOW_REMOTE_ARTIFACTS", "0")),
+        "GITHUB_REPOSITORY": str(os.environ.get("GITHUB_REPOSITORY", "")),
+        "GIT_BRANCH": str(os.environ.get("GIT_BRANCH", "")),
+    }
+    return jsonify({
+        "date": d,
+        "processed_dir": str(proc),
+        "requested": {
+            "games": info("recommendations"),
+            "props": info("props_recommendations"),
+            "first_basket": info("first_basket_recs"),
+            "early_threes": info("early_threes"),
+        },
+        "fallback": {
+            "games": {"prev": prev("recommendations", d), "latest": latest("recommendations")},
+            "props": {"prev": prev("props_recommendations", d), "latest": latest("props_recommendations")},
+            "first_basket": {"prev": prev("first_basket_recs", d), "latest": latest("first_basket_recs")},
+            "early_threes": {"prev": prev("early_threes", d), "latest": latest("early_threes")},
+        },
+        "env": env,
+    })
 
 
 @app.route("/api/props/recommendations")

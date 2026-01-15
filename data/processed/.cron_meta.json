@@ -1,9 +1,9 @@
 {
   "last_run_all": {
-    "date": "2026-01-01",
-    "yesterday": "2026-01-01",
-    "log_file": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\logs\\web_daily_update_20260102_030558.log",
-    "timestamp": "2026-01-02T03:06:02Z"
+    "date": "2026-01-15",
+    "yesterday": "2026-01-14",
+    "log_file": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\logs\\web_daily_update_20260115_185412.log",
+    "timestamp": "2026-01-15T18:54:16Z"
   },
   "last_props_predictions": {
     "date": "2025-10-21",
@@ -12,10 +12,18 @@
     "timestamp": "2025-10-18T18:24:10Z"
   },
   "last_reconcile_games": {
-    "date": "2025-10-23",
-    "rows": 2,
-    "output": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\recon_games_2025-10-23.csv",
+    "date": "2026-01-15",
+    "rows": 9,
+    "output": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\recon_games_2026-01-15.csv",
     "pushed": null,
-    "timestamp": "2025-10-23T18:56:52Z"
+    "timestamp": "2026-01-15T18:54:12Z"
+  },
+  "last_refresh_bovada": {
+    "date": "2026-01-15",
+    "rows": 9,
+    "output": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\game_odds_2026-01-15.csv",
+    "props_raw_rows": 2030,
+    "props_raw_path": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\raw\\odds_bovada_player_props_2026-01-15.csv",
+    "timestamp": "2026-01-15T18:55:28Z"
   }
 }
