@@ -1,0 +1,18 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Indiana Pacers,Indiana Pacers,New Orleans Pelicans,2026-01-16,0.2641320073098705,-166.45454545454547,0.6247014670760832,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,New Orleans Pelicans,2026-01-16,,,,8.373342514038086,-4.0,12.373342514038086,4.0,,High
+TOTAL,Under,Indiana Pacers,New Orleans Pelicans,2026-01-16,,,,-12.345260620117188,241.5,,,229.1547393798828,High
+ML,Chicago Bulls,Brooklyn Nets,Chicago Bulls,2026-01-16,0.3702466014529443,86.81818181818181,0.5352798053527981,,,,,,High
+ATS,Chicago Bulls,Brooklyn Nets,Chicago Bulls,2026-01-16,,,,-10.326677322387695,2.0,-8.326677322387695,2.0,,High
+ML,Minnesota Timberwolves,Houston Rockets,Minnesota Timberwolves,2026-01-16,0.5512313029747818,148.27272727272728,0.40278286341999264,,,,,,High
+ATS,Minnesota Timberwolves,Houston Rockets,Minnesota Timberwolves,2026-01-16,,,,-5.990476369857788,4.5,-1.490476369857788,4.5,,High
+TOTAL,Over,Houston Rockets,Minnesota Timberwolves,2026-01-16,,,,6.68670654296875,222.0,,,228.68670654296875,High
+ML,Los Angeles Clippers,Toronto Raptors,Los Angeles Clippers,2026-01-16,0.3561489195657821,-128.72727272727272,0.5627980922098569,,,,,,High
+ATS,Los Angeles Clippers,Toronto Raptors,Los Angeles Clippers,2026-01-16,,,,-8.39976406097412,-2.0,-10.39976406097412,-2.0,,High
+TOTAL,Over,Toronto Raptors,Los Angeles Clippers,2026-01-16,,,,12.37841796875,216.0,,,228.37841796875,High
+ML,Cleveland Cavaliers,Philadelphia 76ers,Cleveland Cavaliers,2026-01-16,0.6688173162000774,115.1818181818182,0.4647232784114913,,,,,,High
+ATS,Cleveland Cavaliers,Philadelphia 76ers,Cleveland Cavaliers,2026-01-16,,,,-13.79920482635498,2.5,-11.29920482635498,2.5,,High
+TOTAL,Under,Philadelphia 76ers,Cleveland Cavaliers,2026-01-16,,,,-6.1902618408203125,232.5,,,226.3097381591797,High
+ML,Sacramento Kings,Sacramento Kings,Washington Wizards,2026-01-16,0.0338326308496541,-275.09090909090907,0.7333979641299079,,,,,,Medium
+ATS,Sacramento Kings,Sacramento Kings,Washington Wizards,2026-01-16,,,,2.540040969848633,-7.5,10.040040969848633,7.5,,Medium
+TOTAL,Under,Sacramento Kings,Washington Wizards,2026-01-16,,,,-11.706695556640653,233.5,,,221.79330444335935,High
