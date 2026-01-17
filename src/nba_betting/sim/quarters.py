@@ -7,6 +7,8 @@ from typing import Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
 
+from ..config import paths
+
 
 @dataclass
 class TeamContext:
@@ -27,6 +29,10 @@ class GameInputs:
     away: TeamContext
     market_total: Optional[float] = None
     market_home_spread: Optional[float] = None
+    # Optional tuned blend weights. If None, defaults can be loaded from
+    # data/processed/quarters_blend_weights.json.
+    blend_total_market_w: Optional[float] = None
+    blend_margin_market_w: Optional[float] = None
 
 
 @dataclass
@@ -48,6 +54,51 @@ class QuarterSummary:
     final_margin_sigma: float
     probs: Dict[str, float]
     evs: Dict[str, float]
+
+
+_DEFAULT_BLEND_TOTAL_W = 0.7
+_DEFAULT_BLEND_MARGIN_W = 0.7
+
+
+def _clamp01(x: float) -> float:
+    try:
+        return float(max(0.0, min(1.0, float(x))))
+    except Exception:
+        return 0.7
+
+
+def _load_default_blend_weights() -> tuple[float, float]:
+    """Return (total_w, margin_w) market blend weights.
+
+    If data/processed/quarters_blend_weights.json exists and contains
+    {"total_w": ..., "margin_w": ...}, those values are used.
+    """
+    global _DEFAULT_BLEND_TOTAL_W, _DEFAULT_BLEND_MARGIN_W
+    try:
+        fp = paths.data_processed / "quarters_blend_weights.json"
+        if not fp.exists():
+            return _DEFAULT_BLEND_TOTAL_W, _DEFAULT_BLEND_MARGIN_W
+        import json
+
+        obj = json.loads(fp.read_text(encoding="utf-8"))
+        tw = obj.get("total_w")
+        mw = obj.get("margin_w")
+        if tw is not None:
+            _DEFAULT_BLEND_TOTAL_W = _clamp01(float(tw))
+        if mw is not None:
+            _DEFAULT_BLEND_MARGIN_W = _clamp01(float(mw))
+    except Exception:
+        pass
+    return _DEFAULT_BLEND_TOTAL_W, _DEFAULT_BLEND_MARGIN_W
+
+
+def _blend_weights(inp: GameInputs) -> tuple[float, float]:
+    tw, mw = _load_default_blend_weights()
+    if inp.blend_total_market_w is not None:
+        tw = _clamp01(float(inp.blend_total_market_w))
+    if inp.blend_margin_market_w is not None:
+        mw = _clamp01(float(inp.blend_margin_market_w))
+    return tw, mw
 
 
 def _safe_float(x, default=None):
@@ -141,12 +192,14 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     home_mu = max(70.0, (home_eff / 100.0) * pace) + home_adj
     away_mu = max(70.0, (away_eff / 100.0) * pace) + away_adj
 
+    w_total, w_margin = _blend_weights(inp)
+
     # Align to market total/spread when provided (Bayesian blend)
     if inp.market_total is not None:
         mt = float(inp.market_total)
-        # Blend: 70% market, 30% model for total
+        # Blend: w_total market, (1-w_total) model for total
         cur_total_mu = home_mu + away_mu
-        blend_total = 0.7 * mt + 0.3 * cur_total_mu
+        blend_total = w_total * mt + (1.0 - w_total) * cur_total_mu
         scale = blend_total / max(1e-6, cur_total_mu)
         home_mu *= scale
         away_mu *= scale
@@ -156,7 +209,7 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         ms = float(inp.market_home_spread)
         # Blend margin to market spread
         # home_spread convention: negative means home is favorite; market expects home margin = -home_spread
-        target_margin_mu = 0.7 * (-ms) + 0.3 * margin_mu
+        target_margin_mu = w_margin * (-ms) + (1.0 - w_margin) * margin_mu
         # IMPORTANT: apply the target margin to team means while preserving the total.
         # Otherwise the simulation stays near a coin-flip even for large market spreads.
         home_mu = 0.5 * (cur_total_mu + target_margin_mu)
@@ -290,6 +343,161 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     except Exception:
         pass
 
+    return QuarterSummary(
+        quarters=quarters,
+        final_total_mu=final_total_mu,
+        final_total_sigma=final_total_sigma,
+        final_margin_mu=final_margin_mu,
+        final_margin_sigma=final_margin_sigma,
+        probs=probs,
+        evs=evs,
+    )
+
+
+def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
+    """Deterministic quarter scoring summary (no Monte Carlo).
+
+    Uses the same mean/quarter-sigma model as simulate_quarters, but computes
+    final total/margin variances analytically and returns normal-CDF probs.
+    """
+    home = inp.home
+    away = inp.away
+
+    pace = np.mean([_safe_float(home.pace, 98.0), _safe_float(away.pace, 98.0)])
+    try:
+        b2b_drag = 0.0
+        if bool(home.back_to_back):
+            b2b_drag += 1.0
+        if bool(away.back_to_back):
+            b2b_drag += 1.0
+        inj_drag = 0.3 * max(0, int(home.injuries_out or 0)) + 0.3 * max(0, int(away.injuries_out or 0))
+        pace = max(90.0, pace - b2b_drag - inj_drag)
+    except Exception:
+        pass
+
+    LEAGUE_AVG_RATING = 112.0
+
+    def _clip_rating(x: float, lo: float = 95.0, hi: float = 130.0) -> float:
+        try:
+            return float(max(lo, min(hi, x)))
+        except Exception:
+            return float(x)
+
+    home_off = _safe_float(home.off_rating, LEAGUE_AVG_RATING)
+    away_off = _safe_float(away.off_rating, LEAGUE_AVG_RATING)
+    home_def = _safe_float(home.def_rating, LEAGUE_AVG_RATING)
+    away_def = _safe_float(away.def_rating, LEAGUE_AVG_RATING)
+
+    home_eff = _clip_rating(home_off - (away_def - LEAGUE_AVG_RATING))
+    away_eff = _clip_rating(away_off - (home_def - LEAGUE_AVG_RATING))
+
+    home_adj = _adjustments(home)
+    away_adj = _adjustments(away)
+
+    home_mu = max(70.0, (home_eff / 100.0) * pace) + home_adj
+    away_mu = max(70.0, (away_eff / 100.0) * pace) + away_adj
+
+    w_total, w_margin = _blend_weights(inp)
+
+    if inp.market_total is not None:
+        mt = float(inp.market_total)
+        cur_total_mu = home_mu + away_mu
+        blend_total = w_total * mt + (1.0 - w_total) * cur_total_mu
+        scale = blend_total / max(1e-6, cur_total_mu)
+        home_mu *= scale
+        away_mu *= scale
+
+    cur_total_mu = home_mu + away_mu
+    margin_mu = home_mu - away_mu
+    if inp.market_home_spread is not None:
+        ms = float(inp.market_home_spread)
+        target_margin_mu = w_margin * (-ms) + (1.0 - w_margin) * margin_mu
+        home_mu = 0.5 * (cur_total_mu + target_margin_mu)
+        away_mu = 0.5 * (cur_total_mu - target_margin_mu)
+
+        MIN_TEAM_PTS = 60.0
+        if home_mu < MIN_TEAM_PTS:
+            home_mu = MIN_TEAM_PTS
+            away_mu = cur_total_mu - home_mu
+        if away_mu < MIN_TEAM_PTS:
+            away_mu = MIN_TEAM_PTS
+            home_mu = cur_total_mu - away_mu
+
+        margin_mu = home_mu - away_mu
+
+    splits = _quarter_splits()
+    quarters: List[QuarterResult] = []
+    corr_q = 0.25
+    try:
+        if pace >= 100.0:
+            corr_q = min(0.40, corr_q + 0.10)
+    except Exception:
+        pass
+
+    for qi, frac in enumerate(splits, start=1):
+        h_mu_q = frac * home_mu
+        a_mu_q = frac * away_mu
+        h_sig_q = _sigma_for_quarter(h_mu_q)
+        a_sig_q = _sigma_for_quarter(a_mu_q)
+        try:
+            stress = 0.0
+            stress += (0.1 if bool(home.back_to_back) else 0.0) + (0.1 * max(0, int(home.injuries_out or 0)))
+            stress += (0.1 if bool(away.back_to_back) else 0.0) + (0.1 * max(0, int(away.injuries_out or 0)))
+            for f in [home.form_7, home.form_30, away.form_7, away.form_30]:
+                try:
+                    fv = abs(_safe_float(f, 0.0) or 0.0)
+                    stress += 0.05 * min(3.0, fv)
+                except Exception:
+                    pass
+            scale = 1.0 + min(0.35, stress)
+            h_sig_q = float(h_sig_q) * scale
+            a_sig_q = float(a_sig_q) * scale
+        except Exception:
+            pass
+
+        quarters.append(
+            QuarterResult(
+                q=qi,
+                home_pts_mu=h_mu_q,
+                home_pts_sigma=h_sig_q,
+                away_pts_mu=a_mu_q,
+                away_pts_sigma=a_sig_q,
+                corr=corr_q,
+            )
+        )
+
+    var_total = 0.0
+    var_margin = 0.0
+    for q in quarters:
+        cov = float((q.corr or 0.0) * q.home_pts_sigma * q.away_pts_sigma)
+        var_h = float(q.home_pts_sigma ** 2)
+        var_a = float(q.away_pts_sigma ** 2)
+        var_total += var_h + var_a + 2.0 * cov
+        var_margin += var_h + var_a - 2.0 * cov
+
+    final_total_mu = float(home_mu + away_mu)
+    final_margin_mu = float(home_mu - away_mu)
+    final_total_sigma = float(math.sqrt(max(1e-6, var_total)))
+    final_margin_sigma = float(math.sqrt(max(1e-6, var_margin)))
+
+    def _phi(z: float) -> float:
+        return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+    probs: Dict[str, float] = {}
+    try:
+        probs["p_home_ml"] = float(1.0 - _phi((0.0 - final_margin_mu) / max(1e-6, final_margin_sigma)))
+        if inp.market_home_spread is not None:
+            hs = float(inp.market_home_spread)
+            probs["p_home_cover"] = float(1.0 - _phi(((-hs) - final_margin_mu) / max(1e-6, final_margin_sigma)))
+            probs["p_away_cover"] = float(1.0 - probs["p_home_cover"])
+        if inp.market_total is not None:
+            tot = float(inp.market_total)
+            probs["p_total_over"] = float(1.0 - _phi((tot - final_total_mu) / max(1e-6, final_total_sigma)))
+            probs["p_total_under"] = float(1.0 - probs["p_total_over"])
+    except Exception:
+        pass
+
+    evs: Dict[str, float] = {}
     return QuarterSummary(
         quarters=quarters,
         final_total_mu=final_total_mu,

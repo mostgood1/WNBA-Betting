@@ -27,6 +27,77 @@ def _norm_name(x: Any) -> str:
     return " ".join(str(x or "").strip().split())
 
 
+def _norm_player_key(x: Any) -> str:
+    """Normalize player name for matching across data sources.
+
+    Must be stable across:
+      - roster lists (often already normalized)
+      - props_df player_name (can contain punctuation/suffixes)
+      - minutes priors keys (uppercased, punctuation stripped)
+    """
+    try:
+        t = str(x or "").strip()
+        if not t:
+            return ""
+        if "(" in t:
+            t = t.split("(", 1)[0]
+        t = t.replace("-", " ")
+        t = t.replace(".", "").replace("'", "").replace(",", " ")
+        t = " ".join(t.split())
+        u = t.upper()
+        for suf in (" JR", " SR", " II", " III", " IV"):
+            if u.endswith(suf):
+                u = u[: -len(suf)].strip()
+                break
+        try:
+            u = u.encode("ascii", "ignore").decode("ascii")
+        except Exception:
+            pass
+        return " ".join(u.split())
+    except Exception:
+        return ""
+
+
+def _cap_probs(p: np.ndarray, cap: float = 0.38) -> np.ndarray:
+    """Cap maximum probability to avoid pathological concentration."""
+    x = np.asarray(p, dtype=float)
+    if x.ndim != 1 or x.size == 0:
+        return x
+    x = np.maximum(0.0, np.where(np.isfinite(x), x, 0.0))
+    s = float(np.sum(x))
+    if not np.isfinite(s) or s <= 0:
+        return np.full_like(x, 1.0 / x.size)
+    x = x / s
+    cap = float(cap)
+    if not np.isfinite(cap) or cap <= 0:
+        return x
+    cap = min(cap, 0.95)
+
+    # Iteratively cap the largest entries and renormalize the remainder.
+    for _ in range(10):
+        m = float(np.max(x))
+        if m <= cap + 1e-12:
+            break
+        i = int(np.argmax(x))
+        excess = float(x[i] - cap)
+        x[i] = cap
+        rem = float(np.sum(x) - cap)
+        if rem <= 0:
+            # all mass on one player; spread uniformly
+            x = np.full_like(x, 1.0 / x.size)
+            break
+        scale = (1.0 - cap) / rem
+        for j in range(x.size):
+            if j == i:
+                continue
+            x[j] *= scale
+    # final renorm
+    s2 = float(np.sum(x))
+    if s2 > 0 and np.isfinite(s2):
+        x = x / s2
+    return x
+
+
 def _dirichlet_weights(
     players: pd.DataFrame,
     points_col: str = "pred_pts",
@@ -51,13 +122,24 @@ def _dirichlet_weights(
         mins = np.full_like(pts, 24.0)
     mins = np.where(np.isfinite(mins), mins, 0.0)
 
-    # Use a soft weighting: points * minutes (with floors) to avoid zeros.
-    w = np.maximum(0.25, np.maximum(0.0, pts)) * np.maximum(min_floor, mins)
-    s = float(np.sum(w))
-    if not np.isfinite(s) or s <= 0:
-        w = np.ones_like(w, dtype=float)
-        s = float(np.sum(w))
-    return w / s
+    # More stable points allocation: minutes-driven with tempered scoring signal.
+    pts_clean = np.where(np.isfinite(pts), np.maximum(0.0, pts), 0.0)
+    mins_clean = np.maximum(min_floor, np.where(np.isfinite(mins), np.maximum(0.0, mins), 0.0))
+
+    # Use points-per-minute as a usage proxy (clipped), but keep minutes primary.
+    ppm = pts_clean / np.maximum(1.0, mins_clean)
+    ppm = np.clip(ppm, 0.0, 1.2)  # ~43 pts / 36 min upper-ish
+    usage = 0.9 + 0.9 * ppm  # [0.9, 1.98]
+
+    # Temper predicted points so a single outlier doesn't dominate.
+    w = mins_clean * usage * (1.0 + 0.15 * np.log1p(pts_clean))
+    w = np.maximum(1e-3, w)
+    p = w / float(np.sum(w))
+    # Flatten slightly and cap max share.
+    p = np.power(p, 0.90)
+    p = p / float(np.sum(p))
+    p = _cap_probs(p, cap=0.38)
+    return p
 
 
 def _normalize_team_minutes(
@@ -140,12 +222,21 @@ def _weights_from_stat_and_minutes(
         mins = pd.to_numeric(players[min_col], errors="coerce").fillna(0.0).to_numpy(dtype=float)
     else:
         mins = np.zeros(int(len(players)), dtype=float)
-    w = np.maximum(floor, np.maximum(0.0, base)) * np.maximum(1.0, np.maximum(0.0, mins))
+    base_pos = np.maximum(0.0, np.where(np.isfinite(base), base, 0.0))
+    mins_pos = np.maximum(1.0, np.where(np.isfinite(mins), np.maximum(0.0, mins), 0.0))
+
+    # Blend minutes-driven allocation with a tempered stat prior to avoid zeroing low-signal players.
+    # log1p compresses large priors while still differentiating.
+    w = mins_pos * (0.85 + 0.35 * np.log1p(base_pos))
+    w = np.maximum(floor, w)
+
     s = float(np.sum(w))
     if not np.isfinite(s) or s <= 0:
         w = np.ones_like(w, dtype=float)
         s = float(np.sum(w))
-    return w / s
+    p = w / s
+    p = _cap_probs(p, cap=0.55)
+    return p
 
 
 def _shannon_entropy(p: np.ndarray) -> float:
@@ -254,11 +345,21 @@ def simulate_connected_game(
         if "player_name" in out.columns:
             out = out[out["player_name"].astype(str).str.strip().ne("")]
 
+        # If an explicit roster was provided, restrict to those players.
+        # This prevents injured/non-rotation players from appearing due to stale rows in props_df.
+        try:
+            roster_names = [(_norm_player_key(x), _norm_name(x)) for x in (roster or []) if _norm_player_key(x)]
+            if roster_names and ("player_name" in out.columns) and (not out.empty):
+                allowed = set(k for k, _ in roster_names)
+                out = out[out["player_name"].map(_norm_player_key).isin(allowed)].copy()
+        except Exception:
+            pass
+
         # Deduplicate: keep the most-relevant row per player (highest minutes signal, then pred_pts)
         if not out.empty and "player_name" in out.columns:
             try:
                 out = out.copy()
-                out["_player_norm"] = out["player_name"].map(_norm_name).str.upper()
+                out["_player_norm"] = out["player_name"].map(_norm_player_key)
                 # pick best minutes feature available
                 mins_col = None
                 for c in ("pred_min", "roll10_min", "roll5_min", "roll20_min", "roll30_min"):
@@ -290,11 +391,67 @@ def simulate_connected_game(
         try:
             pri = minutes_priors or {}
             team_u = str(team or "").strip().upper()
-            roster_names = [(_norm_name(x).upper(), _norm_name(x)) for x in (roster or []) if _norm_name(x)]
+            roster_names = [(_norm_player_key(x), _norm_name(x)) for x in (roster or []) if _norm_player_key(x)]
+
+            # If roster isn't available, derive a pseudo-roster from minutes priors for this team.
+            # This prevents inflating a tiny player pool up to 240 minutes.
+            if (not roster_names) and pri:
+                try:
+                    cand: list[tuple[str, float]] = []
+                    for (t, nm), m in pri.items():
+                        if str(t).strip().upper() != team_u:
+                            continue
+                        mm = _to_num(m)
+                        if mm is None or mm <= 0:
+                            continue
+                        key = _norm_player_key(nm)
+                        if not key:
+                            continue
+                        cand.append((key, float(mm)))
+                    if cand:
+                        cand.sort(key=lambda x: x[1], reverse=True)
+                        roster_names = [(k, k) for k, _ in cand[:14]]
+                except Exception:
+                    pass
+
+            # If roster exists but is undersized, augment it from priors.
+            try:
+                min_roster_target = 10
+                if pri and roster_names and int(len(roster_names)) < min_roster_target:
+                    have = set(k for k, _ in roster_names)
+                    cand2: list[tuple[str, float]] = []
+                    for (t, nm), m in pri.items():
+                        if str(t).strip().upper() != team_u:
+                            continue
+                        key = _norm_player_key(nm)
+                        if not key or key in have:
+                            continue
+                        mm = _to_num(m)
+                        if mm is None or mm <= 0:
+                            continue
+                        cand2.append((key, float(mm)))
+                    if cand2:
+                        cand2.sort(key=lambda x: x[1], reverse=True)
+                        for k, _ in cand2:
+                            roster_names.append((k, k))
+                            have.add(k)
+                            if int(len(roster_names)) >= 14:
+                                break
+            except Exception:
+                pass
+
+            # Attach minutes priors for existing players to improve rotation realism when pred_min is missing.
+            if (not out.empty) and ("player_name" in out.columns) and pri:
+                try:
+                    out = out.copy()
+                    out["_prior_min"] = out["player_name"].map(lambda nm: pri.get((team_u, _norm_player_key(nm))))
+                except Exception:
+                    pass
+
             if roster_names:
                 existing = set()
                 if "player_name" in out.columns and not out.empty:
-                    existing = set(out["player_name"].map(_norm_name).str.upper().tolist())
+                    existing = set(out["player_name"].map(_norm_player_key).tolist())
 
                 additions: list[dict[str, Any]] = []
                 for key_norm, disp in roster_names:
@@ -325,20 +482,20 @@ def simulate_connected_game(
 
                 # Ensure at least an 8-man rotation by adding low-minute roster players (even without priors).
                 # This avoids placeholders while keeping weights small.
-                min_roster = 8
+                min_roster = 10
                 if int(len(out)) < min_roster:
                     need = max(0, min_roster - int(len(out)))
                     more: list[dict[str, Any]] = []
                     for key_norm, disp in roster_names:
                         if need <= 0:
                             break
-                        if key_norm in set(out.get("player_name", pd.Series([], dtype=str)).map(_norm_name).str.upper().tolist()):
+                        if key_norm in set(out.get("player_name", pd.Series([], dtype=str)).map(_norm_player_key).tolist()):
                             continue
                         more.append(
                             {
                                 "player_name": disp,
                                 "team": team_u,
-                                "pred_min": float(pri.get((team_u, key_norm), 10.0) or 10.0),
+                                "pred_min": float(pri.get((team_u, key_norm), 8.0) or 8.0),
                                 "pred_pts": 0.0,
                                 "pred_reb": 0.0,
                                 "pred_ast": 0.0,
@@ -365,7 +522,7 @@ def simulate_connected_game(
             "minutes_source": None,
             "minutes_total_raw": None,
             "minutes_total_sim": None,
-            "minutes_cap": 44.0,
+            "minutes_cap": 40.0,
             "minutes_target": 240.0,
             "fillers_added": 0,
             "players": 0,
@@ -383,16 +540,23 @@ def simulate_connected_game(
                 mins_col = c
                 break
         diag["minutes_source"] = mins_col
-        raw = (
-            pd.to_numeric(players.get(mins_col), errors="coerce").fillna(0.0).to_numpy(dtype=float)
-            if mins_col
-            else np.zeros(len(players), dtype=float)
-        )
+        raw = pd.to_numeric(players.get(mins_col), errors="coerce").fillna(0.0).to_numpy(dtype=float) if mins_col else np.zeros(len(players), dtype=float)
+
+        # If we have priors, fill missing/near-zero minutes from priors.
+        try:
+            if "_prior_min" in players.columns:
+                pri = pd.to_numeric(players.get("_prior_min"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+                use = (raw < 1.0) & (pri > 0.0)
+                if bool(np.any(use)):
+                    raw = np.where(use, pri, raw)
+                    diag["minutes_source"] = f"{mins_col or 'none'}+prior"
+        except Exception:
+            pass
         # If all zeros, give a small default so we can still allocate a rotation.
         if float(np.sum(raw)) <= 0:
             raw = np.full(len(players), 24.0, dtype=float)
         diag["minutes_total_raw"] = float(np.sum(raw))
-        sim_mins = _normalize_team_minutes(raw, total_minutes=240.0, cap_player_minutes=44.0, floor_minutes=0.0)
+        sim_mins = _normalize_team_minutes(raw, total_minutes=240.0, cap_player_minutes=40.0, floor_minutes=0.0)
         diag["minutes_total_sim"] = float(np.sum(sim_mins))
         out = players.copy()
         out["_sim_min"] = sim_mins
@@ -597,15 +761,76 @@ def simulate_connected_game(
     }
 
 
-def write_sportswriter_recap(sim: Dict[str, Any], market_total: Optional[float] = None, market_home_spread: Optional[float] = None) -> str:
-    """Generate an original sportswriter-style recap from a representative connected sim."""
+def write_sportswriter_recap(
+    sim: Dict[str, Any],
+    market_total: Optional[float] = None,
+    market_home_spread: Optional[float] = None,
+    use_means: bool = True,
+    quarters_override: Optional[List[Dict[str, Any]]] = None,
+    home_score_override: Optional[float] = None,
+    away_score_override: Optional[float] = None,
+    probs: Optional[Dict[str, float]] = None,
+) -> str:
+    """Generate an original sportswriter-style recap.
+
+    By default, this uses mean quarter/score outputs so the narrative matches the displayed
+    quarter table and mean score. Set use_means=False to narrate the representative sample.
+
+    If quarters_override is provided, the narrative will be driven from those quarters
+    (with cumulative recomputed) and the score will be derived from the override unless
+    home_score_override/away_score_override are set.
+    """
     try:
         home = sim.get("home")
         away = sim.get("away")
         rep = sim.get("rep") or {}
-        h = int(rep.get("home_score") or 0)
-        a = int(rep.get("away_score") or 0)
-        q = rep.get("quarters") or []
+
+        def _with_cum(q_in: Any) -> List[Dict[str, Any]]:
+            out: List[Dict[str, Any]] = []
+            hcum = 0.0
+            acum = 0.0
+            for row in (q_in if isinstance(q_in, list) else []):
+                try:
+                    hh = float((row or {}).get("home") or 0.0)
+                    aa = float((row or {}).get("away") or 0.0)
+                except Exception:
+                    hh = 0.0
+                    aa = 0.0
+                hcum += hh
+                acum += aa
+                out.append(
+                    {
+                        "q": int((row or {}).get("q") or (len(out) + 1)),
+                        "home": hh,
+                        "away": aa,
+                        "home_cum": hcum,
+                        "away_cum": acum,
+                    }
+                )
+            return out
+
+        if quarters_override is not None:
+            q = _with_cum(quarters_override)
+            if home_score_override is not None:
+                h = int(round(float(home_score_override)))
+            else:
+                h = int(round(float(sum(float(r.get("home") or 0.0) for r in q))))
+            if away_score_override is not None:
+                a = int(round(float(away_score_override)))
+            else:
+                a = int(round(float(sum(float(r.get("away") or 0.0) for r in q))))
+        else:
+            means = sim.get("means") or {}
+            if use_means and isinstance(means, dict):
+                h = int(round(float(means.get("home_score") or 0.0)))
+                a = int(round(float(means.get("away_score") or 0.0)))
+                q_raw = means.get("quarters") or []
+                # means['quarters'] doesn't include cumulative; build it.
+                q = _with_cum(q_raw)
+            else:
+                h = int(rep.get("home_score") or 0)
+                a = int(rep.get("away_score") or 0)
+                q = rep.get("quarters") or []
 
         if h == a:
             winner = None
@@ -647,18 +872,37 @@ def write_sportswriter_recap(sim: Dict[str, Any], market_total: Optional[float] 
                 top = p
         top_line = ""
         if top:
-            top_line = f"{top.get('player_name')} led the way with {int(top.get('pts') or 0)} points."
+            top_line = f"In the representative box score, {top.get('player_name')} led the way with {int(top.get('pts') or 0)} points."
 
         mkt_line = ""
         try:
             tot = float(market_total) if market_total is not None else None
             spr = float(market_home_spread) if market_home_spread is not None else None
             if tot is not None:
-                mkt_line += f" The game finished around {h+a} total points against a market total of {tot:.1f}."
+                po = None
+                if isinstance(probs, dict):
+                    try:
+                        po = float(probs.get("p_total_over")) if probs.get("p_total_over") is not None else None
+                    except Exception:
+                        po = None
+                if po is not None and np.isfinite(po):
+                    mkt_line += (
+                        f" Expected total is about {int(round(h+a))} against a market total of {tot:.1f} "
+                        f"(Over {po*100:.0f}%, Under {(1.0-po)*100:.0f}%)."
+                    )
+                else:
+                    mkt_line += f" Expected total is about {int(round(h+a))} against a market total of {tot:.1f}."
             if spr is not None:
-                # home_spread is market line for home (positive=dog). Cover check uses margin + spread > 0.
-                cover = ((h - a) + spr) > 0
-                mkt_line += f" {home} {'covered' if cover else 'did not cover'} {spr:+.1f}."
+                ph = None
+                if isinstance(probs, dict):
+                    try:
+                        ph = float(probs.get("p_home_cover")) if probs.get("p_home_cover") is not None else None
+                    except Exception:
+                        ph = None
+                if ph is not None and np.isfinite(ph):
+                    mkt_line += f" At {home} {spr:+.1f}, cover chances are {home} {ph*100:.0f}% and {away} {(1.0-ph)*100:.0f}%."
+                else:
+                    mkt_line += f" Spread line: {home} {spr:+.1f}."
         except Exception:
             pass
 
@@ -673,15 +917,24 @@ def write_sportswriter_recap(sim: Dict[str, Any], market_total: Optional[float] 
         else:
             lines.append(f"{home} and {away} played to a {h}-{a} draw through regulation.")
         if q1:
-            lines.append(f"It started fast: {away} put up {int(q1.get('away',0))} in the first, but {home} answered with {int(q1.get('home',0))}.")
+            lines.append(
+                f"It started fast: {away} put up {int(round(float(q1.get('away',0) or 0)))} in the first, "
+                f"but {home} answered with {int(round(float(q1.get('home',0) or 0)))}."
+            )
         if q2:
-            lines.append(f"By halftime it was {int(q2.get('home_cum',0))}-{int(q2.get('away_cum',0))}, with both sides trading clean looks.")
+            lines.append(
+                f"By halftime it was {int(round(float(q2.get('home_cum',0) or 0)))}-"
+                f"{int(round(float(q2.get('away_cum',0) or 0)))}, with both sides trading clean looks."
+            )
         if q3 and swing_q == 3:
             lines.append(f"The third quarter swung the night — a {home if swing_amt>0 else away} burst flipped the tone.")
         elif q3:
             lines.append(f"The third brought the usual push, setting up a late finish.")
         if q4:
-            lines.append(f"In the fourth, {home} scored {int(q4.get('home',0))} while {away} added {int(q4.get('away',0))}, and that was enough to seal it.")
+            lines.append(
+                f"In the fourth, {home} scored {int(round(float(q4.get('home',0) or 0)))} "
+                f"while {away} added {int(round(float(q4.get('away',0) or 0)))}, and that was enough to seal it."
+            )
         if top_line:
             lines.append(top_line)
         if mkt_line:

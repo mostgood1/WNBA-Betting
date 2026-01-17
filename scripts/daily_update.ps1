@@ -384,6 +384,35 @@ try {
   }
 } catch { Write-Log ("Reliability automation failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 1.6b++) Connected sim realism (player boxscore) evaluation
+# This is for accuracy/regression monitoring. It is enabled by default; set DAILY_SKIP_CONNECTED_REALISM=1 to skip.
+try {
+  $skipConn = $env:DAILY_SKIP_CONNECTED_REALISM
+  if ($null -ne $skipConn -and $skipConn -match '^(1|true|yes)$') {
+    Write-Log 'Skipping connected realism (DAILY_SKIP_CONNECTED_REALISM=1)'
+  } else {
+    $connDays = $env:DAILY_CONNECTED_REALISM_DAYS
+    if ($null -eq $connDays -or $connDays -notmatch '^\d+$') { $connDays = '1' }
+    $connTopK = $env:DAILY_CONNECTED_REALISM_TOPK
+    if ($null -eq $connTopK -or $connTopK -notmatch '^\d+$') { $connTopK = '8' }
+    $connSkipOt = $env:DAILY_CONNECTED_REALISM_SKIP_OT
+    if ($null -eq $connSkipOt -or $connSkipOt -eq '') { $connSkipOt = '1' }
+    $connQS = $env:DAILY_CONNECTED_REALISM_QSAMPLES
+    if ($null -eq $connQS -or $connQS -notmatch '^\d+$') { $connQS = '' }
+    $connCS = $env:DAILY_CONNECTED_REALISM_CSAMPLES
+    if ($null -eq $connCS -or $connCS -notmatch '^\d+$') { $connCS = '' }
+
+    Write-Log ("Running connected realism (days={0}, topK={1}, skipOT={2})" -f $connDays, $connTopK, $connSkipOt)
+    $plist = @('-m','nba_betting.cli','evaluate-connected-realism','--days', $connDays, '--top-k', $connTopK)
+    if ($connSkipOt -match '^(1|true|yes)$') { $plist += '--skip-ot' }
+    if ($connQS -ne '') { $plist += @('--n-quarter-samples', $connQS) }
+    if ($connCS -ne '') { $plist += @('--n-connected-samples', $connCS) }
+
+    $elapsed = Measure-Command { $rcConn = Invoke-PyMod -plist $plist }
+    Write-Log ("evaluate-connected-realism exit code: {0} (elapsed={1:n2}s)" -f $rcConn, $elapsed.TotalSeconds)
+  }
+} catch { Write-Log ("Connected realism failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 1.6c) Drift monitoring (reference 30d vs current 7d)
 try {
   $driftScript = Join-Path $RepoRoot 'tools/drift_monitor.py'

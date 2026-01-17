@@ -308,6 +308,108 @@ def evaluate_reliability_cmd(start: str | None, end: str | None, days: int, bins
     except Exception as e:
         console.print(f"Reliability failed: {e}", style="red")
 
+
+@cli.command("evaluate-sim-realism")
+@click.option("--start", "start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", "end", type=str, required=False, help="End date YYYY-MM-DD (default: latest recon date)")
+@click.option("--days", "days", type=int, default=30, show_default=True, help="If start/end not provided, evaluate last N days")
+@click.option("--n-samples", "n_samples", type=int, default=2000, show_default=True, help="Sim samples per game")
+def evaluate_sim_realism_cmd(start: str | None, end: str | None, days: int, n_samples: int):
+    """Backtest sim realism (total/margin/win calibration) over historical games.
+
+    Writes per-game CSV + JSON summary under data/processed/.
+    """
+    console.rule("Evaluate Sim Realism")
+    try:
+        script = paths.root / "tools" / "evaluate_sim_realism.py"
+        if not script.exists():
+            console.print(f"Missing sim realism script: {script}", style="red"); return
+        args = [sys.executable, str(script), "--n-samples", str(int(n_samples))]
+        if start and end:
+            args += ["--start", str(start), "--end", str(end)]
+        else:
+            args += ["--days", str(int(days))]
+            if end:
+                args += ["--end", str(end)]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Sim realism exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Sim realism failed: {e}", style="red")
+
+
+@cli.command("evaluate-connected-realism")
+@click.option("--start", "start", type=str, required=False, help="Start date YYYY-MM-DD")
+@click.option("--end", "end", type=str, required=False, help="End date YYYY-MM-DD (default: latest player log date)")
+@click.option("--days", "days", type=int, default=14, show_default=True, help="If start/end not provided, evaluate last N days")
+@click.option("--n-quarter-samples", "n_quarter_samples", type=int, default=3500, show_default=True, help="Quarter sim samples per game")
+@click.option("--n-connected-samples", "n_connected_samples", type=int, default=1200, show_default=True, help="Connected sim samples per game")
+@click.option("--minutes-lookback-days", "minutes_lookback_days", type=int, default=21, show_default=True, help="Lookback window for minutes priors")
+@click.option("--top-k", "top_k", type=int, default=8, show_default=True, help="Score top-K players by actual minutes")
+@click.option("--skip-ot", "skip_ot", is_flag=True, help="Skip likely OT games (team minutes >245)")
+@click.option("--seed", "seed", type=int, default=1, show_default=True, help="Seed base")
+@click.option("--out-games-csv", "out_games_csv", type=str, required=False, help="Override output games CSV path")
+@click.option("--out-players-csv", "out_players_csv", type=str, required=False, help="Override output players CSV path")
+@click.option("--out-json", "out_json", type=str, required=False, help="Override output JSON summary path")
+def evaluate_connected_realism_cmd(
+    start: str | None,
+    end: str | None,
+    days: int,
+    n_quarter_samples: int,
+    n_connected_samples: int,
+    minutes_lookback_days: int,
+    top_k: int,
+    skip_ot: bool,
+    seed: int,
+    out_games_csv: str | None,
+    out_players_csv: str | None,
+    out_json: str | None,
+):
+    """Backtest connected (player boxscore) sim realism vs player_logs.csv.
+
+    Writes per-game CSV, per-player CSV, and a JSON summary under data/processed/.
+    """
+    console.rule("Evaluate Connected Realism")
+    try:
+        script = paths.root / "tools" / "evaluate_connected_realism.py"
+        if not script.exists():
+            console.print(f"Missing connected realism script: {script}", style="red"); return
+        args = [
+            sys.executable,
+            str(script),
+            "--n-quarter-samples",
+            str(int(n_quarter_samples)),
+            "--n-connected-samples",
+            str(int(n_connected_samples)),
+            "--minutes-lookback-days",
+            str(int(minutes_lookback_days)),
+            "--top-k",
+            str(int(top_k)),
+            "--seed",
+            str(int(seed)),
+        ]
+        if skip_ot:
+            args += ["--skip-ot"]
+        if out_games_csv:
+            args += ["--out-games-csv", str(out_games_csv)]
+        if out_players_csv:
+            args += ["--out-players-csv", str(out_players_csv)]
+        if out_json:
+            args += ["--out-json", str(out_json)]
+        if start and end:
+            args += ["--start", str(start), "--end", str(end)]
+        else:
+            args += ["--days", str(int(days))]
+            if end:
+                args += ["--end", str(end)]
+        console.print({"run": " ".join(args)})
+        cp = subprocess.run(args, capture_output=False, check=False)
+        if cp.returncode != 0:
+            console.print(f"Connected realism exited with code {cp.returncode}", style="red")
+    except Exception as e:
+        console.print(f"Connected realism failed: {e}", style="red")
+
 @cli.command("evaluate-props-lite")
 @click.option("--start", type=str, required=False, help="Start date YYYY-MM-DD")
 @click.option("--end", type=str, required=False, help="End date YYYY-MM-DD")

@@ -225,7 +225,7 @@ async function toggleWriteup(cardId, dateStr, home, away){
   try{
     let payload = state.gameStoryByKey.get(key) || null;
     if (!payload){
-      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=900`;
+      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=900&alpha=${encodeURIComponent(String(SCORE_BLEND_ALPHA))}`;
       const r = await fetch(url, { cache: 'no-store' });
       if (!r.ok){
         const txt = await r.text();
@@ -238,6 +238,8 @@ async function toggleWriteup(cardId, dateStr, home, away){
     const sim = payload?.sim || null;
     const rep = sim?.rep || null;
     const means = sim?.means || null;
+    const model = payload?.model || null;
+    const blend = payload?.blend || null;
     const warns = Array.isArray(sim?.diagnostics?.warnings) ? sim.diagnostics.warnings : [];
     const recap = payload?.recap || '';
     const propsRecs = Array.isArray(payload?.props?.recommendations) ? payload.props.recommendations : [];
@@ -350,6 +352,14 @@ async function toggleWriteup(cardId, dateStr, home, away){
       ? `<div class="subtle">Mean score (over sims): ${escapeHtml(away)} ${fmtNum(means.away_score,1)} – ${escapeHtml(home)} ${fmtNum(means.home_score,1)}</div>`
       : '';
 
+    const modelLine = (model && Number.isFinite(Number(model.home_score)) && Number.isFinite(Number(model.away_score)))
+      ? `<div class="subtle">Model score (quarters): ${escapeHtml(away)} ${fmtNum(model.away_score,1)} – ${escapeHtml(home)} ${fmtNum(model.home_score,1)}</div>`
+      : '';
+
+    const blendLine = (blend && Number.isFinite(Number(blend.home_score)) && Number.isFinite(Number(blend.away_score)))
+      ? `<div class="subtle">Blend score (displayed): ${escapeHtml(away)} ${fmtNum(blend.away_score,1)} – ${escapeHtml(home)} ${fmtNum(blend.home_score,1)} (α=${Number(blend.alpha ?? SCORE_BLEND_ALPHA).toFixed(2)})</div>`
+      : '';
+
     const warnLine = warns.length
       ? `<div class="subtle">Sanity: ${escapeHtml(warns.slice(0,3).join(' | '))}${warns.length>3?' …':''}</div>`
       : '';
@@ -357,6 +367,8 @@ async function toggleWriteup(cardId, dateStr, home, away){
     content.innerHTML = `
       <div class="writeup-recap">${escapeHtml(recap || '').replace(/\n/g,'<br>')}</div>
       ${warnLine}
+      ${blendLine}
+      ${modelLine}
       ${meanLine}
       <div class="mt-24"></div>
       ${playerTable(away, awayBox)}

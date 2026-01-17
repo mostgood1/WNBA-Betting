@@ -10855,6 +10855,15 @@ def api_sim_game_story():
     except Exception:
         seed_i = None
 
+    alpha = request.args.get("alpha")
+    try:
+        alpha_f = float(pd.to_numeric(alpha, errors="coerce")) if alpha not in (None, "") else 0.50
+    except Exception:
+        alpha_f = 0.50
+    if not np.isfinite(alpha_f):
+        alpha_f = 0.50
+    alpha_f = float(max(0.0, min(1.0, alpha_f)))
+
     try:
         pred_p = _find_predictions_for_date(d)
         if pred_p is None or (hasattr(pred_p, "exists") and not pred_p.exists()):
@@ -11034,6 +11043,20 @@ def api_sim_game_story():
             roster_map = {}
         home_roster = sorted(list(roster_map.get(str(home_tri).upper(), set()) or []))
         away_roster = sorted(list(roster_map.get(str(away_tri).upper(), set()) or []))
+
+        # Remove injured/out players from the connected-sim rotation.
+        # We already computed (name_keys, short_keys) for this date.
+        try:
+            def _is_out_player(nm: str) -> bool:
+                try:
+                    return (_norm_player_name(nm) in name_keys) or (_short_player_key(nm) in short_keys)
+                except Exception:
+                    return False
+
+            home_roster = [n for n in home_roster if not _is_out_player(str(n))]
+            away_roster = [n for n in away_roster if not _is_out_player(str(n))]
+        except Exception:
+            pass
         priors = _compute_player_minutes_priors(str(d), days_back=21)
 
         sim = simulate_connected_game(
@@ -11047,7 +11070,88 @@ def api_sim_game_story():
             n_samples=n,
             seed=seed_i,
         )
-        recap = write_sportswriter_recap(sim, market_total=market_total, market_home_spread=market_home_spread)
+
+        # Compute a UI-consistent blend line (matches web/app.js):
+        # alpha*prediction_model_quarters + (1-alpha)*quarter_sim_means
+        def _q_model(i: int) -> Optional[Dict[str, Any]]:
+            try:
+                tot = _num(row.get(f"quarters_q{i}_total"))
+                if tot is None:
+                    tot = _num(row.get(f"q{i}_total"))
+                mar = _num(row.get(f"quarters_q{i}_margin"))
+                if mar is None:
+                    mar = _num(row.get(f"q{i}_margin"))
+                if tot is None or mar is None:
+                    return None
+                return {"q": i, "home": 0.5 * (float(tot) + float(mar)), "away": 0.5 * (float(tot) - float(mar))}
+            except Exception:
+                return None
+
+        model_quarters = [q for q in (_q_model(1), _q_model(2), _q_model(3), _q_model(4)) if isinstance(q, dict)]
+        model_by_q = {int(r.get("q") or 0): r for r in model_quarters if isinstance(r, dict)}
+
+        sim_quarters = []
+        try:
+            for qq in (summary.quarters or []):
+                sim_quarters.append({
+                    "q": int(getattr(qq, "q", 0) or 0),
+                    "home": float(getattr(qq, "home_pts_mu", 0.0) or 0.0),
+                    "away": float(getattr(qq, "away_pts_mu", 0.0) or 0.0),
+                })
+        except Exception:
+            sim_quarters = []
+        sim_by_q = {int(r.get("q") or 0): r for r in sim_quarters if isinstance(r, dict)}
+
+        blend_quarters = []
+        for qi in (1, 2, 3, 4):
+            mrow = model_by_q.get(qi) or {}
+            srow = sim_by_q.get(qi) or {}
+            hm = _num(mrow.get("home"))
+            am = _num(mrow.get("away"))
+            hs = _num(srow.get("home"))
+            as_ = _num(srow.get("away"))
+            hb = (alpha_f * hm + (1.0 - alpha_f) * hs) if (hm is not None and hs is not None) else (hm if hm is not None else hs)
+            ab = (alpha_f * am + (1.0 - alpha_f) * as_) if (am is not None and as_ is not None) else (am if am is not None else as_)
+            blend_quarters.append({"q": qi, "home": float(hb or 0.0), "away": float(ab or 0.0)})
+
+        def _sum_side(rows, k):
+            try:
+                xs = [float((r or {}).get(k) or 0.0) for r in (rows or [])]
+                return float(np.sum(xs))
+            except Exception:
+                return 0.0
+
+        model_home_score = _sum_side(model_quarters, "home")
+        model_away_score = _sum_side(model_quarters, "away")
+        blend_home_score = _sum_side(blend_quarters, "home")
+        blend_away_score = _sum_side(blend_quarters, "away")
+
+        blend_payload = {
+            "alpha": alpha_f,
+            "quarters": blend_quarters,
+            "home_score": blend_home_score,
+            "away_score": blend_away_score,
+            "total": blend_home_score + blend_away_score,
+            "margin": blend_home_score - blend_away_score,
+        }
+        model_payload = {
+            "quarters": model_quarters,
+            "home_score": model_home_score,
+            "away_score": model_away_score,
+            "total": model_home_score + model_away_score,
+            "margin": model_home_score - model_away_score,
+        }
+
+        recap = write_sportswriter_recap(
+            sim,
+            market_total=market_total,
+            market_home_spread=market_home_spread,
+            use_means=True,
+            quarters_override=blend_quarters,
+            home_score_override=blend_home_score,
+            away_score_override=blend_away_score,
+            probs=getattr(summary, "probs", None),
+        )
 
         # --- Connect to recommendations + props edges engines ---
         game_recs: list[dict[str, Any]] = []
@@ -11283,6 +11387,14 @@ def api_sim_game_story():
             "home": home_tri,
             "away": away_tri,
             "market": {"total": market_total, "home_spread": market_home_spread},
+            "model": model_payload,
+            "blend": blend_payload,
+            "summary": {
+                "probs": getattr(summary, "probs", None),
+                "evs": getattr(summary, "evs", None),
+                "final_total_mu": getattr(summary, "final_total_mu", None),
+                "final_margin_mu": getattr(summary, "final_margin_mu", None),
+            },
             "game_recommendations": game_recs,
             "props": props_payload,
             "sim": sim,

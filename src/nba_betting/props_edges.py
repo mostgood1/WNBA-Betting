@@ -17,6 +17,63 @@ from .teams import to_tricode as _tri, normalize_team as _norm_team
 from .odds_bovada import fetch_bovada_player_props_current
 
 
+_PROPS_PROB_CALIB_CACHE: dict[str, list[float]] | None = None
+
+
+def _load_props_prob_calibration() -> dict[str, list[float]] | None:
+    """Load piecewise-linear probability calibration for props.
+
+    Expected JSON: {"x": [...], "y": [...]} mapping raw model_prob -> calibrated.
+    """
+    global _PROPS_PROB_CALIB_CACHE
+    if _PROPS_PROB_CALIB_CACHE is not None:
+        return _PROPS_PROB_CALIB_CACHE
+    try:
+        fp = paths.data_processed / "props_prob_calibration.json"
+        if not fp.exists():
+            _PROPS_PROB_CALIB_CACHE = None
+            return None
+        import json
+
+        obj = json.loads(fp.read_text(encoding="utf-8"))
+        xs = obj.get("x") or []
+        ys = obj.get("y") or []
+        if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
+            _PROPS_PROB_CALIB_CACHE = None
+            return None
+        _PROPS_PROB_CALIB_CACHE = {
+            "x": [float(v) for v in xs],
+            "y": [float(v) for v in ys],
+        }
+        return _PROPS_PROB_CALIB_CACHE
+    except Exception:
+        _PROPS_PROB_CALIB_CACHE = None
+        return None
+
+
+def _apply_props_prob_calibration(p: float) -> float:
+    cal = _load_props_prob_calibration()
+    if cal is None:
+        return p
+    try:
+        xs = cal["x"]
+        ys = cal["y"]
+        pv = float(max(0.0, min(1.0, float(p))))
+        if pv <= xs[0]:
+            return float(ys[0])
+        if pv >= xs[-1]:
+            return float(ys[-1])
+        for i in range(len(xs) - 1):
+            x0 = float(xs[i]); x1 = float(xs[i + 1])
+            if x0 <= pv <= x1:
+                y0 = float(ys[i]); y1 = float(ys[i + 1])
+                t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
+                return float((1.0 - t) * y0 + t * y1)
+        return pv
+    except Exception:
+        return p
+
+
 # Map OddsAPI player markets to our prediction columns
 MARKET_TO_STAT = {
     "player_points": "pts",
@@ -625,6 +682,14 @@ def compute_props_edges(
             return np.nan
         return (1.0 - p_over) if side == "UNDER" else p_over
     merged["model_prob"] = merged.apply(_calc_model_prob, axis=1)
+    # Optional: calibrate probabilities using reliability bins / isotonic mapping.
+    try:
+        merged["model_prob_raw"] = merged["model_prob"]
+        merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").apply(
+            lambda v: _apply_props_prob_calibration(float(v)) if np.isfinite(float(v)) else np.nan
+        )
+    except Exception:
+        pass
     merged["implied_prob"] = merged["price"].map(_american_implied_prob)
     merged["edge"] = merged["model_prob"] - merged["implied_prob"]
     merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
@@ -643,7 +708,7 @@ def compute_props_edges(
         merged["bookmaker_title"] = merged["bookmaker"].map(lambda b: "Bovada" if str(b).lower()=="bovada" else None)
 
     desired_cols = [
-        "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time",
+        "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "model_prob_raw", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time",
         "home_team", "away_team"
     ]
     out_cols = [c for c in desired_cols if c in merged.columns]
