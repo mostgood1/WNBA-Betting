@@ -126,8 +126,8 @@ def _load_dotenv_key(name: str) -> str | None:
 
 @cli.command("simulate-games")
 @click.option("--date", "date_str", required=True, help="YYYY-MM-DD date to simulate")
-@click.option("--sd-margin", type=float, default=7.0, help="Std dev for final margin (points)")
-@click.option("--sd-total", type=float, default=12.0, help="Std dev for final total (points)")
+@click.option("--sd-margin", type=float, default=12.0, help="Std dev for final margin (points)")
+@click.option("--sd-total", type=float, default=22.0, help="Std dev for final total (points)")
 def simulate_games_cmd(date_str: str, sd_margin: float, sd_total: float):
     """Analytical simulation for ML/ATS/TOTAL probabilities using rich factor adjustments.
 

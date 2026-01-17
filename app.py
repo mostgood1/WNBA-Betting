@@ -10621,7 +10621,15 @@ def api_sim_quarters():
                 continue
             # Try to derive model baselines from predictions if available
             pred_total = _num(r.get("pred_total"))
+            if pred_total is None:
+                pred_total = _num(r.get("totals"))
+            if pred_total is None:
+                pred_total = _num(r.get("total_pred"))
             pred_margin = _num(r.get("pred_margin"))
+            if pred_margin is None:
+                pred_margin = _num(r.get("spread_margin"))
+            if pred_margin is None:
+                pred_margin = _num(r.get("margin_pred"))
             # Pace and ratings; use defaults if not provided
             home_pace = _num(r.get("home_pace")) or 98.0
             away_pace = _num(r.get("away_pace")) or 98.0
@@ -10904,7 +10912,15 @@ def api_sim_game_story():
 
         # Build TeamContexts; if ratings missing, derive from implied means when possible
         pred_total = _num(row.get("pred_total"))
+        if pred_total is None:
+            pred_total = _num(row.get("totals"))
+        if pred_total is None:
+            pred_total = _num(row.get("total_pred"))
         pred_margin = _num(row.get("pred_margin"))
+        if pred_margin is None:
+            pred_margin = _num(row.get("spread_margin"))
+        if pred_margin is None:
+            pred_margin = _num(row.get("margin_pred"))
         home_mu_implied = None
         away_mu_implied = None
         if pred_total is not None and pred_margin is not None:

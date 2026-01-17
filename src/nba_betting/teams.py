@@ -46,10 +46,18 @@ TEAM_ALIASES = {
     "was": "Washington Wizards",
 }
 
+# Also allow case-insensitive matching on already-canonical display names.
+_CANONICAL_BY_LOWER = {v.lower(): v for v in TEAM_ALIASES.values()}
+
 
 def normalize_team(name: str) -> str:
-    key = (name or "").strip().lower()
-    return TEAM_ALIASES.get(key, name)
+    raw = (name or "").strip()
+    key = raw.lower()
+    if key in TEAM_ALIASES:
+        return TEAM_ALIASES[key]
+    if key in _CANONICAL_BY_LOWER:
+        return _CANONICAL_BY_LOWER[key]
+    return raw
 
 # Minimal tricode map; used by exporters to emit standardized team abbreviations.
 _NAME_TO_TRI = {

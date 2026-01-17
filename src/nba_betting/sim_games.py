@@ -16,8 +16,9 @@ PROC = paths.data_processed
 
 @dataclass
 class SimConfig:
-    sd_margin: float = 7.0            # Std dev for final margin
-    sd_total: float = 12.0            # Std dev for final total
+    # NBA finals tend to have team score SD ~10-15; margin SD ~11-13; total SD ~18-24.
+    sd_margin: float = 12.0           # Std dev for final margin
+    sd_total: float = 22.0            # Std dev for final total
     home_adv_points: float = 2.0      # Baseline home advantage added to margin
     injury_margin_coef: float = 0.10  # Points of margin per unit injury impact diff
     injury_total_coef: float = 0.05   # Points of total per unit injury impact sum
@@ -177,8 +178,10 @@ def _analytical_probs(total_line: float, spread_line: float, total_mu: float, ma
     # Model total ~ N(total_mu, sd_total), margin ~ N(margin_mu, sd_margin)
     # Winners: P(margin > 0)
     p_home_win = 1.0 - _phi((0.0 - margin_mu) / cfg.sd_margin)
-    # ATS: P(margin > spread_line)
-    p_home_cover = 1.0 - _phi((spread_line - margin_mu) / cfg.sd_margin)
+    # ATS: home covers if (home_score + home_spread) > away_score
+    # => margin + home_spread > 0 => margin > -home_spread
+    ats_threshold = -float(spread_line) if np.isfinite(spread_line) else 0.0
+    p_home_cover = 1.0 - _phi((ats_threshold - margin_mu) / cfg.sd_margin)
     # TOTAL: P(total > total_line)
     p_total_over = 1.0 - _phi((total_line - total_mu) / cfg.sd_total)
     # And unders/complements
@@ -255,6 +258,12 @@ def simulate_games_for_date(date_str: str, cfg: Optional[SimConfig] = None) -> p
 
         total_mu, margin_mu = _adjust_means(row, pr, inj_imp, opp_ranks, cfg)
         probs = _analytical_probs(total_line, spread_line, total_mu, margin_mu, cfg)
+
+        # Implied score distribution (approx): derive team mean scores from total/margin.
+        # If total and margin are independent normals, team score SD is sqrt(sd_total^2 + sd_margin^2)/2.
+        home_score_mu = 0.5 * (float(total_mu) + float(margin_mu))
+        away_score_mu = 0.5 * (float(total_mu) - float(margin_mu))
+        team_score_sd = 0.5 * math.sqrt(max(1e-6, float(cfg.sd_total) ** 2 + float(cfg.sd_margin) ** 2))
         # EVs where prices available
         home_ml = row.get("home_ml")
         away_ml = row.get("away_ml")
@@ -277,6 +286,9 @@ def simulate_games_for_date(date_str: str, cfg: Optional[SimConfig] = None) -> p
             "spread_line": float(spread_line) if np.isfinite(spread_line) else None,
             "adj_total_mu": float(total_mu),
             "adj_margin_mu": float(margin_mu),
+            "home_score_mu": float(home_score_mu),
+            "away_score_mu": float(away_score_mu),
+            "team_score_sd": float(team_score_sd),
             **probs,
             "ev_home_ml": ev_home_ml,
             "ev_away_ml": ev_away_ml,
