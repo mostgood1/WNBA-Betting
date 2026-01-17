@@ -150,11 +150,27 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         scale = blend_total / max(1e-6, cur_total_mu)
         home_mu *= scale
         away_mu *= scale
+    cur_total_mu = home_mu + away_mu
     margin_mu = home_mu - away_mu
     if inp.market_home_spread is not None:
         ms = float(inp.market_home_spread)
         # Blend margin to market spread
-        margin_mu = 0.7 * (-ms) + 0.3 * margin_mu  # home spread positive => market expects margin for away
+        # home_spread convention: negative means home is favorite; market expects home margin = -home_spread
+        target_margin_mu = 0.7 * (-ms) + 0.3 * margin_mu
+        # IMPORTANT: apply the target margin to team means while preserving the total.
+        # Otherwise the simulation stays near a coin-flip even for large market spreads.
+        home_mu = 0.5 * (cur_total_mu + target_margin_mu)
+        away_mu = 0.5 * (cur_total_mu - target_margin_mu)
+
+        # Keep team means in a sane range and re-balance to preserve the total.
+        MIN_TEAM_PTS = 60.0
+        if home_mu < MIN_TEAM_PTS:
+            home_mu = MIN_TEAM_PTS
+            away_mu = cur_total_mu - home_mu
+        if away_mu < MIN_TEAM_PTS:
+            away_mu = MIN_TEAM_PTS
+            home_mu = cur_total_mu - away_mu
+        margin_mu = home_mu - away_mu
 
     # Quarter splits for mean points
     splits = _quarter_splits()
