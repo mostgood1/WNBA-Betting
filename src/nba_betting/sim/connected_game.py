@@ -277,6 +277,9 @@ def simulate_connected_game(
     minutes_lookback_days: int = 21,
     n_samples: int = 1500,
     seed: Optional[int] = None,
+    target_quarters: Optional[List[Dict[str, Any]]] = None,
+    target_home_score: Optional[float] = None,
+    target_away_score: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Connected simulation: quarter team points + player box scores share the same scoring totals.
 
@@ -285,6 +288,64 @@ def simulate_connected_game(
     - Generates a representative single-game box score (median margin) and also returns means.
     """
     rng = np.random.default_rng(seed)
+
+    def _round_quarters_to_total(q_floats: List[float], target_total: Optional[int] = None) -> List[int]:
+        vals = [max(0.0, float(x or 0.0)) for x in (q_floats or [])]
+        if len(vals) < 4:
+            vals = vals + [0.0] * (4 - len(vals))
+        vals = vals[:4]
+        total_target = int(round(float(np.sum(vals)))) if target_total is None else int(target_total)
+        floors = [int(np.floor(v)) for v in vals]
+        rema = [vals[i] - floors[i] for i in range(4)]
+        out = floors[:]
+        cur = int(sum(out))
+        # Add points to highest remainders
+        if cur < total_target:
+            need = total_target - cur
+            order = sorted(range(4), key=lambda i: rema[i], reverse=True)
+            k = 0
+            while need > 0:
+                out[order[k % 4]] += 1
+                need -= 1
+                k += 1
+        # Remove points from lowest remainders (but don't go negative)
+        if cur > total_target:
+            need = cur - total_target
+            order = sorted(range(4), key=lambda i: rema[i])
+            k = 0
+            while need > 0 and k < 1000:
+                i = order[k % 4]
+                if out[i] > 0:
+                    out[i] -= 1
+                    need -= 1
+                k += 1
+        return [max(0, int(x)) for x in out]
+
+    def _extract_target_quarters(rows: Optional[List[Dict[str, Any]]]) -> Tuple[Optional[List[float]], Optional[List[float]]]:
+        if not rows:
+            return None, None
+        try:
+            by_q = {int((r or {}).get("q") or 0): (r or {}) for r in rows if isinstance(r, dict)}
+            h = []
+            a = []
+            for qi in (1, 2, 3, 4):
+                rr = by_q.get(qi) or {}
+                h.append(float(rr.get("home") or 0.0))
+                a.append(float(rr.get("away") or 0.0))
+            return h, a
+        except Exception:
+            return None, None
+
+    t_home_qf, t_away_qf = _extract_target_quarters(target_quarters)
+    t_home_total = None
+    t_away_total = None
+    if t_home_qf is not None and t_away_qf is not None:
+        try:
+            t_home_total = int(round(float(target_home_score))) if target_home_score is not None else int(round(float(np.sum(t_home_qf))))
+            t_away_total = int(round(float(target_away_score))) if target_away_score is not None else int(round(float(np.sum(t_away_qf))))
+        except Exception:
+            t_home_total = None
+            t_away_total = None
 
     home_q, away_q = sample_quarter_scores(quarters, n_samples=int(n_samples), rng=rng, round_to_int=True)
     n = int(home_q.shape[0])
@@ -297,12 +358,18 @@ def simulate_connected_game(
 
     total = home_final + away_final
 
-    # Pick a representative sample: near-median margin AND near-median total.
+    # Pick a representative sample: if a target line is provided, choose a sample close to
+    # that target total/margin; otherwise use near-median margin AND near-median total.
     # Also avoid exact ties (NBA games cannot end tied without OT).
     try:
-        med_m = float(np.median(margin))
-        med_t = float(np.median(total))
-        score = (margin - med_m) ** 2 + 0.25 * (total - med_t) ** 2
+        if t_home_total is not None and t_away_total is not None:
+            tgt_m = float(t_home_total - t_away_total)
+            tgt_t = float(t_home_total + t_away_total)
+            score = (margin - tgt_m) ** 2 + 0.25 * (total - tgt_t) ** 2
+        else:
+            med_m = float(np.median(margin))
+            med_t = float(np.median(total))
+            score = (margin - med_m) ** 2 + 0.25 * (total - med_t) ** 2
         order = np.argsort(score)
         idx = int(order[0])
         for j in order[: min(200, len(order))]:
@@ -586,14 +653,75 @@ def simulate_connected_game(
     hp, h_alloc = _allocate_points(home_q, home_players)
     ap, a_alloc = _allocate_points(away_q, away_players)
 
-    def _build_box(team_players: pd.DataFrame, alloc: np.ndarray, team_q_points: np.ndarray) -> Dict[str, Any]:
-        if team_players is None or team_players.empty or alloc.size == 0:
-            return {"players": [], "team_total_pts": int(team_q_points[idx].sum())}
+    # If we have a target quarter line, build a separate representative quarter scoreline
+    # and allocation that exactly matches that target totals (after rounding).
+    rep_home_q = None
+    rep_away_q = None
+    rep_h_alloc = None
+    rep_a_alloc = None
+    if t_home_qf is not None and t_away_qf is not None:
+        try:
+            hq = _round_quarters_to_total(t_home_qf, target_total=t_home_total)
+            aq = _round_quarters_to_total(t_away_qf, target_total=t_away_total)
 
-        pts_by_player = alloc[idx].sum(axis=1)  # shape (players,)
+            # Break ties without changing total points (shift 1 point within the game).
+            if int(sum(hq)) == int(sum(aq)):
+                moved = False
+                for qi in range(3, -1, -1):
+                    if aq[qi] > 0:
+                        aq[qi] -= 1
+                        hq[qi] += 1
+                        moved = True
+                        break
+                if not moved:
+                    hq[-1] += 1
+                    if hq[0] > 0:
+                        hq[0] -= 1
+
+            rep_home_q = np.array(hq, dtype=int)
+            rep_away_q = np.array(aq, dtype=int)
+        except Exception:
+            rep_home_q = None
+            rep_away_q = None
+
+        # Allocation is best-effort; keep rep_*_q even if allocation fails.
+        if rep_home_q is not None and rep_away_q is not None:
+            try:
+                def _draw_rep_alloc(team_players: pd.DataFrame, team_q_points_vec: np.ndarray) -> np.ndarray:
+                    if team_players is None or team_players.empty:
+                        return np.zeros((0, int(team_q_points_vec.shape[0])), dtype=int)
+                    base_probs = _dirichlet_weights(team_players)
+                    concentration = 180.0
+                    alpha = np.maximum(0.05, base_probs * concentration)
+                    p_game = rng.dirichlet(alpha)
+                    out = np.zeros((len(base_probs), int(team_q_points_vec.shape[0])), dtype=int)
+                    for q in range(int(team_q_points_vec.shape[0])):
+                        out[:, q] = _multinomial_allocate(rng, int(team_q_points_vec[q]), p_game)
+                    return out
+
+                rep_h_alloc = _draw_rep_alloc(hp, rep_home_q)
+                rep_a_alloc = _draw_rep_alloc(ap, rep_away_q)
+            except Exception:
+                rep_h_alloc = None
+                rep_a_alloc = None
+
+    def _build_box(team_players: pd.DataFrame, alloc: np.ndarray, team_q_points: np.ndarray, rep_alloc_override: Optional[np.ndarray] = None, rep_q_override: Optional[np.ndarray] = None) -> Dict[str, Any]:
+        if team_players is None or team_players.empty:
+            base_total = int((rep_q_override.sum() if rep_q_override is not None else team_q_points[idx].sum()) or 0)
+            return {"players": [], "team_total_pts": base_total}
+
+        if rep_alloc_override is not None and rep_q_override is not None:
+            pts_by_player = rep_alloc_override.sum(axis=1)
+            rep_team_q = rep_q_override
+        else:
+            if alloc.size == 0:
+                return {"players": [], "team_total_pts": int(team_q_points[idx].sum())}
+            pts_by_player = alloc[idx].sum(axis=1)  # shape (players,)
+            rep_team_q = team_q_points[idx]
+
         # Scale other stats with team scoring vs predicted scoring, but enforce team totals.
         pred_team_pts = float(pd.to_numeric(team_players.get("pred_pts"), errors="coerce").fillna(0.0).sum())
-        scale_pts = float(team_q_points[idx].sum() / max(1e-6, pred_team_pts)) if pred_team_pts > 0 else 1.0
+        scale_pts = float(rep_team_q.sum() / max(1e-6, pred_team_pts)) if pred_team_pts > 0 else 1.0
         mins = pd.to_numeric(team_players.get("_sim_min"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
 
         def team_total_from_pred(col: str, power: float) -> int:
@@ -608,6 +736,55 @@ def simulate_connected_game(
             probs = _weights_from_stat_and_minutes(team_players, col)
             return list(_multinomial_allocate(rng, int(total_value), probs).astype(int))
 
+        def alloc_team_total_capped_threes(total_value: int) -> List[int]:
+            probs = _weights_from_stat_and_minutes(team_players, "pred_threes")
+            pred_threes = pd.to_numeric(team_players.get("pred_threes"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+            mu_i = np.maximum(0.0, pred_threes * (scale_pts**0.75))
+            # caps derived from expected threes and minutes; low-mu players shouldn't randomly spike.
+            caps = []
+            for i in range(len(mu_i)):
+                m = float(mu_i[i])
+                mi = float(mins[i]) if i < len(mins) and np.isfinite(mins[i]) else 0.0
+                cap = int(np.ceil(m + 1.5 * np.sqrt(m + 0.25)))
+                if mi < 5.0:
+                    cap = min(cap, 0)
+                elif mi < 10.0:
+                    cap = min(cap, 1)
+                elif mi < 16.0:
+                    cap = min(cap, max(1, cap))
+                cap = max(0, min(int(cap), 10))
+                caps.append(cap)
+
+            alloc0 = _multinomial_allocate(rng, int(total_value), probs).astype(int)
+            caps_arr = np.array(caps, dtype=int)
+
+            # enforce caps by redistributing overflow
+            overflow = np.maximum(0, alloc0 - caps_arr)
+            excess = int(overflow.sum())
+            alloc1 = np.minimum(alloc0, caps_arr)
+
+            guard = 0
+            while excess > 0 and guard < 50:
+                guard += 1
+                remaining = np.maximum(0, caps_arr - alloc1)
+                eligible = remaining > 0
+                if not bool(np.any(eligible)):
+                    # no capacity left; dump remainder to top-prob player (rare)
+                    j = int(np.argmax(probs)) if probs.size else 0
+                    if alloc1.size:
+                        alloc1[j] += excess
+                    excess = 0
+                    break
+                p = probs * eligible.astype(float)
+                if float(p.sum()) <= 0:
+                    p = eligible.astype(float)
+                extra = _multinomial_allocate(rng, int(excess), p).astype(int)
+                extra_clipped = np.minimum(extra, remaining)
+                alloc1 += extra_clipped
+                excess = int((extra - extra_clipped).sum())
+
+            return list(alloc1.astype(int))
+
         # Team totals (constrained)
         team_reb = team_total_from_pred("pred_reb", power=0.55)
         team_ast = team_total_from_pred("pred_ast", power=0.75)
@@ -618,7 +795,7 @@ def simulate_connected_game(
 
         reb = alloc_team_total(team_reb, "pred_reb")
         ast = alloc_team_total(team_ast, "pred_ast")
-        threes = alloc_team_total(team_3pm, "pred_threes")
+        threes = alloc_team_total_capped_threes(team_3pm)
         tov = alloc_team_total(team_tov, "pred_tov")
         stl = alloc_team_total(team_stl, "pred_stl")
         blk = alloc_team_total(team_blk, "pred_blk")
@@ -644,7 +821,7 @@ def simulate_connected_game(
         players_out.sort(key=lambda r: ((r.get("min") or 0.0), r.get("pts") or 0), reverse=True)
         return {
             "players": players_out,
-            "team_total_pts": int(team_q_points[idx].sum()),
+            "team_total_pts": int(rep_team_q.sum()),
             "team_total_reb": int(sum(reb)),
             "team_total_ast": int(sum(ast)),
             "team_total_threes": int(sum(threes)),
@@ -653,8 +830,8 @@ def simulate_connected_game(
             "team_total_blk": int(sum(blk)),
         }
 
-    home_box = _build_box(hp, h_alloc, home_q)
-    away_box = _build_box(ap, a_alloc, away_q)
+    home_box = _build_box(hp, h_alloc, home_q, rep_alloc_override=rep_h_alloc, rep_q_override=rep_home_q)
+    away_box = _build_box(ap, a_alloc, away_q, rep_alloc_override=rep_a_alloc, rep_q_override=rep_away_q)
 
     def _q_line(h: np.ndarray, a: np.ndarray) -> List[Dict[str, int]]:
         out = []
@@ -666,7 +843,10 @@ def simulate_connected_game(
             out.append({"q": qi + 1, "home": int(h[qi]), "away": int(a[qi]), "home_cum": hcum, "away_cum": acum})
         return out
 
-    q_rep = _q_line(home_q[idx], away_q[idx])
+    if rep_home_q is not None and rep_away_q is not None:
+        q_rep = _q_line(rep_home_q, rep_away_q)
+    else:
+        q_rep = _q_line(home_q[idx], away_q[idx])
 
     # Mean scores (for display)
     q_mean = [
@@ -737,16 +917,30 @@ def simulate_connected_game(
         "away_dedup_removed": int(getattr(away_players, "attrs", {}).get("_dedup_removed", 0)) if isinstance(away_players, pd.DataFrame) else 0,
         "home_points_entropy": float(_shannon_entropy(_dirichlet_weights(home_players))) if isinstance(home_players, pd.DataFrame) and not home_players.empty else 0.0,
         "away_points_entropy": float(_shannon_entropy(_dirichlet_weights(away_players))) if isinstance(away_players, pd.DataFrame) and not away_players.empty else 0.0,
+        "used_target_rep": bool(rep_home_q is not None and rep_away_q is not None),
+        "target_home_total": int(t_home_total) if t_home_total is not None else None,
+        "target_away_total": int(t_away_total) if t_away_total is not None else None,
         "warnings": warnings,
     }
+
+    rep_home_score = int(rep_home_q.sum()) if rep_home_q is not None else int(home_final[idx])
+    rep_away_score = int(rep_away_q.sum()) if rep_away_q is not None else int(away_final[idx])
+    try:
+        rep_home_score = int((home_box or {}).get("team_total_pts") or rep_home_score)
+    except Exception:
+        pass
+    try:
+        rep_away_score = int((away_box or {}).get("team_total_pts") or rep_away_score)
+    except Exception:
+        pass
 
     return {
         "home": home_tri,
         "away": away_tri,
         "rep": {
-            "home_score": int(home_final[idx]),
-            "away_score": int(away_final[idx]),
-            "margin": int(home_final[idx] - away_final[idx]),
+            "home_score": int(rep_home_score),
+            "away_score": int(rep_away_score),
+            "margin": int(rep_home_score - rep_away_score),
             "quarters": q_rep,
             "home_box": home_box,
             "away_box": away_box,

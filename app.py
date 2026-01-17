@@ -11059,18 +11059,6 @@ def api_sim_game_story():
             pass
         priors = _compute_player_minutes_priors(str(d), days_back=21)
 
-        sim = simulate_connected_game(
-            summary.quarters,
-            home_tri=home_tri,
-            away_tri=away_tri,
-            props_df=props_df,
-            home_roster=home_roster,
-            away_roster=away_roster,
-            minutes_priors=priors,
-            n_samples=n,
-            seed=seed_i,
-        )
-
         # Compute a UI-consistent blend line (matches web/app.js):
         # alpha*prediction_model_quarters + (1-alpha)*quarter_sim_means
         def _q_model(i: int) -> Optional[Dict[str, Any]]:
@@ -11141,6 +11129,22 @@ def api_sim_game_story():
             "total": model_home_score + model_away_score,
             "margin": model_home_score - model_away_score,
         }
+
+        # Connected sim for player box scores (representative sample aligned to the blend line).
+        sim = simulate_connected_game(
+            summary.quarters,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            props_df=props_df,
+            home_roster=home_roster,
+            away_roster=away_roster,
+            minutes_priors=priors,
+            n_samples=n,
+            seed=seed_i,
+            target_quarters=blend_quarters,
+            target_home_score=blend_home_score,
+            target_away_score=blend_away_score,
+        )
 
         recap = write_sportswriter_recap(
             sim,
