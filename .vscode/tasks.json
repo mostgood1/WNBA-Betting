@@ -12,6 +12,51 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Health: warm caches (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$env:NBA_API_BASE_URL='http://127.0.0.1:5051'; $d = Get-Date -Format 'yyyy-MM-dd'; $env:NBA_DATE=$d; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\warm_caches.py'"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: register warm caches (01:55)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_cache_warmer_task.ps1",
+				"-Time",
+				"01:55"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister warm caches",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_cache_warmer_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Cron: run-all (today)",
 			"type": "shell",
 			"command": "powershell",
@@ -176,6 +221,92 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Metrics: simulation alignment report",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\simulation_alignment_report.py' --date $d --windows 30,60,90 --outdir '${workspaceFolder}\\data\\processed\\metrics'"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Metrics: validate simulated data",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\validate_simulated_data.py' --outdir '${workspaceFolder}\\data\\processed\\metrics'"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Metrics: drift monitor (games)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\drift_monitor.py' --date $d --ref-days 30 --cur-days 7"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Metrics: sensitivity sweep (corr)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\sensitivity_sweep_corr.py' --base-url 'http://127.0.0.1:5051' --date $d --scales '0.0,0.5,1.0,1.5,2.0' --outdir '${workspaceFolder}\\data\\processed\\metrics'"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: register nightly metrics",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_nightly_metrics_task.ps1",
+				"-Time",
+				"02:00"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister nightly metrics",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_nightly_metrics_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Eval: rollup metrics (last 30 days)",
 			"type": "shell",
 			"command": "powershell",
@@ -294,6 +425,71 @@
 		}
 		,
 		{
+			"label": "Odds: closing lines (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$d = Get-Date -Format 'yyyy-MM-dd'; $env:NBA_DATE=$d; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\capture_games_closing_lines.py'"
+			],
+			"isBackground": false,
+			"group": "build",
+			"detail": "Captures closing/consensus lines for games and writes closing_lines_<date>.csv (frontend-compatible)."
+		}
+		,
+		{
+			"label": "Backtest: props portfolio (last 60 days)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\backtest_portfolio.py' --days 60 --limit 10"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Backtest: props portfolio (30d optimized)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\backtest_portfolio.py' --days 30 --limit 12 --optimize --corr-penalty-scale 1.2 --cap-team 2 --cap-market 3"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Uses optimizer with correlation penalties and diversification caps."
+		}
+		,
+		{
+			"label": "Backtest: optimizer sweep (quick)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\sweep_portfolio_optimizer.py' --days 30 --limits '10,12' --corr-scales '0.0,0.8,1.2' --cap-teams '1,2' --cap-markets '3'"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "Sweeps optimizer params over a small grid and writes results under data/processed/backtests/."
+		}
+		,
+		{
 			"label": "Calibrate: props probability (from reliability bins)",
 			"type": "shell",
 			"command": "powershell",
@@ -352,6 +548,53 @@
 				"${workspaceFolder}\\scripts\\register_nightly_calibration_task.ps1",
 				"-Time",
 				"23:15"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Schedule: register nightly games closing",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_nightly_games_closing_task.ps1",
+				"-Time",
+				"01:50"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Schedule: unregister nightly games closing",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_nightly_games_closing_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		}
+		,
+		{
+			"label": "Calibrate: games probability (last 60 days)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\calibrate_games_probability.py' --days 60 --bins 10"
 			],
 			"isBackground": false,
 			"problemMatcher": []

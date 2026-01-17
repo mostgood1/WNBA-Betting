@@ -21,6 +21,9 @@ http_cache.sqlite
 # Temporary and scratch files/scripts
 temp_*.py
 
+# Local backtest outputs
+processed/
+
 # Ignore most processed data by default; whitelist site-facing daily artifacts
 data/processed/**
 !data/processed/

@@ -62,16 +62,41 @@ def load_inputs(date_str: str):
 
 
 def normalize_join(p: pd.DataFrame, o: pd.DataFrame) -> pd.DataFrame:
+    def _ensure_col(df: pd.DataFrame, col: str) -> None:
+        if col not in df.columns and col.upper() in df.columns:
+            df[col] = df[col.upper()]
+        if col in df.columns:
+            df[col] = df[col].astype(str)
+
     for df in (p, o):
-        for c in ("home_team","visitor_team","date"):
-            if c not in df.columns and c.upper() in df.columns:
-                df[c] = df[c.upper()]
-            elif c in df.columns:
-                df[c] = df[c].astype(str)
-    keys = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in o.columns]
+        for c in ("home_team", "visitor_team", "date"):
+            _ensure_col(df, c)
+
+    # Normalize join keys to be resilient to casing/whitespace differences
+    for df in (p, o):
+        if "home_team" in df.columns:
+            df["home_team_norm"] = (
+                df["home_team"].astype(str).str.strip().str.upper().str.replace(r"\s+", " ", regex=True)
+            )
+        if "visitor_team" in df.columns:
+            df["visitor_team_norm"] = (
+                df["visitor_team"].astype(str).str.strip().str.upper().str.replace(r"\s+", " ", regex=True)
+            )
+        if "date" in df.columns:
+            df["date_norm"] = df["date"].astype(str).str.strip()
+
+    keys = [c for c in ("date_norm", "home_team_norm", "visitor_team_norm") if c in p.columns and c in o.columns]
     if len(keys) < 2:
         return pd.DataFrame()
+
     merged = p.merge(o, on=keys, how="inner")
+
+    # Prefer the predictions-side team/date columns for downstream display
+    for base in ("date", "home_team", "visitor_team"):
+        if f"{base}_x" in merged.columns:
+            merged[base] = merged[f"{base}_x"]
+        elif base in merged.columns:
+            merged[base] = merged[base]
     # Canonicalize duplicate columns that often occur on merge
     def _coalesce(df: pd.DataFrame, base: str) -> None:
         # Prefer odds-side value ("_y") then predictions-side ("_x") then bare
@@ -93,6 +118,27 @@ def normalize_join(p: pd.DataFrame, o: pd.DataFrame) -> pd.DataFrame:
         "home_spread_price","away_spread_price","total_over_price","total_under_price",
     ):
         _coalesce(merged, col)
+
+    # Drop helper join columns
+    merged.drop(
+        columns=[
+            c
+            for c in (
+                "date_norm",
+                "home_team_norm",
+                "visitor_team_norm",
+                "date_x",
+                "home_team_x",
+                "visitor_team_x",
+                "date_y",
+                "home_team_y",
+                "visitor_team_y",
+            )
+            if c in merged.columns
+        ],
+        inplace=True,
+        errors="ignore",
+    )
     return merged
 
 def _get_num(row: pd.Series, names: list[str]) -> float | None:

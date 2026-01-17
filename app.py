@@ -9,7 +9,13 @@ import json
 import base64
 import os
 from datetime import datetime, timedelta
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_from_directory, redirect
+import subprocess
+import sys
+import time
+import shlex
+import threading
+from pathlib import Path
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
 from pathlib import Path as _PathEarly
@@ -216,6 +222,99 @@ _OPP_ALLOWED_RANKS_CACHE: dict[str, dict[str, dict[str, int]]] = {}
 _TEAM_INJURY_COUNTS_CACHE: dict[str, dict[str, int]] = {}
 _TEAM_INJURY_IDENTITY_CACHE: dict[str, tuple[dict[str, list[str]], dict[str, float]]] = {}
 
+# --- Team metadata (timezone offsets, altitude) ---
+_TEAM_META_TZ: dict[str, float] = {}
+_TEAM_META_ALT: dict[str, float] = {}
+_TEAM_META_LAT: dict[str, float] = {}
+_TEAM_META_LON: dict[str, float] = {}
+
+def _load_team_metadata() -> None:
+    try:
+        if _TEAM_META_TZ and _TEAM_META_ALT:
+            return
+        p = BASE_DIR / "data" / "raw" / "team_metadata.csv"
+        if not p.exists():
+            return
+        import pandas as _pd
+        df = _pd.read_csv(p)
+        cols = {c.lower(): c for c in df.columns}
+        c_tri = cols.get("tri") or cols.get("team") or cols.get("team_tricode")
+        c_tz = cols.get("tz_offset") or cols.get("timezone_offset") or cols.get("tz")
+        c_alt = cols.get("altitude_ft") or cols.get("altitude")
+        c_lat = cols.get("lat") or cols.get("latitude")
+        c_lon = cols.get("lon") or cols.get("lng") or cols.get("longitude")
+        if not c_tri:
+            return
+        for _, r in df.iterrows():
+            tri = str(r.get(c_tri) or '').strip().upper()
+            if not tri:
+                continue
+            if c_tz and c_tz in df.columns:
+                try:
+                    _TEAM_META_TZ[tri] = float(r.get(c_tz))
+                except Exception:
+                    pass
+            if c_alt and c_alt in df.columns:
+                try:
+                    _TEAM_META_ALT[tri] = float(r.get(c_alt))
+                except Exception:
+                    pass
+            if c_lat and c_lat in df.columns:
+                try:
+                    _TEAM_META_LAT[tri] = float(r.get(c_lat))
+                except Exception:
+                    pass
+            if c_lon and c_lon in df.columns:
+                try:
+                    _TEAM_META_LON[tri] = float(r.get(c_lon))
+                except Exception:
+                    pass
+    except Exception:
+        return
+
+def _tz_offset_meta(tri: str) -> float:
+    try:
+        _load_team_metadata()
+        t = str(tri or '').upper()
+        if t in _TEAM_META_TZ:
+            return float(_TEAM_META_TZ[t])
+        # Fallback mapping if metadata absent
+        m = {
+            "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
+            "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
+            "PHI": -5, "TOR": -5, "WAS": -5,
+            "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
+            "DEN": -7, "UTA": -7, "PHX": -7,
+            "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
+        }
+        return float(m.get(t, 0.0))
+    except Exception:
+        return 0.0
+
+def _altitude_ft_meta(tri: str) -> float:
+    try:
+        _load_team_metadata()
+        t = str(tri or '').upper()
+        if t in _TEAM_META_ALT:
+            return float(_TEAM_META_ALT[t])
+        # Fallback approximate altitudes (only high altitude flagged)
+        m = {"DEN": 5280.0, "UTA": 4226.0}
+        return float(m.get(t, 0.0))
+    except Exception:
+        return 0.0
+
+def _haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    try:
+        from math import radians, sin, cos, asin, sqrt
+        R = 6371.0
+        dlat = radians(lat2 - lat1)
+        dlon = radians(lon2 - lon1)
+        a = sin(dlat/2)**2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlon/2)**2
+        c = 2 * asin(sqrt(a))
+        return float(R * c)
+    except Exception:
+        return 0.0
+
 def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dict[str, dict[str, float]], dict[str, dict[str, int]]]:
     """Compute per-team opponent allowances for key prop markets over a recent window.
 
@@ -404,6 +503,136 @@ def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dic
         return averages, ranks
     except Exception:
         return {}, {}
+
+
+# --- Player minutes priors (for connected sim; avoids placeholder players) ---
+_PLAYER_MIN_PRIORS_CACHE: dict[tuple[str, int], dict[tuple[str, str], float]] = {}
+
+
+def _norm_player_name_for_keys(x: object) -> str:
+    try:
+        return " ".join(str(x or "").strip().upper().split())
+    except Exception:
+        return ""
+
+
+def _parse_minutes_to_float(x: object) -> float:
+    """Parse boxscore minutes like '32:48' into float minutes (32.8)."""
+    try:
+        s = str(x or "").strip()
+        if not s:
+            return 0.0
+        if ":" in s:
+            mm, ss = s.split(":", 1)
+            m = float(mm)
+            sec = float(ss)
+            if not (np.isfinite(m) and np.isfinite(sec)):
+                return 0.0
+            return max(0.0, m + sec / 60.0)
+        v = float(s)
+        return float(v) if np.isfinite(v) else 0.0
+    except Exception:
+        return 0.0
+
+
+def _compute_player_minutes_priors(date_str: str, days_back: int = 21) -> dict[tuple[str, str], float]:
+    """Average minutes played per (team_tricode, PLAYER_NAME) over recent boxscores.
+
+    Reads data/processed/boxscores_YYYY-MM-DD.csv in a lookback window.
+    Returns dict keyed by (TEAM_TRICODE, NORMALIZED_PLAYER_NAME).
+    """
+    try:
+        key = (str(date_str or ""), int(days_back))
+        if key in _PLAYER_MIN_PRIORS_CACHE:
+            return _PLAYER_MIN_PRIORS_CACHE[key]
+
+        base = BASE_DIR / "data" / "processed"
+        if not base.exists():
+            _PLAYER_MIN_PRIORS_CACHE[key] = {}
+            return _PLAYER_MIN_PRIORS_CACHE[key]
+
+        cutoff = pd.to_datetime(date_str, errors="coerce")
+        if pd.isna(cutoff):
+            from datetime import date as _date
+            cutoff = pd.Timestamp(_date.today())
+        start = cutoff - pd.Timedelta(days=int(days_back))
+
+        # Column candidates in boxscore files
+        team_keys = {"teamTricode", "TEAM_ABBREVIATION", "team", "slugTeam"}
+        min_keys = {"minutes", "MIN"}
+        name_keys = {"player_name", "PLAYER", "name", "fullName"}
+
+        rows: list[tuple[str, str, float]] = []
+        for p in sorted(base.glob("boxscores_*.csv")):
+            try:
+                dstr = p.stem.replace("boxscores_", "")
+                dval = pd.to_datetime(dstr, errors="coerce")
+                if pd.isna(dval) or not (start <= dval <= cutoff):
+                    continue
+                df = pd.read_csv(p)
+                if df is None or df.empty:
+                    continue
+                cols = {c.lower(): c for c in df.columns}
+
+                def _col(keys: set[str]) -> str | None:
+                    for k in keys:
+                        if k.lower() in cols:
+                            return cols[k.lower()]
+                    return None
+
+                c_team = _col(team_keys)
+                c_min = _col(min_keys)
+
+                # Prefer a prebuilt name column if present; otherwise build from first/family.
+                c_name = _col(name_keys)
+                c_first = cols.get("firstname")
+                c_last = cols.get("familyname")
+
+                if not c_team or not c_min:
+                    continue
+
+                tmp = df[[c_team, c_min] + ([c_name] if c_name else []) + ([c_first] if c_first else []) + ([c_last] if c_last else [])].copy()
+                tmp[c_team] = tmp[c_team].astype(str).str.strip().str.upper()
+
+                if c_name and c_name in tmp.columns:
+                    tmp["_player"] = tmp[c_name].astype(str)
+                elif c_first and c_last and c_first in tmp.columns and c_last in tmp.columns:
+                    tmp["_player"] = (tmp[c_first].astype(str).str.strip() + " " + tmp[c_last].astype(str).str.strip())
+                else:
+                    # last resort: try concatenating any two likely name columns
+                    tmp["_player"] = ""
+
+                tmp["_player"] = tmp["_player"].map(_norm_player_name_for_keys)
+                tmp["_min_float"] = tmp[c_min].map(_parse_minutes_to_float)
+
+                tmp = tmp[(tmp[c_team].astype(str).str.len() > 0) & (tmp["_player"].astype(str).str.len() > 0)]
+                # Drop DNP/zeros; we want priors from actual floor time.
+                tmp = tmp[tmp["_min_float"] > 0]
+                if tmp.empty:
+                    continue
+                for _, r in tmp.iterrows():
+                    rows.append((str(r[c_team]), str(r["_player"]), float(r["_min_float"])))
+            except Exception:
+                continue
+
+        if not rows:
+            _PLAYER_MIN_PRIORS_CACHE[key] = {}
+            return _PLAYER_MIN_PRIORS_CACHE[key]
+
+        dfm = pd.DataFrame(rows, columns=["team", "player", "min"])
+        pri = dfm.groupby(["team", "player"], as_index=False)["min"].mean()
+        out: dict[tuple[str, str], float] = {}
+        for _, r in pri.iterrows():
+            t = str(r.get("team") or "").strip().upper()
+            n = str(r.get("player") or "").strip().upper()
+            m = float(r.get("min") or 0.0)
+            if t and n and np.isfinite(m) and m > 0:
+                out[(t, n)] = float(m)
+
+        _PLAYER_MIN_PRIORS_CACHE[key] = out
+        return _PLAYER_MIN_PRIORS_CACHE[key]
+    except Exception:
+        return {}
 
 def _team_injury_counts(date_str: str) -> dict[str, int]:
     """Return count of excluded-status injuries per team for the date (latest per player).
@@ -716,8 +945,34 @@ def web_static(path: str):
 
 @app.route("/data/<path:path>")
 def data_static(path: str):
-    # Serve data files (JSON/CSV) referenced by the frontend, e.g., /data/processed/*.json
+    # Serve data files (JSON/CSV) referenced by the frontend.
+    # Many processed artifacts are optional per-date; returning 200 with an empty payload
+    # avoids noisy 404 logs while letting the frontend treat the content as "missing".
     data_dir = BASE_DIR / "data"
+    try:
+        # Only special-case missing files under data/processed/
+        norm = str(path).replace("\\", "/")
+        if norm.startswith("processed/"):
+            target = (data_dir / norm).resolve()
+            try:
+                base = data_dir.resolve()
+                if str(target).startswith(str(base)) and target.exists() and target.is_file():
+                    return send_from_directory(str(data_dir), norm)
+            except Exception:
+                # If anything about the safety checks fails, fall back to default behavior.
+                pass
+
+            # Missing under processed/: return an empty-but-successful response for known types.
+            from flask import Response as _Resp
+
+            if norm.endswith(".csv"):
+                return _Resp("", mimetype="text/csv")
+            if norm.endswith(".json"):
+                return _Resp("{}", mimetype="application/json")
+
+    except Exception:
+        pass
+
     return send_from_directory(str(data_dir), path)
 
 # --- Minimal cron endpoint to reconcile game results for a date ---
@@ -1490,6 +1745,8 @@ def _parse_date_param(req, default_to_today: bool = True) -> str:
                 return pd.Timestamp.now().date().isoformat()
             except Exception:
                 return ""
+    if not val and not default_to_today:
+        return ""
     try:
         # normalize YYYY-MM-DD
         return pd.to_datetime(val).date().isoformat()
@@ -2170,7 +2427,18 @@ def api_cron_push_test():
     return jsonify({"pushed": bool(ok), "detail": detail})
 
 
-def _daily_update_job(do_push: bool) -> None:
+def _season_year_for_date(date_str: str) -> int:
+    # NBA season starts in Oct; treat Jul+ as new season year.
+    d = datetime.strptime(date_str, "%Y-%m-%d").date()
+    return d.year if d.month >= 7 else (d.year - 1)
+
+
+def _season_str_from_year(season_year: int) -> str:
+    # ex: 2025 -> "2025-26"
+    return f"{season_year}-{(season_year + 1) % 100:02d}"
+
+
+def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "full") -> None:
     _job_state["running"] = True
     _job_state["started_at"] = datetime.utcnow().isoformat()
     _job_state["ended_at"] = None
@@ -2181,31 +2449,99 @@ def _daily_update_job(do_push: bool) -> None:
     log_file = logs_dir / f"web_daily_update_{stamp}.log"
     _job_state["log_file"] = str(log_file)
     try:
-        _append_log("Starting daily update...")
-        py = os.environ.get("PYTHON", (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python")
+        date_str = date_str or datetime.utcnow().date().isoformat()
+        mode = (mode or "full").strip().lower()
+
+        _append_log(f"Starting daily update (mode={mode}, date={date_str})...")
+
+        # Resolve python executable (prefer current interpreter on servers)
+        import sys as _sys
+        py = os.environ.get("PYTHON")
+        if not py:
+            py = _sys.executable
         if not py or not Path(str(py)).exists():
-            py = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
-            if not py.exists():
-                py = "python"
+            py_posix = (os.environ.get("VIRTUAL_ENV") or "") + "/bin/python"
+            if py_posix and Path(py_posix).exists():
+                py = py_posix
+            else:
+                py_win = (Path(os.environ.get("VIRTUAL_ENV") or "") / "Scripts" / "python.exe")
+                py = str(py_win) if py_win.exists() else "python"
+
         env = {"PYTHONPATH": str(SRC_DIR)}
-        cmds: list[list[str]] = []
-        # Light, safe steps for static UI refresh; customize as needed.
-        # Example: rebuild closing lines snapshot if CLI supports it.
-        # cmds.append([str(py), "-m", "nba_betting.cli", "export-closing-lines-csv", "--date", "2025-04-13"])  # sample
-        # Example: re-run predictions for a sample matchups CSV (if present)
-        sample_csv = BASE_DIR / "samples" / "matchups.csv"
-        if sample_csv.exists():
-            cmds.append([str(py), "-m", "nba_betting.cli", "predict", "--input", str(sample_csv)])
+        season_year = _season_year_for_date(date_str)
+        season_str = _season_str_from_year(season_year)
+
+        # Build a date-based pipeline aligned with scripts/daily_update.ps1
+        steps: list[tuple[str, list[str], bool]] = []
+        # (label, cmd, required)
+        steps.append((
+            "fetch-rosters",
+            [str(py), "-m", "nba_betting.cli", "fetch-rosters", "--season", str(season_year)],
+            False,
+        ))
+        steps.append((
+            "fetch-player-logs",
+            [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
+            False,
+        ))
+        steps.append((
+            "predict-date",
+            [str(py), "-m", "nba_betting.cli", "predict-date", "--date", date_str],
+            True,
+        ))
+        steps.append((
+            "odds-snapshots",
+            [str(py), "-m", "nba_betting.cli", "odds-snapshots", "--date", date_str],
+            False,
+        ))
+        steps.append((
+            "simulate-games",
+            [str(py), "-m", "nba_betting.cli", "simulate-games", "--date", date_str],
+            False,
+        ))
+        if mode in {"full", "pipeline", "props"}:
+            steps.append((
+                "predict-props",
+                [str(py), "-m", "nba_betting.cli", "predict-props", "--date", date_str],
+                False,
+            ))
+            # Prefer auto source to avoid hard dependency on external keys
+            steps.append((
+                "props-edges",
+                [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "auto"],
+                False,
+            ))
+            steps.append((
+                "export-recommendations",
+                [str(py), "-m", "nba_betting.cli", "export-recommendations", "--date", date_str],
+                False,
+            ))
+            steps.append((
+                "export-props-recommendations",
+                [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str],
+                False,
+            ))
+
         rc_total = 0
-        for c in cmds:
-            _append_log(f"Running: {' '.join(c)}")
-            rc = _run_to_file(c, log_file, cwd=BASE_DIR, env=env)
+        had_required_failure = False
+        optional_failures: list[str] = []
+        for label, cmd, required in steps:
+            _append_log(f"Running step: {label}")
+            _append_log(f"Cmd: {' '.join(cmd)}")
+            rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
             rc_total += int(rc)
-            _append_log(f"Exit code: {rc}")
+            _append_log(f"Exit code ({label}): {rc}")
             if rc != 0:
-                break
-        ok = (rc_total == 0)
-        _append_log(f"Daily update finished. ok={ok}")
+                if required:
+                    had_required_failure = True
+                    _append_log(f"Stopping early: required step failed ({label})")
+                    break
+                optional_failures.append(label)
+
+        ok = not had_required_failure
+        if optional_failures:
+            _append_log(f"Optional step failures: {', '.join(optional_failures)}")
+        _append_log(f"Daily update finished. ok={ok} (rc_total={rc_total})")
         # Optional: push updates back to Git if requested and configured
         if ok and do_push:
             try:
@@ -2262,7 +2598,7 @@ def api_status():
         return jsonify({
             "status": "ok",
             "processed_files": files,
-            "have_index": (WEB_DIR / "index.html").exists(),
+            "have_index": (WEB_DIR / "index.html").exists()
         })
     except Exception as e:  # noqa: BLE001
         return jsonify({"status": "error", "error": str(e)}), 500
@@ -2479,6 +2815,53 @@ def api_recommendations():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
+        # Lazy-load games probability calibration mapping (applies to home_win_prob)
+        _games_calib_map = None
+        def _load_games_calibration():
+            nonlocal _games_calib_map
+            if _games_calib_map is not None:
+                return _games_calib_map
+            try:
+                import json as _json
+                fp = BASE_DIR / "data" / "processed" / "games_prob_calibration.json"
+                if fp.exists():
+                    with open(fp, "r", encoding="utf-8") as fh:
+                        _games_calib_map = _json.load(fh)
+                else:
+                    _games_calib_map = None
+            except Exception:
+                _games_calib_map = None
+            return _games_calib_map
+
+        def _calibrate_games_prob(p_raw: float) -> float:
+            try:
+                pv = max(0.0, min(1.0, float(p_raw)))
+            except Exception:
+                return None
+            try:
+                cmap = _load_games_calibration()
+                if not isinstance(cmap, dict):
+                    return pv
+                xs = cmap.get("x") or []
+                ys = cmap.get("y") or []
+                if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
+                    return pv
+                # Handle boundaries
+                if pv <= float(xs[0]):
+                    return float(ys[0])
+                if pv >= float(xs[-1]):
+                    return float(ys[-1])
+                # Linear interpolate between nearest grid points
+                # Find right interval
+                for i in range(len(xs) - 1):
+                    x0 = float(xs[i]); x1 = float(xs[i+1])
+                    if x0 <= pv <= x1:
+                        y0 = float(ys[i]); y1 = float(ys[i+1])
+                        t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
+                        return (1.0 - t) * y0 + t * y1
+                return pv
+            except Exception:
+                return pv
         pred_path = _find_predictions_for_date(d)
         if not pred_path:
             return jsonify({"date": d, "rows": [], "summary": {}})
@@ -2534,6 +2917,12 @@ def api_recommendations():
                 home = r.get("home_team"); away = r.get("visitor_team")
                 # Winner EV
                 p_home = _number(r.get("home_win_prob"))
+                # Apply games calibration if available
+                try:
+                    if p_home is not None:
+                        p_home = _calibrate_games_prob(p_home)
+                except Exception:
+                    pass
                 ev_h = _ev_from_prob_and_american(p_home, r.get("home_ml")) if p_home is not None else None
                 ev_a = _ev_from_prob_and_american(None if p_home is None else (1 - p_home), r.get("away_ml"))
                 if ev_h is not None or ev_a is not None:
@@ -3459,38 +3848,6 @@ def api_recommendations_summary_props_calibration():
                     rmse = float(_np.sqrt(_np.average((pred - hr) ** 2, weights=w))) if float(_np.sum(w)) > 0 else None
             except Exception:
                 rmse = None
-
-
-        @app.before_first_request
-        def _warm_caches_on_start():
-            """Warm slow caches on startup to avoid first-hit timeouts in production.
-
-            Performs a best-effort request to summary endpoints after a short delay.
-            """
-            try:
-                import threading, os, time
-                try:
-                    import requests as _rq  # type: ignore
-                except Exception:
-                    _rq = None
-                def _run():
-                    try:
-                        time.sleep(2)
-                        base = str(os.environ.get("RENDER_EXTERNAL_URL") or f"http://127.0.0.1:{os.environ.get('PORT','5000')}")
-                        # Only warm if requests is available
-                        if _rq is None:
-                            return
-                        # Warm recommendations summary cache (served from filesystem once computed)
-                        for path in ["/api/recommendations/summary"]:
-                            try:
-                                _rq.get(base + path, timeout=8)
-                            except Exception:
-                                pass
-                    except Exception:
-                        pass
-                threading.Thread(target=_run, daemon=True).start()
-            except Exception:
-                pass
             items.append({
                 "days": d,
                 "available": True,
@@ -3500,6 +3857,84 @@ def api_recommendations_summary_props_calibration():
                 "rmse_calibration": rmse,
             })
         return jsonify({"version": "props-calibration-windows-v1", "windows": items})
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/recommendations/summary/games_calibration")
+def api_recommendations_summary_games_calibration():
+    """Report windowed games calibration artifacts and basic metrics.
+
+    Returns stats for 30/60/90-day windows when files exist:
+      - reliability_csv, calibration_json, total_games, rmse_calibration
+    """
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        windows = [30, 60, 90]
+        items = []
+        for d in windows:
+            rel_csv = proc / f"reliability_games_{d}.csv"
+            calib_json = proc / f"games_prob_calibration_{d}.json"
+            # Backward-compatible fallback for older non-windowed filenames
+            if d == 60 and ((not rel_csv.exists()) or (not calib_json.exists())):
+                rel_csv2 = proc / "reliability_games.csv"
+                calib_json2 = proc / "games_prob_calibration.json"
+                if rel_csv2.exists() and calib_json2.exists():
+                    rel_csv = rel_csv2
+                    calib_json = calib_json2
+            if (not rel_csv.exists()) or (not calib_json.exists()):
+                items.append({"days": d, "available": False})
+                continue
+            # Load bins to compute RMSE
+            try:
+                df = pd.read_csv(rel_csv)
+                df["avg_model_prob"] = pd.to_numeric(df.get("avg_model_prob"), errors="coerce").fillna(0.0)
+                df["hit_rate"] = pd.to_numeric(df.get("hit_rate"), errors="coerce").fillna(0.0)
+                df["n"] = pd.to_numeric(df.get("n"), errors="coerce").fillna(0)
+                # Some variants may not have n; fallback to uniform weights
+                if float(df["n"].sum()) <= 0:
+                    df["n"] = 1.0
+                total_games = int(df["n"].sum())
+            except Exception:
+                df = None
+                total_games = None
+            try:
+                import json as _json
+                with open(calib_json, "r", encoding="utf-8") as fh:
+                    calib = _json.load(fh)
+                xs = calib.get("x") or []
+                ys = calib.get("y") or []
+                rmse = None
+                if isinstance(df, pd.DataFrame) and isinstance(xs, list) and isinstance(ys, list) and len(xs) == len(ys) and len(xs) >= 2:
+                    import bisect, numpy as _np
+
+                    def _interp(p: float) -> float:
+                        p = max(0.0, min(1.0, float(p)))
+                        i = bisect.bisect_left(xs, p)
+                        if i <= 0:
+                            return float(ys[0])
+                        if i >= len(xs):
+                            return float(ys[-1])
+                        x0 = float(xs[i - 1]); x1 = float(xs[i]); y0 = float(ys[i - 1]); y1 = float(ys[i])
+                        t = (p - x0) / (x1 - x0) if (x1 > x0) else 0.0
+                        return float(y0 + t * (y1 - y0))
+
+                    w = df["n"].astype(float).values
+                    mp = df["avg_model_prob"].astype(float).values
+                    hr = df["hit_rate"].astype(float).values
+                    pred = _np.array([_interp(p) for p in mp], dtype=float)
+                    rmse = float(_np.sqrt(_np.average((pred - hr) ** 2, weights=w))) if float(_np.sum(w)) > 0 else None
+            except Exception:
+                rmse = None
+            items.append({
+                "days": d,
+                "available": True,
+                "reliability_csv": rel_csv.name,
+                "calibration_json": calib_json.name,
+                "total_games": total_games,
+                "rmse_calibration": rmse,
+            })
+        return jsonify({"version": "games-calibration-windows-v1", "windows": items})
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 
@@ -4721,6 +5156,19 @@ def api_recommendations_all():
                                 return float(sum(vc) / len(vc))
                             except Exception:
                                 return None
+                        def _american_to_implied(american: object) -> Optional[float]:
+                            try:
+                                a = float(american)
+                            except Exception:
+                                return None
+                            try:
+                                if a == 0:
+                                    return None
+                                if a < 0:
+                                    return (-a) / ((-a) + 100.0)
+                                return 100.0 / (a + 100.0)
+                            except Exception:
+                                return None
                         for r in out.get("games", []):
                             try:
                                 home = r.get("home")
@@ -4793,6 +5241,67 @@ def api_recommendations_all():
                                 # Compose reasons
                                 mk = str((r or {}).get("market") or "").upper()
                                 reasons = list(r.get("why_reasons") or [])
+                                # Prepend simulation-rooted explanation when available
+                                try:
+                                    sim_prob = r.get("sim_prob")
+                                    ev_sim = r.get("ev_sim")
+                                    mu_margin = r.get("sim_adj_margin_mu")
+                                    mu_total = r.get("sim_adj_total_mu")
+                                    line = r.get("line")
+
+                                    def _fmt_pct(pv: float) -> str:
+                                        try:
+                                            return f"{int(round(100.0 * float(pv)))}%"
+                                        except Exception:
+                                            return ""
+                                    sim_bits: list[str] = []
+                                    if sim_prob is not None and np.isfinite(float(sim_prob)):
+                                        p = float(sim_prob)
+                                        if mk == "ML":
+                                            imp = _american_to_implied(r.get("price"))
+                                            if imp is not None and np.isfinite(float(imp)):
+                                                sim_bits.append(f"Sim win {_fmt_pct(p)} vs implied {_fmt_pct(imp)}")
+                                            else:
+                                                sim_bits.append(f"Sim win {_fmt_pct(p)}")
+                                        elif mk == "ATS":
+                                            side_name = str((r or {}).get("side") or "")
+                                            pick_home = (side_name.strip().lower() == str(home or "").strip().lower()) or (side_name.strip().lower() == "home")
+                                            sim_bits.append(f"Sim cover {_fmt_pct(p)}")
+                                            try:
+                                                if mu_margin is not None and line not in (None, ""):
+                                                    hm = float(mu_margin)
+                                                    hl = float(line)
+                                                    pick_mu = hm if pick_home else -hm
+                                                    pick_line = hl if pick_home else -hl
+                                                    delta = pick_mu - pick_line
+                                                    if abs(float(delta)) >= 1.0:
+                                                        sim_bits.append(f"Sim mu margin {pick_mu:+.1f} vs line {pick_line:+.1f} (edge {delta:+.1f})")
+                                            except Exception:
+                                                pass
+                                        elif mk == "TOTAL":
+                                            side_u = str((r or {}).get("side") or "").strip().upper()
+                                            over = side_u.startswith("O")
+                                            sim_bits.append(f"Sim {'Over' if over else 'Under'} {_fmt_pct(p)}")
+                                            try:
+                                                if mu_total is not None and line not in (None, ""):
+                                                    mt = float(mu_total)
+                                                    tl = float(line)
+                                                    delta = mt - tl
+                                                    if abs(float(delta)) >= 1.0:
+                                                        sim_bits.append(f"Sim mu total {mt:.1f} vs line {tl:.1f} ({delta:+.1f})")
+                                            except Exception:
+                                                pass
+                                    if ev_sim is not None and np.isfinite(float(ev_sim)):
+                                        evv = float(ev_sim)
+                                        sim_bits.append(f"Sim EV {evv:+.2f}u")
+
+                                    if sim_bits:
+                                        # Insert in-order at the front (preserve order, avoid duplicates)
+                                        for msg in reversed(sim_bits):
+                                            if msg and msg not in reasons:
+                                                reasons.insert(0, msg)
+                                except Exception:
+                                    pass
                                 if mk == "TOTAL":
                                     avg_rank = _mean([rank_h, rank_a])
                                     avg_thr_rank = _mean([thr_rank_h, thr_rank_a])
@@ -5019,18 +5528,87 @@ def api_recommendations_all():
                     df = props_df.copy()
                     # Derive top play and parse plays regardless of compact mode
                     import ast, json
+                    def _canonical_standard_plays(plays):
+                        """Return canonical plays: one per (market,side), using the consensus line.
+
+                        We define the "standard" line as the most common line across books for that
+                        (market, side). We then keep the single best play at that line by EV%.
+                        """
+                        try:
+                            if not isinstance(plays, list) or not plays:
+                                return []
+                            out = []
+                            # group
+                            buckets = {}
+                            for p in plays:
+                                if not isinstance(p, dict):
+                                    continue
+                                mk = str(p.get("market") or "").strip().lower()
+                                sd = str(p.get("side") or "").strip().upper()
+                                if not mk or not sd:
+                                    continue
+                                try:
+                                    ln = float(p.get("line"))
+                                except Exception:
+                                    continue
+                                buckets.setdefault((mk, sd), []).append(p)
+                            def _ev_key(pp):
+                                try:
+                                    if pp.get("ev_pct") is not None and not pd.isna(pp.get("ev_pct")):
+                                        return float(pp.get("ev_pct"))
+                                except Exception:
+                                    pass
+                                try:
+                                    if pp.get("ev") is not None and not pd.isna(pp.get("ev")):
+                                        return float(pp.get("ev")) * 100.0
+                                except Exception:
+                                    pass
+                                return -1e18
+                            for (mk, sd), ps in buckets.items():
+                                # consensus line = mode
+                                counts = {}
+                                for pp in ps:
+                                    try:
+                                        ln = float(pp.get("line"))
+                                    except Exception:
+                                        continue
+                                    counts[ln] = counts.get(ln, 0) + 1
+                                if not counts:
+                                    continue
+                                max_n = max(counts.values())
+                                mode_lines = sorted([ln for ln, n in counts.items() if n == max_n])
+                                # If tie, pick the median-ish line
+                                std_line = mode_lines[len(mode_lines) // 2]
+                                cand = [pp for pp in ps if (pp.get("line") is not None and float(pp.get("line")) == float(std_line))]
+                                if not cand:
+                                    cand = ps
+                                cand.sort(key=_ev_key, reverse=True)
+                                out.append(cand[0])
+                            out.sort(key=_ev_key, reverse=True)
+                            return out
+                        except Exception:
+                            return plays if isinstance(plays, list) else []
                     def _parse_obj(val):
                         # Accept dict, list, JSON string, or Python literal string
                         if isinstance(val, (list, dict)):
+                            # Canonicalize list plays to standard lines
+                            if isinstance(val, list):
+                                return _canonical_standard_plays(val)
                             return val
                         s = str(val)
                         if not s or s.strip() in {"", "None", "nan"}:
                             return None
                         try:
-                            return json.loads(s)
+                            obj = json.loads(s)
+                            if isinstance(obj, list):
+                                return _canonical_standard_plays(obj)
+                            return obj
                         except Exception:
                             try:
-                                return ast.literal_eval(s)
+                                obj = ast.literal_eval(s)
+                                if isinstance(obj, list):
+                                    return _canonical_standard_plays(obj)
+                                return obj
                             except Exception:
                                 return None
                     def _top_play_general(row):
@@ -5271,6 +5849,7 @@ def api_recommendations_all():
                             # New explainability/diagnostic fields
                             "why_explain",
                             "team_injury_impact",
+                            "minutes_stability",
                             "opp_allowed_pts_rank",
                             "opp_allowed_threes_rank",
                             # Travel/altitude indicators
@@ -5278,6 +5857,8 @@ def api_recommendations_all():
                             "away_tricode",
                             "team_is_away",
                             "altitude_game",
+                            "tz_diff_hours",
+                            "travel_km",
                             # Density flags
                             "team_b2b",
                             "team_3in4",
@@ -5409,7 +5990,30 @@ def api_recommendations_all():
                                                     home_tri = ht; away_tri = at; break
                                     r["home_tricode"] = home_tri; r["away_tricode"] = away_tri
                                     r["team_is_away"] = bool(away_tri and team_tri and (team_tri == away_tri))
-                                    r["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                                    # Altitude game based on metadata (>= 3500 ft considered high altitude)
+                                    try:
+                                        alt_ft = _altitude_ft_meta(home_tri) if home_tri else 0.0
+                                        r["altitude_game"] = bool(alt_ft >= 3500.0)
+                                    except Exception:
+                                        r["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                                    # Time-zone difference (hours) for explainability (metadata-aware)
+                                    try:
+                                        tz_diff = 0.0
+                                        if home_tri and away_tri:
+                                            tz_diff = abs(_tz_offset_meta(home_tri) - _tz_offset_meta(away_tri))
+                                        r["tz_diff_hours"] = float(tz_diff)
+                                    except Exception:
+                                        pass
+                                    # Travel distance (km) between away and home cities using metadata
+                                    try:
+                                        if home_tri and away_tri and (home_tri in _TEAM_META_LAT) and (away_tri in _TEAM_META_LAT) and (home_tri in _TEAM_META_LON) and (away_tri in _TEAM_META_LON):
+                                            la1 = float(_TEAM_META_LAT.get(away_tri)); lo1 = float(_TEAM_META_LON.get(away_tri))
+                                            la2 = float(_TEAM_META_LAT.get(home_tri)); lo2 = float(_TEAM_META_LON.get(home_tri))
+                                            r["travel_km"] = round(_haversine_km(la1, lo1, la2, lo2), 1)
+                                        else:
+                                            r["travel_km"] = 0.0
+                                    except Exception:
+                                        r["travel_km"] = 0.0
                                 except Exception:
                                     pass
                                 # Compose a unified explain string for props (parity with games/derivatives)
@@ -5895,11 +6499,16 @@ def api_recommendations_all():
                     pick_home = side.strip().lower() == home.strip().lower()
                     tz_diff = 0.0
                     if home_tri and away_tri:
-                        tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                        tz_diff = abs(_tz_offset_meta(home_tri) - _tz_offset_meta(away_tri))
                     altitude_game = bool(row.get("altitude_game"))
-                    level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and (not pick_home)) else 0.0)
+                    try:
+                        tk = float(row.get("travel_km") or 0.0)
+                    except Exception:
+                        tk = 0.0
+                    travel_norm = max(0.0, min(1.0, tk / 2500.0))
+                    level = _clamp01(0.15 * float(tz_diff) + (0.6 if (altitude_game and (not pick_home)) else 0.0) + 0.25 * travel_norm)
                     tw = float(weights["games"].get("ml_travel_penalty", 0.0))
-                    base_score = base_score * (1.0 - max(0.0, min(1.0, tw * _clamp01(level))))
+                    base_score = base_score * (1.0 - max(0.0, min(1.0, tw * level)))
                 except Exception:
                     pass
                 return round(base_score, 3)
@@ -5965,11 +6574,16 @@ def api_recommendations_all():
                         pick_home = side.strip().lower() == home.strip().lower()
                         tz_diff = 0.0
                         if home_tri and away_tri:
-                            tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                            tz_diff = abs(_tz_offset_meta(home_tri) - _tz_offset_meta(away_tri))
                         altitude_game = bool(row.get("altitude_game"))
-                        level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and (not pick_home)) else 0.0)
+                        try:
+                            tk = float(row.get("travel_km") or 0.0)
+                        except Exception:
+                            tk = 0.0
+                        travel_norm = max(0.0, min(1.0, tk / 2500.0))
+                        level = _clamp01(0.15 * float(tz_diff) + (0.6 if (altitude_game and (not pick_home)) else 0.0) + 0.25 * travel_norm)
                         tw = float(weights["games"].get("ats_travel_penalty", 0.0))
-                        base_score = base_score * (1.0 - max(0.0, min(1.0, tw * _clamp01(level))))
+                        base_score = base_score * (1.0 - max(0.0, min(1.0, tw * level)))
                     except Exception:
                         pass
                     return round(base_score, 3)
@@ -6221,31 +6835,20 @@ def api_recommendations_all():
                     pass
                 # Travel/time-zone/altitude penalty (away team only)
                 try:
-                    def _tz_offset(tri):
-                        m = {
-                            # Eastern
-                            "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
-                            "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
-                            "PHI": -5, "TOR": -5, "WAS": -5,
-                            # Central/South (mostly CT)
-                            "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
-                            # Mountain
-                            "DEN": -7, "UTA": -7, "PHX": -7,
-                            # Pacific
-                            "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
-                        }
-                        try:
-                            return float(m.get(str(tri or "").upper(), 0.0))
-                        except Exception:
-                            return 0.0
                     is_away = bool(row.get("team_is_away"))
                     home_tri = row.get("home_tricode") or None
                     away_tri = row.get("away_tricode") or None
                     tz_diff = 0.0
                     if is_away and home_tri and away_tri:
-                        tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
+                        tz_diff = abs(_tz_offset_meta(home_tri) - _tz_offset_meta(away_tri))
                     altitude_game = bool(row.get("altitude_game"))
-                    level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and is_away) else 0.0)
+                    # Travel distance normalization (0..1) with soft cap ~2500 km
+                    try:
+                        tk = float(row.get("travel_km") or 0.0)
+                    except Exception:
+                        tk = 0.0
+                    travel_norm = max(0.0, min(1.0, tk / 2500.0))
+                    level = _clamp01(0.15 * float(tz_diff) + (0.6 if (altitude_game and is_away) else 0.0) + 0.25 * travel_norm)
                     tw = float(weights["props"].get("travel_penalty", 0.0))
                     base_score = base_score * (1.0 - max(0.0, min(1.0, tw * level)))
                 except Exception:
@@ -6975,6 +7578,75 @@ def api_props_recommendations():
         preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
         props_preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         df = _read_csv_if_exists(edges_p)
+        # Optional: apply roster team overrides to ensure correct team identity per player
+        try:
+            from pathlib import Path as _Path
+            _ov_path = BASE_DIR / "data" / "overrides" / "roster_overrides.csv"
+            _override_team_by_player: dict[str, str] = {}
+            if _ov_path.exists():
+                try:
+                    _ov = pd.read_csv(_ov_path)
+                    # Expect columns: PLAYER (name), TEAM_ABBREVIATION
+                    if {"PLAYER","TEAM_ABBREVIATION"}.issubset(set(_ov.columns)):
+                        def _norm_name(x: object) -> str:
+                            s = str(x or "").strip().upper()
+                            return s
+                        for _, r in _ov.iterrows():
+                            n = _norm_name(r.get("PLAYER"))
+                            t = str(r.get("TEAM_ABBREVIATION") or "").strip().upper()
+                            if n and t:
+                                _override_team_by_player[n] = t
+                except Exception:
+                    _override_team_by_player = {}
+            # Apply overrides to edges df teams when player column is present
+            if isinstance(df, pd.DataFrame) and (df is not None) and (not df.empty) and ("team" in df.columns):
+                _pcol = next((c for c in ("player_name","player") if c in df.columns), None)
+                if _pcol:
+                    try:
+                        tmp = df.copy()
+                        tmp[_pcol] = tmp[_pcol].astype(str).str.strip().str.upper()
+                        def _map_team(row: pd.Series) -> str:
+                            try:
+                                n = str(row.get(_pcol) or "").strip().upper()
+                                t_cur = str(row.get("team") or "").strip().upper()
+                                t_new = _override_team_by_player.get(n)
+                                return (t_new if (t_new and t_new != t_cur) else t_cur)
+                            except Exception:
+                                return str(row.get("team") or "")
+                        tmp["team"] = tmp.apply(_map_team, axis=1)
+                        df = tmp
+                    except Exception:
+                        pass
+            # Apply overrides similarly to props_predictions (model baselines) if present
+            if isinstance(pp := _read_csv_if_exists(props_preds_p), pd.DataFrame) and (pp is not None) and (not pp.empty):
+                if "team" in pp.columns and "player_name" in pp.columns:
+                    try:
+                        tmp2 = pp.copy()
+                        tmp2["player_name"] = tmp2["player_name"].astype(str).str.strip().str.upper()
+                        tmp2["team"] = tmp2.apply(lambda r: (_override_team_by_player.get(str(r.get("player_name") or "").strip().upper()) or str(r.get("team") or "").strip().upper()), axis=1)
+                        pp = tmp2
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+        # Reliability weight from summary (down-weight noisy calibration)
+        reliability_weight = 1.0
+        try:
+            import json as _json
+            _rp = BASE_DIR / "data" / "processed" / "reliability_props_summary.json"
+            if _rp.exists():
+                with open(_rp, "r", encoding="utf-8") as fh:
+                    _rj = _json.load(fh)
+                _w = (((_rj or {}).get("summary") or {}).get("weighted") or {})
+                rmse = _w.get("rmse_calibration")
+                if rmse is not None:
+                    try:
+                        rmse = float(rmse)
+                        reliability_weight = float(max(0.70, 1.0 - rmse))
+                    except Exception:
+                        reliability_weight = 1.0
+        except Exception:
+            reliability_weight = 1.0
         # Load game predictions (for matchup context)
         games_df = _read_csv_if_exists(preds_p)
         if not isinstance(games_df, pd.DataFrame) or games_df is None:
@@ -6983,6 +7655,24 @@ def api_props_recommendations():
         pp = _read_csv_if_exists(props_preds_p)
         if not isinstance(pp, pd.DataFrame) or pp is None:
             pp = pd.DataFrame()
+        else:
+            # Apply roster team overrides to props_predictions as well
+            try:
+                if "team" in pp.columns and "player_name" in pp.columns:
+                    tmp2 = pp.copy()
+                    tmp2["player_name"] = tmp2["player_name"].astype(str).str.strip().str.upper()
+                    def _map_pp_team(row: pd.Series) -> str:
+                        try:
+                            n = str(row.get("player_name") or "").strip().upper()
+                            t_cur = str(row.get("team") or "").strip().upper()
+                            t_new = (_override_team_by_player.get(n) if isinstance(_override_team_by_player, dict) else None)
+                            return (t_new if (t_new and t_new != t_cur) else t_cur)
+                        except Exception:
+                            return str(row.get("team") or "")
+                    tmp2["team"] = tmp2.apply(_map_pp_team, axis=1)
+                    pp = tmp2
+            except Exception:
+                pass
         # Accept aliases from frontend (only_ev, min_ev_pct, sort, compact, markets)
         sort_by = (request.args.get("sortBy") or request.args.get("sort") or "ev_desc").strip().lower()
         compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
@@ -7213,6 +7903,31 @@ def api_props_recommendations():
             except Exception:
                 pass
 
+        # Minutes forecaster: estimate minutes per player/team for weighting
+        minutes_map: dict[tuple[str,str], float] = {}
+        try:
+            from nba_betting.props.minutes_forecaster import MinutesForecaster  # type: ignore
+            roster: list[dict] = []
+            _tmp = df.copy()
+            pcol = next((c for c in ("player_name", "player") if c in _tmp.columns), None)
+            tcol = "team" if "team" in _tmp.columns else None
+            if pcol:
+                if tcol:
+                    _tmp[pcol] = _tmp[pcol].astype(str)
+                    _tmp[tcol] = _tmp[tcol].astype(str).str.upper()
+                    roster = [{"player": r[pcol], "team": r[tcol]} for _, r in _tmp[[pcol, tcol]].dropna().drop_duplicates().iterrows()]
+                else:
+                    roster = [{"player": r[pcol], "team": str(r.get("team") or "")} for _, r in _tmp[[pcol]].dropna().drop_duplicates().iterrows()]
+            mf = MinutesForecaster.from_processed(d, str(BASE_DIR / "data" / "processed"))
+            mins = mf.forecast(roster, injuries_map={})
+            for pm in mins:
+                try:
+                    minutes_map[(str(pm.player), str(pm.team).upper())] = float(pm.minutes)
+                except Exception:
+                    pass
+        except Exception:
+            minutes_map = {}
+
         for keys, grp in df.groupby(group_cols, dropna=False):
                 if not isinstance(keys, tuple):
                     keys = (keys,)
@@ -7246,11 +7961,101 @@ def api_props_recommendations():
                         "ev_pct": r.get("ev_pct"),
                         "book": r.get("bookmaker"),
                     })
-                # Compute "top_play" and explainability based on preferences
+                # Compute "top_play" using composite quality score (beyond EV)
                 top_play = None
                 top_play_baseline = None
                 top_play_reasons: list[str] = []
                 top_play_explain = None
+                top_play_score = None
+                # Lazy-load props probability calibration mapping (auto-selected window)
+                _props_calib_map = None
+                def _load_props_calibration():
+                    nonlocal _props_calib_map
+                    if _props_calib_map is not None:
+                        return _props_calib_map
+                    try:
+                        import json as _json
+                        chosen_fp = None
+                        summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                        if summary_fp.exists():
+                            with open(summary_fp, "r", encoding="utf-8") as fh:
+                                win_sum = _json.load(fh)
+                            wins = win_sum.get("windows") or []
+                            best = None
+                            for it in wins:
+                                if not isinstance(it, dict):
+                                    continue
+                                if it.get("days") and it.get("rmse_calibration") is not None:
+                                    if best is None or float(it["rmse_calibration"]) < float(best["rmse_calibration"]):
+                                        best = it
+                            if isinstance(best, dict) and best.get("days"):
+                                fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{best['days']}.json"
+                                if fp2.exists():
+                                    chosen_fp = fp2
+                        if chosen_fp is None:
+                            fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"
+                            if fp.exists():
+                                chosen_fp = fp
+                        if chosen_fp and chosen_fp.exists():
+                            with open(chosen_fp, "r", encoding="utf-8") as fh:
+                                _props_calib_map = _json.load(fh)
+                        else:
+                            _props_calib_map = None
+                    except Exception:
+                        _props_calib_map = None
+                    return _props_calib_map
+                def _calibrate_prob(p_raw: float, market: str | None = None) -> float:
+                    try:
+                        pv = max(0.0, min(1.0, float(p_raw)))
+                        cmap = _load_props_calibration()
+                        if not isinstance(cmap, dict):
+                            return pv
+                        xs = cmap.get("x") or []
+                        ys = cmap.get("y") or []
+                        # Prefer market-specific curve if available
+                        try:
+                            mk = (str(market or "").strip().upper())
+                            by_m = None
+                            for k in ("by_market","markets","per_market"):
+                                if isinstance(cmap.get(k), dict):
+                                    by_m = cmap.get(k)
+                                    break
+                            if mk and isinstance(by_m, dict):
+                                # direct key match or common aliases
+                                cand = by_m.get(mk)
+                                if cand is None:
+                                    alias = {
+                                        "3PT": ["3PM","THREES","3-PT","3PT MADE"],
+                                        "PTS": ["POINTS","P","POINTS TOTAL"],
+                                        "REB": ["REBOUNDS","R","REBOUND"],
+                                        "AST": ["ASSISTS","A","ASSIST"],
+                                        "PRA": ["POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"],
+                                    }
+                                    for key, al in alias.items():
+                                        if mk == key or mk in al:
+                                            cand = by_m.get(key)
+                                            break
+                                if isinstance(cand, dict):
+                                    xs2 = cand.get("x") or []
+                                    ys2 = cand.get("y") or []
+                                    if isinstance(xs2, list) and isinstance(ys2, list) and len(xs2) == len(ys2) and len(xs2) >= 2:
+                                        xs = xs2
+                                        ys = ys2
+                        except Exception:
+                            pass
+                        if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) == len(ys) and len(xs) >= 2):
+                            return pv
+                        import bisect
+                        i = bisect.bisect_left(xs, pv)
+                        if i <= 0:
+                            return float(ys[0])
+                        if i >= len(xs):
+                            return float(ys[-1])
+                        x0 = float(xs[i-1]); x1 = float(xs[i]); y0 = float(ys[i-1]); y1 = float(ys[i])
+                        t = (pv - x0) / (x1 - x0) if (x1 > x0) else 0.0
+                        return float(y0 + t * (y1 - y0))
+                    except Exception:
+                        return float(p_raw)
                 try:
                     # Helper: check if price within regular range [-150, +125]
                     def _is_regular_price(p: object) -> bool:
@@ -7260,7 +8065,7 @@ def api_props_recommendations():
                         except Exception:
                             return False
                     # Candidate selection: prefer plays with EV available
-                    cand = [p for p in plays if p.get("ev_pct") is not None]
+                    cand = list(plays)
                     # Exclude extreme markets (e.g., dd/td) for regular-only preference
                     def _is_regular_market(m: object) -> bool:
                         mm = str(m or "").lower()
@@ -7268,9 +8073,129 @@ def api_props_recommendations():
                     if prefer_regular_only:
                         cand_reg = [p for p in cand if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
                         cand = cand_reg if cand_reg else cand
-                    # Sort by ev_pct desc, then absolute edge desc
-                    cand.sort(key=lambda p: ((p.get("ev_pct") or -1e9), abs(p.get("edge") or 0.0)), reverse=True)
-                    top_play = cand[0] if cand else None
+                    # Build a composite quality score for each candidate
+                    def _consensus_books(mkt: object, side: object, line_val: object) -> int:
+                        try:
+                            comp = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                            if line_val is not None:
+                                try:
+                                    comp = comp[pd.to_numeric(comp.get("line"), errors="coerce") == float(line_val)]
+                                except Exception:
+                                    pass
+                            books = comp["bookmaker"].dropna().astype(str).unique().tolist()
+                            return int(min(4, max(0, len(books))))
+                        except Exception:
+                            return 0
+                    def _is_best_price(mkt: object, side: object, line_val: object, cur_price: object) -> bool:
+                        try:
+                            comp = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                            if line_val is not None:
+                                try:
+                                    comp = comp[pd.to_numeric(comp.get("line"), errors="coerce") == float(line_val)]
+                                except Exception:
+                                    pass
+                            prices = pd.to_numeric(comp.get("price"), errors="coerce").dropna()
+                            cur = float(cur_price) if cur_price is not None else None
+                            return (prices.size > 0 and cur is not None and cur >= float(prices.max()) - 1e-9)
+                        except Exception:
+                            return False
+                    def _line_advantage(stat_key: str, side: object, line_val: object) -> float:
+                        try:
+                            bl = None
+                            if isinstance(model, dict):
+                                bl = model.get(stat_key)
+                            if bl is None or line_val is None:
+                                return 0.0
+                            sd = str(side or "").upper()
+                            adv = (float(bl) - float(line_val)) if sd == "OVER" else (float(line_val) - float(bl))
+                            return float(adv) if np.isfinite(adv) else 0.0
+                        except Exception:
+                            return 0.0
+                    # Pre-compute opponent allowance ranks for favorability weighting
+                    opp_rank_obj: dict[str, int] = {}
+                    try:
+                        team_tri = _get_tricode(str(team)) or (str(team).strip().upper() if team else None)
+                        away_home = matchup_map.get(str(team_tri or "").upper()) or matchup_map.get(str(team or "").strip().upper())
+                        away = None; home = None
+                        if isinstance(away_home, tuple) and len(away_home) == 2:
+                            away, home = away_home
+                        opp_tri = None
+                        if away and home and team_tri:
+                            try:
+                                h_tri = _get_tricode(home) or str(home).strip().upper()
+                                a_tri = _get_tricode(away) or str(away).strip().upper()
+                                if str(team_tri).upper() == str(h_tri).upper():
+                                    opp_tri = (a_tri.upper() if isinstance(a_tri, str) else None)
+                                elif str(team_tri).upper() == str(a_tri).upper():
+                                    opp_tri = (h_tri.upper() if isinstance(h_tri, str) else None)
+                            except Exception:
+                                opp_tri = None
+                        try:
+                            _, ranks_map = _compute_team_allowed_stats(d)
+                            if opp_tri:
+                                rmap = ranks_map.get(opp_tri)
+                                if isinstance(rmap, dict):
+                                    opp_rank_obj = {k: int(v) for k, v in rmap.items() if isinstance(v, (int, float))}
+                        except Exception:
+                            opp_rank_obj = {}
+                    except Exception:
+                        opp_rank_obj = {}
+                    def _quality_score(p: dict) -> float:
+                        try:
+                            evp = float(p.get("ev_pct")) if p.get("ev_pct") is not None else 0.0
+                            edge_abs = abs(float(p.get("edge"))) if p.get("edge") is not None else 0.0
+                            price = p.get("price")
+                            reg = 1.0 if (_is_regular_price(price) and _is_regular_market(p.get("market"))) else 0.0
+                            mkt = p.get("market"); side = p.get("side"); line_val = p.get("line")
+                            try:
+                                line_val = float(line_val)
+                            except Exception:
+                                line_val = None
+                            cons = float(_consensus_books(mkt, side, line_val))
+                            best = 1.0 if _is_best_price(mkt, side, line_val, price) else 0.0
+                            stat_key = str(mkt or "").lower()
+                            adv = abs(_line_advantage(stat_key, side, line_val))
+                            pos_odds = 1.0 if (price is not None and float(price) >= 100.0) else 0.0
+                            # Minutes weighting: prefer stable high-minute players
+                            try:
+                                mins = minutes_map.get((str(player), str(team).upper()))
+                                min_weight = float(min(1.0, max(0.0, (float(mins) or 0.0) / 36.0))) if mins is not None else 0.5
+                            except Exception:
+                                min_weight = 0.5
+                            # Opponent favorability: boost OVER vs high-allow opponents, UNDER vs stingy
+                            try:
+                                mk = str(mkt or "").lower(); sd = str(side or "").upper()
+                                rank_val = None
+                                if mk in {"pts","reb","ast","threes"}:
+                                    rank_val = opp_rank_obj.get(mk)
+                                elif mk == "pra":
+                                    rv = [opp_rank_obj.get(k) for k in ("pts","reb","ast") if opp_rank_obj.get(k) is not None]
+                                    rank_val = int(np.mean(rv)) if rv else None
+                                fav_norm = 0.0
+                                if isinstance(rank_val, (int, float)) and rank_val > 0:
+                                    # Normalize rank to [0,1] with 30 teams; 1 stingy, 30 favorable
+                                    try:
+                                        r = float(rank_val)
+                                        if sd == "OVER":
+                                            fav_norm = max(0.0, min(1.0, r / 30.0))
+                                        elif sd == "UNDER":
+                                            fav_norm = max(0.0, min(1.0, (30.0 - r) / 30.0))
+                                    except Exception:
+                                        fav_norm = 0.0
+                            except Exception:
+                                fav_norm = 0.0
+                            # Reliability factor from recent calibration
+                            rel_w = float(reliability_weight)
+                            # Weights tuned heuristically; EV is important but not dominant
+                            base = (0.45 * evp) + (0.2 * edge_abs) + (0.2 * cons) + (0.1 * reg) + (0.25 * adv) + (0.1 * best) + (0.05 * pos_odds) + (0.2 * min_weight) + (1.5 * float(fav_norm))
+                            return float(rel_w) * float(base)
+                        except Exception:
+                            return -1e9
+                    # Choose top by quality score
+                    if cand:
+                        scored = [(p, _quality_score(p)) for p in cand]
+                        scored.sort(key=lambda t: t[1], reverse=True)
+                        top_play, top_play_score = scored[0]
                     # Baseline from model for stat, if available
                     if top_play is not None:
                         stat_key = str(top_play.get("market") or "").lower()
@@ -7346,6 +8271,57 @@ def api_props_recommendations():
                             evp = top_play.get("ev_pct")
                             if evp is not None:
                                 parts.append(f"EV {float(evp):.1f}%")
+                            # Add calibrated prob/EV if available (auto-selected window)
+                            try:
+                                pr = None
+                                try:
+                                    # Treat ev_pct as raw probability percent when present
+                                    pr = (float(evp) / 100.0) if evp is not None else None
+                                except Exception:
+                                    pr = None
+                                if pr is None:
+                                    # Fallback to model_prob column for the same stat/side/line
+                                    mkt = top_play.get("market"); side = top_play.get("side"); line_val = top_play.get("line")
+                                    comp = g2[(g2.get("stat").astype(str) == str(mkt)) & (g2.get("side").astype(str) == str(side))]
+                                    if line_val is not None:
+                                        try:
+                                            comp = comp[pd.to_numeric(comp.get("line"), errors="coerce") == float(line_val)]
+                                        except Exception:
+                                            pass
+                                    if "model_prob" in comp.columns and not comp["model_prob"].dropna().empty:
+                                        pr = float(pd.to_numeric(comp["model_prob"], errors="coerce").dropna().iloc[0])
+                                if pr is not None:
+                                    pc = _calibrate_prob(pr, market=str((top_play or {}).get("market") or ""))
+                                    # Compute calibrated EV percent using American odds
+                                    def _american_to_decimal(a):
+                                        try:
+                                            aa = float(a)
+                                        except Exception:
+                                            return None
+                                        if aa == 0:
+                                            return None
+                                        return (1.0 + (aa/100.0)) if aa > 0 else (1.0 + (100.0/abs(aa)))
+                                    dec = _american_to_decimal(top_play.get("price"))
+                                    evc_pct = None
+                                    if dec is not None:
+                                        evc = (pc * float(dec)) - 1.0
+                                        evc_pct = float(100.0 * evc)
+                                    # Attach to top_play fields and explain
+                                    try:
+                                        top_play["prob_calib"] = float(100.0 * pc)
+                                    except Exception:
+                                        pass
+                                    if evc_pct is not None:
+                                        parts.append(f"Calib EV {evc_pct:.1f}%")
+                                        try:
+                                            top_play["ev_calib_pct"] = float(evc_pct)
+                                        except Exception:
+                                            pass
+                            except Exception:
+                                pass
+                            # Quality score summary
+                            if top_play_score is not None:
+                                parts.append(f"Quality score {float(top_play_score):.2f}")
                             # Deduplicate reasons while preserving order
                             try:
                                 seen = set(); uniq = []
@@ -7359,7 +8335,7 @@ def api_props_recommendations():
                         except Exception:
                             top_play_explain = None
                 except Exception:
-                    top_play = None; top_play_reasons = []; top_play_explain = None; top_play_baseline = None
+                    top_play = None; top_play_reasons = []; top_play_explain = None; top_play_baseline = None; top_play_score = None
                 # Build consolidated ladders per market/side with best offer per distinct line,
                 # and compute a 'base' line per group (price closest to +100)
                 ladders: list[dict] = []
@@ -7686,6 +8662,9 @@ def api_props_recommendations():
                     "top_play_baseline": top_play_baseline,
                     "top_play_reasons": top_play_reasons,
                     "top_play_explain": top_play_explain,
+                    "top_play_score": (float(top_play_score) if top_play_score is not None else (
+                        float(_quality_score(top_play)) if top_play else None
+                    )),
                     "top_play_consensus": top_play_consensus,
                     "top_play_books_count": top_play_books_count,
                     "top_play_line_adv": top_play_line_adv,
@@ -7749,6 +8728,335 @@ def api_props_recommendations():
         # Strip internal fields
         for c in cards:
             c.pop('_best_ev', None); c.pop('_best_edge', None)
+        # Learn market-pair penalties from recent reconciled props (last 30 days) with configurable method and caching
+        by_market_pairs: dict[tuple[str, str], float] = {}
+        try:
+            # Correlation method param or override file
+            corr_param = (request.args.get("corr_method") or "").strip().lower()
+            if corr_param:
+                corr_method = corr_param
+            else:
+                try:
+                    ov = BASE_DIR / "data" / "overrides" / "corr_method.txt"
+                    corr_method = (ov.read_text(encoding="utf-8").strip().lower() if ov.exists() else "phi")
+                except Exception:
+                    corr_method = "phi"
+            proc_dir = BASE_DIR / "data" / "processed"
+            cache_dir = proc_dir / "cache"
+            import json as _json
+            import time as _time
+            cache_path = cache_dir / f"market_pair_penalties_{corr_method}.json"
+            # Try cache (valid for 24h)
+            use_cached = False
+            try:
+                if cache_path.exists():
+                    age_h = (float(_time.time()) - float(cache_path.stat().st_mtime)) / 3600.0
+                    if age_h <= 24.0:
+                        with open(cache_path, "r", encoding="utf-8") as fh:
+                            obj = _json.load(fh)
+                        if isinstance(obj, dict) and isinstance(obj.get("pairs"), dict):
+                            tmp = {}
+                            for k, v in obj["pairs"].items():
+                                try:
+                                    a, b = str(k).split("|")
+                                    tmp[(a, b)] = float(v)
+                                except Exception:
+                                    continue
+                            by_market_pairs = tmp
+                            use_cached = True
+            except Exception:
+                use_cached = False
+            if not use_cached:
+                # Collect recent recon files
+                try:
+                    end = pd.to_datetime(d, errors="coerce").date()
+                except Exception:
+                    from datetime import date as _date
+                    end = _date.today()
+                try:
+                    start = (pd.to_datetime(end) - pd.Timedelta(days=30)).date()
+                except Exception:
+                    start = end
+                days = pd.date_range(start=pd.to_datetime(start), end=pd.to_datetime(end), freq="D")
+                # Helper normalize market key
+                def _mk_key_s(m: object) -> str:
+                    m2 = str(m or "").strip().upper()
+                    mapk = {
+                        "3PT": ["3PT","3PM","THREES","3-PT","THREE","3PT MADE"],
+                        "PTS": ["PTS","POINTS","P","POINTS TOTAL"],
+                        "REB": ["REB","REBOUNDS","R","REBOUND"],
+                        "AST": ["AST","ASSISTS","A","ASSIST"],
+                        "PRA": ["PRA","POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"],
+                        "PR": ["PR","POINTS+REBOUNDS"],
+                        "PA": ["PA","POINTS+ASSISTS"],
+                        "RA": ["RA","REBOUNDS+ASSISTS"],
+                    }
+                    for k, al in mapk.items():
+                        if m2 == k or m2 in al:
+                            return k
+                    return m2 or ""
+                if corr_method == "phi":
+                    # Accumulate contingency counts for phi and side synergy
+                    pair_stats: dict[tuple[str, str], dict[str, float]] = {}
+                    for day in days:
+                        try:
+                            ds = pd.to_datetime(day).date().isoformat()
+                            pth = proc_dir / f"recon_props_{ds}.csv"
+                            if not pth.exists():
+                                continue
+                            df = pd.read_csv(pth)
+                            if df is None or df.empty:
+                                continue
+                            cols = {c.lower(): c for c in df.columns}
+                            mcol = cols.get("market") or cols.get("stat")
+                            scol = cols.get("side")
+                            tcol = cols.get("team")
+                            ocol = cols.get("hit") or cols.get("won") or cols.get("outcome")
+                            if not (mcol and scol and tcol and ocol and (ocol in df.columns)):
+                                continue
+                            tmp = df[[tcol, mcol, scol, ocol]].copy()
+                            tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                            tmp[mcol] = tmp[mcol].map(_mk_key_s)
+                            tmp[scol] = tmp[scol].astype(str).str.strip().str.upper()
+                            oc = pd.to_numeric(tmp[ocol], errors="coerce").fillna(0.0)
+                            oc = oc.map(lambda x: 1.0 if float(x) > 0 else 0.0)
+                            tmp["_hit"] = oc
+                            # Group by team and build pairs
+                            for team, grp in tmp.groupby(tcol):
+                                rows_loc = grp.to_dict(orient="records")
+                                for i in range(len(rows_loc)):
+                                    for j in range(i+1, len(rows_loc)):
+                                        a = rows_loc[i]; b = rows_loc[j]
+                                        ka = _mk_key_s(a.get(mcol)); kb = _mk_key_s(b.get(mcol))
+                                        if not ka or not kb:
+                                            continue
+                                        key = (ka, kb)
+                                        st = pair_stats.setdefault(key, {"n": 0.0, "n11": 0.0, "n10": 0.0, "n01": 0.0, "n00": 0.0, "co_side": 0.0})
+                                        try:
+                                            xa = 1.0 if float(a.get("_hit") or 0.0) > 0.5 else 0.0
+                                            xb = 1.0 if float(b.get("_hit") or 0.0) > 0.5 else 0.0
+                                            st["n"] += 1.0
+                                            if xa == 1.0 and xb == 1.0:
+                                                st["n11"] += 1.0
+                                            elif xa == 1.0 and xb == 0.0:
+                                                st["n10"] += 1.0
+                                            elif xa == 0.0 and xb == 1.0:
+                                                st["n01"] += 1.0
+                                            else:
+                                                st["n00"] += 1.0
+                                        except Exception:
+                                            pass
+                                        try:
+                                            sa = str(a.get(scol) or "").strip().upper()
+                                            sb = str(b.get(scol) or "").strip().upper()
+                                            if sa and sb and sa == sb:
+                                                st["co_side"] += 1.0
+                                        except Exception:
+                                            pass
+                        except Exception:
+                            continue
+                    # Convert stats to phi-based penalties
+                    for key, st in pair_stats.items():
+                        try:
+                            n = float(st.get("n") or 0.0)
+                            if n < 6.0:
+                                continue
+                            n11 = float(st.get("n11") or 0.0)
+                            n10 = float(st.get("n10") or 0.0)
+                            n01 = float(st.get("n01") or 0.0)
+                            n00 = float(st.get("n00") or 0.0)
+                            denom = (n11 + n10) * (n01 + n00) * (n11 + n01) * (n10 + n00)
+                            phi = 0.0
+                            if denom > 0.0:
+                                try:
+                                    num = (n11 * n00) - (n10 * n01)
+                                    phi = float(num) / float((denom) ** 0.5)
+                                except Exception:
+                                    phi = 0.0
+                            co_side_ratio = float(st.get("co_side") or 0.0) / n
+                            pen = max(0.0, min(0.20, 0.20 * abs(phi) + 0.05 * co_side_ratio))
+                            by_market_pairs[key] = pen
+                            by_market_pairs[(key[1], key[0])] = pen
+                        except Exception:
+                            continue
+                elif corr_method == "proxy":
+                    # Co-win/co-side proxy penalties
+                    pair_stats: dict[tuple[str, str], dict[str, float]] = {}
+                    for day in days:
+                        try:
+                            ds = pd.to_datetime(day).date().isoformat()
+                            pth = proc_dir / f"recon_props_{ds}.csv"
+                            if not pth.exists():
+                                continue
+                            df = pd.read_csv(pth)
+                            if df is None or df.empty:
+                                continue
+                            cols = {c.lower(): c for c in df.columns}
+                            mcol = cols.get("market") or cols.get("stat")
+                            scol = cols.get("side")
+                            tcol = cols.get("team")
+                            ocol = cols.get("hit") or cols.get("won") or cols.get("outcome")
+                            tmp = df[[tcol, mcol, scol]].copy()
+                            tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                            tmp[mcol] = tmp[mcol].map(_mk_key_s)
+                            tmp[scol] = tmp[scol].astype(str).str.strip().str.upper()
+                            if ocol and (ocol in df.columns):
+                                oc = pd.to_numeric(df[ocol], errors="coerce").fillna(0.0)
+                                oc = oc.map(lambda x: 1.0 if float(x) > 0 else 0.0)
+                                tmp["_hit"] = oc
+                            for team, grp in tmp.groupby(tcol):
+                                rows_loc = grp.to_dict(orient="records")
+                                for i in range(len(rows_loc)):
+                                    for j in range(i+1, len(rows_loc)):
+                                        a = rows_loc[i]; b = rows_loc[j]
+                                        ka = _mk_key_s(a.get(mcol)); kb = _mk_key_s(b.get(mcol))
+                                        if not ka or not kb:
+                                            continue
+                                        key = (ka, kb)
+                                        st = pair_stats.setdefault(key, {"n": 0.0, "co_win": 0.0, "co_side": 0.0})
+                                        st["n"] += 1.0
+                                        try:
+                                            if a.get("_hit") is not None and b.get("_hit") is not None and (float(a.get("_hit")) > 0.5) and (float(b.get("_hit")) > 0.5):
+                                                st["co_win"] += 1.0
+                                        except Exception:
+                                            pass
+                                        try:
+                                            sa = str(a.get(scol) or "").strip().upper()
+                                            sb = str(b.get(scol) or "").strip().upper()
+                                            if sa and sb and sa == sb:
+                                                st["co_side"] += 1.0
+                                        except Exception:
+                                            pass
+                        except Exception:
+                            continue
+                    for key, st in pair_stats.items():
+                        try:
+                            n = float(st.get("n") or 0.0)
+                            if n <= 3.0:
+                                continue
+                            co_win = float(st.get("co_win") or 0.0) / n
+                            co_side = float(st.get("co_side") or 0.0) / n
+                            pen = max(0.0, min(0.20, 0.10 * co_side + 0.10 * co_win))
+                            by_market_pairs[key] = pen
+                            by_market_pairs[(key[1], key[0])] = pen
+                        except Exception:
+                            continue
+                else:
+                    by_market_pairs = {}
+                # Fallback: if learned pair penalties are empty, derive from numeric correlations
+                try:
+                    if not by_market_pairs:
+                        cols_num = ["PTS","REB","AST","THREES","PRA"]
+                        acc: dict[tuple[str,str], list[float]] = {}
+                        for day in days:
+                            try:
+                                ds = pd.to_datetime(day).date().isoformat()
+                                pth = proc_dir / f"recon_props_{ds}.csv"
+                                if not pth.exists():
+                                    continue
+                                df = pd.read_csv(pth)
+                                if df is None or df.empty:
+                                    continue
+                                cols = {c.lower(): c for c in df.columns}
+                                tcol = cols.get("team") or cols.get("team_abbr")
+                                # Require numeric stat columns
+                                cand = [cols.get(c.lower()) for c in cols_num if cols.get(c.lower())]
+                                cand = [c for c in cand if c]
+                                if not (tcol and cand and len(cand) >= 2):
+                                    continue
+                                tmp = df[[tcol] + cand].copy()
+                                tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                                for team, grp in tmp.groupby(tcol):
+                                    try:
+                                        mat = grp[cand].apply(pd.to_numeric, errors="coerce").dropna(how="all")
+                                        if mat is None or mat.empty:
+                                            continue
+                                        corr = mat.corr(method="pearson").fillna(0.0)
+                                        for a in cand:
+                                            for b in cand:
+                                                if a == b:
+                                                    continue
+                                                mk_a = _mk_key_s(a)
+                                                mk_b = _mk_key_s(b)
+                                                r = float(corr.loc[a, b]) if (a in corr.index and b in corr.columns) else 0.0
+                                                acc.setdefault((mk_a, mk_b), []).append(abs(r))
+                                    except Exception:
+                                        continue
+                            except Exception:
+                                continue
+                        for (ka, kb), vals in acc.items():
+                            try:
+                                if not vals:
+                                    continue
+                                r = float(pd.Series(vals).mean())
+                                pen = max(0.0, min(0.20, 0.18 * r))
+                                by_market_pairs[(ka, kb)] = pen
+                                by_market_pairs[(kb, ka)] = pen
+                            except Exception:
+                                continue
+                except Exception:
+                    pass
+                # Market variance weights used later in optimizer
+                try:
+                    market_var_weights = {
+                        "PTS": 0.6, "REB": 0.5, "AST": 0.5, "3PT": 0.7, "PRA": 0.4,
+                        "PR": 0.55, "PA": 0.55, "RA": 0.55
+                    }
+                except Exception:
+                    market_var_weights = {}
+                # Write cache
+                try:
+                    cache_dir.mkdir(parents=True, exist_ok=True)
+                    ser = {"pairs": {f"{a}|{b}": float(p) for (a, b), p in by_market_pairs.items()}}
+                    with open(cache_path, "w", encoding="utf-8") as fh:
+                        _json.dump(ser, fh)
+                except Exception:
+                    pass
+        except Exception:
+            by_market_pairs = {}
+        # Correlation-aware penalty scaffold: penalize overlapping markets within the same game
+        try:
+            # Build game keys from home/away tricodes for cards
+            def _game_key(card: dict) -> tuple[str, str] | None:
+                try:
+                    h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                    a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                    if h and a:
+                        return (h, a)
+                except Exception:
+                    return None
+                return None
+            # Index cards by game key
+            by_game: dict[tuple[str,str], list[dict]] = {}
+            for c in cards:
+                gk = _game_key(c)
+                if gk:
+                    by_game.setdefault(gk, []).append(c)
+            # Compute overlap counts per market and adjust top_play_score
+            for gk, group in by_game.items():
+                try:
+                    # Count markets in this game
+                    mk_counts: dict[str, int] = {}
+                    for c in group:
+                        mk = str(((c.get("top_play") or {}).get("market")) or "").lower()
+                        if mk:
+                            mk_counts[mk] = mk_counts.get(mk, 0) + 1
+                    for c in group:
+                        mk = str(((c.get("top_play") or {}).get("market")) or "").lower()
+                        overlap = int(mk_counts.get(mk, 0)) - 1 if mk in mk_counts else 0
+                        # Penalty: 0.1 per additional overlap, capped at 0.3
+                        pen = max(0.0, min(0.3, 0.1 * float(overlap)))
+                        base_score = c.get("top_play_score")
+                        try:
+                            adj = (float(base_score) - float(pen)) if base_score is not None else None
+                        except Exception:
+                            adj = base_score
+                        c["corr_proxy"] = float(min(1.0, max(0.0, (float(overlap) / 5.0)))) if isinstance(overlap, (int, float)) else None
+                        c["top_play_score_adj"] = adj
+                except Exception:
+                    continue
+        except Exception:
+            pass
         # Add schedule density flags for props scoring (B2B / 3-in-4)
         try:
             try:
@@ -7798,7 +9106,30 @@ def api_props_recommendations():
                         c["home_tricode"] = home_tri
                         c["away_tricode"] = away_tri
                         c["team_is_away"] = bool(away_tri and team_tri and (away_tri == team_tri))
-                        c["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                        # Altitude via metadata (>= 3500 ft)
+                        try:
+                            alt_ft = _altitude_ft_meta(str(home_tri)) if home_tri else 0.0
+                            c["altitude_game"] = bool(alt_ft >= 3500.0)
+                        except Exception:
+                            c["altitude_game"] = bool(home_tri in {"DEN", "UTA"})
+                        # Time-zone difference (hours) using metadata
+                        try:
+                            tz_diff = 0.0
+                            if home_tri and away_tri:
+                                tz_diff = abs(_tz_offset_meta(str(home_tri)) - _tz_offset_meta(str(away_tri)))
+                            c["tz_diff_hours"] = float(tz_diff)
+                        except Exception:
+                            pass
+                        # Travel distance (km) between away and home cities using metadata
+                        try:
+                            if home_tri and away_tri and (home_tri in _TEAM_META_LAT) and (away_tri in _TEAM_META_LAT) and (home_tri in _TEAM_META_LON) and (away_tri in _TEAM_META_LON):
+                                la1 = float(_TEAM_META_LAT.get(away_tri)); lo1 = float(_TEAM_META_LON.get(away_tri))
+                                la2 = float(_TEAM_META_LAT.get(home_tri)); lo2 = float(_TEAM_META_LON.get(home_tri))
+                                c["travel_km"] = round(_haversine_km(la1, lo1, la2, lo2), 1)
+                            else:
+                                c["travel_km"] = 0.0
+                        except Exception:
+                            c["travel_km"] = 0.0
                     except Exception:
                         c["team_is_away"] = False
                         c["altitude_game"] = False
@@ -7810,7 +9141,7 @@ def api_props_recommendations():
         try:
             import json as _json
             # Default weights (can be overridden by data/overrides/reco_weights.json)
-            _weights_props = {"ev_pct": 0.40, "payout": 0.14, "baseline": 0.14, "consensus": 0.15, "line_adv": 0.10, "injury": 0.05, "pace": 0.02, "liquidity": 0.06, "density_penalty": 0.04, "usage_boost": 0.06, "travel_penalty": 0.02, "volatility_penalty": 0.04}
+            _weights_props = {"ev_pct": 0.38, "payout": 0.14, "baseline": 0.14, "consensus": 0.15, "line_adv": 0.10, "injury": 0.05, "pace": 0.02, "liquidity": 0.06, "density_penalty": 0.04, "usage_boost": 0.06, "travel_penalty": 0.02, "volatility_penalty": 0.04, "minutes_stability": 0.08}
             try:
                 wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
                 if wpath.exists():
@@ -7840,7 +9171,8 @@ def api_props_recommendations():
             def _score_card(row):
                 tp = row.get("top_play")
                 if isinstance(tp, dict) and tp:
-                    evp = tp.get("ev_pct")
+                    # Prefer calibrated EV percent if present
+                    evp = (tp.get("ev_calib_pct") if tp.get("ev_calib_pct") is not None else tp.get("ev_pct"))
                     ev = tp.get("ev")
                     price = tp.get("price")
                     dec = _american_to_decimal(price) if price is not None else None
@@ -7883,6 +9215,27 @@ def api_props_recommendations():
                         inj_norm = _clamp01(inj_imp / 125.0)
                     except Exception:
                         inj_norm = 0.0
+                    # Minutes stability: inverse of injury impact with schedule stress downweight
+                    try:
+                        inj_imp2 = float(row.get("team_injury_impact") or 0.0)
+                        ms_base = _clamp01(1.0 - (inj_imp2 / 200.0))
+                        b2b = bool(row.get("team_b2b")); three_in_four = bool(row.get("team_3in4"))
+                        density_level = (0.6 if b2b else 0.0) + (0.4 if three_in_four else 0.0)
+                        ms = _clamp01(ms_base * (1.0 - 0.5 * density_level))
+                        # Small stabilization bump when model predicts stronger baseline (proxy for stable role)
+                        try:
+                            model_pred = 0.0
+                            mk = str(tp.get("market") or "").lower()
+                            if mk in {"pts","reb","ast","threes","pra"}:
+                                model_pred = float((row.get("model") or {}).get(mk) or 0.0)
+                            if model_pred and model_pred > 0:
+                                # Scale bump gently by normalized prediction
+                                bump = max(0.0, min(0.05, model_pred / (30.0 if mk == "pts" else 12.0)))
+                                ms = _clamp01(ms + bump)
+                        except Exception:
+                            pass
+                    except Exception:
+                        ms = 0.5
                     base_score = (
                         _weights_props["ev_pct"] * evp_norm
                         + _weights_props["payout"] * payout_norm
@@ -7892,6 +9245,7 @@ def api_props_recommendations():
                         + _weights_props.get("liquidity", 0.0) * liq_norm
                         + _weights_props.get("pace", 0.0) * pace_norm
                         + _weights_props.get("injury", 0.0) * inj_norm
+                        + _weights_props.get("minutes_stability", 0.0) * ms
                     )
                     # Minutes/usage boost from key outs and injury impact
                     try:
@@ -7925,36 +9279,64 @@ def api_props_recommendations():
                         pass
                     # Travel/time-zone/altitude penalty (away team only)
                     try:
-                        def _tz_offset(tri):
-                            m = {
-                                # Eastern
-                                "ATL": -5, "BKN": -5, "BOS": -5, "CHA": -5, "CHI": -6, "CLE": -5,
-                                "DET": -5, "IND": -5, "MIA": -5, "MIL": -6, "NYK": -5, "ORL": -5,
-                                "PHI": -5, "TOR": -5, "WAS": -5,
-                                # Central/South (mostly CT)
-                                "DAL": -6, "HOU": -6, "MEM": -6, "MIN": -6, "NOP": -6, "OKC": -6, "SAS": -6,
-                                # Mountain
-                                "DEN": -7, "UTA": -7, "PHX": -7,
-                                # Pacific
-                                "GSW": -8, "LAC": -8, "LAL": -8, "SAC": -8, "POR": -8
-                            }
-                            try:
-                                return float(m.get(str(tri or "").upper(), 0.0))
-                            except Exception:
-                                return 0.0
                         is_away = bool(row.get("team_is_away"))
                         home_tri = row.get("home_tricode") or None
                         away_tri = row.get("away_tricode") or None
+                        # Metadata-aware time-zone difference
                         tz_diff = 0.0
                         if is_away and home_tri and away_tri:
-                            tz_diff = abs(_tz_offset(home_tri) - _tz_offset(away_tri))
-                        altitude_game = bool(row.get("altitude_game"))
-                        level = (0.2 * float(tz_diff)) + (0.8 if (altitude_game and is_away) else 0.0)
+                            try:
+                                tz_diff = abs(_tz_offset_meta(str(home_tri)) - _tz_offset_meta(str(away_tri)))
+                            except Exception:
+                                tz_diff = 0.0
+                        # Altitude via metadata (>= 3500 ft considered high altitude)
+                        altitude_game = False
+                        try:
+                            alt_ft = _altitude_ft_meta(str(home_tri)) if home_tri else 0.0
+                            altitude_game = bool(alt_ft >= 3500.0)
+                        except Exception:
+                            altitude_game = bool(home_tri in {"DEN","UTA"})
+                        # Travel distance normalization (cap ~2500 km)
+                        try:
+                            tk = float(row.get("travel_km") or 0.0)
+                        except Exception:
+                            tk = 0.0
+                        travel_norm = max(0.0, min(1.0, tk / 2500.0))
+                        # Compose penalty level from travel, tz difference, altitude
+                        level = _clamp01(0.5 * travel_norm + 0.3 * (float(tz_diff) / 3.0) + (0.2 if (altitude_game and is_away) else 0.0))
                         base_score = base_score * (1.0 - max(0.0, min(1.0, _weights_props.get("travel_penalty", 0.0) * level)))
                     except Exception:
                         pass
                     return round(base_score, 3)
                 return 0.0
+            def _minutes_stability(row):
+                try:
+                    inj_imp2 = float(row.get("team_injury_impact") or 0.0)
+                    ms_base = _clamp01(1.0 - (inj_imp2 / 200.0))
+                    b2b = bool(row.get("team_b2b")); three_in_four = bool(row.get("team_3in4"))
+                    density_level = (0.6 if b2b else 0.0) + (0.4 if three_in_four else 0.0)
+                    ms = _clamp01(ms_base * (1.0 - 0.5 * density_level))
+                    # Gentle bump for stable roles inferred via model baselines
+                    try:
+                        model = row.get("model") or {}
+                        # Normalize each stat to [0,1] scale by a typical ceiling
+                        scales = {"pts": 30.0, "reb": 12.0, "ast": 10.0, "threes": 5.0, "pra": 45.0}
+                        vals = []
+                        for k, s in scales.items():
+                            try:
+                                v = float(model.get(k) or 0.0)
+                                if v and s:
+                                    vals.append(max(0.0, min(1.0, v / s)))
+                            except Exception:
+                                continue
+                        if vals:
+                            bump = max(0.0, min(0.06, float(np.mean(vals)) * 0.08))
+                            ms = _clamp01(ms + bump)
+                    except Exception:
+                        pass
+                    return round(ms, 3)
+                except Exception:
+                    return 0.5
             def _tier_from_score(s):
                 try:
                     v = float(s)
@@ -7965,17 +9347,194 @@ def api_props_recommendations():
                     return "Low"
                 except Exception:
                     return "Low"
-            # Attach score and tier to cards
-            for c in cards:
+        except Exception:
+            pass
+        # Attach score and tier to cards
+        for c in cards:
                 sc = _score_card(c)
                 c["score"] = sc
                 c["tier"] = _tier_from_score(sc)
+                try:
+                    c["minutes_stability"] = _minutes_stability(c)
+                except Exception:
+                    pass
+        # Optional correlation-aware portfolio selection
+        limit_param = request.args.get("limit")
+        penalize_corr = str(request.args.get("penalize_correlation", "1") or "1").strip().lower() in {"1","true","yes"}
+        portfolio_only = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1","true","yes"}
+        limit_n = None
+        try:
+            limit_n = int(limit_param) if limit_param else 12
         except Exception:
-            pass
+            limit_n = 12
+        # Optional optimizer toggle and strength
+        optimize = str(request.args.get("optimize", "1") or "1").strip().lower() in {"1","true","yes"}
+        try:
+            opt_alpha = float(str(request.args.get("opt_alpha", "0.15") or "0.15"))
+        except Exception:
+            opt_alpha = 0.15
+        # Correlation penalty scaling (tuning knob)
+        try:
+            corr_penalty_scale = float(str(request.args.get("corr_penalty_scale", "0.0") or "0.0"))
+        except Exception:
+            corr_penalty_scale = 0.0
+        # Diversification caps (optional)
+        try:
+            cap_team = int(str(request.args.get("cap_team", "2") or "2"))
+        except Exception:
+            cap_team = 2
+        try:
+            cap_market = int(str(request.args.get("cap_market", "4") or "4"))
+        except Exception:
+            cap_market = 4
+        portfolio_cards = None
+        if limit_n and limit_n > 0:
+                    # Build correlation-aware selection
+                    def _game_key(card: dict) -> tuple[str, str] | None:
+                        try:
+                            h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                            a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                            if h and a:
+                                return (h, a)
+                        except Exception:
+                            return None
+                        return None
+                    by_game: dict[tuple[str,str], list[dict]] = {}
+                    for c in cards:
+                        gk = _game_key(c)
+                        if gk:
+                            by_game.setdefault(gk, []).append(c)
+                    # Normalized market name
+                    def _mk_key(card: dict) -> str:
+                        m = str(((card.get("top_play") or {}).get("market")) or "").strip().upper()
+                        mapk = {
+                            "3PT": ["3PT","3PM","THREES","3-PT","THREE","3PT MADE"],
+                            "PTS": ["PTS","POINTS","P","POINTS TOTAL"],
+                            "REB": ["REB","REBOUNDS","R","REBOUND"],
+                            "AST": ["AST","ASSISTS","A","ASSIST"],
+                            "PRA": ["PRA","POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"],
+                            "PR": ["PR","POINTS+REBOUNDS"],
+                            "PA": ["PA","POINTS+ASSISTS"],
+                            "RA": ["RA","REBOUNDS+ASSISTS"],
+                        }
+                        for k, al in mapk.items():
+                            if m == k or m in al:
+                                return k
+                        return m or ""
+                    def _pair_pen(a: dict, b: dict) -> float:
+                        try:
+                            pen = 0.0
+                            mk_a = _mk_key(a); mk_b = _mk_key(b)
+                            # same game/team/market stacking
+                            if _game_key(a) == _game_key(b):
+                                pen += 0.10
+                            ta = str(a.get("team") or "").strip().upper(); tb = str(b.get("team") or "").strip().upper()
+                            if ta and tb and ta == tb:
+                                pen += 0.15
+                            if mk_a and mk_b and mk_a == mk_b:
+                                pen += 0.20
+                            # side synergy
+                            sa = str(((a.get("top_play") or {}).get("side")) or "").strip().upper()
+                            sb = str(((b.get("top_play") or {}).get("side")) or "").strip().upper()
+                            if sa and sb and sa == sb and ta == tb:
+                                pen += 0.05
+                            # market combos
+                            # Learned market-pair penalties (symmetric)
+                            try:
+                                if mk_a and mk_b and (str(corr_method or "") in {"phi","proxy"}):
+                                    lp = float(by_market_pairs.get((mk_a, mk_b)) or 0.0) + float(by_market_pairs.get((mk_b, mk_a)) or 0.0)
+                                    va = float((market_var_weights or {}).get(mk_a, 0.5))
+                                    vb = float((market_var_weights or {}).get(mk_b, 0.5))
+                                    vf = max(0.25, min(1.0, (va + vb) / 2.0))
+                                    pen += float(vf) * float(lp) * float(corr_penalty_scale)
+                            except Exception:
+                                pass
+                            combos = {
+                                ("PTS","AST"): +0.05,
+                                ("PTS","REB"): -0.05,
+                                ("3PT","PTS"): +0.05,
+                                ("AST","REB"): -0.03,
+                                ("PRA","PTS"): +0.07,
+                                ("PRA","REB"): +0.07,
+                                ("PRA","AST"): +0.07,
+                            }
+                            key = (mk_a, mk_b)
+                            if key in combos:
+                                pen += combos[key]
+                            key2 = (mk_b, mk_a)
+                            if key2 in combos:
+                                pen += combos[key2]
+                            return float(max(0.0, min(0.35, pen)))
+                        except Exception:
+                            return 0.0
+                    # Compute adjusted score
+                    def _adj_score(card: dict) -> float:
+                        try:
+                            base = float(card.get("score") or 0.0)
+                            if not (penalize_corr or optimize):
+                                return base
+                            mk = str(((card.get("top_play") or {}).get("market")) or "").lower()
+                            gk = _game_key(card)
+                            overlap = 0
+                            if gk and mk:
+                                overlap = sum(1 for cc in by_game.get(gk, []) if str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk) - 1
+                            cp = float(card.get("corr_proxy") or 0.0)
+                            pen_raw = 0.15 * float(max(0.0, cp)) + 0.10 * float(max(0, overlap))
+                            pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale)))
+                            return round(max(0.0, base - pen), 3)
+                        except Exception:
+                            return float(card.get("score") or 0.0)
+                    ranked = sorted(cards, key=lambda c: _adj_score(c), reverse=True)
+                    portfolio_cards = []
+                    seen_players: set[tuple[str,str]] = set()
+                    team_counts: dict[str,int] = {}
+                    market_counts: dict[str,int] = {}
+                    for c in ranked:
+                        try:
+                            pkey = (str(c.get("player") or ""), str(c.get("team") or "").strip().upper())
+                            if pkey in seen_players:
+                                continue
+                            # Dynamic team/market diversification penalty using current portfolio state
+                            team = str(c.get("team") or "").strip().upper()
+                            mk = str(((c.get("top_play") or {}).get("market")) or "").lower()
+                            mk_norm = _mk_key(c)
+                            # Enforce caps if provided
+                            if cap_team and team and int(team_counts.get(team, 0)) >= int(cap_team):
+                                continue
+                            if cap_market and mk_norm and int(market_counts.get(mk_norm, 0)) >= int(cap_market):
+                                continue
+                            team_mkt_overlap = sum(1 for cc in portfolio_cards if str(cc.get("team") or "").strip().upper() == team and str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk)
+                            team_pen = max(0.0, min(0.25, 0.08 * float(max(0, team_mkt_overlap))))
+                            base_adj = _adj_score(c)
+                            pair_pen = 0.0
+                            if optimize:
+                                try:
+                                    pair_pen = opt_alpha * sum(_pair_pen(c, s) for s in portfolio_cards)
+                                except Exception:
+                                    pair_pen = 0.0
+                            score_adj = round(max(0.0, float(base_adj) - float(team_pen) - float(pair_pen)), 3)
+                            portfolio_cards.append({**c, "score_adj": score_adj})
+                            seen_players.add(pkey)
+                            if team:
+                                team_counts[team] = int(team_counts.get(team, 0)) + 1
+                            if mk_norm:
+                                market_counts[mk_norm] = int(market_counts.get(mk_norm, 0)) + 1
+                            if len(portfolio_cards) >= limit_n:
+                                break
+                        except Exception:
+                            continue
+                    # Attach portfolio to context for response assembly
+                    request._props_portfolio = portfolio_cards  # type: ignore
+                    request._props_portfolio_only = bool(portfolio_only)  # type: ignore
+        # End optional correlation-aware portfolio selection
         # Compact mode: return minimal fields for UI consumption
         if compact:
             compact_cards = []
             for c in cards:
+                try:
+                    _ms_val = _minutes_stability(c)
+                except Exception:
+                    _ms_val = None
                 compact_cards.append({
                     "player": c.get("player"),
                     "team": c.get("team"),
@@ -7988,19 +9547,389 @@ def api_props_recommendations():
                     "team_3in4": c.get("team_3in4"),
                     "home_team": c.get("home_team"),
                     "away_team": c.get("away_team"),
+                    "home_tricode": c.get("home_tricode"),
+                    "away_tricode": c.get("away_tricode"),
+                    "team_is_away": c.get("team_is_away"),
+                    "altitude_game": c.get("altitude_game"),
+                    "tz_diff_hours": c.get("tz_diff_hours"),
+                    "travel_km": c.get("travel_km"),
                     "photo": c.get("photo"),
                     "team_logo": c.get("team_logo"),
-                    "top_play": c.get("top_play"),
+                    "minutes_stability": _ms_val,
                     "top_play_baseline": c.get("top_play_baseline"),
                     "top_play_reasons": c.get("top_play_reasons"),
                     "top_play_explain": c.get("top_play_explain"),
                     "top_play_books_count": c.get("top_play_books_count"),
                     "score": c.get("score"),
-                    "tier": c.get("tier"),
+                    # In compact full-list mode, do not attach score_adj unless portfolio_only is used
+                    "score_adj": None,
                 })
-            payload = {"date": d, "rows": len(compact_cards), "games": games, "data": compact_cards, "regular_only": bool(prefer_regular_only)}
+            # Attach calibration metadata
+            try:
+                calib_meta = {}
+                # Reuse loader used for top_play
+                try:
+                    cm = _load_props_calibration()
+                    if isinstance(cm, dict):
+                        if "window_days" in cm:
+                            calib_meta["window_days"] = cm.get("window_days")
+                        if "rmse" in cm:
+                            calib_meta["rmse"] = cm.get("rmse")
+                        # Mark per-market availability
+                        for k in ("by_market","markets","per_market"):
+                            if isinstance(cm.get(k), dict):
+                                calib_meta["per_market_curves"] = True
+                                break
+                except Exception:
+                    calib_meta = {}
+            except Exception:
+                calib_meta = {}
+            payload = {"date": d, "rows": len(compact_cards), "games": games, "data": compact_cards, "regular_only": bool(prefer_regular_only), "calibration": calib_meta}
+            # Build portfolio using precomputed optimized selection if available; fallback to simple top-N
+            try:
+                req_port = getattr(request, "_props_portfolio", None)
+                portfolio_only = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1","true","yes"}
+                if isinstance(req_port, list) and req_port:
+                    port_compact = []
+                    for c in req_port:
+                        port_compact.append({
+                            "player": c.get("player"),
+                            "team": c.get("team"),
+                            "opponent": c.get("opponent"),
+                            "top_play": c.get("top_play"),
+                            "score": c.get("score"),
+                            "score_adj": c.get("score_adj"),
+                            "tier": c.get("tier"),
+                        })
+                    payload["portfolio"] = port_compact
+                    if portfolio_only:
+                        payload["data"] = port_compact
+                        payload["rows"] = len(port_compact)
+                        payload["portfolio_only"] = True
+                else:
+                    # Fallback: simple ranking when no optimized portfolio was computed
+                    limit_param = request.args.get("limit")
+                    try:
+                        limit_n = int(limit_param) if limit_param else 12
+                    except Exception:
+                        limit_n = 12
+                    if limit_n and limit_n > 0:
+                        # Rebuild optimized selection locally (correlation-aware)
+                        try:
+                            penalize_corr = str(request.args.get("penalize_correlation", "1") or "1").strip().lower() in {"1","true","yes"}
+                            optimize = str(request.args.get("optimize", "1") or "1").strip().lower() in {"1","true","yes"}
+                            try:
+                                opt_alpha = float(str(request.args.get("opt_alpha", "0.15") or "0.15"))
+                            except Exception:
+                                opt_alpha = 0.15
+                            try:
+                                corr_penalty_scale = float(str(request.args.get("corr_penalty_scale", "0.0") or "0.0"))
+                            except Exception:
+                                corr_penalty_scale = 0.0
+                            try:
+                                cap_team = int(str(request.args.get("cap_team", "2") or "2"))
+                            except Exception:
+                                cap_team = 2
+                            try:
+                                cap_market = int(str(request.args.get("cap_market", "4") or "4"))
+                            except Exception:
+                                cap_market = 4
+                            def _game_key(card: dict) -> tuple[str, str] | None:
+                                try:
+                                    h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                                    a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                                    if h and a:
+                                        return (h, a)
+                                except Exception:
+                                    return None
+                                return None
+                            by_game: dict[tuple[str,str], list[dict]] = {}
+                            for c in cards:
+                                gk = _game_key(c)
+                                if gk:
+                                    by_game.setdefault(gk, []).append(c)
+                            def _mk_key(card: dict) -> str:
+                                m = str(((card.get("top_play") or {}).get("market")) or "").strip().upper()
+                                mapk = {
+                                    "3PT": ["3PT","3PM","THREES","3-PT","THREE","3PT MADE"],
+                                    "PTS": ["PTS","POINTS","P","POINTS TOTAL"],
+                                    "REB": ["REB","REBOUNDS","R","REBOUND"],
+                                    "AST": ["AST","ASSISTS","A","ASSIST"],
+                                    "PRA": ["PRA","POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"],
+                                    "PR": ["PR","POINTS+REBOUNDS"],
+                                    "PA": ["PA","POINTS+ASSISTS"],
+                                    "RA": ["RA","REBOUNDS+ASSISTS"],
+                                }
+                                for k, al in mapk.items():
+                                    if m == k or m in al:
+                                        return k
+                                return m or ""
+                            def _pair_pen(a: dict, b: dict) -> float:
+                                try:
+                                    pen = 0.0
+                                    mk_a = _mk_key(a); mk_b = _mk_key(b)
+                                    if _game_key(a) == _game_key(b):
+                                        pen += 0.10
+                                    ta = str(a.get("team") or "").strip().upper(); tb = str(b.get("team") or "").strip().upper()
+                                    if ta and tb and ta == tb:
+                                        pen += 0.15
+                                    if mk_a and mk_b and mk_a == mk_b:
+                                        pen += 0.20
+                                    sa = str(((a.get("top_play") or {}).get("side")) or "").strip().upper()
+                                    sb = str(((b.get("top_play") or {}).get("side")) or "").strip().upper()
+                                    if sa and sb and sa == sb and ta == tb:
+                                        pen += 0.05
+                                    try:
+                                        if mk_a and mk_b and (str(corr_method or "") in {"phi","proxy"}):
+                                            lp = float(by_market_pairs.get((mk_a, mk_b)) or 0.0) + float(by_market_pairs.get((mk_b, mk_a)) or 0.0)
+                                            va = float((market_var_weights or {}).get(mk_a, 0.5))
+                                            vb = float((market_var_weights or {}).get(mk_b, 0.5))
+                                            vf = max(0.25, min(1.0, (va + vb) / 2.0))
+                                            pen += float(vf) * float(lp) * float(corr_penalty_scale)
+                                    except Exception:
+                                        pass
+                                    combos = { ("PTS","AST"): +0.05, ("PTS","REB"): -0.05, ("3PT","PTS"): +0.05, ("AST","REB"): -0.03, ("PRA","PTS"): +0.07, ("PRA","REB"): +0.07, ("PRA","AST"): +0.07 }
+                                    if (mk_a, mk_b) in combos:
+                                        pen += combos[(mk_a, mk_b)]
+                                    if (mk_b, mk_a) in combos:
+                                        pen += combos[(mk_b, mk_a)]
+                                    return float(max(0.0, min(0.35, pen)))
+                                except Exception:
+                                    return 0.0
+                            def _adj_score(card: dict) -> float:
+                                try:
+                                    base = float(card.get("score") or 0.0)
+                                    if not (penalize_corr or optimize):
+                                        return base
+                                    mk = str(((card.get("top_play") or {}).get("market")) or "").lower()
+                                    gk = _game_key(card)
+                                    overlap = 0
+                                    if gk and mk:
+                                        overlap = sum(1 for cc in by_game.get(gk, []) if str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk) - 1
+                                    cp = float(card.get("corr_proxy") or 0.0)
+                                    pen_raw = 0.15 * float(max(0.0, cp)) + 0.10 * float(max(0, overlap))
+                                    pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale)))
+                                    return round(max(0.0, base - pen), 3)
+                                except Exception:
+                                    return float(card.get("score") or 0.0)
+                            ranked = sorted(cards, key=lambda c: _adj_score(c), reverse=True)
+                            portfolio_cards = []
+                            seen_players: set[tuple[str,str]] = set()
+                            team_counts: dict[str,int] = {}
+                            market_counts: dict[str,int] = {}
+                            for c in ranked:
+                                try:
+                                    pkey = (str(c.get("player") or ""), str(c.get("team") or "").strip().upper())
+                                    if pkey in seen_players:
+                                        continue
+                                    team = str(c.get("team") or "").strip().upper()
+                                    mk_norm = _mk_key(c)
+                                    if cap_team and team and int(team_counts.get(team, 0)) >= int(cap_team):
+                                        continue
+                                    if cap_market and mk_norm and int(market_counts.get(mk_norm, 0)) >= int(cap_market):
+                                        continue
+                                    pair_pen = 0.0
+                                    if optimize:
+                                        try:
+                                            pair_pen = opt_alpha * sum(_pair_pen(c, s) for s in portfolio_cards)
+                                        except Exception:
+                                            pair_pen = 0.0
+                                    # team overlap penalty
+                                    mk = str(((c.get("top_play") or {}).get("market")) or "").lower()
+                                    team_mkt_overlap = sum(1 for cc in portfolio_cards if str(cc.get("team") or "").strip().upper() == team and str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk)
+                                    team_pen = max(0.0, min(0.25, 0.08 * float(max(0, team_mkt_overlap))))
+                                    base_adj = _adj_score(c)
+                                    score_adj = round(max(0.0, float(base_adj) - float(team_pen) - float(pair_pen)), 3)
+                                    portfolio_cards.append({**c, "score_adj": score_adj})
+                                    seen_players.add(pkey)
+                                    if team:
+                                        team_counts[team] = int(team_counts.get(team, 0)) + 1
+                                    if mk_norm:
+                                        market_counts[mk_norm] = int(market_counts.get(mk_norm, 0)) + 1
+                                    if len(portfolio_cards) >= limit_n:
+                                        break
+                                except Exception:
+                                    continue
+                            port_compact = []
+                            for c in portfolio_cards:
+                                port_compact.append({ "player": c.get("player"), "team": c.get("team"), "opponent": c.get("opponent"), "top_play": c.get("top_play"), "score": c.get("score"), "score_adj": c.get("score_adj"), "tier": c.get("tier") })
+                            payload["portfolio"] = port_compact
+                            if portfolio_only:
+                                payload["data"] = port_compact
+                                payload["rows"] = len(port_compact)
+                                payload["portfolio_only"] = True
+                        except Exception:
+                            # Final fallback: simple top-N
+                            try:
+                                ranked_simple = sorted(cards, key=lambda c: float(c.get("score") or 0.0), reverse=True)
+                                port_compact = []
+                                for c in ranked_simple[:limit_n]:
+                                    port_compact.append({ "player": c.get("player"), "team": c.get("team"), "opponent": c.get("opponent"), "top_play": c.get("top_play"), "score": c.get("score"), "score_adj": c.get("score"), "tier": c.get("tier") })
+                                payload["portfolio"] = port_compact
+                                if portfolio_only:
+                                    payload["data"] = port_compact
+                                    payload["rows"] = len(port_compact)
+                                    payload["portfolio_only"] = True
+                            except Exception:
+                                pass
+            except Exception:
+                pass
         else:
-            payload = {"date": d, "rows": len(cards), "games": games, "data": cards, "regular_only": bool(prefer_regular_only)}
+            try:
+                calib_meta = {}
+                try:
+                    cm = _load_props_calibration()
+                    if isinstance(cm, dict):
+                        if "window_days" in cm:
+                            calib_meta["window_days"] = cm.get("window_days")
+                        if "rmse" in cm:
+                            calib_meta["rmse"] = cm.get("rmse")
+                        for k in ("by_market","markets","per_market"):
+                            if isinstance(cm.get(k), dict):
+                                calib_meta["per_market_curves"] = True
+                                break
+                except Exception:
+                    calib_meta = {}
+            except Exception:
+                calib_meta = {}
+            payload = {"date": d, "rows": len(cards), "games": games, "data": cards, "regular_only": bool(prefer_regular_only), "calibration": calib_meta}
+            # Build portfolio for full payload using precomputed optimized selection when present
+            try:
+                req_port = getattr(request, "_props_portfolio", None)
+                portfolio_only = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1","true","yes"}
+                if isinstance(req_port, list) and req_port:
+                    payload["portfolio"] = req_port
+                    if portfolio_only:
+                        payload["data"] = req_port
+                        payload["rows"] = len(req_port)
+                        payload["portfolio_only"] = True
+                else:
+                    # Fallback: simple top-N by score when no optimized portfolio
+                    limit_param = request.args.get("limit")
+                    try:
+                        limit_n = int(limit_param) if limit_param else None
+                    except Exception:
+                        limit_n = None
+                    if limit_n and limit_n > 0:
+                        # Rebuild optimized selection locally (full payload)
+                        try:
+                            penalize_corr = str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"}
+                            optimize = str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"}
+                            try:
+                                opt_alpha = float(str(request.args.get("opt_alpha", "0.15") or "0.15"))
+                            except Exception:
+                                opt_alpha = 0.15
+                            try:
+                                cap_team = int(str(request.args.get("cap_team", "0") or "0"))
+                            except Exception:
+                                cap_team = 0
+                            try:
+                                cap_market = int(str(request.args.get("cap_market", "0") or "0"))
+                            except Exception:
+                                cap_market = 0
+                            def _game_key(card: dict) -> tuple[str, str] | None:
+                                try:
+                                    h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                                    a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                                    if h and a:
+                                        return (h, a)
+                                except Exception:
+                                    return None
+                                return None
+                            by_game: dict[tuple[str,str], list[dict]] = {}
+                            for c in cards:
+                                gk = _game_key(c)
+                                if gk:
+                                    by_game.setdefault(gk, []).append(c)
+                            def _mk_key(card: dict) -> str:
+                                m = str(((card.get("top_play") or {}).get("market")) or "").strip().upper()
+                                mapk = { "3PT": ["3PT","3PM","THREES","3-PT","THREE","3PT MADE"], "PTS": ["PTS","POINTS","P","POINTS TOTAL"], "REB": ["REB","REBOUNDS","R","REBOUND"], "AST": ["AST","ASSISTS","A","ASSIST"], "PRA": ["PRA","POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"], "PR": ["PR","POINTS+REBOUNDS"], "PA": ["PA","POINTS+ASSISTS"], "RA": ["RA","REBOUNDS+ASSISTS"] }
+                                for k, al in mapk.items():
+                                    if m == k or m in al:
+                                        return k
+                                return m or ""
+                            def _pair_pen(a: dict, b: dict) -> float:
+                                try:
+                                    pen = 0.0
+                                    mk_a = _mk_key(a); mk_b = _mk_key(b)
+                                    if _game_key(a) == _game_key(b): pen += 0.10
+                                    ta = str(a.get("team") or "").strip().upper(); tb = str(b.get("team") or "").strip().upper()
+                                    if ta and tb and ta == tb: pen += 0.15
+                                    if mk_a and mk_b and mk_a == mk_b: pen += 0.20
+                                    sa = str(((a.get("top_play") or {}).get("side")) or "").strip().upper(); sb = str(((b.get("top_play") or {}).get("side")) or "").strip().upper()
+                                    if sa and sb and sa == sb and ta == tb: pen += 0.05
+                                    try:
+                                        if mk_a and mk_b and (str(corr_method or "") in {"phi","proxy"}):
+                                            lp = float(by_market_pairs.get((mk_a, mk_b)) or 0.0) + float(by_market_pairs.get((mk_b, mk_a)) or 0.0)
+                                            va = float((market_var_weights or {}).get(mk_a, 0.5))
+                                            vb = float((market_var_weights or {}).get(mk_b, 0.5))
+                                            vf = max(0.25, min(1.0, (va + vb) / 2.0))
+                                            pen += float(vf) * float(lp) * float(corr_penalty_scale)
+                                    except Exception:
+                                        pass
+                                    combos = { ("PTS","AST"): +0.05, ("PTS","REB"): -0.05, ("3PT","PTS"): +0.05, ("AST","REB"): -0.03, ("PRA","PTS"): +0.07, ("PRA","REB"): +0.07, ("PRA","AST"): +0.07 }
+                                    if (mk_a, mk_b) in combos: pen += combos[(mk_a, mk_b)]
+                                    if (mk_b, mk_a) in combos: pen += combos[(mk_b, mk_a)]
+                                    return float(max(0.0, min(0.35, pen)))
+                                except Exception:
+                                    return 0.0
+                            def _adj_score(card: dict) -> float:
+                                try:
+                                    base = float(card.get("score") or 0.0)
+                                    if not (penalize_corr or optimize): return base
+                                    mk = str(((card.get("top_play") or {}).get("market")) or "").lower(); gk = _game_key(card)
+                                    overlap = 0
+                                    if gk and mk: overlap = sum(1 for cc in by_game.get(gk, []) if str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk) - 1
+                                    cp = float(card.get("corr_proxy") or 0.0)
+                                    pen_raw = 0.15 * float(max(0.0, cp)) + 0.10 * float(max(0, overlap))
+                                    pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale)))
+                                    return round(max(0.0, base - pen), 3)
+                                except Exception:
+                                    return float(card.get("score") or 0.0)
+                            ranked = sorted(cards, key=lambda c: _adj_score(c), reverse=True)
+                            portfolio_cards = []
+                            seen_players: set[tuple[str,str]] = set(); team_counts: dict[str,int] = {}; market_counts: dict[str,int] = {}
+                            for c in ranked:
+                                pkey = (str(c.get("player") or ""), str(c.get("team") or "").strip().upper())
+                                if pkey in seen_players: continue
+                                team = str(c.get("team") or "").strip().upper(); mk_norm = _mk_key(c)
+                                if cap_team and team and int(team_counts.get(team, 0)) >= int(cap_team): continue
+                                if cap_market and mk_norm and int(market_counts.get(mk_norm, 0)) >= int(cap_market): continue
+                                pair_pen = 0.0
+                                if optimize:
+                                    try: pair_pen = opt_alpha * sum(_pair_pen(c, s) for s in portfolio_cards) 
+                                    except Exception: pair_pen = 0.0
+                                mk = str(((c.get("top_play") or {}).get("market")) or "").lower()
+                                team_mkt_overlap = sum(1 for cc in portfolio_cards if str(cc.get("team") or "").strip().upper() == team and str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk)
+                                team_pen = max(0.0, min(0.25, 0.08 * float(team_mkt_overlap)))
+                                base_adj = _adj_score(c)
+                                score_adj = round(max(0.0, float(base_adj) - float(team_pen) - float(pair_pen)), 3)
+                                portfolio_cards.append({**c, "score_adj": score_adj})
+                                seen_players.add(pkey)
+                                if team: team_counts[team] = int(team_counts.get(team, 0)) + 1
+                                if mk_norm: market_counts[mk_norm] = int(market_counts.get(mk_norm, 0)) + 1
+                                if len(portfolio_cards) >= limit_n: break
+                            payload["portfolio"] = portfolio_cards
+                            if portfolio_only:
+                                payload["data"] = portfolio_cards
+                                payload["rows"] = len(portfolio_cards)
+                                payload["portfolio_only"] = True
+                        except Exception:
+                            # Final fallback: simple top-N
+                            try:
+                                ranked_simple = sorted(cards, key=lambda c: float(c.get("score") or 0.0), reverse=True)
+                                portfolio_cards = []
+                                for c in ranked_simple[:limit_n]:
+                                    portfolio_cards.append({**c, "score_adj": c.get("score")})
+                                payload["portfolio"] = portfolio_cards
+                                if portfolio_only:
+                                    payload["data"] = portfolio_cards
+                                    payload["rows"] = len(portfolio_cards)
+                                    payload["portfolio_only"] = True
+                            except Exception:
+                                pass
+            except Exception:
+                pass
         return jsonify(_to_jsonable(payload))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -8031,6 +9960,229 @@ def api_props_reconciliation():
             df = df[df.get("player").astype(str).str.lower().str.contains(player_q)]
         rows = df.fillna("").to_dict(orient="records")
         return jsonify({"date": d, "rows": len(rows), "data": rows})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/admin/props/corr-cache", methods=["GET", "DELETE", "POST"])
+def api_admin_corr_cache():
+    """Admin controls for market pair penalties cache.
+
+    - GET: returns cache status for given method (param corr_method=phi|proxy)
+    - DELETE: clears cache file for method
+    - POST: rebuilds cache for method (forces refresh)
+    """
+    try:
+        # Allow corr_method via query or JSON body; default to 'phi'
+        _body = None
+        try:
+            _body = request.get_json(silent=True) or {}
+        except Exception:
+            _body = {}
+        corr_method = str((request.args.get("corr_method") or _body.get("corr_method") or "phi") or "phi").strip().lower()
+        if corr_method not in {"phi", "proxy"}:
+            corr_method = "phi"
+        proc_dir = BASE_DIR / "data" / "processed"
+        cache_dir = proc_dir / "cache"
+        cache_path = cache_dir / f"market_pair_penalties_{corr_method}.json"
+        import json as _json
+        import time as _time
+        if request.method == "GET":
+            try:
+                age_h = None
+                exists = cache_path.exists()
+                if exists:
+                    age_h = (float(_time.time()) - float(cache_path.stat().st_mtime)) / 3600.0
+                meta = {"exists": bool(exists), "age_hours": (round(float(age_h),2) if age_h is not None else None), "method": corr_method}
+                if exists:
+                    try:
+                        with open(cache_path, "r", encoding="utf-8") as fh:
+                            obj = _json.load(fh)
+                        meta["pairs"] = int(len(obj.get("pairs") or {}))
+                    except Exception:
+                        meta["pairs"] = None
+                return jsonify(meta)
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+        if request.method == "DELETE":
+            try:
+                if cache_path.exists():
+                    cache_path.unlink()
+                return jsonify({"status": "ok", "deleted": True, "method": corr_method})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
+        # POST -> rebuild cache by invoking a light-weight routine with forced refresh
+        if request.method == "POST":
+            # Accept date via query or JSON; fallback safely to today
+            d = None
+            try:
+                d = _parse_date_param(request)
+            except Exception:
+                d = None
+            if not d:
+                try:
+                    d = str((_body.get("date") or "").strip())
+                except Exception:
+                    d = ""
+            if not d:
+                d = pd.Timestamp.today().date().isoformat()
+            # Optional window length (days) via query or JSON; clamp 1..90
+            try:
+                _days_arg = request.args.get("days")
+                _days_body = _body.get("days")
+                days_back = int(_days_arg if _days_arg is not None else (_days_body if _days_body is not None else 7))
+            except Exception:
+                days_back = 7
+            days_back = max(1, min(int(days_back), 90))
+            try:
+                end_ts = pd.to_datetime(d, errors="coerce")
+                if pd.isna(end_ts):
+                    end_ts = pd.Timestamp.today()
+                end = end_ts.date()
+                start = (end_ts - pd.Timedelta(days=days_back)).date()
+                days = pd.date_range(start=pd.to_datetime(start), end=pd.to_datetime(end), freq="D")
+                # Helper normalize market key
+                def _mk_key_s(m: object) -> str:
+                    m2 = str(m or "").strip().upper()
+                    mapk = {
+                        "3PT": ["3PT","3PM","THREES","3-PT","THREE","3PT MADE"],
+                        "PTS": ["PTS","POINTS","P","POINTS TOTAL"],
+                        "REB": ["REB","REBOUNDS","R","REBOUND"],
+                        "AST": ["AST","ASSISTS","A","ASSIST"],
+                        "PRA": ["PRA","POINTS+REBOUNDS+ASSISTS","COMBO","P+R+A"],
+                        "PR": ["PR","POINTS+REBOUNDS"],
+                        "PA": ["PA","POINTS+ASSISTS"],
+                        "RA": ["RA","REBOUNDS+ASSISTS"],
+                    }
+                    for k, al in mapk.items():
+                        if m2 == k or m2 in al:
+                            return k
+                    return m2 or ""
+                by_market_pairs: dict[tuple[str, str], float] = {}
+                # Learned co-win/co-side counts when columns exist
+                for day in days:
+                    pth = proc_dir / f"recon_props_{pd.to_datetime(day).date().isoformat()}.csv"
+                    if not pth.exists():
+                        continue
+                    df = pd.read_csv(pth)
+                    if df is None or df.empty:
+                        continue
+                    cols = {c.lower(): c for c in df.columns}
+                    mcol = cols.get("market") or cols.get("stat")
+                    scol = cols.get("side")
+                    tcol = cols.get("team") or cols.get("team_abbr")
+                    ocol = cols.get("hit") or cols.get("won") or cols.get("outcome")
+                    if not (tcol and mcol and scol):
+                        continue
+                    tmp = df[[tcol, mcol, scol]].copy()
+                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                    tmp[mcol] = tmp[mcol].map(_mk_key_s)
+                    tmp[scol] = tmp[scol].astype(str).str.strip().str.upper()
+                    if ocol and (ocol in df.columns):
+                        oc = pd.to_numeric(df[ocol], errors="coerce").fillna(0.0)
+                        oc = oc.map(lambda x: 1.0 if float(x) > 0 else 0.0)
+                        tmp["_hit"] = oc
+                    for team, grp in tmp.groupby(tcol):
+                        rows_loc = grp.to_dict(orient="records")
+                        for i in range(len(rows_loc)):
+                            for j in range(i+1, len(rows_loc)):
+                                a = rows_loc[i]; b = rows_loc[j]
+                                ka = _mk_key_s(a.get(mcol)); kb = _mk_key_s(b.get(mcol))
+                                if not ka or not kb:
+                                    continue
+                                key = (ka, kb)
+                                if corr_method == "phi":
+                                    xa = 1.0 if float(a.get("_hit") or 0.0) > 0.5 else 0.0
+                                    xb = 1.0 if float(b.get("_hit") or 0.0) > 0.5 else 0.0
+                                    by_market_pairs[key] = by_market_pairs.get(key, 0.0) + (1.0 if (xa == 1.0 and xb == 1.0) else 0.0)
+                                elif corr_method == "proxy":
+                                    sa = str(a.get(scol) or "").strip().upper()
+                                    sb = str(b.get(scol) or "").strip().upper()
+                                    by_market_pairs[key] = by_market_pairs.get(key, 0.0) + (1.0 if (sa and sb and sa == sb) else 0.0)
+                # Normalize learned counts to small penalties
+                for k in list(by_market_pairs.keys()):
+                    by_market_pairs[k] = max(0.0, min(0.20, 0.02 * float(by_market_pairs[k])))
+                # Fallback: if learned is empty, derive from numeric correlations
+                if not by_market_pairs:
+                    try:
+                        cols_num = ["PTS","REB","AST","THREES","PRA","PR","PA","RA"]
+                        acc: dict[tuple[str,str], list[float]] = {}
+                        for day in days:
+                            ds = pd.to_datetime(day).date().isoformat()
+                            pth = proc_dir / f"recon_props_{ds}.csv"
+                            if not pth.exists():
+                                continue
+                            df = pd.read_csv(pth)
+                            if df is None or df.empty:
+                                continue
+                            cols = {c.lower(): c for c in df.columns}
+                            tcol = cols.get("team") or cols.get("team_abbr")
+                            cand = [cols.get(c.lower()) for c in cols_num if cols.get(c.lower())]
+                            cand = [c for c in cand if c]
+                            if not (tcol and cand and len(cand) >= 2):
+                                continue
+                            tmp = df[[tcol] + cand].copy()
+                            tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                            for team, grp in tmp.groupby(tcol):
+                                mat = grp[cand].apply(pd.to_numeric, errors="coerce").dropna(how="all")
+                                if mat is None or mat.empty:
+                                    continue
+                                corr = mat.corr(method="pearson").fillna(0.0)
+                                for a in cand:
+                                    for b in cand:
+                                        if a == b:
+                                            continue
+                                        mk_a = _mk_key_s(a)
+                                        mk_b = _mk_key_s(b)
+                                        r = float(corr.loc[a, b]) if (a in corr.index and b in corr.columns) else 0.0
+                                        acc.setdefault((mk_a, mk_b), []).append(abs(r))
+                        for (ka, kb), vals in acc.items():
+                            if not vals:
+                                continue
+                            r = float(pd.Series(vals).mean())
+                            pen = max(0.0, min(0.20, 0.18 * r))
+                            by_market_pairs[(ka, kb)] = pen
+                            by_market_pairs[(kb, ka)] = pen
+                    except Exception:
+                        pass
+                # Final fallback: co-occurrence-based small penalties to avoid empty caches
+                if not by_market_pairs:
+                    try:
+                        for day in days:
+                            pth = proc_dir / f"recon_props_{pd.to_datetime(day).date().isoformat()}.csv"
+                            if not pth.exists():
+                                continue
+                            df = pd.read_csv(pth)
+                            if df is None or df.empty:
+                                continue
+                            cols = {c.lower(): c for c in df.columns}
+                            mcol = cols.get("market") or cols.get("stat")
+                            tcol = cols.get("team") or cols.get("team_abbr")
+                            if not (tcol and mcol):
+                                continue
+                            tmp = df[[tcol, mcol]].copy()
+                            tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                            tmp[mcol] = tmp[mcol].map(_mk_key_s)
+                            for team, grp in tmp.groupby(tcol):
+                                mkts = [str(x) for x in grp[mcol].tolist() if str(x)]
+                                for i in range(len(mkts)):
+                                    for j in range(i+1, len(mkts)):
+                                        a = mkts[i]; b = mkts[j]
+                                        if not a or not b:
+                                            continue
+                                        key = (a, b)
+                                        by_market_pairs[key] = by_market_pairs.get(key, 0.0) + 1.0
+                        for k in list(by_market_pairs.keys()):
+                            by_market_pairs[k] = max(0.0, min(0.10, 0.01 * float(by_market_pairs[k])))
+                    except Exception:
+                        pass
+                cache_dir.mkdir(parents=True, exist_ok=True)
+                ser = {"pairs": {f"{a}|{b}": float(p) for (a, b), p in by_market_pairs.items()}}
+                with open(cache_path, "w", encoding="utf-8") as fh:
+                    _json.dump(ser, fh)
+                return jsonify({"status": "ok", "refreshed": True, "method": corr_method, "pairs": int(len(by_market_pairs))})
+            except Exception as e:
+                return jsonify({"error": str(e)}), 500
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -8269,34 +10421,859 @@ def api_schedule():
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "schedule_2025_26.json"  # schema tied to function name for now
     try:
-        df = None
+        data: Optional[list[dict[str, Any]]] = None
+
+        # Prefer serving the processed JSON directly (fast + avoids pandas/JSON serialization edge cases)
         if json_path.exists():
             try:
-                df = pd.read_json(json_path)
+                raw = json_path.read_text(encoding="utf-8")
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    # Ensure dict elements
+                    data = [x for x in parsed if isinstance(x, dict)]
+            except Exception:
+                data = None
+
+        # Fallback: load via pandas (handles some legacy formats)
+        if not data:
+            try:
+                df = pd.read_json(json_path) if json_path.exists() else None
             except Exception:
                 df = None
-        if df is None or df.empty:
-            # Try to fetch via python module
+            if df is not None and not df.empty:
+                try:
+                    df = df.replace({np.nan: None})
+                except Exception:
+                    pass
+                data = df.to_dict(orient="records")
+
+        # Last resort: attempt to rebuild
+        if not data:
             try:
                 from nba_betting.schedule import fetch_schedule_2025_26  # type: ignore
+
                 df = fetch_schedule_2025_26()
-                # Save in compact list form for frontend
-                df.to_json(json_path, orient="records", date_format="iso")
+                if df is None or df.empty:
+                    return jsonify([])
+                try:
+                    df.to_json(json_path, orient="records", date_format="iso")
+                except Exception:
+                    pass
+                try:
+                    df = df.replace({np.nan: None})
+                except Exception:
+                    pass
+                data = df.to_dict(orient="records")
             except Exception as e:
                 return jsonify({"error": f"Failed to load or build schedule: {e}"}), 500
-        # Optional filter by date
+
+        # Optional filter by date (YYYY-MM-DD) using an ET calendar day
         if date_str:
             try:
-                df = df.copy()
-                if "date_utc" in df.columns:
-                    df["date_utc"] = pd.to_datetime(df["date_utc"], errors="coerce").dt.date
-                mask = df["date_utc"].astype(str) == date_str
-                df = df[mask]
+                from zoneinfo import ZoneInfo
+                tz = ZoneInfo("America/New_York")
             except Exception:
-                pass
-        return jsonify(df.to_dict(orient="records"))
+                tz = None
+
+            def _et_key_from_game(g: dict[str, Any]) -> Optional[str]:
+                try:
+                    if not isinstance(g, dict):
+                        return None
+                    for k in ("datetime_utc", "datetime_est", "date_est", "date_utc"):
+                        v = g.get(k)
+                        if v is None:
+                            continue
+                        s = str(v)
+                        if not s:
+                            continue
+                        if k == "datetime_utc":
+                            dt = pd.to_datetime(s, errors="coerce", utc=True)
+                            if pd.isna(dt):
+                                return None
+                            if tz is not None:
+                                dt = dt.tz_convert(tz)
+                            return dt.date().isoformat()
+                        # For *_est and date-only, slice YYYY-MM-DD
+                        return s[:10]
+                    return None
+                except Exception:
+                    return None
+
+            data = [g for g in data if _et_key_from_game(g) == date_str]
+
+        return jsonify(data)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sim/quarters")
+def api_sim_quarters():
+    """Simulate quarter scoring for each scheduled game on a date.
+
+    Inputs:
+      - date: YYYY-MM-DD (required)
+      - team filters (optional): home_team, away_team to narrow to a specific game
+
+    Output per game:
+      { home_team, away_team, market_total, market_home_spread,
+        summary: { final_total_mu, final_total_sigma, final_margin_mu, final_margin_sigma, probs, evs },
+        quarters: [{ q, home_pts_mu, home_pts_sigma, away_pts_mu, away_pts_sigma }]
+      }
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    try:
+        # Load predictions and merge odds if available
+        pred_p = _find_predictions_for_date(d)
+        if pred_p is None or (hasattr(pred_p, "exists") and not pred_p.exists()):
+            return jsonify({"date": d, "rows": []})
+        pdf = pd.read_csv(pred_p)
+        # Merge odds if present
+        odds_p = _find_game_odds_for_date(d)
+        if odds_p is not None and odds_p.exists():
+            try:
+                o = pd.read_csv(odds_p)
+                for col in ("date",):
+                    if col in o.columns:
+                        o[col] = pd.to_datetime(o[col], errors="coerce").dt.date
+                if "date" in pdf.columns:
+                    pdf["date"] = pd.to_datetime(pdf["date"], errors="coerce").dt.date
+                on = ["date", "home_team", "visitor_team"]
+                if all(c in pdf.columns for c in on) and all(c in o.columns for c in on):
+                    pdf = pdf.merge(o, on=on, how="left", suffixes=("", "_odds"))
+            except Exception:
+                pass
+
+        # Optional filters
+        home_q = (request.args.get("home_team") or "").strip()
+        away_q = (request.args.get("away_team") or "").strip()
+        if home_q or away_q:
+            try:
+                m = pd.Series([True] * len(pdf))
+                if home_q:
+                    m &= (pdf.get("home_team").astype(str).str.strip() == home_q)
+                if away_q:
+                    m &= (pdf.get("visitor_team").astype(str).str.strip() == away_q)
+                pdf = pdf[m]
+            except Exception:
+                pass
+
+        # Import simulator lazily to avoid hard failures if module missing
+        try:
+            from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
+        except Exception as e:
+            return jsonify({"error": f"quarters simulator unavailable: {e}"}), 500
+
+        def _num(x):
+            try:
+                v = pd.to_numeric(x, errors="coerce")
+                return float(v) if np.isfinite(v) else None
+            except Exception:
+                try:
+                    v = float(x)
+                    return v if np.isfinite(v) else None
+                except Exception:
+                    return None
+
+        # Load quarter odds if available
+        qodds_df = None
+        try:
+            from nba_betting.odds.quarter_odds import load_quarter_odds  # type: ignore
+            qodds_df = load_quarter_odds(d, BASE_DIR / "data" / "processed")
+        except Exception:
+            qodds_df = None
+
+        # Schedule density (B2B / 3-in-4) helpers and injury context
+        prev = None; prev2 = None; prev3 = None
+        try:
+            prev = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=1)).date().isoformat()
+            prev2 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=2)).date().isoformat()
+            prev3 = (pd.to_datetime(d, errors="coerce") - pd.Timedelta(days=3)).date().isoformat()
+        except Exception:
+            prev = None; prev2 = None; prev3 = None
+        try:
+            prev_teams = _get_slate_team_tricodes(prev) if prev else set()
+        except Exception:
+            prev_teams = set()
+        try:
+            prev2_teams = _get_slate_team_tricodes(prev2) if prev2 else set()
+        except Exception:
+            prev2_teams = set()
+        try:
+            prev3_teams = _get_slate_team_tricodes(prev3) if prev3 else set()
+        except Exception:
+            prev3_teams = set()
+        # Injury name sets and roster map for counting outs
+        try:
+            name_keys, short_keys = _injury_name_sets_for_date(d)
+        except Exception:
+            name_keys, short_keys = (set(), set())
+        try:
+            roster_map = _roster_players_for_date(d)
+        except Exception:
+            roster_map = {}
+
+        rows: list[dict] = []
+        for _, r in pdf.iterrows():
+            home = r.get("home_team"); away = r.get("visitor_team")
+            if not home or not away:
+                continue
+            # Try to derive model baselines from predictions if available
+            pred_total = _num(r.get("pred_total"))
+            pred_margin = _num(r.get("pred_margin"))
+            # Pace and ratings; use defaults if not provided
+            home_pace = _num(r.get("home_pace")) or 98.0
+            away_pace = _num(r.get("away_pace")) or 98.0
+            # Convert predicted total/margin to implied team means when available
+            home_mu_implied = None; away_mu_implied = None
+            if pred_total is not None and pred_margin is not None:
+                home_mu_implied = 0.5 * (pred_total + pred_margin)
+                away_mu_implied = 0.5 * (pred_total - pred_margin)
+            # Ratings per 100, derived from implied means and pace when possible
+            def _rating_from_mu(mu: float | None, pace: float) -> float:
+                try:
+                    if mu is None:
+                        return 112.0
+                    return float((mu / max(1e-6, pace)) * 100.0)
+                except Exception:
+                    return 112.0
+            home_off = _num(r.get("home_off_rating")) or _rating_from_mu(home_mu_implied, home_pace)
+            away_off = _num(r.get("away_off_rating")) or _rating_from_mu(away_mu_implied, away_pace)
+            # Defensive ratings: fallback to league-average if not present
+            home_def = _num(r.get("home_def_rating")) or 112.0
+            away_def = _num(r.get("away_def_rating")) or 112.0
+
+            # Schedule flags and injuries
+            htri = _get_tricode(str(home)) or str(home).strip().upper()
+            atri = _get_tricode(str(away)) or str(away).strip().upper()
+            hb2b = bool(htri and (htri in prev_teams)); ab2b = bool(atri and (atri in prev_teams))
+            # Count outs by roster name intersection with injury sets (normalized via _norm_player_name)
+            def _count_outs(tri: str | None) -> int:
+                try:
+                    if not tri:
+                        return 0
+                    names = roster_map.get(str(tri).strip().upper()) or set()
+                    if not names:
+                        return 0
+                    cnt = sum(1 for n in names if (_norm_player_name(n) in name_keys or _short_player_key(n) in short_keys))
+                    return int(max(0, min(5, cnt)))
+                except Exception:
+                    return 0
+            h_outs = _count_outs(htri)
+            a_outs = _count_outs(atri)
+
+            home_ctx = TeamContext(team=str(home), pace=float(home_pace), off_rating=float(home_off), def_rating=float(home_def),
+                                   injuries_out=int(h_outs), back_to_back=bool(hb2b))
+            away_ctx = TeamContext(team=str(away), pace=float(away_pace), off_rating=float(away_off), def_rating=float(away_def),
+                                   injuries_out=int(a_outs), back_to_back=bool(ab2b))
+
+            market_total = _num(r.get("total"))
+            market_home_spread = _num(r.get("home_spread"))
+
+            inp = GameInputs(date=str(d), home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=market_home_spread)
+            try:
+                summary = simulate_quarters(inp, n_samples=3000)
+            except Exception as e:
+                rows.append({"home_team": home, "away_team": away, "error": str(e)})
+                continue
+
+            # Quarter markets integration when quarter odds present
+            quarter_markets: list[dict] = []
+            if qodds_df is not None and not qodds_df.empty:
+                try:
+                    qf = qodds_df.copy()
+                    qf = qf[(qf.get("home_team").astype(str) == str(home)) & (qf.get("visitor_team").astype(str) == str(away))]
+                    # Helper: EV from prob and American odds
+                    def _ev_pa(prob: float | None, amer: float | None) -> float | None:
+                        try:
+                            if prob is None:
+                                return None
+                            if amer is None:
+                                dec = 1.909090909
+                            else:
+                                a = float(amer)
+                                dec = (1.0 + a / 100.0) if a > 0 else (1.0 + 100.0 / abs(a))
+                            return (float(prob) * (dec - 1.0)) - ((1.0 - float(prob)) * 1.0)
+                        except Exception:
+                            return None
+                    import math
+                    for _, oq in qf.iterrows():
+                        try:
+                            qn = int(pd.to_numeric(oq.get("q"), errors="coerce"))
+                        except Exception:
+                            qn = None
+                        if qn is None:
+                            continue
+                        # Find the simulator quarter result
+                        qq = None
+                        for qres in summary.quarters:
+                            if int(getattr(qres, "q", -1)) == int(qn):
+                                qq = qres
+                                break
+                        if qq is None:
+                            continue
+                        # Quarter margin and total distributions
+                        mu_margin_q = float(qq.home_pts_mu - qq.away_pts_mu)
+                        var_h = float(qq.home_pts_sigma ** 2)
+                        var_a = float(qq.away_pts_sigma ** 2)
+                        cov = float((qq.corr or 0.0) * qq.home_pts_sigma * qq.away_pts_sigma)
+                        sigma_margin_q = math.sqrt(max(1e-6, var_h + var_a - 2.0 * cov))
+                        mu_total_q = float(qq.home_pts_mu + qq.away_pts_mu)
+                        sigma_total_q = math.sqrt(max(1e-6, var_h + var_a + 2.0 * cov))
+                        # Prices and lines
+                        home_ml_q = _num(oq.get("home_ml"))
+                        away_ml_q = _num(oq.get("away_ml"))
+                        home_spread_q = _num(oq.get("home_spread"))
+                        total_q = _num(oq.get("total"))
+                        # Normal survival function: P(X > x)
+                        def _norm_sf(x: float, mu: float, sigma: float) -> float:
+                            try:
+                                return 0.5 * math.erfc((x - mu) / (sigma * math.sqrt(2.0)))
+                            except Exception:
+                                return 0.5
+                        # Probabilities
+                        p_home_ml_q = _norm_sf(0.0, mu_margin_q, sigma_margin_q)
+                        p_home_cover_q = None
+                        p_away_cover_q = None
+                        if home_spread_q is not None:
+                            # Home spread positive means home is underdog; cover if margin + spread > 0
+                            p_home_cover_q = _norm_sf(0.0, mu_margin_q + float(home_spread_q), sigma_margin_q)
+                            p_away_cover_q = _norm_sf(0.0, -mu_margin_q + float(home_spread_q), sigma_margin_q)
+                        p_total_over_q = None
+                        p_total_under_q = None
+                        if total_q is not None:
+                            p_total_over_q = _norm_sf(float(total_q), mu_total_q, sigma_total_q)
+                            p_total_under_q = 1.0 - float(p_total_over_q)
+                        # EVs
+                        ev_home_ml_q = _ev_pa(p_home_ml_q, home_ml_q)
+                        ev_away_ml_q = _ev_pa(None if p_home_ml_q is None else (1.0 - p_home_ml_q), away_ml_q)
+                        ev_home_cover_q = _ev_pa(p_home_cover_q, None) if p_home_cover_q is not None else None
+                        ev_away_cover_q = _ev_pa(p_away_cover_q, None) if p_away_cover_q is not None else None
+                        ev_total_over_q = _ev_pa(p_total_over_q, None) if p_total_over_q is not None else None
+                        ev_total_under_q = _ev_pa(p_total_under_q, None) if p_total_under_q is not None else None
+                        quarter_markets.append({
+                            "q": qn,
+                            "lines": {
+                                "home_ml": home_ml_q,
+                                "away_ml": away_ml_q,
+                                "home_spread": home_spread_q,
+                                "total": total_q,
+                            },
+                            "probs": {
+                                "p_home_ml": p_home_ml_q,
+                                "p_home_cover": p_home_cover_q,
+                                "p_away_cover": p_away_cover_q,
+                                "p_total_over": p_total_over_q,
+                                "p_total_under": p_total_under_q,
+                            },
+                            "evs": {
+                                "ev_home_ml": ev_home_ml_q,
+                                "ev_away_ml": ev_away_ml_q,
+                                "ev_home_cover": ev_home_cover_q,
+                                "ev_away_cover": ev_away_cover_q,
+                                "ev_total_over": ev_total_over_q,
+                                "ev_total_under": ev_total_under_q,
+                            },
+                        })
+                except Exception:
+                    quarter_markets = []
+
+            rows.append({
+                "home_team": home,
+                "away_team": away,
+                "market_total": market_total,
+                "market_home_spread": market_home_spread,
+                "summary": {
+                    "final_total_mu": summary.final_total_mu,
+                    "final_total_sigma": summary.final_total_sigma,
+                    "final_margin_mu": summary.final_margin_mu,
+                    "final_margin_sigma": summary.final_margin_sigma,
+                    "probs": summary.probs,
+                    "evs": summary.evs,
+                },
+                "quarters": [
+                    {
+                        "q": q.q,
+                        "home_pts_mu": q.home_pts_mu,
+                        "home_pts_sigma": q.home_pts_sigma,
+                        "away_pts_mu": q.away_pts_mu,
+                        "away_pts_sigma": q.away_pts_sigma,
+                    } for q in summary.quarters
+                ],
+                "quarter_markets": quarter_markets,
+            })
+
+        return jsonify({"date": d, "rows": rows})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/sim/game-story")
+def api_sim_game_story():
+    """Connected sim: quarter scores + player box score + sportswriter recap.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+      - home: team tricode (required)
+      - away: team tricode (required)
+      - n: number of samples (optional, default 1200)
+      - seed: optional int seed for reproducibility
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    # Accept either tricodes (e.g., "BOS") or human names (e.g., "Boston Celtics").
+    home_tri = (request.args.get("home") or "").strip()
+    away_tri = (request.args.get("away") or "").strip()
+    try:
+        home_tri = (_get_tricode(home_tri) or home_tri).strip().upper()
+    except Exception:
+        home_tri = home_tri.strip().upper()
+    try:
+        away_tri = (_get_tricode(away_tri) or away_tri).strip().upper()
+    except Exception:
+        away_tri = away_tri.strip().upper()
+    if not home_tri or not away_tri:
+        return jsonify({"error": "missing home/away"}), 400
+    try:
+        n = int(pd.to_numeric(request.args.get("n", "1200"), errors="coerce"))
+    except Exception:
+        n = 1200
+    n = int(max(300, min(6000, n)))
+    seed = request.args.get("seed")
+    try:
+        seed_i = int(seed) if seed not in (None, "") else None
+    except Exception:
+        seed_i = None
+
+    try:
+        pred_p = _find_predictions_for_date(d)
+        if pred_p is None or (hasattr(pred_p, "exists") and not pred_p.exists()):
+            return jsonify({"date": d, "error": "predictions not found"}), 404
+        pdf = pd.read_csv(pred_p)
+        if pdf is None or pdf.empty:
+            return jsonify({"date": d, "error": "predictions empty"}), 404
+
+        # Derive tricodes for robust matching
+        def _tri(v):
+            try:
+                t = _get_tricode(str(v))
+                return (t.upper() if isinstance(t, str) and t else str(v).strip().upper())
+            except Exception:
+                return str(v).strip().upper()
+
+        pdf = pdf.copy()
+        if "home_team" in pdf.columns:
+            pdf["home_tri"] = pdf["home_team"].apply(_tri)
+        if "visitor_team" in pdf.columns:
+            pdf["away_tri"] = pdf["visitor_team"].apply(_tri)
+        m = None
+        try:
+            m = (pdf.get("home_tri") == home_tri) & (pdf.get("away_tri") == away_tri)
+        except Exception:
+            m = None
+        if m is None or not bool(m.any()):
+            # Try reverse order just in case
+            try:
+                m = (pdf.get("home_tri") == away_tri) & (pdf.get("away_tri") == home_tri)
+            except Exception:
+                m = None
+        if m is None or not bool(m.any()):
+            return jsonify({"date": d, "error": "game not found in predictions", "home": home_tri, "away": away_tri}), 404
+        row = pdf[m].iloc[0].to_dict()
+
+        # Load props predictions for player baselines
+        props_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        if not props_p.exists():
+            _maybe_fetch_remote_processed(props_p.name)
+        props_df = _read_csv_if_exists(props_p)
+        if props_df is None or not isinstance(props_df, pd.DataFrame):
+            props_df = pd.DataFrame()
+
+        # Import simulator lazily
+        from nba_betting.sim.quarters import TeamContext, GameInputs, simulate_quarters  # type: ignore
+        from nba_betting.sim.connected_game import simulate_connected_game, write_sportswriter_recap  # type: ignore
+
+        def _num(x):
+            try:
+                v = pd.to_numeric(x, errors="coerce")
+                return float(v) if np.isfinite(v) else None
+            except Exception:
+                return None
+
+        # Build TeamContexts; if ratings missing, derive from implied means when possible
+        pred_total = _num(row.get("pred_total"))
+        pred_margin = _num(row.get("pred_margin"))
+        home_mu_implied = None
+        away_mu_implied = None
+        if pred_total is not None and pred_margin is not None:
+            home_mu_implied = 0.5 * (pred_total + pred_margin)
+            away_mu_implied = 0.5 * (pred_total - pred_margin)
+        home_pace = _num(row.get("home_pace")) or 98.0
+        away_pace = _num(row.get("away_pace")) or 98.0
+        def _rating_from_mu(mu, pace):
+            try:
+                if mu is None:
+                    return 112.0
+                return float((float(mu) / max(1e-6, float(pace))) * 100.0)
+            except Exception:
+                return 112.0
+        home_off = _num(row.get("home_off_rating")) or _rating_from_mu(home_mu_implied, home_pace)
+        away_off = _num(row.get("away_off_rating")) or _rating_from_mu(away_mu_implied, away_pace)
+        home_def = _num(row.get("home_def_rating")) or 112.0
+        away_def = _num(row.get("away_def_rating")) or 112.0
+
+        # Team names for context (the quarter sim uses these strings, but story uses tricodes)
+        home_name = row.get("home_team") or home_tri
+        away_name = row.get("visitor_team") or away_tri
+
+        # Best-effort schedule/injury context (match api_sim_quarters)
+        try:
+            name_keys, short_keys = _injury_name_sets_for_date(d)
+        except Exception:
+            name_keys, short_keys = (set(), set())
+        try:
+            roster_map = _roster_players_for_date(d)
+        except Exception:
+            roster_map = {}
+        def _count_outs(tri: str | None) -> int:
+            try:
+                if not tri:
+                    return 0
+                names = roster_map.get(str(tri).strip().upper()) or set()
+                if not names:
+                    return 0
+                cnt = sum(1 for n in names if (_norm_player_name(n) in name_keys or _short_player_key(n) in short_keys))
+                return int(max(0, min(5, cnt)))
+            except Exception:
+                return 0
+        h_outs = _count_outs(home_tri)
+        a_outs = _count_outs(away_tri)
+
+        home_ctx = TeamContext(team=str(home_name), pace=float(home_pace), off_rating=float(home_off), def_rating=float(home_def), injuries_out=int(h_outs))
+        away_ctx = TeamContext(team=str(away_name), pace=float(away_pace), off_rating=float(away_off), def_rating=float(away_def), injuries_out=int(a_outs))
+
+        market_total = _num(row.get("total"))
+        market_home_spread = _num(row.get("home_spread"))
+
+        # If the prediction row doesn't carry market prices/lines, fall back to game_odds_<date>.csv
+        try:
+            need_any = any(
+                _num(row.get(k)) is None
+                for k in ("home_ml", "away_ml", "total", "home_spread")
+            )
+            if need_any:
+                odds_path = _find_game_odds_for_date(d)
+                if odds_path is not None and hasattr(odds_path, "exists") and odds_path.exists():
+                    odf = pd.read_csv(odds_path)
+                    if isinstance(odf, pd.DataFrame) and not odf.empty:
+                        # Match by tricodes (robust to odds file using full names)
+                        if ("home_team" in odf.columns) and ("visitor_team" in odf.columns):
+                            odf = odf.copy()
+                            try:
+                                from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+                            except Exception:
+                                _to_tri = None
+                            if _to_tri is not None:
+                                odf["home_tri"] = odf["home_team"].astype(str).map(lambda x: _to_tri(str(x)))
+                                odf["visitor_tri"] = odf["visitor_team"].astype(str).map(lambda x: _to_tri(str(x)))
+                            else:
+                                odf["home_tri"] = odf["home_team"].astype(str).str.strip().str.upper()
+                                odf["visitor_tri"] = odf["visitor_team"].astype(str).str.strip().str.upper()
+                            mm = (odf["home_tri"] == home_tri) & (odf["visitor_tri"] == away_tri)
+                            if not bool(mm.any()):
+                                mm = (odf["home_tri"] == away_tri) & (odf["visitor_tri"] == home_tri)
+                            if bool(mm.any()):
+                                o = odf[mm].iloc[0].to_dict()
+                                # Fill missing fields only
+                                for k in (
+                                    "home_ml",
+                                    "away_ml",
+                                    "total",
+                                    "home_spread",
+                                    "away_spread",
+                                    "home_spread_price",
+                                    "away_spread_price",
+                                    "total_over_price",
+                                    "total_under_price",
+                                    "bookmaker",
+                                ):
+                                    if _num(row.get(k)) is None and _num(o.get(k)) is not None:
+                                        row[k] = o.get(k)
+
+                                # Recompute market fields if they were missing
+                                market_total = _num(row.get("total"))
+                                market_home_spread = _num(row.get("home_spread"))
+        except Exception:
+            pass
+
+        inp = GameInputs(date=str(d), home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=market_home_spread)
+        summary = simulate_quarters(inp, n_samples=min(3000, max(1200, n)))
+
+        # Build real-player rotation hints from roster + recent boxscores minutes.
+        try:
+            roster_map = _roster_players_for_date(str(d))
+        except Exception:
+            roster_map = {}
+        home_roster = sorted(list(roster_map.get(str(home_tri).upper(), set()) or []))
+        away_roster = sorted(list(roster_map.get(str(away_tri).upper(), set()) or []))
+        priors = _compute_player_minutes_priors(str(d), days_back=21)
+
+        sim = simulate_connected_game(
+            summary.quarters,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            props_df=props_df,
+            home_roster=home_roster,
+            away_roster=away_roster,
+            minutes_priors=priors,
+            n_samples=n,
+            seed=seed_i,
+        )
+        recap = write_sportswriter_recap(sim, market_total=market_total, market_home_spread=market_home_spread)
+
+        # --- Connect to recommendations + props edges engines ---
+        game_recs: list[dict[str, Any]] = []
+        try:
+            # ML
+            p_home = _num(row.get("home_win_prob"))
+            if p_home is not None:
+                try:
+                    # Apply same calibration as /api/recommendations when available
+                    # (Inlined minimal version: use games_prob_calibration.json if present)
+                    fp = BASE_DIR / "data" / "processed" / "games_prob_calibration.json"
+                    if fp.exists():
+                        with open(fp, "r", encoding="utf-8") as fh:
+                            cmap = json.load(fh)
+                        xs = cmap.get("x") or []
+                        ys = cmap.get("y") or []
+                        pv = max(0.0, min(1.0, float(p_home)))
+                        if isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys):
+                            if pv <= float(xs[0]):
+                                p_home = float(ys[0])
+                            elif pv >= float(xs[-1]):
+                                p_home = float(ys[-1])
+                            else:
+                                for i in range(len(xs) - 1):
+                                    x0 = float(xs[i]); x1 = float(xs[i+1])
+                                    if x0 <= pv <= x1:
+                                        y0 = float(ys[i]); y1 = float(ys[i+1])
+                                        t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
+                                        p_home = (1.0 - t) * y0 + t * y1
+                                        break
+                except Exception:
+                    pass
+            ev_h = _ev_from_prob_and_american(p_home, row.get("home_ml")) if p_home is not None else None
+            ev_a = _ev_from_prob_and_american(None if p_home is None else (1 - p_home), row.get("away_ml"))
+            if ev_h is not None or ev_a is not None:
+                side = home_tri if (ev_h or -1) >= (ev_a or -1) else away_tri
+                ev = ev_h if side == home_tri else ev_a
+                if ev is not None and float(ev) > 0:
+                    price = _num(row.get("home_ml")) if side == home_tri else _num(row.get("away_ml"))
+                    implied = _implied_prob_american(price) if price is not None else None
+                    game_recs.append({
+                        "market": "ML",
+                        "side": side,
+                        "ev": float(ev),
+                        "price": price,
+                        "implied_prob": (float(implied) if implied is not None else None),
+                    })
+
+            # ATS
+            pred_m = _num(row.get("pred_margin"))
+            if pred_m is None:
+                pred_m = _num(row.get("spread_margin"))
+            home_spread = _num(row.get("home_spread"))
+            if pred_m is not None and home_spread is not None:
+                market_home_margin = -home_spread
+                edge = float(pred_m - market_home_margin)
+                if abs(edge) >= 1.0:
+                    side = home_tri if edge > 0 else away_tri
+                    line = float(home_spread if side == home_tri else -home_spread)
+                    game_recs.append({
+                        "market": "ATS",
+                        "side": side,
+                        "edge": edge,
+                        "line": line,
+                        "pred_margin": float(pred_m),
+                        "market_home_margin": float(market_home_margin),
+                    })
+
+            # TOTAL
+            pred_t = _num(row.get("pred_total"))
+            if pred_t is None:
+                pred_t = _num(row.get("totals"))
+            total_line = _num(row.get("total"))
+            if pred_t is not None and total_line is not None:
+                edge_t = float(pred_t - total_line)
+                if abs(edge_t) >= 1.5:
+                    side = "Over" if edge_t > 0 else "Under"
+                    game_recs.append({
+                        "market": "TOTAL",
+                        "side": side,
+                        "edge": edge_t,
+                        "line": float(total_line),
+                        "pred_total": float(pred_t),
+                    })
+        except Exception:
+            game_recs = []
+
+        # Props edges (OddsAPI) filtered to this matchup and (optionally) to players in the connected box
+        props_payload: dict[str, Any] = {"edges": [], "recommendations": []}
+        try:
+            rep_players = []
+            try:
+                rep = (sim or {}).get("rep") or {}
+                for p in ((rep.get("home_box") or {}).get("players") or []):
+                    rep_players.append(str(p.get("player_name") or ""))
+                for p in ((rep.get("away_box") or {}).get("players") or []):
+                    rep_players.append(str(p.get("player_name") or ""))
+            except Exception:
+                rep_players = []
+            rep_keys = set(_norm_player_name(x) for x in rep_players if x and "Replacement" not in str(x))
+
+            edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+            if edges_p.exists():
+                edf = pd.read_csv(edges_p)
+                if isinstance(edf, pd.DataFrame) and not edf.empty:
+                    def _tri_name(x: Any) -> str:
+                        try:
+                            t = _get_tricode(str(x))
+                            return (t or str(x)).strip().upper()
+                        except Exception:
+                            return str(x).strip().upper()
+                    if "home_team" in edf.columns and "away_team" in edf.columns:
+                        edf = edf.copy()
+                        edf["home_tri"] = edf["home_team"].apply(_tri_name)
+                        edf["away_tri"] = edf["away_team"].apply(_tri_name)
+                        edf = edf[(edf["home_tri"] == home_tri) & (edf["away_tri"] == away_tri) | ((edf["home_tri"] == away_tri) & (edf["away_tri"] == home_tri))]
+                    else:
+                        # fallback: use team only
+                        if "team" in edf.columns:
+                            edf = edf[edf["team"].astype(str).str.upper().isin([home_tri, away_tri])]
+                    if rep_keys and "player_name" in edf.columns:
+                        edf = edf[edf["player_name"].astype(str).map(_norm_player_name).isin(rep_keys)]
+                    # Sort by EV then edge
+                    if "ev" in edf.columns:
+                        edf = edf.sort_values(["ev", "edge"], ascending=[False, False])
+                    props_payload["edges"] = edf.head(25).fillna("").to_dict(orient="records")
+        except Exception:
+            pass
+
+        # Props recommendations (derived from edges) filtered to teams in this matchup
+        try:
+            import ast as _ast
+            pr_p = BASE_DIR / "data" / "processed" / f"props_recommendations_{d}.csv"
+            if pr_p.exists():
+                pr = pd.read_csv(pr_p)
+                if isinstance(pr, pd.DataFrame) and not pr.empty:
+                    pr = pr.copy()
+                    if "team" in pr.columns:
+                        pr["team"] = pr["team"].astype(str).str.upper().str.strip()
+                        pr = pr[pr["team"].isin([home_tri, away_tri])]
+                    def _canonical_standard_plays(plays: Any) -> list[dict]:
+                        try:
+                            if not isinstance(plays, list) or not plays:
+                                return []
+                            buckets: dict[tuple[str, str], list[dict]] = {}
+                            for p in plays:
+                                if not isinstance(p, dict):
+                                    continue
+                                mk = str(p.get("market") or "").strip().lower()
+                                sd = str(p.get("side") or "").strip().upper()
+                                if not mk or not sd:
+                                    continue
+                                try:
+                                    _ = float(p.get("line"))
+                                except Exception:
+                                    continue
+                                buckets.setdefault((mk, sd), []).append(p)
+                            def _ev_key(pp: dict) -> float:
+                                try:
+                                    if pp.get("ev_pct") is not None and not pd.isna(pp.get("ev_pct")):
+                                        return float(pp.get("ev_pct"))
+                                except Exception:
+                                    pass
+                                try:
+                                    if pp.get("ev") is not None and not pd.isna(pp.get("ev")):
+                                        return float(pp.get("ev")) * 100.0
+                                except Exception:
+                                    pass
+                                return -1e18
+                            out: list[dict] = []
+                            for (mk, sd), ps in buckets.items():
+                                counts: dict[float, int] = {}
+                                for pp in ps:
+                                    try:
+                                        ln = float(pp.get("line"))
+                                    except Exception:
+                                        continue
+                                    counts[ln] = counts.get(ln, 0) + 1
+                                if not counts:
+                                    continue
+                                max_n = max(counts.values())
+                                mode_lines = sorted([ln for ln, n in counts.items() if n == max_n])
+                                std_line = mode_lines[len(mode_lines)//2]
+                                cand = [pp for pp in ps if (pp.get("line") is not None and float(pp.get("line")) == float(std_line))]
+                                if not cand:
+                                    cand = ps
+                                cand.sort(key=_ev_key, reverse=True)
+                                out.append(cand[0])
+                            out.sort(key=_ev_key, reverse=True)
+                            return out
+                        except Exception:
+                            return []
+                    out_rows = []
+                    for _, rr in pr.iterrows():
+                        player = str(rr.get("player") or rr.get("player_name") or "").strip()
+                        if not player:
+                            continue
+                        if rep_keys and (_norm_player_name(player) not in rep_keys):
+                            continue
+                        plays_raw = rr.get("plays")
+                        ladders_raw = rr.get("ladders")
+                        try:
+                            plays = _ast.literal_eval(plays_raw) if isinstance(plays_raw, str) and plays_raw.strip().startswith("[") else []
+                        except Exception:
+                            plays = []
+                        try:
+                            ladders = _ast.literal_eval(ladders_raw) if isinstance(ladders_raw, str) and ladders_raw.strip().startswith("[") else []
+                        except Exception:
+                            ladders = []
+                        plays = _canonical_standard_plays(plays)
+                        # Keep top plays by EV%
+                        def _evpct(x: Any) -> float:
+                            try:
+                                return float(x.get("ev_pct"))
+                            except Exception:
+                                return -1e9
+                        if isinstance(plays, list):
+                            plays = sorted([p for p in plays if isinstance(p, dict)], key=_evpct, reverse=True)[:12]
+                        if isinstance(ladders, list):
+                            ladders = sorted([p for p in ladders if isinstance(p, dict)], key=_evpct, reverse=True)[:12]
+                        out_rows.append({
+                            "player": player,
+                            "team": str(rr.get("team") or "").strip().upper(),
+                            "plays": plays,
+                            "ladders": ladders,
+                        })
+                    props_payload["recommendations"] = out_rows
+        except Exception:
+            pass
+
+        return jsonify({
+            "date": d,
+            "home": home_tri,
+            "away": away_tri,
+            "market": {"total": market_total, "home_spread": market_home_spread},
+            "game_recommendations": game_recs,
+            "props": props_payload,
+            "sim": sim,
+            "recap": recap,
+        })
+    except Exception as e:
+        return jsonify({"date": d, "home": home_tri, "away": away_tri, "error": str(e)}), 500
 
 
 @app.route("/api/cron/refresh-bovada", methods=["POST", "GET"])
@@ -8324,6 +11301,7 @@ def api_cron_refresh_bovada():
         df = _fetch_bovada_odds_current(d)
         rows = 0 if df is None else len(df)
         out = BASE_DIR / "data" / "processed" / f"game_odds_{d}.csv"
+        out_periods = BASE_DIR / "data" / "processed" / f"period_lines_{d}.csv"
         used_fallback = False
         fallback_path = None
         # For props: we'll attempt to fetch Bovada player props and compute edges if present
@@ -8334,6 +11312,15 @@ def api_cron_refresh_bovada():
         if df is not None and not df.empty:
             out.parent.mkdir(parents=True, exist_ok=True)
             df.to_csv(out, index=False)
+            # Best-effort: also save quarter/half lines if Bovada exposes them
+            try:
+                from nba_betting.odds_bovada import fetch_bovada_period_lines_current as _fbplc  # type: ignore
+                pl = _fbplc(d)
+                if pl is not None and not pl.empty:
+                    out_periods.parent.mkdir(parents=True, exist_ok=True)
+                    pl.to_csv(out_periods, index=False)
+            except Exception:
+                pass
         else:
             # Try fallback to consensus/closing lines if Bovada has nothing
             fb = _find_fallback_odds_for_date(d)
@@ -8913,9 +11900,11 @@ def api_cron_daily_update():
     if _job_state["running"]:
         return jsonify({"status": "already-running", "started_at": _job_state["started_at"]}), 409
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
-    t = threading.Thread(target=_daily_update_job, args=(do_push,), daemon=True)
+    date_str = (request.args.get("date") or "").strip() or None
+    mode = (request.args.get("mode") or "full").strip().lower()
+    t = threading.Thread(target=_daily_update_job, args=(do_push, date_str, mode), daemon=True)
     t.start()
-    return jsonify({"status": "started", "push": do_push, "started_at": datetime.utcnow().isoformat()}), 202
+    return jsonify({"status": "started", "push": do_push, "mode": mode, "date": date_str, "started_at": datetime.utcnow().isoformat()}), 202
 
 
 @app.route("/api/cron/run-all", methods=["POST", "GET"])
@@ -8929,6 +11918,19 @@ def api_cron_run_all():
     """
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
+
+    mode = (request.args.get("mode") or "minimal").strip().lower()
+    if mode in {"full", "pipeline", "props"}:
+        # Keep Render-safe by requiring debug routes for full pipeline mode.
+        if not _debug_routes_enabled():
+            return jsonify({"error": "full mode disabled"}), 404
+        if _job_state["running"]:
+            return jsonify({"status": "already-running", "started_at": _job_state["started_at"]}), 409
+        d = (request.args.get("date") or datetime.utcnow().date().isoformat()).strip()
+        push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+        t = threading.Thread(target=_daily_update_job, args=(push, d, mode), daemon=True)
+        t.start()
+        return jsonify({"status": "started", "mode": mode, "date": d, "push": push, "started_at": datetime.utcnow().isoformat()}), 202
 
     today = datetime.utcnow().date()
     yesterday = today - timedelta(days=1)
@@ -8992,6 +11994,8 @@ def api_cron_config():
             "have_cron_token": bool(os.environ.get("CRON_TOKEN")),
             "have_admin_key": bool(os.environ.get("ADMIN_KEY")),
             "endpoints": [
+                "/api/cron/run-all",
+                "/api/cron/daily-update",
                 "/api/cron/refresh-bovada",
                 "/api/cron/reconcile-games",
                 "/api/cron/capture-closing",

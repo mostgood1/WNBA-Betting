@@ -2841,6 +2841,21 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
     except Exception as e:
         console.print(f"Game odds fetch failed: {e}", style="yellow")
 
+    # 3) Per-period market lines from Bovada (quarters/halves) if available
+    try:
+        from .odds_bovada import fetch_bovada_period_lines_current
+        pl = fetch_bovada_period_lines_current(str(target_date))
+        if isinstance(pl, pd.DataFrame) and not pl.empty:
+            out_pl = paths.data_processed / f"period_lines_{target_date}.csv"
+            out_pl.parent.mkdir(parents=True, exist_ok=True)
+            pl.to_csv(out_pl, index=False)
+            console.print({"period_lines_rows": int(len(pl)), "period_lines_output": str(out_pl)})
+        else:
+            # Don't overwrite an existing file with empty output
+            pass
+    except Exception as e:
+        console.print(f"Period lines fetch failed: {e}", style="yellow")
+
     try:
         tgt = pd.to_datetime(target_date).date()
         for ev in events:

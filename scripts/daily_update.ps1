@@ -1024,17 +1024,6 @@ def _parse_obj(val):
     except Exception:
       return None
 
-  # 2.4d) Build opponent splits cache (allowed pts/reb/ast/threes, ranks) over recent window
-  try {
-    Write-Log ("Building opponent splits cache (window=21d) cutoff {0}" -f $Date)
-    $oppTool = Join-Path $RepoRoot 'tools/build_opponent_splits.py'
-    if (Test-Path $oppTool) {
-      & $Python $oppTool --date $Date --days 21 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-    } else {
-      Write-Log 'build_opponent_splits.py missing; skipping opponent splits cache'
-    }
-  } catch { Write-Log ("Opponent splits build failed (non-fatal): {0}" -f $_.Exception.Message) }
-
 def _regular_price(pr):
   try:
     if pr is None or (isinstance(pr, float) and math.isnan(pr)):
@@ -1152,7 +1141,7 @@ def _consensus_line_adv(row):
   same_all = [p for p in (plays or []) if str(p.get("market") or "").lower() == mk and str(p.get("side") or "").upper() == side]
   same_regular = [p for p in same_all if _regular_price(p.get("price"))]
   same = same_regular if same_regular else same_all
-  distinct_books = sorted(list({str(p.get("book") or "").lower() for p in same if p.get("book") is not None})) )
+  distinct_books = sorted(list({str(p.get("book") or "").lower() for p in same if p.get("book") is not None}))
   n_books = len(distinct_books)
   if n_books >= 3:
     reasons.append(f"Consensus: {n_books} books aligned")

@@ -36,6 +36,25 @@ def _read_odds(date_str: str) -> pd.DataFrame:
     return df
 
 
+def _read_predictions(date_str: str) -> pd.DataFrame:
+    """Read model predictions for the given date.
+
+    Expected columns (subset):
+      - home_team, visitor_team
+      - spread_margin (expected home margin)
+      - totals (expected total)
+      - home_win_prob (optional)
+    """
+    p = PROC / f"predictions_{date_str}.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    df = pd.read_csv(p)
+    for c in ("home_team", "visitor_team"):
+        if c in df.columns:
+            df[c] = df[c].astype(str).map(lambda x: normalize_team(x))
+    return df
+
+
 def _read_injuries_impact(date_str: str) -> dict:
     p = PROC / f"injuries_counts_{date_str}.json"
     if not p.exists():
@@ -64,19 +83,50 @@ def _norm_team(t: str) -> str:
     return normalize_team(t or "")
 
 
-def _adjust_total_spread(row: pd.Series, inj_imp: dict, opp_ranks: dict, cfg: SimConfig) -> Tuple[float, float]:
-    base_total = float(row.get("total") or np.nan)
-    base_spread = float(row.get("home_spread") or np.nan)
-    if not np.isfinite(base_total):
-        # fallback: infer from ML if present or neutral default
-        base_total = 225.0
-    if not np.isfinite(base_spread):
-        base_spread = 0.0
+def _adjust_means(
+    row: pd.Series,
+    pred_row: Optional[pd.Series],
+    inj_imp: dict,
+    opp_ranks: dict,
+    cfg: SimConfig,
+) -> Tuple[float, float]:
+    """Return (total_mu, margin_mu) for home team.
+
+    Key point: margin_mu should be an *expected score margin*, not the market spread.
+    If predictions are present, use them as the baseline to avoid constant probabilities.
+    """
+    # Market lines (used for fallback / prob thresholds)
+    base_total_line = float(row.get("total") or np.nan)
+    base_home_spread = float(row.get("home_spread") or np.nan)
+
+    # Baseline means from predictions if available
+    pred_total_mu = np.nan
+    pred_margin_mu = np.nan
+    if pred_row is not None:
+        try:
+            pred_total_mu = float(pred_row.get("totals") or np.nan)
+        except Exception:
+            pred_total_mu = np.nan
+        try:
+            pred_margin_mu = float(pred_row.get("spread_margin") or np.nan)
+        except Exception:
+            pred_margin_mu = np.nan
+
+    # Fall back to market if prediction missing
+    if not np.isfinite(pred_total_mu):
+        pred_total_mu = base_total_line if np.isfinite(base_total_line) else 225.0
+    if not np.isfinite(pred_margin_mu):
+        # Market convention: home_spread is typically negative for favorite; margin is opposite sign.
+        if np.isfinite(base_home_spread):
+            pred_margin_mu = -float(base_home_spread)
+        else:
+            pred_margin_mu = 0.0
     home = _norm_team(row.get("home_team"))
     away = _norm_team(row.get("visitor_team"))
 
-    # Home advantage baseline
-    margin_adj = cfg.home_adv_points
+    # Home advantage baseline: only apply if we didn't have a model baseline.
+    used_pred = pred_row is not None and np.isfinite(float(pred_row.get("spread_margin") or np.nan))
+    margin_adj = 0.0 if used_pred else cfg.home_adv_points
     total_adj = 0.0
 
     # Injury impact: difference shifts margin, combined shifts total slightly
@@ -113,9 +163,9 @@ def _adjust_total_spread(row: pd.Series, inj_imp: dict, opp_ranks: dict, cfg: Si
     except Exception:
         pass
 
-    adj_total = base_total + total_adj
-    adj_spread = base_spread + margin_adj
-    return float(adj_total), float(adj_spread)
+    total_mu = float(pred_total_mu) + float(total_adj)
+    margin_mu = float(pred_margin_mu) + float(margin_adj)
+    return float(total_mu), float(margin_mu)
 
 
 def _phi(x: float) -> float:
@@ -176,18 +226,34 @@ def _ev_from_prob(price: float | None, prob: float | None) -> Optional[float]:
 def simulate_games_for_date(date_str: str, cfg: Optional[SimConfig] = None) -> pd.DataFrame:
     cfg = cfg or SimConfig()
     odds = _read_odds(date_str)
+    preds = _read_predictions(date_str)
     inj_imp = _read_injuries_impact(date_str)
     opp_ranks = _read_opponent_ranks(date_str)
     if odds is None or odds.empty:
         return pd.DataFrame()
+
+    pred_map: dict[str, pd.Series] = {}
+    try:
+        if isinstance(preds, pd.DataFrame) and (not preds.empty):
+            def _k(h: object, a: object) -> str:
+                return f"{_norm_team(str(h or ''))}@@{_norm_team(str(a or ''))}"
+            for _, pr in preds.iterrows():
+                pred_map[_k(pr.get("home_team"), pr.get("visitor_team"))] = pr
+    except Exception:
+        pred_map = {}
     rows = []
     for _, row in odds.iterrows():
         total_line = float(row.get("total") or np.nan)
         spread_line = float(row.get("home_spread") or np.nan)
-        adj_total, adj_spread = _adjust_total_spread(row, inj_imp, opp_ranks, cfg)
-        # Means for margin/total
-        margin_mu = adj_spread
-        total_mu = adj_total
+
+        pr = None
+        try:
+            key = f"{_norm_team(row.get('home_team'))}@@{_norm_team(row.get('visitor_team'))}"
+            pr = pred_map.get(key)
+        except Exception:
+            pr = None
+
+        total_mu, margin_mu = _adjust_means(row, pr, inj_imp, opp_ranks, cfg)
         probs = _analytical_probs(total_line, spread_line, total_mu, margin_mu, cfg)
         # EVs where prices available
         home_ml = row.get("home_ml")

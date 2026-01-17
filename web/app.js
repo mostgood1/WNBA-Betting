@@ -2,6 +2,8 @@
 const STRICT_SCHEDULE_DATES = false;
 const AUTO_ADVANCE_TO_NEXT_GAME = true; // Auto-advance to next game date if no games on current date
 const PIN_DATE = '';
+// Score blending: 0.5 means equal weight to model and sim points.
+const SCORE_BLEND_ALPHA = 0.50;
 const TEAM_ALIASES = {
   'warriors': 'GSW', 'golden state': 'GSW', 'golden state warriors': 'GSW',
   'lakers': 'LAL', 'los angeles lakers': 'LAL',
@@ -18,6 +20,14 @@ const state = {
   oddsByKey: new Map(),
   reconByKey: new Map(),
   gameCardsByKey: new Map(),
+  periodLinesByKey: new Map(),
+  periodLinesDate: null,
+  simQuartersByKey: new Map(),
+  simQuartersDate: null,
+  gameStoryByKey: new Map(),
+  propsPredsByGameKey: new Map(),
+  propsPredsDate: null,
+  gamesCalib: null,
   reconProps: [],
   propsEdges: [],
   propsFilters: { minEdge: 0.05, minEV: 0.0 },
@@ -31,6 +41,142 @@ const state = {
   }
 };
 
+function escapeHtml(s){
+  const t = String(s ?? '');
+  return t
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Minimal on-page debug line (useful when cards fail to render).
+function ensureDebugEl(){
+  try{
+    let el = document.getElementById('debug');
+    if (el) return el;
+    el = document.createElement('div');
+    el.id = 'debug';
+    el.className = 'subtle';
+    el.style.margin = '10px 0 0 0';
+    const note = document.getElementById('note');
+    if (note && note.parentNode){
+      note.parentNode.insertBefore(el, note.nextSibling);
+    } else {
+      document.body.appendChild(el);
+    }
+    return el;
+  }catch(_){ return null; }
+}
+
+function setDebugLine(msg){
+  try{
+    const el = ensureDebugEl();
+    if (el) el.textContent = String(msg || '');
+  }catch(_){ /* ignore */ }
+}
+
+function formatEtTimesInCards(){
+  try{
+    const nodes = Array.from(document.querySelectorAll('.card .js-local-time'));
+    if (!nodes.length) return;
+    const fmt = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/New_York',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true
+    });
+    nodes.forEach((node)=>{
+      const iso = node.textContent;
+      const d = new Date(iso);
+      if (!isNaN(d)) node.textContent = fmt.format(d) + ' ET';
+    });
+  }catch(_){ /* ignore */ }
+}
+
+try{
+  window.addEventListener('error', (ev)=>{
+    try{
+      const where = (ev && ev.filename) ? ` @ ${ev.filename}:${ev.lineno||''}` : '';
+      setDebugLine(`JS error: ${ev.message || 'unknown'}${where}`);
+    }catch(_){ /* ignore */ }
+  });
+  window.addEventListener('unhandledrejection', (ev)=>{
+    try{
+      const r = ev && ev.reason;
+      const msg = (r && (r.message || r.toString)) ? (r.message || String(r)) : String(r || 'unknown');
+      setDebugLine(`Promise rejection: ${msg}`);
+    }catch(_){ /* ignore */ }
+  });
+}catch(_){ /* ignore */ }
+
+function clamp01(x){
+  const v = Number(x);
+  if (!Number.isFinite(v)) return 0;
+  return Math.max(0, Math.min(1, v));
+}
+
+function fmtPct(p, digits=1){
+  if (p == null) return '—';
+  const v = Number(p);
+  if (!Number.isFinite(v)) return '—';
+  return (v * 100).toFixed(digits) + '%';
+}
+
+function tierFromEv(ev){
+  const v = Number(ev);
+  if (!Number.isFinite(v)) return '—';
+  if (v >= 0.08) return 'A';
+  if (v >= 0.05) return 'B';
+  if (v >= 0.03) return 'C';
+  if (v >= 0.015) return 'D';
+  return 'E';
+}
+
+function calibrateGamesProb(pRaw){
+  const p = clamp01(pRaw);
+  const c = state.gamesCalib;
+  if (!c || !Array.isArray(c.x) || !Array.isArray(c.y) || c.x.length < 2 || c.x.length !== c.y.length) return p;
+  const x = c.x;
+  const y = c.y;
+  if (p <= x[0]) return clamp01(y[0]);
+  const last = x.length - 1;
+  if (p >= x[last]) return clamp01(y[last]);
+  let i = 0;
+  while (i < last - 1 && !(x[i] <= p && p <= x[i+1])) i++;
+  const x0 = Number(x[i]), x1 = Number(x[i+1]);
+  const y0 = Number(y[i]), y1 = Number(y[i+1]);
+  if (!Number.isFinite(x0) || !Number.isFinite(x1) || x1 === x0) return p;
+  const t = (p - x0) / (x1 - x0);
+  return clamp01(y0 + t * (y1 - y0));
+}
+
+async function maybeLoadGamesCalibration(){
+  try{
+    if (state.gamesCalib) return;
+    const candidates = [
+      '/data/processed/games_prob_calibration_60.json',
+      '/data/processed/games_prob_calibration.json',
+    ];
+    for (const url of candidates){
+      try{
+        const r = await fetch(url, { cache: 'no-store' });
+        if (!r.ok) continue;
+        const j = await r.json();
+        const x = Array.isArray(j?.x) ? j.x.map(Number) : null;
+        const y = Array.isArray(j?.y) ? j.y.map(Number) : null;
+        if (!x || !y || x.length < 2 || y.length !== x.length) continue;
+        state.gamesCalib = { x, y, meta: j?.meta || null, source: url };
+        return;
+      }catch(_){ /* ignore */ }
+    }
+  }catch(_){ /* ignore */ }
+}
+
 // Toggle periods breakdown visibility
 function togglePeriods(cardId){
   const content = document.getElementById(cardId);
@@ -39,6 +185,204 @@ function togglePeriods(cardId){
   const isHidden = content.style.display === 'none';
   content.style.display = isHidden ? 'block' : 'none';
   if (toggle) toggle.textContent = isHidden ? '▼ Projected Line Score' : '▶ Projected Line Score';
+}
+
+// Toggle quarters breakdown visibility (Cards v2)
+function toggleQuarters(cardId){
+  const content = document.getElementById(cardId);
+  const toggle = document.querySelector(`[onclick="toggleQuarters('${cardId}')"]`);
+  if (!content) return;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  if (toggle) toggle.textContent = isHidden ? '▼ Quarters' : '▶ Quarters';
+}
+
+// Toggle players box score visibility (Cards v2)
+function togglePlayers(cardId){
+  const content = document.getElementById(cardId);
+  const toggle = document.querySelector(`[onclick="togglePlayers('${cardId}')"]`);
+  if (!content) return;
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  if (toggle) toggle.textContent = isHidden ? '▼ Players' : '▶ Players';
+}
+
+// Toggle write-up visibility (Cards v2) + lazy-load connected sim
+async function toggleWriteup(cardId, dateStr, home, away){
+  const content = document.getElementById(cardId);
+  const toggle = document.querySelector(`[onclick="toggleWriteup('${cardId}','${dateStr}','${home}','${away}')"]`);
+  if (!content) return;
+
+  const isHidden = content.style.display === 'none';
+  content.style.display = isHidden ? 'block' : 'none';
+  if (toggle) toggle.textContent = isHidden ? '▼ Write-up' : '▶ Write-up';
+  if (!isHidden) return;
+
+  const key = `${dateStr}|${home}|${away}`;
+  if (content.dataset.loaded === '1') return;
+
+  content.innerHTML = '<div class="subtle">Loading connected sim…</div>';
+  try{
+    let payload = state.gameStoryByKey.get(key) || null;
+    if (!payload){
+      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=900`;
+      const r = await fetch(url, { cache: 'no-store' });
+      if (!r.ok){
+        const txt = await r.text();
+        throw new Error(`HTTP ${r.status}: ${txt}`);
+      }
+      payload = await r.json();
+      state.gameStoryByKey.set(key, payload);
+    }
+
+    const sim = payload?.sim || null;
+    const rep = sim?.rep || null;
+    const means = sim?.means || null;
+    const warns = Array.isArray(sim?.diagnostics?.warnings) ? sim.diagnostics.warnings : [];
+    const recap = payload?.recap || '';
+    const propsRecs = Array.isArray(payload?.props?.recommendations) ? payload.props.recommendations : [];
+
+    const q = Array.isArray(rep?.quarters) ? rep.quarters : [];
+    const qBy = (side, i)=>{
+      const row = q.find(x => Number(x?.q) === Number(i));
+      return (row && Number.isFinite(Number(row[side]))) ? Number(row[side]) : null;
+    };
+    const qAway = [1,2,3,4].map(i=>qBy('away', i));
+    const qHome = [1,2,3,4].map(i=>qBy('home', i));
+    const sum = (arr)=>{
+      const xs = (arr||[]).map(Number).filter(Number.isFinite);
+      return xs.length ? xs.reduce((a,b)=>a+b,0) : null;
+    };
+
+    const awayBox = rep?.away_box || null;
+    const homeBox = rep?.home_box || null;
+    const topN = 8;
+    const topRows = (box)=>{
+      const rows = Array.isArray(box?.players) ? box.players.slice() : [];
+      rows.sort((a,b)=> (Number(b?.min)||0) - (Number(a?.min)||0));
+      return rows.slice(0, topN);
+    };
+
+    const playerTable = (teamTri, box)=>{
+      const rows = topRows(box);
+      if (!rows.length) return '';
+      const tr = (p)=>`
+        <tr>
+          <td style="font-weight:700;">${escapeHtml(p.player_name || '')}</td>
+          <td class="num">${(p.min!=null && Number.isFinite(Number(p.min))) ? fmtNum(p.min,1) : '—'}</td>
+          <td class="num">${fmtNum(p.pts,0)}</td>
+          <td class="num">${fmtNum(p.reb,0)}</td>
+          <td class="num">${fmtNum(p.ast,0)}</td>
+          <td class="num">${fmtNum(p.threes,0)}</td>
+        </tr>`;
+      return `
+        <div class="table-wrap">
+          <table class="data-table boxscore-table player-boxscore">
+            <thead>
+              <tr>
+                <th>${teamTri} (connected)</th>
+                <th class="num">MIN</th>
+                <th class="num">PTS</th>
+                <th class="num">REB</th>
+                <th class="num">AST</th>
+                <th class="num">3PM</th>
+              </tr>
+            </thead>
+            <tbody>${rows.map(tr).join('')}</tbody>
+          </table>
+        </div>`;
+    };
+
+    const topPlays = ()=>{
+      const items = [];
+      for (const r of (propsRecs||[])){
+        const plays = Array.isArray(r?.plays) ? r.plays : [];
+        for (const p of plays){
+          if (!p || typeof p !== 'object') continue;
+          items.push({
+            player: r.player,
+            team: r.team,
+            market: p.market,
+            side: p.side,
+            line: p.line,
+            price: p.price,
+            ev_pct: p.ev_pct,
+            book: p.book,
+          });
+        }
+      }
+      items.sort((a,b)=> (Number(b.ev_pct)||-1e9) - (Number(a.ev_pct)||-1e9));
+      return items.slice(0, 12);
+    };
+    const plays = topPlays();
+    const playsHtml = plays.length ? `
+      <div class="mt-24"></div>
+      <div class="subtle mb-6">Top props picks (from props recommendations engine)</div>
+      <div class="table-wrap">
+        <table class="data-table boxscore-table">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th class="num">Pick</th>
+              <th class="num">EV%</th>
+              <th class="num">Book</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${plays.map(p=>{
+              const pick = `${p.market} ${p.side} ${p.line}`;
+              const ev = (p.ev_pct!=null && Number.isFinite(Number(p.ev_pct))) ? `${fmtNum(p.ev_pct,1)}%` : '—';
+              const book = p.book ? String(p.book).toUpperCase() : '';
+              return `
+                <tr>
+                  <td style="font-weight:700;">${escapeHtml(p.player)} <span class="subtle">(${escapeHtml(p.team)})</span></td>
+                  <td class="num">${escapeHtml(pick)}</td>
+                  <td class="num">${escapeHtml(ev)}</td>
+                  <td class="num">${escapeHtml(book)}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    ` : '';
+
+    const meanLine = (means && Number.isFinite(Number(means.home_score)) && Number.isFinite(Number(means.away_score)))
+      ? `<div class="subtle">Mean score (over sims): ${escapeHtml(away)} ${fmtNum(means.away_score,1)} – ${escapeHtml(home)} ${fmtNum(means.home_score,1)}</div>`
+      : '';
+
+    const warnLine = warns.length
+      ? `<div class="subtle">Sanity: ${escapeHtml(warns.slice(0,3).join(' | '))}${warns.length>3?' …':''}</div>`
+      : '';
+
+    content.innerHTML = `
+      <div class="writeup-recap">${escapeHtml(recap || '').replace(/\n/g,'<br>')}</div>
+      ${warnLine}
+      ${meanLine}
+      <div class="mt-24"></div>
+      ${playerTable(away, awayBox)}
+      <div class="mb-6"></div>
+      ${playerTable(home, homeBox)}
+      ${playsHtml}
+    `;
+    content.dataset.loaded = '1';
+  }catch(e){
+    content.innerHTML = `<div class="subtle">Write-up failed: ${escapeHtml(e && e.message ? e.message : e)}</div>`;
+  }
+}
+
+function pointsFromTotalMargin(total, margin){
+  const t = toNum(total);
+  const m = toNum(margin);
+  if (t == null || m == null) return { home: null, away: null };
+  return { home: 0.5 * (t + m), away: 0.5 * (t - m) };
+}
+
+function boolFromCell(v){
+  const s = String(v ?? '').trim().toLowerCase();
+  if (!s) return null;
+  if (['true','1','yes','y','home'].includes(s)) return true;
+  if (['false','0','no','n','away'].includes(s)) return false;
+  return null;
 }
 
 // --- Persistence helpers (odds) ---
@@ -122,7 +466,6 @@ function teamLineHTML(tri){
   const t = String(tri||'').toUpperCase();
   const team = state.teams[t] || { tricode:t, name:t };
   const localSvg = teamLogoUrl(t);
-  const localPng = localSvg.replace('.svg', '.png');
   // Build a prioritized list of sources preferring CDN links
   const fallbacks = (function(){
     const id = (state.teams[t] && state.teams[t].id) ? String(state.teams[t].id) : null;
@@ -136,7 +479,7 @@ function teamLineHTML(tri){
       );
     }
     // Lastly, try local assets if present
-    urls.push(localSvg, localPng);
+    urls.push(localSvg);
     return urls;
   })();
   return `
@@ -325,23 +668,30 @@ async function loadSchedule() {
     sched = await res.json();
   }
   // Filter out non-NBA exhibition teams that won't have logos/mappings
+  const teamsLoaded = !!(state.teams && Object.keys(state.teams).length >= 20);
   const isKnown = (tri)=> !!state.teams[String(tri||'').toUpperCase()];
-  const filtered = Array.isArray(sched) ? sched.filter(g => isKnown(g.home_tricode) && isKnown(g.away_tricode)) : [];
+  const filtered = Array.isArray(sched)
+    ? (teamsLoaded ? sched.filter(g => isKnown(g.home_tricode) && isKnown(g.away_tricode)) : sched)
+    : [];
   state.schedule = filtered;
   const m = new Map();
   const schedDateSet = new Set();
   for (const g of filtered) {
     // Group by US/Eastern calendar day
-    let dtKey = null;
+    let dtKey = '';
     if (g.datetime_utc) {
-      dtKey = etYMD(g.datetime_utc);
-    } else if (g.date_est) {
+      // Prefer ET conversion from the UTC datetime; if that fails (Intl timezone), fall through.
+      dtKey = etYMD(g.datetime_utc) || '';
+    }
+    if (!dtKey && g.date_est) {
       dtKey = String(g.date_est).slice(0,10);
-    } else if (g.datetime_est) {
+    }
+    if (!dtKey && g.datetime_est) {
       dtKey = String(g.datetime_est).slice(0,10);
-    } else if (g.date_utc) {
-      // Interpret date-only as UTC midnight and convert to ET day
-      dtKey = etYMD(`${g.date_utc}T00:00:00Z`);
+    }
+    if (!dtKey && g.date_utc) {
+      // Interpret date-only as UTC midnight and convert to ET day; if conversion fails, slice.
+      dtKey = etYMD(`${g.date_utc}T00:00:00Z`) || String(g.date_utc).slice(0,10);
     }
     if (!dtKey) continue;
     schedDateSet.add(dtKey);
@@ -388,6 +738,11 @@ async function maybeInjectPinnedDate(dateStr){
     }
     if (list.length){
       state.byDate.set(dateStr, list);
+      // Keep the date selector in sync
+      if (Array.isArray(state.scheduleDates) && !state.scheduleDates.includes(dateStr)) {
+        state.scheduleDates.push(dateStr);
+        state.scheduleDates.sort();
+      }
     }
   }catch(e){ /* ignore */ }
 }
@@ -518,6 +873,153 @@ async function maybeLoadGameCards(dateStr){
         if (obj[k]!==undefined) obj[k] = Number(obj[k]);
       }
       state.gameCardsByKey.set(key, obj);
+    }
+  }catch(_){ /* ignore */ }
+}
+
+// Load quarter/half market lines if available (optional)
+// Tries date-specific file first, then falls back to a synthetic sample file.
+async function maybeLoadPeriodLines(dateStr){
+  try{
+    if (state.periodLinesDate === dateStr && state.periodLinesByKey && state.periodLinesByKey.size) return;
+    state.periodLinesByKey = new Map();
+    state.periodLinesDate = dateStr;
+
+    const candidates = [
+      `/data/processed/period_lines_${dateStr}.csv?v=${Date.now()}`,
+      `/data/processed/period_lines_synthetic.csv?v=${Date.now()}`,
+    ];
+
+    let text = null;
+    for (const path of candidates){
+      try{
+        const res = await fetch(path);
+        if (!res.ok) continue;
+        const t = await res.text();
+        if (t && t.trim()){ text = t; break; }
+      }catch(_){ /* ignore */ }
+    }
+    if (!text) return;
+
+    const rows = parseCSV(text);
+    if (!rows || rows.length < 2) return;
+    const headers = rows[0];
+    const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+    const pick = (names)=>{ for (const n of names){ if (idx[n]!==undefined) return n; } return null; };
+
+    const dateCol = pick(['date']);
+    const hCol = pick(['home_team','home']);
+    const aCol = pick(['visitor_team','away']);
+    if (!dateCol || !hCol || !aCol) return;
+
+    for (let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const d = String(r[idx[dateCol]]||'').slice(0,10);
+      if (!d) continue;
+      // If the file contains multiple dates, keep only the selected date.
+      if (d !== dateStr) continue;
+      const h = r[idx[hCol]]; const a = r[idx[aCol]];
+      if (!h || !a) continue;
+      const home = tricodeFromName(h);
+      const away = tricodeFromName(a);
+      const key = `${dateStr}|${home}|${away}`;
+      const obj = Object.fromEntries(headers.map((hh,j)=>[hh, r[j]]));
+      for (const k of ['h1_total','h2_total','q1_total','q2_total','q3_total','q4_total','h1_spread','h2_spread','q1_spread','q2_spread','q3_spread','q4_spread']){
+        if (obj[k] !== undefined) obj[k] = toNum(obj[k]);
+      }
+      state.periodLinesByKey.set(key, obj);
+    }
+  }catch(_){ /* ignore */ }
+}
+
+// Load per-game simulated quarter scoring (optional) from backend API.
+async function maybeLoadSimQuarters(dateStr){
+  try{
+    if (state.simQuartersDate === dateStr && state.simQuartersByKey && state.simQuartersByKey.size) return;
+    state.simQuartersByKey = new Map();
+    state.simQuartersDate = dateStr;
+    const url = new URL('/api/sim/quarters', window.location.origin);
+    url.searchParams.set('date', dateStr);
+    const res = await fetch(url.toString(), { cache: 'no-store' });
+    if (!res.ok) return;
+    const j = await res.json();
+    const rows = Array.isArray(j?.rows) ? j.rows : [];
+    for (const row of rows){
+      const h = row?.home_team;
+      const a = row?.away_team;
+      if (!h || !a) continue;
+      const home = tricodeFromName(h);
+      const away = tricodeFromName(a);
+      const key = `${dateStr}|${home}|${away}`;
+      state.simQuartersByKey.set(key, row);
+    }
+  }catch(_){ /* ignore */ }
+}
+
+// Load player sim props (means) from processed CSV and group by game.
+async function maybeLoadPropsPredictions(dateStr){
+  try{
+    if (state.propsPredsDate === dateStr && state.propsPredsByGameKey && state.propsPredsByGameKey.size) return;
+    state.propsPredsByGameKey = new Map();
+    state.propsPredsDate = dateStr;
+    const path = `/data/processed/props_predictions_${dateStr}.csv?v=${Date.now()}`;
+    const res = await fetch(path);
+    if (!res.ok) return;
+    const text = await res.text();
+    if (!text || !text.trim()) return;
+    const rows = parseCSV(text);
+    if (!rows || rows.length < 2) return;
+    const headers = rows[0];
+    const idx = Object.fromEntries(headers.map((h,i)=>[h,i]));
+    const pick = (names)=>{ for (const n of names){ if (idx[n]!==undefined) return n; } return null; };
+
+    const playerCol = pick(['player_name','player','name']);
+    const teamCol = pick(['team','team_tricode','player_team']);
+    const oppCol = pick(['opponent','opp','opponent_tricode']);
+    const homeCol = pick(['home','is_home','home_game']);
+    if (!playerCol || !teamCol || !oppCol) return;
+
+    const numCols = new Set([
+      'pred_pts','pred_reb','pred_ast','pred_pra','pred_threes','pred_stl','pred_blk','pred_tov',
+      'pred_min','roll10_min','roll5_min','roll20_min','roll30_min'
+    ]);
+    const boolCols = new Set(['playing_today','team_on_slate','home']);
+
+    const seen = new Set();
+    for (let i=1;i<rows.length;i++){
+      const r = rows[i];
+      const player = String(r[idx[playerCol]]||'').trim();
+      if (!player) continue;
+      const teamRaw = r[idx[teamCol]];
+      const oppRaw = r[idx[oppCol]];
+      if (!teamRaw || !oppRaw) continue;
+
+      const teamTri = tricodeFromName(teamRaw);
+      const oppTri = tricodeFromName(oppRaw);
+      if (!teamTri || !oppTri) continue;
+
+      const isHome = homeCol ? boolFromCell(r[idx[homeCol]]) : null;
+      const homeTri = (isHome === true) ? teamTri : (isHome === false ? oppTri : null);
+      const awayTri = (isHome === true) ? oppTri : (isHome === false ? teamTri : null);
+      if (!homeTri || !awayTri) continue;
+
+      const dedupeKey = `${dateStr}|${homeTri}|${awayTri}|${teamTri}|${player.toLowerCase()}`;
+      if (seen.has(dedupeKey)) continue;
+      seen.add(dedupeKey);
+
+      const obj = Object.fromEntries(headers.map((h,j)=>[h, r[j]]));
+      obj.player_name = player;
+      obj.team = teamTri;
+      obj.opponent = oppTri;
+      obj.home = (isHome === true);
+      for (const k of Object.keys(obj)){
+        if (numCols.has(k)) obj[k] = toNum(obj[k]);
+        if (boolCols.has(k)) obj[k] = boolFromCell(obj[k]);
+      }
+
+      const key = `${dateStr}|${homeTri}|${awayTri}`;
+      if (!state.propsPredsByGameKey.has(key)) state.propsPredsByGameKey.set(key, []);
+      state.propsPredsByGameKey.get(key).push(obj);
     }
   }catch(_){ /* ignore */ }
 }
@@ -817,7 +1319,7 @@ function resultChips(recon){
   return chips.join(' ');
 }
 
-function renderDate(dateStr){
+function renderDateLegacy(dateStr){
   const wrap = document.getElementById('cards');
   if (!wrap) return;
   wrap.innerHTML = '';
@@ -1473,16 +1975,520 @@ function renderDate(dateStr){
     startScoreboardPolling(dateStr);
     startOddsReload(dateStr);
   } catch(_){}
-  // Format all game dates into the user's local timezone similar to NHL
+  // Format times inside legacy cards (if present)
+  try{ formatEtTimesInCards(); }catch(_){ }
+}
+
+// Cards v2 renderer: clean, compact, and compatible with live polling.
+function renderDate(dateStr){
+  const wrap = document.getElementById('cards');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+
+  const isToday = (dateStr === localYMD());
+  let list = state.byDate.get(dateStr) || [];
+
+  // Sort games by commence/start time: prefer odds.commence_time, else schedule timestamps
   try{
-    const nodes = Array.from(document.querySelectorAll('.card .js-local-time'));
-    const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:true });
-    nodes.forEach(node=>{
-      const iso = node.textContent;
-      const d = new Date(iso);
-      if (!isNaN(d)) node.textContent = fmt.format(d) + ' ET';
-    });
-  }catch(_){}
+    const keyTime = (g)=>{
+      const home = g.home_tricode, away = g.away_tricode;
+      const odds = state.oddsByKey.get(`${dateStr}|${home}|${away}`);
+      const ct = odds && odds.commence_time ? new Date(odds.commence_time) : null;
+      if (ct && !isNaN(ct)) return ct.getTime();
+      const iso = g.datetime_utc || g.datetime_est || (g.date_utc?`${g.date_utc}T00:00:00Z`: (g.date_est?`${g.date_est}T00:00:00Z`: null));
+      const d = iso ? new Date(iso) : null;
+      return (d && !isNaN(d)) ? d.getTime() : Number.MAX_SAFE_INTEGER;
+    };
+    list = list.slice().sort((a,b)=> keyTime(a) - keyTime(b));
+  }catch(_){ /* ignore sort errors */ }
+
+  const hideOdds = document.getElementById('hideOdds')?.checked;
+
+  const fmtSigned = (n, digits=1)=>{
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '—';
+    const s = v > 0 ? '+' : '';
+    return s + v.toFixed(digits);
+  };
+
+  const pp = (p, imp)=>{
+    const a = Number(p), b = Number(imp);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) return null;
+    return (a - b) * 100;
+  };
+
+  const tile = (title, main, meta)=>{
+    const m = main || '—';
+    const sub = meta || '';
+    return `
+      <div class="market-tile">
+        <div class="market-title">${title}</div>
+        <div class="market-main">${m}</div>
+        ${sub?`<div class="subtle">${sub}</div>`:''}
+      </div>`;
+  };
+
+  try{
+  for (const g of list){
+    const away = String(g.away_tricode||'').toUpperCase();
+    const home = String(g.home_tricode||'').toUpperCase();
+    const key = `${dateStr}|${home}|${away}`;
+
+    const odds = state.oddsByKey.get(key);
+    const predBase = state.predsByKey.get(key) || null;
+    const gc = state.gameCardsByKey.get(key) || null;
+    const pl = state.periodLinesByKey ? (state.periodLinesByKey.get(key) || null) : null;
+
+    const sim = state.simQuartersByKey ? (state.simQuartersByKey.get(key) || null) : null;
+    const simSummary = sim && sim.summary ? sim.summary : null;
+    const simQuarters = sim && Array.isArray(sim.quarters) ? sim.quarters : [];
+    const props = state.propsPredsByGameKey ? (state.propsPredsByGameKey.get(key) || []) : [];
+
+    const predMargin = (gc && gc.pred_margin!=null) ? toNum(gc.pred_margin) : (predBase ? toNum(predBase.pred_margin) : null);
+    const predTotal  = (gc && gc.pred_total!=null)  ? toNum(gc.pred_total)  : (predBase ? toNum(predBase.pred_total)  : null);
+    const pHomeRaw   = (gc && gc.home_win_prob!=null) ? toNum(gc.home_win_prob) : (predBase ? toNum(predBase.home_win_prob) : null);
+
+    // Diagnostics (if present in predictions)
+    const pHomeModelOnly = predBase ? toNum(predBase.home_win_prob_raw) : null;
+    const pHomeFromSpread = predBase ? toNum(predBase.home_win_prob_from_spread) : null;
+    const pHomeIso = predBase ? toNum(predBase.home_win_prob_iso) : null;
+
+    const pHomeCal = (pHomeRaw!=null) ? calibrateGamesProb(pHomeRaw) : null;
+    const pAwayCal = (pHomeCal!=null) ? (1 - pHomeCal) : null;
+
+    // Model score projection (team points) from (total, margin)
+    const homeModelPts = (predTotal!=null && predMargin!=null) ? (Number(predTotal) + Number(predMargin)) / 2 : null;
+    const awayModelPts = (predTotal!=null && predMargin!=null) ? (Number(predTotal) - Number(predMargin)) / 2 : null;
+
+    const simPts = pointsFromTotalMargin(simSummary?.final_total_mu, simSummary?.final_margin_mu);
+    const homeSimPts = simPts.home;
+    const awaySimPts = simPts.away;
+    const homeBlendPts = (homeModelPts!=null && homeSimPts!=null)
+      ? (SCORE_BLEND_ALPHA*homeModelPts + (1-SCORE_BLEND_ALPHA)*homeSimPts)
+      : (homeModelPts!=null ? homeModelPts : (homeSimPts!=null ? homeSimPts : null));
+    const awayBlendPts = (awayModelPts!=null && awaySimPts!=null)
+      ? (SCORE_BLEND_ALPHA*awayModelPts + (1-SCORE_BLEND_ALPHA)*awaySimPts)
+      : (awayModelPts!=null ? awayModelPts : (awaySimPts!=null ? awaySimPts : null));
+
+    // Time / venue
+    const dtIso = (odds && odds.commence_time) ? odds.commence_time : (g.datetime_utc || g.datetime_est || null);
+    const when = dtIso ? fmtLocalTime(dtIso) : '';
+    const venueBits = [];
+    if (g.arena_name) venueBits.push(g.arena_name);
+    if (g.arena_city) venueBits.push(g.arena_city);
+    if (g.arena_state) venueBits.push(g.arena_state);
+    const venue = venueBits.length ? venueBits.join(', ') : '';
+
+    // Scores/status seed (polling will update for today)
+    const recon = state.reconByKey.get(key) || null;
+    const actualHome = recon && recon.home_pts!=null ? Number(recon.home_pts) : null;
+    const actualAway = recon && recon.visitor_pts!=null ? Number(recon.visitor_pts) : null;
+    const isFinal = (!isToday && actualHome!=null && actualAway!=null);
+    const seedStatus = isFinal ? 'Final' : 'Scheduled';
+
+    // Market tiles (pick best side by EV)
+    const candEvs = [];
+
+    // ML
+    let mlMain = '—';
+    let mlMeta = '';
+    try{
+      if (odds && pHomeCal!=null && odds.home_ml!=null && odds.away_ml!=null){
+        const hML = Number(odds.home_ml);
+        const aML = Number(odds.away_ml);
+        const evH = evFromProbAndAmerican(pHomeCal, hML);
+        const evA = evFromProbAndAmerican(pAwayCal, aML);
+        const hImp = impliedProbAmerican(hML);
+        const aImp = impliedProbAmerican(aML);
+
+        const bestHome = (evH??-Infinity) >= (evA??-Infinity);
+        const pickTeam = bestHome ? home : away;
+        const pickOdds = bestHome ? hML : aML;
+        const pickP = bestHome ? pHomeCal : pAwayCal;
+        const pickImp = bestHome ? hImp : aImp;
+        const pickEv = bestHome ? evH : evA;
+        const edge = pp(pickP, pickImp);
+        if (pickEv!=null) candEvs.push(pickEv);
+
+        mlMain = `${pickTeam}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`;
+        const evTxt = (pickEv!=null) ? `EV ${(pickEv>0?'+':'')}${(pickEv*100).toFixed(1)}%` : 'EV —';
+        const pTxt = (pickP!=null) ? `P ${fmtPct(pickP,1)}` : 'P —';
+        const impTxt = (pickImp!=null) ? `Imp ${fmtPct(pickImp,1)}` : 'Imp —';
+        const edgeTxt = (edge!=null) ? `Edge ${(edge>0?'+':'')}${edge.toFixed(1)}pp` : 'Edge —';
+        mlMeta = [evTxt, pTxt, impTxt, edgeTxt].join(' · ');
+      }
+    }catch(_){ /* ignore */ }
+
+    // ATS
+    let atsMain = '—';
+    let atsMeta = '';
+    try{
+      if (odds && predMargin!=null && odds.home_spread!=null){
+        const sigmaMargin = 12.0;
+        const sprHome = Number(odds.home_spread);
+        const sprAway = (odds.away_spread!=null) ? Number(odds.away_spread) : (Number.isFinite(sprHome)? -sprHome : null);
+        const zHome = (sprHome - predMargin) / sigmaMargin;
+        const pHomeCover = 1 - normCdf(zHome);
+        const pAwayCover = 1 - pHomeCover;
+        const priceHome = (odds.home_spread_price!=null && odds.home_spread_price!=='') ? Number(odds.home_spread_price) : -110;
+        const priceAway = (odds.away_spread_price!=null && odds.away_spread_price!=='') ? Number(odds.away_spread_price) : -110;
+        const evH = evFromProbAndAmerican(pHomeCover, priceHome);
+        const evA = evFromProbAndAmerican(pAwayCover, priceAway);
+        const impH = impliedProbAmerican(priceHome);
+        const impA = impliedProbAmerican(priceAway);
+
+        const bestHome = (evH??-Infinity) >= (evA??-Infinity);
+        const pickTeam = bestHome ? home : away;
+        const pickLine = bestHome ? sprHome : sprAway;
+        const pickOdds = bestHome ? priceHome : priceAway;
+        const pickP = bestHome ? pHomeCover : pAwayCover;
+        const pickImp = bestHome ? impH : impA;
+        const pickEv = bestHome ? evH : evA;
+        const edge = pp(pickP, pickImp);
+        if (pickEv!=null) candEvs.push(pickEv);
+
+        const lineTxt = Number.isFinite(pickLine) ? `${pickLine>0?'+':''}${pickLine.toFixed(1)}` : '';
+        atsMain = `${pickTeam} ${lineTxt}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`.trim();
+        const evTxt = (pickEv!=null) ? `EV ${(pickEv>0?'+':'')}${(pickEv*100).toFixed(1)}%` : 'EV —';
+        const pTxt = (pickP!=null) ? `P ${fmtPct(pickP,1)}` : 'P —';
+        const impTxt = (pickImp!=null) ? `Imp ${fmtPct(pickImp,1)}` : 'Imp —';
+        const edgeTxt = (edge!=null) ? `Edge ${(edge>0?'+':'')}${edge.toFixed(1)}pp` : 'Edge —';
+        const mTxt = (predMargin!=null) ? `Model M ${fmtSigned(predMargin,1)}` : '';
+        atsMeta = [evTxt, pTxt, impTxt, edgeTxt, mTxt].filter(Boolean).join(' · ');
+      }
+    }catch(_){ /* ignore */ }
+
+    // TOTAL
+    let totMain = '—';
+    let totMeta = '';
+    try{
+      if (odds && predTotal!=null && odds.total!=null){
+        const sigmaTotal = 20.0;
+        const tot = Number(odds.total);
+        const zOver = (tot - predTotal) / sigmaTotal;
+        const pOver = 1 - normCdf(zOver);
+        const pUnder = 1 - pOver;
+        const priceOver = (odds.total_over_price!=null && odds.total_over_price!=='') ? Number(odds.total_over_price) : -110;
+        const priceUnder = (odds.total_under_price!=null && odds.total_under_price!=='') ? Number(odds.total_under_price) : -110;
+        const evO = evFromProbAndAmerican(pOver, priceOver);
+        const evU = evFromProbAndAmerican(pUnder, priceUnder);
+        const impO = impliedProbAmerican(priceOver);
+        const impU = impliedProbAmerican(priceUnder);
+
+        const bestOver = (evO??-Infinity) >= (evU??-Infinity);
+        const pickSide = bestOver ? 'Over' : 'Under';
+        const pickOdds = bestOver ? priceOver : priceUnder;
+        const pickP = bestOver ? pOver : pUnder;
+        const pickImp = bestOver ? impO : impU;
+        const pickEv = bestOver ? evO : evU;
+        const edge = pp(pickP, pickImp);
+        if (pickEv!=null) candEvs.push(pickEv);
+
+        const totTxt = Number.isFinite(tot) ? tot.toFixed(1) : '';
+        totMain = `${pickSide} ${totTxt}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`.trim();
+        const evTxt = (pickEv!=null) ? `EV ${(pickEv>0?'+':'')}${(pickEv*100).toFixed(1)}%` : 'EV —';
+        const pTxt = (pickP!=null) ? `P ${fmtPct(pickP,1)}` : 'P —';
+        const impTxt = (pickImp!=null) ? `Imp ${fmtPct(pickImp,1)}` : 'Imp —';
+        const edgeTxt = (edge!=null) ? `Edge ${(edge>0?'+':'')}${edge.toFixed(1)}pp` : 'Edge —';
+        const tTxt = (predTotal!=null) ? `Model T ${Number(predTotal).toFixed(1)}` : '';
+        totMeta = [evTxt, pTxt, impTxt, edgeTxt, tTxt].filter(Boolean).join(' · ');
+      }
+    }catch(_){ /* ignore */ }
+
+    const bestEv = candEvs.length ? candEvs.slice().sort((a,b)=>b-a)[0] : null;
+    const tier = tierFromEv(bestEv);
+
+    const pickNum = (...vals)=>{
+      for (const v of vals){
+        const n = toNum(v);
+        if (n!=null) return n;
+      }
+      return null;
+    };
+
+    // Explicit market lines (not EV tiles)
+    const mHomeMl = pickNum(odds?.home_ml, predBase?.home_ml);
+    const mAwayMl = pickNum(odds?.away_ml, predBase?.away_ml);
+    const mHomeSpr = pickNum(odds?.home_spread, predBase?.home_spread);
+    const mAwaySpr = pickNum(odds?.away_spread, predBase?.away_spread);
+    const mTot = pickNum(odds?.total, predBase?.total);
+    const mBook = String(odds?.bookmaker || predBase?.bookmaker || '').trim();
+    const marketLine = (()=>{
+      const parts = [];
+      if (mHomeMl!=null && mAwayMl!=null) parts.push(`ML ${away} ${fmtOddsAmerican(mAwayMl)} / ${home} ${fmtOddsAmerican(mHomeMl)}`);
+      if (mHomeSpr!=null && mAwaySpr!=null) parts.push(`Spread ${away} ${fmtSigned(mAwaySpr,1)} / ${home} ${fmtSigned(mHomeSpr,1)}`);
+      if (mTot!=null) parts.push(`Total ${Number(mTot).toFixed(1)}`);
+      const tail = (mBook && mBook.toLowerCase() !== 'nan') ? ` @ ${mBook.toUpperCase()}` : '';
+      return parts.length ? `Market: ${parts.join(' · ')}${tail}` : '';
+    })();
+
+    const modelScoreLine = (homeModelPts!=null && awayModelPts!=null)
+      ? `Model score: ${away} ${fmtNum(awayModelPts,1)} – ${home} ${fmtNum(homeModelPts,1)}`
+      : '';
+
+    const simScoreLine = (homeSimPts!=null && awaySimPts!=null)
+      ? `Sim score: ${away} ${fmtNum(awaySimPts,1)} – ${home} ${fmtNum(homeSimPts,1)}`
+      : '';
+
+    const scoreBlendLine = (homeBlendPts!=null && awayBlendPts!=null)
+      ? `Model/Sim blend score: ${away} ${fmtNum(awayBlendPts,1)} – ${home} ${fmtNum(homeBlendPts,1)} (α=${SCORE_BLEND_ALPHA.toFixed(2)})`
+      : '';
+
+    const blendLine = (()=>{
+      const parts = [];
+      if (pHomeModelOnly!=null) parts.push(`Model ${fmtPct(pHomeModelOnly,1)}`);
+      if (pHomeFromSpread!=null) parts.push(`From spread ${fmtPct(pHomeFromSpread,1)}`);
+      if (pHomeRaw!=null) parts.push(`Blend ${fmtPct(pHomeRaw,1)}`);
+      if (pHomeIso!=null) parts.push(`Sim/iso ${fmtPct(pHomeIso,1)}`);
+      if (pHomeCal!=null) parts.push(`Cal ${fmtPct(pHomeCal,1)}`);
+      return parts.length ? `Win prob blend: ${parts.join(' · ')}` : '';
+    })();
+
+    let quartersHtml = '';
+    try{
+      const hasQModel = !!(predBase && (predBase.quarters_q1_total!=null || predBase['quarters_q1_total']!=null));
+      const hasQSim = !!(simQuarters && simQuarters.length);
+      if (hasQModel || hasQSim){
+        const cardId = `q-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
+
+        const getModelQuarterPts = (i)=>{
+          if (!predBase) return { home: null, away: null };
+          const qTot = toNum(predBase[`quarters_q${i}_total`]);
+          const qMar = toNum(predBase[`quarters_q${i}_margin`]);
+          if (qTot==null || qMar==null) return { home: null, away: null };
+          return { home: 0.5*(qTot + qMar), away: 0.5*(qTot - qMar) };
+        };
+        const getSimQuarterPts = (i)=>{
+          const row = (simQuarters || []).find(q => Number(q?.q) === Number(i));
+          return { home: toNum(row?.home_pts_mu), away: toNum(row?.away_pts_mu) };
+        };
+        const blendQuarterPts = (m, s)=>{
+          const hb = (m.home!=null && s.home!=null) ? (SCORE_BLEND_ALPHA*m.home + (1-SCORE_BLEND_ALPHA)*s.home) : (m.home!=null?m.home:s.home);
+          const ab = (m.away!=null && s.away!=null) ? (SCORE_BLEND_ALPHA*m.away + (1-SCORE_BLEND_ALPHA)*s.away) : (m.away!=null?m.away:s.away);
+          return { home: hb, away: ab };
+        };
+        const sum = (...vals)=>{
+          const xs = vals.map(Number).filter(Number.isFinite);
+          return xs.length ? xs.reduce((p,q)=>p+q,0) : null;
+        };
+        const marketQ = (i)=>{
+          const tot = pl ? toNum(pl[`q${i}_total`]) : null;
+          const spr = pl ? toNum(pl[`q${i}_spread`]) : null;
+          if (tot==null && spr==null) return `Q${i} —`;
+          const bits = [];
+          if (tot!=null) bits.push(`Tot ${fmtNum(tot,1)}`);
+          if (spr!=null) bits.push(`${home} ${fmtSigned(spr,2)}`);
+          return `Q${i} ${bits.join(' · ')}`;
+        };
+
+        const q1m = getModelQuarterPts(1), q2m = getModelQuarterPts(2), q3m = getModelQuarterPts(3), q4m = getModelQuarterPts(4);
+        const q1s = getSimQuarterPts(1),   q2s = getSimQuarterPts(2),   q3s = getSimQuarterPts(3),   q4s = getSimQuarterPts(4);
+        const q1b = blendQuarterPts(q1m,q1s), q2b = blendQuarterPts(q2m,q2s), q3b = blendQuarterPts(q3m,q3s), q4b = blendQuarterPts(q4m,q4s);
+
+        const awayBlendTotal = sum(q1b.away, q2b.away, q3b.away, q4b.away);
+        const homeBlendTotal = sum(q1b.home, q2b.home, q3b.home, q4b.home);
+        const awayModelTotalQ = sum(q1m.away, q2m.away, q3m.away, q4m.away);
+        const homeModelTotalQ = sum(q1m.home, q2m.home, q3m.home, q4m.home);
+        const awaySimTotalQ = sum(q1s.away, q2s.away, q3s.away, q4s.away);
+        const homeSimTotalQ = sum(q1s.home, q2s.home, q3s.home, q4s.home);
+
+        const makeTeamPlayersTable = (teamTri)=>{
+          let rows = (props || []).filter(p => String(p.team||'').toUpperCase() === teamTri);
+          if (!rows.length) return '';
+          // Prefer players explicitly marked as playing today (if present)
+          try{
+            const anyHasPlaying = rows.some(p => p.playing_today !== undefined && p.playing_today !== null);
+            if (anyHasPlaying) rows = rows.filter(p => p.playing_today !== false);
+          }catch(_){ /* ignore */ }
+
+          const minFrom = (p)=> toNum(p.pred_min) ?? toNum(p.roll10_min) ?? toNum(p.roll5_min) ?? toNum(p.roll20_min) ?? toNum(p.roll30_min) ?? null;
+          const sorted = rows.slice().sort((a,b)=> (minFrom(b)||0) - (minFrom(a)||0));
+          const tr = (p)=>{
+            const minV = minFrom(p);
+            return `
+              <tr>
+                <td style="font-weight:700;">${String(p.player_name||'').trim()}</td>
+                <td class="num">${minV!=null?fmtNum(minV,1):'—'}</td>
+                <td class="num">${fmtNum(p.pred_pts,1)}</td>
+                <td class="num">${fmtNum(p.pred_reb,1)}</td>
+                <td class="num">${fmtNum(p.pred_ast,1)}</td>
+                <td class="num">${fmtNum(p.pred_threes,1)}</td>
+                <td class="num">${fmtNum(p.pred_pra,1)}</td>
+                <td class="num">${fmtNum(p.pred_stl,1)}</td>
+                <td class="num">${fmtNum(p.pred_blk,1)}</td>
+                <td class="num">${fmtNum(p.pred_tov,1)}</td>
+              </tr>`;
+          };
+          const starters = sorted.slice(0, 5);
+          const bench = sorted.slice(5);
+          return `
+            <div class="table-wrap">
+              <table class="data-table boxscore-table player-boxscore">
+                <thead>
+                  <tr>
+                    <th>${teamTri} Players</th>
+                    <th class="num">MIN</th>
+                    <th class="num">PTS</th>
+                    <th class="num">REB</th>
+                    <th class="num">AST</th>
+                    <th class="num">3PM</th>
+                    <th class="num">PRA</th>
+                    <th class="num">STL</th>
+                    <th class="num">BLK</th>
+                    <th class="num">TOV</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${starters.length ? `<tr class="section-row"><td colspan="10">Starters</td></tr>` : ''}
+                  ${starters.map(tr).join('')}
+                  ${bench.length ? `<tr class="section-row"><td colspan="10">Bench</td></tr>` : ''}
+                  ${bench.map(tr).join('')}
+                </tbody>
+              </table>
+            </div>`;
+        };
+
+        const playersId = `p-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
+        // Note: hide the projections-style player "box score" here to avoid showing two box scores
+        // that don't match (connected sim vs. model means). The connected box score lives under Write-up.
+        const playersHtml = '';
+
+        quartersHtml = `
+          <div class="quarters-block">
+            <div class="quarters-toggle cursor-pointer fw-600" onclick="toggleQuarters('${cardId}')">▼ Quarters</div>
+            <div id="${cardId}" class="quarters-content" style="display:block;">
+              <div class="table-wrap">
+                <table class="data-table boxscore-table">
+                  <thead>
+                    <tr>
+                      <th>Team</th>
+                      <th class="num">Q1</th>
+                      <th class="num">Q2</th>
+                      <th class="num">Q3</th>
+                      <th class="num">Q4</th>
+                      <th class="num">T</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:800;">${away}</td>
+                      <td class="num">${fmtNum(q1b.away,1)}</td>
+                      <td class="num">${fmtNum(q2b.away,1)}</td>
+                      <td class="num">${fmtNum(q3b.away,1)}</td>
+                      <td class="num">${fmtNum(q4b.away,1)}</td>
+                      <td class="num" style="font-weight:900;">${fmtNum(awayBlendTotal,1)}</td>
+                    </tr>
+                    <tr>
+                      <td style="font-weight:800;">${home}</td>
+                      <td class="num">${fmtNum(q1b.home,1)}</td>
+                      <td class="num">${fmtNum(q2b.home,1)}</td>
+                      <td class="num">${fmtNum(q3b.home,1)}</td>
+                      <td class="num">${fmtNum(q4b.home,1)}</td>
+                      <td class="num" style="font-weight:900;">${fmtNum(homeBlendTotal,1)}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="subtle boxscore-sub">
+                <div>Blend = ${Math.round(SCORE_BLEND_ALPHA*100)}% Model + ${Math.round((1-SCORE_BLEND_ALPHA)*100)}% Sim</div>
+                ${(awayModelTotalQ!=null && homeModelTotalQ!=null) ? `<div>Model totals (Q-sum): ${away} ${fmtNum(awayModelTotalQ,1)} · ${home} ${fmtNum(homeModelTotalQ,1)}</div>` : ''}
+                ${(awaySimTotalQ!=null && homeSimTotalQ!=null) ? `<div>Sim totals (Q-sum): ${away} ${fmtNum(awaySimTotalQ,1)} · ${home} ${fmtNum(homeSimTotalQ,1)}</div>` : ''}
+                ${pl ? `<div>Quarter markets: ${[1,2,3,4].map(marketQ).join(' · ')}</div>` : ''}
+              </div>
+
+              ${playersHtml}
+            </div>
+          </div>`;
+      }
+    }catch(_){ /* ignore */ }
+
+    const writeupId = `w-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
+    const writeupHtml = `
+      <div class="writeup-block">
+        <div class="writeup-toggle cursor-pointer fw-600" onclick="toggleWriteup('${writeupId}','${dateStr}','${home}','${away}')">▶ Write-up</div>
+        <div id="${writeupId}" class="writeup-content" style="display:none;"></div>
+      </div>`;
+
+    const node = document.createElement('div');
+    node.className = 'card card-v2';
+    node.setAttribute('data-home-abbr', home);
+    node.setAttribute('data-away-abbr', away);
+    node.setAttribute('data-status', isFinal ? 'final' : 'live');
+
+    const book = (odds && odds.bookmaker) ? String(odds.bookmaker) : '';
+    const bookTxt = book ? ` · ${book}` : '';
+
+    node.innerHTML = `
+      <div class="row head">
+        <div class="matchup">
+          <div class="team-line away">
+            ${teamLineHTML(away)}
+            <div class="score js-live-away">${(actualAway!=null && !isNaN(actualAway))?actualAway:'—'}</div>
+          </div>
+          <div class="team-line home">
+            ${teamLineHTML(home)}
+            <div class="score js-live-home">${(actualHome!=null && !isNaN(actualHome))?actualHome:'—'}</div>
+          </div>
+        </div>
+        <div class="meta">
+          <div class="state js-live-status">${seedStatus}</div>
+          <div class="subtle"><span class="js-live-period"></span> <span class="js-live-tleft"></span></div>
+          <div class="subtle">${when}${venue?` · ${venue}`:''}${bookTxt}</div>
+        </div>
+        <div class="tier-badge">Tier ${tier}</div>
+      </div>
+
+      <div class="model-strip">
+        <div class="kv"><div class="k">Home WP (cal)</div><div class="v">${fmtPct(pHomeCal,1)}</div></div>
+        <div class="kv"><div class="k">Away WP (cal)</div><div class="v">${fmtPct(pAwayCal,1)}</div></div>
+        <div class="kv"><div class="k">Model Margin</div><div class="v">${predMargin!=null?fmtSigned(predMargin,1):'—'}</div></div>
+        <div class="kv"><div class="k">Model Total</div><div class="v">${predTotal!=null?Number(predTotal).toFixed(1):'—'}</div></div>
+      </div>
+
+      ${(marketLine || modelScoreLine || simScoreLine || scoreBlendLine || blendLine) ? `
+        <div class="details-block">
+          ${marketLine?`<div class="subtle">${marketLine}</div>`:''}
+          ${modelScoreLine?`<div class="subtle">${modelScoreLine}</div>`:''}
+          ${simScoreLine?`<div class="subtle">${simScoreLine}</div>`:''}
+          ${scoreBlendLine?`<div class="subtle">${scoreBlendLine}</div>`:''}
+          ${blendLine?`<div class="subtle">${blendLine}</div>`:''}
+        </div>
+      `:''}
+
+      <div class="market-grid">
+        ${tile('ML', mlMain, mlMeta)}
+        ${tile('ATS', atsMain, atsMeta)}
+        ${tile('TOTAL', totMain, totMeta)}
+      </div>
+
+      ${quartersHtml}
+      ${writeupHtml}
+    `;
+
+    wrap.appendChild(node);
+  }
+  }catch(e){
+    try{
+      console.error('renderDate error', e);
+      setDebugLine(`Debug: renderDate failed (${dateStr}) ${(e && e.message) ? e.message : e}`);
+      const note = document.getElementById('note');
+      if (note){
+        note.textContent = 'Render error (see debug line / console).';
+        note.classList.remove('hidden');
+      }
+    }catch(_){ /* ignore */ }
+  }
+
+  // Start or refresh live polling for this date
+  try {
+    startScoreboardPolling(dateStr);
+    startOddsReload(dateStr);
+  } catch(_){ }
+
+  // Legacy time formatter is a no-op for v2, but harmless.
+  try{ formatEtTimesInCards(); }catch(_){ }
+}
 
 // --- Live polling (scoreboard) ---
 async function pollScoreboardOnce(dateStr){
@@ -1532,15 +2538,15 @@ async function pollScoreboardOnce(dateStr){
       const g = map.get(key);
       if (!g) continue;
       // Update status
-      const stateEl = c.querySelector('.row.head .state');
+      const stateEl = c.querySelector('.js-live-status') || c.querySelector('.row.head .state');
       if (stateEl && g.status){
         const up = String(g.status);
         stateEl.textContent = up;
         const crit = /End|Final|FINAL|OT/i.test(up) ? false : /Q4|4th/i.test(up);
         if (crit) stateEl.classList.add('crit'); else stateEl.classList.remove('crit');
         // Parse into period/time-left
-        const perEl = c.querySelector('.row.head .period-pill');
-        const tEl = c.querySelector('.row.head .time-left');
+        const perEl = c.querySelector('.js-live-period') || c.querySelector('.row.head .period-pill');
+        const tEl = c.querySelector('.js-live-tleft') || c.querySelector('.row.head .time-left');
         if (perEl && tEl){
           let period = '';
           let tleft = '';
@@ -1566,7 +2572,7 @@ async function pollScoreboardOnce(dateStr){
       // Update final badge and card class if now final (but not for today's date)
       if (!isToday && g.final){
         c.setAttribute('data-status','final');
-        if (!/final/i.test(c.querySelector('.row.head .state')?.textContent||'')) {
+        if (!/final/i.test(stateEl?.textContent||'')) {
           anyFinalized = true;
         }
         // Inject into recon map so results/accuracy can render without waiting for CSV
@@ -1730,7 +2736,6 @@ function startOddsReload(dateStr){
     state.poll.oddsTimer = setInterval(()=> reloadOddsIfChanged(dateStr), 60000);
   }catch(_){/* ignore */}
 }
-}
 
 function setupControls(){
   const picker = document.getElementById('datePicker');
@@ -1740,6 +2745,19 @@ function setupControls(){
   const dates = Array.from(state.byDate.keys()).sort();
   const sched = Array.isArray(state.scheduleDates) ? state.scheduleDates : dates;
   const today = localYMD();
+  if (!picker){
+    setDebugLine('Debug: missing #datePicker element');
+    return;
+  }
+  if (!dates.length){
+    setDebugLine(`Debug: schedule not loaded (byDate.size=${state.byDate ? state.byDate.size : 'n/a'}, schedule.len=${Array.isArray(state.schedule)?state.schedule.length:0})`);
+    const note = document.getElementById('note');
+    if (note){
+      note.textContent = 'Schedule not loaded yet; cannot render game cards.';
+      note.classList.remove('hidden');
+    }
+    return;
+  }
   picker.min = dates[0]; picker.max = dates[dates.length-1];
   // Default to the nearest scheduled date to 'today'
   const nearestScheduled = (target)=>{
@@ -1770,6 +2788,7 @@ function setupControls(){
   const paramDate = getQueryParam('date');
   const defaultDate = (paramDate || nearestScheduled(today) || (dates.includes(PIN_DATE) ? PIN_DATE : dates[0]));
   picker.value = defaultDate;
+  setDebugLine(`Debug: init selected=${defaultDate} byDate.size=${state.byDate.size} schedule.len=${Array.isArray(state.schedule)?state.schedule.length:0}`);
   // Mirror NHL UX: default "Show results" to ON for past dates on initial load
   try {
     const resToggleInit = document.getElementById('resultsToggle');
@@ -1780,6 +2799,8 @@ function setupControls(){
   } catch(_) { /* ignore */ }
   const go = async ()=>{
     let d = picker.value;
+    const preCount = (state.byDate.get(d) || []).length;
+    setDebugLine(`Debug: go() selected=${d} preGames=${preCount} byDate.size=${state.byDate.size}`);
     // In static mode allow any requested date; if strict, snap to nearest scheduled
     if (STRICT_SCHEDULE_DATES) {
       const hasGames = (state.byDate.get(d) || []).length > 0;
@@ -1802,11 +2823,29 @@ function setupControls(){
     }
     await maybeLoadPredictions(d);
     await maybeLoadOdds(d);
-  await maybeLoadGameCards(d);
+    await maybeLoadGameCards(d);
+    await maybeLoadPeriodLines(d);
+    await maybeLoadGamesCalibration();
     await maybeLoadFirstBasketRecs(d);
     await maybeLoadPropsEdges(d);
     await maybeLoadRecon(d);
     renderDate(d);
+
+    // Load heavier optional datasets asynchronously and re-render when ready.
+    try{
+      const requested = d;
+      const stillOnDate = ()=>{
+        const pickerNow = document.getElementById('datePicker');
+        return !pickerNow || pickerNow.value === requested;
+      };
+      maybeLoadSimQuarters(requested).then(()=>{ if (stillOnDate()) renderDate(requested); }).catch(()=>{});
+      maybeLoadPropsPredictions(requested).then(()=>{ if (stillOnDate()) renderDate(requested); }).catch(()=>{});
+    }catch(_){ /* ignore */ }
+    try{
+      const postCount = (state.byDate.get(d) || []).length;
+      const hasKey = state.byDate.has(d);
+      setDebugLine(`Debug: rendered=${d} games=${postCount} hasKey=${hasKey?1:0} byDate.size=${state.byDate.size} schedule.len=${Array.isArray(state.schedule)?state.schedule.length:0}`);
+    }catch(_){ /* ignore */ }
     // Also refresh the YTD summary through the selected date, if the host page exposes it
     try{
       if (typeof window.updateYtdSummary === 'function'){
@@ -1866,6 +2905,11 @@ function setupControls(){
 }
 
 (async function init(){
+  try{
+    // Make renderers accessible even if bundling/scoping changes later.
+    window.renderDate = renderDate;
+    window.renderDateLegacy = renderDateLegacy;
+  }catch(_){ /* ignore */ }
   await loadTeams();
   await loadSchedule();
   // Ensure the pinned date is available in the selector by seeding from predictions if needed

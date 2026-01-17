@@ -66,6 +66,7 @@ $allowedPrefixes = @(
     "market_",
     "odds_",
     "game_odds_",
+    "period_lines_",
     "game_cards_",
     # Frontend-consumed season/game predictions snapshot
     "games_predictions_npu_",

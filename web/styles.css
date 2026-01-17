@@ -116,6 +116,40 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .badge.bad { background: #3a1212; border-color: #7a1e1e; color: #ffb7b7; }
 .subtle { color: #9fb0ff; font-size: 12px; opacity: 0.95; }
 
+/* Game cards v2 */
+.card.card-v2 { gap: 12px; }
+.tier-badge { margin-left: auto; background: #0f1530; border: 1px solid #25316a; color: #d5dbff; padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 11px; }
+.model-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; background: #0f1530; border: 1px solid #25316a; border-radius: 10px; padding: 10px; }
+.kv { display: flex; justify-content: space-between; gap: 10px; }
+.kv .k { color: #9fb0ff; font-size: 12px; }
+.kv .v { color: #e8eaf6; font-weight: 800; font-size: 12px; }
+.market-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.market-tile { background: #0f1530; border: 1px solid #25316a; border-radius: 12px; padding: 10px; display: grid; gap: 6px; }
+.market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
+.market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
+
+.details-block { display: grid; gap: 4px; margin-top: -2px; }
+.quarters-block { display: grid; gap: 8px; }
+.quarters-toggle { color: #cfe0ff; -webkit-user-select: none; user-select: none; }
+
+.boxscore-table th.num, .boxscore-table td.num { text-align: right; white-space: nowrap; }
+.boxscore-sub { margin-top: 6px; display: grid; gap: 2px; }
+.players-block { display: grid; gap: 8px; margin-top: 8px; }
+.players-toggle { color: #cfe0ff; -webkit-user-select: none; user-select: none; }
+.player-boxscore th:first-child, .player-boxscore td:first-child { min-width: 160px; }
+
+.player-boxscore .section-row td { background: #141b3a; color: #d5dbff; font-weight: 900; letter-spacing: 0.3px; }
+
+.writeup-block { display: grid; gap: 8px; margin-top: 10px; }
+.writeup-toggle { color: #cfe0ff; -webkit-user-select: none; user-select: none; }
+.writeup-content { background: #0f1530; border: 1px solid #25316a; border-radius: 10px; padding: 10px; }
+.writeup-recap { color: #e8eaf6; font-size: 13px; line-height: 1.35; }
+
+@media (max-width: 1000px) {
+	.model-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.market-grid { grid-template-columns: 1fr; }
+}
+
 /* Utility */
 .hidden { display: none !important; }
 .fw-600 { font-weight: 600; }

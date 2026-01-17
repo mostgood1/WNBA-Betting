@@ -325,6 +325,248 @@ def _extract_markets(ev: dict, *, home_norm: str | None = None, away_norm: str |
     return out
 
 
+def _period_key(period_desc: str) -> str | None:
+    pd = (period_desc or "").strip().lower()
+    if not pd:
+        return None
+    # Normalize common Bovada descriptors
+    if any(k in pd for k in ["1st half", "first half", "1h", "h1", "1sthalf"]):
+        return "h1"
+    if any(k in pd for k in ["2nd half", "second half", "2h", "h2", "2ndhalf"]):
+        return "h2"
+    if any(k in pd for k in ["1st quarter", "first quarter", "q1", "1q", "quarter 1"]):
+        return "q1"
+    if any(k in pd for k in ["2nd quarter", "second quarter", "q2", "2q", "quarter 2"]):
+        return "q2"
+    if any(k in pd for k in ["3rd quarter", "third quarter", "q3", "3q", "quarter 3"]):
+        return "q3"
+    if any(k in pd for k in ["4th quarter", "fourth quarter", "q4", "4q", "quarter 4"]):
+        return "q4"
+    return None
+
+
+def _extract_period_markets(ev: dict, *, home_norm: str | None = None, away_norm: str | None = None) -> dict:
+    """Extract half/quarter spread + total lines from Bovada event JSON.
+
+    Returns dict with keys like q1_total, q1_spread, h1_total, h1_spread (and optional price fields).
+    Spread is the HOME handicap (negative if home favored).
+    """
+    out: dict[str, Any] = {}
+
+    def _to_american(val) -> int | None:
+        try:
+            s = str(val)
+            if s.startswith("+"):
+                s = s[1:]
+            return int(s)
+        except Exception:
+            return None
+
+    def _dg_priority(desc: str) -> int:
+        d = (desc or "").lower()
+        if any(k in d for k in ["quarter", "half", "period", "game lines", "main"]):
+            return 0
+        return 1
+
+    # Track best picks by period for totals/spreads
+    best_total: dict[str, dict[str, Any]] = {}
+    best_spread: dict[str, dict[str, Any]] = {}
+
+    dgs = ev.get("displayGroups", []) or []
+    for dg in dgs:
+        dg_desc = str(dg.get("description") or dg.get("name") or "")
+        prio = _dg_priority(dg_desc)
+        for m in dg.get("markets", []) or []:
+            mtype = (m.get("description") or m.get("marketType") or "").lower()
+            if "alternate" in mtype:
+                continue
+            period = m.get("period") or {}
+            period_desc = str(period.get("description") or period.get("abbreviation") or "")
+            pkey = _period_key(period_desc)
+            if not pkey:
+                continue
+
+            outs = list(m.get("outcomes", []) or [])
+            if not outs:
+                continue
+
+            # TOTALS
+            if any(k in mtype for k in ["total", "totals", "total points", "over/under", "o/u"]) and not any(k in mtype for k in ["team", "player"]):
+                # Identify line from any outcome handicap
+                line = None
+                over_price = None
+                under_price = None
+                for oc in outs:
+                    price_obj = oc.get("price") or {}
+                    typ = (oc.get("type") or oc.get("description") or "").lower()
+                    handicap = _safe_get(oc, "price", "handicap") or oc.get("handicap")
+                    try:
+                        hval = float(handicap) if handicap is not None else None
+                    except Exception:
+                        hval = None
+                    if hval is not None:
+                        line = hval
+                    pr = _to_american(price_obj.get("american"))
+                    if pr is not None:
+                        if "over" in typ:
+                            over_price = pr
+                        elif "under" in typ:
+                            under_price = pr
+                # Sanity ranges (avoid accidentally grabbing full-game totals)
+                if line is None:
+                    continue
+                if pkey.startswith("q") and not (20 <= float(line) <= 120):
+                    continue
+                if pkey.startswith("h") and not (60 <= float(line) <= 200):
+                    continue
+                cur = best_total.get(pkey)
+                if cur is None or prio < int(cur.get("prio", 99)):
+                    best_total[pkey] = {"line": float(line), "over_price": over_price, "under_price": under_price, "prio": prio}
+
+            # SPREADS
+            elif any(k in mtype for k in ["spread", "point spread", "handicap", "ats"]) and ("player" not in mtype):
+                home_h = None
+                away_h = None
+                home_price = None
+                away_price = None
+                for oc in outs:
+                    typ = (oc.get("type") or "").lower()
+                    desc = str(oc.get("description") or oc.get("name") or oc.get("competitor") or "").strip().lower()
+                    price_obj = oc.get("price") or {}
+                    handicap = _safe_get(oc, "price", "handicap") or oc.get("handicap")
+                    try:
+                        hval = float(handicap) if handicap is not None else None
+                    except Exception:
+                        hval = None
+                    if hval is None:
+                        continue
+                    pr = _to_american(price_obj.get("american"))
+                    if typ in ("home", "h") or (typ == "" and home_norm and (home_norm in desc)):
+                        home_h = hval
+                        if pr is not None:
+                            home_price = pr
+                    elif typ in ("away", "a") or (typ == "" and away_norm and (away_norm in desc)):
+                        away_h = hval
+                        if pr is not None:
+                            away_price = pr
+                if home_h is None and away_h is not None:
+                    home_h = -float(away_h)
+                if away_h is None and home_h is not None:
+                    away_h = -float(home_h)
+                if home_h is None:
+                    continue
+                # Sanity: periods shouldn't have crazy ATS numbers
+                if abs(float(home_h)) > 30:
+                    continue
+                cur = best_spread.get(pkey)
+                if cur is None or prio < int(cur.get("prio", 99)):
+                    best_spread[pkey] = {"home_h": float(home_h), "away_h": float(away_h) if away_h is not None else None, "home_price": home_price, "away_price": away_price, "prio": prio}
+
+    # Materialize to flat dict
+    for pkey, rec in best_total.items():
+        out[f"{pkey}_total"] = rec.get("line")
+        if rec.get("over_price") is not None:
+            out[f"{pkey}_total_over_price"] = rec.get("over_price")
+        if rec.get("under_price") is not None:
+            out[f"{pkey}_total_under_price"] = rec.get("under_price")
+    for pkey, rec in best_spread.items():
+        out[f"{pkey}_spread"] = rec.get("home_h")
+        if rec.get("home_price") is not None:
+            out[f"{pkey}_home_spread_price"] = rec.get("home_price")
+        if rec.get("away_price") is not None:
+            out[f"{pkey}_away_spread_price"] = rec.get("away_price")
+    return out
+
+
+def fetch_bovada_period_lines_current(date: datetime | str, verbose: bool = False) -> pd.DataFrame:
+    """Fetch current Bovada half/quarter lines for the given ET calendar date.
+
+    Returns a wide DataFrame with columns:
+      date, home_team, visitor_team, h1_total,h2_total,q1_total..q4_total,h1_spread,h2_spread,q1_spread..q4_spread
+    Price columns may also be included when available.
+    """
+    if ZoneInfo is not None:
+        try:
+            et = ZoneInfo("US/Eastern")
+        except Exception:
+            et = None
+    else:
+        et = None
+
+    target_et = pd.to_datetime(str(date)).date()
+    rows: list[dict] = []
+    payloads = []
+    for url in ENDPOINTS:
+        try:
+            r = requests.get(url, timeout=30, headers=HEADERS)
+            if r.ok:
+                payloads.append(r.json())
+        except Exception as e:
+            if verbose:
+                print(f"[bovada] {url} failed: {e}")
+            continue
+
+    for p in payloads:
+        try:
+            for events in _walk_event_lists(p):
+                for ev in (events or []):
+                    try:
+                        dt = _to_dt_utc(ev.get("startTime"))
+                        if dt is not None:
+                            try:
+                                ct = dt.tz_convert(et).date() if et is not None else dt.date()
+                            except Exception:
+                                ct = dt.date()
+                        else:
+                            ct = None
+                    except Exception:
+                        ct = None
+                    if ct != target_et:
+                        continue
+
+                    comps = ev.get("competitors", []) or []
+                    home_name = None
+                    away_name = None
+                    for c in comps:
+                        nm = c.get("name") or c.get("team") or c.get("abbreviation")
+                        is_home = bool(c.get("home") is True or str(c.get("position")).upper() == "H")
+                        if is_home:
+                            home_name = nm
+                        else:
+                            away_name = away_name or nm
+                    if not home_name or not away_name:
+                        title = ev.get("description") or ev.get("name") or ""
+                        if " @ " in title:
+                            a, h = title.split(" @ ", 1)
+                            away_name = away_name or a
+                            home_name = home_name or h
+
+                    home = normalize_team(str(home_name or "").strip())
+                    away = normalize_team(str(away_name or "").strip())
+                    home_l = home.lower()
+                    away_l = away.lower()
+                    mk = _extract_period_markets(ev, home_norm=home_l, away_norm=away_l)
+                    if not mk:
+                        continue
+
+                    row = {
+                        "date": str(target_et),
+                        "home_team": home,
+                        "visitor_team": away,
+                    }
+                    row.update(mk)
+                    rows.append(row)
+        except Exception:
+            continue
+
+    df = pd.DataFrame(rows)
+    if df.empty:
+        return df
+    # Keep one row per matchup (best-effort dedupe)
+    df = df.drop_duplicates(subset=["date", "home_team", "visitor_team"], keep="first")
+    return df
+
+
 def _to_dt_utc(val) -> pd.Timestamp | None:
     try:
         # Bovada often uses epoch millis; handle both ms and ISO strings
