@@ -1,0 +1,18 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Memphis Grizzlies,Memphis Grizzlies,Orlando Magic,2026-01-18,0.421767922821788,141.8181818181818,0.4135338345864662,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,Orlando Magic,2026-01-18,,,,3.2767295837402344,4.0,-0.7232704162597656,-4.0,,High
+TOTAL,Under,Memphis Grizzlies,Orlando Magic,2026-01-18,,,,-7.2528839111328125,231.0,,,223.7471160888672,High
+ML,Los Angeles Lakers,Los Angeles Lakers,Toronto Raptors,2026-01-18,0.37173083382287053,86.18181818181819,0.537109375,,,,,,High
+ATS,Los Angeles Lakers,Los Angeles Lakers,Toronto Raptors,2026-01-18,,,,10.050463676452637,1.5,8.550463676452637,-1.5,,High
+TOTAL,Over,Los Angeles Lakers,Toronto Raptors,2026-01-18,,,,3.395965576171875,223.0,,,226.39596557617188,Medium
+ML,New Orleans Pelicans,Houston Rockets,New Orleans Pelicans,2026-01-18,0.5794916371440222,543.6363636363636,0.1553672316384181,,,,,,High
+ATS,New Orleans Pelicans,Houston Rockets,New Orleans Pelicans,2026-01-18,,,,-3.71579647064209,13.5,9.78420352935791,13.5,,High
+ML,Chicago Bulls,Chicago Bulls,Brooklyn Nets,2026-01-18,0.09586401477179002,-246.27272727272728,0.7112102914150696,,,,,,High
+ATS,Chicago Bulls,Chicago Bulls,Brooklyn Nets,2026-01-18,,,,5.086935043334959,-6.5,11.58693504333496,6.5,,High
+TOTAL,Over,Chicago Bulls,Brooklyn Nets,2026-01-18,,,,4.7095794677734375,222.0,,,226.70957946777344,High
+ML,Denver Nuggets,Denver Nuggets,Charlotte Hornets,2026-01-18,0.48870917399308145,-116.54545454545456,0.5382031905961377,,,,,,High
+ATS,Denver Nuggets,Denver Nuggets,Charlotte Hornets,2026-01-18,,,,12.28179168701172,-1.0,13.28179168701172,1.0,,High
+TOTAL,Under,Denver Nuggets,Charlotte Hornets,2026-01-18,,,,-3.440155029296875,228.5,,,225.05984497070312,Medium
+ML,Sacramento Kings,Sacramento Kings,Portland Trail Blazers,2026-01-18,0.04178751060684327,-144.45454545454547,0.5909259947936036,,,,,,High
+ATS,Portland Trail Blazers,Sacramento Kings,Portland Trail Blazers,2026-01-18,,,,-1.5623639822006226,2.5,0.9376360177993774,2.5,,Medium
+TOTAL,Under,Sacramento Kings,Portland Trail Blazers,2026-01-18,,,,-5.43890380859375,228.5,,,223.06109619140625,High
