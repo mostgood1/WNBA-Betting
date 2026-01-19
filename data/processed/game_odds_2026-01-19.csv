@@ -1,0 +1,10 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-19,2026-01-19T22:10:00Z,San Antonio Spurs,Utah Jazz,-1090.2,689.9,-16.5,16.5,-110.44444444444444,-115,240.5,-110.375,-108.875,10,10,9,8,oddsapi_consensus
+2026-01-19,2026-01-20T00:40:00Z,Brooklyn Nets,Phoenix Suns,256.8,-323.5,8.0,-8.0,-108.25,-105,216.5,-110.33333333333333,-109.66666666666667,10,10,8,6,oddsapi_consensus
+2026-01-19,2026-01-20T03:10:00Z,Golden State Warriors,Miami Heat,-214.5,178.5,-5.5,5.5,-110.25,-115,239.0,-109.4,-109.4,10,10,8,5,oddsapi_consensus
+2026-01-19,2026-01-19T18:10:00Z,Atlanta Hawks,Milwaukee Bucks,-137.2,115.3,-2.5,2.5,-107.6,135,231.0,-109.4,-109.4,10,10,10,5,oddsapi_consensus
+2026-01-19,2026-01-20T00:10:00Z,Philadelphia 76ers,Indiana Pacers,-281.6,226.8,-7.0,7.0,-107.5,-105,227.5,-107.5,-111.66666666666667,10,10,6,6,oddsapi_consensus
+2026-01-19,2026-01-19T20:10:00Z,Washington Wizards,Los Angeles Clippers,221.7,-274.5,7.0,-7.0,-110.14285714285714,-105,226.0,-109.5,-109.5,10,10,7,6,oddsapi_consensus
+2026-01-19,2026-01-19T19:40:00Z,Cleveland Cavaliers,Oklahoma City Thunder,188.8,-230.6,6.5,-6.5,-110.83333333333333,-115,230.5,-113.33333333333333,-105.0,10,10,6,3,oddsapi_consensus
+2026-01-19,2026-01-20T01:10:00Z,Detroit Pistons,Boston Celtics,-154.6,129.3,-3.0,3.0,-110.0,175,224.5,-109.33333333333333,-110.66666666666667,10,10,6,6,oddsapi_consensus
+2026-01-19,2026-01-19T22:10:00Z,New York Knicks,Dallas Mavericks,-449.4,343.6,-10.5,10.5,-109.5,-115,230.5,-108.4,-110.4,10,10,8,5,oddsapi_consensus
