@@ -1,0 +1,8 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-01-18,0022500602,MEM,ORL,0.645309199211874,1.0,0.12580556416372207,0.43802569842852834,Anthony Black,0.1415178803794167,Jackson Jr.,False,True,0.1001536988785868,2.1457015556835604,0.8830140639000658,3,0.8542984443164396,0.013685709245177898
+2026-01-18,0022500603,CHI,BKN,,0.0,,,,,Dëmin,,,,,,5,,
+2026-01-18,0022500604,HOU,NOP,,1.0,,,,,Thompson,,,,,,3,,
+2026-01-18,0022500605,DEN,CHA,,0.0,,,,,Miller,,,,,,7,,
+2026-01-18,0022500606,SAC,POR,,1.0,,,,,DeRozan,,,,,,2,,
+2026-01-18,0022500607,LAL,TOR,,,,,,,Murray-Boyles,,,,,,5,,
+2026-01-18,0022500602,MEM,ORL,0.645309199211874,1.0,0.12580556416372207,0.43802569842852834,Anthony Black,0.1415178803794167,Jackson Jr.,False,True,0.1001536988785868,2.1457015556835604,0.8830140639000658,3,0.8542984443164396,0.013685709245177898
