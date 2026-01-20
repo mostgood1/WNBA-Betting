@@ -1,0 +1,13 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-01-19,Atlanta Hawks,Milwaukee Bucks,ATL,MIL,110,112,,,-2,222,,
+2026-01-19,Brooklyn Nets,Phoenix Suns,BKN,PHX,117,126,,,-9,243,,
+2026-01-19,Cleveland Cavaliers,Oklahoma City Thunder,CLE,OKC,104,136,,,-32,240,,
+2026-01-19,Cleveland Cavaliers,Oklahoma City Thunder,CLE,OKC,104,136,,,-32,240,,
+2026-01-19,Detroit Pistons,Boston Celtics,DET,BOS,104,103,,,1,207,,
+2026-01-19,Detroit Pistons,Boston Celtics,DET,BOS,104,103,,,1,207,,
+2026-01-19,Golden State Warriors,Miami Heat,GSW,MIA,135,112,,,23,247,,
+2026-01-19,New York Knicks,Dallas Mavericks,NYK,DAL,97,114,,,-17,211,,
+2026-01-19,New York Knicks,Dallas Mavericks,NYK,DAL,97,114,,,-17,211,,
+2026-01-19,Philadelphia 76ers,Indiana Pacers,PHI,IND,113,104,,,9,217,,
+2026-01-19,San Antonio Spurs,Utah Jazz,SAS,UTA,123,110,,,13,233,,
+2026-01-19,Washington Wizards,Los Angeles Clippers,WAS,LAC,106,110,,,-4,216,,
