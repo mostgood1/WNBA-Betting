@@ -1,0 +1,20 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,Utah Jazz,Utah Jazz,Minnesota Timberwolves,2026-01-20,0.5217227145031844,428.09090909090907,0.18936133585815118,,,,,,High
+ATS,Utah Jazz,Utah Jazz,Minnesota Timberwolves,2026-01-20,,,,2.012495994567873,12.0,-9.987504005432127,-12.0,,Medium
+TOTAL,Under,Utah Jazz,Minnesota Timberwolves,2026-01-20,,,,-10.875656127929688,244.5,,,233.6243438720703,High
+ML,Denver Nuggets,Denver Nuggets,Los Angeles Lakers,2026-01-20,0.21830372407762788,115.9090909090909,0.4631578947368421,,,,,,High
+ATS,Denver Nuggets,Denver Nuggets,Los Angeles Lakers,2026-01-20,,,,5.02881383895874,2.5,2.52881383895874,-2.5,,High
+ML,Sacramento Kings,Sacramento Kings,Miami Heat,2026-01-20,0.2315035525906528,132.36363636363637,0.4303599374021909,,,,,,High
+ATS,Sacramento Kings,Sacramento Kings,Miami Heat,2026-01-20,,,,4.561359882354736,3.5,1.0613598823547363,-3.5,,High
+TOTAL,Under,Sacramento Kings,Miami Heat,2026-01-20,,,,-9.852142333984403,238.5,,,228.6478576660156,High
+ML,Golden State Warriors,Golden State Warriors,Toronto Raptors,2026-01-20,0.16987381659821876,-158.54545454545453,0.6132208157524613,,,,,,High
+ATS,Golden State Warriors,Golden State Warriors,Toronto Raptors,2026-01-20,,,,6.394957542419434,-3.5,9.894957542419434,3.5,,High
+TOTAL,Under,Golden State Warriors,Toronto Raptors,2026-01-20,,,,-1.5274200439453125,225.5,,,223.9725799560547,Low
+ML,Phoenix Suns,Philadelphia 76ers,Phoenix Suns,2026-01-20,1.612425666558147,-29.90909090909091,0.23023093072078377,,,,,,High
+ATS,Phoenix Suns,Philadelphia 76ers,Phoenix Suns,2026-01-20,,,,-5.495779991149902,1.0,-4.495779991149902,1.0,,High
+ML,Los Angeles Clippers,Chicago Bulls,Los Angeles Clippers,2026-01-20,0.2735507057200548,134.63636363636363,0.42619139868268113,,,,,,High
+ATS,Los Angeles Clippers,Chicago Bulls,Los Angeles Clippers,2026-01-20,,,,-6.057626008987427,4.0,-2.0576260089874268,4.0,,High
+TOTAL,Over,Chicago Bulls,Los Angeles Clippers,2026-01-20,,,,3.307159423828068,226.5,,,229.80715942382807,Medium
+ML,Houston Rockets,Houston Rockets,San Antonio Spurs,2026-01-20,0.019205186094234716,-173.54545454545453,0.6344300432037222,,,,,,Low
+ATS,Houston Rockets,Houston Rockets,San Antonio Spurs,2026-01-20,,,,1.8268394470214844,-4.5,6.326839447021484,4.5,,Medium
+TOTAL,Over,Houston Rockets,San Antonio Spurs,2026-01-20,,,,8.455673217773438,221.0,,,229.45567321777344,High
