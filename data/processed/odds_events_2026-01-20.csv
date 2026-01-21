@@ -1,8 +1,6 @@
 event_id,commence_time,home_team,away_team,has_odds
-8b31228a946c10f7e851d0948dd174f0,2026-01-21T00:10:00Z,Philadelphia 76ers,Phoenix Suns,True
-bdf057298ab4506eb53fa02b5bfd2282,2026-01-21T01:10:00Z,Chicago Bulls,Los Angeles Clippers,True
-fb399b86d88c46a22fa7c2e3d981fdda,2026-01-21T01:10:00Z,Houston Rockets,San Antonio Spurs,True
-c7cfdbd441d15e50974a13da155b37a6,2026-01-21T02:10:00Z,Utah Jazz,Minnesota Timberwolves,True
-6d59de25cc37129df0fa325e40dce844,2026-01-21T03:10:00Z,Denver Nuggets,Los Angeles Lakers,True
-874e9cbd808fbf58aab0cda4e49c9236,2026-01-21T03:10:00Z,Golden State Warriors,Toronto Raptors,True
-744682a08f6d81babca7d2dd1b301458,2026-01-21T03:10:00Z,Sacramento Kings,Miami Heat,True
+fb399b86d88c46a22fa7c2e3d981fdda,2026-01-21T01:35:00Z,Houston Rockets,San Antonio Spurs,True
+c7cfdbd441d15e50974a13da155b37a6,2026-01-21T02:11:00Z,Utah Jazz,Minnesota Timberwolves,True
+874e9cbd808fbf58aab0cda4e49c9236,2026-01-21T03:11:00Z,Golden State Warriors,Toronto Raptors,True
+744682a08f6d81babca7d2dd1b301458,2026-01-21T03:11:00Z,Sacramento Kings,Miami Heat,True
+6d59de25cc37129df0fa325e40dce844,2026-01-21T03:13:00Z,Denver Nuggets,Los Angeles Lakers,True
