@@ -1,8 +1,8 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-01-21,2026-01-22T00:40:00Z,New York Knicks,Brooklyn Nets,-457.97481966669613,457.9748196666961,-11.5,11.5,-105,-115,221.0,100.87051142546245,-100.87051142546247,11,11,9,5,oddsapi_consensus
-2026-01-21,2026-01-22T02:40:00Z,Milwaukee Bucks,Oklahoma City Thunder,332.0547119405116,-332.0547119405114,9.5,-9.5,-110,-110,227.0,-100.0,-100.0,11,11,11,7,oddsapi_consensus
-2026-01-21,2026-01-22T00:10:00Z,Charlotte Hornets,Cleveland Cavaliers,134.4527110993959,-134.45271109939594,3.0,-3.0,-115,-105,236.0,101.87170282895816,-101.87170282895816,11,11,8,5,oddsapi_consensus
-2026-01-21,2026-01-22T01:10:00Z,Memphis Grizzlies,Atlanta Hawks,-115.29814099419833,115.29814099419838,-1.5,1.5,-105,-115,239.5,-100.44325249650522,100.44325249650522,11,11,9,8,oddsapi_consensus
-2026-01-21,2026-01-22T01:10:00Z,New Orleans Pelicans,Detroit Pistons,397.3604577094201,-397.36045770942013,11.0,-11.0,-115,-105,233.5,-100.34698126301178,100.34698126301178,11,11,7,5,oddsapi_consensus
-2026-01-21,2026-01-22T03:10:00Z,Sacramento Kings,Toronto Raptors,193.64419643584458,-193.64419643584466,5.5,-5.5,-110,-110,225.0,-100.0,-100.0,11,11,7,6,oddsapi_consensus
-2026-01-21,2026-01-22T00:40:00Z,Boston Celtics,Indiana Pacers,-399.8769983563003,399.8769983563002,-11.0,11.0,-115,-105,226.0,100.62102158049991,-100.62102158049993,11,11,7,7,oddsapi_consensus
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,total,bookmaker
+2026-01-22,2026-01-22T00:40:00Z,New York Knicks,Brooklyn Nets,-464.91828742336804,464.9182874233681,-12.0,12.0,220.5,oddsapi_consensus
+2026-01-22,2026-01-22T02:40:00Z,Milwaukee Bucks,Oklahoma City Thunder,422.0558045180658,-422.0558045180658,11.5,-11.5,224.5,oddsapi_consensus
+2026-01-22,2026-01-22T00:10:00Z,Charlotte Hornets,Cleveland Cavaliers,138.04258779479275,-138.04258779479278,3.0,-3.0,238.0,oddsapi_consensus
+2026-01-22,2026-01-22T01:10:00Z,Memphis Grizzlies,Atlanta Hawks,-104.24175953995814,104.2417595399582,-1.0,1.0,239.5,oddsapi_consensus
+2026-01-22,2026-01-22T01:10:00Z,New Orleans Pelicans,Detroit Pistons,324.5983105425775,-324.5983105425777,9.5,-9.5,230.0,oddsapi_consensus
+2026-01-22,2026-01-22T03:10:00Z,Sacramento Kings,Toronto Raptors,196.43803282042373,-196.43803282042379,6.0,-6.0,225.0,oddsapi_consensus
+2026-01-22,2026-01-22T00:40:00Z,Boston Celtics,Indiana Pacers,-381.38187172382663,381.3818717238267,-10.5,10.5,226.0,oddsapi_consensus
