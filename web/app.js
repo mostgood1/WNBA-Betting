@@ -188,13 +188,104 @@ function togglePeriods(cardId){
 }
 
 // Toggle quarters breakdown visibility (Cards v2)
-function toggleQuarters(cardId){
+// Uses the same connected-game payload as the Write-up so quarters + box score stay consistent.
+async function toggleQuarters(cardId, dateStr, home, away){
   const content = document.getElementById(cardId);
-  const toggle = document.querySelector(`[onclick="toggleQuarters('${cardId}')"]`);
+  const toggle = document.querySelector(`[data-q-toggle="${cardId}"]`);
   if (!content) return;
+
   const isHidden = content.style.display === 'none';
   content.style.display = isHidden ? 'block' : 'none';
   if (toggle) toggle.textContent = isHidden ? '▼ Quarters' : '▶ Quarters';
+  if (!isHidden) return;
+
+  if (content.dataset.loaded === '1') return;
+  content.innerHTML = '<div class="subtle">Loading connected quarters…</div>';
+
+  try{
+    const key = `${dateStr}|${home}|${away}`;
+    let payload = state.gameStoryByKey.get(key) || null;
+    if (!payload){
+      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=900&alpha=${encodeURIComponent(String(SCORE_BLEND_ALPHA))}`;
+      const r = await fetch(url, { cache: 'no-store' });
+      if (!r.ok){
+        const txt = await r.text();
+        throw new Error(`HTTP ${r.status}: ${txt}`);
+      }
+      payload = await r.json();
+      state.gameStoryByKey.set(key, payload);
+    }
+
+    const rep = payload?.sim?.rep || null;
+    const q = Array.isArray(rep?.quarters) ? rep.quarters : [];
+    const qBy = (side, i)=>{
+      const row = q.find(x => Number(x?.q) === Number(i));
+      const v = row ? Number(row?.[side]) : null;
+      return Number.isFinite(v) ? v : null;
+    };
+    const qAway = [1,2,3,4].map(i=>qBy('away', i));
+    const qHome = [1,2,3,4].map(i=>qBy('home', i));
+    const sum = (arr)=>{
+      const xs = (arr||[]).map(Number).filter(Number.isFinite);
+      return xs.length ? xs.reduce((a,b)=>a+b,0) : null;
+    };
+    const awayT = sum(qAway);
+    const homeT = sum(qHome);
+
+    // Optional per-quarter market lines
+    const pl = state.periodLinesByKey ? (state.periodLinesByKey.get(key) || null) : null;
+    const marketQ = (i)=>{
+      const tot = pl ? toNum(pl[`q${i}_total`]) : null;
+      const spr = pl ? toNum(pl[`q${i}_spread`]) : null;
+      if (tot==null && spr==null) return `Q${i} —`;
+      const bits = [];
+      if (tot!=null) bits.push(`Tot ${fmtNum(tot,1)}`);
+      if (spr!=null) bits.push(`${home} ${fmtSigned(spr,2)}`);
+      return `Q${i} ${bits.join(' · ')}`;
+    };
+
+    content.innerHTML = `
+      <div class="table-wrap">
+        <table class="data-table boxscore-table">
+          <thead>
+            <tr>
+              <th>Team</th>
+              <th class="num">Q1</th>
+              <th class="num">Q2</th>
+              <th class="num">Q3</th>
+              <th class="num">Q4</th>
+              <th class="num">T</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="font-weight:800;">${escapeHtml(away)}</td>
+              <td class="num">${fmtNum(qAway[0],0)}</td>
+              <td class="num">${fmtNum(qAway[1],0)}</td>
+              <td class="num">${fmtNum(qAway[2],0)}</td>
+              <td class="num">${fmtNum(qAway[3],0)}</td>
+              <td class="num" style="font-weight:900;">${awayT!=null?fmtNum(awayT,0):'—'}</td>
+            </tr>
+            <tr>
+              <td style="font-weight:800;">${escapeHtml(home)}</td>
+              <td class="num">${fmtNum(qHome[0],0)}</td>
+              <td class="num">${fmtNum(qHome[1],0)}</td>
+              <td class="num">${fmtNum(qHome[2],0)}</td>
+              <td class="num">${fmtNum(qHome[3],0)}</td>
+              <td class="num" style="font-weight:900;">${homeT!=null?fmtNum(homeT,0):'—'}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="subtle boxscore-sub">
+        <div>Connected scenario line (rep)</div>
+        ${pl ? `<div>Quarter markets: ${[1,2,3,4].map(marketQ).join(' · ')}</div>` : ''}
+      </div>
+    `;
+    content.dataset.loaded = '1';
+  }catch(e){
+    content.innerHTML = `<div class="subtle">Failed to load connected quarters: ${escapeHtml(String(e?.message||e))}</div>`;
+  }
 }
 
 // Toggle players box score visibility (Cards v2)
@@ -205,6 +296,52 @@ function togglePlayers(cardId){
   const isHidden = content.style.display === 'none';
   content.style.display = isHidden ? 'block' : 'none';
   if (toggle) toggle.textContent = isHidden ? '▼ Players' : '▶ Players';
+}
+
+// Signed numeric formatting used across UI sections.
+// Note: Cards v2 renderer defines its own local fmtSigned; this global helper
+// is used by async toggles (e.g., quarters) that run outside that scope.
+function fmtSigned(n, digits=1){
+  const v = Number(n);
+  if (!Number.isFinite(v)) return '—';
+  const s = v > 0 ? '+' : '';
+  return s + v.toFixed(digits);
+}
+
+// --- Odds helpers (UI safety) ---
+// Some historical processed odds rows can contain invalid American odds when they were
+// accidentally averaged in American space (e.g., -30). Guard against that here so the UI
+// never displays nonsensical moneylines.
+function impliedProbFromAmerican(ml){
+  const x = Number(ml);
+  if (!Number.isFinite(x) || x === 0) return null;
+  // Already a probability
+  if (x > 0 && x < 1) return Math.min(1-1e-6, Math.max(1e-6, x));
+  if (x > 0) return 100 / (x + 100);
+  return (-x) / ((-x) + 100);
+}
+
+function americanFromProb(p){
+  const x = Number(p);
+  if (!Number.isFinite(x) || x <= 0 || x >= 1) return null;
+  if (x >= 0.5) return -100 * x / (1 - x);
+  return 100 * (1 - x) / x;
+}
+
+function normalizeMoneylines(homeMl, awayMl){
+  const h = Number(homeMl), a = Number(awayMl);
+  const valid = (v)=> Number.isFinite(v) && (v >= 100 || v <= -100);
+  if (valid(h) && valid(a)) return { home_ml: h, away_ml: a, normalized: false };
+
+  // If either side is invalid, try to normalize via implied probabilities.
+  const ph = impliedProbFromAmerican(h);
+  const pa = impliedProbFromAmerican(a);
+  if (ph==null || pa==null) return { home_ml: Number.isFinite(h)?h:null, away_ml: Number.isFinite(a)?a:null, normalized: false };
+  const s = ph + pa;
+  if (!Number.isFinite(s) || s <= 0) return { home_ml: Number.isFinite(h)?h:null, away_ml: Number.isFinite(a)?a:null, normalized: false };
+  const phn = ph / s;
+  const pan = pa / s;
+  return { home_ml: americanFromProb(phn), away_ml: americanFromProb(pan), normalized: true };
 }
 
 // Toggle write-up visibility (Cards v2) + lazy-load connected sim
@@ -348,6 +485,10 @@ async function toggleWriteup(cardId, dateStr, home, away){
       </div>
     ` : '';
 
+    const repLine = (rep && Number.isFinite(Number(rep.home_score)) && Number.isFinite(Number(rep.away_score)))
+      ? `<div class="subtle">Scenario score (rep): ${escapeHtml(away)} ${fmtNum(rep.away_score,0)} – ${escapeHtml(home)} ${fmtNum(rep.home_score,0)}</div>`
+      : '';
+
     const meanLine = (means && Number.isFinite(Number(means.home_score)) && Number.isFinite(Number(means.away_score)))
       ? `<div class="subtle">Mean score (over sims): ${escapeHtml(away)} ${fmtNum(means.away_score,1)} – ${escapeHtml(home)} ${fmtNum(means.home_score,1)}</div>`
       : '';
@@ -357,7 +498,7 @@ async function toggleWriteup(cardId, dateStr, home, away){
       : '';
 
     const blendLine = (blend && Number.isFinite(Number(blend.home_score)) && Number.isFinite(Number(blend.away_score)))
-      ? `<div class="subtle">Blend score (displayed): ${escapeHtml(away)} ${fmtNum(blend.away_score,1)} – ${escapeHtml(home)} ${fmtNum(blend.home_score,1)} (α=${Number(blend.alpha ?? SCORE_BLEND_ALPHA).toFixed(2)})</div>`
+      ? `<div class="subtle">Target score (blend): ${escapeHtml(away)} ${fmtNum(blend.away_score,1)} – ${escapeHtml(home)} ${fmtNum(blend.home_score,1)} (α=${Number(blend.alpha ?? SCORE_BLEND_ALPHA).toFixed(2)})</div>`
       : '';
 
     const warnLine = warns.length
@@ -367,6 +508,7 @@ async function toggleWriteup(cardId, dateStr, home, away){
     content.innerHTML = `
       <div class="writeup-recap">${escapeHtml(recap || '').replace(/\n/g,'<br>')}</div>
       ${warnLine}
+      ${repLine}
       ${blendLine}
       ${modelLine}
       ${meanLine}
@@ -2106,8 +2248,10 @@ function renderDate(dateStr){
     let mlMeta = '';
     try{
       if (odds && pHomeCal!=null && odds.home_ml!=null && odds.away_ml!=null){
-        const hML = Number(odds.home_ml);
-        const aML = Number(odds.away_ml);
+        // Guard against historical/invalid consensus moneylines (e.g. -30).
+        const mlsTile = normalizeMoneylines(odds.home_ml, odds.away_ml);
+        const hML = Number(mlsTile?.home_ml);
+        const aML = Number(mlsTile?.away_ml);
         const evH = evFromProbAndAmerican(pHomeCal, hML);
         const evA = evFromProbAndAmerican(pAwayCal, aML);
         const hImp = impliedProbAmerican(hML);
@@ -2127,7 +2271,8 @@ function renderDate(dateStr){
         const pTxt = (pickP!=null) ? `P ${fmtPct(pickP,1)}` : 'P —';
         const impTxt = (pickImp!=null) ? `Imp ${fmtPct(pickImp,1)}` : 'Imp —';
         const edgeTxt = (edge!=null) ? `Edge ${(edge>0?'+':'')}${edge.toFixed(1)}pp` : 'Edge —';
-        mlMeta = [evTxt, pTxt, impTxt, edgeTxt].join(' · ');
+        const nTxt = (mlsTile && mlsTile.normalized) ? 'ML normalized' : '';
+        mlMeta = [evTxt, pTxt, impTxt, edgeTxt, nTxt].filter(Boolean).join(' · ');
       }
     }catch(_){ /* ignore */ }
 
@@ -2219,8 +2364,11 @@ function renderDate(dateStr){
     };
 
     // Explicit market lines (not EV tiles)
-    const mHomeMl = pickNum(odds?.home_ml, predBase?.home_ml);
-    const mAwayMl = pickNum(odds?.away_ml, predBase?.away_ml);
+    const mHomeMlRaw = pickNum(odds?.home_ml, predBase?.home_ml);
+    const mAwayMlRaw = pickNum(odds?.away_ml, predBase?.away_ml);
+    const mls = normalizeMoneylines(mHomeMlRaw, mAwayMlRaw);
+    const mHomeMl = pickNum(mls?.home_ml, mHomeMlRaw);
+    const mAwayMl = pickNum(mls?.away_ml, mAwayMlRaw);
     const mHomeSpr = pickNum(odds?.home_spread, predBase?.home_spread);
     const mAwaySpr = pickNum(odds?.away_spread, predBase?.away_spread);
     const mTot = pickNum(odds?.total, predBase?.total);
@@ -2231,20 +2379,12 @@ function renderDate(dateStr){
       if (mHomeSpr!=null && mAwaySpr!=null) parts.push(`Spread ${away} ${fmtSigned(mAwaySpr,1)} / ${home} ${fmtSigned(mHomeSpr,1)}`);
       if (mTot!=null) parts.push(`Total ${Number(mTot).toFixed(1)}`);
       const tail = (mBook && mBook.toLowerCase() !== 'nan') ? ` @ ${mBook.toUpperCase()}` : '';
-      return parts.length ? `Market: ${parts.join(' · ')}${tail}` : '';
+      const note = (mls && mls.normalized) ? ' (ML normalized)' : '';
+      return parts.length ? `Market: ${parts.join(' · ')}${tail}${note}` : '';
     })();
 
-    const modelScoreLine = (homeModelPts!=null && awayModelPts!=null)
-      ? `Model score: ${away} ${fmtNum(awayModelPts,1)} – ${home} ${fmtNum(homeModelPts,1)}`
-      : '';
-
-    const simScoreLine = (homeSimPts!=null && awaySimPts!=null)
-      ? `Sim score: ${away} ${fmtNum(awaySimPts,1)} – ${home} ${fmtNum(homeSimPts,1)}`
-      : '';
-
-    const scoreBlendLine = (homeBlendPts!=null && awayBlendPts!=null)
-      ? `Model/Sim blend score: ${away} ${fmtNum(awayBlendPts,1)} – ${home} ${fmtNum(homeBlendPts,1)} (α=${SCORE_BLEND_ALPHA.toFixed(2)})`
-      : '';
+    // Avoid mixing multiple competing score concepts on the card.
+    // The connected sim (Quarters/Write-up/Players) provides the canonical scenario score.
 
     const blendLine = (()=>{
       const parts = [];
@@ -2258,159 +2398,15 @@ function renderDate(dateStr){
 
     let quartersHtml = '';
     try{
-      const hasQModel = !!(predBase && (predBase.quarters_q1_total!=null || predBase['quarters_q1_total']!=null));
-      const hasQSim = !!(simQuarters && simQuarters.length);
-      if (hasQModel || hasQSim){
+      // Always prefer connected rep quarters (same source as Write-up/Players).
+      // We lazy-load them on expand to keep page loads fast.
+      const hasAnyQuarterInputs = !!(predBase && (predBase.quarters_q1_total!=null || predBase['quarters_q1_total']!=null)) || !!(simQuarters && simQuarters.length) || !!pl;
+      if (hasAnyQuarterInputs){
         const cardId = `q-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
-
-        const getModelQuarterPts = (i)=>{
-          if (!predBase) return { home: null, away: null };
-          const qTot = toNum(predBase[`quarters_q${i}_total`]);
-          const qMar = toNum(predBase[`quarters_q${i}_margin`]);
-          if (qTot==null || qMar==null) return { home: null, away: null };
-          return { home: 0.5*(qTot + qMar), away: 0.5*(qTot - qMar) };
-        };
-        const getSimQuarterPts = (i)=>{
-          const row = (simQuarters || []).find(q => Number(q?.q) === Number(i));
-          return { home: toNum(row?.home_pts_mu), away: toNum(row?.away_pts_mu) };
-        };
-        const blendQuarterPts = (m, s)=>{
-          const hb = (m.home!=null && s.home!=null) ? (SCORE_BLEND_ALPHA*m.home + (1-SCORE_BLEND_ALPHA)*s.home) : (m.home!=null?m.home:s.home);
-          const ab = (m.away!=null && s.away!=null) ? (SCORE_BLEND_ALPHA*m.away + (1-SCORE_BLEND_ALPHA)*s.away) : (m.away!=null?m.away:s.away);
-          return { home: hb, away: ab };
-        };
-        const sum = (...vals)=>{
-          const xs = vals.map(Number).filter(Number.isFinite);
-          return xs.length ? xs.reduce((p,q)=>p+q,0) : null;
-        };
-        const marketQ = (i)=>{
-          const tot = pl ? toNum(pl[`q${i}_total`]) : null;
-          const spr = pl ? toNum(pl[`q${i}_spread`]) : null;
-          if (tot==null && spr==null) return `Q${i} —`;
-          const bits = [];
-          if (tot!=null) bits.push(`Tot ${fmtNum(tot,1)}`);
-          if (spr!=null) bits.push(`${home} ${fmtSigned(spr,2)}`);
-          return `Q${i} ${bits.join(' · ')}`;
-        };
-
-        const q1m = getModelQuarterPts(1), q2m = getModelQuarterPts(2), q3m = getModelQuarterPts(3), q4m = getModelQuarterPts(4);
-        const q1s = getSimQuarterPts(1),   q2s = getSimQuarterPts(2),   q3s = getSimQuarterPts(3),   q4s = getSimQuarterPts(4);
-        const q1b = blendQuarterPts(q1m,q1s), q2b = blendQuarterPts(q2m,q2s), q3b = blendQuarterPts(q3m,q3s), q4b = blendQuarterPts(q4m,q4s);
-
-        const awayBlendTotal = sum(q1b.away, q2b.away, q3b.away, q4b.away);
-        const homeBlendTotal = sum(q1b.home, q2b.home, q3b.home, q4b.home);
-        const awayModelTotalQ = sum(q1m.away, q2m.away, q3m.away, q4m.away);
-        const homeModelTotalQ = sum(q1m.home, q2m.home, q3m.home, q4m.home);
-        const awaySimTotalQ = sum(q1s.away, q2s.away, q3s.away, q4s.away);
-        const homeSimTotalQ = sum(q1s.home, q2s.home, q3s.home, q4s.home);
-
-        const makeTeamPlayersTable = (teamTri)=>{
-          let rows = (props || []).filter(p => String(p.team||'').toUpperCase() === teamTri);
-          if (!rows.length) return '';
-          // Prefer players explicitly marked as playing today (if present)
-          try{
-            const anyHasPlaying = rows.some(p => p.playing_today !== undefined && p.playing_today !== null);
-            if (anyHasPlaying) rows = rows.filter(p => p.playing_today !== false);
-          }catch(_){ /* ignore */ }
-
-          const minFrom = (p)=> toNum(p.pred_min) ?? toNum(p.roll10_min) ?? toNum(p.roll5_min) ?? toNum(p.roll20_min) ?? toNum(p.roll30_min) ?? null;
-          const sorted = rows.slice().sort((a,b)=> (minFrom(b)||0) - (minFrom(a)||0));
-          const tr = (p)=>{
-            const minV = minFrom(p);
-            return `
-              <tr>
-                <td style="font-weight:700;">${String(p.player_name||'').trim()}</td>
-                <td class="num">${minV!=null?fmtNum(minV,1):'—'}</td>
-                <td class="num">${fmtNum(p.pred_pts,1)}</td>
-                <td class="num">${fmtNum(p.pred_reb,1)}</td>
-                <td class="num">${fmtNum(p.pred_ast,1)}</td>
-                <td class="num">${fmtNum(p.pred_threes,1)}</td>
-                <td class="num">${fmtNum(p.pred_pra,1)}</td>
-                <td class="num">${fmtNum(p.pred_stl,1)}</td>
-                <td class="num">${fmtNum(p.pred_blk,1)}</td>
-                <td class="num">${fmtNum(p.pred_tov,1)}</td>
-              </tr>`;
-          };
-          const starters = sorted.slice(0, 5);
-          const bench = sorted.slice(5);
-          return `
-            <div class="table-wrap">
-              <table class="data-table boxscore-table player-boxscore">
-                <thead>
-                  <tr>
-                    <th>${teamTri} Players</th>
-                    <th class="num">MIN</th>
-                    <th class="num">PTS</th>
-                    <th class="num">REB</th>
-                    <th class="num">AST</th>
-                    <th class="num">3PM</th>
-                    <th class="num">PRA</th>
-                    <th class="num">STL</th>
-                    <th class="num">BLK</th>
-                    <th class="num">TOV</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${starters.length ? `<tr class="section-row"><td colspan="10">Starters</td></tr>` : ''}
-                  ${starters.map(tr).join('')}
-                  ${bench.length ? `<tr class="section-row"><td colspan="10">Bench</td></tr>` : ''}
-                  ${bench.map(tr).join('')}
-                </tbody>
-              </table>
-            </div>`;
-        };
-
-        const playersId = `p-${dateStr}-${home}-${away}`.replace(/[^a-zA-Z0-9-]/g, '');
-        // Note: hide the projections-style player "box score" here to avoid showing two box scores
-        // that don't match (connected sim vs. model means). The connected box score lives under Write-up.
-        const playersHtml = '';
-
         quartersHtml = `
           <div class="quarters-block">
-            <div class="quarters-toggle cursor-pointer fw-600" onclick="toggleQuarters('${cardId}')">▼ Quarters</div>
-            <div id="${cardId}" class="quarters-content" style="display:block;">
-              <div class="table-wrap">
-                <table class="data-table boxscore-table">
-                  <thead>
-                    <tr>
-                      <th>Team</th>
-                      <th class="num">Q1</th>
-                      <th class="num">Q2</th>
-                      <th class="num">Q3</th>
-                      <th class="num">Q4</th>
-                      <th class="num">T</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td style="font-weight:800;">${away}</td>
-                      <td class="num">${fmtNum(q1b.away,1)}</td>
-                      <td class="num">${fmtNum(q2b.away,1)}</td>
-                      <td class="num">${fmtNum(q3b.away,1)}</td>
-                      <td class="num">${fmtNum(q4b.away,1)}</td>
-                      <td class="num" style="font-weight:900;">${fmtNum(awayBlendTotal,1)}</td>
-                    </tr>
-                    <tr>
-                      <td style="font-weight:800;">${home}</td>
-                      <td class="num">${fmtNum(q1b.home,1)}</td>
-                      <td class="num">${fmtNum(q2b.home,1)}</td>
-                      <td class="num">${fmtNum(q3b.home,1)}</td>
-                      <td class="num">${fmtNum(q4b.home,1)}</td>
-                      <td class="num" style="font-weight:900;">${fmtNum(homeBlendTotal,1)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="subtle boxscore-sub">
-                <div>Blend = ${Math.round(SCORE_BLEND_ALPHA*100)}% Model + ${Math.round((1-SCORE_BLEND_ALPHA)*100)}% Sim</div>
-                ${(awayModelTotalQ!=null && homeModelTotalQ!=null) ? `<div>Model totals (Q-sum): ${away} ${fmtNum(awayModelTotalQ,1)} · ${home} ${fmtNum(homeModelTotalQ,1)}</div>` : ''}
-                ${(awaySimTotalQ!=null && homeSimTotalQ!=null) ? `<div>Sim totals (Q-sum): ${away} ${fmtNum(awaySimTotalQ,1)} · ${home} ${fmtNum(homeSimTotalQ,1)}</div>` : ''}
-                ${pl ? `<div>Quarter markets: ${[1,2,3,4].map(marketQ).join(' · ')}</div>` : ''}
-              </div>
-
-              ${playersHtml}
-            </div>
+            <div class="quarters-toggle cursor-pointer fw-600" data-q-toggle="${cardId}" onclick="toggleQuarters('${cardId}','${dateStr}','${home}','${away}')">▶ Quarters</div>
+            <div id="${cardId}" class="quarters-content" style="display:none;"></div>
           </div>`;
       }
     }catch(_){ /* ignore */ }
@@ -2458,12 +2454,9 @@ function renderDate(dateStr){
         <div class="kv"><div class="k">Model Total</div><div class="v">${predTotal!=null?Number(predTotal).toFixed(1):'—'}</div></div>
       </div>
 
-      ${(marketLine || modelScoreLine || simScoreLine || scoreBlendLine || blendLine) ? `
+      ${(marketLine || blendLine) ? `
         <div class="details-block">
           ${marketLine?`<div class="subtle">${marketLine}</div>`:''}
-          ${modelScoreLine?`<div class="subtle">${modelScoreLine}</div>`:''}
-          ${simScoreLine?`<div class="subtle">${simScoreLine}</div>`:''}
-          ${scoreBlendLine?`<div class="subtle">${scoreBlendLine}</div>`:''}
           ${blendLine?`<div class="subtle">${blendLine}</div>`:''}
         </div>
       `:''}

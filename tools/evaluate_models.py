@@ -144,7 +144,7 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
         except Exception:
             return float("nan")
         df_e = pd.DataFrame({"p": pv, "y": yv, "bin": q})
-        g = df_e.groupby("bin").agg(p_mean=("p", "mean"), y_rate=("y", "mean"), count=("p", "size"))
+        g = df_e.groupby("bin", observed=False).agg(p_mean=("p", "mean"), y_rate=("y", "mean"), count=("p", "size"))
         total = g["count"].sum()
         ece = (g["count"] * (g["p_mean"] - g["y_rate"]).abs()).sum() / total if total > 0 else float("nan")
         return float(ece)
@@ -240,17 +240,30 @@ def evaluate_totals(start: datetime, end: datetime) -> dict:
                     pp[c] = pp[c.upper()]
                 if c not in ff.columns and c.upper() in ff.columns:
                     ff[c] = ff[c.upper()]
-            keys = [c for c in ("date","home_team","visitor_team") if c in pp.columns and c in ff.columns]
-            if len(keys) >= 2 and "totals" in pp.columns:
-                m = pp.merge(ff, on=keys, suffixes=("_p","_f"))
-                if {"home_score","visitor_score"}.issubset(set(m.columns)):
-                    actual_total = pd.to_numeric(m["home_score"], errors="coerce") + pd.to_numeric(m["visitor_score"], errors="coerce")
-                    rows.append({
-                        "date": ds,
-                        "mae": mae(m["totals"], actual_total),
-                        "rmse": rmse(m["totals"], actual_total),
-                        "pred_total_var": float(pd.to_numeric(m["totals"], errors="coerce").var())
-                    })
+            if "totals" not in pp.columns:
+                continue
+
+            # Prefer joining on stable tri-codes when available (finals_* commonly uses tri-codes).
+            tri_keys = [c for c in ("date", "home_tri", "away_tri") if c in pp.columns and c in ff.columns]
+            name_keys = [c for c in ("date", "home_team", "visitor_team") if c in pp.columns and c in ff.columns]
+            keys = tri_keys if len(tri_keys) >= 2 else name_keys
+            if len(keys) < 2:
+                continue
+
+            m = pp.merge(ff, on=keys, suffixes=("_p","_f"))
+            if {"home_score", "visitor_score"}.issubset(set(m.columns)):
+                actual_total = pd.to_numeric(m["home_score"], errors="coerce") + pd.to_numeric(m["visitor_score"], errors="coerce")
+            elif {"home_pts", "visitor_pts"}.issubset(set(m.columns)):
+                actual_total = pd.to_numeric(m["home_pts"], errors="coerce") + pd.to_numeric(m["visitor_pts"], errors="coerce")
+            else:
+                continue
+
+            rows.append({
+                "date": ds,
+                "mae": mae(m["totals"], actual_total),
+                "rmse": rmse(m["totals"], actual_total),
+                "pred_total_var": float(pd.to_numeric(m["totals"], errors="coerce").var())
+            })
         except Exception:
             continue
     if not rows:
@@ -291,9 +304,9 @@ def evaluate_lines_classification(start: datetime, end: datetime) -> dict:
         res[fav] = (am[fav] > (-ln[fav]).abs()).astype(float)
         res[und] = ((am[und] + ln[und]) > 0).astype(float)
         # Push handling: where equality holds, set NaN to exclude from accuracy
-        push_mask = pd.Series(False, index=am.index)
-        push_mask[fav] = am[fav] == (-ln[fav]).abs()
-        push_mask[und] = (am[und] + ln[und]) == 0
+        push_mask = pd.Series(False, index=am.index, dtype="bool")
+        push_mask.loc[fav] = (am.loc[fav] == (-ln.loc[fav]).abs()).to_numpy()
+        push_mask.loc[und] = ((am.loc[und] + ln.loc[und]) == 0).to_numpy()
         res[push_mask] = pd.NA
         return res
 
@@ -322,10 +335,19 @@ def evaluate_lines_classification(start: datetime, end: datetime) -> dict:
                 for c in ("home_team","visitor_team","date"):
                     if c not in df.columns and c.upper() in df.columns:
                         df[c] = df[c.upper()]
-            keys = [c for c in ("date","home_team","visitor_team") if c in p.columns and c in f.columns and c in o.columns]
-            if len(keys) < 2:
+
+            # Join predictions with finals using tri-codes when possible; then join with odds using team names.
+            tri_keys_pf = [c for c in ("date", "home_tri", "away_tri") if c in p.columns and c in f.columns]
+            name_keys_pf = [c for c in ("date", "home_team", "visitor_team") if c in p.columns and c in f.columns]
+            keys_pf = tri_keys_pf if len(tri_keys_pf) >= 2 else name_keys_pf
+            if len(keys_pf) < 2:
                 continue
-            m = p.merge(f, on=keys, suffixes=("_p","_f")).merge(o, on=keys)
+            pf = p.merge(f, on=keys_pf, suffixes=("_p", "_f"))
+
+            keys_o = [c for c in ("date", "home_team", "visitor_team") if c in pf.columns and c in o.columns]
+            if len(keys_o) < 2:
+                continue
+            m = pf.merge(o, on=keys_o)
             # Actuals
             if {"home_score","visitor_score"}.issubset(m.columns):
                 am = _num(m["home_score"]) - _num(m["visitor_score"])  # actual margin
@@ -443,7 +465,8 @@ def main():
             print("Invalid --start/--end format; expected YYYY-MM-DD"); return 1
     else:
         end = datetime.today() - timedelta(days=1)
-        start = end - timedelta(days=max(1, args.days))
+        # Inclusive range: "last N days" means end-(N-1) .. end
+        start = end - timedelta(days=max(0, args.days - 1))
 
     res = {}
     res.update(evaluate_games(start, end))

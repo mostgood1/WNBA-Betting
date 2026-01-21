@@ -142,53 +142,47 @@ Import-DotEnv -Path $DotEnvPath
 # Ensure Python writes UTF-8 to stdout/stderr to avoid UnicodeEncodeError on Windows PowerShell consoles
 $env:PYTHONIOENCODING = 'utf-8'
 
+# Reduce noisy ONNXRuntime/CPU info warnings (especially on Windows ARM).
+# Safe to set even if ignored by the runtime.
+$env:ONNXRUNTIME_LOG_SEVERITY_LEVEL = '3'
+$env:ORT_DISABLE_CPUINFO = '1'
+
+# PowerShell 7+: avoid treating native stderr as error records.
+if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+  $PSNativeCommandUseErrorActionPreference = $false
+}
+
 Write-Log "Starting NBA local daily update for date=$Date"
 Write-Log "Python: $Python"
 
 # Early exit: skip full run on days with no NBA games
 try {
-  $pyCheck = @'
-import os, sys, json
-import pandas as pd
-from pathlib import Path
-
-repo = Path(os.environ.get("REPO_ROOT", ".")).resolve()
-proc = repo / "data" / "processed"
-jf = proc / "schedule_2025_26.json"
-df = None
-if jf.exists():
-    try:
-        df = pd.read_json(jf)
-    except Exception:
-        df = None
-if df is None or df.empty:
-    try:
-        from nba_betting.schedule import fetch_schedule_2025_26
-        df = fetch_schedule_2025_26()
-    except Exception as e:
-        print(f"ERR:{e}")
-        raise SystemExit(0)
-if "date_utc" in df.columns:
-    df["date_utc"] = pd.to_datetime(df["date_utc"], errors="coerce").dt.date.astype(str)
-mask = (df["date_utc"].astype(str) == os.environ.get("DATE"))
-cnt = int(df[mask].shape[0])
-print(f"COUNT:{cnt}")
-'@
-  $env:REPO_ROOT = $RepoRoot
-  $env:DATE = $Date
-  $out = & $Python -c $pyCheck 2>&1
-  if ($out -match 'COUNT:(\d+)') {
-    $games = [int]([regex]::Match($out, 'COUNT:(\d+)').Groups[1].Value)
+  $jf = Join-Path $RepoRoot 'data\processed\schedule_2025_26.json'
+  if (Test-Path $jf) {
+    $raw = Get-Content -Path $jf -Raw
+    $sched = $raw | ConvertFrom-Json
+    $games = 0
+    try {
+      $games = @($sched | Where-Object {
+        try {
+          $d = $_.date_utc
+          if ($null -eq $d) { return $false }
+          $ds = ([datetime]::Parse($d)).ToString('yyyy-MM-dd')
+          return $ds -eq $Date
+        } catch {
+          return ($_.date_utc -eq $Date)
+        }
+      }).Count
+    } catch {
+      $games = 0
+    }
     if ($games -le 0) {
       Write-Log "No NBA games scheduled today; exiting early"
       return
-    } else {
-      Write-Log ("Slate size: {0} games" -f $games)
     }
-  } elseif ($out -match '^ERR:') {
-    Write-Log ("Schedule check encountered error (continuing): {0}" -f $out)
+    Write-Log ("Slate size: {0} games" -f $games)
   } else {
-    Write-Log ("Schedule check returned: {0}" -f $out)
+    Write-Log "Schedule file not found; skipping schedule gating"
   }
 } catch { Write-Log ("Schedule gating failed (continuing): {0}" -f $_.Exception.Message) }
 
@@ -475,6 +469,121 @@ try {
   Write-Log ("fetch-boxscores error (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4b) Append yesterday's boxscores into durable history (best-effort)
+try {
+  Write-Log ("Updating boxscores history for {0}" -f $yesterday)
+  $rc_bsh = Invoke-PyMod -plist @('-m','nba_betting.cli','update-boxscores-history','--date', $yesterday, '--finals-only')
+  Write-Log ("update-boxscores-history exit code: {0}" -f $rc_bsh)
+} catch {
+  Write-Log ("update-boxscores-history error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4c) Append yesterday's ESPN PBP into durable history (enables rotation priors)
+try {
+  Write-Log ("Updating ESPN PBP history for {0}" -f $yesterday)
+  $rc_pbp_espn = Invoke-PyMod -plist @('-m','nba_betting.cli','update-pbp-espn-history','--date', $yesterday, '--finals-only')
+  Write-Log ("update-pbp-espn-history exit code: {0}" -f $rc_pbp_espn)
+} catch {
+  Write-Log ("update-pbp-espn-history error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4d) Refresh rotation priors from substitution events (team-level)
+try {
+  Write-Log 'Writing rotation priors (first bench sub-in timing)'
+  $rc_rot = Invoke-PyMod -plist @('-m','nba_betting.cli','write-rotation-priors','--lookback-days', '60', '--min-games', '5')
+  Write-Log ("write-rotation-priors exit code: {0}" -f $rc_rot)
+} catch {
+  Write-Log ("write-rotation-priors error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4e) Build ESPN rotation stints/pairs for yesterday (writes data/processed/rotations_espn/* and history files)
+try {
+  $skipRot = $env:DAILY_SKIP_ROTATIONS_ESPN
+  if ($null -eq $skipRot -or $skipRot -notmatch '^(1|true|yes)$') {
+    Write-Log ("Updating ESPN rotations history for {0} (stints/pairs/play_context)" -f $yesterday)
+    $rc_rot_hist = Invoke-PyMod -plist @('-m','nba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.25')
+    Write-Log ("update-rotations-espn-history exit code: {0}" -f $rc_rot_hist)
+
+    # Gap scan: if any stints are missing for yesterday (ESPN flakiness), retry once or twice.
+    try {
+      $rotRetryMax = $env:DAILY_ROTATIONS_ESPN_RETRY_MAX
+      if ($null -eq $rotRetryMax -or $rotRetryMax -eq '') { $rotRetryMax = '1' }
+      try { $rotRetryMax = [int]$rotRetryMax } catch { $rotRetryMax = 1 }
+      if ($rotRetryMax -lt 0) { $rotRetryMax = 0 }
+
+      $tmpPyRotScan = Join-Path $LogPath ("rotations_gap_scan_{0}.py" -f $Stamp)
+      $pyRotScan = @'
+import os
+from pathlib import Path
+
+repo_root = Path(os.environ.get('REPO_ROOT', '.')).resolve()
+date_str = os.environ.get('DATE_STR')
+
+rot_dir = repo_root / 'data' / 'processed' / 'rotations_espn'
+
+def _exists_nonempty(p: Path) -> bool:
+    try:
+        return p.exists() and p.stat().st_size > 0
+    except Exception:
+        return bool(p.exists())
+
+missing = []
+try:
+    from nba_betting.boxscores import _nba_gid_to_tricodes
+    gid_map = _nba_gid_to_tricodes(str(date_str)) or {}
+    for gid in gid_map.keys():
+        gid = str(gid).strip()
+        if not gid:
+            continue
+        hp = rot_dir / f'stints_home_{gid}.csv'
+        ap = rot_dir / f'stints_away_{gid}.csv'
+        if not (_exists_nonempty(hp) and _exists_nonempty(ap)):
+            missing.append(gid)
+except Exception:
+    missing = []
+
+print('MISSING_COUNT:' + str(len(missing)))
+print('MISSING_GIDS:' + ','.join(missing))
+'@
+
+      Set-Content -Path $tmpPyRotScan -Value $pyRotScan -Encoding UTF8
+      $env:REPO_ROOT = $RepoRoot
+      $env:DATE_STR = $yesterday
+
+      for ($attempt = 0; $attempt -le $rotRetryMax; $attempt++) {
+        $scanOut = & $Python $tmpPyRotScan 2>&1 | Tee-Object -FilePath $LogFile -Append
+        $missingCount = 0
+        $missingGids = ''
+        if ($scanOut -match 'MISSING_COUNT:(\d+)') {
+          $missingCount = [int]([regex]::Match($scanOut, 'MISSING_COUNT:(\d+)').Groups[1].Value)
+        }
+        if ($scanOut -match 'MISSING_GIDS:([^\r\n]*)') {
+          $missingGids = [regex]::Match($scanOut, 'MISSING_GIDS:([^\r\n]*)').Groups[1].Value
+        }
+
+        if ($missingCount -le 0) {
+          if ($attempt -gt 0) { Write-Log 'Rotations gap scan: OK after retry' }
+          break
+        }
+        if ($attempt -ge $rotRetryMax) {
+          Write-Log ("Rotations gap scan: still missing after retries ({0}): {1}" -f $missingCount, $missingGids)
+          break
+        }
+
+        Write-Log ("Rotations gap scan: missing {0} games; retrying update-rotations-espn-history (attempt {1}/{2}) gids={3}" -f $missingCount, ($attempt + 1), $rotRetryMax, $missingGids)
+        $rc_rot_retry = Invoke-PyMod -plist @('-m','nba_betting.cli','update-rotations-espn-history','--date', $yesterday, '--rate-delay', '0.5')
+        Write-Log ("update-rotations-espn-history retry exit code: {0}" -f $rc_rot_retry)
+      }
+    } catch {
+      Write-Log ("Rotations gap scan failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+  } else {
+    Write-Log 'Skipping update-rotations-espn-history (DAILY_SKIP_ROTATIONS_ESPN=1)'
+  }
+} catch {
+  Write-Log ("update-rotations-espn-history error (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.5) Backfill missing recon files for the season to date (idempotent)
 try {
   $seasonStart = '2025-10-21'
@@ -663,6 +772,42 @@ try {
   }
 } catch { Write-Log ("Recon quarters backfill block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 2.4d.b) Build quarter calibration artifact (used by SmartSim per-quarter realism)
+# Controlled by env DAILY_SKIP_QUARTERS_CALIB=1; otherwise rebuild if missing, older than 7 days,
+# or recon_quarters_* has been updated more recently than the calibration artifact.
+try {
+  $skipQCal = $env:DAILY_SKIP_QUARTERS_CALIB
+  if ($null -ne $skipQCal -and $skipQCal -match '^(1|true|yes)$') {
+    Write-Log 'Skipping quarters calibration build (DAILY_SKIP_QUARTERS_CALIB=1)'
+  } else {
+    $qcalPath = Join-Path $RepoRoot 'data/processed/quarters_calibration.json'
+    $needBuild = $true
+    if (Test-Path $qcalPath) {
+      $needBuild = $false
+      try {
+        $qcalItem = Get-Item $qcalPath
+        $ageDays = ((Get-Date) - $qcalItem.LastWriteTime).TotalDays
+        if ($ageDays -ge 7) { $needBuild = $true }
+
+        $reconGlob = Join-Path $RepoRoot 'data/processed/recon_quarters_*.csv'
+        $latestRecon = Get-ChildItem -Path $reconGlob -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($null -ne $latestRecon -and $latestRecon.LastWriteTime -gt $qcalItem.LastWriteTime) {
+          $needBuild = $true
+        }
+      } catch { }
+    }
+    if ($needBuild) {
+      Write-Log 'Building quarters calibration -> data/processed/quarters_calibration.json'
+      $rc_qcal = Invoke-PyMod -plist @('tools/build_quarters_calibration.py','--workspace', $RepoRoot, '--out', 'data/processed/quarters_calibration.json')
+      Write-Log ("build_quarters_calibration exit code: {0}" -f $rc_qcal)
+    } else {
+      Write-Log 'Quarters calibration: up-to-date (skipping rebuild)'
+    }
+  }
+} catch {
+  Write-Log ("Quarters calibration build failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.4e) Calibrate game totals (global + team) using rolling window anchored at yesterday
 try {
   Write-Log ("Calibrating game totals (window=14) anchored at {0}" -f $yesterday)
@@ -695,72 +840,75 @@ if (-not $SkipTotalsCalib) {
     try {
       $tmpPy = Join-Path $LogPath ("validate_predictions_{0}.py" -f $Stamp)
       $pyCode = @"
-  import sys, os, pandas as pd, numpy as np
-  from pathlib import Path
-  pred_path = Path(r"$tmpOut")
-  ok=True; why=[]; stats={}
-  if not pred_path.exists():
-    print("NO:file_missing"); sys.exit(0)
-  df = pd.read_csv(pred_path)
+import sys, os, pandas as pd, numpy as np
+from pathlib import Path
 
-  # Thresholds from environment with sensible defaults
-  def _getf(name, default):
-    try:
-      v = os.environ.get(name)
-      return float(v) if v is not None and str(v).strip() != '' else float(default)
-    except Exception:
-      return float(default)
-  TOT_MIN = _getf('TOTALS_MIN', 120)
-  TOT_MAX = _getf('TOTALS_MAX', 300)
-  QTR_MIN = _getf('QTR_MIN', 15)
-  QTR_MAX = _getf('QTR_MAX', 80)
-  HALF_MIN = _getf('HALF_MIN', 30)
-  HALF_MAX = _getf('HALF_MAX', 160)
-  QSUM_TOL = _getf('QSUM_TOL', 25)
+pred_path = Path(r"$tmpOut")
+ok=True; why=[]; stats={}
+if not pred_path.exists():
+  print("NO:file_missing"); sys.exit(0)
+df = pd.read_csv(pred_path)
 
-  def in_range(s, lo, hi):
-    import pandas as _pd
-    s = _pd.to_numeric(s, errors="coerce")
-    if s.isna().all():
-      return False
-    v = s.dropna().astype(float)
-    try:
-      key = getattr(s, 'name', None) or 'col'
-      if len(v) > 0:
-        stats[key] = {'min': float(np.nanmin(v)), 'max': float(np.nanmax(v))}
-    except Exception:
-      pass
-    return bool(((s >= lo) & (s <= hi)).fillna(True).all())
-
-  cols = set(df.columns)
-  if ("totals" not in cols) or (not in_range(df["totals"], TOT_MIN, TOT_MAX)):
-    ok=False; why.append("totals_out_of_range")
-  for c, lo, hi in [
-    ("quarters_q1_total", QTR_MIN, QTR_MAX),
-    ("quarters_q2_total", QTR_MIN, QTR_MAX),
-    ("quarters_q3_total", QTR_MIN, QTR_MAX),
-    ("quarters_q4_total", QTR_MIN, QTR_MAX),
-    ("halves_h1_total", HALF_MIN, HALF_MAX),
-    ("halves_h2_total", HALF_MIN, HALF_MAX),
-  ]:
-    if c in cols and not in_range(df[c], lo, hi):
-      ok=False; why.append(f"{c}_out_of_range")
-  # Optional: quarter sum approx equals game totals within tolerance where all quarters present
+# Thresholds from environment with sensible defaults
+def _getf(name, default):
   try:
-    need = ["quarters_q1_total","quarters_q2_total","quarters_q3_total","quarters_q4_total","totals"]
-    if all(n in cols for n in need):
-      import pandas as _pd
-      qsum = sum(_pd.to_numeric(df[n], errors="coerce") for n in need[:-1])
-      tot = _pd.to_numeric(df["totals"], errors="coerce")
-      diff = (qsum - tot).abs()
-      if not (diff <= QSUM_TOL).fillna(True).all():
-        ok=False; why.append("quarter_sum_mismatch")
+    v = os.environ.get(name)
+    return float(v) if v is not None and str(v).strip() != '' else float(default)
+  except Exception:
+    return float(default)
+TOT_MIN = _getf('TOTALS_MIN', 120)
+TOT_MAX = _getf('TOTALS_MAX', 300)
+QTR_MIN = _getf('QTR_MIN', 15)
+QTR_MAX = _getf('QTR_MAX', 80)
+HALF_MIN = _getf('HALF_MIN', 30)
+HALF_MAX = _getf('HALF_MAX', 160)
+QSUM_TOL = _getf('QSUM_TOL', 25)
+
+def in_range(s, lo, hi):
+  import pandas as _pd
+  s = _pd.to_numeric(s, errors="coerce")
+  if s.isna().all():
+    return False
+  v = s.dropna().astype(float)
+  try:
+    key = getattr(s, 'name', None) or 'col'
+    if len(v) > 0:
+      stats[key] = {'min': float(np.nanmin(v)), 'max': float(np.nanmax(v))}
   except Exception:
     pass
-  if ok:
-    print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
-  else:
-    print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
+  return bool(((s >= lo) & (s <= hi)).fillna(True).all())
+
+cols = set(df.columns)
+if ("totals" not in cols) or (not in_range(df["totals"], TOT_MIN, TOT_MAX)):
+  ok=False; why.append("totals_out_of_range")
+for c, lo, hi in [
+  ("quarters_q1_total", QTR_MIN, QTR_MAX),
+  ("quarters_q2_total", QTR_MIN, QTR_MAX),
+  ("quarters_q3_total", QTR_MIN, QTR_MAX),
+  ("quarters_q4_total", QTR_MIN, QTR_MAX),
+  ("halves_h1_total", HALF_MIN, HALF_MAX),
+  ("halves_h2_total", HALF_MIN, HALF_MAX),
+]:
+  if c in cols and not in_range(df[c], lo, hi):
+    ok=False; why.append(f"{c}_out_of_range")
+
+# Optional: quarter sum approx equals game totals within tolerance where all quarters present
+try:
+  need = ["quarters_q1_total","quarters_q2_total","quarters_q3_total","quarters_q4_total","totals"]
+  if all(n in cols for n in need):
+    import pandas as _pd
+    qsum = sum(_pd.to_numeric(df[n], errors="coerce") for n in need[:-1])
+    tot = _pd.to_numeric(df["totals"], errors="coerce")
+    diff = (qsum - tot).abs()
+    if not (diff <= QSUM_TOL).fillna(True).all():
+      ok=False; why.append("quarter_sum_mismatch")
+except Exception:
+  pass
+
+if ok:
+  print("OK:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
+else:
+  print("NO:"+",".join(why)+";stats:"+str({k:{'min':v['min'],'max':v['max']} for k,v in stats.items()}))
 "@
       Set-Content -Path $tmpPy -Value $pyCode -Encoding UTF8
       $valOut = & $Python $tmpPy 2>&1 | Tee-Object -FilePath $LogFile -Append
@@ -865,7 +1013,11 @@ $rc3a = Invoke-PyMod -plist @(
   '--slate-only',
   '--calibrate','--calib-window','7',
   '--calibrate-player','--player-calib-window','30',
-  '--use-pure-onnx'
+  '--use-pure-onnx',
+  '--use-smart-sim',
+  '--smart-sim-n-sims','150',
+  '--smart-sim-pbp',
+  '--smart-sim-overwrite'
 )
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
@@ -1004,7 +1156,8 @@ print('OK' if ok else f'NO:{why}')
 } catch { Write-Log ("Props odds snapshot block failed: {0}" -f $_.Exception.Message) }
 
 # 5) Props edges for today: force mode=current to ensure processed per-day odds snapshots are written
-$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only')
+# Apply probability calibration (uses last saved curve; loader validates sanity)
+$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only','--calibrate-prob')
 Write-Log ("props-edges (oddsapi, mode=current) exit code: {0}" -f $rc4a)
 
 # 6) Export recommendations CSVs for site consumption
@@ -1014,7 +1167,18 @@ Write-Log ("export-recommendations exit code: {0}" -f $rc5)
 # 6b) High-confidence picks (blended scoring) for games
 try {
   Write-Log ("Generating high-confidence picks for {0}" -f $Date)
-  $rc5b = Invoke-PyMod -plist @('-m','nba_betting.cli','recommend-picks','--date', $Date, '--topN','10','--minScore','0.15')
+  $rc5b = Invoke-PyMod -plist @(
+    '-m','nba_betting.cli','recommend-picks',
+    '--date', $Date,
+    '--topN','10',
+    '--minScore','0.15',
+    '--minAtsEdge','0.05',
+    '--minAtsEV','0.00',
+    '--atsBlend','0.25',
+    '--minTotalEdge','0.02',
+    '--minTotalEV','0.00',
+    '--totalsBlend','0.10'
+  )
   Write-Log ("recommend-picks exit code: {0}" -f $rc5b)
 } catch {
   Write-Log ("recommend-picks failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -1058,7 +1222,7 @@ def _regular_price(pr):
     if pr is None or (isinstance(pr, float) and math.isnan(pr)):
       return False
     v = float(pr)
-    return (-150.0 <= v <= 125.0)
+    return (-150.0 <= v <= 150.0)
   except Exception:
     return False
 
@@ -1068,6 +1232,23 @@ def _choose_top_play(plays):
   # Prefer regular-priced plays, fallback to any
   regular = [p for p in plays if _regular_price(p.get("price"))]
   cand = regular if regular else plays
+
+  def eligible(p):
+    mkt = str(p.get("market") or "").lower()
+    if mkt in {"pts", "pra"}:
+      edge = p.get("edge")
+      try:
+        return edge is not None and abs(float(edge)) >= 0.15
+      except Exception:
+        return False
+    return True
+
+  # Prefer core markets when available (avoid pts/pra unless very strong)
+  core = {"reb", "ra", "ast"}
+  core_cand = [p for p in cand if str(p.get("market") or "").lower() in core and eligible(p)]
+  elig = [p for p in cand if eligible(p)]
+  cand = core_cand if core_cand else (elig if elig else cand)
+
   def score(p):
     evp = p.get("ev_pct")
     if evp is not None:
@@ -1161,7 +1342,7 @@ def _consensus_line_adv(row):
       if abs(float(pr) + 110.0) <= 10.0:
         reasons.append("Friendly price (~-110)")
       if _regular_price(pr):
-        reasons.append("Regular price range")
+        reasons.append("Regular price range (-150 to +150)")
     except Exception:
       pass
   # Consensus: same market/side across books (prefer regular-priced set)
@@ -1281,6 +1462,201 @@ try {
   Write-Log ("export-game-cards exit code: {0}" -f $rcCards)
 } catch {
   Write-Log ("export-game-cards failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 7.2) SmartSim distributions for today's slate (writes per-game smart_sim_<date>_<HOME>_<AWAY>.json)
+try {
+  $skipSmart = $env:DAILY_SKIP_SMARTSIM
+  if ($null -eq $skipSmart -or $skipSmart -notmatch '^(1|true|yes)$') {
+    $nSmart = $env:DAILY_SMARTSIM_NSIMS
+    if ($null -eq $nSmart -or $nSmart -eq '') { $nSmart = '300' }
+    $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
+    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart)
+    if ($null -ne $maxSmart -and $maxSmart -ne '') { $plist += @('--max-games', $maxSmart) }
+    Write-Log ("Running SmartSim slate for {0} (n_sims={1})" -f $Date, $nSmart)
+    $rcSmart = Invoke-PyMod -plist $plist
+    Write-Log ("smart-sim-date exit code: {0}" -f $rcSmart)
+  } else {
+    Write-Log 'Skipping smart-sim-date (DAILY_SKIP_SMARTSIM=1)'
+  }
+} catch {
+  Write-Log ("smart-sim-date failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 8) End-to-end artifact validation (writes data/processed/daily_artifacts_<date>.json)
+try {
+  $fail = $env:DAILY_FAIL_ON_MISSING_ARTIFACTS
+  if ($null -eq $fail -or $fail -eq '') { $fail = '1' }
+  $reqOdds = $env:DAILY_REQUIRE_ODDS
+  if ($null -eq $reqOdds -or $reqOdds -eq '') { $reqOdds = '1' }
+  $reqSmart = $env:DAILY_REQUIRE_SMARTSIM
+  if ($null -eq $reqSmart -or $reqSmart -eq '') {
+    # If SmartSim was intentionally skipped, don't require SmartSim artifacts by default.
+    $skipSmartNow = $env:DAILY_SKIP_SMARTSIM
+    if ($null -ne $skipSmartNow -and $skipSmartNow -match '^(1|true|yes)$') { $reqSmart = '0' } else { $reqSmart = '1' }
+  }
+  $reqRot = $env:DAILY_REQUIRE_ROTATIONS_ESPN
+  if ($null -eq $reqRot -or $reqRot -eq '') { $reqRot = '1' }
+
+  $tmpPyV = Join-Path $LogPath ("validate_daily_artifacts_{0}.py" -f $Stamp)
+  $pyValDaily = @'
+import os, json
+from pathlib import Path
+
+repo_root = Path(os.environ.get('REPO_ROOT', '.')).resolve()
+date_str = os.environ.get('DATE_STR')
+date_yesterday = os.environ.get('DATE_YESTERDAY')
+fail_on_missing = (str(os.environ.get('FAIL_ON_MISSING') or '0').lower() in {'1','true','yes'})
+require_odds = (str(os.environ.get('REQUIRE_ODDS') or '0').lower() in {'1','true','yes'})
+require_smartsim = (str(os.environ.get('REQUIRE_SMARTSIM') or '0').lower() in {'1','true','yes'})
+require_rotations = (str(os.environ.get('REQUIRE_ROTATIONS') or '0').lower() in {'1','true','yes'})
+
+proc = repo_root / 'data' / 'processed'
+pred = proc / f'predictions_{date_str}.csv'
+props = proc / f'props_predictions_{date_str}.csv'
+odds = proc / f'game_odds_{date_str}.csv'
+
+def _exists_nonempty(p: Path) -> bool:
+    try:
+        return p.exists() and p.stat().st_size > 0
+    except Exception:
+        return bool(p.exists())
+
+slate_games = None
+try:
+    import pandas as pd
+    df = None
+    if _exists_nonempty(pred):
+        df = pd.read_csv(pred)
+    # best-effort: count unique games (predictions can contain duplicate rows)
+    if df is not None and not df.empty:
+        if {'home_team','visitor_team'}.issubset(set(df.columns)):
+            slate_games = int(df[['home_team','visitor_team']].drop_duplicates().shape[0])
+        else:
+            slate_games = int(len(df))
+except Exception:
+    slate_games = None
+
+smart = sorted(proc.glob(f'smart_sim_{date_str}_*.json'))
+smart_count = len(smart)
+
+# Rotation stints presence for yesterday's games (used by rotation-driven SmartSim)
+# IMPORTANT: stints files are keyed by NBA scoreboard gameId (e.g. 0022500602)
+rot_dir = proc / 'rotations_espn'
+rot_expected = None
+rot_have = 0
+rot_missing_gids = []
+rot_excused_no_event_gids = []
+rot_error = None
+try:
+    if date_yesterday:
+        try:
+            from nba_betting.boxscores import _nba_gid_to_tricodes
+            gid_map = _nba_gid_to_tricodes(str(date_yesterday)) or {}
+            gids = sorted([str(g).strip() for g in gid_map.keys() if str(g).strip()])
+
+            # If ESPN returns no event for a game, rotations cannot be fetched.
+            # Treat those as excused (non-fatal) gaps.
+            excused = set()
+            try:
+                import csv
+
+                failures_fp = rot_dir / f"rotations_failures_{str(date_yesterday)}.csv"
+                if failures_fp.exists() and failures_fp.stat().st_size > 0:
+                    with failures_fp.open("r", encoding="utf-8", newline="") as f:
+                        reader = csv.DictReader(f)
+                        for row in reader:
+                            gid = str((row or {}).get("game_id") or "").strip()
+                            err = str((row or {}).get("error") or "").strip().lower()
+                            if gid and err == "no_event":
+                                excused.add(gid)
+            except Exception:
+                excused = set()
+
+            rot_excused_no_event_gids = sorted(excused)
+            rot_expected = len([g for g in gids if g not in excused])
+
+            for gid in gids:
+                if gid in excused:
+                    continue
+                hp = rot_dir / f'stints_home_{gid}.csv'
+                ap = rot_dir / f'stints_away_{gid}.csv'
+                if _exists_nonempty(hp) and _exists_nonempty(ap):
+                    rot_have += 1
+                else:
+                    rot_missing_gids.append(gid)
+        except Exception as e:
+            rot_error = f"gid_map_failed: {e}"
+except Exception as e:
+    rot_error = str(e)
+
+missing = []
+if not _exists_nonempty(pred):
+    missing.append(str(pred.name))
+if not _exists_nonempty(props):
+    missing.append(str(props.name))
+if require_odds and (not _exists_nonempty(odds)):
+    missing.append(str(odds.name))
+if require_smartsim and slate_games is not None and slate_games > 0 and smart_count < max(1, slate_games):
+    missing.append(f'smart_sim_{date_str}_*.json ({smart_count}/{slate_games})')
+
+if require_rotations:
+    # Only enforce if we could determine the expected game list.
+    if rot_expected is None:
+        missing.append('rotations_espn stints (could not determine game ids)')
+    elif rot_expected > 0 and rot_have < rot_expected:
+        missing.append(f'rotations_espn stints ({rot_have}/{rot_expected})')
+
+out = {
+    'date': date_str,
+    'yesterday': date_yesterday,
+    'predictions_ok': _exists_nonempty(pred),
+    'props_predictions_ok': _exists_nonempty(props),
+    'game_odds_ok': _exists_nonempty(odds),
+    'slate_games': slate_games,
+    'smart_sim_count': smart_count,
+    'rotations_dir_exists': bool(rot_dir.exists()),
+    'rotations_expected_games_yesterday': rot_expected,
+    'rotations_have_games_yesterday': rot_have,
+    'rotations_missing_game_ids_yesterday': rot_missing_gids[:50],
+    'rotations_excused_no_event_game_ids_yesterday': rot_excused_no_event_gids[:50],
+    'rotations_error': rot_error,
+    'require_odds': require_odds,
+    'require_smartsim': require_smartsim,
+    'require_rotations_espn': require_rotations,
+    'missing': missing,
+    'ok': (len(missing) == 0),
+}
+
+try:
+    fp = proc / f'daily_artifacts_{date_str}.json'
+    fp.write_text(json.dumps(out, indent=2), encoding='utf-8')
+except Exception:
+    pass
+
+print(json.dumps(out, indent=2))
+if fail_on_missing and missing:
+    raise SystemExit(3)
+'@
+
+  Set-Content -Path $tmpPyV -Value $pyValDaily -Encoding UTF8
+  $env:REPO_ROOT = $RepoRoot
+  $env:DATE_STR = $Date
+  $env:DATE_YESTERDAY = $yesterday
+  $env:FAIL_ON_MISSING = $fail
+  $env:REQUIRE_ODDS = $reqOdds
+  $env:REQUIRE_SMARTSIM = $reqSmart
+  $env:REQUIRE_ROTATIONS = $reqRot
+  Write-Log 'Validating daily artifacts (predictions/props/odds/smart_sim)'
+  $outV = & $Python $tmpPyV 2>&1 | Tee-Object -FilePath $LogFile -Append
+  if ($LASTEXITCODE -ne 0) {
+    Write-Log ("Daily artifact validation failed (exit={0})" -f $LASTEXITCODE)
+    if ($fail -match '^(1|true|yes)$') { throw "daily artifacts missing" }
+  } else {
+    Write-Log 'Daily artifact validation OK'
+  }
+} catch {
+  Write-Log ("Daily artifact validation block failed: {0}" -f $_.Exception.Message)
 }
 
 # Simple retention: keep last 21 local_daily_update_* logs

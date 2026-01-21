@@ -11,6 +11,7 @@ except Exception:  # pragma: no cover
 
 import pandas as pd
 import requests
+import numpy as np
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
 
 from .config import paths
@@ -590,18 +591,107 @@ def consensus_lines_at_close(odds_df: pd.DataFrame) -> pd.DataFrame:
         "event_id","bookmaker","market","outcome_name","point"
     ], as_index=False, sort=False).tail(1)
 
-    # Pivot helpers
-    def american_mean(series):
+    # --- Price aggregation helpers ---
+    # NOTE: Averaging American odds directly is invalid and can yield nonsense like -30.
+    # We aggregate via implied probabilities, optionally normalizing the two sides per bookmaker.
+    def _to_float(x) -> Optional[float]:
         try:
-            return float(pd.to_numeric(series, errors="coerce").dropna().mean())
+            v = pd.to_numeric(x, errors="coerce")
+            fv = float(v)
+            return fv if pd.notna(v) and pd.notna(fv) and pd.isna(pd.NA) is False else fv
         except Exception:
-            return pd.NA
+            try:
+                fv = float(x)
+                return fv if pd.notna(fv) else None
+            except Exception:
+                return None
 
-    # h2h -> moneyline
+    def _implied_prob_from_american_or_prob(price: Optional[float]) -> Optional[float]:
+        """Convert American odds -> implied prob.
+
+        Also supports already-probabilistic inputs in (0,1).
+        """
+        try:
+            if price is None:
+                return None
+            p = float(price)
+            if not pd.notna(p):
+                return None
+            # Already a probability
+            if 0.0 < p < 1.0:
+                return float(np.clip(p, 1e-6, 1.0 - 1e-6))
+
+            # American odds
+            if p > 0:
+                ip = 100.0 / (p + 100.0)
+            elif p < 0:
+                ip = (-p) / ((-p) + 100.0)
+            else:
+                return None
+            if not np.isfinite(ip) or ip <= 0.0 or ip >= 1.0:
+                return None
+            return float(np.clip(ip, 1e-6, 1.0 - 1e-6))
+        except Exception:
+            return None
+
+    def _american_from_implied_prob(prob: Optional[float]) -> Optional[float]:
+        """Convert implied prob -> American odds (float).
+
+        Uses standard convention:
+        - favorites (p>=0.5): negative
+        - underdogs (p<0.5): positive
+        """
+        try:
+            if prob is None:
+                return None
+            p = float(prob)
+            if not np.isfinite(p) or p <= 0.0 or p >= 1.0:
+                return None
+            if p >= 0.5:
+                ml = -100.0 * p / (1.0 - p)
+            else:
+                ml = 100.0 * (1.0 - p) / p
+            if not np.isfinite(ml):
+                return None
+            return float(ml)
+        except Exception:
+            return None
+
+    def _prob_mean_from_prices(series: pd.Series) -> Optional[float]:
+        try:
+            vals = pd.to_numeric(series, errors="coerce").dropna().astype(float).tolist()
+            probs = [p for p in (_implied_prob_from_american_or_prob(v) for v in vals) if p is not None]
+            if not probs:
+                return None
+            return float(np.mean(probs))
+        except Exception:
+            return None
+
+    # h2h -> moneyline (aggregate via implied probs; normalize within each bookmaker)
     h2h = h2h_last.copy()
-    # Note: outcome_name here is the team name; group by event and average across books
-    h2h_home = h2h[h2h["outcome_name"] == h2h["home_team"]].groupby("event_id")["price"].apply(american_mean)
-    h2h_away = h2h[h2h["outcome_name"] == h2h["away_team"]].groupby("event_id")["price"].apply(american_mean)
+    try:
+        h2h["price_num"] = pd.to_numeric(h2h["price"], errors="coerce")
+    except Exception:
+        h2h["price_num"] = pd.NA
+    # Pivot per book to normalize the two sides (removes book vig effects on averaging)
+    try:
+        hp = h2h[h2h["outcome_name"] == h2h["home_team"]][["event_id", "bookmaker", "price_num"]].rename(columns={"price_num": "home_price"})
+        ap = h2h[h2h["outcome_name"] == h2h["away_team"]][["event_id", "bookmaker", "price_num"]].rename(columns={"price_num": "away_price"})
+        pv = hp.merge(ap, on=["event_id", "bookmaker"], how="inner")
+        pv["p_home"] = pv["home_price"].map(_implied_prob_from_american_or_prob)
+        pv["p_away"] = pv["away_price"].map(_implied_prob_from_american_or_prob)
+        # normalize if both present
+        s = pv[["p_home", "p_away"]].sum(axis=1)
+        pv.loc[s > 0, "p_home"] = pv.loc[s > 0, "p_home"] / s[s > 0]
+        pv.loc[s > 0, "p_away"] = pv.loc[s > 0, "p_away"] / s[s > 0]
+        p_home_cons = pv.groupby("event_id")["p_home"].mean()
+        p_away_cons = pv.groupby("event_id")["p_away"].mean()
+        h2h_home = p_home_cons.map(_american_from_implied_prob)
+        h2h_away = p_away_cons.map(_american_from_implied_prob)
+    except Exception:
+        # Fallback: per-side prob mean without normalization
+        h2h_home = h2h[h2h["outcome_name"] == h2h["home_team"]].groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
+        h2h_away = h2h[h2h["outcome_name"] == h2h["away_team"]].groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
 
     # spreads -> choose modal point per event and average price for both sides at that point
     sp = sp_last.copy()
@@ -614,12 +704,27 @@ def consensus_lines_at_close(odds_df: pd.DataFrame) -> pd.DataFrame:
     # Avoid event_id being both index and column post-merge
     sp_at_mode = sp_at_mode.reset_index(drop=True)
     sp_at_mode = sp_at_mode[sp_at_mode["point"] == sp_at_mode["mode_point"]]
-    sp_price_home = sp_at_mode.groupby("event_id")["price"].apply(american_mean)
+
     # For away price, align to the same modal point rows for away side
     sp_at_mode_away = sp_away.merge(sp_mode_point.rename("mode_point"), left_on="event_id", right_index=True)
     sp_at_mode_away = sp_at_mode_away.reset_index(drop=True)
     sp_at_mode_away = sp_at_mode_away[sp_at_mode_away["point"] == sp_at_mode_away["mode_point"]]
-    sp_price_away = sp_at_mode_away.groupby("event_id")["price"].apply(american_mean)
+
+    # Aggregate spread prices via implied probs (normalize per bookmaker when possible)
+    try:
+        sp_h = sp_at_mode[["event_id", "bookmaker", "price", "mode_point"]].copy()
+        sp_a = sp_at_mode_away[["event_id", "bookmaker", "price", "mode_point"]].copy()
+        sp_h["p_home"] = pd.to_numeric(sp_h["price"], errors="coerce").map(_implied_prob_from_american_or_prob)
+        sp_a["p_away"] = pd.to_numeric(sp_a["price"], errors="coerce").map(_implied_prob_from_american_or_prob)
+        spv = sp_h[["event_id", "bookmaker", "p_home"]].merge(sp_a[["event_id", "bookmaker", "p_away"]], on=["event_id", "bookmaker"], how="inner")
+        s = spv[["p_home", "p_away"]].sum(axis=1)
+        spv.loc[s > 0, "p_home"] = spv.loc[s > 0, "p_home"] / s[s > 0]
+        spv.loc[s > 0, "p_away"] = spv.loc[s > 0, "p_away"] / s[s > 0]
+        sp_price_home = spv.groupby("event_id")["p_home"].mean().map(_american_from_implied_prob)
+        sp_price_away = spv.groupby("event_id")["p_away"].mean().map(_american_from_implied_prob)
+    except Exception:
+        sp_price_home = sp_at_mode.groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
+        sp_price_away = sp_at_mode_away.groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
 
     # totals -> pick modal point; compute Over and Under average prices
     tot = tot_last.copy()
@@ -629,11 +734,26 @@ def consensus_lines_at_close(odds_df: pd.DataFrame) -> pd.DataFrame:
     tot_at_mode = tot_over.merge(tot_mode_point.rename("mode_point"), left_on="event_id", right_index=True)
     tot_at_mode = tot_at_mode.reset_index(drop=True)
     tot_at_mode = tot_at_mode[tot_at_mode["point"] == tot_at_mode["mode_point"]]
-    tot_price_over = tot_at_mode.groupby("event_id")["price"].apply(american_mean)
+
     tot_at_mode_under = tot_under.merge(tot_mode_point.rename("mode_point"), left_on="event_id", right_index=True)
     tot_at_mode_under = tot_at_mode_under.reset_index(drop=True)
     tot_at_mode_under = tot_at_mode_under[tot_at_mode_under["point"] == tot_at_mode_under["mode_point"]]
-    tot_price_under = tot_at_mode_under.groupby("event_id")["price"].apply(american_mean)
+
+    # Aggregate totals prices via implied probs (normalize per bookmaker when possible)
+    try:
+        to = tot_at_mode[["event_id", "bookmaker", "price"]].copy()
+        tu = tot_at_mode_under[["event_id", "bookmaker", "price"]].copy()
+        to["p_over"] = pd.to_numeric(to["price"], errors="coerce").map(_implied_prob_from_american_or_prob)
+        tu["p_under"] = pd.to_numeric(tu["price"], errors="coerce").map(_implied_prob_from_american_or_prob)
+        tv = to[["event_id", "bookmaker", "p_over"]].merge(tu[["event_id", "bookmaker", "p_under"]], on=["event_id", "bookmaker"], how="inner")
+        s = tv[["p_over", "p_under"]].sum(axis=1)
+        tv.loc[s > 0, "p_over"] = tv.loc[s > 0, "p_over"] / s[s > 0]
+        tv.loc[s > 0, "p_under"] = tv.loc[s > 0, "p_under"] / s[s > 0]
+        tot_price_over = tv.groupby("event_id")["p_over"].mean().map(_american_from_implied_prob)
+        tot_price_under = tv.groupby("event_id")["p_under"].mean().map(_american_from_implied_prob)
+    except Exception:
+        tot_price_over = tot_at_mode.groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
+        tot_price_under = tot_at_mode_under.groupby("event_id")["price"].apply(lambda s: _american_from_implied_prob(_prob_mean_from_prices(s)))
 
     # Liquidity metrics: count distinct bookmakers contributing per event
     try:

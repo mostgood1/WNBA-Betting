@@ -2,6 +2,12 @@ from __future__ import annotations
 
 import click
 import os
+
+# Reduce noisy ONNXRuntime logging on some platforms (e.g., Windows ARM).
+# Safe to set even if ignored by the runtime.
+os.environ.setdefault("ONNXRUNTIME_LOG_SEVERITY_LEVEL", "3")
+os.environ.setdefault("ORT_DISABLE_CPUINFO", "1")
+
 import pandas as pd
 import numpy as np
 import subprocess
@@ -20,7 +26,7 @@ from .rosters import fetch_rosters
 from .league_status import build_league_status
 from .roster_audit import audit_roster_for_date
 from .player_logs import fetch_player_logs
-from .teams import normalize_team
+from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
 from .pbp_markets import train_all_pbp_markets, predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
@@ -31,7 +37,11 @@ from .props_actuals import fetch_prop_actuals_via_nba_cdn, fetch_prop_actuals_vi
 from .props_features import build_props_features, build_features_for_date
 from .finals import fetch_finals, write_finals_csv
 from .pbp import fetch_pbp_for_date, backfill_pbp
-from .boxscores import fetch_boxscores_for_date, backfill_boxscores
+from .boxscores import fetch_boxscores_for_date, backfill_boxscores, update_boxscores_history_for_date
+from .pbp_espn import fetch_pbp_espn_for_date, update_pbp_espn_history_for_date, backfill_pbp_espn_history
+from .rotation_priors import write_rotation_priors
+from .rotations_espn import update_rotations_history_for_date
+from .lineup_context_features import build_lineup_teammate_effects
 # from .props_train import train_props_models, predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_edges import compute_props_edges, SigmaConfig, calibrate_sigma_for_date
 from .props_linear import train_linear_props_models, export_linear_to_onnx
@@ -44,7 +54,7 @@ import subprocess
 from pathlib import Path
 import sys
 import time
-from typing import Optional
+from typing import Optional, Any
 from datetime import date as _date
 
 from .pbp_markets import _game_ids_for_date as _pbp_game_ids_for_date  # reuse for backtest
@@ -146,6 +156,366 @@ def simulate_games_cmd(date_str: str, sd_margin: float, sd_total: float):
         console.print(f"[yellow]No odds/factors available for {date_str}; wrote empty output if any.")
     else:
         console.print(f"[green]Wrote simulations for {date_str}: {len(df)} games")
+
+
+@cli.command("smart-sim")
+@click.option("--date", "date_str", required=True, help="YYYY-MM-DD date")
+@click.option("--home", "home_tri", required=True, help="Home team tricode (e.g., LAL)")
+@click.option("--away", "away_tri", required=True, help="Away team tricode (e.g., BOS)")
+@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims")
+@click.option("--seed", type=int, default=None, help="RNG seed")
+@click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
+@click.option("--market-total", type=float, default=None, help="Optional game total line")
+@click.option("--home-spread", type=float, default=None, help="Optional home spread line (e.g., -3.5)")
+def smart_sim_cmd(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    n_sims: int,
+    seed: Optional[int],
+    pbp: bool,
+    market_total: Optional[float],
+    home_spread: Optional[float],
+):
+    """Run SmartSim (event-level full-game simulation) for one matchup.
+
+    Loads props predictions for the date and produces:
+      - score distribution + ML/ATS/total probabilities
+      - player stat distributions (pts/reb/ast/threes/stl/blk/tov + PRA)
+
+    Output is written to data/processed/smart_sim_<date>_<HOME>_<AWAY>.json
+    """
+    try:
+        import json
+
+        from .sim.smart_sim import SmartSimConfig, simulate_smart_game
+        from .sim.quarters import GameInputs, TeamContext, simulate_quarters
+    except Exception as e:
+        console.print(f"[red]Import error: {e}")
+        raise SystemExit(1)
+
+    home_tri = str(home_tri or "").strip().upper()
+    away_tri = str(away_tri or "").strip().upper()
+    if len(home_tri) != 3 or len(away_tri) != 3:
+        console.print("[red]--home/--away must be NBA tricodes (3 letters)")
+        raise SystemExit(2)
+
+    props_path = paths.data_processed / f"props_predictions_{date_str}.csv"
+    if not props_path.exists():
+        console.print(f"[red]Missing props predictions: {props_path}")
+        raise SystemExit(2)
+    props_df = pd.read_csv(props_path)
+
+    # Minimal quarter model: pace defaults to 98, ratings inferred from predicted total/margin
+    # if predictions for this date exist; otherwise uses league-average.
+    pred_path = paths.data_processed / f"predictions_{date_str}.csv"
+    pred_total = None
+    pred_margin = None
+    pred_market_total = None
+    pred_home_spread = None
+    if pred_path.exists():
+        try:
+            pdf = pd.read_csv(pred_path)
+            pdf["home_tri"] = pdf.get("home_team", "").astype(str).map(to_tricode)
+            pdf["away_tri"] = pdf.get("visitor_team", "").astype(str).map(to_tricode)
+            row = pdf[(pdf["home_tri"] == home_tri) & (pdf["away_tri"] == away_tri)].head(1)
+            if not row.empty:
+                r = row.iloc[0]
+                pred_total = float(r.get("totals") or np.nan)
+                pred_margin = float(r.get("spread_margin") or np.nan)
+                try:
+                    pred_market_total = float(r.get("total") or np.nan)
+                except Exception:
+                    pred_market_total = None
+                try:
+                    pred_home_spread = float(r.get("home_spread") or np.nan)
+                except Exception:
+                    pred_home_spread = None
+        except Exception:
+            pred_total = None
+            pred_margin = None
+
+    if market_total is None and (pred_market_total is not None) and np.isfinite(pred_market_total):
+        market_total = float(pred_market_total)
+    if home_spread is None and (pred_home_spread is not None) and np.isfinite(pred_home_spread):
+        home_spread = float(pred_home_spread)
+
+    if market_total is None or home_spread is None:
+        odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+        if odds_path.exists():
+            try:
+                odf = pd.read_csv(odds_path)
+                if odf is not None and not odf.empty:
+                    odf = odf.copy()
+                    odf["home_tri"] = odf.get("home_team", "").astype(str).map(to_tricode)
+                    odf["away_tri"] = odf.get("visitor_team", "").astype(str).map(to_tricode)
+                    row2 = odf[(odf["home_tri"] == home_tri) & (odf["away_tri"] == away_tri)].head(1)
+                    if not row2.empty:
+                        rr = row2.iloc[0]
+                        if market_total is None:
+                            try:
+                                v = float(pd.to_numeric(rr.get("total"), errors="coerce"))
+                                if np.isfinite(v):
+                                    market_total = v
+                            except Exception:
+                                pass
+                        if home_spread is None:
+                            try:
+                                v = float(pd.to_numeric(rr.get("home_spread"), errors="coerce"))
+                                if np.isfinite(v):
+                                    home_spread = v
+                            except Exception:
+                                pass
+            except Exception:
+                pass
+
+    pace = 98.0
+    def _rating_from_mu(mu: Optional[float], pace_val: float) -> float:
+        try:
+            if mu is None or (not np.isfinite(mu)):
+                return 112.0
+            return float((float(mu) / max(1e-6, float(pace_val))) * 100.0)
+        except Exception:
+            return 112.0
+
+    home_mu = None
+    away_mu = None
+    if pred_total is not None and pred_margin is not None and np.isfinite(pred_total) and np.isfinite(pred_margin):
+        home_mu = 0.5 * (pred_total + pred_margin)
+        away_mu = 0.5 * (pred_total - pred_margin)
+
+    home_ctx = TeamContext(team=home_tri, pace=pace, off_rating=_rating_from_mu(home_mu, pace), def_rating=112.0)
+    away_ctx = TeamContext(team=away_tri, pace=pace, off_rating=_rating_from_mu(away_mu, pace), def_rating=112.0)
+    qsum = simulate_quarters(GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread), n_samples=3000)
+
+    sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
+    out = simulate_smart_game(
+        date_str=date_str,
+        home_tri=home_tri,
+        away_tri=away_tri,
+        props_df=props_df,
+        quarters=qsum.quarters,
+        market_total=market_total,
+        market_home_spread=home_spread,
+        cfg=sim_cfg,
+    )
+
+    out_path = paths.data_processed / f"smart_sim_{date_str}_{home_tri}_{away_tri}.json"
+    out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+    console.print({"output": str(out_path), "n_sims": int(n_sims), "home": home_tri, "away": away_tri})
+
+
+def _smart_sim_run_date(
+    date_str: str,
+    n_sims: int,
+    seed: Optional[int],
+    max_games: Optional[int],
+    overwrite: bool,
+    pbp: bool = True,
+) -> dict:
+    """Internal: run SmartSim for every game on a date.
+
+    Returns a summary dict with wrote/skipped/failures.
+    """
+    try:
+        import json
+
+        from .sim.smart_sim import SmartSimConfig, simulate_smart_game
+        from .sim.quarters import GameInputs, TeamContext, simulate_quarters
+    except Exception as e:
+        console.print(f"[red]Import error: {e}")
+        raise SystemExit(1)
+
+    pred_path = paths.data_processed / f"predictions_{date_str}.csv"
+    if not pred_path.exists():
+        return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": f"missing_predictions:{pred_path}"}
+    pdf = pd.read_csv(pred_path)
+    if pdf is None or pdf.empty:
+        return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": f"empty_predictions:{pred_path}"}
+
+    props_path = paths.data_processed / f"props_predictions_{date_str}.csv"
+    if not props_path.exists():
+        return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": f"missing_props:{props_path}"}
+    props_df = pd.read_csv(props_path)
+
+    odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+    odds_df = None
+    if odds_path.exists():
+        try:
+            odds_df = pd.read_csv(odds_path)
+            if odds_df is not None and not odds_df.empty:
+                odds_df = odds_df.copy()
+                odds_df["home_tri"] = odds_df.get("home_team", "").astype(str).map(to_tricode)
+                odds_df["away_tri"] = odds_df.get("visitor_team", "").astype(str).map(to_tricode)
+        except Exception:
+            odds_df = None
+
+    def _num(x):
+        try:
+            v = float(pd.to_numeric(x, errors="coerce"))
+            return v if np.isfinite(v) else None
+        except Exception:
+            return None
+
+    # Standardize tricodes
+    pdf = pdf.copy()
+    pdf["home_tri"] = pdf.get("home_team", "").astype(str).map(to_tricode)
+    pdf["away_tri"] = pdf.get("visitor_team", "").astype(str).map(to_tricode)
+    pdf = pdf[(pdf["home_tri"].astype(str).str.len() == 3) & (pdf["away_tri"].astype(str).str.len() == 3)].copy()
+    if pdf.empty:
+        return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": "no_valid_games"}
+
+    if max_games is not None:
+        try:
+            pdf = pdf.head(int(max_games))
+        except Exception:
+            pass
+
+    wrote = 0
+    skipped = 0
+    failures: list[dict[str, Any]] = []
+
+    for _, r in pdf.iterrows():
+        home_tri = str(r.get("home_tri") or "").strip().upper()
+        away_tri = str(r.get("away_tri") or "").strip().upper()
+        if not home_tri or not away_tri:
+            continue
+
+        out_path = paths.data_processed / f"smart_sim_{date_str}_{home_tri}_{away_tri}.json"
+        if out_path.exists() and (not overwrite):
+            skipped += 1
+            continue
+
+        market_total = _num(r.get("total"))
+        home_spread = _num(r.get("home_spread"))
+
+        if (market_total is None or home_spread is None) and (odds_df is not None and not odds_df.empty):
+            m = odds_df[(odds_df["home_tri"] == home_tri) & (odds_df["away_tri"] == away_tri)]
+            if not m.empty:
+                rr = m.iloc[0]
+                if market_total is None:
+                    market_total = _num(rr.get("total"))
+                if home_spread is None:
+                    home_spread = _num(rr.get("home_spread"))
+
+        pred_total = _num(r.get("totals"))
+        pred_margin = _num(r.get("spread_margin"))
+        home_mu = (0.5 * (pred_total + pred_margin)) if (pred_total is not None and pred_margin is not None) else None
+        away_mu = (0.5 * (pred_total - pred_margin)) if (pred_total is not None and pred_margin is not None) else None
+
+        pace = 98.0
+
+        def _rating_from_mu(mu: Optional[float], pace_val: float) -> float:
+            try:
+                if mu is None or (not np.isfinite(mu)):
+                    return 112.0
+                return float((float(mu) / max(1e-6, float(pace_val))) * 100.0)
+            except Exception:
+                return 112.0
+
+        home_ctx = TeamContext(team=home_tri, pace=pace, off_rating=_rating_from_mu(home_mu, pace), def_rating=112.0)
+        away_ctx = TeamContext(team=away_tri, pace=pace, off_rating=_rating_from_mu(away_mu, pace), def_rating=112.0)
+        qsum = simulate_quarters(
+            GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread),
+            n_samples=3000,
+        )
+
+        try:
+            sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
+            out = simulate_smart_game(
+                date_str=date_str,
+                home_tri=home_tri,
+                away_tri=away_tri,
+                props_df=props_df,
+                quarters=qsum.quarters,
+                market_total=market_total,
+                market_home_spread=home_spread,
+                cfg=sim_cfg,
+            )
+            out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+            wrote += 1
+        except Exception as e:
+            failures.append({"home": home_tri, "away": away_tri, "error": str(e)})
+
+    if failures:
+        fp = paths.data_processed / f"smart_sim_failures_{date_str}.csv"
+        try:
+            pd.DataFrame(failures).to_csv(fp, index=False)
+        except Exception:
+            pass
+        return {"date": date_str, "wrote": int(wrote), "skipped": int(skipped), "failures": int(len(failures)), "failures_file": str(fp)}
+
+    return {"date": date_str, "wrote": int(wrote), "skipped": int(skipped), "failures": 0}
+@cli.command("smart-sim-date")
+@click.option("--date", "date_str", required=True, help="YYYY-MM-DD date")
+@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims per game")
+@click.option("--seed", type=int, default=None, help="Optional RNG seed")
+@click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
+@click.option("--max-games", type=int, default=None, help="Optional cap for quick runs")
+@click.option("--overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_*.json outputs")
+def smart_sim_date_cmd(date_str: str, n_sims: int, seed: Optional[int], pbp: bool, max_games: Optional[int], overwrite: bool):
+    """Run SmartSim for every game on a date (from predictions_<date>.csv).
+
+    Writes one JSON per game to data/processed/smart_sim_<date>_<HOME>_<AWAY>.json
+    """
+    summary = _smart_sim_run_date(date_str=date_str, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp))
+    console.print(summary)
+
+
+@cli.command("smart-sim-range")
+@click.option("--start", "start_date", required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", required=True, help="End date YYYY-MM-DD")
+@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims per game")
+@click.option("--seed", type=int, default=None, help="Optional RNG seed")
+@click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
+@click.option("--overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_*.json outputs")
+@click.option("--max-games", type=int, default=None, help="Optional cap per date for quick runs")
+@click.option("--sleep", type=float, default=0.0, show_default=True, help="Sleep seconds between dates")
+def smart_sim_range_cmd(
+    start_date: str,
+    end_date: str,
+    n_sims: int,
+    seed: Optional[int],
+    pbp: bool,
+    overwrite: bool,
+    max_games: Optional[int],
+    sleep: float,
+):
+    """Backfill SmartSim across a date range.
+
+    Uses predictions_<date>.csv + props_predictions_<date>.csv per day.
+    Skips existing smart_sim_*.json unless --overwrite is provided.
+    """
+    console.rule("SmartSim Range")
+    try:
+        s = pd.to_datetime(start_date).date()
+        e = pd.to_datetime(end_date).date()
+    except Exception:
+        console.print("Invalid --start/--end (YYYY-MM-DD)", style="red")
+        raise SystemExit(2)
+    if e < s:
+        console.print("--end must be >= --start", style="red")
+        raise SystemExit(2)
+
+    total_wrote = 0
+    total_skipped = 0
+    total_failures = 0
+    days = 0
+    for d in pd.date_range(s, e, freq="D"):
+        ds = d.strftime("%Y-%m-%d")
+        days += 1
+        summary = _smart_sim_run_date(date_str=ds, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp))
+        console.print(summary)
+        total_wrote += int(summary.get("wrote") or 0)
+        total_skipped += int(summary.get("skipped") or 0)
+        total_failures += int(summary.get("failures") or 0)
+        if sleep and sleep > 0:
+            try:
+                time.sleep(float(sleep))
+            except Exception:
+                pass
+
+    console.print({"range": f"{start_date}..{end_date}", "days": int(days), "wrote": int(total_wrote), "skipped": int(total_skipped), "failures": int(total_failures)})
 
 @cli.command("backfill-injuries-season")
 @click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
@@ -438,7 +808,23 @@ def evaluate_props_lite_cmd(start: str | None, end: str | None, days: int):
 @click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
 @click.option("--topN", type=int, default=10, show_default=True, help="Max picks per market type")
 @click.option("--minScore", type=float, default=0.15, show_default=True, help="Minimum confidence score threshold")
-def recommend_picks_cmd(date_str: str, topn: int, minscore: float):
+@click.option("--minAtsEdge", type=float, default=0.05, show_default=True, help="Minimum ATS probability edge vs market (no-vig)")
+@click.option("--minAtsEV", type=float, default=0.00, show_default=True, help="Minimum ATS expected value (ROI per $1)")
+@click.option("--atsBlend", type=float, default=0.25, show_default=True, help="ATS prob blend weight: w*model + (1-w)*market")
+@click.option("--minTotalEdge", type=float, default=0.02, show_default=True, help="Minimum total probability edge vs market (no-vig)")
+@click.option("--minTotalEV", type=float, default=0.00, show_default=True, help="Minimum total expected value (ROI per $1)")
+@click.option("--totalsBlend", type=float, default=0.10, show_default=True, help="Totals prob blend weight: w*model + (1-w)*market")
+def recommend_picks_cmd(
+    date_str: str,
+    topn: int,
+    minscore: float,
+    minatsedge: float,
+    minatsev: float,
+    atsblend: float,
+    mintotaledge: float,
+    mintotalev: float,
+    totalsblend: float,
+):
     """Generate daily high-confidence picks across moneyline, spread, and totals.
 
     Reads predictions and odds/closing lines for the date, applies reliability-adjusted confidence,
@@ -453,7 +839,19 @@ def recommend_picks_cmd(date_str: str, topn: int, minscore: float):
         script = paths.root / "tools" / "recommend_picks.py"
         if not script.exists():
             console.print(f"Missing recommend script: {script}", style="red"); return
-        args = [sys.executable, str(script), "--date", str(date_str), "--topN", str(int(topn)), "--minScore", str(float(minscore))]
+        args = [
+            sys.executable,
+            str(script),
+            "--date", str(date_str),
+            "--topN", str(int(topn)),
+            "--minScore", str(float(minscore)),
+            "--minAtsEdge", str(float(minatsedge)),
+            "--minAtsEV", str(float(minatsev)),
+            "--atsBlend", str(float(atsblend)),
+            "--minTotalEdge", str(float(mintotaledge)),
+            "--minTotalEV", str(float(mintotalev)),
+            "--totalsBlend", str(float(totalsblend)),
+        ]
         console.print({"run": " ".join(args)})
         cp = subprocess.run(args, capture_output=False, check=False)
         if cp.returncode != 0:
@@ -674,6 +1072,209 @@ def fetch_boxscores_cmd(date_str: str, include_live: bool, rate_delay: float):
         console.print({"date": date_str, "games": len(gids), "rows": 0 if df is None else int(len(df))})
     except Exception as e:
         console.print(f"Failed to fetch boxscores: {e}", style="red")
+
+
+@cli.command("update-boxscores-history")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--include-live/--finals-only", "include_live", default=False, show_default=True, help="Include in-progress games as well (may be partial)")
+@click.option("--rate-delay", type=float, default=0.35, show_default=True, help="Delay between game fetches (seconds)")
+def update_boxscores_history_cmd(date_str: str, include_live: bool, rate_delay: float):
+    """Fetch boxscores for a date and append into data/processed/boxscores_history.*."""
+    console.rule("Update Boxscores History")
+    try:
+        info = update_boxscores_history_for_date(date_str, include_live=include_live, rate_delay=rate_delay)
+        console.print(info)
+    except Exception as e:
+        console.print(f"Failed to update boxscores history: {e}", style="red")
+
+
+@cli.command("fetch-pbp-espn")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--include-live/--finals-only", "include_live", default=False, show_default=True, help="Include in-progress games as well (may be partial)")
+@click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
+def fetch_pbp_espn_cmd(date_str: str, include_live: bool, rate_delay: float):
+    """Fetch play-by-play via ESPN summary endpoint.
+
+    - Per-game files under data/processed/pbp_espn/pbp_espn_<gameId>.csv
+    - Combined file under data/processed/pbp_espn_<date>.csv
+    """
+    console.rule("Fetch PBP (ESPN)")
+    try:
+        df, gids = fetch_pbp_espn_for_date(date_str, only_final=(not include_live), rate_delay=rate_delay)
+        console.print({"date": date_str, "games": len(gids), "rows": 0 if df is None else int(len(df))})
+    except Exception as e:
+        console.print(f"Failed to fetch ESPN PBP: {e}", style="red")
+
+
+@cli.command("update-pbp-espn-history")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--include-live/--finals-only", "include_live", default=False, show_default=True, help="Include in-progress games as well (may be partial)")
+@click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
+def update_pbp_espn_history_cmd(date_str: str, include_live: bool, rate_delay: float):
+    """Fetch ESPN PBP for a date and append into data/processed/pbp_espn_history.*."""
+    console.rule("Update PBP History (ESPN)")
+    try:
+        info = update_pbp_espn_history_for_date(date_str, include_live=include_live, rate_delay=rate_delay)
+        console.print(info)
+    except Exception as e:
+        console.print(f"Failed to update ESPN PBP history: {e}", style="red")
+
+
+@cli.command("backfill-pbp-espn-history")
+@click.option("--start", "start_date", type=str, required=True, help="Start date YYYY-MM-DD")
+@click.option("--end", "end_date", type=str, required=True, help="End date YYYY-MM-DD")
+@click.option("--finals-only/--include-live", "finals_only", default=True, show_default=True, help="Fetch only final games (recommended)")
+@click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
+def backfill_pbp_espn_history_cmd(start_date: str, end_date: str, finals_only: bool, rate_delay: float):
+    """Backfill ESPN PBP history over a date range."""
+    console.rule("Backfill PBP History (ESPN)")
+    try:
+        df = backfill_pbp_espn_history(start_date, end_date, finals_only=finals_only, rate_delay=rate_delay)
+        console.print({"start": start_date, "end": end_date, "days": int(len(df))})
+    except Exception as e:
+        console.print(f"Failed to backfill ESPN PBP history: {e}", style="red")
+
+
+@cli.command("write-rotation-priors")
+@click.option("--lookback-days", type=int, default=60, show_default=True, help="Lookback window ending at latest date in history")
+@click.option("--min-games", type=int, default=10, show_default=True, help="Minimum games required per team")
+def write_rotation_priors_cmd(lookback_days: int, min_games: int):
+    """Compute and write rotation priors derived from ESPN substitution events."""
+    console.rule("Write Rotation Priors")
+    try:
+        info = write_rotation_priors(lookback_days=lookback_days, min_games=min_games)
+        console.print(info)
+    except Exception as e:
+        console.print(f"Failed to write rotation priors: {e}", style="red")
+
+
+@cli.command("update-rotations-espn-history")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD (US/Eastern slate)")
+@click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
+def update_rotations_espn_history_cmd(date_str: str, rate_delay: float):
+    """Build full-game rotation stints + pair-minutes from ESPN substitutions and append to history."""
+    console.rule("Update Rotations History (ESPN)")
+    try:
+        info = update_rotations_history_for_date(date_str, rate_delay=rate_delay)
+        console.print(info)
+    except Exception as e:
+        console.print(f"Failed to update rotations history: {e}", style="red")
+
+
+@cli.command("backfill-rotations-espn-history")
+@click.option("--start", "start_date", type=str, required=False, help="Start date YYYY-MM-DD; default = season start (Oct 1) of current season")
+@click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default = today (local)")
+@click.option("--rate-delay", type=float, default=0.25, show_default=True, help="Delay between event fetches (seconds)")
+@click.option(
+    "--resume-file",
+    type=click.Path(dir_okay=False, writable=True),
+    default=str(paths.data_processed / "_rotations_espn_resume.json"),
+    show_default=True,
+    help="JSON resume file tracking last completed date",
+)
+@click.option("--ignore-resume", is_flag=True, default=False, show_default=True, help="Ignore the resume file and process the full requested range")
+@click.option("--max-days", type=int, default=None, help="Process at most this many days (smoke test)")
+def backfill_rotations_espn_history_cmd(start_date: str | None, end_date: str | None, rate_delay: float, resume_file: str, ignore_resume: bool, max_days: int | None):
+    """Backfill ESPN rotations (stints, pairs, play_context) over a date range.
+
+    Defaults to the full current season (Oct 1 .. today).
+    """
+    console.rule("Backfill Rotations History (ESPN)")
+    import datetime as _dt
+
+    today = _dt.date.today()
+    if end_date is None:
+        e = today - _dt.timedelta(days=1)
+    else:
+        try:
+            e = pd.to_datetime(end_date).date()
+        except Exception:
+            console.print("Invalid --end (YYYY-MM-DD)", style="red"); return
+    if start_date is None:
+        yr = today.year
+        if today.month < 7:
+            yr -= 1
+        s = _dt.date(yr, 10, 1)
+    else:
+        try:
+            s = pd.to_datetime(start_date).date()
+        except Exception:
+            console.print("Invalid --start (YYYY-MM-DD)", style="red"); return
+    if e < s:
+        console.print("--end must be >= --start", style="red"); return
+
+    dates = pd.date_range(s, e, freq="D").strftime("%Y-%m-%d").tolist()
+    if max_days is not None:
+        try:
+            dates = dates[: int(max_days)]
+        except Exception:
+            pass
+
+    # Resume support
+    last_done = None
+    if not bool(ignore_resume):
+        try:
+            import json as _json
+            rp = Path(resume_file)
+            if rp.exists():
+                last_done = (_json.loads(rp.read_text(encoding="utf-8")) or {}).get("last_completed")
+                last_done = str(last_done or "").strip() or None
+        except Exception:
+            last_done = None
+
+        if last_done:
+            dates = [d for d in dates if str(d) > str(last_done)]
+
+    ok = 0
+    fail: list[dict[str, Any]] = []
+    for ds in track(dates, description="Rotations backfill"):
+        try:
+            info = update_rotations_history_for_date(ds, rate_delay=rate_delay)
+            err = info.get("error")
+            if err == "no_games":
+                ok += 1
+            elif err:
+                fail.append({"date": ds, "error": str(err)})
+            else:
+                # Guard: some ESPN summaries return no plays even for finished games.
+                if int(info.get("games") or 0) > 0 and int(info.get("rows_plays_ctx") or 0) == 0:
+                    fail.append({"date": ds, "error": "no_plays_ctx", "games": int(info.get("games") or 0)})
+                else:
+                    ok += 1
+
+            # update resume after each day (success or fail) so we can restart quickly
+            try:
+                import json as _json
+                Path(resume_file).write_text(_json.dumps({"last_completed": ds}), encoding="utf-8")
+            except Exception:
+                pass
+        except Exception:
+            fail.append({"date": ds, "error": "exception"})
+
+    console.print({"start": str(s), "end": str(e), "days": int(len(dates)), "ok": int(ok), "fail": int(len(fail))})
+    if fail:
+        try:
+            pd.DataFrame(fail).to_csv(paths.data_processed / "rotations_espn_backfill_failures.csv", index=False)
+        except Exception:
+            pass
+        console.print({"failures_file": str(paths.data_processed / "rotations_espn_backfill_failures.csv")})
+
+
+@cli.command("build-lineup-teammate-effects")
+@click.option("--start", "start_date", type=str, required=False, help="Start date YYYY-MM-DD; default = season start (Oct 1) of current season")
+@click.option("--end", "end_date", type=str, required=False, help="End date YYYY-MM-DD; default = today (local)")
+@click.option("--min-minutes-together", type=float, default=25.0, show_default=True, help="Only keep teammate pairs with at least this many minutes together")
+def build_lineup_teammate_effects_cmd(start_date: str | None, end_date: str | None, min_minutes_together: float):
+    """Build lineup-conditioned teammate effect tables for the requested range.
+
+    Requires that `play_context_history.*`, `rotation_stints_history.*`, and `pair_minutes_history.*` are populated.
+    """
+    console.rule("Build Lineup Teammate Effects")
+    try:
+        info = build_lineup_teammate_effects(start_date=start_date, end_date=end_date, min_minutes_together=min_minutes_together)
+        console.print(info)
+    except Exception as e:
+        console.print(f"Failed to build teammate effects: {e}", style="red")
 
 
 @cli.command("backfill-pbp")
@@ -980,10 +1581,18 @@ def props_backtest_cmd(targets: str, start: str | None, end: str | None):
 @click.option("--player-shrink-k-by-stat", type=str, required=False, help="Optional per-stat shrinkage mapping, e.g., 'reb:12,ast:12' (others default to --player-shrink-k)")
 @click.option("--player-min-pairs-by-stat", type=str, required=False, help="Optional per-stat min-pairs mapping, e.g., 'reb:8,ast:8' (others default to --player-min-pairs)")
 @click.option("--use-pure-onnx/--no-use-pure-onnx", default=True, show_default=True, help="Use pure ONNX models with NPU acceleration (no sklearn dependency)")
+@click.option("--use-smart-sim/--no-use-smart-sim", default=True, show_default=True, help="Derive prop stat means from SmartSim (minutes/rotations-aware simulation) when possible")
+@click.option("--smart-sim-n-sims", type=int, default=200, show_default=True, help="SmartSim simulations per game")
+@click.option("--smart-sim-pbp/--no-smart-sim-pbp", default=True, show_default=True, help="Use possession-level SmartSim mode")
+@click.option("--smart-sim-overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_<date>_*.json outputs")
 def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int,
                       calibrate_player: bool, player_calib_window: int, player_min_pairs: int, player_shrink_k: int,
                       player_shrink_k_by_stat: str | None, player_min_pairs_by_stat: str | None,
-                      use_pure_onnx: bool):
+                      use_pure_onnx: bool,
+                      use_smart_sim: bool,
+                      smart_sim_n_sims: int,
+                      smart_sim_pbp: bool,
+                      smart_sim_overwrite: bool):
     """Predict player props for a slate date using rolling-history models.
 
     Note: This version builds features from history only and returns predictions for all players seen in logs. A later enhancement can filter to the actual slate roster for the date and merge odds.
@@ -1482,6 +2091,132 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     except Exception as e:
         console.print(f"Failed to run pure ONNX predictions: {e}", style="red"); return
     # Optional light calibration (rolling intercept per stat)
+    # Optionally override predicted prop means with SmartSim simulation outputs.
+    # This uses minutes/rotations when available and produces more realistic distributions.
+    if use_smart_sim:
+        try:
+            import json as _json
+            import re as _re
+            from pathlib import Path as _Path
+
+            # Ensure SmartSim can load the props predictions file.
+            default_pp = paths.data_processed / f"props_predictions_{date_str}.csv"
+            try:
+                default_pp.parent.mkdir(parents=True, exist_ok=True)
+                preds.to_csv(default_pp, index=False)
+            except Exception:
+                pass
+
+            # Run SmartSim for all games on this date (writes smart_sim_<date>_<HOME>_<AWAY>.json files)
+            try:
+                summary = _smart_sim_run_date(
+                    date_str=date_str,
+                    n_sims=int(smart_sim_n_sims),
+                    seed=None,
+                    max_games=None,
+                    overwrite=bool(smart_sim_overwrite),
+                    pbp=bool(smart_sim_pbp),
+                )
+                console.print({"smart_sim": summary})
+            except Exception as _e:
+                console.print(f"SmartSim run skipped due to error: {_e}", style="yellow")
+                summary = None
+
+            # Parse SmartSim outputs and merge into preds.
+            sim_files = sorted(paths.data_processed.glob(f"smart_sim_{date_str}_*.json"))
+            if sim_files:
+                def _norm_name_key(s: str) -> str:
+                    s = (s or "").strip().upper()
+                    if "(" in s:
+                        s = s.split("(", 1)[0]
+                    s = s.replace("-", " ")
+                    s = _re.sub(r"[^A-Z0-9\s]", "", s)
+                    s = _re.sub(r"\s+", " ", s).strip()
+                    for suf in (" JR", " SR", " II", " III", " IV"):
+                        if s.endswith(suf):
+                            s = s[: -len(suf)].strip()
+                    return s
+
+                sim_rows: list[dict] = []
+                for fp in sim_files:
+                    try:
+                        obj = _json.loads(_Path(fp).read_text(encoding="utf-8"))
+                    except Exception:
+                        continue
+                    if not isinstance(obj, dict) or obj.get("error"):
+                        continue
+                    home_tri = str(obj.get("home") or "").strip().upper()
+                    away_tri = str(obj.get("away") or "").strip().upper()
+                    players = obj.get("players") or {}
+                    for side, team_tri in (("home", home_tri), ("away", away_tri)):
+                        arr = players.get(side) or []
+                        if not isinstance(arr, list):
+                            continue
+                        for r in arr:
+                            if not isinstance(r, dict):
+                                continue
+                            name = str(r.get("player_name") or "").strip()
+                            if not name:
+                                continue
+                            sim_rows.append({
+                                "team": team_tri,
+                                "name_key": _norm_name_key(name),
+                                "pred_pts": r.get("pts_mean"),
+                                "pred_reb": r.get("reb_mean"),
+                                "pred_ast": r.get("ast_mean"),
+                                "pred_threes": r.get("threes_mean"),
+                                "pred_pra": r.get("pra_mean"),
+                                "pred_stl": r.get("stl_mean"),
+                                "pred_blk": r.get("blk_mean"),
+                                "pred_tov": r.get("tov_mean"),
+                                "sd_pts": r.get("pts_sd"),
+                                "sd_reb": r.get("reb_sd"),
+                                "sd_ast": r.get("ast_sd"),
+                                "sd_threes": r.get("threes_sd"),
+                                "sd_pra": r.get("pra_sd"),
+                                "sd_stl": r.get("stl_sd"),
+                                "sd_blk": r.get("blk_sd"),
+                                "sd_tov": r.get("tov_sd"),
+                            })
+
+                sim_df = pd.DataFrame(sim_rows)
+                if sim_df is not None and not sim_df.empty:
+                    # Clean + dedupe (keep the highest-minutes-ish estimate by taking max minutes proxy: pts_mean)
+                    sim_df["team"] = sim_df["team"].astype(str).str.upper().str.strip()
+                    sim_df["name_key"] = sim_df["name_key"].astype(str).str.upper().str.strip()
+                    for c in [
+                        "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                        "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
+                    ]:
+                        if c in sim_df.columns:
+                            sim_df[c] = pd.to_numeric(sim_df[c], errors="coerce")
+                    sim_df = sim_df.drop_duplicates(subset=["team","name_key"], keep="last")
+
+                    # Merge into preds by team + normalized name.
+                    preds = preds.copy()
+                    if "team" in preds.columns:
+                        preds["team"] = preds["team"].astype(str).str.upper().str.strip()
+                    if "player_name" not in preds.columns:
+                        preds["player_name"] = None
+                    preds["_name_key"] = preds["player_name"].astype(str).map(_norm_name_key)
+                    merged = preds.merge(sim_df, left_on=["team", "_name_key"], right_on=["team", "name_key"], how="left", suffixes=("", "_sim"))
+
+                    # Replace base predictions when sim is available.
+                    for col in [
+                        "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                        "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
+                    ]:
+                        sim_col = f"{col}_sim"
+                        if sim_col in merged.columns:
+                            if col not in merged.columns:
+                                merged[col] = np.nan
+                            merged[col] = merged[sim_col].where(merged[sim_col].notna(), merged[col])
+                    preds = merged.drop(columns=[c for c in merged.columns if c.endswith("_sim") or c in {"_name_key", "name_key"}], errors="ignore")
+
+                    console.print({"smart_sim_players": int(len(sim_df)), "smart_sim_files": int(len(sim_files))})
+        except Exception as _e:
+            console.print(f"SmartSim integration skipped due to error: {_e}", style="yellow")
+
     if calibrate:
         try:
             from .props_calibration import compute_biases, apply_biases, save_calibration
@@ -2423,14 +3158,16 @@ def benchmark_games_npu_cmd(runs: int, games: int):
 @click.option("--sigma-threes", type=float, default=1.3, show_default=True)
 @click.option("--sigma-pra", type=float, default=9.0, show_default=True)
 @click.option("--slate-only/--no-slate-only", default=True, show_default=True, help="Filter to teams on the scoreboard slate")
-@click.option("--min-edge", type=float, default=0.02, show_default=True, help="Minimum model edge (probability diff)")
+# NOTE: keep default min-edge low so regular props (often small edges) aren't accidentally filtered out.
+@click.option("--min-edge", type=float, default=0.0, show_default=True, help="Minimum model edge (probability diff)")
 @click.option("--min-ev", type=float, default=0.0, show_default=True, help="Minimum EV per 1u")
 @click.option("--top", type=int, default=1000, show_default=False, help="Limit to top N edges after filtering")
 @click.option("--bookmakers", type=str, default=None, help="Comma-separated bookmaker keys to include (e.g., draftkings,fanduel,pinnacle)")
 @click.option("--calibrate-sigma/--no-calibrate-sigma", default=False, show_default=True, help="Estimate sigma per stat from recent residuals")
+@click.option("--calibrate-prob/--no-calibrate-prob", default=True, show_default=True, help="Apply saved probability calibration curve to model prop probabilities when available")
 @click.option("--predictions-csv", type=click.Path(exists=False, dir_okay=False), required=False, help="Use precomputed props_predictions_YYYY-MM-DD.csv from this path; defaults to data/processed")
 @click.option("--file-only/--no-file-only", default=False, show_default=True, help="Do not run props models; require predictions CSV to exist")
-def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool, predictions_csv: str | None, file_only: bool):
+def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool, calibrate_prob: bool, predictions_csv: str | None, file_only: bool):
     """Compute player props edges (EV) by merging model predictions with OddsAPI lines for a date.
 
     Writes data/processed/props_edges_YYYY-MM-DD.csv
@@ -2459,6 +3196,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
             source=source,
             predictions_path=predictions_csv,
             from_file_only=file_only,
+            calibrate_prob=calibrate_prob,
         )
     except FileNotFoundError as e:
         console.print(str(e), style="red"); return
@@ -2488,7 +3226,11 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
             edges = edges[edges["bookmaker"].astype(str).str.lower().isin(keep)].copy()
     # Thresholds and top-N
     edges = edges[(edges["edge"] >= min_edge) & (edges["ev"] >= min_ev)].copy()
-    edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
+    # Prefer sorting by EV within stat for downstream top-N selection
+    if "ev" in edges.columns:
+        edges.sort_values(["stat", "ev"], ascending=[True, False], inplace=True)
+    else:
+        edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
     if top and len(edges) > top:
         edges = edges.groupby("stat", group_keys=False).head(max(1, top // max(1, edges["stat"].nunique())))
     out = paths.data_processed / f"props_edges_{date_str}.csv"
@@ -2502,8 +3244,10 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
 def export_recommendations_cmd(date_str: str, out_path: str | None):
     """Export game recommendations (ML/ATS/TOTAL) to CSV from predictions + odds."""
     import pandas as pd
+    import math
     from .config import paths
     from .teams import to_tricode as _tri
+    from .sim_games import SimConfig
     try:
         d = pd.to_datetime(date_str).date()
     except Exception:
@@ -2559,6 +3303,21 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         if a > 0:
             return 100.0 / (a + 100.0)
         return (-a) / ((-a) + 100.0)
+
+    def _phi(x: float) -> float:
+        return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
+
+    def _p_home_cover_calibrated(pred_margin: float, home_spread: float) -> float | None:
+        try:
+            cfg = SimConfig()
+            mu_ats = float(cfg.ats_scale) * float(pred_margin) + float(cfg.ats_bias)
+            # home covers if margin > -home_spread
+            threshold = -float(home_spread)
+            z = (threshold - mu_ats) / max(1e-6, float(cfg.sd_margin_ats))
+            p = 1.0 - _phi(z)
+            return float(min(1.0 - 1e-6, max(1e-6, p)))
+        except Exception:
+            return None
     def _tier(market: str, ev: float | None, edge: float | None) -> str:
         try:
             m = (market or '').upper()
@@ -2585,6 +3344,21 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         except Exception:
             pass
         return 'Low'
+    def _pick_num(row: "pd.Series", keys: list[str]) -> float | None:
+        for k in keys:
+            if k in row.index:
+                v = _num(row.get(k))
+                if v is None:
+                    continue
+                # treat NaN as missing
+                try:
+                    if pd.isna(v):
+                        continue
+                except Exception:
+                    pass
+                return v
+        return None
+
     for _, r in df.iterrows():
         try:
             home = r.get("home_team"); away = r.get("visitor_team")
@@ -2595,13 +3369,16 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
                 p_home = _num(r.get("win_prob"))
             if p_home is None:
                 p_home = _num(r.get("win_prob_from_spread"))
-            ev_h = _ev(p_home, r.get("home_ml")) if p_home is not None else None
-            ev_a = _ev((1-p_home) if p_home is not None else None, r.get("away_ml"))
+            # Prefer merged odds columns when present (game_odds merge uses suffix "_odds")
+            home_ml = _pick_num(r, ["home_ml_odds", "home_ml"])
+            away_ml = _pick_num(r, ["away_ml_odds", "away_ml"])
+            ev_h = _ev(p_home, home_ml) if p_home is not None else None
+            ev_a = _ev((1-p_home) if p_home is not None else None, away_ml)
             if ev_h is not None or ev_a is not None:
                 side_ml = home if (ev_h or -1) >= (ev_a or -1) else away
                 ev_ml = ev_h if side_ml == home else ev_a
                 if ev_ml is not None and ev_ml > 0:
-                    price = _num(r.get("home_ml")) if side_ml == home else _num(r.get("away_ml"))
+                    price = home_ml if side_ml == home else away_ml
                     recs.append({
                         "market":"ML",
                         "side": side_ml,
@@ -2618,44 +3395,68 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
             pm = _num(r.get("pred_margin"))
             if pm is None:
                 pm = _num(r.get("spread_margin"))
-            hs = _num(r.get("home_spread"))
+            hs = _pick_num(r, ["home_spread_odds", "home_spread"])
             if pm is not None and hs is not None:
+                # Keep point-edge for display/tiers
                 edge_spread = pm - (-hs)
-                if abs(edge_spread) >= 1.0:
-                    side_ats = home if edge_spread>0 else away
-                    line = hs if side_ats == home else (-hs if hs is not None else None)
-                    recs.append({
-                        "market":"ATS",
-                        "side": side_ats,
-                        "home": home,
-                        "away": away,
-                        "date": str(d),
-                        "edge": float(edge_spread),
-                        "line": line,
-                        "pred_margin": pm,
-                        "market_home_margin": -hs,
-                        "tier": _tier('ATS', None, float(edge_spread)),
-                    })
+
+                # Prefer merged odds prices; fall back to -110 if missing
+                home_spread_price = _pick_num(r, ["home_spread_price_odds", "home_spread_price"]) or -110.0
+                away_spread_price = _pick_num(r, ["away_spread_price_odds", "away_spread_price"]) or -110.0
+
+                p_home_cover = _p_home_cover_calibrated(pm, hs)
+                ev_home = _ev(p_home_cover, home_spread_price) if p_home_cover is not None else None
+                ev_away = _ev((1 - p_home_cover) if p_home_cover is not None else None, away_spread_price)
+
+                # Always emit a closeout ATS pick when we have a market spread.
+                # If prices exist, choose side by EV; otherwise choose by point-edge sign.
+                if (ev_home is not None) or (ev_away is not None):
+                    side_ats = home if (ev_home or -1) >= (ev_away or -1) else away
+                    ev_ats = ev_home if side_ats == home else ev_away
+                    price = home_spread_price if side_ats == home else away_spread_price
+                    implied = _implied(price)
+                else:
+                    side_ats = home if edge_spread > 0 else away
+                    ev_ats = None
+                    price = home_spread_price if side_ats == home else away_spread_price
+                    implied = _implied(price)
+
+                line = hs if side_ats == home else (-hs if hs is not None else None)
+                recs.append({
+                    "market": "ATS",
+                    "side": side_ats,
+                    "home": home,
+                    "away": away,
+                    "date": str(d),
+                    "ev": (float(ev_ats) if ev_ats is not None else None),
+                    "price": float(price) if price is not None else None,
+                    "implied_prob": implied,
+                    "edge": float(edge_spread),
+                    "line": line,
+                    "pred_margin": pm,
+                    "market_home_margin": -hs,
+                    "tier": _tier("ATS", None, float(edge_spread)),
+                })
             # TOTAL
             # Use model total from baseline or NPU column
             pt = _num(r.get("pred_total"))
             if pt is None:
                 pt = _num(r.get("totals"))
-            tot = _num(r.get("total"))
+            tot = _pick_num(r, ["total_odds", "total"])
             if pt is not None and tot is not None:
                 edge_total = pt - tot
-                if abs(edge_total) >= 1.5:
-                    recs.append({
-                        "market":"TOTAL",
-                        "side": ("Over" if edge_total>0 else "Under"),
-                        "home": home,
-                        "away": away,
-                        "date": str(d),
-                        "edge": float(edge_total),
-                        "line": tot,
-                        "pred_total": pt,
-                        "tier": _tier('TOTAL', None, float(edge_total)),
-                    })
+                # Always emit a closeout TOTAL pick when we have a market total.
+                recs.append({
+                    "market":"TOTAL",
+                    "side": ("Over" if edge_total > 0 else "Under"),
+                    "home": home,
+                    "away": away,
+                    "date": str(d),
+                    "edge": float(edge_total),
+                    "line": tot,
+                    "pred_total": pt,
+                    "tier": _tier('TOTAL', None, float(edge_total)),
+                })
         except Exception:
             continue
     out = paths.data_processed / f"recommendations_{date_str}.csv" if not out_path else Path(out_path)
@@ -2679,27 +3480,38 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
 @cli.command("export-props-recommendations")
 @click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; defaults to data/processed/props_recommendations_YYYY-MM-DD.csv")
-def export_props_recommendations_cmd(date_str: str, out_path: str | None):
-    """Export props recommendation cards to CSV from edges (or model-only if edges missing)."""
+def _export_props_recommendations_cards(date_str: str, out_path: str | None) -> tuple[int, "Path"]:
+    """Internal helper: write props recommendation cards to CSV.
+
+    This is used both by the CLI command and by daily-update so that
+    data/processed/props_recommendations_<date>.csv has a stable schema.
+    """
     import pandas as pd
     from .config import paths
     try:
-        d = pd.to_datetime(date_str).date()
+        _ = pd.to_datetime(date_str).date()
     except Exception:
-        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+        raise ValueError("Invalid date_str")
+
     edges_p = paths.data_processed / f"props_edges_{date_str}.csv"
     preds_p = paths.data_processed / f"props_predictions_{date_str}.csv"
-    games_p = paths.data_processed / f"predictions_{date_str}.csv"
+
     df = pd.read_csv(edges_p) if edges_p.exists() else pd.DataFrame()
     pp = pd.read_csv(preds_p) if preds_p.exists() else pd.DataFrame()
-    games_df = pd.read_csv(games_p) if games_p.exists() else pd.DataFrame()
+
     cards: list[dict] = []
     if df is None or df.empty:
         # Model-only cards
         if not pp.empty:
-            for (player, team), grp in pp.groupby(["player_name","team"], dropna=False):
+            for (player, team), grp in pp.groupby(["player_name", "team"], dropna=False):
                 model = {}
-                for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                for col, key in [
+                    ("pred_pts", "pts"),
+                    ("pred_reb", "reb"),
+                    ("pred_ast", "ast"),
+                    ("pred_threes", "threes"),
+                    ("pred_pra", "pra"),
+                ]:
                     if col in grp.columns:
                         try:
                             v = pd.to_numeric(grp[col], errors="coerce").dropna()
@@ -2715,30 +3527,77 @@ def export_props_recommendations_cmd(date_str: str, out_path: str | None):
                 return float(x)
             except Exception:
                 return None
-        for keys, grp in df.groupby([c for c in ["player_name","team"] if c in df.columns], dropna=False):
+
+        # Keep cards focused on regular, comparable markets by default.
+        # This avoids longshot/special markets (DD/TD, YES/NO) and extreme prices dominating cards.
+        def _is_regular_play(row) -> bool:
+            try:
+                stat = str(row.get("stat") or row.get("market") or "").lower()
+                side = str(row.get("side") or "").upper()
+                if stat in {"dd", "td"}:
+                    return False
+                if side not in {"OVER", "UNDER"}:
+                    return False
+                price = pd.to_numeric(row.get("price"), errors="coerce")
+                if not pd.notna(price):
+                    return False
+                # Regular pricing window (production filter)
+                if price < -150 or price > 150:
+                    return False
+                # PTS/PRA have recently underperformed; only show them on cards
+                # when the edge is meaningfully strong.
+                if stat in {"pts", "pra"}:
+                    edge_abs = pd.to_numeric(row.get("edge"), errors="coerce")
+                    if not pd.notna(edge_abs) or abs(float(edge_abs)) < 0.15:
+                        return False
+                line = pd.to_numeric(row.get("line"), errors="coerce")
+                if not pd.notna(line):
+                    return False
+                return True
+            except Exception:
+                return False
+
+        for keys, grp in df.groupby([c for c in ["player_name", "team"] if c in df.columns], dropna=False):
             if not isinstance(keys, tuple):
                 keys = (keys,)
-            player = keys[0] if len(keys)>0 else None
-            team = keys[1] if len(keys)>1 else None
+            player = keys[0] if len(keys) > 0 else None
+            team = keys[1] if len(keys) > 1 else None
             g2 = grp.copy()
+            try:
+                g2 = g2[g2.apply(_is_regular_play, axis=1)].copy()
+            except Exception:
+                pass
             g2["ev_pct"] = pd.to_numeric(g2.get("ev"), errors="coerce") * 100.0 if "ev" in g2.columns else None
             plays = []
             for _, r in g2.iterrows():
-                plays.append({
-                    "market": r.get("stat"),
-                    "side": r.get("side"),
-                    "line": _num(r.get("line")),
-                    "price": _num(r.get("price")),
-                    "edge": _num(r.get("edge")),
-                    "ev": _num(r.get("ev")),
-                    "ev_pct": _num(r.get("ev"))*100.0 if _num(r.get("ev")) is not None else None,
-                    "book": r.get("bookmaker"),
-                })
+                plays.append(
+                    {
+                        "market": r.get("stat"),
+                        "side": r.get("side"),
+                        "line": _num(r.get("line")),
+                        "price": _num(r.get("price")),
+                        "edge": _num(r.get("edge")),
+                        "ev": _num(r.get("ev")),
+                        "ev_pct": _num(r.get("ev")) * 100.0 if _num(r.get("ev")) is not None else None,
+                        "book": r.get("bookmaker"),
+                    }
+                )
             cards.append({"player": player, "team": team, "plays": plays, "ladders": []})
+
     out = paths.data_processed / f"props_recommendations_{date_str}.csv" if not out_path else Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(cards).to_csv(out, index=False)
-    console.print({"rows": int(len(cards)), "output": str(out)})
+    return int(len(cards)), out
+
+
+def export_props_recommendations_cmd(date_str: str, out_path: str | None):
+    """Export props recommendation cards to CSV from edges (or model-only if edges missing)."""
+    try:
+        rows, out = _export_props_recommendations_cards(date_str, out_path)
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red")
+        return
+    console.print({"rows": int(rows), "output": str(out)})
 
 
 @cli.command("odds-refresh")
@@ -3846,15 +4705,24 @@ def reconcile_quarters_cmd(date_str: str):
             try:
                 dfc = pd.read_csv(pbp_comb)
                 if (dfc is not None) and (not dfc.empty):
-                    # Support alternative column names
-                    gid_col = "game_id" if "game_id" in dfc.columns else ("GAME_ID" if "GAME_ID" in dfc.columns else None)
-                    if gid_col is not None:
-                        for gid, grp in dfc.groupby(gid_col):
-                            key = str(gid).strip()
-                            pbp_map[key.zfill(10) if key.isdigit() else key] = grp.copy()
+                    # If the combined PBP file lacks any usable score columns, treat it as unusable
+                    # and fall back to ESPN-based PBP for quarter totals.
+                    cols = set(dfc.columns)
+                    has_pair = ("scoreHome" in cols and "scoreAway" in cols) or ("home_score" in cols and ("away_score" in cols or "visitor_score" in cols)) or ("homeScore" in cols and "awayScore" in cols)
+                    has_combo = ("SCORE" in cols) or ("score" in cols) or ("combinedScore" in cols)
+                    if not (has_pair or has_combo):
+                        dfc = None
+                        pbp_map = {}
+                    else:
+                        # Support alternative column names
+                        gid_col = "game_id" if "game_id" in dfc.columns else ("GAME_ID" if "GAME_ID" in dfc.columns else None)
+                        if gid_col is not None:
+                            for gid, grp in dfc.groupby(gid_col):
+                                key = str(gid).strip()
+                                pbp_map[key.zfill(10) if key.isdigit() else key] = grp.copy()
             except Exception:
                 pbp_map = {}
-        if not pbp_map:
+        if (not pbp_map) and pbp_comb.exists():
             # Try per-game files under data/processed/pbp
             try:
                 dpg = paths.data_processed / "pbp"
@@ -3864,6 +4732,49 @@ def reconcile_quarters_cmd(date_str: str):
                             gid = f.stem.replace("pbp_", "").strip()
                             key = gid.zfill(10) if gid.isdigit() else gid
                             pbp_map[key] = pd.read_csv(f)
+                        except Exception:
+                            continue
+            except Exception:
+                pbp_map = {}
+
+        # ESPN fallback: if NBA PBP is missing/blocked, use pbp_espn_<date>.csv
+        if not pbp_map:
+            pbp_espn = paths.data_processed / f"pbp_espn_{date_str}.csv"
+            try:
+                dfe = None
+                if pbp_espn.exists():
+                    dfe = pd.read_csv(pbp_espn)
+
+                # If missing or schema is too old, fetch fresh from ESPN.
+                if (dfe is None) or dfe.empty or ("home_score" not in dfe.columns) or ("away_score" not in dfe.columns):
+                    from .pbp_espn import fetch_pbp_espn_for_date
+                    dfe, _ = fetch_pbp_espn_for_date(date_str, only_final=True, rate_delay=0.15)
+
+                if (dfe is not None) and (not dfe.empty):
+                    key_col = "game_id" if "game_id" in dfe.columns and dfe["game_id"].notna().any() else ("event_id" if "event_id" in dfe.columns else None)
+                    if key_col:
+                        for gid, grp in dfe.groupby(key_col):
+                            key = str(gid).strip()
+                            pbp_map[key] = grp.copy()
+            except Exception:
+                pbp_map = {}
+
+        if not pbp_map:
+            # Try per-game ESPN files under data/processed/pbp_espn
+            try:
+                dpe = paths.data_processed / "pbp_espn"
+                if dpe.exists():
+                    for f in dpe.glob("pbp_espn_*.csv"):
+                        try:
+                            # pbp_espn_<gameId>.csv or pbp_espn_event_<eventId>.csv
+                            stem = f.stem
+                            if stem.startswith("pbp_espn_event_"):
+                                gid = stem.replace("pbp_espn_event_", "").strip()
+                            else:
+                                gid = stem.replace("pbp_espn_", "").strip()
+                            if not gid:
+                                continue
+                            pbp_map[gid] = pd.read_csv(f)
                         except Exception:
                             continue
             except Exception:
@@ -3890,16 +4801,40 @@ def reconcile_quarters_cmd(date_str: str):
                     if _m:
                         # Normalize pbp_map keys similarly (both raw and zfilled forms)
                         keep_keys = set(_m.keys()) | set(k.zfill(10) for k in _m.keys() if k.isdigit())
-                        pbp_map = {k: v for k, v in pbp_map.items() if (k in keep_keys) or (k.strip() in keep_keys)}
-                        if pbp_map:
-                            gid_team_map = _m
+                        # Only apply this filter if pbp_map is keyed by the same IDs.
+                        # ESPN PBP uses event_id keys, and filtering by NBA game_id would wipe the map.
+                        try:
+                            has_overlap = any(((k in keep_keys) or (str(k).strip() in keep_keys)) for k in pbp_map.keys())
+                        except Exception:
+                            has_overlap = False
+                        if has_overlap:
+                            pbp_map = {k: v for k, v in pbp_map.items() if (k in keep_keys) or (k.strip() in keep_keys)}
+                            if pbp_map:
+                                gid_team_map = _m
         except Exception:
             pass
         try:
             from .pbp_markets import _gid_team_map_for_date as _map
             gid_team_map = _map(date_str) or {}
+            # Normalize keys to strings to avoid int/str mismatches when comparing against
+            # pbp_map keys (which are always stringified).
+            try:
+                gid_team_map = {str(k).strip(): v for k, v in gid_team_map.items() if k is not None}
+            except Exception:
+                pass
         except Exception:
             gid_team_map = {}
+
+        # If our PBP frames are keyed differently than the mapping (e.g., ESPN event_id vs NBA game_id),
+        # force a derived mapping from the frames.
+        try:
+            if gid_team_map and pbp_map:
+                pbp_keys = set(str(k).strip() for k in pbp_map.keys())
+                map_keys = set(str(k).strip() for k in gid_team_map.keys())
+                if pbp_keys.isdisjoint(map_keys):
+                    gid_team_map = {}
+        except Exception:
+            pass
         if not gid_team_map:
             # Derive mapping directly from PBP frames when structured columns are available
             derived: dict[str, tuple[str,str]] = {}
@@ -3908,6 +4843,15 @@ def reconcile_quarters_cmd(date_str: str):
             for gid, gdf in pbp_map.items():
                 try:
                     cols = set(gdf.columns)
+                    if {"home_tri", "away_tri"}.issubset(cols):
+                        h0 = str(gdf["home_tri"].dropna().iloc[0]).upper() if gdf["home_tri"].notna().any() else None
+                        v0 = str(gdf["away_tri"].dropna().iloc[0]).upper() if gdf["away_tri"].notna().any() else None
+                        if h0 and v0:
+                            pair = (h0, v0)
+                            if not valid_pairs or pair in valid_pairs:
+                                if pair not in derived.values():
+                                    derived[str(gid)] = pair
+                            continue
                     # Prefer structured liveData schema
                     if {"teamTricode","location"}.issubset(cols):
                         tri_h = gdf[gdf["location"].astype(str).str.lower()=="h"].get("teamTricode").dropna()
@@ -3924,7 +4868,7 @@ def reconcile_quarters_cmd(date_str: str):
                     # Legacy schema heuristic: look for PLAYER_TEAM abbreviations tagged by home/away if present
                     # As a last resort, take the first two distinct tricodes observed and assume order is (home, away) if 'location' missing
                     tri_col = None
-                    for c in ("PLAYER1_TEAM_ABBREVIATION","team_abbr","TEAM_ABBREVIATION","teamTricode"):
+                    for c in ("PLAYER1_TEAM_ABBREVIATION","team_abbr","TEAM_ABBREVIATION","teamTricode","team"):
                         if c in cols:
                             tri_col = c; break
                     if tri_col:
@@ -3949,7 +4893,7 @@ def reconcile_quarters_cmd(date_str: str):
         # Helper to extract cumulative home/away score from a PBP row
         def _scores_from_row(r: pd.Series) -> tuple[float|None, float|None]:
             # Prefer explicit numeric columns if present
-            for hc, ac in (("scoreHome","scoreAway"), ("home_score","visitor_score"), ("HOME_SCORE","VISITOR_SCORE")):
+            for hc, ac in (("scoreHome","scoreAway"), ("home_score","away_score"), ("homeScore","awayScore"), ("home_score","visitor_score"), ("HOME_SCORE","VISITOR_SCORE")):
                 if (hc in r.index) and (ac in r.index):
                     try:
                         h = float(pd.to_numeric(r.get(hc), errors="coerce"))
@@ -3974,9 +4918,15 @@ def reconcile_quarters_cmd(date_str: str):
         # Build rows by iterating PBP games and computing per-period cumulative scores
         rows: list[dict] = []
         for gid, gdf in pbp_map.items():
-            if gid not in gid_team_map:
+            gid_key = str(gid).strip()
+            gid_key_alt = gid_key.zfill(10) if gid_key.isdigit() else None
+
+            if gid_key in gid_team_map:
+                htri, atri = gid_team_map[gid_key]
+            elif gid_key_alt and (gid_key_alt in gid_team_map):
+                htri, atri = gid_team_map[gid_key_alt]
+            else:
                 continue
-            htri, atri = gid_team_map[gid]
             htri = str(htri or "").upper(); atri = str(atri or "").upper()
             if (not htri) or (not atri):
                 continue
@@ -3988,27 +4938,49 @@ def reconcile_quarters_cmd(date_str: str):
                 else:
                     continue
             tmp = gdf.copy()
-            # Sort by period asc, then by clock desc if present so last row per period is end-of-period
-            clk = "clock" if "clock" in tmp.columns else ("PCTIMESTRING" if "PCTIMESTRING" in tmp.columns else None)
-            if clk:
-                tmp = tmp.sort_values(["period", clk], ascending=[True, False])
+            # Determine end-of-period by choosing the smallest remaining clock value (closest to 0:00).
+            # ESPN export already provides clock_sec_remaining.
+            if "clock_sec_remaining" in tmp.columns:
+                tmp["_clock_sec"] = pd.to_numeric(tmp["clock_sec_remaining"], errors="coerce")
+            else:
+                clk = "clock" if "clock" in tmp.columns else ("PCTIMESTRING" if "PCTIMESTRING" in tmp.columns else None)
+                if clk:
+                    def _clock_to_sec(v: Any) -> float:
+                        try:
+                            s = str(v or "")
+                            # Examples: PT12M00.00S, PT00M00.00S
+                            m = re.match(r"^PT(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$", s)
+                            if not m:
+                                return float("nan")
+                            mm = float(m.group(1)) if m.group(1) else 0.0
+                            ss = float(m.group(2)) if m.group(2) else 0.0
+                            return (mm * 60.0) + ss
+                        except Exception:
+                            return float("nan")
+                    tmp["_clock_sec"] = tmp[clk].apply(_clock_to_sec)
+                else:
+                    tmp["_clock_sec"] = float("nan")
+
+            if "actionNumber" in tmp.columns:
+                tmp["_action_num"] = pd.to_numeric(tmp["actionNumber"], errors="coerce")
+            elif "sequence" in tmp.columns:
+                tmp["_action_num"] = pd.to_numeric(tmp["sequence"], errors="coerce")
+            else:
+                tmp["_action_num"] = float("nan")
+
             # Compute end-of-period cumulative scores
             per_end: dict[int, tuple[float,float]] = {}
             for p in [1,2,3,4]:
                 sub = tmp[tmp["period"] == p]
                 if sub is None or sub.empty:
                     continue
-                # First row after sort is end-of-period (clock=0:00)
-                rlast = sub.iloc[0]
-                hs, as_ = _scores_from_row(rlast)
-                if (hs is None) or (as_ is None):
-                    # Try scanning within period for last non-null score
-                    hs2, as2 = None, None
-                    for _, rr in sub.iterrows():
-                        hs2, as2 = _scores_from_row(rr)
-                        if (hs2 is not None) and (as2 is not None):
-                            hs, as_ = hs2, as2
-                    # If still None, skip
+                # Sort within period: clock closest to 0 first; break ties by later actionNumber.
+                sub2 = sub.sort_values(["_clock_sec", "_action_num"], ascending=[True, False], na_position="last")
+                hs, as_ = None, None
+                for _, rr in sub2.iterrows():
+                    hs, as_ = _scores_from_row(rr)
+                    if (hs is not None) and (as_ is not None):
+                        break
                 if (hs is None) or (as_ is None):
                     continue
                 per_end[p] = (float(hs), float(as_))
@@ -4085,7 +5057,360 @@ def reconcile_quarters_cmd(date_str: str):
             rows.append(rec)
 
         if not rows:
-            console.print("PBP fallback produced no rows; nothing to write", style="yellow"); return
+            console.print("PBP fallback produced no rows; nothing to write", style="yellow")
+            try:
+                console.print(
+                    {
+                        "date": date_str,
+                        "pbp_games": int(len(pbp_map)),
+                        "mapped_games": int(len(gid_team_map)),
+                        "pbp_key_sample": list(list(pbp_map.keys())[:5]),
+                        "map_key_sample": list(list(gid_team_map.keys())[:5]) if isinstance(gid_team_map, dict) else None,
+                    },
+                    style="dim",
+                )
+            except Exception:
+                pass
+            return
+        out = paths.data_processed / f"recon_quarters_{date_str}.csv"
+        pd.DataFrame(rows).to_csv(out, index=False)
+        console.print({"date": date_str, "rows": int(len(rows)), "output": str(out), "source": "pbp"})
+        return
+
+    # If we found raw rows but Q1 line scores are missing (commonly all zeros/NaN),
+    # the downstream quarter backtests will be broken. Prefer PBP-derived actuals in that case.
+    try:
+        if {"home_q1", "visitor_q1", "home_pts", "visitor_pts"}.issubset(set(raw_day.columns)):
+            q1_tot = pd.to_numeric(raw_day["home_q1"], errors="coerce") + pd.to_numeric(raw_day["visitor_q1"], errors="coerce")
+            final_tot = pd.to_numeric(raw_day["home_pts"], errors="coerce") + pd.to_numeric(raw_day["visitor_pts"], errors="coerce")
+
+            played = final_tot.fillna(0) > 0
+            if int(played.sum()) > 0:
+                q1_zero_rate = float((q1_tot[played].fillna(0) <= 0).mean())
+                # Additional guard: if other quarters exist and are mostly non-zero, Q1 is likely missing.
+                q234_nonzero_rate = None
+                if {"home_q2", "visitor_q2", "home_q3", "visitor_q3", "home_q4", "visitor_q4"}.issubset(set(raw_day.columns)):
+                    q234_tot = (
+                        pd.to_numeric(raw_day["home_q2"], errors="coerce") + pd.to_numeric(raw_day["visitor_q2"], errors="coerce") +
+                        pd.to_numeric(raw_day["home_q3"], errors="coerce") + pd.to_numeric(raw_day["visitor_q3"], errors="coerce") +
+                        pd.to_numeric(raw_day["home_q4"], errors="coerce") + pd.to_numeric(raw_day["visitor_q4"], errors="coerce")
+                    )
+                    q234_nonzero_rate = float((q234_tot[played].fillna(0) > 0).mean())
+
+                # Trigger PBP fallback if Q1 is missing for (almost) all played games.
+                if (q1_zero_rate >= 0.95) and ((q234_nonzero_rate is None) or (q234_nonzero_rate >= 0.50)):
+                    console.print(
+                        f"Raw line scores for {date_str} appear to be missing Q1 totals; using PBP-derived quarters instead",
+                        style="yellow",
+                    )
+                    raw_day = raw_day.iloc[0:0].copy()
+    except Exception:
+        pass
+
+    if raw_day is None or raw_day.empty:
+        # Reuse the existing PBP fallback path
+        console.print(f"No usable raw line scores on {date_str}; attempting PBP-based fallback", style="yellow")
+
+        # Build PBP frames map for the date
+        pbp_map: dict[str, pd.DataFrame] = {}
+        pbp_comb = paths.data_processed / f"pbp_{date_str}.csv"
+        if pbp_comb.exists():
+            try:
+                dfc = pd.read_csv(pbp_comb)
+                if (dfc is not None) and (not dfc.empty):
+                    # Support alternative column names
+                    gid_col = "game_id" if "game_id" in dfc.columns else ("GAME_ID" if "GAME_ID" in dfc.columns else None)
+                    if gid_col is not None:
+                        for gid, grp in dfc.groupby(gid_col):
+                            key = str(gid).strip()
+                            pbp_map[key.zfill(10) if key.isdigit() else key] = grp.copy()
+                    elif "gameId" in dfc.columns:
+                        for gid, grp in dfc.groupby("gameId"):
+                            key = str(gid).strip()
+                            pbp_map[key.zfill(10) if key.isdigit() else key] = grp.copy()
+            except Exception:
+                pbp_map = {}
+        if not pbp_map:
+            # Try per-game files under data/processed/pbp
+            try:
+                dpg = paths.data_processed / "pbp"
+                if dpg.exists():
+                    for f in dpg.glob("pbp_*.csv"):
+                        try:
+                            gid = f.stem.replace("pbp_", "").strip()
+                            key = gid.zfill(10) if gid.isdigit() else gid
+                            pbp_map[key] = pd.read_csv(f)
+                        except Exception:
+                            continue
+            except Exception:
+                pbp_map = {}
+        if not pbp_map:
+            console.print("PBP logs not found; cannot build quarter reconciliation for this date", style="red"); return
+
+        # Map game_id -> (home_tri, away_tri)
+        # Prefer reusing prior pbp reconciliation if available for this date
+        try:
+            pbp_recon_path = paths.data_processed / f"pbp_reconcile_{date_str}.csv"
+            if pbp_recon_path.exists():
+                pr = pd.read_csv(pbp_recon_path)
+                if (pr is not None) and (not pr.empty) and {"game_id","home_team","visitor_team"}.issubset(set(pr.columns)):
+                    # Normalize keys to string game_id
+                    _m = {}
+                    for _, r in pr.iterrows():
+                        gid = str(r.get("game_id")).strip()
+                        h = str(r.get("home_team") or "").upper()
+                        a = str(r.get("visitor_team") or "").upper()
+                        if gid and h and a:
+                            _m[gid] = (h, a)
+                    # If we got any, filter pbp_map to just these game IDs
+                    if _m:
+                        # Normalize pbp_map keys similarly (both raw and zfilled forms)
+                        keep_keys = set(_m.keys()) | set(k.zfill(10) for k in _m.keys() if k.isdigit())
+                        # Only apply this filter if pbp_map is keyed by the same IDs.
+                        # ESPN PBP uses event_id keys, and filtering by NBA game_id would wipe the map.
+                        try:
+                            has_overlap = any(((k in keep_keys) or (str(k).strip() in keep_keys)) for k in pbp_map.keys())
+                        except Exception:
+                            has_overlap = False
+                        if has_overlap:
+                            pbp_map = {k: v for k, v in pbp_map.items() if (k in keep_keys) or (k.strip() in keep_keys)}
+                            if pbp_map:
+                                gid_team_map = _m
+        except Exception:
+            pass
+        try:
+            from .pbp_markets import _gid_team_map_for_date as _map
+            gid_team_map = _map(date_str) or {}
+            # Normalize keys to strings to avoid int/str mismatches when comparing against
+            # pbp_map keys (which are always stringified).
+            try:
+                gid_team_map = {str(k).strip(): v for k, v in gid_team_map.items() if k is not None}
+            except Exception:
+                pass
+        except Exception:
+            gid_team_map = {}
+        if not gid_team_map:
+            # Derive mapping directly from PBP frames when structured columns are available
+            derived: dict[str, tuple[str,str]] = {}
+            # Restrict to matchups we actually predicted for this date
+            valid_pairs = set(zip(preds["home_tri"].astype(str).str.upper(), preds["away_tri"].astype(str).str.upper()))
+            for gid, gdf in pbp_map.items():
+                try:
+                    cols = set(gdf.columns)
+                    # Prefer structured liveData schema
+                    if {"teamTricode","location"}.issubset(cols):
+                        tri_h = gdf[gdf["location"].astype(str).str.lower()=="h"].get("teamTricode").dropna()
+                        tri_v = gdf[gdf["location"].astype(str).str.lower()=="v"].get("teamTricode").dropna()
+                        h0 = str(tri_h.iloc[0]).upper() if len(tri_h)>0 else None
+                        v0 = str(tri_v.iloc[0]).upper() if len(tri_v)>0 else None
+                        if h0 and v0:
+                            pair = (h0, v0)
+                            if not valid_pairs or pair in valid_pairs:
+                                # Only keep first mapping per pair to avoid duplicates
+                                if pair not in derived.values():
+                                    derived[str(gid)] = pair
+                            continue
+                    # Legacy schema heuristic: look for PLAYER_TEAM abbreviations tagged by home/away if present
+                    # As a last resort, take the first two distinct tricodes observed and assume order is (home, away) if 'location' missing
+                    tri_col = None
+                    for c in ("PLAYER1_TEAM_ABBREVIATION","team_abbr","TEAM_ABBREVIATION","teamTricode"):
+                        if c in cols:
+                            tri_col = c; break
+                    if tri_col:
+                        tri_vals = [str(x).upper() for x in gdf[tri_col].dropna().astype(str).tolist()]
+                        uniq = []
+                        for t in tri_vals:
+                            if t and t not in uniq:
+                                uniq.append(t)
+                            if len(uniq) >= 2:
+                                break
+                        if len(uniq) >= 2:
+                            pair = (uniq[0], uniq[1])
+                            if not valid_pairs or pair in valid_pairs:
+                                if pair not in derived.values():
+                                    derived[str(gid)] = pair
+                except Exception:
+                    continue
+            gid_team_map = derived
+        if not gid_team_map:
+            console.print("Could not map game IDs to teams from PBP; skipping PBP fallback", style="red"); return
+
+        # Helper to extract cumulative home/away score from a PBP row
+        def _scores_from_row(r: pd.Series) -> tuple[float|None, float|None]:
+            # Prefer explicit numeric columns if present
+            for hc, ac in (("scoreHome","scoreAway"), ("home_score","visitor_score"), ("HOME_SCORE","VISITOR_SCORE")):
+                if (hc in r.index) and (ac in r.index):
+                    try:
+                        h = float(pd.to_numeric(r.get(hc), errors="coerce"))
+                        a = float(pd.to_numeric(r.get(ac), errors="coerce"))
+                        if not (np.isnan(h) or np.isnan(a)):
+                            return h, a
+                    except Exception:
+                        pass
+            # Else parse combined score like "102-99" in SCORE/score
+            for sc in ("SCORE","score","combinedScore"):
+                if sc in r.index:
+                    s = str(r.get(sc) or "")
+                    if "-" in s:
+                        parts = [p.strip() for p in s.split("-")]
+                        if len(parts) == 2:
+                            try:
+                                return float(parts[0]), float(parts[1])
+                            except Exception:
+                                pass
+            return None, None
+
+        # Build rows by iterating PBP games and computing per-period cumulative scores
+        rows: list[dict] = []
+        for gid, gdf in pbp_map.items():
+            gid_key = str(gid).strip()
+            gid_key_alt = gid_key.zfill(10) if gid_key.isdigit() else None
+
+            if gid_key in gid_team_map:
+                htri, atri = gid_team_map[gid_key]
+            elif gid_key_alt and (gid_key_alt in gid_team_map):
+                htri, atri = gid_team_map[gid_key_alt]
+            else:
+                continue
+            htri = str(htri or "").upper(); atri = str(atri or "").upper()
+            if (not htri) or (not atri):
+                continue
+            # Ensure period column exists and is numeric
+            if "period" not in gdf.columns:
+                # Try alternative capitalization
+                if "PERIOD" in gdf.columns:
+                    gdf = gdf.rename(columns={"PERIOD":"period"})
+                else:
+                    continue
+            tmp = gdf.copy()
+            # Determine end-of-period by choosing the smallest remaining clock value (closest to 0:00).
+            clk = "clock" if "clock" in tmp.columns else ("PCTIMESTRING" if "PCTIMESTRING" in tmp.columns else None)
+            if clk:
+                def _clock_to_sec(v: Any) -> float:
+                    try:
+                        s = str(v or "")
+                        # Examples: PT12M00.00S, PT00M00.00S
+                        m = re.match(r"^PT(?:(\d+)M)?(?:(\d+(?:\.\d+)?)S)?$", s)
+                        if not m:
+                            return float("nan")
+                        mm = float(m.group(1)) if m.group(1) else 0.0
+                        ss = float(m.group(2)) if m.group(2) else 0.0
+                        return (mm * 60.0) + ss
+                    except Exception:
+                        return float("nan")
+                tmp["_clock_sec"] = tmp[clk].apply(_clock_to_sec)
+            else:
+                tmp["_clock_sec"] = float("nan")
+
+            if "actionNumber" in tmp.columns:
+                tmp["_action_num"] = pd.to_numeric(tmp["actionNumber"], errors="coerce")
+            else:
+                tmp["_action_num"] = float("nan")
+
+            # Compute end-of-period cumulative scores
+            per_end: dict[int, tuple[float,float]] = {}
+            for p in [1,2,3,4]:
+                sub = tmp[tmp["period"] == p]
+                if sub is None or sub.empty:
+                    continue
+                # Sort within period: clock closest to 0 first; break ties by later actionNumber.
+                sub2 = sub.sort_values(["_clock_sec", "_action_num"], ascending=[True, False], na_position="last")
+                hs, as_ = None, None
+                for _, rr in sub2.iterrows():
+                    hs, as_ = _scores_from_row(rr)
+                    if (hs is not None) and (as_ is not None):
+                        break
+                if (hs is None) or (as_ is None):
+                    continue
+                per_end[p] = (float(hs), float(as_))
+
+            # Derive per-period totals by differences of cumulative scores
+            aq = {}
+            last_h, last_a = 0.0, 0.0
+            for p in [1,2,3,4]:
+                if p in per_end:
+                    hs, as_ = per_end[p]
+                    aq[f"q{p}"] = max(0.0, (hs - last_h) + (as_ - last_a))
+                    last_h, last_a = hs, as_
+                else:
+                    aq[f"q{p}"] = pd.NA
+            ah1 = (aq.get("q1") if pd.notna(aq.get("q1")) else 0.0) + (aq.get("q2") if pd.notna(aq.get("q2")) else 0.0)
+            ah2 = (aq.get("q3") if pd.notna(aq.get("q3")) else 0.0) + (aq.get("q4") if pd.notna(aq.get("q4")) else 0.0)
+            atot = (last_h + last_a) if (last_h is not None and last_a is not None) else pd.NA
+
+            # Match prediction by tri pair
+            m = preds[(preds["home_tri"].astype(str).str.upper() == htri) & (preds["away_tri"].astype(str).str.upper() == atri)]
+            pred_row = m.iloc[0] if not m.empty else None
+
+            rec: dict = {
+                "date": date_str,
+                "home_team": pred_row.get("home_team") if (pred_row is not None) else None,
+                "visitor_team": pred_row.get("visitor_team") if (pred_row is not None) else None,
+                "home_tri": htri,
+                "away_tri": atri,
+            }
+            for i in range(1,5):
+                rec[f"actual_q{i}_total"] = aq.get(f"q{i}")
+            rec["actual_h1_total"] = ah1 if pd.notna(ah1) else pd.NA
+            rec["actual_h2_total"] = ah2 if pd.notna(ah2) else pd.NA
+            rec["actual_game_total"] = atot
+
+            # Predictions
+            if pred_row is not None:
+                for i in range(1,5):
+                    pk = f"quarters_q{i}_total"
+                    rec[f"pred_q{i}_total"] = float(pred_row.get(pk)) if pk in pred_row.index and pd.notna(pred_row.get(pk)) else pd.NA
+                for hi, parts in [(1, (1,2)), (2, (3,4))]:
+                    hk = f"halves_h{hi}_total"
+                    val = float(pred_row.get(hk)) if hk in pred_row.index and pd.notna(pred_row.get(hk)) else pd.NA
+                    if (pd.isna(val)) and all(pd.notna(rec.get(f"pred_q{j}_total")) for j in parts):
+                        val = float(rec.get(f"pred_q{parts[0]}_total", 0.0)) + float(rec.get(f"pred_q{parts[1]}_total", 0.0))
+                    rec[f"pred_h{hi}_total"] = val
+                if game_pred_col is not None:
+                    try:
+                        rec["pred_game_total"] = float(pred_row.get(game_pred_col))
+                    except Exception:
+                        rec["pred_game_total"] = pd.NA
+                else:
+                    if all(pd.notna(rec.get(f"pred_q{i}_total")) for i in range(1,5)):
+                        rec["pred_game_total"] = sum(float(rec.get(f"pred_q{i}_total", 0.0)) for i in range(1,5))
+                    else:
+                        rec["pred_game_total"] = pd.NA
+            else:
+                for i in range(1,5):
+                    rec[f"pred_q{i}_total"] = pd.NA
+                rec["pred_h1_total"] = pd.NA
+                rec["pred_h2_total"] = pd.NA
+                rec["pred_game_total"] = pd.NA
+
+            # Errors (actual - pred)
+            for i in range(1,5):
+                a = rec.get(f"actual_q{i}_total"); p = rec.get(f"pred_q{i}_total")
+                rec[f"err_q{i}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+            for hi, ak in [(1, "actual_h1_total"), (2, "actual_h2_total")]:
+                a = rec.get(ak); p = rec.get(f"pred_h{hi}_total")
+                rec[f"err_h{hi}_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+            a = rec.get("actual_game_total"); p = rec.get("pred_game_total")
+            rec["err_game_total"] = (float(a) - float(p)) if (pd.notna(a) and pd.notna(p)) else pd.NA
+
+            rows.append(rec)
+
+        if not rows:
+            console.print("PBP fallback produced no rows; nothing to write", style="yellow")
+            try:
+                console.print(
+                    {
+                        "date": date_str,
+                        "pbp_games": int(len(pbp_map)),
+                        "mapped_games": int(len(gid_team_map)),
+                        "pbp_key_sample": list(list(pbp_map.keys())[:5]),
+                        "map_key_sample": list(list(gid_team_map.keys())[:5]) if isinstance(gid_team_map, dict) else None,
+                    },
+                    style="dim",
+                )
+            except Exception:
+                pass
+            return
         out = paths.data_processed / f"recon_quarters_{date_str}.csv"
         pd.DataFrame(rows).to_csv(out, index=False)
         console.print({"date": date_str, "rows": int(len(rows)), "output": str(out), "source": "pbp"})
@@ -4215,22 +5540,15 @@ def reconcile_quarters_range_cmd(start_date: str, end_date: str):
     for d in track(dates, description="Reconciling"):
         ds = str(d)
         try:
-            reconcile_quarters_cmd.callback  # type: ignore[attr-defined]
-            # Some Click versions wrap functions; call directly regardless
-        except Exception:
-            pass
-        try:
-            reconcile_quarters_cmd(ds)  # type: ignore[misc]
-            ok += 1
-        except SystemExit:
-            # Click may raise SystemExit on parameter parsing; try direct logic
-            try:
-                # Fallback: inline call equivalent by reusing function body via a nested call
-                # We simply re-invoke through the CLI group
+            # Avoid Click command invocation (which triggers argument parsing/usage output).
+            # Call the underlying function directly.
+            cb = getattr(reconcile_quarters_cmd, "callback", None)
+            if callable(cb):
+                cb(ds)
+            else:
+                # Extremely defensive fallback; should not happen.
                 cli.main(["reconcile-quarters", "--date", ds], standalone_mode=False)  # type: ignore
-                ok += 1
-            except Exception:
-                fail += 1
+            ok += 1
         except Exception:
             fail += 1
     console.print({"start": str(s), "end": str(e), "ok": int(ok), "fail": int(fail)})
@@ -5444,10 +6762,12 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
 @click.option("--use-npu/--no-npu", default=True, show_default=True, help="Use NPU acceleration for training and predictions")
 @click.option("--reconcile-days", type=int, default=7, show_default=True, help="Days back to reconcile actuals")
 @click.option("--retrain-games/--no-retrain-games", default=False, show_default=True, help="Retrain game models (enhanced models recommended). Default is no retrain to preserve calibrated enhanced models.")
-def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float, use_npu: bool, reconcile_days: int, retrain_games: bool):
+@click.option("--retrain-props/--no-retrain-props", default=False, show_default=True, help="Retrain prop models. Default is no retrain; daily runs use existing ONNX models.")
+def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None, git_push: bool, props_books: str | None, min_prop_edge: float, use_npu: bool, reconcile_days: int, retrain_games: bool, retrain_props: bool):
     """Enhanced end-to-end daily updater with NPU acceleration, actuals reconciliation, and comprehensive odds fetching."""
     console.rule("Enhanced Daily Update")
     import datetime as _dt
+    import sys
     import subprocess
     target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
     
@@ -5538,22 +6858,22 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     except Exception as e:
         console.print(f"Props actuals reconciliation failed: {e}", style="yellow")
 
-    # 6) Rebuild base features (for diagnostics) and optionally retrain game models
-    try:
-        console.print("🏗️  Rebuilding game features (baseline for diagnostics)...")
-        # Build game features uses data/raw/games_nba_api; assume already fetched historically; skip if missing
-        feats_raw = paths.data_raw / "games_nba_api.parquet"
-        if feats_raw.exists():
-            # Build features directly - replicating build_features_cmd logic
-            df = pd.read_parquet(feats_raw)
-            from .features import build_features
-            feats = build_features(df)
-            out = paths.data_processed / "features.parquet"
-            out.parent.mkdir(parents=True, exist_ok=True)
-            feats.to_parquet(out, index=False)
-            console.print(f"Features built and saved to {out}")
-            # Optional retrain: default False to preserve enhanced, injury-aware model artifacts
-            if retrain_games:
+    # 6) Optional: rebuild base features and retrain game models
+    if retrain_games:
+        try:
+            console.print("🏗️  Rebuilding game features (for retrain)...")
+            feats_raw = paths.data_raw / "games_nba_api.parquet"
+            if feats_raw.exists():
+                try:
+                    df = pd.read_parquet(feats_raw)
+                except Exception as e:
+                    raise RuntimeError(f"Cannot read {feats_raw.name}; install pyarrow/fastparquet ({e})")
+                from .features import build_features
+                feats = build_features(df)
+                out = paths.data_processed / "features.parquet"
+                out.parent.mkdir(parents=True, exist_ok=True)
+                feats.to_parquet(out, index=False)
+                console.print(f"Features built and saved to {out}")
                 if use_npu:
                     console.print("[NPU] Retraining game models with latest data...")
                     from .games_npu import train_game_models_npu
@@ -5566,31 +6886,32 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
                     _ = train_models(df)
                     console.print("Game models retrained (CPU)")
             else:
-                console.print("⏭️  Skipping game model retrain (use --retrain-games to enable)")
-        else:
-            console.print("Raw games not found; skipping full-game retrain.", style="yellow")
-    except Exception as e:
-        console.print(f"Game model retrain failed: {e}", style="yellow")
+                console.print("Raw games not found; skipping full-game retrain.", style="yellow")
+        except Exception as e:
+            console.print(f"Game model retrain failed: {e}", style="yellow")
+    else:
+        console.print("⏭️  Skipping game model retrain (use --retrain-games to enable)")
 
-    # 7) Rebuild props features and retrain props models
-    try:
-        console.print("[ACTION] Rebuilding props features...")
-        # Build props features directly
-        from .props_features import build_props_features
-        df = build_props_features()
-        console.print(f"Props features built: {len(df)} rows")
-        
-        if use_npu:
-            console.print("[NPU] Training props models with NPU acceleration...")
-            from .props_npu import train_props_models_npu
-            train_props_models_npu(alpha=1.0)
-        else:
-            console.print("🖥️  Training props models (CPU)...")
-            from .props_train import train_props_models
-            train_props_models(alpha=1.0)
-            console.print("Props models trained (CPU)")
-    except Exception as e:
-        console.print(f"Props model retrain failed: {e}", style="yellow")
+    # 7) Optional: retrain props models
+    if retrain_props:
+        try:
+            console.print("[ACTION] Rebuilding props features...")
+            from .props_features import build_props_features
+            df = build_props_features()
+            console.print(f"Props features built: {len(df)} rows")
+            if use_npu:
+                console.print("[NPU] Training props models with NPU acceleration...")
+                from .props_npu import train_props_models_npu
+                train_props_models_npu(alpha=1.0)
+            else:
+                console.print("🖥️  Training props models (CPU)...")
+                from .props_train import train_props_models
+                train_props_models(alpha=1.0)
+                console.print("Props models trained (CPU)")
+        except Exception as e:
+            console.print(f"Props model retrain failed: {e}", style="yellow")
+    else:
+        console.print("⏭️  Skipping props model retrain (use --retrain-props to enable)")
 
     # 8) Fetch current game odds from OddsAPI and write to CSV
     try:
@@ -5614,9 +6935,40 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     # 9) Predict today's slate (games) with enhanced, injury-aware features and write predictions_<date>.csv
     try:
         console.print("🎲 Generating game predictions (enhanced + injuries)...")
-        # Always use the enhanced pipeline which already builds injury-aware features
-        # and leverages NPU (NPUGamePredictor) internally when available.
-        predict_date_cmd(date_str=str(target_date), merge_odds_csv=None, out_path=None)
+        # Invoke subcommand to avoid Click context issues (and keep behavior consistent with scripts/daily_update.ps1).
+        cmd = [
+            sys.executable or "python",
+            "-m",
+            "nba_betting.cli",
+            "predict-date",
+            "--date",
+            str(target_date),
+        ]
+        pr = subprocess.run(cmd, cwd=paths.root, check=False)
+        if pr.returncode != 0:
+            raise RuntimeError(f"predict-date failed (rc={pr.returncode})")
+
+        # Ensure calibrated/blended win probability column is present for evaluation/UI.
+        # This writes/updates home_win_prob_cal inside data/processed/predictions_<date>.csv.
+        try:
+            import sys
+            import subprocess
+            end_for_training = (target_date - _dt.timedelta(days=1)).strftime("%Y-%m-%d")
+            blend_tool = paths.root / "tools" / "games_blend.py"
+            if blend_tool.exists():
+                cmd = [
+                    sys.executable or "python",
+                    str(blend_tool),
+                    "--train-days",
+                    "30",
+                    "--end",
+                    end_for_training,
+                    "--apply-date",
+                    target_date.strftime("%Y-%m-%d"),
+                ]
+                subprocess.run(cmd, cwd=paths.root, check=False)
+        except Exception:
+            pass
     except Exception as e:
         console.print(f"Game predictions failed: {e}", style="yellow")
 
@@ -5640,23 +6992,35 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     # 11) Props predictions and edges for target date
     try:
         console.print("[ACTION] Generating prop predictions and edges...")
-        # Predict props (builds as-of features internally)
-        if use_npu:
-            console.print("[NPU] Using NPU acceleration for prop predictions...")
-            from .props_npu import predict_props_npu
-            from .props_features import build_features_for_date
-            try:
-                feats = build_features_for_date(str(target_date))
-                if not feats.empty:
-                    preds = predict_props_npu(feats)
-                    out_path = paths.data_processed / f"props_predictions_npu_{target_date}.csv"
-                    preds.to_csv(out_path, index=False)
-                    console.print(f"[OK] NPU prop predictions saved to {out_path}")
-            except Exception as e:
-                console.print(f"NPU prop predictions failed, falling back to CPU: {e}", style="yellow")
-                predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True, calibrate=True, calib_window=7)
-        else:
-            predict_props_cmd(date_str=str(target_date), out_path=None, slate_only=True, calibrate=True, calib_window=7)
+        # Predict props using the canonical CLI subcommand.
+        # This ensures SmartSim overrides are applied (minutes/rotations-aware) regardless of NPU mode.
+        cmd = [
+            sys.executable or "python",
+            "-m",
+            "nba_betting.cli",
+            "predict-props",
+            "--date",
+            str(target_date),
+            "--slate-only",
+            "--calibrate",
+            "--calib-window",
+            "7",
+            "--calibrate-player",
+            "--player-calib-window",
+            "30",
+            "--player-min-pairs",
+            "6",
+            "--player-shrink-k",
+            "8",
+            "--use-pure-onnx",
+            "--use-smart-sim",
+            "--smart-sim-n-sims",
+            "150",
+            "--smart-sim-pbp",
+        ]
+        pr = subprocess.run(cmd, cwd=paths.root, check=False)
+        if pr.returncode != 0:
+            raise RuntimeError(f"predict-props failed (rc={pr.returncode})")
         
         # Fetch current props odds and compute edges
         if odds_api_key:
@@ -5728,16 +7092,20 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
         
         # Generate prop recommendations - simplified version
         try:
-            edges_csv = paths.data_processed / f"props_edges_{target_date}.csv"
-            if edges_csv.exists():
-                edges = pd.read_csv(edges_csv)
-                if not edges.empty:
-                    # Simple filtering for top recommendations
-                    top_recs = edges[edges["ev"] >= 0.05].copy()
-                    top_recs = top_recs.sort_values("ev", ascending=False).head(50)
-                    out = paths.data_processed / f"props_recommendations_{target_date}.csv"
-                    top_recs.to_csv(out, index=False)
-                    console.print(f"[OK] Prop recommendations saved to {out}")
+            # Produce frontend-ready prop cards (CSV) from edges/predictions.
+            cmd = [
+                sys.executable or "python",
+                "-m",
+                "nba_betting.cli",
+                "export-props-recommendations",
+                "--date",
+                str(target_date),
+            ]
+            pr = subprocess.run(cmd, cwd=paths.root, check=False)
+            if pr.returncode != 0:
+                raise RuntimeError(f"export-props-recommendations failed (rc={pr.returncode})")
+            outp = paths.data_processed / f"props_recommendations_{target_date}.csv"
+            console.print(f"[OK] Prop recommendations saved to {outp}")
         except Exception as e:
             console.print(f"Prop recommendations failed: {e}", style="yellow")
         
@@ -5771,7 +7139,7 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     console.print(f"📤 Git Push: {'Yes' if git_push else 'No'}")
     console.print("\n📁 Check these files for today's data:")
     console.print(f"  - predictions_{target_date}.csv")
-    console.print(f"  - props_predictions{'_npu' if use_npu else ''}_{target_date}.csv")
+    console.print(f"  - props_predictions_{target_date}.csv")
     console.print(f"  - props_edges_{target_date}.csv") 
     console.print(f"  - recommendations_{target_date}.csv")
     console.print(f"  - props_recommendations_{target_date}.csv")
@@ -6124,6 +7492,84 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
     # Save
     if not out_path:
         out_path = str(paths.data_processed / f"predictions_{date_str}.csv")
+
+    # Guardrail: ensure one row per game.
+    # Some upstream merges can accidentally introduce duplicate rows for the same matchup.
+    # The frontend indexes by (date, home, visitor) and duplicates can cause arbitrary overwrite.
+    try:
+        dedupe_keys = [c for c in ("date", "home_team", "visitor_team") if c in res.columns]
+        if len(dedupe_keys) == 3:
+            before_n = int(len(res))
+            tmp = res.copy()
+
+            # Normalize key fields for consistent grouping
+            try:
+                tmp["date"] = pd.to_datetime(tmp["date"], errors="coerce").dt.date
+            except Exception:
+                pass
+            try:
+                tmp["home_team"] = tmp["home_team"].apply(normalize_team)
+                tmp["visitor_team"] = tmp["visitor_team"].apply(normalize_team)
+            except Exception:
+                pass
+
+            # Prefer the row with the most populated prediction/market fields.
+            score_cols = [
+                # core game preds
+                "home_win_prob",
+                "spread_margin",
+                "totals",
+                # halves
+                "halves_h1_win",
+                "halves_h1_margin",
+                "halves_h1_total",
+                "halves_h2_win",
+                "halves_h2_margin",
+                "halves_h2_total",
+                # quarters
+                "quarters_q1_win",
+                "quarters_q1_margin",
+                "quarters_q1_total",
+                "quarters_q2_win",
+                "quarters_q2_margin",
+                "quarters_q2_total",
+                "quarters_q3_win",
+                "quarters_q3_margin",
+                "quarters_q3_total",
+                "quarters_q4_win",
+                "quarters_q4_margin",
+                "quarters_q4_total",
+                # market snapshot
+                "home_ml",
+                "away_ml",
+                "home_spread",
+                "total",
+                "commence_time",
+                "bookmaker",
+            ]
+            score_cols = [c for c in score_cols if c in tmp.columns]
+            if score_cols:
+                tmp["__nonnull"] = tmp[score_cols].notna().sum(axis=1).astype(int)
+            else:
+                tmp["__nonnull"] = 0
+            tmp["__has_book"] = (tmp["bookmaker"].notna().astype(int) if "bookmaker" in tmp.columns else 0)
+            tmp["__score"] = (tmp["__nonnull"] * 10) + tmp["__has_book"]
+
+            # Stable sort then keep the best-scoring row per game.
+            tmp = tmp.sort_values(
+                by=["date", "home_team", "visitor_team", "__score"],
+                ascending=[True, True, True, False],
+                kind="mergesort",
+            )
+            tmp = tmp.drop_duplicates(subset=["date", "home_team", "visitor_team"], keep="first")
+            tmp = tmp.drop(columns=["__nonnull", "__has_book", "__score"], errors="ignore")
+            after_n = int(len(tmp))
+            if after_n != before_n:
+                console.print(f"Deduped predictions rows: {before_n} -> {after_n}", style="yellow")
+            res = tmp
+    except Exception as e:
+        console.print(f"Warning: failed to dedupe predictions rows ({e}); continuing.", style="yellow")
+
     res.to_csv(out_path, index=False)
     console.print(f"Saved predictions to {out_path}")
 

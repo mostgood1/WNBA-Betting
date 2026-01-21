@@ -11,6 +11,7 @@ import numpy as np
 import pandas as pd
 
 from nba_betting.config import paths
+from nba_betting.player_priors import PlayerPriorsConfig, compute_player_priors
 from nba_betting.sim.connected_game import simulate_connected_game
 from nba_betting.sim.quarters import GameInputs, TeamContext, simulate_quarters
 from nba_betting.teams import normalize_team, to_tricode
@@ -320,6 +321,12 @@ def _actual_team_box(logs: pd.DataFrame, game_id: str, team_tri: str) -> pd.Data
             "reb": pd.to_numeric(g.get("REB"), errors="coerce").fillna(0.0),
             "ast": pd.to_numeric(g.get("AST"), errors="coerce").fillna(0.0),
             "threes": pd.to_numeric(g.get("FG3M"), errors="coerce").fillna(0.0),
+            "fg3a": pd.to_numeric(g.get("FG3A"), errors="coerce").fillna(0.0),
+            "fga": pd.to_numeric(g.get("FGA"), errors="coerce").fillna(0.0),
+            "fgm": pd.to_numeric(g.get("FGM"), errors="coerce").fillna(0.0),
+            "fta": pd.to_numeric(g.get("FTA"), errors="coerce").fillna(0.0),
+            "ftm": pd.to_numeric(g.get("FTM"), errors="coerce").fillna(0.0),
+            "pf": pd.to_numeric(g.get("PF"), errors="coerce").fillna(0.0),
             "tov": pd.to_numeric(g.get("TOV"), errors="coerce").fillna(0.0),
         }
     )
@@ -334,6 +341,12 @@ def _actual_team_box(logs: pd.DataFrame, game_id: str, team_tri: str) -> pd.Data
             "reb": "sum",
             "ast": "sum",
             "threes": "sum",
+            "fg3a": "sum",
+            "fga": "sum",
+            "fgm": "sum",
+            "fta": "sum",
+            "ftm": "sum",
+            "pf": "sum",
             "tov": "sum",
         }
     )
@@ -351,7 +364,7 @@ def _sim_team_box(sim_rep: dict[str, Any], key: str) -> pd.DataFrame:
     df = df.copy()
     df["player_name"] = df.get("player_name").astype(str)
     df["player_key"] = df["player_name"].map(_norm_player_key)
-    for c in ("min", "pts", "reb", "ast", "threes", "tov"):
+    for c in ("min", "pts", "reb", "ast", "threes", "tov", "fg3a", "fga", "fgm", "fta", "ftm", "pf"):
         if c in df.columns:
             df[c] = pd.to_numeric(df[c], errors="coerce").fillna(0.0)
         else:
@@ -366,6 +379,12 @@ def _sim_team_box(sim_rep: dict[str, Any], key: str) -> pd.DataFrame:
             "reb": "sum",
             "ast": "sum",
             "threes": "sum",
+            "fg3a": "sum",
+            "fga": "sum",
+            "fgm": "sum",
+            "fta": "sum",
+            "ftm": "sum",
+            "pf": "sum",
             "tov": "sum",
         }
     )
@@ -484,6 +503,15 @@ def main() -> int:
 
         minutes_priors = _build_minutes_priors(logs, end_date=d, lookback_days=int(args.minutes_lookback_days))
 
+        try:
+            pri = compute_player_priors(
+                d.isoformat(),
+                cfg=PlayerPriorsConfig(days_back=int(args.minutes_lookback_days), min_games=3, min_minutes_avg=4.0),
+            )
+            player_priors = pri.rates
+        except Exception:
+            player_priors = {}
+
         for _, g in games.iterrows():
             gid = str(g.get("game_id"))
             htri = str(g.get("home_tri") or "").strip().upper()
@@ -541,6 +569,7 @@ def main() -> int:
                 home_roster=home_roster,
                 away_roster=away_roster,
                 minutes_priors=minutes_priors,
+                player_priors=player_priors,
                 minutes_lookback_days=int(args.minutes_lookback_days),
                 n_samples=int(args.n_connected_samples),
                 seed=int(args.seed) + int(gid[-4:]) if gid[-4:].isdigit() else int(args.seed),
@@ -590,6 +619,18 @@ def main() -> int:
                             "ast_sim": float(rr.get("ast_sim") or 0.0),
                             "threes_act": float(rr.get("threes_act") or 0.0),
                             "threes_sim": float(rr.get("threes_sim") or 0.0),
+                            "fg3a_act": float(rr.get("fg3a_act") or 0.0),
+                            "fg3a_sim": float(rr.get("fg3a_sim") or 0.0),
+                            "fga_act": float(rr.get("fga_act") or 0.0),
+                            "fga_sim": float(rr.get("fga_sim") or 0.0),
+                            "fgm_act": float(rr.get("fgm_act") or 0.0),
+                            "fgm_sim": float(rr.get("fgm_sim") or 0.0),
+                            "fta_act": float(rr.get("fta_act") or 0.0),
+                            "fta_sim": float(rr.get("fta_sim") or 0.0),
+                            "ftm_act": float(rr.get("ftm_act") or 0.0),
+                            "ftm_sim": float(rr.get("ftm_sim") or 0.0),
+                            "pf_act": float(rr.get("pf_act") or 0.0),
+                            "pf_sim": float(rr.get("pf_sim") or 0.0),
                             "tov_act": float(rr.get("tov_act") or 0.0),
                             "tov_sim": float(rr.get("tov_sim") or 0.0),
                         }

@@ -15,8 +15,47 @@ from typing import Dict, List, Optional, Any, Tuple, Union
 import warnings
 warnings.filterwarnings('ignore')
 
+
+def _is_windows_arm() -> bool:
+    try:
+        import platform
+        return os.name == "nt" and ("arm" in platform.machine().lower() or "aarch64" in platform.machine().lower())
+    except Exception:
+        return False
+
+
+class _SuppressStderrFD:
+    def __enter__(self):
+        if not _is_windows_arm():
+            self._active = False
+            return self
+        import sys
+        self._active = True
+        self._fd = sys.stderr.fileno()
+        self._saved = os.dup(self._fd)
+        self._devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(self._devnull, self._fd)
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if not getattr(self, "_active", False):
+            return False
+        try:
+            os.dup2(self._saved, self._fd)
+        finally:
+            try:
+                os.close(self._devnull)
+            except Exception:
+                pass
+            try:
+                os.close(self._saved)
+            except Exception:
+                pass
+        return False
+
 try:
-    import onnxruntime as ort
+    with _SuppressStderrFD():
+        import onnxruntime as ort
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
@@ -101,7 +140,8 @@ class NPUGamePredictor:
         sess_options.enable_mem_pattern = True
         sess_options.enable_cpu_mem_arena = True
         
-        return ort.InferenceSession(model_path, sess_options=sess_options, providers=providers)
+        with _SuppressStderrFD():
+            return ort.InferenceSession(model_path, sess_options=sess_options, providers=providers)
     
     def _load_models(self):
         """Load ONNX models and fallback sklearn models"""
@@ -254,28 +294,25 @@ class NPUGamePredictor:
                 # NPU prediction
                 session = self.npu_sessions[model_name]
                 input_name = session.get_inputs()[0].name
-                result = session.run(None, {input_name: features})[0]
+                onnx_outputs = session.run(None, {input_name: features})
+                result = onnx_outputs[0] if onnx_outputs else None
                 
                 if model_name == "win_prob":
-                    # Classification - handle different output shapes
-                    if result.shape == (1,):
-                        # Single output value
-                        predictions[model_name] = float(result[0])
-                    elif len(result.shape) > 1 and result.shape[1] > 1:
-                        # Probability array - get probability of home team win
-                        predictions[model_name] = float(result[0][1])
-                    else:
-                        # Single probability in 2D array
-                        predictions[model_name] = float(result[0][0])
+                    # Classification: ensure we extract probabilities, not labels
+                    predictions[model_name] = float(self._extract_class1_probability(list(onnx_outputs or [])))
                         
                     # Store raw win probability for analysis
                     predictions["win_prob_raw"] = predictions[model_name]
                 else:
                     # Regression - handle 2D output
-                    if len(result.shape) > 1:
-                        predictions[model_name] = float(result[0][0])
+                    if result is None:
+                        predictions[model_name] = float("nan")
                     else:
-                        predictions[model_name] = float(result[0])
+                        result = np.asarray(result)
+                        if len(result.shape) > 1:
+                            predictions[model_name] = float(result[0][0])
+                        else:
+                            predictions[model_name] = float(result[0])
                     
             elif model_name in self.fallback_models:
                 # CPU fallback
@@ -324,21 +361,19 @@ class NPUGamePredictor:
                         if model_type == "onnx":
                             # NPU ONNX prediction
                             input_name = model.get_inputs()[0].name
-                            result = model.run(None, {input_name: features})[0]
+                            onnx_outputs = model.run(None, {input_name: features})
+                            result = onnx_outputs[0] if onnx_outputs else None
                             
                             if pred_type == "win":
-                                # Classification - get probability for class 1
-                                result = np.array(result)  # Ensure numpy array
-                                if result.ndim > 1 and result.shape[1] > 1:
-                                    predictions[period_type][period_name][pred_type] = float(result[0][1])
-                                elif result.ndim > 1:
-                                    predictions[period_type][period_name][pred_type] = float(result[0][0])
-                                else:
-                                    predictions[period_type][period_name][pred_type] = float(result[0])
+                                # Classification: ensure we extract probabilities, not labels
+                                predictions[period_type][period_name][pred_type] = float(self._extract_class1_probability(list(onnx_outputs or [])))
                             else:
                                 # Regression - extract single value
-                                result = np.array(result)  # Ensure numpy array
-                                predictions[period_type][period_name][pred_type] = float(result.flat[0])
+                                if result is None:
+                                    predictions[period_type][period_name][pred_type] = float("nan")
+                                else:
+                                    result = np.array(result)  # Ensure numpy array
+                                    predictions[period_type][period_name][pred_type] = float(result.flat[0])
                         
                         elif model_type == "sklearn":
                             # sklearn fallback
@@ -448,6 +483,56 @@ class NPUGamePredictor:
                 }
         
         return benchmark_results
+
+    @staticmethod
+    def _extract_class1_probability(onnx_outputs: list[Any]) -> float:
+        """Extract P(class=1) from common ONNX classifier output conventions.
+
+        sklearn->onnx commonly returns two outputs: (label, probabilities). If we naively
+        read the first output, we end up with hard 0/1 labels which destroys logloss.
+        """
+        arrs: list[np.ndarray] = []
+        for out in onnx_outputs:
+            try:
+                arrs.append(np.asarray(out))
+            except Exception:
+                continue
+
+        # 1) Handle ZipMap-like outputs: object array containing a single dict
+        for a in arrs:
+            try:
+                if a.dtype == object and a.size == 1 and isinstance(a.flat[0], dict):
+                    d = a.flat[0]
+                    if 1 in d:
+                        return float(d[1])
+                    if "1" in d:
+                        return float(d["1"])
+                    # Fallback: choose the second key in sorted order
+                    keys = sorted(d.keys())
+                    if len(keys) >= 2:
+                        return float(d[keys[1]])
+            except Exception:
+                pass
+
+        # 2) Prefer a floating probability matrix with 2+ columns
+        for a in arrs:
+            if a.dtype.kind in ("f", "c") and a.ndim == 2 and a.shape[0] >= 1 and a.shape[1] >= 2:
+                return float(a[0, 1])
+
+        # 3) Next: a floating vector of class probabilities
+        for a in arrs:
+            if a.dtype.kind in ("f", "c") and a.ndim == 1 and a.shape[0] >= 2:
+                return float(a[1])
+
+        # 4) Last resort: a single floating probability
+        for a in arrs:
+            if a.dtype.kind in ("f", "c"):
+                return float(a.flat[0])
+
+        # 5) Give up and coerce first output
+        if arrs:
+            return float(arrs[0].flat[0])
+        return 0.5
 
 
 def train_game_models_npu(retrain: bool = True):

@@ -94,6 +94,11 @@ for d in dates:
     if not need.issubset(set(edges.columns)):
         # Schema mismatch, skip this date
         continue
+    # Exclude markets we cannot grade reliably (no numeric line / different semantics)
+    edges['stat'] = edges['stat'].astype(str).str.lower()
+    edges = edges[~edges['stat'].isin(['dd','td'])].copy()
+    if edges.empty:
+        continue
     # Normalize
     edges['date'] = pd.to_datetime(edges['date'], errors='coerce').dt.date
     edges['player_id'] = pd.to_numeric(edges['player_id'], errors='coerce')
@@ -103,20 +108,48 @@ for d in dates:
     merged = edges.merge(a_day, on=['date','player_id'], how='left', suffixes=('','_act'))
     if merged is None or merged.empty:
         continue
-    # Map actual stat column
-    stat_map = {
+    # Map actual stat values. Some markets are derived combos.
+    merged['actual_val'] = np.nan
+    merged['stat'] = merged['stat'].astype(str).str.lower()
+
+    base_cols = {
         'pts': 'pts',
         'reb': 'reb',
         'ast': 'ast',
         'threes': 'threes',
         'pra': 'pra',
+        # Optional if present in actuals
+        'stl': 'stl',
+        'blk': 'blk',
+        'tov': 'tov',
     }
-    merged['actual_val'] = np.nan
-    merged['stat'] = merged['stat'].astype(str).str.lower()
-    for stat, col in stat_map.items():
-        mask_s = merged['stat'] == stat
+    for stat, col in base_cols.items():
         if col in merged.columns:
-            merged.loc[mask_s, 'actual_val'] = pd.to_numeric(merged.loc[mask_s, col], errors='coerce')
+            mask_s = merged['stat'] == stat
+            if mask_s.any():
+                merged.loc[mask_s, 'actual_val'] = pd.to_numeric(merged.loc[mask_s, col], errors='coerce')
+
+    # Derived combos from base actuals
+    pts = pd.to_numeric(merged.get('pts'), errors='coerce') if 'pts' in merged.columns else None
+    reb = pd.to_numeric(merged.get('reb'), errors='coerce') if 'reb' in merged.columns else None
+    ast = pd.to_numeric(merged.get('ast'), errors='coerce') if 'ast' in merged.columns else None
+    if pts is not None and reb is not None:
+        mask_s = merged['stat'] == 'pr'
+        if mask_s.any():
+            merged.loc[mask_s, 'actual_val'] = pts + reb
+    if pts is not None and ast is not None:
+        mask_s = merged['stat'] == 'pa'
+        if mask_s.any():
+            merged.loc[mask_s, 'actual_val'] = pts + ast
+    if reb is not None and ast is not None:
+        mask_s = merged['stat'] == 'ra'
+        if mask_s.any():
+            merged.loc[mask_s, 'actual_val'] = reb + ast
+
+    # Drop rows we can't grade (missing actual)
+    merged = merged.dropna(subset=['actual_val'])
+    if merged.empty:
+        continue
     # Outcome
     merged['line'] = pd.to_numeric(merged['line'], errors='coerce')
     merged['side'] = merged['side'].astype(str).str.upper()

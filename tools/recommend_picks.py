@@ -3,9 +3,26 @@ from pathlib import Path
 from datetime import datetime
 import pandas as pd
 import numpy as np
+import math
+
+from nba_betting.sim_games import SimConfig
+from nba_betting.teams import to_tricode
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+
+# Basic sanity bounds to ignore clearly-bad odds rows.
+# NBA spreads almost never exceed ~20 points; totals typically sit in ~170-260.
+MAX_ABS_SPREAD = 20.0
+MIN_TOTAL_LINE = 170.0
+MAX_TOTAL_LINE = 260.0
+
+# ATS probability blending toward market no-vig probability.
+# w=1.0 => pure model; w=0.0 => pure market.
+ATS_BLEND_WEIGHT = 0.25
+
+# Totals probability blending toward market no-vig probability.
+TOTALS_BLEND_WEIGHT = 0.25
 
 
 def american_to_prob(ml: float) -> float | None:
@@ -85,11 +102,21 @@ def normalize_join(p: pd.DataFrame, o: pd.DataFrame) -> pd.DataFrame:
         if "date" in df.columns:
             df["date_norm"] = df["date"].astype(str).str.strip()
 
-    keys = [c for c in ("date_norm", "home_team_norm", "visitor_team_norm") if c in p.columns and c in o.columns]
-    if len(keys) < 2:
-        return pd.DataFrame()
+    # Prefer tri-code join if possible (handles "LA Clippers" vs "Los Angeles Clippers" variants).
+    for df in (p, o):
+        if "home_team" in df.columns:
+            df["home_tri"] = df["home_team"].astype(str).map(to_tricode)
+        if "visitor_team" in df.columns:
+            df["away_tri"] = df["visitor_team"].astype(str).map(to_tricode)
 
-    merged = p.merge(o, on=keys, how="inner")
+    keys_tri = [c for c in ("date_norm", "home_tri", "away_tri") if c in p.columns and c in o.columns]
+    if len(keys_tri) >= 3:
+        merged = p.merge(o, on=keys_tri, how="inner")
+    else:
+        keys = [c for c in ("date_norm", "home_team_norm", "visitor_team_norm") if c in p.columns and c in o.columns]
+        if len(keys) < 2:
+            return pd.DataFrame()
+        merged = p.merge(o, on=keys, how="inner")
 
     # Prefer the predictions-side team/date columns for downstream display
     for base in ("date", "home_team", "visitor_team"):
@@ -214,20 +241,61 @@ def score_ats(row: pd.Series) -> dict | None:
         return None
     pm = float(row.get(pm_col))
     ln = float(line)
-    # Pick side by sign of ATS differential
-    if ln < 0:
-        diff = pm - abs(ln)
-    else:
-        diff = pm + ln
-    pick_side = "HOME" if diff >= 0 else "AWAY"
-    score = _ats_confidence(pm, ln)
-    price_col = "home_spread_price" if pick_side == "HOME" else "away_spread_price"
+    if abs(ln) > MAX_ABS_SPREAD:
+        return None
+    # Calibrated ATS cover probability
+    cfg = SimConfig()
+    threshold = -ln  # home covers if margin > -home_spread
+    mu_ats = float(cfg.ats_scale) * float(pm) + float(cfg.ats_bias)
+    z = (threshold - mu_ats) / max(1e-6, float(cfg.sd_margin_ats))
+    p_home_cover = float(max(1e-6, min(1 - 1e-6, 1.0 - 0.5 * (1.0 + math.erf(z / math.sqrt(2.0))))))
+
+    # Market no-vig implied probability (fallback -110/-110)
+    home_price = _get_num(row, ["home_spread_price", "home_spread_price_y", "home_spread_price_x"]) or -110.0
+    away_price = _get_num(row, ["away_spread_price", "away_spread_price_y", "away_spread_price_x"]) or -110.0
+    ph = american_to_prob(home_price)
+    pa = american_to_prob(away_price)
+    if ph is None or pa is None or (ph + pa) <= 0:
+        return None
+    p_mkt_home_nv = ph / (ph + pa)
+
+    # Blend model probability toward market baseline to reduce overconfidence.
+    w = float(max(0.0, min(1.0, ATS_BLEND_WEIGHT)))
+    p_home_cover_blend = (w * p_home_cover) + ((1.0 - w) * p_mkt_home_nv)
+
+    # Choose side by edge vs market; compute EV
+    edge_home = p_home_cover_blend - p_mkt_home_nv
+    edge_away = (1 - p_home_cover_blend) - (1 - p_mkt_home_nv)
+    pick_side = "HOME" if edge_home >= edge_away else "AWAY"
+    price = home_price if pick_side == "HOME" else away_price
+
+    def _ev(prob: float, american: float) -> float:
+        a = float(american)
+        p = float(prob)
+        if a > 0:
+            return p * (a / 100.0) - (1 - p)
+        return p * (100.0 / abs(a)) - (1 - p)
+
+    p_pick = p_home_cover_blend if pick_side == "HOME" else (1 - p_home_cover_blend)
+    ev = _ev(p_pick, price)
+
+    edge_pick = float(edge_home) if pick_side == "HOME" else float(edge_away)
+
+    # Keep point-edge for display but score via probability edge + confidence
+    point_edge = pm - (-ln)
+    # Score is a proxy for confidence; include positive EV signal.
+    score = float(min(1.0, (max(0.0, ev) * 2.0) + (abs(edge_pick) * 6.0) + (abs(p_pick - 0.5) * 2.0)))
+
     return {
         "market": "spread",
         "pick": pick_side,
         "score": float(score),
-        "edge": float(diff),
-        "odds": float(row.get(price_col)) if price_col in row.index else np.nan,
+        "edge": float(point_edge),
+        "edge_prob": float(edge_pick),
+        "prob_model": float(p_pick),
+        "prob_mkt": float(p_mkt_home_nv if pick_side == "HOME" else (1 - p_mkt_home_nv)),
+        "ev": float(ev),
+        "odds": float(price),
     }
 
 
@@ -240,18 +308,62 @@ def score_totals(row: pd.Series) -> dict | None:
     if ln_v is None:
         return None
     ln = float(ln_v)
+    if (ln < MIN_TOTAL_LINE) or (ln > MAX_TOTAL_LINE):
+        return None
     pt = float(row.get("totals"))
     diff = pt - ln
-    pick = "OVER" if diff > 0 else "UNDER"
-    # Confidence by distance in points normalized ~12 pts scale
-    score = float(max(0.0, min(1.0, abs(diff) / 12.0)))
-    price_col = "total_over_price" if pick == "OVER" else "total_under_price"
+
+    # Model probability of OVER using Normal(total ~ N(mu=pt, sd=cfg.sd_total))
+    cfg = SimConfig()
+    z = (ln - pt) / max(1e-6, float(cfg.sd_total))
+    p_over = float(max(1e-6, min(1 - 1e-6, 1.0 - 0.5 * (1.0 + math.erf(z / math.sqrt(2.0))))))
+    p_under = 1.0 - p_over
+
+    # Market no-vig implied probability (fallback -110/-110)
+    over_price = _get_num(row, ["total_over_price", "total_over_price_y", "total_over_price_x"]) or -110.0
+    under_price = _get_num(row, ["total_under_price", "total_under_price_y", "total_under_price_x"]) or -110.0
+    po = american_to_prob(over_price)
+    pu = american_to_prob(under_price)
+    if po is None or pu is None or (po + pu) <= 0:
+        return None
+    p_mkt_over_nv = po / (po + pu)
+    p_mkt_under_nv = 1.0 - p_mkt_over_nv
+
+    # Blend model prob toward market baseline to reduce overconfidence.
+    w = float(max(0.0, min(1.0, TOTALS_BLEND_WEIGHT)))
+    p_over_blend = (w * p_over) + ((1.0 - w) * p_mkt_over_nv)
+    p_under_blend = 1.0 - p_over_blend
+
+    # Pick by probability edge vs market
+    edge_over = p_over_blend - p_mkt_over_nv
+    edge_under = p_under_blend - p_mkt_under_nv
+    pick = "OVER" if edge_over >= edge_under else "UNDER"
+    price = over_price if pick == "OVER" else under_price
+    p_pick = p_over_blend if pick == "OVER" else p_under_blend
+    edge_pick = float(edge_over) if pick == "OVER" else float(edge_under)
+
+    def _ev(prob: float, american: float) -> float:
+        a = float(american)
+        p = float(prob)
+        if a > 0:
+            return p * (a / 100.0) - (1 - p)
+        return p * (100.0 / abs(a)) - (1 - p)
+
+    ev = _ev(p_pick, price)
+
+    # Confidence: point distance + probability signal + positive EV signal.
+    score = float(min(1.0, (max(0.0, ev) * 2.0) + (abs(edge_pick) * 6.0) + (abs(p_pick - 0.5) * 2.0)))
+
     return {
         "market": "total",
         "pick": pick,
         "score": score,
         "edge": float(diff),
-        "odds": float(row.get(price_col)) if price_col in row.index else np.nan,
+        "edge_prob": float(edge_pick),
+        "prob_model": float(p_pick),
+        "prob_mkt": float(p_mkt_over_nv if pick == "OVER" else p_mkt_under_nv),
+        "ev": float(ev),
+        "odds": float(price),
     }
 
 
@@ -260,8 +372,26 @@ def main():
     ap.add_argument("--date", type=str, required=True, help="YYYY-MM-DD slate date")
     ap.add_argument("--topN", type=int, default=10, help="Max picks per market type")
     ap.add_argument("--minScore", type=float, default=0.15, help="Minimum confidence score threshold")
+    ap.add_argument("--minAtsEdge", type=float, default=0.05, help="Minimum ATS probability edge vs market (no-vig)")
+    ap.add_argument("--minAtsEV", type=float, default=0.00, help="Minimum ATS expected value (ROI per $1)")
+    ap.add_argument("--atsBlend", type=float, default=0.25, help="Blend weight for ATS prob: w*model + (1-w)*market")
+    ap.add_argument("--minTotalEdge", type=float, default=0.02, help="Minimum total probability edge vs market (no-vig)")
+    ap.add_argument("--minTotalEV", type=float, default=0.00, help="Minimum total expected value (ROI per $1)")
+    ap.add_argument("--totalsBlend", type=float, default=0.10, help="Blend weight for totals prob: w*model + (1-w)*market")
     ap.add_argument("--out", type=str, help="Optional output CSV path")
     args = ap.parse_args()
+
+    global ATS_BLEND_WEIGHT
+    try:
+        ATS_BLEND_WEIGHT = float(args.atsBlend)
+    except Exception:
+        ATS_BLEND_WEIGHT = 0.25
+
+    global TOTALS_BLEND_WEIGHT
+    try:
+        TOTALS_BLEND_WEIGHT = float(args.totalsBlend)
+    except Exception:
+        TOTALS_BLEND_WEIGHT = 0.25
 
     try:
         dt = datetime.strptime(args.date, "%Y-%m-%d").date()
@@ -294,11 +424,29 @@ def main():
         # ATS
         ats = score_ats(row)
         if ats and ats["score"] >= args.minScore:
-            picks.append({**meta, **ats})
+            try:
+                edge_prob = float(ats.get("edge_prob") or 0.0)
+            except Exception:
+                edge_prob = 0.0
+            try:
+                ev = float(ats.get("ev") or 0.0)
+            except Exception:
+                ev = 0.0
+            if edge_prob >= float(args.minAtsEdge) and ev >= float(args.minAtsEV):
+                picks.append({**meta, **ats})
         # Totals
         ou = score_totals(row)
         if ou and ou["score"] >= args.minScore:
-            picks.append({**meta, **ou})
+            try:
+                edge_prob = float(ou.get("edge_prob") or 0.0)
+            except Exception:
+                edge_prob = 0.0
+            try:
+                ev = float(ou.get("ev") or 0.0)
+            except Exception:
+                ev = 0.0
+            if edge_prob >= float(args.minTotalEdge) and ev >= float(args.minTotalEV):
+                picks.append({**meta, **ou})
 
     if not picks:
         print("NO_PICKS"); return 0

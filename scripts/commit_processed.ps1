@@ -21,7 +21,13 @@ if (-not (Test-Path $processedDir)) {
 
 # Build target globs for the date (CSV only by default)
 $patterns = @("*_$Date.csv")
-if ($IncludeJson) { $patterns += "*_$Date.json" }
+if ($IncludeJson) {
+    $patterns += "*_$Date.json"
+    # SmartSim uses smart_sim_<date>_<HOME>_<AWAY>.json (date not at end)
+    $patterns += "smart_sim_${Date}_*.json"
+    # Daily validation summary
+    $patterns += "daily_artifacts_${Date}.json"
+}
 
 # Collect files matching patterns under data/processed only
 $files = @()
@@ -74,6 +80,10 @@ $allowedPrefixes = @(
     "props_edges_",
     "props_predictions_",
     "props_recommendations_",
+    # SmartSim per-game distributions (JSON) for UI/diagnostics
+    "smart_sim_",
+    # Daily pipeline artifact summary
+    "daily_artifacts_",
     # New: per-player calibration artifact for diagnostics/analysis
     # New: evaluation compare outputs (daily + summary)
     "props_eval_compare_"

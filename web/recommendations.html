@@ -35,7 +35,9 @@
   .w-70{width:70px}
     form.filters button, form.filters a{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;text-decoration:none;font-size:13px;cursor:pointer}
     .ml-8{margin-left:8px}
+    .ml-12{margin-left:12px}
     .tar{text-align:right} .mt-1{margin-top:1rem} .mt-4{margin-top:4px} .lh-13{line-height:1.3}
+    .game-card{min-width:320px}
     .table-wrap{overflow-x:auto}
     .summary-note{font-size:12px;color:var(--muted);margin-top:8px}
     /* Sortable table headers */
@@ -83,6 +85,9 @@
   <div class="muted-small banner-small" id="seasonBanner">Season to date</div>
   <div id="cardsSummary" class="cards-summary"></div>
   <div class="muted-small banner-small" id="rowsMeta"></div>
+    <h2 class="mt-1">Game Cards</h2>
+    <div class="muted-small">Each card closes out with ML/ATS/Total plus top props by category. Historical dates include reconciliation deltas when available.</div>
+    <div id="gameCardsRoot" class="cards-summary"></div>
     <div id="recsRoot"></div>
     <h2 class="mt-1">Props Recommendations</h2>
     <div class="muted-small">Logic: We recommend props with positive expected value (EV) based on model projections vs market lines, showing the best-of-book price. Edge is model minus line in the direction of the pick; EV% estimates expected return per unit stake. We also show model vs line delta in "Why" to explain the signal. Use filters above to focus on markets like Pts/Reb/Ast/3PT/PRA.</div>
@@ -95,7 +100,7 @@
           <option value="ev">Top EV% (desc)</option>
         </select>
       </label>
-      <label style="margin-left:12px;">
+      <label class="ml-12">
         <input type="checkbox" id="propsRegularOnly" checked /> Regular-price only (−150 to +125)
       </label>
       <button type="button" id="propsSortApply">Apply</button>
@@ -143,6 +148,25 @@
       catch(_){ const d=new Date(); return d.toISOString().slice(0,10); }
     }
     function qs(name){ try{ return new URL(window.location).searchParams.get(name); }catch(_){ return null; } }
+
+    // API base: if opened from file:// or VS Code preview, relative /api/* calls can fail.
+    // Default to localhost so the page still works.
+    const API_BASE = (()=>{
+      try{
+        const proto = String(window.location && window.location.protocol || '');
+        const origin = String(window.location && window.location.origin || '');
+        if(proto === 'file:' || origin === 'null' || !origin.startsWith('http')) return 'http://127.0.0.1:5051';
+        return origin;
+      }catch(_){
+        return 'http://127.0.0.1:5051';
+      }
+    })();
+    function apiUrl(path){
+      const s = String(path||'');
+      if(!s) return API_BASE;
+      if(/^https?:\/\//i.test(s)) return s;
+      return API_BASE + (s.startsWith('/') ? s : ('/' + s));
+    }
     function impliedConfidence(rec){ // heuristic bucket using edge / ev magnitudes
       if(rec.market==='ML' && rec.ev!=null){ if(rec.ev>=0.04) return 'High'; if(rec.ev>=0.02) return 'Medium'; return 'Low'; }
       if((rec.market==='ATS' || rec.market==='TOTAL') && rec.edge!=null){ const a=Math.abs(rec.edge); if(a>=4.0) return 'High'; if(a>=2.0) return 'Medium'; return 'Low'; }
@@ -176,9 +200,19 @@
       const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
       const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
       const propMkts = selectedPropMarkets();
+
+      // Immediate feedback so the page never looks blank.
+      try{
+        const cs = document.getElementById('cardsSummary');
+        if(cs){ cs.innerHTML = '<div class="card">Loading recommendations…</div>'; }
+        const gc = document.getElementById('gameCardsRoot');
+        if(gc){ gc.innerHTML = '<div class="card">Loading game cards…</div>'; }
+        const rr = document.getElementById('recsRoot');
+        if(rr){ rr.innerHTML = ''; }
+      }catch(_){ /* ignore */ }
       // Fetch unified recommendations across categories (compact for explanations + scores)
       const regularOnly = !!(document.getElementById('propsRegularOnly') && document.getElementById('propsRegularOnly').checked);
-      const allUrl = `/api/recommendations/all?date=${date}&limit=500&compact=1&regular_only=${regularOnly?1:0}`;
+      const allUrl = apiUrl(`/api/recommendations/all?date=${encodeURIComponent(date)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
       let allRes;
       let all;
       try{
@@ -186,7 +220,10 @@
         if(!allRes.ok){ throw new Error(`HTTP ${allRes.status}`); }
         all = await allRes.json();
       }catch(e){
-        const root=document.getElementById('recsRoot'); if(root){ root.innerHTML='<div class="card">Failed to load recommendations.</div>'; }
+        const msg = (e && (e.message || String(e))) ? (e.message || String(e)) : 'Unknown error';
+        const root=document.getElementById('recsRoot'); if(root){ root.innerHTML=`<div class="card">Failed to load recommendations.<div class="muted-small">${String(msg)}</div></div>`; }
+        const cs=document.getElementById('cardsSummary'); if(cs){ cs.innerHTML=`<div class="card">Failed to load recommendations.<div class="muted-small">${String(msg)}</div></div>`; }
+        const gc=document.getElementById('gameCardsRoot'); if(gc){ gc.innerHTML=`<div class="card">Failed to load game cards.<div class="muted-small">${String(msg)}</div></div>`; }
         const rowsMeta=document.getElementById('rowsMeta'); if(rowsMeta){ rowsMeta.textContent=''; }
         return;
       }
@@ -215,7 +252,7 @@
             const cand = new Date(start.getTime() - i*24*60*60*1000);
             const y = cand.getFullYear(); const m = String(cand.getMonth()+1).padStart(2,'0'); const d0 = String(cand.getDate()).padStart(2,'0');
             const prev = `${y}-${m}-${d0}`;
-            const url2 = `/api/recommendations/all?date=${prev}&limit=500&compact=1&regular_only=${regularOnly?1:0}`;
+            const url2 = apiUrl(`/api/recommendations/all?date=${encodeURIComponent(prev)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
             const r2 = await fetch(url2, {cache:'no-store'});
             if(!r2.ok){ continue; }
             const js2 = await r2.json();
@@ -241,15 +278,206 @@
       rows.forEach(r=>{ r.confidence = impliedConfidence(r); });
       const finals = await fetchReconGames(date);
       const lines = await fetchPredictionLines(date);
-      annotateResults(rows, finals, lines);
-      renderSummary(rows);
+      try{ annotateResults(rows, finals, lines); }catch(_){ /* non-fatal */ }
+      try{ await loadGameCards(date, propMkts, regularOnly); }catch(_){ /* non-fatal */ }
+      try{ renderSummary(rows); }catch(e){ const cs=document.getElementById('cardsSummary'); if(cs){ cs.innerHTML='<div class="card">Failed to render summary.</div>'; } }
       const rowsMeta = document.getElementById('rowsMeta');
       if(rowsMeta){ rowsMeta.textContent = `${rows.length} game picks | ${props.length} props | ${first.length} first-basket | ${thr.length} early-3s`; }
-      renderTables(rows, date);
+      try{ renderTables(rows, date); }catch(e){ const root=document.getElementById('recsRoot'); if(root){ root.innerHTML='<div class="card">Failed to render game tables.</div>'; } }
       window.__lastProps = props; // cache for re-sorting without refetch
-      renderProps(props);
-      renderFirstBasket(first);
-      renderEarlyThrees(thr);
+      try{ renderProps(props); }catch(e){ const pr=document.getElementById('propsRoot'); if(pr){ pr.innerHTML='<div class="card">Failed to render props.</div>'; } }
+      try{ renderFirstBasket(first); }catch(e){ const fb=document.getElementById('fbRoot'); if(fb){ fb.innerHTML='<div class="card">Failed to render first basket.</div>'; } }
+      try{ renderEarlyThrees(thr); }catch(e){ const tr=document.getElementById('thrRoot'); if(tr){ tr.innerHTML='<div class="card">Failed to render early 3s.</div>'; } }
+    }
+
+    async function loadGameCards(date, propMkts, regularOnly){
+      const root = document.getElementById('gameCardsRoot');
+      if(!root) return;
+      root.innerHTML = '';
+      try{
+        const stats = Array.isArray(propMkts) && propMkts.length ? propMkts.join(',') : 'pts,reb,ast,threes,pra';
+        const url = apiUrl(`/api/recommendations/game-cards?date=${encodeURIComponent(date)}&props_top=3&prop_stats=${encodeURIComponent(stats)}&regular_only=${regularOnly?1:0}&include_recon=1`);
+        const r = await fetch(url, {cache:'no-store'});
+        if(!r.ok){ throw new Error(`HTTP ${r.status}`); }
+        const js = await r.json();
+        const cards = Array.isArray(js.cards) ? js.cards : [];
+        const meta = js.meta || {};
+        if(!cards.length){
+          root.innerHTML = '<div class="card">No game cards available for this date.</div>';
+          return;
+        }
+        if(meta.props_fallback_used){
+          const note = document.createElement('div');
+          note.className = 'card';
+          const relaxed = !!meta.props_fallback_relaxed_price_filter;
+          const msg = relaxed
+            ? 'No standard stat props found for the selected categories; showing DD/TD markets instead (price filter relaxed to avoid blank cards).'
+            : 'No standard stat props found for the selected categories; showing DD/TD markets instead.';
+          note.innerHTML = `<div class="title-sm">Props note</div><div class="muted-small">${msg}</div>`;
+          root.appendChild(note);
+        }
+        renderGameCards(cards);
+      }catch(e){
+        const msg = (e && (e.message || String(e))) ? (e.message || String(e)) : 'Unknown error';
+        root.innerHTML = `<div class="card">Failed to load game cards.<div class="muted-small">${String(msg)}</div></div>`;
+      }
+    }
+
+    function fmtNum(x, digits){
+      const n = Number(x);
+      if(!Number.isFinite(n)) return '';
+      const d = (digits==null)? 1 : digits;
+      return n.toFixed(d);
+    }
+    function fmtSigned1(x){
+      const n = Number(x);
+      if(!Number.isFinite(n)) return '';
+      const s = n>=0 ? '+' : '';
+      return s + n.toFixed(1);
+    }
+    function propLabel(p){
+      const st = String(p.stat||'').toUpperCase();
+      const side = String(p.side||'');
+      const line = (p.line!=null && Number.isFinite(Number(p.line))) ? Number(p.line).toFixed(1) : '';
+      if(side==='YES') return `${st} YES`;
+      if(side==='NO') return `${st} NO`;
+      if(side==='OVER') return `OVER ${line} ${st}`;
+      if(side==='UNDER') return `UNDER ${line} ${st}`;
+      return `${side} ${line} ${st}`.trim();
+    }
+    function pickLine(p){
+      if(!p) return '';
+      const m = String(p.market||'');
+      if(m==='ML'){
+        const side = String(p.side||'');
+        const price = fmtOddsAmerican(p.price);
+        const ev = (p.ev!=null)? fmtEV(p.ev): '';
+        return `${side} ML${price?` (${price})`:''}${ev?` · EV ${ev}`:''}`;
+      }
+      if(m==='ATS'){
+        const side = String(p.side||'');
+        const ln = (p.line!=null && Number.isFinite(Number(p.line))) ? Number(p.line) : null;
+        const lineDisp = (ln==null)? '' : (ln>0? `+${ln}` : `${ln}`);
+        const edge = (p.edge!=null)? fmtSigned1(p.edge): '';
+        return `${side} ${lineDisp}${edge?` · edge ${edge}`:''}`;
+      }
+      if(m==='TOTAL'){
+        const side = String(p.side||'');
+        const ln = (p.line!=null && Number.isFinite(Number(p.line))) ? Number(p.line) : null;
+        const edge = (p.edge!=null)? fmtSigned1(p.edge): '';
+        return `${side}${ln!=null?` ${ln}`:''}${edge?` · edge ${edge}`:''}`;
+      }
+      return '';
+    }
+    function renderGameCards(cards){
+      const root = document.getElementById('gameCardsRoot');
+      if(!root) return;
+      root.innerHTML = '';
+      cards.forEach(c=>{
+        const away = c.away || '';
+        const home = c.home || '';
+        const ft = formatDisplayTime(c.start_time);
+        const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>` : '';
+
+        const picks = c.picks || {};
+        const ml = picks.ML ? pickLine(picks.ML) : '—';
+        const ats = picks.ATS ? pickLine(picks.ATS) : '—';
+        const tot = picks.TOTAL ? pickLine(picks.TOTAL) : '—';
+
+        const props = c.props || {};
+        const cats = Object.keys(props);
+        const propsHtml = cats.length ? cats.map(st=>{
+          const rows = Array.isArray(props[st]) ? props[st] : [];
+          if(!rows.length) return '';
+          const items = rows.map(p=>{
+            const price = fmtOddsAmerican(p.price);
+            const ev = (p.ev!=null && Number.isFinite(Number(p.ev))) ? fmtSigned1(p.ev) : '';
+            const act = (p.actual!=null && Number.isFinite(Number(p.actual))) ? fmtNum(p.actual,1) : '';
+            const pred = (p.pred!=null && Number.isFinite(Number(p.pred))) ? fmtNum(p.pred,1) : '';
+            const res = p.result ? `<span class="pill">${String(p.result)}</span>` : '';
+            const recon = (act||pred) ? ` <span class="muted-small">pred ${pred||'—'} · act ${act||'—'}</span>` : '';
+            return `<div class="mt-4"><span class="team-text">${String(p.player||'')}</span> <span class="muted-small">(${String(p.team||'')})</span> — ${propLabel(p)}${price?` <span class="pill">${price}</span>`:''}${ev?` <span class="pill">EV ${ev}</span>`:''}${res}${recon}</div>`;
+          }).join('');
+          const label = String(st||'').toUpperCase();
+          return `<div class="mt-4"><div class="title-sm">Top ${label}</div>${items}</div>`;
+        }).join('') : '<div class="muted-small mt-4">No props found for this game.</div>';
+
+        let reconHtml = '';
+        try{
+          const r = c.recon || {};
+          const finals = r.finals || null;
+          const q = r.quarters || null;
+          if(finals || q){
+            let finalsLine = '';
+            if(finals && finals.home_pts!=null && finals.away_pts!=null){
+              const hp = fmtNum(finals.home_pts,0);
+              const ap = fmtNum(finals.away_pts,0);
+              const tm = (finals.total_error!=null)? fmtSigned1(finals.total_error) : '';
+              const mm = (finals.margin_error!=null)? fmtSigned1(finals.margin_error) : '';
+              finalsLine = `<div class="mt-4"><div class="title-sm">Reconciliation (Final)</div><div class="muted-small">Actual ${away} ${ap} @ ${home} ${hp}${tm?` · total err ${tm}`:''}${mm?` · margin err ${mm}`:''}</div></div>`;
+            }
+            let qLine = '';
+            if(q && q.err){
+              const e = q.err;
+              const q1 = (e.q1!=null)? fmtSigned1(e.q1) : '';
+              const q2 = (e.q2!=null)? fmtSigned1(e.q2) : '';
+              const q3 = (e.q3!=null)? fmtSigned1(e.q3) : '';
+              const q4 = (e.q4!=null)? fmtSigned1(e.q4) : '';
+              const ge = (e.game!=null)? fmtSigned1(e.game) : '';
+              if(q1||q2||q3||q4||ge){
+                qLine = `<div class="mt-4"><div class="title-sm">Reconciliation (Quarters)</div><div class="muted-small">Err: Q1 ${q1||'—'} · Q2 ${q2||'—'} · Q3 ${q3||'—'} · Q4 ${q4||'—'} · Game ${ge||'—'}</div></div>`;
+              }
+            }
+            reconHtml = finalsLine + qLine;
+          }
+        }catch(_){ reconHtml = ''; }
+
+        // High-confidence picks (from picks_<date>.csv)
+        let hcHtml = '';
+        try{
+          const hc = Array.isArray(c.high_confidence) ? c.high_confidence : [];
+          if(hc.length){
+            const hcItems = hc.map(p=>{
+              const mk = String(p.market||'');
+              const side = String(p.side||'');
+              const edgeProb = (p.edge_prob!=null && Number.isFinite(Number(p.edge_prob))) ? Number(p.edge_prob) : null;
+              const ev = (p.ev!=null && Number.isFinite(Number(p.ev))) ? Number(p.ev) : null;
+              const score = (p.score!=null && Number.isFinite(Number(p.score))) ? Number(p.score) : null;
+              const priceRaw = (p.price!=null && Number.isFinite(Number(p.price))) ? Number(p.price) : null;
+              const price = (priceRaw!=null && Math.abs(priceRaw) <= 1000) ? fmtOddsAmerican(priceRaw) : '';
+              const edge = (p.edge!=null && Number.isFinite(Number(p.edge))) ? Number(p.edge) : null;
+              const base = (()=>{
+                if(mk==='ML') return `${side} ML${price?` (${price})`:''}`;
+                if(mk==='ATS') return `${side}${edge!=null?` · edge ${fmtSigned1(edge)}`:''}${price?` (${price})`:''}`;
+                if(mk==='TOTAL') return `${side}${edge!=null?` · edge ${fmtSigned1(edge)}`:''}${price?` (${price})`:''}`;
+                return `${mk} ${side}`.trim();
+              })();
+              const pills = [];
+              if(edgeProb!=null) pills.push(`<span class="pill">P-edge ${fmtPct(Math.abs(edgeProb),1)}</span>`);
+              if(ev!=null) pills.push(`<span class="pill">EV ${fmtSigned1(ev*100)}%</span>`);
+              if(score!=null) pills.push(`<span class="pill">Score ${fmtNum(score,2)}</span>`);
+              return `<div class="muted-small">${base} ${pills.join(' ')}</div>`;
+            }).join('');
+            hcHtml = `<div class="mt-4"><div class="title-sm">High-confidence picks</div>${hcItems}</div>`;
+          }
+        }catch(_){ hcHtml = ''; }
+
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.minWidth = '320px';
+        card.innerHTML = `
+          <div class="title-lg">${teamBadge(away)} @ ${teamBadge(home)}${timeTxt}</div>
+          ${hcHtml}
+          <div class="mt-4"><div class="title-sm">Closeout picks</div>
+            <div class="muted-small">ML: ${ml}</div>
+            <div class="muted-small">ATS: ${ats}</div>
+            <div class="muted-small">Total: ${tot}</div>
+          </div>
+          ${propsHtml}
+          ${reconHtml}
+        `;
+        root.appendChild(card);
+      });
     }
     function selectedPropMarkets(){
       try{
@@ -285,7 +513,7 @@
     }
     async function fetchReconGames(date){
       try{
-        const r = await fetch(`/api/processed/recon_games?date=${date}`, {cache:'no-store'});
+        const r = await fetch(apiUrl(`/api/processed/recon_games?date=${encodeURIComponent(date)}`), {cache:'no-store'});
         if(!r.ok) return new Map();
         const txt = await r.text();
         const lines = txt.trim().split(/\r?\n/);
@@ -306,7 +534,7 @@
     }
     async function fetchPredictionLines(date){
       try{
-        const r = await fetch(`/api/predictions?date=${date}`, {cache:'no-store'});
+        const r = await fetch(apiUrl(`/api/predictions?date=${encodeURIComponent(date)}`), {cache:'no-store'});
         const js = await r.json();
         const rows = Array.isArray(js.rows)? js.rows: [];
         const m = new Map();
@@ -409,7 +637,7 @@
       try{
         const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
         const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
-        const res = await fetch(`/api/recommendations/summary?since=${since}&spread_edge=${minSp}&total_edge=${minTot}`, {cache:'no-store'});
+        const res = await fetch(apiUrl(`/api/recommendations/summary?since=${encodeURIComponent(since)}&spread_edge=${encodeURIComponent(minSp)}&total_edge=${encodeURIComponent(minTot)}`), {cache:'no-store'});
         const js = await res.json();
         if(!js || !js.buckets){ root.innerHTML='<div class="card">No YTD data available.</div>'; return; }
         const tiers=['Overall','High','Medium','Low'];
@@ -621,7 +849,7 @@
         return eb-ea; // expected desc
       });
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(`/api/cron/reconcile-games?date=${d}`, {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(apiUrl(`/api/cron/reconcile-games?date=${encodeURIComponent(d)}`), {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
   </script>
 </body>
 </html>

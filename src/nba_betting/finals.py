@@ -107,7 +107,7 @@ def _finals_from_espn(date_str: str) -> pd.DataFrame:
         return pd.DataFrame()
     try:
         ymd = date_str.replace('-', '')
-        url = f"https://site.web.api.espn.com/apis/v2/sports/basketball/nba/scoreboard?dates={ymd}"
+        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
         r = _rq.get(url, timeout=8)
         if r.status_code != 200:
             return pd.DataFrame()
@@ -115,7 +115,7 @@ def _finals_from_espn(date_str: str) -> pd.DataFrame:
         evs = jd.get('events', []) if isinstance(jd, dict) else []
         def espn_to_tri(abbr: str) -> str:
             s = str(abbr or '').upper()
-            fix = { 'GS': 'GSW', 'NO': 'NOP', 'NY': 'NYK' }
+            fix = { 'GS': 'GSW', 'NO': 'NOP', 'NY': 'NYK', 'UTAH': 'UTA' }
             return fix.get(s, s)
         rows: list[dict[str, object]] = []
         for e in evs:

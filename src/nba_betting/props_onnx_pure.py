@@ -12,8 +12,47 @@ from typing import Dict, Optional
 import os
 import time
 
+
+def _is_windows_arm() -> bool:
+    try:
+        import platform
+        return os.name == "nt" and ("arm" in platform.machine().lower() or "aarch64" in platform.machine().lower())
+    except Exception:
+        return False
+
+
+class _SuppressStderrFD:
+    def __enter__(self):
+        if not _is_windows_arm():
+            self._active = False
+            return self
+        import sys
+        self._active = True
+        self._fd = sys.stderr.fileno()
+        self._saved = os.dup(self._fd)
+        self._devnull = os.open(os.devnull, os.O_WRONLY)
+        os.dup2(self._devnull, self._fd)
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        if not getattr(self, "_active", False):
+            return False
+        try:
+            os.dup2(self._saved, self._fd)
+        finally:
+            try:
+                os.close(self._devnull)
+            except Exception:
+                pass
+            try:
+                os.close(self._saved)
+            except Exception:
+                pass
+        return False
+
 try:
-    import onnxruntime as ort
+    with _SuppressStderrFD():
+        import onnxruntime as ort
     ONNX_AVAILABLE = True
 except ImportError:
     ONNX_AVAILABLE = False
@@ -42,7 +81,8 @@ class PureONNXPredictor:
         self.npu_available = True
         
         # Check for QNN provider
-        available_providers = ort.get_available_providers()
+        with _SuppressStderrFD():
+            available_providers = ort.get_available_providers()
         self.has_qnn = 'QNNExecutionProvider' in available_providers
         
         print(f"[ONNX Runtime initialized]")
@@ -127,7 +167,8 @@ class PureONNXPredictor:
         
         # Prefer provider_options when available (ORT supports pairing list of providers and options)
         try:
-            session = ort.InferenceSession(
+            with _SuppressStderrFD():
+                session = ort.InferenceSession(
                 str(model_path),
                 sess_options=sess_options,
                 providers=providers,
@@ -135,7 +176,8 @@ class PureONNXPredictor:
             )
         except TypeError:
             # Older ORT may not support provider_options kwarg; fall back
-            session = ort.InferenceSession(
+            with _SuppressStderrFD():
+                session = ort.InferenceSession(
                 str(model_path),
                 sess_options=sess_options,
                 providers=providers

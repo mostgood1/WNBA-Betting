@@ -20,6 +20,65 @@ from .odds_bovada import fetch_bovada_player_props_current
 _PROPS_PROB_CALIB_CACHE: dict[str, list[float]] | None = None
 
 
+def _is_sane_prob_calibration(xs: list[float], ys: list[float]) -> bool:
+    """Basic validation to avoid applying a broken calibration curve.
+
+    We expect a monotone mapping raw_prob -> calibrated_prob that roughly behaves
+    like a probability (spans around 0.5 in the mid-range).
+    """
+    try:
+        if not (isinstance(xs, list) and isinstance(ys, list)):
+            return False
+        if len(xs) < 2 or len(xs) != len(ys):
+            return False
+        xs_f = [float(v) for v in xs]
+        ys_f = [float(v) for v in ys]
+        # xs strictly increasing (or at least non-decreasing with unique endpoints)
+        if xs_f[0] >= xs_f[-1]:
+            return False
+        if any((xs_f[i + 1] < xs_f[i]) for i in range(len(xs_f) - 1)):
+            return False
+        # y in [0,1] and monotone non-decreasing
+        if any((y < -1e-9 or y > 1.0 + 1e-9) for y in ys_f):
+            return False
+        if any((ys_f[i + 1] + 1e-6 < ys_f[i]) for i in range(len(ys_f) - 1)):
+            return False
+
+        def _interp(xv: float) -> float:
+            xv = float(xv)
+            if xv <= xs_f[0]:
+                return float(ys_f[0])
+            if xv >= xs_f[-1]:
+                return float(ys_f[-1])
+            for i in range(len(xs_f) - 1):
+                x0, x1 = xs_f[i], xs_f[i + 1]
+                if x0 <= xv <= x1:
+                    y0, y1 = ys_f[i], ys_f[i + 1]
+                    t = 0.0 if x1 == x0 else (xv - x0) / (x1 - x0)
+                    return float((1.0 - t) * y0 + t * y1)
+            return float(ys_f[-1])
+
+        y10 = _interp(0.10)
+        y50 = _interp(0.50)
+        y90 = _interp(0.90)
+
+        # Midpoint should be near 0.5.
+        if not (0.35 <= float(y50) <= 0.65):
+            return False
+
+        # Curve must have meaningful spread; otherwise it will collapse probabilities.
+        if float(y90) - float(y10) < 0.25:
+            return False
+        if not (0.05 <= float(y10) <= 0.40):
+            return False
+        if not (0.60 <= float(y90) <= 0.95):
+            return False
+
+        return True
+    except Exception:
+        return False
+
+
 def _load_props_prob_calibration() -> dict[str, list[float]] | None:
     """Load piecewise-linear probability calibration for props.
 
@@ -41,10 +100,12 @@ def _load_props_prob_calibration() -> dict[str, list[float]] | None:
         if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
             _PROPS_PROB_CALIB_CACHE = None
             return None
-        _PROPS_PROB_CALIB_CACHE = {
-            "x": [float(v) for v in xs],
-            "y": [float(v) for v in ys],
-        }
+        xs_f = [float(v) for v in xs]
+        ys_f = [float(v) for v in ys]
+        if not _is_sane_prob_calibration(xs_f, ys_f):
+            _PROPS_PROB_CALIB_CACHE = None
+            return None
+        _PROPS_PROB_CALIB_CACHE = {"x": xs_f, "y": ys_f}
         return _PROPS_PROB_CALIB_CACHE
     except Exception:
         _PROPS_PROB_CALIB_CACHE = None
@@ -52,13 +113,27 @@ def _load_props_prob_calibration() -> dict[str, list[float]] | None:
 
 
 def _apply_props_prob_calibration(p: float) -> float:
+    """Calibrate/shrink prop win probabilities.
+
+    Default behavior is a conservative confidence shrink around 0.5:
+      p' = 0.5 + k * (p - 0.5)
+    which preserves ranking signal while reducing overconfidence.
+
+    If a saved isotonic calibration curve exists and passes sanity checks,
+    we apply it instead.
+    """
+    def _shrink(pv: float, k: float = 0.20) -> float:
+        pv = float(max(0.0, min(1.0, pv)))
+        return float(max(0.0, min(1.0, 0.5 + float(k) * (pv - 0.5))))
+
     cal = _load_props_prob_calibration()
-    if cal is None:
-        return p
     try:
+        pv = float(max(0.0, min(1.0, float(p))))
+        if cal is None:
+            return _shrink(pv)
+
         xs = cal["x"]
         ys = cal["y"]
-        pv = float(max(0.0, min(1.0, float(p))))
         if pv <= xs[0]:
             return float(ys[0])
         if pv >= xs[-1]:
@@ -69,9 +144,9 @@ def _apply_props_prob_calibration(p: float) -> float:
                 y0 = float(ys[i]); y1 = float(ys[i + 1])
                 t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
                 return float((1.0 - t) * y0 + t * y1)
-        return pv
+        return _shrink(pv)
     except Exception:
-        return p
+        return _shrink(float(p))
 
 
 # Map OddsAPI player markets to our prediction columns
@@ -165,9 +240,13 @@ class SigmaConfig:
 
 
 def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
-    # Load saved odds and filter to commence_time date
-    raw_pq = paths.data_raw / "odds_nba_player_props.parquet"
-    raw_csv = paths.data_raw / "odds_nba_player_props.csv"
+    # Load saved odds and filter to commence_time date.
+    # Prefer per-date snapshots (created by our daily pipeline) when available.
+    date_str = pd.to_datetime(date).date().isoformat()
+    raw_pq = paths.data_raw / f"odds_nba_player_props_{date_str}.parquet"
+    raw_csv = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+    raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
+    raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
     df = None
     if raw_pq.exists():
         try:
@@ -177,6 +256,16 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
     if df is None and raw_csv.exists():
         try:
             df = pd.read_csv(raw_csv)
+        except Exception:
+            df = None
+    if df is None and raw_all_pq.exists():
+        try:
+            df = pd.read_parquet(raw_all_pq)
+        except Exception:
+            df = None
+    if df is None and raw_all_csv.exists():
+        try:
+            df = pd.read_csv(raw_all_csv)
         except Exception:
             df = None
     if df is None or df.empty:
@@ -264,6 +353,7 @@ def compute_props_edges(
     predictions_path: Optional[str] = None,
     from_file_only: bool = False,
     exclude_injured: bool = True,
+    calibrate_prob: bool = False,
 ) -> pd.DataFrame:
     """Compute model edges/EV against OddsAPI player props for a given date.
 
@@ -455,8 +545,10 @@ def compute_props_edges(
     odds = odds[odds.apply(_row_ok, axis=1)].copy()
 
     # Merge odds with predictions on name_key
+    # Include optional per-player uncertainty columns (from SmartSim) when present.
+    extra_cols = [c for c in ("sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov") if c in preds.columns]
     merged = odds.merge(
-        preds[["name_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]],
+        preds[["name_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"], *extra_cols]],
         on="name_key", how="left", suffixes=("", "_pred")
     )
     # Second-pass resolve using short key for any unmatched players
@@ -605,7 +697,19 @@ def compute_props_edges(
     except Exception:
         pass
     # Sigma by stat; combos derived assuming independence of components
-    def _sigma_for(stat: str) -> float:
+    def _safe_sd(v: object) -> float | None:
+        try:
+            x = float(pd.to_numeric(v, errors="coerce"))
+            if not np.isfinite(x):
+                return None
+            # Basic bounds to avoid pathological sigmas.
+            if x <= 0.05 or x >= 50.0:
+                return None
+            return float(x)
+        except Exception:
+            return None
+
+    def _sigma_fallback(stat: str) -> float:
         if stat == "pts":
             return sigma.pts
         if stat == "reb":
@@ -629,7 +733,69 @@ def compute_props_edges(
         if stat == "tov":
             return sigma.tov
         return np.nan
-    merged["sigma"] = merged["stat"].map(_sigma_for)
+
+    def _row_sigma(r) -> float:
+        stat = str(r.get("stat") or "").lower()
+        # Prefer per-player simulated SDs if provided.
+        if stat == "pts":
+            s = _safe_sd(r.get("sd_pts"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "reb":
+            s = _safe_sd(r.get("sd_reb"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "ast":
+            s = _safe_sd(r.get("sd_ast"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "threes":
+            s = _safe_sd(r.get("sd_threes"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "pra":
+            s = _safe_sd(r.get("sd_pra"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "stl":
+            s = _safe_sd(r.get("sd_stl"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "blk":
+            s = _safe_sd(r.get("sd_blk"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+        if stat == "tov":
+            s = _safe_sd(r.get("sd_tov"))
+            return float(s) if s is not None else float(_sigma_fallback(stat))
+
+        # Derived combos: prefer direct SD if available, else combine component SDs (sim or fallback).
+        if stat == "pr":
+            s1 = _safe_sd(r.get("sd_pts")) or sigma.pts
+            s2 = _safe_sd(r.get("sd_reb")) or sigma.reb
+            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
+        if stat == "pa":
+            s1 = _safe_sd(r.get("sd_pts")) or sigma.pts
+            s2 = _safe_sd(r.get("sd_ast")) or sigma.ast
+            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
+        if stat == "ra":
+            s1 = _safe_sd(r.get("sd_reb")) or sigma.reb
+            s2 = _safe_sd(r.get("sd_ast")) or sigma.ast
+            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
+
+        return float(_sigma_fallback(stat))
+
+    merged["sigma"] = merged.apply(_row_sigma, axis=1)
+
+    # Extra variance safety for higher-variance markets (empirically pts/pra have
+    # been more overconfident recently). Inflating sigma shrinks probabilities
+    # toward 0.5 in a line-aware way (less aggressive than a hard clamp).
+    try:
+        stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+        if stat_s is not None and "sigma" in merged.columns:
+            sig = pd.to_numeric(merged["sigma"], errors="coerce")
+            m_pts = stat_s == "pts"
+            m_pra = stat_s == "pra"
+            if m_pts.any():
+                sig.loc[m_pts] = sig.loc[m_pts] * 1.12
+            if m_pra.any():
+                sig.loc[m_pra] = sig.loc[m_pra] * 1.15
+            merged["sigma"] = sig
+    except Exception:
+        pass
 
     # Model probability for Over: P(X > line) under Normal(mean, sigma)
     from math import erf, sqrt
@@ -683,14 +849,52 @@ def compute_props_edges(
         return (1.0 - p_over) if side == "UNDER" else p_over
     merged["model_prob"] = merged.apply(_calc_model_prob, axis=1)
     # Optional: calibrate probabilities using reliability bins / isotonic mapping.
+    # This is intentionally opt-in because our default Normal(mean, sigma) probabilities
+    # are already a derived distribution; applying a generic calibration curve can easily
+    # distort the signal and wipe out edges.
+    merged["model_prob_raw"] = merged["model_prob"]
+    if calibrate_prob:
+        try:
+            merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").apply(
+                lambda v: _apply_props_prob_calibration(float(v)) if np.isfinite(float(v)) else np.nan
+            )
+        except Exception:
+            pass
+
+    # Stat-specific safety: pts/pra have shown weaker separation recently; apply an
+    # additional shrink toward 0.5 to avoid overstating edges in these markets.
     try:
-        merged["model_prob_raw"] = merged["model_prob"]
-        merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").apply(
-            lambda v: _apply_props_prob_calibration(float(v)) if np.isfinite(float(v)) else np.nan
-        )
+        stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+        if stat_s is not None:
+            k_by_stat = {"pts": 0.45, "pra": 0.50}
+            for st, k in k_by_stat.items():
+                mask = stat_s == st
+                if mask.any():
+                    p = pd.to_numeric(merged.loc[mask, "model_prob"], errors="coerce")
+                    merged.loc[mask, "model_prob"] = (0.5 + float(k) * (p - 0.5)).clip(lower=0.0, upper=1.0)
+    except Exception:
+        pass
+
+    # Hard safety clamp to avoid extreme/invalid probabilities dominating EV.
+    try:
+        merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").clip(lower=0.01, upper=0.99)
     except Exception:
         pass
     merged["implied_prob"] = merged["price"].map(_american_implied_prob)
+
+    # PRA tuning: shrink toward the market break-even probability. Recent backtests
+    # show PRA is often overconfident; this keeps signal but reduces edge magnitude.
+    try:
+        stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+        if stat_s is not None:
+            mask = stat_s == "pra"
+            if mask.any():
+                pm = pd.to_numeric(merged.loc[mask, "model_prob"], errors="coerce").clip(0.0, 1.0)
+                pi = pd.to_numeric(merged.loc[mask, "implied_prob"], errors="coerce").clip(0.0, 1.0)
+                w = 0.35
+                merged.loc[mask, "model_prob"] = (pi + float(w) * (pm - pi)).clip(0.0, 1.0)
+    except Exception:
+        pass
     merged["edge"] = merged["model_prob"] - merged["implied_prob"]
     merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
 

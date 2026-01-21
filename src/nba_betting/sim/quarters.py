@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import pandas as pd
@@ -58,6 +58,131 @@ class QuarterSummary:
 
 _DEFAULT_BLEND_TOTAL_W = 0.7
 _DEFAULT_BLEND_MARGIN_W = 0.7
+
+
+_QUARTERS_CALIBRATION_CACHE: Optional[Dict[str, Any]] = None
+
+_TOTALS_CALIBRATION_INDEX: Optional[list[tuple[pd.Timestamp, Any]]] = None
+_TOTALS_CALIBRATION_CACHE: dict[str, Optional[Dict[str, Any]]] = {}
+
+
+def _clamp(x: Any, lo: float, hi: float) -> float:
+    try:
+        v = float(x)
+        if not np.isfinite(v):
+            return 0.0
+        return float(max(lo, min(hi, v)))
+    except Exception:
+        return 0.0
+
+
+def _load_totals_calibration_for_date(date_str: str) -> Optional[Dict[str, Any]]:
+    """Load the most recent totals calibration JSON on/before (date-1).
+
+    Looks for data/processed/calibration_totals_YYYY-MM-DD.json.
+    """
+    try:
+        target = pd.to_datetime(date_str).normalize()
+    except Exception:
+        return None
+    key = str(target.date())
+    if key in _TOTALS_CALIBRATION_CACHE:
+        return _TOTALS_CALIBRATION_CACHE[key]
+
+    # Calibrate using info known before games start: use <= (date - 1 day)
+    cutoff = target - pd.Timedelta(days=1)
+
+    global _TOTALS_CALIBRATION_INDEX
+    if _TOTALS_CALIBRATION_INDEX is None:
+        idx: list[tuple[pd.Timestamp, Any]] = []
+        try:
+            for fp in paths.data_processed.glob("calibration_totals_*.json"):
+                name = fp.name
+                # calibration_totals_YYYY-MM-DD.json
+                ds = name.replace("calibration_totals_", "").replace(".json", "")
+                try:
+                    dt = pd.to_datetime(ds).normalize()
+                except Exception:
+                    continue
+                idx.append((dt, fp))
+        except Exception:
+            idx = []
+        _TOTALS_CALIBRATION_INDEX = sorted(idx, key=lambda t: t[0])
+
+    best_fp = None
+    try:
+        for dt, fp in _TOTALS_CALIBRATION_INDEX or []:
+            if dt <= cutoff:
+                best_fp = fp
+            else:
+                break
+    except Exception:
+        best_fp = None
+
+    if best_fp is None:
+        _TOTALS_CALIBRATION_CACHE[key] = None
+        return None
+
+    try:
+        import json
+
+        obj = json.loads(best_fp.read_text(encoding="utf-8"))
+        _TOTALS_CALIBRATION_CACHE[key] = obj if isinstance(obj, dict) else None
+        return _TOTALS_CALIBRATION_CACHE[key]
+    except Exception:
+        _TOTALS_CALIBRATION_CACHE[key] = None
+        return None
+
+
+def _apply_totals_calibration(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    home_mu: float,
+    away_mu: float,
+) -> tuple[float, float, dict[str, float]]:
+    """Apply rolling bias corrections learned from recent reconciliation.
+
+    Returns (home_mu, away_mu, quarter_biases).
+    Biases are additive in points.
+    """
+    cal = _load_totals_calibration_for_date(date_str) or {}
+
+    # Quarter total biases (small, per-quarter additive corrections)
+    q_biases: dict[str, float] = {}
+    try:
+        g = cal.get("global") if isinstance(cal, dict) else None
+        if isinstance(g, dict):
+            qb = g.get("quarters")
+            if isinstance(qb, dict):
+                for k, v in qb.items():
+                    # keep these conservative
+                    q_biases[str(k)] = _clamp(v, -3.0, 3.0)
+    except Exception:
+        q_biases = {}
+
+    # Team point biases (additive on each team's mean)
+    try:
+        tmap = cal.get("team") if isinstance(cal, dict) else None
+        if isinstance(tmap, dict):
+            if home_tri in tmap:
+                home_mu += _clamp(tmap.get(home_tri), -4.0, 4.0)
+            if away_tri in tmap:
+                away_mu += _clamp(tmap.get(away_tri), -4.0, 4.0)
+    except Exception:
+        pass
+
+    # Global game total bias (split across teams)
+    try:
+        g = cal.get("global") if isinstance(cal, dict) else None
+        if isinstance(g, dict):
+            gb = _clamp(g.get("game_total_bias", 0.0), -5.0, 5.0)
+            home_mu += 0.5 * gb
+            away_mu += 0.5 * gb
+    except Exception:
+        pass
+
+    return float(home_mu), float(away_mu), q_biases
 
 
 def _clamp01(x: float) -> float:
@@ -133,6 +258,83 @@ def _quarter_splits() -> List[float]:
     return [0.245, 0.245, 0.255, 0.255]
 
 
+def _load_quarters_calibration() -> Optional[Dict[str, Any]]:
+    """Load optional quarters calibration artifact.
+
+    File: data/processed/quarters_calibration.json
+    Expected keys (best-effort):
+      - league_split: [q1,q2,q3,q4]
+      - team_split_by_tri: {"LAL": [..], ...}
+      - quarter_total_sd: {"q1": float, "q2": float, ...}
+    """
+    global _QUARTERS_CALIBRATION_CACHE
+    if _QUARTERS_CALIBRATION_CACHE is not None:
+        return _QUARTERS_CALIBRATION_CACHE
+    try:
+        fp = paths.data_processed / "quarters_calibration.json"
+        if not fp.exists():
+            _QUARTERS_CALIBRATION_CACHE = None
+            return None
+        import json
+
+        obj = json.loads(fp.read_text(encoding="utf-8"))
+        _QUARTERS_CALIBRATION_CACHE = obj if isinstance(obj, dict) else None
+        return _QUARTERS_CALIBRATION_CACHE
+    except Exception:
+        _QUARTERS_CALIBRATION_CACHE = None
+        return None
+
+
+def _norm_split(x: Any) -> Optional[List[float]]:
+    try:
+        arr = np.asarray(list(x), dtype=float)
+        arr = np.where(np.isfinite(arr) & (arr > 0), arr, 0.0)
+        s = float(arr.sum())
+        if s <= 0:
+            return None
+        arr = arr / s
+        out = [float(v) for v in arr.tolist()]
+        if len(out) != 4:
+            return None
+        return out
+    except Exception:
+        return None
+
+
+def _quarter_splits_for_team(team_tri: str) -> List[float]:
+    cal = _load_quarters_calibration() or {}
+    t = str(team_tri or "").strip().upper()
+    try:
+        team_map = cal.get("team_split_by_tri") if isinstance(cal, dict) else None
+        if isinstance(team_map, dict) and t in team_map:
+            split = _norm_split(team_map.get(t))
+            if split is not None:
+                return split
+    except Exception:
+        pass
+    try:
+        league = cal.get("league_split") if isinstance(cal, dict) else None
+        split = _norm_split(league)
+        if split is not None:
+            return split
+    except Exception:
+        pass
+    return _quarter_splits()
+
+
+def _target_quarter_total_sd(q: int) -> Optional[float]:
+    cal = _load_quarters_calibration() or {}
+    try:
+        qsd = cal.get("quarter_total_sd") if isinstance(cal, dict) else None
+        if not isinstance(qsd, dict):
+            return None
+        v = qsd.get(f"q{int(q)}")
+        v = float(v)
+        return v if np.isfinite(v) and v > 0 else None
+    except Exception:
+        return None
+
+
 def _sigma_for_quarter(mu: float) -> float:
     """Heuristic dispersion: larger for early quarters, shrinks slightly later."""
     # Empirical: quarter points SD around 6-10; tie to mean gently.
@@ -192,6 +394,18 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     home_mu = max(70.0, (home_eff / 100.0) * pace) + home_adj
     away_mu = max(70.0, (away_eff / 100.0) * pace) + away_adj
 
+    # Optional rolling calibration from recent reconciliation
+    try:
+        home_mu, away_mu, q_biases = _apply_totals_calibration(inp.date, str(home.team).upper(), str(away.team).upper(), home_mu, away_mu)
+    except Exception:
+        q_biases = {}
+
+    # Optional rolling calibration from recent reconciliation
+    try:
+        home_mu, away_mu, q_biases = _apply_totals_calibration(inp.date, str(home.team).upper(), str(away.team).upper(), home_mu, away_mu)
+    except Exception:
+        q_biases = {}
+
     w_total, w_margin = _blend_weights(inp)
 
     # Align to market total/spread when provided (Bayesian blend)
@@ -225,12 +439,43 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
             home_mu = cur_total_mu - away_mu
         margin_mu = home_mu - away_mu
 
-    # Quarter splits for mean points
-    splits = _quarter_splits()
+    # Quarter splits for mean points (team-specific when calibrated)
+    home_splits = _quarter_splits_for_team(home.team)
+    away_splits = _quarter_splits_for_team(away.team)
+
+    # First pass: build quarter means, optionally apply quarter-total bias, then rescale
+    cur_total_mu = float(home_mu + away_mu)
+    q_means: list[tuple[float, float]] = []
+    for qi in range(1, 5):
+        h_frac = float(home_splits[qi - 1])
+        a_frac = float(away_splits[qi - 1])
+        h_mu_q = float(h_frac * home_mu)
+        a_mu_q = float(a_frac * away_mu)
+        try:
+            b = q_biases.get(f"q{qi}") if isinstance(q_biases, dict) else None
+            if b is not None and np.isfinite(float(b)):
+                tot_q = float(h_mu_q + a_mu_q)
+                if tot_q > 1e-6:
+                    share_h = float(h_mu_q / tot_q)
+                    h_mu_q += float(b) * share_h
+                    a_mu_q += float(b) * (1.0 - share_h)
+        except Exception:
+            pass
+        q_means.append((h_mu_q, a_mu_q))
+
+    try:
+        sum_mu = float(sum((h + a) for (h, a) in q_means))
+        if sum_mu > 1e-6:
+            sf = float(cur_total_mu / sum_mu)
+            # keep scaling mild; market alignment is more important
+            sf = float(max(0.95, min(1.05, sf)))
+            q_means = [(float(h * sf), float(a * sf)) for (h, a) in q_means]
+    except Exception:
+        pass
+
     quarters: List[QuarterResult] = []
-    for qi, frac in enumerate(splits, start=1):
-        h_mu_q = frac * home_mu
-        a_mu_q = frac * away_mu
+    for qi in range(1, 5):
+        h_mu_q, a_mu_q = q_means[qi - 1]
         h_sig_q = _sigma_for_quarter(h_mu_q)
         a_sig_q = _sigma_for_quarter(a_mu_q)
         # Increase dispersion with schedule/injury stress and recent form volatility
@@ -258,8 +503,31 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
                 corr_q = min(0.40, corr_q + 0.10)
         except Exception:
             pass
-        quarters.append(QuarterResult(q=qi, home_pts_mu=h_mu_q, home_pts_sigma=h_sig_q,
-                                      away_pts_mu=a_mu_q, away_pts_sigma=a_sig_q, corr=corr_q))
+        # Optional: scale per-team sigmas so implied quarter-total SD matches observed.
+        try:
+            tgt = _target_quarter_total_sd(qi)
+            if tgt is not None:
+                sh = float(h_sig_q)
+                sa = float(a_sig_q)
+                base_total_sd = float(math.sqrt(max(1e-6, (sh * sh) + (sa * sa) + 2.0 * corr_q * sh * sa)))
+                if base_total_sd > 1e-6:
+                    scale = float(tgt / base_total_sd)
+                    scale = float(max(0.70, min(1.35, scale)))
+                    h_sig_q = float(h_sig_q) * scale
+                    a_sig_q = float(a_sig_q) * scale
+        except Exception:
+            pass
+
+        quarters.append(
+            QuarterResult(
+                q=qi,
+                home_pts_mu=h_mu_q,
+                home_pts_sigma=h_sig_q,
+                away_pts_mu=a_mu_q,
+                away_pts_sigma=a_sig_q,
+                corr=corr_q,
+            )
+        )
 
     # Monte Carlo for final totals/margin
     total_samples = []
@@ -425,7 +693,8 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
 
         margin_mu = home_mu - away_mu
 
-    splits = _quarter_splits()
+    home_splits = _quarter_splits_for_team(home.team)
+    away_splits = _quarter_splits_for_team(away.team)
     quarters: List[QuarterResult] = []
     corr_q = 0.25
     try:
@@ -434,9 +703,37 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
     except Exception:
         pass
 
-    for qi, frac in enumerate(splits, start=1):
-        h_mu_q = frac * home_mu
-        a_mu_q = frac * away_mu
+    # Build quarter means, optionally apply quarter-total bias, then rescale to preserve total mean
+    cur_total_mu = float(home_mu + away_mu)
+    q_means: list[tuple[float, float]] = []
+    for qi in range(1, 5):
+        h_frac = float(home_splits[qi - 1])
+        a_frac = float(away_splits[qi - 1])
+        h_mu_q = float(h_frac * home_mu)
+        a_mu_q = float(a_frac * away_mu)
+        try:
+            b = q_biases.get(f"q{qi}") if isinstance(q_biases, dict) else None
+            if b is not None and np.isfinite(float(b)):
+                tot_q = float(h_mu_q + a_mu_q)
+                if tot_q > 1e-6:
+                    share_h = float(h_mu_q / tot_q)
+                    h_mu_q += float(b) * share_h
+                    a_mu_q += float(b) * (1.0 - share_h)
+        except Exception:
+            pass
+        q_means.append((h_mu_q, a_mu_q))
+
+    try:
+        sum_mu = float(sum((h + a) for (h, a) in q_means))
+        if sum_mu > 1e-6:
+            sf = float(cur_total_mu / sum_mu)
+            sf = float(max(0.95, min(1.05, sf)))
+            q_means = [(float(h * sf), float(a * sf)) for (h, a) in q_means]
+    except Exception:
+        pass
+
+    for qi in range(1, 5):
+        h_mu_q, a_mu_q = q_means[qi - 1]
         h_sig_q = _sigma_for_quarter(h_mu_q)
         a_sig_q = _sigma_for_quarter(a_mu_q)
         try:
@@ -452,6 +749,20 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
             scale = 1.0 + min(0.35, stress)
             h_sig_q = float(h_sig_q) * scale
             a_sig_q = float(a_sig_q) * scale
+        except Exception:
+            pass
+
+        try:
+            tgt = _target_quarter_total_sd(qi)
+            if tgt is not None:
+                sh = float(h_sig_q)
+                sa = float(a_sig_q)
+                base_total_sd = float(math.sqrt(max(1e-6, (sh * sh) + (sa * sa) + 2.0 * corr_q * sh * sa)))
+                if base_total_sd > 1e-6:
+                    scale = float(tgt / base_total_sd)
+                    scale = float(max(0.70, min(1.35, scale)))
+                    h_sig_q = float(h_sig_q) * scale
+                    a_sig_q = float(a_sig_q) * scale
         except Exception:
             pass
 

@@ -18,6 +18,10 @@ PROC = paths.data_processed
 class SimConfig:
     # NBA finals tend to have team score SD ~10-15; margin SD ~11-13; total SD ~18-24.
     sd_margin: float = 12.0           # Std dev for final margin
+    # ATS cover probabilities tend to be much less certain than win probabilities; keep separate knobs.
+    sd_margin_ats: float = 30.0       # Std dev used for ATS cover probability
+    ats_scale: float = 0.40           # Shrink predicted margin for ATS
+    ats_bias: float = -5.5            # Bias applied to predicted margin for ATS
     sd_total: float = 22.0            # Std dev for final total
     home_adv_points: float = 2.0      # Baseline home advantage added to margin
     injury_margin_coef: float = 0.10  # Points of margin per unit injury impact diff
@@ -181,7 +185,8 @@ def _analytical_probs(total_line: float, spread_line: float, total_mu: float, ma
     # ATS: home covers if (home_score + home_spread) > away_score
     # => margin + home_spread > 0 => margin > -home_spread
     ats_threshold = -float(spread_line) if np.isfinite(spread_line) else 0.0
-    p_home_cover = 1.0 - _phi((ats_threshold - margin_mu) / cfg.sd_margin)
+    margin_mu_ats = float(cfg.ats_scale) * float(margin_mu) + float(cfg.ats_bias)
+    p_home_cover = 1.0 - _phi((ats_threshold - margin_mu_ats) / float(cfg.sd_margin_ats))
     # TOTAL: P(total > total_line)
     p_total_over = 1.0 - _phi((total_line - total_mu) / cfg.sd_total)
     # And unders/complements
