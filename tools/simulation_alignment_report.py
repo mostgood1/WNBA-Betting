@@ -12,7 +12,8 @@ import pandas as pd
 def find_probability_columns(df: pd.DataFrame) -> List[str]:
     candidates = [
         "prob", "probability", "p", "p_over", "p_under",
-        "prob_over", "prob_under", "win_prob", "over_prob", "under_prob"
+        "prob_over", "prob_under", "win_prob", "over_prob", "under_prob",
+        "model_prob", "implied_prob"
     ]
     cols = [c for c in candidates if c in df.columns]
     # Filter to [0,1]
@@ -98,31 +99,99 @@ def evaluate_window(end_date: dt.date, days: int, base_dir: Path) -> Dict:
     recon_files = collect_files_by_window(base_dir, "recon_props", end_date, days)
     pred_files = collect_files_by_window(base_dir, "props_predictions", end_date, days)
 
+    # Props calibration is best evaluated at the prop-line level.
+    # `props_edges_*` contains probabilities for each prop line, and `props_actuals_*` contains realized boxscore stats.
+    edge_files = collect_files_by_window(base_dir, "props_edges", end_date, days)
+    actual_files = collect_files_by_window(base_dir, "props_actuals", end_date, days)
+
     recon = load_concat(recon_files)
     preds = load_concat(pred_files)
+    edges = load_concat(edge_files)
+    actuals = load_concat(actual_files)
 
     result: Dict = {
         "days": days,
-        "rows": int(max(len(recon), len(preds))),
+        "rows": int(max(len(recon), len(preds), len(edges), len(actuals))),
         "metrics": {},
         "notes": [],
     }
 
-    if recon.empty and preds.empty:
+    if recon.empty and preds.empty and edges.empty and actuals.empty:
         result["notes"].append("No data available for window")
         return result
 
-    # Attempt to align/join on common keys if available
-    join_keys = [k for k in ["date", "game_id", "player", "market", "stat", "side"] if k in recon.columns and k in preds.columns]
+    # If we have prop edges, compute outcomes by joining to actuals/recon.
+    # This enables true probability calibration metrics (Brier/logloss) for props.
+    df_edges: Optional[pd.DataFrame] = None
+    if not edges.empty:
+        # Fall back to recon_props if props_actuals is missing for a day.
+        actual_source = actuals if not actuals.empty else recon
+        if actual_source.empty:
+            result["notes"].append("Found props_edges but no props_actuals/recon_props to compute outcomes")
+        else:
+            edges_norm = edges.copy()
+            actual_norm = actual_source.copy()
+
+            # Normalize join dtypes
+            for frame in (edges_norm, actual_norm):
+                if "player_id" in frame.columns:
+                    frame["player_id"] = pd.to_numeric(frame["player_id"], errors="coerce")
+                if "date" in frame.columns:
+                    frame["date"] = frame["date"].astype(str)
+
+            stat_cols = [c for c in ["pts", "reb", "ast", "threes", "pra", "stl", "blk", "tov"] if c in actual_norm.columns]
+            if not stat_cols:
+                result["notes"].append("No stat columns found in props_actuals/recon_props")
+            else:
+                act_long = actual_norm.melt(
+                    id_vars=[c for c in ["date", "player_id"] if c in actual_norm.columns],
+                    value_vars=stat_cols,
+                    var_name="stat",
+                    value_name="actual_value",
+                )
+                act_long = act_long.dropna(subset=["date", "player_id", "stat", "actual_value"])
+
+                needed_edge_cols = ["date", "player_id", "stat", "side", "line"]
+                missing = [c for c in needed_edge_cols if c not in edges_norm.columns]
+                if missing:
+                    result["notes"].append(f"props_edges missing required columns: {missing}")
+                else:
+                    df_edges = pd.merge(edges_norm, act_long, on=["date", "player_id", "stat"], how="left")
+                    # Compute binary hit outcome; treat pushes (actual == line) as NA and exclude.
+                    df_edges["line"] = pd.to_numeric(df_edges["line"], errors="coerce")
+                    df_edges["actual_value"] = pd.to_numeric(df_edges["actual_value"], errors="coerce")
+                    side = df_edges["side"].astype(str).str.upper()
+                    av = df_edges["actual_value"]
+                    line = df_edges["line"]
+
+                    push = av.eq(line)
+                    hit_over = av.gt(line)
+                    hit_under = av.lt(line)
+                    hit = np.where(side.eq("OVER"), hit_over, np.where(side.eq("UNDER"), hit_under, np.nan))
+                    hit = np.where(push, np.nan, hit)
+
+                    df_edges["hit"] = hit
+                    df_edges = df_edges.dropna(subset=["hit"])
+                    df_edges["hit"] = df_edges["hit"].astype(int)
+
     df = None
-    if join_keys:
-        try:
-            df = pd.merge(preds, recon, on=join_keys, suffixes=("_pred", "_recon"))
-        except Exception:
-            df = None
-    if df is None:
-        # Fallback: use whichever has both prob and outcome
-        df = recon.copy() if not recon.empty else preds.copy()
+
+    # Highest priority: edges + actuals -> line-level probability calibration.
+    if df_edges is not None and not df_edges.empty:
+        df = df_edges
+    else:
+        # Attempt to align/join on common keys if available
+        join_keys = [k for k in ["date", "game_id", "player", "market", "stat", "side"] if k in recon.columns and k in preds.columns]
+        if join_keys:
+            try:
+                df = pd.merge(preds, recon, on=join_keys, suffixes=("_pred", "_recon"))
+            except Exception:
+                df = None
+        if df is None:
+            # Fallback: use whichever has both prob and outcome
+            df = recon.copy() if not recon.empty else preds.copy()
+
+    result["rows"] = int(len(df))
 
     # Probability columns
     prob_cols = find_probability_columns(df)

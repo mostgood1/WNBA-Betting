@@ -1051,6 +1051,63 @@ def simulate_connected_game(
                         need -= 1
                     if more:
                         out = pd.concat([out, pd.DataFrame(more)], ignore_index=True)
+
+            # After roster augmentation, attach priors for any newly-added players.
+            # (The earlier attachment only covered props-derived players.)
+            try:
+                if (not out.empty) and ("player_name" in out.columns) and pri:
+                    out = out.copy()
+                    if "_prior_min" not in out.columns:
+                        out["_prior_min"] = None
+                    mins_map = out["player_name"].map(lambda nm: pri.get((team_u, _norm_player_key(nm))))
+                    out["_prior_min"] = pd.to_numeric(out["_prior_min"], errors="coerce")
+                    out["_prior_min"] = out["_prior_min"].where(out["_prior_min"].notna(), mins_map)
+            except Exception:
+                pass
+
+            try:
+                if (not out.empty) and ("player_name" in out.columns) and player_priors:
+                    out = out.copy()
+                    out["_pkey"] = out["player_name"].map(_norm_player_key)
+
+                    def _p(team_key: str, player_key: str, k: str) -> Optional[float]:
+                        try:
+                            v = (player_priors.get((team_key, player_key)) or {}).get(k)
+                            return float(v) if v is not None and np.isfinite(float(v)) else None
+                        except Exception:
+                            return None
+
+                    for stat in (
+                        "pts",
+                        "reb",
+                        "ast",
+                        "threes",
+                        "threes_att",
+                        "tov",
+                        "stl",
+                        "blk",
+                        "fga",
+                        "fgm",
+                        "fta",
+                        "ftm",
+                        "pf",
+                    ):
+                        col = f"_prior_{stat}_pm"
+                        if col not in out.columns:
+                            out[col] = None
+                        vals = out["_pkey"].map(lambda pk: _p(team_u, pk, f"{stat}_pm"))
+                        cur = pd.to_numeric(out[col], errors="coerce")
+                        out[col] = cur.where(cur.notna(), vals)
+
+                    if "_prior_min_mu" not in out.columns:
+                        out["_prior_min_mu"] = None
+                    vals = out["_pkey"].map(lambda pk: _p(team_u, pk, "min_mu"))
+                    cur = pd.to_numeric(out["_prior_min_mu"], errors="coerce")
+                    out["_prior_min_mu"] = cur.where(cur.notna(), vals)
+
+                    out = out.drop(columns=["_pkey"], errors="ignore")
+            except Exception:
+                pass
         except Exception:
             pass
 
