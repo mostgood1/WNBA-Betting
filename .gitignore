@@ -71,6 +71,10 @@ data/processed/**
 !data/processed/props_eval_compare_*.json
 !data/processed/props_eval_compare_*.md
 
+# Totals/quarters calibration artifacts used to tune the PBP sim inputs
+# Note: these remain ignored by default to avoid clutter; the commit script
+# force-adds the needed files when publishing.
+
 # SmartSim artifacts (used for props derivation + diagnostics)
 !data/processed/smart_sim_*.json
 !data/processed/daily_artifacts_*.json

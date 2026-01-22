@@ -400,12 +400,6 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
     except Exception:
         q_biases = {}
 
-    # Optional rolling calibration from recent reconciliation
-    try:
-        home_mu, away_mu, q_biases = _apply_totals_calibration(inp.date, str(home.team).upper(), str(away.team).upper(), home_mu, away_mu)
-    except Exception:
-        q_biases = {}
-
     w_total, w_margin = _blend_weights(inp)
 
     # Align to market total/spread when provided (Bayesian blend)

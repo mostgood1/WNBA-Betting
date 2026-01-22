@@ -8862,6 +8862,33 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
         preds = pd.read_csv(pred_file)
     except Exception as e:
         console.print(f"Failed to read predictions: {e}", style="red"); return
+
+    # Normalize prediction columns to a consistent schema.
+    # Some pipelines output totals/spread_margin (or model_total) rather than pred_total/pred_margin.
+    def _first_col(df: pd.DataFrame, names: list[str]) -> str | None:
+        for n in names:
+            if n in df.columns:
+                return n
+        return None
+
+    preds = preds.copy()
+    total_src = _first_col(preds, ["totals", "model_total", "total"])
+    margin_src = _first_col(preds, ["spread_margin", "model_margin", "margin"])
+
+    # Create or backfill pred_total / pred_margin from other common columns.
+    if "pred_total" not in preds.columns:
+        if total_src is not None:
+            preds["pred_total"] = preds[total_src]
+    else:
+        if total_src is not None:
+            preds["pred_total"] = preds["pred_total"].where(preds["pred_total"].notna(), preds[total_src])
+
+    if "pred_margin" not in preds.columns:
+        if margin_src is not None:
+            preds["pred_margin"] = preds[margin_src]
+    else:
+        if margin_src is not None:
+            preds["pred_margin"] = preds["pred_margin"].where(preds["pred_margin"].notna(), preds[margin_src])
     # Normalize to tricodes using nba_api static map
     try:
         team_list = static_teams.get_teams()
@@ -8887,11 +8914,9 @@ def reconcile_date_cmd(date_str: str, pred_path: str | None):
             if len(s) <= 4:
                 return s
             return s
-        preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").apply(to_tri)
         preds["away_tri"] = preds.get("visitor_team").apply(to_tri)
     except Exception:
-        preds = preds.copy()
         preds["home_tri"] = preds.get("home_team").astype(str).str.upper()
         preds["away_tri"] = preds.get("visitor_team").astype(str).str.upper()
     # Prefer processed finals CSV if available; else fetch via APIs with fallbacks

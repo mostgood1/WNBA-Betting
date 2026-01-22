@@ -27,6 +27,14 @@ if ($IncludeJson) {
     $patterns += "smart_sim_${Date}_*.json"
     # Daily validation summary
     $patterns += "daily_artifacts_${Date}.json"
+
+    # Quarters calibration is an undated JSON used by the sim engine
+    try {
+        $qc = Join-Path $processedDir 'quarters_calibration.json'
+        if (Test-Path $qc) {
+            $files += Get-Item -Path $qc -ErrorAction SilentlyContinue
+        }
+    } catch { }
 }
 
 # Collect files matching patterns under data/processed only
@@ -89,6 +97,10 @@ $allowedPrefixes = @(
     "smart_sim_",
     # Daily pipeline artifact summary
     "daily_artifacts_",
+    # Rolling totals calibration used to tune predictions/sims
+    "calibration_totals_",
+    # Undated quarters calibration used by SmartSim
+    "quarters_calibration",
     # New: per-player calibration artifact for diagnostics/analysis
     # New: evaluation compare outputs (daily + summary)
     "props_eval_compare_"
@@ -127,7 +139,11 @@ if ($DryRun) {
 # Stage files
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
-    git add -- $rel
+    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name -eq 'quarters_calibration.json') {
+        git add -f -- $rel
+    } else {
+        git add -- $rel
+    }
 }
 
 # Commit with a concise message listing top artifacts
