@@ -1961,7 +1961,9 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
     except Exception as _e:
         console.print(f"Injury filter skipped: {_e}", style="yellow")
 
-    # Enforce slate participants via OddsAPI player props (today-only hard filter to remove misassigned players)
+    # Enforce slate participants via OddsAPI player props.
+    # IMPORTANT: this must be a *soft* filter because OddsAPI player-props feeds can be incomplete
+    # (or omit certain markets/players), and a hard filter can wipe out most of the slate.
     try:
         from .config import paths as _paths
         import pandas as _pd
@@ -1979,12 +1981,39 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         toks = [t for t in s.split(" ") if t not in {"jr","sr","ii","iii","iv","v"}]
                         return " ".join(toks)
                     pset = set(props[name_col].astype(str).map(_norm).tolist())
+                    feats = feats.copy()
                     feats["_pkey"] = feats["player_name"].astype(str).map(_norm)
-                    before = len(feats)
-                    feats = feats[feats["_pkey"].isin(pset)].drop(columns=["_pkey"], errors="ignore")
-                    removed = before - len(feats)
-                    if removed > 0:
-                        console.print(f"Pruned non-participants via OddsAPI props: removed {removed} rows", style="yellow")
+                    before = int(len(feats))
+                    filtered = feats[feats["_pkey"].isin(pset)].drop(columns=["_pkey"], errors="ignore")
+                    kept = int(len(filtered))
+                    removed = before - kept
+
+                    # Apply only when Odds coverage is sufficiently high.
+                    # Heuristics:
+                    # - At least 80 unique players in OddsAPI props, OR
+                    # - At least ~35% of feature rows match OddsAPI names,
+                    # AND
+                    # - The filter doesn't remove more than 40% of rows.
+                    cov_players = int(len(pset))
+                    cov_ratio = (kept / before) if before > 0 else 0.0
+                    safe_to_apply = (
+                        (cov_players >= 80 or cov_ratio >= 0.35)
+                        and (removed <= int(0.40 * max(1, before)))
+                        and (kept >= 40)
+                    )
+                    if safe_to_apply:
+                        feats = filtered
+                        if removed > 0:
+                            console.print(
+                                f"Pruned non-participants via OddsAPI props: removed {removed} rows (kept {kept}/{before})",
+                                style="yellow",
+                            )
+                    else:
+                        feats = feats.drop(columns=["_pkey"], errors="ignore")
+                        console.print(
+                            f"Participants filter skipped (Odds coverage too low): odds_players={cov_players}, kept={kept}/{before}",
+                            style="yellow",
+                        )
     except Exception as _e:
         console.print(f"Participants filter skipped: {_e}", style="yellow")
 
@@ -2300,6 +2329,37 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             console.print(f"Per-player calibration skipped due to error: {_e}", style="yellow")
     if not out_path:
         out_path = str(paths.data_processed / f"props_predictions_{date_str}.csv")
+
+    # Guardrails: these are count stats; avoid negative predictions/SDs after calibration.
+    try:
+        preds = preds.copy()
+        for col in (
+            "pred_pts",
+            "pred_reb",
+            "pred_ast",
+            "pred_threes",
+            "pred_pra",
+            "pred_stl",
+            "pred_blk",
+            "pred_tov",
+        ):
+            if col in preds.columns:
+                preds[col] = pd.to_numeric(preds[col], errors="coerce").clip(lower=0.0)
+        for col in (
+            "sd_pts",
+            "sd_reb",
+            "sd_ast",
+            "sd_threes",
+            "sd_pra",
+            "sd_stl",
+            "sd_blk",
+            "sd_tov",
+        ):
+            if col in preds.columns:
+                preds[col] = pd.to_numeric(preds[col], errors="coerce").clip(lower=0.0)
+    except Exception:
+        pass
+
     preds.to_csv(out_path, index=False)
     console.print(f"Saved props predictions to {out_path} (rows={len(preds)}; calibrated={calibrate})")
 

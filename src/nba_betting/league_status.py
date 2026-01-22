@@ -350,9 +350,42 @@ def build_league_status(date_str: str) -> pd.DataFrame:
     if not inj.empty:
         inj = inj.copy()
         inj['_name_key'] = inj['player'].astype(str).map(_norm_name)
-        keep_cols = ['_name_key','team','status_norm']
+        keep_cols = ['_name_key', 'team', 'status_norm']
         inj_small = inj[[c for c in keep_cols if c in inj.columns]].drop_duplicates()
-        out = out.merge(inj_small, on='_name_key', how='left', suffixes=('', '_inj'))
+
+        # Prefer team-aware match (prevents cross-team contamination on trades).
+        if {'_name_key', 'team', 'status_norm'}.issubset(set(inj_small.columns)):
+            out = out.merge(inj_small, on=['_name_key', 'team'], how='left')
+        else:
+            out = out.merge(inj_small, on=['_name_key'], how='left')
+
+        # Fallback to name-only match ONLY when the injuries row has no team.
+        # If injuries have a team that doesn't match the player's current team, we must not apply it
+        # (trades would otherwise incorrectly mark players OUT).
+        try:
+            if 'status_norm' in out.columns:
+                missing = out['status_norm'].isna() | (out['status_norm'].astype(str).str.len() == 0)
+            else:
+                out['status_norm'] = None
+                missing = out['status_norm'].isna()
+
+            if bool(missing.any()) and {'_name_key', 'status_norm'}.issubset(set(inj_small.columns)):
+                inj_name_only = None
+                if 'team' in inj_small.columns:
+                    tmp = inj_small.copy()
+                    tmp['team'] = tmp['team'].fillna('').astype(str).str.upper().str.strip()
+                    tmp = tmp[tmp['team'].astype(str).str.len() == 0]
+                    if not tmp.empty:
+                        inj_name_only = tmp[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
+                else:
+                    inj_name_only = inj_small[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
+
+                if inj_name_only is not None and (not inj_name_only.empty):
+                    out2 = out.loc[missing].merge(inj_name_only, on='_name_key', how='left', suffixes=('', '_byname'))
+                    if 'status_norm_byname' in out2.columns:
+                        out.loc[missing, 'status_norm'] = out2['status_norm_byname'].values
+        except Exception:
+            pass
     else:
         out['status_norm'] = None
     out['team'] = out['team'].fillna('').astype(str).str.upper()
