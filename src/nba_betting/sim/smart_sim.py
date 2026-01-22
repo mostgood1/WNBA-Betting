@@ -77,10 +77,25 @@ def _team_players_from_props(props_df: pd.DataFrame, team_tri: str, opp_tri: str
     opp_u = str(opp_tri or "").upper().strip()
 
     out = pd.DataFrame()
+    team_only = pd.DataFrame()
+    if "team" in df.columns:
+        team_only = df[df["team"] == team_u].copy()
+
+    # Prefer the matchup-specific subset when it has reasonable coverage.
+    # If opponent tagging is missing/spotty, a strict (team, opponent) filter can yield only a couple
+    # of rows, which makes SmartSim allocate essentially the entire team boxscore to one player.
     if ("team" in df.columns) and ("opponent" in df.columns):
         out = df[(df["team"] == team_u) & (df["opponent"] == opp_u)].copy()
-    if out.empty and ("team" in df.columns):
-        out = df[df["team"] == team_u].copy()
+
+    # Coverage guardrail: if strict matchup filter returns too few players, fall back to team-only.
+    try:
+        if (not team_only.empty) and (out is not None) and (len(out) < 8):
+            out = team_only
+    except Exception:
+        pass
+
+    if (out is None or out.empty) and (not team_only.empty):
+        out = team_only
 
     if out.empty:
         return out
@@ -346,6 +361,26 @@ def _rotation_sim_minutes_from_history(
     diag["mapped_minutes"] = float(mapped_minutes_sum)
     diag["leftover_minutes"] = float(max(0.0, leftover))
     diag["lineup_pool_n"] = int(len(lineup_pool))
+
+    # Guardrail: if ESPN ID mapping is too sparse, rotation-based minutes become pathological
+    # (e.g., assigning ~all minutes/scoring to a single mapped player). In that case, do not apply
+    # rotation minutes; caller should fall back to roll-based minutes.
+    try:
+        total_target = 240.0
+        mapped_ids = [pid for pid in sorted(set(espn_ids[have].tolist())) if float(id_to_min.get(str(pid), 0.0)) > 0.0]
+        mapped_id_n = int(len(mapped_ids))
+        frac = float(mapped_minutes_sum) / float(max(1e-6, total_target))
+        diag["mapped_id_n"] = mapped_id_n
+        diag["mapped_minutes_frac"] = frac
+        if mapped_id_n < 5 or frac < 0.50 or int(len(lineup_pool)) < 5:
+            diag["applied"] = False
+            diag["reason"] = "rotation_mapping_too_sparse"
+            return None, None, None, diag
+    except Exception:
+        # If diagnostics fail, be conservative and do not apply.
+        diag["applied"] = False
+        diag["reason"] = str(diag.get("reason") or "rotation_mapping_guard_failed")
+        return None, None, None, diag
 
     diag["applied"] = True
     diag["sim_minutes_sum"] = float(sim_min.sum())
@@ -738,6 +773,22 @@ def _rotation_sim_minutes_for_team(
 
     diag["lineup_pool_n"] = int(len(lineup_pool))
 
+    # Guardrail: if mapping is too sparse, do not apply rotation minutes.
+    try:
+        mapped_ids = [pid for pid in sorted(set(espn_ids[have].tolist())) if float(id_to_min.get(str(pid), 0.0)) > 0.0]
+        mapped_id_n = int(len(mapped_ids))
+        frac = float(mapped_minutes_sum) / float(max(1e-6, total_target))
+        diag["mapped_id_n"] = mapped_id_n
+        diag["mapped_minutes_frac"] = frac
+        if mapped_id_n < 5 or frac < 0.50 or int(len(lineup_pool)) < 5:
+            diag["applied"] = False
+            diag["reason"] = "rotation_mapping_too_sparse"
+            return None, None, None, diag
+    except Exception:
+        diag["applied"] = False
+        diag["reason"] = str(diag.get("reason") or "rotation_mapping_guard_failed")
+        return None, None, None, diag
+
     diag["applied"] = True
     diag["sim_minutes_sum"] = float(sim_min.sum())
     return sim_min.astype(float), (lineup_pool if lineup_pool else None), (np.asarray(lineup_w, dtype=float) if lineup_w else None), diag
@@ -748,11 +799,32 @@ def _derive_sim_minutes(team_df: pd.DataFrame) -> pd.Series:
         return pd.Series(dtype=float)
 
     # Prefer roll10/roll5 minutes from props predictions.
+    # NOTE: roster augmentation can introduce rows with missing minute features; if we
+    # leave those at 0, SmartSim will allocate nearly all team stats to the remaining
+    # few players with non-zero minutes.
     min_cols = [c for c in ("roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
     if not min_cols:
         mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
     else:
         mins = pd.to_numeric(team_df[min_cols[0]], errors="coerce").fillna(0.0).astype(float)
+        # If the preferred column is missing/zero for many rows, try fallbacks.
+        for c in min_cols[1:]:
+            if int((mins > 0.0).sum()) >= 8:
+                break
+            alt = pd.to_numeric(team_df[c], errors="coerce").fillna(0.0).astype(float)
+            mins = mins.where(mins > 0.0, alt)
+
+        # If we still have too few players with minutes, assign a conservative
+        # default to the remaining roster so the sim doesn't collapse to 1-3 players.
+        pos_n = int((mins > 0.0).sum())
+        if len(team_df) >= 8 and pos_n < 8:
+            fill_val: float
+            try:
+                med = float(pd.to_numeric(mins[mins > 0.0], errors="coerce").median())
+                fill_val = med if np.isfinite(med) and med > 0.0 else 18.0
+            except Exception:
+                fill_val = 18.0
+            mins = mins.where(mins > 0.0, other=float(fill_val))
 
     mins = mins.clip(lower=0.0, upper=44.0)
 
@@ -761,14 +833,43 @@ def _derive_sim_minutes(team_df: pd.DataFrame) -> pd.Series:
         mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
         s = float(mins.sum())
 
-    # Scale to 240 team minutes.
-    scale = 240.0 / max(1e-6, s)
-    mins = (mins * scale).clip(lower=0.0, upper=44.0)
+    # Start with a scaled minutes vector.
+    mins = mins * (240.0 / max(1e-6, s))
+    mins = mins.clip(lower=0.0, upper=44.0)
 
-    # Rebalance if caps changed total.
-    s2 = float(mins.sum())
-    if np.isfinite(s2) and s2 > 0:
-        mins = mins * (240.0 / s2)
+    # Iteratively redistribute any leftover minutes to players below the cap.
+    # This prevents the final normalization step from breaking the 44-minute cap.
+    base_w = mins.copy()
+    for _ in range(12):
+        total = float(mins.sum())
+        if not np.isfinite(total) or total <= 0:
+            mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
+            mins = mins * (240.0 / float(mins.sum()))
+            mins = mins.clip(lower=0.0, upper=44.0)
+            continue
+        gap = 240.0 - total
+        if abs(gap) < 1e-6:
+            break
+        if gap < 0:
+            # Too many minutes: scale down then re-clip.
+            mins = (mins * (240.0 / total)).clip(lower=0.0, upper=44.0)
+            continue
+
+        free = mins < (44.0 - 1e-9)
+        if int(free.sum()) <= 0:
+            break
+        w = base_w.loc[free].astype(float).clip(lower=0.0)
+        ws = float(w.sum())
+        if (not np.isfinite(ws)) or ws <= 0:
+            mins.loc[free] = mins.loc[free] + (gap / float(int(free.sum())))
+        else:
+            mins.loc[free] = mins.loc[free] + (w / ws) * gap
+        mins = mins.clip(lower=0.0, upper=44.0)
+
+    # Final normalization (safe): if we're still off due to caps, only scale down (never up past cap).
+    total = float(mins.sum())
+    if np.isfinite(total) and total > 240.0 + 1e-6:
+        mins = (mins * (240.0 / total)).clip(lower=0.0, upper=44.0)
 
     return mins
 
@@ -997,7 +1098,43 @@ def simulate_smart_game(
     home_raw = _team_players_from_props(props_df, home_tri, away_tri)
     away_raw = _team_players_from_props(props_df, away_tri, home_tri)
 
-    # Fallback: if props predictions do not include this matchup, use ESPN boxscore roster.
+    # Roster guardrail: SmartSim needs a reasonably-sized player pool.
+    # If props-based pool is missing most of the roster (common when team mapping is incomplete),
+    # augment with ESPN boxscore roster rows and let props rows override on name/team.
+    def _augment_with_espn(team_raw: pd.DataFrame, team_tri: str) -> pd.DataFrame:
+        try:
+            base = team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
+            if base is None:
+                base = pd.DataFrame()
+            if (not base.empty) and (len(base) >= 8):
+                return base
+            espn = _team_players_from_espn_boxscore(
+                date_str,
+                home_tri=home_tri,
+                away_tri=away_tri,
+                team_tri=team_tri,
+            )
+            if espn is None or espn.empty:
+                return base
+            # Prefer props rows when present by concatenating ESPN first then props and keeping last.
+            comb = pd.concat([espn, base], ignore_index=True, sort=False)
+            if "team" in comb.columns:
+                comb["team"] = comb["team"].astype(str).str.upper().str.strip()
+            if "player_name" in comb.columns:
+                comb["player_name"] = comb["player_name"].astype(str).str.strip()
+                comb = comb[comb["player_name"].ne("")].copy()
+                if "team" in comb.columns:
+                    comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
+                else:
+                    comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+            return comb
+        except Exception:
+            return team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
+
+    home_raw = _augment_with_espn(home_raw, team_tri=home_tri)
+    away_raw = _augment_with_espn(away_raw, team_tri=away_tri)
+
+    # Final fallback: if still empty, use ESPN boxscore roster.
     if home_raw is None or home_raw.empty:
         home_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri)
     if away_raw is None or away_raw.empty:
