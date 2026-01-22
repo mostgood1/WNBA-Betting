@@ -35,6 +35,11 @@ foreach ($pat in $patterns) {
     $files += Get-ChildItem -Path $processedDir -Filter $pat -File -ErrorAction SilentlyContinue
 }
 
+# Deduplicate in case multiple patterns match the same file
+if ($files -and $files.Count -gt 0) {
+    $files = $files | Sort-Object FullName -Unique
+}
+
 # Optionally include evaluation compare CSVs (range-based filenames)
 if ($IncludeEval) {
     try {
