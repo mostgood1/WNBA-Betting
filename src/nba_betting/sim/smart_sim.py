@@ -13,6 +13,25 @@ from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_pla
 from ..teams import to_tricode
 
 
+def _read_hist_any(pq_path, csv_path) -> pd.DataFrame:
+    try:
+        if pq_path is not None and getattr(pq_path, "exists", lambda: False)():
+            try:
+                df = pd.read_parquet(pq_path)
+                return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+            except Exception:
+                pass
+        if csv_path is not None and getattr(csv_path, "exists", lambda: False)():
+            try:
+                df = pd.read_csv(csv_path)
+                return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+            except Exception:
+                pass
+        return pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
 @dataclass
 class SmartSimConfig:
     n_sims: int = 300
@@ -149,6 +168,190 @@ def _build_player_minutes_from_stints(stints: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def _rotation_sim_minutes_from_history(
+    team_df: pd.DataFrame,
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    team_tri: str,
+    lookback_days: int = 28,
+) -> tuple[Optional[pd.Series], Optional[List[List[int]]], Optional[np.ndarray], dict[str, Any]]:
+    diag: dict[str, Any] = {
+        "attempted": True,
+        "applied": False,
+        "source": "history",
+        "team": str(team_tri).upper().strip(),
+        "lookback_days": int(lookback_days),
+    }
+    if team_df is None or team_df.empty:
+        diag["reason"] = "empty_players"
+        return None, None, None, diag
+
+    team_u = str(team_tri or "").strip().upper()
+    if not team_u:
+        diag["reason"] = "missing_team"
+        return None, None, None, diag
+
+    st_hist = _read_hist_any(
+        paths.data_processed / "rotation_stints_history.parquet",
+        paths.data_processed / "rotation_stints_history.csv",
+    )
+    if st_hist is None or st_hist.empty:
+        diag["reason"] = "no_rotation_stints_history"
+        return None, None, None, diag
+
+    need = {"team", "duration_sec", "lineup_player_ids"}
+    if not need.issubset(set(st_hist.columns)):
+        diag["reason"] = "history_missing_columns"
+        diag["missing_cols"] = sorted(list(need - set(st_hist.columns)))
+        return None, None, None, diag
+
+    st = st_hist.copy()
+    st["team"] = st["team"].astype(str).str.upper().str.strip()
+    st = st[st["team"] == team_u].copy()
+    if st.empty:
+        diag["reason"] = "team_not_in_history"
+        return None, None, None, diag
+
+    # Filter to recent window if date is available.
+    if "date" in st.columns:
+        try:
+            cutoff = pd.to_datetime(str(date_str), errors="coerce")
+            if pd.notna(cutoff):
+                start = cutoff - pd.Timedelta(days=int(lookback_days))
+                st["date"] = pd.to_datetime(st["date"], errors="coerce")
+                st = st[(st["date"].notna()) & (st["date"] >= start) & (st["date"] < cutoff)].copy()
+        except Exception:
+            pass
+
+    if st.empty:
+        diag["reason"] = "no_recent_history"
+        return None, None, None, diag
+
+    # Map our player names to ESPN athlete IDs for the matchup (pregame roster mapping).
+    name_to_id = _espn_name_to_id_map_for_game(
+        str(date_str),
+        home_tri=str(home_tri),
+        away_tri=str(away_tri),
+        event_id=None,
+    )
+    if not name_to_id:
+        diag["reason"] = "no_espn_name_map"
+        return None, None, None, diag
+
+    tmp = team_df.copy().reset_index(drop=True)
+    tmp["_pkey"] = tmp.get("player_name", pd.Series(["" for _ in range(len(tmp))])).map(_norm_player_key)
+    tmp["_espn_id"] = tmp["_pkey"].map(lambda k: name_to_id.get((team_u, str(k).upper().strip()), ""))
+    tmp["_espn_id"] = tmp["_espn_id"].astype(str).replace({"nan": "", "None": ""}).str.strip()
+
+    # Compute per-player minutes from historical stints.
+    st2 = st[["team", "duration_sec", "lineup_player_ids"]].copy()
+    st2["duration_sec"] = pd.to_numeric(st2["duration_sec"], errors="coerce").fillna(0.0)
+    st2["player_id"] = st2["lineup_player_ids"].astype(str).str.split(";")
+    st2 = st2.explode("player_id")
+    st2["player_id"] = st2["player_id"].map(_clean_id_str)
+    st2 = st2[st2["player_id"].astype(str).str.len() > 0]
+    if st2.empty:
+        diag["reason"] = "no_player_ids_in_history"
+        return None, None, None, diag
+
+    mins_df = st2.groupby(["team", "player_id"], as_index=False)["duration_sec"].sum()
+    mins_df["minutes"] = mins_df["duration_sec"].astype(float) / 60.0
+    mins_df = mins_df[mins_df["team"].astype(str).str.upper().str.strip() == team_u].copy()
+    if mins_df.empty:
+        diag["reason"] = "no_minutes_from_history"
+        return None, None, None, diag
+
+    # Target 240 minutes, using history minutes distribution.
+    mins_df["minutes"] = pd.to_numeric(mins_df["minutes"], errors="coerce").fillna(0.0).astype(float)
+    total_hist = float(mins_df["minutes"].sum())
+    if not np.isfinite(total_hist) or total_hist <= 0:
+        diag["reason"] = "bad_history_total_minutes"
+        return None, None, None, diag
+    mins_df["minutes_scaled"] = mins_df["minutes"] * (240.0 / total_hist)
+    id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes_scaled"].astype(float)))
+
+    base_w = _roll_minutes_unscaled(tmp)
+    sim_min = pd.Series([0.0] * len(tmp), index=tmp.index, dtype=float)
+
+    espn_ids = tmp["_espn_id"].astype(str)
+    have = espn_ids.str.len() > 0
+
+    mapped_players = 0
+    mapped_minutes_sum = 0.0
+    for pid in sorted(set(espn_ids[have].tolist())):
+        m = float(id_to_min.get(str(pid), 0.0))
+        if m <= 0:
+            continue
+        idx = tmp.index[espn_ids == pid]
+        if len(idx) == 0:
+            continue
+        w = base_w.loc[idx].astype(float)
+        ws = float(w.sum())
+        if not np.isfinite(ws) or ws <= 0:
+            alloc = pd.Series([m / float(len(idx))] * len(idx), index=idx, dtype=float)
+        else:
+            alloc = (w / ws) * m
+        sim_min.loc[idx] = alloc.astype(float)
+        mapped_players += int(len(idx))
+        mapped_minutes_sum += float(alloc.sum())
+
+    leftover = float(240.0 - mapped_minutes_sum)
+    if leftover > 1e-6:
+        unm = sim_min <= 0
+        w = base_w.loc[unm].astype(float)
+        ws = float(w.sum())
+        if (not np.isfinite(ws)) or ws <= 0:
+            if int(unm.sum()) > 0:
+                sim_min.loc[unm] = float(leftover) / float(int(unm.sum()))
+        else:
+            sim_min.loc[unm] = (w / ws) * float(leftover)
+
+    # Normalize to 240.
+    total_sim = float(sim_min.sum())
+    if np.isfinite(total_sim) and total_sim > 0:
+        sim_min = sim_min * (240.0 / total_sim)
+
+    # Lineup pool from historical stints; keep only full 5-man units mapped to our roster.
+    lineup_pool: List[List[int]] = []
+    lineup_w: List[float] = []
+    try:
+        if {"lineup_player_ids", "duration_sec"}.issubset(set(st.columns)):
+            s2 = st.copy()
+            s2["duration_sec"] = pd.to_numeric(s2["duration_sec"], errors="coerce").fillna(0.0).astype(float)
+            for _, r in s2.iterrows():
+                lu = str(r.get("lineup_player_ids") or "").strip()
+                if not lu:
+                    continue
+                pids = [p.strip() for p in lu.split(";") if p.strip()]
+                if len(pids) < 5:
+                    continue
+                idxs: List[int] = []
+                for pid in pids:
+                    cand = tmp.index[tmp["_espn_id"].astype(str) == str(pid)].tolist()
+                    if cand:
+                        idxs.append(int(cand[0]))
+                idxs_u = list(dict.fromkeys(idxs))
+                if len(idxs_u) == 5:
+                    w = float(r.get("duration_sec") or 0.0)
+                    if w > 0:
+                        lineup_pool.append([int(x) for x in idxs_u])
+                        lineup_w.append(w)
+    except Exception:
+        lineup_pool = []
+        lineup_w = []
+
+    diag["history_rows"] = int(len(st))
+    diag["mapped_players"] = int(mapped_players)
+    diag["mapped_minutes"] = float(mapped_minutes_sum)
+    diag["leftover_minutes"] = float(max(0.0, leftover))
+    diag["lineup_pool_n"] = int(len(lineup_pool))
+
+    diag["applied"] = True
+    diag["sim_minutes_sum"] = float(sim_min.sum())
+    return sim_min.astype(float), (lineup_pool if lineup_pool else None), (np.asarray(lineup_w, dtype=float) if lineup_w else None), diag
+
+
 def _espn_name_to_id_map_for_game(
     date_str: str,
     home_tri: str,
@@ -161,22 +364,97 @@ def _espn_name_to_id_map_for_game(
     """
     if not str(event_id or "").strip() and not str(date_str or "").strip():
         return {}
+
+    def _from_pbp_history(lookback_days: int = 120) -> dict[tuple[str, str], str]:
+        """Local fallback mapping from pbp_espn_history.csv substitution rows.
+
+        This avoids relying on ESPN boxscore being populated pre-game.
+        """
+        try:
+            fp = paths.data_processed / "pbp_espn_history.csv"
+            if not fp.exists():
+                return {}
+            usecols = [
+                "date",
+                "team",
+                "enter_player_id",
+                "exit_player_id",
+                "enter_player_name",
+                "exit_player_name",
+            ]
+            hist = pd.read_csv(fp, usecols=usecols)
+            if hist is None or hist.empty:
+                return {}
+
+            teams = {str(home_tri or "").upper().strip(), str(away_tri or "").upper().strip()}
+            teams = {t for t in teams if t}
+            if teams:
+                hist["team"] = hist["team"].astype(str).str.upper().str.strip()
+                hist = hist[hist["team"].isin(list(teams))].copy()
+            if hist.empty:
+                return {}
+
+            try:
+                cutoff = pd.to_datetime(str(date_str), errors="coerce")
+                if pd.notna(cutoff):
+                    start = cutoff - pd.Timedelta(days=int(lookback_days))
+                    hist["date"] = pd.to_datetime(hist["date"], errors="coerce")
+                    hist = hist[(hist["date"].notna()) & (hist["date"] >= start) & (hist["date"] <= cutoff)].copy()
+            except Exception:
+                pass
+            if hist.empty:
+                return {}
+
+            def _rows(id_col: str, name_col: str) -> pd.DataFrame:
+                try:
+                    df = hist[["team", "date", id_col, name_col]].copy()
+                    df["id"] = df[id_col].map(_clean_id_str)
+                    df["key"] = df[name_col].astype(str).map(_norm_player_key)
+                    df = df[(df["id"].astype(str).str.len() > 0) & (df["key"].astype(str).str.len() > 0)].copy()
+                    df["team"] = df["team"].astype(str).str.upper().str.strip()
+                    df["key"] = df["key"].astype(str).str.upper().str.strip()
+                    return df[["team", "key", "id", "date"]]
+                except Exception:
+                    return pd.DataFrame(columns=["team", "key", "id", "date"])
+
+            a = _rows("enter_player_id", "enter_player_name")
+            b = _rows("exit_player_id", "exit_player_name")
+            combo = pd.concat([a, b], ignore_index=True)
+            if combo.empty:
+                return {}
+
+            try:
+                combo = combo.sort_values(["date"])  # keep last seen
+            except Exception:
+                pass
+            combo = combo.drop_duplicates(subset=["team", "key"], keep="last")
+            out: dict[tuple[str, str], str] = {}
+            for _, r in combo.iterrows():
+                t = str(r.get("team") or "").upper().strip()
+                k = str(r.get("key") or "").upper().strip()
+                pid = _clean_id_str(r.get("id"))
+                if t and k and pid:
+                    out[(t, k)] = pid
+            return out
+        except Exception:
+            return {}
+
     try:
         from ..boxscores import _espn_event_id_for_matchup, _espn_summary, _espn_to_tri  # type: ignore
     except Exception:
-        return {}
+        return _from_pbp_history()
 
     try:
         eid = str(event_id or "").strip() or (
             _espn_event_id_for_matchup(str(date_str), home_tri=str(home_tri), away_tri=str(away_tri)) or ""
         )
         if not eid:
-            return {}
+            return _from_pbp_history()
         summ = _espn_summary(eid)
         box = (summ or {}).get("boxscore") or {}
         teams = box.get("players") or []
         if not isinstance(teams, list) or not teams:
-            return {}
+            return _from_pbp_history()
 
         out: dict[tuple[str, str], str] = {}
         for tp in teams:
@@ -203,9 +481,9 @@ def _espn_name_to_id_map_for_game(
                 if not key:
                     continue
                 out[(str(team_tri).upper().strip(), str(key).upper().strip())] = pid
-        return out
+        return out or _from_pbp_history()
     except Exception:
-        return {}
+        return _from_pbp_history()
 
 
 def _team_players_from_espn_boxscore(
@@ -305,12 +583,35 @@ def _rotation_sim_minutes_for_team(
 
     gid = str(game_id or "").strip()
     if not gid:
-        diag["reason"] = "missing_game_id"
-        return None, None, None, diag
+        # Pregame (or lookup failure): fall back to recent history minutes.
+        sim_min, lineups, lw, diag2 = _rotation_sim_minutes_from_history(
+            team_df=team_df,
+            date_str=date_str,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            team_tri=team_tri,
+        )
+        try:
+            diag2["fallback_reason"] = "missing_game_id"
+        except Exception:
+            pass
+        return sim_min, lineups, lw, diag2
 
     stints = _read_rotation_stints(gid, side=side)
     if stints is None or stints.empty:
-        diag["reason"] = "missing_stints_file"
+        # Pregame: we won't have stints for this future game. Fall back to recent history.
+        sim_min, lineups, lw, diag2 = _rotation_sim_minutes_from_history(
+            team_df=team_df,
+            date_str=date_str,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            team_tri=team_tri,
+            lookback_days=28,
+        )
+        diag.update({k: v for k, v in (diag2 or {}).items() if k not in {"attempted", "team"}})
+        if diag.get("applied"):
+            return sim_min, lineups, lw, diag
+        diag["reason"] = str(diag.get("reason") or "missing_stints_file")
         return None, None, None, diag
 
     eid = ""
@@ -706,6 +1007,17 @@ def simulate_smart_game(
     away_raw = away_raw.reset_index(drop=True) if isinstance(away_raw, pd.DataFrame) else pd.DataFrame()
 
     gid = str(game_id or "").strip() or (_infer_game_id(date_str, home_tri=home_tri, away_tri=away_tri) or "")
+
+    # Best-effort ESPN event id for this matchup (useful for lineup teammate effects even pregame).
+    eid_matchup: Optional[str] = None
+    try:
+        from ..boxscores import _espn_event_id_for_matchup  # type: ignore
+
+        eid_matchup = _espn_event_id_for_matchup(str(date_str), home_tri=str(home_tri), away_tri=str(away_tri))
+        eid_matchup = str(eid_matchup or "").strip() or None
+    except Exception:
+        eid_matchup = None
+
     rot_home_min, home_lineups, home_lineup_w, rot_home_diag = _rotation_sim_minutes_for_team(
         home_raw,
         date_str=date_str,
@@ -733,7 +1045,7 @@ def simulate_smart_game(
     try:
         from .connected_game import _apply_lineup_teammate_effects_to_priors  # type: ignore
 
-        eid = str(rot_home_diag.get("event_id") or rot_away_diag.get("event_id") or "").strip() or None
+        eid = str(eid_matchup or rot_home_diag.get("event_id") or rot_away_diag.get("event_id") or "").strip() or None
         home_players = _apply_lineup_teammate_effects_to_priors(
             home_players,
             team_tri=str(home_tri),
@@ -959,10 +1271,37 @@ def simulate_smart_game(
     margin = home_scores - away_scores
     total = home_scores + away_scores
 
-    def _team_player_summaries(store: Dict[str, Dict[str, List[int]]]) -> List[Dict[str, Any]]:
+    home_name_to_id: dict[str, Any] = {}
+    away_name_to_id: dict[str, Any] = {}
+    try:
+        if "player_id" in home_raw.columns and "player_name" in home_raw.columns:
+            htmp = home_raw[["player_name", "player_id"]].copy()
+            for _, rr in htmp.iterrows():
+                nm = str(rr.get("player_name") or "").strip()
+                pid = rr.get("player_id")
+                if nm and pid is not None and str(pid) != "nan":
+                    home_name_to_id[nm] = pid
+        if "player_id" in away_raw.columns and "player_name" in away_raw.columns:
+            atmp = away_raw[["player_name", "player_id"]].copy()
+            for _, rr in atmp.iterrows():
+                nm = str(rr.get("player_name") or "").strip()
+                pid = rr.get("player_id")
+                if nm and pid is not None and str(pid) != "nan":
+                    away_name_to_id[nm] = pid
+    except Exception:
+        home_name_to_id = {}
+        away_name_to_id = {}
+
+    def _team_player_summaries(store: Dict[str, Dict[str, List[int]]], name_to_id: dict[str, Any]) -> List[Dict[str, Any]]:
         out_rows: List[Dict[str, Any]] = []
         for name, stats in store.items():
             row: Dict[str, Any] = {"player_name": name}
+            try:
+                pid = name_to_id.get(name)
+                if pid is not None and str(pid) != "nan":
+                    row["player_id"] = int(float(pid)) if str(pid).replace(".", "", 1).isdigit() else pid
+            except Exception:
+                pass
             for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
                 arr = np.asarray(stats.get(stat) or [], dtype=float)
                 row[f"{stat}_mean"] = float(np.mean(arr)) if arr.size else float("nan")
@@ -1031,7 +1370,7 @@ def simulate_smart_game(
             "p_total_over": p_total_over,
         },
         "players": {
-            "home": _team_player_summaries(home_store),
-            "away": _team_player_summaries(away_store),
+            "home": _team_player_summaries(home_store, home_name_to_id),
+            "away": _team_player_summaries(away_store, away_name_to_id),
         },
     }

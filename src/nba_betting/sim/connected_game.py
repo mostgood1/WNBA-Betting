@@ -49,20 +49,92 @@ def _espn_name_to_id_map_for_game(
     """
     if not str(event_id or "").strip() and not date_str:
         return {}
+
+    def _from_pbp_history(lookback_days: int = 120) -> dict[tuple[str, str], str]:
+        """Local fallback mapping from pbp_espn_history.csv substitution rows."""
+        try:
+            fp = paths.data_processed / "pbp_espn_history.csv"
+            if not fp.exists():
+                return {}
+            usecols = [
+                "date",
+                "team",
+                "enter_player_id",
+                "exit_player_id",
+                "enter_player_name",
+                "exit_player_name",
+            ]
+            hist = pd.read_csv(fp, usecols=usecols)
+            if hist is None or hist.empty:
+                return {}
+
+            teams = {str(home_tri or "").upper().strip(), str(away_tri or "").upper().strip()}
+            teams = {t for t in teams if t}
+            if teams:
+                hist["team"] = hist["team"].astype(str).str.upper().str.strip()
+                hist = hist[hist["team"].isin(list(teams))].copy()
+            if hist.empty:
+                return {}
+
+            try:
+                cutoff = pd.to_datetime(str(date_str), errors="coerce")
+                if pd.notna(cutoff):
+                    start = cutoff - pd.Timedelta(days=int(lookback_days))
+                    hist["date"] = pd.to_datetime(hist["date"], errors="coerce")
+                    hist = hist[(hist["date"].notna()) & (hist["date"] >= start) & (hist["date"] <= cutoff)].copy()
+            except Exception:
+                pass
+            if hist.empty:
+                return {}
+
+            def _rows(id_col: str, name_col: str) -> pd.DataFrame:
+                try:
+                    df = hist[["team", "date", id_col, name_col]].copy()
+                    df["id"] = df[id_col].map(_clean_id_str)
+                    df["key"] = df[name_col].astype(str).map(_norm_player_key)
+                    df = df[(df["id"].astype(str).str.len() > 0) & (df["key"].astype(str).str.len() > 0)].copy()
+                    df["team"] = df["team"].astype(str).str.upper().str.strip()
+                    df["key"] = df["key"].astype(str).str.upper().str.strip()
+                    return df[["team", "key", "id", "date"]]
+                except Exception:
+                    return pd.DataFrame(columns=["team", "key", "id", "date"])
+
+            a = _rows("enter_player_id", "enter_player_name")
+            b = _rows("exit_player_id", "exit_player_name")
+            combo = pd.concat([a, b], ignore_index=True)
+            if combo.empty:
+                return {}
+
+            try:
+                combo = combo.sort_values(["date"])
+            except Exception:
+                pass
+            combo = combo.drop_duplicates(subset=["team", "key"], keep="last")
+
+            out: dict[tuple[str, str], str] = {}
+            for _, r in combo.iterrows():
+                t = str(r.get("team") or "").upper().strip()
+                k = str(r.get("key") or "").upper().strip()
+                pid = _clean_id_str(r.get("id"))
+                if t and k and pid:
+                    out[(t, k)] = pid
+            return out
+        except Exception:
+            return {}
     try:
         from ..boxscores import _espn_event_id_for_matchup, _espn_summary, _espn_to_tri  # type: ignore
     except Exception:
-        return {}
+        return _from_pbp_history()
 
     try:
         eid = str(event_id or "").strip() or (_espn_event_id_for_matchup(str(date_str), home_tri=str(home_tri), away_tri=str(away_tri)) or "")
         if not eid:
-            return {}
+            return _from_pbp_history()
         summ = _espn_summary(eid)
         box = (summ or {}).get("boxscore") or {}
         teams = box.get("players") or []
         if not isinstance(teams, list) or not teams:
-            return {}
+            return _from_pbp_history()
         out: dict[tuple[str, str], str] = {}
         for tp in teams:
             team = (tp or {}).get("team") or {}
@@ -87,9 +159,9 @@ def _espn_name_to_id_map_for_game(
                 if not key:
                     continue
                 out[(team_tri, key)] = pid
-        return out
+        return out or _from_pbp_history()
     except Exception:
-        return {}
+        return _from_pbp_history()
 
 
 def _load_lineup_context_tables() -> tuple[pd.DataFrame, pd.DataFrame]:

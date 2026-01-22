@@ -2187,8 +2187,14 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                             name = str(r.get("player_name") or "").strip()
                             if not name:
                                 continue
+                            pid = r.get("player_id")
+                            try:
+                                pid = int(pd.to_numeric(pid, errors="coerce")) if pid is not None else None
+                            except Exception:
+                                pid = None
                             sim_rows.append({
                                 "team": team_tri,
+                                "player_id": pid,
                                 "name_key": _norm_name_key(name),
                                 "pred_pts": r.get("pts_mean"),
                                 "pred_reb": r.get("reb_mean"),
@@ -2213,13 +2219,23 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     # Clean + dedupe (keep the highest-minutes-ish estimate by taking max minutes proxy: pts_mean)
                     sim_df["team"] = sim_df["team"].astype(str).str.upper().str.strip()
                     sim_df["name_key"] = sim_df["name_key"].astype(str).str.upper().str.strip()
+                    if "player_id" in sim_df.columns:
+                        sim_df["player_id"] = pd.to_numeric(sim_df["player_id"], errors="coerce")
                     for c in [
                         "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
                         "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
                     ]:
                         if c in sim_df.columns:
                             sim_df[c] = pd.to_numeric(sim_df[c], errors="coerce")
-                    sim_df = sim_df.drop_duplicates(subset=["team","name_key"], keep="last")
+
+                    # Prefer stable player_id for matching when available.
+                    sim_has_pid = "player_id" in sim_df.columns and sim_df["player_id"].notna().any()
+                    if sim_has_pid:
+                        sim_df_pid = sim_df[sim_df["player_id"].notna()].copy()
+                        sim_df_pid = sim_df_pid.drop_duplicates(subset=["player_id"], keep="last")
+                    else:
+                        sim_df_pid = pd.DataFrame()
+                    sim_df_name = sim_df.drop_duplicates(subset=["team","name_key"], keep="last")
 
                     # Merge into preds by team + normalized name.
                     preds = preds.copy()
@@ -2228,7 +2244,46 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     if "player_name" not in preds.columns:
                         preds["player_name"] = None
                     preds["_name_key"] = preds["player_name"].astype(str).map(_norm_name_key)
-                    merged = preds.merge(sim_df, left_on=["team", "_name_key"], right_on=["team", "name_key"], how="left", suffixes=("", "_sim"))
+
+                    # Coverage tracking
+                    merge_report: dict[str, Any] = {
+                        "date": str(date_str),
+                        "smart_sim_files": int(len(sim_files)),
+                        "smart_sim_players": int(len(sim_df_name)),
+                        "matched_by": {"player_id": 0, "team_name": 0},
+                        "pred_rows": int(len(preds)),
+                    }
+
+                    # First merge on player_id when present.
+                    merged = preds
+                    if ("player_id" in merged.columns) and (not sim_df_pid.empty):
+                        merged["player_id"] = pd.to_numeric(merged["player_id"], errors="coerce")
+                        merged = merged.merge(sim_df_pid, on=["player_id"], how="left", suffixes=("", "_sim"))
+                        merge_report["matched_by"]["player_id"] = int(merged["pred_pts_sim"].notna().sum()) if "pred_pts_sim" in merged.columns else int(merged.filter(like="_sim").notna().any(axis=1).sum())
+                    else:
+                        merged = merged.copy()
+
+                    # Fill remaining via team+name_key match.
+                    need_name_match = pd.Series([True] * len(merged), index=merged.index)
+                    if merged.filter(like="_sim").shape[1] > 0:
+                        need_name_match = ~merged.filter(like="_sim").notna().any(axis=1)
+                    if bool(need_name_match.any()):
+                        m2 = merged.loc[need_name_match].merge(sim_df_name, left_on=["team", "_name_key"], right_on=["team", "name_key"], how="left", suffixes=("", "_sim2"))
+                        # Copy sim2 into sim columns where missing
+                        for col in [
+                            "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                            "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
+                        ]:
+                            c2 = f"{col}_sim2"
+                            c1 = f"{col}_sim"
+                            if c2 in m2.columns:
+                                if c1 not in m2.columns:
+                                    m2[c1] = np.nan
+                                m2[c1] = m2[c2].where(m2[c2].notna(), m2[c1])
+                        m2 = m2.drop(columns=[c for c in m2.columns if c.endswith("_sim2")], errors="ignore")
+                        merged.loc[need_name_match, :] = m2.values
+
+                    merge_report["matched_by"]["team_name"] = int(merged.filter(like="_sim").notna().any(axis=1).sum()) - int(merge_report["matched_by"]["player_id"])
 
                     # Replace base predictions when sim is available.
                     for col in [
@@ -2240,9 +2295,44 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                             if col not in merged.columns:
                                 merged[col] = np.nan
                             merged[col] = merged[sim_col].where(merged[sim_col].notna(), merged[col])
+
                     preds = merged.drop(columns=[c for c in merged.columns if c.endswith("_sim") or c in {"_name_key", "name_key"}], errors="ignore")
 
-                    console.print({"smart_sim_players": int(len(sim_df)), "smart_sim_files": int(len(sim_files))})
+                    # Ensure sd_* exist and are sane for downstream edges.
+                    sd_defaults = {
+                        "sd_pts": 7.5,
+                        "sd_reb": 3.0,
+                        "sd_ast": 2.5,
+                        "sd_threes": 1.3,
+                        "sd_pra": 9.0,
+                        "sd_stl": 1.2,
+                        "sd_blk": 1.3,
+                        "sd_tov": 1.5,
+                    }
+                    for c, dflt in sd_defaults.items():
+                        if c not in preds.columns:
+                            preds[c] = np.nan
+                        preds[c] = pd.to_numeric(preds[c], errors="coerce")
+                        bad = preds[c].isna() | (preds[c] <= 0)
+                        if bool(bad.any()):
+                            preds.loc[bad, c] = float(dflt)
+                        # light clamp
+                        preds[c] = preds[c].clip(lower=0.25, upper=float(max(3.0 * dflt, 25.0)))
+
+                    # Write merge report (best effort)
+                    try:
+                        merge_report["sd_coverage_ratio"] = float(
+                            preds[[c for c in sd_defaults.keys() if c in preds.columns]].notna().all(axis=1).mean()
+                        )
+                    except Exception:
+                        merge_report["sd_coverage_ratio"] = None
+                    try:
+                        rp = paths.data_processed / f"smart_sim_merge_report_{date_str}.json"
+                        rp.write_text(_json.dumps(merge_report, indent=2), encoding="utf-8")
+                    except Exception:
+                        pass
+
+                    console.print({"smart_sim_players": int(len(sim_df_name)), "smart_sim_files": int(len(sim_files))})
         except Exception as _e:
             console.print(f"SmartSim integration skipped due to error: {_e}", style="yellow")
 

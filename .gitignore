@@ -46,6 +46,9 @@ data/processed/**
 !data/processed/reliability_props.csv
 !data/processed/reliability_props_summary.json
 !data/processed/reliability_props_summary.md
+# Period lines (quarters/halves) consumed by web/app.js
+!data/processed/period_lines_*.csv
+!data/processed/period_lines_synthetic.csv
 # Season schedule for UI
 !data/processed/schedule_*.json
 # Additional PBP-derived and diagnostics artifacts we want committed
@@ -63,6 +66,10 @@ data/processed/**
 !data/processed/props_eval_compare_*.csv
 !data/processed/props_eval_compare_*.json
 !data/processed/props_eval_compare_*.md
+
+# SmartSim artifacts (used for props derivation + diagnostics)
+!data/processed/smart_sim_*.json
+!data/processed/daily_artifacts_*.json
 
 # Note: exclude PBP-derived predictions/outcomes from git to keep Render pushes light
 # (these are used only for offline backtests/validation and not consumed by the frontend)
