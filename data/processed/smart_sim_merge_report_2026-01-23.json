@@ -1,11 +1,11 @@
 {
   "date": "2026-01-23",
   "smart_sim_files": 8,
-  "smart_sim_players": 262,
+  "smart_sim_players": 200,
   "matched_by": {
-    "player_id": 262,
+    "player_id": 200,
     "team_name": 0
   },
-  "pred_rows": 262,
+  "pred_rows": 200,
   "sd_coverage_ratio": 1.0
 }
