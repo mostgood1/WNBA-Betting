@@ -142,6 +142,10 @@ Import-DotEnv -Path $DotEnvPath
 # Ensure Python writes UTF-8 to stdout/stderr to avoid UnicodeEncodeError on Windows PowerShell consoles
 $env:PYTHONIOENCODING = 'utf-8'
 
+# Avoid benign warnings on stderr (e.g., pandas DtypeWarning) being treated as errors
+# by PowerShell in some environments/tasks.
+$env:PYTHONWARNINGS = 'ignore'
+
 # Reduce noisy ONNXRuntime/CPU info warnings (especially on Windows ARM).
 # Safe to set even if ignored by the runtime.
 $env:ONNXRUNTIME_LOG_SEVERITY_LEVEL = '3'
@@ -1047,7 +1051,10 @@ def _norm_player_name(s: str) -> str:
   for suf in (" JR"," SR"," II"," III"," IV"):
     if t.upper().endswith(suf):
       t = t[: -len(suf)]
-  try: t = t.encode("ascii","ignore").decode("ascii")
+  try:
+    import unicodedata as ud
+    t = ud.normalize("NFKD", t)
+    t = t.encode("ascii","ignore").decode("ascii")
   except Exception: pass
   return t.upper().strip()
 def _short_player_key(s: str) -> str:
@@ -1059,9 +1066,42 @@ def _short_player_key(s: str) -> str:
 if inj_path.exists():
   idf = pd.read_csv(inj_path)
   if not idf.empty and "player" in idf.columns:
+    # Treat injuries_excluded as a per-run snapshot that can include older injury row dates.
+    # Apply a recency window to avoid stale OUT labels persisting forever.
+    cutoff = pd.to_datetime(os.environ.get("SLATE_DATE") or "", errors="coerce")
+    cutoff = cutoff.date() if not pd.isna(cutoff) else None
+    EXC = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
+    def _excluded_status(u: str) -> bool:
+      try:
+        u = str(u or "").upper().strip()
+      except Exception:
+        return False
+      if not u: return False
+      if u in EXC: return True
+      if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+        return True
+      return False
+    try:
+      if "status" in idf.columns:
+        idf = idf[idf["status"].map(_excluded_status)].copy()
+    except Exception:
+      pass
+    try:
+      if cutoff is not None and "date" in idf.columns:
+        idf["date"] = pd.to_datetime(idf["date"], errors="coerce").dt.date
+        idf = idf[idf["date"].notna() & (idf["date"] <= cutoff)].copy()
+        from datetime import timedelta
+        recency_days = 30
+        fresh_cutoff = (cutoff - timedelta(days=int(recency_days)))
+        s_norm = idf.get("status", "").astype(str).str.upper().str.strip()
+        is_season = s_norm.astype(str).str.contains("SEASON", na=False) | s_norm.astype(str).str.contains("INDEFINITE", na=False) | s_norm.astype(str).str.contains("SEASON-ENDING", na=False)
+        idf = idf[(idf["date"] >= fresh_cutoff) | is_season].copy()
+    except Exception:
+      pass
     s = idf["player"].dropna().astype(str)
-    name_keys = set(s.map(_norm_player_name).tolist())
-    short_keys = set(s.map(_short_player_key).tolist())
+    if not s.empty:
+      name_keys = set(s.map(_norm_player_name).tolist())
+      short_keys = set(s.map(_short_player_key).tolist())
 if name_keys or short_keys:
   pdf["_name_key"] = pdf.get("player_name").astype(str).map(_norm_player_name)
   pdf["_short_key"] = pdf.get("player_name").astype(str).map(_short_player_key)
@@ -1073,6 +1113,7 @@ print(f"FILTERED:{before}->{after}")
 '@
   $env:PP = $ppPath
   $env:INJ = $injExclPath
+  $env:SLATE_DATE = $Date
   $tmpPyF = Join-Path $LogPath ("props_predictions_filter_{0}.py" -f $Stamp)
   Set-Content -Path $tmpPyF -Value $pyFilt -Encoding UTF8
   $outFilt = & $Python $tmpPyF 2>&1 | Tee-Object -FilePath $LogFile -Append

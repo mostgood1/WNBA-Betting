@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, Iterable, Optional, Tuple
 
+import unicodedata
+
 import numpy as np
 import pandas as pd
 
@@ -25,6 +27,9 @@ def _norm_player_key(x: Any) -> str:
                 u = u[: -len(suf)].strip()
                 break
         try:
+            # Convert diacritics (e.g., Vučević -> Vucevic) instead of dropping letters.
+            u = unicodedata.normalize("NFKD", u)
+            u = "".join(ch for ch in u if not unicodedata.combining(ch))
             u = u.encode("ascii", "ignore").decode("ascii")
         except Exception:
             pass

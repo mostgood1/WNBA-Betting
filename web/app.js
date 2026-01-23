@@ -362,8 +362,14 @@ async function toggleWriteup(cardId, dateStr, home, away){
   try{
     let payload = state.gameStoryByKey.get(key) || null;
     if (!payload){
-      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=900&alpha=${encodeURIComponent(String(SCORE_BLEND_ALPHA))}`;
-      const r = await fetch(url, { cache: 'no-store' });
+      // Keep this endpoint fast on low-resource hosts (e.g., Render):
+      // - smaller n
+      // - default event_level=0 unless explicitly requested elsewhere
+      const url = `/api/sim/game-story?date=${encodeURIComponent(dateStr)}&home=${encodeURIComponent(home)}&away=${encodeURIComponent(away)}&n=450&alpha=${encodeURIComponent(String(SCORE_BLEND_ALPHA))}&event_level=0`;
+      const controller = new AbortController();
+      const to = setTimeout(() => controller.abort(), 20000);
+      const r = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(to);
       if (!r.ok){
         const txt = await r.text();
         throw new Error(`HTTP ${r.status}: ${txt}`);
@@ -395,6 +401,7 @@ async function toggleWriteup(cardId, dateStr, home, away){
 
     const awayBox = rep?.away_box || null;
     const homeBox = rep?.home_box || null;
+    const injuries = payload?.injuries || null;
     const topN = 8;
     const topRows = (box)=>{
       const rows = Array.isArray(box?.players) ? box.players.slice() : [];
@@ -429,6 +436,23 @@ async function toggleWriteup(cardId, dateStr, home, away){
             </thead>
             <tbody>${rows.map(tr).join('')}</tbody>
           </table>
+        </div>`;
+    };
+
+    const injuryList = (teamTri, rows)=>{
+      const xs = Array.isArray(rows) ? rows.slice() : [];
+      if (!xs.length) return '';
+      const items = xs.slice(0, 16).map(r=>{
+        const nm = escapeHtml(r?.player || '');
+        const st = escapeHtml(r?.status || '');
+        return `<li>${nm}${st ? ` <span class="subtle">(${st})</span>` : ''}</li>`;
+      }).join('');
+      const more = xs.length > 16 ? `<div class="subtle">+${xs.length-16} more…</div>` : '';
+      return `
+        <div class="subtle" style="margin-top:8px;">
+          <div style="font-weight:700; margin-bottom:4px;">Excluded (injury filter) (${escapeHtml(teamTri)})</div>
+          <ul style="margin:0; padding-left:18px;">${items}</ul>
+          ${more}
         </div>`;
     };
 
@@ -514,8 +538,10 @@ async function toggleWriteup(cardId, dateStr, home, away){
       ${meanLine}
       <div class="mt-24"></div>
       ${playerTable(away, awayBox)}
+      ${injuryList(away, injuries?.away)}
       <div class="mb-6"></div>
       ${playerTable(home, homeBox)}
+      ${injuryList(home, injuries?.home)}
       ${playsHtml}
     `;
     content.dataset.loaded = '1';

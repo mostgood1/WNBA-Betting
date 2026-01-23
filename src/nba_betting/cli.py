@@ -1644,6 +1644,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         _SUFFIXES = {"jr","sr","ii","iii","iv","v"}
         def _norm_name_key(s: str) -> str:
             s = (s or "").strip().lower()
+            try:
+                import unicodedata as _ud
+                s = _ud.normalize("NFKD", s)
+                s = s.encode("ascii", "ignore").decode("ascii")
+            except Exception:
+                pass
             s = _re.sub(r"[^a-z0-9\s]", "", s)
             s = _re.sub(r"\s+", " ", s).strip()
             toks = [t for t in s.split(" ") if t and t not in _SUFFIXES]
@@ -1880,6 +1886,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             _SUFFIXES = {"jr", "sr", "ii", "iii", "iv", "v"}
             def _norm_name_key(s: str) -> str:
                 s = (s or "").strip().lower()
+                try:
+                    import unicodedata as _ud
+                    s = _ud.normalize("NFKD", s)
+                    s = s.encode("ascii", "ignore").decode("ascii")
+                except Exception:
+                    pass
                 # remove punctuation
                 s = _re.sub(r"[^a-z0-9\s]", "", s)
                 # collapse whitespace
@@ -1909,6 +1921,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         latest["team_tri"] = latest["team"].astype(str).map(lambda x: _to_tri(str(x)))
                         latest["player_key"] = latest["player"].astype(str).map(_norm_name_key)
                         latest["status_norm"] = latest["status"].astype(str).str.upper()
+                        latest["injury_norm"] = latest.get("injury", "").astype(str).str.upper() if ("injury" in latest.columns) else ""
                         # Exclusion logic: exact statuses plus season-long/indefinite phrasing
                         def _excluded_status(u: str) -> bool:
                             try:
@@ -1920,6 +1933,25 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                             if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
                                 return True
                             return False
+                        # Recency window to avoid stale OUT labels persisting forever when the feed
+                        # isn't updated for return-to-play. Still allow season-long/indefinite outs.
+                        try:
+                            recency_days = 30
+                            d0 = _pd.to_datetime(date_str, errors="coerce")
+                            if not _pd.isna(d0) and ("date" in latest.columns):
+                                latest["_date"] = _pd.to_datetime(latest["date"], errors="coerce").dt.date
+                                latest = latest[latest["_date"].notna()].copy()
+                                fresh_cutoff = (d0 - _pd.Timedelta(days=int(recency_days))).date()
+                                season = latest["status_norm"].astype(str).str.contains("SEASON", na=False) | \
+                                         latest["status_norm"].astype(str).str.contains("INDEFINITE", na=False) | \
+                                         latest["status_norm"].astype(str).str.contains("SEASON-ENDING", na=False)
+                                if isinstance(latest.get("injury_norm"), _pd.Series):
+                                    season = season | latest["injury_norm"].astype(str).str.contains("OUT FOR SEASON", na=False) | \
+                                             latest["injury_norm"].astype(str).str.contains("SEASON-ENDING", na=False) | \
+                                             latest["injury_norm"].astype(str).str.contains("INDEFINITE", na=False)
+                                latest = latest[(latest["_date"] >= fresh_cutoff) | season].copy()
+                        except Exception:
+                            pass
                         day_out = latest[latest["status_norm"].map(_excluded_status)].copy()
             # Manual override per-day file support
             try:
@@ -1929,9 +1961,23 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     if not ovr.empty and {"team","player","status"}.issubset(set(ovr.columns)):
                         ovr = ovr.copy()
                         ovr["team_tri"] = ovr["team"].astype(str).map(lambda x: _to_tri(str(x)))
-                        ovr["player_key"] = ovr["player"].astype(str).str.strip().str.lower()
-                        # Apply same exclusion logic to overrides
-                        ovr_status = ovr["status"].astype(str).str.upper()
+                        ovr["player_key"] = ovr["player"].astype(str).map(_norm_name_key)
+                        ovr_status = ovr["status"].astype(str).str.upper().str.strip()
+                        # Allow-list statuses remove a player from exclusions.
+                        allow = {"IN", "ACTIVE", "AVAILABLE"}
+                        try:
+                            allow_set = set(
+                                (str(r.get("player_key") or ""), str(r.get("team_tri") or ""))
+                                for _, r in ovr[ovr_status.isin(allow)].iterrows()
+                            )
+                            if allow_set and not day_out.empty:
+                                day_out = day_out.copy()
+                                day_out["_team_tri"] = day_out.get("team_tri", "").astype(str)
+                                day_out["_pkey"] = day_out.get("player_key", "").astype(str)
+                                day_out = day_out[~day_out.apply(lambda r: (str(r.get("_pkey")), str(r.get("_team_tri"))) in allow_set, axis=1)].copy()
+                        except Exception:
+                            pass
+                        # Apply exclusion logic to override rows.
                         ovr_mask = ovr_status.isin({"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}) | \
                                    (ovr_status.str.contains("OUT", na=False) & (ovr_status.str.contains("SEASON", na=False) | ovr_status.str.contains("INDEFINITE", na=False))) | \
                                    (ovr_status.str.contains("SEASON-ENDING", na=False))
@@ -1951,7 +1997,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     console.print(f"Filtered OUT players by injuries/overrides: removed {before-len(tmp)} rows", style="yellow")
                 # Persist a small diagnostics file to aid debugging
                 try:
-                    diag_cols = [c for c in ["date","team","team_tri","player","status"] if c in day_out.columns]
+                    diag_cols = [c for c in ["date","team","team_tri","player","status","injury"] if c in day_out.columns]
                     diag = day_out[diag_cols].copy() if diag_cols else day_out.copy()
                     out_diag = paths.data_processed / f"injuries_excluded_{date_str}.csv"
                     diag.to_csv(out_diag, index=False)
@@ -2159,6 +2205,12 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     if "(" in s:
                         s = s.split("(", 1)[0]
                     s = s.replace("-", " ")
+                    try:
+                        import unicodedata as _ud
+                        s = _ud.normalize("NFKD", s)
+                        s = s.encode("ascii", "ignore").decode("ascii")
+                    except Exception:
+                        pass
                     s = _re.sub(r"[^A-Z0-9\s]", "", s)
                     s = _re.sub(r"\s+", " ", s).strip()
                     for suf in (" JR", " SR", " II", " III", " IV"):
@@ -3397,7 +3449,6 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
     import math
     from .config import paths
     from .teams import to_tricode as _tri
-    from .sim_games import SimConfig
     try:
         d = pd.to_datetime(date_str).date()
     except Exception:
@@ -3457,13 +3508,17 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
     def _phi(x: float) -> float:
         return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
 
-    def _p_home_cover_calibrated(pred_margin: float, home_spread: float) -> float | None:
+    def _p_home_cover_from_margin(pred_margin: float, home_spread: float) -> float | None:
         try:
-            cfg = SimConfig()
-            mu_ats = float(cfg.ats_scale) * float(pred_margin) + float(cfg.ats_bias)
+            # Use the model margin directly as the mean of a normal margin distribution.
+            # This keeps ATS picks directionally consistent with the underlying spread/margin
+            # and avoids over-calibration producing sign-flips.
+            mu_ats = float(pred_margin)
             # home covers if margin > -home_spread
             threshold = -float(home_spread)
-            z = (threshold - mu_ats) / max(1e-6, float(cfg.sd_margin_ats))
+            # Typical NBA margin stdev is closer to ~11-13; use 12 as a stable default.
+            sd = 12.0
+            z = (threshold - mu_ats) / max(1e-6, float(sd))
             p = 1.0 - _phi(z)
             return float(min(1.0 - 1e-6, max(1e-6, p)))
         except Exception:
@@ -3554,7 +3609,7 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
                 home_spread_price = _pick_num(r, ["home_spread_price_odds", "home_spread_price"]) or -110.0
                 away_spread_price = _pick_num(r, ["away_spread_price_odds", "away_spread_price"]) or -110.0
 
-                p_home_cover = _p_home_cover_calibrated(pm, hs)
+                p_home_cover = _p_home_cover_from_margin(pm, hs)
                 ev_home = _ev(p_home_cover, home_spread_price) if p_home_cover is not None else None
                 ev_away = _ev((1 - p_home_cover) if p_home_cover is not None else None, away_spread_price)
 

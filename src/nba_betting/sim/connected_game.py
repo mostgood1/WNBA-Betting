@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+import unicodedata
+
 import numpy as np
 import pandas as pd
 
@@ -453,6 +455,9 @@ def _norm_player_key(x: Any) -> str:
                 u = u[: -len(suf)].strip()
                 break
         try:
+            # Convert diacritics (e.g., Vučević -> Vucevic) instead of dropping letters.
+            u = unicodedata.normalize("NFKD", u)
+            u = "".join(ch for ch in u if not unicodedata.combining(ch))
             u = u.encode("ascii", "ignore").decode("ascii")
         except Exception:
             pass
@@ -866,6 +871,19 @@ def simulate_connected_game(
                 # Keep restriction only if it still leaves a plausible rotation.
                 if after >= 7 or (before > 0 and (after / before) >= 0.55):
                     out = filtered
+        except Exception:
+            pass
+
+        # Record basic roster/pool diagnostics (used later for UI warnings).
+        try:
+            roster_keys = [(_norm_player_key(x), _norm_name(x) or str(x)) for x in (roster or []) if _norm_player_key(x)]
+            roster_allowed = set(k for k, _ in roster_keys)
+            pool_keys = set(out["player_name"].map(_norm_player_key).tolist()) if ("player_name" in out.columns and not out.empty) else set()
+            missing = [disp for k, disp in roster_keys if k not in pool_keys]
+            out.attrs["_roster_n"] = int(len(roster_allowed))
+            out.attrs["_pool_n"] = int(len(pool_keys))
+            out.attrs["_roster_missing_n"] = int(len(missing))
+            out.attrs["_roster_missing_sample"] = [str(x) for x in (missing[:12] if missing else [])]
         except Exception:
             pass
 
@@ -2041,6 +2059,22 @@ def simulate_connected_game(
                 totm = float(pd.to_numeric(df.get("_sim_min"), errors="coerce").fillna(0.0).sum())
                 if abs(totm - 240.0) > 0.75:
                     _warn(f"{side}: team minutes not ~240 (got {totm:.1f}).")
+
+        # Roster coverage sanity (helps debug "missing players" complaints)
+        try:
+            for side, players_df in [("home", home_players), ("away", away_players)]:
+                if not isinstance(players_df, pd.DataFrame):
+                    continue
+                attrs = getattr(players_df, "attrs", {}) or {}
+                roster_n = int(attrs.get("_roster_n") or 0)
+                missing_n = int(attrs.get("_roster_missing_n") or 0)
+                if roster_n >= 10 and missing_n >= 5:
+                    samp = attrs.get("_roster_missing_sample") or []
+                    samp_s = ", ".join([str(x) for x in (samp[:6] if isinstance(samp, list) else []) if x])
+                    extra = f" (e.g., {samp_s})" if samp_s else ""
+                    _warn(f"{side}: {missing_n}/{roster_n} roster players excluded from pool{extra}.")
+        except Exception:
+            pass
         # Points invariants
         if home_box and "players" in home_box:
             ps = int(sum(int(p.get("pts") or 0) for p in home_box.get("players") or []))

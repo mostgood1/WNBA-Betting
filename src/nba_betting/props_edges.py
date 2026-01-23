@@ -7,6 +7,8 @@ from pathlib import Path
 from datetime import datetime
 from typing import Dict, Optional, Tuple
 
+import unicodedata
+
 from .config import paths
 # from .props_train import predict_props  # MOVED TO CONDITIONAL - requires sklearn
 from .props_calibration import compute_biases as _compute_biases, apply_biases as _apply_biases
@@ -183,6 +185,9 @@ def _norm_name(s: str) -> str:
         if t.upper().endswith(suf):
             t = t[: -len(suf)]
     try:
+        # Convert diacritics (e.g., Dončić -> Doncic) instead of dropping letters.
+        t = unicodedata.normalize("NFKD", t)
+        t = "".join(ch for ch in t if not unicodedata.combining(ch))
         t = t.encode("ascii", "ignore").decode("ascii")
     except Exception:
         pass

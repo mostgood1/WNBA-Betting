@@ -90,7 +90,10 @@ def _norm_player_name(s: str) -> str:
     for suf in [" JR", " SR", " II", " III", " IV"]:
         if t.upper().endswith(suf):
             t = t[: -len(suf)]
+    # Transliterates diacritics (e.g., Vučević -> Vucevic) instead of dropping letters.
     try:
+        import unicodedata as _ud
+        t = _ud.normalize("NFKD", t)
         t = t.encode("ascii", "ignore").decode("ascii")
     except Exception:
         pass
@@ -121,6 +124,21 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
         from datetime import date as _date
         cutoff = _date.today()
 
+    EXCLUDE_STATUSES = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+
+    def _excluded_status(u: str) -> bool:
+        try:
+            u = str(u).upper().strip()
+        except Exception:
+            return False
+        if not u:
+            return False
+        if u in EXCLUDE_STATUSES:
+            return True
+        if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
+            return True
+        return False
+
     def _add_players_from_df(df: pd.DataFrame, player_col: str = "player") -> None:
         nonlocal name_keys, short_keys
         try:
@@ -144,6 +162,32 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
         proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
         if proc_path.exists():
             df = pd.read_csv(proc_path)
+            # NOTE: the diagnostics file is a per-run snapshot but can include injury rows whose
+            # own timestamps are older than the slate date. Use a recency window to avoid stale
+            # OUT labels persisting forever when the upstream feed isn't updated for RTP.
+            if isinstance(df, pd.DataFrame) and not df.empty and ("date" in df.columns):
+                try:
+                    df["date"] = pd.to_datetime(df["date"], errors="coerce").dt.date
+                    df = df[df["date"].notna() & (df["date"] <= cutoff)].copy()
+                    recency_days = 30
+                    fresh_cutoff = (cutoff - timedelta(days=int(recency_days)))
+                    status_norm = df.get("status", "").astype(str).str.upper().str.strip()
+                    injury_norm = df.get("injury", "").astype(str).str.upper().str.strip() if ("injury" in df.columns) else ""
+                    is_season = (
+                        status_norm.astype(str).str.contains("SEASON", na=False)
+                        | status_norm.astype(str).str.contains("INDEFINITE", na=False)
+                        | status_norm.astype(str).str.contains("SEASON-ENDING", na=False)
+                    )
+                    if isinstance(injury_norm, pd.Series):
+                        is_season = is_season | injury_norm.astype(str).str.contains("OUT FOR SEASON", na=False) | injury_norm.astype(str).str.contains("SEASON-ENDING", na=False) | injury_norm.astype(str).str.contains("INDEFINITE", na=False)
+                    df = df[(df["date"] >= fresh_cutoff) | is_season].copy()
+                except Exception:
+                    pass
+            if isinstance(df, pd.DataFrame) and not df.empty and ("status" in df.columns):
+                try:
+                    df = df[df["status"].map(_excluded_status)].copy()
+                except Exception:
+                    pass
             _add_players_from_df(df, player_col="player")
     except Exception:
         pass
@@ -160,17 +204,22 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
                 df = pd.read_csv(p)
                 # If status column exists, keep only excluded statuses
                 if "status" in df.columns:
-                    EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
-                    def _excluded_status(u: str) -> bool:
-                        try:
-                            u = str(u).upper()
-                        except Exception:
-                            return False
-                        if u in EXCLUDE_STATUSES:
-                            return True
-                        if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
-                            return True
-                        return False
+                    # Allow-list statuses can *remove* a player from the excluded set.
+                    try:
+                        allow_statuses = {"IN", "ACTIVE", "AVAILABLE"}
+                        s_allow = df["status"].astype(str).str.upper().str.strip()
+                        allow_df = df[s_allow.map(lambda u: u in allow_statuses)].copy()
+                        if isinstance(allow_df, pd.DataFrame) and not allow_df.empty:
+                            col = "player" if "player" in allow_df.columns else None
+                            if col:
+                                names = allow_df[col].dropna().astype(str)
+                                if not names.empty:
+                                    rm_nk = set(names.map(_norm_player_name).tolist())
+                                    rm_sk = set(names.map(_short_player_key).tolist())
+                                    name_keys.difference_update({k for k in rm_nk if k})
+                                    short_keys.difference_update({k for k in rm_sk if k})
+                    except Exception:
+                        pass
                     try:
                         df = df[df["status"].map(_excluded_status)]
                     except Exception:
@@ -191,30 +240,266 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
                     inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
                     inj = inj[inj["date"].notna()]
                     inj = inj[inj["date"] <= cutoff].copy()
+                    # Avoid stale "OUT" labels persisting forever (common if the upstream feed
+                    # isn't updated for return-to-play). Keep a short recency window, but still
+                    # allow season-ending/indefinite outs.
+                    try:
+                        recency_days = 30
+                        fresh_cutoff = (cutoff - timedelta(days=int(recency_days)))
+                        inj["status_norm"] = inj.get("status", "").astype(str).str.upper().str.strip()
+                        is_season = inj["status_norm"].astype(str).str.contains("SEASON", na=False) | inj["status_norm"].astype(str).str.contains("INDEFINITE", na=False) | inj["status_norm"].astype(str).str.contains("SEASON-ENDING", na=False)
+                        inj = inj[(inj["date"] >= fresh_cutoff) | is_season].copy()
+                    except Exception:
+                        pass
                 # latest by player (+team if present)
                 sort_cols = [c for c in ["date"] if c in inj.columns]
                 if sort_cols:
                     inj = inj.sort_values(sort_cols)
                 grp_cols = [c for c in ["player","team"] if c in inj.columns] or ["player"]
                 latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
-                latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper()
-                EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
-                def _excluded_status(u: str) -> bool:
-                    try:
-                        u = str(u).upper()
-                    except Exception:
-                        return False
-                    if u in EXCLUDE_STATUSES:
-                        return True
-                    if ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)) or ("SEASON-ENDING" in u):
-                        return True
-                    return False
+                latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper().str.strip()
                 bad = latest[latest["status_norm"].map(_excluded_status)].copy()
                 _add_players_from_df(bad, player_col="player")
     except Exception:
         pass
 
     return name_keys, short_keys
+
+
+def _injury_designations_for_matchup(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    home_roster: Optional[List[str]] = None,
+    away_roster: Optional[List[str]] = None,
+) -> Dict[str, List[Dict[str, Any]]]:
+    """Return injury designation rows for the matchup, aligned to our exclusion logic.
+
+    This is intentionally framed as *injury exclusions* (why players got removed from the connected
+    sim roster) rather than a perfect injury report, because some upstream injury feeds can have
+    incorrect team assignments.
+
+    Output shape (stable for frontend):
+      {"home": [{"player": "...", "status": "...", "source": "..."}, ...],
+       "away": [...]}.
+
+    Approach:
+      1) Build excluded name/short-key sets via _injury_name_sets_for_date(date_str)
+      2) Intersect with each team roster to decide which excluded players belong to this matchup
+      3) For each excluded player, derive a display status from the latest available row across:
+         - data/processed/injuries_excluded_<date>.csv (highest)
+         - data/raw/injuries_overrides_*.csv (high)
+         - data/raw/injuries.csv (fallback)
+         Matching is by normalized player name (ignoring team fields).
+    """
+    try:
+        cutoff = pd.to_datetime(date_str).date()
+    except Exception:
+        cutoff = datetime.utcnow().date()
+
+    htri = str(home_tri or "").strip().upper()
+    atri = str(away_tri or "").strip().upper()
+
+    # Build roster-based team assignment + display names.
+    def _roster_maps(roster: Optional[List[str]]) -> tuple[set[str], Dict[str, str]]:
+        keys: set[str] = set()
+        display: Dict[str, str] = {}
+        for nm in (roster or []):
+            try:
+                s = str(nm).strip()
+            except Exception:
+                continue
+            if not s:
+                continue
+            k = _norm_player_name(s)
+            if not k:
+                continue
+            keys.add(k)
+            # Keep the first seen display name (often best formatted).
+            display.setdefault(k, s)
+        return keys, display
+
+    home_keys, home_display = _roster_maps(home_roster)
+    away_keys, away_display = _roster_maps(away_roster)
+
+    # Exclusion sets (actual logic used elsewhere).
+    try:
+        excluded_name_keys, excluded_short_keys = _injury_name_sets_for_date(str(date_str))
+    except Exception:
+        excluded_name_keys, excluded_short_keys = set(), set()
+
+    def _is_excluded_player(nm: str) -> bool:
+        try:
+            return (_norm_player_name(nm) in excluded_name_keys) or (_short_player_key(nm) in excluded_short_keys)
+        except Exception:
+            return False
+
+    # Dedup store: per side, keep best status per player.
+    # Keyed by normalized name.
+    store: Dict[str, Dict[str, Dict[str, Any]]] = {"home": {}, "away": {}}
+
+    def _status_norm(s: Any) -> str:
+        try:
+            u = str(s or "").strip().upper()
+            if u in {"NAN", "NONE", "NULL"}:
+                return ""
+            return u
+        except Exception:
+            return ""
+
+    def _severity(status_u: str) -> int:
+        u = _status_norm(status_u)
+        if not u:
+            return 0
+        if "SEASON-ENDING" in u or ("OUT" in u and ("SEASON" in u or "INDEFINITE" in u)):
+            return 6
+        if u in {"OUT"}:
+            return 5
+        if u in {"SUSPENDED", "INACTIVE"}:
+            return 4
+        if u in {"DOUBTFUL"}:
+            return 3
+        if u in {"QUESTIONABLE", "REST"}:
+            return 2
+        if u in {"PROBABLE"}:
+            return 1
+        return 1
+
+    def _add(player: Any, status: Any, side: str, source: str) -> None:
+        try:
+            p = str(player or "").strip()
+        except Exception:
+            return
+        if not p:
+            return
+        k = _norm_player_name(p)
+        if not k:
+            return
+
+        s = side
+        if s not in ("home", "away"):
+            return
+
+        st = _status_norm(status)
+        if not st:
+            st = "OUT" if source in ("processed_excluded", "override") else ""
+
+        disp = p
+        if s == "home" and k in home_display:
+            disp = home_display[k]
+        elif s == "away" and k in away_display:
+            disp = away_display[k]
+
+        cur = store[s].get(k)
+        cand = {"player": disp, "status": st, "source": source}
+        if cur is None or _severity(st) > _severity(str(cur.get("status") or "")):
+            store[s][k] = cand
+    # Build a "latest status by player" map per source (ignoring team).
+    status_by_player: Dict[str, Dict[str, str]] = {
+        "processed_excluded": {},
+        "override": {},
+        "raw": {},
+    }
+
+    def _ingest_latest_status(df: pd.DataFrame, source_key: str, recency_days: int | None = None) -> None:
+        try:
+            if not isinstance(df, pd.DataFrame) or df.empty:
+                return
+            if "player" not in df.columns:
+                return
+            if "status" not in df.columns:
+                return
+
+            tmp = df.copy()
+            if "date" in tmp.columns:
+                tmp["date"] = pd.to_datetime(tmp["date"], errors="coerce").dt.date
+                tmp = tmp[tmp["date"].notna()]
+                tmp = tmp[tmp["date"] <= cutoff].copy()
+                tmp = tmp.sort_values("date")
+                if recency_days is not None:
+                    try:
+                        fresh_cutoff = (cutoff - timedelta(days=int(recency_days)))
+                        tmp["_status_norm"] = tmp.get("status", "").astype(str).str.upper().str.strip()
+                        season = tmp["_status_norm"].astype(str).str.contains("SEASON", na=False) | tmp["_status_norm"].astype(str).str.contains("INDEFINITE", na=False) | tmp["_status_norm"].astype(str).str.contains("SEASON-ENDING", na=False)
+                        tmp = tmp[(tmp["date"] >= fresh_cutoff) | season].copy()
+                    except Exception:
+                        pass
+
+            tmp["_nk"] = tmp["player"].astype(str).map(_norm_player_name)
+            tmp["_st"] = tmp["status"].map(_status_norm)
+            tmp = tmp[(tmp["_nk"].astype(str).str.len() > 0) & (tmp["_st"].astype(str).str.len() > 0)].copy()
+            if tmp.empty:
+                return
+
+            latest = tmp.groupby("_nk", as_index=False).tail(1)
+            m = status_by_player.get(source_key)
+            if m is None:
+                return
+            for _, r in latest.iterrows():
+                k = str(r.get("_nk") or "").strip().upper()
+                st = str(r.get("_st") or "").strip().upper()
+                if k and st:
+                    m[k] = st
+        except Exception:
+            return
+
+    # 1) processed_excluded (best when present)
+    try:
+        proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
+        if proc_path.exists():
+            _ingest_latest_status(pd.read_csv(proc_path), "processed_excluded", recency_days=30)
+    except Exception:
+        pass
+
+    # 2) overrides
+    try:
+        raw_dir = BASE_DIR / "data" / "raw"
+        odfs: list[pd.DataFrame] = []
+        for p in sorted(raw_dir.glob("injuries_overrides_*.csv")):
+            try:
+                dstr = p.stem.replace("injuries_overrides_", "")
+                dval = pd.to_datetime(dstr, errors="coerce")
+                if pd.isna(dval) or dval.date() > cutoff:
+                    continue
+                odfs.append(pd.read_csv(p))
+            except Exception:
+                continue
+        if odfs:
+            _ingest_latest_status(pd.concat(odfs, ignore_index=True), "override")
+    except Exception:
+        pass
+
+    # 3) raw injuries.csv (fallback for designation only; team fields are ignored)
+    try:
+        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        if inj_path.exists():
+            _ingest_latest_status(pd.read_csv(inj_path), "raw")
+    except Exception:
+        pass
+
+    def _best_status_for_key(nk: str) -> tuple[str, str]:
+        for src in ("processed_excluded", "override", "raw"):
+            st = status_by_player.get(src, {}).get(nk)
+            if st:
+                return st, src
+        return "OUT", "derived"
+
+    # Build per-side lists: roster players that are excluded by injury filter.
+    for nk, disp in home_display.items():
+        if _is_excluded_player(disp):
+            st, src = _best_status_for_key(nk)
+            _add(disp, st, side="home", source=src)
+    for nk, disp in away_display.items():
+        if _is_excluded_player(disp):
+            st, src = _best_status_for_key(nk)
+            _add(disp, st, side="away", source=src)
+
+    def _finalize(side: str) -> List[Dict[str, Any]]:
+        rows = list((store.get(side) or {}).values())
+        rows.sort(key=lambda x: (-_severity(str(x.get("status") or "")), str(x.get("player") or "")))
+        return rows
+
+    return {"home": _finalize("home"), "away": _finalize("away")}
 
 # --- Opponent allowances and team injury counts (for props explainability) ---
 _OPP_ALLOWED_CACHE: dict[str, dict[str, dict[str, float]]] = {}
@@ -859,6 +1144,10 @@ def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
 
 
 _TEAM_ROSTER_NBA_CACHE: dict[tuple[str, str], list[str]] = {}
+
+
+_GAME_STORY_CACHE: dict[tuple, dict[str, Any]] = {}
+_GAME_STORY_CACHE_TS: dict[tuple, float] = {}
 
 
 def _team_roster_names_via_nba_api(date_str: str, team_tri: str) -> list[str]:
@@ -11758,10 +12047,35 @@ def api_sim_game_story():
 
     event_level = request.args.get("event_level")
     try:
-        event_level_i = int(pd.to_numeric(event_level, errors="coerce")) if event_level not in (None, "") else 1
+        event_level_i = int(pd.to_numeric(event_level, errors="coerce")) if event_level not in (None, "") else 0
     except Exception:
-        event_level_i = 1
+        event_level_i = 0
     use_event_level = bool(int(event_level_i) != 0)
+
+    # Fast path: memoize identical requests to keep Render responsive.
+    # Cache key excludes seed when the seed is derived/stable.
+    try:
+        cache_key = (
+            "game_story",
+            "v5_injury_date_filter",
+            str(d),
+            str(home_tri),
+            str(away_tri),
+            int(n),
+            float(alpha_f),
+            bool(use_lineup_effects),
+            bool(use_event_level),
+            int(seed_i or 0),
+            int(pd.to_numeric(request.args.get("minutes_lookback_days", 21), errors="coerce") or 21),
+            int(pd.to_numeric(request.args.get("player_priors_lookback_days", 45), errors="coerce") or 45),
+        )
+        now_ts = float(time.time())
+        ttl = 6 * 60 * 60
+        ts0 = float(_GAME_STORY_CACHE_TS.get(cache_key) or 0.0)
+        if cache_key in _GAME_STORY_CACHE and (now_ts - ts0) < ttl:
+            return jsonify(_GAME_STORY_CACHE[cache_key])
+    except Exception:
+        cache_key = None
 
     try:
         pred_p = _find_predictions_for_date(d)
@@ -11964,6 +12278,32 @@ def api_sim_game_story():
                     away_roster = a_live
             except Exception:
                 pass
+
+        # Build injury designation lists for UI transparency (before removing out players).
+        try:
+            inj_home_roster = None
+            inj_away_roster = None
+            try:
+                h_live2 = _team_roster_names_via_nba_api(str(d), str(home_tri))
+                if isinstance(h_live2, list) and len(h_live2) >= 10:
+                    inj_home_roster = h_live2
+            except Exception:
+                inj_home_roster = None
+            try:
+                a_live2 = _team_roster_names_via_nba_api(str(d), str(away_tri))
+                if isinstance(a_live2, list) and len(a_live2) >= 10:
+                    inj_away_roster = a_live2
+            except Exception:
+                inj_away_roster = None
+            injuries_payload = _injury_designations_for_matchup(
+                str(d),
+                home_tri=str(home_tri),
+                away_tri=str(away_tri),
+                home_roster=list(inj_home_roster or home_roster),
+                away_roster=list(inj_away_roster or away_roster),
+            )
+        except Exception:
+            injuries_payload = {"home": [], "away": []}
 
         # Remove injured/out players from the connected-sim rotation.
         # We already computed (name_keys, short_keys) for this date.
@@ -12237,6 +12577,7 @@ def api_sim_game_story():
                         try:
                             if not isinstance(plays, list) or not plays:
                                 return []
+                            out: list[dict] = []
                             buckets: dict[tuple[str, str], list[dict]] = {}
                             for p in plays:
                                 if not isinstance(p, dict):
@@ -12246,7 +12587,7 @@ def api_sim_game_story():
                                 if not mk or not sd:
                                     continue
                                 try:
-                                    _ = float(p.get("line"))
+                                    ln = float(p.get("line"))
                                 except Exception:
                                     continue
                                 buckets.setdefault((mk, sd), []).append(p)
@@ -12262,7 +12603,7 @@ def api_sim_game_story():
                                 except Exception:
                                     pass
                                 return -1e18
-                            out: list[dict] = []
+
                             for (mk, sd), ps in buckets.items():
                                 counts: dict[float, int] = {}
                                 for pp in ps:
@@ -12275,7 +12616,7 @@ def api_sim_game_story():
                                     continue
                                 max_n = max(counts.values())
                                 mode_lines = sorted([ln for ln, n in counts.items() if n == max_n])
-                                std_line = mode_lines[len(mode_lines)//2]
+                                std_line = mode_lines[len(mode_lines) // 2]
                                 cand = [pp for pp in ps if (pp.get("line") is not None and float(pp.get("line")) == float(std_line))]
                                 if not cand:
                                     cand = ps
@@ -12323,7 +12664,7 @@ def api_sim_game_story():
         except Exception:
             pass
 
-        return jsonify({
+        payload_out = {
             "date": d,
             "home": home_tri,
             "away": away_tri,
@@ -12336,11 +12677,30 @@ def api_sim_game_story():
                 "final_total_mu": getattr(summary, "final_total_mu", None),
                 "final_margin_mu": getattr(summary, "final_margin_mu", None),
             },
+            "injuries": injuries_payload,
             "game_recommendations": game_recs,
             "props": props_payload,
             "sim": sim,
             "recap": recap,
-        })
+        }
+
+        try:
+            if cache_key is not None:
+                _GAME_STORY_CACHE[cache_key] = payload_out
+                _GAME_STORY_CACHE_TS[cache_key] = float(time.time())
+                # Bound cache size (best-effort)
+                try:
+                    if int(len(_GAME_STORY_CACHE_TS)) > 128:
+                        oldest = sorted(_GAME_STORY_CACHE_TS.items(), key=lambda kv: float(kv[1]))[:32]
+                        for k, _ in oldest:
+                            _GAME_STORY_CACHE_TS.pop(k, None)
+                            _GAME_STORY_CACHE.pop(k, None)
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        return jsonify(payload_out)
     except Exception as e:
         return jsonify({"date": d, "home": home_tri, "away": away_tri, "error": str(e)}), 500
 
