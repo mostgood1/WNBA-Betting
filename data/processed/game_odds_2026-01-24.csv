@@ -1,0 +1,8 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-24,2026-01-25T00:10:00Z,Orlando Magic,Cleveland Cavaliers,-121.83274375674786,121.83274375674785,-2.0,2.0,,,227.5,101.41063625353141,-101.41063625353141,10,10,8,5,oddsapi_consensus
+2026-01-24,2026-01-24T17:10:00Z,Charlotte Hornets,Washington Wizards,-413.1815345390888,413.18153453908855,-11.5,11.5,,,233.5,100.87001919286753,-100.87001919286755,10,10,7,6,oddsapi_consensus
+2026-01-24,2026-01-25T01:10:00Z,Chicago Bulls,Boston Celtics,-106.21172344096755,106.21172344096755,-1.0,1.0,,,230.0,-100.0,-100.0,10,10,6,5,oddsapi_consensus
+2026-01-24,2026-01-25T01:40:00Z,Dallas Mavericks,Los Angeles Lakers,153.37813078444532,-153.37813078444532,4.0,-4.0,,,233.5,-100.0,-100.0,10,10,7,5,oddsapi_consensus
+2026-01-24,2026-01-24T20:10:00Z,Philadelphia 76ers,New York Knicks,-106.4506536070049,106.4506536070049,-1.0,1.0,,,226.5,-101.04493214246024,101.04493214246024,10,10,7,5,oddsapi_consensus
+2026-01-24,2026-01-24T22:40:00Z,Minnesota Timberwolves,Golden State Warriors,-194.5377869383791,194.5377869383791,-6.0,6.0,,,237.5,-100.0,-100.0,10,10,7,8,oddsapi_consensus
+2026-01-24,2026-01-25T02:40:00Z,Utah Jazz,Miami Heat,207.2654930317421,-207.26549303174207,6.0,-6.0,,,246.0,-100.0,-100.0,10,10,6,5,oddsapi_consensus
