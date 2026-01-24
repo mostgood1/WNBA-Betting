@@ -6,7 +6,7 @@
     "player_id": 221,
     "team_name": 0
   },
-  "pred_rows": 221,
-  "dropped_not_in_smartsim_team": 0,
+  "pred_rows": 222,
+  "dropped_not_in_smartsim_team": 1,
   "sd_coverage_ratio": 1.0
 }
