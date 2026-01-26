@@ -1,0 +1,27 @@
+{
+  "date": "2026-01-26",
+  "yesterday": "2026-01-25",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 7,
+  "smart_sim_count": 7,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 7,
+  "rotations_have_games_yesterday": 5,
+  "rotations_missing_game_ids_yesterday": [
+    "0022500651",
+    "0022500652"
+  ],
+  "rotations_excused_no_event_game_ids_yesterday": [
+    "0022500655"
+  ],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "missing": [
+    "rotations_espn stints (5/7)"
+  ],
+  "ok": false
+}
