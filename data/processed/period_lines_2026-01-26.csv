@@ -1,6 +1,6 @@
 date,home_team,visitor_team,h1_total,q1_total,q2_total,q3_total,q4_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_spread,q4_away_spread_price,q4_home_spread_price
-2026-01-26,Cleveland Cavaliers,Orlando Magic,115.0,58.0,57.0,55.5,52.5,-2.5,-115,-105,-1.5,-110,-110,-1.5,-105,-115,-1.5,-105,-115,-1.5,-120,
-2026-01-26,Chicago Bulls,Los Angeles Lakers,120.5,61.0,59.5,58.0,57.0,1.0,-115,-105,0.5,-115,-105,0.5,-110,-110,1.5,-145,125,1.5,115,-135.0
-2026-01-26,Houston Rockets,Memphis Grizzlies,116.0,58.5,57.0,55.0,53.5,-6.0,-115,-105,-3.5,-105,-115,-3.0,-110,-110,-2.5,-115,-105,-2.5,-110,-110.0
-2026-01-26,Boston Celtics,Portland Trail Blazers,116.0,58.5,57.0,56.5,53.5,-4.5,-105,-115,-2.0,-115,-105,-2.0,-115,-105,-1.5,-110,-110,-1.5,-110,-110.0
-2026-01-26,Minnesota Timberwolves,Golden State Warriors,113.0,57.0,55.5,60.5,57.5,-4.0,-115,-105,-2.0,-115,-105,-2.0,-110,-110,-2.5,-110,-110,-1.5,-110,-110.0
+2026-01-26,Cleveland Cavaliers,Orlando Magic,115.0,57.5,57.0,57.0,53.5,-2.5,-115,-105,-1.5,-110,-110,-1.5,-105,-115,-1.5,-105.0,-115.0,-1.5,-120.0,
+2026-01-26,Chicago Bulls,Los Angeles Lakers,120.5,61.0,59.5,58.0,57.0,1.0,-115,-105,0.5,-115,-105,0.5,-110,-110,1.5,-140.0,120.0,1.5,120.0,-140.0
+2026-01-26,Houston Rockets,Memphis Grizzlies,115.5,58.5,57.0,55.0,53.5,-6.0,-115,-105,-3.5,-105,-115,-3.0,-110,-110,-2.5,-115.0,-105.0,-2.5,-115.0,-105.0
+2026-01-26,Boston Celtics,Portland Trail Blazers,116.0,58.5,57.0,56.5,53.5,-4.5,-105,-115,-2.0,-110,-110,-2.0,-115,-105,-1.5,-110.0,-110.0,-1.5,-110.0,-110.0
+2026-01-26,Minnesota Timberwolves,Golden State Warriors,111.5,56.0,55.0,,,-5.5,-105,-115,-3.0,-105,-115,-2.5,-115,-105,,,,,,
