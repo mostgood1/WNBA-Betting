@@ -17,7 +17,9 @@
   "require_odds": true,
   "require_smartsim": true,
   "require_rotations_espn": true,
-  "warnings": [],
+  "warnings": [
+    "minutes_sanity: team BKN top10 minutes sum low (149.7) using roll10_min"
+  ],
   "missing": [],
   "ok": true
 }

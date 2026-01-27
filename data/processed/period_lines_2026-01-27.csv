@@ -1,8 +1,8 @@
-date,home_team,visitor_team,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
-2026-01-27,Washington Wizards,Portland Trail Blazers,119.0,60.5,58.5,4.0,-105,-115,2.0,-105,-115,2.0,-110,-110
-2026-01-27,New York Knicks,Sacramento Kings,118.5,60.0,58.5,-8.0,-110,-110,-4.0,-115,-105,-4.0,-110,-110
-2026-01-27,Philadelphia 76ers,Milwaukee Bucks,112.5,57.0,55.5,-6.0,-110,-110,-3.0,-115,-105,-3.0,-110,-110
-2026-01-27,Oklahoma City Thunder,New Orleans Pelicans,120.0,61.0,59.0,-8.5,-110,-110,-5.0,-105,-115,-4.5,-105,-115
-2026-01-27,Phoenix Suns,Brooklyn Nets,108.5,55.5,53.5,-4.5,-115,-105,-2.5,-105,-115,-2.5,-105,-115
-2026-01-27,Denver Nuggets,Detroit Pistons,111.5,56.0,55.0,3.5,-115,-105,1.5,-105,-115,1.5,-105,-115
-2026-01-27,Utah Jazz,Los Angeles Clippers,113.5,57.5,56.0,4.5,-110,-110,2.5,-115,-105,2.5,-115,-105
+date,home_team,visitor_team,h1_total,q1_total,q2_total,q3_total,q4_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_spread,q3_away_spread_price,q4_spread,q4_home_spread_price,q4_away_spread_price,q3_home_spread_price
+2026-01-27,Washington Wizards,Portland Trail Blazers,119.5,61.0,59.0,57.5,55.0,3.5,-105,-115,2.0,-110,-110,2.0,-115,-105,1.5,-120.0,1.5,-115.0,-105.0,
+2026-01-27,New York Knicks,Sacramento Kings,116.0,59.0,57.0,56.0,53.5,-8.5,-110,-110,-4.5,-110,-110,-4.0,-115,-105,-4.5,-115.0,-2.5,-115.0,-105.0,-105.0
+2026-01-27,Philadelphia 76ers,Milwaukee Bucks,112.5,57.0,55.5,54.5,52.0,-6.0,-110,-110,-3.0,-115,-105,-3.0,-105,-115,-2.5,-105.0,-1.5,-110.0,-110.0,-115.0
+2026-01-27,Oklahoma City Thunder,New Orleans Pelicans,119.5,60.5,59.0,57.5,56.0,-9.0,-105,-115,-5.0,-115,-105,-4.5,-105,-115,-4.5,-115.0,-2.5,-120.0,,-105.0
+2026-01-27,Phoenix Suns,Brooklyn Nets,108.5,55.0,53.5,52.5,49.5,-5.0,-110,-110,-2.5,-110,-110,-2.5,-110,-110,-2.5,-110.0,-1.5,-110.0,-110.0,-110.0
+2026-01-27,Denver Nuggets,Detroit Pistons,111.0,56.0,55.0,53.5,51.5,3.5,-115,-105,1.5,-105,-115,1.5,-105,-115,1.5,-110.0,1.5,-110.0,-110.0,-110.0
+2026-01-27,Utah Jazz,Los Angeles Clippers,113.5,57.5,56.0,61.5,58.5,4.0,-110,-110,2.0,-105,-115,2.0,-110,-110,2.5,-110.0,1.5,-110.0,-110.0,-110.0
