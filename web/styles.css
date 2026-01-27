@@ -7,7 +7,7 @@ header h1 { margin: 0 12px 0 0; font-size: 20px; }
 header .btn, header button { background: #2b5cff; color: white; border: none; padding: 8px 10px; border-radius: 6px; text-decoration: none; }
 header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opacity: 0.9; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
-.cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; padding: 18px 0; }
+.cards { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 18px 0; }
 .card { background: #141b3a; border: 1px solid #1f2a5a; border-radius: 14px; padding: 16px; display: grid; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
 .card.final-all-win { border-color: #1f6a3a; box-shadow: 0 0 0 1px rgba(31,106,58,0.5), 0 2px 10px rgba(0,0,0,0.35); }
 .card.final-all-loss { border-color: #7a1e1e; box-shadow: 0 0 0 1px rgba(122,30,30,0.5), 0 2px 10px rgba(0,0,0,0.35); }
@@ -37,6 +37,11 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .team-line img.logo { height: 36px; width: auto; vertical-align: middle; margin-right: 8px; object-fit: contain; image-rendering: auto; }
 .score-block { display: grid; gap: 2px; justify-items: end; }
 .live-score { font-size: 24px; font-weight: 800; letter-spacing: 0.3px; }
+.sim-scoreline { display: inline-flex; align-items: center; gap: 8px; }
+.sim-scoreline .sim-side { display: inline-flex; align-items: center; gap: 6px; }
+.sim-scoreline .sim-dash { opacity: 0.9; }
+.sim-scoreline .sim-num { font-size: 24px; font-weight: 800; letter-spacing: 0.3px; }
+.sim-scoreline img.logo { height: 22px; width: auto; margin: 0; vertical-align: middle; object-fit: contain; }
 .sub { font-size: 12px; color: #9fb0ff; }
 .proj-score { font-size: 12px; color: #9fb0ff; }
 .row.chips { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: -2px; }
@@ -137,6 +142,12 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .players-block { display: grid; gap: 8px; margin-top: 8px; }
 .players-toggle { color: #cfe0ff; -webkit-user-select: none; user-select: none; }
 .player-boxscore th:first-child, .player-boxscore td:first-child { min-width: 160px; }
+
+.injury-block { background: #0f1530; border: 1px solid #25316a; border-radius: 10px; padding: 8px 10px; }
+.injury-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; margin-bottom: 6px; }
+.injury-lines { display: grid; gap: 4px; }
+.injury-line { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12px; }
+.injury-name { color: #d5dbff; font-weight: 700; }
 
 .player-boxscore .section-row td { background: #141b3a; color: #d5dbff; font-weight: 900; letter-spacing: 0.3px; }
 
