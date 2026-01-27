@@ -9,6 +9,8 @@
   "rotations_dir_exists": true,
   "rotations_expected_games_yesterday": 7,
   "rotations_have_games_yesterday": 5,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 0.7142857142857143,
   "rotations_missing_game_ids_yesterday": [
     "0022500651",
     "0022500652"
@@ -20,8 +22,9 @@
   "require_odds": true,
   "require_smartsim": true,
   "require_rotations_espn": true,
-  "missing": [
-    "rotations_espn stints (5/7)"
+  "warnings": [
+    "rotations_espn stints partial (5/7)"
   ],
-  "ok": false
+  "missing": [],
+  "ok": true
 }
