@@ -1,0 +1,10 @@
+date,home_team,visitor_team,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
+2026-01-28,Indiana Pacers,Chicago Bulls,115.0,58.0,56.5,1.0,-105,-115,0.5,-110,-110,0.5,-110,-110
+2026-01-28,Cleveland Cavaliers,Los Angeles Lakers,121.0,61.5,60.0,-1.5,-110,-110,-0.5,-115,-105,-0.5,-115,-105
+2026-01-28,Boston Celtics,Atlanta Hawks,118.5,60.0,58.5,-3.5,-110,-110,-2.0,-105,-115,-1.5,-115,-105
+2026-01-28,Toronto Raptors,New York Knicks,114.0,58.0,56.0,-1.0,-105,-115,-0.5,-105,-115,-0.5,-105,-115
+2026-01-28,Miami Heat,Orlando Magic,117.5,60.0,58.0,-1.5,-110,-110,-1.0,-105,-115,-1.0,-105,-115
+2026-01-28,Memphis Grizzlies,Charlotte Hornets,112.0,57.0,55.0,1.0,-110,-110,0.5,-110,-110,0.5,-110,-110
+2026-01-28,Dallas Mavericks,Minnesota Timberwolves,111.0,56.5,54.5,3.5,-105,-115,2.0,-115,-105,2.0,-115,-105
+2026-01-28,Utah Jazz,Golden State Warriors,117.0,59.0,57.5,5.5,-110,-110,3.0,-110,-110,2.5,-105,-115
+2026-01-28,Houston Rockets,San Antonio Spurs,113.5,57.0,55.5,-1.5,-110,-110,-0.5,-115,-105,-0.5,-115,-105
