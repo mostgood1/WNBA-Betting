@@ -20,9 +20,8 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
+    "minutes_sanity: team BOS has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team CLE has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team GSW top10 minutes sum low (167.8) using roll10_min",
     "minutes_sanity: team GSW has <5 players at 20+ min (found 4) using roll10_min"
   ],
   "missing": [],
