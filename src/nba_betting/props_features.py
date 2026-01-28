@@ -53,19 +53,42 @@ def _find_col(df: pd.DataFrame, candidates: Iterable[str]) -> str | None:
 def _to_minutes(v) -> float | None:
     if pd.isna(v):
         return np.nan
-    s = str(v)
-    if s.isdigit():
-        return float(s)
+    s = str(v).strip()
+    if not s:
+        return np.nan
+
+    # Handle ISO-ish duration strings like "PT32M48S" or "PT32M48.0S".
+    try:
+        if s.upper().startswith("PT") and "M" in s.upper():
+            import re
+
+            m = re.match(r"^PT\s*(\d+(?:\.\d+)?)\s*M\s*(\d+(?:\.\d+)?)?\s*S?\s*$", s.upper())
+            if m:
+                mm = float(m.group(1))
+                ss = float(m.group(2) or 0.0)
+                out = mm + ss / 60.0
+                return float(out) if np.isfinite(out) else np.nan
+    except Exception:
+        pass
+
+    # Common MM:SS format (seconds sometimes include decimals)
     if ":" in s:
         try:
             mm, ss = s.split(":", 1)
-            return float(int(mm) + int(ss) / 60.0)
+            m = pd.to_numeric(mm, errors="coerce")
+            sec = pd.to_numeric(ss, errors="coerce")
+            if pd.isna(m) or pd.isna(sec):
+                return np.nan
+            out = float(m) + float(sec) / 60.0
+            return float(out) if np.isfinite(out) else np.nan
         except Exception:
             return np.nan
-    try:
-        return float(s)
-    except Exception:
+
+    out = pd.to_numeric(s, errors="coerce")
+    if pd.isna(out):
         return np.nan
+    out_f = float(out)
+    return float(out_f) if np.isfinite(out_f) else np.nan
 
 
 def load_player_logs() -> pd.DataFrame:

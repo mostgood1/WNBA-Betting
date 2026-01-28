@@ -144,17 +144,57 @@ def _player_pct(players: pd.DataFrame, made_pm: str, att_pm: str, default: float
 
 
 def _player_usage_weights(players: pd.DataFrame, col_pm: str, lineup_idx: List[int]) -> np.ndarray:
+    """Return selection weights for the current on-court lineup.
+
+    Key realism guardrail:
+    - We *blend* priors with minutes so missing/zero priors don't collapse usage onto a single player.
+      This was a major cause of "inflated" statlines (one player with nonzero priors getting nearly
+      all shots/assists/rebounds simply because others had 0 priors).
+    """
+    n = int(len(players))
+    if n <= 0:
+        return np.zeros(0, dtype=float)
+
     pm = _safe_series(players, col_pm).to_numpy(dtype=float)
-    w = np.zeros(len(players), dtype=float)
-    for i in lineup_idx:
-        if 0 <= int(i) < len(players):
-            w[int(i)] = max(0.0, float(pm[int(i)]))
-    # If all zeros, fall back to minutes
-    if float(w.sum()) <= 0:
-        mins = _safe_series(players, "_sim_min").to_numpy(dtype=float)
-        for i in lineup_idx:
-            if 0 <= int(i) < len(players):
-                w[int(i)] = max(0.0, float(mins[int(i)]))
+    pm = np.maximum(0.0, np.where(np.isfinite(pm), pm, 0.0))
+    # Compress outliers (robust even if a bad prior slips through).
+    pm = np.log1p(pm)
+
+    mins = _safe_series(players, "_sim_min").to_numpy(dtype=float)
+    mins = np.maximum(0.0, np.where(np.isfinite(mins), mins, 0.0))
+
+    w = np.zeros(n, dtype=float)
+    idx = [int(i) for i in (lineup_idx or []) if 0 <= int(i) < n]
+    if not idx:
+        return w
+
+    pm_line = pm[idx]
+    mins_line = mins[idx]
+
+    # Minutes provide a stable floor so everyone can accrue events.
+    mins_floor = np.maximum(1.0, mins_line)
+    s_m = float(mins_floor.sum())
+    mins_norm = (mins_floor / s_m) if np.isfinite(s_m) and s_m > 0 else np.full(len(idx), 1.0 / len(idx))
+
+    s_p = float(pm_line.sum())
+    if (not np.isfinite(s_p)) or s_p <= 0:
+        probs = mins_norm
+    else:
+        pm_norm = pm_line / s_p
+        # Priors-heavy but never priors-only.
+        pri_weight = 0.75
+        probs = pri_weight * pm_norm + (1.0 - pri_weight) * mins_norm
+
+    probs = np.maximum(0.0, probs)
+    s = float(probs.sum())
+    if not np.isfinite(s) or s <= 0:
+        probs = np.full(len(idx), 1.0 / len(idx))
+    else:
+        probs = probs / s
+
+    # Convert back into weights on the full player index space.
+    for j, i in enumerate(idx):
+        w[int(i)] = float(probs[j])
     return w
 
 
@@ -801,8 +841,20 @@ def simulate_pbp_game_boxscore(
             "pf": np.zeros(n, dtype=int),
         }
 
+    def blank_q(players: pd.DataFrame) -> Dict[str, np.ndarray]:
+        n = int(len(players))
+        # Only track the stats we expose as quarter-level props (keeps output size sane).
+        return {
+            "pts": np.zeros((4, n), dtype=int),
+            "reb": np.zeros((4, n), dtype=int),
+            "ast": np.zeros((4, n), dtype=int),
+            "threes": np.zeros((4, n), dtype=int),
+        }
+
     h = blank(home_players)
     a = blank(away_players)
+    hq = blank_q(home_players)
+    aq = blank_q(away_players)
     events: List[Dict[str, Any]] = []
 
     home_score = 0
@@ -1000,7 +1052,9 @@ def simulate_pbp_game_boxscore(
                     h["fgm"][sh] += 1
                     if shot_is_3:
                         h["fg3m"][sh] += 1
+                        hq["threes"][q - 1, sh] += 1
                     h["pts"][sh] += points_if_make
+                    hq["pts"][q - 1, sh] += int(points_if_make)
                     home_score += points_if_make
 
                     if rng.random() < 0.58:
@@ -1008,6 +1062,7 @@ def simulate_pbp_game_boxscore(
                         aidx = _pick_weighted(rng, list(range(len(home_players))), ast_w)
                         if aidx is not None:
                             h["ast"][int(aidx)] += 1
+                            hq["ast"][q - 1, int(aidx)] += 1
 
                     if foul and rng.random() < 0.32:
                         h["fta"][sh] += 1
@@ -1015,6 +1070,7 @@ def simulate_pbp_game_boxscore(
                         if rng.random() < ftp:
                             h["ftm"][sh] += 1
                             h["pts"][sh] += 1
+                            hq["pts"][q - 1, sh] += 1
                             home_score += 1
                         pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
                         didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
@@ -1030,6 +1086,7 @@ def simulate_pbp_game_boxscore(
                         if made_fts > 0:
                             h["ftm"][sh] += made_fts
                             h["pts"][sh] += made_fts
+                            hq["pts"][q - 1, sh] += int(made_fts)
                             home_score += made_fts
                         pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
                         didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
@@ -1043,11 +1100,13 @@ def simulate_pbp_game_boxscore(
                             ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
                             if ridx is not None:
                                 h["reb"][int(ridx)] += 1
+                                hq["reb"][q - 1, int(ridx)] += 1
                         else:
                             reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
                             ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
                             if ridx is not None:
                                 a["reb"][int(ridx)] += 1
+                                aq["reb"][q - 1, int(ridx)] += 1
                         events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
 
                 if rng.random() < cfg.base_nonshooting_foul_per_poss:
@@ -1084,7 +1143,9 @@ def simulate_pbp_game_boxscore(
                     a["fgm"][sh] += 1
                     if shot_is_3:
                         a["fg3m"][sh] += 1
+                        aq["threes"][q - 1, sh] += 1
                     a["pts"][sh] += points_if_make
+                    aq["pts"][q - 1, sh] += int(points_if_make)
                     away_score += points_if_make
 
                     if rng.random() < 0.58:
@@ -1092,6 +1153,7 @@ def simulate_pbp_game_boxscore(
                         aidx = _pick_weighted(rng, list(range(len(away_players))), ast_w)
                         if aidx is not None:
                             a["ast"][int(aidx)] += 1
+                            aq["ast"][q - 1, int(aidx)] += 1
 
                     if foul and rng.random() < 0.32:
                         a["fta"][sh] += 1
@@ -1099,6 +1161,7 @@ def simulate_pbp_game_boxscore(
                         if rng.random() < ftp:
                             a["ftm"][sh] += 1
                             a["pts"][sh] += 1
+                            aq["pts"][q - 1, sh] += 1
                             away_score += 1
                         pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
                         didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
@@ -1114,6 +1177,7 @@ def simulate_pbp_game_boxscore(
                         if made_fts > 0:
                             a["ftm"][sh] += made_fts
                             a["pts"][sh] += made_fts
+                            aq["pts"][q - 1, sh] += int(made_fts)
                             away_score += made_fts
                         pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
                         didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
@@ -1127,11 +1191,13 @@ def simulate_pbp_game_boxscore(
                             ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
                             if ridx is not None:
                                 a["reb"][int(ridx)] += 1
+                                aq["reb"][q - 1, int(ridx)] += 1
                         else:
                             reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
                             ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
                             if ridx is not None:
                                 h["reb"][int(ridx)] += 1
+                                hq["reb"][q - 1, int(ridx)] += 1
                         events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
 
                 if rng.random() < cfg.base_nonshooting_foul_per_poss:
@@ -1143,7 +1209,7 @@ def simulate_pbp_game_boxscore(
         home_q_pts.append(int(home_score - h_start))
         away_q_pts.append(int(away_score - a_start))
 
-    def finalize(players: pd.DataFrame, agg: Dict[str, np.ndarray]) -> Dict[str, Any]:
+    def finalize(players: pd.DataFrame, agg: Dict[str, np.ndarray], qagg: Dict[str, np.ndarray]) -> Dict[str, Any]:
         out_players: List[Dict[str, Any]] = []
         mins = _safe_series(players, "_sim_min").to_numpy(dtype=float)
         names = [str(x or "").strip() for x in players.get("player_name", pd.Series([""] * len(players)))].copy()
@@ -1153,9 +1219,13 @@ def simulate_pbp_game_boxscore(
                     "player_name": names[i],
                     "min": float(mins[i]) if np.isfinite(mins[i]) else None,
                     "pts": int(agg["pts"][i]),
+                    "q_pts": [int(qagg["pts"][0, i]), int(qagg["pts"][1, i]), int(qagg["pts"][2, i]), int(qagg["pts"][3, i])],
                     "reb": int(agg["reb"][i]),
+                    "q_reb": [int(qagg["reb"][0, i]), int(qagg["reb"][1, i]), int(qagg["reb"][2, i]), int(qagg["reb"][3, i])],
                     "ast": int(agg["ast"][i]),
+                    "q_ast": [int(qagg["ast"][0, i]), int(qagg["ast"][1, i]), int(qagg["ast"][2, i]), int(qagg["ast"][3, i])],
                     "threes": int(agg["fg3m"][i]),
+                    "q_threes": [int(qagg["threes"][0, i]), int(qagg["threes"][1, i]), int(qagg["threes"][2, i]), int(qagg["threes"][3, i])],
                     "fg3a": int(agg["fg3a"][i]),
                     "fg3m": int(agg["fg3m"][i]),
                     "fga": int(agg["fga"][i]),
@@ -1187,8 +1257,8 @@ def simulate_pbp_game_boxscore(
             "team_total_blk": int(sum(int(p.get("blk") or 0) for p in out_players)),
         }
 
-    home_box = finalize(home_players, h)
-    away_box = finalize(away_players, a)
+    home_box = finalize(home_players, h, hq)
+    away_box = finalize(away_players, a, aq)
     home_box["events"] = events[:500]
     away_box["events"] = []
 

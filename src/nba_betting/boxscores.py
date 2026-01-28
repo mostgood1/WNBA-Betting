@@ -162,10 +162,16 @@ def _parse_minutes(x: Any) -> float:
             return 0.0
         if ":" in s:
             mm, ss = s.split(":", 1)
-            m = float(pd.to_numeric(mm, errors="coerce") or 0)
-            sec = float(pd.to_numeric(ss, errors="coerce") or 0)
-            return max(0.0, m + sec / 60.0)
-        return float(pd.to_numeric(s, errors="coerce") or 0)
+            m = pd.to_numeric(mm, errors="coerce")
+            sec = pd.to_numeric(ss, errors="coerce")
+            if pd.isna(m) or pd.isna(sec):
+                return 0.0
+            out = float(m) + float(sec) / 60.0
+            return max(0.0, out) if pd.notna(out) else 0.0
+        v = pd.to_numeric(s, errors="coerce")
+        if pd.isna(v):
+            return 0.0
+        return float(v)
     except Exception:
         return 0.0
 

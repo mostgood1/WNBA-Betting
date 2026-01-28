@@ -58,7 +58,7 @@ def main():
 
     # 4) Warm all recommendations bundle for homepage widgets
     try:
-        u = f"{base}/api/recommendations"
+        u = f"{base}/recommendations?format=json&view=all"
         q = {"date": d, "compact": "1"}
         r = _get(u, params=q)
         results["steps"].append({"step": "recommendations all", "ok": True})

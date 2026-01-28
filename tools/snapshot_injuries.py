@@ -5,10 +5,22 @@ from pathlib import Path
 import json
 import pandas as pd
 import numpy as np
+import re
+import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw"
 PROC = ROOT / "data" / "processed"
+
+# Ensure src/ is importable so we can reuse team normalizers.
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
+
+try:
+    from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+except Exception:
+    _to_tri = None  # type: ignore
 
 EXCLUDE_STATUSES = {"OUT","DOUBTFUL","SUSPENDED","INACTIVE","REST"}
 
@@ -45,6 +57,83 @@ def build_injuries_snapshot(date_str: str) -> tuple[dict, pd.DataFrame]:
     latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
     latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper()
     filt = latest[latest["status_norm"].map(_excluded_status)].copy()
+
+    # Correct team assignments using processed rosters for the season. This prevents
+    # mis-tagged injury rows (e.g., trades/feed glitches) from being attributed to the wrong team.
+    try:
+        if not filt.empty and ("player" in filt.columns):
+            # Determine season roster file
+            d = pd.to_datetime(date_str, errors="coerce")
+            start_year = int(d.year) if (d is not None and not pd.isna(d) and int(d.month) >= 7) else (int(d.year) - 1 if (d is not None and not pd.isna(d)) else None)
+            season = f"{start_year}-{str(start_year+1)[-2:]}" if start_year is not None else None
+            cand = (PROC / f"rosters_{season}.csv") if season else None
+            roster_file = cand if (cand is not None and cand.exists()) else None
+            if roster_file is None:
+                files = list(PROC.glob("rosters_*.csv"))
+                season_files = [f for f in files if "-" in f.stem]
+                if season_files:
+                    season_files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = season_files[0]
+                elif files:
+                    files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = files[0]
+
+            roster_map: dict[str, str] = {}
+            if roster_file is not None and roster_file.exists():
+                rdf = pd.read_csv(roster_file)
+                if rdf is not None and not rdf.empty:
+                    cols = {c.upper(): c for c in rdf.columns}
+                    name_col = cols.get("PLAYER")
+                    tri_col = cols.get("TEAM_ABBREVIATION")
+                    if name_col and tri_col:
+                        def _norm_key(s: str) -> str:
+                            t = (s or "").strip().lower()
+                            try:
+                                import unicodedata as _ud
+                                t = _ud.normalize("NFKD", t)
+                                t = t.encode("ascii", "ignore").decode("ascii")
+                            except Exception:
+                                pass
+                            t = re.sub(r"[^a-z0-9\s]", "", t)
+                            t = re.sub(r"\s+", " ", t).strip()
+                            toks = [x for x in t.split(" ") if x and x not in {"jr", "sr", "ii", "iii", "iv", "v"}]
+                            return " ".join(toks)
+
+                        for _, rr in rdf[[name_col, tri_col]].dropna().iterrows():
+                            try:
+                                pk = _norm_key(str(rr.get(name_col) or ""))
+                                raw_tri = str(rr.get(tri_col) or "").strip().upper()
+                                tri = (str(_to_tri(raw_tri) or raw_tri).strip().upper()) if _to_tri else raw_tri
+                                if pk and tri:
+                                    roster_map[pk] = tri
+                            except Exception:
+                                continue
+
+            if roster_map:
+                def _norm_key_player(s: str) -> str:
+                    t = (s or "").strip().lower()
+                    try:
+                        import unicodedata as _ud
+                        t = _ud.normalize("NFKD", t)
+                        t = t.encode("ascii", "ignore").decode("ascii")
+                    except Exception:
+                        pass
+                    t = re.sub(r"[^a-z0-9\s]", "", t)
+                    t = re.sub(r"\s+", " ", t).strip()
+                    toks = [x for x in t.split(" ") if x and x not in {"jr", "sr", "ii", "iii", "iv", "v"}]
+                    return " ".join(toks)
+
+                # Apply corrections
+                filt = filt.copy()
+                filt["_pkey"] = filt["player"].astype(str).map(_norm_key_player)
+                if "team" in filt.columns:
+                    filt["team"] = filt["team"].astype(str).map(lambda x: (str(_to_tri(str(x)) or "").strip().upper()) if _to_tri else str(x or "").strip().upper())
+                filt["team"] = filt.get("team", "").astype(str)
+                filt["team_roster"] = filt["_pkey"].map(lambda k: roster_map.get(str(k) or ""))
+                filt["team"] = filt.apply(lambda r: (str(r.get("team_roster") or "").strip().upper() or str(r.get("team") or "").strip().upper()), axis=1)
+                filt = filt.drop(columns=["_pkey", "team_roster"], errors="ignore")
+    except Exception:
+        pass
     # Team counts
     if "team" in filt.columns:
         cnt = filt.groupby("team").size()

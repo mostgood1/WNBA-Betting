@@ -263,7 +263,7 @@ def _create_master_data_file(target_date: str, validation_results: Dict) -> Dict
             "games": f"/api/games/{target_date}",
             "props": f"/api/props/{target_date}",
             "edges": f"/api/edges/{target_date}",
-            "recommendations": f"/api/recommendations/{target_date}"
+            "recommendations": f"/recommendations?format=json&view=all&date={target_date}"
         },
         "validation_results": validation_results["validation_results"],
         "errors": validation_results["errors"]

@@ -130,7 +130,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\render_smoke.ps1 -Da
 - Unified recommendations API (compact + regular-priced props):
 
 ```powershell
-Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/api/recommendations/all?date=2026-01-01&compact=1&regular_only=1' | Select-Object -ExpandProperty Content
+Invoke-WebRequest -UseBasicParsing 'http://localhost:5051/recommendations?format=json&view=all&date=2026-01-01&compact=1&regular_only=1' | Select-Object -ExpandProperty Content
 ```
 
 ### Timezone Defaults (USA)

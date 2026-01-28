@@ -82,11 +82,18 @@ def build_features_for_date_pure(date: str, player_logs_path: Path | None = None
         try:
             if pd.isna(v):
                 return 0.0
-            s = str(v)
+            s = str(v).strip()
+            if not s:
+                return 0.0
             if ":" in s:
                 mm, ss = s.split(":", 1)
-                return float(int(mm) + int(ss)/60.0)
-            return float(s)
+                m = pd.to_numeric(mm, errors="coerce")
+                sec = pd.to_numeric(ss, errors="coerce")
+                if pd.isna(m) or pd.isna(sec):
+                    return 0.0
+                return float(m) + float(sec) / 60.0
+            x = pd.to_numeric(s, errors="coerce")
+            return float(x) if pd.notna(x) else 0.0
         except Exception:
             return 0.0
 

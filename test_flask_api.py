@@ -31,8 +31,8 @@ with app.test_client() as client:
         print(f"Error: {r.data.decode('utf-8')[:200]}")
     
     # Test recommendations API
-    print("\n\nTesting /api/recommendations?date=2025-10-17")
-    r2 = client.get('/api/recommendations?date=2025-10-17&spread_edge=1.0&total_edge=1.5')
+    print("\n\nTesting /recommendations?format=json&view=all&date=2025-10-17")
+    r2 = client.get('/recommendations?format=json&view=all&date=2025-10-17&compact=1')
     print(f"Status: {r2.status_code}")
     
     if r2.status_code == 200:

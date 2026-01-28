@@ -540,6 +540,7 @@ def _team_players_from_espn_boxscore(
         )
         if not eid:
             return pd.DataFrame()
+
         summ = _espn_summary(eid)
         box = (summ or {}).get("boxscore") or {}
         teams = box.get("players") or []
@@ -559,28 +560,105 @@ def _team_players_from_espn_boxscore(
             stats_groups = (tp or {}).get("statistics") or []
             if not isinstance(stats_groups, list) or not stats_groups:
                 continue
-            g0 = stats_groups[0] or {}
-            athletes = g0.get("athletes") or []
-            if not isinstance(athletes, list):
-                continue
-            for a in athletes:
-                if not isinstance(a, dict):
+            for g in stats_groups:
+                athletes = (g or {}).get("athletes") or []
+                if not isinstance(athletes, list):
                     continue
-                athlete = a.get("athlete") or {}
-                name = str(athlete.get("displayName") or athlete.get("shortName") or "").strip()
-                if not name:
-                    continue
-                rows.append({
-                    "player_name": name,
-                    "team": team_u,
-                    "opponent": opp_u,
-                    "playing_today": True,
-                })
+                for a in athletes:
+                    if not isinstance(a, dict):
+                        continue
+                    athlete = a.get("athlete") or {}
+                    name = str(athlete.get("displayName") or athlete.get("shortName") or "").strip()
+                    if not name:
+                        continue
+                    rows.append({
+                        "player_name": name,
+                        "team": team_u,
+                        "opponent": opp_u,
+                        "playing_today": True,
+                    })
 
         out = pd.DataFrame(rows)
         if out is None or out.empty:
             return pd.DataFrame()
         out = out.drop_duplicates(subset=["player_name", "team"], keep="last")
+        return out
+    except Exception:
+        return pd.DataFrame()
+
+
+def _team_players_from_processed_boxscores(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    team_tri: str,
+    game_id: Optional[str] = None,
+) -> pd.DataFrame:
+    """Fallback roster builder using processed NBA boxscores.
+
+    This is the most reliable source for historical/completed games and avoids ESPN lookup failures.
+    Returns a minimal DataFrame with [player_name, team, opponent, playing_today].
+    """
+    try:
+        fp = paths.data_processed / f"boxscores_{str(date_str).strip()}.csv"
+        if not fp.exists():
+            return pd.DataFrame()
+        df = pd.read_csv(fp)
+        if df is None or df.empty:
+            return pd.DataFrame()
+        df = df.copy()
+        # Normalize
+        df["TEAM_ABBREVIATION"] = df.get("TEAM_ABBREVIATION", "").astype(str).str.upper().str.strip()
+        df["PLAYER_NAME"] = df.get("PLAYER_NAME", "").astype(str).str.strip()
+        df["game_id"] = pd.to_numeric(df.get("game_id"), errors="coerce")
+
+        home_u = str(home_tri or "").strip().upper()
+        away_u = str(away_tri or "").strip().upper()
+        team_u = str(team_tri or "").strip().upper()
+        opp_u = str(away_u if team_u == home_u else home_u)
+
+        gid = None
+        try:
+            if game_id is not None and str(game_id).strip() and str(game_id).lower() != "nan":
+                gid = int(float(game_id))
+        except Exception:
+            gid = None
+
+        if gid is None:
+            # Infer gid by finding a game_id that contains both teams.
+            g = df[df["TEAM_ABBREVIATION"].isin([home_u, away_u])].dropna(subset=["game_id"]).copy()
+            if not g.empty:
+                by = g.groupby("game_id")["TEAM_ABBREVIATION"].nunique()
+                cand = by[by >= 2].index.tolist()
+                if cand:
+                    gid = int(float(cand[0]))
+
+        if gid is None:
+            return pd.DataFrame()
+
+        tdf = df[(df["game_id"] == gid) & (df["TEAM_ABBREVIATION"] == team_u)].copy()
+        if tdf.empty:
+            return pd.DataFrame()
+
+        # Only keep players who actually appeared (MIN > 0 when present).
+        if "MIN" in tdf.columns:
+            try:
+                tdf["MIN"] = pd.to_numeric(tdf["MIN"], errors="coerce").fillna(0.0)
+                tdf = tdf[tdf["MIN"] > 0].copy()
+            except Exception:
+                pass
+        if tdf.empty:
+            return pd.DataFrame()
+
+        out = pd.DataFrame({
+            "player_name": tdf["PLAYER_NAME"],
+            "team": team_u,
+            "opponent": opp_u,
+            "playing_today": True,
+        })
+        out = out.dropna(subset=["player_name"]).copy()
+        out["player_name"] = out["player_name"].astype(str).str.strip()
+        out = out[out["player_name"].ne("")].drop_duplicates(subset=["player_name", "team"], keep="last")
         return out
     except Exception:
         return pd.DataFrame()
@@ -1099,15 +1177,38 @@ def simulate_smart_game(
     away_raw = _team_players_from_props(props_df, away_tri, home_tri)
 
     # Roster guardrail: SmartSim needs a reasonably-sized player pool.
-    # If props-based pool is missing most of the roster (common when team mapping is incomplete),
-    # augment with ESPN boxscore roster rows and let props rows override on name/team.
-    def _augment_with_espn(team_raw: pd.DataFrame, team_tri: str) -> pd.DataFrame:
+    # If props-based pool is missing most of the roster, augment with:
+    # 1) processed boxscores roster (best for completed games)
+    # 2) ESPN boxscore roster (best-effort pregame / when boxscores missing)
+    # letting props rows override on name/team.
+    def _augment_team_players(team_raw: pd.DataFrame, team_tri: str, gid: Optional[str]) -> pd.DataFrame:
         try:
             base = team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
             if base is None:
                 base = pd.DataFrame()
             if (not base.empty) and (len(base) >= 8):
                 return base
+
+            from_box = _team_players_from_processed_boxscores(
+                date_str=str(date_str),
+                home_tri=str(home_tri),
+                away_tri=str(away_tri),
+                team_tri=str(team_tri),
+                game_id=gid,
+            )
+            if from_box is not None and not from_box.empty:
+                comb = pd.concat([from_box, base], ignore_index=True, sort=False)
+                if "team" in comb.columns:
+                    comb["team"] = comb["team"].astype(str).str.upper().str.strip()
+                if "player_name" in comb.columns:
+                    comb["player_name"] = comb["player_name"].astype(str).str.strip()
+                    comb = comb[comb["player_name"].ne("")].copy()
+                    if "team" in comb.columns:
+                        comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
+                    else:
+                        comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+                return comb
+
             espn = _team_players_from_espn_boxscore(
                 date_str,
                 home_tri=home_tri,
@@ -1131,10 +1232,16 @@ def simulate_smart_game(
         except Exception:
             return team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
 
-    home_raw = _augment_with_espn(home_raw, team_tri=home_tri)
-    away_raw = _augment_with_espn(away_raw, team_tri=away_tri)
+    gid = str(game_id or "").strip() or (_infer_game_id(date_str, home_tri=home_tri, away_tri=away_tri) or "")
 
-    # Final fallback: if still empty, use ESPN boxscore roster.
+    home_raw = _augment_team_players(home_raw, team_tri=home_tri, gid=gid)
+    away_raw = _augment_team_players(away_raw, team_tri=away_tri, gid=gid)
+
+    # Final fallback: if still empty, try processed boxscores then ESPN.
+    if home_raw is None or home_raw.empty:
+        home_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri, game_id=gid)
+    if away_raw is None or away_raw.empty:
+        away_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=away_tri, game_id=gid)
     if home_raw is None or home_raw.empty:
         home_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri)
     if away_raw is None or away_raw.empty:
@@ -1142,8 +1249,6 @@ def simulate_smart_game(
 
     home_raw = home_raw.reset_index(drop=True) if isinstance(home_raw, pd.DataFrame) else pd.DataFrame()
     away_raw = away_raw.reset_index(drop=True) if isinstance(away_raw, pd.DataFrame) else pd.DataFrame()
-
-    gid = str(game_id or "").strip() or (_infer_game_id(date_str, home_tri=home_tri, away_tri=away_tri) or "")
 
     # Best-effort ESPN event id for this matchup (useful for lineup teammate effects even pregame).
     eid_matchup: Optional[str] = None
@@ -1264,7 +1369,16 @@ def simulate_smart_game(
         if spread_line is not None:
             try:
                 out["market_home_spread"] = float(spread_line)
-                out["p_home_cover"] = float(np.mean((margin + float(spread_line)) > 0.0))
+                p_raw = float(np.mean((margin + float(spread_line)) > 0.0))
+                # Optional probability calibration learned from recent smart_sim_quarter_eval.
+                # Applies only when a calibration artifact exists for (date-1).
+                try:
+                    from ..prob_calibration import calibrate_prob  # type: ignore
+
+                    out["p_home_cover_raw"] = p_raw
+                    out["p_home_cover"] = float(calibrate_prob(str(date_str), f"{name}_cover", p_raw))
+                except Exception:
+                    out["p_home_cover"] = p_raw
             except Exception:
                 out["market_home_spread"] = float(spread_line)
                 out["p_home_cover"] = None
@@ -1274,7 +1388,16 @@ def simulate_smart_game(
         if total_line is not None:
             try:
                 out["market_total"] = float(total_line)
-                out["p_total_over"] = float(np.mean(total > float(total_line)))
+                p_raw = float(np.mean(total > float(total_line)))
+                # Optional probability calibration learned from recent smart_sim_quarter_eval.
+                # Applies only when a calibration artifact exists for (date-1).
+                try:
+                    from ..prob_calibration import calibrate_prob  # type: ignore
+
+                    out["p_total_over_raw"] = p_raw
+                    out["p_total_over"] = float(calibrate_prob(str(date_str), f"{name}_over", p_raw))
+                except Exception:
+                    out["p_total_over"] = p_raw
             except Exception:
                 out["market_total"] = float(total_line)
                 out["p_total_over"] = None
@@ -1300,8 +1423,40 @@ def simulate_smart_game(
             if n
         }
 
+    def _blank_player_q_store(names: List[str]) -> Dict[str, Dict[str, List[int]]]:
+        return {
+            n: {
+                "q1_pts": [], "q2_pts": [], "q3_pts": [], "q4_pts": [],
+                "q1_reb": [], "q2_reb": [], "q3_reb": [], "q4_reb": [],
+                "q1_ast": [], "q2_ast": [], "q3_ast": [], "q4_ast": [],
+                "q1_threes": [], "q2_threes": [], "q3_threes": [], "q4_threes": [],
+            }
+            for n in names
+            if n
+        }
+
+    def _blank_player_store_light(names: List[str]) -> Dict[str, Dict[str, List[int]]]:
+        return {n: {"pts": [], "reb": [], "ast": [], "threes": []} for n in names if n}
+
     home_store = _blank_player_store(h_names)
     away_store = _blank_player_store(a_names)
+    home_store_q = _blank_player_q_store(h_names)
+    away_store_q = _blank_player_q_store(a_names)
+
+    scenario_keys = ("close", "medium", "blowout")
+    home_store_s = {k: _blank_player_store_light(h_names) for k in scenario_keys}
+    away_store_s = {k: _blank_player_store_light(a_names) for k in scenario_keys}
+
+    def _scenario_from_margin(m: int) -> str:
+        try:
+            am = abs(int(m))
+        except Exception:
+            am = 0
+        if am <= 6:
+            return "close"
+        if am <= 14:
+            return "medium"
+        return "blowout"
 
     # Quarter score arrays (filled either by quarter-sampling or by PBP sim)
     hq_sims = np.zeros((n_sims, 4), dtype=int)
@@ -1328,17 +1483,85 @@ def simulate_smart_game(
             home_scores[i] = int(np.sum(hq_sims[i, :]))
             away_scores[i] = int(np.sum(aq_sims[i, :]))
 
+            scen = _scenario_from_margin(int(home_scores[i] - away_scores[i]))
+
             for p in (h_box or {}).get("players", []) or []:
                 name = str((p or {}).get("player_name") or "").strip()
                 if name in home_store:
                     for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
                         home_store[name][stat].append(int((p or {}).get(stat) or 0))
 
+                    # Quarter-level props (PBP mode)
+                    try:
+                        qpts = (p or {}).get("q_pts") or [0, 0, 0, 0]
+                        qreb = (p or {}).get("q_reb") or [0, 0, 0, 0]
+                        qast = (p or {}).get("q_ast") or [0, 0, 0, 0]
+                        q3 = (p or {}).get("q_threes") or [0, 0, 0, 0]
+                        home_store_q[name]["q1_pts"].append(int(qpts[0] or 0))
+                        home_store_q[name]["q2_pts"].append(int(qpts[1] or 0))
+                        home_store_q[name]["q3_pts"].append(int(qpts[2] or 0))
+                        home_store_q[name]["q4_pts"].append(int(qpts[3] or 0))
+                        home_store_q[name]["q1_reb"].append(int(qreb[0] or 0))
+                        home_store_q[name]["q2_reb"].append(int(qreb[1] or 0))
+                        home_store_q[name]["q3_reb"].append(int(qreb[2] or 0))
+                        home_store_q[name]["q4_reb"].append(int(qreb[3] or 0))
+                        home_store_q[name]["q1_ast"].append(int(qast[0] or 0))
+                        home_store_q[name]["q2_ast"].append(int(qast[1] or 0))
+                        home_store_q[name]["q3_ast"].append(int(qast[2] or 0))
+                        home_store_q[name]["q4_ast"].append(int(qast[3] or 0))
+                        home_store_q[name]["q1_threes"].append(int(q3[0] or 0))
+                        home_store_q[name]["q2_threes"].append(int(q3[1] or 0))
+                        home_store_q[name]["q3_threes"].append(int(q3[2] or 0))
+                        home_store_q[name]["q4_threes"].append(int(q3[3] or 0))
+                    except Exception:
+                        pass
+
+                    # Scenario-conditioned totals (game script)
+                    try:
+                        home_store_s[scen][name]["pts"].append(int((p or {}).get("pts") or 0))
+                        home_store_s[scen][name]["reb"].append(int((p or {}).get("reb") or 0))
+                        home_store_s[scen][name]["ast"].append(int((p or {}).get("ast") or 0))
+                        home_store_s[scen][name]["threes"].append(int((p or {}).get("threes") or 0))
+                    except Exception:
+                        pass
+
             for p in (a_box or {}).get("players", []) or []:
                 name = str((p or {}).get("player_name") or "").strip()
                 if name in away_store:
                     for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
                         away_store[name][stat].append(int((p or {}).get(stat) or 0))
+
+                    try:
+                        qpts = (p or {}).get("q_pts") or [0, 0, 0, 0]
+                        qreb = (p or {}).get("q_reb") or [0, 0, 0, 0]
+                        qast = (p or {}).get("q_ast") or [0, 0, 0, 0]
+                        q3 = (p or {}).get("q_threes") or [0, 0, 0, 0]
+                        away_store_q[name]["q1_pts"].append(int(qpts[0] or 0))
+                        away_store_q[name]["q2_pts"].append(int(qpts[1] or 0))
+                        away_store_q[name]["q3_pts"].append(int(qpts[2] or 0))
+                        away_store_q[name]["q4_pts"].append(int(qpts[3] or 0))
+                        away_store_q[name]["q1_reb"].append(int(qreb[0] or 0))
+                        away_store_q[name]["q2_reb"].append(int(qreb[1] or 0))
+                        away_store_q[name]["q3_reb"].append(int(qreb[2] or 0))
+                        away_store_q[name]["q4_reb"].append(int(qreb[3] or 0))
+                        away_store_q[name]["q1_ast"].append(int(qast[0] or 0))
+                        away_store_q[name]["q2_ast"].append(int(qast[1] or 0))
+                        away_store_q[name]["q3_ast"].append(int(qast[2] or 0))
+                        away_store_q[name]["q4_ast"].append(int(qast[3] or 0))
+                        away_store_q[name]["q1_threes"].append(int(q3[0] or 0))
+                        away_store_q[name]["q2_threes"].append(int(q3[1] or 0))
+                        away_store_q[name]["q3_threes"].append(int(q3[2] or 0))
+                        away_store_q[name]["q4_threes"].append(int(q3[3] or 0))
+                    except Exception:
+                        pass
+
+                    try:
+                        away_store_s[scen][name]["pts"].append(int((p or {}).get("pts") or 0))
+                        away_store_s[scen][name]["reb"].append(int((p or {}).get("reb") or 0))
+                        away_store_s[scen][name]["ast"].append(int((p or {}).get("ast") or 0))
+                        away_store_s[scen][name]["threes"].append(int((p or {}).get("threes") or 0))
+                    except Exception:
+                        pass
     else:
         # Legacy path: sample quarter totals first and reconcile event stream to match.
         from .quarters import sample_quarter_scores
@@ -1429,7 +1652,12 @@ def simulate_smart_game(
         home_name_to_id = {}
         away_name_to_id = {}
 
-    def _team_player_summaries(store: Dict[str, Dict[str, List[int]]], name_to_id: dict[str, Any]) -> List[Dict[str, Any]]:
+    def _team_player_summaries(
+        store: Dict[str, Dict[str, List[int]]],
+        store_q: Dict[str, Dict[str, List[int]]],
+        store_s: Dict[str, Dict[str, Dict[str, List[int]]]],
+        name_to_id: dict[str, Any],
+    ) -> List[Dict[str, Any]]:
         out_rows: List[Dict[str, Any]] = []
         for name, stats in store.items():
             row: Dict[str, Any] = {"player_name": name}
@@ -1449,6 +1677,59 @@ def simulate_smart_game(
             row["pra_mean"] = float(np.mean(pra)) if pra.size else float("nan")
             row["pra_sd"] = float(np.std(pra)) if pra.size else float("nan")
             row["pra_q"] = _quantiles(pra)
+
+            # Quarter-level summaries (points/rebounds/assists/threes)
+            try:
+                qd = store_q.get(name) or {}
+                row["quarters"] = {
+                    "q1": {
+                        "pts_q": _quantiles(np.asarray(qd.get("q1_pts") or [], dtype=float)),
+                        "reb_q": _quantiles(np.asarray(qd.get("q1_reb") or [], dtype=float)),
+                        "ast_q": _quantiles(np.asarray(qd.get("q1_ast") or [], dtype=float)),
+                        "threes_q": _quantiles(np.asarray(qd.get("q1_threes") or [], dtype=float)),
+                    },
+                    "q2": {
+                        "pts_q": _quantiles(np.asarray(qd.get("q2_pts") or [], dtype=float)),
+                        "reb_q": _quantiles(np.asarray(qd.get("q2_reb") or [], dtype=float)),
+                        "ast_q": _quantiles(np.asarray(qd.get("q2_ast") or [], dtype=float)),
+                        "threes_q": _quantiles(np.asarray(qd.get("q2_threes") or [], dtype=float)),
+                    },
+                    "q3": {
+                        "pts_q": _quantiles(np.asarray(qd.get("q3_pts") or [], dtype=float)),
+                        "reb_q": _quantiles(np.asarray(qd.get("q3_reb") or [], dtype=float)),
+                        "ast_q": _quantiles(np.asarray(qd.get("q3_ast") or [], dtype=float)),
+                        "threes_q": _quantiles(np.asarray(qd.get("q3_threes") or [], dtype=float)),
+                    },
+                    "q4": {
+                        "pts_q": _quantiles(np.asarray(qd.get("q4_pts") or [], dtype=float)),
+                        "reb_q": _quantiles(np.asarray(qd.get("q4_reb") or [], dtype=float)),
+                        "ast_q": _quantiles(np.asarray(qd.get("q4_ast") or [], dtype=float)),
+                        "threes_q": _quantiles(np.asarray(qd.get("q4_threes") or [], dtype=float)),
+                    },
+                }
+            except Exception:
+                pass
+
+            # Scenario-conditioned summaries (game script: close/medium/blowout)
+            try:
+                scen_out: Dict[str, Any] = {}
+                for sk in ("close", "medium", "blowout"):
+                    ss = (store_s.get(sk) or {}).get(name) or {}
+                    arr_pts = np.asarray(ss.get("pts") or [], dtype=float)
+                    arr_reb = np.asarray(ss.get("reb") or [], dtype=float)
+                    arr_ast = np.asarray(ss.get("ast") or [], dtype=float)
+                    arr_thr = np.asarray(ss.get("threes") or [], dtype=float)
+                    scen_out[sk] = {
+                        "n": int(arr_pts.size),
+                        "pts_q": _quantiles(arr_pts),
+                        "reb_q": _quantiles(arr_reb),
+                        "ast_q": _quantiles(arr_ast),
+                        "threes_q": _quantiles(arr_thr),
+                        "pra_q": _quantiles(arr_pts + arr_reb + arr_ast),
+                    }
+                row["scenarios"] = scen_out
+            except Exception:
+                pass
             out_rows.append(row)
         out_rows.sort(key=lambda r: float(r.get("pts_mean") or 0.0), reverse=True)
         return out_rows
@@ -1507,7 +1788,7 @@ def simulate_smart_game(
             "p_total_over": p_total_over,
         },
         "players": {
-            "home": _team_player_summaries(home_store, home_name_to_id),
-            "away": _team_player_summaries(away_store, away_name_to_id),
+            "home": _team_player_summaries(home_store, home_store_q, home_store_s, home_name_to_id),
+            "away": _team_player_summaries(away_store, away_store_q, away_store_s, away_name_to_id),
         },
     }

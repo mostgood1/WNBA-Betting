@@ -1307,6 +1307,129 @@ def simulate_connected_game(
     hp, h_alloc = _allocate_points(home_q, home_players)
     ap, a_alloc = _allocate_points(away_q, away_players)
 
+    def _build_mean_box(
+        team_players: pd.DataFrame,
+        team_total_pts_mu: float,
+        scale_pts_mu: float,
+        alloc_all: Optional[np.ndarray] = None,
+    ) -> Dict[str, Any]:
+        """Build a deterministic, aggregate box score (means) aligned to the simulated scoring environment.
+
+        This is intentionally stable: it avoids grading props against a single 'rep' scenario and
+        prevents extreme, one-sample outliers (e.g., a bench player with 10 assists) from being
+        presented as the typical outcome.
+        """
+        if team_players is None or team_players.empty:
+            return {"players": [], "team_total_pts": float(team_total_pts_mu)}
+
+        tp = team_players.copy()
+        mins = pd.to_numeric(tp.get("_sim_min"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+
+        # Mean points per player: prefer the actual sampled allocations across all sims.
+        # alloc_all shape is (n_samples, n_players, 4 quarters).
+        pts_mu = None
+        try:
+            if alloc_all is not None and isinstance(alloc_all, np.ndarray) and alloc_all.ndim == 3:
+                # Sum quarters then mean across samples.
+                pts_mu = alloc_all.sum(axis=2).mean(axis=0).astype(float)
+        except Exception:
+            pts_mu = None
+
+        # Fallback: deterministic expectation from weights.
+        if pts_mu is None:
+            try:
+                if "_prior_pts_pm" in tp.columns:
+                    pm = pd.to_numeric(tp.get("_prior_pts_pm"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+                    prior_pts = np.maximum(0.0, pm) * np.maximum(0.0, mins)
+                    pred_pts = pd.to_numeric(tp.get("pred_pts"), errors="coerce").fillna(0.0).to_numpy(dtype=float) if "pred_pts" in tp.columns else np.zeros(len(tp), dtype=float)
+                    blend = 0.45
+                    tp["_pts_blend"] = (1.0 - blend) * pred_pts + blend * prior_pts
+                    p_pts = _dirichlet_weights(tp, points_col="_pts_blend")
+                else:
+                    p_pts = _dirichlet_weights(tp)
+            except Exception:
+                p_pts = _dirichlet_weights(tp)
+            pts_mu = float(team_total_pts_mu) * p_pts
+
+        def _prior_expected_team_total(stat: str) -> Optional[float]:
+            k = f"_prior_{stat}_pm"
+            if k not in tp.columns:
+                return None
+            try:
+                pm = pd.to_numeric(tp.get(k), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+                return float(np.sum(np.maximum(0.0, pm) * np.maximum(0.0, mins)))
+            except Exception:
+                return None
+
+        def _team_total_mu_from_pred(col: str, power: float, prior_stat: Optional[str] = None) -> float:
+            try:
+                pred = float(pd.to_numeric(tp.get(col), errors="coerce").fillna(0.0).sum()) if col in tp.columns else 0.0
+            except Exception:
+                pred = 0.0
+            prior_total = _prior_expected_team_total(prior_stat) if prior_stat else None
+            pred_scaled = max(0.0, pred * (float(scale_pts_mu) ** float(power)))
+            prior_scaled = max(0.0, float(prior_total) * (float(scale_pts_mu) ** float(power))) if prior_total is not None else None
+            if prior_scaled is None:
+                lam = pred_scaled
+            elif pred_scaled <= 1e-9:
+                lam = prior_scaled
+            else:
+                lam = 0.55 * pred_scaled + 0.45 * prior_scaled
+            return float(max(0.0, lam))
+
+        def _stat_probs(col: str, prior_stat: Optional[str] = None) -> np.ndarray:
+            base = _weights_from_stat_and_minutes(tp, col)
+            if not prior_stat:
+                return base
+            k = f"_prior_{prior_stat}_pm"
+            if k not in tp.columns:
+                return base
+            try:
+                pm = pd.to_numeric(tp.get(k), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+                prior_tot = np.maximum(0.0, pm) * np.maximum(0.0, mins)
+                s = float(np.sum(prior_tot))
+                if not np.isfinite(s) or s <= 0:
+                    return base
+                prior = prior_tot / s
+                blend = 0.40
+                p = (1.0 - blend) * base + blend * prior
+                p = np.maximum(0.0, p)
+                ss = float(np.sum(p))
+                return p / ss if ss > 0 else base
+            except Exception:
+                return base
+
+        team_reb_mu = _team_total_mu_from_pred("pred_reb", power=0.55, prior_stat="reb")
+        team_ast_mu = _team_total_mu_from_pred("pred_ast", power=0.75, prior_stat="ast")
+        team_3pm_mu = _team_total_mu_from_pred("pred_threes", power=0.75, prior_stat="threes")
+
+        reb_mu = float(team_reb_mu) * _stat_probs("pred_reb", prior_stat="reb")
+        ast_mu = float(team_ast_mu) * _stat_probs("pred_ast", prior_stat="ast")
+        thr_mu = float(team_3pm_mu) * _stat_probs("pred_threes", prior_stat="threes")
+
+        players_out: list[dict[str, Any]] = []
+        for i in range(len(tp)):
+            p = tp.iloc[i]
+            players_out.append(
+                {
+                    "player_name": _norm_name(p.get("player_name")),
+                    "min": float(mins[i]) if np.isfinite(mins[i]) else None,
+                    "pts": float(pts_mu[i]) if i < len(pts_mu) and np.isfinite(pts_mu[i]) else None,
+                    "reb": float(reb_mu[i]) if i < len(reb_mu) and np.isfinite(reb_mu[i]) else None,
+                    "ast": float(ast_mu[i]) if i < len(ast_mu) and np.isfinite(ast_mu[i]) else None,
+                    "threes": float(thr_mu[i]) if i < len(thr_mu) and np.isfinite(thr_mu[i]) else None,
+                }
+            )
+
+        players_out.sort(key=lambda r: ((r.get("min") or 0.0), (r.get("pts") or 0.0)), reverse=True)
+        return {
+            "players": players_out,
+            "team_total_pts": float(team_total_pts_mu),
+            "team_total_reb": float(team_reb_mu),
+            "team_total_ast": float(team_ast_mu),
+            "team_total_threes": float(team_3pm_mu),
+        }
+
     # If we have a target quarter line, build a separate representative quarter scoreline
     # and allocation that exactly matches that target totals (after rounding).
     rep_home_q = None
@@ -2137,6 +2260,20 @@ def simulate_connected_game(
     except Exception:
         pass
 
+    # Aggregate (mean) box score aligned to the simulated scoring environment.
+    try:
+        pred_home_pts = float(pd.to_numeric(hp.get("pred_pts"), errors="coerce").fillna(0.0).sum()) if isinstance(hp, pd.DataFrame) and (not hp.empty) and ("pred_pts" in hp.columns) else 0.0
+        pred_away_pts = float(pd.to_numeric(ap.get("pred_pts"), errors="coerce").fillna(0.0).sum()) if isinstance(ap, pd.DataFrame) and (not ap.empty) and ("pred_pts" in ap.columns) else 0.0
+    except Exception:
+        pred_home_pts = 0.0
+        pred_away_pts = 0.0
+    home_total_mu = float(np.mean(home_final))
+    away_total_mu = float(np.mean(away_final))
+    scale_home_mu = float(home_total_mu / max(1e-6, pred_home_pts)) if pred_home_pts > 0 else 1.0
+    scale_away_mu = float(away_total_mu / max(1e-6, pred_away_pts)) if pred_away_pts > 0 else 1.0
+    mean_home_box = _build_mean_box(hp, team_total_pts_mu=home_total_mu, scale_pts_mu=scale_home_mu, alloc_all=h_alloc)
+    mean_away_box = _build_mean_box(ap, team_total_pts_mu=away_total_mu, scale_pts_mu=scale_away_mu, alloc_all=a_alloc)
+
     return {
         "home": home_tri,
         "away": away_tri,
@@ -2149,10 +2286,12 @@ def simulate_connected_game(
             "away_box": away_box,
         },
         "means": {
-            "home_score": float(np.mean(home_final)),
-            "away_score": float(np.mean(away_final)),
+            "home_score": float(home_total_mu),
+            "away_score": float(away_total_mu),
             "margin": float(np.mean(margin)),
             "quarters": q_mean,
+            "home_box": mean_home_box,
+            "away_box": mean_away_box,
         },
         "diagnostics": diagnostics,
     }
@@ -2255,8 +2394,14 @@ def write_sportswriter_recap(
                 swing_q = int(row.get("q", 0))
             prev = cur
 
-        home_box = (rep.get("home_box") or {}).get("players") or []
-        away_box = (rep.get("away_box") or {}).get("players") or []
+        # Use the same box-score basis as the chosen narrative basis.
+        # If we're narrating means, use means boxes (aggregate), else rep boxes.
+        if use_means:
+            home_box = ((means.get("home_box") if isinstance(means, dict) else None) or {}).get("players") or []
+            away_box = ((means.get("away_box") if isinstance(means, dict) else None) or {}).get("players") or []
+        else:
+            home_box = (rep.get("home_box") or {}).get("players") or []
+            away_box = (rep.get("away_box") or {}).get("players") or []
         top = None
         for p in home_box + away_box:
             try:
@@ -2310,9 +2455,9 @@ def write_sportswriter_recap(
 
         lines = []
         if winner and loser:
-            lines.append(f"{winner} {verb} {loser} {w_score}-{l_score} in a quarter-by-quarter grind.")
+            lines.append(f"Simulated outcome: {winner} {verb} {loser} {w_score}-{l_score} in a quarter-by-quarter grind.")
         else:
-            lines.append(f"{home} and {away} played to a {h}-{a} draw through regulation.")
+            lines.append(f"Simulated outcome: {home} and {away} played to a {h}-{a} draw through regulation.")
         if q1:
             lines.append(
                 f"It started fast: {away} put up {int(round(float(q1.get('away',0) or 0)))} in the first, "

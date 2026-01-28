@@ -1,0 +1,27 @@
+{
+  "datasets": {
+    "predictions": {
+      "home_win_prob": "Model probability that the home team wins (pre-game).",
+      "spread_margin": "Model-predicted margin (home minus away).",
+      "totals": "Model-predicted total points (home + away).",
+      "home_ml": "Best available home moneyline price (American odds) from the odds snapshot.",
+      "away_ml": "Best available away moneyline price (American odds) from the odds snapshot.",
+      "home_spread": "Market spread for the home team (negative means home is favored).",
+      "total": "Market game total (over/under line).",
+      "edge_win": "Model win probability minus implied probability from market odds (when available)."
+    },
+    "recon_games": {
+      "home_pts": "Final points scored by the home team.",
+      "visitor_pts": "Final points scored by the away/visitor team.",
+      "margin_error": "(pred_margin - actual_margin) where margin = home_pts - visitor_pts.",
+      "total_error": "(pred_total - actual_total) where total = home_pts + visitor_pts."
+    },
+    "props_edges": {
+      "model_prob": "Model probability for the recommended side of the prop.",
+      "implied_prob": "Implied probability from the offered price.",
+      "edge": "Model probability minus implied probability.",
+      "ev": "Expected value per 1u stake based on model probability and price.",
+      "stat": "Prop market/stat (pts, reb, ast, threes, pra, etc.)."
+    }
+  }
+}

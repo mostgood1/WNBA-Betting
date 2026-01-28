@@ -86,7 +86,7 @@ foreach ($path in @('/', '/props', '/reconciliation')) {
 
 # Verify recommendations API returns items
 try {
-  $u = "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1"
+  $u = "$BaseUrl/recommendations?format=json&view=all&date=$Date&compact=1&regular_only=1"
   $content = Invoke-WebRequest -UseBasicParsing -Uri $u -TimeoutSec 60 | Select-Object -ExpandProperty Content
   $json = $content | ConvertFrom-Json
   $games = [int]$json.counts.games

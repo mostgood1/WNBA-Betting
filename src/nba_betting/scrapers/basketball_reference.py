@@ -7,6 +7,7 @@ import time
 from typing import Dict, Optional
 import requests
 from bs4 import BeautifulSoup
+from bs4 import Comment
 import pandas as pd
 
 
@@ -47,37 +48,67 @@ class BasketballReferenceScraper:
             - orb_pct: Offensive rebound %
             - ft_rate: Free throws per field goal attempt
         """
-        # Basketball Reference often blocks scrapers
-        # Try with delay and better headers
-        time.sleep(3)  # Be respectful with rate limiting
-        
+        # Basketball Reference often wraps many tables in HTML comments.
+        # This routine attempts to extract the advanced team table even when commented.
+        time.sleep(2)  # be respectful with rate limiting
+
         url = f"{self.BASE_URL}/leagues/NBA_{season}.html"
-        
+
+        def _flatten_cols(frame: pd.DataFrame) -> pd.DataFrame:
+            try:
+                if isinstance(frame.columns, pd.MultiIndex):
+                    frame = frame.copy()
+                    frame.columns = [
+                        " ".join([str(x) for x in tup if str(x) != "nan"]).strip() for tup in frame.columns.to_list()
+                    ]
+                return frame
+            except Exception:
+                return frame
+
+        def _extract_table_html(soup_obj: BeautifulSoup, table_id: str) -> Optional[str]:
+            tbl = soup_obj.find('table', {'id': table_id})
+            if tbl is not None:
+                return str(tbl)
+            # Search inside commented blocks
+            try:
+                for c in soup_obj.find_all(string=lambda t: isinstance(t, Comment)):
+                    if table_id not in c:
+                        continue
+                    try:
+                        cs = BeautifulSoup(c, 'html.parser')
+                        tbl2 = cs.find('table', {'id': table_id})
+                        if tbl2 is not None:
+                            return str(tbl2)
+                    except Exception:
+                        continue
+            except Exception:
+                return None
+            return None
+
         try:
-            response = self.session.get(url, timeout=15)
+            response = self.session.get(url, timeout=20)
             response.raise_for_status()
-            
             soup = BeautifulSoup(response.content, 'html.parser')
-            
-            # Find team stats table
-            table = soup.find('table', {'id': 'per_game-team'})
-            if not table:
-                # Try alternative: return mock data for testing
-                print(f"Warning: Could not fetch from Basketball Reference. Using fallback data.")
+
+            # Prefer advanced-team for Pace/ORtg/DRtg and Four Factors.
+            adv_html = _extract_table_html(soup, 'advanced-team')
+            if not adv_html:
+                # Fall back to four factors table if present
+                adv_html = _extract_table_html(soup, 'four_factors-team')
+
+            if not adv_html:
+                print(f"Warning: Could not locate advanced tables on {url}. Using fallback data.")
                 return self._get_fallback_stats(season)
-            
-            # Parse table into DataFrame
-            df = pd.read_html(str(table))[0]
-            
-            # Get advanced stats table
-            adv_table = soup.find('table', {'id': 'advanced-team'})
-            if adv_table:
-                adv_df = pd.read_html(str(adv_table))[0]
-                df = df.merge(adv_df, on='Team', how='left', suffixes=('', '_adv'))
-            
-            # Clean and standardize team names
+
+            df = pd.read_html(adv_html)[0]
+            df = _flatten_cols(df)
+
+            # Standardize team names and drop non-team rows
             df = self._clean_team_names(df)
-            
+            if 'Team' in df.columns:
+                df = df[df['Team'].astype(str).str.lower().ne('league average')]
+                df = df[df['Team'].astype(str).str.lower().ne('league avg')]
+
             # Select and rename relevant columns
             cols_map = {
                 'Team': 'team',
@@ -89,13 +120,19 @@ class BasketballReferenceScraper:
                 'ORB%': 'orb_pct',
                 'FT/FGA': 'ft_rate',
             }
-            
-            # Keep only columns that exist
             available_cols = {k: v for k, v in cols_map.items() if k in df.columns}
-            df = df[list(available_cols.keys())].rename(columns=available_cols)
-            
-            return df
-            
+            out = df[list(available_cols.keys())].rename(columns=available_cols)
+
+            # Coerce numeric columns
+            for col in ['pace', 'off_rtg', 'def_rtg', 'efg_pct', 'tov_pct', 'orb_pct', 'ft_rate']:
+                if col in out.columns:
+                    out[col] = pd.to_numeric(out[col], errors='coerce')
+
+            out = out.dropna(subset=['team']).copy()
+            out['team'] = out['team'].astype(str).str.strip().str.upper()
+            out = out.drop_duplicates(subset=['team']).reset_index(drop=True)
+            return out
+
         except Exception as e:
             print(f"Error fetching Basketball Reference data: {e}")
             print("Using fallback statistical estimates...")

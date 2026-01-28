@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Cards</title>
-  <link rel="stylesheet" href="/web/styles.css?v=20260117-8" />
+  <link rel="stylesheet" href="/web/styles.css?v=20260127-3" />
 </head>
 <body>
   <header>
@@ -14,102 +14,20 @@
         <label>Date: <input type="date" id="datePicker" /></label>
         <button type="button" id="applyBtn" class="btn">Apply</button>
         <button type="button" id="todayBtn" class="btn">Today</button>
-        <button type="button" id="refreshOddsBtn" class="btn" title="Refresh odds for this date">Refresh Odds</button>
-  <label class="control-label">Show results <input type="checkbox" id="resultsToggle" /></label>
-  <label class="control-label">Hide odds <input type="checkbox" id="hideOdds" /></label>
-  <a class="btn" href="/recommendations">Recommendations</a>
-  <a class="btn" href="/props">Props</a>
-  <a class="btn" href="/props/recommendations">Props Recs</a>
-  <a class="btn" href="/props/reconciliation">Props Recon</a>
-  <a class="btn" href="/reconciliation">Reconciliation</a>
-  <a class="btn" href="/odds-coverage">Odds Coverage</a>
+        <label class="control-label">Show results <input type="checkbox" id="resultsToggle" /></label>
+        <label class="control-label">Hide odds <input type="checkbox" id="hideOdds" /></label>
+        <a class="btn" href="/recommendations">Recommendations</a>
+        <a class="btn" href="/reconciliation">Recs Results</a>
+        <a class="btn" href="/features">Data Features</a>
       </form>
-      <div class="hb-wrap">
-        <div class="hb-dot" id="hbDot" title="Live polling active"></div>
-        <div id="last-sb" class="last-sb" title="Last scoreboard poll (client clock)">—</div>
-      </div>
     </div>
   </header>
   <main>
     <div class="container">
-  <div id="ytdSummary" class="ytd-summary"></div>
-  <div id="note" class="alert hidden"></div>
+      <div id="note" class="alert hidden"></div>
       <div id="cards" class="cards"></div>
     </div>
   </main>
-  <footer>
-    <div class="container footer-meta">
-      <span id="cronMeta">Odds cron: —</span>
-    </div>
-  </footer>
-  <script src="/web/app.js?v=20260117-8"></script>
-  <script>
-    // Persist admin key for refresh endpoint (optional)
-    (function(){
-      const saved = sessionStorage.getItem('ADMIN_KEY') || '';
-      if (!document.getElementById('adminKey')) return;
-      const el = document.getElementById('adminKey');
-      if (saved) el.value = saved;
-      el.addEventListener('change', ()=> sessionStorage.setItem('ADMIN_KEY', el.value || ''));
-    })();
-    // Fetch cron meta and display in footer
-    (async function(){
-      try{
-        const r = await fetch('/api/cron/meta');
-        if (!r.ok) return;
-        const j = await r.json();
-        const el = document.getElementById('cronMeta');
-        if (!el) return;
-        let txt = 'Odds cron: —';
-        const last = j && (j.last_refresh_bovada || null);
-        if (last && last.timestamp){
-          txt = `Odds cron: ${new Date(last.timestamp).toLocaleString()}${last.date?` (date ${last.date})`:''}`;
-        } else if (j && j.fallback_odds_latest && j.fallback_odds_latest.mtime){
-          txt = `Odds file: ${new Date(j.fallback_odds_latest.mtime).toLocaleString()}`;
-        }
-        el.textContent = txt;
-      }catch(_){ /* ignore */ }
-    })();
-    // Load YTD KPI summary cards (Overall/High/Medium/Low) with $ stake and P/L
-    // Make available globally so app.js can refresh after date changes
-    window.updateYtdSummary = async function(untilDate){
-      const root = document.getElementById('ytdSummary'); if(!root) return;
-      try{
-        const until = (untilDate && String(untilDate).length>=10) ? String(untilDate).slice(0,10) : null;
-        const params = new URLSearchParams();
-        params.set('since','2025-10-21');
-        if (until) params.set('until', until);
-        const res = await fetch(`/api/recommendations/summary?${params.toString()}`, {cache:'no-store'});
-        const js = await res.json();
-        if(!js || !js.buckets){ root.innerHTML=''; return; }
-        const tiers = ['Overall','High','Medium','Low'];
-  const frag = document.createDocumentFragment();
-  // Removed YTD label to avoid extra left space before first card
-        tiers.forEach(t=>{
-          const b = js.buckets[t]; if(!b) return;
-          const card = document.createElement('div'); card.className='card ytd-card';
-          const acc = (b.accuracy_pct!=null)? `${b.accuracy_pct}%`:'—';
-          const roi = (b.roi_pct!=null)? `${b.roi_pct}%`:'—';
-          const w=b.wins||0, l=b.losses||0, p=b.pushes||0;
-          const prof = (b.profit_total!=null)? `$${(Number(b.profit_total)*100).toFixed(0)}`: '—';
-          const stake = (b.stake_total!=null)? `$${(Number(b.stake_total)*100).toFixed(0)}`: '—';
-          const picks = b.total||0; const resv=b.resolved||0;
-          card.innerHTML = `<div class="subtle">${t.toUpperCase()}</div>
-            <div class="fw-700" style="font-size:18px; margin-top:6px;">${acc} Accuracy <span class="subtle" style="font-weight:400">${w}W-${l}L${p?'-'+p+'P':''} / ${resv} settled</span></div>
-            <div class="subtle" style="margin-top:6px;">ROI: ${roi}</div>
-            <div class="subtle" style="margin-top:6px;">Stake: ${stake} | P/L: ${prof}</div>
-            <div class="subtle" style="margin-top:6px;">${t==='Overall'?'Total picks':'Picks'}: ${picks}</div>`;
-          frag.appendChild(card);
-        });
-        root.innerHTML=''; root.appendChild(frag);
-      }catch(_){ /* ignore */ }
-    };
-    // Initial load (default to today's local date); app.js will call again with selected date
-    (function(){
-      const today = new Date();
-      const y = today.getFullYear(); const m = String(today.getMonth()+1).padStart(2,'0'); const d = String(today.getDate()).padStart(2,'0');
-      window.updateYtdSummary(`${y}-${m}-${d}`);
-    })();
-  </script>
+  <script src="/web/cards.js?v=20260127-4"></script>
 </body>
 </html>

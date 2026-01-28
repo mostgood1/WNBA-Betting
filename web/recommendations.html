@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>NBA Betting – Recommendations</title>
-  <meta name="description" content="Unified betting recommendations (ML, ATS, TOTAL, First Basket, Early 3s, Props)." />
+  <meta name="description" content="Unified betting recommendations (ML, ATS, TOTAL, Props)." />
   <link rel="icon" href="data:,">
   <link rel="preconnect" href="https://a.espncdn.com">
   <link rel="dns-prefetch" href="https://a.espncdn.com">
@@ -37,7 +37,8 @@
     .ml-8{margin-left:8px}
     .ml-12{margin-left:12px}
     .tar{text-align:right} .mt-1{margin-top:1rem} .mt-4{margin-top:4px} .lh-13{line-height:1.3}
-    .game-card{min-width:320px}
+    /* Game cards: one per row (full width) */
+    .game-card{flex:1 1 100%; width:100%; min-width:100%}
     .table-wrap{overflow-x:auto}
     .summary-note{font-size:12px;color:var(--muted);margin-top:8px}
     /* Sortable table headers */
@@ -53,7 +54,7 @@
 </head>
 <body>
   <div class="container">
-    <div class="nav"><a href="/">Cards</a> | <a href="/recommendations" aria-current="page">Recommendations</a> | <a href="/props">Props</a> | <a href="/props/recommendations">Props Recs</a> | <a href="/reconciliation">Reconciliation</a> | <a href="/odds-coverage">Odds Coverage</a> | <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button></div>
+    <div class="nav"><a href="/">Cards</a> | <a href="/recommendations" aria-current="page">Recommendations</a> | <a href="/reconciliation">Recs Results</a> | <a href="/features">Data Features</a> | <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button></div>
     <h1>NBA Betting – Recommendations</h1>
     <form class="filters" id="filters" onsubmit="event.preventDefault(); loadRecs();">
       <label>Date: <input type="date" id="datePicker" /></label>
@@ -79,7 +80,6 @@
         <label><input type="checkbox" class="prop-mkt" value="pra" /> PRA</label>
       </label>
   <button type="submit">Apply</button>
-  <button type="button" id="reconcileBtn" title="Reconcile this date (populate results)">Reconcile date</button>
       <button type="button" id="resetBtn">Reset</button>
     </form>
   <div class="muted-small banner-small" id="seasonBanner">Season to date</div>
@@ -106,11 +106,7 @@
       <button type="button" id="propsSortApply">Apply</button>
     </form>
     <div id="propsRoot"></div>
-    <h2 class="mt-1">First Basket</h2>
-    <div id="fbRoot"></div>
-    <h2 class="mt-1">Early 3s (first ~3 min)</h2>
-    <div id="thrRoot"></div>
-    <p class="summary-note lh-13">Games sorted by confidence then EV. Edges show model vs market deltas; EV shown only for ML when implied odds & model probs available. Props list top plays by EV%. Theme choice persists locally.</p>
+    <p class="summary-note lh-13">Games + props recommendations for the selected date. Theme choice persists locally.</p>
   </div>
   <script>
     // Global error handler: surface JS exceptions as a visible card to avoid blank page
@@ -212,7 +208,7 @@
       }catch(_){ /* ignore */ }
       // Fetch unified recommendations across categories (compact for explanations + scores)
       const regularOnly = !!(document.getElementById('propsRegularOnly') && document.getElementById('propsRegularOnly').checked);
-      const allUrl = apiUrl(`/api/recommendations/all?date=${encodeURIComponent(date)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
+      const allUrl = apiUrl(`/recommendations?format=json&view=all&date=${encodeURIComponent(date)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
       let allRes;
       let all;
       try{
@@ -252,7 +248,7 @@
             const cand = new Date(start.getTime() - i*24*60*60*1000);
             const y = cand.getFullYear(); const m = String(cand.getMonth()+1).padStart(2,'0'); const d0 = String(cand.getDate()).padStart(2,'0');
             const prev = `${y}-${m}-${d0}`;
-            const url2 = apiUrl(`/api/recommendations/all?date=${encodeURIComponent(prev)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
+            const url2 = apiUrl(`/recommendations?format=json&view=all&date=${encodeURIComponent(prev)}&limit=500&compact=1&regular_only=${regularOnly?1:0}`);
             const r2 = await fetch(url2, {cache:'no-store'});
             if(!r2.ok){ continue; }
             const js2 = await r2.json();
@@ -296,7 +292,7 @@
       root.innerHTML = '';
       try{
         const stats = Array.isArray(propMkts) && propMkts.length ? propMkts.join(',') : 'pts,reb,ast,threes,pra';
-        const url = apiUrl(`/api/recommendations/game-cards?date=${encodeURIComponent(date)}&props_top=3&prop_stats=${encodeURIComponent(stats)}&regular_only=${regularOnly?1:0}&include_recon=1`);
+        const url = apiUrl(`/recommendations?format=json&view=game-cards&date=${encodeURIComponent(date)}&props_top=3&prop_stats=${encodeURIComponent(stats)}&regular_only=${regularOnly?1:0}&include_recon=1`);
         const r = await fetch(url, {cache:'no-store'});
         if(!r.ok){ throw new Error(`HTTP ${r.status}`); }
         const js = await r.json();
@@ -637,7 +633,7 @@
       try{
         const minSp = parseFloat(document.getElementById('minSpread').value)||1.0;
         const minTot = parseFloat(document.getElementById('minTotal').value)||1.5;
-        const res = await fetch(apiUrl(`/api/recommendations/summary?since=${encodeURIComponent(since)}&spread_edge=${encodeURIComponent(minSp)}&total_edge=${encodeURIComponent(minTot)}`), {cache:'no-store'});
+        const res = await fetch(apiUrl(`/recommendations?format=json&view=summary&since=${encodeURIComponent(since)}&spread_edge=${encodeURIComponent(minSp)}&total_edge=${encodeURIComponent(minTot)}`), {cache:'no-store'});
         const js = await res.json();
         if(!js || !js.buckets){ root.innerHTML='<div class="card">No YTD data available.</div>'; return; }
         const tiers=['Overall','High','Medium','Low'];
@@ -839,9 +835,9 @@
           });
         });
       }catch(_){ /* ignore */ }
-    function renderFirstBasket(rows){ const root=document.getElementById('fbRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No first-basket recommendations.</div>'; return; }
+    function renderFirstBasket(rows){ const root=document.getElementById('fbRoot'); if(!root) return; root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No first-basket recommendations.</div>'; return; }
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Player</th><th>Team</th><th>Prob</th><th>Fair</th><th>Rank</th></tr></thead>'; const tb=document.createElement('tbody'); rows.slice(0,10).forEach(r=>{ const prob = (r.prob_first_basket!=null)? (Number(r.prob_first_basket*100).toFixed(1)+'%') : ''; const fair = (r.fair_american!=null)? ((Number(r.fair_american)>0? '+'+Number(r.fair_american): String(Number(r.fair_american)))): ''; const tr=document.createElement('tr'); const game = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): ''; const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const teamHtml = r.team? teamBadge(r.team): ''; tr.innerHTML=`<td>${game}${gidTxt}${timeTxt}</td><td>${r.player_name||''}</td><td>${teamHtml}</td><td class="tar">${prob}</td><td class="tar">${fair}</td><td class="tar">${r.rank||''}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
-    function renderEarlyThrees(rows){ const root=document.getElementById('thrRoot'); root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No early-3s signals.</div>'; return; }
+    function renderEarlyThrees(rows){ const root=document.getElementById('thrRoot'); if(!root) return; root.innerHTML=''; if(!rows.length){ root.innerHTML='<div class="card">No early-3s signals.</div>'; return; }
       const sorted = [...rows].sort((a,b)=>{
         const pa = Number(a.prob_ge_1||0), pb = Number(b.prob_ge_1||0);
         if(pb!==pa) return pb-pa; // prob desc
@@ -849,7 +845,7 @@
         return eb-ea; // expected desc
       });
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const recBtn=document.getElementById('reconcileBtn'); if(recBtn){ recBtn.addEventListener('click', async ()=>{ try{ const d=document.getElementById('datePicker').value || localYMD(); const key = sessionStorage.getItem('ADMIN_KEY') || ''; const headers = key ? {'X-Admin-Key': key} : {}; const r=await fetch(apiUrl(`/api/cron/reconcile-games?date=${encodeURIComponent(d)}`), {method:'GET', headers}); /* ignore body */ }catch(_){ /* ignore */ } finally{ await loadRecs(); } }); } const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
   </script>
 </body>
 </html>

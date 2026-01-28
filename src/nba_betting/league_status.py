@@ -188,6 +188,84 @@ def build_league_status(date_str: str) -> pd.DataFrame:
                         pass
         except Exception:
             pass
+        # Prefer last-known team from player_logs (deterministic, local, and robust).
+        logs_pid_to_tri: dict[int, str] = {}
+        try:
+            from .config import paths as _paths
+            logs_csv = _paths.data_processed / 'player_logs.csv'
+            logs_pq = _paths.data_processed / 'player_logs.parquet'
+            logs = None
+            if logs_csv.exists():
+                logs = pd.read_csv(logs_csv)
+            elif logs_pq.exists():
+                try:
+                    logs = pd.read_parquet(logs_pq)
+                except Exception:
+                    logs = None
+            if isinstance(logs, pd.DataFrame) and not logs.empty:
+                cols = {c.upper(): c for c in logs.columns}
+                pid_c = cols.get('PLAYER_ID')
+                tri_c = cols.get('TEAM_ABBREVIATION')
+                date_c = cols.get('GAME_DATE') or cols.get('DATE')
+                if pid_c and tri_c and date_c:
+                    tmp = logs[[pid_c, tri_c, date_c]].copy()
+                    tmp[pid_c] = pd.to_numeric(tmp[pid_c], errors='coerce')
+                    tmp[tri_c] = tmp[tri_c].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
+                    tmp[date_c] = pd.to_datetime(tmp[date_c], errors='coerce')
+                    cut = pd.to_datetime(date_str, errors='coerce')
+                    if pd.notna(cut):
+                        tmp = tmp[tmp[date_c].notna() & (tmp[date_c] <= cut)]
+                    tmp = tmp.dropna(subset=[pid_c])
+                    tmp = tmp[tmp[tri_c].astype(str).str.len() > 0]
+                    if not tmp.empty:
+                        tmp = tmp.sort_values(date_c)
+                        last = tmp.groupby(pid_c, as_index=False).tail(1)
+                        for _, rr in last.iterrows():
+                            try:
+                                pid = int(rr[pid_c])
+                                tri = str(rr[tri_c]).strip().upper()
+                                if pid and tri:
+                                    logs_pid_to_tri[pid] = tri
+                            except Exception:
+                                continue
+        except Exception:
+            logs_pid_to_tri = {}
+
+        # Prepare a season-appropriate roster map (used to invalidate stale cache entries)
+        roster_pid_to_tri: dict[int, str] = {}
+        try:
+            season = _season_for_date(date_str)
+            proc = paths.data_processed
+            rosters_candidate = proc / f"rosters_{season}.csv"
+            roster_file = rosters_candidate if rosters_candidate.exists() else None
+            if roster_file is None:
+                files = list(proc.glob('rosters_*.csv'))
+                season_files = [f for f in files if '-' in f.stem]
+                if season_files:
+                    season_files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = season_files[0]
+                elif files:
+                    files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = files[0]
+            if roster_file is not None and roster_file.exists():
+                rdf = pd.read_csv(roster_file)
+                if rdf is not None and not rdf.empty:
+                    c = {c.upper(): c for c in rdf.columns}
+                    if {'PLAYER_ID','TEAM_ABBREVIATION'}.issubset(c.keys()):
+                        tmp = rdf[[c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].copy()
+                        tmp[c['PLAYER_ID']] = pd.to_numeric(tmp[c['PLAYER_ID']], errors='coerce')
+                        tmp[c['TEAM_ABBREVIATION']] = tmp[c['TEAM_ABBREVIATION']].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
+                        for _, rr in tmp.dropna().iterrows():
+                            try:
+                                pid = int(rr[c['PLAYER_ID']])
+                                tri = str(rr[c['TEAM_ABBREVIATION']] or '').strip().upper()
+                                if pid and tri:
+                                    roster_pid_to_tri[pid] = tri
+                            except Exception:
+                                continue
+        except Exception:
+            roster_pid_to_tri = {}
+
         # Prepare cache and resolver
         cache_p = paths.data_processed / 'player_team_cache.csv'
         cache = {}
@@ -203,7 +281,23 @@ def build_league_status(date_str: str) -> pd.DataFrame:
             except Exception:
                 pass
         def _resolve(pid: int) -> str | None:
+            # Authoritative: last-known team from logs at/before date
+            try:
+                ltri = logs_pid_to_tri.get(int(pid))
+                if ltri:
+                    cache[pid] = ltri
+                    return ltri
+            except Exception:
+                pass
             if pid in cache:
+                # If roster disagrees, treat roster as authoritative for this date.
+                try:
+                    rtri = roster_pid_to_tri.get(int(pid))
+                    if rtri and rtri != cache.get(pid):
+                        cache[pid] = rtri
+                        return rtri
+                except Exception:
+                    pass
                 return cache[pid]
             try:
                 from nba_api.stats.endpoints import commonplayerinfo as _cpi
@@ -247,12 +341,23 @@ def build_league_status(date_str: str) -> pd.DataFrame:
     if rost is None or rost.empty:
         rost = _fetch_league_rosters_via_nba(date_str)
     if rost.empty:
-        # fallback: latest processed roster file
+        # fallback: season-appropriate processed roster file
         try:
             proc = paths.data_processed
-            files = sorted(proc.glob('rosters_*.csv'))
-            if files:
-                df = pd.read_csv(files[-1])
+            season = _season_for_date(date_str)
+            target = proc / f"rosters_{season}.csv"
+            roster_file = target if target.exists() else None
+            if roster_file is None:
+                files = list(proc.glob('rosters_*.csv'))
+                season_files = [f for f in files if '-' in f.stem]
+                if season_files:
+                    season_files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = season_files[0]
+                elif files:
+                    files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_file = files[0]
+            if roster_file is not None and roster_file.exists():
+                df = pd.read_csv(roster_file)
                 c = {c.upper(): c for c in df.columns}
                 if {'PLAYER','PLAYER_ID'}.issubset(c.keys()):
                     if 'TEAM_ABBREVIATION' not in c:
@@ -353,6 +458,30 @@ def build_league_status(date_str: str) -> pd.DataFrame:
         keep_cols = ['_name_key', 'team', 'status_norm']
         inj_small = inj[[c for c in keep_cols if c in inj.columns]].drop_duplicates()
 
+        # Deterministic: if multiple injury rows exist for same player/team, keep the worst status.
+        # This prevents duplicated league_status rows and unpredictable flips (e.g., OUT vs DAY-TO-DAY).
+        def _sev(s: str) -> int:
+            s = str(s or '').strip().upper()
+            if s in {'OUT','INACTIVE','SUSPENDED','REST'}:
+                return 50
+            if s in {'DOUBTFUL'}:
+                return 40
+            if s in {'QUESTIONABLE'}:
+                return 30
+            if s in {'PROBABLE','DAY-TO-DAY'}:
+                return 20
+            if s in {'ACTIVE'}:
+                return 10
+            return 0
+        try:
+            if {'_name_key','team','status_norm'}.issubset(set(inj_small.columns)):
+                inj_small['_sev'] = inj_small['status_norm'].map(_sev)
+                inj_small['team'] = inj_small['team'].fillna('').astype(str)
+                inj_small = inj_small.sort_values(['_name_key','team','_sev'], ascending=[True, True, False])
+                inj_small = inj_small.drop_duplicates(subset=['_name_key','team'], keep='first').drop(columns=['_sev'], errors='ignore')
+        except Exception:
+            pass
+
         # Prefer team-aware match (prevents cross-team contamination on trades).
         if {'_name_key', 'team', 'status_norm'}.issubset(set(inj_small.columns)):
             out = out.merge(inj_small, on=['_name_key', 'team'], how='left')
@@ -376,9 +505,21 @@ def build_league_status(date_str: str) -> pd.DataFrame:
                     tmp['team'] = tmp['team'].fillna('').astype(str).str.upper().str.strip()
                     tmp = tmp[tmp['team'].astype(str).str.len() == 0]
                     if not tmp.empty:
-                        inj_name_only = tmp[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
+                        # Keep worst status per name
+                        try:
+                            tmp['_sev'] = tmp['status_norm'].map(_sev)
+                            tmp = tmp.sort_values(['_name_key','_sev'], ascending=[True, False])
+                            inj_name_only = tmp[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'], keep='first')
+                        except Exception:
+                            inj_name_only = tmp[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
                 else:
-                    inj_name_only = inj_small[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
+                    try:
+                        tmp = inj_small.copy()
+                        tmp['_sev'] = tmp['status_norm'].map(_sev)
+                        tmp = tmp.sort_values(['_name_key','_sev'], ascending=[True, False])
+                        inj_name_only = tmp[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'], keep='first')
+                    except Exception:
+                        inj_name_only = inj_small[['_name_key', 'status_norm']].drop_duplicates(subset=['_name_key'])
 
                 if inj_name_only is not None and (not inj_name_only.empty):
                     out2 = out.loc[missing].merge(inj_name_only, on='_name_key', how='left', suffixes=('', '_byname'))
@@ -403,6 +544,19 @@ def build_league_status(date_str: str) -> pd.DataFrame:
         return None
     out['playing_today'] = [ _playing(s, t) for s,t in zip(out['injury_status'], out['team_on_slate']) ]
     out = out.drop(columns=['_name_key','status_norm'], errors='ignore')
+
+    # Final deterministic dedupe on player_id (keep worst injury status)
+    try:
+        if 'player_id' in out.columns and not out.empty:
+            out['player_id'] = pd.to_numeric(out['player_id'], errors='coerce')
+            out['_sev'] = out.get('injury_status', '').map(_sev)
+            # Prefer on-slate rows (if any), then worst injury, then non-empty team
+            out['_on'] = out.get('team_on_slate', False).fillna(False).astype(bool)
+            out['_team_len'] = out.get('team', '').fillna('').astype(str).str.len()
+            out = out.sort_values(['player_id','_on','_sev','_team_len'], ascending=[True, False, False, False])
+            out = out.drop_duplicates(subset=['player_id'], keep='first').drop(columns=['_sev','_on','_team_len'], errors='ignore')
+    except Exception:
+        pass
     # Save
     out_path = paths.data_processed / f'league_status_{date_str}.csv'
     out.to_csv(out_path, index=False)

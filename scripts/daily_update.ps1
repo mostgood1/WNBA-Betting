@@ -215,6 +215,52 @@ function Invoke-PyMod {
   return $exitCode
 }
 
+# Helper to run a python module with a hard timeout (prevents hangs on network calls)
+function Invoke-PyModWithTimeout {
+  param(
+    [string[]]$plist,
+    [int]$TimeoutSeconds = 180,
+    [string]$Label = 'python'
+  )
+  $cmd = @($Python) + $plist
+  Write-Log ("Run (timeout={0}s): {1}" -f $TimeoutSeconds, ($cmd -join ' '))
+
+  $tmpBase = Join-Path $LogPath ("py_{0}_{1}_{2}" -f $Label, $Stamp, ([guid]::NewGuid().ToString('N')))
+  $outStd = "$tmpBase.out"
+  $outErr = "$tmpBase.err"
+
+  try {
+    $p = Start-Process -FilePath $Python -ArgumentList $plist -NoNewWindow -PassThru -RedirectStandardOutput $outStd -RedirectStandardError $outErr
+  } catch {
+    Write-Log ("Start-Process failed: {0}" -f $_.Exception.Message)
+    return 1
+  }
+
+  $finished = $false
+  try {
+    $finished = Wait-Process -Id $p.Id -Timeout $TimeoutSeconds -ErrorAction SilentlyContinue
+  } catch { $finished = $false }
+
+  if (-not $finished) {
+    try { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } catch {}
+    Write-Log ("TIMEOUT: killed process after {0}s (pid={1})" -f $TimeoutSeconds, $p.Id)
+    try {
+      if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+      if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+    } catch {}
+    return 124
+  }
+
+  try {
+    if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+    if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+  } catch {}
+
+  $exitCode = 0
+  try { $exitCode = $p.ExitCode } catch { $exitCode = 0 }
+  return $exitCode
+}
+
 # Enforce local-only pipeline; skip any server detection/calls
 $BaseUrl = "http://127.0.0.1:5050"
 $UseServer = $false
@@ -271,8 +317,18 @@ Write-Log ("predict-date exit code: {0}" -f $rc1)
 # Always write standardized game odds via CLI (OddsAPI consensus + Bovada fill), including prices
 try {
   Write-Log "Writing game odds via CLI odds-snapshots (includes prices, prefers OddsAPI)"
-  $rcOdds = Invoke-PyMod -plist @('-m','nba_betting.cli','odds-snapshots','--date', $Date)
-  Write-Log ("odds-snapshots exit code: {0}" -f $rcOdds)
+  $skipOddsSnap = $env:DAILY_SKIP_ODDS_SNAPSHOTS
+  if ($null -ne $skipOddsSnap -and $skipOddsSnap -match '^(1|true|yes)$') {
+    Write-Log 'Skipping odds-snapshots (DAILY_SKIP_ODDS_SNAPSHOTS=1)'
+  } else {
+    $to = $env:DAILY_ODDS_SNAPSHOTS_TIMEOUT_SEC
+    if ($null -eq $to -or $to -eq '') { $to = '180' }
+    try { $toInt = [int]$to } catch { $toInt = 180 }
+    if ($toInt -lt 30) { $toInt = 30 }
+    if ($toInt -gt 900) { $toInt = 900 }
+    $rcOdds = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','odds-snapshots','--date', $Date) -TimeoutSeconds $toInt -Label 'odds_snapshots'
+    Write-Log ("odds-snapshots exit code: {0}" -f $rcOdds)
+  }
 } catch { Write-Log ("odds-snapshots block failed: {0}" -f $_.Exception.Message) }
 
 # 1.5) NPU game predictions using enhanced features (CSV-based; no parquet engine required)
@@ -821,6 +877,59 @@ try {
   Write-Log ("calibrate-totals failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4e1) Build/refresh smart_sim_quarter_eval for recent window (non-fatal)
+# This is used to calibrate period probabilities (over + cover) and to feed evaluation.
+# Controlled by env DAILY_SKIP_SMART_SIM_EVAL_BUILD=1
+try {
+  $skipSSEval = $env:DAILY_SKIP_SMART_SIM_EVAL_BUILD
+  if ($null -ne $skipSSEval -and $skipSSEval -match '^(1|true|yes)$') {
+    Write-Log 'Skipping smart_sim_quarter_eval build (DAILY_SKIP_SMART_SIM_EVAL_BUILD=1)'
+  } else {
+    # Build/refresh PBP-derived period actuals so smart_sim_quarter_eval can join actual quarter/half scores
+    # even when games_nba_api.csv is missing recent seasons.
+    # Controlled by env DAILY_SKIP_PBP_PERIOD_ACTUALS=1
+    try {
+      $skipPbpAct = $env:DAILY_SKIP_PBP_PERIOD_ACTUALS
+      if ($null -ne $skipPbpAct -and $skipPbpAct -match '^(1|true|yes)$') {
+        Write-Log 'Skipping PBP period actuals build (DAILY_SKIP_PBP_PERIOD_ACTUALS=1)'
+      } else {
+        $pbpDays = $env:DAILY_PBP_PERIOD_ACTUALS_DAYS
+        if ($null -eq $pbpDays -or $pbpDays -eq '') { $pbpDays = '7' }
+        try { $pbpDaysInt = [int]$pbpDays } catch { $pbpDaysInt = 7 }
+        if ($pbpDaysInt -lt 1) { $pbpDaysInt = 1 }
+        if ($pbpDaysInt -gt 21) { $pbpDaysInt = 21 }
+        $pbpStart = ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)).AddDays(-($pbpDaysInt - 1)).ToString('yyyy-MM-dd')
+        Write-Log ("Building PBP period actuals (start={0}, end={1})" -f $pbpStart, $yesterday)
+        $rc_pbp_act = Invoke-PyMod -plist @('tools/build_period_actuals_from_pbp_espn.py','--start', $pbpStart, '--end', $yesterday)
+        Write-Log ("build_period_actuals_from_pbp_espn exit code: {0}" -f $rc_pbp_act)
+      }
+    } catch {
+      Write-Log ("PBP period actuals build failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+
+    Write-Log ("Building smart_sim_quarter_eval (end={0}, days=60)" -f $yesterday)
+    $rc_ss_eval = Invoke-PyMod -plist @('tools/build_smart_sim_quarter_eval.py','--end', $yesterday, '--days', '60')
+    Write-Log ("build_smart_sim_quarter_eval exit code: {0}" -f $rc_ss_eval)
+  }
+} catch {
+  Write-Log ("smart_sim_quarter_eval build failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 2.4e2) Calibrate period (quarters/halves) over probabilities using smart_sim_quarter_eval (non-fatal)
+# Controlled by env DAILY_SKIP_PERIOD_PROBS_CALIB=1
+try {
+  $skipPProb = $env:DAILY_SKIP_PERIOD_PROBS_CALIB
+  if ($null -ne $skipPProb -and $skipPProb -match '^(1|true|yes)$') {
+    Write-Log 'Skipping period probability calibration build (DAILY_SKIP_PERIOD_PROBS_CALIB=1)'
+  } else {
+    Write-Log ("Calibrating period over probabilities (window=30) anchored at {0}" -f $yesterday)
+    $rc_cal_pprob = Invoke-PyMod -plist @('-m','nba_betting.cli','calibrate-period-probs','--anchor', $yesterday, '--window', '30', '--bins', '12', '--alpha', '1.0')
+    Write-Log ("calibrate-period-probs exit code: {0}" -f $rc_cal_pprob)
+  }
+} catch {
+  Write-Log ("calibrate-period-probs failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.4f) Apply totals calibration to today's predictions (adjusts totals and period totals if present)
 if (-not $SkipTotalsCalib) {
   try {
@@ -1025,12 +1134,45 @@ $rc3a = Invoke-PyMod -plist @(
 )
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
+# 3.0) Export SmartSim player quarter + scenario distributions for today's slate (non-fatal)
+# Controlled by env DAILY_SKIP_SMARTSIM_PLAYER_SPLITS=1
+try {
+  $skipSplits = $env:DAILY_SKIP_SMARTSIM_PLAYER_SPLITS
+  if ($null -ne $skipSplits -and $skipSplits -match '^(1|true|yes)$') {
+    Write-Log 'Skipping SmartSim player splits export (DAILY_SKIP_SMARTSIM_PLAYER_SPLITS=1)'
+  } else {
+    $outQ = Join-Path $RepoRoot ("data/processed/smartsim_player_quarters_{0}.csv" -f $Date)
+    $outS = Join-Path $RepoRoot ("data/processed/smartsim_player_scenarios_{0}.csv" -f $Date)
+    Write-Log ("Exporting SmartSim player splits for {0}" -f $Date)
+    $rcSplits = Invoke-PyMod -plist @(
+      'tools/extract_smartsim_player_splits.py',
+      '--start', $Date,
+      '--end', $Date,
+      '--out-quarters', $outQ,
+      '--out-scenarios', $outS
+    )
+    Write-Log ("extract_smartsim_player_splits exit code: {0}" -f $rcSplits)
+  }
+} catch {
+  Write-Log ("SmartSim player splits export failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 3.1) Post-process props_predictions to drop OUT players (ensures downstream CSVs have no injured players at all)
 try {
   $ppPath = Join-Path $RepoRoot ("data/processed/props_predictions_{0}.csv" -f $Date)
   $injExclPath = Join-Path $RepoRoot ("data/processed/injuries_excluded_{0}.csv" -f $Date)
   if (Test-Path $ppPath) {
   Write-Log "Filtering props_predictions to remove OUT players based on injuries_excluded list"
+
+  # Repair injuries_excluded team assignments using processed rosters (prevents cross-team exclusions)
+  try {
+    $injRepair = Join-Path $RepoRoot 'tools/repair_injuries_excluded.py'
+    if ((Test-Path $injRepair) -and (Test-Path $injExclPath)) {
+      Write-Log "Repairing injuries_excluded team assignments via rosters"
+      & $Python $injRepair --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    }
+  } catch { Write-Log ("repair_injuries_excluded failed (non-fatal): {0}" -f $_.Exception.Message) }
+
   $pyFilt = @'
 import os, pandas as pd
 from pathlib import Path
@@ -1042,6 +1184,7 @@ if not preds_path.exists():
 pdf = pd.read_csv(preds_path)
 before = len(pdf)
 name_keys = set(); short_keys = set()
+ban_pairs = set(); ban_short_pairs = set(); ban_names = set(); ban_short_names = set()
 def _norm_player_name(s: str) -> str:
   if s is None: return ""
   t = str(s)
@@ -1063,6 +1206,15 @@ def _short_player_key(s: str) -> str:
   if not parts: return s2
   last = parts[-1]; first_initial = parts[0][0] if parts and parts[0] else ""
   return f"{last}{first_initial}"
+def _tri(x: object) -> str:
+  try:
+    s = str(x or "").strip().upper()
+  except Exception:
+    return ""
+  # Trust canonical tricodes.
+  if len(s) == 3 and s.isalpha():
+    return s
+  return ""
 if inj_path.exists():
   idf = pd.read_csv(inj_path)
   if not idf.empty and "player" in idf.columns:
@@ -1098,15 +1250,49 @@ if inj_path.exists():
         idf = idf[(idf["date"] >= fresh_cutoff) | is_season].copy()
     except Exception:
       pass
-    s = idf["player"].dropna().astype(str)
-    if not s.empty:
-      name_keys = set(s.map(_norm_player_name).tolist())
-      short_keys = set(s.map(_short_player_key).tolist())
-if name_keys or short_keys:
-  pdf["_name_key"] = pdf.get("player_name").astype(str).map(_norm_player_name)
-  pdf["_short_key"] = pdf.get("player_name").astype(str).map(_short_player_key)
-  mask = (~pdf["_name_key"].isin(name_keys)) & (~pdf["_short_key"].isin(short_keys))
-  pdf = pdf[mask].drop(columns=["_name_key","_short_key"], errors="ignore")
+    # Build team-aware bans whenever possible.
+    idf = idf.copy()
+    idf["_pkey"] = idf["player"].astype(str).map(_norm_player_name)
+    idf["_skey"] = idf["player"].astype(str).map(_short_player_key)
+    if "team_tri" in idf.columns:
+      idf["_tri"] = idf["team_tri"].map(_tri)
+    elif "team" in idf.columns:
+      idf["_tri"] = idf["team"].map(_tri)
+    else:
+      idf["_tri"] = ""
+
+    for _, r in idf.iterrows():
+      pk = str(r.get("_pkey") or "").strip().upper()
+      sk = str(r.get("_skey") or "").strip().upper()
+      tri = str(r.get("_tri") or "").strip().upper()
+      if not pk and not sk:
+        continue
+      if tri:
+        if pk:
+          ban_pairs.add((pk, tri))
+        if sk:
+          ban_short_pairs.add((sk, tri))
+      else:
+        # If the injury row has no team, fall back to name-only.
+        if pk:
+          ban_names.add(pk)
+        if sk:
+          ban_short_names.add(sk)
+
+if ban_pairs or ban_short_pairs or ban_names or ban_short_names:
+  pdf = pdf.copy()
+  pdf["_pkey"] = pdf.get("player_name").astype(str).map(_norm_player_name)
+  pdf["_skey"] = pdf.get("player_name").astype(str).map(_short_player_key)
+  # props_predictions 'team' is expected to be a 3-letter tricode.
+  pdf["_tri"] = pdf.get("team").astype(str).map(_tri)
+  # Pair-wise bans (team-aware)
+  p_pairs = list(zip(pdf["_pkey"].astype(str).tolist(), pdf["_tri"].astype(str).tolist()))
+  s_pairs = list(zip(pdf["_skey"].astype(str).tolist(), pdf["_tri"].astype(str).tolist()))
+  bad_pair = pd.Series([p in ban_pairs for p in p_pairs], index=pdf.index)
+  bad_short_pair = pd.Series([p in ban_short_pairs for p in s_pairs], index=pdf.index)
+  bad_name_only = pdf["_pkey"].isin(ban_names) | pdf["_skey"].isin(ban_short_names)
+  mask = ~(bad_pair | bad_short_pair | bad_name_only)
+  pdf = pdf[mask].drop(columns=["_pkey","_skey","_tri"], errors="ignore")
 after = len(pdf)
 pdf.to_csv(preds_path, index=False)
 print(f"FILTERED:{before}->{after}")
@@ -1509,6 +1695,17 @@ try {
 try {
   $skipSmart = $env:DAILY_SKIP_SMARTSIM
   if ($null -eq $skipSmart -or $skipSmart -notmatch '^(1|true|yes)$') {
+    # Generate team advanced stats priors (pace/ratings) as-of today to avoid any future leakage.
+    try {
+      $dts = [datetime]::Parse($Date)
+      $seasonY = if ($dts.Month -ge 7) { $dts.Year + 1 } else { $dts.Year }
+      Write-Log ("Updating team advanced stats priors (season={0}, as_of={1})" -f $seasonY, $Date)
+      $rcAdv = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-advanced-stats','--season', $seasonY, '--as-of', $Date)
+      Write-Log ("fetch-advanced-stats exit code: {0}" -f $rcAdv)
+    } catch {
+      Write-Log ("fetch-advanced-stats failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+
     $nSmart = $env:DAILY_SMARTSIM_NSIMS
     if ($null -eq $nSmart -or $nSmart -eq '') { $nSmart = '300' }
     $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
@@ -1539,157 +1736,20 @@ try {
   $reqRot = $env:DAILY_REQUIRE_ROTATIONS_ESPN
   if ($null -eq $reqRot -or $reqRot -eq '') { $reqRot = '1' }
 
-  $tmpPyV = Join-Path $LogPath ("validate_daily_artifacts_{0}.py" -f $Stamp)
-  $pyValDaily = @'
-import os, json
-from pathlib import Path
-
-repo_root = Path(os.environ.get('REPO_ROOT', '.')).resolve()
-date_str = os.environ.get('DATE_STR')
-date_yesterday = os.environ.get('DATE_YESTERDAY')
-fail_on_missing = (str(os.environ.get('FAIL_ON_MISSING') or '0').lower() in {'1','true','yes'})
-require_odds = (str(os.environ.get('REQUIRE_ODDS') or '0').lower() in {'1','true','yes'})
-require_smartsim = (str(os.environ.get('REQUIRE_SMARTSIM') or '0').lower() in {'1','true','yes'})
-require_rotations = (str(os.environ.get('REQUIRE_ROTATIONS') or '0').lower() in {'1','true','yes'})
-
-proc = repo_root / 'data' / 'processed'
-pred = proc / f'predictions_{date_str}.csv'
-props = proc / f'props_predictions_{date_str}.csv'
-odds = proc / f'game_odds_{date_str}.csv'
-
-def _exists_nonempty(p: Path) -> bool:
-    try:
-        return p.exists() and p.stat().st_size > 0
-    except Exception:
-        return bool(p.exists())
-
-slate_games = None
-try:
-    import pandas as pd
-    df = None
-    if _exists_nonempty(pred):
-        df = pd.read_csv(pred)
-    # best-effort: count unique games (predictions can contain duplicate rows)
-    if df is not None and not df.empty:
-        if {'home_team','visitor_team'}.issubset(set(df.columns)):
-            slate_games = int(df[['home_team','visitor_team']].drop_duplicates().shape[0])
-        else:
-            slate_games = int(len(df))
-except Exception:
-    slate_games = None
-
-smart = sorted(proc.glob(f'smart_sim_{date_str}_*.json'))
-smart_count = len(smart)
-
-# Rotation stints presence for yesterday's games (used by rotation-driven SmartSim)
-# IMPORTANT: stints files are keyed by NBA scoreboard gameId (e.g. 0022500602)
-rot_dir = proc / 'rotations_espn'
-rot_expected = None
-rot_have = 0
-rot_missing_gids = []
-rot_excused_no_event_gids = []
-rot_error = None
-try:
-    if date_yesterday:
-        try:
-            from nba_betting.boxscores import _nba_gid_to_tricodes
-            gid_map = _nba_gid_to_tricodes(str(date_yesterday)) or {}
-            gids = sorted([str(g).strip() for g in gid_map.keys() if str(g).strip()])
-
-            # If ESPN returns no event for a game, rotations cannot be fetched.
-            # Treat those as excused (non-fatal) gaps.
-            excused = set()
-            try:
-                import csv
-
-                failures_fp = rot_dir / f"rotations_failures_{str(date_yesterday)}.csv"
-                if failures_fp.exists() and failures_fp.stat().st_size > 0:
-                    with failures_fp.open("r", encoding="utf-8", newline="") as f:
-                        reader = csv.DictReader(f)
-                        for row in reader:
-                            gid = str((row or {}).get("game_id") or "").strip()
-                            err = str((row or {}).get("error") or "").strip().lower()
-                            if gid and err == "no_event":
-                                excused.add(gid)
-            except Exception:
-                excused = set()
-
-            rot_excused_no_event_gids = sorted(excused)
-            rot_expected = len([g for g in gids if g not in excused])
-
-            for gid in gids:
-                if gid in excused:
-                    continue
-                hp = rot_dir / f'stints_home_{gid}.csv'
-                ap = rot_dir / f'stints_away_{gid}.csv'
-                if _exists_nonempty(hp) and _exists_nonempty(ap):
-                    rot_have += 1
-                else:
-                    rot_missing_gids.append(gid)
-        except Exception as e:
-            rot_error = f"gid_map_failed: {e}"
-except Exception as e:
-    rot_error = str(e)
-
-missing = []
-if not _exists_nonempty(pred):
-    missing.append(str(pred.name))
-if not _exists_nonempty(props):
-    missing.append(str(props.name))
-if require_odds and (not _exists_nonempty(odds)):
-    missing.append(str(odds.name))
-if require_smartsim and slate_games is not None and slate_games > 0 and smart_count < max(1, slate_games):
-    missing.append(f'smart_sim_{date_str}_*.json ({smart_count}/{slate_games})')
-
-if require_rotations:
-    # Only enforce if we could determine the expected game list.
-    if rot_expected is None:
-        missing.append('rotations_espn stints (could not determine game ids)')
-    elif rot_expected > 0 and rot_have < rot_expected:
-        missing.append(f'rotations_espn stints ({rot_have}/{rot_expected})')
-
-out = {
-    'date': date_str,
-    'yesterday': date_yesterday,
-    'predictions_ok': _exists_nonempty(pred),
-    'props_predictions_ok': _exists_nonempty(props),
-    'game_odds_ok': _exists_nonempty(odds),
-    'slate_games': slate_games,
-    'smart_sim_count': smart_count,
-    'rotations_dir_exists': bool(rot_dir.exists()),
-    'rotations_expected_games_yesterday': rot_expected,
-    'rotations_have_games_yesterday': rot_have,
-    'rotations_missing_game_ids_yesterday': rot_missing_gids[:50],
-    'rotations_excused_no_event_game_ids_yesterday': rot_excused_no_event_gids[:50],
-    'rotations_error': rot_error,
-    'require_odds': require_odds,
-    'require_smartsim': require_smartsim,
-    'require_rotations_espn': require_rotations,
-    'missing': missing,
-    'ok': (len(missing) == 0),
-}
-
-try:
-    fp = proc / f'daily_artifacts_{date_str}.json'
-    fp.write_text(json.dumps(out, indent=2), encoding='utf-8')
-except Exception:
-    pass
-
-print(json.dumps(out, indent=2))
-if fail_on_missing and missing:
-    raise SystemExit(3)
-'@
-
-  Set-Content -Path $tmpPyV -Value $pyValDaily -Encoding UTF8
-  $env:REPO_ROOT = $RepoRoot
-  $env:DATE_STR = $Date
-  $env:DATE_YESTERDAY = $yesterday
-  $env:FAIL_ON_MISSING = $fail
-  $env:REQUIRE_ODDS = $reqOdds
-  $env:REQUIRE_SMARTSIM = $reqSmart
-  $env:REQUIRE_ROTATIONS = $reqRot
-  Write-Log 'Validating daily artifacts (predictions/props/odds/smart_sim)'
-  $outV = & $Python $tmpPyV 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $env:REPO_ROOT = $RepoRoot
+    $env:FAIL_ON_MISSING = $fail
+    $env:REQUIRE_ODDS = $reqOdds
+    $env:REQUIRE_SMARTSIM = $reqSmart
+    $env:REQUIRE_ROTATIONS = $reqRot
+    if ($null -eq $env:ROTATIONS_MIN_COVERAGE -or $env:ROTATIONS_MIN_COVERAGE -eq '') { $env:ROTATIONS_MIN_COVERAGE = '0.70' }
+    Write-Log 'Validating daily artifacts (predictions/props/odds/smart_sim)'
+    $outV = Invoke-PyMod -plist @(
+    'tools/validate_daily_artifacts.py',
+    '--repo-root', $RepoRoot,
+    '--date', $Date,
+    '--yesterday', $yesterday,
+    '--rotations-min-coverage', $env:ROTATIONS_MIN_COVERAGE
+    )
   if ($LASTEXITCODE -ne 0) {
     Write-Log ("Daily artifact validation failed (exit={0})" -f $LASTEXITCODE)
     if ($fail -match '^(1|true|yes)$') { throw "daily artifacts missing" }

@@ -277,7 +277,7 @@
     }
     async function loadReliability(){
       try{
-        const resp = await fetch('/api/recommendations/summary/props');
+        const resp = await fetch('/recommendations?format=json&view=summary-props');
         if(!resp.ok) return;
         const data = await resp.json();
         const sum = data && data.summary ? data.summary : null;

@@ -50,10 +50,10 @@ if ($AuthToken -and $AuthToken.Trim().Length -gt 0) {
 
 $endpoints = @(
     "$BaseUrl/health",
-    "$BaseUrl/api/recommendations/summary",
-    "$BaseUrl/api/recommendations/summary/props",
-    "$BaseUrl/api/recommendations/summary/props_calibration",
-    "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1",
+    "$BaseUrl/recommendations?format=json&view=summary",
+    "$BaseUrl/recommendations?format=json&view=summary-props",
+    "$BaseUrl/recommendations?format=json&view=summary-props-calibration",
+    "$BaseUrl/recommendations?format=json&view=all&date=$Date&compact=1&regular_only=1",
     "$BaseUrl/api/debug/recommendations/status?date=$Date",
     "$BaseUrl/api/predictions?date=$Date",
     "$BaseUrl/api/processed/recon_games?date=$Date"
@@ -90,7 +90,7 @@ $payload = [ordered]@{
 
 # Extract calibration summary details if available
 try {
-    $calUrl = "$BaseUrl/api/recommendations/summary/props_calibration"
+    $calUrl = "$BaseUrl/recommendations?format=json&view=summary-props-calibration"
     $calRes = Invoke-HealthCheck -Url $calUrl -Headers $headers
     if ($calRes.ok -and $calRes.status -eq 200) {
         $json = Invoke-WebRequest -UseBasicParsing -Uri $calUrl -TimeoutSec $TimeoutSec -Method GET -Headers $headers | Select-Object -ExpandProperty Content | ConvertFrom-Json
@@ -113,7 +113,7 @@ try {
 
 # Extract applied calibration meta from unified recommendations
 try {
-    $recoUrl = "$BaseUrl/api/recommendations/all?date=$Date&compact=1&regular_only=1"
+    $recoUrl = "$BaseUrl/recommendations?format=json&view=all&date=$Date&compact=1&regular_only=1"
     $recoRes = Invoke-WebRequest -UseBasicParsing -Uri $recoUrl -TimeoutSec $TimeoutSec -Method GET -Headers $headers
     if ($recoRes.StatusCode -eq 200 -and $recoRes.Content) {
         $rj = $recoRes.Content | ConvertFrom-Json

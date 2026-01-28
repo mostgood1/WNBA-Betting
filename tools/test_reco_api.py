@@ -18,7 +18,7 @@ if app is None:
 
 date_arg = (sys.argv[1] if len(sys.argv) > 1 else '2026-01-14')
 with app.test_client() as c:
-    resp = c.get(f'/api/recommendations/all?date={date_arg}&compact=1')
+    resp = c.get(f'/recommendations?format=json&view=all&date={date_arg}&compact=1')
     print('status', resp.status_code)
     data = resp.get_json()
     if not isinstance(data, dict):

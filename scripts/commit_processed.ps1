@@ -27,14 +27,6 @@ if ($IncludeJson) {
     $patterns += "smart_sim_${Date}_*.json"
     # Daily validation summary
     $patterns += "daily_artifacts_${Date}.json"
-
-    # Quarters calibration is an undated JSON used by the sim engine
-    try {
-        $qc = Join-Path $processedDir 'quarters_calibration.json'
-        if (Test-Path $qc) {
-            $files += Get-Item -Path $qc -ErrorAction SilentlyContinue
-        }
-    } catch { }
 }
 
 # Collect files matching patterns under data/processed only
@@ -46,6 +38,32 @@ foreach ($pat in $patterns) {
 # Deduplicate in case multiple patterns match the same file
 if ($files -and $files.Count -gt 0) {
     $files = $files | Sort-Object FullName -Unique
+}
+
+# Include undated + latest rolling calibration artifacts when JSON is enabled.
+# Note: these files often have a different date than -Date (e.g., anchored at yesterday).
+if ($IncludeJson) {
+    try {
+        $qc = Join-Path $processedDir 'quarters_calibration.json'
+        if (Test-Path $qc) {
+            $files += Get-Item -Path $qc -ErrorAction SilentlyContinue
+        }
+    } catch { }
+    try {
+        $latestTot = Get-ChildItem -Path $processedDir -Filter 'calibration_totals_*.json' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($null -ne $latestTot) { $files += $latestTot }
+    } catch { }
+    try {
+        $latestPProb = Get-ChildItem -Path $processedDir -Filter 'calibration_period_probs_*.json' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+        if ($null -ne $latestPProb) { $files += $latestPProb }
+    } catch { }
+
+    # Re-dedupe after adding extra files
+    try {
+        if ($files -and $files.Count -gt 0) {
+            $files = $files | Sort-Object FullName -Unique
+        }
+    } catch { }
 }
 
 # Optionally include evaluation compare CSVs (range-based filenames)
@@ -99,6 +117,8 @@ $allowedPrefixes = @(
     "daily_artifacts_",
     # Rolling totals calibration used to tune predictions/sims
     "calibration_totals_",
+    # Rolling period probability calibration for quarter/half over markets
+    "calibration_period_probs_",
     # Undated quarters calibration used by SmartSim
     "quarters_calibration",
     # New: per-player calibration artifact for diagnostics/analysis
@@ -139,7 +159,7 @@ if ($DryRun) {
 # Stage files
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
-    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name -eq 'quarters_calibration.json') {
+    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name.StartsWith('calibration_period_probs_') -or $f.Name -eq 'quarters_calibration.json') {
         git add -f -- $rel
     } else {
         git add -- $rel

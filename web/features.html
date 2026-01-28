@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Data Features | NBA Betting</title>
+  <link rel="stylesheet" href="/web/styles.css?v=20260127-1" />
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <style>
+    .feature-grid { display:grid; grid-template-columns: 1fr; gap: 12px; }
+    .ds-title { font-size: 14px; font-weight: 800; margin-bottom: 6px; }
+    .ds-meta { font-size: 12px; color: #9fb0ff; margin-bottom: 10px; }
+    .feature { display:grid; gap: 4px; padding: 10px; border: 1px solid #25316a; border-radius: 10px; background: #0f1530; }
+    .feature-name { font-weight: 800; }
+    .feature-desc { font-size: 12px; color: #cfe0ff; opacity: 0.95; line-height: 1.35; }
+    .muted-small { font-size: 12px; color: #9fb0ff; opacity: 0.95; }
+    .search { width: 320px; max-width: 100%; }
+  </style>
+  <script>
+    function esc(s){ return String(s??'').replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c])); }
+    async function fetchJson(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw new Error(`${r.status} ${r.statusText}`); return await r.json(); }
+
+    function getDesc(descMap, dsKey, col){
+      if(!descMap) return '';
+      const k1 = `${dsKey}.${col}`;
+      return descMap[k1] || '';
+    }
+
+    function render(data, q){
+      const root = document.getElementById('root');
+      const meta = document.getElementById('meta');
+      const desc = data && data.descriptions ? data.descriptions : {};
+      const ds = Array.isArray(data && data.datasets) ? data.datasets : [];
+      const query = String(q||'').trim().toLowerCase();
+
+      meta.textContent = `Generated: ${esc(data.generated_at || '—')} • Catalog: ${esc(data.catalog_path || 'data/features_catalog.json')}`;
+
+      const blocks = ds.map(d => {
+        const cols = Array.isArray(d.columns) ? d.columns : [];
+        const rows = cols
+          .map(c => {
+            const nm = String(c);
+            const description = getDesc(desc, d.key, nm);
+            const hay = `${d.key}.${nm} ${description}`.toLowerCase();
+            if(query && !hay.includes(query)) return '';
+            return `<div class="feature"><div class="feature-name">${esc(d.key)}.<span class="feature-name">${esc(nm)}</span></div>`
+              + `<div class="feature-desc">${description ? esc(description) : '<span class="muted-small">No description yet. Add it to data/features_catalog.json</span>'}</div></div>`;
+          })
+          .filter(Boolean)
+          .join('');
+
+        const dsMeta = d.latest_date ? `Latest date: ${esc(d.latest_date)}${d.path?` • ${esc(d.path)}`:''}` : (d.path?esc(d.path):'');
+        return `<div class="card"><div class="ds-title">${esc(d.key)}</div><div class="ds-meta">${dsMeta || 'No file found yet.'}</div>${rows || '<div class="muted-small">No matching columns.</div>'}</div>`;
+      }).join('');
+
+      root.innerHTML = blocks || '<div class="card">No datasets found.</div>';
+    }
+
+    async function boot(){
+      const note = document.getElementById('note');
+      const input = document.getElementById('q');
+      try{
+        const data = await fetchJson('/api/features');
+        window.__featuresData = data;
+        render(data, input.value);
+        input.addEventListener('input', ()=>render(window.__featuresData, input.value));
+      }catch(e){
+        note.textContent = `Failed to load features: ${String(e && e.message ? e.message : e)}`;
+        note.classList.remove('hidden');
+      }
+    }
+    window.addEventListener('DOMContentLoaded', boot);
+  </script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container">
+      <h1>Data Features</h1>
+      <nav class="site-nav">
+        <a href="/">Cards</a>
+        <a href="/recommendations">Recommendations</a>
+        <a href="/reconciliation">Recs Results</a>
+        <a href="/features" aria-current="page">Data Features</a>
+      </nav>
+      <div class="controls">
+        <label>Search <input id="q" class="search" type="text" placeholder="e.g. home_win_prob, edge, player_id" /></label>
+      </div>
+    </div>
+  </header>
+  <main class="container">
+    <div id="note" class="alert hidden"></div>
+    <div id="meta" class="summary"></div>
+    <div id="root" class="feature-grid"></div>
+  </main>
+</body>
+</html>

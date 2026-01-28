@@ -18,6 +18,12 @@ class TeamContext:
     def_rating: float  # points allowed per 100 possessions
     injuries_out: int = 0
     back_to_back: bool = False
+    # Pregame-known schedule context. Convention: 0 means played yesterday (B2B),
+    # 1 means played 2 days ago, 2 means played 3 days ago, 3 means 4+ days rest.
+    rest_days: Optional[int] = None
+    # Additional schedule density signal (pregame-known): number of games played in
+    # the last 3 days (excluding today). Range typically 0..3.
+    games_last_3d: Optional[int] = None
     form_7: Optional[float] = None  # recent offense performance delta
     form_30: Optional[float] = None
 
@@ -148,7 +154,7 @@ def _apply_totals_calibration(
     """
     cal = _load_totals_calibration_for_date(date_str) or {}
 
-    # Quarter total biases (small, per-quarter additive corrections)
+    # Quarter total biases (per-quarter additive corrections)
     q_biases: dict[str, float] = {}
     try:
         g = cal.get("global") if isinstance(cal, dict) else None
@@ -156,8 +162,12 @@ def _apply_totals_calibration(
             qb = g.get("quarters")
             if isinstance(qb, dict):
                 for k, v in qb.items():
-                    # keep these conservative
-                    q_biases[str(k)] = _clamp(v, -3.0, 3.0)
+                    q_biases[str(k)] = _clamp(v, -6.0, 6.0)
+            # Optional: smart-sim learned quarter biases (actual - pred) from smart_sim_quarter_eval
+            sqb = g.get("sim_quarters")
+            if isinstance(sqb, dict):
+                for k, v in sqb.items():
+                    q_biases[str(k)] = float(q_biases.get(str(k), 0.0)) + _clamp(v, -6.0, 6.0)
     except Exception:
         q_biases = {}
 
@@ -176,7 +186,9 @@ def _apply_totals_calibration(
     try:
         g = cal.get("global") if isinstance(cal, dict) else None
         if isinstance(g, dict):
-            gb = _clamp(g.get("game_total_bias", 0.0), -5.0, 5.0)
+            gb = _clamp(g.get("game_total_bias", 0.0), -15.0, 15.0)
+            # Optional: smart-sim global total bias (actual - pred) from smart_sim_quarter_eval
+            gb += _clamp(g.get("sim_game_total_bias", 0.0), -15.0, 15.0)
             home_mu += 0.5 * gb
             away_mu += 0.5 * gb
     except Exception:
@@ -301,9 +313,29 @@ def _norm_split(x: Any) -> Optional[List[float]]:
         return None
 
 
-def _quarter_splits_for_team(team_tri: str) -> List[float]:
+def _quarter_splits_for_team(team_tri: str, is_home: Optional[bool] = None) -> List[float]:
     cal = _load_quarters_calibration() or {}
     t = str(team_tri or "").strip().upper()
+
+    # Optional: home/away-specific splits (pregame-known feature)
+    try:
+        if is_home is not None and isinstance(cal, dict):
+            if bool(is_home):
+                team_map = cal.get("team_split_home_by_tri")
+                league = cal.get("league_split_home")
+            else:
+                team_map = cal.get("team_split_away_by_tri")
+                league = cal.get("league_split_away")
+            if isinstance(team_map, dict) and t in team_map:
+                split = _norm_split(team_map.get(t))
+                if split is not None:
+                    return split
+            split = _norm_split(league)
+            if split is not None:
+                return split
+    except Exception:
+        pass
+
     try:
         team_map = cal.get("team_split_by_tri") if isinstance(cal, dict) else None
         if isinstance(team_map, dict) and t in team_map:
@@ -434,8 +466,8 @@ def simulate_quarters(inp: GameInputs, n_samples: int = 5000) -> QuarterSummary:
         margin_mu = home_mu - away_mu
 
     # Quarter splits for mean points (team-specific when calibrated)
-    home_splits = _quarter_splits_for_team(home.team)
-    away_splits = _quarter_splits_for_team(away.team)
+    home_splits = _quarter_splits_for_team(home.team, is_home=True)
+    away_splits = _quarter_splits_for_team(away.team, is_home=False)
 
     # First pass: build quarter means, optionally apply quarter-total bias, then rescale
     cur_total_mu = float(home_mu + away_mu)
@@ -687,8 +719,8 @@ def simulate_quarters_analytic(inp: GameInputs) -> QuarterSummary:
 
         margin_mu = home_mu - away_mu
 
-    home_splits = _quarter_splits_for_team(home.team)
-    away_splits = _quarter_splits_for_team(away.team)
+    home_splits = _quarter_splits_for_team(home.team, is_home=True)
+    away_splits = _quarter_splits_for_team(away.team, is_home=False)
     quarters: List[QuarterResult] = []
     corr_q = 0.25
     try:

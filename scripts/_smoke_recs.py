@@ -6,7 +6,7 @@ from app import app
 
 if __name__ == "__main__":
     with app.test_client() as c:
-        r = c.get('/api/recommendations?date=2025-10-23')
+        r = c.get('/recommendations?format=json&view=all&date=2025-10-23&compact=1')
         print('status', r.status_code)
         j = r.get_json()
         print('count', len(j.get('rows', [])))

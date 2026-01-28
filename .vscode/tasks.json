@@ -80,7 +80,7 @@
 				"Bypass",
 				"-File",
 				"${workspaceFolder}\\scripts\\daily_update.ps1",
-				"-GitPush",
+				"-GitPush"
 			],
 			"isBackground": false,
 			"problemMatcher": []
@@ -184,6 +184,22 @@
 			"problemMatcher": [],
 			"group": "build",
 			"detail": "Runs PBP + reconcile-quarters backfill over the last 21 days."
+		},
+		{
+			"label": "Backfill: PBP period actuals (last 21 days)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"$end = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd'); $start = (Get-Date).AddDays(-21).ToString('yyyy-MM-dd'); & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\build_period_actuals_from_pbp_espn.py' --start $start --end $end"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build",
+			"detail": "Builds quarter/half actuals from ESPN PBP for the last 21 days."
 		},
 		{
 			"label": "Schedule: register weekly backfill",
@@ -422,8 +438,7 @@
 			],
 			"isBackground": false,
 			"group": "build"
-		}
-		,
+		},
 		{
 			"label": "Odds: closing lines (today)",
 			"type": "shell",
@@ -438,8 +453,7 @@
 			"isBackground": false,
 			"group": "build",
 			"detail": "Captures closing/consensus lines for games and writes closing_lines_<date>.csv (frontend-compatible)."
-		}
-		,
+		},
 		{
 			"label": "Backtest: props portfolio (last 60 days)",
 			"type": "shell",
@@ -470,8 +484,7 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "Uses optimizer with correlation penalties and diversification caps."
-		}
-		,
+		},
 		{
 			"label": "Backtest: optimizer sweep (quick)",
 			"type": "shell",
@@ -487,8 +500,7 @@
 			"group": "build",
 			"problemMatcher": [],
 			"detail": "Sweeps optimizer params over a small grid and writes results under data/processed/backtests/."
-		}
-		,
+		},
 		{
 			"label": "Calibrate: props probability (from reliability bins)",
 			"type": "shell",
@@ -502,8 +514,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Calibrate: props probability (windows 30/60/90)",
 			"type": "shell",
@@ -518,8 +529,7 @@
 			"isBackground": false,
 			"group": "build",
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Health: ping endpoints",
 			"type": "shell",
@@ -534,8 +544,7 @@
 			"isBackground": false,
 			"group": "build",
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Schedule: register nightly props calibration",
 			"type": "shell",
@@ -551,8 +560,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Schedule: register nightly games closing",
 			"type": "shell",
@@ -568,8 +576,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Schedule: unregister nightly games closing",
 			"type": "shell",
@@ -583,8 +590,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Calibrate: games probability (last 60 days)",
 			"type": "shell",
@@ -598,8 +604,7 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
-		}
-		,
+		},
 		{
 			"label": "Schedule: unregister nightly props calibration",
 			"type": "shell",
@@ -613,6 +618,264 @@
 			],
 			"isBackground": false,
 			"problemMatcher": []
+		},
+		{
+			"label": "SmartSim: regenerate (2026-01-17..2026-01-24, n=100)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"nba_betting.cli",
+				"smart-sim-range",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--n-sims",
+				"100",
+				"--overwrite"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build SmartSim quarter eval (2026-01-17..2026-01-24, rest)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/build_smart_sim_quarter_eval.py",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--out",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_rest.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Eval quarters (baseline smart_sim, 2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/evaluate_quarters.py",
+				"--source",
+				"smart_sim",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--smart-sim-path",
+				"data/processed/smart_sim_quarter_eval_2025-11-26_2026-01-24.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Archive quarters eval baseline (2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"Copy-Item data/processed/quarters_eval_summary_2026-01-17_2026-01-24.json data/processed/quarters_eval_summary_2026-01-17_2026-01-24_baseline.json -Force; Copy-Item data/processed/quarters_eval_team_2026-01-17_2026-01-24.csv data/processed/quarters_eval_team_2026-01-17_2026-01-24_baseline.csv -Force"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Eval quarters (rest SmartSim, 2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/evaluate_quarters.py",
+				"--source",
+				"smart_sim",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--smart-sim-path",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_rest.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "SmartSim: regenerate (2026-01-17..2026-01-24, n=300)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"nba_betting.cli",
+				"smart-sim-range",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--n-sims",
+				"300",
+				"--overwrite"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build SmartSim quarter eval (2026-01-17..2026-01-24, rest n300)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/build_smart_sim_quarter_eval.py",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--out",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_rest_n300.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Eval quarters (rest SmartSim n300, 2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/evaluate_quarters.py",
+				"--source",
+				"smart_sim",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--smart-sim-path",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_rest_n300.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "SmartSim: regenerate (2026-01-17..2026-01-24, n=100, fatigue)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"nba_betting.cli",
+				"smart-sim-range",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--n-sims",
+				"100",
+				"--overwrite"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build SmartSim quarter eval (2026-01-17..2026-01-24, fatigue)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/build_smart_sim_quarter_eval.py",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--out",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_fatigue.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Eval quarters (fatigue, 2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/evaluate_quarters.py",
+				"--source",
+				"smart_sim",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--smart-sim-path",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_fatigue.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "SmartSim: regenerate (2026-01-17..2026-01-24, n=300, fatigue)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"-m",
+				"nba_betting.cli",
+				"smart-sim-range",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--n-sims",
+				"300",
+				"--overwrite"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Build SmartSim quarter eval (2026-01-17..2026-01-24, fatigue n300)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/build_smart_sim_quarter_eval.py",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--out",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_fatigue_n300.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Eval quarters (fatigue n300, 2026-01-17..2026-01-24)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/evaluate_quarters.py",
+				"--source",
+				"smart_sim",
+				"--start",
+				"2026-01-17",
+				"--end",
+				"2026-01-24",
+				"--smart-sim-path",
+				"data/processed/smart_sim_quarter_eval_2026-01-17_2026-01-24_fatigue_n300.csv"
+			],
+			"isBackground": false,
+			"problemMatcher": [],
+			"group": "build"
 		}
 	],
 	"inputs": [

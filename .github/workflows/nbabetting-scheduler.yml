@@ -39,7 +39,7 @@ jobs:
         run: |
           set -e
           # Hitting summary once populates recommendations_summary.json on the server
-          curl -fsS "${RENDER_URL}/api/recommendations/summary" -o /dev/null
+          curl -fsS "${RENDER_URL}/recommendations?format=json&view=summary" -o /dev/null
 name: "NBA Betting: Refresh Odds"
 
 on:
