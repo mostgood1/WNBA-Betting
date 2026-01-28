@@ -208,6 +208,75 @@ def smart_sim_cmd(
         raise SystemExit(2)
     props_df = pd.read_csv(props_path)
 
+    def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
+        """Return TEAM_TRI -> {PLAYER_KEY} for players excluded due to injury.
+
+        Prefers data/processed/injuries_excluded_<date>.csv (written by predict-props).
+        Falls back to data/raw/injuries.csv for same-day OUT/DOUBTFUL/SUSPENDED/INACTIVE/REST.
+        """
+        out: dict[str, set[str]] = {}
+        try:
+            from .player_priors import _norm_player_key  # type: ignore
+        except Exception:
+            def _norm_player_key(x):
+                return str(x or "").strip().upper()
+
+        def _add(tri: str, name: str) -> None:
+            t = str(tri or "").strip().upper()
+            if not t:
+                return
+            k = str(_norm_player_key(name) or "").strip().upper()
+            if not k:
+                return
+            out.setdefault(t, set()).add(k)
+
+        ds_s = str(ds).strip()
+
+        try:
+            p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
+            if p.exists():
+                df = pd.read_csv(p)
+                if df is not None and not df.empty:
+                    tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
+                    ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+                    if tcol and ncol:
+                        for _, r in df[[tcol, ncol]].dropna().iterrows():
+                            _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
+                return out
+        except Exception:
+            pass
+
+        try:
+            raw = paths.data_raw / "injuries.csv"
+            if not raw.exists():
+                return out
+            df = pd.read_csv(raw)
+            if df is None or df.empty:
+                return out
+            if "date" in df.columns:
+                df = df[df["date"].astype(str) == ds_s].copy()
+            status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
+            name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+            team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
+            if not (status_col and name_col and team_col):
+                return out
+            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+            st = df[status_col].astype(str).str.upper().str.strip()
+            df = df[st.isin(EXCL)].copy()
+            for _, r in df[[team_col, name_col]].dropna().iterrows():
+                _add(str(r.get(team_col) or ""), str(r.get(name_col) or ""))
+        except Exception:
+            pass
+        return out
+
+    excluded_map = _injuries_excluded_map_for_date(date_str)
+    home_outs = int(max(0, min(5, len(excluded_map.get(home_tri, set())))))
+    away_outs = int(max(0, min(5, len(excluded_map.get(away_tri, set())))))
+    excluded_game = {
+        str(home_tri): set(excluded_map.get(home_tri, set()) or set()),
+        str(away_tri): set(excluded_map.get(away_tri, set()) or set()),
+    }
+
     # Minimal quarter model: pace defaults to 98, ratings inferred from predicted total/margin
     # if predictions for this date exist; otherwise uses league-average.
     pred_path = paths.data_processed / f"predictions_{date_str}.csv"
@@ -437,6 +506,7 @@ def smart_sim_cmd(
         pace=float(home_pace),
         off_rating=_rating_from_mu(home_mu, matchup_pace),
         def_rating=float(home_def_rtg),
+        injuries_out=int(home_outs),
         back_to_back=bool(home_b2b),
         rest_days=home_rest_days,
     )
@@ -445,12 +515,18 @@ def smart_sim_cmd(
         pace=float(away_pace),
         off_rating=_rating_from_mu(away_mu, matchup_pace),
         def_rating=float(away_def_rtg),
+        injuries_out=int(away_outs),
         back_to_back=bool(away_b2b),
         rest_days=away_rest_days,
     )
     qsum = simulate_quarters(GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread), n_samples=3000)
 
     sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
+    pre_ctx = {
+        "home_injuries_out": int(home_outs),
+        "away_injuries_out": int(away_outs),
+    }
+
     out = simulate_smart_game(
         date_str=date_str,
         home_tri=home_tri,
@@ -460,6 +536,8 @@ def smart_sim_cmd(
         market_total=market_total,
         market_home_spread=home_spread,
         cfg=sim_cfg,
+        excluded_player_keys_by_team=excluded_game,
+        pregame_context=pre_ctx,
     )
 
     out_path = paths.data_processed / f"smart_sim_{date_str}_{home_tri}_{away_tri}.json"
@@ -499,6 +577,65 @@ def _smart_sim_run_date(
     if not props_path.exists():
         return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": f"missing_props:{props_path}"}
     props_df = pd.read_csv(props_path)
+
+    # Injury exclusions for this date (produced by predict-props when available).
+    def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
+        out: dict[str, set[str]] = {}
+        try:
+            from .player_priors import _norm_player_key  # type: ignore
+        except Exception:
+            def _norm_player_key(x):
+                return str(x or "").strip().upper()
+
+        def _add(tri: str, name: str) -> None:
+            t = str(tri or "").strip().upper()
+            if not t:
+                return
+            k = str(_norm_player_key(name) or "").strip().upper()
+            if not k:
+                return
+            out.setdefault(t, set()).add(k)
+
+        ds_s = str(ds).strip()
+
+        try:
+            p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
+            if p.exists():
+                df = pd.read_csv(p)
+                if df is not None and not df.empty:
+                    tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
+                    ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+                    if tcol and ncol:
+                        for _, r in df[[tcol, ncol]].dropna().iterrows():
+                            _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
+                return out
+        except Exception:
+            pass
+
+        try:
+            raw = paths.data_raw / "injuries.csv"
+            if not raw.exists():
+                return out
+            df = pd.read_csv(raw)
+            if df is None or df.empty:
+                return out
+            if "date" in df.columns:
+                df = df[df["date"].astype(str) == ds_s].copy()
+            status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
+            name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
+            team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
+            if not (status_col and name_col and team_col):
+                return out
+            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+            st = df[status_col].astype(str).str.upper().str.strip()
+            df = df[st.isin(EXCL)].copy()
+            for _, r in df[[team_col, name_col]].dropna().iterrows():
+                _add(str(r.get(team_col) or ""), str(r.get(name_col) or ""))
+        except Exception:
+            pass
+        return out
+
+    excluded_map = _injuries_excluded_map_for_date(date_str)
 
     odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
     odds_df = None
@@ -903,6 +1040,7 @@ def _smart_sim_run_date(
             pace=float(home_pace),
             off_rating=_rating_from_mu(home_mu, matchup_pace),
             def_rating=float(home_def_rtg),
+            injuries_out=int(max(0, min(5, len(excluded_map.get(home_tri, set()))))),
             back_to_back=bool(home_b2b),
             rest_days=home_rest_days,
         )
@@ -911,6 +1049,7 @@ def _smart_sim_run_date(
             pace=float(away_pace),
             off_rating=_rating_from_mu(away_mu, matchup_pace),
             def_rating=float(away_def_rtg),
+            injuries_out=int(max(0, min(5, len(excluded_map.get(away_tri, set()))))),
             back_to_back=bool(away_b2b),
             rest_days=away_rest_days,
         )
@@ -921,6 +1060,16 @@ def _smart_sim_run_date(
 
         try:
             sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
+            home_outs = int(max(0, min(5, len(excluded_map.get(home_tri, set())))))
+            away_outs = int(max(0, min(5, len(excluded_map.get(away_tri, set())))))
+            pre_ctx = {
+                "home_injuries_out": int(home_outs),
+                "away_injuries_out": int(away_outs),
+            }
+            excluded_game = {
+                str(home_tri): set(excluded_map.get(home_tri, set()) or set()),
+                str(away_tri): set(excluded_map.get(away_tri, set()) or set()),
+            }
             out = simulate_smart_game(
                 date_str=date_str,
                 home_tri=home_tri,
@@ -930,6 +1079,8 @@ def _smart_sim_run_date(
                 market_total=market_total,
                 market_home_spread=home_spread,
                 cfg=sim_cfg,
+                excluded_player_keys_by_team=excluded_game,
+                pregame_context=pre_ctx,
             )
 
             # Repair missing player_id fields via roster mapping.

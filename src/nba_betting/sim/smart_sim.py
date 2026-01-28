@@ -1150,6 +1150,8 @@ def simulate_smart_game(
     market_home_spread: Optional[float] = None,
     game_id: Optional[str] = None,
     cfg: Optional[SmartSimConfig] = None,
+    excluded_player_keys_by_team: Optional[dict[str, set[str]]] = None,
+    pregame_context: Optional[dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     cfg = cfg or SmartSimConfig()
     rng = np.random.default_rng(cfg.seed)
@@ -1173,8 +1175,33 @@ def simulate_smart_game(
     pri_cfg = PlayerPriorsConfig(days_back=int(cfg.priors_days_back))
     pri = compute_player_priors(date_str, pri_cfg)
 
-    home_raw = _team_players_from_props(props_df, home_tri, away_tri)
-    away_raw = _team_players_from_props(props_df, away_tri, home_tri)
+    excluded_map: dict[str, set[str]] = {}
+    try:
+        if isinstance(excluded_player_keys_by_team, dict):
+            for k, v in excluded_player_keys_by_team.items():
+                kk = str(k or "").strip().upper()
+                if not kk:
+                    continue
+                vv = set(str(x or "").strip().upper() for x in (v or set()) if str(x or "").strip())
+                if vv:
+                    excluded_map[kk] = vv
+    except Exception:
+        excluded_map = {}
+
+    def _drop_excluded(df: pd.DataFrame, team_tri: str) -> pd.DataFrame:
+        if df is None or df.empty:
+            return pd.DataFrame() if df is None else df
+        t = str(team_tri or "").strip().upper()
+        ban = excluded_map.get(t)
+        if not ban:
+            return df
+        out = df.copy()
+        out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+        out = out[~out["_pkey"].astype(str).str.upper().isin(ban)].drop(columns=["_pkey"], errors="ignore")
+        return out
+
+    home_raw = _drop_excluded(_team_players_from_props(props_df, home_tri, away_tri), home_tri)
+    away_raw = _drop_excluded(_team_players_from_props(props_df, away_tri, home_tri), away_tri)
 
     # Roster guardrail: SmartSim needs a reasonably-sized player pool.
     # If props-based pool is missing most of the roster, augment with:
@@ -1187,7 +1214,7 @@ def simulate_smart_game(
             if base is None:
                 base = pd.DataFrame()
             if (not base.empty) and (len(base) >= 8):
-                return base
+                return _drop_excluded(base, team_tri)
 
             from_box = _team_players_from_processed_boxscores(
                 date_str=str(date_str),
@@ -1207,7 +1234,7 @@ def simulate_smart_game(
                         comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
                     else:
                         comb = comb.drop_duplicates(subset=["player_name"], keep="last")
-                return comb
+                return _drop_excluded(comb, team_tri)
 
             espn = _team_players_from_espn_boxscore(
                 date_str,
@@ -1216,7 +1243,7 @@ def simulate_smart_game(
                 team_tri=team_tri,
             )
             if espn is None or espn.empty:
-                return base
+                return _drop_excluded(base, team_tri)
             # Prefer props rows when present by concatenating ESPN first then props and keeping last.
             comb = pd.concat([espn, base], ignore_index=True, sort=False)
             if "team" in comb.columns:
@@ -1228,7 +1255,7 @@ def simulate_smart_game(
                     comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
                 else:
                     comb = comb.drop_duplicates(subset=["player_name"], keep="last")
-            return comb
+            return _drop_excluded(comb, team_tri)
         except Exception:
             return team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
 
@@ -1752,11 +1779,30 @@ def simulate_smart_game(
         except Exception:
             p_total_over = None
 
+    ctx_out: dict[str, Any] = {}
+    try:
+        if isinstance(pregame_context, dict) and pregame_context:
+            ctx_out = dict(pregame_context)
+    except Exception:
+        ctx_out = {}
+    try:
+        if excluded_map:
+            ctx_out.setdefault(
+                "excluded_players",
+                {
+                    str(k): sorted(list(v))
+                    for k, v in excluded_map.items()
+                },
+            )
+    except Exception:
+        pass
+
     return {
         "home": str(home_tri).upper(),
         "away": str(away_tri).upper(),
         "date": str(date_str),
         "game_id": str(gid) if gid else None,
+        "context": (ctx_out if ctx_out else None),
         "market": {
             "market_total": float(market_total) if market_total is not None else None,
             "market_home_spread": float(market_home_spread) if market_home_spread is not None else None,

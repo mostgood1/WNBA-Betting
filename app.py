@@ -691,6 +691,153 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
     return name_keys, short_keys
 
 
+def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    """Return a map of (TEAM_TRI, NAME_KEY) -> injury context.
+
+    Source: data/raw/injuries.csv
+
+    Intended for display/context (e.g., cards UI), not for exclusion logic.
+    """
+    out: dict[tuple[str, str], dict[str, Any]] = {}
+    inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+    if not inj_path.exists():
+        return out
+
+    try:
+        cutoff = pd.to_datetime(date_str).date()
+    except Exception:
+        cutoff = datetime.utcnow().date()
+
+    # Roster map to guard against injury-feed team mismatches.
+    roster_name_to_tri: dict[str, str] = {}
+    try:
+        _, roster_name_to_tri = _build_roster_team_maps(str(date_str))
+    except Exception:
+        roster_name_to_tri = {}
+
+    EXCLUDE_STATUSES = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+
+    def _tri_from_team(x: Any) -> str:
+        try:
+            s = str(x or "").strip().upper()
+        except Exception:
+            return ""
+        if not s:
+            return ""
+        if len(s) == 3 and s.isalpha():
+            return s
+        try:
+            t = _get_tricode(s)
+            if isinstance(t, str) and t.strip():
+                return t.strip().upper()
+        except Exception:
+            pass
+        try:
+            from nba_betting.teams import to_tricode as _to_tri  # type: ignore
+
+            t = _to_tri(s)
+            if isinstance(t, str) and t.strip():
+                return t.strip().upper()
+        except Exception:
+            pass
+        return s
+
+    def _status_norm(x: Any) -> str:
+        try:
+            s = str(x).strip().upper()
+        except Exception:
+            return ""
+        # Pandas sometimes parses NA-ish strings; normalize anyway.
+        if not s or s in {"NAN", "NONE", "NULL"}:
+            return ""
+        return s
+
+    try:
+        inj = pd.read_csv(inj_path)
+        if not isinstance(inj, pd.DataFrame) or inj.empty:
+            return out
+        if "player" not in inj.columns or "status" not in inj.columns:
+            return out
+
+        inj = inj.copy()
+        if "date" in inj.columns:
+            inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
+            inj = inj[inj["date"].notna()]
+            inj = inj[inj["date"] <= cutoff].copy()
+            # Keep recent statuses (avoid stale RTP issues), but allow season-ending/indefinite.
+            try:
+                recency_days = 30
+                fresh_cutoff = (cutoff - timedelta(days=int(recency_days)))
+                s_norm = inj["status"].astype(str).str.upper().str.strip()
+                is_season = (
+                    s_norm.str.contains("SEASON", na=False)
+                    | s_norm.str.contains("INDEFINITE", na=False)
+                    | s_norm.str.contains("SEASON-ENDING", na=False)
+                )
+                inj = inj[(inj["date"] >= fresh_cutoff) | is_season].copy()
+            except Exception:
+                pass
+
+        # Normalize team tri; require it when possible.
+        if "team" in inj.columns:
+            inj["team_tri"] = inj["team"].map(_tri_from_team)
+        else:
+            inj["team_tri"] = ""
+
+        # latest row per player+team
+        if "date" in inj.columns:
+            inj = inj.sort_values(["date"]).copy()
+        latest = inj.groupby(["player", "team_tri"], as_index=False).tail(1).copy()
+
+        for _, r in latest.iterrows():
+            try:
+                player = str(r.get("player") or "").strip()
+            except Exception:
+                player = ""
+            if not player:
+                continue
+
+            nk = _norm_player_name(player)
+            if not nk:
+                continue
+
+            # Prefer roster team when known (injury feeds often have wrong teams).
+            try:
+                rost_tri = roster_name_to_tri.get(nk) or ""
+            except Exception:
+                rost_tri = ""
+            row_tri = str(r.get("team_tri") or "").strip().upper()
+            team_tri = (rost_tri or row_tri).strip().upper()
+            if not team_tri:
+                continue
+
+            status = _status_norm(r.get("status"))
+            injury_desc = None
+            try:
+                if "injury" in latest.columns:
+                    injury_desc = r.get("injury")
+            except Exception:
+                injury_desc = None
+            if isinstance(injury_desc, float) and np.isnan(injury_desc):
+                injury_desc = None
+
+            ctx: dict[str, Any] = {
+                "injury_status": status,
+                "injury": injury_desc,
+            }
+            if "date" in latest.columns:
+                ctx["injury_date"] = r.get("date")
+
+            if status:
+                ctx["playing_today"] = (status not in EXCLUDE_STATUSES)
+
+            out[(team_tri, nk)] = ctx
+    except Exception:
+        return out
+
+    return out
+
+
 def _injury_designations_for_matchup(
     date_str: str,
     home_tri: str,
@@ -4599,6 +4746,7 @@ def api_cards():
     props_map = _load_props_predictions_map(d)
     min_priors = _compute_player_minutes_priors(d, days_back=21)
     props_recs_by_team = _load_props_recommendations_by_team(d)
+    injury_ctx_map = _load_injury_context_map(d)
 
     games: list[dict[str, Any]] = []
     for fp in _load_smart_sim_files_for_date(d):
@@ -4651,6 +4799,20 @@ def api_cards():
                     for k in ("injury_status", "playing_today", "team_on_slate", "opponent", "home"):
                         if k in ctx and k not in pr2:
                             pr2[k] = ctx.get(k)
+
+                # If props_predictions doesn't carry injury fields (often blank),
+                # fall back to the raw injuries feed for display context.
+                try:
+                    if (not pr2.get("injury_status")) and pr2.get("player_name"):
+                        tri = home_tri if side == "home" else away_tri
+                        nk = _norm_player_name(pr2.get("player_name"))
+                        ctx2 = injury_ctx_map.get((tri, nk))
+                        if isinstance(ctx2, dict) and ctx2:
+                            for k in ("injury_status", "playing_today", "injury", "injury_date"):
+                                if k in ctx2 and k not in pr2:
+                                    pr2[k] = ctx2.get(k)
+                except Exception:
+                    pass
                 out_arr.append(pr2)
             players_out[side] = out_arr
 
@@ -4660,6 +4822,7 @@ def api_cards():
             "n_sims": obj.get("n_sims"),
             "mode": obj.get("mode"),
             "market": obj.get("market"),
+            "context": obj.get("context"),
             "score": obj.get("score"),
             "periods": obj.get("periods"),
             "players": players_out,

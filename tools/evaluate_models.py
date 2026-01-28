@@ -63,6 +63,13 @@ def _load_csv(path: Path) -> pd.DataFrame | None:
         return None
 
 
+def _dedupe_on_keys(df: pd.DataFrame, keys: list[str]) -> pd.DataFrame:
+    if df is None or df.empty or not keys:
+        return df
+    # Keep first occurrence; recon feeds can contain duplicates per matchup.
+    return df.drop_duplicates(subset=keys, keep="first")
+
+
 def evaluate_games(start: datetime, end: datetime) -> dict:
     rows = []
     for d in daterange(start, end):
@@ -95,6 +102,8 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
                     rec_k[c] = rec_k[c.upper()]
             keys = [c for c in ("date","home_team","visitor_team") if c in pred_k.columns and c in rec_k.columns]
             if len(keys) >= 2:
+                pred_k = _dedupe_on_keys(pred_k, keys)
+                rec_k = _dedupe_on_keys(rec_k, keys)
                 m = pred_k.merge(rec_k, on=keys, suffixes=("_p","_r"))
                 if "home_final" in m.columns and "visitor_final" in m.columns:
                     y = (pd.to_numeric(m["home_final"], errors="coerce") > pd.to_numeric(m["visitor_final"], errors="coerce")).astype(float)
@@ -175,6 +184,8 @@ def evaluate_games(start: datetime, end: datetime) -> dict:
         keys = [c for c in ("date","home_team","visitor_team") if c in pred_k.columns and c in rec_k.columns]
         if len(keys) < 2:
             continue
+        pred_k = _dedupe_on_keys(pred_k, keys)
+        rec_k = _dedupe_on_keys(rec_k, keys)
         m = pred_k.merge(rec_k, on=keys, suffixes=("_p","_r"))
         p_main_col = "home_win_prob" if "home_win_prob" in pred_k.columns else ("prob_home_win" if "prob_home_win" in pred_k.columns else None)
         if p_main_col is None or p_main_col not in m.columns:
@@ -250,6 +261,8 @@ def evaluate_totals(start: datetime, end: datetime) -> dict:
             if len(keys) < 2:
                 continue
 
+            pp = _dedupe_on_keys(pp, keys)
+            ff = _dedupe_on_keys(ff, keys)
             m = pp.merge(ff, on=keys, suffixes=("_p","_f"))
             if {"home_score", "visitor_score"}.issubset(set(m.columns)):
                 actual_total = pd.to_numeric(m["home_score"], errors="coerce") + pd.to_numeric(m["visitor_score"], errors="coerce")
@@ -336,12 +349,23 @@ def evaluate_lines_classification(start: datetime, end: datetime) -> dict:
                     if c not in df.columns and c.upper() in df.columns:
                         df[c] = df[c.upper()]
 
+            # Rename market-line columns to avoid collisions with prediction columns (which can be NaN).
+            o = o.rename(columns={
+                "home_spread": "mkt_home_spread",
+                "spread_point": "mkt_home_spread",
+                "total": "mkt_total",
+                "total_point": "mkt_total",
+            })
+
             # Join predictions with finals using tri-codes when possible; then join with odds using team names.
             tri_keys_pf = [c for c in ("date", "home_tri", "away_tri") if c in p.columns and c in f.columns]
             name_keys_pf = [c for c in ("date", "home_team", "visitor_team") if c in p.columns and c in f.columns]
             keys_pf = tri_keys_pf if len(tri_keys_pf) >= 2 else name_keys_pf
             if len(keys_pf) < 2:
                 continue
+
+            p = _dedupe_on_keys(p, keys_pf)
+            f = _dedupe_on_keys(f, keys_pf)
             pf = p.merge(f, on=keys_pf, suffixes=("_p", "_f"))
 
             keys_o = [c for c in ("date", "home_team", "visitor_team") if c in pf.columns and c in o.columns]
@@ -358,8 +382,8 @@ def evaluate_lines_classification(start: datetime, end: datetime) -> dict:
             else:
                 continue
             # Lines
-            sp_line = m.get("home_spread") if "home_spread" in m.columns else m.get("spread_point")
-            tot_line = m.get("total") if "total" in m.columns else m.get("total_point")
+            sp_line = m.get("mkt_home_spread")
+            tot_line = m.get("mkt_total")
             if sp_line is None or tot_line is None:
                 continue
             # Predicted values
