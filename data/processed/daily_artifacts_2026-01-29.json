@@ -18,6 +18,8 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
+    "minutes_sanity: team ATL top10 minutes sum low (162.7) using roll3_min",
+    "minutes_sanity: team ATL has <5 players at 20+ min (found 4) using roll3_min",
     "minutes_sanity: team BKN top10 minutes sum low (139.3) using roll3_min",
     "minutes_sanity: team BKN has <5 players at 20+ min (found 3) using roll3_min",
     "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll3_min"
