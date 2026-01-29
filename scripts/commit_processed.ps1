@@ -159,7 +159,7 @@ if ($DryRun) {
 # Stage files
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
-    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name.StartsWith('calibration_period_probs_') -or $f.Name -eq 'quarters_calibration.json') {
+    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name.StartsWith('calibration_period_probs_') -or $f.Name -eq 'quarters_calibration.json' -or $f.Name.StartsWith('smart_sim_')) {
         git add -f -- $rel
     } else {
         git add -- $rel

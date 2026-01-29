@@ -90,3 +90,19 @@ data/processed/**
 
 # Legacy root predictions snapshot (not used by Render UI)
 predictions.csv
+
+# Local-only / scratch outputs (do not commit)
+_tmp_game_cards_*.json
+tmp_smoke_endpoints*.py
+
+# Local backtest / walkforward artifacts (keep out of git)
+# Note: these match the whitelisted `props_edges_*.csv` prefix, so we explicitly re-ignore them.
+data/processed/props_edges_backtest*.csv
+data/processed/props_edges_walkforward*.csv
+
+# Local SmartSim diagnostics (not consumed by the frontend)
+data/processed/smart_sim_merge_report_*.json
+
+# SmartSim artifacts: ignore by default (they're large/noisy locally).
+# Publishing script force-adds the daily SmartSim files when needed for Render parity.
+data/processed/smart_sim_*.json
