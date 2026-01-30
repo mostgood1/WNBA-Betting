@@ -19,13 +19,7 @@
   "require_odds": true,
   "require_smartsim": true,
   "require_rotations_espn": true,
-  "warnings": [
-    "minutes_sanity: team GSW top10 minutes sum low (165.7) using roll10_min",
-    "minutes_sanity: team GSW has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team PHX top10 minutes sum low (179.8) using roll10_min",
-    "minutes_sanity: team TOR has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team WAS top10 minutes sum low (173.7) using roll10_min"
-  ],
+  "warnings": [],
   "missing": [],
   "ok": true
 }
