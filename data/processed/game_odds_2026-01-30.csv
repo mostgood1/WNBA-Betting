@@ -1,0 +1,10 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-30,2026-01-31T00:40:00Z,New York Knicks,Portland Trail Blazers,-247.21942926569892,247.21942926569898,-7.5,7.5,,,225.0,-100.0,-100.0,11,11,11,5,oddsapi_consensus
+2026-01-30,2026-01-31T02:30:00Z,Utah Jazz,Brooklyn Nets,-118.52473758816629,118.52473758816623,-2.0,2.0,,,227.0,-100.0,-100.0,11,11,8,7,oddsapi_consensus
+2026-01-30,2026-01-31T02:00:00Z,Phoenix Suns,Cleveland Cavaliers,155.56246338492485,-155.56246338492485,3.5,-3.5,,,220.5,100.19261884582785,-100.19261884582784,11,11,5,9,oddsapi_consensus
+2026-01-30,2026-01-31T02:00:00Z,Denver Nuggets,Los Angeles Clippers,191.63932222655745,-191.63932222655748,6.0,-6.0,,,209.5,100.62102158049991,-100.62102158049993,11,11,7,7,oddsapi_consensus
+2026-01-30,2026-01-31T00:40:00Z,New Orleans Pelicans,Memphis Grizzlies,-118.74721985303935,118.74721985303934,-2.0,2.0,,,233.5,-100.24772096710265,100.24772096710265,11,11,6,7,oddsapi_consensus
+2026-01-30,2026-01-31T00:10:00Z,Washington Wizards,Los Angeles Lakers,300.4824073915881,-300.482407391588,9.0,-9.0,,,229.5,-100.7610847833757,100.76108478337571,11,11,9,8,oddsapi_consensus
+2026-01-30,2026-01-31T03:10:00Z,Golden State Warriors,Detroit Pistons,-128.39204528794892,128.39204528794892,-2.5,2.5,,,224.5,-100.0,-100.0,11,11,11,10,oddsapi_consensus
+2026-01-30,2026-01-31T00:40:00Z,Boston Celtics,Sacramento Kings,-425.6353601473454,425.6353601473457,-11.5,11.5,,,220.5,-100.0,-100.0,11,11,10,7,oddsapi_consensus
+2026-01-30,2026-01-31T00:40:00Z,Orlando Magic,Toronto Raptors,-116.5217148466554,116.5217148466554,-1.5,1.5,,,219.5,-100.0,-100.0,11,11,8,7,oddsapi_consensus
