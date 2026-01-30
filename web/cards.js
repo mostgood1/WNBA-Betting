@@ -553,10 +553,10 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
         <details class="players-block" open>
           <summary class="players-toggle cursor-pointer">Projected boxscore (aggregated sim means)</summary>
           ${renderPlayersTable(`HOME (${homeTri}) players`, playersHome)}
-          ${renderInjurySummary(`HOME (${homeTri})`, playersHome)}
+          ${renderInjurySummary(`HOME (${homeTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.home) ? g.sim.injuries.home : playersHome)}
           <div class="mb-6"></div>
           ${renderPlayersTable(`AWAY (${awayTri}) players`, playersAway)}
-          ${renderInjurySummary(`AWAY (${awayTri})`, playersAway)}
+          ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
         </details>
 
         <details class="writeup-block">

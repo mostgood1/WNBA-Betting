@@ -822,6 +822,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
                 injury_desc = None
 
             ctx: dict[str, Any] = {
+                "player_name": player,
                 "injury_status": status,
                 "injury": injury_desc,
             }
@@ -3790,6 +3791,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         env = {"PYTHONPATH": str(SRC_DIR)}
         season_year = _season_year_for_date(date_str)
         season_str = _season_str_from_year(season_year)
+        season_end_year = season_year + 1
 
         # Build a date-based pipeline aligned with scripts/daily_update.ps1
         steps: list[tuple[str, list[str], bool]] = []
@@ -3819,6 +3821,22 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             [str(py), "-m", "nba_betting.cli", "simulate-games", "--date", date_str],
             False,
         ))
+
+        # SmartSim distributions for today's slate (writes per-game smart_sim_<date>_<HOME>_<AWAY>.json)
+        # Keep consistent with scripts/daily_update.ps1; allow skipping via env.
+        skip_smartsim = str(os.environ.get("DAILY_SKIP_SMARTSIM") or "").strip().lower() in {"1", "true", "yes"}
+        if (mode in {"full", "pipeline", "props"}) and not skip_smartsim:
+            steps.append((
+                "fetch-advanced-stats",
+                [str(py), "-m", "nba_betting.cli", "fetch-advanced-stats", "--season", str(season_end_year), "--as-of", date_str],
+                False,
+            ))
+            n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "300").strip() or "300"
+            smartsim_cmd = [str(py), "-m", "nba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
+            max_games = str(os.environ.get("DAILY_SMARTSIM_MAX_GAMES") or "").strip()
+            if max_games:
+                smartsim_cmd += ["--max-games", max_games]
+            steps.append(("smart-sim-date", smartsim_cmd, False))
         if mode in {"full", "pipeline", "props"}:
             steps.append((
                 "predict-props",
@@ -4747,6 +4765,7 @@ def api_cards():
     min_priors = _compute_player_minutes_priors(d, days_back=21)
     props_recs_by_team = _load_props_recommendations_by_team(d)
     injury_ctx_map = _load_injury_context_map(d)
+    roster_map = _roster_players_for_date(d)
 
     games: list[dict[str, Any]] = []
     for fp in _load_smart_sim_files_for_date(d):
@@ -4771,6 +4790,34 @@ def api_cards():
         # Attach injury/status context onto sim player rows via props_predictions
         players = obj.get("players") if isinstance(obj.get("players"), dict) else {"home": [], "away": []}
         players_out: dict[str, list[dict[str, Any]]] = {"home": [], "away": []}
+
+        def _is_blank(v: Any) -> bool:
+            if v is None:
+                return True
+            # Preserve boolean False as meaningful (e.g. playing_today=False)
+            if isinstance(v, (bool, np.bool_)):
+                return False
+            # Pandas often uses NaN floats for missing strings
+            try:
+                if isinstance(v, float) and np.isnan(v):
+                    return True
+            except Exception:
+                pass
+            try:
+                if pd.isna(v):
+                    return True
+            except Exception:
+                pass
+            try:
+                if isinstance(v, str) and (v.strip() == ""):
+                    return True
+            except Exception:
+                pass
+            return False
+
+        def _is_present(v: Any) -> bool:
+            return not _is_blank(v)
+
         for side in ("home", "away"):
             arr = players.get(side) if isinstance(players, dict) else []
             out_arr: list[dict[str, Any]] = []
@@ -4797,24 +4844,65 @@ def api_cards():
                 if pid is not None and pid in props_map:
                     ctx = props_map.get(pid) or {}
                     for k in ("injury_status", "playing_today", "team_on_slate", "opponent", "home"):
-                        if k in ctx and k not in pr2:
-                            pr2[k] = ctx.get(k)
+                        if k in ctx and (_is_blank(pr2.get(k))):
+                            vv = ctx.get(k)
+                            if _is_present(vv):
+                                pr2[k] = vv
 
                 # If props_predictions doesn't carry injury fields (often blank),
                 # fall back to the raw injuries feed for display context.
                 try:
-                    if (not pr2.get("injury_status")) and pr2.get("player_name"):
+                    if _is_blank(pr2.get("injury_status")) and pr2.get("player_name"):
                         tri = home_tri if side == "home" else away_tri
                         nk = _norm_player_name(pr2.get("player_name"))
                         ctx2 = injury_ctx_map.get((tri, nk))
                         if isinstance(ctx2, dict) and ctx2:
                             for k in ("injury_status", "playing_today", "injury", "injury_date"):
-                                if k in ctx2 and k not in pr2:
-                                    pr2[k] = ctx2.get(k)
+                                if k in ctx2 and _is_blank(pr2.get(k)):
+                                    vv = ctx2.get(k)
+                                    if _is_present(vv):
+                                        pr2[k] = vv
                 except Exception:
                     pass
                 out_arr.append(pr2)
             players_out[side] = out_arr
+
+        def _injury_list_for_team(team_tri: str) -> list[dict[str, Any]]:
+            tri = str(team_tri or "").strip().upper()
+            if not tri:
+                return []
+            roster_keys = roster_map.get(tri) or set()
+            out_rows: list[dict[str, Any]] = []
+            try:
+                items = injury_ctx_map.items() if isinstance(injury_ctx_map, dict) else []
+            except Exception:
+                items = []
+            for (t, nk), ctx in items:
+                if str(t or "").strip().upper() != tri:
+                    continue
+                if roster_keys and str(nk or "") not in roster_keys:
+                    continue
+                if not isinstance(ctx, dict):
+                    continue
+                st = ctx.get("injury_status")
+                if _is_blank(st):
+                    continue
+                out_rows.append(
+                    {
+                        "player_name": ctx.get("player_name"),
+                        "injury_status": st,
+                        "playing_today": ctx.get("playing_today"),
+                        "injury": ctx.get("injury"),
+                        "injury_date": ctx.get("injury_date"),
+                    }
+                )
+            out_rows.sort(key=lambda r: str(r.get("player_name") or "").strip().upper())
+            return out_rows
+
+        injuries_payload = {
+            "home": _injury_list_for_team(home_tri),
+            "away": _injury_list_for_team(away_tri),
+        }
 
         sim = {
             "file": fp.name,
@@ -4826,6 +4914,7 @@ def api_cards():
             "score": obj.get("score"),
             "periods": obj.get("periods"),
             "players": players_out,
+            "injuries": injuries_payload,
             "error": sim_error,
         }
 

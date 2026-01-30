@@ -211,8 +211,8 @@ def smart_sim_cmd(
     def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
         """Return TEAM_TRI -> {PLAYER_KEY} for players excluded due to injury.
 
-        Prefers data/processed/injuries_excluded_<date>.csv (written by predict-props).
-        Falls back to data/raw/injuries.csv for same-day OUT/DOUBTFUL/SUSPENDED/INACTIVE/REST.
+        Uses data/processed/injuries_excluded_<date>.csv (written by predict-props) when present,
+        and unions same-day OUT/DOUBTFUL/SUSPENDED/INACTIVE/REST from data/raw/injuries.csv.
         """
         out: dict[str, set[str]] = {}
         try:
@@ -232,6 +232,79 @@ def smart_sim_cmd(
 
         ds_s = str(ds).strip()
 
+        # Roster map to guard against injury-feed team mismatches.
+        # Prefer league_status_<date>.csv when available; otherwise fall back to season rosters.
+        roster_name_to_tri: dict[str, str] = {}
+        try:
+            fp = paths.data_processed / f"league_status_{ds_s}.csv"
+            if fp.exists():
+                rdf = pd.read_csv(fp)
+                if rdf is not None and not rdf.empty:
+                    cols = {c.upper(): c for c in rdf.columns}
+                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                    if tcol and ncol:
+                        tmp = rdf[[tcol, ncol]].dropna().copy()
+                        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                        tmp[ncol] = tmp[ncol].astype(str)
+                        for _, rr in tmp.iterrows():
+                            nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
+                            if not nk:
+                                continue
+                            tri = str(rr.get(tcol) or "").strip().upper()
+                            if len(tri) != 3:
+                                tri = str(to_tricode(tri) or "").strip().upper()
+                            if tri:
+                                roster_name_to_tri.setdefault(nk, tri)
+        except Exception:
+            roster_name_to_tri = {}
+
+        if not roster_name_to_tri:
+            try:
+                dts = pd.to_datetime(ds_s, errors="coerce")
+                season_start = None
+                if not pd.isna(dts):
+                    season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
+                candidates: list[Path] = []
+                if season_start is not None:
+                    label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
+                    candidates.append(paths.data_processed / f"rosters_{label}.csv")
+                    candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
+                candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
+
+                seen: set[str] = set()
+                for fp in candidates:
+                    sp = str(fp)
+                    if sp in seen:
+                        continue
+                    seen.add(sp)
+                    if not fp.exists():
+                        continue
+                    rdf = pd.read_csv(fp)
+                    if rdf is None or rdf.empty:
+                        continue
+                    cols = {c.upper(): c for c in rdf.columns}
+                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                    if not (tcol and ncol):
+                        continue
+                    tmp = rdf[[tcol, ncol]].dropna().copy()
+                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                    tmp[ncol] = tmp[ncol].astype(str)
+                    for _, rr in tmp.iterrows():
+                        nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
+                        if not nk:
+                            continue
+                        tri = str(rr.get(tcol) or "").strip().upper()
+                        if len(tri) != 3:
+                            tri = str(to_tricode(tri) or "").strip().upper()
+                        if tri:
+                            roster_name_to_tri.setdefault(nk, tri)
+                    if roster_name_to_tri:
+                        break
+            except Exception:
+                pass
+
         try:
             p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
             if p.exists():
@@ -242,7 +315,6 @@ def smart_sim_cmd(
                     if tcol and ncol:
                         for _, r in df[[tcol, ncol]].dropna().iterrows():
                             _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
-                return out
         except Exception:
             pass
 
@@ -253,8 +325,21 @@ def smart_sim_cmd(
             df = pd.read_csv(raw)
             if df is None or df.empty:
                 return out
+            # Use latest status up to cutoff date (not only same-day rows).
+            cutoff = pd.to_datetime(ds_s, errors="coerce")
             if "date" in df.columns:
-                df = df[df["date"].astype(str) == ds_s].copy()
+                df = df.copy()
+                df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                df = df[df["date"].notna()].copy()
+                if not pd.isna(cutoff):
+                    df = df[df["date"] <= cutoff].copy()
+                try:
+                    df = df.sort_values(["date"]).copy()
+                    grp_cols = [c for c in ["player", "team"] if c in df.columns]
+                    if grp_cols:
+                        df = df.groupby(grp_cols, as_index=False).tail(1).copy()
+                except Exception:
+                    pass
             status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
             name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
             team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
@@ -262,9 +347,16 @@ def smart_sim_cmd(
                 return out
             EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
             st = df[status_col].astype(str).str.upper().str.strip()
-            df = df[st.isin(EXCL)].copy()
+            # Also treat season-long/indefinite outs as exclusions.
+            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+            df = df[st.isin(EXCL) | season_out].copy()
             for _, r in df[[team_col, name_col]].dropna().iterrows():
-                _add(str(r.get(team_col) or ""), str(r.get(name_col) or ""))
+                nm = str(r.get(name_col) or "")
+                nk = str(_norm_player_key(nm) or "").strip().upper()
+                tri = str(r.get(team_col) or "")
+                if nk and (nk in roster_name_to_tri):
+                    tri = roster_name_to_tri.get(nk) or tri
+                _add(str(tri or ""), nm)
         except Exception:
             pass
         return out
@@ -598,6 +690,77 @@ def _smart_sim_run_date(
 
         ds_s = str(ds).strip()
 
+        roster_name_to_tri: dict[str, str] = {}
+        try:
+            fp = paths.data_processed / f"league_status_{ds_s}.csv"
+            if fp.exists():
+                rdf = pd.read_csv(fp)
+                if rdf is not None and not rdf.empty:
+                    cols = {c.upper(): c for c in rdf.columns}
+                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                    if tcol and ncol:
+                        tmp = rdf[[tcol, ncol]].dropna().copy()
+                        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                        tmp[ncol] = tmp[ncol].astype(str)
+                        for _, rr in tmp.iterrows():
+                            nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
+                            if not nk:
+                                continue
+                            tri = str(rr.get(tcol) or "").strip().upper()
+                            if len(tri) != 3:
+                                tri = str(to_tricode(tri) or "").strip().upper()
+                            if tri:
+                                roster_name_to_tri.setdefault(nk, tri)
+        except Exception:
+            roster_name_to_tri = {}
+
+        if not roster_name_to_tri:
+            try:
+                dts = pd.to_datetime(ds_s, errors="coerce")
+                season_start = None
+                if not pd.isna(dts):
+                    season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
+                candidates: list[Path] = []
+                if season_start is not None:
+                    label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
+                    candidates.append(paths.data_processed / f"rosters_{label}.csv")
+                    candidates.append(paths.data_processed / f"rosters_{int(season_start)}.csv")
+                candidates.extend(sorted(paths.data_processed.glob("rosters_*.csv")))
+
+                seen: set[str] = set()
+                for fp in candidates:
+                    sp = str(fp)
+                    if sp in seen:
+                        continue
+                    seen.add(sp)
+                    if not fp.exists():
+                        continue
+                    rdf = pd.read_csv(fp)
+                    if rdf is None or rdf.empty:
+                        continue
+                    cols = {c.upper(): c for c in rdf.columns}
+                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                    if not (tcol and ncol):
+                        continue
+                    tmp = rdf[[tcol, ncol]].dropna().copy()
+                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+                    tmp[ncol] = tmp[ncol].astype(str)
+                    for _, rr in tmp.iterrows():
+                        nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
+                        if not nk:
+                            continue
+                        tri = str(rr.get(tcol) or "").strip().upper()
+                        if len(tri) != 3:
+                            tri = str(to_tricode(tri) or "").strip().upper()
+                        if tri:
+                            roster_name_to_tri.setdefault(nk, tri)
+                    if roster_name_to_tri:
+                        break
+            except Exception:
+                pass
+
         try:
             p = paths.data_processed / f"injuries_excluded_{ds_s}.csv"
             if p.exists():
@@ -608,7 +771,6 @@ def _smart_sim_run_date(
                     if tcol and ncol:
                         for _, r in df[[tcol, ncol]].dropna().iterrows():
                             _add(str(r.get(tcol) or ""), str(r.get(ncol) or ""))
-                return out
         except Exception:
             pass
 
@@ -619,8 +781,21 @@ def _smart_sim_run_date(
             df = pd.read_csv(raw)
             if df is None or df.empty:
                 return out
+            # Use latest status up to cutoff date (not only same-day rows).
+            cutoff = pd.to_datetime(ds_s, errors="coerce")
             if "date" in df.columns:
-                df = df[df["date"].astype(str) == ds_s].copy()
+                df = df.copy()
+                df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                df = df[df["date"].notna()].copy()
+                if not pd.isna(cutoff):
+                    df = df[df["date"] <= cutoff].copy()
+                try:
+                    df = df.sort_values(["date"]).copy()
+                    grp_cols = [c for c in ["player", "team"] if c in df.columns]
+                    if grp_cols:
+                        df = df.groupby(grp_cols, as_index=False).tail(1).copy()
+                except Exception:
+                    pass
             status_col = "status" if "status" in df.columns else ("injury_status" if "injury_status" in df.columns else None)
             name_col = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
             team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
@@ -628,9 +803,15 @@ def _smart_sim_run_date(
                 return out
             EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
             st = df[status_col].astype(str).str.upper().str.strip()
-            df = df[st.isin(EXCL)].copy()
+            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+            df = df[st.isin(EXCL) | season_out].copy()
             for _, r in df[[team_col, name_col]].dropna().iterrows():
-                _add(str(r.get(team_col) or ""), str(r.get(name_col) or ""))
+                nm = str(r.get(name_col) or "")
+                nk = str(_norm_player_key(nm) or "").strip().upper()
+                tri = str(r.get(team_col) or "")
+                if nk and (nk in roster_name_to_tri):
+                    tri = roster_name_to_tri.get(nk) or tri
+                _add(str(tri or ""), nm)
         except Exception:
             pass
         return out
