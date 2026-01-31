@@ -1,0 +1,7 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-01-31,2026-02-01T01:40:00Z,Houston Rockets,Dallas Mavericks,-398.5172532567397,398.5172532567398,-10.5,10.5,,,222.5,-100.0,-100.0,11,11,10,5,oddsapi_consensus
+2026-01-31,2026-02-01T00:40:00Z,Philadelphia 76ers,New Orleans Pelicans,-342.81994581030847,342.8199458103085,-10.0,10.0,,,232.0,-102.75862000955576,102.75862000955574,11,11,9,5,oddsapi_consensus
+2026-01-31,2026-02-01T01:10:00Z,Memphis Grizzlies,Minnesota Timberwolves,265.17683682566684,-265.1768368256669,8.0,-8.0,,,229.5,100.173340266944,-100.173340266944,11,11,8,10,oddsapi_consensus
+2026-01-31,2026-02-01T00:10:00Z,Indiana Pacers,Atlanta Hawks,111.20021395167997,-111.20021395167997,1.5,-1.5,,,232.0,-102.04116599257982,102.04116599257988,11,11,10,5,oddsapi_consensus
+2026-01-31,2026-01-31T17:10:00Z,Charlotte Hornets,San Antonio Spurs,163.0921607191419,-163.09216071914187,4.5,-4.5,,,227.0,-100.992511052964,100.99251105296399,11,11,11,5,oddsapi_consensus
+2026-01-31,2026-02-01T01:10:00Z,Miami Heat,Chicago Bulls,-168.2388443304645,168.23884433046445,-4.5,4.5,,,235.5,100.56125351672088,-100.56125351672088,11,11,10,8,oddsapi_consensus
