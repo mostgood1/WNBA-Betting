@@ -699,6 +699,53 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
     Intended for display/context (e.g., cards UI), not for exclusion logic.
     """
     out: dict[tuple[str, str], dict[str, Any]] = {}
+
+    # Prefer the processed daily snapshot (committed to git for Render parity).
+    # This avoids relying on raw injuries.csv being present in the deployed filesystem.
+    snap_path = BASE_DIR / "data" / "processed" / f"injuries_counts_{date_str}.json"
+    if snap_path.exists():
+        try:
+            obj = json.loads(snap_path.read_text(encoding="utf-8"))
+        except Exception:
+            obj = None
+        players = (obj or {}).get("players") or []
+        if isinstance(players, list) and players:
+            EXCLUDE_STATUSES_SNAP = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+            for r in players:
+                if not isinstance(r, dict):
+                    continue
+                team_raw = str(r.get("team") or "").strip().upper()
+                if not team_raw:
+                    continue
+                if len(team_raw) == 3 and team_raw.isalpha():
+                    tri = team_raw
+                else:
+                    try:
+                        tri = str(_get_tricode(team_raw) or team_raw).strip().upper()
+                    except Exception:
+                        tri = team_raw
+
+                nm = str(r.get("player") or r.get("player_name") or "").strip()
+                if not tri or not nm:
+                    continue
+                st = str(r.get("status") or "").strip().upper()
+                if not st:
+                    continue
+
+                playing_today = False if st in EXCLUDE_STATUSES_SNAP else None
+                nk = _norm_player_name(nm)
+                out[(tri, nk)] = {
+                    "player_name": nm,
+                    "injury_status": ("OUT" if st == "OUT" else st),
+                    "playing_today": playing_today,
+                    "injury": None,
+                    "injury_date": None,
+                }
+
+        # Return snapshot-derived map even if it is small; it is intentionally OUT-focused.
+        if out:
+            return out
+
     inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
     if not inj_path.exists():
         return out
@@ -4884,13 +4931,15 @@ def api_cards():
                     continue
                 if not isinstance(ctx, dict):
                     continue
-                st = ctx.get("injury_status")
-                if _is_blank(st):
+                st_raw = ctx.get("injury_status")
+                st = str(st_raw or "").strip().upper()
+                is_out = (st == "OUT") or (ctx.get("playing_today") is False)
+                if not is_out:
                     continue
                 out_rows.append(
                     {
                         "player_name": ctx.get("player_name"),
-                        "injury_status": st,
+                        "injury_status": (st_raw if _is_present(st_raw) else ("OUT" if ctx.get("playing_today") is False else None)),
                         "playing_today": ctx.get("playing_today"),
                         "injury": ctx.get("injury"),
                         "injury_date": ctx.get("injury_date"),

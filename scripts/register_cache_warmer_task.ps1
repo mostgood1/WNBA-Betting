@@ -5,22 +5,25 @@ param(
 $ErrorActionPreference = 'Stop'
 $taskName = "NBA-Betting - Warm Caches"
 $workDir = (Get-Location).Path
-$python = Join-Path $workDir ".venv\Scripts\python.exe"
-$script = Join-Path $workDir "tools\warm_caches.py"
+$script = Join-Path $workDir "scripts\run_cache_warmer.ps1"
 
 # Build schtasks command (fallback for non-admin contexts)
 $schArgs = @(
   "/Create",
   "/SC", "DAILY",
   "/TN", $taskName,
-  "/TR", "`"$python`" `"$script`"",
-  "/ST", $Time
+  "/TR", "powershell -NoProfile -ExecutionPolicy Bypass -File `"$script`" -BaseUrl `"$BaseUrl`"",
+  "/ST", $Time,
+  "/F"
 )
-try {
-  # Try with schtasks.exe to avoid elevated Register-ScheduledTask requirement
-  schtasks.exe @schArgs | Out-Null
-  Write-Host "✅ Registered cache warmer via schtasks: $taskName at $Time"
-} catch {
-  Write-Host "❌ Failed to register with schtasks: $($_.Exception.Message)" -ForegroundColor Red
-  exit 1
+
+# Try with schtasks.exe to avoid elevated Register-ScheduledTask requirement.
+$out = & schtasks.exe @schArgs 2>&1
+if ($LASTEXITCODE -ne 0) {
+  Write-Host "❌ Failed to register with schtasks" -ForegroundColor Red
+  if ($out) { Write-Host ($out | Out-String) }
+  exit $LASTEXITCODE
 }
+
+Write-Host "✅ Registered cache warmer via schtasks: $taskName at $Time"
+

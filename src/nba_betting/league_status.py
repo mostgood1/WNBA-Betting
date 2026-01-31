@@ -458,6 +458,34 @@ def build_league_status(date_str: str) -> pd.DataFrame:
         keep_cols = ['_name_key', 'team', 'status_norm']
         inj_small = inj[[c for c in keep_cols if c in inj.columns]].drop_duplicates()
 
+        # Fix ESPN/team-feed glitches: if the injury row's team doesn't match the player's
+        # resolved roster team for the date, override the injury team to the roster team.
+        # This keeps injuries effective even when the feed reports an incorrect team.
+        try:
+            if {'_name_key', 'team'}.issubset(set(inj_small.columns)) and (not out.empty):
+                roster_team_by_key = (
+                    out[['_name_key', 'team']]
+                    .dropna()
+                    .drop_duplicates(subset=['_name_key'], keep='first')
+                    .set_index('_name_key')['team']
+                    .astype(str)
+                    .to_dict()
+                )
+                if roster_team_by_key:
+                    def _clean_team(v: object) -> str:
+                        s = str(v or '').strip().upper()
+                        if s in {'NAN', 'NONE', 'NULL'}:
+                            return ''
+                        return s
+                    inj_small = inj_small.copy()
+                    inj_small['team'] = inj_small['team'].map(_clean_team)
+                    inj_small['team'] = inj_small.apply(
+                        lambda r: roster_team_by_key.get(str(r.get('_name_key') or ''), '') or str(r.get('team') or ''),
+                        axis=1,
+                    )
+        except Exception:
+            pass
+
         # Deterministic: if multiple injury rows exist for same player/team, keep the worst status.
         # This prevents duplicated league_status rows and unpredictable flips (e.g., OUT vs DAY-TO-DAY).
         def _sev(s: str) -> int:

@@ -1091,17 +1091,6 @@ try {
   Write-Log ("fetch-injuries exit code: {0}" -f $rcInj)
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
 
-# 2.6a) Snapshot injuries counts (team-level + excluded players) for explainability caches
-try {
-  Write-Log ("Snapshot injuries counts cache for {0}" -f $Date)
-  $injTool = Join-Path $RepoRoot 'tools/snapshot_injuries.py'
-  if (Test-Path $injTool) {
-    & $Python $injTool --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-  } else {
-    Write-Log 'snapshot_injuries.py missing; skipping injuries cache'
-  }
-} catch { Write-Log ("Injuries snapshot failed (non-fatal): {0}" -f $_.Exception.Message) }
-
 # 2.6) Build unified league_status for today (roster + injuries; consumed by predictions)
 try {
   Write-Log "Building league_status for today's slate"
@@ -1116,6 +1105,18 @@ try {
     Write-Log "league_status file missing after build; predictions will still run but may be less accurate"
   }
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
+
+# 2.6a) Snapshot injuries counts (team-level + excluded players) for explainability caches
+# NOTE: run after league_status so the snapshot can stay consistent with the player pool used downstream.
+try {
+  Write-Log ("Snapshot injuries counts cache for {0}" -f $Date)
+  $injTool = Join-Path $RepoRoot 'tools/snapshot_injuries.py'
+  if (Test-Path $injTool) {
+    & $Python $injTool --date $Date 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+  } else {
+    Write-Log 'snapshot_injuries.py missing; skipping injuries cache'
+  }
+} catch { Write-Log ("Injuries snapshot failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
@@ -1758,6 +1759,32 @@ try {
   }
 } catch {
   Write-Log ("Daily artifact validation block failed: {0}" -f $_.Exception.Message)
+}
+
+# 8.1) Player availability audits (fail loudly)
+# - Ensures SmartSim JSON includes all expected props_predictions players
+# - Ensures no stale injury exclusions conflict with playing_today
+try {
+  $skipAud = $env:DAILY_SKIP_PLAYER_AUDITS
+  if ($null -eq $skipAud -or $skipAud -notmatch '^(1|true|yes)$') {
+    Write-Log ("Running player audits for {0}" -f $Date)
+    $rcCov = Invoke-PyMod -plist @('tools/audit_smart_sim_player_coverage.py','--date', $Date)
+    Write-Log ("audit_smart_sim_player_coverage exit code: {0}" -f $rcCov)
+    if ($rcCov -ne 0) { throw "SmartSim player coverage audit failed (exit=$rcCov)" }
+
+    $rcStale = Invoke-PyMod -plist @('tools/audit_stale_exclusions_today.py','--date', $Date)
+    Write-Log ("audit_stale_exclusions_today exit code: {0}" -f $rcStale)
+    if ($rcStale -ne 0) { throw "Stale exclusions audit failed (exit=$rcStale)" }
+
+    $rcInjC = Invoke-PyMod -plist @('tools/audit_injuries_counts_consistency.py','--date', $Date)
+    Write-Log ("audit_injuries_counts_consistency exit code: {0}" -f $rcInjC)
+    if ($rcInjC -ne 0) { throw "injuries_counts consistency audit failed (exit=$rcInjC)" }
+  } else {
+    Write-Log 'Skipping player audits (DAILY_SKIP_PLAYER_AUDITS=1)'
+  }
+} catch {
+  Write-Log ("Player audits failed: {0}" -f $_.Exception.Message)
+  throw
 }
 
 # Simple retention: keep last 21 local_daily_update_* logs

@@ -188,13 +188,16 @@ function renderPlayersTable(title, players) {
 function renderInjurySummary(title, players) {
   const arr = Array.isArray(players) ? players : [];
   const flagged = arr
-    .filter((p) => p && (p.injury_status || p.playing_today === false))
+    // Only show players who are OUT (or explicitly not playing).
+    .filter((p) => {
+      if (!p) return false;
+      const st = String(p.injury_status || '').trim().toUpperCase();
+      return st === 'OUT' || p.playing_today === false;
+    })
     .map((p) => {
       const name = String(p.player_name || '').trim();
       const tags = [];
-      if (p.playing_today === false) tags.push('<span class="badge bad">OUT?</span>');
-      const status = String(p.injury_status || '').trim();
-      if (status) tags.push(`<span class="badge bad">${esc(status)}</span>`);
+      tags.push('<span class="badge bad">OUT</span>');
       return { name, tags: tags.join(' ') };
     })
     .filter((x) => x.name && x.tags)
@@ -206,7 +209,7 @@ function renderInjurySummary(title, players) {
       <div class="injury-lines">
         ${flagged.length
           ? flagged.map((x) => `<div class="injury-line"><span class="injury-name">${esc(x.name)}</span><span class="injury-tags">${x.tags}</span></div>`).join('')
-          : '<div class="subtle">No injuries flagged.</div>'}
+          : '<div class="subtle">No OUT players.</div>'}
       </div>
     </div>
   `;

@@ -115,6 +115,8 @@ $allowedPrefixes = @(
     "smart_sim_",
     # Daily pipeline artifact summary
     "daily_artifacts_",
+    # Injury counts snapshot for UI availability display
+    "injuries_counts_",
     # Rolling totals calibration used to tune predictions/sims
     "calibration_totals_",
     # Rolling period probability calibration for quarter/half over markets
@@ -134,6 +136,11 @@ $files = $files | Where-Object {
         if ($name.StartsWith($p)) { $match = $true; break }
     }
     return $match
+}
+
+# Drop local-only diagnostics even if they share a whitelisted prefix.
+$files = $files | Where-Object {
+    $_.Name -notlike 'smart_sim_merge_report_*'
 }
 
 # Debug: list filtered candidates

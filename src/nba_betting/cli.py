@@ -671,7 +671,9 @@ def _smart_sim_run_date(
     props_df = pd.read_csv(props_path)
 
     # Injury exclusions for this date (produced by predict-props when available).
-    def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
+    # IMPORTANT: apply a recency window to avoid stale OUT labels persisting forever,
+    # and allowlist players marked as playing_today in props_predictions.
+    def _injuries_excluded_map_for_date(ds: str, props_df: pd.DataFrame | None = None) -> dict[str, set[str]]:
         out: dict[str, set[str]] = {}
         try:
             from .player_priors import _norm_player_key  # type: ignore
@@ -689,6 +691,18 @@ def _smart_sim_run_date(
             out.setdefault(t, set()).add(k)
 
         ds_s = str(ds).strip()
+
+        try:
+            cutoff_dt = pd.to_datetime(ds_s, errors="coerce")
+            cutoff = cutoff_dt if pd.notna(cutoff_dt) else None
+        except Exception:
+            cutoff = None
+
+        recency_days = 30
+        try:
+            fresh_cutoff = (cutoff - pd.Timedelta(days=int(recency_days))) if cutoff is not None else None
+        except Exception:
+            fresh_cutoff = None
 
         roster_name_to_tri: dict[str, str] = {}
         try:
@@ -766,6 +780,33 @@ def _smart_sim_run_date(
             if p.exists():
                 df = pd.read_csv(p)
                 if df is not None and not df.empty:
+                    # Recency filter: only keep recent rows unless season/indefinite.
+                    try:
+                        if "date" in df.columns:
+                            df = df.copy()
+                            df["date"] = pd.to_datetime(df["date"], errors="coerce")
+                            df = df[df["date"].notna()].copy()
+                            if cutoff is not None:
+                                df = df[df["date"] <= cutoff].copy()
+                            if fresh_cutoff is not None:
+                                st = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
+                                inj = df.get("injury", "").astype(str).str.upper().str.strip() if "injury" in df.columns else pd.Series([""] * len(df))
+                                is_season = st.str.contains("SEASON", na=False) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+                                is_season = is_season | inj.str.contains("OUT FOR SEASON", na=False) | inj.str.contains("SEASON-ENDING", na=False) | inj.str.contains("INDEFINITE", na=False)
+                                df = df[(df["date"] >= fresh_cutoff) | is_season].copy()
+                    except Exception:
+                        pass
+
+                    # Status filter if present
+                    try:
+                        if "status" in df.columns:
+                            EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+                            st = df["status"].astype(str).str.upper().str.strip()
+                            season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+                            df = df[st.isin(EXCL) | season_out].copy()
+                    except Exception:
+                        pass
+
                     tcol = "team_tri" if "team_tri" in df.columns else ("team" if "team" in df.columns else None)
                     ncol = "player" if "player" in df.columns else ("player_name" if "player_name" in df.columns else None)
                     if tcol and ncol:
@@ -782,13 +823,20 @@ def _smart_sim_run_date(
             if df is None or df.empty:
                 return out
             # Use latest status up to cutoff date (not only same-day rows).
-            cutoff = pd.to_datetime(ds_s, errors="coerce")
             if "date" in df.columns:
                 df = df.copy()
                 df["date"] = pd.to_datetime(df["date"], errors="coerce")
                 df = df[df["date"].notna()].copy()
-                if not pd.isna(cutoff):
+                if cutoff is not None:
                     df = df[df["date"] <= cutoff].copy()
+                # Recency window to prevent stale OUTs from persisting forever.
+                try:
+                    if fresh_cutoff is not None:
+                        st0 = df.get("status", "").astype(str).str.upper().str.strip() if "status" in df.columns else pd.Series([""] * len(df))
+                        season_out0 = (st0.str.contains("SEASON", na=False) & st0.str.contains("OUT", na=False)) | st0.str.contains("INDEFINITE", na=False) | st0.str.contains("SEASON-ENDING", na=False)
+                        df = df[(df["date"] >= fresh_cutoff) | season_out0].copy()
+                except Exception:
+                    pass
                 try:
                     df = df.sort_values(["date"]).copy()
                     grp_cols = [c for c in ["player", "team"] if c in df.columns]
@@ -814,9 +862,33 @@ def _smart_sim_run_date(
                 _add(str(tri or ""), nm)
         except Exception:
             pass
+
+        # Hard allowlist: if a player is in props_predictions and marked playing_today,
+        # they should not be excluded by stale injury rows.
+        try:
+            if isinstance(props_df, pd.DataFrame) and (not props_df.empty):
+                if "team" in props_df.columns and "player_name" in props_df.columns:
+                    tmp = props_df[["team", "player_name"] + (["playing_today"] if "playing_today" in props_df.columns else [])].copy()
+                    tmp["team"] = tmp["team"].astype(str).str.strip().str.upper()
+                    tmp["player_name"] = tmp["player_name"].astype(str).str.strip()
+                    if "playing_today" in tmp.columns:
+                        pt = tmp["playing_today"].astype(str).str.lower().str.strip()
+                        tmp = tmp[~pt.isin(["false", "0", "no", "n"])].copy()
+                    tmp = tmp[tmp["player_name"].ne("")].copy()
+                    for _, rr in tmp.iterrows():
+                        tri = str(to_tricode(rr.get("team")) or rr.get("team") or "").strip().upper()
+                        if not tri:
+                            continue
+                        k = str(_norm_player_key(rr.get("player_name")) or "").strip().upper()
+                        if not k:
+                            continue
+                        if tri in out and k in out[tri]:
+                            out[tri].discard(k)
+        except Exception:
+            pass
         return out
 
-    excluded_map = _injuries_excluded_map_for_date(date_str)
+    excluded_map = _injuries_excluded_map_for_date(date_str, props_df=props_df)
 
     odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
     odds_df = None
@@ -4448,8 +4520,13 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     pbp=bool(smart_sim_pbp),
                 )
                 console.print({"smart_sim": summary})
-            except Exception as _e:
-                console.print(f"SmartSim run skipped due to error: {_e}", style="yellow")
+            except KeyboardInterrupt:
+                raise
+            except BaseException as _e:
+                console.print(
+                    f"SmartSim run skipped due to error ({type(_e).__name__}): {_e}",
+                    style="yellow",
+                )
                 summary = None
 
             # Parse SmartSim outputs and merge into preds.
@@ -4643,6 +4720,37 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     # Expand coverage: append SmartSim-only players not present in preds.
                     # This prevents stale/missing feature rows from dropping real participants on completed slates.
                     try:
+                        # Availability map (prefer local league_status file to avoid any network calls).
+                        ls_playing_by_pid: dict[int, bool | None] = {}
+                        ls_team_on_slate_by_pid: dict[int, bool | None] = {}
+                        ls_injury_by_pid: dict[int, str] = {}
+                        try:
+                            ls_path = paths.data_processed / f"league_status_{date_str}.csv"
+                            lsdf = None
+                            if ls_path.exists():
+                                lsdf = pd.read_csv(ls_path)
+                            else:
+                                lsdf = build_league_status(date_str)
+                            if isinstance(lsdf, pd.DataFrame) and (not lsdf.empty) and ("player_id" in lsdf.columns):
+                                tmp_ls = lsdf.copy()
+                                tmp_ls["player_id"] = pd.to_numeric(tmp_ls["player_id"], errors="coerce")
+                                tmp_ls = tmp_ls.dropna(subset=["player_id"]).copy()
+                                if not tmp_ls.empty:
+                                    tmp_ls["_pid"] = tmp_ls["player_id"].astype(int)
+                                    if "playing_today" in tmp_ls.columns:
+                                        for pid, v in zip(tmp_ls["_pid"].tolist(), tmp_ls["playing_today"].tolist()):
+                                            ls_playing_by_pid[int(pid)] = (bool(v) if (v is not None and not pd.isna(v)) else None)
+                                    if "team_on_slate" in tmp_ls.columns:
+                                        for pid, v in zip(tmp_ls["_pid"].tolist(), tmp_ls["team_on_slate"].tolist()):
+                                            ls_team_on_slate_by_pid[int(pid)] = (bool(v) if (v is not None and not pd.isna(v)) else None)
+                                    if "injury_status" in tmp_ls.columns:
+                                        for pid, v in zip(tmp_ls["_pid"].tolist(), tmp_ls["injury_status"].tolist()):
+                                            ls_injury_by_pid[int(pid)] = str(v or "")
+                        except Exception:
+                            ls_playing_by_pid = {}
+                            ls_team_on_slate_by_pid = {}
+                            ls_injury_by_pid = {}
+
                         pred_pid: set[int] = set()
                         if "player_id" in preds.columns:
                             pred_pid = set(pd.to_numeric(preds["player_id"], errors="coerce").dropna().astype(int).tolist())
@@ -4671,6 +4779,10 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                 pid = row.get("player_id")
                                 if pid is not None and (not pd.isna(pid)):
                                     if int(pid) in pred_pid:
+                                        return False
+                                    # Never re-add players who are explicitly NOT playing today.
+                                    pt = ls_playing_by_pid.get(int(pid))
+                                    if pt is False:
                                         return False
                                 key = (str(row.get("team") or "").upper().strip(), str(row.get("name_key") or "").upper().strip())
                                 if key in pred_key_to_pids:
@@ -4713,8 +4825,18 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                 add_rows["asof_date"] = date_str
                             elif "date" in preds.columns:
                                 add_rows["date"] = date_str
-                            if "playing_today" in preds.columns:
-                                add_rows["playing_today"] = True
+                            # Fill availability fields from league_status when possible; otherwise leave as NaN.
+                            if "player_id" in add_rows.columns:
+                                try:
+                                    pids = pd.to_numeric(add_rows["player_id"], errors="coerce")
+                                    if "playing_today" in preds.columns:
+                                        add_rows["playing_today"] = [ls_playing_by_pid.get(int(x)) if (x is not None and not pd.isna(x)) else None for x in pids.tolist()]
+                                    if "team_on_slate" in preds.columns:
+                                        add_rows["team_on_slate"] = [ls_team_on_slate_by_pid.get(int(x)) if (x is not None and not pd.isna(x)) else None for x in pids.tolist()]
+                                    if "injury_status" in preds.columns:
+                                        add_rows["injury_status"] = [ls_injury_by_pid.get(int(x), "") if (x is not None and not pd.isna(x)) else "" for x in pids.tolist()]
+                                except Exception:
+                                    pass
 
                             add_rows = add_rows.reindex(columns=preds.columns, fill_value=np.nan)
                             preds = pd.concat([preds, add_rows], ignore_index=True)
@@ -4760,14 +4882,8 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                     preds = preds.loc[keep].copy()
                                     merge_report["dropped_not_in_smartsim_team"] = dropped
 
-                            # If we have the playing_today flag, prefer SmartSim as authoritative for slate teams.
-                            if ("playing_today" in preds.columns) and sim_team_ids:
-                                try:
-                                    preds = preds.copy()
-                                    preds["team"] = preds["team"].astype(str).str.upper().str.strip()
-                                    preds.loc[preds["team"].isin(set(sim_team_ids.keys())), "playing_today"] = True
-                                except Exception:
-                                    pass
+                            # Do NOT force playing_today=True based on SmartSim team membership;
+                            # playing_today is an availability signal that should come from league_status/injuries.
 
                             # Ensure asof_date is set for appended rows.
                             if "asof_date" in preds.columns:

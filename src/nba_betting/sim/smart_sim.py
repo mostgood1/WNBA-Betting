@@ -1684,7 +1684,9 @@ def simulate_smart_game(
         store_q: Dict[str, Dict[str, List[int]]],
         store_s: Dict[str, Dict[str, Dict[str, List[int]]]],
         name_to_id: dict[str, Any],
+        minutes_by_name: Optional[dict[str, float]] = None,
     ) -> List[Dict[str, Any]]:
+        minutes_by_name = minutes_by_name or {}
         out_rows: List[Dict[str, Any]] = []
         for name, stats in store.items():
             row: Dict[str, Any] = {"player_name": name}
@@ -1692,6 +1694,13 @@ def simulate_smart_game(
                 pid = name_to_id.get(name)
                 if pid is not None and str(pid) != "nan":
                     row["player_id"] = int(float(pid)) if str(pid).replace(".", "", 1).isdigit() else pid
+            except Exception:
+                pass
+
+            try:
+                mm = minutes_by_name.get(name)
+                if mm is not None:
+                    row["min_mean"] = float(mm)
             except Exception:
                 pass
             for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
@@ -1797,6 +1806,30 @@ def simulate_smart_game(
     except Exception:
         pass
 
+    def _sim_minutes_by_name(team_raw: pd.DataFrame, sim_min: Any) -> dict[str, float]:
+        if not isinstance(team_raw, pd.DataFrame) or team_raw.empty:
+            return {}
+        if "player_name" not in team_raw.columns:
+            return {}
+        try:
+            s = sim_min
+            if s is None:
+                return {}
+            if not isinstance(s, pd.Series):
+                s = pd.Series(s)
+            s = s.reindex(team_raw.index)
+            df = team_raw[["player_name"]].copy()
+            df["_sim_min"] = pd.to_numeric(s, errors="coerce").fillna(0.0).astype(float)
+            df["player_name"] = df["player_name"].astype(str).str.strip()
+            df = df[df["player_name"].ne("")].copy()
+            out = df.groupby("player_name")["_sim_min"].max().to_dict()
+            return {str(k): float(v) for k, v in out.items()}
+        except Exception:
+            return {}
+
+    home_minutes_by_name = _sim_minutes_by_name(home_raw, rot_home_min)
+    away_minutes_by_name = _sim_minutes_by_name(away_raw, rot_away_min)
+
     return {
         "home": str(home_tri).upper(),
         "away": str(away_tri).upper(),
@@ -1834,7 +1867,7 @@ def simulate_smart_game(
             "p_total_over": p_total_over,
         },
         "players": {
-            "home": _team_player_summaries(home_store, home_store_q, home_store_s, home_name_to_id),
-            "away": _team_player_summaries(away_store, away_store_q, away_store_s, away_name_to_id),
+            "home": _team_player_summaries(home_store, home_store_q, home_store_s, home_name_to_id, minutes_by_name=home_minutes_by_name),
+            "away": _team_player_summaries(away_store, away_store_q, away_store_s, away_name_to_id, minutes_by_name=away_minutes_by_name),
         },
     }

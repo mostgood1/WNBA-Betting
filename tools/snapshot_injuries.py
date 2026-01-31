@@ -43,6 +43,158 @@ def build_injuries_snapshot(date_str: str) -> tuple[dict, pd.DataFrame]:
     excluded_players = []
     team_key_outs: dict[str, list[str]] = {}
     team_impact: dict[str, float] = {}
+
+    # Prefer generating the snapshot from the processed league_status for the date.
+    # This keeps injuries_counts aligned with the actual availability pool used by downstream
+    # predictions/sims (and avoids mis-tagged raw injury rows).
+    ls_path = PROC / f"league_status_{date_str}.csv"
+    try:
+        if ls_path.exists():
+            ls = pd.read_csv(ls_path)
+            if ls is not None and (not ls.empty):
+                cols = {c.lower(): c for c in ls.columns}
+                name_c = cols.get("player_name") or cols.get("player")
+                team_c = cols.get("team")
+                status_c = cols.get("injury_status") or cols.get("status")
+                on_slate_c = cols.get("team_on_slate")
+                if name_c and team_c and status_c:
+                    filt = ls[[name_c, team_c, status_c] + ([on_slate_c] if on_slate_c else [])].copy()
+                    filt = filt.rename(columns={name_c: "player", team_c: "team", status_c: "status"})
+                    # Focus on slate teams if that flag exists; otherwise keep all.
+                    if on_slate_c and on_slate_c in filt.columns:
+                        try:
+                            filt = filt[filt[on_slate_c].fillna(False).astype(bool)].copy()
+                        except Exception:
+                            pass
+                    filt["status_norm"] = filt["status"].astype(str).str.upper()
+                    filt = filt[filt["status_norm"].map(_excluded_status)].copy()
+                    filt = filt.drop(columns=[on_slate_c], errors="ignore")
+
+                    # Team counts
+                    if "team" in filt.columns:
+                        cnt = filt.groupby("team").size()
+                        for t, n in cnt.items():
+                            tk = str(t or "").strip().upper()
+                            if tk:
+                                team_counts[tk] = int(n)
+
+                    for _, row in filt.iterrows():
+                        excluded_players.append({
+                            "player": str(row.get("player") or ""),
+                            "team": str(row.get("team") or ""),
+                            "status": str(row.get("status") or ""),
+                        })
+
+                    # Identity-aware impact: use player_logs over last 30 days to score outs
+                    try:
+                        logs_p = PROC / "player_logs.csv"
+                        if logs_p.exists():
+                            logs = pd.read_csv(logs_p)
+                            cols2 = {c.lower(): c for c in logs.columns}
+                            c_date = cols2.get("game_date")
+                            c_name = cols2.get("player_name")
+                            c_team = cols2.get("team_abbreviation")
+                            c_min = cols2.get("min")
+                            c_fpts = cols2.get("fantasy_pts")
+                            cutoff = pd.to_datetime(date_str, errors="coerce")
+                            if pd.isna(cutoff):
+                                from datetime import date as _date
+                                cutoff = pd.Timestamp(_date.today())
+                            start = cutoff - pd.Timedelta(days=30)
+
+                            if c_date and c_name and c_team and (c_min or c_fpts):
+                                tmp = logs[[c_date, c_name, c_team] + ([c_min] if c_min else []) + ([c_fpts] if c_fpts else [])].copy()
+                                tmp[c_date] = pd.to_datetime(tmp[c_date], errors="coerce")
+                                tmp = tmp[tmp[c_date].notna()]
+                                tmp = tmp[(tmp[c_date] >= start) & (tmp[c_date] <= cutoff)]
+
+                                def _norm_player_name(t: str) -> str:
+                                    try:
+                                        s = str(t or "")
+                                    except Exception:
+                                        s = ""
+                                    s = s.replace("-", " ").replace(".", "").replace("'", "").replace(",", " ").strip()
+                                    for suf in [" JR", " SR", " II", " III", " IV"]:
+                                        if s.upper().endswith(suf):
+                                            s = s[: -len(suf)]
+                                    try:
+                                        s = s.encode("ascii", "ignore").decode("ascii")
+                                    except Exception:
+                                        pass
+                                    return s.upper().strip()
+
+                                tmp["name_norm"] = tmp[c_name].astype(str).map(_norm_player_name)
+                                agg = tmp.groupby(["name_norm", c_team], as_index=False).agg({
+                                    (c_min or "MIN"): ("mean" if c_min else np.nan),
+                                    (c_fpts or "FANTASY_PTS"): ("mean" if c_fpts else np.nan),
+                                })
+                                try:
+                                    freq = tmp.groupby(["name_norm", c_team], as_index=False).size().rename(columns={"size": "cnt"})
+                                except Exception:
+                                    freq = pd.DataFrame(columns=["name_norm", c_team, "cnt"])
+                                prefer_team_map: dict[str, str] = {}
+                                try:
+                                    for name, grp in freq.groupby("name_norm"):
+                                        g2 = grp.sort_values(["cnt"], ascending=False)
+                                        tval = str(g2.iloc[0].get(c_team) or "").strip().upper()
+                                        if tval:
+                                            prefer_team_map[str(name)] = tval
+                                except Exception:
+                                    prefer_team_map = {}
+
+                                def _get_mean(row_name: str, row_team: str) -> tuple[float, float]:
+                                    try:
+                                        rn = _norm_player_name(row_name)
+                                        rt = str(row_team or "").strip().upper()
+                                        sub = agg[(agg["name_norm"] == rn) & (agg[c_team] == rt)]
+                                        if sub.empty:
+                                            sub = agg[agg["name_norm"] == rn]
+                                        if sub.empty:
+                                            return (0.0, 0.0)
+                                        mv = float(sub.iloc[0].get(c_min or "MIN", 0.0) or 0.0)
+                                        fv = float(sub.iloc[0].get(c_fpts or "FANTASY_PTS", 0.0) or 0.0)
+                                        return (mv, fv)
+                                    except Exception:
+                                        return (0.0, 0.0)
+
+                                scored: dict[str, list[tuple[str, float, float]]] = {}
+                                for _, row in filt.iterrows():
+                                    pname = str(row.get("player") or "")
+                                    pteam = str(row.get("team") or "").strip().upper()
+                                    pteam_pref = prefer_team_map.get(_norm_player_name(pname), pteam)
+                                    mv, fv = _get_mean(pname, pteam_pref)
+                                    impact = fv if (fv and np.isfinite(fv) and fv > 0) else (mv if (mv and np.isfinite(mv)) else 0.0)
+                                    scored.setdefault(pteam_pref, []).append((pname, impact, mv))
+
+                                for team_key, lst in scored.items():
+                                    if not lst:
+                                        continue
+                                    lst_sorted = sorted(lst, key=lambda x: float(x[1] or 0.0), reverse=True)
+                                    names = [x[0] for x in lst_sorted[:3]]
+                                    total_impact = float(sum(float(x[1] or 0.0) for x in lst_sorted[:3]))
+                                    if names:
+                                        team_key_outs[team_key] = names
+                                    if total_impact > 0:
+                                        team_impact[team_key] = total_impact
+                    except Exception:
+                        pass
+
+                    _rows = [{"team": k, "outs": v} for k, v in team_counts.items()]
+                    if _rows:
+                        df_counts = pd.DataFrame(_rows).sort_values(["outs"], ascending=False)
+                    else:
+                        df_counts = pd.DataFrame(columns=["team", "outs"])
+                    snapshot = {
+                        "date": date_str,
+                        "team_counts": team_counts,
+                        "players": excluded_players,
+                        "team_key_outs": team_key_outs,
+                        "team_impact": team_impact,
+                    }
+                    return snapshot, df_counts
+    except Exception:
+        # Fall back to raw injuries feed below.
+        pass
     if not path.exists():
         return {"date": date_str, "team_counts": team_counts, "players": excluded_players, "team_key_outs": team_key_outs, "team_impact": team_impact}, pd.DataFrame()
     inj = pd.read_csv(path)
@@ -50,6 +202,20 @@ def build_injuries_snapshot(date_str: str) -> tuple[dict, pd.DataFrame]:
         inj["date"] = pd.to_datetime(inj["date"], errors="coerce").dt.date
         inj = inj[inj["date"].notna()]
         inj = inj[inj["date"] <= pd.to_datetime(date_str).date()].copy()
+
+        # Recency guardrail: avoid treating very old OUT rows as current.
+        # Keep only rows within the last ~30 days unless the status looks season-ending/indefinite.
+        try:
+            cutoff = pd.to_datetime(date_str, errors="coerce").date()
+            fresh_cutoff = (pd.Timestamp(cutoff) - pd.Timedelta(days=30)).date()
+            st = inj.get("status", "").astype(str).str.upper()
+            season_out = (
+                (st.str.contains("OUT") & (st.str.contains("SEASON") | st.str.contains("INDEFINITE")))
+                | st.str.contains("SEASON-ENDING")
+            )
+            inj = inj[(inj["date"] >= fresh_cutoff) | season_out].copy()
+        except Exception:
+            pass
     sort_cols = [c for c in ["date"] if c in inj.columns]
     if sort_cols:
         inj = inj.sort_values(sort_cols)
@@ -57,6 +223,55 @@ def build_injuries_snapshot(date_str: str) -> tuple[dict, pd.DataFrame]:
     latest = inj.groupby(grp_cols, as_index=False).tail(1).copy()
     latest.loc[:, "status_norm"] = latest["status"].astype(str).str.upper()
     filt = latest[latest["status_norm"].map(_excluded_status)].copy()
+
+    # Drop stale injury exclusions when we have evidence the player played AFTER the injury row date.
+    # This protects against persistent/mis-tagged OUT rows in the injuries feed.
+    try:
+        if (not filt.empty) and ("date" in filt.columns) and ("player" in filt.columns):
+            logs_p = PROC / "player_logs.csv"
+            if logs_p.exists():
+                logs = pd.read_csv(logs_p)
+                if logs is not None and (not logs.empty):
+                    cols = {c.upper(): c for c in logs.columns}
+                    c_name = cols.get("PLAYER_NAME")
+                    c_date = cols.get("GAME_DATE")
+                    c_min = cols.get("MIN")
+                    if c_name and c_date and c_min:
+                        tmp = logs[[c_name, c_date, c_min]].copy()
+                        tmp[c_date] = pd.to_datetime(tmp[c_date], errors="coerce").dt.date
+                        tmp = tmp[tmp[c_date].notna()]
+                        try:
+                            cutoff = pd.to_datetime(date_str, errors="coerce").date()
+                            tmp = tmp[tmp[c_date] <= cutoff]
+                        except Exception:
+                            pass
+                        tmp[c_min] = pd.to_numeric(tmp[c_min], errors="coerce").fillna(0.0)
+                        tmp = tmp[tmp[c_min] > 0].copy()
+
+                        def _norm_name_key(s: str) -> str:
+                            t = (s or "").strip().lower()
+                            try:
+                                import unicodedata as _ud
+                                t = _ud.normalize("NFKD", t)
+                                t = t.encode("ascii", "ignore").decode("ascii")
+                            except Exception:
+                                pass
+                            t = re.sub(r"[^a-z0-9\s]", "", t)
+                            t = re.sub(r"\s+", " ", t).strip()
+                            toks = [x for x in t.split(" ") if x and x not in {"jr", "sr", "ii", "iii", "iv", "v"}]
+                            return " ".join(toks)
+
+                        tmp["_pkey"] = tmp[c_name].astype(str).map(_norm_name_key)
+                        last_game = tmp.groupby("_pkey")[c_date].max().to_dict()
+                        if last_game:
+                            ff = filt.copy()
+                            ff["_pkey"] = ff["player"].astype(str).map(_norm_name_key)
+                            ff["_last_game"] = ff["_pkey"].map(last_game)
+                            # If player played after the injury row date, treat the OUT as stale.
+                            mask_stale = ff["_last_game"].notna() & ff["date"].notna() & (ff["_last_game"] > ff["date"])
+                            filt = filt.loc[~mask_stale.values].copy()
+    except Exception:
+        pass
 
     # Correct team assignments using processed rosters for the season. This prevents
     # mis-tagged injury rows (e.g., trades/feed glitches) from being attributed to the wrong team.
@@ -255,7 +470,11 @@ def build_injuries_snapshot(date_str: str) -> tuple[dict, pd.DataFrame]:
         # Non-fatal; keep counts-only
         pass
     # As CSV for convenience
-    df_counts = pd.DataFrame([{"team": k, "outs": v} for k, v in team_counts.items()]).sort_values(["outs"], ascending=False)
+    _rows = [{"team": k, "outs": v} for k, v in team_counts.items()]
+    if _rows:
+        df_counts = pd.DataFrame(_rows).sort_values(["outs"], ascending=False)
+    else:
+        df_counts = pd.DataFrame(columns=["team", "outs"])
     snapshot = {
         "date": date_str,
         "team_counts": team_counts,
