@@ -2,8 +2,7 @@
   "date": "2026-01-31",
   "team_counts": {
     "ATL": 8,
-    "CHA": 2,
-    "CHI": 6,
+    "CHI": 8,
     "DAL": 5,
     "HOU": 4,
     "IND": 6,
@@ -11,8 +10,7 @@
     "MIA": 4,
     "MIN": 1,
     "NOP": 7,
-    "PHI": 4,
-    "SAS": 4
+    "PHI": 4
   },
   "players": [
     {
@@ -33,11 +31,6 @@
     {
       "player": "CJ McCollum",
       "team": "ATL",
-      "status": "OUT"
-    },
-    {
-      "player": "Mason Plumlee",
-      "team": "CHA",
       "status": "OUT"
     },
     {
@@ -141,11 +134,6 @@
       "status": "OUT"
     },
     {
-      "player": "John Konchar",
-      "team": "MEM",
-      "status": "OUT"
-    },
-    {
       "player": "Obi Toppin",
       "team": "IND",
       "status": "OUT"
@@ -161,11 +149,6 @@
       "status": "OUT"
     },
     {
-      "player": "Devin Vassell",
-      "team": "SAS",
-      "status": "OUT"
-    },
-    {
       "player": "Isaac Okoro",
       "team": "CHI",
       "status": "OUT"
@@ -176,13 +159,13 @@
       "status": "OUT"
     },
     {
-      "player": "Tre Jones",
+      "player": "Jalen Smith",
       "team": "CHI",
       "status": "OUT"
     },
     {
-      "player": "Lindy Waters III",
-      "team": "SAS",
+      "player": "Tre Jones",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -216,6 +199,16 @@
       "status": "OUT"
     },
     {
+      "player": "Josh Giddey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
       "player": "Scotty Pippen Jr.",
       "team": "MEM",
       "status": "OUT"
@@ -233,16 +226,6 @@
     {
       "player": "Bennedict Mathurin",
       "team": "IND",
-      "status": "OUT"
-    },
-    {
-      "player": "Jeremy Sochan",
-      "team": "SAS",
-      "status": "OUT"
-    },
-    {
-      "player": "Harrison Ingram",
-      "team": "SAS",
       "status": "OUT"
     },
     {
@@ -286,11 +269,6 @@
       "status": "OUT"
     },
     {
-      "player": "KJ Simpson",
-      "team": "CHA",
-      "status": "OUT"
-    },
-    {
       "player": "N'Faly Dante",
       "team": "ATL",
       "status": "OUT"
@@ -322,10 +300,6 @@
       "CJ McCollum",
       "Zaccharie Risacher"
     ],
-    "CHA": [
-      "Mason Plumlee",
-      "KJ Simpson"
-    ],
     "NOP": [
       "Zion Williamson",
       "Herbert Jones",
@@ -337,9 +311,9 @@
       "Davion Mitchell"
     ],
     "CHI": [
+      "Josh Giddey",
       "Coby White",
-      "Tre Jones",
-      "Isaac Okoro"
+      "Tre Jones"
     ],
     "IND": [
       "Bennedict Mathurin",
@@ -348,13 +322,8 @@
     ],
     "MEM": [
       "Ja Morant",
-      "John Konchar",
+      "Santi Aldama",
       "Brandon Clarke"
-    ],
-    "SAS": [
-      "Devin Vassell",
-      "Jeremy Sochan",
-      "Lindy Waters III"
     ],
     "PHI": [
       "Tyrese Maxey",
@@ -371,10 +340,9 @@
     "ATL": 91.01653846153846,
     "NOP": 81.57333333333332,
     "MIA": 85.4711111111111,
-    "CHI": 75.0478787878788,
+    "CHI": 89.62954545454546,
     "IND": 35.82142857142857,
-    "MEM": 63.42916666666666,
-    "SAS": 20.27,
+    "MEM": 74.57777777777778,
     "PHI": 67.66886363636364
   }
 }

@@ -21,7 +21,8 @@
   "require_rotations_espn": true,
   "warnings": [
     "minutes_sanity: team ATL has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: team CHI top10 minutes sum low (155.9) using roll10_min",
+    "minutes_sanity: team CHI has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team MIA has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team NOP top10 minutes sum low (107.3) using roll10_min",
     "minutes_sanity: team NOP has <5 players at 20+ min (found 2) using roll10_min",
