@@ -1,0 +1,380 @@
+{
+  "date": "2026-01-31",
+  "team_counts": {
+    "ATL": 8,
+    "CHA": 2,
+    "CHI": 6,
+    "DAL": 5,
+    "HOU": 4,
+    "IND": 6,
+    "MEM": 7,
+    "MIA": 4,
+    "MIN": 1,
+    "NOP": 7,
+    "PHI": 4,
+    "SAS": 4
+  },
+  "players": [
+    {
+      "player": "Kevin Durant",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Davis",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "CJ McCollum",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevon Looney",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Norman Powell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Fred VanVleet",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Holiday",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Cody Martin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "P.J. Washington",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Zion Williamson",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Coby White",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyler Herro",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Charles Bassey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Daniel Gafford",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Ty Jerome",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Poole",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "John Konchar",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Onyeka Okongwu",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Vassell",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Okoro",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Maxey",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Tre Jones",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Lindy Waters III",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Herbert Jones",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Corey Kispert",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Davion Mitchell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Trendon Watford",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jose Alvarado",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "MarJon Beauchamp",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Bennedict Mathurin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Jeremy Sochan",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Harrison Ingram",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jacob Toppin",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Adem Bona",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Ben Sheppard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Zaccharie Risacher",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Trentyn Flowers",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "KJ Simpson",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "N'Faly Dante",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "RayJ Dennis",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Yuki Kawamura",
+      "team": "CHI",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "HOU": [
+      "Kevin Durant",
+      "Steven Adams",
+      "Aaron Holiday"
+    ],
+    "DAL": [
+      "Anthony Davis",
+      "P.J. Washington",
+      "Daniel Gafford"
+    ],
+    "ATL": [
+      "Onyeka Okongwu",
+      "CJ McCollum",
+      "Zaccharie Risacher"
+    ],
+    "CHA": [
+      "Mason Plumlee",
+      "KJ Simpson"
+    ],
+    "NOP": [
+      "Zion Williamson",
+      "Herbert Jones",
+      "Yves Missi"
+    ],
+    "MIA": [
+      "Tyler Herro",
+      "Norman Powell",
+      "Davion Mitchell"
+    ],
+    "CHI": [
+      "Coby White",
+      "Tre Jones",
+      "Isaac Okoro"
+    ],
+    "IND": [
+      "Bennedict Mathurin",
+      "Ben Sheppard",
+      "Isaiah Jackson"
+    ],
+    "MEM": [
+      "Ja Morant",
+      "John Konchar",
+      "Brandon Clarke"
+    ],
+    "SAS": [
+      "Devin Vassell",
+      "Jeremy Sochan",
+      "Lindy Waters III"
+    ],
+    "PHI": [
+      "Tyrese Maxey",
+      "Adem Bona",
+      "Trendon Watford"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ]
+  },
+  "team_impact": {
+    "HOU": 72.99732142857142,
+    "DAL": 86.04087301587302,
+    "ATL": 91.01653846153846,
+    "NOP": 81.57333333333332,
+    "MIA": 85.4711111111111,
+    "CHI": 75.0478787878788,
+    "IND": 35.82142857142857,
+    "MEM": 63.42916666666666,
+    "SAS": 20.27,
+    "PHI": 67.66886363636364
+  }
+}
