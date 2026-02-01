@@ -3,7 +3,7 @@
   "team_counts": {
     "BKN": 3,
     "BOS": 3,
-    "CHI": 7,
+    "CHI": 6,
     "CLE": 6,
     "DEN": 3,
     "DET": 10,
@@ -289,11 +289,6 @@
       "status": "OUT"
     },
     {
-      "player": "Josh Giddey",
-      "team": "CHI",
-      "status": "OUT"
-    },
-    {
       "player": "Jalen Suggs",
       "team": "ORL",
       "status": "OUT"
@@ -571,9 +566,9 @@
       "Jayson Tatum"
     ],
     "CHI": [
-      "Josh Giddey",
       "Coby White",
-      "Tre Jones"
+      "Tre Jones",
+      "Yuki Kawamura"
     ],
     "LAL": [
       "Rui Hachimura",
@@ -624,7 +619,7 @@
     "UTA": 34.29659090909091,
     "OKC": 75.15555555555555,
     "BOS": 7.633333333333334,
-    "CHI": 89.62954545454546,
+    "CHI": 77.65454545454546,
     "LAL": 41.051538461538456,
     "WAS": 61.7,
     "NYK": 71.9201923076923,
