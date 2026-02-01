@@ -1,0 +1,11 @@
+date,home_team,visitor_team,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
+2026-02-01,Boston Celtics,Milwaukee Bucks,111.5,56.5,55.0,-8.0,-110,-110,-4.0,-110,-110,-4.0,-110,-110
+2026-02-01,San Antonio Spurs,Orlando Magic,115.0,58.0,56.5,-3.0,-110,-110,-1.5,-110,-110,-1.5,-110,-110
+2026-02-01,Detroit Pistons,Brooklyn Nets,110.5,56.0,54.0,-7.5,-115,-105,-4.0,-110,-110,-4.0,-105,-115
+2026-02-01,Washington Wizards,Sacramento Kings,117.5,60.0,58.0,1.5,-115,-105,0.5,-105,-115,0.5,-105,-115
+2026-02-01,Toronto Raptors,Utah Jazz,114.5,58.0,56.5,-6.5,-105,-115,-3.5,-105,-115,-3.0,-115,-105
+2026-02-01,Miami Heat,Chicago Bulls,114.5,58.0,56.5,-2.0,-110,-110,-1.0,-110,-110,-1.0,-110,-110
+2026-02-01,New York Knicks,Los Angeles Lakers,117.0,59.5,57.5,-2.5,-110,-110,-1.5,-105,-115,-1.0,-115,-105
+2026-02-01,Phoenix Suns,Los Angeles Clippers,104.0,53.0,51.5,0.5,-105,-115,0.5,-115,-105,0.5,-115,-105
+2026-02-01,Portland Trail Blazers,Cleveland Cavaliers,112.5,56.5,55.5,1.5,-105,-115,0.5,-110,-110,1.0,-115,-105
+2026-02-01,Denver Nuggets,Oklahoma City Thunder,111.5,56.5,55.5,4.0,-115,-105,2.0,-110,-110,2.0,-110,-110
