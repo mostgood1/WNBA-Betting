@@ -4926,6 +4926,15 @@ def api_cards():
                         pr2.pop("playing_today", None)
                 except Exception:
                     pass
+
+                # Final cleanup: strip placeholder strings like "NAN" so the UI doesn't
+                # render fake statuses when no real context is available.
+                try:
+                    for k in ("injury_status", "injury", "injury_date"):
+                        if _is_blank(pr2.get(k)):
+                            pr2.pop(k, None)
+                except Exception:
+                    pass
                 out_arr.append(pr2)
             players_out[side] = out_arr
 
