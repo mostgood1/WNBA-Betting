@@ -82,6 +82,7 @@ data/processed/**
 # Injury snapshot used by UI/explainability
 !data/processed/injuries_counts_*.json
 
+
 # Note: exclude PBP-derived predictions/outcomes from git to keep Render pushes light
 # (these are used only for offline backtests/validation and not consumed by the frontend)
 # If needed locally, they remain available on disk and via CI artifacts.

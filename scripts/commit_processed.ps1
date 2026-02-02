@@ -117,6 +117,9 @@ $allowedPrefixes = @(
     "daily_artifacts_",
     # Injury counts snapshot for UI availability display
     "injuries_counts_",
+
+    # League status snapshot (roster + injuries truth) used by API/UI filters
+    "league_status_",
     # Rolling totals calibration used to tune predictions/sims
     "calibration_totals_",
     # Rolling period probability calibration for quarter/half over markets
@@ -166,7 +169,13 @@ if ($DryRun) {
 # Stage files
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
-    if ($f.Name.StartsWith('calibration_totals_') -or $f.Name.StartsWith('calibration_period_probs_') -or $f.Name -eq 'quarters_calibration.json' -or $f.Name.StartsWith('smart_sim_')) {
+    if (
+        $f.Name.StartsWith('calibration_totals_') -or
+        $f.Name.StartsWith('calibration_period_probs_') -or
+        $f.Name -eq 'quarters_calibration.json' -or
+        $f.Name.StartsWith('smart_sim_') -or
+        $f.Name.StartsWith('league_status_')
+    ) {
         git add -f -- $rel
     } else {
         git add -- $rel
