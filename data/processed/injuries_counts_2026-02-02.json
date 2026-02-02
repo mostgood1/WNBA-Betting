@@ -1,0 +1,242 @@
+{
+  "date": "2026-02-02",
+  "team_counts": {
+    "CHA": 2,
+    "HOU": 4,
+    "IND": 6,
+    "LAC": 4,
+    "MEM": 8,
+    "MIN": 1,
+    "NOP": 7,
+    "PHI": 4
+  },
+  "players": [
+    {
+      "player": "Kevin Durant",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevon Looney",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Fred VanVleet",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Derrick Jones Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Holiday",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Cody Martin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Zion Williamson",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Charles Bassey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Ty Jerome",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Poole",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "John Konchar",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Maxey",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Herbert Jones",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Trendon Watford",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jose Alvarado",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "MarJon Beauchamp",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Bennedict Mathurin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "TyTy Washington Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Adem Bona",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Ben Sheppard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "KJ Simpson",
+      "team": "CHA",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "HOU": [
+      "Kevin Durant",
+      "Steven Adams",
+      "Aaron Holiday"
+    ],
+    "LAC": [
+      "Derrick Jones Jr.",
+      "Jordan Miller",
+      "TyTy Washington Jr."
+    ],
+    "CHA": [
+      "Mason Plumlee",
+      "KJ Simpson"
+    ],
+    "NOP": [
+      "Zion Williamson",
+      "Yves Missi",
+      "Herbert Jones"
+    ],
+    "IND": [
+      "Bennedict Mathurin",
+      "Ben Sheppard",
+      "Isaiah Jackson"
+    ],
+    "MEM": [
+      "Ja Morant",
+      "Ty Jerome",
+      "Santi Aldama"
+    ],
+    "PHI": [
+      "Tyrese Maxey",
+      "Adem Bona",
+      "Trendon Watford"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ]
+  },
+  "team_impact": {
+    "HOU": 73.04285714285714,
+    "LAC": 65.75666666666666,
+    "NOP": 78.23333333333333,
+    "IND": 40.25238095238095,
+    "MEM": 109.1875,
+    "PHI": 67.2925
+  }
+}

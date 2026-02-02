@@ -1,0 +1,29 @@
+{
+  "date": "2026-02-02",
+  "yesterday": "2026-02-01",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 4,
+  "smart_sim_count": 4,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 9,
+  "rotations_have_games_yesterday": 9,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 1.0,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [
+    "0022500709"
+  ],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "warnings": [
+    "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll5_min",
+    "minutes_sanity: team NOP top10 minutes sum low (104.1) using roll5_min",
+    "minutes_sanity: team NOP has <5 players at 20+ min (found 1) using roll5_min"
+  ],
+  "missing": [],
+  "ok": true
+}

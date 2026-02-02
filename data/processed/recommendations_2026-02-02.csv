@@ -1,0 +1,13 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ML,New Orleans Pelicans,Charlotte Hornets,New Orleans Pelicans,2026-02-02,0.7241843200645215,220.0220265197525,0.31247849120731624,,,,,,High
+ATS,New Orleans Pelicans,Charlotte Hornets,New Orleans Pelicans,2026-02-02,0.43690093393181917,-110.0,0.5238095238095238,-8.194701671600342,6.5,-1.6947016716003418,6.5,,High
+TOTAL,Under,Charlotte Hornets,New Orleans Pelicans,2026-02-02,,,,-6.80096435546875,231.0,,,224.19903564453125,High
+ML,Memphis Grizzlies,Memphis Grizzlies,Minnesota Timberwolves,2026-02-02,0.5126901975343199,246.81069750402963,0.28834174008960056,,,,,,High
+ATS,Memphis Grizzlies,Memphis Grizzlies,Minnesota Timberwolves,2026-02-02,0.23394327380388824,-110.0,0.5238095238095238,4.50585675239563,7.5,-2.99414324760437,-7.5,,High
+TOTAL,Under,Memphis Grizzlies,Minnesota Timberwolves,2026-02-02,,,,-2.6743621826171875,229.5,,,226.8256378173828,Medium
+ML,Indiana Pacers,Indiana Pacers,Houston Rockets,2026-02-02,0.8438473322696096,210.21810700802664,0.3223538463453153,,,,,,High
+ATS,Indiana Pacers,Indiana Pacers,Houston Rockets,2026-02-02,0.5219821885250476,-110.0,0.5238095238095238,9.98116159439087,6.0,3.981161594390869,-6.0,,High
+TOTAL,Over,Indiana Pacers,Houston Rockets,2026-02-02,,,,9.708587646484403,219.5,,,229.2085876464844,High
+ML,Los Angeles Clippers,Los Angeles Clippers,Philadelphia 76ers,2026-02-02,0.5408389142222456,-118.31910158864046,0.5419548758109988,,,,,,High
+ATS,Los Angeles Clippers,Los Angeles Clippers,Philadelphia 76ers,2026-02-02,0.7258965382951086,-110.0,0.5238095238095238,15.659116744995117,-2.0,17.659116744995117,2.0,,High
+TOTAL,Over,Los Angeles Clippers,Philadelphia 76ers,2026-02-02,,,,7.5541534423828125,220.5,,,228.0541534423828,High
