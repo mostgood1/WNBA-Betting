@@ -4915,6 +4915,17 @@ def api_cards():
                                         pr2[k] = vv
                 except Exception:
                     pass
+
+                # Clean up placeholder values so we don't surface strings like "NAN".
+                # (UI should only badge OUT, but keeping the API tidy helps debugging.)
+                try:
+                    for k in ("injury_status", "injury", "injury_date"):
+                        if _is_blank(pr2.get(k)):
+                            pr2.pop(k, None)
+                    if _is_blank(pr2.get("playing_today")):
+                        pr2.pop("playing_today", None)
+                except Exception:
+                    pass
                 out_arr.append(pr2)
             players_out[side] = out_arr
 
