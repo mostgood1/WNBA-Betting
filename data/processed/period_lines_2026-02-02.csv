@@ -1,5 +1,5 @@
 date,home_team,visitor_team,h1_total,q1_total,q2_total,q3_total,q4_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_spread,q4_home_spread_price,q4_away_spread_price
-2026-02-02,Charlotte Hornets,New Orleans Pelicans,119.0,60.5,58.5,57.5,54.5,-4.0,-105,-115,-2.5,-105,-115,-2.0,-110,-110,-1.5,-110.0,-110.0,-1.5,-105.0,-115.0
-2026-02-02,Indiana Pacers,Houston Rockets,107.0,54.0,53.0,,,3.0,-110,-110,1.5,-110,-110,1.5,-110,-110,,,,,,
-2026-02-02,Memphis Grizzlies,Minnesota Timberwolves,111.5,56.0,55.0,,,3.5,-105,-115,2.0,-110,-110,2.0,-115,-105,,,,,,
-2026-02-02,Los Angeles Clippers,Philadelphia 76ers,113.5,57.0,55.5,,,-1.0,-105,-115,-0.5,-110,-110,-0.5,-110,-110,,,,,,
+2026-02-02,Indiana Pacers,Houston Rockets,106.5,54.0,53.0,57.5,54.5,3.0,-105,-115,2.0,-115,-105.0,1.5,-110,-110.0,2.5,-115.0,-105.0,1.5,-120.0,
+2026-02-02,Memphis Grizzlies,Minnesota Timberwolves,112.0,56.5,55.5,,,4.0,-110,-110,2.0,-110,-110.0,2.0,-110,-110.0,,,,,,
+2026-02-02,Los Angeles Clippers,Philadelphia 76ers,112.5,56.5,55.5,53.5,51.5,0.5,-115,-105,0.5,-120,,0.5,-120,,1.5,-140.0,120.0,-1.5,125.0,-145.0
+2026-02-02,Charlotte Hornets,New Orleans Pelicans,119.0,60.5,58.5,57.5,54.5,-4.0,-105,-115,-2.5,-105,-115.0,-2.0,-110,-110.0,-1.5,-110.0,-110.0,-1.5,-105.0,-115.0

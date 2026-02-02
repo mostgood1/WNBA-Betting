@@ -1,13 +1,11 @@
 {
   "date": "2026-02-02",
   "team_counts": {
-    "CHA": 2,
     "HOU": 4,
     "IND": 6,
-    "LAC": 4,
+    "LAC": 5,
     "MEM": 8,
     "MIN": 1,
-    "NOP": 7,
     "PHI": 4
   },
   "players": [
@@ -17,28 +15,18 @@
       "status": "OUT"
     },
     {
+      "player": "James Harden",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
       "player": "Bradley Beal",
       "team": "LAC",
       "status": "OUT"
     },
     {
-      "player": "Mason Plumlee",
-      "team": "CHA",
-      "status": "OUT"
-    },
-    {
       "player": "Steven Adams",
       "team": "HOU",
-      "status": "OUT"
-    },
-    {
-      "player": "Kevon Looney",
-      "team": "NOP",
-      "status": "OUT"
-    },
-    {
-      "player": "Dejounte Murray",
-      "team": "NOP",
       "status": "OUT"
     },
     {
@@ -62,11 +50,6 @@
       "status": "OUT"
     },
     {
-      "player": "Zion Williamson",
-      "team": "NOP",
-      "status": "OUT"
-    },
-    {
       "player": "Ja Morant",
       "team": "MEM",
       "status": "OUT"
@@ -87,11 +70,6 @@
       "status": "OUT"
     },
     {
-      "player": "Jordan Poole",
-      "team": "NOP",
-      "status": "OUT"
-    },
-    {
       "player": "John Konchar",
       "team": "MEM",
       "status": "OUT"
@@ -109,11 +87,6 @@
     {
       "player": "Tyrese Maxey",
       "team": "PHI",
-      "status": "OUT"
-    },
-    {
-      "player": "Herbert Jones",
-      "team": "NOP",
       "status": "OUT"
     },
     {
@@ -139,11 +112,6 @@
     {
       "player": "Scotty Pippen Jr.",
       "team": "MEM",
-      "status": "OUT"
-    },
-    {
-      "player": "Jose Alvarado",
-      "team": "NOP",
       "status": "OUT"
     },
     {
@@ -180,16 +148,6 @@
       "player": "Ben Sheppard",
       "team": "IND",
       "status": "OUT"
-    },
-    {
-      "player": "Yves Missi",
-      "team": "NOP",
-      "status": "OUT"
-    },
-    {
-      "player": "KJ Simpson",
-      "team": "CHA",
-      "status": "OUT"
     }
   ],
   "team_key_outs": {
@@ -199,18 +157,9 @@
       "Aaron Holiday"
     ],
     "LAC": [
+      "James Harden",
       "Derrick Jones Jr.",
-      "Jordan Miller",
-      "TyTy Washington Jr."
-    ],
-    "CHA": [
-      "Mason Plumlee",
-      "KJ Simpson"
-    ],
-    "NOP": [
-      "Zion Williamson",
-      "Yves Missi",
-      "Herbert Jones"
+      "Jordan Miller"
     ],
     "IND": [
       "Bennedict Mathurin",
@@ -233,8 +182,7 @@
   },
   "team_impact": {
     "HOU": 73.04285714285714,
-    "LAC": 65.75666666666666,
-    "NOP": 78.23333333333333,
+    "LAC": 96.26820512820514,
     "IND": 40.25238095238095,
     "MEM": 109.1875,
     "PHI": 67.2925

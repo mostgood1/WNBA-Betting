@@ -20,9 +20,7 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
-    "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll5_min",
-    "minutes_sanity: team NOP top10 minutes sum low (104.1) using roll5_min",
-    "minutes_sanity: team NOP has <5 players at 20+ min (found 1) using roll5_min"
+    "minutes_sanity: team LAC has <5 players at 20+ min (found 4) using roll5_min"
   ],
   "missing": [],
   "ok": true
