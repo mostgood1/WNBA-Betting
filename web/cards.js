@@ -143,13 +143,20 @@ function bestBets(b) {
 
 function renderPlayersTable(title, players) {
   const arr = Array.isArray(players) ? [...players] : [];
-  arr.sort((a, b) => (n(b?.pts_mean) ?? -1e9) - (n(a?.pts_mean) ?? -1e9));
+  // Sort by minutes first so the table reflects the expected rotation.
+  arr.sort((a, b) => {
+    const dm = (n(b?.min_mean) ?? -1e9) - (n(a?.min_mean) ?? -1e9);
+    if (dm !== 0) return dm;
+    return (n(b?.pts_mean) ?? -1e9) - (n(a?.pts_mean) ?? -1e9);
+  });
   const top = arr.slice(0, 10);
 
   const rows = top.map((p) => {
     const nm = String(p.player_name || '').trim();
-    const inj = p.injury_status ? ` <span class="badge bad">${esc(p.injury_status)}</span>` : '';
-    const play = (p.playing_today === false) ? ` <span class="badge bad">OUT?</span>` : '';
+    const st = String(p.injury_status || '').trim().toUpperCase();
+    const isOut = (st === 'OUT') || (p.playing_today === false);
+    const inj = isOut ? ' <span class="badge bad">OUT</span>' : '';
+    const play = '';
     return `
       <tr>
         <td>${esc(nm)}${inj}${play}</td>

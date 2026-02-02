@@ -1772,6 +1772,10 @@ try {
     Write-Log ("audit_smart_sim_player_coverage exit code: {0}" -f $rcCov)
     if ($rcCov -ne 0) { throw "SmartSim player coverage audit failed (exit=$rcCov)" }
 
+    $rcMin = Invoke-PyMod -plist @('tools/audit_smart_sim_minutes.py','--date', $Date)
+    Write-Log ("audit_smart_sim_minutes exit code: {0}" -f $rcMin)
+    if ($rcMin -ne 0) { throw "SmartSim minutes audit failed (exit=$rcMin)" }
+
     $rcStale = Invoke-PyMod -plist @('tools/audit_stale_exclusions_today.py','--date', $Date)
     Write-Log ("audit_stale_exclusions_today exit code: {0}" -f $rcStale)
     if ($rcStale -ne 0) { throw "Stale exclusions audit failed (exit=$rcStale)" }

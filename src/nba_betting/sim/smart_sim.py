@@ -313,19 +313,25 @@ def _rotation_sim_minutes_from_history(
 
     leftover = float(240.0 - mapped_minutes_sum)
     if leftover > 1e-6:
-        unm = sim_min <= 0
-        w = base_w.loc[unm].astype(float)
+        # IMPORTANT: history stints include minutes for ESPN IDs that may not exist on the
+        # current roster (trades, new players, missing mappings). Those "missing" minutes
+        # should be reallocated across the *entire* current roster, not just the handful of
+        # unmapped players (which can create absurd 45-55 minute projections).
+        w = base_w.astype(float).clip(lower=0.0)
         ws = float(w.sum())
         if (not np.isfinite(ws)) or ws <= 0:
-            if int(unm.sum()) > 0:
-                sim_min.loc[unm] = float(leftover) / float(int(unm.sum()))
+            sim_min = sim_min + (float(leftover) / float(max(1, len(sim_min))))
         else:
-            sim_min.loc[unm] = (w / ws) * float(leftover)
+            sim_min = sim_min + ((w / ws) * float(leftover))
 
     # Normalize to 240.
     total_sim = float(sim_min.sum())
     if np.isfinite(total_sim) and total_sim > 0:
         sim_min = sim_min * (240.0 / total_sim)
+
+    # Enforce a regulation-style cap. History-based allocation can otherwise assign
+    # unrealistic minutes to a single player (e.g., 45-55) due to noisy mapping/weights.
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=44.0, iters=12)
 
     # Lineup pool from historical stints; keep only full 5-man units mapped to our roster.
     lineup_pool: List[List[int]] = []
@@ -664,6 +670,86 @@ def _team_players_from_processed_boxscores(
         return pd.DataFrame()
 
 
+def _team_players_from_processed_rosters(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+    team_tri: str,
+) -> pd.DataFrame:
+    """Fallback roster builder using processed season rosters.
+
+    This is a reliable *pregame* fallback when props_predictions is missing a team and
+    ESPN boxscore isn't populated yet.
+    Returns a minimal DataFrame with at least [player_id, player_name, team, opponent, playing_today].
+    """
+    try:
+        team_u = str(team_tri or "").strip().upper()
+        home_u = str(home_tri or "").strip().upper()
+        away_u = str(away_tri or "").strip().upper()
+        if not team_u:
+            return pd.DataFrame()
+        opp_u = str(away_u if team_u == home_u else home_u)
+
+        proc = paths.data_processed
+        # Prefer rosters_<season>.csv matching the slate date.
+        roster_path = None
+        try:
+            d = pd.to_datetime(str(date_str), errors="coerce")
+            if pd.notna(d):
+                start_year = int(d.year) if int(d.month) >= 7 else int(d.year) - 1
+                season = f"{start_year}-{str(start_year + 1)[-2:]}"
+                cand = proc / f"rosters_{season}.csv"
+                if cand.exists():
+                    roster_path = cand
+        except Exception:
+            roster_path = None
+
+        if roster_path is None:
+            try:
+                cands = list(proc.glob("rosters_*.csv"))
+                if cands:
+                    cands.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    roster_path = cands[0]
+            except Exception:
+                roster_path = None
+
+        if roster_path is None or (not roster_path.exists()):
+            return pd.DataFrame()
+
+        df = pd.read_csv(roster_path)
+        if df is None or df.empty:
+            return pd.DataFrame()
+
+        cols = {c.upper(): c for c in df.columns}
+        pid_c = cols.get("PLAYER_ID")
+        name_c = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+        tri_c = cols.get("TEAM_ABBREVIATION")
+        if not (name_c and tri_c):
+            return pd.DataFrame()
+
+        tmp = df[[c for c in [pid_c, name_c, tri_c] if c]].copy()
+        tmp[tri_c] = tmp[tri_c].astype(str).str.upper().str.strip()
+        tmp = tmp[tmp[tri_c] == team_u].copy()
+        if tmp.empty:
+            return pd.DataFrame()
+
+        out = pd.DataFrame(
+            {
+                "player_id": (pd.to_numeric(tmp[pid_c], errors="coerce") if pid_c else np.nan),
+                "player_name": tmp[name_c].astype(str).str.strip(),
+                "team": team_u,
+                "opponent": opp_u,
+                "playing_today": True,
+            }
+        )
+        out = out.dropna(subset=["player_name"]).copy()
+        out = out[out["player_name"].astype(str).str.strip().ne("")].copy()
+        out = out.drop_duplicates(subset=["player_name", "team"], keep="last")
+        return out
+    except Exception:
+        return pd.DataFrame()
+
+
 def _roll_minutes_unscaled(team_df: pd.DataFrame) -> pd.Series:
     if team_df is None or team_df.empty:
         return pd.Series(dtype=float)
@@ -672,6 +758,56 @@ def _roll_minutes_unscaled(team_df: pd.DataFrame) -> pd.Series:
         return pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
     mins = pd.to_numeric(team_df[min_cols[0]], errors="coerce").fillna(0.0).astype(float)
     return mins.clip(lower=0.0, upper=44.0)
+
+
+def _cap_and_redistribute_minutes(
+    mins: pd.Series,
+    total_target: float = 240.0,
+    cap: float = 44.0,
+    iters: int = 12,
+) -> pd.Series:
+    """Enforce a per-player minutes cap while preserving team total minutes.
+
+    This is used to keep pregame rotation/history-based minutes realistic (regulation).
+    """
+    if mins is None or len(mins) == 0:
+        return pd.Series(dtype=float)
+    try:
+        out = pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float).copy()
+    except Exception:
+        out = pd.Series([0.0] * int(len(mins)), index=getattr(mins, "index", None), dtype=float)
+
+    out = out.clip(lower=0.0, upper=float(cap))
+    base_w = out.copy()
+
+    for _ in range(int(iters)):
+        total = float(out.sum())
+        if not np.isfinite(total) or total <= 0:
+            break
+
+        gap = float(total_target) - total
+        if abs(gap) < 1e-6:
+            break
+
+        if gap < 0:
+            # Too many minutes: scale down then re-clip.
+            out = (out * (float(total_target) / total)).clip(lower=0.0, upper=float(cap))
+            continue
+
+        free = out < (float(cap) - 1e-9)
+        if int(free.sum()) <= 0:
+            break
+
+        w = base_w.loc[free].astype(float).clip(lower=0.0)
+        ws = float(w.sum())
+        if (not np.isfinite(ws)) or ws <= 0:
+            out.loc[free] = out.loc[free] + (gap / float(int(free.sum())))
+        else:
+            out.loc[free] = out.loc[free] + ((w / ws) * gap)
+
+        out = out.clip(lower=0.0, upper=float(cap))
+
+    return out.astype(float)
 
 
 def _rotation_sim_minutes_for_team(
@@ -806,14 +942,15 @@ def _rotation_sim_minutes_for_team(
     diag["leftover_minutes"] = float(leftover)
 
     if leftover > 1e-6:
-        unm = sim_min <= 0
-        w = base_w.loc[unm].astype(float)
+        # If ESPN mapping is incomplete, some stints minutes won't map to a current row.
+        # Reallocate those minutes across the full roster (weighted by roll minutes)
+        # rather than dumping them onto the small set of unmapped players.
+        w = base_w.astype(float).clip(lower=0.0)
         ws = float(w.sum())
         if (not np.isfinite(ws)) or ws <= 0:
-            if int(unm.sum()) > 0:
-                sim_min.loc[unm] = float(leftover) / float(int(unm.sum()))
+            sim_min = sim_min + (float(leftover) / float(max(1, len(sim_min))))
         else:
-            sim_min.loc[unm] = (w / ws) * float(leftover)
+            sim_min = sim_min + ((w / ws) * float(leftover))
 
     # If we somehow over-allocated (rare), scale down gently.
     total_sim = float(sim_min.sum())
@@ -1243,7 +1380,26 @@ def simulate_smart_game(
                 team_tri=team_tri,
             )
             if espn is None or espn.empty:
-                return _drop_excluded(base, team_tri)
+                # Last-ditch pregame fallback: season rosters.
+                rost = _team_players_from_processed_rosters(
+                    date_str=str(date_str),
+                    home_tri=str(home_tri),
+                    away_tri=str(away_tri),
+                    team_tri=str(team_tri),
+                )
+                if rost is None or rost.empty:
+                    return _drop_excluded(base, team_tri)
+                comb = pd.concat([rost, base], ignore_index=True, sort=False)
+                if "team" in comb.columns:
+                    comb["team"] = comb["team"].astype(str).str.upper().str.strip()
+                if "player_name" in comb.columns:
+                    comb["player_name"] = comb["player_name"].astype(str).str.strip()
+                    comb = comb[comb["player_name"].ne("")].copy()
+                    if "team" in comb.columns:
+                        comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
+                    else:
+                        comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+                return _drop_excluded(comb, team_tri)
             # Prefer props rows when present by concatenating ESPN first then props and keeping last.
             comb = pd.concat([espn, base], ignore_index=True, sort=False)
             if "team" in comb.columns:
@@ -1830,6 +1986,30 @@ def simulate_smart_game(
     home_minutes_by_name = _sim_minutes_by_name(home_raw, rot_home_min)
     away_minutes_by_name = _sim_minutes_by_name(away_raw, rot_away_min)
 
+    # Ensure minutes are always available for UI/exports even when rotation mapping is sparse.
+    # (e.g., pregame: stints unavailable, ESPN mapping incomplete, or fallback rosters used.)
+    try:
+        if not home_minutes_by_name:
+            home_minutes_by_name = _sim_minutes_by_name(home_raw, _derive_sim_minutes(home_raw))
+        if not away_minutes_by_name:
+            away_minutes_by_name = _sim_minutes_by_name(away_raw, _derive_sim_minutes(away_raw))
+    except Exception:
+        pass
+
+    def _minutes_summary(m: dict[str, float]) -> dict[str, Any]:
+        try:
+            vals = [float(v) for v in (m or {}).values() if v is not None and np.isfinite(float(v))]
+        except Exception:
+            vals = []
+        if not vals:
+            return {"n": 0, "sum": 0.0, "min": 0.0, "max": 0.0}
+        return {
+            "n": int(len(vals)),
+            "sum": float(np.sum(vals)),
+            "min": float(np.min(vals)),
+            "max": float(np.max(vals)),
+        }
+
     return {
         "home": str(home_tri).upper(),
         "away": str(away_tri).upper(),
@@ -1843,6 +2023,10 @@ def simulate_smart_game(
         "rotation_minutes": {
             "home": rot_home_diag,
             "away": rot_away_diag,
+        },
+        "minutes_summary": {
+            "home": _minutes_summary(home_minutes_by_name),
+            "away": _minutes_summary(away_minutes_by_name),
         },
         "lineup_effects": lineup_effects_diag,
         "n_sims": int(n_sims),

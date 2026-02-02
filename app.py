@@ -4856,8 +4856,12 @@ def api_cards():
             except Exception:
                 pass
             try:
-                if isinstance(v, str) and (v.strip() == ""):
-                    return True
+                if isinstance(v, str):
+                    s = v.strip()
+                    if s == "":
+                        return True
+                    if s.lower() in {"nan", "none", "null", "na", "n/a"}:
+                        return True
             except Exception:
                 pass
             return False
