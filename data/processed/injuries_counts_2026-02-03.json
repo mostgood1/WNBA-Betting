@@ -4,14 +4,14 @@
     "ATL": 8,
     "BKN": 3,
     "BOS": 3,
-    "CHI": 8,
+    "CHI": 9,
     "DAL": 5,
     "DEN": 3,
     "DET": 10,
     "GSW": 6,
-    "IND": 6,
+    "IND": 10,
     "LAL": 5,
-    "MIA": 3,
+    "MIA": 4,
     "MIL": 4,
     "NYK": 5,
     "OKC": 6,
@@ -84,12 +84,22 @@
       "status": "OUT"
     },
     {
+      "player": "T.J. McConnell",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
       "player": "Devin Booker",
       "team": "PHX",
       "status": "OUT"
     },
     {
       "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Norman Powell",
       "team": "MIA",
       "status": "OUT"
     },
@@ -106,6 +116,11 @@
     {
       "player": "Georges Niang",
       "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Pascal Siakam",
+      "team": "IND",
       "status": "OUT"
     },
     {
@@ -151,6 +166,11 @@
     {
       "player": "Jalen Brunson",
       "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Huerter",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -201,6 +221,11 @@
     {
       "player": "Haywood Highsmith",
       "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Andrew Nembhard",
+      "team": "IND",
       "status": "OUT"
     },
     {
@@ -256,6 +281,11 @@
     {
       "player": "Isaac Okoro",
       "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Nesmith",
+      "team": "IND",
       "status": "OUT"
     },
     {
@@ -590,6 +620,11 @@
       "Christian Braun",
       "Cameron Johnson"
     ],
+    "IND": [
+      "Pascal Siakam",
+      "Andrew Nembhard",
+      "Bennedict Mathurin"
+    ],
     "PHX": [
       "Devin Booker",
       "Grayson Allen",
@@ -597,8 +632,8 @@
     ],
     "MIA": [
       "Tyler Herro",
-      "Davion Mitchell",
-      "Terry Rozier"
+      "Norman Powell",
+      "Davion Mitchell"
     ],
     "UTA": [
       "Keyonte George",
@@ -635,11 +670,6 @@
       "Miles McBride",
       "Mitchell Robinson"
     ],
-    "IND": [
-      "Bennedict Mathurin",
-      "Ben Sheppard",
-      "Isaiah Jackson"
-    ],
     "ORL": [
       "Paolo Banchero",
       "Jalen Suggs",
@@ -664,8 +694,9 @@
     "ATL": 91.65454545454546,
     "MIL": 88.79079365079365,
     "DEN": 41.71666666666667,
+    "IND": 104.03104395604396,
     "PHX": 78.82,
-    "MIA": 55.629999999999995,
+    "MIA": 84.98384615384614,
     "UTA": 73.32178571428571,
     "OKC": 74.32464285714286,
     "BOS": 6.2333333333333325,
@@ -673,7 +704,6 @@
     "LAL": 39.80489510489511,
     "WAS": 60.57666666666667,
     "NYK": 81.85227272727272,
-    "IND": 47.09833333333333,
     "ORL": 96.43923076923076,
     "BKN": 46.42207792207792,
     "PHI": 67.19961538461538
