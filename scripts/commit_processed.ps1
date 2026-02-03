@@ -49,6 +49,14 @@ if ($IncludeJson) {
             $files += Get-Item -Path $qc -ErrorAction SilentlyContinue
         }
     } catch { }
+
+    # Rolling props reliability bins used by the API (undated)
+    try {
+        $rel = Join-Path $processedDir 'reliability_props.csv'
+        if (Test-Path $rel) {
+            $files += Get-Item -Path $rel -ErrorAction SilentlyContinue
+        }
+    } catch { }
     try {
         $latestTot = Get-ChildItem -Path $processedDir -Filter 'calibration_totals_*.json' -File -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
         if ($null -ne $latestTot) { $files += $latestTot }
@@ -126,6 +134,9 @@ $allowedPrefixes = @(
     "calibration_period_probs_",
     # Undated quarters calibration used by SmartSim
     "quarters_calibration",
+
+    # Rolling props reliability bins (undated)
+    "reliability_props",
     # New: per-player calibration artifact for diagnostics/analysis
     # New: evaluation compare outputs (daily + summary)
     "props_eval_compare_"
@@ -182,9 +193,17 @@ foreach ($f in $files) {
     }
 }
 
+# If nothing actually changed, treat as a no-op.
+$staged = @(git diff --cached --name-only)
+if (-not $staged -or $staged.Count -eq 0) {
+    Write-Host "No changes staged; nothing to commit." -ForegroundColor Yellow
+    exit 0
+}
+
 # Commit with a concise message listing top artifacts
-$names = ($files | Select-Object -First 5 | ForEach-Object { $_.Name }) -join ", "
-$more = if ($files.Count -gt 5) { ", +$($files.Count-5) more" } else { "" }
+$stagedNames = ($staged | ForEach-Object { Split-Path -Leaf $_ })
+$names = ($stagedNames | Select-Object -First 5) -join ", "
+$more = if ($stagedNames.Count -gt 5) { ", +$($stagedNames.Count-5) more" } else { "" }
 $msg = "data(processed): $($Date) artifacts: $names$more"
 
 git commit -m $msg | Out-Host
