@@ -3,29 +3,34 @@
   "team_counts": {
     "ATL": 8,
     "BKN": 3,
-    "BOS": 3,
+    "BOS": 4,
     "CHI": 9,
-    "DAL": 5,
+    "DAL": 7,
     "DEN": 3,
     "DET": 10,
     "GSW": 6,
-    "IND": 10,
+    "IND": 11,
     "LAL": 5,
-    "MIA": 4,
+    "MIA": 5,
     "MIL": 4,
     "NYK": 5,
     "OKC": 6,
     "ORL": 6,
-    "PHI": 4,
+    "PHI": 5,
     "PHX": 3,
-    "POR": 8,
-    "UTA": 6,
+    "POR": 9,
+    "UTA": 7,
     "WAS": 4
   },
   "players": [
     {
       "player": "Al Horford",
       "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Love",
+      "team": "UTA",
       "status": "OUT"
     },
     {
@@ -84,8 +89,23 @@
       "status": "OUT"
     },
     {
+      "player": "Andrew Wiggins",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Joel Embiid",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
       "player": "T.J. McConnell",
       "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
       "status": "OUT"
     },
     {
@@ -189,6 +209,11 @@
       "status": "OUT"
     },
     {
+      "player": "Anfernee Simons",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
       "player": "P.J. Washington",
       "team": "DAL",
       "status": "OUT"
@@ -264,6 +289,11 @@
       "status": "OUT"
     },
     {
+      "player": "Deni Avdija",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
       "player": "Obi Toppin",
       "team": "IND",
       "status": "OUT"
@@ -311,6 +341,11 @@
     {
       "player": "Jonathan Kuminga",
       "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Williams",
+      "team": "DAL",
       "status": "OUT"
     },
     {
@@ -371,6 +406,11 @@
     {
       "player": "Colin Castleton",
       "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Micah Potter",
+      "team": "IND",
       "status": "OUT"
     },
     {
@@ -590,10 +630,15 @@
       "Stephen Curry",
       "Jonathan Kuminga"
     ],
+    "UTA": [
+      "Keyonte George",
+      "Isaiah Collier",
+      "Kevin Love"
+    ],
     "DAL": [
       "Anthony Davis",
       "P.J. Washington",
-      "Daniel Gafford"
+      "Brandon Williams"
     ],
     "DET": [
       "Jalen Duren",
@@ -601,9 +646,9 @@
       "Tobias Harris"
     ],
     "POR": [
+      "Deni Avdija",
       "Shaedon Sharpe",
-      "Donovan Clingan",
-      "Kris Murray"
+      "Donovan Clingan"
     ],
     "ATL": [
       "Onyeka Okongwu",
@@ -620,6 +665,16 @@
       "Christian Braun",
       "Cameron Johnson"
     ],
+    "MIA": [
+      "Tyler Herro",
+      "Norman Powell",
+      "Andrew Wiggins"
+    ],
+    "PHI": [
+      "Joel Embiid",
+      "Tyrese Maxey",
+      "Adem Bona"
+    ],
     "IND": [
       "Pascal Siakam",
       "Andrew Nembhard",
@@ -630,25 +685,15 @@
       "Grayson Allen",
       "Jamaree Bouyea"
     ],
-    "MIA": [
-      "Tyler Herro",
-      "Norman Powell",
-      "Davion Mitchell"
-    ],
-    "UTA": [
-      "Keyonte George",
-      "Isaiah Collier",
-      "Taylor Hendricks"
-    ],
     "OKC": [
       "Jalen Williams",
       "Ajay Mitchell",
       "Alex Caruso"
     ],
     "BOS": [
+      "Anfernee Simons",
       "Josh Minott",
-      "Chris Boucher",
-      "Jayson Tatum"
+      "Chris Boucher"
     ],
     "CHI": [
       "Tre Jones",
@@ -679,33 +724,28 @@
       "Noah Clowney",
       "Ziaire Williams",
       "Haywood Highsmith"
-    ],
-    "PHI": [
-      "Tyrese Maxey",
-      "Adem Bona",
-      "Trendon Watford"
     ]
   },
   "team_impact": {
     "GSW": 102.32967032967031,
-    "DAL": 89.5125,
+    "UTA": 81.19464285714285,
+    "DAL": 94.06818181818183,
     "DET": 94.42285714285714,
-    "POR": 94.00714285714287,
+    "POR": 108.06964285714287,
     "ATL": 91.65454545454546,
     "MIL": 88.79079365079365,
     "DEN": 41.71666666666667,
+    "MIA": 90.07134615384615,
+    "PHI": 107.57653846153846,
     "IND": 104.03104395604396,
     "PHX": 78.82,
-    "MIA": 84.98384615384614,
-    "UTA": 73.32178571428571,
     "OKC": 74.32464285714286,
-    "BOS": 6.2333333333333325,
+    "BOS": 30.413333333333334,
     "CHI": 90.84166666666667,
     "LAL": 39.80489510489511,
     "WAS": 60.57666666666667,
     "NYK": 81.85227272727272,
     "ORL": 96.43923076923076,
-    "BKN": 46.42207792207792,
-    "PHI": 67.19961538461538
+    "BKN": 46.42207792207792
   }
 }
