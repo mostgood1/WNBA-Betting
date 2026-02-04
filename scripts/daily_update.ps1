@@ -279,15 +279,15 @@ try {
   } else {
     $seasonYear = $yr - 1
   }
-  Write-Log ("Fetching team rosters for season start {0}" -f $seasonYear)
-  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonYear)
+  $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
+  Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
+  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr)
   Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
-  $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
   Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
   $rcLogs = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr)
   Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)

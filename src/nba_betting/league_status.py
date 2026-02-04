@@ -434,6 +434,32 @@ def build_league_status(date_str: str) -> pd.DataFrame:
                             pass
     except Exception:
         pass
+
+    # Authoritative correction: if the processed season roster says a player's current team differs
+    # (common on trade days), prefer the roster team for the target date.
+    try:
+        season = _season_for_date(date_str)
+        roster_file = paths.data_processed / f"rosters_{season}.csv"
+        if roster_file.exists() and (rost is not None) and (not rost.empty) and ('player_id' in rost.columns):
+            rdf = pd.read_csv(roster_file)
+            c = {c.upper(): c for c in rdf.columns}
+            if {'PLAYER_ID','TEAM_ABBREVIATION'}.issubset(c.keys()):
+                tmp = rdf[[c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].copy()
+                tmp[c['PLAYER_ID']] = pd.to_numeric(tmp[c['PLAYER_ID']], errors='coerce')
+                tmp[c['TEAM_ABBREVIATION']] = tmp[c['TEAM_ABBREVIATION']].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
+                tmp = tmp.dropna(subset=[c['PLAYER_ID']])
+                tmp = tmp.drop_duplicates(subset=[c['PLAYER_ID']], keep='first')
+                tmp.rename(columns={c['PLAYER_ID']: 'player_id', c['TEAM_ABBREVIATION']: 'team_roster'}, inplace=True)
+                m = rost.merge(tmp, on='player_id', how='left')
+                m['team_roster'] = m['team_roster'].fillna('').astype(str).str.upper().str.strip()
+                m['team'] = m['team_roster'].where(m['team_roster'].astype(str).str.len() > 0, m['team']).fillna(m['team'])
+                rost = m.drop(columns=['team_roster'], errors='ignore')
+                try:
+                    rost = rost.drop_duplicates(subset=['player_id','team'])
+                except Exception:
+                    pass
+    except Exception:
+        pass
     # 2) Injuries up to date
     inj = _load_injuries_latest_upto(date_str)
     # normalize injuries
