@@ -1106,6 +1106,22 @@ try {
   }
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 2.6.1) Roster correctness audit for today (fail loudly)
+try {
+  $skipRosterAud = $env:DAILY_SKIP_ROSTER_AUDIT
+  if ($null -eq $skipRosterAud -or $skipRosterAud -notmatch '^(1|true|yes)$') {
+    Write-Log ("Auditing rosters/team assignments for {0}" -f $Date)
+    $rcRoster = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
+    Write-Log ("audit_rosters_today exit code: {0}" -f $rcRoster)
+    if ($rcRoster -ne 0) { throw "Roster correctness audit failed (exit=$rcRoster)" }
+  } else {
+    Write-Log 'Skipping roster correctness audit (DAILY_SKIP_ROSTER_AUDIT=1)'
+  }
+} catch {
+  Write-Log ("Roster correctness audit failed: {0}" -f $_.Exception.Message)
+  throw
+}
+
 # 2.6a) Snapshot injuries counts (team-level + excluded players) for explainability caches
 # NOTE: run after league_status so the snapshot can stay consistent with the player pool used downstream.
 try {
