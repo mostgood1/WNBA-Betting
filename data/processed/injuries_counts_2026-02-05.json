@@ -1,27 +1,32 @@
 {
   "date": "2026-02-05",
   "team_counts": {
-    "ATL": 9,
-    "BKN": 4,
-    "CHA": 1,
-    "CHI": 9,
+    "ATL": 10,
+    "BKN": 6,
+    "CHA": 2,
+    "CHI": 10,
     "DAL": 4,
     "DET": 11,
     "GSW": 8,
-    "HOU": 3,
+    "HOU": 4,
     "LAL": 5,
     "ORL": 6,
-    "PHI": 4,
-    "PHX": 4,
-    "SAS": 3,
+    "PHI": 5,
+    "PHX": 5,
+    "SAS": 5,
     "TOR": 6,
-    "UTA": 8,
+    "UTA": 10,
     "WAS": 5
   },
   "players": [
     {
       "player": "Al Horford",
       "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Love",
+      "team": "UTA",
       "status": "OUT"
     },
     {
@@ -95,6 +100,11 @@
       "status": "OUT"
     },
     {
+      "player": "Lonzo Ball",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
       "player": "Luke Kennard",
       "team": "ATL",
       "status": "OUT"
@@ -102,6 +112,16 @@
     {
       "player": "Zach Collins",
       "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Luke Kornet",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Chris Boucher",
+      "team": "UTA",
       "status": "OUT"
     },
     {
@@ -130,6 +150,11 @@
       "status": "OUT"
     },
     {
+      "player": "Collin Sexton",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
       "player": "P.J. Washington",
       "team": "DAL",
       "status": "OUT"
@@ -151,7 +176,7 @@
     },
     {
       "player": "Jock Landale",
-      "team": "UTA",
+      "team": "ATL",
       "status": "OUT"
     },
     {
@@ -170,8 +195,18 @@
       "status": "OUT"
     },
     {
+      "player": "Coby White",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
       "player": "Jaxson Hayes",
       "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Charles Bassey",
+      "team": "PHI",
       "status": "OUT"
     },
     {
@@ -220,6 +255,11 @@
       "status": "OUT"
     },
     {
+      "player": "Nick Richards",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
       "player": "Jalen Green",
       "team": "PHX",
       "status": "OUT"
@@ -230,12 +270,27 @@
       "status": "OUT"
     },
     {
+      "player": "Jae'Sean Tate",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Lindy Waters III",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
       "player": "Franz Wagner",
       "team": "ORL",
       "status": "OUT"
     },
     {
       "player": "Ziaire Williams",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Ochai Agbaji",
       "team": "BKN",
       "status": "OUT"
     },
@@ -337,6 +392,11 @@
     {
       "player": "Jacob Toppin",
       "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Martin",
+      "team": "BKN",
       "status": "OUT"
     },
     {
@@ -476,6 +536,11 @@
       "Stephen Curry",
       "Jonathan Kuminga"
     ],
+    "UTA": [
+      "Keyonte George",
+      "Isaiah Collier",
+      "Kevin Love"
+    ],
     "DAL": [
       "Anthony Davis",
       "P.J. Washington",
@@ -494,7 +559,7 @@
     "HOU": [
       "Steven Adams",
       "Aaron Holiday",
-      "Fred VanVleet"
+      "Jae'Sean Tate"
     ],
     "PHX": [
       "Devin Booker",
@@ -506,10 +571,21 @@
       "Brandon Ingram",
       "RJ Barrett"
     ],
+    "CLE": [
+      "Lonzo Ball"
+    ],
     "CHI": [
       "Tre Jones",
-      "Josh Giddey",
-      "Jalen Smith"
+      "Coby White",
+      "Josh Giddey"
+    ],
+    "SAS": [
+      "Luke Kornet",
+      "Devin Vassell",
+      "Jeremy Sochan"
+    ],
+    "BOS": [
+      "Chris Boucher"
     ],
     "LAL": [
       "Austin Reaves",
@@ -526,6 +602,10 @@
       "Jock Landale",
       "Vince Williams Jr."
     ],
+    "CHA": [
+      "Collin Sexton",
+      "KJ Simpson"
+    ],
     "ORL": [
       "Paolo Banchero",
       "Jalen Suggs",
@@ -536,48 +616,38 @@
       "Ziaire Williams",
       "Cam Thomas"
     ],
-    "SAS": [
-      "Devin Vassell",
-      "Jeremy Sochan",
-      "Harrison Ingram"
-    ],
     "PHI": [
       "Tyrese Maxey",
       "Adem Bona",
       "Trendon Watford"
-    ],
-    "UTA": [
-      "Keyonte George",
-      "Isaiah Collier",
-      "Walker Kessler"
     ],
     "OKC": [
       "Ousmane Dieng"
     ],
     "POR": [
       "Duop Reath"
-    ],
-    "CHA": [
-      "KJ Simpson"
     ]
   },
   "team_impact": {
     "GSW": 100.10833333333332,
+    "UTA": 84.40343406593406,
     "DAL": 70.45,
     "DET": 94.91888111888113,
     "ATL": 88.03666666666666,
-    "HOU": 30.22142857142857,
+    "HOU": 35.17142857142857,
     "PHX": 82.14500000000001,
     "TOR": 105.59807692307692,
-    "CHI": 90.16666666666667,
+    "CLE": 13.5,
+    "CHI": 93.91666666666667,
+    "SAS": 41.68714285714285,
+    "BOS": 3.0,
     "LAL": 56.47179487179488,
     "WAS": 61.16111111111111,
     "MEM": 86.225,
+    "CHA": 20.114285714285717,
     "ORL": 95.11923076923077,
     "BKN": 61.084523809523816,
-    "SAS": 22.88,
     "PHI": 67.20541666666666,
-    "UTA": 67.86057692307692,
     "OKC": 6.69,
     "POR": 10.64
   }
