@@ -2389,6 +2389,7 @@ def favicon():
 # In-memory caches
 _player_id_cache: dict[tuple[str, str | None], int] = {}
 _rosters_df_cache: Optional[pd.DataFrame] = None
+_rosters_df_cache_key: Optional[tuple[tuple[str, float, int], ...]] = None
 _team_name_to_abbr: Optional[dict[str, str]] = None
 _team_abbr_to_id: Optional[dict[str, int]] = None
 
@@ -2957,13 +2958,34 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
     return str(out), int(len(df2))
 
 def _ensure_rosters_loaded() -> pd.DataFrame:
-    global _rosters_df_cache
-    if _rosters_df_cache is not None:
-        return _rosters_df_cache
+    global _rosters_df_cache, _rosters_df_cache_key
     proc = BASE_DIR / "data" / "processed"
+
+    # Cache invalidation: if the underlying roster CSV(s) changed on disk (mtime/size),
+    # reload so the app reflects trade-deadline churn without requiring a restart.
+    try:
+        files = sorted(proc.glob("rosters_*.csv"))
+        key: tuple[tuple[str, float, int], ...] = tuple(
+            (p.name, float(p.stat().st_mtime), int(p.stat().st_size)) for p in files if p.exists()
+        )
+    except Exception:
+        files = []
+        key = tuple()
+
+    if _rosters_df_cache is not None and _rosters_df_cache_key == key:
+        return _rosters_df_cache
+
+    # If we got here, either no cache exists or roster files changed.
+    if _rosters_df_cache_key != key:
+        try:
+            _player_id_cache.clear()
+        except Exception:
+            pass
+    _rosters_df_cache_key = key
+
     frames: list[pd.DataFrame] = []
     try:
-        for p in sorted(proc.glob("rosters_*.csv")):
+        for p in files:
             try:
                 df = pd.read_csv(p)
                 # Normalize expected columns

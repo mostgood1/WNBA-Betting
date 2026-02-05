@@ -87,6 +87,8 @@ def build_and_check_dressed_players(
         if "team_on_slate" in ls.columns:
             ls["team_on_slate"] = ls["team_on_slate"].map(_coerce_bool)
 
+        issues: list[str] = []
+
         # Focus only on slate teams.
         if "team_on_slate" in ls.columns:
             slate = ls[ls["team_on_slate"] == True].copy()  # noqa: E712
@@ -94,6 +96,11 @@ def build_and_check_dressed_players(
             # If missing, best-effort: treat all teams as slate.
             slate = ls.copy()
             slate["team_on_slate"] = True
+            issues.append("team_on_slate_missing")
+
+        # If slate detection failed upstream, do not silently pass with an empty pool.
+        if int(len(slate)) == 0:
+            issues.append("slate_empty")
 
         # Expected dressed: not explicitly false.
         if "playing_today" in slate.columns:
@@ -116,7 +123,6 @@ def build_and_check_dressed_players(
         dressed = dressed[[c for c in keep if c in dressed.columns]].copy()
 
         # Summary checks
-        issues: list[str] = []
         team_counts: dict[str, Any] = {}
         try:
             grouped = slate.groupby("team", dropna=False)

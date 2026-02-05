@@ -28,33 +28,46 @@ def main():
     base = BASE_URL
     results = {"date": d, "base_url": base, "steps": []}
 
-    # 1) Rebuild props correlation cache (numeric/co-occurrence fallback inside server)
-    try:
-        u = f"{base}/api/admin/props/corr-cache"
-        r = _post(u, json_body={"days": 60})
-        results["steps"].append({"step": "corr-cache rebuild", "ok": True, "result": r})
-    except Exception as e:
-        results["steps"].append({"step": "corr-cache rebuild", "ok": False, "error": str(e)})
+    # Warm endpoints that are required by the minimal UI allowlist.
 
-    # 2) Warm props recommendations (compact, portfolio-only)
+    # 1) Warm schedule
     try:
-        u = f"{base}/api/props/recommendations"
-        q = {"date": d, "compact": "1", "portfolio_only": "1", "optimize": "1", "limit": "20"}
-        r = _get(u, params=q)
-        rows = (r.get("rows") if isinstance(r, dict) else None)
-        results["steps"].append({"step": "props portfolio", "ok": True, "rows": rows})
+        u = f"{base}/api/schedule"
+        r = _get(u, params={"date": d})
+        rows = None
+        if isinstance(r, dict):
+            rr = r.get("rows")
+            if isinstance(rr, list):
+                rows = len(rr)
+        elif isinstance(r, list):
+            rows = len(r)
+        results["steps"].append({"step": "schedule", "ok": True, "rows": rows})
     except Exception as e:
-        results["steps"].append({"step": "props portfolio", "ok": False, "error": str(e)})
+        results["steps"].append({"step": "schedule", "ok": False, "error": str(e)})
 
-    # 3) Warm full compact props list for UI
+    # 2) Warm predictions
     try:
-        u = f"{base}/api/props/recommendations"
-        q = {"date": d, "compact": "1"}
-        r = _get(u, params=q)
-        rows = (r.get("rows") if isinstance(r, dict) else None)
-        results["steps"].append({"step": "props compact", "ok": True, "rows": rows})
+        u = f"{base}/api/predictions"
+        r = _get(u, params={"date": d})
+        rows = None
+        if isinstance(r, dict):
+            rr = r.get("rows")
+            if isinstance(rr, list):
+                rows = len(rr)
+        elif isinstance(r, list):
+            rows = len(r)
+        results["steps"].append({"step": "predictions", "ok": True, "rows": rows})
     except Exception as e:
-        results["steps"].append({"step": "props compact", "ok": False, "error": str(e)})
+        results["steps"].append({"step": "predictions", "ok": False, "error": str(e)})
+
+    # 3) Warm game cards (this is the critical one for roster correctness)
+    try:
+        u = f"{base}/api/cards"
+        r = _get(u, params={"date": d})
+        games = (r.get("games") if isinstance(r, dict) else None)
+        results["steps"].append({"step": "cards", "ok": True, "games": (len(games) if isinstance(games, list) else None)})
+    except Exception as e:
+        results["steps"].append({"step": "cards", "ok": False, "error": str(e)})
 
     # 4) Warm all recommendations bundle for homepage widgets
     try:
