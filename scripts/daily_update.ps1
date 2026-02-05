@@ -294,6 +294,30 @@ try {
 } catch {
   Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)
 }
+
+# 0.6) Trade-deadline hardening: fetch injuries + build league_status + validate expected dressed players
+# This must run BEFORE any predictions/sims so the player pool is up-to-date.
+try {
+  Write-Log "Fetching injuries from ESPN (availability gate)"
+  $rcInjEarly = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-injuries')
+  Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
+} catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
+
+try {
+  Write-Log "Building league_status for today's slate (availability gate)"
+  $rcLSEarly = Invoke-PyMod -plist @('-m','nba_betting.cli','build-league-status','--date', $Date)
+  Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
+} catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
+
+try {
+  Write-Log "Checking expected dressed players (fail-fast)"
+  $rcDress = Invoke-PyMod -plist @('-m','nba_betting.cli','check-dressed','--date', $Date)
+  Write-Log ("check-dressed exit code: {0}" -f $rcDress)
+  if ($rcDress -ne 0) { throw "check-dressed failed (exit=$rcDress)" }
+} catch {
+  Write-Log ("Dressed-to-play gate failed: {0}" -f $_.Exception.Message)
+  throw
+}
 # Optional: Report roster overrides applied
 try {
   $ovDir = Join-Path $RepoRoot 'data/overrides'
@@ -1084,27 +1108,7 @@ else:
   }
 } catch { Write-Log ("Finals export block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
-# 2.6) Fetch injuries before building props projections (ensures inactive players are filtered)
-try {
-  Write-Log "Fetching injuries from ESPN before props predictions"
-  $rcInj = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-injuries')
-  Write-Log ("fetch-injuries exit code: {0}" -f $rcInj)
-} catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
-
-# 2.6) Build unified league_status for today (roster + injuries; consumed by predictions)
-try {
-  Write-Log "Building league_status for today's slate"
-  $rcLS = Invoke-PyMod -plist @('-m','nba_betting.cli','build-league-status','--date', $Date)
-  Write-Log ("build-league-status exit code: {0}" -f $rcLS)
-  $lsPath = Join-Path $RepoRoot ("data/processed/league_status_{0}.csv" -f $Date)
-  if (Test-Path $lsPath) {
-    try {
-      $rows = (Import-Csv -Path $lsPath | Measure-Object).Count
-      Write-Log ("league_status rows: {0}" -f $rows)   } catch { }
-  } else {
-    Write-Log "league_status file missing after build; predictions will still run but may be less accurate"
-  }
-} catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
+# 2.6) league_status + injuries were built earlier as a fail-fast availability gate.
 
 # 2.6.1) Roster correctness audit for today (fail loudly)
 try {
@@ -1726,7 +1730,7 @@ try {
     $nSmart = $env:DAILY_SMARTSIM_NSIMS
     if ($null -eq $nSmart -or $nSmart -eq '') { $nSmart = '300' }
     $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
-    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart)
+    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart, '--overwrite')
     if ($null -ne $maxSmart -and $maxSmart -ne '') { $plist += @('--max-games', $maxSmart) }
     Write-Log ("Running SmartSim slate for {0} (n_sims={1})" -f $Date, $nSmart)
     $rcSmart = Invoke-PyMod -plist $plist

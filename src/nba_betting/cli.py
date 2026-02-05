@@ -25,6 +25,7 @@ from .elo import Elo
 from .schedule import compute_rest_for_matchups, fetch_schedule_2025_26
 from .rosters import fetch_rosters
 from .league_status import build_league_status
+from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
 from .player_logs import fetch_player_logs
 from .teams import normalize_team, to_tricode
@@ -2464,6 +2465,39 @@ def build_league_status_cmd(date_str: str):
     except Exception as e:
         console.print(f"Failed to build league status: {e}", style="red")
         raise SystemExit(1)
+
+
+@cli.command("check-dressed")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD to build/check dressed_players_<date>.csv")
+@click.option("--min-dressed-per-team", type=int, default=8, show_default=True, help="Fail if a slate team has fewer than this many expected dressed players")
+@click.option("--min-total-roster-per-team", type=int, default=10, show_default=True, help="Fail if a slate team has fewer than this many total roster rows")
+def check_dressed_cmd(date_str: str, min_dressed_per_team: int, min_total_roster_per_team: int):
+    """First-step gate: build an 'expected dressed to play' list for today's slate.
+
+    Writes:
+      - data/processed/dressed_players_<date>.csv
+      - data/processed/dressed_summary_<date>.json
+
+    Exits non-zero if the player pool looks obviously wrong (thin teams, duplicated player IDs, etc).
+    """
+    console.rule("Check Dressed Players")
+    try:
+        res = build_and_check_dressed_players(
+            date_str,
+            min_dressed_per_team=int(min_dressed_per_team),
+            min_total_roster_per_team=int(min_total_roster_per_team),
+            fail_on_error=True,
+        )
+        console.print({
+            "date": date_str,
+            "ok": bool(res.ok),
+            "dressed_players": str(res.dressed_players_path),
+            "summary": str(res.summary_path),
+            "issues": res.summary.get("issues"),
+        })
+    except Exception as e:
+        console.print(f"Dressed-to-play check failed: {e}", style="red")
+        raise SystemExit(2)
 
 
 @cli.command("audit-rosters")

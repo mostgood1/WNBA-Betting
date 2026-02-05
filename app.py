@@ -3844,6 +3844,11 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         steps: list[tuple[str, list[str], bool]] = []
         # (label, cmd, required)
         steps.append((
+            "fetch-injuries",
+            [str(py), "-m", "nba_betting.cli", "fetch-injuries"],
+            False,
+        ))
+        steps.append((
             "fetch-rosters",
             [str(py), "-m", "nba_betting.cli", "fetch-rosters", "--season", str(season_year)],
             False,
@@ -3852,6 +3857,16 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             "fetch-player-logs",
             [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
             False,
+        ))
+        steps.append((
+            "build-league-status",
+            [str(py), "-m", "nba_betting.cli", "build-league-status", "--date", date_str],
+            False,
+        ))
+        steps.append((
+            "check-dressed",
+            [str(py), "-m", "nba_betting.cli", "check-dressed", "--date", date_str],
+            True,
         ))
         steps.append((
             "predict-date",
