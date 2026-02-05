@@ -7,7 +7,7 @@
     "CHI": 9,
     "DAL": 4,
     "DET": 11,
-    "GSW": 7,
+    "GSW": 8,
     "HOU": 3,
     "LAL": 5,
     "ORL": 6,
@@ -15,7 +15,7 @@
     "PHX": 4,
     "SAS": 3,
     "TOR": 6,
-    "UTA": 7,
+    "UTA": 8,
     "WAS": 5
   },
   "players": [
@@ -147,6 +147,11 @@
     {
       "player": "Rui Hachimura",
       "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jock Landale",
+      "team": "UTA",
       "status": "OUT"
     },
     {
@@ -335,6 +340,11 @@
       "status": "OUT"
     },
     {
+      "player": "Trayce Jackson-Davis",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
       "player": "Vince Williams Jr.",
       "team": "UTA",
       "status": "OUT"
@@ -513,8 +523,8 @@
     ],
     "MEM": [
       "Jaren Jackson Jr.",
-      "Vince Williams Jr.",
-      "John Konchar"
+      "Jock Landale",
+      "Vince Williams Jr."
     ],
     "ORL": [
       "Paolo Banchero",
@@ -562,7 +572,7 @@
     "CHI": 90.16666666666667,
     "LAL": 56.47179487179488,
     "WAS": 61.16111111111111,
-    "MEM": 75.80416666666666,
+    "MEM": 86.225,
     "ORL": 95.11923076923077,
     "BKN": 61.084523809523816,
     "SAS": 22.88,

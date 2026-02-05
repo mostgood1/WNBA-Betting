@@ -25,7 +25,7 @@
     "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team DET top10 minutes sum low (89.2) using roll10_min",
     "minutes_sanity: team DET has <5 players at 20+ min (found 1) using roll10_min",
-    "minutes_sanity: team GSW top10 minutes sum low (151.4) using roll10_min",
+    "minutes_sanity: team GSW top10 minutes sum low (144.7) using roll10_min",
     "minutes_sanity: team GSW has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team ORL top10 minutes sum low (162.1) using roll10_min",
     "minutes_sanity: team ORL has <5 players at 20+ min (found 4) using roll10_min",
