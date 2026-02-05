@@ -712,8 +712,21 @@ def _smart_sim_run_date(
                 rdf = pd.read_csv(fp)
                 if rdf is not None and not rdf.empty:
                     cols = {c.upper(): c for c in rdf.columns}
-                    tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
-                    ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+                    lcols = {c.lower(): c for c in rdf.columns}
+                    tcol = (
+                        cols.get("TEAM_ABBREVIATION")
+                        or cols.get("TEAM")
+                        or cols.get("TEAM_TRI")
+                        or lcols.get("team_abbreviation")
+                        or lcols.get("team")
+                        or lcols.get("team_tri")
+                    )
+                    ncol = (
+                        cols.get("PLAYER")
+                        or cols.get("PLAYER_NAME")
+                        or lcols.get("player_name")
+                        or lcols.get("player")
+                    )
                     if tcol and ncol:
                         tmp = rdf[[tcol, ncol]].dropna().copy()
                         tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
@@ -727,6 +740,32 @@ def _smart_sim_run_date(
                                 tri = str(to_tricode(tri) or "").strip().upper()
                             if tri:
                                 roster_name_to_tri.setdefault(nk, tri)
+
+                    # Also exclude any players explicitly marked playing_today=False in league_status.
+                    # This protects SmartSim from re-introducing OUT players via roster/ESPN fallback pools.
+                    try:
+                        pt_col = lcols.get("playing_today")
+                        on_col = lcols.get("team_on_slate")
+                        if (pt_col is not None) and (tcol is not None) and (ncol is not None):
+                            cols_keep = [tcol, ncol, pt_col] + ([on_col] if on_col is not None else [])
+                            lt = rdf[cols_keep].copy()
+                            lt[tcol] = lt[tcol].astype(str).str.strip().str.upper()
+                            lt[ncol] = lt[ncol].astype(str)
+                            pt = lt[pt_col].astype(str).str.lower().str.strip()
+                            is_false = pt.isin(["false", "0", "no", "n"])
+                            if on_col is not None and on_col in lt.columns:
+                                on = lt[on_col].astype(str).str.lower().str.strip().isin(["true", "1", "yes", "y"])
+                                is_false = is_false & on
+                            bad = lt[is_false].copy()
+                            for _, rr in bad.iterrows():
+                                tri = str(rr.get(tcol) or "").strip().upper()
+                                if len(tri) != 3:
+                                    tri = str(to_tricode(tri) or "").strip().upper()
+                                nm = str(rr.get(ncol) or "").strip()
+                                if tri and nm:
+                                    _add(tri, nm)
+                    except Exception:
+                        pass
         except Exception:
             roster_name_to_tri = {}
 
