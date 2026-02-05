@@ -1,19 +1,19 @@
 {
   "date": "2026-02-05",
   "team_counts": {
-    "ATL": 8,
+    "ATL": 9,
     "BKN": 4,
     "CHA": 1,
     "CHI": 9,
     "DAL": 4,
     "DET": 11,
     "GSW": 7,
-    "HOU": 4,
+    "HOU": 3,
     "LAL": 5,
     "ORL": 6,
     "PHI": 4,
     "PHX": 4,
-    "SAS": 5,
+    "SAS": 3,
     "TOR": 6,
     "UTA": 7,
     "WAS": 5
@@ -55,11 +55,6 @@
       "status": "OUT"
     },
     {
-      "player": "Kelly Olynyk",
-      "team": "SAS",
-      "status": "OUT"
-    },
-    {
       "player": "Steven Adams",
       "team": "HOU",
       "status": "OUT"
@@ -95,13 +90,13 @@
       "status": "OUT"
     },
     {
-      "player": "Dorian Finney-Smith",
+      "player": "Fred VanVleet",
       "team": "HOU",
       "status": "OUT"
     },
     {
-      "player": "Fred VanVleet",
-      "team": "HOU",
+      "player": "Luke Kennard",
+      "team": "ATL",
       "status": "OUT"
     },
     {
@@ -227,11 +222,6 @@
     {
       "player": "Jonathan Kuminga",
       "team": "GSW",
-      "status": "OUT"
-    },
-    {
-      "player": "Lindy Waters III",
-      "team": "SAS",
       "status": "OUT"
     },
     {
@@ -491,15 +481,10 @@
       "CJ McCollum",
       "Zaccharie Risacher"
     ],
-    "SAS": [
-      "Devin Vassell",
-      "Jeremy Sochan",
-      "Kelly Olynyk"
-    ],
     "HOU": [
       "Steven Adams",
-      "Dorian Finney-Smith",
-      "Aaron Holiday"
+      "Aaron Holiday",
+      "Fred VanVleet"
     ],
     "PHX": [
       "Devin Booker",
@@ -541,6 +526,11 @@
       "Ziaire Williams",
       "Cam Thomas"
     ],
+    "SAS": [
+      "Devin Vassell",
+      "Jeremy Sochan",
+      "Harrison Ingram"
+    ],
     "PHI": [
       "Tyrese Maxey",
       "Adem Bona",
@@ -566,8 +556,7 @@
     "DAL": 70.45,
     "DET": 94.91888111888113,
     "ATL": 88.03666666666666,
-    "SAS": 24.279999999999998,
-    "HOU": 38.330519480519484,
+    "HOU": 30.22142857142857,
     "PHX": 82.14500000000001,
     "TOR": 105.59807692307692,
     "CHI": 90.16666666666667,
@@ -576,6 +565,7 @@
     "MEM": 75.80416666666666,
     "ORL": 95.11923076923077,
     "BKN": 61.084523809523816,
+    "SAS": 22.88,
     "PHI": 67.20541666666666,
     "UTA": 67.86057692307692,
     "OKC": 6.69,
