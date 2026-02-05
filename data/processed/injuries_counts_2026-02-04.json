@@ -1,17 +1,17 @@
 {
   "date": "2026-02-04",
   "team_counts": {
-    "BOS": 2,
+    "BOS": 4,
     "CLE": 6,
     "DEN": 3,
     "HOU": 4,
-    "LAC": 4,
+    "LAC": 6,
     "MEM": 9,
-    "MIL": 4,
+    "MIL": 5,
     "MIN": 1,
     "NOP": 7,
-    "NYK": 4,
-    "OKC": 6,
+    "NYK": 5,
+    "OKC": 9,
     "SAC": 5,
     "SAS": 4,
     "TOR": 6
@@ -23,8 +23,18 @@
       "status": "OUT"
     },
     {
+      "player": "James Harden",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
       "player": "Bradley Beal",
       "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "OKC",
       "status": "OUT"
     },
     {
@@ -50,6 +60,11 @@
     {
       "player": "Kyle Anderson",
       "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Bobby Portis",
+      "team": "MIL",
       "status": "OUT"
     },
     {
@@ -88,6 +103,11 @@
       "status": "OUT"
     },
     {
+      "player": "Ivica Zubac",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
       "player": "Dorian Finney-Smith",
       "team": "HOU",
       "status": "OUT"
@@ -118,8 +138,23 @@
       "status": "OUT"
     },
     {
+      "player": "Josh Hart",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Chris Boucher",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
       "player": "Jalen Brunson",
       "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Shai Gilgeous-Alexander",
+      "team": "OKC",
       "status": "OUT"
     },
     {
@@ -169,12 +204,17 @@
     },
     {
       "player": "Darius Garland",
-      "team": "CLE",
+      "team": "LAC",
       "status": "OUT"
     },
     {
       "player": "Kevin Porter Jr.",
       "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Luguentz Dort",
+      "team": "OKC",
       "status": "OUT"
     },
     {
@@ -233,6 +273,11 @@
       "status": "OUT"
     },
     {
+      "player": "Sam Hauser",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
       "player": "Santi Aldama",
       "team": "MEM",
       "status": "OUT"
@@ -250,6 +295,11 @@
     {
       "player": "Jose Alvarado",
       "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Chet Holmgren",
+      "team": "OKC",
       "status": "OUT"
     },
     {
@@ -285,11 +335,6 @@
     {
       "player": "Josh Minott",
       "team": "BOS",
-      "status": "OUT"
-    },
-    {
-      "player": "Ousmane Dieng",
-      "team": "OKC",
       "status": "OUT"
     },
     {
@@ -350,9 +395,14 @@
       "Devin Carter"
     ],
     "LAC": [
-      "Jordan Miller",
-      "TyTy Washington Jr.",
-      "Bradley Beal"
+      "James Harden",
+      "Ivica Zubac",
+      "Jordan Miller"
+    ],
+    "OKC": [
+      "Shai Gilgeous-Alexander",
+      "Chet Holmgren",
+      "Jalen Williams"
     ],
     "HOU": [
       "Steven Adams",
@@ -362,7 +412,7 @@
     "MIL": [
       "Giannis Antetokounmpo",
       "Kevin Porter Jr.",
-      "Gary Harris"
+      "Bobby Portis"
     ],
     "DEN": [
       "Aaron Gordon",
@@ -393,19 +443,15 @@
       "Ty Jerome",
       "Santi Aldama"
     ],
-    "OKC": [
-      "Jalen Williams",
-      "Ajay Mitchell",
-      "Isaiah Hartenstein"
-    ],
     "BOS": [
+      "Sam Hauser",
       "Josh Minott",
-      "Jayson Tatum"
+      "Chris Boucher"
     ],
     "NYK": [
       "Jalen Brunson",
-      "Miles McBride",
-      "Landry Shamet"
+      "Josh Hart",
+      "Miles McBride"
     ],
     "SAS": [
       "Devin Vassell",
@@ -418,18 +464,18 @@
   },
   "team_impact": {
     "SAC": 52.15,
-    "LAC": 38.74333333333333,
+    "LAC": 98.8457142857143,
+    "OKC": 119.0,
     "HOU": 36.727380952380955,
-    "MIL": 86.65972222222221,
+    "MIL": 105.70416666666665,
     "DEN": 42.41111111111111,
     "UTA": 26.97,
     "NOP": 79.60285714285715,
     "CLE": 100.44159090909092,
     "TOR": 104.90673076923076,
     "MEM": 111.40714285714287,
-    "OKC": 81.90952380952382,
-    "BOS": 3.233333333333333,
-    "NYK": 73.6741958041958,
+    "BOS": 30.06,
+    "NYK": 88.01328671328672,
     "SAS": 24.672222222222224
   }
 }
