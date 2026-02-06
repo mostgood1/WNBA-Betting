@@ -9,10 +9,10 @@
     "MIA": 4,
     "MIL": 6,
     "MIN": 3,
-    "NOP": 7,
-    "NYK": 5,
+    "NOP": 6,
+    "NYK": 6,
     "POR": 8,
-    "SAC": 5
+    "SAC": 6
   },
   "players": [
     {
@@ -51,6 +51,11 @@
       "status": "OUT"
     },
     {
+      "player": "Karl-Anthony Towns",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
       "player": "Kevon Looney",
       "team": "NOP",
       "status": "OUT"
@@ -63,6 +68,11 @@
     {
       "player": "Norman Powell",
       "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
       "status": "OUT"
     },
     {
@@ -286,11 +296,6 @@
       "status": "OUT"
     },
     {
-      "player": "Dalen Terry",
-      "team": "NOP",
-      "status": "OUT"
-    },
-    {
       "player": "Taylor Hendricks",
       "team": "MEM",
       "status": "OUT"
@@ -378,9 +383,9 @@
   ],
   "team_key_outs": {
     "SAC": [
+      "Domantas Sabonis",
       "Russell Westbrook",
-      "Devin Carter",
-      "Isaiah Stevens"
+      "Devin Carter"
     ],
     "MEM": [
       "Ja Morant",
@@ -407,6 +412,11 @@
       "Kevin Porter Jr.",
       "Kyle Kuzma"
     ],
+    "NYK": [
+      "Karl-Anthony Towns",
+      "Jalen Brunson",
+      "Miles McBride"
+    ],
     "NOP": [
       "Zion Williamson",
       "Herbert Jones",
@@ -421,11 +431,6 @@
       "Chris Boucher",
       "Jayson Tatum"
     ],
-    "NYK": [
-      "Jalen Brunson",
-      "Miles McBride",
-      "Landry Shamet"
-    ],
     "IND": [
       "Bennedict Mathurin",
       "Isaiah Jackson",
@@ -436,7 +441,6 @@
     ],
     "CHI": [
       "Ayo Dosunmu",
-      "Dalen Terry",
       "Julian Phillips"
     ],
     "MIN": [
@@ -450,19 +454,19 @@
     ]
   },
   "team_impact": {
-    "SAC": 56.285,
+    "SAC": 76.9225,
     "MEM": 114.27380952380952,
     "DET": 78.9012987012987,
     "LAC": 65.72358974358974,
     "POR": 81.82857142857142,
     "MIL": 106.86002747252746,
+    "NYK": 100.19641025641026,
     "NOP": 82.09619047619047,
     "MIA": 83.44123376623376,
     "BOS": 3.0,
-    "NYK": 77.95216783216783,
     "IND": 48.63452380952381,
     "CLE": 35.925,
-    "CHI": 46.60034188034188,
+    "CHI": 34.23111111111111,
     "OKC": 6.69,
     "UTA": 7.800000000000001
   }

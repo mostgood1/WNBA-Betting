@@ -27,8 +27,10 @@
     "minutes_sanity: team MEM top10 minutes sum low (119.0) using roll3_min",
     "minutes_sanity: team NOP top10 minutes sum low (95.2) using roll3_min",
     "minutes_sanity: team NOP has <5 players at 20+ min (found 1) using roll3_min",
-    "minutes_sanity: team SAC top10 minutes sum low (172.3) using roll3_min",
-    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using roll3_min"
+    "minutes_sanity: team NYK top10 minutes sum low (177.0) using roll3_min",
+    "minutes_sanity: team NYK has <5 players at 20+ min (found 4) using roll3_min",
+    "minutes_sanity: team SAC top10 minutes sum low (144.0) using roll3_min",
+    "minutes_sanity: team SAC has <5 players at 20+ min (found 3) using roll3_min"
   ],
   "missing": [],
   "ok": true
