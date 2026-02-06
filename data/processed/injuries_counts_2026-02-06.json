@@ -1,0 +1,443 @@
+{
+  "date": "2026-02-06",
+  "team_counts": {
+    "BOS": 2,
+    "DET": 10,
+    "IND": 6,
+    "LAC": 7,
+    "MEM": 9,
+    "MIA": 4,
+    "MIL": 5,
+    "MIN": 1,
+    "NOP": 6,
+    "NYK": 5,
+    "POR": 8,
+    "SAC": 5
+  },
+  "players": [
+    {
+      "player": "Russell Westbrook",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Eric Gordon",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Tobias Harris",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Gary Harris",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevon Looney",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Norman Powell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Caris LeVert",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Taurean Prince",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Georges Niang",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Ivica Zubac",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Derrick Jones Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Jayson Tatum",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Chris Boucher",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Brunson",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Cody Martin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Landry Shamet",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Drew Eubanks",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Zion Williamson",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Darius Garland",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyler Herro",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Porter Jr.",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Ty Jerome",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Poole",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Matisse Thybulle",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Stewart",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Herbert Jones",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Miles McBride",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Davion Mitchell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jose Alvarado",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Scoot Henderson",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Bennedict Mathurin",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Keegan Murray",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "TyTy Washington Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Blake Wesley",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Ousmane Dieng",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Kris Murray",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Marcus Sasser",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Taylor Hendricks",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Ausar Thompson",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Bobi Klintman",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin McCullar Jr.",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Ben Sheppard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Stevens",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Duop Reath",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Carter",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Donovan Clingan",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Tolu Smith",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Daniss Jenkins",
+      "team": "DET",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "SAC": [
+      "Russell Westbrook",
+      "Devin Carter",
+      "Isaiah Stevens"
+    ],
+    "MEM": [
+      "Ja Morant",
+      "Ty Jerome",
+      "Santi Aldama"
+    ],
+    "DET": [
+      "Ausar Thompson",
+      "Tobias Harris",
+      "Isaiah Stewart"
+    ],
+    "LAC": [
+      "Ivica Zubac",
+      "Jordan Miller",
+      "Derrick Jones Jr."
+    ],
+    "POR": [
+      "Donovan Clingan",
+      "Shaedon Sharpe",
+      "Blake Wesley"
+    ],
+    "MIL": [
+      "Giannis Antetokounmpo",
+      "Kevin Porter Jr.",
+      "Gary Harris"
+    ],
+    "NOP": [
+      "Zion Williamson",
+      "Herbert Jones",
+      "Yves Missi"
+    ],
+    "MIA": [
+      "Tyler Herro",
+      "Norman Powell",
+      "Davion Mitchell"
+    ],
+    "BOS": [
+      "Chris Boucher",
+      "Jayson Tatum"
+    ],
+    "NYK": [
+      "Jalen Brunson",
+      "Miles McBride",
+      "Landry Shamet"
+    ],
+    "IND": [
+      "Bennedict Mathurin",
+      "Isaiah Jackson",
+      "Ben Sheppard"
+    ],
+    "CLE": [
+      "Darius Garland"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ],
+    "OKC": [
+      "Ousmane Dieng"
+    ],
+    "UTA": [
+      "Taylor Hendricks"
+    ]
+  },
+  "team_impact": {
+    "SAC": 56.285,
+    "MEM": 114.27380952380952,
+    "DET": 78.9012987012987,
+    "LAC": 65.72358974358974,
+    "POR": 81.82857142857142,
+    "MIL": 89.3001984126984,
+    "NOP": 82.09619047619047,
+    "MIA": 83.44123376623376,
+    "BOS": 3.0,
+    "NYK": 77.95216783216783,
+    "IND": 48.63452380952381,
+    "CLE": 35.925,
+    "OKC": 6.69,
+    "UTA": 7.800000000000001
+  }
+}
