@@ -23,18 +23,17 @@
     "minutes_sanity: team BKN top10 minutes sum low (128.4) using roll10_min",
     "minutes_sanity: team BKN has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team CHI top10 minutes sum low (127.1) using roll10_min",
+    "minutes_sanity: team CHI top10 minutes sum low (114.1) using roll10_min",
     "minutes_sanity: team CHI has <5 players at 20+ min (found 3) using roll10_min",
     "minutes_sanity: team DET top10 minutes sum low (89.2) using roll10_min",
     "minutes_sanity: team DET has <5 players at 20+ min (found 1) using roll10_min",
     "minutes_sanity: team GSW top10 minutes sum low (144.7) using roll10_min",
     "minutes_sanity: team GSW has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: team ORL top10 minutes sum low (162.1) using roll10_min",
+    "minutes_sanity: team ORL top10 minutes sum low (150.0) using roll10_min",
     "minutes_sanity: team ORL has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team PHX top10 minutes sum low (172.7) using roll10_min",
     "minutes_sanity: team TOR top10 minutes sum low (130.0) using roll10_min",
-    "minutes_sanity: team TOR has <5 players at 20+ min (found 3) using roll10_min",
-    "minutes_sanity: 1 players have <8 min but >=10 pred_pts (sample: Jevon Carter(CHI))"
+    "minutes_sanity: team TOR has <5 players at 20+ min (found 3) using roll10_min"
   ],
   "missing": [],
   "ok": true

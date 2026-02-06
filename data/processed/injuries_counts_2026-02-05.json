@@ -3,9 +3,9 @@
   "team_counts": {
     "ATL": 10,
     "BKN": 6,
-    "CHA": 2,
-    "CHI": 10,
-    "DAL": 4,
+    "CHA": 3,
+    "CHI": 11,
+    "DAL": 6,
     "DET": 11,
     "GSW": 8,
     "HOU": 4,
@@ -15,7 +15,7 @@
     "PHX": 5,
     "SAS": 5,
     "TOR": 6,
-    "UTA": 10,
+    "UTA": 8,
     "WAS": 5
   },
   "players": [
@@ -70,6 +70,16 @@
       "status": "OUT"
     },
     {
+      "player": "Tyus Jones",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
       "player": "Devin Booker",
       "team": "PHX",
       "status": "OUT"
@@ -95,13 +105,13 @@
       "status": "OUT"
     },
     {
-      "player": "Fred VanVleet",
-      "team": "HOU",
+      "player": "Guerschon Yabusele",
+      "team": "CHI",
       "status": "OUT"
     },
     {
-      "player": "Lonzo Ball",
-      "team": "UTA",
+      "player": "Fred VanVleet",
+      "team": "HOU",
       "status": "OUT"
     },
     {
@@ -117,11 +127,6 @@
     {
       "player": "Luke Kornet",
       "team": "SAS",
-      "status": "OUT"
-    },
-    {
-      "player": "Chris Boucher",
-      "team": "UTA",
       "status": "OUT"
     },
     {
@@ -340,6 +345,11 @@
       "status": "OUT"
     },
     {
+      "player": "Jaden Hardy",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
       "player": "Jaden Ivey",
       "team": "CHI",
       "status": "OUT"
@@ -544,7 +554,7 @@
     "DAL": [
       "Anthony Davis",
       "P.J. Washington",
-      "Kyrie Irving"
+      "D'Angelo Russell"
     ],
     "DET": [
       "Jalen Duren",
@@ -561,6 +571,11 @@
       "Aaron Holiday",
       "Jae'Sean Tate"
     ],
+    "ORL": [
+      "Paolo Banchero",
+      "Jalen Suggs",
+      "Franz Wagner"
+    ],
     "PHX": [
       "Devin Booker",
       "Grayson Allen",
@@ -571,8 +586,8 @@
       "Brandon Ingram",
       "RJ Barrett"
     ],
-    "CLE": [
-      "Lonzo Ball"
+    "NYK": [
+      "Guerschon Yabusele"
     ],
     "CHI": [
       "Tre Jones",
@@ -583,9 +598,6 @@
       "Luke Kornet",
       "Devin Vassell",
       "Jeremy Sochan"
-    ],
-    "BOS": [
-      "Chris Boucher"
     ],
     "LAL": [
       "Austin Reaves",
@@ -605,11 +617,6 @@
     "CHA": [
       "Collin Sexton",
       "KJ Simpson"
-    ],
-    "ORL": [
-      "Paolo Banchero",
-      "Jalen Suggs",
-      "Franz Wagner"
     ],
     "BKN": [
       "Noah Clowney",
@@ -631,21 +638,20 @@
   "team_impact": {
     "GSW": 100.10833333333332,
     "UTA": 84.40343406593406,
-    "DAL": 70.45,
+    "DAL": 84.85000000000001,
     "DET": 94.91888111888113,
     "ATL": 88.03666666666666,
     "HOU": 35.17142857142857,
+    "ORL": 95.11923076923077,
     "PHX": 82.14500000000001,
     "TOR": 105.59807692307692,
-    "CLE": 13.5,
+    "NYK": 5.43,
     "CHI": 93.91666666666667,
     "SAS": 41.68714285714285,
-    "BOS": 3.0,
     "LAL": 56.47179487179488,
     "WAS": 61.16111111111111,
     "MEM": 86.225,
     "CHA": 20.114285714285717,
-    "ORL": 95.11923076923077,
     "BKN": 61.084523809523816,
     "PHI": 67.20541666666666,
     "OKC": 6.69,
