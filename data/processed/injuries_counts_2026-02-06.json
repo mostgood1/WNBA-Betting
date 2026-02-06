@@ -7,9 +7,9 @@
     "LAC": 7,
     "MEM": 9,
     "MIA": 4,
-    "MIL": 5,
-    "MIN": 1,
-    "NOP": 6,
+    "MIL": 6,
+    "MIN": 3,
+    "NOP": 7,
     "NYK": 5,
     "POR": 8,
     "SAC": 5
@@ -101,6 +101,11 @@
       "status": "OUT"
     },
     {
+      "player": "Kyle Kuzma",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
       "player": "Chris Boucher",
       "team": "BOS",
       "status": "OUT"
@@ -183,6 +188,11 @@
     {
       "player": "Isaiah Stewart",
       "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Ayo Dosunmu",
+      "team": "MIN",
       "status": "OUT"
     },
     {
@@ -276,6 +286,11 @@
       "status": "OUT"
     },
     {
+      "player": "Dalen Terry",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
       "player": "Taylor Hendricks",
       "team": "MEM",
       "status": "OUT"
@@ -308,6 +323,11 @@
     {
       "player": "Jordan Miller",
       "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Julian Phillips",
+      "team": "MIN",
       "status": "OUT"
     },
     {
@@ -385,7 +405,7 @@
     "MIL": [
       "Giannis Antetokounmpo",
       "Kevin Porter Jr.",
-      "Gary Harris"
+      "Kyle Kuzma"
     ],
     "NOP": [
       "Zion Williamson",
@@ -414,6 +434,11 @@
     "CLE": [
       "Darius Garland"
     ],
+    "CHI": [
+      "Ayo Dosunmu",
+      "Dalen Terry",
+      "Julian Phillips"
+    ],
     "MIN": [
       "Terrence Shannon Jr."
     ],
@@ -430,13 +455,14 @@
     "DET": 78.9012987012987,
     "LAC": 65.72358974358974,
     "POR": 81.82857142857142,
-    "MIL": 89.3001984126984,
+    "MIL": 106.86002747252746,
     "NOP": 82.09619047619047,
     "MIA": 83.44123376623376,
     "BOS": 3.0,
     "NYK": 77.95216783216783,
     "IND": 48.63452380952381,
     "CLE": 35.925,
+    "CHI": 46.60034188034188,
     "OKC": 6.69,
     "UTA": 7.800000000000001
   }
