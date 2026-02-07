@@ -3,24 +3,24 @@
   "team_counts": {
     "ATL": 10,
     "BKN": 6,
-    "CHA": 4,
+    "CHA": 5,
     "CHI": 9,
     "CLE": 6,
-    "DAL": 5,
+    "DAL": 6,
     "DEN": 5,
     "GSW": 5,
     "HOU": 4,
     "LAL": 3,
-    "MEM": 7,
+    "MEM": 8,
     "OKC": 6,
     "ORL": 6,
     "PHI": 6,
     "PHX": 6,
-    "POR": 8,
-    "SAC": 5,
+    "POR": 10,
+    "SAC": 8,
     "SAS": 4,
     "UTA": 5,
-    "WAS": 6
+    "WAS": 5
   },
   "players": [
     {
@@ -69,6 +69,11 @@
       "status": "OUT"
     },
     {
+      "player": "Khris Middleton",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
       "player": "CJ McCollum",
       "team": "ATL",
       "status": "OUT"
@@ -89,6 +94,11 @@
       "status": "OUT"
     },
     {
+      "player": "Zach LaVine",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
       "player": "Aaron Gordon",
       "team": "DEN",
       "status": "OUT"
@@ -106,6 +116,11 @@
     {
       "player": "Larry Nance Jr.",
       "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
       "status": "OUT"
     },
     {
@@ -189,6 +204,11 @@
       "status": "OUT"
     },
     {
+      "player": "Robert Williams III",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
       "player": "Rui Hachimura",
       "team": "LAL",
       "status": "OUT"
@@ -226,6 +246,11 @@
     {
       "player": "Ja Morant",
       "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "De'Andre Hunter",
+      "team": "SAC",
       "status": "OUT"
     },
     {
@@ -299,6 +324,11 @@
       "status": "OUT"
     },
     {
+      "player": "Xavier Tillman",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
       "player": "Jalen Green",
       "team": "PHX",
       "status": "OUT"
@@ -364,6 +394,11 @@
       "status": "OUT"
     },
     {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
       "player": "Scotty Pippen Jr.",
       "team": "MEM",
       "status": "OUT"
@@ -394,11 +429,6 @@
       "status": "OUT"
     },
     {
-      "player": "Jaden Hardy",
-      "team": "WAS",
-      "status": "OUT"
-    },
-    {
       "player": "Scoot Henderson",
       "team": "POR",
       "status": "OUT"
@@ -416,6 +446,11 @@
     {
       "player": "Keegan Murray",
       "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
       "status": "OUT"
     },
     {
@@ -611,9 +646,9 @@
       "Jonathan Kuminga"
     ],
     "SAC": [
+      "Domantas Sabonis",
       "Russell Westbrook",
-      "Devin Carter",
-      "Isaiah Stevens"
+      "Zach LaVine"
     ],
     "PHI": [
       "Tyrese Maxey",
@@ -631,7 +666,12 @@
     "POR": [
       "Deni Avdija",
       "Donovan Clingan",
-      "Scoot Henderson"
+      "Shaedon Sharpe"
+    ],
+    "WAS": [
+      "Marvin Bagley III",
+      "Khris Middleton",
+      "Tristan Vukcevic"
     ],
     "ATL": [
       "Onyeka Okongwu",
@@ -659,13 +699,13 @@
     ],
     "CLE": [
       "Evan Mobley",
-      "Sam Merrill",
-      "Lonzo Ball"
+      "De'Andre Hunter",
+      "Sam Merrill"
     ],
     "MEM": [
       "Ja Morant",
       "Ty Jerome",
-      "Jock Landale"
+      "Santi Aldama"
     ],
     "NYK": [
       "Guerschon Yabusele"
@@ -684,11 +724,6 @@
       "Austin Reaves",
       "Rui Hachimura",
       "Gabe Vincent"
-    ],
-    "WAS": [
-      "Marvin Bagley III",
-      "Tristan Vukcevic",
-      "Malaki Branham"
     ],
     "ORL": [
       "Paolo Banchero",
@@ -709,6 +744,10 @@
       "Lindy Waters III",
       "Harrison Ingram"
     ],
+    "BOS": [
+      "Josh Minott",
+      "Xavier Tillman"
+    ],
     "DET": [
       "Jaden Ivey"
     ],
@@ -716,35 +755,32 @@
       "Keyonte George",
       "Isaiah Collier",
       "Taylor Hendricks"
-    ],
-    "BOS": [
-      "Josh Minott"
     ]
   },
   "team_impact": {
     "GSW": 100.23636363636362,
-    "SAC": 57.42179487179487,
+    "SAC": 88.26167582417582,
     "PHI": 68.26309523809523,
     "LAC": 45.68181818181818,
     "DAL": 93.69,
-    "POR": 97.75238095238095,
+    "POR": 101.05238095238094,
+    "WAS": 64.91714285714286,
     "ATL": 81.54692307692308,
     "HOU": 32.65571428571429,
     "DEN": 85.42211538461538,
     "PHX": 84.0247619047619,
-    "CLE": 75.2375,
-    "MEM": 115.09666666666666,
+    "CLE": 81.9875,
+    "MEM": 116.91666666666666,
     "NYK": 4.877777777777777,
     "OKC": 107.21095238095238,
     "CHI": 94.3345238095238,
     "LAL": 58.449450549450546,
-    "WAS": 53.769642857142856,
     "ORL": 100.99880952380953,
-    "BKN": 58.23376623376623,
+    "BKN": 58.845887445887456,
     "MIL": 23.2625,
     "SAS": 22.9375,
+    "BOS": 3.5916666666666672,
     "DET": 12.5,
-    "UTA": 77.17916666666666,
-    "BOS": 3.5250000000000004
+    "UTA": 77.17916666666666
   }
 }
