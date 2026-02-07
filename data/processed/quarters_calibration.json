@@ -6,10 +6,10 @@
     0.24374850548306382
   ],
   "quarter_total_sd": {
-    "q1": 8.45312472467521,
-    "q2": 8.423819347084276,
-    "q3": 8.877230594999883,
-    "q4": 9.000826091860844
+    "q1": 8.476779303425698,
+    "q2": 8.414419076769121,
+    "q3": 8.86803751448577,
+    "q4": 8.99081111929482
   },
   "sources": {
     "recon_dates": [
@@ -24,7 +24,7 @@
       "2025-10-23",
       "2025-10-24"
     ],
-    "recon_quarters_files": 111,
+    "recon_quarters_files": 112,
     "recon_quarters_glob": "data/processed/recon_quarters_*.csv",
     "team_period_shares": "C:\\Users\\mostg\\OneDrive\\Coding\\NBA-Betting\\data\\processed\\team_period_shares.csv"
   },

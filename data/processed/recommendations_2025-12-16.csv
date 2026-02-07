@@ -1,4 +1,4 @@
 market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
 ML,New York Knicks,New York Knicks,San Antonio Spurs,2025-12-16,0.17651160453750248,-140.0,0.5833333333333334,,,,,,High
-ATS,New York Knicks,New York Knicks,San Antonio Spurs,2025-12-16,,,,2.7605648040771484,-2.5,5.260564804077148,2.5,,Medium
-TOTAL,Under,New York Knicks,San Antonio Spurs,2025-12-16,,,,-8.941055297851562,234.0,,,225.05894470214844,High
+ATS,New York Knicks,New York Knicks,San Antonio Spurs,2025-12-16,0.1282200400299326,-110.0,0.5238095238095238,2.7605648040771484,-2.5,5.260564804077148,2.5,,Medium
+TOTAL,Under,New York Knicks,San Antonio Spurs,2025-12-16,0.35899845612055614,-110.0,0.5238095238095238,-8.941055297851562,234.0,,,225.05894470214844,High

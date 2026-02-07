@@ -5,7 +5,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 200782,P.J. Tucker,NYK,,True,True
 201142,Kevin Durant,HOU,DAY-TO-DAY,True,True
 201143,Al Horford,GSW,OUT,False,False
-201144,Mike Conley,CHA,DAY-TO-DAY,False,False
+201144,Mike Conley,MIN,DAY-TO-DAY,True,True
 201145,Jeff Green,HOU,,True,True
 201566,Russell Westbrook,SAC,OUT,True,False
 201567,Kevin Love,UTA,DAY-TO-DAY,False,False
@@ -115,14 +115,14 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1627780,Gary Payton II,GSW,DAY-TO-DAY,False,False
 1627783,Pascal Siakam,IND,DAY-TO-DAY,False,False
 1627814,Damion Lee,PHX,,False,False
-1627824,Guerschon Yabusele,NYK,DAY-TO-DAY,True,True
+1627824,Guerschon Yabusele,CHI,DAY-TO-DAY,False,False
 1627826,Ivica Zubac,LAC,OUT,True,False
 1627827,Dorian Finney-Smith,HOU,OUT,True,False
 1627832,Fred VanVleet,HOU,OUT,True,False
 1627884,Derrick Jones Jr.,LAC,OUT,True,False
 1627936,Alex Caruso,OKC,OUT,True,False
 1628365,Markelle Fultz,SAC,,True,True
-1628366,Lonzo Ball,UTA,DAY-TO-DAY,False,False
+1628366,Lonzo Ball,CLE,DAY-TO-DAY,True,True
 1628368,De'Aaron Fox,SAS,DAY-TO-DAY,True,True
 1628369,Jayson Tatum,BOS,OUT,True,False
 1628370,Malik Monk,SAC,DAY-TO-DAY,True,True
@@ -146,7 +146,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1628420,Monté Morris,IND,,False,False
 1628427,Vlatko Čančar,DEN,,True,True
 1628436,Luke Kornet,SAS,DAY-TO-DAY,True,True
-1628449,Chris Boucher,UTA,OUT,False,False
+1628449,Chris Boucher,BOS,OUT,True,False
 1628464,Daniel Theis,,,False,False
 1628467,Maxi Kleber,LAL,OUT,False,False
 1628470,Torrey Craig,BOS,,True,True
@@ -379,7 +379,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631111,Wendell Moore Jr.,DET,OUT,False,False
 1631114,Jalen Williams,OKC,OUT,True,False
 1631115,Orlando Robinson,ORL,,False,False
-1631116,Patrick Baldwin Jr.,LAC,DAY-TO-DAY,True,True
+1631116,Patrick Baldwin Jr.,PHI,DAY-TO-DAY,False,False
 1631117,Walker Kessler,UTA,OUT,False,False
 1631119,Jaylin Williams,OKC,DAY-TO-DAY,True,True
 1631120,JD Davison,HOU,DAY-TO-DAY,True,True
@@ -402,7 +402,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631199,Ron Harper Jr.,BOS,DAY-TO-DAY,True,True
 1631200,Kris Murray,POR,OUT,False,False
 1631204,Marcus Sasser,DET,OUT,False,False
-1631207,Dalen Terry,CHI,DAY-TO-DAY,False,False
+1631207,Dalen Terry,NYK,DAY-TO-DAY,True,True
 1631209,Isaiah Wong,,,False,False
 1631210,Jacob Toppin,ATL,OUT,False,False
 1631212,Peyton Watson,DEN,DAY-TO-DAY,True,True
