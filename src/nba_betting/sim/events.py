@@ -711,6 +711,7 @@ def _expected_points_per_possession(
     fg3_pct: float,
     foul_per_fga: float,
     ft_pct: float,
+    oreb_rate: float = 0.24,
 ) -> float:
     """Very rough expected points per possession from rate inputs.
 
@@ -736,7 +737,20 @@ def _expected_points_per_possession(
     # FTs: mix 2/3 shots by p3
     exp_fts = p_shooting_foul * (((1.0 - p3) * 2.0) + (p3 * 3.0)) * ft_pct
 
-    return p_shot_poss * (exp_from_fg + exp_fts)
+    base = p_shot_poss * (exp_from_fg + exp_fts)
+
+    # Offensive rebounds extend the same possession and create additional shot chances.
+    # Approximate with a geometric continuation factor.
+    try:
+        oreb_rate = float(np.clip(float(oreb_rate), 0.05, 0.45))
+        p_make_live = float(np.clip((1.0 - p3) * fg2_pct + p3 * fg3_pct, 0.05, 0.95))
+        p_miss_live = 1.0 - p_make_live
+        # Only live-shot misses can lead to OREBs.
+        p_cont = float(np.clip(p_shot_poss * p_live_shot * p_miss_live * oreb_rate, 0.0, 0.35))
+        mult = 1.0 / max(1e-6, (1.0 - p_cont))
+        return float(base * mult)
+    except Exception:
+        return float(base)
 
 
 def simulate_pbp_game_boxscore(
@@ -801,6 +815,7 @@ def simulate_pbp_game_boxscore(
         fg3_pct=_team_avg(h_3p_pct, h_mins, 0.35),
         foul_per_fga=float(h_rates["foul_per_fga"]),
         ft_pct=_team_avg(h_ft_pct, h_mins, 0.76),
+        oreb_rate=float(cfg.base_oreb_rate),
     )
     base_ppp_a = _expected_points_per_possession(
         p_tov=float(a_rates["p_tov"]),
@@ -809,6 +824,7 @@ def simulate_pbp_game_boxscore(
         fg3_pct=_team_avg(a_3p_pct, a_mins, 0.35),
         foul_per_fga=float(a_rates["foul_per_fga"]),
         ft_pct=_team_avg(a_ft_pct, a_mins, 0.76),
+        oreb_rate=float(cfg.base_oreb_rate),
     )
 
     eff_mult_h = 1.0
@@ -862,6 +878,35 @@ def simulate_pbp_game_boxscore(
     home_q_pts: List[int] = []
     away_q_pts: List[int] = []
 
+    # 3-minute segments (4 per 12-minute quarter)
+    quarter_seconds = 12 * 60
+    segment_seconds = 3 * 60
+    n_segments = 4
+    home_q_seg_pts = np.zeros((4, n_segments), dtype=int)
+    away_q_seg_pts = np.zeros((4, n_segments), dtype=int)
+
+    # Overtime settings (NBA: 5 minutes)
+    ot_seconds = 5 * 60
+    max_overtimes = 6
+    home_ot_pts: List[int] = []
+    away_ot_pts: List[int] = []
+
+    def _add_q_stat(qarr: np.ndarray, q: int, idx: int, val: int) -> None:
+        """Add to quarter-level arrays (only for regulation Q1-Q4)."""
+        try:
+            if 1 <= int(q) <= 4:
+                qarr[int(q) - 1, int(idx)] += int(val)
+        except Exception:
+            pass
+
+    def _add_q_seg(segarr: np.ndarray, q: int, seg: int, val: int) -> None:
+        """Add to 3-minute segment buckets (only for regulation Q1-Q4)."""
+        try:
+            if 1 <= int(q) <= 4:
+                segarr[int(q) - 1, int(seg)] += int(val)
+        except Exception:
+            pass
+
     def _pick_lineup_from_pool(
         pool: Optional[List[List[int]]],
         weights: Optional[np.ndarray],
@@ -911,6 +956,376 @@ def simulate_pbp_game_boxscore(
     except Exception:
         game_mu_total = None
 
+    def _simulate_period(q: int, period_seconds: int, q_env_mult: float, q_pace_mult: float, blowout: bool) -> None:
+        nonlocal home_score, away_score
+
+        # Track an approximate game clock so we can bucket points into 3-minute intervals.
+        # This is intentionally lightweight (we don't emit full timestamps per event).
+        q_remaining = int(period_seconds)
+
+        # possessions_per_game is per-team; our loop simulates team-possessions.
+        base_poss = (2.0 * float(poss)) / 4.0
+        # Scale possessions by period length relative to a 12-minute quarter.
+        base_poss *= float(period_seconds) / float(quarter_seconds)
+        jitter = float(rng.normal(0.0, cfg.possessions_jitter))
+        q_poss = int(max(6, round(base_poss * q_pace_mult * (1.0 + jitter))))
+
+        for pidx in range(q_poss):
+            if pidx == 0:
+                offense_home = bool(rng.random() < 0.5)
+            else:
+                offense_home = not offense_home if bool(rng.random() < 0.85) else bool(rng.random() < 0.5)
+
+            h_line = None
+            a_line = None
+            if not blowout:
+                h_line = _pick_lineup_from_pool(home_lineups, home_lineup_weights, n_players=len(home_players))
+                a_line = _pick_lineup_from_pool(away_lineups, away_lineup_weights, n_players=len(away_players))
+            if not h_line:
+                h_line = _sample_lineup(
+                    rng,
+                    home_players,
+                    h_mins,
+                    k=5,
+                    blowout_boost_bench=blowout,
+                    bench_boost=cfg.bench_weight_boost,
+                )
+            if not a_line:
+                a_line = _sample_lineup(
+                    rng,
+                    away_players,
+                    a_mins,
+                    k=5,
+                    blowout_boost_bench=blowout,
+                    bench_boost=cfg.bench_weight_boost,
+                )
+
+            # Possession may include multiple shot attempts on offensive rebounds.
+            max_shots_this_poss = 5
+            shot_n = 0
+
+            while True:
+                shot_n += 1
+
+                # Approximate attempt duration (seconds). Keeps segment buckets plausible.
+                try:
+                    avg_sec = float(period_seconds) / float(max(1, q_poss))
+                    dur = int(np.clip(rng.normal(avg_sec, 4.0), 4.0, 28.0))
+                except Exception:
+                    dur = 14
+
+                # Segment index at attempt end (approx) for scoring buckets.
+                seg = 0
+                q_remaining_after = int(q_remaining)
+                try:
+                    q_remaining_after = max(0, int(q_remaining - min(int(dur), int(q_remaining))))
+                    q_elapsed_after = int(period_seconds - q_remaining_after)
+                    seg = int(np.clip(q_elapsed_after // segment_seconds, 0, n_segments - 1))
+                except Exception:
+                    seg = 0
+
+                off_rates = h_rates if offense_home else a_rates
+                p_tov = float(off_rates["p_tov"]) * (cfg.garbage_time_pace_scale if blowout else 1.0)
+                p3 = float(off_rates["p3"])
+
+                # Late-clock heuristics: 2-for-1 / trailing-team 3PA uptick.
+                try:
+                    is_reg = 1 <= int(q) <= 4
+                    margin_now = int(home_score - away_score)
+                    close_game = (not blowout) and (abs(margin_now) <= 8)
+                    trailing_home = bool(margin_now < 0)
+                    offense_trailing = bool(trailing_home) if offense_home else bool(margin_now > 0)
+                    is_2for1_window = is_reg and (int(q_remaining) <= 45) and (int(q_remaining) >= 24)
+                    is_clutch = is_reg and (int(q_remaining) <= 60) and close_game and (int(q) in (2, 4))
+
+                    if is_2for1_window:
+                        p3 = float(np.clip(p3 + 0.02, 0.05, 0.70))
+                    if is_clutch and offense_trailing:
+                        p3 = float(np.clip(p3 + 0.06, 0.05, 0.75))
+                except Exception:
+                    pass
+
+                # Turnover ends the possession.
+                if float(rng.random()) < p_tov:
+                    if offense_home:
+                        shooter_w = _player_usage_weights(home_players, "_prior_tov_pm", h_line)
+                        t_idx = int(_pick_weighted(rng, list(range(len(home_players))), shooter_w) or 0)
+                        h["tov"][t_idx] += 1
+                        if float(rng.random()) < cfg.base_steal_share_of_tov:
+                            stl_w = _player_usage_weights(away_players, "_prior_stl_pm", a_line)
+                            s_idx = int(_pick_weighted(rng, list(range(len(away_players))), stl_w) or 0)
+                            a["stl"][s_idx] += 1
+                        events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
+                    else:
+                        t_w = _player_usage_weights(away_players, "_prior_tov_pm", a_line)
+                        t_idx = int(_pick_weighted(rng, list(range(len(away_players))), t_w) or 0)
+                        a["tov"][t_idx] += 1
+                        if float(rng.random()) < cfg.base_steal_share_of_tov:
+                            stl_w = _player_usage_weights(home_players, "_prior_stl_pm", h_line)
+                            s_idx = int(_pick_weighted(rng, list(range(len(home_players))), stl_w) or 0)
+                            h["stl"][s_idx] += 1
+                        events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
+                    try:
+                        q_remaining = int(q_remaining_after)
+                    except Exception:
+                        pass
+                    break
+
+                shot_is_3 = bool(rng.random() < p3)
+                points_if_make = 3 if shot_is_3 else 2
+
+                foul_per_fga = float(off_rates["foul_per_fga"])
+                nonshoot_pf = float(cfg.base_nonshooting_foul_per_poss)
+                try:
+                    is_reg = 1 <= int(q) <= 4
+                    margin_now = int(home_score - away_score)
+                    close_game = (not blowout) and (abs(margin_now) <= 6)
+                    if is_reg and (int(q) in (2, 4)) and int(q_remaining) <= 45 and close_game:
+                        # In close games late in Q2/Q4, the trailing defense is more likely to foul.
+                        offense_leading = bool(margin_now > 0) if offense_home else bool(margin_now < 0)
+                        if offense_leading:
+                            foul_per_fga = float(np.clip(foul_per_fga * 1.25, 0.0, 0.60))
+                            nonshoot_pf = float(np.clip(nonshoot_pf + 0.10, 0.0, 0.60))
+                except Exception:
+                    pass
+
+                # Non-shooting foul noise (does not end the possession in this simplified model).
+                do_nonshoot_pf = bool(rng.random() < nonshoot_pf)
+
+                def _maybe_add_nonshoot_pf() -> None:
+                    if not do_nonshoot_pf:
+                        return
+                    try:
+                        if offense_home:
+                            pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
+                            didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
+                            if didx is not None:
+                                a["pf"][int(didx)] += 1
+                        else:
+                            pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
+                            didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
+                            if didx is not None:
+                                h["pf"][int(didx)] += 1
+                    except Exception:
+                        return
+
+                foul = bool(rng.random() < foul_per_fga)
+
+                if offense_home:
+                    if shot_is_3:
+                        w = _player_usage_weights(home_players, "_prior_threes_att_pm", h_line)
+                    else:
+                        w = _player_usage_weights(home_players, "_prior_fga_pm", h_line)
+                    sh = int(_pick_weighted(rng, list(range(len(home_players))), w) or 0)
+
+                    h["fga"][sh] += 1
+                    if shot_is_3:
+                        h["fg3a"][sh] += 1
+
+                    eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
+                    base_p = float(h_3p_pct[sh] if shot_is_3 else h_fg_pct[sh])
+                    make_p = float(np.clip(base_p * eff_scale * eff_mult_h * q_env_mult, 0.05, 0.95))
+                    made = bool(rng.random() < make_p)
+
+                    blk = False
+                    if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
+                        blk = True
+                        blk_w = _player_usage_weights(away_players, "_prior_blk_pm", a_line)
+                        bidx = int(_pick_weighted(rng, list(range(len(away_players))), blk_w) or 0)
+                        a["blk"][bidx] += 1
+
+                    if made:
+                        h["fgm"][sh] += 1
+                        if shot_is_3:
+                            h["fg3m"][sh] += 1
+                            _add_q_stat(hq["threes"], q, sh, 1)
+                        h["pts"][sh] += points_if_make
+                        _add_q_stat(hq["pts"], q, sh, int(points_if_make))
+                        home_score += points_if_make
+                        _add_q_seg(home_q_seg_pts, q, seg, int(points_if_make))
+
+                        if rng.random() < 0.58:
+                            ast_w = _player_usage_weights(home_players, "_prior_ast_pm", [i for i in h_line if i != sh])
+                            aidx = _pick_weighted(rng, list(range(len(home_players))), ast_w)
+                            if aidx is not None:
+                                h["ast"][int(aidx)] += 1
+                                _add_q_stat(hq["ast"], q, int(aidx), 1)
+
+                        if foul and rng.random() < 0.32:
+                            h["fta"][sh] += 1
+                            ftp = float(np.clip(float(h_ft_pct[sh]) * eff_mult_h * q_env_mult, 0.45, 0.95))
+                            if rng.random() < ftp:
+                                h["ftm"][sh] += 1
+                                h["pts"][sh] += 1
+                                _add_q_stat(hq["pts"], q, sh, 1)
+                                home_score += 1
+                                _add_q_seg(home_q_seg_pts, q, seg, 1)
+                            pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
+                            didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
+                            if didx is not None:
+                                a["pf"][int(didx)] += 1
+                        _maybe_add_nonshoot_pf()
+                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
+                        try:
+                            q_remaining = int(q_remaining_after)
+                        except Exception:
+                            pass
+                        break
+
+                    if foul and rng.random() < 0.70:
+                        n_ft = 3 if shot_is_3 else 2
+                        h["fta"][sh] += int(n_ft)
+                        ftp = float(np.clip(float(h_ft_pct[sh]) * eff_mult_h * q_env_mult, 0.45, 0.95))
+                        made_fts = int(rng.binomial(int(n_ft), ftp))
+                        if made_fts > 0:
+                            h["ftm"][sh] += made_fts
+                            h["pts"][sh] += made_fts
+                            _add_q_stat(hq["pts"], q, sh, int(made_fts))
+                            home_score += made_fts
+                            _add_q_seg(home_q_seg_pts, q, seg, int(made_fts))
+                        pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
+                        didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
+                        if didx is not None:
+                            a["pf"][int(didx)] += 1
+                        _maybe_add_nonshoot_pf()
+                        events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        try:
+                            q_remaining = int(q_remaining_after)
+                        except Exception:
+                            pass
+                        break
+
+                    oreb = bool(rng.random() < cfg.base_oreb_rate)
+                    if oreb:
+                        reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
+                        ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
+                        if ridx is not None:
+                            h["reb"][int(ridx)] += 1
+                            _add_q_stat(hq["reb"], q, int(ridx), 1)
+                    else:
+                        reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
+                        ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
+                        if ridx is not None:
+                            a["reb"][int(ridx)] += 1
+                            _add_q_stat(aq["reb"], q, int(ridx), 1)
+                    events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
+                    try:
+                        q_remaining = int(q_remaining_after)
+                    except Exception:
+                        pass
+                    _maybe_add_nonshoot_pf()
+                    if oreb and (shot_n < int(max_shots_this_poss)) and int(q_remaining) > 0:
+                        continue
+                    break
+
+                else:
+                    if shot_is_3:
+                        w = _player_usage_weights(away_players, "_prior_threes_att_pm", a_line)
+                    else:
+                        w = _player_usage_weights(away_players, "_prior_fga_pm", a_line)
+                    sh = int(_pick_weighted(rng, list(range(len(away_players))), w) or 0)
+
+                    a["fga"][sh] += 1
+                    if shot_is_3:
+                        a["fg3a"][sh] += 1
+
+                    eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
+                    base_p = float(a_3p_pct[sh] if shot_is_3 else a_fg_pct[sh])
+                    make_p = float(np.clip(base_p * eff_scale * eff_mult_a * q_env_mult, 0.05, 0.95))
+                    made = bool(rng.random() < make_p)
+
+                    blk = False
+                    if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
+                        blk = True
+                        blk_w = _player_usage_weights(home_players, "_prior_blk_pm", h_line)
+                        bidx = int(_pick_weighted(rng, list(range(len(home_players))), blk_w) or 0)
+                        h["blk"][bidx] += 1
+
+                    if made:
+                        a["fgm"][sh] += 1
+                        if shot_is_3:
+                            a["fg3m"][sh] += 1
+                            _add_q_stat(aq["threes"], q, sh, 1)
+                        a["pts"][sh] += points_if_make
+                        _add_q_stat(aq["pts"], q, sh, int(points_if_make))
+                        away_score += points_if_make
+                        _add_q_seg(away_q_seg_pts, q, seg, int(points_if_make))
+
+                        if rng.random() < 0.58:
+                            ast_w = _player_usage_weights(away_players, "_prior_ast_pm", [i for i in a_line if i != sh])
+                            aidx = _pick_weighted(rng, list(range(len(away_players))), ast_w)
+                            if aidx is not None:
+                                a["ast"][int(aidx)] += 1
+                                _add_q_stat(aq["ast"], q, int(aidx), 1)
+
+                        if foul and rng.random() < 0.32:
+                            a["fta"][sh] += 1
+                            ftp = float(np.clip(float(a_ft_pct[sh]) * eff_mult_a * q_env_mult, 0.45, 0.95))
+                            if rng.random() < ftp:
+                                a["ftm"][sh] += 1
+                                a["pts"][sh] += 1
+                                _add_q_stat(aq["pts"], q, sh, 1)
+                                away_score += 1
+                                _add_q_seg(away_q_seg_pts, q, seg, 1)
+                            pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
+                            didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
+                            if didx is not None:
+                                h["pf"][int(didx)] += 1
+                        _maybe_add_nonshoot_pf()
+                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
+                        try:
+                            q_remaining = int(q_remaining_after)
+                        except Exception:
+                            pass
+                        break
+
+                    if foul and rng.random() < 0.70:
+                        n_ft = 3 if shot_is_3 else 2
+                        a["fta"][sh] += int(n_ft)
+                        ftp = float(np.clip(float(a_ft_pct[sh]) * eff_mult_a * q_env_mult, 0.45, 0.95))
+                        made_fts = int(rng.binomial(int(n_ft), ftp))
+                        if made_fts > 0:
+                            a["ftm"][sh] += made_fts
+                            a["pts"][sh] += made_fts
+                            _add_q_stat(aq["pts"], q, sh, int(made_fts))
+                            away_score += made_fts
+                            _add_q_seg(away_q_seg_pts, q, seg, int(made_fts))
+                        pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
+                        didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
+                        if didx is not None:
+                            h["pf"][int(didx)] += 1
+                        _maybe_add_nonshoot_pf()
+                        events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        try:
+                            q_remaining = int(q_remaining_after)
+                        except Exception:
+                            pass
+                        break
+
+                    oreb = bool(rng.random() < cfg.base_oreb_rate)
+                    if oreb:
+                        reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
+                        ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
+                        if ridx is not None:
+                            a["reb"][int(ridx)] += 1
+                            _add_q_stat(aq["reb"], q, int(ridx), 1)
+                    else:
+                        reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
+                        ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
+                        if ridx is not None:
+                            h["reb"][int(ridx)] += 1
+                            _add_q_stat(hq["reb"], q, int(ridx), 1)
+                    events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
+                    try:
+                        q_remaining = int(q_remaining_after)
+                    except Exception:
+                        pass
+                    _maybe_add_nonshoot_pf()
+                    if oreb and (shot_n < int(max_shots_this_poss)) and int(q_remaining) > 0:
+                        continue
+                    break
+
+
     for q in range(1, 5):
         h_start = int(home_score)
         a_start = int(away_score)
@@ -952,10 +1367,9 @@ def simulate_pbp_game_boxscore(
             q_env_mult = 1.0
             q_pace_mult = 1.0
 
-        # possessions_per_game is per-team; our loop simulates team-possessions.
-        base_poss = (2.0 * float(poss)) / 4.0
-        jitter = float(rng.normal(0.0, cfg.possessions_jitter))
-        q_poss = int(max(18, round(base_poss * q_pace_mult * (1.0 + jitter))))
+        # For regulation periods, enforce a slightly higher minimum possessions.
+        # (OT periods will use a lower min via _simulate_period())
+        q_pace_mult = float(q_pace_mult)
 
         margin = int(home_score - away_score)
         blowout = False
@@ -964,250 +1378,26 @@ def simulate_pbp_game_boxscore(
         if q >= 3 and abs(margin) >= int(cfg.blowout_margin):
             blowout = True
 
-        for pidx in range(q_poss):
-            if pidx == 0:
-                offense_home = bool(rng.random() < 0.5)
-            else:
-                offense_home = not offense_home if bool(rng.random() < 0.85) else bool(rng.random() < 0.5)
-
-            h_line = None
-            a_line = None
-            if not blowout:
-                h_line = _pick_lineup_from_pool(home_lineups, home_lineup_weights, n_players=len(home_players))
-                a_line = _pick_lineup_from_pool(away_lineups, away_lineup_weights, n_players=len(away_players))
-            if not h_line:
-                h_line = _sample_lineup(
-                    rng,
-                    home_players,
-                    h_mins,
-                    k=5,
-                    blowout_boost_bench=blowout,
-                    bench_boost=cfg.bench_weight_boost,
-                )
-            if not a_line:
-                a_line = _sample_lineup(
-                    rng,
-                    away_players,
-                    a_mins,
-                    k=5,
-                    blowout_boost_bench=blowout,
-                    bench_boost=cfg.bench_weight_boost,
-                )
-
-            off_rates = h_rates if offense_home else a_rates
-            p_tov = float(off_rates["p_tov"]) * (cfg.garbage_time_pace_scale if blowout else 1.0)
-            p3 = float(off_rates["p3"])
-
-            r = float(rng.random())
-            if r < p_tov:
-                if offense_home:
-                    shooter_w = _player_usage_weights(home_players, "_prior_tov_pm", h_line)
-                    t_idx = int(_pick_weighted(rng, list(range(len(home_players))), shooter_w) or 0)
-                    h["tov"][t_idx] += 1
-                    if float(rng.random()) < cfg.base_steal_share_of_tov:
-                        stl_w = _player_usage_weights(away_players, "_prior_stl_pm", a_line)
-                        s_idx = int(_pick_weighted(rng, list(range(len(away_players))), stl_w) or 0)
-                        a["stl"][s_idx] += 1
-                    events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
-                else:
-                    t_w = _player_usage_weights(away_players, "_prior_tov_pm", a_line)
-                    t_idx = int(_pick_weighted(rng, list(range(len(away_players))), t_w) or 0)
-                    a["tov"][t_idx] += 1
-                    if float(rng.random()) < cfg.base_steal_share_of_tov:
-                        stl_w = _player_usage_weights(home_players, "_prior_stl_pm", h_line)
-                        s_idx = int(_pick_weighted(rng, list(range(len(home_players))), stl_w) or 0)
-                        h["stl"][s_idx] += 1
-                    events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
-                continue
-
-            shot_is_3 = bool(rng.random() < p3)
-            points_if_make = 3 if shot_is_3 else 2
-
-            if offense_home:
-                if shot_is_3:
-                    w = _player_usage_weights(home_players, "_prior_threes_att_pm", h_line)
-                else:
-                    w = _player_usage_weights(home_players, "_prior_fga_pm", h_line)
-                sh = int(_pick_weighted(rng, list(range(len(home_players))), w) or 0)
-
-                h["fga"][sh] += 1
-                if shot_is_3:
-                    h["fg3a"][sh] += 1
-
-                foul = bool(rng.random() < float(off_rates["foul_per_fga"]))
-
-                eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
-                base_p = float(h_3p_pct[sh] if shot_is_3 else h_fg_pct[sh])
-                make_p = float(np.clip(base_p * eff_scale * eff_mult_h * q_env_mult, 0.05, 0.95))
-                made = bool(rng.random() < make_p)
-
-                blk = False
-                if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
-                    blk = True
-                    blk_w = _player_usage_weights(away_players, "_prior_blk_pm", a_line)
-                    bidx = int(_pick_weighted(rng, list(range(len(away_players))), blk_w) or 0)
-                    a["blk"][bidx] += 1
-
-                if made:
-                    h["fgm"][sh] += 1
-                    if shot_is_3:
-                        h["fg3m"][sh] += 1
-                        hq["threes"][q - 1, sh] += 1
-                    h["pts"][sh] += points_if_make
-                    hq["pts"][q - 1, sh] += int(points_if_make)
-                    home_score += points_if_make
-
-                    if rng.random() < 0.58:
-                        ast_w = _player_usage_weights(home_players, "_prior_ast_pm", [i for i in h_line if i != sh])
-                        aidx = _pick_weighted(rng, list(range(len(home_players))), ast_w)
-                        if aidx is not None:
-                            h["ast"][int(aidx)] += 1
-                            hq["ast"][q - 1, int(aidx)] += 1
-
-                    if foul and rng.random() < 0.32:
-                        h["fta"][sh] += 1
-                        ftp = float(np.clip(float(h_ft_pct[sh]) * eff_mult_h * q_env_mult, 0.45, 0.95))
-                        if rng.random() < ftp:
-                            h["ftm"][sh] += 1
-                            h["pts"][sh] += 1
-                            hq["pts"][q - 1, sh] += 1
-                            home_score += 1
-                        pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
-                        didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
-                        if didx is not None:
-                            a["pf"][int(didx)] += 1
-                    events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
-                else:
-                    if foul and rng.random() < 0.70:
-                        n_ft = 3 if shot_is_3 else 2
-                        h["fta"][sh] += int(n_ft)
-                        ftp = float(np.clip(float(h_ft_pct[sh]) * eff_mult_h * q_env_mult, 0.45, 0.95))
-                        made_fts = int(rng.binomial(int(n_ft), ftp))
-                        if made_fts > 0:
-                            h["ftm"][sh] += made_fts
-                            h["pts"][sh] += made_fts
-                            hq["pts"][q - 1, sh] += int(made_fts)
-                            home_score += made_fts
-                        pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
-                        didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
-                        if didx is not None:
-                            a["pf"][int(didx)] += 1
-                        events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
-                    else:
-                        oreb = bool(rng.random() < cfg.base_oreb_rate)
-                        if oreb:
-                            reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
-                            ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
-                            if ridx is not None:
-                                h["reb"][int(ridx)] += 1
-                                hq["reb"][q - 1, int(ridx)] += 1
-                        else:
-                            reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
-                            ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
-                            if ridx is not None:
-                                a["reb"][int(ridx)] += 1
-                                aq["reb"][q - 1, int(ridx)] += 1
-                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
-
-                if rng.random() < cfg.base_nonshooting_foul_per_poss:
-                    pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
-                    didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
-                    if didx is not None:
-                        a["pf"][int(didx)] += 1
-
-            else:
-                if shot_is_3:
-                    w = _player_usage_weights(away_players, "_prior_threes_att_pm", a_line)
-                else:
-                    w = _player_usage_weights(away_players, "_prior_fga_pm", a_line)
-                sh = int(_pick_weighted(rng, list(range(len(away_players))), w) or 0)
-
-                a["fga"][sh] += 1
-                if shot_is_3:
-                    a["fg3a"][sh] += 1
-
-                foul = bool(rng.random() < float(off_rates["foul_per_fga"]))
-                eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
-                base_p = float(a_3p_pct[sh] if shot_is_3 else a_fg_pct[sh])
-                make_p = float(np.clip(base_p * eff_scale * eff_mult_a * q_env_mult, 0.05, 0.95))
-                made = bool(rng.random() < make_p)
-
-                blk = False
-                if (not shot_is_3) and (rng.random() < cfg.base_block_rate_on_2pa):
-                    blk = True
-                    blk_w = _player_usage_weights(home_players, "_prior_blk_pm", h_line)
-                    bidx = int(_pick_weighted(rng, list(range(len(home_players))), blk_w) or 0)
-                    h["blk"][bidx] += 1
-
-                if made:
-                    a["fgm"][sh] += 1
-                    if shot_is_3:
-                        a["fg3m"][sh] += 1
-                        aq["threes"][q - 1, sh] += 1
-                    a["pts"][sh] += points_if_make
-                    aq["pts"][q - 1, sh] += int(points_if_make)
-                    away_score += points_if_make
-
-                    if rng.random() < 0.58:
-                        ast_w = _player_usage_weights(away_players, "_prior_ast_pm", [i for i in a_line if i != sh])
-                        aidx = _pick_weighted(rng, list(range(len(away_players))), ast_w)
-                        if aidx is not None:
-                            a["ast"][int(aidx)] += 1
-                            aq["ast"][q - 1, int(aidx)] += 1
-
-                    if foul and rng.random() < 0.32:
-                        a["fta"][sh] += 1
-                        ftp = float(np.clip(float(a_ft_pct[sh]) * eff_mult_a * q_env_mult, 0.45, 0.95))
-                        if rng.random() < ftp:
-                            a["ftm"][sh] += 1
-                            a["pts"][sh] += 1
-                            aq["pts"][q - 1, sh] += 1
-                            away_score += 1
-                        pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
-                        didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
-                        if didx is not None:
-                            h["pf"][int(didx)] += 1
-                    events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
-                else:
-                    if foul and rng.random() < 0.70:
-                        n_ft = 3 if shot_is_3 else 2
-                        a["fta"][sh] += int(n_ft)
-                        ftp = float(np.clip(float(a_ft_pct[sh]) * eff_mult_a * q_env_mult, 0.45, 0.95))
-                        made_fts = int(rng.binomial(int(n_ft), ftp))
-                        if made_fts > 0:
-                            a["ftm"][sh] += made_fts
-                            a["pts"][sh] += made_fts
-                            aq["pts"][q - 1, sh] += int(made_fts)
-                            away_score += made_fts
-                        pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
-                        didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
-                        if didx is not None:
-                            h["pf"][int(didx)] += 1
-                        events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
-                    else:
-                        oreb = bool(rng.random() < cfg.base_oreb_rate)
-                        if oreb:
-                            reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
-                            ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
-                            if ridx is not None:
-                                a["reb"][int(ridx)] += 1
-                                aq["reb"][q - 1, int(ridx)] += 1
-                        else:
-                            reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
-                            ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
-                            if ridx is not None:
-                                h["reb"][int(ridx)] += 1
-                                hq["reb"][q - 1, int(ridx)] += 1
-                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
-
-                if rng.random() < cfg.base_nonshooting_foul_per_poss:
-                    pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
-                    didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
-                    if didx is not None:
-                        h["pf"][int(didx)] += 1
+        _simulate_period(q=q, period_seconds=int(quarter_seconds), q_env_mult=float(q_env_mult), q_pace_mult=float(q_pace_mult), blowout=bool(blowout))
 
         home_q_pts.append(int(home_score - h_start))
         away_q_pts.append(int(away_score - a_start))
+
+    # Overtime: simulate 5-minute periods until a winner (up to a safety cap)
+    try:
+        ot_n = 0
+        while int(home_score) == int(away_score) and ot_n < int(max_overtimes):
+            ot_n += 1
+            h_start = int(home_score)
+            a_start = int(away_score)
+
+            # Reuse last-known environment; keep it stable for OT.
+            _simulate_period(q=4 + int(ot_n), period_seconds=int(ot_seconds), q_env_mult=1.0, q_pace_mult=1.0, blowout=False)
+
+            home_ot_pts.append(int(home_score - h_start))
+            away_ot_pts.append(int(away_score - a_start))
+    except Exception:
+        pass
 
     def finalize(players: pd.DataFrame, agg: Dict[str, np.ndarray], qagg: Dict[str, np.ndarray]) -> Dict[str, Any]:
         out_players: List[Dict[str, Any]] = []
@@ -1261,5 +1451,24 @@ def simulate_pbp_game_boxscore(
     away_box = finalize(away_players, a, aq)
     home_box["events"] = events[:500]
     away_box["events"] = []
+
+    # Segment points per quarter (4x4). Helpful for live-lens interval ladders.
+    try:
+        home_box["q_segment_pts"] = home_q_seg_pts.astype(int).tolist()
+        away_box["q_segment_pts"] = away_q_seg_pts.astype(int).tolist()
+        home_box["segment_seconds"] = int(segment_seconds)
+        away_box["segment_seconds"] = int(segment_seconds)
+    except Exception:
+        pass
+
+    # Overtime totals per OT period (per-team).
+    try:
+        if home_ot_pts or away_ot_pts:
+            home_box["ot_pts"] = [int(x) for x in (home_ot_pts or [])]
+            away_box["ot_pts"] = [int(x) for x in (away_ot_pts or [])]
+            home_box["ot_seconds"] = int(ot_seconds)
+            away_box["ot_seconds"] = int(ot_seconds)
+    except Exception:
+        pass
 
     return home_box, away_box, home_q_pts, away_q_pts

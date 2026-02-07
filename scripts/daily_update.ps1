@@ -1435,6 +1435,28 @@ try {
 $rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
 Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 
+# 6d) Export authoritative best-edges snapshots (games + props) for tracking/UI
+try {
+  Write-Log ("Exporting best-edges snapshots for {0}" -f $Date)
+  $rc6d = Invoke-PyMod -plist @('-m','nba_betting.cli','export-best-edges','--date', $Date, '--overwrite')
+  Write-Log ("export-best-edges exit code: {0}" -f $rc6d)
+} catch {
+  Write-Log ("export-best-edges failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 6e) Purge cached summary so endpoints cannot serve stale results
+try {
+  $sumCache = Join-Path $RepoRoot 'data/processed/recommendations_summary.json'
+  if (Test-Path $sumCache) {
+    Remove-Item $sumCache -Force -ErrorAction SilentlyContinue
+    Write-Log 'Purged recommendations_summary.json cache'
+  } else {
+    Write-Log 'No recommendations_summary.json cache to purge'
+  }
+} catch {
+  Write-Log ("Summary cache purge failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 6c.1) Post-process props_recommendations to prefer regular-priced plays and add explainability
 try {
   Write-Log ("Post-processing props_recommendations for {0}: prefer regular-priced plays, add reasons" -f $Date)
@@ -1710,6 +1732,31 @@ try {
   Write-Log ("export-game-cards exit code: {0}" -f $rcCards)
 } catch {
   Write-Log ("export-game-cards failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 7.15) Optional refinement: build interval band calibration (p10/p90 widening) from recent finals.
+# Runs BEFORE SmartSim so today's interval ladders can use the latest calibration.
+try {
+  $doIntervalBandCalib = $env:DAILY_INTERVAL_BAND_CALIB
+  if ($null -eq $doIntervalBandCalib -or $doIntervalBandCalib -eq '') { $doIntervalBandCalib = '0' }
+  if ($doIntervalBandCalib -match '^(1|true|yes)$') {
+    $endEval = (Get-Date $Date).AddDays(-1).ToString('yyyy-MM-dd')
+    $startEval = (Get-Date $Date).AddDays(-7).ToString('yyyy-MM-dd')
+    Write-Log ("Building interval actuals + evaluation + band calibration (start={0}, end={1})" -f $startEval, $endEval)
+
+    $rcAct = Invoke-PyMod -plist @('tools/build_interval_actuals_from_pbp_espn.py','--start', $startEval, '--end', $endEval)
+    Write-Log ("build_interval_actuals_from_pbp_espn exit code: {0}" -f $rcAct)
+
+    $rcEval = Invoke-PyMod -plist @('tools/evaluate_intervals.py','--start', $startEval, '--end', $endEval, '--use-pbp-only')
+    Write-Log ("evaluate_intervals exit code: {0}" -f $rcEval)
+
+    $rcCal = Invoke-PyMod -plist @('tools/build_intervals_band_calibration.py','--start', $startEval, '--end', $endEval)
+    Write-Log ("build_intervals_band_calibration exit code: {0}" -f $rcCal)
+  } else {
+    Write-Log 'Skipping interval band calibration (set DAILY_INTERVAL_BAND_CALIB=1 to enable)'
+  }
+} catch {
+  Write-Log ("Interval band calibration step failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # 7.2) SmartSim distributions for today's slate (writes per-game smart_sim_<date>_<HOME>_<AWAY>.json)

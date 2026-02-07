@@ -20,6 +20,8 @@ http_cache.sqlite
 
 # Temporary and scratch files/scripts
 temp_*.py
+_tmp_*.py
+_tmp_*.json
 
 # Quarantined scratch utilities (kept locally, not versioned)
 tools/_scratch/

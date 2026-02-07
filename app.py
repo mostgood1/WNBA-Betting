@@ -123,7 +123,10 @@ def _enforce_minimal_ui_allowlist():
             "/api/schedule",
             "/api/evaluate/games",
             "/api/evaluate/props",
+            "/api/version",
             "/api/features",
+            "/api/props/recommendations",
+            "/api/props-recommendations",
             "/api/processed/recon_games",
             "/api/processed/recon_quarters",
         }
@@ -2122,6 +2125,14 @@ def api_sim_smart_sim():
             return jsonify({"date": d, "error": "props predictions not found"}), 404
 
         cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed_i)
+        pre_ctx = {
+            "home_injuries_out": int(h_outs),
+            "away_injuries_out": int(a_outs),
+            "home_pace": float(home_pace) if (home_pace is not None) else None,
+            "away_pace": float(away_pace) if (away_pace is not None) else None,
+            "home_b2b": bool(hb2b),
+            "away_b2b": bool(ab2b),
+        }
         out = simulate_smart_game(
             date_str=d,
             home_tri=home_tri,
@@ -2131,6 +2142,7 @@ def api_sim_smart_sim():
             market_total=market_total,
             market_home_spread=home_spread,
             cfg=cfg,
+            pregame_context=pre_ctx,
         )
         try:
             out = dict(out) if isinstance(out, dict) else {"result": out}
@@ -2310,6 +2322,8 @@ def route_recommendations():
             return _recommendations_all()
         if view in {"summary"}:
             return _recommendations_summary()
+        if view in {"recaps", "daily", "daily-recaps", "daily_recaps"}:
+            return _recommendations_recaps()
         if view in {"summary-props", "summary_props", "props-summary", "props_summary"}:
             return _recommendations_summary_props()
         if view in {"summary-props-calibration", "summary_props_calibration", "props-calibration", "props_calibration"}:
@@ -2324,6 +2338,7 @@ def route_recommendations():
             "allowed": [
                 "all",
                 "summary",
+                "recaps",
                 "summary-props",
                 "summary-props-calibration",
                 "summary-games-calibration",
@@ -5023,6 +5038,7 @@ def api_cards():
             "context": obj.get("context"),
             "score": obj.get("score"),
             "periods": obj.get("periods"),
+            "intervals": obj.get("intervals"),
             "players": players_out,
             "injuries": injuries_payload,
             "error": sim_error,
@@ -5179,14 +5195,19 @@ def _recommendations_summary():
                 pass
             return "Low"
 
-        # Fast path: serve cached summary if available
+        # Fast path: serve cached summary if available (only if it matches the requested window + schema)
         try:
             _cache_p = BASE_DIR / "data" / "processed" / "recommendations_summary.json"
             if _cache_p.exists():
                 with open(_cache_p, "r", encoding="utf-8") as fh:
                     cached = _json.load(fh)
                 # Optional: basic sanity keys
-                if isinstance(cached, dict) and cached.get("version"):
+                if (
+                    isinstance(cached, dict)
+                    and str(cached.get("version") or "") == "summary-v4-best-edges"
+                    and str(cached.get("since") or "").strip() == since
+                    and str(cached.get("until") or "").strip() == until
+                ):
                     return jsonify(cached)
         except Exception:
             pass
@@ -5214,6 +5235,16 @@ def _recommendations_summary():
             for p in sorted(proc.glob("recommendations_*.csv")):
                 try:
                     dstr = p.stem.replace("recommendations_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_files_map[dstr] = p
+                except Exception:
+                    continue
+
+            # Best-edges exports — if present, prefer these over recommendations/picks for the date
+            for p in sorted(proc.glob("best_edges_games_*.csv")):
+                try:
+                    dstr = p.stem.replace("best_edges_games_", "")
                     d = _parse_date(dstr)
                     if d and ds.date() <= d.date() <= de.date():
                         rec_files_map[dstr] = p
@@ -5394,23 +5425,40 @@ def _recommendations_summary():
                                             diff = margin + float(line_home)
                                             is_push = abs(diff) < 1e-9
                                             is_win = diff > 0
-                                            dec = default_dec
+                                            try:
+                                                sp_price = o.iloc[0].get("home_spread_price")
+                                                dec = _american_to_decimal(sp_price) or default_dec
+                                            except Exception:
+                                                dec = default_dec
                                         elif side == away and line_home is not None:
                                             diff = -margin - float(line_home)
                                             is_push = abs(diff) < 1e-9
                                             is_win = diff > 0
-                                            dec = default_dec
+                                            try:
+                                                sp_price = o.iloc[0].get("away_spread_price")
+                                                dec = _american_to_decimal(sp_price) or default_dec
+                                            except Exception:
+                                                dec = default_dec
                                     elif market == "TOTAL":
                                         tot = pd.to_numeric(o.iloc[0].get("total"), errors="coerce")
                                         if pd.notna(tot):
                                             pts = float(hp) + float(ap)
                                             if str(side).lower().startswith("o"):
                                                 diff = pts - float(tot)
+                                                try:
+                                                    t_price = o.iloc[0].get("total_over_price")
+                                                    dec = _american_to_decimal(t_price) or default_dec
+                                                except Exception:
+                                                    dec = default_dec
                                             else:
                                                 diff = float(tot) - pts
+                                                try:
+                                                    t_price = o.iloc[0].get("total_under_price")
+                                                    dec = _american_to_decimal(t_price) or default_dec
+                                                except Exception:
+                                                    dec = default_dec
                                             is_push = abs(diff) < 1e-9
                                             is_win = diff > 0
-                                            dec = default_dec
                                     if dec is not None:
                                         resolved = True
                                         if is_push:
@@ -5439,7 +5487,9 @@ def _recommendations_summary():
                     continue
 
             # Evaluate props recommendations for the same date using recon_props_*
-            props_path = BASE_DIR / "data" / "processed" / f"props_recommendations_{dstr}.csv"
+            # Prefer authoritative props best-edges snapshots when present
+            best_props_path = BASE_DIR / "data" / "processed" / f"best_edges_props_{dstr}.csv"
+            props_path = best_props_path if best_props_path.exists() else (BASE_DIR / "data" / "processed" / f"props_recommendations_{dstr}.csv")
             recon_props_path = BASE_DIR / "data" / "processed" / f"recon_props_{dstr}.csv"
             if props_path.exists() and recon_props_path.exists():
                 try:
@@ -5527,20 +5577,37 @@ def _recommendations_summary():
                         except Exception:
                             return None
                         return None
-                    # Evaluate each props card's top play
+                    # Evaluate props: if using snapshot, rows are already flattened picks; else use cards (plays)
+                    using_best_props = bool(best_props_path.exists() and (props_path == best_props_path))
                     for _, pr in props_df.iterrows():
                         try:
-                            tp = _top_play_from_row(pr)
-                            if not isinstance(tp, dict) or not tp:
-                                continue
-                            player = _norm_name(pr.get("player"))
-                            team = _tri_team(pr.get("team"))
+                            if using_best_props:
+                                tp = {
+                                    "market": pr.get("market"),
+                                    "side": pr.get("side"),
+                                    "line": pr.get("line"),
+                                    "price": pr.get("price"),
+                                    "ev": pr.get("ev"),
+                                    "edge": pr.get("edge"),
+                                }
+                                player = _norm_name(pr.get("player"))
+                                team = _tri_team(pr.get("team"))
+                            else:
+                                tp = _top_play_from_row(pr)
+                                if not isinstance(tp, dict) or not tp:
+                                    continue
+                                player = _norm_name(pr.get("player"))
+                                team = _tri_team(pr.get("team"))
+
                             stats = recon_index.get((player, team))
+                            tier_here = _tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))
+                            props_buckets["Overall"]["total"] += 1
+                            props_buckets[tier_here]["total"] += 1
+
                             if not isinstance(stats, dict) or not stats:
                                 # unresolved (e.g., player DNP or data missing)
-                                props_buckets["Overall"]["total"] += 1
-                                props_buckets[_tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))]["total"] += 1
                                 continue
+
                             # Resolve against line
                             mkt = str(tp.get("market") or "").lower()
                             side = str(tp.get("side") or "").upper()
@@ -5566,12 +5633,10 @@ def _recommendations_summary():
                                 actual = (stats.get("reb", 0.0) + stats.get("ast", 0.0))
                             elif mkt == "pa":
                                 actual = (stats.get("pts", 0.0) + stats.get("ast", 0.0))
-                            # Ignore unsupported markets (dd/td etc.)
+
                             if ln is None or actual is None:
-                                # unresolved
-                                props_buckets["Overall"]["total"] += 1
-                                props_buckets[_tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))]["total"] += 1
                                 continue
+
                             is_push = abs(float(actual) - float(ln)) < 1e-9
                             is_win = False
                             if not is_push:
@@ -5579,29 +5644,30 @@ def _recommendations_summary():
                                     is_win = (float(actual) > float(ln))
                                 elif side == "UNDER":
                                     is_win = (float(actual) < float(ln))
+
                             stake = 1.0
-                            profit = 0.0
                             dec = _american_to_decimal(tp.get("price"))
                             if dec is None:
-                                # default to -110 if missing
                                 dec = 1.909090909
-                            # Update buckets
-                            for key in ("Overall", _tier_for_row("PROPS", tp.get("ev"), tp.get("edge"))):
+                            if is_push:
+                                profit = 0.0
+                            elif is_win:
+                                profit = (float(dec) - 1.0) * stake
+                            else:
+                                profit = -stake
+
+                            for key in ("Overall", tier_here):
                                 b = props_buckets[key]
                                 b["resolved"] += 1
-                                b["total"] += 1
                                 if is_push:
                                     b["pushes"] += 1
                                 elif is_win:
                                     b["wins"] += 1
-                                    profit = (float(dec) - 1.0) * stake
                                 else:
                                     b["losses"] += 1
-                                    profit = -stake
                                 b["stake_total"] += stake
                                 b["profit_total"] += profit
                         except Exception:
-                            # Skip this card on any unexpected error
                             continue
 
             # PBP recon metrics (first basket, early threes)
@@ -5797,7 +5863,7 @@ def _recommendations_summary():
         _out = {
             "since": since,
             "until": until,
-            "version": "summary-v2",
+            "version": "summary-v4-best-edges",
             "buckets": buckets,
             "dates": [d for d, _ in rec_files],
             "props_buckets": props_buckets,
@@ -5815,6 +5881,646 @@ def _recommendations_summary():
         except Exception:
             pass
         return jsonify(_out)
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
+def _recommendations_recaps():
+    """Return per-date recap summaries (games + props) with reconciliation.
+
+    Query params:
+    - days: window size (default 21)
+      - since/until: YYYY-MM-DD overrides window
+    - include_legacy: include non-snapshot dates (default 0)
+
+        Response:
+            {version, window:{since,until}, items:[{date,games,props}]}
+        Notes:
+            - Includes pick-level details under games.picks and props.picks.
+    """
+    try:
+        from datetime import datetime, timedelta
+        import ast as _ast
+        import json as _json
+
+        def _parse_date(s: str):
+            try:
+                return datetime.strptime(str(s), "%Y-%m-%d")
+            except Exception:
+                return None
+
+        def _american_to_decimal(a):
+            try:
+                aa = float(a)
+            except Exception:
+                return None
+            if aa == 0:
+                return None
+            if aa > 0:
+                return 1.0 + (aa / 100.0)
+            return 1.0 + (100.0 / abs(aa))
+
+        def _parse_obj(val):
+            if isinstance(val, (list, dict)):
+                return val
+            s = str(val or "")
+            if s.strip() in {"", "None", "nan"}:
+                return None
+            try:
+                return _json.loads(s)
+            except Exception:
+                try:
+                    return _ast.literal_eval(s)
+                except Exception:
+                    return None
+
+        def _tier_for_row(market: str, ev: Any, edge: Any) -> str:
+            try:
+                if (market or "").upper() == "ML":
+                    v = float(ev)
+                    if v >= 0.04:
+                        return "High"
+                    if v >= 0.02:
+                        return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            try:
+                if (market or "").upper() in {"ATS", "TOTAL"}:
+                    e = abs(float(edge))
+                    if e >= 4.0:
+                        return "High"
+                    if e >= 2.0:
+                        return "Medium"
+                    return "Low"
+            except Exception:
+                pass
+            return "Low"
+
+        def _clean_tier(val: Any) -> str:
+            try:
+                t = str(val or "").strip().title()
+                if t in {"High", "Medium", "Low"}:
+                    return t
+            except Exception:
+                pass
+            return "Low"
+
+        def _empty():
+            return {
+                "total": 0,
+                "resolved": 0,
+                "wins": 0,
+                "losses": 0,
+                "pushes": 0,
+                "stake_total": 0.0,
+                "profit_total": 0.0,
+                "accuracy_pct": None,
+                "roi_pct": None,
+            }
+
+        def _finalize(b: dict) -> dict:
+            try:
+                res = int(b.get("resolved") or 0)
+                wins = int(b.get("wins") or 0)
+                stake = float(b.get("stake_total") or 0.0)
+                prof = float(b.get("profit_total") or 0.0)
+                b["accuracy_pct"] = round(100.0 * wins / max(1, res), 1) if res > 0 else None
+                b["roi_pct"] = round(100.0 * prof / max(1e-9, stake), 1) if stake > 0 else None
+            except Exception:
+                b["accuracy_pct"] = None
+                b["roi_pct"] = None
+            return b
+
+        # Window selection
+        now = datetime.utcnow()
+        days = int(request.args.get("days") or 21)
+        since_q = (request.args.get("since") or "").strip()
+        until_q = (request.args.get("until") or "").strip()
+        if since_q and until_q:
+            ds = _parse_date(since_q) or (now - timedelta(days=days))
+            de = _parse_date(until_q) or now
+        else:
+            de = now
+            ds = now - timedelta(days=days)
+        if de < ds:
+            ds, de = de, ds
+
+        proc = BASE_DIR / "data" / "processed"
+        if not proc.exists():
+            return jsonify({"version": "recaps-v1", "window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "items": []})
+
+        include_legacy = str(request.args.get("include_legacy") or "0").strip().lower() in {"1", "true", "yes"}
+
+        # Discover dates. Default: snapshots-only to avoid confusing legacy scoring / market shapes.
+        rec_map: dict[str, Path] = {}
+
+        # Authoritative best-edges snapshots
+        for p in sorted(proc.glob("best_edges_games_*.csv")):
+            try:
+                dstr = p.stem.replace("best_edges_games_", "")
+                d = _parse_date(dstr)
+                if d and ds.date() <= d.date() <= de.date():
+                    rec_map[dstr] = p
+            except Exception:
+                continue
+
+        if include_legacy:
+            # Legacy: recommendations_*.csv preferred; fallback picks_*.csv
+            for p in sorted(proc.glob("recommendations_*.csv")):
+                try:
+                    dstr = p.stem.replace("recommendations_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_map.setdefault(dstr, p)
+                except Exception:
+                    continue
+            for p in sorted(proc.glob("picks_*.csv")):
+                try:
+                    dstr = p.stem.replace("picks_", "")
+                    d = _parse_date(dstr)
+                    if d and ds.date() <= d.date() <= de.date():
+                        rec_map.setdefault(dstr, p)
+                except Exception:
+                    continue
+
+        dates = sorted(rec_map.keys(), reverse=True)
+        items: list[dict[str, Any]] = []
+
+        for dstr in dates:
+            fp = rec_map.get(dstr)
+            if not fp:
+                continue
+
+            # ---------- Games ----------
+            games_out: dict[str, Any] = {
+                "available": False,
+                "recon_available": False,
+                "odds_available": False,
+                "snapshot_used": False,
+                "buckets": {},
+                "picks": [],
+            }
+            try:
+                games_out["snapshot_used"] = bool(fp.name.startswith("best_edges_games_"))
+            except Exception:
+                games_out["snapshot_used"] = False
+            try:
+                rec = pd.read_csv(fp)
+                if isinstance(rec, pd.DataFrame) and (not rec.empty):
+                    games_out["available"] = True
+            except Exception:
+                rec = None
+            gfin = None
+            try:
+                gpath = proc / f"recon_games_{dstr}.csv"
+                if gpath.exists():
+                    gfin = pd.read_csv(gpath)
+                    games_out["recon_available"] = True
+            except Exception:
+                gfin = None
+            godds = None
+            try:
+                op = _find_game_odds_for_date(dstr)
+                if op is not None:
+                    godds = pd.read_csv(op)
+                    games_out["odds_available"] = True
+            except Exception:
+                godds = None
+
+            buckets = {k: _empty() for k in ["Overall", "High", "Medium", "Low"]}
+            if isinstance(rec, pd.DataFrame) and not rec.empty:
+                cols = {c.lower(): c for c in rec.columns}
+                def _col(*names):
+                    for n in names:
+                        c = cols.get(str(n).lower())
+                        if c:
+                            return c
+                    return None
+                home_col = _col("home", "home_team")
+                away_col = _col("away", "visitor_team")
+                side_col = _col("side", "pick")
+                market_col = _col("market")
+                ev_col = _col("ev")
+                edge_col = _col("edge")
+
+                def _norm(s):
+                    return str(s or "").strip()
+
+                for _, r in rec.iterrows():
+                    try:
+                        market = str((r.get(market_col) if market_col else "") or "").upper()
+                        home = _norm(r.get(home_col) if home_col else r.get("home"))
+                        away = _norm(r.get(away_col) if away_col else r.get("away"))
+                        side = _norm(r.get(side_col) if side_col else r.get("side"))
+                        ev = r.get(ev_col) if ev_col else None
+                        edge = r.get(edge_col) if edge_col else None
+                        tier = _tier_for_row(market, ev, edge)
+                        for key in ("Overall", tier):
+                            buckets[key]["total"] += 1
+
+                        # Resolve using recon + odds
+                        hp = ap = None
+                        if isinstance(gfin, pd.DataFrame) and not gfin.empty:
+                            try:
+                                row = gfin[(gfin.get("home_team").astype(str) == home) & (gfin.get("visitor_team").astype(str) == away)]
+                                if row.empty:
+                                    row = gfin[(gfin.get("home_team").astype(str) == away) & (gfin.get("visitor_team").astype(str) == home)]
+                                if not row.empty:
+                                    hp = pd.to_numeric(row.iloc[0].get("home_pts"), errors="coerce")
+                                    ap = pd.to_numeric(row.iloc[0].get("visitor_pts"), errors="coerce")
+                                    if pd.isna(hp) or pd.isna(ap):
+                                        hp = ap = None
+                            except Exception:
+                                hp = ap = None
+
+                        resolved = False
+                        is_win = False
+                        is_push = False
+                        stake = 1.0
+                        profit = 0.0
+                        if market == "ML":
+                            if hp is None or ap is None:
+                                pass
+                            else:
+                                resolved = True
+                                home_won = (float(hp) > float(ap))
+                                pick_home = (side == home)
+                                dec = None
+                                if isinstance(godds, pd.DataFrame) and not godds.empty:
+                                    try:
+                                        o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                        if not o.empty:
+                                            dec = _american_to_decimal(o.iloc[0].get("home_ml")) if pick_home else _american_to_decimal(o.iloc[0].get("away_ml"))
+                                    except Exception:
+                                        dec = None
+                                if dec is None:
+                                    dec = 2.0
+                                if pick_home == home_won:
+                                    is_win = True
+                                    profit = (float(dec) - 1.0) * stake
+                                else:
+                                    profit = -stake
+                        elif market in {"ATS", "TOTAL"}:
+                            if isinstance(godds, pd.DataFrame) and not godds.empty and (hp is not None and ap is not None):
+                                try:
+                                    o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                    if not o.empty:
+                                        default_dec = 1.909090909
+                                        dec = None
+                                        if market == "ATS":
+                                            hsp = pd.to_numeric(o.iloc[0].get("home_spread"), errors="coerce")
+                                            line_home = hsp if pd.notna(hsp) else None
+                                            margin = float(hp) - float(ap)
+                                            if side == home and line_home is not None:
+                                                diff = margin + float(line_home)
+                                                is_push = abs(diff) < 1e-9
+                                                is_win = diff > 0
+                                                dec = default_dec
+                                            elif side == away and line_home is not None:
+                                                diff = -margin - float(line_home)
+                                                is_push = abs(diff) < 1e-9
+                                                is_win = diff > 0
+                                                dec = default_dec
+                                        else:
+                                            tot = pd.to_numeric(o.iloc[0].get("total"), errors="coerce")
+                                            if pd.notna(tot):
+                                                pts = float(hp) + float(ap)
+                                                diff = (pts - float(tot)) if str(side).lower().startswith("o") else (float(tot) - pts)
+                                                is_push = abs(diff) < 1e-9
+                                                is_win = diff > 0
+                                                dec = default_dec
+                                        if dec is not None:
+                                            resolved = True
+                                            if is_push:
+                                                profit = 0.0
+                                            elif is_win:
+                                                profit = (float(dec) - 1.0) * stake
+                                            else:
+                                                profit = -stake
+                                except Exception:
+                                    pass
+
+                        if resolved:
+                            for key in ("Overall", tier):
+                                b = buckets[key]
+                                b["resolved"] += 1
+                                if is_push:
+                                    b["pushes"] += 1
+                                elif is_win:
+                                    b["wins"] += 1
+                                else:
+                                    b["losses"] += 1
+                                b["stake_total"] += stake
+                                b["profit_total"] += profit
+
+                        # Pick-level details for UI
+                        try:
+                            # Attach actuals and closing lines if available
+                            home_pts = float(hp) if (hp is not None and not pd.isna(hp)) else None
+                            away_pts = float(ap) if (ap is not None and not pd.isna(ap)) else None
+                            final_total = (home_pts + away_pts) if (home_pts is not None and away_pts is not None) else None
+                            final_margin = (home_pts - away_pts) if (home_pts is not None and away_pts is not None) else None
+
+                            closing_home_spread = None
+                            closing_total = None
+                            closing_home_ml = None
+                            closing_away_ml = None
+                            if isinstance(godds, pd.DataFrame) and not godds.empty:
+                                try:
+                                    o = godds[(godds.get("home_team").astype(str) == home) & (godds.get("visitor_team").astype(str) == away)]
+                                    if not o.empty:
+                                        closing_home_spread = o.iloc[0].get("home_spread")
+                                        closing_total = o.iloc[0].get("total")
+                                        closing_home_ml = o.iloc[0].get("home_ml")
+                                        closing_away_ml = o.iloc[0].get("away_ml")
+                                except Exception:
+                                    closing_home_spread = closing_total = closing_home_ml = closing_away_ml = None
+
+                            # Recommendation score: prefer explicit score/best_edge_value.
+                            # If we're not using an authoritative snapshot, do NOT derive a faux 0-100 score
+                            # from EV/edge, because that produces misleading low numbers like 2-6/100.
+                            score_val = None
+                            try:
+                                if "score" in rec.columns:
+                                    score_val = r.get("score")
+                                elif "best_edge_value" in rec.columns:
+                                    score_val = r.get("best_edge_value")
+                                if score_val is not None and not pd.isna(score_val):
+                                    score_val = float(score_val)
+                                else:
+                                    score_val = None
+                            except Exception:
+                                score_val = None
+                            # Keep score_val as None if not explicitly provided.
+
+                            games_out["picks"].append({
+                                "game_id": (None if ("game_id" not in rec.columns) else (None if pd.isna(r.get("game_id")) else r.get("game_id"))),
+                                "market": market,
+                                "home": home,
+                                "away": away,
+                                "side": side,
+                                "line": (None if pd.isna(r.get("line")) else r.get("line")) if "line" in rec.columns else (r.get("line") if hasattr(r, "get") else None),
+                                "price": (None if pd.isna(r.get("price")) else r.get("price")) if "price" in rec.columns else (r.get("price") if hasattr(r, "get") else None),
+                                "ev": (None if pd.isna(ev) else ev),
+                                "edge": (None if pd.isna(edge) else edge),
+                                "score": score_val,
+                                "tier": tier,
+                                "why_explain": (None if ("why_explain" not in rec.columns) else (None if pd.isna(r.get("why_explain")) else r.get("why_explain"))),
+                                "score_explain": (None if ("score_explain" not in rec.columns) else (None if pd.isna(r.get("score_explain")) else r.get("score_explain"))),
+                                "score_components": (None if ("score_components" not in rec.columns) else (None if pd.isna(r.get("score_components")) else r.get("score_components"))),
+                                "home_pts": home_pts,
+                                "away_pts": away_pts,
+                                "final_total": final_total,
+                                "final_margin": final_margin,
+                                "closing_home_spread": (None if closing_home_spread is None or (isinstance(closing_home_spread, float) and pd.isna(closing_home_spread)) else closing_home_spread),
+                                "closing_total": (None if closing_total is None or (isinstance(closing_total, float) and pd.isna(closing_total)) else closing_total),
+                                "closing_home_ml": (None if closing_home_ml is None or (isinstance(closing_home_ml, float) and pd.isna(closing_home_ml)) else closing_home_ml),
+                                "closing_away_ml": (None if closing_away_ml is None or (isinstance(closing_away_ml, float) and pd.isna(closing_away_ml)) else closing_away_ml),
+                                "resolved": bool(resolved),
+                                "result": ("Push" if is_push else ("Win" if is_win else "Loss")) if resolved else None,
+                                "stake": float(stake) if resolved else None,
+                                "profit": float(profit) if resolved else None,
+                            })
+                        except Exception:
+                            pass
+                    except Exception:
+                        continue
+
+            games_out["buckets"] = {k: _finalize(v) for k, v in buckets.items()}
+
+            # ---------- Props ----------
+            props_out: dict[str, Any] = {"available": False, "recon_available": False, "snapshot_used": False, "buckets": {}, "picks": []}
+            pbuckets = {k: _empty() for k in ["Overall", "High", "Medium", "Low"]}
+            best_props_path = proc / f"best_edges_props_{dstr}.csv"
+            props_path = best_props_path if best_props_path.exists() else (proc / f"props_recommendations_{dstr}.csv")
+            try:
+                props_out["snapshot_used"] = bool(props_path.name.startswith("best_edges_props_"))
+            except Exception:
+                props_out["snapshot_used"] = False
+            recon_props_path = proc / f"recon_props_{dstr}.csv"
+            if props_path.exists():
+                props_out["available"] = True
+            # Always count available prop picks; settle if recon exists.
+            props_df = None
+            recon_df = None
+            if props_path.exists():
+                try:
+                    props_df = pd.read_csv(props_path)
+                except Exception:
+                    props_df = None
+            if props_path.exists() and recon_props_path.exists():
+                props_out["recon_available"] = True
+                try:
+                    recon_df = pd.read_csv(recon_props_path)
+                except Exception:
+                    recon_df = None
+
+            # Build recon index (player, team) -> stat totals
+            recon_index: dict[tuple[str, str], dict[str, float]] = {}
+            if isinstance(recon_df, pd.DataFrame) and not recon_df.empty:
+                def _norm_name(s):
+                    return str(s or "").strip().lower()
+
+                for _, rr in recon_df.iterrows():
+                    key = (_norm_name(rr.get("player_name")), str(rr.get("team_abbr") or "").strip().upper())
+                    recon_index[key] = {
+                        "pts": float(pd.to_numeric(rr.get("pts"), errors="coerce") or 0.0),
+                        "reb": float(pd.to_numeric(rr.get("reb"), errors="coerce") or 0.0),
+                        "ast": float(pd.to_numeric(rr.get("ast"), errors="coerce") or 0.0),
+                        "threes": float(pd.to_numeric(rr.get("threes"), errors="coerce") or 0.0),
+                        "pra": float(pd.to_numeric(rr.get("pra"), errors="coerce") or 0.0),
+                    }
+
+            def _top_play_from_row(row: pd.Series):
+                try:
+                    plays = _parse_obj(row.get("plays"))
+                    if not (isinstance(plays, list) and plays):
+                        return None
+
+                    def _evp(p):
+                        try:
+                            v = p.get("ev_pct")
+                            if v is not None and not pd.isna(v):
+                                return float(v)
+                            ve = p.get("ev")
+                            return (float(ve) * 100.0) if (ve is not None and not pd.isna(ve)) else -1e9
+                        except Exception:
+                            return -1e9
+
+                    cand = list(plays)
+                    cand.sort(key=lambda p: (_evp(p), abs(p.get("edge") or 0.0)), reverse=True)
+                    return cand[0]
+                except Exception:
+                    return None
+
+            def _tri_team(v):
+                try:
+                    tri = _get_tricode(v)
+                    return (tri.upper() if isinstance(tri, str) and tri else str(v).strip().upper())
+                except Exception:
+                    return str(v).strip().upper()
+
+            if isinstance(props_df, pd.DataFrame) and not props_df.empty:
+                # If using best_edges_props_*.csv, rows are already flattened picks.
+                using_best_props = (props_path.name.startswith("best_edges_props_"))
+                for _, pr in props_df.iterrows():
+                    try:
+                        if using_best_props:
+                            player = str(pr.get("player") or "").strip()
+                            team = _tri_team(pr.get("team"))
+                            mkt = str(pr.get("market") or "").lower()
+                            side = str(pr.get("side") or "").upper()
+                            ln = pr.get("line")
+                            try:
+                                ln = float(ln) if ln is not None and not pd.isna(ln) else None
+                            except Exception:
+                                ln = None
+                            ev = pr.get("ev")
+                            edge = pr.get("edge")
+                            score = pr.get("score")
+                            try:
+                                score = float(score) if score is not None and not pd.isna(score) else None
+                            except Exception:
+                                score = None
+                            tier = _clean_tier(pr.get("tier"))
+                            if tier == "Low":
+                                tier = _tier_for_row("PROPS", ev, edge)
+                            price = pr.get("price")
+                            why_explain = pr.get("why_explain")
+                        else:
+                            tp = _top_play_from_row(pr)
+                            if not isinstance(tp, dict) or not tp:
+                                continue
+                            player_raw = pr.get("player")
+                            player = str(player_raw or "").strip()
+                            team = _tri_team(pr.get("team"))
+                            ev = tp.get("ev")
+                            edge = tp.get("edge")
+                            tier = _clean_tier(pr.get("tier"))
+                            if tier == "Low":
+                                # if tier not present or unrecognized, fallback to EV/edge heuristic
+                                tier = _tier_for_row("PROPS", ev, edge)
+                            mkt = str(tp.get("market") or "").lower()
+                            side = str(tp.get("side") or "").upper()
+                            ln = tp.get("line")
+                            try:
+                                ln = float(ln) if ln is not None and not pd.isna(ln) else None
+                            except Exception:
+                                ln = None
+                            score = pr.get("score")
+                            try:
+                                score = float(score) if score is not None and not pd.isna(score) else None
+                            except Exception:
+                                score = None
+                            price = tp.get("price")
+                            why_explain = None
+
+                        for key in ("Overall", tier):
+                            pbuckets[key]["total"] += 1
+
+                        pick_detail: dict[str, Any] = {
+                            "player": player,
+                            "team": team,
+                            "market": mkt,
+                            "side": side,
+                            "line": ln,
+                            "price": price,
+                            "ev": ev,
+                            "edge": edge,
+                            "tier": tier,
+                            "score": score,
+                            "score_explain": (None if ("score_explain" not in props_df.columns) else (None if pd.isna(pr.get("score_explain")) else pr.get("score_explain"))),
+                            "score_components": (None if ("score_components" not in props_df.columns) else (None if pd.isna(pr.get("score_components")) else pr.get("score_components"))),
+                            "why_explain": (None if (why_explain is None or (isinstance(why_explain, float) and pd.isna(why_explain))) else why_explain),
+                            "resolved": False,
+                            "actual": None,
+                            "result": None,
+                            "stake": None,
+                            "profit": None,
+                        }
+
+                        # Settle if recon exists for this player+team
+                        stats = None
+                        try:
+                            stats = recon_index.get((str(player or "").strip().lower(), str(team or "").strip().upper()))
+                        except Exception:
+                            stats = None
+                        if isinstance(stats, dict) and stats and (ln is not None):
+                            actual = None
+                            if mkt == "pts":
+                                actual = stats.get("pts")
+                            elif mkt == "reb":
+                                actual = stats.get("reb")
+                            elif mkt == "ast":
+                                actual = stats.get("ast")
+                            elif mkt in {"3pt", "threes"}:
+                                actual = stats.get("threes")
+                            elif mkt == "pra":
+                                actual = stats.get("pra")
+                            elif mkt == "pr":
+                                actual = (stats.get("pts", 0.0) + stats.get("reb", 0.0))
+                            elif mkt == "ra":
+                                actual = (stats.get("reb", 0.0) + stats.get("ast", 0.0))
+                            elif mkt == "pa":
+                                actual = (stats.get("pts", 0.0) + stats.get("ast", 0.0))
+
+                            if actual is not None:
+                                is_push = abs(float(actual) - float(ln)) < 1e-9
+                                is_win = False
+                                if not is_push:
+                                    if side == "OVER":
+                                        is_win = (float(actual) > float(ln))
+                                    elif side == "UNDER":
+                                        is_win = (float(actual) < float(ln))
+
+                                stake = 1.0
+                                dec = _american_to_decimal(price) or 1.909090909
+                                if is_push:
+                                    profit = 0.0
+                                elif is_win:
+                                    profit = (float(dec) - 1.0) * stake
+                                else:
+                                    profit = -stake
+
+                                pick_detail.update({
+                                    "resolved": True,
+                                    "actual": float(actual),
+                                    "result": "Push" if is_push else ("Win" if is_win else "Loss"),
+                                    "stake": float(stake),
+                                    "profit": float(profit),
+                                })
+
+                                for key in ("Overall", tier):
+                                    b = pbuckets[key]
+                                    b["resolved"] += 1
+                                    if is_push:
+                                        b["pushes"] += 1
+                                    elif is_win:
+                                        b["wins"] += 1
+                                    else:
+                                        b["losses"] += 1
+                                    b["stake_total"] += stake
+                                    b["profit_total"] += profit
+
+                        props_out["picks"].append(pick_detail)
+                    except Exception:
+                        continue
+
+            props_out["buckets"] = {k: _finalize(v) for k, v in pbuckets.items()}
+
+            items.append({
+                "date": dstr,
+                "games": games_out,
+                "props": props_out,
+            })
+
+        payload = {
+            "version": "recaps-v1",
+            "window": {"since": ds.date().isoformat(), "until": de.date().isoformat()},
+            "items": items,
+        }
+        return jsonify(_to_jsonable(payload))
     except Exception as e:  # noqa: BLE001
         return jsonify({"error": str(e)}), 500
 
@@ -9107,6 +9813,192 @@ def _recommendations_all():
                     pass
                 return round(base_score, 3)
             return 0.0
+
+        def _score_props_detail(row):
+            """Return (score, reasons, components) for props so UI explanations match scoring."""
+            tp = row.get("top_play")
+            if not (isinstance(tp, dict) and tp):
+                return 0.0, [], {}
+            comps: dict[str, Any] = {}
+            reasons: list[str] = []
+            # --- Core normalized features (mirror _score_props) ---
+            evp = tp.get("ev_pct")
+            ev = tp.get("ev")
+            price = tp.get("price")
+            dec = _american_to_decimal(price) if price is not None else None
+            try:
+                if evp is not None and not pd.isna(evp):
+                    p_raw = max(0.0, min(1.0, float(evp) / 100.0))
+                    p_cal = _calibrate_prob(p_raw)
+                    evp_norm = _clamp01(float(p_cal))
+                else:
+                    evp_norm = _clamp01(((100.0 * float(ev)) if ev is not None else 0.0) / 100.0)
+            except Exception:
+                evp_norm = 0.0
+            payout_norm = _clamp01(((float(dec) - 1.0) if dec is not None else 0.0) / 5.0)
+            # Baseline vs line
+            try:
+                base = row.get("top_play_baseline")
+                line = tp.get("line")
+                delta = abs(float(base) - float(line)) if (base is not None and line is not None) else 0.0
+                mk = str(tp.get("market") or "").lower()
+                scales = {"pts": 6.0, "reb": 3.0, "ast": 3.0, "threes": 2.0, "pra": 8.0}
+                s = scales.get(mk, 5.0)
+                base_norm = _clamp01(delta / s)
+            except Exception:
+                base_norm = 0.0
+            try:
+                cons_norm = _clamp01(float(row.get("top_play_consensus") or 0.0))
+            except Exception:
+                cons_norm = 0.0
+            try:
+                line_adv_norm = _clamp01(float(row.get("top_play_line_adv") or 0.0))
+            except Exception:
+                line_adv_norm = 0.0
+            try:
+                bc = row.get("top_play_books_count")
+                liq_norm = _clamp01(((float(bc) if bc is not None else 0.0) - 1.0) / 5.0)
+            except Exception:
+                liq_norm = 0.0
+            try:
+                inj_imp = float(row.get("team_injury_impact") or 0.0)
+                inj_norm = _clamp01(inj_imp / 125.0)
+            except Exception:
+                inj_norm = 0.0
+
+            comps.update({
+                "evp_norm": evp_norm,
+                "payout_norm": payout_norm,
+                "baseline_norm": base_norm,
+                "consensus_norm": cons_norm,
+                "line_adv_norm": line_adv_norm,
+                "injury_norm": inj_norm,
+                "liquidity_norm": liq_norm,
+            })
+
+            base_score = (
+                weights["props"]["ev_pct"] * evp_norm
+                + weights["props"]["payout"] * payout_norm
+                + weights["props"]["baseline"] * base_norm
+                + weights["props"]["consensus"] * cons_norm
+                + weights["props"]["line_adv"] * line_adv_norm
+                + weights["props"].get("injury", 0.0) * inj_norm
+                + weights["props"].get("liquidity", 0.0) * liq_norm
+            )
+
+            # Usage boost (can be negative for UNDER)
+            usage_contrib = 0.0
+            try:
+                kouts = row.get("team_key_outs")
+                kout_n = (len(kouts) if isinstance(kouts, list) else (len(str(kouts).split(",")) if kouts else 0))
+                inj_imp2 = float(row.get("team_injury_impact") or 0.0)
+                usage_base = _clamp01(inj_imp2 / 175.0)
+                usage_norm = _clamp01(usage_base * (0.5 + 0.25 * min(3, int(kout_n))))
+                side = str(tp.get("side") or "").upper()
+                usage_contrib = (usage_norm if side == "OVER" else (-usage_norm * 0.5))
+                base_score += weights["props"].get("usage_boost", 0.0) * usage_contrib
+            except Exception:
+                usage_contrib = 0.0
+            comps["usage_contrib"] = float(usage_contrib)
+
+            # Density penalty
+            density_level = 0.0
+            try:
+                b2b = bool(row.get("team_b2b"))
+                three_in_four = bool(row.get("team_3in4"))
+                density_level = (0.6 if b2b else 0.0) + (0.4 if three_in_four else 0.0)
+                penalty_weight = float(weights["props"].get("density_penalty", 0.0))
+                base_score = base_score * (1.0 - max(0.0, min(1.0, penalty_weight * density_level)))
+            except Exception:
+                density_level = 0.0
+            comps["density_level"] = float(density_level)
+
+            # Volatility penalty
+            vol_level = 0.0
+            try:
+                ps = row.get("top_play_price_std")
+                ls = row.get("top_play_line_std")
+                psn = _clamp01((float(ps) if ps is not None else 0.0) / 75.0)
+                lsn = _clamp01((float(ls) if ls is not None else 0.0) / 1.5)
+                vol_level = _clamp01(0.5 * psn + 0.5 * lsn)
+                vw = float(weights["props"].get("volatility_penalty", 0.0))
+                base_score = base_score * (1.0 - max(0.0, min(1.0, vw * vol_level)))
+            except Exception:
+                vol_level = 0.0
+            comps["volatility_level"] = float(vol_level)
+
+            # Travel penalty
+            travel_level = 0.0
+            try:
+                is_away = bool(row.get("team_is_away"))
+                home_tri = row.get("home_tricode") or None
+                away_tri = row.get("away_tricode") or None
+                tz_diff = 0.0
+                if is_away and home_tri and away_tri:
+                    tz_diff = abs(_tz_offset_meta(home_tri) - _tz_offset_meta(away_tri))
+                altitude_game = bool(row.get("altitude_game"))
+                try:
+                    tk = float(row.get("travel_km") or 0.0)
+                except Exception:
+                    tk = 0.0
+                travel_norm = max(0.0, min(1.0, tk / 2500.0))
+                travel_level = _clamp01(0.15 * float(tz_diff) + (0.6 if (altitude_game and is_away) else 0.0) + 0.25 * travel_norm)
+                tw = float(weights["props"].get("travel_penalty", 0.0))
+                base_score = base_score * (1.0 - max(0.0, min(1.0, tw * travel_level)))
+            except Exception:
+                travel_level = 0.0
+            comps["travel_level"] = float(travel_level)
+
+            score = round(float(base_score), 3)
+
+            # --- Score-driven reasons (kept short + additive) ---
+            try:
+                # Use calibrated model probability when available
+                if evp_norm >= 0.56:
+                    reasons.append(f"Model prob {int(round(100.0 * evp_norm))}%")
+                if base_norm >= 0.35:
+                    reasons.append("Projection vs line gap")
+                if cons_norm >= 0.50:
+                    reasons.append("Consensus across books")
+                if line_adv_norm >= 0.60:
+                    reasons.append("Best line available")
+                if payout_norm >= 0.20:
+                    reasons.append("Strong payout")
+                # Risk flags
+                if density_level >= 0.6:
+                    reasons.append("Schedule risk")
+                if vol_level >= 0.45:
+                    reasons.append("Market volatility")
+                if travel_level >= 0.55:
+                    reasons.append("Travel risk")
+            except Exception:
+                pass
+
+            # Fall back to existing contextual reasons if we didn't generate any
+            if not reasons:
+                try:
+                    existing = row.get("top_play_reasons") or []
+                    if isinstance(existing, list) and existing:
+                        reasons = [str(x) for x in existing if str(x).strip()][:4]
+                except Exception:
+                    pass
+
+            # Dedup preserving order
+            try:
+                seen = set(); uniq = []
+                for x in reasons:
+                    k = str(x).strip()
+                    if not k:
+                        continue
+                    kl = k.lower()
+                    if kl in seen:
+                        continue
+                    seen.add(kl); uniq.append(k)
+                reasons = uniq[:6]
+            except Exception:
+                reasons = reasons[:6]
+
+            return score, reasons, comps
         def _score_first_basket(row):
             try:
                 p = _clamp01(float(row.get("prob_first_basket") or 0.0))
@@ -9200,10 +10092,14 @@ def _recommendations_all():
                 for r in (out.get("games") or [])
             ]
             # Props
-            out["props"] = [
-                {**r, "score": _score_props(r), "tier": _tier_from_score(_score_props(r))}
-                for r in (out.get("props") or [])
-            ]
+            _props_new = []
+            for r in (out.get("props") or []):
+                s, rs, comps = _score_props_detail(r)
+                rr = {**r, "score": s, "tier": _tier_from_score(s), "why_reasons": rs, "score_components": comps}
+                # Keep why_explain empty so the UI can show multiple pill reasons.
+                rr["why_explain"] = ""
+                _props_new.append(rr)
+            out["props"] = _props_new
             # First basket
             # Ensure fair_decimal present for scoring if only American odds available
             def _with_fair_decimal(r):
@@ -10430,6 +11326,62 @@ def api_props_recommendations():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
+        # If the caller asks for the tracked portfolio, prefer the authoritative daily snapshot.
+        # This keeps "what we surface" == "what we track" (and avoids leaking losing markets).
+        portfolio_only_q = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1", "true", "yes"}
+        best_props_p = BASE_DIR / "data" / "processed" / f"best_edges_props_{d}.csv"
+        if portfolio_only_q and best_props_p.exists():
+            try:
+                snap_df = _read_csv_if_exists(best_props_p)
+            except Exception:
+                snap_df = None
+            if isinstance(snap_df, pd.DataFrame) and snap_df is not None and (not snap_df.empty):
+                items: list[dict] = []
+                for _, rr in snap_df.iterrows():
+                    try:
+                        ev = rr.get("ev")
+                        try:
+                            evf = float(ev) if ev is not None and not pd.isna(ev) else None
+                        except Exception:
+                            evf = None
+                        top_play = {
+                            "market": rr.get("market"),
+                            "side": rr.get("side"),
+                            "line": rr.get("line"),
+                            "price": rr.get("price"),
+                            "edge": rr.get("edge"),
+                            "ev": rr.get("ev"),
+                            "ev_pct": (evf * 100.0) if evf is not None else None,
+                            "book": rr.get("book"),
+                            "score_explain": rr.get("score_explain"),
+                            "score_components": rr.get("score_components"),
+                            "why_explain": rr.get("why_explain"),
+                        }
+                        items.append(
+                            {
+                                "player": rr.get("player"),
+                                "team": rr.get("team"),
+                                "top_play": top_play,
+                                "score": rr.get("score"),
+                                "score_adj": rr.get("score"),
+                                "tier": rr.get("tier"),
+                            }
+                        )
+                    except Exception:
+                        continue
+                payload = {
+                    "date": d,
+                    "rows": int(len(items)),
+                    "games": [],
+                    "data": items,
+                    "portfolio": items,
+                    "portfolio_only": True,
+                    "snapshot_used": True,
+                    "source": "best_edges_props",
+                    "regular_only": True,
+                }
+                return jsonify(_to_jsonable(payload))
+
         edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
         preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
         props_preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"

@@ -354,6 +354,317 @@ function renderQuarterTable(periods, reconQ) {
   `;
 }
 
+function renderIntervalsTable(intervals) {
+  const segs = intervals && Array.isArray(intervals.segments) ? intervals.segments : [];
+  if (!segs.length) {
+    return '<div class="subtle">No interval ladder available.</div>';
+  }
+
+  const rows = segs.map((s) => {
+    const q = n(s.quarter);
+    const lab = s.label || (q != null ? `Q${q}` : '');
+    const mu = n(s.mu);
+    const q10 = n(s.q && s.q.p10);
+    const q50 = n(s.q && s.q.p50);
+    const q90 = n(s.q && s.q.p90);
+    const cmu = n(s.cum_mu);
+    const c10 = n(s.cum_q && s.cum_q.p10);
+    const c50 = n(s.cum_q && s.cum_q.p50);
+    const c90 = n(s.cum_q && s.cum_q.p90);
+    return `
+      <tr>
+        <td>${esc(lab)}</td>
+        <td class="num">${fmt(mu, 2)}</td>
+        <td class="num">${fmt(q10, 0)}</td>
+        <td class="num">${fmt(q50, 0)}</td>
+        <td class="num">${fmt(q90, 0)}</td>
+        <td class="num">${fmt(cmu, 2)}</td>
+        <td class="num">${fmt(c10, 0)}</td>
+        <td class="num">${fmt(c50, 0)}</td>
+        <td class="num">${fmt(c90, 0)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  return `
+    <div class="table-wrap">
+      <table class="data-table boxscore-table">
+        <thead>
+          <tr>
+            <th>Segment</th>
+            <th class="num">μ seg</th>
+            <th class="num">p10</th>
+            <th class="num">p50</th>
+            <th class="num">p90</th>
+            <th class="num">μ cum</th>
+            <th class="num">p10</th>
+            <th class="num">p50</th>
+            <th class="num">p90</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+      <div class="subtle" style="margin-top:6px;">
+        Note: segment quantiles are not additive; cumulative quantiles are computed from per-sim cumulatives.
+      </div>
+    </div>
+  `;
+}
+
+function renderLiveLens(intervals, cardKey) {
+  const segs = intervals && Array.isArray(intervals.segments) ? intervals.segments : [];
+  if (!segs.length) return '';
+  const id = String(cardKey || '').replace(/[^A-Za-z0-9_\-]/g, '_');
+
+  function renderMinRemainingOptions(totalMinutes) {
+    const step = 3;
+    const opts = [];
+    for (let m = totalMinutes; m >= 0; m -= step) {
+      const lab = `${m}`;
+      const sel = m === totalMinutes ? ' selected' : '';
+      opts.push(`<option value="${m}"${sel}>${lab}</option>`);
+    }
+    return opts.join('');
+  }
+
+  function sliceSegsTable(startIdx, endIdx, title) {
+    const rows = [];
+    const nRows = Math.max(0, Math.min(segs.length - 1, endIdx) - startIdx + 1);
+    for (let i = 0; i < nRows; i += 1) {
+      const s = segs[startIdx + i];
+      const lab = s && s.label ? s.label : `Seg ${startIdx + i + 1}`;
+      const mu = n(s && s.mu);
+      const p10 = n(s && s.q && s.q.p10);
+      const p90 = n(s && s.q && s.q.p90);
+      const c50 = n(s && s.cum_q && s.cum_q.p50);
+      const c10 = n(s && s.cum_q && s.cum_q.p10);
+      const c90 = n(s && s.cum_q && s.cum_q.p90);
+      rows.push(`
+        <tr>
+          <td>${esc(lab)}</td>
+          <td class="num">${fmt(mu, 1)}</td>
+          <td class="num">${p10 == null || p90 == null ? '—' : `${fmt(p10, 0)}–${fmt(p90, 0)}`}</td>
+          <td class="num">${fmt(c50, 0)}</td>
+          <td class="num">${c10 == null || c90 == null ? '—' : `${fmt(c10, 0)}–${fmt(c90, 0)}`}</td>
+        </tr>
+      `);
+    }
+
+    return `
+      <div class="subtle" style="margin-top:2px;">${esc(title)}</div>
+      <div class="table-wrap" style="margin-top:6px;">
+        <table class="data-table boxscore-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Seg</th>
+              <th class="num">Tot μ</th>
+              <th class="num">Tot (p10–p90)</th>
+              <th class="num">Cum p50</th>
+              <th class="num">Cum (p10–p90)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows.join('') || '<tr><td colspan="5" class="subtle">No segments.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+      <div class="subtle" style="margin-top:6px;">Use cumulative columns for rollups; segment quantiles are not additive.</div>
+    `;
+  }
+
+  function renderCumChips(totalMinutes, finalIdx, labelPrefix) {
+    const step = 3;
+    const chips = [];
+    for (let endMin = step; endMin <= totalMinutes; endMin += step) {
+      const segEndCount = Math.floor(endMin / step);
+      const idx = Math.min(finalIdx, Math.max(-1, segEndCount - 1));
+      const c50 = idx < 0 ? 0 : n(segs[idx] && segs[idx].cum_q && segs[idx].cum_q.p50);
+      const lab = `${endMin}${labelPrefix}`;
+      chips.push(`<span class="chip neutral" style="padding:3px 7px; font-size:10px;">${esc(lab)}: <span class="fw-700">${fmt(c50, 0)}</span></span>`);
+    }
+    return `<div class="row chips" style="margin-top:6px;">${chips.join('')}</div>`;
+  }
+
+  return `
+    <div class="market-tile live-lens" data-lens-id="${esc(id)}">
+      <div class="market-title">Live lens (3-min interval ladder)</div>
+      <div class="lens-columns">
+
+        <div class="lens-col" data-scope="half">
+          <div class="subtle" style="font-weight:900; letter-spacing:0.3px;">1H 3-min interval</div>
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr));">
+            <div class="kv"><span class="k">Min remaining</span><span class="v"><select class="lens-min">${renderMinRemainingOptions(24)}</select></span></div>
+            <div class="kv"><span class="k">Total pts</span><span class="v"><input class="lens-total" type="number" value="0" style="width:110px;"></span></div>
+            <div class="kv"><span class="k">Live total (opt)</span><span class="v"><input class="lens-live" type="number" placeholder="—" style="width:120px;"></span></div>
+          </div>
+
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
+            <div class="kv"><span class="k">Sim q50 @ time</span><span class="v lens-sim-at">—</span></div>
+            <div class="kv"><span class="k">Δ (Sim–Act)</span><span class="v lens-delta">—</span></div>
+            <div class="kv"><span class="k">Pace final (24m)</span><span class="v lens-pace">—</span></div>
+          </div>
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
+            <div class="kv"><span class="k">Sim q50 final</span><span class="v lens-sim-final">—</span></div>
+            <div class="kv"><span class="k">Driver</span><span class="v lens-driver">—</span></div>
+            <div class="kv"><span class="k">Lean</span><span class="v lens-lean">—</span></div>
+          </div>
+
+          <div class="subtle" style="margin-top:6px;">Cum total (q50) at end-minute:</div>
+          ${renderCumChips(24, 7, ' (1H)')}
+          ${sliceSegsTable(0, 7, '1H ladder (segments 1–8)')}
+        </div>
+
+        <div class="lens-col" data-scope="game">
+          <div class="subtle" style="font-weight:900; letter-spacing:0.3px;">Full game 3-min interval</div>
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr));">
+            <div class="kv"><span class="k">Min remaining</span><span class="v"><select class="lens-min">${renderMinRemainingOptions(48)}</select></span></div>
+            <div class="kv"><span class="k">Total pts</span><span class="v"><input class="lens-total" type="number" value="0" style="width:110px;"></span></div>
+            <div class="kv"><span class="k">Live total (opt)</span><span class="v"><input class="lens-live" type="number" placeholder="—" style="width:120px;"></span></div>
+          </div>
+
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
+            <div class="kv"><span class="k">Sim q50 @ time</span><span class="v lens-sim-at">—</span></div>
+            <div class="kv"><span class="k">Δ (Sim–Act)</span><span class="v lens-delta">—</span></div>
+            <div class="kv"><span class="k">Pace final (48m)</span><span class="v lens-pace">—</span></div>
+          </div>
+          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
+            <div class="kv"><span class="k">Sim q50 final</span><span class="v lens-sim-final">—</span></div>
+            <div class="kv"><span class="k">Driver</span><span class="v lens-driver">—</span></div>
+            <div class="kv"><span class="k">Lean</span><span class="v lens-lean">—</span></div>
+          </div>
+
+          <div class="subtle" style="margin-top:6px;">Cum total (q50) at end-minute:</div>
+          ${renderCumChips(48, 15, ' (G)')}
+          ${sliceSegsTable(0, 15, 'Full game ladder (segments 1–16, regulation)')}
+        </div>
+
+      </div>
+    </div>
+  `;
+}
+
+function attachLiveLensHandlers(root, games) {
+  const containers = root.querySelectorAll('.live-lens');
+  if (!containers || !containers.length) return;
+
+  // Build intervals lookup by card key (home|away)
+  const idx = new Map();
+  (games || []).forEach((g) => {
+    const h = String(g.home_tri || '').toUpperCase().trim();
+    const a = String(g.away_tri || '').toUpperCase().trim();
+    const key = `${h}|${a}`;
+    // API payload uses game.sim.intervals; raw smart_sim files store intervals at top-level.
+    const itv = (g && g.sim && g.sim.intervals) ? g.sim.intervals : (g ? g.intervals : null);
+    if (itv && Array.isArray(itv.segments)) idx.set(key, itv);
+  });
+
+  function clampInt(x, lo, hi, fallback) {
+    const v = Number.parseInt(String(x ?? ''), 10);
+    if (!Number.isFinite(v)) return fallback;
+    return Math.min(hi, Math.max(lo, v));
+  }
+
+  containers.forEach((el) => {
+    const id = el.dataset.lensId || '';
+    // lensId is "HOME_AWAY" but lookup uses HOME|AWAY; derive from surrounding card text
+    // We stored lens id as HOME_AWAY in render, so reverse it.
+    const key = id.replace(/_/g, '|');
+    const intervals = idx.get(key);
+    if (!intervals || !Array.isArray(intervals.segments)) return;
+
+    const segs = intervals.segments;
+
+    function computeScope(scopeEl, totalMinutes, finalIdx, labelPrefix) {
+      const minEl = scopeEl.querySelector('select.lens-min');
+      const totEl = scopeEl.querySelector('input.lens-total');
+      const liveEl = scopeEl.querySelector('input.lens-live');
+
+      const outSimAt = scopeEl.querySelector('.lens-sim-at');
+      const outDelta = scopeEl.querySelector('.lens-delta');
+      const outPace = scopeEl.querySelector('.lens-pace');
+      const outSimFinal = scopeEl.querySelector('.lens-sim-final');
+      const outDriver = scopeEl.querySelector('.lens-driver');
+      const outLean = scopeEl.querySelector('.lens-lean');
+
+      const step = 3;
+      const minRem = clampInt(minEl && minEl.value, 0, totalMinutes, totalMinutes);
+      const actTot = n(totEl && totEl.value != null ? totEl.value : null);
+      const liveTot = n(liveEl && liveEl.value != null && String(liveEl.value).trim() !== '' ? liveEl.value : null);
+
+      if (actTot == null) {
+        if (outSimAt) outSimAt.textContent = '—';
+        if (outDelta) outDelta.textContent = '—';
+        if (outPace) outPace.textContent = '—';
+        if (outSimFinal) outSimFinal.textContent = '—';
+        if (outDriver) outDriver.textContent = '—';
+        if (outLean) outLean.textContent = '—';
+        return;
+      }
+
+      const elapsed = totalMinutes - minRem; // minutes elapsed in scope
+      const segEndCount = Math.floor(elapsed / step); // 0..(total/step)
+      const idxAt = segEndCount - 1; // -1..finalIdx
+      const simAt = (idxAt < 0) ? 0 : n(segs[idxAt] && segs[idxAt].cum_q && segs[idxAt].cum_q.p50);
+      const simFinal = n(segs[finalIdx] && segs[finalIdx].cum_q && segs[finalIdx].cum_q.p50);
+
+      const delta = (simAt == null) ? null : (simAt - actTot); // Sim - Act
+      const paceFinal = (simAt != null && simFinal != null) ? (actTot + (simFinal - simAt)) : null;
+
+      let driver = null;
+      if (delta != null) {
+        if (delta > 3.0) driver = 'Act ahead';
+        else if (delta < -3.0) driver = 'Act behind';
+        else driver = 'On track';
+      }
+
+      let lean = null;
+      if (liveTot != null && paceFinal != null) {
+        const diff = paceFinal - liveTot;
+        if (diff > 1.0) lean = `Over (+${fmt(diff, 1)})`;
+        else if (diff < -1.0) lean = `Under (${fmt(diff, 1)})`;
+        else lean = 'No edge';
+      }
+
+      const mm = String(minRem).padStart(2, '0');
+      const label = `${labelPrefix} @ ${mm}:00`;
+      if (outSimAt) outSimAt.textContent = (simAt == null) ? '—' : `${fmt(simAt, 0)} (${label})`;
+      if (outDelta) outDelta.textContent = (delta == null) ? '—' : fmt(delta, 1);
+      if (outPace) outPace.textContent = (paceFinal == null) ? '—' : fmt(paceFinal, 1);
+      if (outSimFinal) outSimFinal.textContent = (simFinal == null) ? '—' : fmt(simFinal, 1);
+      if (outDriver) outDriver.textContent = (driver == null) ? '—' : driver;
+      if (outLean) outLean.textContent = (lean == null) ? '—' : lean;
+    }
+
+    const cols = el.querySelectorAll('.lens-col');
+    cols.forEach((col) => {
+      const scope = col.dataset.scope;
+      if (scope === 'half') {
+        const minEl = col.querySelector('select.lens-min');
+        const totEl = col.querySelector('input.lens-total');
+        const liveEl = col.querySelector('input.lens-live');
+        ['input', 'change'].forEach((evt) => {
+          [minEl, totEl, liveEl].forEach((x) => {
+            if (x) x.addEventListener(evt, () => computeScope(col, 24, Math.min(7, segs.length - 1), '1H'));
+          });
+        });
+        computeScope(col, 24, Math.min(7, segs.length - 1), '1H');
+      } else if (scope === 'game') {
+        const minEl = col.querySelector('select.lens-min');
+        const totEl = col.querySelector('input.lens-total');
+        const liveEl = col.querySelector('input.lens-live');
+        ['input', 'change'].forEach((evt) => {
+          [minEl, totEl, liveEl].forEach((x) => {
+            if (x) x.addEventListener(evt, () => computeScope(col, 48, Math.min(15, segs.length - 1), 'G'));
+          });
+        });
+        computeScope(col, 48, Math.min(15, segs.length - 1), 'G');
+      }
+    });
+  });
+}
+
 function betOutcome(label, odds, actualHome, actualAway) {
   const h = n(actualHome);
   const a = n(actualAway);
@@ -438,8 +749,10 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
     const awayName = String(g.away_name || awayTri).trim();
     const odds = g.odds || {};
     const sim = g.sim || {};
-    const score = sim.score || {};
-    const periods = sim.periods || {};
+    // API payload uses game.sim.*; raw smart_sim files store these at top-level.
+    const score = sim.score || g.score || {};
+    const periods = sim.periods || g.periods || {};
+    const intervals = sim.intervals || g.intervals || null;
     const bet = g.betting || {};
 
     const simErr = sim && sim.error ? String(sim.error) : '';
@@ -555,6 +868,10 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
           </div>
         </div>
 
+        <div class="market-grid">
+          ${renderLiveLens(intervals, `${homeTri}_${awayTri}`)}
+        </div>
+
         <details class="quarters-block">
           <summary class="quarters-toggle cursor-pointer">Quarter / Half projections</summary>
           ${renderQuarterTable(periods, reconQ)}
@@ -582,6 +899,13 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
   // Enable click-to-sort on projected boxscore tables.
   try {
     makeBoxscoreTablesSortable(root);
+  } catch (_) {
+    // ignore
+  }
+
+  // Attach live lens handlers (uses game intervals ladder)
+  try {
+    attachLiveLensHandlers(root, games);
   } catch (_) {
     // ignore
   }

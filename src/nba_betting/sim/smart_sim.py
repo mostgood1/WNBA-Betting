@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+import json
+from dataclasses import dataclass, field, replace
+from functools import lru_cache
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
@@ -11,6 +13,83 @@ from .quarters import GameInputs, QuarterResult, TeamContext, simulate_quarters
 from ..config import paths
 from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_player_key  # type: ignore
 from ..teams import to_tricode
+
+
+def _finite_float_or_nan(x: Any) -> float:
+    try:
+        v = float(x)
+        return float(v) if np.isfinite(v) else float("nan")
+    except Exception:
+        return float("nan")
+
+
+@lru_cache(maxsize=1)
+def _load_intervals_band_calibration() -> dict[str, Any] | None:
+    """Load optional calibration used to widen interval p10/p90 bands.
+
+    If the file doesn't exist or is invalid, returns None and SmartSim outputs remain unchanged.
+    """
+
+    p = paths.data_processed / "intervals_band_calibration.json"
+    if not p.exists():
+        return None
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else None
+    except Exception:
+        return None
+
+
+def _apply_band_scale(q: Any, scale: float) -> Any:
+    """Symmetrically widen [p10,p90] about p50 by `scale`.
+
+    Keeps p50 fixed; returns the original object if inputs are invalid.
+    """
+
+    if not isinstance(q, dict):
+        return q
+    s = _finite_float_or_nan(scale)
+    if not np.isfinite(s) or s <= 0:
+        return q
+
+    p10 = _finite_float_or_nan(q.get("p10"))
+    p50 = _finite_float_or_nan(q.get("p50"))
+    p90 = _finite_float_or_nan(q.get("p90"))
+    if not (np.isfinite(p10) and np.isfinite(p50) and np.isfinite(p90)):
+        return q
+    if not (p10 < p50 < p90):
+        return q
+
+    new_p10 = float(p50 - s * (p50 - p10))
+    new_p90 = float(p50 + s * (p90 - p50))
+    return {"p10": new_p10, "p50": float(p50), "p90": new_p90}
+
+
+def _interval_scale(cal: dict[str, Any] | None, seg_idx: int, kind: str) -> float:
+    """Return a scale for kind in {'seg','cum'} for a 1-based seg_idx."""
+
+    if not cal:
+        return 1.0
+    try:
+        per = cal.get("per_segment") or {}
+        if isinstance(per, dict):
+            v = (per.get(str(int(seg_idx))) or {}).get(kind)
+            s = _finite_float_or_nan(v)
+            if np.isfinite(s) and s > 0:
+                return float(s)
+    except Exception:
+        pass
+
+    try:
+        g = cal.get("global") or {}
+        if isinstance(g, dict):
+            s = _finite_float_or_nan(g.get(kind))
+            if np.isfinite(s) and s > 0:
+                return float(s)
+    except Exception:
+        pass
+
+    return 1.0
 
 
 def _read_hist_any(pq_path, csv_path) -> pd.DataFrame:
@@ -1293,6 +1372,46 @@ def simulate_smart_game(
     cfg = cfg or SmartSimConfig()
     rng = np.random.default_rng(cfg.seed)
 
+    # Derive a per-game event config using pregame data features (pace, injuries, schedule).
+    # This keeps the possession engine aligned to expected possession volume.
+    event_cfg = cfg.event_cfg
+    try:
+        hp = None
+        ap = None
+        hb2b = False
+        ab2b = False
+        h_outs = 0
+        a_outs = 0
+        if isinstance(pregame_context, dict):
+            hp = _safe_float(pregame_context.get("home_pace"), default=float("nan"))
+            ap = _safe_float(pregame_context.get("away_pace"), default=float("nan"))
+            hb2b = bool(pregame_context.get("home_b2b", False))
+            ab2b = bool(pregame_context.get("away_b2b", False))
+            h_outs = int(max(0, _safe_float(pregame_context.get("home_injuries_out"), default=0.0)))
+            a_outs = int(max(0, _safe_float(pregame_context.get("away_injuries_out"), default=0.0)))
+
+        pace_vals: list[float] = []
+        for x in (hp, ap):
+            try:
+                xx = float(x)
+                if np.isfinite(xx):
+                    pace_vals.append(xx)
+            except Exception:
+                continue
+        pace = float(np.mean(pace_vals)) if pace_vals else float("nan")
+        if not np.isfinite(pace):
+            pace = float(event_cfg.possessions_per_game)
+
+        # Mild pace drag: consistent with quarters model.
+        b2b_drag = (1.0 if hb2b else 0.0) + (1.0 if ab2b else 0.0)
+        inj_drag = 0.3 * float(max(0, h_outs)) + 0.3 * float(max(0, a_outs))
+        pace = float(max(90.0, pace - b2b_drag - inj_drag))
+
+        if np.isfinite(pace) and pace > 0:
+            event_cfg = replace(event_cfg, possessions_per_game=float(pace))
+    except Exception:
+        event_cfg = cfg.event_cfg
+
     if market_total is None or market_home_spread is None:
         t2, s2 = _market_lines_from_processed_odds(date_str=date_str, home_tri=home_tri, away_tri=away_tri)
         if market_total is None:
@@ -1645,13 +1764,24 @@ def simulate_smart_game(
     hq_sims = np.zeros((n_sims, 4), dtype=int)
     aq_sims = np.zeros((n_sims, 4), dtype=int)
 
+    # 3-minute segments (4 per quarter, regulation only)
+    n_seg_per_q = 4
+    hqseg_sims = np.zeros((n_sims, 4, n_seg_per_q), dtype=int)
+    aqseg_sims = np.zeros((n_sims, 4, n_seg_per_q), dtype=int)
+    seg_seconds = 3 * 60
+
+    # Overtime (5-minute periods). Variable count across sims.
+    ot_seconds = 5 * 60
+    home_ot_sims: list[list[int]] = [[] for _ in range(n_sims)]
+    away_ot_sims: list[list[int]] = [[] for _ in range(n_sims)]
+
     if cfg.use_pbp:
         for i in range(n_sims):
             h_box, a_box, hq_i, aq_i = simulate_pbp_game_boxscore(
                 rng=rng,
                 home_players=home_players,
                 away_players=away_players,
-                cfg=cfg.event_cfg,
+                cfg=event_cfg,
                 home_lineups=home_lineups,
                 home_lineup_weights=home_lineup_w,
                 away_lineups=away_lineups,
@@ -1665,6 +1795,33 @@ def simulate_smart_game(
             aq_sims[i, :] = np.asarray(list(aq_i or [0, 0, 0, 0])[:4], dtype=int)
             home_scores[i] = int(np.sum(hq_sims[i, :]))
             away_scores[i] = int(np.sum(aq_sims[i, :]))
+
+            # Segment buckets (best-effort; present when events.py provides q_segment_pts)
+            try:
+                hseg = np.asarray((h_box or {}).get("q_segment_pts") or [[0] * n_seg_per_q] * 4, dtype=int)
+                aseg = np.asarray((a_box or {}).get("q_segment_pts") or [[0] * n_seg_per_q] * 4, dtype=int)
+                if hseg.shape == (4, n_seg_per_q):
+                    hqseg_sims[i, :, :] = hseg
+                if aseg.shape == (4, n_seg_per_q):
+                    aqseg_sims[i, :, :] = aseg
+                ssec = (h_box or {}).get("segment_seconds")
+                if ssec is not None and int(ssec) > 0:
+                    seg_seconds = int(ssec)
+            except Exception:
+                pass
+
+            # Overtime points (per OT period) for interval ladder.
+            try:
+                hot = (h_box or {}).get("ot_pts")
+                aot = (a_box or {}).get("ot_pts")
+                if isinstance(hot, list) and isinstance(aot, list):
+                    home_ot_sims[i] = [int(x) for x in hot if x is not None]
+                    away_ot_sims[i] = [int(x) for x in aot if x is not None]
+                osec = (h_box or {}).get("ot_seconds")
+                if osec is not None and int(osec) > 0:
+                    ot_seconds = int(osec)
+            except Exception:
+                pass
 
             scen = _scenario_from_margin(int(home_scores[i] - away_scores[i]))
 
@@ -1753,6 +1910,14 @@ def simulate_smart_game(
         for i in range(n_sims):
             hq_i = [int(x) for x in hq[i, :].tolist()]
             aq_i = [int(x) for x in aq[i, :].tolist()]
+
+            # Synthesize segment splits that sum to the quarter totals.
+            try:
+                for qi in range(4):
+                    hqseg_sims[i, qi, :] = rng.multinomial(int(max(0, hq_i[qi])), [0.25, 0.25, 0.25, 0.25]).astype(int)
+                    aqseg_sims[i, qi, :] = rng.multinomial(int(max(0, aq_i[qi])), [0.25, 0.25, 0.25, 0.25]).astype(int)
+            except Exception:
+                pass
 
             h_box, a_box = simulate_event_level_boxscore(
                 rng=rng,
@@ -2010,6 +2175,107 @@ def simulate_smart_game(
             "max": float(np.max(vals)),
         }
 
+    # Interval ladder: regulation 3-minute segments + (optional) 5-minute OT segments
+    intervals: Optional[dict[str, Any]] = None
+    try:
+        cal = _load_intervals_band_calibration()
+
+        reg_total = (hqseg_sims + aqseg_sims).reshape(int(n_sims), 16).astype(float)
+        reg_cum = np.cumsum(reg_total, axis=1)
+
+        def _seg_label(qi: int, si: int) -> str:
+            # qi, si are 0-based
+            q = qi + 1
+            start_min = 12 - (3 * si)
+            end_min = 12 - (3 * (si + 1))
+            return f"Q{q} {start_min}-{end_min}"
+
+        seg_rows: list[dict[str, Any]] = []
+        for j in range(16):
+            qi = j // 4
+            si = j % 4
+            seg_arr = reg_total[:, j]
+            cum_arr = reg_cum[:, j]
+
+            seg_q = _quantiles(seg_arr, qs=(0.1, 0.5, 0.9))
+            cum_q = _quantiles(cum_arr, qs=(0.1, 0.5, 0.9))
+            seg_q = _apply_band_scale(seg_q, _interval_scale(cal, j + 1, "seg"))
+            cum_q = _apply_band_scale(cum_q, _interval_scale(cal, j + 1, "cum"))
+
+            seg_rows.append(
+                {
+                    "idx": int(j + 1),
+                    "quarter": int(qi + 1),
+                    "seg": int(si + 1),
+                    "label": _seg_label(qi, si),
+                    "mu": float(np.mean(seg_arr)) if seg_arr.size else float("nan"),
+                    "q": seg_q,
+                    "cum_mu": float(np.mean(cum_arr)) if cum_arr.size else float("nan"),
+                    "cum_q": cum_q,
+                }
+            )
+
+        # Overtime segments: one 5-minute interval per OT period.
+        try:
+            max_ot = 0
+            for i in range(int(n_sims)):
+                max_ot = max(max_ot, len(home_ot_sims[i] or []), len(away_ot_sims[i] or []))
+
+            reg_totals = np.sum(reg_total, axis=1).astype(float)
+
+            def _ot_label(k0: int) -> str:
+                return f"OT{k0 + 1} 5-0"
+
+            # Build conditional distributions for each OT k: only sims that reach that OT.
+            for k in range(int(max_ot)):
+                ot_vals: list[float] = []
+                ot_cum_vals: list[float] = []
+                reach = 0
+                for i in range(int(n_sims)):
+                    hot = home_ot_sims[i] or []
+                    aot = away_ot_sims[i] or []
+                    if len(hot) > k and len(aot) > k:
+                        reach += 1
+                        v = float(int(hot[k]) + int(aot[k]))
+                        ot_vals.append(v)
+                        # cumulative through OT k (reg + prior OTs)
+                        prior = float(sum(int(hot[j]) + int(aot[j]) for j in range(0, k + 1)))
+                        ot_cum_vals.append(float(reg_totals[i] + prior))
+
+                arr = np.asarray(ot_vals, dtype=float)
+                carr = np.asarray(ot_cum_vals, dtype=float)
+                seg_rows.append(
+                    {
+                        "idx": int(16 + k + 1),
+                        "ot": int(k + 1),
+                        "label": _ot_label(k),
+                        "duration_seconds": int(ot_seconds),
+                        "p_reach": float(reach) / float(max(1, int(n_sims))),
+                        "n_reach": int(reach),
+                        "mu": float(np.mean(arr)) if arr.size else float("nan"),
+                        "q": _apply_band_scale(
+                            (_quantiles(arr, qs=(0.1, 0.5, 0.9)) if arr.size else {"p10": float("nan"), "p50": float("nan"), "p90": float("nan")}),
+                            _interval_scale(cal, 16, "seg"),
+                        ),
+                        "cum_mu": float(np.mean(carr)) if carr.size else float("nan"),
+                        "cum_q": _apply_band_scale(
+                            (_quantiles(carr, qs=(0.1, 0.5, 0.9)) if carr.size else {"p10": float("nan"), "p50": float("nan"), "p90": float("nan")}),
+                            _interval_scale(cal, 16, "cum"),
+                        ),
+                    }
+                )
+        except Exception:
+            pass
+
+        intervals = {
+            "segment_seconds": int(seg_seconds),
+            "segments_per_quarter": 4,
+            "ot_segment_seconds": int(ot_seconds),
+            "segments": seg_rows,
+        }
+    except Exception:
+        intervals = None
+
     return {
         "home": str(home_tri).upper(),
         "away": str(away_tri).upper(),
@@ -2035,6 +2301,7 @@ def simulate_smart_game(
             "target_home_points": float(target_home_points) if target_home_points is not None else None,
             "target_away_points": float(target_away_points) if target_away_points is not None else None,
         },
+        "intervals": intervals,
         "periods": periods,
         "score": {
             "home_mean": float(np.mean(home_scores)),
