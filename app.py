@@ -703,6 +703,49 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
     """
     out: dict[tuple[str, str], dict[str, Any]] = {}
 
+    # Prefer league_status for a per-date team assignment + broad injury status context.
+    # This keeps "who" + status consistent even when raw injury feeds have stale team tags.
+    try:
+        ls_path = BASE_DIR / "data" / "processed" / f"league_status_{date_str}.csv"
+        if ls_path.exists():
+            ls = pd.read_csv(ls_path)
+            if isinstance(ls, pd.DataFrame) and (not ls.empty):
+                cols = {c.lower(): c for c in ls.columns}
+                ncol = cols.get("player_name")
+                tcol = cols.get("team")
+                scol = cols.get("injury_status")
+                pcol = cols.get("playing_today")
+                if ncol and tcol:
+                    use_cols = [tcol, ncol] + ([scol] if scol else []) + ([pcol] if pcol else [])
+                    tmp = ls[use_cols].copy()
+                    tmp[tcol] = tmp[tcol].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                    tmp[ncol] = tmp[ncol].astype(str)
+                    if scol:
+                        tmp[scol] = tmp[scol].astype(str)
+                    for _, r in tmp.iterrows():
+                        try:
+                            tri = str(r.get(tcol) or "").strip().upper()
+                            nm = str(r.get(ncol) or "").strip()
+                            if not tri or not nm:
+                                continue
+                            nk = _norm_player_name(nm)
+                            if not nk:
+                                continue
+                            st = str(r.get(scol) or "").strip().upper() if scol else ""
+                            if st in {"NAN", "NONE", "NULL"}:
+                                st = ""
+                            out[(tri, nk)] = {
+                                "player_name": nm,
+                                "injury_status": st,
+                                "playing_today": (r.get(pcol) if pcol else None),
+                                "injury": None,
+                                "injury_date": None,
+                            }
+                        except Exception:
+                            continue
+    except Exception:
+        pass
+
     # Prefer the processed daily snapshot (committed to git for Render parity).
     # This avoids relying on raw injuries.csv being present in the deployed filesystem.
     snap_path = BASE_DIR / "data" / "processed" / f"injuries_counts_{date_str}.json"
@@ -744,10 +787,8 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
                     "injury": None,
                     "injury_date": None,
                 }
-
-        # Return snapshot-derived map even if it is small; it is intentionally OUT-focused.
-        if out:
-            return out
+        # Note: do not early-return; we may enrich injury description/date from raw injuries.csv
+        # while keeping league_status/snapshot as the primary team+status context.
 
     inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
     if not inj_path.exists():
@@ -882,7 +923,20 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
             if status:
                 ctx["playing_today"] = (status not in EXCLUDE_STATUSES)
 
-            out[(team_tri, nk)] = ctx
+            key = (team_tri, nk)
+            if key not in out:
+                out[key] = ctx
+            else:
+                prev = out.get(key) or {}
+                if prev.get("injury") is None and ctx.get("injury") is not None:
+                    prev["injury"] = ctx.get("injury")
+                if prev.get("injury_date") is None and ctx.get("injury_date") is not None:
+                    prev["injury_date"] = ctx.get("injury_date")
+                if (not prev.get("injury_status")) and ctx.get("injury_status"):
+                    prev["injury_status"] = ctx.get("injury_status")
+                if prev.get("playing_today") is None and ("playing_today" in ctx):
+                    prev["playing_today"] = ctx.get("playing_today")
+                out[key] = prev
     except Exception:
         return out
 
@@ -2604,6 +2658,52 @@ def _build_roster_team_maps(date_str: str | None = None) -> tuple[dict[int, str]
     pid_to_tri: dict[int, str] = {}
     name_to_tri: dict[str, str] = {}
     try:
+        # Prefer the per-date league_status snapshot when available.
+        # This is typically the most up-to-date source for "who is on which team".
+        ls_pids: set[int] = set()
+        ls_names: set[str] = set()
+        if date_str:
+            try:
+                proc = BASE_DIR / "data" / "processed"
+                ls = proc / f"league_status_{str(date_str)}.csv"
+                if ls.exists():
+                    ldf = pd.read_csv(ls)
+                    if isinstance(ldf, pd.DataFrame) and (not ldf.empty):
+                        cols = {c.lower(): c for c in ldf.columns}
+                        pid_col = cols.get("player_id")
+                        name_col = cols.get("player_name")
+                        team_col = cols.get("team")
+                        if pid_col and team_col:
+                            use_cols = [pid_col, team_col] + ([name_col] if name_col else [])
+                            tmp_ls = ldf[use_cols].copy()
+                            tmp_ls[team_col] = tmp_ls[team_col].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                            tmp_ls[pid_col] = pd.to_numeric(tmp_ls[pid_col], errors="coerce")
+                            if name_col:
+                                tmp_ls["_name_key"] = tmp_ls[name_col].astype(str).map(_norm_player_name)
+
+                            for _, r in tmp_ls.iterrows():
+                                try:
+                                    tri = str(r.get(team_col) or "").strip().upper()
+                                    if not tri:
+                                        continue
+                                    pidv = r.get(pid_col)
+                                    if pd.notna(pidv):
+                                        try:
+                                            pid = int(pidv)
+                                            pid_to_tri[pid] = tri
+                                            ls_pids.add(pid)
+                                        except Exception:
+                                            pass
+                                    if name_col:
+                                        nk = str(r.get("_name_key") or "").strip()
+                                        if nk:
+                                            name_to_tri[nk] = tri
+                                            ls_names.add(nk)
+                                except Exception:
+                                    continue
+            except Exception:
+                pass
+
         # Use only the latest season roster file to avoid cross-season contamination
         rost = _load_latest_rosters(date_str)
         if isinstance(rost, pd.DataFrame) and not rost.empty:
@@ -2620,13 +2720,15 @@ def _build_roster_team_maps(date_str: str | None = None) -> tuple[dict[int, str]
                             continue
                         try:
                             pid = int(pd.to_numeric(r[pid_col], errors="coerce"))
-                            pid_to_tri[pid] = tri
+                            if pid not in pid_to_tri:
+                                pid_to_tri[pid] = tri
                         except Exception:
                             pass
                         try:
                             nkey = _norm_player_name(str(r[name_col]))
                             if nkey:
-                                name_to_tri[nkey] = tri
+                                if nkey not in name_to_tri:
+                                    name_to_tri[nkey] = tri
                         except Exception:
                             pass
                     except Exception:
@@ -2650,14 +2752,16 @@ def _build_roster_team_maps(date_str: str | None = None) -> tuple[dict[int, str]
                                 if opid and pd.notna(r.get(opid)):
                                     try:
                                         pid = int(pd.to_numeric(r[opid], errors="coerce"))
-                                        pid_to_tri[pid] = tri
+                                        if pid not in ls_pids:
+                                            pid_to_tri[pid] = tri
                                     except Exception:
                                         pass
                                 if oname and pd.notna(r.get(oname)):
                                     try:
                                         nkey = _norm_player_name(str(r[oname]))
                                         if nkey:
-                                            name_to_tri[nkey] = tri
+                                            if nkey not in ls_names:
+                                                name_to_tri[nkey] = tri
                                     except Exception:
                                         pass
                             except Exception:
