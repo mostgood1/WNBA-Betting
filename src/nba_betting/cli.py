@@ -27,6 +27,7 @@ from .rosters import fetch_rosters
 from .league_status import build_league_status
 from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
+from .roster_checks import roster_sanity_check
 from .player_logs import fetch_player_logs
 from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
@@ -2514,6 +2515,39 @@ def build_league_status_cmd(date_str: str):
         raise SystemExit(1)
 
 
+@cli.command("roster-sanity")
+@click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD to validate league_status roster sanity")
+@click.option("--min-total-roster-per-team", type=int, default=10, show_default=True, help="Fail if a slate team has fewer than this many total roster rows")
+@click.option("--min-playing-today-per-team", type=int, default=8, show_default=True, help="Fail if a slate team has fewer than this many playing_today==True players")
+@click.option("--max-team-mismatches-in-props", type=int, default=0, show_default=True, help="Fail if props_predictions team mismatches vs league_status exceeds this")
+def roster_sanity_cmd(
+    date_str: str,
+    min_total_roster_per_team: int,
+    min_playing_today_per_team: int,
+    max_team_mismatches_in_props: int,
+):
+    """Fail-fast roster sanity check using league_status_<date>.csv.
+
+    Intended to catch obvious roster/team mapping breakage (trades/waives, stale overrides,
+    missing slate teams) before we run any expensive sims/predictions.
+    """
+    console.rule("Roster Sanity")
+    res = roster_sanity_check(
+        date_str,
+        min_total_roster_per_team=int(min_total_roster_per_team),
+        min_playing_today_per_team=int(min_playing_today_per_team),
+        max_team_mismatches_in_props=int(max_team_mismatches_in_props),
+    )
+    console.print({
+        "date": res.date,
+        "ok": bool(res.ok),
+        "issues": res.issues,
+        "summary": res.summary,
+    })
+    if not res.ok:
+        raise SystemExit(2)
+
+
 @cli.command("check-dressed")
 @click.option("--date", "date_str", type=str, required=True, help="Date YYYY-MM-DD to build/check dressed_players_<date>.csv")
 @click.option("--min-dressed-per-team", type=int, default=8, show_default=True, help="Fail if a slate team has fewer than this many expected dressed players")
@@ -4034,14 +4068,21 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             pass
         # Integrate league_status (ensures FA/non-playing dropped and team corrected)
         try:
-            ls = build_league_status(date_str)
+            # Prefer the pipeline-built artifact for determinism
+            ls_path = _paths.data_processed / f"league_status_{date_str}.csv"
+            if ls_path.exists():
+                ls = _pd.read_csv(ls_path)
+            else:
+                ls = build_league_status(date_str)
             if ls is not None and not ls.empty and {"player_id","team","injury_status","team_on_slate","playing_today"}.issubset(set(ls.columns)) and ("player_id" in feats.columns):
                 feats = feats.copy()
                 feats["player_id"] = _pd.to_numeric(feats["player_id"], errors="coerce")
                 ls2 = ls[["player_id","team","injury_status","team_on_slate","playing_today"]].copy()
                 ls2["player_id"] = _pd.to_numeric(ls2["player_id"], errors="coerce")
                 feats = feats.merge(ls2, on="player_id", how="left", suffixes=("","_ls"))
-                feats["team"] = feats["team"].where(feats["team"].astype(str).str.len()>0, feats["team_ls"]).fillna(feats["team_ls"])
+                # league_status is authoritative for the slate date; override team when present
+                feats["team_ls"] = feats["team_ls"].fillna("").astype(str).str.upper().str.strip()
+                feats["team"] = feats["team_ls"].where(feats["team_ls"].astype(str).str.len() > 0, feats["team"])
                 def _ok(row):
                     t = str(row.get("team") or "").strip().upper()
                     if not t:
@@ -5097,6 +5138,71 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             console.print(f"Per-player calibration skipped due to error: {_e}", style="yellow")
     if not out_path:
         out_path = str(paths.data_processed / f"props_predictions_{date_str}.csv")
+
+    # Final authority pass: force team (and optionally opponent/home) to match the pipeline artifacts.
+    # This is especially important for SmartSim-appended rows that may carry stale team metadata.
+    try:
+        ls_path_final = paths.data_processed / f"league_status_{date_str}.csv"
+        if ls_path_final.exists() and ("player_id" in preds.columns):
+            lsdf = pd.read_csv(ls_path_final)
+            if isinstance(lsdf, pd.DataFrame) and (not lsdf.empty) and {"player_id", "team"}.issubset(set(lsdf.columns)):
+                tmp_ls = lsdf[["player_id", "team"]].copy()
+                tmp_ls["player_id"] = pd.to_numeric(tmp_ls["player_id"], errors="coerce")
+                tmp_ls = tmp_ls.dropna(subset=["player_id"]).copy()
+                tmp_ls["_pid"] = tmp_ls["player_id"].astype(int)
+                tmp_ls["team"] = tmp_ls["team"].astype(str).str.upper().str.strip()
+                pid_to_team = dict(zip(tmp_ls["_pid"].tolist(), tmp_ls["team"].tolist()))
+
+                pids = pd.to_numeric(preds["player_id"], errors="coerce")
+                pid_int = pids.where(pids.notna(), pd.NA)
+                pid_int = pid_int.astype("Int64")
+                cur_team = preds.get("team")
+                if cur_team is None:
+                    preds["team"] = [pid_to_team.get(int(x)) if (x is not None and not pd.isna(x)) else "" for x in pid_int.tolist()]
+                else:
+                    cur_team_s = cur_team.astype(str).str.upper().str.strip()
+                    new_team = []
+                    for pid_val, existing in zip(pid_int.tolist(), cur_team_s.tolist()):
+                        if pid_val is not None and (not pd.isna(pid_val)):
+                            mapped = pid_to_team.get(int(pid_val))
+                            if mapped:
+                                new_team.append(mapped)
+                                continue
+                        new_team.append(existing)
+                    preds["team"] = new_team
+
+                # If slate-only, prefer standardized game_odds for opponent/home when available.
+                try:
+                    if slate_only and ("team" in preds.columns):
+                        go_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                        if go_path.exists():
+                            from .teams import to_tricode as _to_tri2
+
+                            go = pd.read_csv(go_path)
+                            if isinstance(go, pd.DataFrame) and (not go.empty):
+                                home_col = "home_team" if "home_team" in go.columns else None
+                                away_col = "visitor_team" if "visitor_team" in go.columns else ("away_team" if "away_team" in go.columns else None)
+                                if home_col and away_col:
+                                    opp_map: dict[str, str] = {}
+                                    home_map: dict[str, bool] = {}
+                                    for _, r in go.iterrows():
+                                        h = _to_tri2(str(r.get(home_col) or ""))
+                                        a = _to_tri2(str(r.get(away_col) or ""))
+                                        if h and a:
+                                            opp_map[h] = a
+                                            home_map[h] = True
+                                            opp_map[a] = h
+                                            home_map[a] = False
+                                    if opp_map:
+                                        t = preds["team"].astype(str).str.upper().str.strip()
+                                        if "opponent" in preds.columns:
+                                            preds["opponent"] = [opp_map.get(tt, preds.loc[i, "opponent"]) for i, tt in enumerate(t.tolist())]
+                                        if "home" in preds.columns:
+                                            preds["home"] = [home_map.get(tt, preds.loc[i, "home"]) for i, tt in enumerate(t.tolist())]
+                except Exception:
+                    pass
+    except Exception:
+        pass
 
     # Guardrails: these are count stats; avoid negative predictions/SDs after calibration.
     try:

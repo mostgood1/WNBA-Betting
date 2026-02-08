@@ -309,6 +309,17 @@ try {
   Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 0.65) Roster sanity check: validates slate-team roster depth + duplicates + basic team mapping.
+try {
+  Write-Log "Roster sanity check (fail-fast)"
+  $rcRS = Invoke-PyMod -plist @('-m','nba_betting.cli','roster-sanity','--date', $Date)
+  Write-Log ("roster-sanity exit code: {0}" -f $rcRS)
+  if ($rcRS -ne 0) { throw "roster-sanity failed (exit=$rcRS)" }
+} catch {
+  Write-Log ("Roster sanity gate failed: {0}" -f $_.Exception.Message)
+  throw
+}
+
 try {
   Write-Log "Checking expected dressed players (fail-fast)"
   $rcDress = Invoke-PyMod -plist @('-m','nba_betting.cli','check-dressed','--date', $Date)
