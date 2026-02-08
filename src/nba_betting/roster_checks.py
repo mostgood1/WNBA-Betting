@@ -85,7 +85,8 @@ def roster_sanity_check(
     ls[pid_col] = pd.to_numeric(ls[pid_col], errors="coerce")
 
     if on_col and on_col in ls.columns:
-        slate_rows = ls[ls[on_col].fillna(False).astype(bool)].copy()
+        _mask = ls[on_col].astype("boolean").fillna(False).astype(bool)
+        slate_rows = ls[_mask].copy()
     else:
         # Fallback: treat all teams as slate teams (less strict, but still useful).
         slate_rows = ls.copy()
@@ -164,7 +165,8 @@ def roster_sanity_check(
                     tmp = pp[use_cols].copy()
                     # only compare on-slate props rows (most relevant; avoids noise)
                     if pp_team_on_slate and pp_team_on_slate in tmp.columns:
-                        tmp = tmp[tmp[pp_team_on_slate].fillna(False).astype(bool)].copy()
+                        _mask = tmp[pp_team_on_slate].astype("boolean").fillna(False).astype(bool)
+                        tmp = tmp[_mask].copy()
 
                     tmp = tmp.rename(columns={pp_pid: "player_id", pp_team: "team_props"})
                     tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
