@@ -1,14 +1,12 @@
 {
   "date": "2026-02-08",
   "team_counts": {
-    "BOS": 2,
     "IND": 6,
     "LAC": 7,
-    "MIA": 3,
+    "MIA": 4,
     "MIN": 2,
-    "NYK": 5,
     "TOR": 5,
-    "WAS": 5
+    "WAS": 7
   },
   "players": [
     {
@@ -52,28 +50,8 @@
       "status": "OUT"
     },
     {
-      "player": "Jayson Tatum",
-      "team": "BOS",
-      "status": "OUT"
-    },
-    {
-      "player": "Chris Boucher",
-      "team": "BOS",
-      "status": "OUT"
-    },
-    {
-      "player": "Jalen Brunson",
-      "team": "NYK",
-      "status": "OUT"
-    },
-    {
       "player": "Cody Martin",
       "team": "IND",
-      "status": "OUT"
-    },
-    {
-      "player": "Landry Shamet",
-      "team": "NYK",
       "status": "OUT"
     },
     {
@@ -107,8 +85,8 @@
       "status": "OUT"
     },
     {
-      "player": "Miles McBride",
-      "team": "NYK",
+      "player": "Anthony Gill",
+      "team": "WAS",
       "status": "OUT"
     },
     {
@@ -127,8 +105,8 @@
       "status": "OUT"
     },
     {
-      "player": "Jose Alvarado",
-      "team": "NYK",
+      "player": "Jaden Hardy",
+      "team": "WAS",
       "status": "OUT"
     },
     {
@@ -152,11 +130,6 @@
       "status": "OUT"
     },
     {
-      "player": "Kevin McCullar Jr.",
-      "team": "NYK",
-      "status": "OUT"
-    },
-    {
       "player": "Jordan Miller",
       "team": "LAC",
       "status": "OUT"
@@ -177,6 +150,11 @@
       "status": "OUT"
     },
     {
+      "player": "Pelle Larsson",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
       "player": "Ja'Kobe Walter",
       "team": "TOR",
       "status": "OUT"
@@ -190,8 +168,8 @@
   "team_key_outs": {
     "WAS": [
       "Tristan Vukcevic",
-      "Anthony Davis",
-      "Trae Young"
+      "Anthony Gill",
+      "Anthony Davis"
     ],
     "LAC": [
       "Ivica Zubac",
@@ -199,26 +177,18 @@
       "Derrick Jones Jr."
     ],
     "DAL": [
-      "D'Angelo Russell"
+      "D'Angelo Russell",
+      "Jaden Hardy"
     ],
     "MIA": [
       "Tyler Herro",
-      "Davion Mitchell",
-      "Terry Rozier"
+      "Pelle Larsson",
+      "Davion Mitchell"
     ],
     "TOR": [
       "Brandon Ingram",
       "Immanuel Quickley",
       "Ja'Kobe Walter"
-    ],
-    "BOS": [
-      "Chris Boucher",
-      "Jayson Tatum"
-    ],
-    "NYK": [
-      "Jalen Brunson",
-      "Miles McBride",
-      "Landry Shamet"
     ],
     "IND": [
       "Bennedict Mathurin",
@@ -231,24 +201,18 @@
     "MIN": [
       "Terrence Shannon Jr."
     ],
-    "NOP": [
-      "Jose Alvarado"
-    ],
     "CHI": [
       "Julian Phillips"
     ]
   },
   "team_impact": {
-    "WAS": 21.24,
-    "LAC": 69.23666666666666,
-    "DAL": 14.4,
-    "MIA": 56.0125,
-    "TOR": 93.54230769230767,
-    "BOS": 3.0,
-    "NYK": 76.23525641025641,
+    "WAS": 27.808333333333337,
+    "LAC": 63.57,
+    "DAL": 28.544444444444444,
+    "MIA": 77.69652777777777,
+    "TOR": 88.19999999999999,
     "IND": 48.12738095238095,
     "CLE": 36.833333333333336,
-    "NOP": 15.199999999999998,
     "CHI": 3.5250000000000004
   }
 }

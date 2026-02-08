@@ -20,11 +20,11 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
-    "minutes_sanity: team LAC top10 minutes sum low (138.0) using roll3_min",
-    "minutes_sanity: team LAC has <5 players at 20+ min (found 4) using roll3_min",
-    "minutes_sanity: team TOR top10 minutes sum low (150.3) using roll3_min",
-    "minutes_sanity: team TOR has <5 players at 20+ min (found 4) using roll3_min",
-    "minutes_sanity: team WAS top10 minutes sum low (148.0) using roll3_min",
+    "minutes_sanity: team LAC top10 minutes sum low (137.6) using roll5_min",
+    "minutes_sanity: team LAC has <5 players at 20+ min (found 4) using roll5_min",
+    "minutes_sanity: team TOR top10 minutes sum low (153.6) using roll5_min",
+    "minutes_sanity: team TOR has <5 players at 20+ min (found 4) using roll5_min",
+    "minutes_sanity: team WAS top10 minutes sum low (137.1) using roll5_min",
     "minutes_sanity: 1 players have <8 min but >=10 pred_pts (sample: A.J. Lawson(TOR))"
   ],
   "missing": [],
