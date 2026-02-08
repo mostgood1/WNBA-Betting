@@ -1,11 +1,9 @@
-date,home_team,visitor_team,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
-2026-02-07,Brooklyn Nets,Washington Wizards,112.5,57.0,56.0,-3.5,-105,-115,-2.0,-105,-115,-1.5,-115,-105
-2026-02-07,Oklahoma City Thunder,Houston Rockets,105.5,53.0,52.0,-1.5,-105,-115,-0.5,-115,-105,-0.5,-115,-105
-2026-02-07,San Antonio Spurs,Dallas Mavericks,117.5,59.0,58.0,-5.5,-110,-110,-3.0,-105,-115,-3.0,-105,-115
-2026-02-07,Orlando Magic,Utah Jazz,116.0,58.5,57.5,-4.5,-105,-115,-2.5,-105,-115,-2.0,-115,-105
-2026-02-07,Atlanta Hawks,Charlotte Hornets,112.5,56.5,55.5,0.5,-105,-115,0.5,-115,-105,0.5,-115,-105
-2026-02-07,Chicago Bulls,Denver Nuggets,113.0,56.5,56.0,3.0,-110,-110,1.5,-110,-110,1.5,-110,-110
-2026-02-07,Los Angeles Lakers,Golden State Warriors,109.0,55.0,54.0,-1.5,-110,-110,-0.5,-115,-105,-0.5,-115,-105
-2026-02-07,Phoenix Suns,Philadelphia 76ers,114.5,58.0,57.0,-0.5,-115,-105,-0.5,-105,-115,-0.5,-105,-115
-2026-02-07,Sacramento Kings,Cleveland Cavaliers,114.0,57.0,56.5,7.0,-110,-110,4.0,-110,-110,3.5,-110,-110
-2026-02-07,Portland Trail Blazers,Memphis Grizzlies,121.0,61.0,60.0,-5.0,-105,-115,-2.5,-110,-110,-2.5,-105,-115
+date,home_team,visitor_team,q3_total,q4_total,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_spread,q4_home_spread_price,q4_away_spread_price,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
+2026-02-07,San Antonio Spurs,Dallas Mavericks,59.0,55.5,-3.5,-115.0,-115.0,-1.5,-110.0,-120.0,,,,,,,,,,,,
+2026-02-07,Orlando Magic,Utah Jazz,59.5,,-2.0,-115.0,-115.0,,,,119.0,52.5,56.0,-5.0,-110.0,-120.0,-7.0,-110.0,-120.0,-2.0,-110.0,-120.0
+2026-02-07,Atlanta Hawks,Charlotte Hornets,,,,,,,,,115.0,59.0,56.0,-1.5,-115.0,-115.0,-3.0,-115.0,-115.0,1.5,-110.0,-120.0
+2026-02-07,Chicago Bulls,Denver Nuggets,61.5,58.5,2.5,-110.0,-110.0,1.5,,-120.0,115.0,57.0,56.5,4.5,-105.0,-115.0,2.5,-110.0,-110.0,2.5,-115.0,-105.0
+2026-02-07,Los Angeles Lakers,Golden State Warriors,58.5,55.5,-1.5,115.0,-135.0,-1.5,110.0,-130.0,107.5,54.0,53.0,-1.0,-110.0,-110.0,-0.5,-110.0,-110.0,-0.5,-110.0,-110.0
+2026-02-07,Phoenix Suns,Philadelphia 76ers,55.5,53.5,-1.5,115.0,-135.0,-1.5,110.0,-130.0,116.0,58.5,57.5,-1.5,-110.0,-110.0,-0.5,-115.0,-105.0,-1.0,-105.0,-115.0
+2026-02-07,Sacramento Kings,Cleveland Cavaliers,60.5,57.5,3.5,-110.0,-110.0,3.5,-110.0,-110.0,111.5,56.0,55.5,8.5,-115.0,-105.0,5.0,-115.0,-105.0,3.5,-110.0,-110.0
+2026-02-07,Portland Trail Blazers,Memphis Grizzlies,57.5,55.0,-1.5,-115.0,-105.0,-1.5,-115.0,-105.0,120.0,60.5,59.0,-5.5,-110.0,-110.0,-3.0,-105.0,-115.0,-2.5,-115.0,-105.0

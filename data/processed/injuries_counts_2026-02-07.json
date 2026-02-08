@@ -2,14 +2,13 @@
   "date": "2026-02-07",
   "team_counts": {
     "ATL": 10,
-    "BKN": 6,
     "CHA": 5,
-    "CHI": 9,
+    "CHI": 10,
     "CLE": 6,
     "DAL": 6,
     "DEN": 5,
     "GSW": 5,
-    "HOU": 4,
+    "HOU": 3,
     "LAL": 3,
     "MEM": 8,
     "OKC": 6,
@@ -17,10 +16,9 @@
     "PHI": 6,
     "PHX": 6,
     "POR": 10,
-    "SAC": 8,
+    "SAC": 9,
     "SAS": 4,
-    "UTA": 5,
-    "WAS": 5
+    "UTA": 5
   },
   "players": [
     {
@@ -56,11 +54,6 @@
     {
       "player": "Jimmy Butler III",
       "team": "GSW",
-      "status": "OUT"
-    },
-    {
-      "player": "Anthony Davis",
-      "team": "WAS",
       "status": "OUT"
     },
     {
@@ -104,11 +97,6 @@
       "status": "OUT"
     },
     {
-      "player": "D'Angelo Russell",
-      "team": "WAS",
-      "status": "OUT"
-    },
-    {
       "player": "Devin Booker",
       "team": "PHX",
       "status": "OUT"
@@ -146,6 +134,11 @@
     {
       "player": "Lonzo Ball",
       "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Malik Monk",
+      "team": "SAC",
       "status": "OUT"
     },
     {
@@ -194,11 +187,6 @@
       "status": "OUT"
     },
     {
-      "player": "Trae Young",
-      "team": "WAS",
-      "status": "OUT"
-    },
-    {
       "player": "Goga Bitadze",
       "team": "ORL",
       "status": "OUT"
@@ -226,11 +214,6 @@
     {
       "player": "Drew Eubanks",
       "team": "SAC",
-      "status": "OUT"
-    },
-    {
-      "player": "Haywood Highsmith",
-      "team": "BKN",
       "status": "OUT"
     },
     {
@@ -319,6 +302,11 @@
       "status": "OUT"
     },
     {
+      "player": "Jalen Smith",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
       "player": "Tre Jones",
       "team": "CHI",
       "status": "OUT"
@@ -344,11 +332,6 @@
       "status": "OUT"
     },
     {
-      "player": "Jae'Sean Tate",
-      "team": "HOU",
-      "status": "OUT"
-    },
-    {
       "player": "Brandon Williams",
       "team": "DAL",
       "status": "OUT"
@@ -364,11 +347,6 @@
       "status": "OUT"
     },
     {
-      "player": "Ziaire Williams",
-      "team": "BKN",
-      "status": "OUT"
-    },
-    {
       "player": "Corey Kispert",
       "team": "ATL",
       "status": "OUT"
@@ -376,11 +354,6 @@
     {
       "player": "Austin Reaves",
       "team": "LAL",
-      "status": "OUT"
-    },
-    {
-      "player": "Cam Thomas",
-      "team": "BKN",
       "status": "OUT"
     },
     {
@@ -489,11 +462,6 @@
       "status": "OUT"
     },
     {
-      "player": "Josh Minott",
-      "team": "BKN",
-      "status": "OUT"
-    },
-    {
       "player": "Kris Murray",
       "team": "POR",
       "status": "OUT"
@@ -514,18 +482,8 @@
       "status": "OUT"
     },
     {
-      "player": "Tyrese Martin",
-      "team": "BKN",
-      "status": "OUT"
-    },
-    {
       "player": "Taylor Hendricks",
       "team": "MEM",
-      "status": "OUT"
-    },
-    {
-      "player": "Cam Whitmore",
-      "team": "WAS",
       "status": "OUT"
     },
     {
@@ -544,11 +502,6 @@
       "status": "OUT"
     },
     {
-      "player": "Noah Clowney",
-      "team": "BKN",
-      "status": "OUT"
-    },
-    {
       "player": "Adem Bona",
       "team": "PHI",
       "status": "OUT"
@@ -556,11 +509,6 @@
     {
       "player": "Zach Edey",
       "team": "MEM",
-      "status": "OUT"
-    },
-    {
-      "player": "Tristan Vukcevic",
-      "team": "WAS",
       "status": "OUT"
     },
     {
@@ -659,9 +607,9 @@
       "James Harden"
     ],
     "DAL": [
-      "Anthony Davis",
       "P.J. Washington",
-      "Brandon Williams"
+      "Brandon Williams",
+      "Kyrie Irving"
     ],
     "POR": [
       "Deni Avdija",
@@ -671,7 +619,7 @@
     "WAS": [
       "Marvin Bagley III",
       "Khris Middleton",
-      "Tristan Vukcevic"
+      "Malaki Branham"
     ],
     "ATL": [
       "Onyeka Okongwu",
@@ -685,7 +633,7 @@
     "HOU": [
       "Steven Adams",
       "Aaron Holiday",
-      "Jae'Sean Tate"
+      "Fred VanVleet"
     ],
     "DEN": [
       "Peyton Watson",
@@ -730,11 +678,6 @@
       "Jalen Suggs",
       "Franz Wagner"
     ],
-    "BKN": [
-      "Noah Clowney",
-      "Ziaire Williams",
-      "Cam Thomas"
-    ],
     "MIL": [
       "Cole Anthony",
       "Amir Coffey"
@@ -745,7 +688,6 @@
       "Harrison Ingram"
     ],
     "BOS": [
-      "Josh Minott",
       "Xavier Tillman"
     ],
     "DET": [
@@ -762,11 +704,11 @@
     "SAC": 88.26167582417582,
     "PHI": 68.26309523809523,
     "LAC": 45.68181818181818,
-    "DAL": 93.69,
+    "DAL": 46.35584415584415,
     "POR": 101.05238095238094,
-    "WAS": 64.91714285714286,
+    "WAS": 53.98964285714286,
     "ATL": 81.54692307692308,
-    "HOU": 32.65571428571429,
+    "HOU": 27.705714285714286,
     "DEN": 85.42211538461538,
     "PHX": 84.0247619047619,
     "CLE": 81.9875,
@@ -775,12 +717,11 @@
     "OKC": 107.21095238095238,
     "CHI": 94.3345238095238,
     "LAL": 58.449450549450546,
-    "ORL": 100.99880952380953,
-    "BKN": 58.845887445887456,
+    "ORL": 93.82403846153845,
     "MIL": 23.2625,
-    "SAS": 22.9375,
-    "BOS": 3.5916666666666672,
+    "SAS": 23.973214285714285,
+    "BOS": 0.06666666666666667,
     "DET": 12.5,
-    "UTA": 77.17916666666666
+    "UTA": 74.17788461538461
   }
 }
