@@ -342,7 +342,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630611,Gui Santos,GSW,OUT,True,False
 1630618,D.J. Carton,,,False,False
 1630623,Tyson Etienne,BKN,,False,False
-1630625,Dalano Banton,POR,,True,True
+1630625,Dalano Banton,LAC,,False,False
 1630631,Jose Alvarado,NYK,OUT,False,False
 1630639,A.J. Lawson,TOR,DAY-TO-DAY,False,False
 1630643,Jay Huff,IND,DAY-TO-DAY,False,False
