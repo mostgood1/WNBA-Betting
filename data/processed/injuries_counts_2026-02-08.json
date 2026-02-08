@@ -1,0 +1,254 @@
+{
+  "date": "2026-02-08",
+  "team_counts": {
+    "BOS": 2,
+    "IND": 6,
+    "LAC": 7,
+    "MIA": 3,
+    "MIN": 2,
+    "NYK": 5,
+    "TOR": 5,
+    "WAS": 5
+  },
+  "players": [
+    {
+      "player": "Anthony Davis",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Ingram",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jakob Poeltl",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Ivica Zubac",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Derrick Jones Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Jayson Tatum",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Chris Boucher",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Brunson",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Cody Martin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Landry Shamet",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Darius Garland",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyler Herro",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Immanuel Quickley",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Miles McBride",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Jackson",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Davion Mitchell",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Jose Alvarado",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Bennedict Mathurin",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "TyTy Washington Jr.",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Kobe Brown",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin McCullar Jr.",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Miller",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Julian Phillips",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Ben Sheppard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tristan Vukcevic",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja'Kobe Walter",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jamison Battle",
+      "team": "TOR",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "WAS": [
+      "Tristan Vukcevic",
+      "Anthony Davis",
+      "Trae Young"
+    ],
+    "LAC": [
+      "Ivica Zubac",
+      "Jordan Miller",
+      "Derrick Jones Jr."
+    ],
+    "DAL": [
+      "D'Angelo Russell"
+    ],
+    "MIA": [
+      "Tyler Herro",
+      "Davion Mitchell",
+      "Terry Rozier"
+    ],
+    "TOR": [
+      "Brandon Ingram",
+      "Immanuel Quickley",
+      "Ja'Kobe Walter"
+    ],
+    "BOS": [
+      "Chris Boucher",
+      "Jayson Tatum"
+    ],
+    "NYK": [
+      "Jalen Brunson",
+      "Miles McBride",
+      "Landry Shamet"
+    ],
+    "IND": [
+      "Bennedict Mathurin",
+      "Isaiah Jackson",
+      "Ben Sheppard"
+    ],
+    "CLE": [
+      "Darius Garland"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ],
+    "NOP": [
+      "Jose Alvarado"
+    ],
+    "CHI": [
+      "Julian Phillips"
+    ]
+  },
+  "team_impact": {
+    "WAS": 21.24,
+    "LAC": 69.23666666666666,
+    "DAL": 14.4,
+    "MIA": 56.0125,
+    "TOR": 93.54230769230767,
+    "BOS": 3.0,
+    "NYK": 76.23525641025641,
+    "IND": 48.12738095238095,
+    "CLE": 36.833333333333336,
+    "NOP": 15.199999999999998,
+    "CHI": 3.5250000000000004
+  }
+}
