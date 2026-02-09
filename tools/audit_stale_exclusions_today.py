@@ -74,6 +74,24 @@ def main() -> None:
             st = df["status"].astype(str).str.upper().str.strip()
             EXCL = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
             season_out = (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False)) | st.str.contains("INDEFINITE", na=False) | st.str.contains("SEASON-ENDING", na=False)
+
+            # Apply the same recency gating used elsewhere in the pipeline:
+            # don't treat OUT/DOUBTFUL/etc as actionable if the injury row is stale.
+            # This avoids false conflicts when the raw feed isn't updated promptly.
+            try:
+                if pd.notna(cutoff):
+                    days_old = (cutoff - df["date"]).dt.days
+                    stale_excl = st.isin(EXCL) & (~season_out) & (days_old > 3)
+                    df = df[~stale_excl].copy()
+                    st = df["status"].astype(str).str.upper().str.strip()
+                    season_out = (
+                        (st.str.contains("SEASON", na=False) & st.str.contains("OUT", na=False))
+                        | st.str.contains("INDEFINITE", na=False)
+                        | st.str.contains("SEASON-ENDING", na=False)
+                    )
+            except Exception:
+                pass
+
             df = df[st.isin(EXCL) | season_out].copy()
             for _, r in df.iterrows():
                 tri = str(to_tricode(r.get("team")) or r.get("team") or "").strip().upper()

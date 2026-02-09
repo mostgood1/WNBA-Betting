@@ -1,18 +1,23 @@
 import os
-import pandas as pd
-import numpy as np
-from pathlib import Path
 from datetime import datetime, timedelta
+from pathlib import Path
 
-# Config
-DAYS = int(os.environ.get('PROPS_REL_DAYS', 60)) if 'PROPS_REL_DAYS' in os.environ else 60
-BINS = int(os.environ.get('PROPS_REL_BINS', 10)) if 'PROPS_REL_BINS' in os.environ else 10
-PRICE_MIN = float(os.environ.get('PROPS_REL_PRICE_MIN', -150)) if 'PROPS_REL_PRICE_MIN' in os.environ else -150.0
-PRICE_MAX = float(os.environ.get('PROPS_REL_PRICE_MAX', 125)) if 'PROPS_REL_PRICE_MAX' in os.environ else 125.0
-TODAY_OVERRIDE = os.environ.get('PROPS_REL_TODAY')
+import numpy as np
+import pandas as pd
 
-root = Path('c:/Users/mostg/OneDrive/Coding/NBA-Betting')
-proc = root / 'data' / 'processed'
+# Config (defaults target the *recommended* prop universe)
+DAYS = int(os.environ.get("PROPS_REL_DAYS", "60"))
+BINS = int(os.environ.get("PROPS_REL_BINS", "10"))
+PRICE_MIN = float(os.environ.get("PROPS_REL_PRICE_MIN", "-150"))
+PRICE_MAX = float(os.environ.get("PROPS_REL_PRICE_MAX", "150"))
+MIN_EV = float(os.environ.get("PROPS_REL_MIN_EV", "0.0"))
+TOP_PER_DAY = int(os.environ.get("PROPS_REL_TOP_PER_DAY", "10"))
+STATS_CSV = os.environ.get("PROPS_REL_STATS", "pa,pr,ra")
+STATS = {s.strip().lower() for s in str(STATS_CSV).split(",") if s.strip()}
+TODAY_OVERRIDE = os.environ.get("PROPS_REL_TODAY")
+
+root = Path(__file__).resolve().parents[1]
+proc = root / "data" / "processed"
 
 # Load actuals consolidated (parquet preferred, else stitch CSVs)
 act_parq = proc / 'props_actuals.parquet'
@@ -83,7 +88,8 @@ for d in dates:
         continue
     if edges is None or edges.empty:
         continue
-    # Filter reasonable price range
+    # Filter to the bettable universe: reasonable price, stat allowlist, positive EV,
+    # and a top-N per day selection to match what we actually surface.
     if 'price' not in edges.columns:
         continue
     edges = edges[(edges['price'] >= PRICE_MIN) & (edges['price'] <= PRICE_MAX)].copy()
@@ -96,9 +102,29 @@ for d in dates:
         continue
     # Exclude markets we cannot grade reliably (no numeric line / different semantics)
     edges['stat'] = edges['stat'].astype(str).str.lower()
-    edges = edges[~edges['stat'].isin(['dd','td'])].copy()
+    edges = edges[~edges['stat'].isin(['dd', 'td'])].copy()
+    if STATS:
+        edges = edges[edges['stat'].isin(STATS)].copy()
     if edges.empty:
         continue
+    # Optional EV filter (requires ev column)
+    if 'ev' in edges.columns:
+        edges['ev'] = pd.to_numeric(edges['ev'], errors='coerce')
+        edges = edges[edges['ev'].notna()]
+        if MIN_EV is not None:
+            edges = edges[edges['ev'] >= float(MIN_EV)].copy()
+    if edges.empty:
+        continue
+    # Top-N selection per day by EV if possible (else by edge)
+    try:
+        if TOP_PER_DAY and TOP_PER_DAY > 0:
+            if 'ev' in edges.columns and edges['ev'].notna().any():
+                edges = edges.sort_values('ev', ascending=False).head(TOP_PER_DAY).copy()
+            elif 'edge' in edges.columns:
+                edges['edge'] = pd.to_numeric(edges['edge'], errors='coerce')
+                edges = edges.sort_values('edge', ascending=False).head(TOP_PER_DAY).copy()
+    except Exception:
+        pass
     # Normalize
     edges['date'] = pd.to_datetime(edges['date'], errors='coerce').dt.date
     edges['player_id'] = pd.to_numeric(edges['player_id'], errors='coerce')

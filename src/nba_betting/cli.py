@@ -4602,6 +4602,15 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         console.print(f"Pure ONNX predictions generated for {len(preds)} players", style="green")
     except Exception as e:
         console.print(f"Failed to run pure ONNX predictions: {e}", style="red"); return
+
+    # Preserve the base ONNX outputs in pred_* and use mean_* as the downstream-consumed
+    # columns (optionally overwritten by SmartSim). This prevents feedback loops where
+    # SmartSim-derived means overwrite the model predictions file.
+    for stat in ("pts", "reb", "ast", "threes", "pra", "stl", "blk", "tov"):
+        pred_col = f"pred_{stat}"
+        mean_col = f"mean_{stat}"
+        if pred_col in preds.columns and mean_col not in preds.columns:
+            preds[mean_col] = pd.to_numeric(preds[pred_col], errors="coerce")
     # Optional light calibration (rolling intercept per stat)
     # Optionally override predicted prop means with SmartSim simulation outputs.
     # This uses minutes/rotations when available and produces more realistic distributions.
@@ -4706,14 +4715,14 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                 "name_key": _norm_name_key(name),
                                 "opponent": opp,
                                 "home": True if side == "home" else False,
-                                "pred_pts": r.get("pts_mean"),
-                                "pred_reb": r.get("reb_mean"),
-                                "pred_ast": r.get("ast_mean"),
-                                "pred_threes": r.get("threes_mean"),
-                                "pred_pra": r.get("pra_mean"),
-                                "pred_stl": r.get("stl_mean"),
-                                "pred_blk": r.get("blk_mean"),
-                                "pred_tov": r.get("tov_mean"),
+                                "mean_pts": r.get("pts_mean"),
+                                "mean_reb": r.get("reb_mean"),
+                                "mean_ast": r.get("ast_mean"),
+                                "mean_threes": r.get("threes_mean"),
+                                "mean_pra": r.get("pra_mean"),
+                                "mean_stl": r.get("stl_mean"),
+                                "mean_blk": r.get("blk_mean"),
+                                "mean_tov": r.get("tov_mean"),
                                 "sd_pts": r.get("pts_sd"),
                                 "sd_reb": r.get("reb_sd"),
                                 "sd_ast": r.get("ast_sd"),
@@ -4732,7 +4741,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     if "player_id" in sim_df.columns:
                         sim_df["player_id"] = pd.to_numeric(sim_df["player_id"], errors="coerce").astype("Int64")
                     for c in [
-                        "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                        "mean_pts","mean_reb","mean_ast","mean_threes","mean_pra","mean_stl","mean_blk","mean_tov",
                         "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
                     ]:
                         if c in sim_df.columns:
@@ -4769,7 +4778,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     if ("player_id" in merged.columns) and (not sim_df_pid.empty):
                         merged["player_id"] = pd.to_numeric(merged["player_id"], errors="coerce").astype("Int64")
                         merged = merged.merge(sim_df_pid, on=["player_id"], how="left", suffixes=("", "_sim"))
-                        merge_report["matched_by"]["player_id"] = int(merged["pred_pts_sim"].notna().sum()) if "pred_pts_sim" in merged.columns else int(merged.filter(like="_sim").notna().any(axis=1).sum())
+                        merge_report["matched_by"]["player_id"] = int(merged["mean_pts_sim"].notna().sum()) if "mean_pts_sim" in merged.columns else int(merged.filter(like="_sim").notna().any(axis=1).sum())
                     else:
                         merged = merged.copy()
 
@@ -4783,7 +4792,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         m2.index = sub_idx
                         # Copy sim2 into sim columns where missing
                         for col in [
-                            "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                            "mean_pts","mean_reb","mean_ast","mean_threes","mean_pra","mean_stl","mean_blk","mean_tov",
                             "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
                         ]:
                             c2 = f"{col}_sim2"
@@ -4826,9 +4835,9 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
 
                     merge_report["matched_by"]["team_name"] = int(merged.filter(like="_sim").notna().any(axis=1).sum()) - int(merge_report["matched_by"]["player_id"])
 
-                    # Replace base predictions when sim is available.
+                    # Replace mean_* columns when sim is available, leaving base pred_* untouched.
                     for col in [
-                        "pred_pts","pred_reb","pred_ast","pred_threes","pred_pra","pred_stl","pred_blk","pred_tov",
+                        "mean_pts","mean_reb","mean_ast","mean_threes","mean_pra","mean_stl","mean_blk","mean_tov",
                         "sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov",
                     ]:
                         sim_col = f"{col}_sim"
@@ -4922,14 +4931,14 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                 "team": sim_add.get("team"),
                                 "player_id": sim_add.get("player_id"),
                                 "player_name": sim_add.get("player_name"),
-                                "pred_pts": sim_add.get("pred_pts"),
-                                "pred_reb": sim_add.get("pred_reb"),
-                                "pred_ast": sim_add.get("pred_ast"),
-                                "pred_threes": sim_add.get("pred_threes"),
-                                "pred_pra": sim_add.get("pred_pra"),
-                                "pred_stl": sim_add.get("pred_stl"),
-                                "pred_blk": sim_add.get("pred_blk"),
-                                "pred_tov": sim_add.get("pred_tov"),
+                                "mean_pts": sim_add.get("mean_pts"),
+                                "mean_reb": sim_add.get("mean_reb"),
+                                "mean_ast": sim_add.get("mean_ast"),
+                                "mean_threes": sim_add.get("mean_threes"),
+                                "mean_pra": sim_add.get("mean_pra"),
+                                "mean_stl": sim_add.get("mean_stl"),
+                                "mean_blk": sim_add.get("mean_blk"),
+                                "mean_tov": sim_add.get("mean_tov"),
                                 "sd_pts": sim_add.get("sd_pts"),
                                 "sd_reb": sim_add.get("sd_reb"),
                                 "sd_ast": sim_add.get("sd_ast"),
@@ -6143,7 +6152,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     sigma = SigmaConfig(pts=sigma_pts, reb=sigma_reb, ast=sigma_ast, threes=sigma_threes, pra=sigma_pra)
     if calibrate_sigma:
         try:
-            sigma = calibrate_sigma_for_date(date_str, window_days=30, min_rows=200, defaults=sigma)
+            sigma = calibrate_sigma_for_date(date_str, window_days=60, min_rows=200, defaults=sigma)
             console.print({"sigma": sigma.__dict__})
         except Exception:
             pass
@@ -6202,7 +6211,11 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
 @cli.command("export-recommendations")
 @click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; defaults to data/processed/recommendations_YYYY-MM-DD.csv")
-def export_recommendations_cmd(date_str: str, out_path: str | None):
+@click.option("--min-ml-ev", "min_ml_ev", type=float, default=0.01, show_default=True, help="Minimum ML EV (per $1 stake) required to emit an ML recommendation")
+@click.option("--min-ml-edge", "min_ml_edge", type=float, default=0.015, show_default=True, help="Minimum ML probability edge vs market no-vig implied probability")
+@click.option("--ml-blend", "ml_blend", type=float, default=0.25, show_default=True, help="Blend for ML win prob: w*model + (1-w)*market_no_vig")
+@click.option("--max-abs-ml-odds", "max_abs_ml_odds", type=float, default=200.0, show_default=True, help="Skip ML recs when |odds| exceeds this (set <=0 to disable)")
+def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: float, min_ml_edge: float, ml_blend: float, max_abs_ml_odds: float):
     """Export game recommendations (ML/ATS/TOTAL) to CSV from predictions + odds."""
     import pandas as pd
     import math
@@ -6263,6 +6276,32 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
         if a > 0:
             return 100.0 / (a + 100.0)
         return (-a) / ((-a) + 100.0)
+
+    def _no_vig_probs(home_ml: float | None, away_ml: float | None) -> tuple[float | None, float | None]:
+        try:
+            hm = _num(home_ml)
+            am = _num(away_ml)
+            if hm is None or am is None:
+                return None, None
+            ph = _implied(hm)
+            pa = _implied(am)
+            if ph is None or pa is None:
+                return None, None
+            s = float(ph) + float(pa)
+            if s <= 0:
+                return None, None
+            return float(ph) / s, float(pa) / s
+        except Exception:
+            return None, None
+
+    def _val_or(x, default: float) -> float:
+        try:
+            v = float(x)
+            if pd.isna(v):
+                return float(default)
+            return float(v)
+        except Exception:
+            return float(default)
 
     def _phi(x: float) -> float:
         return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
@@ -6348,24 +6387,67 @@ def export_recommendations_cmd(date_str: str, out_path: str | None):
             # Prefer merged odds columns when present (game_odds merge uses suffix "_odds")
             home_ml = _pick_num(r, ["home_ml_odds", "home_ml"])
             away_ml = _pick_num(r, ["away_ml_odds", "away_ml"])
-            ev_h = _ev(p_home, home_ml) if p_home is not None else None
-            ev_a = _ev((1-p_home) if p_home is not None else None, away_ml)
-            if ev_h is not None or ev_a is not None:
-                side_ml = home if (ev_h or -1) >= (ev_a or -1) else away
-                ev_ml = ev_h if side_ml == home else ev_a
-                if ev_ml is not None and ev_ml > 0:
+            # Risk limiter: require both sides odds so we can compute market no-vig and blend
+            if p_home is not None and (home_ml is not None) and (away_ml is not None):
+                # Optional cap on extreme odds (short favorites / longshots)
+                try:
+                    cap = float(max_abs_ml_odds)
+                except Exception:
+                    cap = 200.0
+
+                ph_nv, pa_nv = _no_vig_probs(home_ml, away_ml)
+                if ph_nv is not None and pa_nv is not None:
+                    # Blend toward market no-vig to reduce overconfident model-driven EV spikes
+                    w = float(max(0.0, min(1.0, float(ml_blend))))
+                    p_home_blend = (w * float(p_home)) + ((1.0 - w) * float(ph_nv))
+                    p_home_blend = float(min(1.0 - 1e-6, max(1e-6, p_home_blend)))
+                    p_away_blend = 1.0 - p_home_blend
+
+                    ev_h = _ev(p_home_blend, home_ml)
+                    ev_a = _ev(p_away_blend, away_ml)
+
+                    # Choose side by EV (handle 0.0 and NaN correctly)
+                    evh_v = _val_or(ev_h, -1e9)
+                    eva_v = _val_or(ev_a, -1e9)
+                    side_ml = home if evh_v >= eva_v else away
+                    ev_ml = ev_h if side_ml == home else ev_a
                     price = home_ml if side_ml == home else away_ml
-                    recs.append({
-                        "market":"ML",
-                        "side": side_ml,
-                        "home": home,
-                        "away": away,
-                        "date": str(d),
-                        "ev": float(ev_ml),
-                        "price": price,
-                        "implied_prob": (_implied(price) if price is not None else None),
-                        "tier": _tier('ML', float(ev_ml), None),
-                    })
+                    mkt_nv = ph_nv if side_ml == home else pa_nv
+
+                    # Additional conservative thresholds
+                    try:
+                        ev_thr = float(min_ml_ev)
+                    except Exception:
+                        ev_thr = 0.01
+                    try:
+                        edge_thr = float(min_ml_edge)
+                    except Exception:
+                        edge_thr = 0.015
+                    prob_pick = p_home_blend if side_ml == home else p_away_blend
+                    prob_edge = float(prob_pick) - float(mkt_nv)
+
+                    # Skip if odds are extreme on the picked side
+                    if cap > 0:
+                        try:
+                            if abs(float(price)) > cap:
+                                price = None
+                        except Exception:
+                            price = None
+
+                    if (price is not None) and (ev_ml is not None) and (not pd.isna(ev_ml)):
+                        if (float(ev_ml) >= ev_thr) and (prob_edge >= edge_thr):
+                            recs.append({
+                                "market": "ML",
+                                "side": side_ml,
+                                "home": home,
+                                "away": away,
+                                "date": str(d),
+                                "ev": float(ev_ml),
+                                "price": float(price) if price is not None else None,
+                                # Prefer no-vig implied prob (more stable than raw implied)
+                                "implied_prob": float(mkt_nv) if mkt_nv is not None else None,
+                                "tier": _tier('ML', float(ev_ml), None),
+                            })
             # ATS
             # Use model margin from baseline or NPU column
             pm = _num(r.get("pred_margin"))
@@ -6612,9 +6694,10 @@ def _export_best_edges_snapshot(
       - data/processed/best_edges_games_YYYY-MM-DD.csv
       - data/processed/best_edges_props_YYYY-MM-DD.csv
 
-    Selection rules intentionally match the current frontend recap page:
+        Selection rules intentionally match the current best-ROI portfolio defaults:
       - Games: de-dupe to 1 pick per game, rank by EV (ML) else abs(edge) (ATS/TOTAL)
-      - Props: de-dupe to 1 pick per player, rank by EV else abs(edge) else score
+            - Props: de-dupe to 1 pick per player, rank by EV, filter to pts/threes, min EV >= 1.0%
+                            and exclude known low-ROI books by default.
     """
     import ast as _ast
     import json as _json
@@ -6954,32 +7037,42 @@ def _export_best_edges_snapshot(
             pdf = pd.DataFrame()
 
         if pdf is not None and not pdf.empty:
+            # Default exclusions based on recent backtest breakdowns.
+            default_exclude_books = {"fanduel", "draftkings", "williamhill_us"}
             def _is_regular_edge_play(rr: pd.Series) -> bool:
                 try:
                     stat = str(rr.get("stat") or "").strip().lower()
                     side = str(rr.get("side") or "").strip().upper()
-                    # Profitability guardrail: restrict snapshots to the most reliable derived markets.
-                    # (These have been consistently positive in recent snapshot ROI breakdowns.)
-                    if stat not in {"pa", "pr", "ra"}:
+                    # Best ROI default: focus on pts + threes.
+                    if stat not in {"pts", "threes"}:
                         return False
                     if stat in {"dd", "td"}:
                         return False
                     if side not in {"OVER", "UNDER"}:
                         return False
+                    # Exclude poor-performing books by default.
+                    try:
+                        bk = str(rr.get("bookmaker") or "").strip().lower()
+                        if bk and bk in default_exclude_books:
+                            return False
+                    except Exception:
+                        pass
                     price = pd.to_numeric(rr.get("price"), errors="coerce")
                     if not pd.notna(price):
-                        return False
-                    # Regular pricing window (production filter)
-                    if float(price) < -150.0 or float(price) > 150.0:
                         return False
                     line = pd.to_numeric(rr.get("line"), errors="coerce")
                     if not pd.notna(line):
                         return False
-                    # PTS/PRA have recently underperformed; only include when edge is meaningfully strong.
-                    if stat in {"pts", "pra"}:
-                        edge_abs = pd.to_numeric(rr.get("edge"), errors="coerce")
-                        if (not pd.notna(edge_abs)) or abs(float(edge_abs)) < 0.15:
-                            return False
+                    # Minimum EV filter: >= 1.0% (ev >= 0.01).
+                    ev = pd.to_numeric(rr.get("ev"), errors="coerce")
+                    if not pd.notna(ev):
+                        return False
+                    # Normalize percent-encoded EV if needed.
+                    evf = float(ev)
+                    if abs(evf) > 1.5:
+                        evf = evf / 100.0
+                    if evf < 0.01:
+                        return False
                     return True
                 except Exception:
                     return False
@@ -7000,7 +7093,7 @@ def _export_best_edges_snapshot(
                     edge = rr.get("edge")
                     imp = rr.get("implied_prob")
                     mp = rr.get("model_prob")
-                    book = rr.get("bookmaker_title") or rr.get("bookmaker")
+                    book = rr.get("bookmaker") or rr.get("bookmaker_title")
 
                     # Normalize EV: some feeds may encode as percent units (e.g., 30 == 30%)
                     try:
@@ -7243,6 +7336,9 @@ def _export_best_edges_snapshot(
         "price",
         "ev",
         "edge",
+        "implied_prob",
+        "model_prob",
+        "model_prob_raw",
         "tier",
         "score",
         "score_explain",

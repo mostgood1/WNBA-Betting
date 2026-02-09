@@ -19,8 +19,9 @@ class PlayerStatus:
 
 
 def _today_slate_team_tricodes(date_str: str) -> set[str]:
-    # Prefer standardized OddsAPI game_odds_<date>.csv
-    tris: set[str] = set()
+    # Use standardized OddsAPI game_odds_<date>.csv when available,
+    # but always try to union with NBA Scoreboard (odds snapshots can be incomplete).
+    odds_tris: set[str] = set()
     go = paths.data_processed / f"game_odds_{date_str}.csv"
     if go.exists():
         try:
@@ -32,27 +33,63 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
                     for _, r in df.iterrows():
                         h = to_tricode(str(r.get(hcol) or ''))
                         a = to_tricode(str(r.get(acol) or ''))
-                        if h: tris.add(h)
-                        if a: tris.add(a)
+                        if h: odds_tris.add(h)
+                        if a: odds_tris.add(a)
         except Exception:
             pass
-    # Fallback: NBA Scoreboard
-    if not tris:
-        try:
-            from nba_api.stats.endpoints import scoreboardv2
-            sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=20)
-            nd = sb.get_normalized_dict()
-            ls = pd.DataFrame(nd.get('LineScore', []))
-            if not ls.empty:
-                c = {c.upper(): c for c in ls.columns}
-                if 'TEAM_ABBREVIATION' in c:
-                    for _, r in ls.iterrows():
-                        tri = str(r[c['TEAM_ABBREVIATION']]).strip().upper()
-                        if tri:
-                            tris.add(tri)
-        except Exception:
-            pass
-    return tris
+
+    sb_tris: set[str] = set()
+    try:
+        from nba_api.stats.endpoints import scoreboardv2
+        sb = scoreboardv2.ScoreboardV2(game_date=date_str, day_offset=0, timeout=20)
+        nd = sb.get_normalized_dict()
+        ls = pd.DataFrame(nd.get('LineScore', []))
+        if not ls.empty:
+            c = {c.upper(): c for c in ls.columns}
+            if 'TEAM_ABBREVIATION' in c:
+                for _, r in ls.iterrows():
+                    tri = str(r[c['TEAM_ABBREVIATION']]).strip().upper()
+                    if tri:
+                        sb_tris.add(tri)
+    except Exception:
+        sb_tris = set()
+
+    # Deterministic fallback: processed season schedule (local, stable).
+    sched_tris: set[str] = set()
+    try:
+        season = _season_for_date(date_str)
+        season_str = season.replace('-', '_')
+        candidates = [
+            paths.data_processed / f"schedule_{season_str}.json",
+            paths.data_processed / "schedule_2025_26.json",
+        ]
+        sched_path = next((p for p in candidates if p.exists()), None)
+        if sched_path is not None:
+            import json as _json
+            raw = _json.load(open(sched_path, 'r', encoding='utf-8'))
+            if isinstance(raw, list) and raw:
+                for g in raw:
+                    try:
+                        d = str(g.get('date_est') or g.get('date_utc') or '')
+                        if not d:
+                            continue
+                        d0 = pd.to_datetime(d, errors='coerce')
+                        if pd.isna(d0):
+                            continue
+                        if str(d0.date()) != str(date_str):
+                            continue
+                        ht = str(g.get('home_tricode') or '').strip().upper()
+                        at = str(g.get('away_tricode') or '').strip().upper()
+                        if ht:
+                            sched_tris.add(ht)
+                        if at:
+                            sched_tris.add(at)
+                    except Exception:
+                        continue
+    except Exception:
+        sched_tris = set()
+
+    return odds_tris | sb_tris | sched_tris
 
 
 def _season_for_date(date_str: str) -> str:
@@ -123,7 +160,29 @@ def _load_injuries_latest_upto(date_str: str) -> pd.DataFrame:
                     if not grp_cols:
                         grp_cols = ['player']
                     latest = df.groupby(grp_cols, as_index=False).tail(1)
-                    out = latest
+                    # Drop stale exclusion statuses (fixes RTP/feed-staleness issues).
+                    try:
+                        EXCL = {'OUT','DOUBTFUL','SUSPENDED','INACTIVE','REST'}
+                        tmp = latest.copy()
+                        tmp['status_norm'] = tmp['status'].astype(str).str.upper().str.strip()
+                        tmp['date'] = pd.to_datetime(tmp['date'], errors='coerce').dt.date
+                        is_excl = tmp['status_norm'].isin(EXCL)
+                        is_season = (
+                            tmp['status_norm'].astype(str).str.contains('SEASON', na=False)
+                            | tmp['status_norm'].astype(str).str.contains('INDEFINITE', na=False)
+                            | tmp['status_norm'].astype(str).str.contains('SEASON-ENDING', na=False)
+                        )
+                        days_old = None
+                        try:
+                            days_old = tmp['date'].map(lambda d: (cutoff - d).days if d is not None else 9999)
+                        except Exception:
+                            days_old = None
+                        if days_old is not None:
+                            stale_excl = is_excl & (~is_season) & (days_old > 3)
+                            tmp = tmp[~stale_excl].copy()
+                        out = tmp.drop(columns=['status_norm'], errors='ignore')
+                    except Exception:
+                        out = latest
         except Exception:
             pass
     # Merge in per-day overrides if any

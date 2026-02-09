@@ -1416,7 +1416,8 @@ print('OK' if ok else f'NO:{why}')
 
 # 5) Props edges for today: force mode=current to ensure processed per-day odds snapshots are written
 # Apply probability calibration (uses last saved curve; loader validates sanity)
-$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only','--calibrate-prob')
+# Also calibrate sigma from recent residuals when possible (improves probability realism).
+$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only','--calibrate-prob','--calibrate-sigma')
 Write-Log ("props-edges (oddsapi, mode=current) exit code: {0}" -f $rc4a)
 
 # 6) Export recommendations CSVs for site consumption

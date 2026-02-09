@@ -117,22 +117,22 @@ def _load_props_prob_calibration() -> dict[str, list[float]] | None:
 def _apply_props_prob_calibration(p: float) -> float:
     """Calibrate/shrink prop win probabilities.
 
-    Default behavior is a conservative confidence shrink around 0.5:
-      p' = 0.5 + k * (p - 0.5)
-    which preserves ranking signal while reducing overconfidence.
+        If a saved isotonic calibration curve exists and passes sanity checks,
+        we apply it.
 
-    If a saved isotonic calibration curve exists and passes sanity checks,
-    we apply it instead.
+        If no curve exists, we do NOT apply a generic shrink. A prior linear shrink
+        collapsed probabilities into a narrow band around 0.5, which badly distorted
+        EV (especially for longshot markets). We instead rely on:
+            - sigma inflation,
+            - market-blend guardrails,
+            - and sanity checks on projections
+        downstream in edge computation.
     """
-    def _shrink(pv: float, k: float = 0.20) -> float:
-        pv = float(max(0.0, min(1.0, pv)))
-        return float(max(0.0, min(1.0, 0.5 + float(k) * (pv - 0.5))))
-
     cal = _load_props_prob_calibration()
     try:
         pv = float(max(0.0, min(1.0, float(p))))
         if cal is None:
-            return _shrink(pv)
+                        return pv
 
         xs = cal["x"]
         ys = cal["y"]
@@ -146,9 +146,12 @@ def _apply_props_prob_calibration(p: float) -> float:
                 y0 = float(ys[i]); y1 = float(ys[i + 1])
                 t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
                 return float((1.0 - t) * y0 + t * y1)
-        return _shrink(pv)
+        return pv
     except Exception:
-        return _shrink(float(p))
+        try:
+            return float(max(0.0, min(1.0, float(p))))
+        except Exception:
+            return 0.5
 
 
 # Map OddsAPI player markets to our prediction columns
@@ -400,23 +403,43 @@ def compute_props_edges(
             preds.to_csv(out_p, index=False)
         except Exception:
             pass
-    # Prepare prediction columns
-    pred_map = {
-        "pts": "pred_pts",
-        "reb": "pred_reb",
-        "ast": "pred_ast",
-        "threes": "pred_threes",
-        "pra": "pred_pra",
+    # Prepare prediction columns.
+    # If present, prefer mean_* columns (SmartSim-enhanced); otherwise fall back to pred_*.
+    base_map = {
+        "pts": ("mean_pts", "pred_pts"),
+        "reb": ("mean_reb", "pred_reb"),
+        "ast": ("mean_ast", "pred_ast"),
+        "threes": ("mean_threes", "pred_threes"),
+        "pra": ("mean_pra", "pred_pra"),
         # newly supported
-        "stl": "pred_stl",
-        "blk": "pred_blk",
-        "tov": "pred_tov",
+        "stl": ("mean_stl", "pred_stl"),
+        "blk": ("mean_blk", "pred_blk"),
+        "tov": ("mean_tov", "pred_tov"),
     }
+    pred_map: dict[str, str] = {}
+    for stat, (mean_col, pred_col) in base_map.items():
+        if mean_col in preds.columns:
+            pred_map[stat] = mean_col
+        else:
+            pred_map[stat] = pred_col
+
     for need in ["player_id", "player_name"] + list(pred_map.values()):
         if need not in preds.columns:
             raise ValueError(f"Predictions missing column: {need}")
 
     preds = preds.copy()
+
+    # If predictions include slate/availability flags, enforce them here.
+    # This prevents stale rows (or players not expected to play) from generating
+    # extreme "auto-under" edges.
+    try:
+        if "team_on_slate" in preds.columns:
+            preds = preds[pd.to_numeric(preds["team_on_slate"], errors="coerce").fillna(0).astype(bool)].copy()
+        if "playing_today" in preds.columns:
+            preds = preds[pd.to_numeric(preds["playing_today"], errors="coerce").fillna(0).astype(bool)].copy()
+    except Exception:
+        pass
+
     preds["name_key"] = preds["player_name"].astype(str).map(_norm_name)
     preds["short_key"] = preds["player_name"].astype(str).map(_short_key)
 
@@ -552,8 +575,22 @@ def compute_props_edges(
     # Merge odds with predictions on name_key
     # Include optional per-player uncertainty columns (from SmartSim) when present.
     extra_cols = [c for c in ("sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov") if c in preds.columns]
+    # Include light context columns for projection sanity checks when available.
+    sanity_cols = [
+        c
+        for c in (
+            "injury_status",
+            "lag1_min",
+            "roll10_min",
+            "roll10_pts",
+            "roll10_reb",
+            "roll10_ast",
+            "roll10_threes",
+        )
+        if c in preds.columns
+    ]
     merged = odds.merge(
-        preds[["name_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"], *extra_cols]],
+        preds[["name_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"], *extra_cols, *sanity_cols]],
         on="name_key", how="left", suffixes=("", "_pred")
     )
     # Second-pass resolve using short key for any unmatched players
@@ -685,6 +722,50 @@ def compute_props_edges(
         return val
 
     merged["model_mean"] = merged.apply(_select_pred, axis=1)
+
+    # Projection sanity check: suppress clearly corrupted projections.
+    # If the model mean is wildly inconsistent with recent rolling production given
+    # non-trivial minutes, treat it as invalid (skip the prop).
+    try:
+        stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+        if stat_s is not None and "model_mean" in merged.columns:
+            mm = pd.to_numeric(merged["model_mean"], errors="coerce")
+            m10 = pd.to_numeric(merged.get("roll10_min"), errors="coerce") if "roll10_min" in merged.columns else None
+
+            r10_pts = pd.to_numeric(merged.get("roll10_pts"), errors="coerce") if "roll10_pts" in merged.columns else None
+            r10_reb = pd.to_numeric(merged.get("roll10_reb"), errors="coerce") if "roll10_reb" in merged.columns else None
+            r10_ast = pd.to_numeric(merged.get("roll10_ast"), errors="coerce") if "roll10_ast" in merged.columns else None
+            r10_threes = pd.to_numeric(merged.get("roll10_threes"), errors="coerce") if "roll10_threes" in merged.columns else None
+
+            ref = pd.Series(np.nan, index=merged.index)
+            if r10_pts is not None:
+                ref.loc[stat_s == "pts"] = r10_pts.loc[stat_s == "pts"]
+            if r10_reb is not None:
+                ref.loc[stat_s == "reb"] = r10_reb.loc[stat_s == "reb"]
+            if r10_ast is not None:
+                ref.loc[stat_s == "ast"] = r10_ast.loc[stat_s == "ast"]
+            if r10_threes is not None:
+                ref.loc[stat_s == "threes"] = r10_threes.loc[stat_s == "threes"]
+            if r10_pts is not None and r10_reb is not None:
+                ref.loc[stat_s == "pr"] = (r10_pts + r10_reb).loc[stat_s == "pr"]
+            if r10_pts is not None and r10_ast is not None:
+                ref.loc[stat_s == "pa"] = (r10_pts + r10_ast).loc[stat_s == "pa"]
+            if r10_reb is not None and r10_ast is not None:
+                ref.loc[stat_s == "ra"] = (r10_reb + r10_ast).loc[stat_s == "ra"]
+            if r10_pts is not None and r10_reb is not None and r10_ast is not None:
+                ref.loc[stat_s == "pra"] = (r10_pts + r10_reb + r10_ast).loc[stat_s == "pra"]
+
+            minutes_ok = pd.Series(True, index=merged.index)
+            if m10 is not None:
+                minutes_ok = m10.fillna(0.0) >= 10.0
+
+            # Only enforce when recent production is meaningful.
+            ref_ok = ref.fillna(0.0) >= 4.0
+            insane = minutes_ok & ref_ok & (mm.fillna(0.0) < (0.35 * ref.fillna(0.0)))
+            if insane.any():
+                merged.loc[insane, "model_mean"] = np.nan
+    except Exception:
+        pass
     # Team-consistency guard: ensure the prediction team matches the event's home or away team (by tricode)
     try:
         def _to_tri_team(x: str | None) -> str:
@@ -886,6 +967,32 @@ def compute_props_edges(
     except Exception:
         pass
     merged["implied_prob"] = merged["price"].map(_american_implied_prob)
+
+    # Market-blend guardrail: for the combo markets we actually recommend most often,
+    # shrink the model probability toward the market break-even probability.
+    # This reduces blow-ups when the mean/variance estimate is off.
+    try:
+        stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+        if stat_s is not None:
+            pm = pd.to_numeric(merged.get("model_prob"), errors="coerce")
+            pi = pd.to_numeric(merged.get("implied_prob"), errors="coerce")
+            if pm is not None and pi is not None:
+                w_by_stat = {
+                    "pa": 0.22,
+                    "pr": 0.22,
+                    "ra": 0.22,
+                    # Light shrink for base ast/reb as a general safety.
+                    "ast": 0.15,
+                    "reb": 0.15,
+                }
+                for st, w in w_by_stat.items():
+                    mask = stat_s == st
+                    if mask.any():
+                        pmm = pm.loc[mask].clip(0.0, 1.0)
+                        pii = pi.loc[mask].clip(0.0, 1.0)
+                        merged.loc[mask, "model_prob"] = (pii + float(w) * (pmm - pii)).clip(0.0, 1.0)
+    except Exception:
+        pass
 
     # PRA tuning: shrink toward the market break-even probability. Recent backtests
     # show PRA is often overconfident; this keeps signal but reduces edge magnitude.

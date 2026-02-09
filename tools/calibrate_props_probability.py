@@ -56,9 +56,45 @@ def main() -> None:
         grid = np.linspace(0.0, 1.0, 51)
         preds = np.interp(grid, xs2, ys_mono)
         preds = np.clip(preds, 0.0, 1.0)
+
+    # Guardrail: only emit a calibration curve if it passes the same sanity
+    # checks enforced by the runtime loader in nba_betting.props_edges.
+    # Otherwise, write an identity mapping so calibration is an explicit no-op
+    # (instead of being silently ignored).
+    note = None
+    try:
+        g = np.asarray(grid, dtype=float)
+        p = np.asarray(preds, dtype=float)
+
+        def _interp(xv: float) -> float:
+            return float(np.interp(float(xv), g, p))
+
+        y10 = _interp(0.10)
+        y50 = _interp(0.50)
+        y90 = _interp(0.90)
+
+        sane = True
+        if not (0.35 <= y50 <= 0.65):
+            sane = False
+        if (y90 - y10) < 0.25:
+            sane = False
+        if not (0.05 <= y10 <= 0.40):
+            sane = False
+        if not (0.60 <= y90 <= 0.95):
+            sane = False
+
+        if not sane:
+            preds = grid
+            note = f"identity_fallback_due_to_sanity(y10={y10:.3f},y50={y50:.3f},y90={y90:.3f})"
+    except Exception:
+        preds = grid
+        note = "identity_fallback_due_to_exception"
     OUT_JSON.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT_JSON, "w", encoding="utf-8") as fh:
-        json.dump({"x": [float(v) for v in grid], "y": [float(v) for v in preds], "source": rel_path.name}, fh, indent=2)
+        obj = {"x": [float(v) for v in grid], "y": [float(v) for v in preds], "source": rel_path.name}
+        if note:
+            obj["note"] = str(note)
+        json.dump(obj, fh, indent=2)
     print(json.dumps({"ok": True, "json": str(OUT_JSON), "points": len(grid)}, indent=2))
 
 

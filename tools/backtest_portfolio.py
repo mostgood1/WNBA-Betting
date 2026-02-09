@@ -37,27 +37,46 @@ def tri_team(v: Any) -> str:
     return str(v or "").strip().upper()
 
 
-def fetch_portfolio(date_str: str, limit: int, optimize: bool, corr_scale: float, cap_team: int, cap_market: int, regular_only: bool) -> List[Dict[str, Any]]:
+def fetch_portfolio(
+    date_str: str,
+    limit: int,
+    optimize: bool,
+    penalize_correlation: bool,
+    opt_alpha: float,
+    corr_scale: float,
+    cap_team: int,
+    cap_market: int,
+    regular_only: bool,
+    markets: str | None,
+    min_ev: float | None,
+    sort_by: str | None,
+    use_snapshot: bool,
+) -> List[Dict[str, Any]]:
     params = {
         "date": date_str,
         "compact": "1",
         "portfolio_only": "1",
         "limit": str(limit),
+        "use_snapshot": ("1" if use_snapshot else "0"),
     }
-    # Always pass optimizer-related defaults for consistency with API
     if optimize:
         params["optimize"] = "1"
-    else:
-        params["optimize"] = "1"  # default optimize on
-    params["penalize_correlation"] = "1"
-    params["opt_alpha"] = "0.15"
-    params["corr_penalty_scale"] = str(corr_scale)
-    if cap_team:
-        params["cap_team"] = str(cap_team)
-    if cap_market:
-        params["cap_market"] = str(cap_market)
+        if penalize_correlation or (corr_scale is not None and float(corr_scale) > 0):
+            params["penalize_correlation"] = "1"
+            params["opt_alpha"] = str(opt_alpha)
+            params["corr_penalty_scale"] = str(corr_scale)
+        if cap_team:
+            params["cap_team"] = str(cap_team)
+        if cap_market:
+            params["cap_market"] = str(cap_market)
     if regular_only:
         params["regular_only"] = "1"
+    if markets:
+        params["markets"] = str(markets)
+    if min_ev is not None:
+        params["minEV"] = str(min_ev)
+    if sort_by:
+        params["sortBy"] = str(sort_by)
     u = f"{BASE_URL}/api/props/recommendations"
     r = requests.get(u, params=params, timeout=60)
     r.raise_for_status()
@@ -133,6 +152,7 @@ def resolve_play(tp: Dict[str, Any], stats: Dict[str, float]) -> Dict[str, Any]:
             "probability",
             "win_prob",
             "p",
+            "model_prob",
             "prob_calib",
             "prob_cal",
         ]:
@@ -161,7 +181,22 @@ def date_range(start: dt.date, end: dt.date):
         cur = cur + dt.timedelta(days=1)
 
 
-def backtest(start: dt.date, end: dt.date, limit: int, optimize: bool, corr_scale: float, cap_team: int, cap_market: int, regular_only: bool) -> Dict[str, Any]:
+def backtest(
+    start: dt.date,
+    end: dt.date,
+    limit: int,
+    optimize: bool,
+    penalize_correlation: bool,
+    opt_alpha: float,
+    corr_scale: float,
+    cap_team: int,
+    cap_market: int,
+    regular_only: bool,
+    markets: str | None,
+    min_ev: float | None,
+    sort_by: str | None,
+    use_snapshot: bool,
+) -> Dict[str, Any]:
     daily_rows: List[Dict[str, Any]] = []
     summary = {"bets": 0, "resolved": 0, "wins": 0, "losses": 0, "pushes": 0, "stake_total": 0.0, "profit_total": 0.0}
     brier_sum = 0.0
@@ -171,7 +206,21 @@ def backtest(start: dt.date, end: dt.date, limit: int, optimize: bool, corr_scal
     for d in date_range(start, end):
         ds = d.isoformat()
         try:
-            port = fetch_portfolio(ds, limit, optimize, corr_scale, cap_team, cap_market, regular_only)
+            port = fetch_portfolio(
+                ds,
+                limit,
+                optimize,
+                penalize_correlation,
+                opt_alpha,
+                corr_scale,
+                cap_team,
+                cap_market,
+                regular_only,
+                markets,
+                min_ev,
+                sort_by,
+                use_snapshot,
+            )
         except Exception as e:
             # skip day if API failed
             continue
@@ -297,13 +346,24 @@ def main():
     ap.add_argument("--end", type=str, help="End date YYYY-MM-DD")
     ap.add_argument("--days", type=int, default=60, help="If start/end not set, backtest last N days")
     ap.add_argument("--limit", type=int, default=10)
-    ap.add_argument("--optimize", action="store_true", default=True)
-    ap.add_argument("--corr-penalty-scale", type=float, default=0.0)
-    ap.add_argument("--cap-team", type=int, default=2)
-    ap.add_argument("--cap-market", type=int, default=4)
+    ap.add_argument("--optimize", action="store_true", default=True, help="Enable portfolio optimizer (default on for backwards compatibility)")
+    ap.add_argument("--no-optimize", action="store_true", help="Disable portfolio optimizer (use API ranking only)")
+    ap.add_argument("--penalize-correlation", action="store_true", default=False, help="Enable correlation penalties when optimizing")
+    ap.add_argument("--opt-alpha", type=float, default=0.15, help="Optimizer alpha (only used if optimizing)")
+    ap.add_argument("--corr-penalty-scale", type=float, default=0.0, help="Correlation penalty scale (only used if optimizing)")
+    ap.add_argument("--cap-team", type=int, default=2, help="Max picks per team (only used if optimizing)")
+    ap.add_argument("--cap-market", type=int, default=4, help="Max picks per market (only used if optimizing)")
+    ap.add_argument("--markets", type=str, default=None, help="Comma-separated markets, e.g. pts,threes")
+    ap.add_argument("--min-ev", type=float, default=None, help="Minimum EV%% filter (API minEV)")
+    ap.add_argument("--sort-by", type=str, default=None, help="Sort metric (API sortBy), e.g. ev or edge")
+    ap.add_argument("--use-snapshot", action="store_true", default=True, help="Use best_edges_props snapshot when portfolio_only is requested (default on)")
+    ap.add_argument("--no-snapshot", action="store_true", help="Bypass best_edges_props snapshot and recompute portfolio using current query params")
     ap.add_argument("--regular-only", action="store_true")
     ap.add_argument("--outdir", type=str, default=os.path.join(PROCESSED_DIR, "backtests"))
     args = ap.parse_args()
+
+    optimize = bool(args.optimize) and (not bool(args.no_optimize))
+    use_snapshot = bool(args.use_snapshot) and (not bool(args.no_snapshot))
 
     if args.start and args.end:
         start = dt.date.fromisoformat(args.start)
@@ -312,7 +372,22 @@ def main():
         end = dt.date.today()
         start = end - dt.timedelta(days=args.days)
 
-    res = backtest(start, end, args.limit, args.optimize, args.corr_penalty_scale, args.cap_team, args.cap_market, args.regular_only)
+    res = backtest(
+        start,
+        end,
+        args.limit,
+        optimize,
+        bool(args.penalize_correlation),
+        float(args.opt_alpha),
+        float(args.corr_penalty_scale),
+        int(args.cap_team),
+        int(args.cap_market),
+        bool(args.regular_only),
+        (str(args.markets) if args.markets else None),
+        (float(args.min_ev) if args.min_ev is not None else None),
+        (str(args.sort_by) if args.sort_by else None),
+        use_snapshot,
+    )
     os.makedirs(args.outdir, exist_ok=True)
     stamp = f"{start.isoformat()}_{end.isoformat()}"
     with open(os.path.join(args.outdir, f"portfolio_{stamp}.json"), "w", encoding="utf-8") as fh:

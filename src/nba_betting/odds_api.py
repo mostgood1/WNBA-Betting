@@ -161,6 +161,110 @@ def fetch_game_odds_current(config: OddsApiConfig, date: datetime, markets: list
     return pd.DataFrame(rows)
 
 
+def list_events_current(config: OddsApiConfig, date: datetime | None = None, verbose: bool = False) -> list[dict]:
+    """List upcoming/live NBA events from OddsAPI.
+
+    If date is provided, filters events to the given US/Eastern calendar day.
+    This endpoint does not count against usage quota.
+    """
+    events_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events"
+    try:
+        ev_resp = _get(events_url, {"apiKey": config.api_key})
+        events = ev_resp.json() or []
+        if not isinstance(events, list):
+            return []
+    except Exception as e:
+        if verbose:
+            print(f"[events-current] events request failed: {e}")
+        return []
+
+    if date is None:
+        return events
+
+    target = pd.to_datetime(date).date()
+
+    def _et_date(iso_str: str) -> Optional[object]:
+        try:
+            ct_raw = pd.to_datetime(iso_str, utc=True)
+        except Exception:
+            return None
+        for tzname in ("America/New_York", "US/Eastern"):
+            try:
+                return ct_raw.tz_convert(tzname).date()
+            except Exception:
+                continue
+        try:
+            month = int(ct_raw.month)
+            offset_hours = 4 if 3 <= month <= 11 else 5
+            return (ct_raw - pd.Timedelta(hours=offset_hours)).date()
+        except Exception:
+            return ct_raw.date()
+
+    day_events: list[dict] = []
+    for ev in events:
+        try:
+            ct_et = _et_date(ev.get("commence_time"))
+            if ct_et == target:
+                day_events.append(ev)
+        except Exception:
+            continue
+    return day_events
+
+
+def discover_event_market_keys(config: OddsApiConfig, event_id: str, verbose: bool = False) -> set[str]:
+    """Return market keys available for an event, across returned bookmakers."""
+    if not event_id:
+        return set()
+    markets_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{event_id}/markets"
+    try:
+        r = _get(markets_url, {"apiKey": config.api_key, "regions": config.regions})
+        d = r.json()
+        ev_obj = d if isinstance(d, dict) else None
+        if not ev_obj:
+            return set()
+        keys: set[str] = set()
+        for bk in ev_obj.get("bookmakers", []) or []:
+            for m in bk.get("markets", []) or []:
+                k = m.get("key")
+                if k:
+                    keys.add(str(k))
+        return keys
+    except Exception as e:
+        if verbose:
+            print(f"[event-markets] {event_id} failed: {e}")
+        return set()
+
+
+def fetch_event_odds_current(config: OddsApiConfig, event_id: str, markets: list[str], verbose: bool = False) -> pd.DataFrame:
+    """Fetch current odds for a single event and flatten to a DataFrame."""
+    if not event_id or not markets:
+        return pd.DataFrame()
+    odds_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{event_id}/odds"
+    params = {
+        "apiKey": config.api_key,
+        "regions": config.regions,
+        "markets": ",".join([m for m in markets if m]),
+        "oddsFormat": config.odds_format,
+    }
+    try:
+        r = _get(odds_url, params)
+        d = r.json()
+        ev_obj = d if isinstance(d, dict) else None
+        if not ev_obj:
+            return pd.DataFrame()
+        snap = pd.Timestamp.utcnow().isoformat()
+        return pd.DataFrame(_flatten_bookmakers(ev_obj, snap))
+    except requests.HTTPError as he:
+        if verbose:
+            code = he.response.status_code if he.response is not None else None
+            print(f"[event-odds] {event_id} HTTP {code} for markets={markets}")
+        return pd.DataFrame()
+    except Exception as e:
+        if verbose:
+            print(f"[event-odds] {event_id} failed: {e}")
+        return pd.DataFrame()
+
+
 def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: list[str] | None = None, verbose: bool = False) -> pd.DataFrame:
     """Fetch current player props for events on a given calendar date using the event odds endpoint.
 

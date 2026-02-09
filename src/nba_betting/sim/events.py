@@ -878,12 +878,17 @@ def simulate_pbp_game_boxscore(
     home_q_pts: List[int] = []
     away_q_pts: List[int] = []
 
-    # 3-minute segments (4 per 12-minute quarter)
+    # Segment buckets for live-lens interval ladders.
+    # Keep the legacy 3-minute buckets (4 per quarter) and ALSO track 1-minute buckets (12 per quarter).
     quarter_seconds = 12 * 60
     segment_seconds = 3 * 60
     n_segments = 4
+    minute_seconds = 60
+    n_minutes = 12
     home_q_seg_pts = np.zeros((4, n_segments), dtype=int)
     away_q_seg_pts = np.zeros((4, n_segments), dtype=int)
+    home_q_min_pts = np.zeros((4, n_minutes), dtype=int)
+    away_q_min_pts = np.zeros((4, n_minutes), dtype=int)
 
     # Overtime settings (NBA: 5 minutes)
     ot_seconds = 5 * 60
@@ -904,6 +909,14 @@ def simulate_pbp_game_boxscore(
         try:
             if 1 <= int(q) <= 4:
                 segarr[int(q) - 1, int(seg)] += int(val)
+        except Exception:
+            pass
+
+    def _add_q_min(minarr: np.ndarray, q: int, minute_idx: int, val: int) -> None:
+        """Add to 1-minute segment buckets (only for regulation Q1-Q4)."""
+        try:
+            if 1 <= int(q) <= 4:
+                minarr[int(q) - 1, int(minute_idx)] += int(val)
         except Exception:
             pass
 
@@ -1014,15 +1027,18 @@ def simulate_pbp_game_boxscore(
                 except Exception:
                     dur = 14
 
-                # Segment index at attempt end (approx) for scoring buckets.
+                # Segment indices at attempt end (approx) for scoring buckets.
                 seg = 0
+                minute_idx = 0
                 q_remaining_after = int(q_remaining)
                 try:
                     q_remaining_after = max(0, int(q_remaining - min(int(dur), int(q_remaining))))
                     q_elapsed_after = int(period_seconds - q_remaining_after)
                     seg = int(np.clip(q_elapsed_after // segment_seconds, 0, n_segments - 1))
+                    minute_idx = int(np.clip(q_elapsed_after // minute_seconds, 0, n_minutes - 1))
                 except Exception:
                     seg = 0
+                    minute_idx = 0
 
                 off_rates = h_rates if offense_home else a_rates
                 p_tov = float(off_rates["p_tov"]) * (cfg.garbage_time_pace_scale if blowout else 1.0)
@@ -1143,6 +1159,7 @@ def simulate_pbp_game_boxscore(
                         _add_q_stat(hq["pts"], q, sh, int(points_if_make))
                         home_score += points_if_make
                         _add_q_seg(home_q_seg_pts, q, seg, int(points_if_make))
+                        _add_q_min(home_q_min_pts, q, minute_idx, int(points_if_make))
 
                         if rng.random() < 0.58:
                             ast_w = _player_usage_weights(home_players, "_prior_ast_pm", [i for i in h_line if i != sh])
@@ -1160,6 +1177,7 @@ def simulate_pbp_game_boxscore(
                                 _add_q_stat(hq["pts"], q, sh, 1)
                                 home_score += 1
                                 _add_q_seg(home_q_seg_pts, q, seg, 1)
+                                _add_q_min(home_q_min_pts, q, minute_idx, 1)
                             pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
                             didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
                             if didx is not None:
@@ -1183,6 +1201,7 @@ def simulate_pbp_game_boxscore(
                             _add_q_stat(hq["pts"], q, sh, int(made_fts))
                             home_score += made_fts
                             _add_q_seg(home_q_seg_pts, q, seg, int(made_fts))
+                            _add_q_min(home_q_min_pts, q, minute_idx, int(made_fts))
                         pf_w = _player_usage_weights(away_players, "_prior_pf_pm", a_line)
                         didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
                         if didx is not None:
@@ -1250,6 +1269,7 @@ def simulate_pbp_game_boxscore(
                         _add_q_stat(aq["pts"], q, sh, int(points_if_make))
                         away_score += points_if_make
                         _add_q_seg(away_q_seg_pts, q, seg, int(points_if_make))
+                        _add_q_min(away_q_min_pts, q, minute_idx, int(points_if_make))
 
                         if rng.random() < 0.58:
                             ast_w = _player_usage_weights(away_players, "_prior_ast_pm", [i for i in a_line if i != sh])
@@ -1267,6 +1287,7 @@ def simulate_pbp_game_boxscore(
                                 _add_q_stat(aq["pts"], q, sh, 1)
                                 away_score += 1
                                 _add_q_seg(away_q_seg_pts, q, seg, 1)
+                                _add_q_min(away_q_min_pts, q, minute_idx, 1)
                             pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
                             didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
                             if didx is not None:
@@ -1290,6 +1311,7 @@ def simulate_pbp_game_boxscore(
                             _add_q_stat(aq["pts"], q, sh, int(made_fts))
                             away_score += made_fts
                             _add_q_seg(away_q_seg_pts, q, seg, int(made_fts))
+                            _add_q_min(away_q_min_pts, q, minute_idx, int(made_fts))
                         pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
                         didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
                         if didx is not None:
@@ -1452,12 +1474,17 @@ def simulate_pbp_game_boxscore(
     home_box["events"] = events[:500]
     away_box["events"] = []
 
-    # Segment points per quarter (4x4). Helpful for live-lens interval ladders.
+    # Segment points per quarter (4x4 and 4x12). Helpful for live-lens interval ladders.
     try:
         home_box["q_segment_pts"] = home_q_seg_pts.astype(int).tolist()
         away_box["q_segment_pts"] = away_q_seg_pts.astype(int).tolist()
         home_box["segment_seconds"] = int(segment_seconds)
         away_box["segment_seconds"] = int(segment_seconds)
+
+        home_box["q_minute_pts"] = home_q_min_pts.astype(int).tolist()
+        away_box["q_minute_pts"] = away_q_min_pts.astype(int).tolist()
+        home_box["minute_seconds"] = int(minute_seconds)
+        away_box["minute_seconds"] = int(minute_seconds)
     except Exception:
         pass
 

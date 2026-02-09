@@ -15,6 +15,8 @@ import sys
 import time
 import shlex
 import threading
+import re
+import requests
 from pathlib import Path
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
@@ -74,6 +76,1215 @@ WEB_DIR = BASE_DIR / "web"
 CRON_META_PATH = BASE_DIR / "data" / "processed" / ".cron_meta.json"
 PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 
+# ---- Live Lens caches (TTL) ----
+_live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_espn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_espn_summary_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_game_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
+_live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+
+try:
+    from nba_betting.odds_api import (
+        OddsApiConfig as _OddsApiConfig,
+        list_events_current as _oddsapi_list_events_current,
+        discover_event_market_keys as _oddsapi_discover_event_market_keys,
+        fetch_event_odds_current as _oddsapi_fetch_event_odds_current,
+    )  # type: ignore
+    from nba_betting.teams import to_tricode as _to_tricode  # type: ignore
+except Exception:  # pragma: no cover
+    _OddsApiConfig = None  # type: ignore
+    _oddsapi_list_events_current = None  # type: ignore
+    _oddsapi_discover_event_market_keys = None  # type: ignore
+    _oddsapi_fetch_event_odds_current = None  # type: ignore
+    _to_tricode = None  # type: ignore
+
+
+def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri: str) -> dict[str, Any]:
+    """Best-effort OddsAPI period totals for 1H and quarters.
+
+    Returns:
+      { source, event_id, period_totals: {h1, q1..q4}, market_keys: {...} }
+    """
+    try:
+        api_key = (os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY") or "").strip()
+        if not api_key:
+            return {}
+        if _OddsApiConfig is None or _oddsapi_list_events_current is None or _to_tricode is None:
+            return {}
+
+        h = str(home_tri or "").upper().strip()
+        a = str(away_tri or "").upper().strip()
+        if not h or not a:
+            return {}
+
+        cache_key = f"{date_str}:{h}:{a}"
+        now = time.time()
+        ent = _live_oddsapi_period_cache.get(cache_key)
+        if ent and (now - ent[0] < 60):
+            return ent[1]
+
+        cfg = _OddsApiConfig(api_key=api_key, regions="us", odds_format="american")
+        try:
+            dt = datetime.strptime(date_str, "%Y-%m-%d")
+        except Exception:
+            dt = datetime.utcnow()
+
+        events = _oddsapi_list_events_current(cfg, date=dt, verbose=False) or []
+        event_id = None
+        swapped = False
+        for ev in events:
+            try:
+                eh = _to_tricode(ev.get("home_team") or "")
+                ea = _to_tricode(ev.get("away_team") or "")
+                if eh == h and ea == a:
+                    event_id = ev.get("id")
+                    swapped = False
+                    break
+                if eh == a and ea == h:
+                    event_id = ev.get("id")
+                    swapped = True
+                    break
+            except Exception:
+                continue
+        if not event_id:
+            out = {}
+            _live_oddsapi_period_cache[cache_key] = (now, out)
+            return out
+
+        if _oddsapi_discover_event_market_keys is None or _oddsapi_fetch_event_odds_current is None:
+            out = {}
+            _live_oddsapi_period_cache[cache_key] = (now, out)
+            return out
+
+        keys = _oddsapi_discover_event_market_keys(cfg, str(event_id), verbose=False)
+
+        # Candidate keys (OddsAPI period keys commonly use suffixes like _q1 and _h1)
+        want: dict[str, list[str]] = {
+            "h1": ["totals_h1", "totals_1h", "totals_1st_half", "totals_first_half"],
+            "q1": ["totals_q1", "totals_1q", "totals_1st_quarter", "totals_first_quarter"],
+            "q2": ["totals_q2", "totals_2q", "totals_2nd_quarter", "totals_second_quarter"],
+            "q3": ["totals_q3", "totals_3q", "totals_3rd_quarter", "totals_third_quarter"],
+            "q4": ["totals_q4", "totals_4q", "totals_4th_quarter", "totals_fourth_quarter"],
+        }
+
+        picked: dict[str, str] = {}
+        for label, cands in want.items():
+            for k in cands:
+                if k in keys:
+                    picked[label] = k
+                    break
+
+        req_markets = sorted(set(picked.values()))
+        if not req_markets:
+            out = {"source": "oddsapi", "event_id": str(event_id), "period_totals": {}, "market_keys": {}}
+            _live_oddsapi_period_cache[cache_key] = (now, out)
+            return out
+
+        df = _oddsapi_fetch_event_odds_current(cfg, str(event_id), req_markets, verbose=False)
+        period_totals: dict[str, float] = {}
+        if isinstance(df, pd.DataFrame) and not df.empty:
+            for label, mkey in picked.items():
+                try:
+                    sub = df[df["market"] == mkey]
+                    if sub is None or sub.empty:
+                        continue
+                    # Totals: Over/Under have the same point. Take first non-null point.
+                    pts = sub["point"].dropna()
+                    if pts is None or len(pts) == 0:
+                        continue
+                    v = float(pts.iloc[0])
+                    if np.isfinite(v):
+                        period_totals[label] = v
+                except Exception:
+                    continue
+
+        out = {
+            "source": "oddsapi",
+            "event_id": str(event_id),
+            "swapped": bool(swapped),
+            "period_totals": period_totals,
+            "market_keys": picked,
+        }
+        _live_oddsapi_period_cache[cache_key] = (now, out)
+        return out
+    except Exception:
+        return {}
+
+
+def _safe_int(x: Any) -> int | None:
+    try:
+        if x is None:
+            return None
+        if isinstance(x, (int, np.integer)):
+            return int(x)
+        v = float(x)
+        return int(v) if np.isfinite(v) else None
+    except Exception:
+        return None
+
+
+def _live_parse_clock_to_sec_left(clock: Any) -> Optional[int]:
+    """Parse NBA clock to seconds left in period.
+
+    Supports:
+      - 'PT11M45.00S'
+      - '11:45'
+      - numeric seconds
+    """
+    try:
+        if clock is None:
+            return None
+        if isinstance(clock, (int, float, np.integer, np.floating)):
+            try:
+                v = float(clock)
+                if not np.isfinite(v):
+                    return None
+                return int(v)
+            except Exception:
+                return None
+        s = str(clock).strip()
+        if not s:
+            return None
+        # ISO8601-ish: PT11M45.00S
+        m = re.match(r"^PT(?:(\d+)M)?(?:(\d+)(?:\.\d+)?)S$", s)
+        if m:
+            mm = int(m.group(1) or 0)
+            ss = int(m.group(2) or 0)
+            return mm * 60 + ss
+        # Classic mm:ss
+        if ":" in s:
+            parts = s.split(":")
+            if len(parts) == 2:
+                mm = int(parts[0])
+                ss = int(parts[1])
+                return mm * 60 + ss
+        return None
+    except Exception:
+        return None
+
+
+def _live_round_to_step(v: Optional[float], step: int, *, lo: int, hi: int) -> Optional[int]:
+    try:
+        if v is None:
+            return None
+        x = float(v)
+        if not np.isfinite(x):
+            return None
+        # Round *down* to a valid select option (3-minute ladder)
+        r = int(np.floor(x / step) * step)
+        return int(max(lo, min(hi, r)))
+    except Exception:
+        return None
+
+
+def _live_load_smart_sim_by_game_id(date_str: str, game_id: str) -> dict[str, Any] | None:
+    """Load the processed SmartSim JSON for a given date+game_id.
+
+    Uses a small TTL cache to avoid disk churn during 60s polling.
+    """
+    try:
+        if not date_str or not game_id:
+            return None
+        key = f"{date_str}:{game_id}"
+        now = time.time()
+        ent = _live_sim_cache.get(key)
+        if ent and (now - ent[0] < 60):
+            return ent[1]
+
+        for fp in _load_smart_sim_files_for_date(date_str):
+            try:
+                raw = fp.read_text(encoding="utf-8")
+                obj = json.loads(raw)
+                if not isinstance(obj, dict):
+                    continue
+                gid = str(obj.get("game_id") or "").strip()
+                if gid and str(gid) == str(game_id):
+                    _live_sim_cache[key] = (now, obj)
+                    return obj
+            except Exception:
+                continue
+        _live_sim_cache[key] = (now, {})
+        return None
+    except Exception:
+        return None
+
+
+def _live_interp_cum_p50(intervals: dict[str, Any] | None, *, elapsed_min: float, total_minutes: int) -> float | None:
+    """Interpolate cumulative total p50 at arbitrary elapsed minute using 3-min SmartSim ladder."""
+    try:
+        if not intervals or not isinstance(intervals, dict):
+            return None
+        segs = intervals.get("segments")
+        if not isinstance(segs, list) or not segs:
+            return None
+        t = float(elapsed_min)
+        if not np.isfinite(t):
+            return None
+        t = max(0.0, min(float(total_minutes), t))
+        if t <= 0:
+            return 0.0
+
+        step = 3.0
+        prev_end = math.floor(t / step) * step
+        next_end = min(float(total_minutes), math.ceil(t / step) * step)
+
+        def _cum_at_end(end_min: float) -> float | None:
+            if end_min <= 0:
+                return 0.0
+            seg_end_count = int(math.floor(end_min / step))
+            idx = seg_end_count - 1
+            if idx < 0:
+                return 0.0
+            idx = int(max(0, min(len(segs) - 1, idx)))
+            s = segs[idx] if isinstance(segs[idx], dict) else {}
+            cq = s.get("cum_q") if isinstance(s, dict) else None
+            v = (cq or {}).get("p50") if isinstance(cq, dict) else None
+            try:
+                fv = float(v)
+                return float(fv) if np.isfinite(fv) else None
+            except Exception:
+                return None
+
+        a = _cum_at_end(prev_end)
+        b = _cum_at_end(next_end)
+        if a is None or b is None:
+            return None
+        denom = (next_end - prev_end)
+        if denom <= 0:
+            return float(a)
+        frac = (t - prev_end) / denom
+        return float(a + frac * (b - a))
+    except Exception:
+        return None
+
+
+def _live_cum_p50_series_by_min(intervals: dict[str, Any] | None, *, total_minutes: int) -> list[float | None]:
+    """Return list length total_minutes+1 of interpolated cum p50 at each elapsed minute 0..total_minutes."""
+    out: list[float | None] = []
+    for m in range(0, int(total_minutes) + 1):
+        out.append(_live_interp_cum_p50(intervals, elapsed_min=float(m), total_minutes=int(total_minutes)))
+    return out
+
+
+def _live_fetch_cdn_scoreboard(date_str: str) -> dict[str, Any]:
+    """Fetch NBA CDN scoreboard for a date and return JSON dict."""
+    try:
+        # Cache for 10 seconds
+        now = time.time()
+        ent = _live_cdn_scoreboard_cache.get(date_str)
+        if ent and (now - ent[0] < 10):
+            return ent[1]
+
+        try:
+            target = datetime.strptime(date_str, "%Y-%m-%d").date()
+        except Exception:
+            return {}
+        today = datetime.now().date()
+
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Referer": "https://www.nba.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+        }
+        if target == today:
+            u = "https://cdn.nba.com/static/json/liveData/scoreboard/todaysScoreboard_00.json"
+        else:
+            ymd = target.strftime("%Y%m%d")
+            u = f"https://cdn.nba.com/static/json/liveData/scoreboard/scoreboard_{ymd}.json"
+        r = requests.get(u, headers=headers, timeout=15)
+        if not r.ok:
+            payload = {}
+        else:
+            payload = r.json() or {}
+        _live_cdn_scoreboard_cache[date_str] = (now, payload)
+        return payload
+    except Exception:
+        return {}
+
+
+def _live_norm_game_id(game_id: str) -> str:
+    """Normalize a game_id to the canonical format used by the frontend.
+
+    - If numeric-ish, return 10-digit zero-padded string.
+    - Otherwise, return stripped original.
+    """
+    try:
+        s = str(game_id or "").strip()
+        if not s:
+            return ""
+        digits = "".join(ch for ch in s if ch.isdigit())
+        if digits:
+            return digits.zfill(10) if len(digits) < 10 else digits
+        return s
+    except Exception:
+        return str(game_id or "").strip()
+
+
+def _live_fetch_espn_scoreboard(date_str: str) -> dict[str, Any]:
+    """Fetch ESPN public scoreboard JSON for the date with a short TTL cache."""
+    try:
+        now = time.time()
+        ent = _live_espn_scoreboard_cache.get(date_str)
+        if ent and (now - ent[0] < 20):
+            return ent[1]
+        jd = _fetch_espn_scoreboard(date_str) or {}
+        payload = jd if isinstance(jd, dict) else {}
+        _live_espn_scoreboard_cache[date_str] = (now, payload)
+        return payload
+    except Exception:
+        return {}
+
+
+def _live_fetch_espn_summary(event_id: str) -> dict[str, Any]:
+    """Fetch ESPN game summary JSON (includes play-by-play) with a short TTL cache."""
+    try:
+        eid = str(event_id or "").strip()
+        if not eid:
+            return {}
+        now = time.time()
+        ent = _live_espn_summary_cache.get(eid)
+        if ent and (now - ent[0] < 15):
+            return ent[1]
+        url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/summary?event={eid}"
+        try:
+            headers = {
+                "Accept": "application/json, text/plain, */*",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/125.0.0.0 Safari/537.36"
+                ),
+                "Referer": "https://www.espn.com/",
+            }
+            r = requests.get(url, headers=headers, timeout=10)
+            if not r.ok:
+                _live_espn_summary_cache[eid] = (now, {})
+                return {}
+            jd = r.json() or {}
+            payload = jd if isinstance(jd, dict) else {}
+            _live_espn_summary_cache[eid] = (now, payload)
+            return payload
+        except Exception:
+            _live_espn_summary_cache[eid] = (now, {})
+            return {}
+    except Exception:
+        return {}
+
+
+def _live_espn_actions_from_summary(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    """Translate ESPN summary plays into the Live Lens action schema.
+
+    The downstream PBP parsers expect NBA-CDN-like fields:
+      teamTricode, actionType, shotResult, isFieldGoal, shotValue, period, clock, scoreHome, scoreAway
+    """
+    try:
+        if not isinstance(summary, dict):
+            return []
+
+        # Map ESPN team id -> tricode
+        team_id_to_tri: dict[str, str] = {}
+        try:
+            hdr = summary.get("header") if isinstance(summary.get("header"), dict) else {}
+            comps = hdr.get("competitions") if isinstance(hdr, dict) else None
+            if isinstance(comps, list) and comps:
+                comp0 = comps[0] if isinstance(comps[0], dict) else {}
+                competitors = comp0.get("competitors") if isinstance(comp0, dict) else None
+                if isinstance(competitors, list):
+                    for c in competitors:
+                        if not isinstance(c, dict):
+                            continue
+                        tm = c.get("team") if isinstance(c.get("team"), dict) else {}
+                        tid = str(tm.get("id") or "").strip()
+                        ab = _espn_to_tri(str(tm.get("abbreviation") or "").strip())
+                        if tid and ab:
+                            team_id_to_tri[tid] = ab
+        except Exception:
+            team_id_to_tri = {}
+
+        plays = summary.get("plays")
+        if not isinstance(plays, list) or not plays:
+            return []
+
+        out: list[dict[str, Any]] = []
+        for p in plays:
+            try:
+                if not isinstance(p, dict):
+                    continue
+                per = None
+                try:
+                    per = int(((p.get("period") or {}) if isinstance(p.get("period"), dict) else {}).get("number"))
+                except Exception:
+                    per = None
+
+                clk = None
+                try:
+                    clk = (((p.get("clock") or {}) if isinstance(p.get("clock"), dict) else {}).get("displayValue"))
+                except Exception:
+                    clk = None
+
+                sh = _safe_int(p.get("homeScore"))
+                sa = _safe_int(p.get("awayScore"))
+
+                team_id = None
+                try:
+                    team_id = str(((p.get("team") or {}) if isinstance(p.get("team"), dict) else {}).get("id") or "").strip()
+                except Exception:
+                    team_id = None
+                tri = team_id_to_tri.get(team_id or "", "unknown")
+
+                shooting = bool(p.get("shootingPlay"))
+                pts_att = _safe_int(p.get("pointsAttempted"))
+                score_val = _safe_int(p.get("scoreValue"))
+                text = str(p.get("text") or "").strip()
+                text_l = text.lower()
+
+                # Derive a minimal shot taxonomy compatible with existing attempt stats.
+                action_type = str(((p.get("type") or {}) if isinstance(p.get("type"), dict) else {}).get("text") or "").strip()
+                if shooting and pts_att == 1 and ("free throw" in text_l or "free throw" in action_type.lower()):
+                    action_type = "Free Throw"
+
+                is_fg = bool(shooting and (pts_att in (2, 3)))
+                shot_val = int(pts_att) if (is_fg and pts_att in (2, 3)) else 0
+                shot_res = ""
+                if shooting:
+                    if score_val is not None and score_val > 0:
+                        shot_res = "Made"
+                    elif "miss" in text_l:
+                        shot_res = "Missed"
+                    elif "make" in text_l:
+                        shot_res = "Made"
+
+                out.append(
+                    {
+                        "teamTricode": tri,
+                        "actionType": action_type,
+                        "shotResult": shot_res,
+                        "isFieldGoal": 1 if is_fg else 0,
+                        "shotValue": shot_val,
+                        "period": per,
+                        "clock": clk,
+                        "scoreHome": sh,
+                        "scoreAway": sa,
+                        "description": text,
+                    }
+                )
+            except Exception:
+                continue
+
+        return out
+    except Exception:
+        return []
+
+
+def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract live-ish game objects from ESPN scoreboard.
+
+    Output records match the shape used by /api/live/scoreboard as closely as possible.
+    Note: ESPN event ids do not match NBA game ids.
+    """
+    out: list[dict[str, Any]] = []
+    try:
+        evs = jd.get("events") if isinstance(jd, dict) else None
+        if not isinstance(evs, list):
+            return []
+        for e in evs:
+            try:
+                comps = e.get("competitions") if isinstance(e, dict) else None
+                if not isinstance(comps, list) or not comps:
+                    continue
+                c = comps[0] if isinstance(comps[0], dict) else {}
+                status = c.get("status") if isinstance(c, dict) else {}
+                st_type = (status.get("type") if isinstance(status, dict) else {}) or {}
+                completed = bool(st_type.get("completed"))
+                state = str(st_type.get("state") or "").strip().lower()  # pre|in|post
+                short = str(st_type.get("shortDetail") or st_type.get("detail") or "").strip()
+                if not short:
+                    short = "Final" if completed else "Scheduled"
+
+                period = None
+                clock = None
+                try:
+                    period = int(status.get("period")) if isinstance(status, dict) and status.get("period") is not None else None
+                except Exception:
+                    period = None
+                try:
+                    clock = status.get("displayClock") if isinstance(status, dict) else None
+                except Exception:
+                    clock = None
+
+                teams = c.get("competitors") if isinstance(c, dict) else None
+                if not isinstance(teams, list) or len(teams) < 2:
+                    continue
+                home = next((t for t in teams if str((t or {}).get("homeAway")) == "home"), None)
+                away = next((t for t in teams if str((t or {}).get("homeAway")) == "away"), None)
+                if not isinstance(home, dict) or not isinstance(away, dict):
+                    continue
+                home_tri = _espn_to_tri((((home.get("team") or {}) if isinstance(home.get("team"), dict) else {}).get("abbreviation")))
+                away_tri = _espn_to_tri((((away.get("team") or {}) if isinstance(away.get("team"), dict) else {}).get("abbreviation")))
+                if not home_tri or not away_tri:
+                    continue
+
+                def _score(x: dict[str, Any]) -> int | None:
+                    try:
+                        s = x.get("score")
+                        if s is None or str(s).strip() == "":
+                            return None
+                        return int(float(s))
+                    except Exception:
+                        return None
+
+                home_pts = _score(home)
+                away_pts = _score(away)
+                in_progress = bool(state == "in")
+                final = bool(completed or state == "post")
+                status_id = 2 if in_progress else (3 if final else 1)
+
+                out.append(
+                    {
+                        "game_id": str(e.get("id") or "").strip() or None,  # ESPN event id
+                        "home": str(home_tri).upper(),
+                        "away": str(away_tri).upper(),
+                        "home_pts": home_pts,
+                        "away_pts": away_pts,
+                        "status_id": status_id,
+                        "status": short,
+                        "period": period,
+                        "clock": clock,
+                        "in_progress": in_progress,
+                        "final": final,
+                    }
+                )
+            except Exception:
+                continue
+        return out
+    except Exception:
+        return []
+
+
+def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
+    """Return SmartSim games for a date as minimal matchup records."""
+    out: list[dict[str, Any]] = []
+    for fp in _load_smart_sim_files_for_date(date_str):
+        try:
+            obj = json.loads(fp.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(obj, dict):
+            continue
+        gid_raw = str(obj.get("game_id") or "").strip()
+        home = str(obj.get("home") or "").strip().upper()
+        away = str(obj.get("away") or "").strip().upper()
+        if not gid_raw or not home or not away:
+            continue
+        out.append({"game_id": _live_norm_game_id(gid_raw), "home": home, "away": away})
+    return out
+
+
+def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any]]]:
+    """Build the live scoreboard game list.
+
+    Prefers ESPN for status/clock, but keeps NBA game_id stable by matching ESPN
+    events to SmartSim games via (home,away).
+
+    Falls back to NBA CDN when SmartSim games are unavailable or ESPN fails.
+    """
+    try:
+        sim_games = _live_sim_matchups_for_date(date_str)
+        jd = _live_fetch_espn_scoreboard(date_str)
+        espn_games = _live_extract_espn_games(jd) if jd else []
+
+        if sim_games and espn_games:
+            espn_by_pair: dict[tuple[str, str], dict[str, Any]] = {}
+            for eg in espn_games:
+                try:
+                    k = (str(eg.get("home") or "").upper(), str(eg.get("away") or "").upper())
+                    if k[0] and k[1]:
+                        espn_by_pair[k] = eg
+                except Exception:
+                    continue
+
+            merged: list[dict[str, Any]] = []
+            for sg in sim_games:
+                home = str(sg.get("home") or "").upper()
+                away = str(sg.get("away") or "").upper()
+                gid = str(sg.get("game_id") or "").strip()
+                eg = espn_by_pair.get((home, away))
+                if eg:
+                    merged.append(
+                        {
+                            "game_id": gid,
+                            "home": home,
+                            "away": away,
+                            "home_pts": eg.get("home_pts"),
+                            "away_pts": eg.get("away_pts"),
+                            "status_id": eg.get("status_id"),
+                            "status": eg.get("status"),
+                            "period": eg.get("period"),
+                            "clock": eg.get("clock"),
+                            "in_progress": bool(eg.get("in_progress")),
+                            "final": bool(eg.get("final")),
+                            "espn_event_id": eg.get("game_id"),
+                            "match": "teams",
+                        }
+                    )
+                else:
+                    merged.append(
+                        {
+                            "game_id": gid,
+                            "home": home,
+                            "away": away,
+                            "home_pts": None,
+                            "away_pts": None,
+                            "status_id": 1,
+                            "status": "Scheduled",
+                            "period": None,
+                            "clock": None,
+                            "in_progress": False,
+                            "final": False,
+                            "espn_event_id": None,
+                            "match": None,
+                        }
+                    )
+            return "espn", merged
+
+        # If we have sim games but ESPN failed/empty, still return sim list.
+        if sim_games and not espn_games:
+            merged = []
+            for sg in sim_games:
+                merged.append(
+                    {
+                        "game_id": str(sg.get("game_id") or "").strip(),
+                        "home": sg.get("home"),
+                        "away": sg.get("away"),
+                        "home_pts": None,
+                        "away_pts": None,
+                        "status_id": 1,
+                        "status": "Scheduled",
+                        "period": None,
+                        "clock": None,
+                        "in_progress": False,
+                        "final": False,
+                        "espn_event_id": None,
+                        "match": None,
+                    }
+                )
+            return "sim_only", merged
+
+        # Fallback to NBA CDN scoreboard (original behavior)
+        sb = _live_fetch_cdn_scoreboard(date_str)
+        games = _live_extract_scoreboard_games(sb)
+        # Normalize ids to match frontend canonicalization
+        for g in games:
+            try:
+                g["game_id"] = _live_norm_game_id(str(g.get("game_id") or "").strip()) or g.get("game_id")
+            except Exception:
+                continue
+        return "nba_cdn", games
+    except Exception:
+        sb = _live_fetch_cdn_scoreboard(date_str)
+        games = _live_extract_scoreboard_games(sb)
+        return "nba_cdn", games
+
+
+def _live_extract_scoreboard_games(sb_json: dict[str, Any]) -> list[dict[str, Any]]:
+    try:
+        games = (sb_json.get("scoreboard") or {}).get("games") or []
+        out: list[dict[str, Any]] = []
+        for g in games:
+            try:
+                gid = str(g.get("gameId") or "").strip() or None
+                home = (g.get("homeTeam") or {})
+                away = (g.get("awayTeam") or {})
+                home_tri = str(home.get("teamTricode") or "").upper().strip() or None
+                away_tri = str(away.get("teamTricode") or "").upper().strip() or None
+                home_pts = _safe_int(home.get("score"))
+                away_pts = _safe_int(away.get("score"))
+                st_id = _safe_int(g.get("gameStatus"))
+                st_text = g.get("gameStatusText")
+                period = _safe_int((g.get("period") or {}).get("current"))
+                clock = (g.get("gameClock") or (g.get("clock") or None))
+                in_progress = bool(st_id == 2)
+                final = bool(st_id == 3)
+                out.append(
+                    {
+                        "game_id": gid,
+                        "home": home_tri,
+                        "away": away_tri,
+                        "home_pts": home_pts,
+                        "away_pts": away_pts,
+                        "status_id": st_id,
+                        "status": st_text,
+                        "period": period,
+                        "clock": clock,
+                        "in_progress": in_progress,
+                        "final": final,
+                    }
+                )
+            except Exception:
+                continue
+        return out
+    except Exception:
+        return []
+
+
+def _live_fetch_pbp_actions(game_id: str) -> list[dict[str, Any]]:
+    try:
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "Referer": "https://www.nba.com/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+        }
+        gid = str(game_id).strip()
+        if not gid:
+            return []
+        u = f"https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_00_{gid}.json"
+        r = requests.get(u, headers=headers, timeout=15)
+        if not r.ok:
+            u2 = f"https://nba-prod-us-east-1-mediaops-stats.s3.amazonaws.com/NBA/liveData/playbyplay/playbyplay_00_{gid}.json"
+            r = requests.get(u2, headers=headers, timeout=15)
+        if not r.ok:
+            return []
+        j = r.json() or {}
+        return ((j.get("game") or {}).get("actions") or [])
+    except Exception:
+        return []
+
+
+def _live_pbp_attempt_stats(actions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Compute FT/2P/3P attempt stats from CDN play-by-play actions."""
+    def _init():
+        return {"ft_att": 0, "ft_made": 0, "fg2_att": 0, "fg2_made": 0, "fg3_att": 0, "fg3_made": 0}
+
+    def _finalize(d: dict[str, Any]) -> dict[str, Any]:
+        try:
+            ft_att = int(d.get("ft_att") or 0)
+            ft_made = int(d.get("ft_made") or 0)
+            fg2_att = int(d.get("fg2_att") or 0)
+            fg2_made = int(d.get("fg2_made") or 0)
+            fg3_att = int(d.get("fg3_att") or 0)
+            fg3_made = int(d.get("fg3_made") or 0)
+
+            d["ft_miss"] = max(0, ft_att - ft_made)
+            d["fg2_miss"] = max(0, fg2_att - fg2_made)
+            d["fg3_miss"] = max(0, fg3_att - fg3_made)
+            d["fga"] = fg2_att + fg3_att
+            d["fgm"] = fg2_made + fg3_made
+            d["fg_miss"] = max(0, d["fga"] - d["fgm"])
+            pts = ft_made + 2 * fg2_made + 3 * fg3_made
+            d["pts_from_shots"] = pts
+
+            def _pct(made: int, att: int) -> float | None:
+                try:
+                    if att <= 0:
+                        return None
+                    return float(made) / float(att)
+                except Exception:
+                    return None
+
+            d["ft_pct"] = _pct(ft_made, ft_att)
+            d["fg2_pct"] = _pct(fg2_made, fg2_att)
+            d["fg3_pct"] = _pct(fg3_made, fg3_att)
+            d["fg_pct"] = _pct(d["fgm"], d["fga"])
+            try:
+                d["efg_pct"] = (float(d["fgm"]) + 0.5 * float(fg3_made)) / float(d["fga"]) if d["fga"] > 0 else None
+            except Exception:
+                d["efg_pct"] = None
+            try:
+                denom = 2.0 * (float(d["fga"]) + 0.44 * float(ft_att))
+                d["ts_pct"] = float(pts) / denom if denom > 0 else None
+            except Exception:
+                d["ts_pct"] = None
+        except Exception:
+            return d
+        return d
+
+    out: dict[str, Any] = {"home": _init(), "away": _init(), "unknown": _init(), "total": _init()}
+    for a in actions or []:
+        try:
+            tri = str(a.get("teamTricode") or "").upper().strip() or "unknown"
+            if tri not in out:
+                out[tri] = _init()
+
+            a_type = str(a.get("actionType") or "").lower()
+            shot_res = str(a.get("shotResult") or "").lower()
+            is_made = (shot_res == "made")
+
+            if "free throw" in a_type:
+                out[tri]["ft_att"] += 1
+                out["total"]["ft_att"] += 1
+                if is_made:
+                    out[tri]["ft_made"] += 1
+                    out["total"]["ft_made"] += 1
+                continue
+
+            is_fg = a.get("isFieldGoal")
+            try:
+                is_fg = bool(int(is_fg))
+            except Exception:
+                is_fg = bool(is_fg)
+            if not is_fg:
+                continue
+
+            try:
+                shot_val = int(a.get("shotValue") or 0)
+            except Exception:
+                shot_val = 0
+            if shot_val == 3:
+                out[tri]["fg3_att"] += 1
+                out["total"]["fg3_att"] += 1
+                if is_made:
+                    out[tri]["fg3_made"] += 1
+                    out["total"]["fg3_made"] += 1
+            else:
+                # Treat anything else as 2PT attempt
+                out[tri]["fg2_att"] += 1
+                out["total"]["fg2_att"] += 1
+                if is_made:
+                    out[tri]["fg2_made"] += 1
+                    out["total"]["fg2_made"] += 1
+        except Exception:
+            continue
+
+    # Derived fields (misses, shooting %s)
+    try:
+        for k in list(out.keys()):
+            if isinstance(out.get(k), dict):
+                out[k] = _finalize(out[k])
+    except Exception:
+        pass
+    return out
+
+
+def _live_pbp_possession_stats(actions: list[dict[str, Any]], pbp_attempts: dict[str, Any] | None = None) -> dict[str, Any]:
+    """Estimate possessions from PBP.
+
+    Uses a standard approximation:
+      poss ≈ FGA + TOV + 0.44*FTA - OREB
+
+    Notes:
+      - Requires turnovers + offensive rebounds, inferred from actionType/description.
+      - Returns per-team buckets like pbp_attempts (home/away/unknown/total + any tricodes seen).
+    """
+
+    def _init():
+        return {"tov": 0, "oreb": 0, "dreb": 0, "poss_est": None}
+
+    out: dict[str, Any] = {"home": _init(), "away": _init(), "unknown": _init(), "total": _init()}
+    if pbp_attempts is None:
+        pbp_attempts = _live_pbp_attempt_stats(actions) if actions else {}
+
+    for a in actions or []:
+        try:
+            tri = str(a.get("teamTricode") or "").upper().strip() or "unknown"
+            if tri not in out:
+                out[tri] = _init()
+
+            a_type = str(a.get("actionType") or "").lower()
+            desc = str(a.get("description") or a.get("actionDescription") or "").lower()
+
+            if "turnover" in a_type:
+                out[tri]["tov"] += 1
+                out["total"]["tov"] += 1
+
+            if "rebound" in a_type:
+                # Best-effort OR/DR split (works well for CDN; ESPN uses description text)
+                if "offensive" in desc:
+                    out[tri]["oreb"] += 1
+                    out["total"]["oreb"] += 1
+                elif "defensive" in desc:
+                    out[tri]["dreb"] += 1
+                    out["total"]["dreb"] += 1
+        except Exception:
+            continue
+
+    # Compute possession estimate from attempts + tov/oreb
+    try:
+        for k, v in list(out.items()):
+            if not isinstance(v, dict):
+                continue
+            att = pbp_attempts.get(k) if isinstance(pbp_attempts, dict) else None
+            if not isinstance(att, dict):
+                # If attempts are keyed by tricode only (not home/away), still try.
+                att = pbp_attempts.get(k) if isinstance(pbp_attempts, dict) else None
+            fga = 0
+            fta = 0
+            if isinstance(att, dict):
+                fga = int((att.get("fg2_att") or 0) + (att.get("fg3_att") or 0))
+                fta = int(att.get("ft_att") or 0)
+            tov = int(v.get("tov") or 0)
+            oreb = int(v.get("oreb") or 0)
+            v["poss_est"] = float(fga) + float(tov) + 0.44 * float(fta) - float(oreb)
+    except Exception:
+        pass
+
+    return out
+
+
+def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Build regulation score series by elapsed minute from CDN actions.
+
+    Returns:
+      {
+        "game": {"home": [..49..], "away": [..49..], "total": [..49..]},
+        "half": {"home": [..25..], "away": [..25..], "total": [..25..]}
+      }
+    Values are carried forward (last known) once a first score is observed.
+    """
+    def _empty_game():
+        return {"home": [None] * 49, "away": [None] * 49, "total": [None] * 49}
+
+    def _empty_half():
+        return {"home": [None] * 25, "away": [None] * 25, "total": [None] * 25}
+
+    out = {"game": _empty_game(), "half": _empty_half()}
+    if not actions:
+        return out
+
+    # First pass: map elapsed minute -> (home, away)
+    game_map: dict[int, tuple[int, int]] = {}
+    half_map: dict[int, tuple[int, int]] = {}
+
+    for a in actions:
+        try:
+            per = _safe_int(a.get("period"))
+            if per is None:
+                continue
+            if per <= 0:
+                continue
+            # Only regulation for per-minute lens series
+            if per > 4:
+                continue
+
+            sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
+            if sec_left is None:
+                continue
+            sec_left = int(max(0, min(12 * 60, sec_left)))
+            elapsed_sec = (per - 1) * (12 * 60) + ((12 * 60) - sec_left)
+            m = int(max(0, min(48, math.floor(elapsed_sec / 60.0))))
+
+            # Scores are usually present on action rows
+            sh = a.get("scoreHome")
+            sa = a.get("scoreAway")
+            if sh is None or sa is None:
+                continue
+            h = _safe_int(sh)
+            aw = _safe_int(sa)
+            if h is None or aw is None:
+                continue
+
+            game_map[m] = (h, aw)
+
+            if per <= 2:
+                half_elapsed_sec = (per - 1) * (12 * 60) + ((12 * 60) - sec_left)
+                mh = int(max(0, min(24, math.floor(half_elapsed_sec / 60.0))))
+                half_map[mh] = (h, aw)
+        except Exception:
+            continue
+
+    # Carry-forward fill
+    last_h = None
+    last_a = None
+    for m in range(0, 49):
+        if m in game_map:
+            last_h, last_a = game_map[m]
+        if last_h is not None and last_a is not None:
+            out["game"]["home"][m] = last_h
+            out["game"]["away"][m] = last_a
+            out["game"]["total"][m] = int(last_h + last_a)
+
+    last_h = None
+    last_a = None
+    for m in range(0, 25):
+        if m in half_map:
+            last_h, last_a = half_map[m]
+        if last_h is not None and last_a is not None:
+            out["half"]["home"][m] = last_h
+            out["half"]["away"][m] = last_a
+            out["half"]["total"][m] = int(last_h + last_a)
+
+    return out
+
+
+def _live_pbp_quarter_totals(actions: list[dict[str, Any]]) -> dict[str, Any]:
+    """Compute per-quarter total points from CDN PBP actions (regulation only).
+
+    Returns:
+      {
+        "q_totals": {"q1": int|None, "q2": int|None, "q3": int|None, "q4": int|None},
+        "current": {"period": int|None, "q_total": int|None}
+      }
+    """
+    out: dict[str, Any] = {
+        "q_totals": {"q1": None, "q2": None, "q3": None, "q4": None},
+        "current": {"period": None, "q_total": None},
+    }
+    if not actions:
+        return out
+
+    # Track best-known end-of-quarter scores
+    best_elapsed_in_period: dict[int, int] = {}
+    score_end: dict[int, tuple[int, int]] = {}
+
+    # Track latest observed score (for current quarter running total)
+    latest_global_elapsed = -1
+    latest_score: tuple[int, int] | None = None
+    latest_period: int | None = None
+
+    for a in actions:
+        try:
+            per = _safe_int(a.get("period"))
+            if per is None or per <= 0 or per > 4:
+                continue
+
+            sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
+            if sec_left is None:
+                continue
+            sec_left = int(max(0, min(12 * 60, sec_left)))
+            elapsed_in_period = int((12 * 60) - sec_left)
+            global_elapsed = int((per - 1) * (12 * 60) + elapsed_in_period)
+
+            sh = _safe_int(a.get("scoreHome"))
+            sa = _safe_int(a.get("scoreAway"))
+            if sh is None or sa is None:
+                continue
+
+            if global_elapsed >= latest_global_elapsed:
+                latest_global_elapsed = global_elapsed
+                latest_score = (int(sh), int(sa))
+                latest_period = int(per)
+
+            prev_best = best_elapsed_in_period.get(per)
+            if prev_best is None or elapsed_in_period >= prev_best:
+                best_elapsed_in_period[per] = elapsed_in_period
+                score_end[per] = (int(sh), int(sa))
+        except Exception:
+            continue
+
+    end_total: dict[int, int] = {}
+    for q, sc in score_end.items():
+        try:
+            end_total[int(q)] = int(sc[0] + sc[1])
+        except Exception:
+            continue
+
+    prev_end = 0
+    for q in (1, 2, 3, 4):
+        if q in end_total:
+            qt = int(end_total[q] - prev_end)
+            out["q_totals"][f"q{q}"] = qt
+            prev_end = end_total[q]
+
+    if latest_period is not None and latest_score is not None and 1 <= int(latest_period) <= 4:
+        try:
+            cur_tot = int(latest_score[0] + latest_score[1])
+            prev_end_tot = int(end_total.get(int(latest_period) - 1, 0))
+            out["current"] = {"period": int(latest_period), "q_total": int(cur_tot - prev_end_tot)}
+        except Exception:
+            pass
+
+    return out
+
+
+def _live_bovada_lines_for_date(date_str: str) -> list[dict[str, Any]]:
+    """Return Bovada current full-game lines normalized to dicts."""
+    try:
+        if _fetch_bovada_odds_current is None:
+            return []
+        now = time.time()
+        ent = _live_bovada_lines_cache.get(date_str)
+        if ent and (now - ent[0] < 60):
+            return ent[1]
+        df = _fetch_bovada_odds_current(str(date_str), verbose=False)
+        if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+            _live_bovada_lines_cache[date_str] = (now, [])
+            return []
+        keep = []
+        # Common columns from odds_bovada.py
+        cols = set(df.columns)
+        for _, r in df.iterrows():
+            try:
+                home = str(r.get("home") or r.get("home_team") or "").strip().upper()
+                away = str(r.get("away") or r.get("away_team") or "").strip().upper()
+                if not home or not away:
+                    continue
+                keep.append(
+                    {
+                        "home": home,
+                        "away": away,
+                        "home_spread": _safe_float(r.get("home_spread")),
+                        "away_spread": _safe_float(r.get("away_spread")),
+                        "home_spread_price": _safe_float(r.get("home_spread_price")),
+                        "away_spread_price": _safe_float(r.get("away_spread_price")),
+                        "total": _safe_float(r.get("total")),
+                        "total_over_price": _safe_float(r.get("total_over_price")),
+                        "total_under_price": _safe_float(r.get("total_under_price")),
+                        "home_ml": _safe_float(r.get("home_ml")),
+                        "away_ml": _safe_float(r.get("away_ml")),
+                    }
+                )
+            except Exception:
+                continue
+        _live_bovada_lines_cache[date_str] = (now, keep)
+        return keep
+    except Exception:
+        return []
+
+
+def _live_match_lines(lines: list[dict[str, Any]], home_tri: str, away_tri: str) -> dict[str, Any]:
+    try:
+        h = str(home_tri or "").upper().strip()
+        a = str(away_tri or "").upper().strip()
+        if not h or not a:
+            return {}
+        for row in lines or []:
+            try:
+                if str(row.get("home") or "").upper() == h and str(row.get("away") or "").upper() == a:
+                    return row
+                # Some feeds may swap
+                if str(row.get("home") or "").upper() == a and str(row.get("away") or "").upper() == h:
+                    # swap spreads so 'home_spread' always refers to this game's home
+                    return {
+                        "home": h,
+                        "away": a,
+                        "home_spread": row.get("away_spread"),
+                        "away_spread": row.get("home_spread"),
+                        "home_spread_price": row.get("away_spread_price"),
+                        "away_spread_price": row.get("home_spread_price"),
+                        "total": row.get("total"),
+                        "total_over_price": row.get("total_over_price"),
+                        "total_under_price": row.get("total_under_price"),
+                        "home_ml": row.get("away_ml"),
+                        "away_ml": row.get("home_ml"),
+                    }
+            except Exception:
+                continue
+        return {}
+    except Exception:
+        return {}
+
 # Serve the static frontend under /web, and serve the cards at '/'
 app = Flask(__name__, static_folder=str(WEB_DIR), static_url_path="/web")
 
@@ -123,12 +1334,24 @@ def _enforce_minimal_ui_allowlist():
             "/api/schedule",
             "/api/evaluate/games",
             "/api/evaluate/props",
+            "/api/props",
             "/api/version",
             "/api/features",
             "/api/props/recommendations",
             "/api/props-recommendations",
+            "/api/list/processed",
             "/api/processed/recon_games",
             "/api/processed/recon_quarters",
+            # Live Lens (polling + logging)
+            "/api/live/scoreboard",
+            "/api/live/game",
+            "/api/live/log",
+            # NCAAB-parity Live Lens endpoints
+            "/api/live_state",
+            "/api/live_pbp_stats",
+            "/api/live_lines",
+            "/api/live_lens_tuning",
+            "/api/live_lens_signal",
         }
         if p in allowed_api:
             return None
@@ -780,13 +2003,32 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
 
                 playing_today = False if st in EXCLUDE_STATUSES_SNAP else None
                 nk = _norm_player_name(nm)
-                out[(tri, nk)] = {
-                    "player_name": nm,
-                    "injury_status": ("OUT" if st == "OUT" else st),
-                    "playing_today": playing_today,
-                    "injury": None,
-                    "injury_date": None,
-                }
+                key = (tri, nk)
+                # IMPORTANT: league_status is the primary source. The snapshot should not
+                # override an existing per-date context (it can be stale or derived from
+                # an incomplete upstream feed).
+                if key not in out:
+                    out[key] = {
+                        "player_name": nm,
+                        "injury_status": ("OUT" if st == "OUT" else st),
+                        "playing_today": playing_today,
+                        "injury": None,
+                        "injury_date": None,
+                    }
+                else:
+                    prev = out.get(key) or {}
+                    # Only fill missing fields; never clobber league_status context.
+                    if prev.get("player_name") in {None, ""}:
+                        prev["player_name"] = nm
+                    # Don't worsen: if league_status implies the player is active,
+                    # don't import an OUT-ish status from the snapshot.
+                    prev_playing = prev.get("playing_today")
+                    if (not prev.get("injury_status")) and st:
+                        if not (prev_playing is True and st in EXCLUDE_STATUSES_SNAP):
+                            prev["injury_status"] = ("OUT" if st == "OUT" else st)
+                    if prev.get("playing_today") is None and playing_today is not None:
+                        prev["playing_today"] = playing_today
+                    out[key] = prev
         # Note: do not early-return; we may enrich injury description/date from raw injuries.csv
         # while keeping league_status/snapshot as the primary team+status context.
 
@@ -914,14 +2156,34 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
 
             ctx: dict[str, Any] = {
                 "player_name": player,
-                "injury_status": status,
                 "injury": injury_desc,
             }
-            if "date" in latest.columns:
-                ctx["injury_date"] = r.get("date")
 
+            inj_date = None
+            if "date" in latest.columns:
+                inj_date = r.get("date")
+                ctx["injury_date"] = inj_date
+
+            # Raw injuries feeds can be stale / wrong-team; only treat excluded statuses as
+            # actionable if very recent or clearly season-ending/indefinite.
             if status:
-                ctx["playing_today"] = (status not in EXCLUDE_STATUSES)
+                is_season = ("SEASON" in status) or ("INDEFINITE" in status) or ("SEASON-ENDING" in status)
+                is_excl = status in EXCLUDE_STATUSES
+                days_old = None
+                try:
+                    if inj_date is not None:
+                        days_old = int((cutoff - inj_date).days)
+                except Exception:
+                    days_old = None
+
+                if not is_excl:
+                    ctx["injury_status"] = status
+                    ctx["playing_today"] = True
+                else:
+                    # Keep recent outs/doubtful, and keep season/indefinite regardless of age.
+                    if is_season or (days_old is not None and days_old <= 3):
+                        ctx["injury_status"] = status
+                        ctx["playing_today"] = False
 
             key = (team_tri, nk)
             if key not in out:
@@ -939,6 +2201,108 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
                 out[key] = prev
     except Exception:
         return out
+
+    # Defensive cleanup: if raw injuries.csv produced an excluded status with a stale date,
+    # strip it so we don't badge players as OUT forever when the feed isn't updated.
+    # (league_status / injuries_counts snapshots don't populate injury_date, so this
+    # mostly targets raw-feed-derived rows.)
+    try:
+        EXCLUDE_STATUSES = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+        for key, ctx in list(out.items()):
+            try:
+                if not isinstance(ctx, dict):
+                    continue
+                st = str(ctx.get("injury_status") or "").strip().upper()
+                if st not in EXCLUDE_STATUSES:
+                    continue
+                inj_date = ctx.get("injury_date")
+                if inj_date is None:
+                    continue
+                # Keep season-ending/indefinite, drop stale day-to-day outs.
+                if ("SEASON" in st) or ("INDEFINITE" in st) or ("SEASON-ENDING" in st):
+                    continue
+                try:
+                    days_old = int((cutoff - inj_date).days)
+                except Exception:
+                    continue
+                if days_old > 3:
+                    ctx.pop("injury_status", None)
+                    ctx.pop("playing_today", None)
+                    ctx.pop("injury", None)
+                    ctx.pop("injury_date", None)
+                    out[key] = ctx
+            except Exception:
+                continue
+    except Exception:
+        pass
+
+    # Hard override: if a player is clearly active for this date (logged minutes)
+    # or still has props lines, do not surface them as OUT due to stale injury rows.
+    # This mirrors the exclusion-logic safeguards in _injury_name_sets_for_date.
+    try:
+        active_keys: set[str] = set()
+
+        # 1) Strongest evidence: boxscore minutes > 0.
+        try:
+            bs_path = BASE_DIR / "data" / "processed" / f"boxscores_{date_str}.csv"
+            if bs_path.exists():
+                bs = pd.read_csv(bs_path)
+                if isinstance(bs, pd.DataFrame) and (not bs.empty):
+                    name_col = next(
+                        (c for c in ["PLAYER_NAME", "player_name", "PLAYER", "player"] if c in bs.columns),
+                        None,
+                    )
+                    min_col = next(
+                        (c for c in ["MIN", "min", "MINUTES", "minutes"] if c in bs.columns),
+                        None,
+                    )
+                    if name_col and min_col:
+                        mins = bs[min_col].map(_parse_minutes_to_float)
+                        played = bs.loc[pd.to_numeric(mins, errors="coerce").fillna(0.0) > 0.0, name_col].dropna().astype(str)
+                        if not played.empty:
+                            active_keys |= {k for k in played.map(_norm_player_name).tolist() if k}
+        except Exception:
+            pass
+
+        # 2) Pregame evidence: props predictions implies a line exists (usually only for active players).
+        try:
+            pp_path = BASE_DIR / "data" / "processed" / f"props_predictions_{date_str}.csv"
+            if pp_path.exists():
+                pp = pd.read_csv(pp_path)
+                if isinstance(pp, pd.DataFrame) and (not pp.empty):
+                    name_col = next(
+                        (c for c in ["player_name", "player", "PLAYER_NAME", "PLAYER"] if c in pp.columns),
+                        None,
+                    )
+                    if name_col:
+                        names = pp[name_col].dropna().astype(str)
+                        if not names.empty:
+                            active_keys |= {k for k in names.map(_norm_player_name).tolist() if k}
+        except Exception:
+            pass
+
+        if active_keys:
+            EXCLUDE_STATUSES = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
+            for key, ctx in list(out.items()):
+                try:
+                    if not isinstance(ctx, dict):
+                        continue
+                    nk = str(key[1] or "")
+                    if not nk or nk not in active_keys:
+                        continue
+
+                    st = str(ctx.get("injury_status") or "").strip().upper()
+                    if st in EXCLUDE_STATUSES or (ctx.get("playing_today") is False):
+                        ctx["playing_today"] = True
+                        # Clear stale OUT-ish tags so UI doesn't badge as OUT.
+                        ctx.pop("injury_status", None)
+                        ctx.pop("injury", None)
+                        ctx.pop("injury_date", None)
+                        out[key] = ctx
+                except Exception:
+                    continue
+    except Exception:
+        pass
 
     return out
 
@@ -4630,6 +5994,9 @@ def _sim_vs_line_prop_recommendations(
     home_tri: str,
     away_tri: str,
     topn_per_side: int = 6,
+    allowed_markets: set[str] | None = None,
+    min_ev_pct: float | None = None,
+    excluded_books: set[str] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
     """Return market-based prop recommendations computed from SmartSim vs betting lines.
 
@@ -4764,6 +6131,21 @@ def _sim_vs_line_prop_recommendations(
                     price = play.get("price")
                     if market is None or side is None or line is None:
                         continue
+
+                    # ROI defaults: restrict markets/books unless caller overrides.
+                    try:
+                        mk = str(market).strip().lower()
+                    except Exception:
+                        mk = ""
+                    if allowed_markets and mk not in allowed_markets:
+                        continue
+                    try:
+                        bk = str(play.get("book") or "").strip().lower()
+                    except Exception:
+                        bk = ""
+                    if excluded_books and bk and (bk in excluded_books):
+                        continue
+
                     mu, sd = _get_mu_sd(p, str(market))
                     mu, sd = _apply_guardrails(mu, sd, str(market))
                     if mu is None or sd is None:
@@ -4776,6 +6158,12 @@ def _sim_vs_line_prop_recommendations(
                     ev = _ev_from_prob_and_american(float(pw), price if price is not None else -110)
                     if ev is None:
                         continue
+                    if min_ev_pct is not None:
+                        try:
+                            if float(ev) * 100.0 < float(min_ev_pct):
+                                continue
+                        except Exception:
+                            pass
                     scored_plays.append(
                         {
                             "market": str(market).strip().lower(),
@@ -4801,6 +6189,21 @@ def _sim_vs_line_prop_recommendations(
                         line = _safe_float(tp.get("line"))
                         price = tp.get("price")
                         if market is not None and side is not None and line is not None:
+                            # Apply the same ROI defaults to the fallback path.
+                            try:
+                                mk = str(market).strip().lower()
+                            except Exception:
+                                mk = ""
+                            if allowed_markets and mk not in allowed_markets:
+                                market = None
+                            try:
+                                bk = str(tp.get("book") or "").strip().lower()
+                            except Exception:
+                                bk = ""
+                            if excluded_books and bk and (bk in excluded_books):
+                                market = None
+
+                        if market is not None and side is not None and line is not None:
                             mu, sd = _get_mu_sd(p, str(market))
                             mu, sd = _apply_guardrails(mu, sd, str(market))
                             if mu is not None and sd is not None:
@@ -4809,6 +6212,12 @@ def _sim_vs_line_prop_recommendations(
                                     pw = float(max(0.02, min(0.98, float(pw))))
                                 ev = _ev_from_prob_and_american(float(pw), price if price is not None else -110) if pw is not None else None
                                 if pw is not None and ev is not None:
+                                    if min_ev_pct is not None:
+                                        try:
+                                            if float(ev) * 100.0 < float(min_ev_pct):
+                                                continue
+                                        except Exception:
+                                            pass
                                     scored_plays.append(
                                         {
                                             "market": str(market).strip().lower(),
@@ -4826,6 +6235,27 @@ def _sim_vs_line_prop_recommendations(
 
                 if not scored_plays:
                     continue
+
+                # De-dupe: recommend each prop once (best line only).
+                # Keyed by (market, side) so multiple books/alt-lines collapse.
+                try:
+                    best_by_key: dict[tuple[str, str], dict[str, Any]] = {}
+                    for sp in scored_plays:
+                        if not isinstance(sp, dict):
+                            continue
+                        mk = str(sp.get("market") or "").strip().lower()
+                        sd = str(sp.get("side") or "").strip().upper()
+                        if not mk or not sd:
+                            continue
+                        k = (mk, sd)
+                        cur = best_by_key.get(k)
+                        cur_ev = _safe_float(cur.get("ev")) if isinstance(cur, dict) else None
+                        sp_ev = _safe_float(sp.get("ev"))
+                        if cur is None or (sp_ev is not None and (cur_ev is None or float(sp_ev) > float(cur_ev))):
+                            best_by_key[k] = sp
+                    scored_plays = list(best_by_key.values()) or scored_plays
+                except Exception:
+                    pass
 
                 # Rank plays for this player and keep top few (UI can show multiple).
                 scored_plays.sort(key=lambda z: _safe_float(z.get("ev")) or float("-inf"), reverse=True)
@@ -5143,6 +6573,7 @@ def api_cards():
             "score": obj.get("score"),
             "periods": obj.get("periods"),
             "intervals": obj.get("intervals"),
+            "intervals_1m": obj.get("intervals_1m"),
             "players": players_out,
             "injuries": injuries_payload,
             "error": sim_error,
@@ -5181,12 +6612,41 @@ def api_cards():
         bet["under_ev"] = _ev_from_prob_and_american(bet.get("p_total_under"), tu_price if tu_price is not None else -110)
 
         # Unified prop recommendations: betting lines vs SmartSim aggregates.
+        # Cards homepage: ROI-optimized defaults for props shown on each game card.
+        try:
+            raw_mkts = (request.args.get("prop_markets") or request.args.get("propMarkets") or "pts,threes")
+            allowed_markets = {m.strip().lower() for m in str(raw_mkts).replace(";", ",").split(",") if m.strip()}
+        except Exception:
+            allowed_markets = {"pts", "threes"}
+        if not allowed_markets:
+            allowed_markets = {"pts", "threes"}
+        try:
+            min_ev_pct = _safe_float(request.args.get("props_min_ev", request.args.get("propsMinEV", "1.0")))
+            min_ev_pct = 1.0 if min_ev_pct is None else float(min_ev_pct)
+        except Exception:
+            min_ev_pct = 1.0
+        try:
+            exc_raw = (request.args.get("excludeBooks") or request.args.get("exclude_books"))
+            if exc_raw is None:
+                excluded_books = {"fanduel", "draftkings", "williamhill_us"}
+            else:
+                s = str(exc_raw or "").strip().lower()
+                if s in {"", "none", "off", "0", "false", "no"}:
+                    excluded_books = set()
+                else:
+                    excluded_books = {x.strip().lower() for x in s.split(",") if x.strip()}
+        except Exception:
+            excluded_books = {"fanduel", "draftkings", "williamhill_us"}
+
         prop_recommendations = _sim_vs_line_prop_recommendations(
             players_out,
             props_recs_by_team,
             home_tri=home_tri,
             away_tri=away_tri,
             topn_per_side=6,
+            allowed_markets=allowed_markets,
+            min_ev_pct=min_ev_pct,
+            excluded_books=excluded_books,
         )
 
         game = {
@@ -8420,7 +9880,14 @@ def _recommendations_all():
                 # Build stat mapping per player/team
                 def _stat_map(row):
                     m = {}
-                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                    for mean_col, pred_col, key in [
+                        ("mean_pts", "pred_pts", "pts"),
+                        ("mean_reb", "pred_reb", "reb"),
+                        ("mean_ast", "pred_ast", "ast"),
+                        ("mean_threes", "pred_threes", "threes"),
+                        ("mean_pra", "pred_pra", "pra"),
+                    ]:
+                        col = mean_col if mean_col in props_pred_df.columns else pred_col
                         if col in props_pred_df.columns:
                             try:
                                 v = pd.to_numeric(row.get(col), errors="coerce")
@@ -10270,10 +11737,28 @@ def api_props():
             for c in ("player_id","player_name","team","opponent","home"):
                 if c not in tmp.columns:
                     tmp[c] = None
+            mean_cols = [c for c in tmp.columns if c.startswith("mean_")]
             pred_cols = [c for c in tmp.columns if c.startswith("pred_")]
-            rename_map = {"pred_pts":"pts","pred_reb":"reb","pred_ast":"ast","pred_threes":"threes","pred_pra":"pra"}
-            use = {c: rename_map.get(c, c.replace("pred_","")) for c in pred_cols}
-            long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
+            stat_cols = mean_cols if mean_cols else pred_cols
+            rename_map = {
+                "mean_pts": "pts", "mean_reb": "reb", "mean_ast": "ast", "mean_threes": "threes", "mean_pra": "pra",
+                "pred_pts": "pts", "pred_reb": "reb", "pred_ast": "ast", "pred_threes": "threes", "pred_pra": "pra",
+            }
+            def _stat_name(c: str) -> str:
+                if c in rename_map:
+                    return rename_map[c]
+                if c.startswith("mean_"):
+                    return c.replace("mean_", "")
+                if c.startswith("pred_"):
+                    return c.replace("pred_", "")
+                return c
+            use = {c: _stat_name(c) for c in stat_cols}
+            long = tmp.melt(
+                id_vars=["player_id", "player_name", "team", "opponent", "home"],
+                value_vars=list(use.keys()),
+                var_name="stat_col",
+                value_name="pred",
+            )
             long["stat"] = long["stat_col"].map(use)
             long.drop(columns=["stat_col"], inplace=True)
             # Enrich with opponent ranks (allowed stats) and team injury counts for context
@@ -10593,10 +12078,28 @@ def api_props():
                 for c in ("player_id","player_name","team","opponent","home"):
                     if c not in tmp.columns:
                         tmp[c] = None
+                mean_cols = [c for c in tmp.columns if c.startswith("mean_")]
                 pred_cols = [c for c in tmp.columns if c.startswith("pred_")]
-                rename_map = {"pred_pts":"pts","pred_reb":"reb","pred_ast":"ast","pred_threes":"threes","pred_pra":"pra"}
-                use = {c: rename_map.get(c, c.replace("pred_","")) for c in pred_cols}
-                long = tmp.melt(id_vars=["player_id","player_name","team","opponent","home"], value_vars=list(use.keys()), var_name="stat_col", value_name="pred")
+                stat_cols = mean_cols if mean_cols else pred_cols
+                rename_map = {
+                    "mean_pts": "pts", "mean_reb": "reb", "mean_ast": "ast", "mean_threes": "threes", "mean_pra": "pra",
+                    "pred_pts": "pts", "pred_reb": "reb", "pred_ast": "ast", "pred_threes": "threes", "pred_pra": "pra",
+                }
+                def _stat_name(c: str) -> str:
+                    if c in rename_map:
+                        return rename_map[c]
+                    if c.startswith("mean_"):
+                        return c.replace("mean_", "")
+                    if c.startswith("pred_"):
+                        return c.replace("pred_", "")
+                    return c
+                use = {c: _stat_name(c) for c in stat_cols}
+                long = tmp.melt(
+                    id_vars=["player_id", "player_name", "team", "opponent", "home"],
+                    value_vars=list(use.keys()),
+                    var_name="stat_col",
+                    value_name="pred",
+                )
                 long["stat"] = long["stat_col"].map(use)
                 long.drop(columns=["stat_col"], inplace=True)
                 # Resolve missing player_id via roster lookup
@@ -10824,6 +12327,7 @@ def _recommendations_game_cards():
         want_stats = [s for s in want_stats if s]
     except Exception:
         want_stats = ["pts", "reb", "ast", "threes", "pra"]
+
 
     regular_only = str(request.args.get("regular_only", "1") or "1").strip().lower() in {"1", "true", "yes"}
     include_recon = str(request.args.get("include_recon", "1") or "1").strip().lower() in {"1", "true", "yes"}
@@ -11271,11 +12775,11 @@ def _recommendations_game_cards():
                 if not pid:
                     continue
                 pred_by_player[pid] = {
-                    "pts": _as_float(r.get("pred_pts")),
-                    "reb": _as_float(r.get("pred_reb")),
-                    "ast": _as_float(r.get("pred_ast")),
-                    "threes": _as_float(r.get("pred_threes")),
-                    "pra": _as_float(r.get("pred_pra")),
+                    "pts": _as_float(r.get("mean_pts")) if ("mean_pts" in df_pp.columns) else _as_float(r.get("pred_pts")),
+                    "reb": _as_float(r.get("mean_reb")) if ("mean_reb" in df_pp.columns) else _as_float(r.get("pred_reb")),
+                    "ast": _as_float(r.get("mean_ast")) if ("mean_ast" in df_pp.columns) else _as_float(r.get("pred_ast")),
+                    "threes": _as_float(r.get("mean_threes")) if ("mean_threes" in df_pp.columns) else _as_float(r.get("pred_threes")),
+                    "pra": _as_float(r.get("mean_pra")) if ("mean_pra" in df_pp.columns) else _as_float(r.get("pred_pra")),
                 }
 
         for c in cards_by_game.values():
@@ -11421,6 +12925,8 @@ def api_props_recommendations():
       - minEV: minimum EV percent (e.g., 1.5). We compute ev_pct = ev*100 when ev present.
       - onlyEV: 1 to hide plays without EV
       - home_team/away_team: optional filter to a specific game
+            - excludeBooks/exclude_books: optional comma-separated list of bookmakers to exclude.
+                Default (when omitted): fanduel,draftkings,williamhill_us. Use 'none' to disable.
         Response:
             { date, rows, games: [{home_team,away_team}], data: [{player,team,home_team,away_team,plays:[...] }]}.
         Sorting:
@@ -11433,8 +12939,10 @@ def api_props_recommendations():
         # If the caller asks for the tracked portfolio, prefer the authoritative daily snapshot.
         # This keeps "what we surface" == "what we track" (and avoids leaking losing markets).
         portfolio_only_q = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1", "true", "yes"}
+        # Allow backtests to bypass snapshot and recompute using current query params.
+        use_snapshot_q = str(request.args.get("use_snapshot", "1") or "1").strip().lower() in {"1", "true", "yes"}
         best_props_p = BASE_DIR / "data" / "processed" / f"best_edges_props_{d}.csv"
-        if portfolio_only_q and best_props_p.exists():
+        if portfolio_only_q and use_snapshot_q and best_props_p.exists():
             try:
                 snap_df = _read_csv_if_exists(best_props_p)
             except Exception:
@@ -11456,6 +12964,10 @@ def api_props_recommendations():
                             "edge": rr.get("edge"),
                             "ev": rr.get("ev"),
                             "ev_pct": (evf * 100.0) if evf is not None else None,
+                            "implied_prob": rr.get("implied_prob"),
+                            "model_prob": rr.get("model_prob"),
+                            # Backtest/calibration helpers: treat model_prob as the win probability.
+                            "prob": rr.get("model_prob"),
                             "book": rr.get("book"),
                             "score_explain": rr.get("score_explain"),
                             "score_components": rr.get("score_components"),
@@ -11590,9 +13102,10 @@ def api_props_recommendations():
         compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
         onlyEV = str(request.args.get("onlyEV", request.args.get("only_ev", "0"))).lower() in {"1","true","yes"}
         try:
-            minEV = float(request.args.get("minEV", request.args.get("min_ev_pct", "0") ) or 0)
+            # Default to Option B: minEV=1.0 (percent). Still fully overridable via query params.
+            minEV = float(request.args.get("minEV", request.args.get("min_ev_pct", "1.0")) or 0)
         except Exception:
-            minEV = 0.0
+            minEV = 1.0
 
         # Build base cards from full model predictions if available
         cards_map: dict[tuple[str,str], dict] = {}
@@ -11610,7 +13123,14 @@ def api_props_recommendations():
                 for (player, team), grp in pp.groupby(["player_name","team"], dropna=False):
                     # Collect model stats
                     model: dict[str, float] = {}
-                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                    for mean_col, pred_col, key in [
+                        ("mean_pts", "pred_pts", "pts"),
+                        ("mean_reb", "pred_reb", "reb"),
+                        ("mean_ast", "pred_ast", "ast"),
+                        ("mean_threes", "pred_threes", "threes"),
+                        ("mean_pra", "pred_pra", "pra"),
+                    ]:
+                        col = mean_col if mean_col in grp.columns else pred_col
                         if col in grp.columns:
                             try:
                                 v = pd.to_numeric(grp[col], errors="coerce").dropna()
@@ -11673,6 +13193,17 @@ def api_props_recommendations():
         # Normalize and compute ev_pct for convenience on edges
         # Normalize and compute ev_pct for convenience
         df = df.copy()
+        # Ensure we have a unified bookmaker column for downstream logic.
+        if "bookmaker" not in df.columns:
+            try:
+                for _c in ("book", "bookmaker_title"):
+                    if _c in df.columns:
+                        df["bookmaker"] = df[_c]
+                        break
+                if "bookmaker" not in df.columns:
+                    df["bookmaker"] = None
+            except Exception:
+                df["bookmaker"] = None
         if "ev" in df.columns:
             try:
                 df["ev"] = pd.to_numeric(df["ev"], errors="coerce")
@@ -11682,9 +13213,33 @@ def api_props_recommendations():
         for c in ("edge","line","price"):
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors="coerce")
+
+        # Default ROI filter: exclude historically bad-performing books unless caller overrides.
+        try:
+            def _nbook(v: object) -> str:
+                return str(v or "").strip().lower()
+
+            exc_raw = (request.args.get("excludeBooks") or request.args.get("exclude_books"))
+            default_excluded = {"fanduel", "draftkings", "williamhill_us"}
+            excluded_books: set[str] | None = None
+            if exc_raw is None:
+                excluded_books = set(default_excluded)
+            else:
+                s = str(exc_raw or "").strip().lower()
+                if s in {"", "none", "off", "0", "false", "no"}:
+                    excluded_books = set()
+                else:
+                    excluded_books = {x.strip().lower() for x in s.split(",") if x.strip()}
+            if excluded_books:
+                df = df[~df["bookmaker"].map(_nbook).isin(excluded_books)]
+        except Exception:
+            pass
         # Filter by market if requested (support single 'market' or multi 'markets'/'mkts')
         market = (request.args.get("market") or "").strip().lower()
         mkts_param = (request.args.get("markets") or request.args.get("mkts") or "").strip().lower()
+        # Default to Option B markets when caller doesn't specify any.
+        if (not market) and (not mkts_param):
+            mkts_param = "pts,threes"
         want_mkts: set[str] = set()
         if mkts_param:
             try:
@@ -11803,7 +13358,14 @@ def api_props_recommendations():
                 tmp[team_col] = tmp[team_col].astype(str).str.upper()
                 for (pname, tval), gpp in tmp.groupby(["player_name", team_col], dropna=False):
                     model: dict[str,float] = {}
-                    for col, key in [("pred_pts","pts"),("pred_reb","reb"),("pred_ast","ast"),("pred_threes","threes"),("pred_pra","pra")]:
+                    for mean_col, pred_col, key in [
+                        ("mean_pts", "pred_pts", "pts"),
+                        ("mean_reb", "pred_reb", "reb"),
+                        ("mean_ast", "pred_ast", "ast"),
+                        ("mean_threes", "pred_threes", "threes"),
+                        ("mean_pra", "pred_pra", "pra"),
+                    ]:
+                        col = mean_col if mean_col in gpp.columns else pred_col
                         if col in gpp.columns:
                             try:
                                 v = pd.to_numeric(gpp[col], errors="coerce").dropna()
@@ -13280,17 +14842,18 @@ def api_props_recommendations():
                     c["minutes_stability"] = _minutes_stability(c)
                 except Exception:
                     pass
-        # Optional correlation-aware portfolio selection
+        # Optional portfolio selection
         limit_param = request.args.get("limit")
-        penalize_corr = str(request.args.get("penalize_correlation", "1") or "1").strip().lower() in {"1","true","yes"}
+        # Default to Option B behavior unless caller explicitly opts in.
+        penalize_corr = str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"}
         portfolio_only = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1","true","yes"}
         limit_n = None
         try:
-            limit_n = int(limit_param) if limit_param else 12
+            limit_n = int(limit_param) if limit_param else 3
         except Exception:
-            limit_n = 12
+            limit_n = 3
         # Optional optimizer toggle and strength
-        optimize = str(request.args.get("optimize", "1") or "1").strip().lower() in {"1","true","yes"}
+        optimize = str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"}
         try:
             opt_alpha = float(str(request.args.get("opt_alpha", "0.15") or "0.15"))
         except Exception:
@@ -13300,15 +14863,15 @@ def api_props_recommendations():
             corr_penalty_scale = float(str(request.args.get("corr_penalty_scale", "0.0") or "0.0"))
         except Exception:
             corr_penalty_scale = 0.0
-        # Diversification caps (optional)
+        # Diversification caps (optional; default off for Option B)
         try:
-            cap_team = int(str(request.args.get("cap_team", "2") or "2"))
+            cap_team = int(str(request.args.get("cap_team", "0") or "0"))
         except Exception:
-            cap_team = 2
+            cap_team = 0
         try:
-            cap_market = int(str(request.args.get("cap_market", "4") or "4"))
+            cap_market = int(str(request.args.get("cap_market", "0") or "0"))
         except Exception:
-            cap_market = 4
+            cap_market = 0
         portfolio_cards = None
         if limit_n and limit_n > 0:
                     # Build correlation-aware selection
@@ -13389,10 +14952,28 @@ def api_props_recommendations():
                             return float(max(0.0, min(0.35, pen)))
                         except Exception:
                             return 0.0
-                    # Compute adjusted score
+                    # Rank metric for portfolio selection (Option B default: EV)
+                    def _rank_value(card: dict) -> float:
+                        try:
+                            tp = (card.get("top_play") or {})
+                            sb = str(sort_by or "").strip().lower()
+                            if sb.startswith("edge"):
+                                v = tp.get("edge")
+                            elif sb.startswith("ev") or (not sb):
+                                v = tp.get("ev")
+                            elif sb.startswith("score"):
+                                v = card.get("score")
+                            else:
+                                v = tp.get("ev")
+                            return float(v) if v is not None else 0.0
+                        except Exception:
+                            return 0.0
+                    reverse_rank = not str(sort_by or "").strip().lower().endswith("_asc")
+
+                    # Compute adjusted score for ranking (penalties applied to rank metric)
                     def _adj_score(card: dict) -> float:
                         try:
-                            base = float(card.get("score") or 0.0)
+                            base = float(_rank_value(card) or 0.0)
                             if not (penalize_corr or optimize):
                                 return base
                             mk = str(((card.get("top_play") or {}).get("market")) or "").lower()
@@ -13403,10 +14984,10 @@ def api_props_recommendations():
                             cp = float(card.get("corr_proxy") or 0.0)
                             pen_raw = 0.15 * float(max(0.0, cp)) + 0.10 * float(max(0, overlap))
                             pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale)))
-                            return round(max(0.0, base - pen), 3)
+                            return round(max(0.0, base - pen), 6)
                         except Exception:
-                            return float(card.get("score") or 0.0)
-                    ranked = sorted(cards, key=lambda c: _adj_score(c), reverse=True)
+                            return float(_rank_value(card) or 0.0)
+                    ranked = sorted(cards, key=lambda c: _adj_score(c), reverse=bool(reverse_rank))
                     portfolio_cards = []
                     seen_players: set[tuple[str,str]] = set()
                     team_counts: dict[str,int] = {}
@@ -13434,7 +15015,7 @@ def api_props_recommendations():
                                     pair_pen = opt_alpha * sum(_pair_pen(c, s) for s in portfolio_cards)
                                 except Exception:
                                     pair_pen = 0.0
-                            score_adj = round(max(0.0, float(base_adj) - float(team_pen) - float(pair_pen)), 3)
+                            score_adj = round(max(0.0, float(base_adj) - float(team_pen) - float(pair_pen)), 6)
                             portfolio_cards.append({**c, "score_adj": score_adj})
                             seen_players.add(pkey)
                             if team:
@@ -13532,14 +15113,14 @@ def api_props_recommendations():
                     # Fallback: simple ranking when no optimized portfolio was computed
                     limit_param = request.args.get("limit")
                     try:
-                        limit_n = int(limit_param) if limit_param else 12
+                        limit_n = int(limit_param) if limit_param else 3
                     except Exception:
-                        limit_n = 12
+                        limit_n = 3
                     if limit_n and limit_n > 0:
                         # Rebuild optimized selection locally (correlation-aware)
                         try:
-                            penalize_corr = str(request.args.get("penalize_correlation", "1") or "1").strip().lower() in {"1","true","yes"}
-                            optimize = str(request.args.get("optimize", "1") or "1").strip().lower() in {"1","true","yes"}
+                            penalize_corr = str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"}
+                            optimize = str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"}
                             try:
                                 opt_alpha = float(str(request.args.get("opt_alpha", "0.15") or "0.15"))
                             except Exception:
@@ -13549,13 +15130,13 @@ def api_props_recommendations():
                             except Exception:
                                 corr_penalty_scale = 0.0
                             try:
-                                cap_team = int(str(request.args.get("cap_team", "2") or "2"))
+                                cap_team = int(str(request.args.get("cap_team", "0") or "0"))
                             except Exception:
-                                cap_team = 2
+                                cap_team = 0
                             try:
-                                cap_market = int(str(request.args.get("cap_market", "4") or "4"))
+                                cap_market = int(str(request.args.get("cap_market", "0") or "0"))
                             except Exception:
-                                cap_market = 4
+                                cap_market = 0
                             def _game_key(card: dict) -> tuple[str, str] | None:
                                 try:
                                     h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
@@ -14717,6 +16298,669 @@ def api_line_score():
         except Exception:
             continue
     return jsonify({"error": "not found", "date": d, "home": home, "away": away}), 404
+
+
+@app.route("/api/live/scoreboard")
+def api_live_scoreboard():
+    """Live scoreboard including clock/period.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+
+        Response:
+            { date, source, games:[{game_id, home, away, home_pts, away_pts, status_id, status, period, clock, in_progress, final, ...}] }
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    source, games = _live_build_scoreboard_games(d)
+    return jsonify({"date": d, "source": source, "games": games})
+
+
+@app.route("/api/live/game")
+def api_live_game():
+    """Per-game live state: score/clock + PBP-derived attempts + current lines.
+
+    Query params:
+      - game_id: required
+      - date: YYYY-MM-DD (required)
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    req_gid_raw = (request.args.get("game_id") or "").strip()
+    if not req_gid_raw:
+        return jsonify({"error": "missing game_id"}), 400
+
+    def _gid_variants(s: str) -> set[str]:
+        s = (s or "").strip()
+        if not s:
+            return set()
+        digits = "".join(ch for ch in s if ch.isdigit())
+        norm = (digits.lstrip("0") or digits) if digits else ""
+        padded10 = norm.zfill(10) if norm else ""
+        out = {s}
+        if digits:
+            out.add(digits)
+        if norm:
+            out.add(norm)
+        if padded10:
+            out.add(padded10)
+        # also include strip-leading-zeros of the raw string
+        out.add(s.lstrip("0") or s)
+        return {x for x in out if x}
+
+    req_gid_set = _gid_variants(req_gid_raw)
+    # Prefer a stable canonical cache key (10-digit padded when numeric)
+    req_gid_norm = next((x for x in req_gid_set if x.isdigit() and len(x) == 10), None)
+    gid_cache = req_gid_norm or req_gid_raw
+
+    # Cache per game for 20 seconds
+    now = time.time()
+    cache_key = f"{d}:{gid_cache}"
+    ent = _live_game_cache.get(cache_key)
+    if ent and (now - ent[0] < 20):
+        return jsonify(ent[1])
+
+    source, games = _live_build_scoreboard_games(d)
+    g = None
+    for x in games:
+        xgid = str(x.get("game_id") or "").strip()
+        if not xgid:
+            continue
+        if xgid in req_gid_set:
+            g = x
+            break
+        if _gid_variants(xgid) & req_gid_set:
+            g = x
+            break
+    if not g:
+        payload = {"date": d, "game_id": req_gid_raw, "found": False}
+        _live_game_cache[cache_key] = (now, payload)
+        return jsonify(payload), 200
+
+    # Use the scoreboard canonical game id going forward (e.g. zero-padded)
+    gid = str(g.get("game_id") or req_gid_raw).strip()
+
+    home_tri = str(g.get("home") or "").upper().strip()
+    away_tri = str(g.get("away") or "").upper().strip()
+    home_pts = _safe_int(g.get("home_pts"))
+    away_pts = _safe_int(g.get("away_pts"))
+    total_pts = None
+    try:
+        if home_pts is not None and away_pts is not None:
+            total_pts = int(home_pts) + int(away_pts)
+    except Exception:
+        total_pts = None
+
+    period = _safe_int(g.get("period"))
+    clock = g.get("clock")
+    sec_left_period = _live_parse_clock_to_sec_left(clock)
+    # Compute regulation-based seconds remaining (OT handled as 5m chunks)
+    game_sec_left = None
+    if period is not None and sec_left_period is not None:
+        if period <= 4:
+            game_sec_left = (4 - period) * (12 * 60) + sec_left_period
+        else:
+            # OTs are 5 minutes
+            game_sec_left = sec_left_period
+    game_min_left = (game_sec_left / 60.0) if (game_sec_left is not None) else None
+    half_min_left = None
+    if period is not None and sec_left_period is not None:
+        if period <= 2:
+            half_sec_left = (2 - period) * (12 * 60) + sec_left_period
+            half_min_left = half_sec_left / 60.0
+        elif period > 2:
+            half_min_left = 0.0
+
+    # Round down to 3-minute ladder
+    game_min_left_3 = _live_round_to_step(game_min_left, 3, lo=0, hi=48)
+    half_min_left_3 = _live_round_to_step(half_min_left, 3, lo=0, hi=24)
+
+    # PBP-derived attempts
+    actions: list[dict[str, Any]] = []
+    if bool(g.get("in_progress")) or bool(g.get("final")):
+        try:
+            espn_event_id = str(g.get("espn_event_id") or "").strip()
+        except Exception:
+            espn_event_id = ""
+        if espn_event_id and source == "espn":
+            summ = _live_fetch_espn_summary(espn_event_id)
+            actions = _live_espn_actions_from_summary(summ) if summ else []
+        if not actions:
+            actions = _live_fetch_pbp_actions(gid)
+    pbp_stats = _live_pbp_attempt_stats(actions) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+    pbp_possessions = _live_pbp_possession_stats(actions, pbp_stats) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+    pbp_score_series = _live_pbp_score_by_minute(actions) if actions else {"game": {"home": [None] * 49, "away": [None] * 49, "total": [None] * 49}, "half": {"home": [None] * 25, "away": [None] * 25, "total": [None] * 25}}
+    pbp_quarters = _live_pbp_quarter_totals(actions) if actions else {"q_totals": {"q1": None, "q2": None, "q3": None, "q4": None}, "current": {"period": None, "q_total": None}}
+
+    # Lines (best-effort). These can be slow due to upstream fetches; only request
+    # them when the game is in progress.
+    lines = None
+    oddsapi_period: dict[str, Any] = {}
+    if bool(g.get("in_progress")):
+        lines_all = _live_bovada_lines_for_date(d)
+        lines = _live_match_lines(lines_all, home_tri, away_tri)
+        # OddsAPI period totals (1H, quarters) when available
+        oddsapi_period = _live_oddsapi_period_totals_for_game(d, home_tri, away_tri)
+
+    # SmartSim-based 1-minute lens (prefer native 1-minute ladder when available)
+    sim_obj = _live_load_smart_sim_by_game_id(d, gid)
+    intervals = None
+    try:
+        if isinstance(sim_obj, dict):
+            intervals = sim_obj.get("intervals_1m") or sim_obj.get("intervals")
+            if intervals is None and isinstance(sim_obj.get("sim"), dict):
+                sim_inner = sim_obj.get("sim") or {}
+                intervals = sim_inner.get("intervals_1m") or sim_inner.get("intervals")
+    except Exception:
+        intervals = None
+
+    lens: dict[str, Any] = {"minute_resolution": 1, "available": bool(intervals)}
+    try:
+        if intervals and isinstance(intervals, dict):
+            # Precompute sim series once
+            sim_game_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=48)
+            sim_half_by_min = _live_cum_p50_series_by_min(intervals, total_minutes=24)
+            sim_final_g = _live_interp_cum_p50(intervals, elapsed_min=48.0, total_minutes=48)
+            sim_final_h = _live_interp_cum_p50(intervals, elapsed_min=24.0, total_minutes=24)
+
+            # If we have PBP score by minute, compute SmartSim-driven projected final totals by minute.
+            act_game_total_by_min = (pbp_score_series.get("game") or {}).get("total") if isinstance(pbp_score_series, dict) else None
+            act_half_total_by_min = (pbp_score_series.get("half") or {}).get("total") if isinstance(pbp_score_series, dict) else None
+
+            proj_final_total_by_min: list[float | None] = [None] * 49
+            if isinstance(act_game_total_by_min, list) and len(act_game_total_by_min) == 49 and sim_final_g is not None:
+                for m in range(0, 49):
+                    try:
+                        act = act_game_total_by_min[m]
+                        sim_at = sim_game_by_min[m]
+                        if act is None or sim_at is None:
+                            continue
+                        proj_final_total_by_min[m] = float(float(act) + (float(sim_final_g) - float(sim_at)))
+                    except Exception:
+                        continue
+
+            proj_final_half_total_by_min: list[float | None] = [None] * 25
+            if isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) == 25 and sim_final_h is not None:
+                for m in range(0, 25):
+                    try:
+                        act = act_half_total_by_min[m]
+                        sim_at = sim_half_by_min[m]
+                        if act is None or sim_at is None:
+                            continue
+                        proj_final_half_total_by_min[m] = float(float(act) + (float(sim_final_h) - float(sim_at)))
+                    except Exception:
+                        continue
+
+            # Game lens
+            if game_min_left is not None and total_pts is not None:
+                elapsed_g = float(max(0.0, min(48.0, 48.0 - float(game_min_left))))
+                sim_at_g = _live_interp_cum_p50(intervals, elapsed_min=elapsed_g, total_minutes=48)
+                pace_final_g = None
+                delta_g = None
+                if sim_at_g is not None and sim_final_g is not None:
+                    delta_g = float(sim_at_g - float(total_pts))
+                    pace_final_g = float(float(total_pts) + (sim_final_g - sim_at_g))
+                diff_vs_total = None
+                if pace_final_g is not None and lines and lines.get("total") is not None:
+                    try:
+                        diff_vs_total = float(pace_final_g - float(lines.get("total")))
+                    except Exception:
+                        diff_vs_total = None
+                lens["game"] = {
+                    "elapsed_min": elapsed_g,
+                    "min_left": game_min_left,
+                    "sim_cum_p50_at": sim_at_g,
+                    "sim_cum_p50_final": sim_final_g,
+                    "delta_sim_minus_act": delta_g,
+                    "pace_final": pace_final_g,
+                    "diff_vs_live_total": diff_vs_total,
+                }
+                # Optional series: can be big; default include a compact 0..48 list
+                lens["game"]["sim_cum_p50_by_min"] = sim_game_by_min
+                lens["game"]["act_total_by_min"] = act_game_total_by_min
+                lens["game"]["proj_final_total_by_min"] = proj_final_total_by_min
+
+            # 1H lens
+            if half_min_left is not None and total_pts is not None:
+                elapsed_h = float(max(0.0, min(24.0, 24.0 - float(half_min_left))))
+                sim_at_h = _live_interp_cum_p50(intervals, elapsed_min=elapsed_h, total_minutes=24)
+                pace_final_h = None
+                delta_h = None
+                if sim_at_h is not None and sim_final_h is not None:
+                    delta_h = float(sim_at_h - float(total_pts))
+                    pace_final_h = float(float(total_pts) + (sim_final_h - sim_at_h))
+                lens["half"] = {
+                    "elapsed_min": elapsed_h,
+                    "min_left": half_min_left,
+                    "sim_cum_p50_at": sim_at_h,
+                    "sim_cum_p50_final": sim_final_h,
+                    "delta_sim_minus_act": delta_h,
+                    "pace_final": pace_final_h,
+                }
+                lens["half"]["sim_cum_p50_by_min"] = sim_half_by_min
+                lens["half"]["act_total_by_min"] = act_half_total_by_min
+                lens["half"]["proj_final_total_by_min"] = proj_final_half_total_by_min
+    except Exception:
+        pass
+
+    payload = {
+        "date": d,
+        "game_id": gid,
+        "found": True,
+        "status": {
+            "status_id": g.get("status_id"),
+            "status": g.get("status"),
+            "period": period,
+            "clock": clock,
+            "in_progress": bool(g.get("in_progress")),
+            "final": bool(g.get("final")),
+            "source": source,
+        },
+        "teams": {"home": home_tri, "away": away_tri},
+        "score": {
+            "home_pts": home_pts,
+            "away_pts": away_pts,
+            "total_pts": total_pts,
+            "home_margin": (home_pts - away_pts) if (home_pts is not None and away_pts is not None) else None,
+        },
+        "time": {
+            "sec_left_period": sec_left_period,
+            "game_sec_left": game_sec_left,
+            "game_min_left": game_min_left,
+            "game_min_left_3": game_min_left_3,
+            "half_min_left": half_min_left,
+            "half_min_left_3": half_min_left_3,
+        },
+        "pbp_attempts": pbp_stats,
+        "pbp_possessions": pbp_possessions,
+        "pbp_quarters": pbp_quarters,
+        "lens": lens,
+        "lines": {
+            **(lines or {}),
+            "source": "bovada_current" if lines else None,
+            "note": "Bovada feed is best-effort and may not be true in-game line movement.",
+            "period_totals": (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None),
+            "period_totals_source": (oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None),
+        },
+    }
+    _live_game_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+def _parse_ttl_param(req, default: int, lo: int = 1, hi: int = 3600) -> int:
+    try:
+        v = req.args.get("ttl")
+        if v is None:
+            return int(default)
+        x = int(float(str(v).strip()))
+        if x < lo:
+            return int(lo)
+        if x > hi:
+            return int(hi)
+        return int(x)
+    except Exception:
+        return int(default)
+
+
+@app.route("/api/live_state")
+def api_live_state():
+    """NCAAB-parity endpoint: basic live state for a slate.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+      - ttl: seconds (optional)
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    ttl = _parse_ttl_param(request, default=12, lo=1, hi=300)
+
+    now = time.time()
+    cache_key = f"{d}:{ttl}"
+    ent = _live_state_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    source, games = _live_build_scoreboard_games(d)
+    out_games: list[dict[str, Any]] = []
+    for g in games or []:
+        try:
+            out_games.append({
+                "game_id": g.get("game_id"),
+                "event_id": g.get("espn_event_id"),
+                "home": g.get("home"),
+                "away": g.get("away"),
+                "home_pts": g.get("home_pts"),
+                "away_pts": g.get("away_pts"),
+                "status_id": g.get("status_id"),
+                "status": g.get("status"),
+                "period": g.get("period"),
+                "clock": g.get("clock"),
+                "in_progress": bool(g.get("in_progress")),
+                "final": bool(g.get("final")),
+            })
+        except Exception:
+            continue
+
+    payload = {
+        "date": d,
+        "ttl": ttl,
+        "source": source,
+        "games": out_games,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_state_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+@app.route("/api/live_pbp_stats")
+def api_live_pbp_stats():
+    """NCAAB-parity endpoint: PBP-derived stats for multiple ESPN event ids.
+
+    Query params:
+      - event_ids: comma-separated ESPN event ids (required)
+      - ttl: seconds (optional)
+      - date: YYYY-MM-DD (optional, used for mapping)
+    """
+    ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    event_ids_raw = (request.args.get("event_ids") or "").strip()
+    if not event_ids_raw:
+        return jsonify({"error": "missing event_ids"}), 400
+    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+    if not event_ids:
+        return jsonify({"error": "missing event_ids"}), 400
+
+    d = _parse_date_param(request, default_to_today=False) or ""
+    now = time.time()
+    cache_key = f"{d}:{ttl}:" + ",".join(event_ids)
+    ent = _live_pbp_multi_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    # Best-effort mapping to SmartSim game_id + team tricodes
+    games_map: dict[str, dict[str, Any]] = {}
+    if d:
+        try:
+            _src, sb_games = _live_build_scoreboard_games(d)
+            for g in sb_games or []:
+                eid = str(g.get("espn_event_id") or "").strip()
+                if eid:
+                    games_map[eid] = g
+        except Exception:
+            games_map = {}
+
+    out: list[dict[str, Any]] = []
+    for eid in event_ids:
+        g = games_map.get(str(eid))
+        gid = (g.get("game_id") if isinstance(g, dict) else None)
+        home = (g.get("home") if isinstance(g, dict) else None)
+        away = (g.get("away") if isinstance(g, dict) else None)
+
+        actions: list[dict[str, Any]] = []
+        try:
+            summ = _live_fetch_espn_summary(str(eid))
+            actions = _live_espn_actions_from_summary(summ) if summ else []
+        except Exception:
+            actions = []
+
+        pbp_attempts = _live_pbp_attempt_stats(actions) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+        pbp_possessions = _live_pbp_possession_stats(actions, pbp_attempts) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+        pbp_quarters = _live_pbp_quarter_totals(actions) if actions else {"q_totals": {"q1": None, "q2": None, "q3": None, "q4": None}, "current": {"period": None, "q_total": None}}
+
+        out.append({
+            "event_id": str(eid),
+            "game_id": gid,
+            "home": home,
+            "away": away,
+            "pbp_attempts": pbp_attempts,
+            "pbp_possessions": pbp_possessions,
+            "pbp_quarters": pbp_quarters,
+        })
+
+    payload = {
+        "ok": True,
+        "ttl": ttl,
+        "games": out,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_pbp_multi_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+@app.route("/api/live_lines")
+def api_live_lines():
+    """NCAAB-parity endpoint: best-effort live lines for multiple event ids.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+      - event_ids: comma-separated ESPN event ids (required)
+      - ttl: seconds (optional)
+    """
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+    ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    event_ids_raw = (request.args.get("event_ids") or "").strip()
+    if not event_ids_raw:
+        return jsonify({"error": "missing event_ids"}), 400
+    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+    if not event_ids:
+        return jsonify({"error": "missing event_ids"}), 400
+
+    now = time.time()
+    cache_key = f"{d}:{ttl}:" + ",".join(event_ids)
+    ent = _live_lines_multi_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    # Map eid -> scoreboard game
+    source, sb_games = _live_build_scoreboard_games(d)
+    by_eid: dict[str, dict[str, Any]] = {}
+    for g in sb_games or []:
+        try:
+            eid = str(g.get("espn_event_id") or "").strip()
+            if eid:
+                by_eid[eid] = g
+        except Exception:
+            continue
+
+    bovada_all = None
+    try:
+        bovada_all = _live_bovada_lines_for_date(d)
+    except Exception:
+        bovada_all = None
+
+    out: list[dict[str, Any]] = []
+    for eid in event_ids:
+        g = by_eid.get(str(eid))
+        if not g:
+            out.append({"event_id": str(eid), "found": False})
+            continue
+
+        home_tri = str(g.get("home") or "").upper().strip()
+        away_tri = str(g.get("away") or "").upper().strip()
+        in_prog = bool(g.get("in_progress"))
+
+        lines = {}
+        oddsapi_period: dict[str, Any] = {}
+        if in_prog:
+            try:
+                lines = _live_match_lines(bovada_all or [], home_tri, away_tri) or {}
+            except Exception:
+                lines = {}
+            try:
+                oddsapi_period = _live_oddsapi_period_totals_for_game(d, home_tri, away_tri)
+            except Exception:
+                oddsapi_period = {}
+
+        out.append({
+            "event_id": str(eid),
+            "found": True,
+            "game_id": g.get("game_id"),
+            "home": home_tri,
+            "away": away_tri,
+            "in_progress": in_prog,
+            "source": {"scoreboard": source, "game_lines": ("bovada_current" if lines else None), "period_totals": oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None},
+            "lines": {
+                **(lines or {}),
+                "period_totals": (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None),
+            },
+        })
+
+    payload = {
+        "ok": True,
+        "ttl": ttl,
+        "date": d,
+        "games": out,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_lines_multi_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+@app.route("/api/live_lens_tuning")
+def api_live_lens_tuning():
+    """NCAAB-parity endpoint: thresholds used by client-side Live Lens signals."""
+    ttl = _parse_ttl_param(request, default=300, lo=1, hi=3600)
+    now = time.time()
+    override_path = BASE_DIR / "data" / "processed" / "live_lens_tuning_override.json"
+    try:
+        override_mtime = int(override_path.stat().st_mtime) if override_path.exists() else 0
+    except Exception:
+        override_mtime = 0
+
+    cache_key = f"{ttl}:{override_mtime}"
+    ent = _live_tuning_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    payload = {
+        "ok": True,
+        "ttl": ttl,
+        "round_live_line_to_half": True,
+        # Logging behavior (client-side). Defaults preserve NCAAB parity.
+        # mode: 'bet' (default), 'watch' (WATCH+BET), 'all' (NONE+WATCH+BET)
+        "logging": {"mode": "bet", "min_interval_sec": 60},
+        "markets": {
+            "total": {"watch": 3.0, "bet": 6.0},
+            "half_total": {"watch": 3.0, "bet": 6.0},
+            "quarter_total": {"watch": 2.0, "bet": 4.0},
+            "ats": {"watch": 2.0, "bet": 4.0},
+        },
+        # Baseline-aware adjustments for total edges.
+        # Goal: boost edges driven by possessions/pace, and regress edges driven by hot/cold shooting.
+        # Keep knobs server-driven so we can tune based on logged JSONL without redeploying frontend.
+        "adjustments": {
+            "game_total": {
+                "enabled": True,
+                "min_elapsed_min": 6.0,
+                "pace_weight": 0.25,
+                "eff_weight": 0.25,
+                "pace_cap_points": 3.0,
+                "eff_cap_points": 4.0,
+            }
+        },
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+
+    # Optional server-side override so we can apply tuned knobs without redeploying.
+    if override_path.exists():
+        try:
+            o = json.loads(override_path.read_text(encoding="utf-8"))
+        except Exception:
+            o = None
+        if isinstance(o, dict):
+            # Optional override for client-side logging behavior.
+            ol = o.get("logging")
+            if isinstance(ol, dict) and isinstance(payload.get("logging"), dict):
+                payload["logging"] = {**payload["logging"], **ol}
+            # Merge markets + adjustments shallowly; keep payload shape stable.
+            om = o.get("markets")
+            if isinstance(om, dict) and isinstance(payload.get("markets"), dict):
+                payload["markets"] = {**payload["markets"], **om}
+            oa = o.get("adjustments")
+            if isinstance(oa, dict) and isinstance(payload.get("adjustments"), dict):
+                payload["adjustments"] = {**payload["adjustments"], **oa}
+
+    _live_tuning_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+def _append_live_lens_signal_jsonl(body: dict[str, Any], date_str: str) -> tuple[bool, str]:
+    out_dir = BASE_DIR / "data" / "processed"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
+    try:
+        with open(out_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(body, ensure_ascii=False) + "\n")
+    except Exception as e:
+        return False, str(e)
+    return True, str(out_path)
+
+
+@app.route("/api/live_lens_signal", methods=["POST"])
+def api_live_lens_signal():
+    """NCAAB-parity endpoint: append a client-computed signal to JSONL."""
+    try:
+        body = request.get_json(silent=True) or {}
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return jsonify({"error": "invalid json"}), 400
+
+    date_str = str(body.get("date") or "").strip()
+    if not date_str:
+        date_str = _parse_date_param(request, default_to_today=True) or datetime.now().date().isoformat()
+
+    try:
+        body = _to_jsonable(body)
+    except Exception:
+        pass
+    body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    ok, info = _append_live_lens_signal_jsonl(body, date_str)
+    if not ok:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info})
+
+
+@app.route("/api/live/log", methods=["POST"])
+def api_live_log():
+    """Append a client-computed Live Lens signal to a JSONL artifact.
+
+    Body: arbitrary JSON (kept small); server adds received_at.
+    Writes to: data/processed/live_lens_signals_<date>.jsonl
+    """
+    try:
+        body = request.get_json(silent=True) or {}
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return jsonify({"error": "invalid json"}), 400
+
+    date_str = str(body.get("date") or "").strip()
+    if not date_str:
+        # fall back to ET calendar day used by UI query param (best-effort)
+        date_str = _parse_date_param(request) or datetime.now().date().isoformat()
+
+    # Keep payload small/safe
+    try:
+        body = _to_jsonable(body)
+    except Exception:
+        pass
+    body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    out_dir = BASE_DIR / "data" / "processed"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
+    try:
+        with open(out_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(body, ensure_ascii=False) + "\n")
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    return jsonify({"ok": True, "path": str(out_path)})
 
 
 @app.route("/api/schedule")

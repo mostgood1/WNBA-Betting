@@ -200,12 +200,23 @@ def _format_props_for_frontend(props_df: pd.DataFrame, target_date: str) -> Dict
             "predictions": {}
         }
         
-        # Add prop predictions
-        prop_cols = ["t_pts", "t_reb", "t_ast", "t_threes", "t_pra", "pred_pts", "pred_reb", "pred_ast", "pred_threes", "pred_pra"]
-        for col in prop_cols:
+        # Add prop predictions.
+        # Prefer mean_* (SmartSim-enhanced) when present; otherwise fall back to pred_*.
+        for col in ["t_pts", "t_reb", "t_ast", "t_threes", "t_pra"]:
             if col in row and pd.notna(row[col]):
-                stat_name = col.replace("t_", "").replace("pred_", "")
+                stat_name = col.replace("t_", "")
                 player["predictions"][stat_name] = float(row[col])
+
+        for stat in ["pts", "reb", "ast", "threes", "pra"]:
+            v = None
+            mean_col = f"mean_{stat}"
+            pred_col = f"pred_{stat}"
+            if mean_col in row and pd.notna(row[mean_col]):
+                v = row[mean_col]
+            elif pred_col in row and pd.notna(row[pred_col]):
+                v = row[pred_col]
+            if v is not None:
+                player["predictions"][stat] = float(v)
         
         props_data["players"].append(player)
     

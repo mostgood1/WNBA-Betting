@@ -1256,30 +1256,87 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
         pass
 
     # For attempt/make rates: if missing, infer from points/3s and conservative defaults.
+    # Important realism fix:
+    # New/traded players often have *no priors* under their new team, so only pts/reb/ast
+    # get backfilled from predictions. If FGA/3PA/FTA remain 0 for those players, the
+    # possession engine gives them near-zero shots and forces team scoring onto the few
+    # players with nonzero attempt priors (inflated statlines / implausible distributions).
+    active = sim_min > 0.5
+
+    pts_pm = pd.to_numeric(out.get("_prior_pts_pm"), errors="coerce").fillna(0.0).astype(float)
+    threes_pm = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
+
+    # Player-level attempt priors: infer from predicted points + threes with conservative assumptions.
+    # These are *fallbacks* only for rows that have 0/NaN priors.
+    try:
+        # Assume a modest FT share and typical shooting efficiencies.
+        p3 = 3.0 * threes_pm
+        pft = 0.18 * pts_pm
+        p2 = np.maximum(0.0, pts_pm - p3 - pft)
+        fgm2_pm = p2 / 2.0
+        fga2_pm = fgm2_pm / 0.50  # ~50% on 2PA
+        fg3a_fallback = (threes_pm / 0.35).clip(lower=0.0, upper=0.65)  # ~35% 3P%
+        fga_fallback = (fga2_pm + fg3a_fallback).clip(lower=0.05, upper=0.85)
+        fta_fallback = (pft / 0.76).clip(lower=0.0, upper=0.35)  # FT% ~76%
+    except Exception:
+        fga_fallback = (pts_pm / 1.05).clip(lower=0.05, upper=0.85)
+        fg3a_fallback = (threes_pm / 0.35).clip(lower=0.0, upper=0.65)
+        fta_fallback = (0.18 * fga_fallback).clip(lower=0.0, upper=0.35)
+
     fga = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(fga.sum()) <= 0:
-        # roughly 0.55 FGA/min is a reasonable starter (~20 FGA in 36 min)
-        out["_prior_fga_pm"] = np.where(sim_min > 0, 0.55, 0.0)
-        fga = pd.to_numeric(out["_prior_fga_pm"], errors="coerce").fillna(0.0).astype(float)
+    out["_prior_fga_pm"] = np.where(active & (fga <= 0.0), fga_fallback, fga)
 
     fg3a = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(fg3a.sum()) <= 0:
-        out["_prior_threes_att_pm"] = 0.36 * fga
+    out["_prior_threes_att_pm"] = np.where(active & (fg3a <= 0.0), fg3a_fallback, fg3a)
+
+    # Ensure 3PA is not an impossible share of total FGA.
+    try:
+        out["_prior_threes_att_pm"] = np.minimum(
+            pd.to_numeric(out["_prior_threes_att_pm"], errors="coerce").fillna(0.0).astype(float),
+            0.9 * pd.to_numeric(out["_prior_fga_pm"], errors="coerce").fillna(0.0).astype(float),
+        )
+    except Exception:
+        pass
 
     fgm = pd.to_numeric(out.get("_prior_fgm_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(fgm.sum()) <= 0:
-        out["_prior_fgm_pm"] = 0.46 * fga
+    fga_now = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
+    out["_prior_fgm_pm"] = np.where(active & (fgm <= 0.0), 0.46 * fga_now, fgm)
 
     fg3m = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(fg3m.sum()) <= 0:
-        out["_prior_threes_pm"] = 0.35 * pd.to_numeric(out["_prior_threes_att_pm"], errors="coerce").fillna(0.0).astype(float)
+    fg3a_now = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
+    out["_prior_threes_pm"] = np.where(active & (fg3m <= 0.0), 0.35 * fg3a_now, fg3m)
 
     fta = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(fta.sum()) <= 0:
-        out["_prior_fta_pm"] = 0.18 * fga
+    out["_prior_fta_pm"] = np.where(active & (fta <= 0.0), fta_fallback, fta)
 
     ftm = pd.to_numeric(out.get("_prior_ftm_pm"), errors="coerce").fillna(0.0).astype(float)
-    if float(ftm.sum()) <= 0:
+    fta_now = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
+    out["_prior_ftm_pm"] = np.where(active & (ftm <= 0.0), 0.76 * fta_now, ftm)
+
+    # Team-level safety net: if *everyone* is missing attempts, apply a conservative baseline.
+    fga_final = pd.to_numeric(out.get("_prior_fga_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((fga_final * sim_min).sum()) <= 0:
+        out["_prior_fga_pm"] = np.where(sim_min > 0, 0.55, 0.0)
+        fga_final = pd.to_numeric(out["_prior_fga_pm"], errors="coerce").fillna(0.0).astype(float)
+
+    fg3a_final = pd.to_numeric(out.get("_prior_threes_att_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((fg3a_final * sim_min).sum()) <= 0:
+        out["_prior_threes_att_pm"] = 0.36 * fga_final
+
+    fgm_final = pd.to_numeric(out.get("_prior_fgm_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((fgm_final * sim_min).sum()) <= 0:
+        out["_prior_fgm_pm"] = 0.46 * fga_final
+
+    fg3m_final = pd.to_numeric(out.get("_prior_threes_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((fg3m_final * sim_min).sum()) <= 0:
+        out["_prior_threes_pm"] = 0.35 * pd.to_numeric(out["_prior_threes_att_pm"], errors="coerce").fillna(0.0).astype(float)
+
+    fta_final = pd.to_numeric(out.get("_prior_fta_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((fta_final * sim_min).sum()) <= 0:
+        out["_prior_fta_pm"] = 0.18 * fga_final
+
+    ftm_final = pd.to_numeric(out.get("_prior_ftm_pm"), errors="coerce").fillna(0.0).astype(float)
+    if float((ftm_final * sim_min).sum()) <= 0:
         out["_prior_ftm_pm"] = 0.76 * pd.to_numeric(out["_prior_fta_pm"], errors="coerce").fillna(0.0).astype(float)
 
     pf = pd.to_numeric(out.get("_prior_pf_pm"), errors="coerce").fillna(0.0).astype(float)
@@ -1764,11 +1821,17 @@ def simulate_smart_game(
     hq_sims = np.zeros((n_sims, 4), dtype=int)
     aq_sims = np.zeros((n_sims, 4), dtype=int)
 
-    # 3-minute segments (4 per quarter, regulation only)
+    # Regulation segment buckets (for live-lens interval ladders)
+    # - 3-minute segments (legacy): 4 per quarter
+    # - 1-minute segments (native): 12 per quarter
     n_seg_per_q = 4
+    n_min_per_q = 12
     hqseg_sims = np.zeros((n_sims, 4, n_seg_per_q), dtype=int)
     aqseg_sims = np.zeros((n_sims, 4, n_seg_per_q), dtype=int)
+    hqmin_sims = np.zeros((n_sims, 4, n_min_per_q), dtype=int)
+    aqmin_sims = np.zeros((n_sims, 4, n_min_per_q), dtype=int)
     seg_seconds = 3 * 60
+    min_seconds = 60
 
     # Overtime (5-minute periods). Variable count across sims.
     ot_seconds = 5 * 60
@@ -1807,6 +1870,20 @@ def simulate_smart_game(
                 ssec = (h_box or {}).get("segment_seconds")
                 if ssec is not None and int(ssec) > 0:
                     seg_seconds = int(ssec)
+            except Exception:
+                pass
+
+            # Minute buckets (best-effort; present when events.py provides q_minute_pts)
+            try:
+                hmin = np.asarray((h_box or {}).get("q_minute_pts") or [[0] * n_min_per_q] * 4, dtype=int)
+                amin = np.asarray((a_box or {}).get("q_minute_pts") or [[0] * n_min_per_q] * 4, dtype=int)
+                if hmin.shape == (4, n_min_per_q):
+                    hqmin_sims[i, :, :] = hmin
+                if amin.shape == (4, n_min_per_q):
+                    aqmin_sims[i, :, :] = amin
+                msec = (h_box or {}).get("minute_seconds")
+                if msec is not None and int(msec) > 0:
+                    min_seconds = int(msec)
             except Exception:
                 pass
 
@@ -1916,6 +1993,11 @@ def simulate_smart_game(
                 for qi in range(4):
                     hqseg_sims[i, qi, :] = rng.multinomial(int(max(0, hq_i[qi])), [0.25, 0.25, 0.25, 0.25]).astype(int)
                     aqseg_sims[i, qi, :] = rng.multinomial(int(max(0, aq_i[qi])), [0.25, 0.25, 0.25, 0.25]).astype(int)
+
+                    # 1-minute fallback buckets: uniform split across 12 minutes.
+                    pm = [1.0 / float(n_min_per_q)] * int(n_min_per_q)
+                    hqmin_sims[i, qi, :] = rng.multinomial(int(max(0, hq_i[qi])), pm).astype(int)
+                    aqmin_sims[i, qi, :] = rng.multinomial(int(max(0, aq_i[qi])), pm).astype(int)
             except Exception:
                 pass
 
@@ -2175,25 +2257,32 @@ def simulate_smart_game(
             "max": float(np.max(vals)),
         }
 
-    # Interval ladder: regulation 3-minute segments + (optional) 5-minute OT segments
+    # Interval ladders
+    # - intervals: regulation 3-minute segments + (optional) 5-minute OT segments
+    # - intervals_1m: regulation 1-minute segments + (optional) 5-minute OT segments
     intervals: Optional[dict[str, Any]] = None
+    intervals_1m: Optional[dict[str, Any]] = None
     try:
         cal = _load_intervals_band_calibration()
 
-        reg_total = (hqseg_sims + aqseg_sims).reshape(int(n_sims), 16).astype(float)
+        n_reg_segs = int(4 * n_seg_per_q)
+        reg_total = (hqseg_sims + aqseg_sims).reshape(int(n_sims), n_reg_segs).astype(float)
         reg_cum = np.cumsum(reg_total, axis=1)
 
-        def _seg_label(qi: int, si: int) -> str:
+        def _seg_label(qi: int, si: int, seconds_per_seg: int) -> str:
             # qi, si are 0-based
             q = qi + 1
-            start_min = 12 - (3 * si)
-            end_min = 12 - (3 * (si + 1))
-            return f"Q{q} {start_min}-{end_min}"
+            seg_min = float(seconds_per_seg) / 60.0
+            start_min = 12.0 - (seg_min * float(si))
+            end_min = 12.0 - (seg_min * float(si + 1))
+            if abs(seg_min - round(seg_min)) < 1e-6:
+                return f"Q{q} {int(start_min)}-{int(end_min)}"
+            return f"Q{q} {start_min:.1f}-{end_min:.1f}"
 
         seg_rows: list[dict[str, Any]] = []
-        for j in range(16):
-            qi = j // 4
-            si = j % 4
+        for j in range(n_reg_segs):
+            qi = j // int(n_seg_per_q)
+            si = j % int(n_seg_per_q)
             seg_arr = reg_total[:, j]
             cum_arr = reg_cum[:, j]
 
@@ -2207,7 +2296,7 @@ def simulate_smart_game(
                     "idx": int(j + 1),
                     "quarter": int(qi + 1),
                     "seg": int(si + 1),
-                    "label": _seg_label(qi, si),
+                    "label": _seg_label(qi, si, int(seg_seconds)),
                     "mu": float(np.mean(seg_arr)) if seg_arr.size else float("nan"),
                     "q": seg_q,
                     "cum_mu": float(np.mean(cum_arr)) if cum_arr.size else float("nan"),
@@ -2269,12 +2358,103 @@ def simulate_smart_game(
 
         intervals = {
             "segment_seconds": int(seg_seconds),
-            "segments_per_quarter": 4,
+            "segments_per_quarter": int(n_seg_per_q),
             "ot_segment_seconds": int(ot_seconds),
             "segments": seg_rows,
         }
     except Exception:
         intervals = None
+
+    try:
+        cal = _load_intervals_band_calibration()
+
+        n_reg_mins = int(4 * n_min_per_q)
+        reg_total_m = (hqmin_sims + aqmin_sims).reshape(int(n_sims), n_reg_mins).astype(float)
+        reg_cum_m = np.cumsum(reg_total_m, axis=1)
+
+        seg_rows_m: list[dict[str, Any]] = []
+        for j in range(n_reg_mins):
+            qi = j // int(n_min_per_q)
+            si = j % int(n_min_per_q)
+            seg_arr = reg_total_m[:, j]
+            cum_arr = reg_cum_m[:, j]
+
+            seg_q = _quantiles(seg_arr, qs=(0.1, 0.5, 0.9))
+            cum_q = _quantiles(cum_arr, qs=(0.1, 0.5, 0.9))
+            seg_q = _apply_band_scale(seg_q, _interval_scale(cal, j + 1, "seg"))
+            cum_q = _apply_band_scale(cum_q, _interval_scale(cal, j + 1, "cum"))
+
+            seg_rows_m.append(
+                {
+                    "idx": int(j + 1),
+                    "quarter": int(qi + 1),
+                    "seg": int(si + 1),
+                    "label": _seg_label(qi, si, int(min_seconds)),
+                    "mu": float(np.mean(seg_arr)) if seg_arr.size else float("nan"),
+                    "q": seg_q,
+                    "cum_mu": float(np.mean(cum_arr)) if cum_arr.size else float("nan"),
+                    "cum_q": cum_q,
+                }
+            )
+
+        # Overtime segments: one 5-minute interval per OT period (conditional on reaching OT).
+        try:
+            max_ot = 0
+            for i in range(int(n_sims)):
+                max_ot = max(max_ot, len(home_ot_sims[i] or []), len(away_ot_sims[i] or []))
+
+            reg_totals_m = np.sum(reg_total_m, axis=1).astype(float)
+
+            def _ot_label(k0: int) -> str:
+                return f"OT{k0 + 1} 5-0"
+
+            for k in range(int(max_ot)):
+                ot_vals: list[float] = []
+                ot_cum_vals: list[float] = []
+                reach = 0
+                for i in range(int(n_sims)):
+                    hot = home_ot_sims[i] or []
+                    aot = away_ot_sims[i] or []
+                    if len(hot) > k and len(aot) > k:
+                        reach += 1
+                        v = float(int(hot[k]) + int(aot[k]))
+                        ot_vals.append(v)
+                        prior = float(sum(int(hot[j]) + int(aot[j]) for j in range(0, k + 1)))
+                        ot_cum_vals.append(float(reg_totals_m[i] + prior))
+
+                arr = np.asarray(ot_vals, dtype=float)
+                carr = np.asarray(ot_cum_vals, dtype=float)
+                seg_rows_m.append(
+                    {
+                        "idx": int(n_reg_mins + k + 1),
+                        "ot": int(k + 1),
+                        "label": _ot_label(k),
+                        "duration_seconds": int(ot_seconds),
+                        "p_reach": float(reach) / float(max(1, int(n_sims))),
+                        "n_reach": int(reach),
+                        "mu": float(np.mean(arr)) if arr.size else float("nan"),
+                        "q": _apply_band_scale(
+                            (_quantiles(arr, qs=(0.1, 0.5, 0.9)) if arr.size else {"p10": float("nan"), "p50": float("nan"), "p90": float("nan")}),
+                            _interval_scale(cal, n_reg_mins, "seg"),
+                        ),
+                        "cum_mu": float(np.mean(carr)) if carr.size else float("nan"),
+                        "cum_q": _apply_band_scale(
+                            (_quantiles(carr, qs=(0.1, 0.5, 0.9)) if carr.size else {"p10": float("nan"), "p50": float("nan"), "p90": float("nan")}),
+                            _interval_scale(cal, n_reg_mins, "cum"),
+                        ),
+                    }
+                )
+        except Exception:
+            pass
+
+        intervals_1m = {
+            "segment_seconds": int(min_seconds),
+            "segments_per_quarter": int(n_min_per_q),
+            "ot_segment_seconds": int(ot_seconds),
+            "segments": seg_rows_m,
+        }
+    except Exception:
+        intervals_1m = None
 
     return {
         "home": str(home_tri).upper(),
@@ -2302,6 +2482,7 @@ def simulate_smart_game(
             "target_away_points": float(target_away_points) if target_away_points is not None else None,
         },
         "intervals": intervals,
+        "intervals_1m": intervals_1m,
         "periods": periods,
         "score": {
             "home_mean": float(np.mean(home_scores)),
