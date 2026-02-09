@@ -1,12 +1,14 @@
 {
   "date": "2026-02-08",
   "team_counts": {
-    "IND": 6,
-    "LAC": 7,
-    "MIA": 4,
+    "BOS": 3,
+    "IND": 4,
+    "LAC": 5,
+    "MIA": 3,
     "MIN": 2,
-    "TOR": 5,
-    "WAS": 7
+    "NYK": 2,
+    "TOR": 1,
+    "WAS": 6
   },
   "players": [
     {
@@ -30,11 +32,6 @@
       "status": "OUT"
     },
     {
-      "player": "Brandon Ingram",
-      "team": "TOR",
-      "status": "OUT"
-    },
-    {
       "player": "Jakob Poeltl",
       "team": "TOR",
       "status": "OUT"
@@ -45,13 +42,18 @@
       "status": "OUT"
     },
     {
-      "player": "Derrick Jones Jr.",
-      "team": "LAC",
+      "player": "Jayson Tatum",
+      "team": "BOS",
       "status": "OUT"
     },
     {
-      "player": "Cody Martin",
-      "team": "IND",
+      "player": "OG Anunoby",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Chris Boucher",
+      "team": "BOS",
       "status": "OUT"
     },
     {
@@ -80,13 +82,13 @@
       "status": "OUT"
     },
     {
-      "player": "Immanuel Quickley",
-      "team": "TOR",
+      "player": "Anthony Gill",
+      "team": "WAS",
       "status": "OUT"
     },
     {
-      "player": "Anthony Gill",
-      "team": "WAS",
+      "player": "Miles McBride",
+      "team": "NYK",
       "status": "OUT"
     },
     {
@@ -100,8 +102,8 @@
       "status": "OUT"
     },
     {
-      "player": "Davion Mitchell",
-      "team": "MIA",
+      "player": "Sam Hauser",
+      "team": "BOS",
       "status": "OUT"
     },
     {
@@ -130,51 +132,26 @@
       "status": "OUT"
     },
     {
-      "player": "Jordan Miller",
-      "team": "LAC",
-      "status": "OUT"
-    },
-    {
       "player": "Julian Phillips",
       "team": "MIN",
-      "status": "OUT"
-    },
-    {
-      "player": "Ben Sheppard",
-      "team": "IND",
-      "status": "OUT"
-    },
-    {
-      "player": "Tristan Vukcevic",
-      "team": "WAS",
       "status": "OUT"
     },
     {
       "player": "Pelle Larsson",
       "team": "MIA",
       "status": "OUT"
-    },
-    {
-      "player": "Ja'Kobe Walter",
-      "team": "TOR",
-      "status": "OUT"
-    },
-    {
-      "player": "Jamison Battle",
-      "team": "TOR",
-      "status": "OUT"
     }
   ],
   "team_key_outs": {
     "WAS": [
-      "Tristan Vukcevic",
       "Anthony Gill",
-      "Anthony Davis"
+      "Anthony Davis",
+      "Trae Young"
     ],
     "LAC": [
       "Ivica Zubac",
-      "Jordan Miller",
-      "Derrick Jones Jr."
+      "TyTy Washington Jr.",
+      "Kobe Brown"
     ],
     "DAL": [
       "D'Angelo Russell",
@@ -183,20 +160,27 @@
     "MIA": [
       "Tyler Herro",
       "Pelle Larsson",
-      "Davion Mitchell"
+      "Terry Rozier"
     ],
     "TOR": [
-      "Brandon Ingram",
-      "Immanuel Quickley",
-      "Ja'Kobe Walter"
+      "Jakob Poeltl"
+    ],
+    "BOS": [
+      "Sam Hauser",
+      "Chris Boucher",
+      "Jayson Tatum"
+    ],
+    "NYK": [
+      "OG Anunoby",
+      "Miles McBride"
+    ],
+    "CLE": [
+      "Darius Garland"
     ],
     "IND": [
       "Bennedict Mathurin",
       "Isaiah Jackson",
-      "Ben Sheppard"
-    ],
-    "CLE": [
-      "Darius Garland"
+      "Obi Toppin"
     ],
     "MIN": [
       "Terrence Shannon Jr."
@@ -206,13 +190,14 @@
     ]
   },
   "team_impact": {
-    "WAS": 29.875,
-    "LAC": 71.88333333333333,
+    "WAS": 9.008333333333335,
+    "LAC": 43.736666666666665,
     "DAL": 28.544444444444444,
-    "MIA": 78.75208333333333,
-    "TOR": 92.66349206349206,
-    "IND": 48.95166666666667,
+    "MIA": 57.21875,
+    "BOS": 27.207142857142856,
+    "NYK": 60.03333333333333,
     "CLE": 36.833333333333336,
+    "IND": 38.49166666666667,
     "CHI": 3.5250000000000004
   }
 }
