@@ -1,0 +1,11 @@
+event_id,commence_time,home_team,away_team,has_odds
+28ed7bb63c7bfb49becafe83b0b89e75,2026-02-10T00:10:00Z,Charlotte Hornets,Detroit Pistons,True
+1c83af4e3fb93fe6584ef5a9e1351f2b,2026-02-10T00:40:00Z,Brooklyn Nets,Chicago Bulls,True
+87c446233100a0e10c8a9ae223b3d859,2026-02-10T00:40:00Z,Miami Heat,Utah Jazz,True
+d7da0d0be9b38cafad30bd7ed2a6c674,2026-02-10T00:40:00Z,Orlando Magic,Milwaukee Bucks,True
+b664e9dae2af4118d7572e95a333b93e,2026-02-10T01:10:00Z,Minnesota Timberwolves,Atlanta Hawks,True
+f3e4369053da36c11257f3b1498bd0e6,2026-02-10T01:10:00Z,New Orleans Pelicans,Sacramento Kings,True
+55ce3994bdb669f780eb1021014461cf,2026-02-10T02:10:00Z,Denver Nuggets,Cleveland Cavaliers,True
+52fefc6f39b3b91682e5f266233d1088,2026-02-10T03:10:00Z,Golden State Warriors,Memphis Grizzlies,True
+fe43ece4642dde1bcd2610c18f0cfc27,2026-02-10T03:10:00Z,Los Angeles Lakers,Oklahoma City Thunder,True
+7c8edd09283c5268205c6029a589798f,2026-02-10T03:10:00Z,Portland Trail Blazers,Philadelphia 76ers,True

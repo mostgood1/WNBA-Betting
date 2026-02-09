@@ -1,0 +1,398 @@
+{
+  "date": "2026-02-09",
+  "team_counts": {
+    "ATL": 2,
+    "BKN": 1,
+    "CHA": 3,
+    "CHI": 4,
+    "CLE": 3,
+    "DEN": 4,
+    "DET": 2,
+    "GSW": 3,
+    "MEM": 4,
+    "MIA": 2,
+    "MIL": 3,
+    "MIN": 2,
+    "NOP": 1,
+    "OKC": 3,
+    "ORL": 2,
+    "PHI": 1,
+    "POR": 5,
+    "SAC": 4,
+    "UTA": 4
+  },
+  "players": [
+    {
+      "player": "Eric Gordon",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "James Harden",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Seth Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach LaVine",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Gary Harris",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Gordon",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Taurean Prince",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Malik Monk",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Max Strus",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "De'Andre Hunter",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Coby White",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyler Herro",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Cameron Johnson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Matisse Thybulle",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "John Konchar",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Deni Avdija",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Onyeka Okongwu",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tre Jones",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jonathan Kuminga",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Franz Wagner",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Josh Giddey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Evan Mobley",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Colin Castleton",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Keegan Murray",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Malaki Branham",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Williams",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Kris Murray",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Dalen Terry",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Keyonte George",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Julian Phillips",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Ronald Holland II",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Elijah Harkless",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Ajay Mitchell",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "KJ Simpson",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Tolu Smith",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Spencer Jones",
+      "team": "DEN",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "PHI": [
+      "Eric Gordon"
+    ],
+    "LAC": [
+      "James Harden"
+    ],
+    "GSW": [
+      "Jimmy Butler III",
+      "Stephen Curry",
+      "Jonathan Kuminga"
+    ],
+    "POR": [
+      "Deni Avdija",
+      "Shaedon Sharpe",
+      "Damian Lillard"
+    ],
+    "MIL": [
+      "Giannis Antetokounmpo",
+      "Gary Harris",
+      "Taurean Prince"
+    ],
+    "SAC": [
+      "Zach LaVine",
+      "Malik Monk",
+      "Keegan Murray"
+    ],
+    "DEN": [
+      "Peyton Watson",
+      "Aaron Gordon",
+      "Cameron Johnson"
+    ],
+    "MIA": [
+      "Tyler Herro",
+      "Terry Rozier"
+    ],
+    "NOP": [
+      "Dejounte Murray"
+    ],
+    "CHI": [
+      "Tre Jones",
+      "Coby White",
+      "Josh Giddey"
+    ],
+    "OKC": [
+      "Shai Gilgeous-Alexander",
+      "Jalen Williams",
+      "Ajay Mitchell"
+    ],
+    "BKN": [
+      "Michael Porter Jr."
+    ],
+    "CLE": [
+      "Evan Mobley",
+      "De'Andre Hunter",
+      "Max Strus"
+    ],
+    "MEM": [
+      "Ja Morant",
+      "Santi Aldama",
+      "John Konchar"
+    ],
+    "ATL": [
+      "Onyeka Okongwu"
+    ],
+    "ORL": [
+      "Franz Wagner",
+      "Colin Castleton"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ],
+    "WAS": [
+      "Malaki Branham"
+    ],
+    "UTA": [
+      "Keyonte George",
+      "Walker Kessler",
+      "Elijah Harkless"
+    ],
+    "DET": [
+      "Tolu Smith",
+      "Ronald Holland II"
+    ],
+    "CHA": [
+      "KJ Simpson"
+    ]
+  },
+  "team_impact": {
+    "LAC": 45.47,
+    "GSW": 101.41499999999999,
+    "POR": 67.47230769230768,
+    "MIL": 54.075,
+    "SAC": 48.72307692307693,
+    "DEN": 90.16263736263737,
+    "MIA": 33.275,
+    "CHI": 94.3345238095238,
+    "OKC": 100.53333333333333,
+    "BKN": 35.88333333333333,
+    "CLE": 62.477777777777774,
+    "MEM": 95.5525,
+    "ATL": 35.54,
+    "ORL": 25.55,
+    "WAS": 8.657142857142857,
+    "UTA": 36.31666666666667,
+    "DET": 60.22142857142857
+  }
+}
