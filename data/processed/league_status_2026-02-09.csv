@@ -8,7 +8,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 201144,Mike Conley,MIN,DAY-TO-DAY,True,True
 201145,Jeff Green,HOU,,False,False
 201566,Russell Westbrook,SAC,,True,True
-201567,Kevin Love,UTA,DAY-TO-DAY,True,True
+201567,Kevin Love,UTA,OUT,True,False
 201569,Eric Gordon,PHI,OUT,True,False
 201572,Brook Lopez,LAC,DAY-TO-DAY,False,False
 201587,Nicolas Batum,LAC,DAY-TO-DAY,False,False
@@ -98,7 +98,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1626204,Larry Nance Jr.,CLE,,True,True
 1626220,Royce O'Neale,PHX,DAY-TO-DAY,False,False
 1627732,Ben Simmons,LAC,,False,False
-1627734,Domantas Sabonis,SAC,DAY-TO-DAY,True,True
+1627734,Domantas Sabonis,SAC,OUT,True,False
 1627736,Malik Beasley,DET,,True,True
 1627739,Kris Dunn,LAC,DAY-TO-DAY,False,False
 1627741,Buddy Hield,ATL,DAY-TO-DAY,True,True
@@ -317,7 +317,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630557,Corey Kispert,ATL,DAY-TO-DAY,True,True
 1630558,Davion Mitchell,MIA,,True,True
 1630559,Austin Reaves,LAL,,True,True
-1630560,Cam Thomas,MIL,,True,True
+1630560,Cam Thomas,MIL,DAY-TO-DAY,True,True
 1630561,David Duke Jr.,SAS,,False,False
 1630567,Scottie Barnes,TOR,DAY-TO-DAY,False,False
 1630568,Luka Garza,BOS,DAY-TO-DAY,False,False
@@ -489,7 +489,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641789,Jazian Gortman,,,False,False
 1641790,PJ Hall,CHA,,True,True
 1641794,Dillon Jones,NYK,,False,False
-1641796,Pelle Larsson,MIA,DAY-TO-DAY,True,True
+1641796,Pelle Larsson,MIA,OUT,True,False
 1641798,Jaylen Martin,WAS,,False,False
 1641801,Emanuel Miller,CLE,DAY-TO-DAY,True,True
 1641803,Tristen Newton,HOU,,False,False

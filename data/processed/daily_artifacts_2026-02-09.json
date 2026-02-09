@@ -22,7 +22,8 @@
     "minutes_sanity: team BKN has <5 players at 20+ min (found 4) using roll3_min",
     "minutes_sanity: team CHA has <5 players at 20+ min (found 4) using roll3_min",
     "minutes_sanity: team NOP has <5 players at 20+ min (found 3) using roll3_min",
-    "minutes_sanity: team SAC top10 minutes sum low (159.0) using roll3_min",
+    "minutes_sanity: team SAC top10 minutes sum low (130.7) using roll3_min",
+    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using roll3_min",
     "minutes_sanity: 37 players have <8 min but >=10 pred_pts (sample: Keaton Wallace(ATL), Jacob Toppin(ATL), Caleb Houstan(ATL), E.J. Liddell(BKN), Tyson Etienne(BKN), Mason Plumlee(CHA))"
   ],
   "missing": [],
