@@ -69,7 +69,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 203952,Andrew Wiggins,MIA,DAY-TO-DAY,True,True
 203954,Joel Embiid,PHI,DAY-TO-DAY,True,True
 203957,Danté Exum,WAS,,False,False
-203967,Dario Šarić,DET,,True,True
+203967,Dario Šarić,SAC,,True,True
 203991,Clint Capela,HOU,DAY-TO-DAY,False,False
 203992,Bogdan Bogdanović,LAC,,False,False
 203994,Jusuf Nurkić,UTA,,True,True
@@ -529,7 +529,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642274,Yves Missi,NOP,DAY-TO-DAY,True,True
 1642275,Tidjane Salaün,CHA,,True,True
 1642276,Kel'el Ware,MIA,DAY-TO-DAY,True,True
-1642277,Johnny Furphy,IND,DAY-TO-DAY,False,False
+1642277,Johnny Furphy,IND,OUT,False,False
 1642278,Tyler Kolek,NYK,DAY-TO-DAY,False,False
 1642279,Ulrich Chomche,TOR,,False,False
 1642280,Trentyn Flowers,CHI,,True,True
