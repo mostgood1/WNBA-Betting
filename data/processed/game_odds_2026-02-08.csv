@@ -1,4 +1,4 @@
-date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-02-08,2026-02-08T20:13:00Z,Minnesota Timberwolves,Los Angeles Clippers,-170.92752625323456,170.92752625323465,-4.5,4.5,-110,-110,217.5,103.29407966229347,-103.29407966229344,7.0,7.0,2,3,oddsapi_consensus
-2026-02-08,2026-02-08T20:11:00Z,Toronto Raptors,Indiana Pacers,-295.4793231277057,295.4793231277057,-7.5,7.5,-105,-115,210.5,102.77516111660917,-102.77516111660917,7.0,7.0,4,4,oddsapi_consensus
-2026-02-08,2026-02-08T19:12:00Z,Washington Wizards,Miami Heat,430.0,-625.0,30.5,-30.5,-110,-110,233.5,107.03197909586602,-107.03197909586599,3.0,,3,3,oddsapi_consensus
+date,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,bookmaker
+2026-02-08,Washington Wizards,Miami Heat,2026-02-08T19:00:00+00:00,1200,-3300,30.5,-30.5,-120,-110,233.0,-110,-110,bovada
+2026-02-08,Toronto Raptors,Indiana Pacers,2026-02-08T20:00:00+00:00,-350,250,-7.0,7.0,-120,-110,208.5,-110,-110,bovada
+2026-02-08,Minnesota Timberwolves,Los Angeles Clippers,2026-02-08T20:00:00+00:00,-190,145,-4.0,4.0,-115,-115,218.0,-110,-110,bovada
