@@ -18,11 +18,7 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
-    "minutes_sanity: team DAL top10 minutes sum low (179.0) using roll3_min",
-    "minutes_sanity: team DAL has <5 players at 20+ min (found 4) using roll3_min",
-    "minutes_sanity: team LAC top10 minutes sum low (169.3) using roll3_min",
-    "minutes_sanity: team NYK has <5 players at 20+ min (found 4) using roll3_min",
-    "minutes_sanity: 19 players have <8 min but >=10 pred_pts (sample: Dwight Powell(DAL), Jeremiah Robinson-Earl(DAL), Jeff Green(HOU), Monte Morris(IND), Garrison Mathews(IND), Kobe Brown(IND))"
+    "minutes_sanity: 17 players have <8 min but >=10 pred_pts (sample: Jeremiah Robinson-Earl(DAL), Jeff Green(HOU), Monte Morris(IND), Kobe Brown(IND), Dalano Banton(LAC), Nick Smith Jr.(LAL))"
   ],
   "missing": [],
   "ok": true
