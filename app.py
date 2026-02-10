@@ -106,16 +106,20 @@ except Exception:  # pragma: no cover
 
 
 def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri: str) -> dict[str, Any]:
-    """Best-effort OddsAPI period totals for 1H and quarters.
+        """Best-effort OddsAPI lines for a matchup (fast path).
 
-    Returns:
-      { source, event_id, period_totals: {h1, q1..q4}, market_keys: {...} }
-    """
-    try:
+        Returns:
+            {
+                source,
+                event_id,
+                swapped,
+                period_totals: {h1, q1..q4},
+                game_lines: {total, home_spread, away_spread, home_ml, away_ml},
+                market_keys: {...}
+            }
+        """
         api_key = (os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY") or "").strip()
         if not api_key:
-            return {}
-        if _OddsApiConfig is None or _oddsapi_list_events_current is None or _to_tricode is None:
             return {}
 
         h = str(home_tri or "").upper().strip()
@@ -129,19 +133,28 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         if ent and (now - ent[0] < 60):
             return ent[1]
 
-        cfg = _OddsApiConfig(api_key=api_key, regions="us", odds_format="american")
-        try:
-            dt = datetime.strptime(date_str, "%Y-%m-%d")
-        except Exception:
-            dt = datetime.utcnow()
+        # Fast direct HTTP calls with short timeouts (avoid blocking UI/pollers).
+        base = "https://api.the-odds-api.com"
+        sport = "basketball_nba"
+        headers = {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+        timeout_s = 3
 
-        events = _oddsapi_list_events_current(cfg, date=dt, verbose=False) or []
+        # 1) List events and match by team tricodes.
         event_id = None
         swapped = False
+        try:
+            r = requests.get(f"{base}/v4/sports/{sport}/events", params={"apiKey": api_key}, headers=headers, timeout=timeout_s)
+            evs = r.json() if r.ok else []
+            events = evs if isinstance(evs, list) else []
+        except Exception:
+            events = []
+
         for ev in events:
             try:
-                eh = _to_tricode(ev.get("home_team") or "")
-                ea = _to_tricode(ev.get("away_team") or "")
+                if not isinstance(ev, dict):
+                    continue
+                eh = _get_tricode(str(ev.get("home_team") or ""))
+                ea = _get_tricode(str(ev.get("away_team") or ""))
                 if eh == h and ea == a:
                     event_id = ev.get("id")
                     swapped = False
@@ -152,20 +165,34 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                     break
             except Exception:
                 continue
+
         if not event_id:
             out = {}
             _live_oddsapi_period_cache[cache_key] = (now, out)
             return out
 
-        if _oddsapi_discover_event_market_keys is None or _oddsapi_fetch_event_odds_current is None:
-            out = {}
-            _live_oddsapi_period_cache[cache_key] = (now, out)
-            return out
-
-        keys = _oddsapi_discover_event_market_keys(cfg, str(event_id), verbose=False)
+        # 2) Discover market keys.
+        keys: set[str] = set()
+        try:
+            r = requests.get(
+                f"{base}/v4/sports/{sport}/events/{event_id}/markets",
+                params={"apiKey": api_key, "regions": "us"},
+                headers=headers,
+                timeout=timeout_s,
+            )
+            jd = r.json() if r.ok else None
+            if isinstance(jd, list):
+                for m in jd:
+                    if isinstance(m, dict) and m.get("key"):
+                        keys.add(str(m.get("key")))
+        except Exception:
+            keys = set()
 
         # Candidate keys (OddsAPI period keys commonly use suffixes like _q1 and _h1)
         want: dict[str, list[str]] = {
+            "game_total": ["totals"],
+            "game_spreads": ["spreads"],
+            "game_h2h": ["h2h"],
             "h1": ["totals_h1", "totals_1h", "totals_1st_half", "totals_first_half"],
             "q1": ["totals_q1", "totals_1q", "totals_1st_quarter", "totals_first_quarter"],
             "q2": ["totals_q2", "totals_2q", "totals_2nd_quarter", "totals_second_quarter"],
@@ -182,39 +209,135 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
 
         req_markets = sorted(set(picked.values()))
         if not req_markets:
-            out = {"source": "oddsapi", "event_id": str(event_id), "period_totals": {}, "market_keys": {}}
+            out = {
+                "source": "oddsapi_fast",
+                "event_id": str(event_id),
+                "swapped": bool(swapped),
+                "period_totals": {},
+                "game_lines": {},
+                "market_keys": {},
+            }
             _live_oddsapi_period_cache[cache_key] = (now, out)
             return out
 
-        df = _oddsapi_fetch_event_odds_current(cfg, str(event_id), req_markets, verbose=False)
+        # 3) Fetch odds for the picked markets and extract the points.
         period_totals: dict[str, float] = {}
-        if isinstance(df, pd.DataFrame) and not df.empty:
-            for label, mkey in picked.items():
-                try:
-                    sub = df[df["market"] == mkey]
-                    if sub is None or sub.empty:
+        game_lines: dict[str, float] = {}
+        try:
+            r = requests.get(
+                f"{base}/v4/sports/{sport}/events/{event_id}/odds",
+                params={
+                    "apiKey": api_key,
+                    "regions": "us",
+                    "markets": ",".join(req_markets),
+                    "oddsFormat": "american",
+                },
+                headers=headers,
+                timeout=timeout_s,
+            )
+            obj = r.json() if r.ok else None
+        except Exception:
+            obj = None
+
+        mk_to_label = {mkey: label for label, mkey in picked.items()}
+        if isinstance(obj, dict):
+            bks = obj.get("bookmakers") or []
+            if isinstance(bks, list):
+                for bk in bks:
+                    if not isinstance(bk, dict):
                         continue
-                    # Totals: Over/Under have the same point. Take first non-null point.
-                    pts = sub["point"].dropna()
-                    if pts is None or len(pts) == 0:
+                    markets = bk.get("markets") or []
+                    if not isinstance(markets, list):
                         continue
-                    v = float(pts.iloc[0])
-                    if np.isfinite(v):
-                        period_totals[label] = v
-                except Exception:
-                    continue
+                    for m in markets:
+                        if not isinstance(m, dict):
+                            continue
+                        mkey = str(m.get("key") or "")
+                        label = mk_to_label.get(mkey)
+                        if not label:
+                            continue
+                        outs = m.get("outcomes") or []
+                        if not isinstance(outs, list):
+                            continue
+
+                        if label in {"h1", "q1", "q2", "q3", "q4"}:
+                            if label in period_totals:
+                                continue
+                            for oc in outs:
+                                if not isinstance(oc, dict):
+                                    continue
+                                pt = oc.get("point")
+                                try:
+                                    v = float(pt)
+                                    if np.isfinite(v):
+                                        period_totals[label] = float(v)
+                                        break
+                                except Exception:
+                                    continue
+
+                        # Full-game markets
+                        if label == "game_total":
+                            if "total" in game_lines:
+                                continue
+                            for oc in outs:
+                                if not isinstance(oc, dict):
+                                    continue
+                                pt = oc.get("point")
+                                try:
+                                    v = float(pt)
+                                    if np.isfinite(v):
+                                        game_lines["total"] = float(v)
+                                        break
+                                except Exception:
+                                    continue
+
+                        if label == "game_spreads":
+                            for oc in outs:
+                                if not isinstance(oc, dict):
+                                    continue
+                                nm = str(oc.get("name") or "")
+                                tri = _get_tricode(nm)
+                                pt = oc.get("point")
+                                try:
+                                    v = float(pt)
+                                    if not np.isfinite(v):
+                                        continue
+                                except Exception:
+                                    continue
+                                if tri == h and "home_spread" not in game_lines:
+                                    game_lines["home_spread"] = float(v)
+                                if tri == a and "away_spread" not in game_lines:
+                                    game_lines["away_spread"] = float(v)
+
+                        if label == "game_h2h":
+                            for oc in outs:
+                                if not isinstance(oc, dict):
+                                    continue
+                                nm = str(oc.get("name") or "")
+                                tri = _get_tricode(nm)
+                                pr = oc.get("price")
+                                try:
+                                    v = float(pr)
+                                    if not np.isfinite(v):
+                                        continue
+                                except Exception:
+                                    continue
+                                if tri == h and "home_ml" not in game_lines:
+                                    game_lines["home_ml"] = float(v)
+                                if tri == a and "away_ml" not in game_lines:
+                                    game_lines["away_ml"] = float(v)
 
         out = {
-            "source": "oddsapi",
+            "source": "oddsapi_fast",
             "event_id": str(event_id),
             "swapped": bool(swapped),
             "period_totals": period_totals,
+            "game_lines": game_lines,
             "market_keys": picked,
         }
         _live_oddsapi_period_cache[cache_key] = (now, out)
         return out
-    except Exception:
-        return {}
+
 
 
 def _safe_int(x: Any) -> int | None:
@@ -978,6 +1101,29 @@ def _live_pbp_attempt_stats(actions: list[dict[str, Any]]) -> dict[str, Any]:
     return out
 
 
+def _live_pbp_attempt_stats_periods(actions: list[dict[str, Any]]) -> dict[str, Any]:
+        """Compute FT/2P/3P attempts by regulation segments.
+
+        Returns:
+            {
+                "q1": {...}, "q2": {...}, "q3": {...}, "q4": {...},
+                "h1": {...}, "h2": {...},
+                "game": {...}
+            }
+        """
+        try:
+                out: dict[str, Any] = {}
+                acts = actions or []
+                for q in (1, 2, 3, 4):
+                        out[f"q{q}"] = _live_pbp_attempt_stats([a for a in acts if _safe_int(a.get("period")) == q])
+                out["h1"] = _live_pbp_attempt_stats([a for a in acts if _safe_int(a.get("period")) in (1, 2)])
+                out["h2"] = _live_pbp_attempt_stats([a for a in acts if _safe_int(a.get("period")) in (3, 4)])
+                out["game"] = _live_pbp_attempt_stats(acts)
+                return out
+        except Exception:
+                return {}
+
+
 def _live_pbp_possession_stats(actions: list[dict[str, Any]], pbp_attempts: dict[str, Any] | None = None) -> dict[str, Any]:
     """Estimate possessions from PBP.
 
@@ -1041,6 +1187,36 @@ def _live_pbp_possession_stats(actions: list[dict[str, Any]], pbp_attempts: dict
         pass
 
     return out
+
+
+def _live_pbp_possession_stats_periods(actions: list[dict[str, Any]]) -> dict[str, Any]:
+        """Compute possession estimates by regulation segments.
+
+        Returns:
+            {
+                "q1": {...}, "q2": {...}, "q3": {...}, "q4": {...},
+                "h1": {...}, "h2": {...},
+                "game": {...}
+            }
+        """
+        try:
+                out: dict[str, Any] = {}
+                acts = actions or []
+                for q in (1, 2, 3, 4):
+                        sub = [a for a in acts if _safe_int(a.get("period")) == q]
+                        att = _live_pbp_attempt_stats(sub) if sub else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                        out[f"q{q}"] = _live_pbp_possession_stats(sub, att) if sub else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                sub_h1 = [a for a in acts if _safe_int(a.get("period")) in (1, 2)]
+                att_h1 = _live_pbp_attempt_stats(sub_h1) if sub_h1 else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                out["h1"] = _live_pbp_possession_stats(sub_h1, att_h1) if sub_h1 else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                sub_h2 = [a for a in acts if _safe_int(a.get("period")) in (3, 4)]
+                att_h2 = _live_pbp_attempt_stats(sub_h2) if sub_h2 else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                out["h2"] = _live_pbp_possession_stats(sub_h2, att_h2) if sub_h2 else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                att_g = _live_pbp_attempt_stats(acts) if acts else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                out["game"] = _live_pbp_possession_stats(acts, att_g) if acts else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+                return out
+        except Exception:
+                return {}
 
 
 def _live_pbp_score_by_minute(actions: list[dict[str, Any]]) -> dict[str, Any]:
@@ -1342,6 +1518,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/list/processed",
             "/api/processed/recon_games",
             "/api/processed/recon_quarters",
+            "/api/processed/recon_players",
             # Live Lens (polling + logging)
             "/api/live/scoreboard",
             "/api/live/game",
@@ -3336,7 +3513,7 @@ def api_sim_smart_sim():
       - date: YYYY-MM-DD (required)
       - home: team tricode (required)
       - away: team tricode (required)
-      - n_sims: number of event-level sims (optional, default 300)
+    - n_sims: number of event-level sims (optional, default 2000)
       - seed: optional int seed for reproducibility
       - market_total: optional total line (defaults from predictions if present)
       - home_spread: optional home spread line (defaults from predictions if present)
@@ -3359,9 +3536,9 @@ def api_sim_smart_sim():
         return jsonify({"error": "missing home/away"}), 400
 
     try:
-        n_sims = int(pd.to_numeric(request.args.get("n_sims", "300"), errors="coerce"))
+        n_sims = int(pd.to_numeric(request.args.get("n_sims", "2000"), errors="coerce"))
     except Exception:
-        n_sims = 300
+        n_sims = 2000
     n_sims = int(max(50, min(3000, n_sims)))
 
     seed = request.args.get("seed")
@@ -3672,6 +3849,32 @@ def api_processed_recon_quarters():
         return jsonify({"error": str(e)}), 500
 
 
+@app.route("/api/processed/recon_players")
+def api_processed_recon_players():
+    """Serve recon_players_<date>.csv if present; otherwise return empty CSV.
+
+    Query params:
+      - date: YYYY-MM-DD (required)
+    """
+    try:
+        d = (request.args.get("date") or "").strip()
+        if not d:
+            return jsonify({"error": "missing date"}), 400
+        base = BASE_DIR / "data" / "processed"
+        fp = base / f"recon_players_{d}.csv"
+        if fp.exists():
+            try:
+                return send_from_directory(str(base), f"recon_players_{d}.csv")
+            except Exception:
+                txt = fp.read_text(encoding="utf-8")
+                from flask import Response as _Resp
+                return _Resp(txt, mimetype="text/csv")
+        from flask import Response as _Resp
+        return _Resp("", mimetype="text/csv")
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"error": str(e)}), 500
+
+
 
 @app.route("/")
 def root():
@@ -3849,8 +4052,44 @@ def _load_team_maps() -> dict[str, str]:
                 except Exception:
                     pass
     except Exception:
-        # Fallback: empty map; callers should handle by uppercasing input
+        # Fallback: built-in NBA full_name -> abbreviation map (no nba_api dependency).
+        built_in = [
+            ("Atlanta Hawks", "ATL"),
+            ("Boston Celtics", "BOS"),
+            ("Brooklyn Nets", "BKN"),
+            ("Charlotte Hornets", "CHA"),
+            ("Chicago Bulls", "CHI"),
+            ("Cleveland Cavaliers", "CLE"),
+            ("Dallas Mavericks", "DAL"),
+            ("Denver Nuggets", "DEN"),
+            ("Detroit Pistons", "DET"),
+            ("Golden State Warriors", "GSW"),
+            ("Houston Rockets", "HOU"),
+            ("Indiana Pacers", "IND"),
+            ("Los Angeles Clippers", "LAC"),
+            ("LA Clippers", "LAC"),
+            ("Los Angeles Lakers", "LAL"),
+            ("Memphis Grizzlies", "MEM"),
+            ("Miami Heat", "MIA"),
+            ("Milwaukee Bucks", "MIL"),
+            ("Minnesota Timberwolves", "MIN"),
+            ("New Orleans Pelicans", "NOP"),
+            ("New York Knicks", "NYK"),
+            ("Oklahoma City Thunder", "OKC"),
+            ("Orlando Magic", "ORL"),
+            ("Philadelphia 76ers", "PHI"),
+            ("Phoenix Suns", "PHX"),
+            ("Portland Trail Blazers", "POR"),
+            ("Sacramento Kings", "SAC"),
+            ("San Antonio Spurs", "SAS"),
+            ("Toronto Raptors", "TOR"),
+            ("Utah Jazz", "UTA"),
+            ("Washington Wizards", "WAS"),
+        ]
         mapping = {}
+        for full, abbr in built_in:
+            mapping[str(full).strip().lower()] = str(abbr).strip().upper()
+            mapping[str(abbr).strip().lower()] = str(abbr).strip().upper()
         abbr_to_id = {}
     _team_name_to_abbr = mapping
     _team_abbr_to_id = abbr_to_id
@@ -5398,7 +5637,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 [str(py), "-m", "nba_betting.cli", "fetch-advanced-stats", "--season", str(season_end_year), "--as-of", date_str],
                 False,
             ))
-            n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "300").strip() or "300"
+            n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "2000").strip() or "2000"
             smartsim_cmd = [str(py), "-m", "nba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
             max_games = str(os.environ.get("DAILY_SMARTSIM_MAX_GAMES") or "").strip()
             if max_games:
@@ -6400,6 +6639,128 @@ def api_cards():
     injury_ctx_map = _load_injury_context_map(d)
     roster_map = _roster_players_for_date(d)
 
+    # Optional recon maps (historical dates). These are also fetched by the frontend
+    # in results-mode, but we load them here so the API can attach useful summaries
+    # like boxscore reconciliation without requiring extra requests.
+    recon_games_map: dict[tuple[str, str], dict[str, Any]] = {}
+    recon_quarters_map: dict[tuple[str, str], dict[str, Any]] = {}
+    try:
+        rg = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
+        if rg.exists():
+            df = pd.read_csv(rg)
+            for _, row in df.iterrows():
+                h = str(row.get("home_tri") or "").strip().upper()
+                a = str(row.get("away_tri") or "").strip().upper()
+                if h and a:
+                    recon_games_map[(h, a)] = row.to_dict()
+    except Exception:
+        recon_games_map = {}
+    try:
+        rq = BASE_DIR / "data" / "processed" / f"recon_quarters_{d}.csv"
+        if rq.exists():
+            df = pd.read_csv(rq)
+            for _, row in df.iterrows():
+                h = str(row.get("home_tri") or "").strip().upper()
+                a = str(row.get("away_tri") or "").strip().upper()
+                if h and a:
+                    recon_quarters_map[(h, a)] = row.to_dict()
+    except Exception:
+        recon_quarters_map = {}
+
+    def _canon_nba_game_id(game_id: Any) -> str:
+        try:
+            raw = str(game_id or "").strip()
+        except Exception:
+            return ""
+        digits = "".join([c for c in raw if c.isdigit()])
+        if len(digits) == 8:
+            return "00" + digits
+        if len(digits) == 9:
+            return "0" + digits
+        return digits
+
+    def _boxscore_reconcile_points(game_id: Any, home_tri: str, away_tri: str) -> Optional[dict[str, Any]]:
+        gid = _canon_nba_game_id(game_id)
+        if not gid:
+            return None
+        p = BASE_DIR / "data" / "processed" / "boxscores" / f"boxscore_{gid}.csv"
+        if not p.exists():
+            return {"ok": False, "game_id": gid, "reason": "missing_boxscore"}
+        try:
+            df = pd.read_csv(p)
+        except Exception as e:
+            return {"ok": False, "game_id": gid, "reason": f"read_error: {e}"}
+
+        if "teamTricode" not in df.columns or "points" not in df.columns:
+            return {"ok": False, "game_id": gid, "reason": "missing_columns"}
+
+        try:
+            df["teamTricode"] = df["teamTricode"].astype(str).str.strip().str.upper()
+        except Exception:
+            pass
+        try:
+            pts = pd.to_numeric(df["points"], errors="coerce")
+        except Exception:
+            pts = df["points"]
+
+        sums = {}
+        rows = {}
+        try:
+            for tri, grp in df.groupby("teamTricode"):
+                rows[str(tri)] = int(len(grp))
+                try:
+                    sums[str(tri)] = float(pd.to_numeric(grp["points"], errors="coerce").fillna(0.0).sum())
+                except Exception:
+                    sums[str(tri)] = float(0.0)
+        except Exception:
+            # Last-resort simple aggregation
+            try:
+                for tri in set(df["teamTricode"].tolist()):
+                    mask = df["teamTricode"] == tri
+                    rows[str(tri)] = int(mask.sum())
+                    sums[str(tri)] = float(pd.to_numeric(df.loc[mask, "points"], errors="coerce").fillna(0.0).sum())
+            except Exception:
+                return {"ok": False, "game_id": gid, "reason": "aggregate_error"}
+
+        h = str(home_tri or "").strip().upper()
+        a = str(away_tri or "").strip().upper()
+        home_pts_players = sums.get(h)
+        away_pts_players = sums.get(a)
+
+        # Attach best-available actual team points from recon_games (if present).
+        actual = recon_games_map.get((h, a)) or {}
+        home_pts_actual = _safe_float(actual.get("home_pts"))
+        away_pts_actual = _safe_float(actual.get("visitor_pts"))
+
+        def _diff(x: Optional[float], y: Optional[float]) -> Optional[float]:
+            if x is None or y is None:
+                return None
+            return float(x) - float(y)
+
+        diff_home = _diff(home_pts_players, home_pts_actual)
+        diff_away = _diff(away_pts_players, away_pts_actual)
+        # Treat within 0.5 as OK (float CSVs sometimes represent ints).
+        ok = True
+        if diff_home is not None and abs(diff_home) > 0.5:
+            ok = False
+        if diff_away is not None and abs(diff_away) > 0.5:
+            ok = False
+
+        return {
+            "ok": ok,
+            "game_id": gid,
+            "home_tri": h,
+            "away_tri": a,
+            "home_pts_players": home_pts_players,
+            "away_pts_players": away_pts_players,
+            "home_rows": rows.get(h),
+            "away_rows": rows.get(a),
+            "home_pts_actual": home_pts_actual,
+            "away_pts_actual": away_pts_actual,
+            "diff_home": diff_home,
+            "diff_away": diff_away,
+        }
+
     games: list[dict[str, Any]] = []
     for fp in _load_smart_sim_files_for_date(d):
         try:
@@ -6563,6 +6924,57 @@ def api_cards():
             "away": _injury_list_for_team(away_tri),
         }
 
+        def _fallback_intervals_1m(total_mean: Optional[float]) -> dict[str, Any]:
+            tm = 0.0 if total_mean is None else float(total_mean)
+            # Build a simple 48-minute regulation ladder. This is a last-resort visualization
+            # fallback for historical pages; real SmartSim files should provide richer ladders.
+            segs: list[dict[str, Any]] = []
+            for i in range(48):
+                end_min = i + 1
+                q = (i // 12) + 1
+                rem = 12 - (i % 12)
+                lab = f"Q{q} {rem}-{rem-1}" if rem >= 1 else f"Q{q}"
+                cum = tm * (end_min / 48.0) if tm else 0.0
+                segs.append(
+                    {
+                        "label": lab,
+                        "quarter": q,
+                        "mu": tm / 48.0 if tm else 0.0,
+                        "q": {"p10": None, "p50": None, "p90": None},
+                        "cum_mu": cum,
+                        "cum_q": {"p10": None, "p50": cum, "p90": None},
+                    }
+                )
+            return {
+                "segment_seconds": 60,
+                "ot_segment_seconds": 60,
+                "segments": segs,
+                "segments_per_quarter": 12,
+            }
+
+        def _ensure_intervals(sim_obj: dict[str, Any]) -> tuple[Optional[dict[str, Any]], Optional[dict[str, Any]]]:
+            itv = sim_obj.get("intervals") if isinstance(sim_obj.get("intervals"), dict) else None
+            itv1 = sim_obj.get("intervals_1m") if isinstance(sim_obj.get("intervals_1m"), dict) else None
+
+            score_obj = sim_obj.get("score") if isinstance(sim_obj.get("score"), dict) else {}
+            total_mean = _safe_float((score_obj or {}).get("total_mean"))
+
+            def _has_segs(x: Optional[dict[str, Any]]) -> bool:
+                try:
+                    return bool(x) and isinstance(x.get("segments"), list) and len(x.get("segments")) > 0
+                except Exception:
+                    return False
+
+            if not _has_segs(itv1) and total_mean is not None:
+                itv1 = _fallback_intervals_1m(total_mean)
+            if not _has_segs(itv) and itv1 is not None:
+                # If only the 1m ladder exists, let the UI fall back to it.
+                itv = itv1
+            return itv, itv1
+
+        # Ensure interval ladders exist (historical UI should not go blank).
+        _itv, _itv1 = _ensure_intervals(obj)
+
         sim = {
             "file": fp.name,
             "game_id": obj.get("game_id"),
@@ -6572,8 +6984,8 @@ def api_cards():
             "context": obj.get("context"),
             "score": obj.get("score"),
             "periods": obj.get("periods"),
-            "intervals": obj.get("intervals"),
-            "intervals_1m": obj.get("intervals_1m"),
+            "intervals": _itv,
+            "intervals_1m": _itv1,
             "players": players_out,
             "injuries": injuries_payload,
             "error": sim_error,
@@ -6660,6 +7072,20 @@ def api_cards():
             "betting": bet,
             "prop_recommendations": prop_recommendations,
         }
+
+        # Boxscore reconciliation (player-sum vs actual final team points, when available).
+        try:
+            bs = _boxscore_reconcile_points(sim.get("game_id"), home_tri, away_tri)
+            if bs:
+                game["boxscore_recon"] = bs
+                if bs.get("ok") is False and bs.get("reason") not in {"missing_boxscore"}:
+                    game.setdefault("warnings", [])
+                    game["warnings"].append(
+                        f"Boxscore recon mismatch: {home_tri} pts(players)={bs.get('home_pts_players')} vs actual={bs.get('home_pts_actual')}; "
+                        f"{away_tri} pts(players)={bs.get('away_pts_players')} vs actual={bs.get('away_pts_actual')}"
+                    )
+        except Exception:
+            pass
         game["writeup"] = _matchup_writeup(game)
 
         if sim_error:
@@ -16706,7 +17132,9 @@ def api_live_pbp_stats():
             actions = []
 
         pbp_attempts = _live_pbp_attempt_stats(actions) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+        pbp_attempts_periods = _live_pbp_attempt_stats_periods(actions) if actions else {}
         pbp_possessions = _live_pbp_possession_stats(actions, pbp_attempts) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+        pbp_possessions_periods = _live_pbp_possession_stats_periods(actions) if actions else {}
         pbp_quarters = _live_pbp_quarter_totals(actions) if actions else {"q_totals": {"q1": None, "q2": None, "q3": None, "q4": None}, "current": {"period": None, "q_total": None}}
 
         out.append({
@@ -16715,7 +17143,9 @@ def api_live_pbp_stats():
             "home": home,
             "away": away,
             "pbp_attempts": pbp_attempts,
+            "pbp_attempts_periods": pbp_attempts_periods,
             "pbp_possessions": pbp_possessions,
+            "pbp_possessions_periods": pbp_possessions_periods,
             "pbp_quarters": pbp_quarters,
         })
 
@@ -16737,6 +17167,7 @@ def api_live_lines():
       - date: YYYY-MM-DD (required)
       - event_ids: comma-separated ESPN event ids (required)
       - ttl: seconds (optional)
+            - include_period_totals: 1/true/yes to attempt OddsAPI 1H/Q totals (optional; may be slow)
     """
     d = _parse_date_param(request)
     if not d:
@@ -16749,28 +17180,44 @@ def api_live_lines():
     if not event_ids:
         return jsonify({"error": "missing event_ids"}), 400
 
+    # Keep this endpoint responsive for the UI: default to fast, local sources.
+    include_period_totals = str(request.args.get("include_period_totals") or "").strip().lower() in {"1", "true", "yes"}
+
     now = time.time()
-    cache_key = f"{d}:{ttl}:" + ",".join(event_ids)
+    cache_key = f"{d}:{ttl}:p{1 if include_period_totals else 0}:" + ",".join(event_ids)
     ent = _live_lines_multi_cache.get(cache_key)
     if ent and (now - ent[0] < ttl):
         return jsonify(ent[1])
 
-    # Map eid -> scoreboard game
-    source, sb_games = _live_build_scoreboard_games(d)
+    # Map eid -> scoreboard game (fast path: ESPN scoreboard only; no SmartSim file reads).
+    source = "espn"
+    try:
+        jd = _live_fetch_espn_scoreboard(d)
+        sb_games = _live_extract_espn_games(jd) if jd else []
+    except Exception:
+        sb_games = []
+    if not sb_games:
+        try:
+            sb = _live_fetch_cdn_scoreboard(d)
+            sb_games = _live_extract_scoreboard_games(sb) if sb else []
+            source = "nba_cdn"
+        except Exception:
+            sb_games = []
     by_eid: dict[str, dict[str, Any]] = {}
     for g in sb_games or []:
         try:
-            eid = str(g.get("espn_event_id") or "").strip()
+            eid = str(g.get("espn_event_id") or g.get("game_id") or "").strip()
             if eid:
                 by_eid[eid] = g
         except Exception:
             continue
 
-    bovada_all = None
+    # Primary line source: processed standardized odds (fast, no network).
+    odds_map: dict[tuple[str, str], dict[str, Any]] = {}
     try:
-        bovada_all = _live_bovada_lines_for_date(d)
+        odds_map = _load_game_odds_map(str(d))
     except Exception:
-        bovada_all = None
+        odds_map = {}
 
     out: list[dict[str, Any]] = []
     for eid in event_ids:
@@ -16783,17 +17230,50 @@ def api_live_lines():
         away_tri = str(g.get("away") or "").upper().strip()
         in_prog = bool(g.get("in_progress"))
 
-        lines = {}
+        # Full-game totals/spreads from processed odds map (pregame baseline).
+        lines: dict[str, Any] = {}
+        try:
+            row = odds_map.get((home_tri, away_tri)) or {}
+            if isinstance(row, dict) and row:
+                lines = {
+                    "total": _safe_float(row.get("total")),
+                    "home_spread": _safe_float(row.get("home_spread")),
+                    "away_spread": _safe_float(row.get("away_spread")),
+                    "home_spread_price": _safe_float(row.get("home_spread_price")),
+                    "away_spread_price": _safe_float(row.get("away_spread_price")),
+                    "total_over_price": _safe_float(row.get("total_over_price")),
+                    "total_under_price": _safe_float(row.get("total_under_price")),
+                    "home_ml": _safe_float(row.get("home_ml")),
+                    "away_ml": _safe_float(row.get("away_ml")),
+                    "bookmaker": str(row.get("bookmaker") or "").strip() or None,
+                }
+        except Exception:
+            lines = {}
+
+        # Optional: OddsAPI (fast) for in-progress games.
         oddsapi_period: dict[str, Any] = {}
-        if in_prog:
-            try:
-                lines = _live_match_lines(bovada_all or [], home_tri, away_tri) or {}
-            except Exception:
-                lines = {}
+        if include_period_totals and in_prog:
             try:
                 oddsapi_period = _live_oddsapi_period_totals_for_game(d, home_tri, away_tri)
             except Exception:
                 oddsapi_period = {}
+
+        # Prefer OddsAPI full-game lines when present (best-effort in-game movement).
+        try:
+            gl = oddsapi_period.get("game_lines") if isinstance(oddsapi_period, dict) else None
+            if isinstance(gl, dict) and gl:
+                if gl.get("total") is not None:
+                    lines["total"] = _safe_float(gl.get("total"))
+                if gl.get("home_spread") is not None:
+                    lines["home_spread"] = _safe_float(gl.get("home_spread"))
+                if gl.get("away_spread") is not None:
+                    lines["away_spread"] = _safe_float(gl.get("away_spread"))
+                if gl.get("home_ml") is not None:
+                    lines["home_ml"] = _safe_float(gl.get("home_ml"))
+                if gl.get("away_ml") is not None:
+                    lines["away_ml"] = _safe_float(gl.get("away_ml"))
+        except Exception:
+            pass
 
         out.append({
             "event_id": str(eid),
@@ -16802,7 +17282,14 @@ def api_live_lines():
             "home": home_tri,
             "away": away_tri,
             "in_progress": in_prog,
-            "source": {"scoreboard": source, "game_lines": ("bovada_current" if lines else None), "period_totals": oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None},
+            "source": {
+                "scoreboard": source,
+                "game_lines": (
+                    "oddsapi_fast" if (isinstance(oddsapi_period, dict) and isinstance(oddsapi_period.get("game_lines"), dict) and oddsapi_period.get("game_lines"))
+                    else ("processed_game_odds" if lines else None)
+                ),
+                "period_totals": oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None,
+            },
             "lines": {
                 **(lines or {}),
                 "period_totals": (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None),

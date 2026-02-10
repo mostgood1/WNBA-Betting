@@ -1152,7 +1152,10 @@ try {
 # 3) Props predictions for today (calibrated) to CSV
 # NOTE: --use-pure-onnx flag enables pure ONNX with NPU acceleration (NO sklearn required!)
 # IMPORTANT: Restrict predictions to today's slate only (do NOT generate for all rostered players)
-$rc3a = Invoke-PyMod -plist @(
+$SmartSimWorkers = $env:DAILY_SMARTSIM_WORKERS
+if ($null -eq $SmartSimWorkers -or $SmartSimWorkers -eq '') { $SmartSimWorkers = $env:SMARTSIM_WORKERS }
+
+$ppArgs = @(
   '-m','nba_betting.cli','predict-props',
   '--date', $Date,
   '--slate-only',
@@ -1160,10 +1163,18 @@ $rc3a = Invoke-PyMod -plist @(
   '--calibrate-player','--player-calib-window','30',
   '--use-pure-onnx',
   '--use-smart-sim',
-  '--smart-sim-n-sims','150',
+  '--smart-sim-n-sims','2000',
   '--smart-sim-pbp',
   '--smart-sim-overwrite'
 )
+try {
+  if ($null -ne $SmartSimWorkers -and $SmartSimWorkers -match '^\d+$' -and [int]$SmartSimWorkers -gt 1) {
+    Write-Log ("Using SmartSim parallel workers: {0}" -f $SmartSimWorkers)
+    $ppArgs += @('--smart-sim-workers', $SmartSimWorkers)
+  }
+} catch {}
+
+$rc3a = Invoke-PyMod -plist $ppArgs
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
 
 # 3.0) Export SmartSim player quarter + scenario distributions for today's slate (non-fatal)
@@ -1775,6 +1786,16 @@ try {
 try {
   $skipSmart = $env:DAILY_SKIP_SMARTSIM
   if ($null -eq $skipSmart -or $skipSmart -notmatch '^(1|true|yes)$') {
+    # If predict-props already generated today's smart_sim_<date>_*.json artifacts,
+    # avoid re-running the full SmartSim slate (this is the single biggest runtime sink).
+    $forceSmart = $env:DAILY_FORCE_SMARTSIM_DATE
+    if ($null -eq $forceSmart -or $forceSmart -eq '') { $forceSmart = '0' }
+    $existingSmart = @(Get-ChildItem (Join-Path $RepoRoot ("data/processed/smart_sim_{0}_*.json" -f $Date)) -ErrorAction SilentlyContinue)
+    if (($forceSmart -notmatch '^(1|true|yes)$') -and ($existingSmart.Count -gt 0)) {
+      Write-Log ("Skipping smart-sim-date (found {0} existing smart_sim artifacts; set DAILY_FORCE_SMARTSIM_DATE=1 to rerun)" -f $existingSmart.Count)
+      return
+    }
+
     # Generate team advanced stats priors (pace/ratings) as-of today to avoid any future leakage.
     try {
       $dts = [datetime]::Parse($Date)
@@ -1787,9 +1808,12 @@ try {
     }
 
     $nSmart = $env:DAILY_SMARTSIM_NSIMS
-    if ($null -eq $nSmart -or $nSmart -eq '') { $nSmart = '300' }
+    if ($null -eq $nSmart -or $nSmart -eq '') { $nSmart = '2000' }
     $maxSmart = $env:DAILY_SMARTSIM_MAX_GAMES
-    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart, '--overwrite')
+    $doOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
+    if ($null -eq $doOverwrite -or $doOverwrite -eq '') { $doOverwrite = '0' }
+    $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart)
+    if ($doOverwrite -match '^(1|true|yes)$') { $plist += @('--overwrite') }
     if ($null -ne $maxSmart -and $maxSmart -ne '') { $plist += @('--max-games', $maxSmart) }
     Write-Log ("Running SmartSim slate for {0} (n_sims={1})" -f $Date, $nSmart)
     $rcSmart = Invoke-PyMod -plist $plist
@@ -1868,6 +1892,27 @@ try {
 } catch {
   Write-Log ("Player audits failed: {0}" -f $_.Exception.Message)
   throw
+}
+
+# Optional: Live Lens tuning (optimize adjustments from logged signals + recon actuals)
+# Writes data/processed/live_lens_tuning_override.json when enough signal-backed bets exist.
+try {
+  $sigPath = Join-Path $RepoRoot ("data/processed/live_lens_signals_{0}.jsonl" -f $yesterday)
+  if (Test-Path $sigPath) {
+    Write-Log ("Live Lens tune: signals present for {0}; running optimizer" -f $yesterday)
+    $rcLens = Invoke-PyMod -plist @(
+      'tools/daily_live_lens_tune.py',
+      '--end', $yesterday,
+      '--lookback-days', '14',
+      '--min-bets', '10',
+      '--write-override'
+    )
+    Write-Log ("daily_live_lens_tune exit code: {0}" -f $rcLens)
+  } else {
+    Write-Log ("Live Lens tune: no signals file for {0}; skipping" -f $yesterday)
+  }
+} catch {
+  Write-Log ("Live Lens tune failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # Simple retention: keep last 21 local_daily_update_* logs

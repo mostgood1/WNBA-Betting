@@ -166,7 +166,7 @@ def simulate_games_cmd(date_str: str, sd_margin: float, sd_total: float):
 @click.option("--date", "date_str", required=True, help="YYYY-MM-DD date")
 @click.option("--home", "home_tri", required=True, help="Home team tricode (e.g., LAL)")
 @click.option("--away", "away_tri", required=True, help="Away team tricode (e.g., BOS)")
-@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims")
+@click.option("--n-sims", type=int, default=2000, show_default=True, help="Number of event-level sims")
 @click.option("--seed", type=int, default=None, help="RNG seed")
 @click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
 @click.option("--market-total", type=float, default=None, help="Optional game total line")
@@ -643,6 +643,211 @@ def smart_sim_cmd(
     console.print({"output": str(out_path), "n_sims": int(n_sims), "home": home_tri, "away": away_tri})
 
 
+_SMARTSIM_WORKER_STATE: dict[str, Any] = {}
+
+
+def _smart_sim_worker_init(
+    date_str: str,
+    n_sims: int,
+    seed: Optional[int],
+    pbp: bool,
+    props_path: str,
+    excluded_map: dict[str, set[str]],
+    adv_map: dict[str, dict[str, float]],
+    game_id_map: dict[tuple[str, str], int],
+    name_to_id: dict[str, int],
+    team_name_to_id: dict[tuple[str, str], int],
+) -> None:
+    """Initializer for SmartSim worker processes (Windows-safe)."""
+    import pandas as pd
+    from pathlib import Path
+
+    global _SMARTSIM_WORKER_STATE
+    try:
+        props_df = pd.read_csv(props_path) if props_path and Path(props_path).exists() else pd.DataFrame()
+    except Exception:
+        props_df = pd.DataFrame()
+
+    _SMARTSIM_WORKER_STATE = {
+        "date_str": str(date_str),
+        "n_sims": int(n_sims),
+        "seed": seed,
+        "pbp": bool(pbp),
+        "props_df": props_df,
+        "excluded_map": excluded_map or {},
+        "adv_map": adv_map or {},
+        "game_id_map": game_id_map or {},
+        "name_to_id": name_to_id or {},
+        "team_name_to_id": team_name_to_id or {},
+    }
+
+
+def _smart_sim_worker_run(job: dict) -> dict:
+    """Run SmartSim for a single game job.
+
+    Returns: {status: wrote|failed, home, away, out_path, error?}
+    """
+    import json
+    import re
+    import unicodedata
+    from pathlib import Path
+
+    import numpy as np
+    import pandas as pd
+
+    from .sim.quarters import GameInputs, TeamContext, simulate_quarters
+    from .sim.smart_sim import SmartSimConfig, simulate_smart_game
+
+    global _SMARTSIM_WORKER_STATE
+    st = _SMARTSIM_WORKER_STATE or {}
+
+    date_s = str(st.get("date_str") or job.get("date_str") or "")
+    home_tri = str(job.get("home_tri") or "").strip().upper()
+    away_tri = str(job.get("away_tri") or "").strip().upper()
+    out_path_s = str(job.get("out_path") or "")
+    out_path = Path(out_path_s)
+
+    def _norm_name_key(s: str) -> str:
+        s = (s or "").strip().upper()
+        try:
+            s = unicodedata.normalize("NFKD", s)
+            s = s.encode("ascii", "ignore").decode("ascii")
+        except Exception:
+            pass
+        s = s.replace("-", " ")
+        if "(" in s:
+            s = s.split("(", 1)[0]
+        s = re.sub(r"[^A-Z0-9\s]", "", s)
+        s = re.sub(r"\s+", " ", s).strip()
+        for suf in (" JR", " SR", " II", " III", " IV", " V"):
+            if s.endswith(suf):
+                s = s[: -len(suf)].strip()
+        return s
+
+    try:
+        market_total = job.get("market_total")
+        home_spread = job.get("home_spread")
+        home_pace = float(job.get("home_pace") or 98.0)
+        away_pace = float(job.get("away_pace") or 98.0)
+        matchup_pace = float(job.get("matchup_pace") or np.mean([home_pace, away_pace]))
+        home_def_rtg = float(job.get("home_def_rtg") or 112.0)
+        away_def_rtg = float(job.get("away_def_rtg") or 112.0)
+        home_off_rtg = float(job.get("home_off_rtg") or 112.0)
+        away_off_rtg = float(job.get("away_off_rtg") or 112.0)
+        home_outs = int(job.get("home_outs") or 0)
+        away_outs = int(job.get("away_outs") or 0)
+        home_b2b = bool(job.get("home_b2b") or False)
+        away_b2b = bool(job.get("away_b2b") or False)
+        home_rest_days = job.get("home_rest_days")
+        away_rest_days = job.get("away_rest_days")
+
+        home_ctx = TeamContext(
+            team=home_tri,
+            pace=float(home_pace),
+            off_rating=float(home_off_rtg),
+            def_rating=float(home_def_rtg),
+            injuries_out=int(home_outs),
+            back_to_back=bool(home_b2b),
+            rest_days=(int(home_rest_days) if home_rest_days is not None else None),
+        )
+        away_ctx = TeamContext(
+            team=away_tri,
+            pace=float(away_pace),
+            off_rating=float(away_off_rtg),
+            def_rating=float(away_def_rtg),
+            injuries_out=int(away_outs),
+            back_to_back=bool(away_b2b),
+            rest_days=(int(away_rest_days) if away_rest_days is not None else None),
+        )
+
+        qsum = simulate_quarters(
+            GameInputs(date=date_s, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread),
+            n_samples=3000,
+        )
+
+        cfg = SmartSimConfig(n_sims=int(st.get("n_sims") or job.get("n_sims") or 0), seed=st.get("seed"), use_pbp=bool(st.get("pbp")))
+        pre_ctx = {
+            "home_injuries_out": int(home_outs),
+            "away_injuries_out": int(away_outs),
+            "home_pace": float(home_pace) if np.isfinite(float(home_pace)) else None,
+            "away_pace": float(away_pace) if np.isfinite(float(away_pace)) else None,
+            "home_b2b": bool(home_b2b),
+            "away_b2b": bool(away_b2b),
+        }
+
+        excluded_map_local = st.get("excluded_map") or {}
+        excluded_game = {
+            str(home_tri): set((excluded_map_local.get(home_tri) or set())),
+            str(away_tri): set((excluded_map_local.get(away_tri) or set())),
+        }
+
+        out = simulate_smart_game(
+            date_str=date_s,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            props_df=st.get("props_df"),
+            quarters=qsum.quarters,
+            market_total=market_total,
+            market_home_spread=home_spread,
+            cfg=cfg,
+            excluded_player_keys_by_team=excluded_game,
+            pregame_context=pre_ctx,
+        )
+
+        # Repair missing player_id fields via roster mapping.
+        try:
+            name_to_id_local = st.get("name_to_id") or {}
+            team_name_to_id_local = st.get("team_name_to_id") or {}
+            players = out.get("players") if isinstance(out, dict) else None
+            if isinstance(players, dict):
+                for side, team_tri in (("home", home_tri), ("away", away_tri)):
+                    arr = players.get(side)
+                    if not isinstance(arr, list):
+                        continue
+                    for pr in arr:
+                        if not isinstance(pr, dict):
+                            continue
+                        pid = pr.get("player_id")
+                        if pid is None or (isinstance(pid, float) and (not np.isfinite(pid))):
+                            nm = str(pr.get("player_name") or "")
+                            pk = _norm_name_key(nm) if nm else ""
+                            if pk:
+                                fixed = team_name_to_id_local.get((team_tri, pk)) or name_to_id_local.get(pk)
+                                if fixed is not None:
+                                    pr["player_id"] = int(fixed)
+                        else:
+                            try:
+                                pr["player_id"] = int(pd.to_numeric(pid, errors="coerce"))
+                            except Exception:
+                                pass
+        except Exception:
+            pass
+
+        # Attach game_id if we can map it.
+        try:
+            gid = (st.get("game_id_map") or {}).get((home_tri, away_tri))
+            if gid is not None and isinstance(out, dict):
+                out["game_id"] = int(gid)
+        except Exception:
+            pass
+
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = out_path.with_suffix(out_path.suffix + ".tmp")
+        tmp.write_text(json.dumps(out, indent=2), encoding="utf-8")
+        try:
+            tmp.replace(out_path)
+        except Exception:
+            out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
+            try:
+                tmp.unlink(missing_ok=True)  # type: ignore[arg-type]
+            except Exception:
+                pass
+
+        return {"status": "wrote", "home": home_tri, "away": away_tri, "out_path": str(out_path)}
+    except Exception as e:
+        return {"status": "failed", "home": home_tri, "away": away_tri, "out_path": out_path_s, "error": str(e)}
+
+
 def _smart_sim_run_date(
     date_str: str,
     n_sims: int,
@@ -650,6 +855,7 @@ def _smart_sim_run_date(
     max_games: Optional[int],
     overwrite: bool,
     pbp: bool = True,
+    workers: Optional[int] = None,
 ) -> dict:
     """Internal: run SmartSim for every game on a date.
 
@@ -657,6 +863,10 @@ def _smart_sim_run_date(
     """
     try:
         import json
+
+        import os
+        from concurrent.futures import ProcessPoolExecutor, as_completed
+        from pathlib import Path
 
         from .sim.smart_sim import SmartSimConfig, simulate_smart_game
         from .sim.quarters import GameInputs, TeamContext, simulate_quarters
@@ -1148,6 +1358,7 @@ def _smart_sim_run_date(
     wrote = 0
     skipped = 0
     failures: list[dict[str, Any]] = []
+    jobs: list[dict[str, Any]] = []
 
     # Roster-based player_id repair for SmartSim outputs.
     # Some older SmartSim paths can emit players without ids; fix via processed rosters.
@@ -1264,7 +1475,6 @@ def _smart_sim_run_date(
 
         market_total = _num(r.get("total"))
         home_spread = _num(r.get("home_spread"))
-
         if (market_total is None or home_spread is None) and (odds_df is not None and not odds_df.empty):
             m = odds_df[(odds_df["home_tri"] == home_tri) & (odds_df["away_tri"] == away_tri)]
             if not m.empty:
@@ -1292,7 +1502,6 @@ def _smart_sim_run_date(
             home_pace = 98.0
         if not np.isfinite(away_pace):
             away_pace = 98.0
-
         matchup_pace = float(np.mean([home_pace, away_pace])) if (np.isfinite(home_pace) and np.isfinite(away_pace)) else 98.0
 
         try:
@@ -1316,6 +1525,9 @@ def _smart_sim_run_date(
             except Exception:
                 return 112.0
 
+        home_off_rtg = _rating_from_mu(home_mu, matchup_pace)
+        away_off_rtg = _rating_from_mu(away_mu, matchup_pace)
+
         try:
             home_rest_days = int(pd.to_numeric(r.get("home_rest_days"), errors="coerce")) if pd.notna(r.get("home_rest_days")) else None
         except Exception:
@@ -1333,101 +1545,98 @@ def _smart_sim_run_date(
         except Exception:
             away_b2b = False
 
-        home_ctx = TeamContext(
-            team=home_tri,
-            pace=float(home_pace),
-            off_rating=_rating_from_mu(home_mu, matchup_pace),
-            def_rating=float(home_def_rtg),
-            injuries_out=int(max(0, min(5, len(excluded_map.get(home_tri, set()))))),
-            back_to_back=bool(home_b2b),
-            rest_days=home_rest_days,
-        )
-        away_ctx = TeamContext(
-            team=away_tri,
-            pace=float(away_pace),
-            off_rating=_rating_from_mu(away_mu, matchup_pace),
-            def_rating=float(away_def_rtg),
-            injuries_out=int(max(0, min(5, len(excluded_map.get(away_tri, set()))))),
-            back_to_back=bool(away_b2b),
-            rest_days=away_rest_days,
-        )
-        qsum = simulate_quarters(
-            GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread),
-            n_samples=3000,
-        )
+        home_outs = int(max(0, min(5, len(excluded_map.get(home_tri, set())))))
+        away_outs = int(max(0, min(5, len(excluded_map.get(away_tri, set())))))
 
-        try:
-            sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
-            home_outs = int(max(0, min(5, len(excluded_map.get(home_tri, set())))))
-            away_outs = int(max(0, min(5, len(excluded_map.get(away_tri, set())))))
-            pre_ctx = {
-                "home_injuries_out": int(home_outs),
-                "away_injuries_out": int(away_outs),
-                "home_pace": float(home_pace) if np.isfinite(float(home_pace)) else None,
-                "away_pace": float(away_pace) if np.isfinite(float(away_pace)) else None,
+        jobs.append(
+            {
+                "date_str": date_str,
+                "home_tri": home_tri,
+                "away_tri": away_tri,
+                "out_path": str(out_path),
+                "market_total": market_total,
+                "home_spread": home_spread,
+                "home_pace": float(home_pace),
+                "away_pace": float(away_pace),
+                "matchup_pace": float(matchup_pace),
+                "home_def_rtg": float(home_def_rtg),
+                "away_def_rtg": float(away_def_rtg),
+                "home_off_rtg": float(home_off_rtg),
+                "away_off_rtg": float(away_off_rtg),
+                "home_outs": int(home_outs),
+                "away_outs": int(away_outs),
                 "home_b2b": bool(home_b2b),
                 "away_b2b": bool(away_b2b),
+                "home_rest_days": home_rest_days,
+                "away_rest_days": away_rest_days,
             }
-            excluded_game = {
-                str(home_tri): set(excluded_map.get(home_tri, set()) or set()),
-                str(away_tri): set(excluded_map.get(away_tri, set()) or set()),
-            }
-            out = simulate_smart_game(
-                date_str=date_str,
-                home_tri=home_tri,
-                away_tri=away_tri,
-                props_df=props_df,
-                quarters=qsum.quarters,
-                market_total=market_total,
-                market_home_spread=home_spread,
-                cfg=sim_cfg,
-                excluded_player_keys_by_team=excluded_game,
-                pregame_context=pre_ctx,
+        )
+
+    # Resolve workers: explicit arg -> env -> default 1
+    env_workers = None
+    try:
+        env_workers = int(os.environ.get("SMARTSIM_WORKERS") or os.environ.get("SMART_SIM_WORKERS") or 0)
+    except Exception:
+        env_workers = None
+    if workers is None:
+        workers = env_workers if (env_workers is not None and int(env_workers) > 0) else 1
+    try:
+        workers = int(workers)
+    except Exception:
+        workers = 1
+    if workers < 1:
+        workers = 1
+
+    # Run jobs serially or in parallel
+    if jobs:
+        if workers == 1 or len(jobs) == 1:
+            _smart_sim_worker_init(
+                date_str=str(date_str),
+                n_sims=int(n_sims),
+                seed=seed,
+                pbp=bool(pbp),
+                props_path=str(props_path),
+                excluded_map=excluded_map,
+                adv_map=adv_map,
+                game_id_map=game_id_map,
+                name_to_id=name_to_id,
+                team_name_to_id=team_name_to_id,
             )
-
-            # Repair missing player_id fields via roster mapping.
-            try:
-                players = out.get("players") if isinstance(out, dict) else None
-                if isinstance(players, dict):
-                    for side, team_tri in (("home", home_tri), ("away", away_tri)):
-                        arr = players.get(side)
-                        if not isinstance(arr, list):
-                            continue
-                        for pr in arr:
-                            if not isinstance(pr, dict):
-                                continue
-                            pid = pr.get("player_id")
-                            if pid is None or (isinstance(pid, float) and (not np.isfinite(pid))):
-                                nm = str(pr.get("player_name") or "")
-                                pk = None
-                                try:
-                                    pk = _norm_name_key(nm)  # type: ignore[name-defined]
-                                except Exception:
-                                    pk = None
-                                if pk:
-                                    fixed = team_name_to_id.get((team_tri, pk)) or name_to_id.get(pk)
-                                    if fixed is not None:
-                                        pr["player_id"] = int(fixed)
-                            else:
-                                try:
-                                    pr["player_id"] = int(pd.to_numeric(pid, errors="coerce"))
-                                except Exception:
-                                    pass
-            except Exception:
-                pass
-
-            # Attach game_id if we can map it.
-            try:
-                gid = game_id_map.get((home_tri, away_tri))
-                if gid is not None:
-                    out["game_id"] = int(gid)
-            except Exception:
-                pass
-
-            out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
-            wrote += 1
-        except Exception as e:
-            failures.append({"home": home_tri, "away": away_tri, "error": str(e)})
+            for job in jobs:
+                res = _smart_sim_worker_run(job)
+                if res.get("status") == "wrote":
+                    wrote += 1
+                else:
+                    failures.append({"home": res.get("home"), "away": res.get("away"), "error": res.get("error")})
+        else:
+            w = min(int(workers), int(len(jobs)))
+            with ProcessPoolExecutor(
+                max_workers=int(w),
+                initializer=_smart_sim_worker_init,
+                initargs=(
+                    str(date_str),
+                    int(n_sims),
+                    seed,
+                    bool(pbp),
+                    str(props_path),
+                    excluded_map,
+                    adv_map,
+                    game_id_map,
+                    name_to_id,
+                    team_name_to_id,
+                ),
+            ) as ex:
+                futs = [ex.submit(_smart_sim_worker_run, job) for job in jobs]
+                for fut in as_completed(futs):
+                    try:
+                        res = fut.result()
+                    except Exception as e:
+                        failures.append({"home": None, "away": None, "error": str(e)})
+                        continue
+                    if res.get("status") == "wrote":
+                        wrote += 1
+                    else:
+                        failures.append({"home": res.get("home"), "away": res.get("away"), "error": res.get("error")})
 
     if failures:
         fp = paths.data_processed / f"smart_sim_failures_{date_str}.csv"
@@ -1495,10 +1704,11 @@ def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
 
 @cli.command("smart-sim-date")
 @click.option("--date", "date_str", required=True, help="YYYY-MM-DD date")
-@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims per game")
+@click.option("--n-sims", type=int, default=2000, show_default=True, help="Number of event-level sims per game")
 @click.option("--seed", type=int, default=None, help="Optional RNG seed")
 @click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
 @click.option("--max-games", type=int, default=None, help="Optional cap for quick runs")
+@click.option("--workers", type=int, default=1, show_default=True, help="Parallel workers (per-game). Use >1 to speed up full slates")
 @click.option(
     "--refresh-asof-priors/--no-refresh-asof-priors",
     default=True,
@@ -1512,6 +1722,7 @@ def smart_sim_date_cmd(
     seed: Optional[int],
     pbp: bool,
     max_games: Optional[int],
+    workers: int,
     refresh_asof_priors: bool,
     overwrite: bool,
 ):
@@ -1526,14 +1737,14 @@ def smart_sim_date_cmd(
         except Exception:
             pass
 
-    summary = _smart_sim_run_date(date_str=date_str, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp))
+    summary = _smart_sim_run_date(date_str=date_str, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp), workers=int(workers))
     console.print(summary)
 
 
 @cli.command("smart-sim-range")
 @click.option("--start", "start_date", required=True, help="Start date YYYY-MM-DD")
 @click.option("--end", "end_date", required=True, help="End date YYYY-MM-DD")
-@click.option("--n-sims", type=int, default=300, show_default=True, help="Number of event-level sims per game")
+@click.option("--n-sims", type=int, default=2000, show_default=True, help="Number of event-level sims per game")
 @click.option("--seed", type=int, default=None, help="Optional RNG seed")
 @click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
 @click.option(
@@ -1544,6 +1755,7 @@ def smart_sim_date_cmd(
 )
 @click.option("--overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_*.json outputs")
 @click.option("--max-games", type=int, default=None, help="Optional cap per date for quick runs")
+@click.option("--workers", type=int, default=1, show_default=True, help="Parallel workers (per-game) for each date")
 @click.option("--sleep", type=float, default=0.0, show_default=True, help="Sleep seconds between dates")
 def smart_sim_range_cmd(
     start_date: str,
@@ -1554,6 +1766,7 @@ def smart_sim_range_cmd(
     refresh_asof_priors: bool,
     overwrite: bool,
     max_games: Optional[int],
+    workers: int,
     sleep: float,
 ):
     """Backfill SmartSim across a date range.
@@ -1585,7 +1798,7 @@ def smart_sim_range_cmd(
                 _ensure_team_advanced_stats_asof(season=season, as_of=ds)
             except Exception:
                 pass
-        summary = _smart_sim_run_date(date_str=ds, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp))
+        summary = _smart_sim_run_date(date_str=ds, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp), workers=int(workers))
         console.print(summary)
         total_wrote += int(summary.get("wrote") or 0)
         total_skipped += int(summary.get("skipped") or 0)
@@ -3783,8 +3996,9 @@ def props_edges_walkforward_cmd(
 @click.option("--player-min-pairs-by-stat", type=str, required=False, help="Optional per-stat min-pairs mapping, e.g., 'reb:8,ast:8' (others default to --player-min-pairs)")
 @click.option("--use-pure-onnx/--no-use-pure-onnx", default=True, show_default=True, help="Use pure ONNX models with NPU acceleration (no sklearn dependency)")
 @click.option("--use-smart-sim/--no-use-smart-sim", default=True, show_default=True, help="Derive prop stat means from SmartSim (minutes/rotations-aware simulation) when possible")
-@click.option("--smart-sim-n-sims", type=int, default=200, show_default=True, help="SmartSim simulations per game")
+@click.option("--smart-sim-n-sims", type=int, default=2000, show_default=True, help="SmartSim simulations per game")
 @click.option("--smart-sim-pbp/--no-smart-sim-pbp", default=True, show_default=True, help="Use possession-level SmartSim mode")
+@click.option("--smart-sim-workers", type=int, default=1, show_default=True, help="Parallel workers (per-game) for SmartSim during predict-props")
 @click.option("--smart-sim-overwrite", is_flag=True, default=False, help="Overwrite existing smart_sim_<date>_*.json outputs")
 def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, calibrate: bool, calib_window: int,
                       calibrate_player: bool, player_calib_window: int, player_min_pairs: int, player_shrink_k: int,
@@ -3793,6 +4007,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                       use_smart_sim: bool,
                       smart_sim_n_sims: int,
                       smart_sim_pbp: bool,
+                      smart_sim_workers: int,
                       smart_sim_overwrite: bool):
     """Predict player props for a slate date using rolling-history models.
 
@@ -4649,6 +4864,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     max_games=None,
                     overwrite=bool(smart_sim_overwrite),
                     pbp=bool(smart_sim_pbp),
+                    workers=int(smart_sim_workers),
                 )
                 console.print({"smart_sim": summary})
             except KeyboardInterrupt:

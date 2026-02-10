@@ -8,6 +8,61 @@ header .btn, header button { background: #2b5cff; color: white; border: none; pa
 header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opacity: 0.9; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 .cards { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 18px 0; }
+
+/* ESPN-style compact scoreboard strip */
+.scoreboard-strip {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+	align-items: center;
+	padding: 10px;
+	border-radius: 14px;
+	background: #0f1530;
+	border: 1px solid #25316a;
+}
+
+.scoreboard-strip .s-item {
+	display: grid;
+	grid-template-columns: auto auto 1fr;
+	align-items: center;
+	gap: 10px;
+	padding: 8px 10px;
+	border-radius: 999px;
+	border: 1px solid #2a3a7a;
+	background: #161c3b;
+	color: #d5dbff;
+	font-size: 12px;
+	line-height: 1.1;
+	cursor: pointer;
+}
+
+.scoreboard-strip .s-item:hover { filter: brightness(1.06); }
+
+.scoreboard-strip .s-teams { font-weight: 900; letter-spacing: 0.3px; }
+.scoreboard-strip .s-mid { display: inline-flex; gap: 8px; align-items: center; color: #cfe0ff; }
+.scoreboard-strip .s-status { opacity: 0.95; font-weight: 700; }
+.scoreboard-strip .s-score { font-weight: 900; }
+.scoreboard-strip .s-tag { color: #9fb0ff; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.scoreboard-strip .s-item.bet {
+	border-color: #1e7a45;
+	background: #0f2d1b;
+	color: #a7f3c6;
+}
+
+.scoreboard-strip .s-item.watch {
+	border-color: #6a5a1f;
+	background: #2a2310;
+	color: #ffeaa7;
+}
+
+.scoreboard-strip .s-item.live {
+	border-color: #2b5cff;
+	background: #111834;
+	color: #cfe0ff;
+}
+
+.scoreboard-strip .s-item.neu { }
 .card { background: #141b3a; border: 1px solid #1f2a5a; border-radius: 14px; padding: 16px; display: grid; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
 .card.live-edge-ok { border-color: #1e7a45; box-shadow: 0 0 0 1px rgba(30,122,69,0.45), 0 2px 10px rgba(0,0,0,0.35); }
 .card.live-edge-warn { border-color: #6a5a1f; box-shadow: 0 0 0 1px rgba(106,90,31,0.45), 0 2px 10px rgba(0,0,0,0.35); }
@@ -135,11 +190,35 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
 .market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
 
-/* Live lens should use full row width and split into two columns (1H / Full Game) */
+/* Live lens should use full row width and render a 2x2 segment grid */
 .market-tile.live-lens { grid-column: 1 / -1; }
-.live-lens .lens-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.live-lens .lens-top { display: grid; gap: 4px; }
+.live-lens .lens-live-bar { margin-top: 0 !important; }
+.live-lens .lens-rec-row { opacity: 0.95; }
+.live-lens .lens-columns { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; grid-auto-rows: auto; align-items: start; }
+.live-lens .lens-panel { display: grid; grid-template-rows: auto 1fr; gap: 6px; }
+.live-lens[data-final="1"] .lens-panel { display: none; }
+.live-lens[data-final="1"] .lens-col { display: none; }
+.live-lens .lens-panel-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.live-lens .lens-panel-sub { font-size: 11px; }
 .live-lens .lens-col { display: grid; gap: 8px; }
 .live-lens select, .live-lens input { background: #0f1530; color: #e8eaf6; border: 1px solid #25316a; border-radius: 6px; padding: 6px 8px; }
+
+/* Live lens: screenshot-style interval controls */
+.live-lens .lens-desc { margin-top: 2px; }
+.live-lens .lens-pillbar { display: flex; gap: 8px; flex-wrap: wrap; background: #141b3a; border: 1px solid #25316a; border-radius: 10px; padding: 8px 10px; }
+.live-lens .lens-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.live-lens .lens-inputs-single { grid-template-columns: 1fr; }
+.live-lens .lens-input { display: flex; align-items: center; justify-content: space-between; gap: 10px; background: #0f1530; border: 1px solid #25316a; border-radius: 999px; padding: 8px 10px; }
+.live-lens .lens-input .k { color: #9fb0ff; font-size: 12px; }
+.live-lens .lens-input .v { display: inline-flex; align-items: center; gap: 8px; }
+.live-lens .lens-input select { padding: 6px 10px; border-radius: 999px; }
+.live-lens .lens-input input { width: 120px; border-radius: 999px; }
+.live-lens .lens-out .chip { white-space: nowrap; }
+
+/* Summary tiles (top row like screenshot) */
+.live-lens .lens-summary { grid-auto-rows: auto; }
+.live-lens .lens-summary-table td.fw-700 { color: #e8eaf6; }
 
 .details-block { display: grid; gap: 4px; margin-top: -2px; }
 .quarters-block { display: grid; gap: 8px; }

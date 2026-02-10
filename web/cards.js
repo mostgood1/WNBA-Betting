@@ -23,8 +23,28 @@ function isYmd(s) {
 }
 
 function n(x) {
-  const v = Number(x);
+  if (x == null) return null;
+  const s = (typeof x === 'string') ? x.trim() : x;
+  if (s === '') return null;
+  const v = Number(s);
   return Number.isFinite(v) ? v : null;
+}
+
+function fetchJsonWithTimeout(url, timeoutMs) {
+  const ms = Number(timeoutMs);
+  if (!Number.isFinite(ms) || ms <= 0) return fetchJson(url);
+  const ctrl = new AbortController();
+  const t = setTimeout(() => {
+    try { ctrl.abort(); } catch (_) { /* ignore */ }
+  }, ms);
+  return fetch(url, { cache: 'no-store', signal: ctrl.signal })
+    .then((r) => {
+      if (!r.ok) throw new Error(`${r.status} ${r.statusText}`);
+      return r.json();
+    })
+    .finally(() => {
+      try { clearTimeout(t); } catch (_) { /* ignore */ }
+    });
 }
 
 function fmt(x, digits = 1) {
@@ -106,6 +126,62 @@ function buildReconIndex(rows) {
   return idx;
 }
 
+function canonNbaGameId10(gameId) {
+  try {
+    const raw = String(gameId ?? '').trim();
+    const digits = raw.replace(/\D+/g, '');
+    if (digits.length === 8) return `00${digits}`;
+    if (digits.length === 9) return `0${digits}`;
+    return digits;
+  } catch (_) {
+    return '';
+  }
+}
+
+function buildReconPlayersIndex(reconPlayerRows) {
+  const idx = {};
+  const rows = Array.isArray(reconPlayerRows) ? reconPlayerRows : [];
+  for (const r of rows) {
+    try {
+      const gid = canonNbaGameId10(r.game_id);
+      const team = String(r.team_tri ?? '').trim().toUpperCase();
+      const pid = String(r.player_id ?? '').trim();
+      if (!gid || !team || !pid) continue;
+      if (!idx[gid]) idx[gid] = {};
+      if (!idx[gid][team]) idx[gid][team] = {};
+      idx[gid][team][pid] = r;
+    } catch (_) {
+      // ignore
+    }
+  }
+  return idx;
+}
+
+function reconTeamSummary(reconByPlayerId) {
+  try {
+    const rows = Object.values(reconByPlayerId || {});
+    let nPts = 0, sumAbsPts = 0;
+    let nPra = 0, sumAbsPra = 0;
+    let missing = 0;
+    for (const r of rows) {
+      const miss = String(r.missing_actual ?? '').toLowerCase().trim();
+      if (miss === 'true' || miss === '1') {
+        missing += 1;
+        continue;
+      }
+      const ePts = n(r.err_pts);
+      if (ePts != null) { nPts += 1; sumAbsPts += Math.abs(ePts); }
+      const ePra = n(r.err_pra);
+      if (ePra != null) { nPra += 1; sumAbsPra += Math.abs(ePra); }
+    }
+    const maePts = nPts ? (sumAbsPts / nPts) : null;
+    const maePra = nPra ? (sumAbsPra / nPra) : null;
+    return { maePts, maePra, missing };
+  } catch (_) {
+    return { maePts: null, maePra: null, missing: 0 };
+  }
+}
+
 function fmtAmer(x) {
   const v = n(x);
   if (v == null) return '—';
@@ -141,7 +217,7 @@ function bestBets(b) {
   return rows;
 }
 
-function renderPlayersTable(title, players) {
+function renderPlayersTable(title, players, reconByPlayerId) {
   const arr = Array.isArray(players) ? [...players] : [];
   // Sort by minutes first so the table reflects the expected rotation.
   arr.sort((a, b) => {
@@ -151,21 +227,55 @@ function renderPlayersTable(title, players) {
   });
   const top = arr.slice(0, 10);
 
+  const hasRecon = !!(reconByPlayerId && typeof reconByPlayerId === 'object' && Object.keys(reconByPlayerId).length);
+
   const rows = top.map((p) => {
     const nm = String(p.player_name || '').trim();
     const st = String(p.injury_status || '').trim().toUpperCase();
     const isOut = (st === 'OUT') || (p.playing_today === false);
     const inj = isOut ? ' <span class="badge bad">OUT</span>' : '';
     const play = '';
+
+    let actPts = '—';
+    let actPra = '—';
+    let actMin = '—';
+    let actReb = '—';
+    let actAst = '—';
+    let act3pm = '—';
+    let dPra = '—';
+    try {
+      if (hasRecon) {
+        const pid = String(p && p.player_id != null ? p.player_id : '').trim();
+        const rr = pid ? (reconByPlayerId[pid] || null) : null;
+        if (rr && String(rr.missing_actual ?? '').toLowerCase().trim() !== 'true') {
+          actMin = fmt(rr.actual_min, 1);
+          actPts = fmt(rr.actual_pts, 1);
+          actReb = fmt(rr.actual_reb, 1);
+          actAst = fmt(rr.actual_ast, 1);
+          act3pm = fmt(rr.actual_3pm, 1);
+          actPra = fmt(rr.actual_pra, 1);
+          const ePra = n(rr.err_pra);
+          dPra = (ePra == null) ? '—' : fmt(ePra, 1);
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
     return `
       <tr>
         <td>${esc(nm)}${inj}${play}</td>
         <td class="num">${fmt(p.min_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(actMin)}</td>` : ''}
         <td class="num">${fmt(p.pts_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(actPts)}</td>` : ''}
         <td class="num">${fmt(p.reb_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(actReb)}</td>` : ''}
         <td class="num">${fmt(p.ast_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(actAst)}</td>` : ''}
         <td class="num">${fmt(p.threes_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(act3pm)}</td>` : ''}
         <td class="num">${fmt(p.pra_mean, 1)}</td>
+        ${hasRecon ? `<td class="num">${esc(actPra)}</td><td class="num">${esc(dPra)}</td>` : ''}
       </tr>
     `;
   }).join('');
@@ -177,15 +287,21 @@ function renderPlayersTable(title, players) {
           <tr>
             <th class="sortable" data-sort="text">${esc(title)}</th>
             <th class="num sortable" data-sort="num">MIN</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT MIN</th>' : ''}
             <th class="num sortable" data-sort="num">PTS</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT PTS</th>' : ''}
             <th class="num sortable" data-sort="num">REB</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT REB</th>' : ''}
             <th class="num sortable" data-sort="num">AST</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT AST</th>' : ''}
             <th class="num sortable" data-sort="num">3PM</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT 3PM</th>' : ''}
             <th class="num sortable" data-sort="num">PRA</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT PRA</th><th class="num sortable" data-sort="num">ΔPRA</th>' : ''}
           </tr>
         </thead>
         <tbody>
-          ${rows || '<tr><td colspan="7" class="subtle">No player projections.</td></tr>'}
+          ${rows || `<tr><td colspan="${hasRecon ? 14 : 7}" class="subtle">No player projections.</td></tr>`}
         </tbody>
       </table>
     </div>
@@ -413,14 +529,27 @@ function renderIntervalsTable(intervals) {
   `;
 }
 
-function renderLiveLens(intervals, cardKey, gameId) {
+function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
   const segsAll = intervals && Array.isArray(intervals.segments) ? intervals.segments : [];
   // Prefer regulation segments for tables/chips; OT segments have `ot` not `quarter`.
   const segsReg = segsAll.filter((s) => s && s.quarter != null);
   const segs = segsReg.length ? segsReg : segsAll;
-  if (!segs.length) return '';
+  if (!segs.length) {
+    const id0 = String(cardKey || '').replace(/[^A-Za-z0-9_\-]/g, '_');
+    const gid0 = canonGameId((gameId == null) ? '' : gameId);
+    return `
+      <div class="market-tile live-lens" data-lens-id="${esc(id0)}" data-game-id="${esc(gid0)}">
+        <div class="market-title">LIVE LENS</div>
+        <div class="subtle" style="margin-top:6px;">No interval ladder available for this game (intervals missing/empty).</div>
+      </div>
+    `;
+  }
   const id = String(cardKey || '').replace(/[^A-Za-z0-9_\-]/g, '_');
   const gid = canonGameId((gameId == null) ? '' : gameId);
+
+  const parts = String(cardKey || '').split('_');
+  const homeTri = String(parts[0] || '').toUpperCase().trim();
+  const awayTri = String(parts[1] || '').toUpperCase().trim();
 
   const segSec = n(intervals && intervals.segment_seconds) ?? 180;
   const segMin = Math.max(1, Math.round(segSec / 60));
@@ -537,25 +666,45 @@ function renderLiveLens(intervals, cardKey, gameId) {
   function renderQuarterCol(qNum) {
     const qSegs = buildQuarterSegs(qNum);
     const qFinalIdx = Math.min(qSegs.length - 1, Math.max(0, Math.round(12 / segMin) - 1));
-    const title = `Q${qNum} ${segMin}-min interval`;
     return `
       <div class="lens-col" data-scope="q${qNum}">
-        <div class="subtle" style="font-weight:900; letter-spacing:0.3px;">${esc(title)}</div>
-        <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr));">
-          <div class="kv"><span class="k">Min remaining</span><span class="v"><select class="lens-min">${renderMinRemainingOptions(12)}</select></span></div>
-          <div class="kv"><span class="k">Q pts</span><span class="v"><input class="lens-total" type="number" value="0" style="width:110px;"></span></div>
-          <div class="kv"><span class="k">Live total (opt)</span><span class="v"><input class="lens-live" type="number" placeholder="—" style="width:120px;"></span></div>
+        <div class="subtle lens-desc">Live lens (Q${qNum}; enter minutes remaining + total points; optional live total):</div>
+
+        <div class="lens-pillbar">
+          <span class="chip neutral lens-auto">Auto: Forced</span>
+          <span class="chip neutral lens-phase">Live: —</span>
         </div>
 
-        <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-          <div class="kv"><span class="k">Sim q50 final</span><span class="v lens-sim-final">—</span></div>
-          <div class="kv"><span class="k">Sim q50 @ time</span><span class="v lens-sim-at">—</span></div>
-          <div class="kv"><span class="k">Δ (Sim–Act)</span><span class="v lens-delta">—</span></div>
+        <div class="lens-inputs">
+          <div class="lens-input">
+            <span class="k">Min remaining</span>
+            <span class="v"><select class="lens-min">${renderMinRemainingOptions(12)}</select></span>
+          </div>
+          <div class="lens-input">
+            <span class="k">Total pts</span>
+            <span class="v"><input class="lens-total" type="number" placeholder="—"></span>
+          </div>
         </div>
-        <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-          <div class="kv"><span class="k">Proj final (12m)</span><span class="v lens-pace">—</span></div>
-          <div class="kv"><span class="k">Driver</span><span class="v lens-driver">—</span></div>
-          <div class="kv"><span class="k">Signal</span><span class="v lens-lean">—</span></div>
+
+        <div class="lens-inputs lens-inputs-single">
+          <div class="lens-input">
+            <span class="k">Live total</span>
+            <span class="v"><input class="lens-live" type="number" placeholder="optional"></span>
+          </div>
+        </div>
+
+        <div class="row chips lens-out">
+          <span class="chip neutral">Sim q50 @ time: <span class="fw-700 lens-sim-at">—</span></span>
+          <span class="chip neutral">Δ (Sim–Act): <span class="fw-700 lens-delta">—</span></span>
+          <span class="chip neutral">Pace final: <span class="fw-700 lens-pace">—</span></span>
+          <span class="chip neutral">Sim q50 final: <span class="fw-700 lens-sim-final">—</span></span>
+        </div>
+        <div class="row chips lens-out" style="margin-top:6px;">
+          <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
+          <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
+        </div>
+        <div class="row chips lens-out" style="margin-top:6px;">
+          <span class="chip neutral lens-scope-attempts">—</span>
         </div>
 
         <details class="lens-details" style="margin-top:6px;">
@@ -568,64 +717,171 @@ function renderLiveLens(intervals, cardKey, gameId) {
     `;
   }
 
-  return `
-    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}">
-      <div class="market-title">Live lens (${esc(ladderLabel)})</div>
-      <div class="subtle lens-live-bar" style="margin-top:2px;">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
-      <div class="row chips" style="margin-top:6px;">
-        <span class="chip neutral lens-rec-total">Total: —</span>
-        <span class="chip neutral lens-rec-half">1H: —</span>
-        <span class="chip neutral lens-rec-qtr">Q: —</span>
-        <span class="chip neutral lens-rec-ats">ATS: —</span>
-        <span class="chip neutral lens-live-attempts">FT/2P/3P: —</span>
+  function renderScopeCol(scope, title, totalMinutes, labelPrefix) {
+    const liveLineLabel = (scope === 'game') ? 'Live total' : 'Live total';
+    const paceLabel = (scope === 'game') ? 'Pace final (48m)' : (scope === 'half' ? 'Pace final (24m)' : `Pace final (${totalMinutes}m)`);
+    const simFinalLabel = (scope === 'game') ? 'Sim q50 final' : (scope === 'half' ? 'Sim q50 final' : 'Sim q50 final');
+    const atLabel = (scope === 'game') ? 'Sim q50 @ time' : (scope === 'half' ? 'Sim q50 @ time' : 'Sim q50 @ time');
+    const scopeLabel = (scope === 'game') ? 'full game' : (scope === 'half' ? '1H' : scope);
+    return `
+      <div class="lens-col" data-scope="${esc(scope)}">
+        <div class="subtle lens-desc">Live lens (${esc(scopeLabel)}; enter minutes remaining + total points; optional live total):</div>
+
+        <div class="lens-pillbar">
+          <span class="chip neutral lens-auto">Auto: Forced</span>
+          <span class="chip neutral lens-phase">Live: —</span>
+        </div>
+
+        <div class="lens-inputs">
+          <div class="lens-input">
+            <span class="k">Min remaining</span>
+            <span class="v"><select class="lens-min">${renderMinRemainingOptions(totalMinutes)}</select></span>
+          </div>
+          <div class="lens-input">
+            <span class="k">Total pts</span>
+            <span class="v"><input class="lens-total" type="number" placeholder="—"></span>
+          </div>
+        </div>
+
+        <div class="lens-inputs lens-inputs-single">
+          <div class="lens-input">
+            <span class="k">${esc(liveLineLabel)}</span>
+            <span class="v"><input class="lens-live" type="number" placeholder="optional"></span>
+          </div>
+        </div>
+
+        <div class="row chips lens-out">
+          <span class="chip neutral">${esc(atLabel)}: <span class="fw-700 lens-sim-at">—</span></span>
+          <span class="chip neutral">Δ (Sim–Act): <span class="fw-700 lens-delta">—</span></span>
+          <span class="chip neutral">${esc(paceLabel)}: <span class="fw-700 lens-pace">—</span></span>
+          <span class="chip neutral">${esc(simFinalLabel)}: <span class="fw-700 lens-sim-final">—</span></span>
+        </div>
+        <div class="row chips lens-out" style="margin-top:6px;">
+          <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
+          <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
+        </div>
+        <div class="row chips lens-out" style="margin-top:6px;">
+          <span class="chip neutral lens-scope-attempts">—</span>
+        </div>
       </div>
-      <div class="lens-columns">
+    `;
+  }
 
-        ${renderQuarterCol(1)}
-        ${renderQuarterCol(2)}
-        ${renderQuarterCol(3)}
-        ${renderQuarterCol(4)}
+  function renderSummaryInner(simTotal) {
+    const st = (simTotal == null) ? '—' : fmt(simTotal, 1);
+    return `
+      <div class="table-wrap" style="margin-top:6px;">
+        <table class="data-table boxscore-table lens-summary-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Source</th>
+              <th>Winner</th>
+              <th>ATS</th>
+              <th class="num">Total</th>
+              <th>Score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fw-700">Sim</td>
+              <td class="lens-sum-sim-winner">—</td>
+              <td class="lens-sum-sim-ats">—</td>
+              <td class="num lens-sum-sim-total">${esc(st)}</td>
+              <td class="lens-sum-sim-score">—</td>
+            </tr>
+            <tr>
+              <td class="fw-700">Line</td>
+              <td class="lens-sum-line-winner">—</td>
+              <td class="lens-sum-line-ats">—</td>
+              <td class="num lens-sum-line-total">—</td>
+              <td class="lens-sum-line-score">—</td>
+            </tr>
+            <tr>
+              <td class="fw-700">Live</td>
+              <td class="lens-sum-live-winner">—</td>
+              <td class="lens-sum-live-ats">—</td>
+              <td class="num lens-sum-live-total">—</td>
+              <td class="lens-sum-live-score">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
 
-        <div class="lens-col" data-scope="half">
-          <div class="subtle" style="font-weight:900; letter-spacing:0.3px;">1H ${esc(segMin)}-min interval</div>
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr));">
-            <div class="kv"><span class="k">Min remaining</span><span class="v"><select class="lens-min">${renderMinRemainingOptions(24)}</select></span></div>
-            <div class="kv"><span class="k">Total pts</span><span class="v"><input class="lens-total" type="number" value="0" style="width:110px;"></span></div>
-            <div class="kv"><span class="k">Live total (opt)</span><span class="v"><input class="lens-live" type="number" placeholder="—" style="width:120px;"></span></div>
-          </div>
-
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-            <div class="kv"><span class="k">Sim q50 @ time</span><span class="v lens-sim-at">—</span></div>
-            <div class="kv"><span class="k">Δ (Sim–Act)</span><span class="v lens-delta">—</span></div>
-            <div class="kv"><span class="k">Pace final (24m)</span><span class="v lens-pace">—</span></div>
-          </div>
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-            <div class="kv"><span class="k">Sim q50 final</span><span class="v lens-sim-final">—</span></div>
-            <div class="kv"><span class="k">Driver</span><span class="v lens-driver">—</span></div>
-            <div class="kv"><span class="k">Signal</span><span class="v lens-lean">—</span></div>
-          </div>
+  function renderSegmentTile(scope, title, simTotal, innerHtml) {
+    return `
+      <div class="market-tile lens-seg" data-scope-seg="${esc(scope)}">
+        <div class="lens-panel-head">
+          <div class="market-title">${esc(title)}</div>
+          <div class="subtle lens-panel-sub">${esc(segMin)}-min</div>
         </div>
-
-        <div class="lens-col" data-scope="game">
-          <div class="subtle" style="font-weight:900; letter-spacing:0.3px;">Full game ${esc(segMin)}-min interval</div>
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr));">
-            <div class="kv"><span class="k">Min remaining</span><span class="v"><select class="lens-min">${renderMinRemainingOptions(48)}</select></span></div>
-            <div class="kv"><span class="k">Total pts</span><span class="v"><input class="lens-total" type="number" value="0" style="width:110px;"></span></div>
-            <div class="kv"><span class="k">Live total (opt)</span><span class="v"><input class="lens-live" type="number" placeholder="—" style="width:120px;"></span></div>
-          </div>
-
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-            <div class="kv"><span class="k">Sim q50 @ time</span><span class="v lens-sim-at">—</span></div>
-            <div class="kv"><span class="k">Δ (Sim–Act)</span><span class="v lens-delta">—</span></div>
-            <div class="kv"><span class="k">Pace final (48m)</span><span class="v lens-pace">—</span></div>
-          </div>
-          <div class="model-strip" style="grid-template-columns: repeat(3, minmax(0,1fr)); margin-top:8px;">
-            <div class="kv"><span class="k">Sim q50 final</span><span class="v lens-sim-final">—</span></div>
-            <div class="kv"><span class="k">Driver</span><span class="v lens-driver">—</span></div>
-            <div class="kv"><span class="k">Signal</span><span class="v lens-lean">—</span></div>
-          </div>
+        <div class="lens-summary" data-scope="${esc(scope)}">
+          ${renderSummaryInner(simTotal)}
         </div>
+        ${innerHtml || ''}
+      </div>
+    `;
+  }
 
+  const halfSimTotal = n(segs[halfFinalIdx] && segs[halfFinalIdx].cum_q && segs[halfFinalIdx].cum_q.p50);
+  const gameSimTotal = n(segs[gameFinalIdx] && segs[gameFinalIdx].cum_q && segs[gameFinalIdx].cum_q.p50);
+
+  const q1Segs0 = buildQuarterSegs(1);
+  const q1FinalIdx0 = Math.min(q1Segs0.length - 1, Math.max(0, Math.round(12 / segMin) - 1));
+  const q1SimTotal = (q1Segs0 && q1Segs0.length)
+    ? n(q1Segs0[q1FinalIdx0] && q1Segs0[q1FinalIdx0].cum_q && q1Segs0[q1FinalIdx0].cum_q.p50)
+    : null;
+
+  const q3Segs0 = buildQuarterSegs(3);
+  const q3FinalIdx0 = Math.min(q3Segs0.length - 1, Math.max(0, Math.round(12 / segMin) - 1));
+  const q3SimTotal = (q3Segs0 && q3Segs0.length)
+    ? n(q3Segs0[q3FinalIdx0] && q3Segs0[q3FinalIdx0].cum_q && q3Segs0[q3FinalIdx0].cum_q.p50)
+    : null;
+
+  const am = (actualMeta && typeof actualMeta === 'object') ? actualMeta : {};
+  const dAttrs = [];
+  function addAttr(k, v) {
+    if (v == null) return;
+    const s = String(v);
+    if (!s.trim()) return;
+    dAttrs.push(`data-${k}="${esc(s)}"`);
+  }
+  addAttr('actual-home', am.home_pts);
+  addAttr('actual-away', am.away_pts);
+  addAttr('actual-game-total', am.game_total);
+  addAttr('actual-h1-total', am.h1_total);
+  addAttr('actual-q1-total', am.q1_total);
+  addAttr('actual-q3-total', am.q3_total);
+
+  return `
+    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" ${dAttrs.join(' ')}>
+      <div class="lens-top">
+        <div class="market-title">LIVE LENS</div>
+        <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
+        <div class="subtle lens-rec-row">
+          <span class="lens-rec-total">Total: —</span> ·
+          <span class="lens-rec-ats">ATS: —</span> ·
+          <span class="lens-rec-ml">ML: —</span> ·
+          <span class="lens-rec-half">1H: —</span> ·
+          <span class="lens-rec-qtr">Q: —</span>
+        </div>
+      </div>
+
+      <div class="row chips lens-market-row" style="margin-top:4px;">
+        <span class="chip neutral lens-market-ml">ML: —</span>
+        <span class="chip neutral lens-market-ats">ATS: —</span>
+        <span class="chip neutral lens-market-total">Total: —</span>
+        <span class="chip neutral lens-market-1h-ats">1H ATS: —</span>
+        <span class="chip neutral lens-market-1h-total">1H Total: —</span>
+        <span class="chip neutral lens-live-attempts">Attempts: —</span>
+      </div>
+
+      <div class="lens-columns" style="margin-top:8px;">
+        ${renderSegmentTile('q1', '1Q', q1SimTotal, renderQuarterCol(1))}
+        ${renderSegmentTile('q3', '3Q', q3SimTotal, renderQuarterCol(3))}
+        ${renderSegmentTile('half', '1H', halfSimTotal, renderScopeCol('half', '1H interval', 24, '1H'))}
+        ${renderSegmentTile('game', 'FULL GAME', gameSimTotal, renderScopeCol('game', 'Full game interval', 48, 'G'))}
       </div>
     </div>
   `;
@@ -649,9 +905,151 @@ function attachLiveLensHandlers(root, games) {
     if (itv && Array.isArray(itv.segments)) idx.set(key, itv);
 
     const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''));
-    const marginMean = n(g && g.sim && g.sim.score ? g.sim.score.margin_mean : null);
-    gameMetaByKey.set(key, { game_id: gid, home: h, away: a, margin_mean: marginMean });
+    const sim0 = (g && g.sim) ? g.sim : g;
+    const score0 = (sim0 && sim0.score) ? sim0.score : (g && g.score ? g.score : null);
+    const ctx0 = (sim0 && sim0.context && typeof sim0.context === 'object') ? sim0.context : {};
+    const odds0 = (g && g.odds) ? g.odds : null;
+    const market0 = (sim0 && sim0.market) ? sim0.market : (g && g.market ? g.market : null);
+
+    const per0 = (sim0 && sim0.periods) ? sim0.periods : (g && g.periods ? g.periods : null);
+    const perQ1 = per0 && per0.q1 ? per0.q1 : null;
+    const perQ3 = per0 && per0.q3 ? per0.q3 : null;
+    const perH1 = per0 && per0.h1 ? per0.h1 : null;
+
+    const simMarginMean = n(score0 && score0.margin_mean != null ? score0.margin_mean : null);
+    const simHomeMean = n(score0 && score0.home_mean != null ? score0.home_mean : null);
+    const simAwayMean = n(score0 && score0.away_mean != null ? score0.away_mean : null);
+    const simTotalMean = n(score0 && score0.total_mean != null ? score0.total_mean : null);
+    const simPHomeWin = n(score0 && score0.p_home_win != null ? score0.p_home_win : null);
+    const simPHomeCover = n(score0 && score0.p_home_cover != null ? score0.p_home_cover : null);
+
+    const expHomePace = n(ctx0 && (ctx0.home_pace != null ? ctx0.home_pace : null));
+    const expAwayPace = n(ctx0 && (ctx0.away_pace != null ? ctx0.away_pace : null));
+
+    const oddsHomeSpr = n(odds0 && odds0.home_spread != null ? odds0.home_spread : (market0 && market0.market_home_spread != null ? market0.market_home_spread : null));
+    const oddsTotal = n(odds0 && odds0.total != null ? odds0.total : (market0 && market0.market_total != null ? market0.market_total : null));
+    const oddsAwayMl = n(odds0 && odds0.away_ml != null ? odds0.away_ml : null);
+    const oddsHomeMl = n(odds0 && odds0.home_ml != null ? odds0.home_ml : null);
+
+    let oddsH1Total = null;
+    try {
+      const cand = [
+        odds0 && odds0.h1_total,
+        odds0 && odds0.total_1h,
+        odds0 && odds0.first_half_total,
+        odds0 && odds0.total_first_half,
+      ];
+      for (let i = 0; i < cand.length; i += 1) {
+        const v = n(cand[i]);
+        if (v != null) { oddsH1Total = v; break; }
+      }
+    } catch (_) {
+      oddsH1Total = null;
+    }
+
+    gameMetaByKey.set(key, {
+      game_id: gid,
+      home: h,
+      away: a,
+      sim_margin_mean: simMarginMean,
+      sim_home_mean: simHomeMean,
+      sim_away_mean: simAwayMean,
+      sim_total_mean: simTotalMean,
+      sim_p_home_win: simPHomeWin,
+      sim_p_home_cover: simPHomeCover,
+      home_pace: expHomePace,
+      away_pace: expAwayPace,
+      line_total: oddsTotal,
+      line_home_spread: oddsHomeSpr,
+      line_away_ml: oddsAwayMl,
+      line_home_ml: oddsHomeMl,
+      line_h1_total: oddsH1Total,
+      periods: {
+        q1: perQ1,
+        q3: perQ3,
+        h1: perH1,
+      },
+    });
   });
+
+  function impliedProbFromAmer(amer) {
+    const a = n(amer);
+    if (a == null) return null;
+    // American odds implied probability (no vig removal)
+    if (a < 0) return (-a) / ((-a) + 100.0);
+    if (a > 0) return 100.0 / (a + 100.0);
+    return null;
+  }
+
+  function _periodNum(x) {
+    // Normalize to numeric or null.
+    const v = n(x);
+    return (v == null) ? null : v;
+  }
+
+  function prefillSummaryFromPeriod(sumEl, meta, periodObj, scopeLabel) {
+    if (!sumEl || !meta || !periodObj) return;
+    const p = periodObj;
+
+    const simWinner = sumEl.querySelector('.lens-sum-sim-winner');
+    const simAts = sumEl.querySelector('.lens-sum-sim-ats');
+    const simScore = sumEl.querySelector('.lens-sum-sim-score');
+
+    const lineWinner = sumEl.querySelector('.lens-sum-line-winner');
+    const lineAts = sumEl.querySelector('.lens-sum-line-ats');
+    const lineTotEl = sumEl.querySelector('.lens-sum-line-total');
+
+    const sh = _periodNum(p.home_mean);
+    const sa = _periodNum(p.away_mean);
+    const sm = _periodNum(p.margin_mean);
+    const pHome = _periodNum(p.p_home_win);
+
+    const lineTotal = _periodNum(p.market_total);
+    const homeSpr = _periodNum(p.market_home_spread);
+
+    if (simScore) {
+      if (sa != null && sh != null) simScore.textContent = `${fmt(sa, 0)}–${fmt(sh, 0)}`;
+    }
+    if (simWinner) {
+      let w = null;
+      if (pHome != null) w = (pHome >= 0.5) ? meta.home : meta.away;
+      else if (sh != null && sa != null) w = (sh >= sa) ? meta.home : meta.away;
+      simWinner.textContent = w || '—';
+    }
+    if (simAts) {
+      if (homeSpr != null && sm != null) {
+        const coverEdge = sm + homeSpr;
+        if (coverEdge >= 0) simAts.textContent = `${meta.home} ${fmt(homeSpr, 1)} (proj +${fmt(coverEdge, 1)})`;
+        else simAts.textContent = `${meta.away} ${fmt(-homeSpr, 1)} (proj +${fmt(-coverEdge, 1)})`;
+      } else {
+        simAts.textContent = '—';
+      }
+    }
+
+    if (lineTotEl) {
+      if (lineTotal != null) lineTotEl.textContent = fmt(lineTotal, 1);
+    }
+    if (lineAts) {
+      if (homeSpr != null) lineAts.textContent = `${meta.home} ${fmt(homeSpr, 1)}`;
+    }
+    if (lineWinner) {
+      // No period ML; infer favorite from spread sign.
+      if (homeSpr != null && Math.abs(homeSpr) > 1e-6) lineWinner.textContent = (homeSpr < 0) ? meta.home : meta.away;
+      else lineWinner.textContent = '—';
+    }
+
+    // Optional: tag scope for debugging if needed.
+    try {
+      if (scopeLabel) sumEl.dataset.scopeLabel = String(scopeLabel);
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  function fmtTeamFromMeta(meta, isHome) {
+    if (!meta) return '';
+    return isHome ? (meta.home || '') : (meta.away || '');
+  }
 
   function clampInt(x, lo, hi, fallback) {
     const v = Number.parseInt(String(x ?? ''), 10);
@@ -665,12 +1063,152 @@ function attachLiveLensHandlers(root, games) {
     // We stored lens id as HOME_AWAY in render, so reverse it.
     const key = id.replace(/_/g, '|');
     const intervals = idx.get(key);
-    if (!intervals || !Array.isArray(intervals.segments)) return;
+    if (!intervals || !Array.isArray(intervals.segments)) {
+      // Keep the tile visible with a clear reason instead of silently doing nothing.
+      try {
+        const st = el.querySelector('.lens-live-status');
+        if (st) st.textContent = 'No intervals';
+      } catch (_) {
+        // ignore
+      }
+      return;
+    }
 
     // Ensure game-id attribute is present for polling
     try {
       const meta = gameMetaByKey.get(key);
       if (meta && meta.game_id && !el.dataset.gameId) el.dataset.gameId = String(meta.game_id);
+    } catch (_) {
+      // ignore
+    }
+
+    const meta0 = gameMetaByKey.get(key);
+
+    // Prefill MARKET chips + summary tiles from pregame odds / SmartSim score.
+    // This prevents "—" cells when live polling hasn't populated yet.
+    try {
+      const meta = meta0;
+      if (meta) {
+        const lineTotal = n(meta.line_total);
+        const homeSpr = n(meta.line_home_spread);
+        const awayMl = n(meta.line_away_ml);
+        const homeMl = n(meta.line_home_ml);
+
+        // Live bar (Lines …)
+        try {
+          const linesEl = el.querySelector('.lens-live-lines');
+          if (linesEl) {
+            const pieces = [];
+            if (lineTotal != null) pieces.push(`Tot ${fmt(lineTotal, 1)}`);
+            if (homeSpr != null) pieces.push(`Spr ${fmt(homeSpr, 1)}`);
+            if (awayMl != null && homeMl != null) pieces.push(`ML ${fmtAmer(awayMl)}/${fmtAmer(homeMl)}`);
+            const h1Line = n(meta.line_h1_total);
+            if (h1Line != null) pieces.push(`1H ${fmt(h1Line, 1)}`);
+            if (pieces.length) linesEl.textContent = `Lines ${pieces.join(' · ')}`;
+          }
+        } catch (_) {
+          // ignore
+        }
+
+        // MARKET chips
+        const mlChip = el.querySelector('.lens-market-ml');
+        const atsChip = el.querySelector('.lens-market-ats');
+        const totChip = el.querySelector('.lens-market-total');
+        const hAtsChip = el.querySelector('.lens-market-1h-ats');
+        const hTotChip = el.querySelector('.lens-market-1h-total');
+
+        if (mlChip) {
+          if (awayMl != null && homeMl != null) mlChip.textContent = `ML: ${meta.away} ${fmtAmer(awayMl)} / ${meta.home} ${fmtAmer(homeMl)}`;
+          else mlChip.textContent = 'ML: —';
+        }
+        if (atsChip) {
+          if (homeSpr != null) atsChip.textContent = `ATS: ${meta.home} ${fmt(homeSpr, 1)}`;
+          else atsChip.textContent = 'ATS: —';
+        }
+        if (totChip) {
+          if (lineTotal != null) totChip.textContent = `Total: ${fmt(lineTotal, 1)}`;
+          else totChip.textContent = 'Total: —';
+        }
+        if (hAtsChip) hAtsChip.textContent = '1H ATS: —';
+        if (hTotChip) {
+          const h1Line = n(meta.line_h1_total);
+          if (h1Line != null) hTotChip.textContent = `1H Total: ${fmt(h1Line, 1)}`;
+          else hTotChip.textContent = '1H Total: —';
+        }
+
+        // Summary tiles
+        const sumQ1 = el.querySelector('.lens-summary[data-scope="q1"]');
+        const sumQ3 = el.querySelector('.lens-summary[data-scope="q3"]');
+        const sumHalf = el.querySelector('.lens-summary[data-scope="half"]');
+        const sumGame = el.querySelector('.lens-summary[data-scope="game"]');
+
+        // Prefill Q1/Q3/1H from SmartSim periods if present.
+        try {
+          const per = meta.periods && typeof meta.periods === 'object' ? meta.periods : {};
+          if (sumQ1 && per.q1) prefillSummaryFromPeriod(sumQ1, meta, per.q1, 'q1');
+          if (sumQ3 && per.q3) prefillSummaryFromPeriod(sumQ3, meta, per.q3, 'q3');
+          if (sumHalf && per.h1) prefillSummaryFromPeriod(sumHalf, meta, per.h1, 'h1');
+        } catch (_) {
+          // ignore
+        }
+
+        if (sumHalf) {
+          const lineTot = sumHalf.querySelector('.lens-sum-line-total');
+          if (lineTot) {
+            const h1Line = n(meta.line_h1_total);
+            if (h1Line != null) lineTot.textContent = fmt(h1Line, 1);
+          }
+        }
+
+        if (sumGame) {
+          const simWinner = sumGame.querySelector('.lens-sum-sim-winner');
+          const simAts = sumGame.querySelector('.lens-sum-sim-ats');
+          const simScore = sumGame.querySelector('.lens-sum-sim-score');
+
+          const lineWinner = sumGame.querySelector('.lens-sum-line-winner');
+          const lineAts = sumGame.querySelector('.lens-sum-line-ats');
+          const lineTotEl = sumGame.querySelector('.lens-sum-line-total');
+
+          const sh = n(meta.sim_home_mean);
+          const sa = n(meta.sim_away_mean);
+          const sm = n(meta.sim_margin_mean);
+
+          if (simScore) {
+            if (sa != null && sh != null) simScore.textContent = `${fmt(sa, 0)}–${fmt(sh, 0)}`;
+          }
+
+          if (simWinner) {
+            let w = null;
+            const pHome = n(meta.sim_p_home_win);
+            if (pHome != null) w = (pHome >= 0.5) ? meta.home : meta.away;
+            else if (sh != null && sa != null) w = (sh >= sa) ? meta.home : meta.away;
+            simWinner.textContent = w || '—';
+          }
+
+          if (simAts) {
+            if (homeSpr != null && sm != null) {
+              const coverEdge = sm + homeSpr; // >0 means home covers
+              if (coverEdge >= 0) simAts.textContent = `${meta.home} ${fmt(homeSpr, 1)} (proj +${fmt(coverEdge, 1)})`;
+              else simAts.textContent = `${meta.away} ${fmt(-homeSpr, 1)} (proj +${fmt(-coverEdge, 1)})`;
+            }
+          }
+
+          if (lineTotEl) {
+            if (lineTotal != null) lineTotEl.textContent = fmt(lineTotal, 1);
+          }
+          if (lineAts) {
+            if (homeSpr != null) lineAts.textContent = `${meta.home} ${fmt(homeSpr, 1)}`;
+          }
+          if (lineWinner) {
+            let w = null;
+            const pAway = impliedProbFromAmer(awayMl);
+            const pHome = impliedProbFromAmer(homeMl);
+            if (pAway != null && pHome != null) w = (pHome >= pAway) ? meta.home : meta.away;
+            else if (homeSpr != null && Math.abs(homeSpr) > 1e-6) w = (homeSpr < 0) ? meta.home : meta.away;
+            lineWinner.textContent = w || '—';
+          }
+        }
+      }
     } catch (_) {
       // ignore
     }
@@ -787,7 +1325,65 @@ function attachLiveLensHandlers(root, games) {
   const simFinal = n(ss[finalIdx] && ss[finalIdx].cum_q && ss[finalIdx].cum_q.p50);
 
       const delta = (simAt == null) ? null : (simAt - actTot); // Sim - Act
-      const paceFinal = (simAt != null && simFinal != null) ? (actTot + (simFinal - simAt)) : null;
+      let paceFinal = (simAt != null && simFinal != null) ? (actTot + (simFinal - simAt)) : null;
+
+      // Interval-smart adjustment: use live possessions (per-scope) + SmartSim expected pace/PPP.
+      try {
+        const possLive = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.possLive : null);
+        const meta = meta0;
+        const expHomePace = n(meta && meta.home_pace);
+        const expAwayPace = n(meta && meta.away_pace);
+        const expPace = (expHomePace != null && expAwayPace != null) ? ((expHomePace + expAwayPace) / 2.0) : null;
+        const expTotal = n(meta && (meta.sim_total_mean != null ? meta.sim_total_mean : null));
+        const expPpp = (expPace != null && expTotal != null && expPace > 1e-6) ? (expTotal / expPace) : null;
+
+        const elapsedMin = totalMinutes - minRem;
+        const possExpectedSoFar = (expPace != null) ? (expPace * (elapsedMin / 48.0)) : null;
+        const possExpectedFull = (expPace != null) ? (expPace * (totalMinutes / 48.0)) : null;
+
+        if (!isFinal && paceFinal != null && simFinal != null && possLive != null && possExpectedSoFar != null && possExpectedFull != null && expPpp != null) {
+          // Avoid noisy adjustments very early.
+          const minElapsed = Math.max(1.0, 0.25 * totalMinutes);
+          if (elapsedMin >= minElapsed && possLive > 2.0 && possExpectedSoFar > 1.5) {
+            const paceRatio = possLive / possExpectedSoFar;
+            if (paceRatio > 0.4 && paceRatio < 2.5) {
+              // Scale stabilization by scope length.
+              const scale = Math.max(0.15, totalMinutes / 48.0);
+              const possMin = 10.0 * scale;
+              const possRange = 25.0 * scale;
+              const timeMin = 6.0 * scale;
+              const timeRange = 18.0 * scale;
+
+              const wPoss = Math.max(0, Math.min(1, (possLive - possMin) / Math.max(1e-6, possRange)));
+              const wTime = Math.max(0, Math.min(1, (elapsedMin - timeMin) / Math.max(1e-6, timeRange)));
+              const wPace = Math.max(0, Math.min(1, Math.min(wPoss, wTime)));
+
+              const paceRatioShrunk = 1.0 + (paceRatio - 1.0) * wPace;
+              const actPpp = actTot / Math.max(1.0, possLive);
+              const effDelta = actPpp - expPpp;
+              const wEff = 0.5 * wPace;
+              const effDeltaShrunk = effDelta * wEff;
+
+              const projPossFull = possExpectedFull * paceRatioShrunk;
+              const projPpp = expPpp + effDeltaShrunk;
+              let possBased = projPossFull * projPpp;
+
+              // Guardrails vs SmartSim median for the scope.
+              const maxDev = 2.0 + (25.0 * (totalMinutes / 48.0));
+              possBased = Math.max(simFinal - maxDev, Math.min(simFinal + maxDev, possBased));
+
+              // Blend with points-based ladder output to preserve SmartSim ladder prior.
+              const alpha = wPace;
+              let blended = (1.0 - alpha) * paceFinal + alpha * possBased;
+              const maxDelta = 2.0 + (15.0 * (totalMinutes / 48.0));
+              blended = Math.max(paceFinal - maxDelta, Math.min(paceFinal + maxDelta, blended));
+              paceFinal = blended;
+            }
+          }
+        }
+      } catch (_) {
+        // ignore
+      }
 
       let driver = null;
       if (delta != null) {
@@ -821,9 +1417,7 @@ function attachLiveLensHandlers(root, games) {
         }
       }
 
-      const mm = String(minRem).padStart(2, '0');
-      const label = `${labelPrefix} @ ${mm}:00`;
-      if (outSimAt) outSimAt.textContent = (simAt == null) ? '—' : `${fmt(simAt, 0)} (${label})`;
+      if (outSimAt) outSimAt.textContent = (simAt == null) ? '—' : fmt(simAt, 0);
       if (outDelta) outDelta.textContent = (delta == null) ? '—' : fmt(delta, 1);
       if (outPace) outPace.textContent = (paceFinal == null) ? '—' : fmt(paceFinal, 1);
       if (outSimFinal) outSimFinal.textContent = (simFinal == null) ? '—' : fmt(simFinal, 1);
@@ -881,6 +1475,123 @@ function attachLiveLensHandlers(root, games) {
         computeScope(col, segs, segMin, 48, gameFinalIdx, 'G');
       }
     });
+
+    // Historical/final prefill: if actual totals are embedded on the tile, set min remaining=0
+    // and total points=actual so the lens outputs show the final interval state.
+    try {
+      const aHome = n(el.dataset.actualHome);
+      const aAway = n(el.dataset.actualAway);
+      const aGameTot = n(el.dataset.actualGameTotal);
+      const aH1Tot = n(el.dataset.actualH1Total);
+      const aQ1Tot = n(el.dataset.actualQ1Total);
+      const aQ3Tot = n(el.dataset.actualQ3Total);
+
+      const isFinal = (aHome != null && aAway != null) || (aGameTot != null);
+      if (isFinal) {
+        el.dataset.final = '1';
+
+        const st = el.querySelector('.lens-live-status');
+        const sc = el.querySelector('.lens-live-score');
+        const ph = el.querySelectorAll('.lens-phase');
+        if (st) st.textContent = 'FINAL';
+        if (sc && aHome != null && aAway != null) sc.textContent = `${fmt(aAway, 0)}–${fmt(aHome, 0)}`;
+        try {
+          ph.forEach((x) => { x.textContent = 'Live: FINAL'; });
+        } catch (_) {
+          // ignore
+        }
+
+        function setScope(scope, tot) {
+          if (tot == null) return;
+          const col = el.querySelector(`.lens-col[data-scope="${scope}"]`);
+          if (!col) return;
+          const minEl = col.querySelector('select.lens-min');
+          const totEl = col.querySelector('input.lens-total');
+          if (minEl) minEl.value = '0';
+          if (totEl) totEl.value = String(Math.round(tot));
+          // Trigger recompute via synthetic events
+          try {
+            if (minEl) minEl.dispatchEvent(new Event('change'));
+            if (totEl) totEl.dispatchEvent(new Event('input'));
+          } catch (_) {
+            // ignore
+          }
+          try {
+            col.dataset.frozen = '1';
+          } catch (_) {
+            // ignore
+          }
+        }
+
+        setScope('q1', aQ1Tot);
+        setScope('q3', aQ3Tot);
+        setScope('half', aH1Tot);
+        setScope('game', (aGameTot != null) ? aGameTot : ((aHome != null && aAway != null) ? (aHome + aAway) : null));
+
+        // Summary tiles (Live row)
+        const liveQ1Tot = (aQ1Tot != null) ? aQ1Tot : null;
+        const liveQ3Tot = (aQ3Tot != null) ? aQ3Tot : null;
+        const liveHalfTot = (aH1Tot != null) ? aH1Tot : null;
+        const liveGameTot = (aGameTot != null) ? aGameTot : ((aHome != null && aAway != null) ? (aHome + aAway) : null);
+
+        const q1Sum = el.querySelector('.lens-summary[data-scope="q1"]');
+        const q3Sum = el.querySelector('.lens-summary[data-scope="q3"]');
+        const halfSum = el.querySelector('.lens-summary[data-scope="half"]');
+        const gameSum = el.querySelector('.lens-summary[data-scope="game"]');
+
+        if (q1Sum && liveQ1Tot != null) {
+          const t = q1Sum.querySelector('.lens-sum-live-total');
+          if (t) t.textContent = fmt(liveQ1Tot, 0);
+        }
+        if (q3Sum && liveQ3Tot != null) {
+          const t = q3Sum.querySelector('.lens-sum-live-total');
+          if (t) t.textContent = fmt(liveQ3Tot, 0);
+        }
+        if (halfSum && liveHalfTot != null) {
+          const t = halfSum.querySelector('.lens-sum-live-total');
+          if (t) t.textContent = fmt(liveHalfTot, 0);
+        }
+        if (gameSum && liveGameTot != null) {
+          const t = gameSum.querySelector('.lens-sum-live-total');
+          if (t) t.textContent = fmt(liveGameTot, 0);
+
+          // For full-game, we can also populate winner + ATS from final score.
+          try {
+            const wEl = gameSum.querySelector('.lens-sum-live-winner');
+            const atsEl = gameSum.querySelector('.lens-sum-live-ats');
+            if (wEl && aHome != null && aAway != null) wEl.textContent = (aHome >= aAway) ? homeTri : awayTri;
+
+            if (atsEl && aHome != null && aAway != null) {
+              // Prefer the pregame home spread chip if present in the MARKET strip.
+              // This avoids needing deeper access to odds objects here.
+              let homeSpr = null;
+              try {
+                const lineAts = gameSum.querySelector('.lens-sum-line-ats');
+                const txt = lineAts ? String(lineAts.textContent || '') : '';
+                const m = txt.match(/\b(-?\d+(?:\.\d+)?)\b/);
+                homeSpr = m ? n(m[1]) : null;
+              } catch (_) {
+                homeSpr = null;
+              }
+
+              if (homeSpr != null) {
+                const margin = aHome - aAway;
+                const coverEdge = margin + homeSpr; // >0 home covers
+                if (coverEdge >= 0) atsEl.textContent = `${homeTri} ${fmt(homeSpr, 1)}`;
+                else atsEl.textContent = `${awayTri} ${fmt(-homeSpr, 1)}`;
+              }
+            }
+          } catch (_) {
+            // ignore
+          }
+
+          const s = gameSum.querySelector('.lens-sum-live-score');
+          if (s && aHome != null && aAway != null) s.textContent = `${fmt(aAway, 0)}–${fmt(aHome, 0)}`;
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
   });
 }
 
@@ -938,6 +1649,122 @@ function computePaceFinalFromIntervals(intervals, totalMinutes, minRem, actTot) 
   return { simAt, simFinal, paceFinal, elapsedMinutes: elapsed };
 }
 
+function _liveLensGameTotalAdjCfg() {
+  try {
+    const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+    const a = t && t.adjustments && typeof t.adjustments === 'object' ? t.adjustments : null;
+    const g = a && a.game_total && typeof a.game_total === 'object' ? a.game_total : null;
+    return g;
+  } catch (_) {
+    return null;
+  }
+}
+
+function _liveLensPossLiveAvg(meta, live) {
+  try {
+    const pbpPoss = (live && live.pbp_possessions) ? live.pbp_possessions : null;
+    if (!pbpPoss) return null;
+    const aTri = meta && meta.away ? String(meta.away).toUpperCase().trim() : '';
+    const hTri = meta && meta.home ? String(meta.home).toUpperCase().trim() : '';
+    const ap = pbpPoss && (pbpPoss[aTri] || pbpPoss.away) ? (pbpPoss[aTri] || pbpPoss.away) : null;
+    const hp = pbpPoss && (pbpPoss[hTri] || pbpPoss.home) ? (pbpPoss[hTri] || pbpPoss.home) : null;
+    const apPoss = ap ? n(ap.poss_est) : null;
+    const hpPoss = hp ? n(hp.poss_est) : null;
+    if (apPoss == null || hpPoss == null) return null;
+    return (apPoss + hpPoss) / 2.0;
+  } catch (_) {
+    return null;
+  }
+}
+
+function computePossessionPaceFinalForGame(meta, live, curMinLeft, actTot, pointsBasedLens) {
+  const info = computePossessionPaceForGame(meta, live, curMinLeft, actTot, pointsBasedLens);
+  return info ? info.pace_final : null;
+}
+
+function computePossessionPaceForGame(meta, live, curMinLeft, actTot, pointsBasedLens) {
+  // Possession-driven pace estimate for FULL GAME.
+  // Returns components so we can log + display what drove the projection.
+  const pb = pointsBasedLens && pointsBasedLens.paceFinal != null ? n(pointsBasedLens.paceFinal) : null;
+  const simFinal = pointsBasedLens && pointsBasedLens.simFinal != null ? n(pointsBasedLens.simFinal) : null;
+  if (actTot == null || pb == null) return null;
+
+  const out = {
+    pace_final: pb,
+    pace_points: pb,
+    pace_poss: null,
+    pace_alpha: 0.0,
+    poss_live: null,
+    poss_expected: null,
+    pace_ratio: null,
+    elapsed_min: null,
+  };
+
+  const adjCfg = _liveLensGameTotalAdjCfg();
+  if (adjCfg && adjCfg.enabled === false) return out;
+
+  const cm = n(curMinLeft);
+  const elapsedMin = (cm != null) ? (48.0 - cm) : (pointsBasedLens && pointsBasedLens.elapsedMinutes != null ? n(pointsBasedLens.elapsedMinutes) : null);
+  out.elapsed_min = elapsedMin;
+  if (elapsedMin == null) return out;
+
+  const minElapsed = n(adjCfg && adjCfg.min_elapsed_min);
+  if (elapsedMin < ((minElapsed != null) ? minElapsed : 6.0)) return out;
+
+  const possLive = _liveLensPossLiveAvg(meta, live);
+  out.poss_live = possLive;
+  if (possLive == null || !(possLive > 8.0)) return out;
+
+  const expHomePace = n(meta && meta.home_pace);
+  const expAwayPace = n(meta && meta.away_pace);
+  const expPace = (expHomePace != null && expAwayPace != null) ? ((expHomePace + expAwayPace) / 2.0) : null;
+  const expTotal = n(meta && (meta.total_mean != null ? meta.total_mean : null));
+  const expPpp = (expPace != null && expTotal != null && expPace > 1e-6) ? (expTotal / expPace) : null;
+  if (expPace == null || expPpp == null) return out;
+
+  const possExpectedSoFar = expPace * (elapsedMin / 48.0);
+  out.poss_expected = possExpectedSoFar;
+  if (!(possExpectedSoFar > 5.0)) return out;
+
+  const paceRatio = possLive / possExpectedSoFar;
+  out.pace_ratio = paceRatio;
+  if (!(paceRatio > 0.4) || !(paceRatio < 2.5)) return out;
+
+  // Shrinkage: pace is more repeatable than shooting; both stabilize with elapsed time/possessions.
+  const wPoss = Math.max(0, Math.min(1, (possLive - 10.0) / 25.0));
+  const wTime = Math.max(0, Math.min(1, (elapsedMin - 6.0) / 18.0));
+  const wPace = Math.max(0, Math.min(1, Math.min(wPoss, wTime)));
+  const paceRatioShrunk = 1.0 + (paceRatio - 1.0) * wPace;
+
+  const actPpp = actTot / Math.max(1.0, possLive);
+  const effDelta = actPpp - expPpp;
+  const wEff = 0.5 * wPace; // eff is noisier
+  const effDeltaShrunk = effDelta * wEff;
+
+  const projPossFull = expPace * paceRatioShrunk;
+  const projPpp = expPpp + effDeltaShrunk;
+  let possBased = projPossFull * projPpp;
+  out.pace_poss = possBased;
+
+  // Guardrails: keep projection close to SmartSim median when very early / noisy.
+  if (simFinal != null) {
+    const maxDev = 25.0;
+    possBased = Math.max(simFinal - maxDev, Math.min(simFinal + maxDev, possBased));
+    out.pace_poss = possBased;
+  }
+
+  // Blend with points-based ladder output to preserve SmartSim pacing prior.
+  const alpha = wPace;
+  out.pace_alpha = alpha;
+  let blended = (1.0 - alpha) * pb + alpha * possBased;
+
+  // Final clamp vs points-based to avoid whipsaw.
+  const maxDelta = 15.0;
+  blended = Math.max(pb - maxDelta, Math.min(pb + maxDelta, blended));
+  out.pace_final = blended;
+  return out;
+}
+
 function classifyDiff(absDiff, watchThresh, betThresh) {
   if (absDiff == null) return 'NONE';
   if (absDiff >= betThresh) return 'BET';
@@ -967,15 +1794,7 @@ function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLe
   if (rd == null || lt == null) return out;
 
   // Server-driven knobs (optional)
-  let adjCfg = null;
-  try {
-    const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
-    const a = t && t.adjustments && typeof t.adjustments === 'object' ? t.adjustments : null;
-    const g = a && a.game_total && typeof a.game_total === 'object' ? a.game_total : null;
-    adjCfg = g;
-  } catch (_) {
-    adjCfg = null;
-  }
+  const adjCfg = _liveLensGameTotalAdjCfg();
   if (adjCfg && adjCfg.enabled === false) return out;
 
   const expHomePace = n(meta && meta.home_pace);
@@ -1149,6 +1968,7 @@ function getTuningThresholds() {
     half_total: thr('half_total', 3.0, 6.0),
     quarter_total: thr('quarter_total', 2.0, 4.0),
     ats: thr('ats', 2.0, 4.0),
+    ml: thr('ml', 0.03, 0.06),
     roundHalf: !!(t && t.round_live_line_to_half),
     adjustments: (t && t.adjustments && typeof t.adjustments === 'object') ? t.adjustments : null,
     logging: (t && t.logging && typeof t.logging === 'object') ? t.logging : null,
@@ -1161,6 +1981,68 @@ function startLiveLensPolling(root, games, dateStr) {
     __liveLensTimer = null;
   }
 
+  function pickBestTagFromLensEl(lensEl) {
+    if (!lensEl) return { klass: 'NONE', text: '' };
+    const order = ['.lens-rec-total', '.lens-rec-ats', '.lens-rec-ml', '.lens-rec-half', '.lens-rec-qtr'];
+    let best = { klass: 'NONE', text: '' };
+
+    function parseTag(txt) {
+      const s = String(txt || '').trim();
+      if (!s || /:\s*—\s*$/.test(s)) return null;
+      const m = s.match(/\b(BET|WATCH)\b/i);
+      if (!m) return null;
+      const klass = String(m[1] || '').toUpperCase();
+      const text = s.replace(/:\s*/, ' ');
+      return { klass, text };
+    }
+
+    for (const sel of order) {
+      const el = lensEl.querySelector(sel);
+      const t = parseTag(el ? el.textContent : '');
+      if (!t) continue;
+      if (t.klass === 'BET') return t;
+      if (t.klass === 'WATCH' && best.klass !== 'WATCH') best = t;
+    }
+    return best;
+  }
+
+  function updateScoreboardStrip(sbById) {
+    try {
+      const strip = root.querySelector('.scoreboard-strip');
+      if (!strip) return;
+      const items = strip.querySelectorAll('.s-item[data-game-id]');
+      items.forEach((item) => {
+        const gid = canonGameId(item.dataset.gameId);
+        if (!gid) return;
+
+        const s = sbById ? sbById.get(gid) : null;
+        const statusEl = item.querySelector('.s-status');
+        const scoreEl = item.querySelector('.s-score');
+
+        if (statusEl) statusEl.textContent = (s && s.status) ? String(s.status) : (statusEl.textContent || '');
+        if (scoreEl) {
+          const ap = (s && s.away_pts != null) ? s.away_pts : null;
+          const hp = (s && s.home_pts != null) ? s.home_pts : null;
+          if (ap != null && hp != null) scoreEl.textContent = `${ap}-${hp}`;
+        }
+
+        const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
+        const tag = pickBestTagFromLensEl(lensEl);
+        const tagEl = item.querySelector('.s-tag');
+        if (tagEl) tagEl.textContent = tag.text || '';
+
+        const inProg = !!(s && s.in_progress) || (lensEl && lensEl.dataset.inProgress === '1');
+        item.classList.remove('bet', 'watch', 'live', 'neu');
+        if (tag.klass === 'BET') item.classList.add('bet');
+        else if (tag.klass === 'WATCH') item.classList.add('watch');
+        else if (inProg) item.classList.add('live');
+        else item.classList.add('neu');
+      });
+    } catch (_) {
+      // ignore
+    }
+  }
+
   const byGameId = new Map();
   (games || []).forEach((g) => {
     const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : '');
@@ -1168,7 +2050,18 @@ function startLiveLensPolling(root, games, dateStr) {
     const intervals = (g && g.sim && (g.sim.intervals_1m || g.sim.intervals))
       ? (g.sim.intervals_1m || g.sim.intervals)
       : (g ? (g.intervals_1m || g.intervals) : null);
-    const marginMean = n(g && g.sim && g.sim.score ? g.sim.score.margin_mean : null);
+    const odds0 = (g && g.odds) ? g.odds : null;
+    const sim0 = (g && g.sim) ? g.sim : g;
+    const score0 = (sim0 && sim0.score) ? sim0.score : (g && g.score ? g.score : null);
+    const market0 = (sim0 && sim0.market) ? sim0.market : (g && g.market ? g.market : null);
+
+    const marginMean = n(score0 ? score0.margin_mean : null);
+    const pHomeWin = n(score0 ? score0.p_home_win : null);
+
+    const pregameTotal = n(odds0 && odds0.total != null ? odds0.total : (market0 && market0.market_total != null ? market0.market_total : null));
+    const pregameHomeSpr = n(odds0 && odds0.home_spread != null ? odds0.home_spread : (market0 && market0.market_home_spread != null ? market0.market_home_spread : null));
+    const pregameAwayMl = n(odds0 && odds0.away_ml != null ? odds0.away_ml : null);
+    const pregameHomeMl = n(odds0 && odds0.home_ml != null ? odds0.home_ml : null);
 
     const ctx = (g && g.sim && g.sim.context && typeof g.sim.context === 'object') ? g.sim.context : {};
     const sc = (g && g.sim && g.sim.score && typeof g.sim.score === 'object') ? g.sim.score : {};
@@ -1184,6 +2077,11 @@ function startLiveLensPolling(root, games, dateStr) {
       away: String(g.away_tri || '').toUpperCase().trim(),
       intervals,
       margin_mean: marginMean,
+      p_home_win: pHomeWin,
+      pregame_total: pregameTotal,
+      pregame_home_spread: pregameHomeSpr,
+      pregame_away_ml: pregameAwayMl,
+      pregame_home_ml: pregameHomeMl,
       home_pace: homePace,
       away_pace: awayPace,
       home_mean: homeMean,
@@ -1191,6 +2089,22 @@ function startLiveLensPolling(root, games, dateStr) {
       total_mean: totalMean,
     });
   });
+
+  function possAvgFromPossObj(meta, possObj) {
+    try {
+      if (!meta || !possObj) return null;
+      const aTri = meta && meta.away ? String(meta.away).toUpperCase().trim() : '';
+      const hTri = meta && meta.home ? String(meta.home).toUpperCase().trim() : '';
+      const ap = possObj && (possObj[aTri] || possObj.away) ? (possObj[aTri] || possObj.away) : null;
+      const hp = possObj && (possObj[hTri] || possObj.home) ? (possObj[hTri] || possObj.home) : null;
+      const apPoss = ap ? n(ap.poss_est) : null;
+      const hpPoss = hp ? n(hp.poss_est) : null;
+      if (apPoss == null || hpPoss == null) return null;
+      return (apPoss + hpPoss) / 2.0;
+    } catch (_) {
+      return null;
+    }
+  }
 
   async function ensureTuning() {
     const now = Date.now();
@@ -1255,6 +2169,9 @@ function startLiveLensPolling(root, games, dateStr) {
       if (eid) sbEventByGid.set(gid, eid);
     });
 
+    // Keep the top scoreboard strip in sync with basic status/score.
+    updateScoreboardStrip(sbById);
+
     const detailIds = [];
     const detailEventIds = [];
     const lineEventIds = [];
@@ -1299,11 +2216,14 @@ function startLiveLensPolling(root, games, dateStr) {
     let linesMap = new Map();
     if (detailEventIds.length) {
       try {
-        const pbpPromise = fetchJson(`/api/live_pbp_stats?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`);
+        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
         const linesPromise = lineEventIds.length
-          ? fetchJson(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}`)
+          ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
           : Promise.resolve({ games: [] });
-        const [pbp, lines] = await Promise.all([pbpPromise, linesPromise]);
+        const settled = await Promise.allSettled([pbpPromise, linesPromise]);
+        const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
+        const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
+
         const pbpGames = Array.isArray(pbp?.games) ? pbp.games : [];
         pbpGames.forEach((gg) => {
           const eid = String(gg && gg.event_id != null ? gg.event_id : '').trim();
@@ -1357,10 +2277,18 @@ function startLiveLensPolling(root, games, dateStr) {
 
       let lineTotal = n(ln && ln.lines ? ln.lines.total : null);
       let homeSpr = n(ln && ln.lines ? ln.lines.home_spread : null);
+      const awayMl = n(ln && ln.lines ? ln.lines.away_ml : null);
+      const homeMl = n(ln && ln.lines ? ln.lines.home_ml : null);
       // Treat 0 totals/spreads as missing placeholders.
       if (lineTotal != null && Math.abs(lineTotal) < 0.001) lineTotal = null;
       if (homeSpr != null && Math.abs(homeSpr) < 0.001 && lineTotal == null) homeSpr = null;
       const periodTotals = (ln && ln.lines && ln.lines.period_totals) ? ln.lines.period_totals : null;
+
+      // Fall back to pregame betting lines when live lines are missing.
+      const effLineTotal = (lineTotal != null) ? lineTotal : n(meta && meta.pregame_total);
+      const effHomeSpr = (homeSpr != null) ? homeSpr : n(meta && meta.pregame_home_spread);
+      const effAwayMl = (awayMl != null) ? awayMl : n(meta && meta.pregame_away_ml);
+      const effHomeMl = (homeMl != null) ? homeMl : n(meta && meta.pregame_home_ml);
 
       const live = {
         status: {
@@ -1381,12 +2309,14 @@ function startLiveLensPolling(root, games, dateStr) {
           half_min_left: halfMinLeft,
         },
         lines: {
-          total: lineTotal,
-          home_spread: homeSpr,
+          total: effLineTotal,
+          home_spread: effHomeSpr,
           period_totals: periodTotals,
         },
         pbp_attempts: pbp && pbp.pbp_attempts ? pbp.pbp_attempts : null,
+        pbp_attempts_periods: pbp && pbp.pbp_attempts_periods ? pbp.pbp_attempts_periods : null,
         pbp_possessions: pbp && pbp.pbp_possessions ? pbp.pbp_possessions : null,
+        pbp_possessions_periods: pbp && pbp.pbp_possessions_periods ? pbp.pbp_possessions_periods : null,
         pbp_quarters: pbp && pbp.pbp_quarters ? pbp.pbp_quarters : null,
         _event_id: eid || null,
       };
@@ -1410,8 +2340,10 @@ function startLiveLensPolling(root, games, dateStr) {
       const linesEl = el.querySelector('.lens-live-lines');
       if (linesEl) {
         const pieces = [];
-        if (lineTotal != null) pieces.push(`Tot ${fmt(lineTotal, 1)}`);
-        if (homeSpr != null) pieces.push(`Spr ${fmt(homeSpr, 1)}`);
+        if (effLineTotal != null) pieces.push(`Tot ${fmt(effLineTotal, 1)}`);
+        if (effHomeSpr != null) pieces.push(`Spr ${fmt(effHomeSpr, 1)}`);
+
+        if (effAwayMl != null && effHomeMl != null) pieces.push(`ML ${fmtAmer(effAwayMl)}/${fmtAmer(effHomeMl)}`);
 
         try {
           const pNow = (period == null) ? null : Number(period);
@@ -1430,29 +2362,242 @@ function startLiveLensPolling(root, games, dateStr) {
         linesEl.textContent = pieces.length ? pieces.join(' · ') : 'Lines —';
       }
 
-      // Attempts (team-order)
-      const pbpAttempts = (live && live.pbp_attempts) ? live.pbp_attempts : null;
-      const a = pbpAttempts && (pbpAttempts[meta.away] || pbpAttempts.away) ? (pbpAttempts[meta.away] || pbpAttempts.away) : null;
-      const h = pbpAttempts && (pbpAttempts[meta.home] || pbpAttempts.home) ? (pbpAttempts[meta.home] || pbpAttempts.home) : null;
-      const attemptsEl = el.querySelector('.lens-live-attempts');
-      if (attemptsEl && a && h) {
-        const ft = `FT ${n(a.ft_made) ?? 0}/${n(a.ft_att) ?? 0}-${n(h.ft_made) ?? 0}/${n(h.ft_att) ?? 0}`;
-        const p2 = `2P ${n(a.fg2_made) ?? 0}/${n(a.fg2_att) ?? 0}-${n(h.fg2_made) ?? 0}/${n(h.fg2_att) ?? 0}`;
-        const p3 = `3P ${n(a.fg3_made) ?? 0}/${n(a.fg3_att) ?? 0}-${n(h.fg3_made) ?? 0}/${n(h.fg3_att) ?? 0}`;
+      // MARKET chips (NCAAB-style strip)
+      try {
+        const mlChip = el.querySelector('.lens-market-ml');
+        const atsChip = el.querySelector('.lens-market-ats');
+        const totChip = el.querySelector('.lens-market-total');
+        const hAtsChip = el.querySelector('.lens-market-1h-ats');
+        const hTotChip = el.querySelector('.lens-market-1h-total');
 
-        let possTxt = '';
+        if (mlChip) {
+          if (effAwayMl != null && effHomeMl != null) mlChip.textContent = `ML: ${meta.away} ${fmtAmer(effAwayMl)} / ${meta.home} ${fmtAmer(effHomeMl)}`;
+          else mlChip.textContent = 'ML: —';
+        }
+        if (atsChip) {
+          if (effHomeSpr != null) atsChip.textContent = `ATS: ${meta.home} ${fmt(effHomeSpr, 1)}`;
+          else atsChip.textContent = 'ATS: —';
+        }
+        if (totChip) {
+          if (effLineTotal != null) totChip.textContent = `Total: ${fmt(effLineTotal, 1)}`;
+          else totChip.textContent = 'Total: —';
+        }
+        if (hAtsChip) hAtsChip.textContent = '1H ATS: —';
+
+        let h1Line = null;
         try {
-          const pbpPoss = (live && live.pbp_possessions) ? live.pbp_possessions : null;
-          const ap = pbpPoss && (pbpPoss[meta.away] || pbpPoss.away) ? (pbpPoss[meta.away] || pbpPoss.away) : null;
-          const hp = pbpPoss && (pbpPoss[meta.home] || pbpPoss.home) ? (pbpPoss[meta.home] || pbpPoss.home) : null;
-          const apPoss = ap ? n(ap.poss_est) : null;
-          const hpPoss = hp ? n(hp.poss_est) : null;
-          if (apPoss != null && hpPoss != null) possTxt = ` · Poss ${fmt(apPoss, 0)}-${fmt(hpPoss, 0)}`;
+          const h1LineRaw = periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null;
+          h1Line = (h1LineRaw != null && Math.abs(h1LineRaw) < 0.001) ? null : h1LineRaw;
         } catch (_) {
-          // ignore
+          h1Line = null;
+        }
+        if (hTotChip) {
+          if (h1Line != null) hTotChip.textContent = `1H Total: ${fmt(h1Line, 1)}`;
+          else hTotChip.textContent = '1H Total: —';
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Summary tiles (1H / FULL GAME)
+      try {
+        const sumQ1 = el.querySelector('.lens-summary[data-scope="q1"]');
+        const sumQ3 = el.querySelector('.lens-summary[data-scope="q3"]');
+        const sumHalf = el.querySelector('.lens-summary[data-scope="half"]');
+        const sumGame = el.querySelector('.lens-summary[data-scope="game"]');
+
+        const scoreText = scoreEl ? String(scoreEl.textContent || '') : '';
+
+        function setLineTot(sumEl, tot) {
+          if (!sumEl) return;
+          const lineTot = sumEl.querySelector('.lens-sum-line-total');
+          if (!lineTot) return;
+          const v = n(tot);
+          if (v != null) lineTot.textContent = fmt(v, 1);
         }
 
-        attemptsEl.textContent = `${ft} · ${p2} · ${p3}${possTxt}`;
+        function setLiveScore(sumEl) {
+          if (!sumEl) return;
+          const liveScore = sumEl.querySelector('.lens-sum-live-score');
+          if (liveScore) liveScore.textContent = scoreText || '—';
+        }
+
+        if (sumQ1) {
+          try {
+            const q1LineRaw = periodTotals && periodTotals.q1 != null ? n(periodTotals.q1) : null;
+            const q1Line = (q1LineRaw != null && Math.abs(q1LineRaw) < 0.001) ? null : q1LineRaw;
+            setLineTot(sumQ1, q1Line);
+          } catch (_) {
+            // keep prefilled value
+          }
+          setLiveScore(sumQ1);
+        }
+
+        if (sumQ3) {
+          try {
+            const q3LineRaw = periodTotals && periodTotals.q3 != null ? n(periodTotals.q3) : null;
+            const q3Line = (q3LineRaw != null && Math.abs(q3LineRaw) < 0.001) ? null : q3LineRaw;
+            setLineTot(sumQ3, q3Line);
+          } catch (_) {
+            // keep prefilled value
+          }
+          setLiveScore(sumQ3);
+        }
+
+        if (sumHalf) {
+          const lineTot = sumHalf.querySelector('.lens-sum-line-total');
+          const liveScore = sumHalf.querySelector('.lens-sum-live-score');
+          if (lineTot) {
+            let h1Line = null;
+            try {
+              const h1LineRaw = periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null;
+              h1Line = (h1LineRaw != null && Math.abs(h1LineRaw) < 0.001) ? null : h1LineRaw;
+            } catch (_) {
+              h1Line = null;
+            }
+            if (h1Line != null) lineTot.textContent = fmt(h1Line, 1);
+          }
+          if (liveScore) liveScore.textContent = scoreText || '—';
+        }
+
+        if (sumGame) {
+          const lineAts = sumGame.querySelector('.lens-sum-line-ats');
+          const lineTot = sumGame.querySelector('.lens-sum-line-total');
+          const liveScore = sumGame.querySelector('.lens-sum-live-score');
+          if (lineAts) lineAts.textContent = (homeSpr != null) ? `${meta.home} ${fmt(homeSpr, 1)}` : '—';
+          if (lineAts) lineAts.textContent = (effHomeSpr != null) ? `${meta.home} ${fmt(effHomeSpr, 1)}` : '—';
+          if (lineTot) lineTot.textContent = (effLineTotal != null) ? fmt(effLineTotal, 1) : '—';
+          if (liveScore) liveScore.textContent = scoreText || '—';
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Phase chips inside each scope panel
+      try {
+        const pNow = (period == null) ? null : Number(period);
+        const clockTxt = (s && s.clock != null) ? String(s.clock) : '';
+        const phaseTxt = (pNow != null && Number.isFinite(pNow) && clockTxt) ? `Live: P${pNow} ${clockTxt}` : 'Live: —';
+        const phases = el.querySelectorAll('.lens-phase');
+        phases.forEach((ph) => { try { ph.textContent = phaseTxt; } catch (_) { /* ignore */ } });
+      } catch (_) {
+        // ignore
+      }
+
+      // Attempts (team-order)
+      function _fmtAttemptsPair(attObj) {
+        if (!attObj) return null;
+        const a0 = attObj && (attObj[meta.away] || attObj.away) ? (attObj[meta.away] || attObj.away) : null;
+        const h0 = attObj && (attObj[meta.home] || attObj.home) ? (attObj[meta.home] || attObj.home) : null;
+        if (!a0 || !h0) return null;
+        const ft = `FT ${n(a0.ft_made) ?? 0}/${n(a0.ft_att) ?? 0}-${n(h0.ft_made) ?? 0}/${n(h0.ft_att) ?? 0}`;
+        const p2 = `2P ${n(a0.fg2_made) ?? 0}/${n(a0.fg2_att) ?? 0}-${n(h0.fg2_made) ?? 0}/${n(h0.fg2_att) ?? 0}`;
+        const p3 = `3P ${n(a0.fg3_made) ?? 0}/${n(a0.fg3_att) ?? 0}-${n(h0.fg3_made) ?? 0}/${n(h0.fg3_att) ?? 0}`;
+        return `${ft} · ${p2} · ${p3}`;
+      }
+
+      function _fmtPossPair(possObj) {
+        if (!possObj) return '';
+        const ap = possObj && (possObj[meta.away] || possObj.away) ? (possObj[meta.away] || possObj.away) : null;
+        const hp = possObj && (possObj[meta.home] || possObj.home) ? (possObj[meta.home] || possObj.home) : null;
+        const apPoss = ap ? n(ap.poss_est) : null;
+        const hpPoss = hp ? n(hp.poss_est) : null;
+        if (apPoss != null && hpPoss != null) return ` · Poss ${fmt(apPoss, 0)}-${fmt(hpPoss, 0)}`;
+        return '';
+      }
+
+      const attemptsEl = el.querySelector('.lens-live-attempts');
+      try {
+        const gameAttempts = (live && live.pbp_attempts) ? live.pbp_attempts : null;
+        const gamePoss = (live && live.pbp_possessions) ? live.pbp_possessions : null;
+        const txt = _fmtAttemptsPair(gameAttempts);
+        if (attemptsEl) attemptsEl.textContent = txt ? `${txt}${_fmtPossPair(gamePoss)}` : '—';
+      } catch (_) {
+        if (attemptsEl) attemptsEl.textContent = '—';
+      }
+
+      // Per-scope attempts/possessions (period-exclusive) + freeze once the period completes.
+      try {
+        const pNow = (period == null) ? null : Number(period);
+        const attemptsPeriods = (live && live.pbp_attempts_periods) ? live.pbp_attempts_periods : null;
+        const possPeriods = (live && live.pbp_possessions_periods) ? live.pbp_possessions_periods : null;
+
+        function scopeKey(scope) {
+          if (!scope) return null;
+          if (scope === 'game') return 'game';
+          if (scope === 'half') return 'h1';
+          if (/^q[1-4]$/.test(scope)) return scope;
+          return null;
+        }
+
+        function shouldFreeze(scope) {
+          if (isFinal) return true;
+          const pn = (pNow != null && Number.isFinite(pNow)) ? Math.floor(pNow) : null;
+          if (pn == null) return false;
+          if (scope === 'half') return pn > 2;
+          if (scope === 'game') return false;
+          if (/^q[1-4]$/.test(scope)) {
+            const qn = Number(scope.replace('q', ''));
+            return pn > qn;
+          }
+          return false;
+        }
+
+        const scopeCols = el.querySelectorAll('.lens-col');
+        scopeCols.forEach((col) => {
+          try {
+            const sc = col.dataset.scope;
+            if (!sc) return;
+            const key = scopeKey(sc);
+            if (!key) return;
+
+            const freezeNow = shouldFreeze(sc);
+            if (freezeNow && col.dataset.frozen !== '1') col.dataset.frozen = '1';
+
+            const aObj = attemptsPeriods && attemptsPeriods[key] ? attemptsPeriods[key] : (sc === 'game' ? (live && live.pbp_attempts) : null);
+            const pObj = possPeriods && possPeriods[key] ? possPeriods[key] : (sc === 'game' ? (live && live.pbp_possessions) : null);
+
+            // Store live possessions for interval-smart pace projections (used by computeScope()).
+            try {
+              const possAvg = possAvgFromPossObj(meta, pObj);
+              col.dataset.possLive = (possAvg == null) ? '' : String(possAvg);
+            } catch (_) {
+              // ignore
+            }
+
+            const base = _fmtAttemptsPair(aObj);
+            const possTxt = _fmtPossPair(pObj);
+            const scopeTxt = base ? `${base}${possTxt}` : '—';
+
+            const atEl = col.querySelector('.lens-scope-attempts');
+            if (atEl) atEl.textContent = scopeTxt;
+          } catch (_) {
+            // ignore
+          }
+        });
+      } catch (_) {
+        // ignore
+      }
+
+      // Per-panel score chips
+      try {
+        const scoreText = scoreEl ? String(scoreEl.textContent || '') : '';
+        const scopeScores = el.querySelectorAll('.lens-scope-score');
+        scopeScores.forEach((x) => { try { x.textContent = scoreText ? `Score: ${scoreText}` : 'Score: —'; } catch (_) { /* ignore */ } });
+      } catch (_) {
+        // ignore
+      }
+
+      // Per-panel ML/ATS chips
+      try {
+        const scopeML = el.querySelectorAll('.lens-scope-ml');
+        const scopeATS = el.querySelectorAll('.lens-scope-ats');
+        const mlTxt = (effAwayMl != null && effHomeMl != null) ? `ML: ${meta.away} ${fmtAmer(effAwayMl)} / ${meta.home} ${fmtAmer(effHomeMl)}` : 'ML: —';
+        const atsTxt = (effHomeSpr != null) ? `ATS: ${meta.home} ${fmt(effHomeSpr, 1)}` : 'ATS: —';
+        scopeML.forEach((x) => { try { x.textContent = mlTxt; } catch (_) { /* ignore */ } });
+        scopeATS.forEach((x) => { try { x.textContent = atsTxt; } catch (_) { /* ignore */ } });
+      } catch (_) {
+        // ignore
       }
 
       // Auto-fill full game scope
@@ -1467,11 +2612,38 @@ function startLiveLensPolling(root, games, dateStr) {
           if (isFinal) vMin = 0;
           if (vMin != null) vMin = Math.max(0, Math.min(48, vMin));
           if (sel && vMin != null) sel.value = String(vMin);
-          if (tot && totalPts != null) tot.value = String(Math.round(totalPts));
-          if (liv) liv.value = (lineTotal != null) ? String(lineTotal) : '';
+          if (tot) tot.value = (totalPts != null) ? String(Math.round(totalPts)) : '';
+          if (liv) liv.value = (effLineTotal != null) ? String(effLineTotal) : '';
           if (sel) sel.dispatchEvent(new Event('change'));
           if (tot) tot.dispatchEvent(new Event('input'));
           if (liv) liv.dispatchEvent(new Event('input'));
+
+          // Possession-driven pace (FULL GAME only): override the displayed paceFinal + dataset.
+          try {
+            const pointsLens = computePaceFinalFromIntervals(meta.intervals, 48, (vMin != null) ? vMin : (minLeftRaw == null ? 48 : Math.round(minLeftRaw)), totalPts);
+            const possInfo = computePossessionPaceForGame(meta, live, (vMin != null) ? vMin : null, totalPts, pointsLens);
+            const possPaceFinal = possInfo ? n(possInfo.pace_final) : null;
+            if (possPaceFinal != null) {
+              const outPace = gameCol.querySelector('.lens-pace');
+              if (outPace) outPace.textContent = fmt(possPaceFinal, 1);
+              try { gameCol.dataset.paceFinal = String(possPaceFinal); } catch (_) { /* ignore */ }
+              // Keep Lean consistent with the overridden paceFinal.
+              try {
+                const liveTot2 = n(liv && liv.value != null && String(liv.value).trim() !== '' ? liv.value : null);
+                const outLean = gameCol.querySelector('.lens-lean');
+                if (outLean && liveTot2 != null) {
+                  const diff2 = possPaceFinal - liveTot2;
+                  if (diff2 > 1.0) outLean.textContent = `Over (+${fmt(diff2, 1)})`;
+                  else if (diff2 < -1.0) outLean.textContent = `Under (${fmt(diff2, 1)})`;
+                  else outLean.textContent = 'No edge';
+                }
+              } catch (_) {
+                // ignore
+              }
+            }
+          } catch (_) {
+            // ignore
+          }
         }
       } catch (_) {
         // ignore
@@ -1483,6 +2655,11 @@ function startLiveLensPolling(root, games, dateStr) {
         for (let qNum = 1; qNum <= 4; qNum += 1) {
           const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
           if (!qCol) continue;
+
+          const pNow = (period == null) ? null : Number(period);
+          const freezeNow = !!isFinal || (pNow != null && Number.isFinite(pNow) && pNow > qNum);
+          if (freezeNow && qCol.dataset.frozen === '1') continue;
+
           const sel = qCol.querySelector('select.lens-min');
           const tot = qCol.querySelector('input.lens-total');
           const liv = qCol.querySelector('input.lens-live');
@@ -1501,11 +2678,9 @@ function startLiveLensPolling(root, games, dateStr) {
             // ignore
           }
 
-          const pNow = (period == null) ? null : Number(period);
           if (pNow != null && Number.isFinite(pNow)) {
             if (pNow < qNum) {
               qMinLeft = 12;
-              if (qAct == null) qAct = 0;
             } else if (pNow === qNum) {
               if (secLeftPeriodRaw != null) qMinLeft = Math.round(secLeftPeriodRaw / 60.0);
             } else if (pNow > qNum) {
@@ -1515,7 +2690,7 @@ function startLiveLensPolling(root, games, dateStr) {
 
           if (qMinLeft != null) qMinLeft = Math.max(0, Math.min(12, qMinLeft));
           if (sel && qMinLeft != null) sel.value = String(qMinLeft);
-          if (tot && qAct != null) tot.value = String(Math.round(qAct));
+          if (tot) tot.value = (qAct != null) ? String(Math.round(qAct)) : '';
 
           // Quarter live total line (OddsAPI) when available
           try {
@@ -1529,6 +2704,8 @@ function startLiveLensPolling(root, games, dateStr) {
 
           if (sel) sel.dispatchEvent(new Event('change'));
           if (tot) tot.dispatchEvent(new Event('input'));
+
+          if (freezeNow) qCol.dataset.frozen = '1';
         }
       } catch (_) {
         // ignore
@@ -1538,6 +2715,11 @@ function startLiveLensPolling(root, games, dateStr) {
       try {
         const halfCol = el.querySelector('.lens-col[data-scope="half"]');
         if (halfCol) {
+          const pn = (period == null) ? null : Number(period);
+          const freezeNow = !!isFinal || (pn != null && Number.isFinite(pn) && pn > 2);
+          if (freezeNow && halfCol.dataset.frozen === '1') {
+            // fully frozen: do not overwrite user inputs
+          } else {
           const sel = halfCol.querySelector('select.lens-min');
           const tot = halfCol.querySelector('input.lens-total');
           const liv = halfCol.querySelector('input.lens-live');
@@ -1556,7 +2738,7 @@ function startLiveLensPolling(root, games, dateStr) {
           } catch (_) {
             // ignore
           }
-          if (tot && halfAct != null) tot.value = String(Math.round(halfAct));
+          if (tot) tot.value = (halfAct != null) ? String(Math.round(halfAct)) : '';
 
           // Half live total line (OddsAPI) when available (only meaningful in 1H)
           const h1LineRaw = periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null;
@@ -1565,6 +2747,9 @@ function startLiveLensPolling(root, games, dateStr) {
           if (sel) sel.dispatchEvent(new Event('change'));
           if (tot) tot.dispatchEvent(new Event('input'));
           if (liv) liv.dispatchEvent(new Event('input'));
+
+            if (freezeNow) halfCol.dataset.frozen = '1';
+          }
         }
       } catch (_) {
         // ignore
@@ -1578,10 +2763,12 @@ function startLiveLensPolling(root, games, dateStr) {
           const recHalfEl = el.querySelector('.lens-rec-half');
           const recQtrEl = el.querySelector('.lens-rec-qtr');
           const recATSEl = el.querySelector('.lens-rec-ats');
+          const recMLEl = el.querySelector('.lens-rec-ml');
           if (recTotalEl) recTotalEl.textContent = 'Total: —';
           if (recHalfEl) recHalfEl.textContent = '1H: —';
           if (recQtrEl) recQtrEl.textContent = 'Q: —';
           if (recATSEl) recATSEl.textContent = 'ATS: —';
+          if (recMLEl) recMLEl.textContent = 'ML: —';
         } catch (_) {
           // ignore
         }
@@ -1602,18 +2789,27 @@ function startLiveLensPolling(root, games, dateStr) {
       const recHalfEl = el.querySelector('.lens-rec-half');
       const recQtrEl = el.querySelector('.lens-rec-qtr');
       const recATSEl = el.querySelector('.lens-rec-ats');
+      const recMLEl = el.querySelector('.lens-rec-ml');
       let curMinLeft = (minLeftRaw == null) ? 48 : Math.max(0, Math.min(48, Math.round(minLeftRaw)));
       if (period != null && Number(period) > 4) curMinLeft = 0;
-      const lens = computePaceFinalFromIntervals(meta.intervals, 48, curMinLeft, totalPts);
+      let lens = computePaceFinalFromIntervals(meta.intervals, 48, curMinLeft, totalPts);
+      let possInfoForLog = null;
+      try {
+        possInfoForLog = computePossessionPaceForGame(meta, live, curMinLeft, totalPts, lens);
+        const possPaceFinal = possInfoForLog ? n(possInfoForLog.pace_final) : null;
+        if (lens && possPaceFinal != null) lens = { ...lens, paceFinal: possPaceFinal };
+      } catch (_) {
+        // ignore
+      }
       let totalDiffRaw = null;
       let totalDiff = null;
       let totalCtx = null;
       let totalClass = 'NONE';
       let totalSide = null;
 
-      if (lens && lineTotal != null) {
-        totalDiffRaw = lens.paceFinal - lineTotal;
-        totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, lineTotal, meta, live, curMinLeft);
+      if (lens && effLineTotal != null) {
+        totalDiffRaw = lens.paceFinal - effLineTotal;
+        totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft);
         totalDiff = (totalCtx && totalCtx.diff_adj != null) ? n(totalCtx.diff_adj) : totalDiffRaw;
         totalClass = classifyDiff(Math.abs(totalDiff), thr.total.watch, thr.total.bet);
         if (totalDiff > 1.0) totalSide = 'Over';
@@ -1702,15 +2898,15 @@ function startLiveLensPolling(root, games, dateStr) {
       let atsClass = 'NONE';
       let atsText = 'ATS: —';
       let atsEdge = null;
-      if (homeSpr != null && meta.margin_mean != null && live && live.score) {
+      if (effHomeSpr != null && meta.margin_mean != null && live && live.score) {
         const curMargin = n(live.score.home_margin);
         const minLeft = n(live.time ? live.time.game_min_left : null);
         const elapsed = (minLeft != null) ? (48 - minLeft) : (lens ? lens.elapsedMinutes : 0);
         const w = Math.max(0, Math.min(1, (elapsed || 0) / 48.0));
         const adjMargin = (1 - w) * meta.margin_mean + w * (curMargin ?? 0);
-        // Home covers if margin > -homeSpr (e.g., -4.5 => margin > 4.5)
-        const homeEdge = adjMargin + homeSpr;
-        const awayEdge = -adjMargin - homeSpr;
+        // Home covers if margin > -spr (e.g., -4.5 => margin > 4.5)
+        const homeEdge = adjMargin + effHomeSpr;
+        const awayEdge = -adjMargin - effHomeSpr;
         const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
         atsEdge = pickHome ? homeEdge : awayEdge;
         const side = pickHome ? meta.home : meta.away;
@@ -1720,12 +2916,74 @@ function startLiveLensPolling(root, games, dateStr) {
       }
       if (recATSEl) recATSEl.textContent = atsText;
 
+      // Compute tags (ML) using sim win prob blended with live score state and betting MLs.
+      let mlClass = 'NONE';
+      let mlText = 'ML: —';
+      try {
+        const pPregame = n(meta && meta.p_home_win != null ? meta.p_home_win : null);
+        const curMargin = n(live && live.score ? live.score.home_margin : null);
+        const minLeft = n(live && live.time ? live.time.game_min_left : null);
+        const pHomeImplied = impliedProbFromAmer(effHomeMl);
+        const pAwayImplied = impliedProbFromAmer(effAwayMl);
+
+        let pHomeScore = null;
+        if (curMargin != null && minLeft != null) {
+          const ml = Math.max(0, Math.min(48, minLeft));
+          let scale = 6.0 + 0.35 * ml;
+
+          // Possessions-aware confidence: if possessions >> expected so far, margin is more informative;
+          // if possessions << expected, margin is noisier. Adjust scale accordingly.
+          try {
+            const possLive = _liveLensPossLiveAvg(meta, live);
+            const expHomePace = n(meta && meta.home_pace);
+            const expAwayPace = n(meta && meta.away_pace);
+            const expPace = (expHomePace != null && expAwayPace != null) ? ((expHomePace + expAwayPace) / 2.0) : null;
+            const elapsedMin = 48.0 - ml;
+            const possExpSoFar = (expPace != null) ? (expPace * (elapsedMin / 48.0)) : null;
+            if (possLive != null && possExpSoFar != null && possExpSoFar > 5.0) {
+              const ratio = possLive / possExpSoFar;
+              const ratioClamped = Math.max(0.6, Math.min(1.6, ratio));
+              const f = Math.sqrt(ratioClamped);
+              scale = scale / f;
+            }
+          } catch (_) {
+            // ignore
+          }
+
+          pHomeScore = 1.0 / (1.0 + Math.exp(-(curMargin / scale)));
+        }
+
+        let pHomeModel = pPregame;
+        if (pHomeScore != null && pPregame != null) {
+          const elapsed = (minLeft != null) ? (48 - minLeft) : 0;
+          const w = Math.max(0, Math.min(1, (elapsed || 0) / 48.0));
+          pHomeModel = (1 - w) * pPregame + w * pHomeScore;
+        } else if (pHomeScore != null && pHomeModel == null) {
+          pHomeModel = pHomeScore;
+        }
+
+        if (pHomeModel != null && pHomeImplied != null && pAwayImplied != null) {
+          const edgeHome = pHomeModel - pHomeImplied;
+          const edgeAway = (1.0 - pHomeModel) - pAwayImplied;
+          const pickHome = Math.abs(edgeHome) >= Math.abs(edgeAway);
+          const edge = pickHome ? edgeHome : edgeAway;
+          const side = pickHome ? meta.home : meta.away;
+          mlClass = classifyDiff(Math.abs(edge), thr.ml.watch, thr.ml.bet);
+          if (mlClass === 'BET') mlText = `ML: BET ${side} (${fmt(edge * 100.0, 1)}pp)`;
+          else if (mlClass === 'WATCH') mlText = `ML: WATCH ${side} (${fmt(edge * 100.0, 1)}pp)`;
+        }
+      } catch (_) {
+        mlClass = 'NONE';
+        mlText = 'ML: —';
+      }
+      if (recMLEl) recMLEl.textContent = mlText;
+
       // Card-level highlight (NCAAB parity)
       try {
         const card = el.closest('.card');
         if (card) {
-          const anyBet = (totalClass === 'BET') || (halfClass === 'BET') || (qClass === 'BET') || (atsClass === 'BET');
-          const anyWatch = (totalClass === 'WATCH') || (halfClass === 'WATCH') || (qClass === 'WATCH') || (atsClass === 'WATCH');
+          const anyBet = (totalClass === 'BET') || (halfClass === 'BET') || (qClass === 'BET') || (atsClass === 'BET') || (mlClass === 'BET');
+          const anyWatch = (totalClass === 'WATCH') || (halfClass === 'WATCH') || (qClass === 'WATCH') || (atsClass === 'WATCH') || (mlClass === 'WATCH');
           card.classList.toggle('live-edge-ok', anyBet);
           card.classList.toggle('live-edge-warn', (!anyBet) && anyWatch);
           if (!anyBet && !anyWatch) {
@@ -1802,6 +3060,15 @@ function startLiveLensPolling(root, games, dateStr) {
           exp_home_pace: meta.home_pace,
           exp_away_pace: meta.away_pace,
           exp_total_mean: meta.total_mean,
+          pace_components: (possInfoForLog && typeof possInfoForLog === 'object') ? {
+            pace_final: possInfoForLog.pace_final,
+            pace_points: possInfoForLog.pace_points,
+            pace_poss: possInfoForLog.pace_poss,
+            alpha: possInfoForLog.alpha,
+            poss_live_total: possInfoForLog.poss_live_total,
+            poss_expected_total: possInfoForLog.poss_expected_total,
+            pace_ratio_poss: possInfoForLog.pace_ratio,
+          } : null,
         } : null,
       });
 
@@ -1854,6 +3121,9 @@ function startLiveLensPolling(root, games, dateStr) {
         strength: (atsEdge != null) ? Math.abs(atsEdge) : null,
       });
     }));
+
+    // Re-run strip update after signals/classes may have changed.
+    updateScoreboardStrip(sbById);
   }
 
   // Kick off immediately, then every 12s (NCAAB parity)
@@ -1927,7 +3197,7 @@ function renderPropTargets(propTargets, homeTri, awayTri) {
   `;
 }
 
-function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOdds, dateStr) {
+function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, dateStr) {
   const root = document.getElementById('cards');
   if (!root) return;
   if (!Array.isArray(games) || games.length === 0) {
@@ -1935,14 +3205,56 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
     return;
   }
 
+  const isToday = (typeof dateStr === 'string' && isYmd(dateStr) && dateStr === localYMD());
+
   const reconIndex = buildReconIndex(reconGameRows);
   const reconQIndex = buildReconIndex(reconQuarterRows);
+  const reconPIndex = (showResults && Array.isArray(reconPlayerRows) && reconPlayerRows.length)
+    ? buildReconPlayersIndex(reconPlayerRows)
+    : null;
+
+  const stripHtml = (() => {
+    const items = games.map((g) => {
+      const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''))
+        || `${String(g.home_tri || '').toUpperCase().trim()}_${String(g.away_tri || '').toUpperCase().trim()}`;
+      const homeTri = String(g.home_tri || '').toUpperCase().trim();
+      const awayTri = String(g.away_tri || '').toUpperCase().trim();
+
+      const recon = showResults ? (reconIndex.get(`${homeTri}|${awayTri}`) || reconIndex.get(`${String(g.home_name || '').trim()}|${String(g.away_name || '').trim()}`)) : null;
+      const actualHome = recon ? n(recon.home_pts) : null;
+      const actualAway = recon ? n(recon.visitor_pts) : null;
+
+      const odds = g.odds || {};
+      const timeStr = fmtTime(odds.commence_time);
+      const statusTxt = (actualHome != null && actualAway != null) ? 'Final' : (timeStr || '—');
+      const scoreTxt = (actualHome != null && actualAway != null) ? `${actualAway}-${actualHome}` : '';
+
+      return `
+        <button type="button" class="s-item neu" data-game-id="${esc(gid)}" aria-label="Jump to ${esc(awayTri)} at ${esc(homeTri)}">
+          <span class="s-teams">${esc(awayTri)} @ ${esc(homeTri)}</span>
+          <span class="s-mid">
+            <span class="s-status">${esc(statusTxt)}</span>
+            <span class="s-score">${esc(scoreTxt)}</span>
+          </span>
+          <span class="s-tag"></span>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="scoreboard-strip" role="navigation" aria-label="Games">
+        ${items}
+      </div>
+    `;
+  })();
 
   const html = games.map((g) => {
     const homeTri = String(g.home_tri || '').toUpperCase().trim();
     const awayTri = String(g.away_tri || '').toUpperCase().trim();
     const homeName = String(g.home_name || homeTri).trim();
     const awayName = String(g.away_name || awayTri).trim();
+        const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''))
+          || `${homeTri}_${awayTri}`;
     const odds = g.odds || {};
     const sim = g.sim || {};
     // API payload uses game.sim.*; raw smart_sim files store these at top-level.
@@ -1993,12 +3305,54 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
     const warnLines = [];
     if (simErr) warnLines.push(`SmartSim error: ${simErr}`);
     if (Array.isArray(g.warnings) && g.warnings.length) warnLines.push(...g.warnings);
+    let boxscoreReconBadge = '';
+    try {
+      const bs = g && g.boxscore_recon ? g.boxscore_recon : null;
+      if (bs && bs.reason === 'missing_boxscore') {
+        // For today's slate, missing boxscores are expected pregame/in-progress.
+        if (!isToday) {
+          warnLines.push(`Boxscore cache missing for game_id ${bs.game_id}`);
+          boxscoreReconBadge = '<span class="badge ok">BOX MISSING</span>';
+        }
+      } else if (bs && bs.ok === false) {
+        warnLines.push(
+          `Boxscore recon mismatch: ${awayTri} pts(players)=${bs.away_pts_players} vs actual=${bs.away_pts_actual}; ` +
+          `${homeTri} pts(players)=${bs.home_pts_players} vs actual=${bs.home_pts_actual}`
+        );
+        boxscoreReconBadge = '<span class="badge bad">BOX MISMATCH</span>';
+      } else if (bs && bs.ok === true) {
+        boxscoreReconBadge = '<span class="badge good">BOX OK</span>';
+      }
+    } catch (_) {
+      // ignore
+    }
     const warn = warnLines.length
       ? `<div class="alert">${warnLines.map((w) => esc(w)).join('<br/>')}</div>`
       : '';
 
     const playersHome = (sim.players && sim.players.home) ? sim.players.home : [];
     const playersAway = (sim.players && sim.players.away) ? sim.players.away : [];
+
+    let playerReconBadge = '';
+    let homeRecon = null;
+    let awayRecon = null;
+    try {
+      if (reconPIndex) {
+        const gid10 = canonNbaGameId10(g && g.sim ? g.sim.game_id : null);
+        const byTeam = gid10 && reconPIndex[gid10] ? reconPIndex[gid10] : null;
+        homeRecon = byTeam && byTeam[homeTri] ? byTeam[homeTri] : null;
+        awayRecon = byTeam && byTeam[awayTri] ? byTeam[awayTri] : null;
+        const hs = homeRecon ? reconTeamSummary(homeRecon) : null;
+        const as = awayRecon ? reconTeamSummary(awayRecon) : null;
+        if (hs || as) {
+          playerReconBadge = `<span class="chip neutral" style="margin-left:8px;">Player recon MAE — HOME PTS ${fmt(hs && hs.maePts, 1)} / PRA ${fmt(hs && hs.maePra, 1)} (miss ${esc(hs && hs.missing)}) • AWAY PTS ${fmt(as && as.maePts, 1)} / PRA ${fmt(as && as.maePra, 1)} (miss ${esc(as && as.missing)})</span>`;
+        }
+      }
+    } catch (_) {
+      playerReconBadge = '';
+      homeRecon = null;
+      awayRecon = null;
+    }
 
     const awayP10 = n(score.away_q && score.away_q.p10);
     const awayP90 = n(score.away_q && score.away_q.p90);
@@ -2009,7 +3363,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
       : '';
 
     return `
-      <section class="card card-v2">
+      <section class="card card-v2" id="game-${esc(gid)}" data-game-id="${esc(gid)}">
         <div class="row head">
           <span class="venue">${esc(timeStr || '')}</span>
           <span class="venue">${esc(odds.bookmaker || odds.bookmaker_odds || 'odds')}</span>
@@ -2065,15 +3419,27 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
         </div>
 
         <div class="market-grid">
-          ${renderLiveLens(intervals, `${homeTri}_${awayTri}`, g && g.sim ? g.sim.game_id : null)}
+          ${renderLiveLens(
+            intervals,
+            `${homeTri}_${awayTri}`,
+            g && g.sim ? g.sim.game_id : null,
+            showResults ? {
+              home_pts: actualHome,
+              away_pts: actualAway,
+              game_total: actualTotal,
+              h1_total: reconQ ? n(reconQ.actual_h1_total) : null,
+              q1_total: reconQ ? n(reconQ.actual_q1_total) : null,
+              q3_total: reconQ ? n(reconQ.actual_q3_total) : null,
+            } : null
+          )}
         </div>
 
         <details class="players-block" open>
-          <summary class="players-toggle cursor-pointer">Projected boxscore (aggregated sim means)</summary>
-          ${renderPlayersTable(`HOME (${homeTri}) players`, playersHome)}
+          <summary class="players-toggle cursor-pointer">Projected boxscore (aggregated sim means) ${boxscoreReconBadge} ${playerReconBadge}</summary>
+          ${renderPlayersTable(`HOME (${homeTri}) players`, playersHome, homeRecon)}
           ${renderInjurySummary(`HOME (${homeTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.home) ? g.sim.injuries.home : playersHome)}
           <div class="mb-6"></div>
-          ${renderPlayersTable(`AWAY (${awayTri}) players`, playersAway)}
+          ${renderPlayersTable(`AWAY (${awayTri}) players`, playersAway, awayRecon)}
           ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
         </details>
 
@@ -2085,7 +3451,26 @@ function renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOd
     `;
   }).join('\n');
 
-  root.innerHTML = html;
+  root.innerHTML = `${stripHtml}\n${html}`;
+
+  // Scoreboard strip click-to-scroll
+  try {
+    const strip = root.querySelector('.scoreboard-strip');
+    if (strip && !strip.dataset.bound) {
+      strip.dataset.bound = '1';
+      strip.addEventListener('click', (ev) => {
+        const btn = ev.target && ev.target.closest ? ev.target.closest('.s-item[data-game-id]') : null;
+        if (!btn) return;
+        const gid = canonGameId(btn.dataset.gameId);
+        if (!gid) return;
+        const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
+        if (!target) return;
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
 
   // Enable click-to-sort on projected boxscore tables.
   try {
@@ -2188,19 +3573,22 @@ async function load(dateStr) {
 
     let reconGameRows = [];
     let reconQuarterRows = [];
+    let reconPlayerRows = [];
     if (showResults) {
-      const [csvG, csvQ] = await Promise.all([
+      const [csvG, csvQ, csvP] = await Promise.all([
         fetchText(`/api/processed/recon_games?date=${encodeURIComponent(dateStr)}`),
         fetchText(`/api/processed/recon_quarters?date=${encodeURIComponent(dateStr)}`),
+        fetchText(`/api/processed/recon_players?date=${encodeURIComponent(dateStr)}`),
       ]);
       reconGameRows = csvG ? csvParse(csvG) : [];
       reconQuarterRows = csvQ ? csvParse(csvQ) : [];
+      reconPlayerRows = csvP ? csvParse(csvP) : [];
     }
 
-    renderCards(games, reconGameRows, reconQuarterRows, showResults, hideOdds, dateStr);
+    renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, dateStr);
   } catch (e) {
     setNote(`Failed to load cards: ${String(e && e.message ? e.message : e)}`);
-    renderCards([], [], [], false, false, dateStr);
+    renderCards([], [], [], [], false, false, dateStr);
   }
 }
 

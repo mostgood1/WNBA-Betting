@@ -34,6 +34,10 @@ class EventSimConfig:
     reconcile_points: bool = True
     reconcile_max_changes_per_quarter: int = 12
 
+    # Debug/diagnostics
+    # Recording per-event dictionaries is expensive for large n_sims; keep off by default.
+    record_events: bool = False
+
 
 def _safe_series(df: pd.DataFrame, col: str) -> pd.Series:
     if df is None or df.empty or col not in df.columns:
@@ -251,6 +255,7 @@ def simulate_event_level_boxscore(
 
     h = blank(home_players)
     a = blank(away_players)
+    record_events = bool(getattr(cfg, "record_events", False))
     events: List[Dict[str, Any]] = []
 
     home_score = 0
@@ -372,7 +377,8 @@ def simulate_event_level_boxscore(
                         stl_w = _player_usage_weights(away_players, "_prior_stl_pm", a_line)
                         s_idx = int(_pick_weighted(rng, list(range(len(away_players))), stl_w) or 0)
                         a["stl"][s_idx] += 1
-                    events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
+                    if record_events:
+                        events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
                 else:
                     t_w = _player_usage_weights(away_players, "_prior_tov_pm", a_line)
                     t_idx = int(_pick_weighted(rng, list(range(len(away_players))), t_w) or 0)
@@ -381,7 +387,8 @@ def simulate_event_level_boxscore(
                         stl_w = _player_usage_weights(home_players, "_prior_stl_pm", h_line)
                         s_idx = int(_pick_weighted(rng, list(range(len(home_players))), stl_w) or 0)
                         h["stl"][s_idx] += 1
-                    events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
+                    if record_events:
+                        events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
                 continue
 
             # Shot attempt
@@ -441,7 +448,8 @@ def simulate_event_level_boxscore(
                         didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
                         if didx is not None:
                             a["pf"][int(didx)] += 1
-                    events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
+                    if record_events:
+                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
                 else:
                     # miss
                     if foul and rng.random() < 0.70:
@@ -458,7 +466,8 @@ def simulate_event_level_boxscore(
                         didx = _pick_weighted(rng, list(range(len(away_players))), pf_w)
                         if didx is not None:
                             a["pf"][int(didx)] += 1
-                        events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        if record_events:
+                            events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
                     else:
                         # rebound
                         oreb = bool(rng.random() < cfg.base_oreb_rate)
@@ -472,7 +481,8 @@ def simulate_event_level_boxscore(
                             ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
                             if ridx is not None:
                                 a["reb"][int(ridx)] += 1
-                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
+                        if record_events:
+                            events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
 
                 # Non-shooting foul noise
                 if rng.random() < cfg.base_nonshooting_foul_per_poss:
@@ -528,7 +538,8 @@ def simulate_event_level_boxscore(
                         didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
                         if didx is not None:
                             h["pf"][int(didx)] += 1
-                    events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
+                    if record_events:
+                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
                 else:
                     if foul and rng.random() < 0.70:
                         n_ft = 3 if shot_is_3 else 2
@@ -542,7 +553,8 @@ def simulate_event_level_boxscore(
                         didx = _pick_weighted(rng, list(range(len(home_players))), pf_w)
                         if didx is not None:
                             h["pf"][int(didx)] += 1
-                        events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        if record_events:
+                            events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
                     else:
                         oreb = bool(rng.random() < cfg.base_oreb_rate)
                         if oreb:
@@ -555,7 +567,8 @@ def simulate_event_level_boxscore(
                             ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
                             if ridx is not None:
                                 h["reb"][int(ridx)] += 1
-                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
+                        if record_events:
+                            events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
 
                 if rng.random() < cfg.base_nonshooting_foul_per_poss:
                     pf_w = _player_usage_weights(home_players, "_prior_pf_pm", h_line)
@@ -698,7 +711,7 @@ def simulate_event_level_boxscore(
     away_box = finalize(away_players, a)
 
     # Keep event payload small-ish for API
-    home_box["events"] = events[:500]
+    home_box["events"] = (events[:500] if record_events else [])
     away_box["events"] = []
 
     return home_box, away_box
@@ -871,6 +884,7 @@ def simulate_pbp_game_boxscore(
     a = blank(away_players)
     hq = blank_q(home_players)
     aq = blank_q(away_players)
+    record_events = bool(getattr(cfg, "record_events", False))
     events: List[Dict[str, Any]] = []
 
     home_score = 0
@@ -1071,7 +1085,8 @@ def simulate_pbp_game_boxscore(
                             stl_w = _player_usage_weights(away_players, "_prior_stl_pm", a_line)
                             s_idx = int(_pick_weighted(rng, list(range(len(away_players))), stl_w) or 0)
                             a["stl"][s_idx] += 1
-                        events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
+                        if record_events:
+                            events.append({"q": q, "type": "TOV", "off": "H", "player_i": t_idx})
                     else:
                         t_w = _player_usage_weights(away_players, "_prior_tov_pm", a_line)
                         t_idx = int(_pick_weighted(rng, list(range(len(away_players))), t_w) or 0)
@@ -1080,7 +1095,8 @@ def simulate_pbp_game_boxscore(
                             stl_w = _player_usage_weights(home_players, "_prior_stl_pm", h_line)
                             s_idx = int(_pick_weighted(rng, list(range(len(home_players))), stl_w) or 0)
                             h["stl"][s_idx] += 1
-                        events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
+                        if record_events:
+                            events.append({"q": q, "type": "TOV", "off": "A", "player_i": t_idx})
                     try:
                         q_remaining = int(q_remaining_after)
                     except Exception:
@@ -1183,7 +1199,8 @@ def simulate_pbp_game_boxscore(
                             if didx is not None:
                                 a["pf"][int(didx)] += 1
                         _maybe_add_nonshoot_pf()
-                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
+                        if record_events:
+                            events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "H", "sh": sh, "pts": points_if_make})
                         try:
                             q_remaining = int(q_remaining_after)
                         except Exception:
@@ -1207,7 +1224,8 @@ def simulate_pbp_game_boxscore(
                         if didx is not None:
                             a["pf"][int(didx)] += 1
                         _maybe_add_nonshoot_pf()
-                        events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        if record_events:
+                            events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
                         try:
                             q_remaining = int(q_remaining_after)
                         except Exception:
@@ -1227,7 +1245,8 @@ def simulate_pbp_game_boxscore(
                         if ridx is not None:
                             a["reb"][int(ridx)] += 1
                             _add_q_stat(aq["reb"], q, int(ridx), 1)
-                    events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
+                    if record_events:
+                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "H", "sh": sh, "blk": blk})
                     try:
                         q_remaining = int(q_remaining_after)
                     except Exception:
@@ -1293,7 +1312,8 @@ def simulate_pbp_game_boxscore(
                             if didx is not None:
                                 h["pf"][int(didx)] += 1
                         _maybe_add_nonshoot_pf()
-                        events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
+                        if record_events:
+                            events.append({"q": q, "type": "FGM3" if shot_is_3 else "FGM2", "off": "A", "sh": sh, "pts": points_if_make})
                         try:
                             q_remaining = int(q_remaining_after)
                         except Exception:
@@ -1317,7 +1337,8 @@ def simulate_pbp_game_boxscore(
                         if didx is not None:
                             h["pf"][int(didx)] += 1
                         _maybe_add_nonshoot_pf()
-                        events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
+                        if record_events:
+                            events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
                         try:
                             q_remaining = int(q_remaining_after)
                         except Exception:
@@ -1337,7 +1358,8 @@ def simulate_pbp_game_boxscore(
                         if ridx is not None:
                             h["reb"][int(ridx)] += 1
                             _add_q_stat(hq["reb"], q, int(ridx), 1)
-                    events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
+                    if record_events:
+                        events.append({"q": q, "type": "MISS3" if shot_is_3 else "MISS2", "off": "A", "sh": sh, "blk": blk})
                     try:
                         q_remaining = int(q_remaining_after)
                     except Exception:
@@ -1471,7 +1493,7 @@ def simulate_pbp_game_boxscore(
 
     home_box = finalize(home_players, h, hq)
     away_box = finalize(away_players, a, aq)
-    home_box["events"] = events[:500]
+    home_box["events"] = (events[:500] if record_events else [])
     away_box["events"] = []
 
     # Segment points per quarter (4x4 and 4x12). Helpful for live-lens interval ladders.

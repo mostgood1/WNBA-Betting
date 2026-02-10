@@ -40,6 +40,26 @@ def _load_intervals_band_calibration() -> dict[str, Any] | None:
         return None
 
 
+@lru_cache(maxsize=1)
+def _load_player_stat_calibration() -> dict[str, Any] | None:
+    """Load optional per-player stat bias calibration.
+
+    Expects a JSON artifact at data/processed/player_stat_calibration.json with shape:
+      {"players": {"<player_id>": {"pts": bias, "reb": bias, ...}}, "global": {...}}
+
+    If missing/invalid, returns None and SmartSim outputs remain unchanged.
+    """
+
+    p = paths.data_processed / "player_stat_calibration.json"
+    if not p.exists():
+        return None
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else None
+    except Exception:
+        return None
+
+
 def _apply_band_scale(q: Any, scale: float) -> Any:
     """Symmetrically widen [p10,p90] about p50 by `scale`.
 
@@ -113,7 +133,7 @@ def _read_hist_any(pq_path, csv_path) -> pd.DataFrame:
 
 @dataclass
 class SmartSimConfig:
-    n_sims: int = 300
+    n_sims: int = 2000
     seed: Optional[int] = None
     priors_days_back: int = 21
 
@@ -2091,12 +2111,21 @@ def simulate_smart_game(
     ) -> List[Dict[str, Any]]:
         minutes_by_name = minutes_by_name or {}
         out_rows: List[Dict[str, Any]] = []
+        cal = _load_player_stat_calibration()
+        cal_players: dict[str, Any] = {}
+        try:
+            if isinstance(cal, dict):
+                cal_players = cal.get("players") or {}
+        except Exception:
+            cal_players = {}
         for name, stats in store.items():
             row: Dict[str, Any] = {"player_name": name}
+            pid_key: str = ""
             try:
                 pid = name_to_id.get(name)
                 if pid is not None and str(pid) != "nan":
                     row["player_id"] = int(float(pid)) if str(pid).replace(".", "", 1).isdigit() else pid
+                    pid_key = _clean_id_str(row.get("player_id"))
             except Exception:
                 pass
 
@@ -2108,12 +2137,35 @@ def simulate_smart_game(
                 pass
             for stat in ("pts", "reb", "ast", "threes", "stl", "blk", "tov"):
                 arr = np.asarray(stats.get(stat) or [], dtype=float)
-                row[f"{stat}_mean"] = float(np.mean(arr)) if arr.size else float("nan")
+                mu = float(np.mean(arr)) if arr.size else float("nan")
+                # Optional: per-player bias correction from recent recon.
+                try:
+                    if pid_key:
+                        pb = (cal_players.get(str(pid_key)) or {}).get(stat)
+                    else:
+                        pb = None
+                    b = _finite_float_or_nan(pb)
+                    if np.isfinite(b):
+                        mu = float(mu + float(b))
+                except Exception:
+                    pass
+                row[f"{stat}_mean"] = float(mu)
                 row[f"{stat}_sd"] = float(np.std(arr)) if arr.size else float("nan")
                 row[f"{stat}_q"] = _quantiles(arr)
             # Derived props
             pra = np.asarray(stats.get("pts") or [], dtype=float) + np.asarray(stats.get("reb") or [], dtype=float) + np.asarray(stats.get("ast") or [], dtype=float)
-            row["pra_mean"] = float(np.mean(pra)) if pra.size else float("nan")
+            pra_mu = float(np.mean(pra)) if pra.size else float("nan")
+            try:
+                if pid_key:
+                    pb = (cal_players.get(str(pid_key)) or {}).get("pra")
+                else:
+                    pb = None
+                b = _finite_float_or_nan(pb)
+                if np.isfinite(b):
+                    pra_mu = float(pra_mu + float(b))
+            except Exception:
+                pass
+            row["pra_mean"] = float(pra_mu)
             row["pra_sd"] = float(np.std(pra)) if pra.size else float("nan")
             row["pra_q"] = _quantiles(pra)
 
