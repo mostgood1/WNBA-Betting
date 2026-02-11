@@ -883,6 +883,12 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
         ${renderSegmentTile('half', '1H', halfSimTotal, renderScopeCol('half', '1H interval', 24, '1H'))}
         ${renderSegmentTile('game', 'FULL GAME', gameSimTotal, renderScopeCol('game', 'Full game interval', 48, 'G'))}
       </div>
+
+      <details class="lens-player-details" style="margin-top:8px;">
+        <summary class="subtle cursor-pointer">Player live lens (sim vs line vs live)</summary>
+        <div class="subtle" style="margin-top:6px;">Uses pregame prop lines (from recommendations) and live ESPN boxscore totals.</div>
+        <div class="lens-player-body" style="margin-top:6px;"><div class="subtle">Live player lens not loaded.</div></div>
+      </details>
     </div>
   `;
 }
@@ -1951,6 +1957,176 @@ function parseClockToSecondsLeft(clock) {
   return Number.isFinite(v) ? Math.max(0, Math.round(v)) : null;
 }
 
+function normPlayerName(s) {
+  return String(s || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function clamp(x, lo, hi) {
+  const v = n(x);
+  if (v == null) return null;
+  return Math.max(lo, Math.min(hi, v));
+}
+
+function computeGameElapsedMinutes(period, secLeftPeriod, isFinal) {
+  try {
+    if (isFinal) return 48.0;
+    const p = (period != null && Number.isFinite(Number(period))) ? Number(period) : null;
+    const sec = (secLeftPeriod != null && Number.isFinite(Number(secLeftPeriod))) ? Number(secLeftPeriod) : null;
+    if (p == null || sec == null) return null;
+    if (p < 1) return null;
+    if (p > 4) return 48.0;
+    const elapsed = ((p - 1) * 12 * 60) + Math.max(0, (12 * 60 - sec));
+    return Math.max(0, Math.min(48.0, elapsed / 60.0));
+  } catch (_) {
+    return null;
+  }
+}
+
+function getPlayerActualForMarket(p, market) {
+  const mk = String(market || '').toLowerCase().trim();
+  const pts = n(p && p.pts);
+  const reb = n(p && p.reb);
+  const ast = n(p && p.ast);
+  const threes = n(p && (p.threes_made != null ? p.threes_made : p.threes));
+  if (mk === 'pts' || mk === 'points') return pts;
+  if (mk === 'reb' || mk === 'rebounds') return reb;
+  if (mk === 'ast' || mk === 'assists') return ast;
+  if (mk === 'threes' || mk === '3pm' || mk === '3pt' || mk === 'threes_made') return threes;
+  if (mk === 'pra') return (pts != null && reb != null && ast != null) ? (pts + reb + ast) : null;
+  if (mk === 'pa') return (pts != null && ast != null) ? (pts + ast) : null;
+  if (mk === 'pr') return (pts != null && reb != null) ? (pts + reb) : null;
+  if (mk === 'ra') return (reb != null && ast != null) ? (reb + ast) : null;
+  return null;
+}
+
+function renderPlayerLiveLens(meta, livePlayers, elapsedMin, isFinal) {
+  try {
+    const recs = meta && meta.prop_recommendations && typeof meta.prop_recommendations === 'object' ? meta.prop_recommendations : null;
+    const home = Array.isArray(recs && recs.home) ? recs.home : [];
+    const away = Array.isArray(recs && recs.away) ? recs.away : [];
+    const all = [...home.map((r) => ({ ...r, _side: 'home' })), ...away.map((r) => ({ ...r, _side: 'away' }))];
+
+    if (!all.length) {
+      return '<div class="subtle">No prop recommendations to render.</div>';
+    }
+
+    const playersArr = Array.isArray(livePlayers) ? livePlayers : [];
+    const byKey = new Map();
+    playersArr.forEach((p) => {
+      const nm = normPlayerName(p && p.player);
+      const tri = String(p && p.team_tri || '').toUpperCase().trim();
+      if (!nm) return;
+      const k = `${tri}|${nm}`;
+      byKey.set(k, p);
+      // Fallback: name-only (for occasional missing team tri)
+      if (!byKey.has(`|${nm}`)) byKey.set(`|${nm}`, p);
+    });
+
+    const picks = all.map((r) => {
+      const player = String(r && r.player || '').trim();
+      const b = (r && r.best && typeof r.best === 'object') ? r.best : null;
+      if (!player || !b) return null;
+      const market = String(b.market || '').toLowerCase().trim();
+      const side = String(b.side || '').toUpperCase().trim();
+      const line = n(b.line);
+      const simMu = n(b.sim_mu);
+      const pwin = n(b.p_win);
+      const evPct = n(b.ev_pct);
+      const teamTri = (r._side === 'home') ? meta.home : meta.away;
+      const lp = byKey.get(`${String(teamTri).toUpperCase().trim()}|${normPlayerName(player)}`) || byKey.get(`|${normPlayerName(player)}`) || null;
+      const mp = n(lp && lp.mp);
+      const actual = lp ? getPlayerActualForMarket(lp, market) : null;
+
+      let proj = simMu;
+      if (actual != null && mp != null && mp > 0) {
+        const em = (elapsedMin != null && elapsedMin > 0)
+          ? clamp((mp / elapsedMin) * 48.0, mp, 44.0)
+          : 36.0;
+        const paceProj = (actual / mp) * (em != null ? em : 36.0);
+        if (simMu != null) {
+          const w = Math.max(0, Math.min(1, mp / 18.0));
+          proj = ((1 - w) * simMu) + (w * paceProj);
+        } else {
+          proj = paceProj;
+        }
+      }
+
+      let edge = null;
+      if (line != null && proj != null) {
+        if (side === 'OVER') edge = proj - line;
+        else if (side === 'UNDER') edge = line - proj;
+      }
+
+      return { player, teamTri, market, side, line, simMu, pwin, evPct, mp, actual, proj, edge };
+    }).filter(Boolean);
+
+    const clean = picks
+      .filter((x) => x.market && ['pts', 'reb', 'ast', 'threes', 'pra', 'pa', 'pr', 'ra'].includes(x.market))
+      .filter((x) => x.line != null && (x.simMu != null || x.actual != null));
+
+    if (!clean.length) {
+      return '<div class="subtle">No supported prop markets available for live lens.</div>';
+    }
+
+    clean.sort((a, b) => Math.abs(n(b.edge) || 0) - Math.abs(n(a.edge) || 0));
+    const top = clean.slice(0, 12);
+
+    const rows = top.map((x) => {
+      const act = (x.actual == null) ? '—' : fmt(x.actual, 1);
+      const mu = (x.simMu == null) ? '—' : fmt(x.simMu, 1);
+      const pr = (x.proj == null) ? '—' : fmt(x.proj, 1);
+      const ed = (x.edge == null) ? '—' : fmt(x.edge, 1);
+      const mp = (x.mp == null) ? '—' : fmt(x.mp, 1);
+      const pw = (x.pwin == null) ? '—' : pct(x.pwin, 0);
+      const mk = marketLabel(x.market);
+      return `
+        <tr>
+          <td><span class="badge">${esc(x.teamTri)}</span> ${esc(x.player)}</td>
+          <td>${esc(mk)} ${esc(x.side)}</td>
+          <td class="num">${fmt(x.line, 1)}</td>
+          <td class="num">${esc(mu)}</td>
+          <td class="num">${esc(act)}</td>
+          <td class="num">${esc(pr)}</td>
+          <td class="num">${esc(ed)}</td>
+          <td class="num">${esc(mp)}</td>
+          <td class="num">${esc(pw)}</td>
+        </tr>
+      `;
+    }).join('');
+
+    const note = isFinal ? 'Final (actuals only).' : 'Proj blends sim μ with on-pace from minutes.';
+    return `
+      <div class="subtle">${esc(note)}</div>
+      <div class="table-wrap" style="margin-top:6px;">
+        <table class="data-table boxscore-table" style="font-size:12px;">
+          <thead>
+            <tr>
+              <th>Player</th>
+              <th>Pick</th>
+              <th class="num">Line</th>
+              <th class="num">Sim μ</th>
+              <th class="num">Act</th>
+              <th class="num">Proj</th>
+              <th class="num">Edge</th>
+              <th class="num">MP</th>
+              <th class="num">p</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${rows || '<tr><td colspan="9" class="subtle">No player rows.</td></tr>'}
+          </tbody>
+        </table>
+      </div>
+    `;
+  } catch (_) {
+    return '<div class="subtle">Player live lens unavailable.</div>';
+  }
+}
+
 function getTuningThresholds() {
   const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
   const mk = t && t.markets ? t.markets : null;
@@ -2076,6 +2252,7 @@ function startLiveLensPolling(root, games, dateStr) {
       home: String(g.home_tri || '').toUpperCase().trim(),
       away: String(g.away_tri || '').toUpperCase().trim(),
       intervals,
+      prop_recommendations: (g && g.prop_recommendations) ? g.prop_recommendations : null,
       margin_mean: marginMean,
       p_home_win: pHomeWin,
       pregame_total: pregameTotal,
@@ -2214,15 +2391,18 @@ function startLiveLensPolling(root, games, dateStr) {
     // Staged fetches (NCAAB-style): pbp stats + lines for in-progress games only
     let pbpMap = new Map();
     let linesMap = new Map();
+    let playersMap = new Map();
     if (detailEventIds.length) {
       try {
         const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
         const linesPromise = lineEventIds.length
           ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
           : Promise.resolve({ games: [] });
-        const settled = await Promise.allSettled([pbpPromise, linesPromise]);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_boxscore?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
+        const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
+        const players = (settled[2] && settled[2].status === 'fulfilled') ? settled[2].value : null;
 
         const pbpGames = Array.isArray(pbp?.games) ? pbp.games : [];
         pbpGames.forEach((gg) => {
@@ -2233,6 +2413,14 @@ function startLiveLensPolling(root, games, dateStr) {
         lineGames.forEach((gg) => {
           const eid = String(gg && gg.event_id != null ? gg.event_id : '').trim();
           if (eid) linesMap.set(eid, gg);
+        });
+
+        const playerGames = Array.isArray(players?.games) ? players.games : [];
+        playerGames.forEach((gg) => {
+          const eid = String(gg && gg.event_id != null ? gg.event_id : '').trim();
+          if (!eid) return;
+          const arr = Array.isArray(gg && gg.players) ? gg.players : [];
+          playersMap.set(eid, arr);
         });
       } catch (_) {
         // ignore multi-fetch failures; we still show basic state
@@ -2248,6 +2436,7 @@ function startLiveLensPolling(root, games, dateStr) {
       const eid = sbEventByGid.get(gid);
       const pbp = eid ? pbpMap.get(eid) : null;
       const ln = eid ? linesMap.get(eid) : null;
+      const livePlayers = eid ? playersMap.get(eid) : null;
 
       const isFinal = !!(s && s.final);
       const isInProgress = !!(s && s.in_progress);
@@ -2274,6 +2463,8 @@ function startLiveLensPolling(root, games, dateStr) {
           else halfMinLeft = 0.0;
         }
       }
+
+      const elapsedMin = computeGameElapsedMinutes(period, secLeftPeriod, isFinal);
 
       let lineTotal = n(ln && ln.lines ? ln.lines.total : null);
       let homeSpr = n(ln && ln.lines ? ln.lines.home_spread : null);
@@ -2360,6 +2551,16 @@ function startLiveLensPolling(root, games, dateStr) {
           // ignore
         }
         linesEl.textContent = pieces.length ? pieces.join(' · ') : 'Lines —';
+      }
+
+      // Player live lens (uses prop recs + ESPN live boxscore totals)
+      try {
+        const body = el.querySelector('.lens-player-body');
+        if (body) {
+          body.innerHTML = renderPlayerLiveLens(meta, livePlayers, elapsedMin, isFinal);
+        }
+      } catch (_) {
+        // ignore
       }
 
       // MARKET chips (NCAAB-style strip)

@@ -87,6 +87,7 @@ _live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_players_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
 try:
@@ -709,6 +710,161 @@ def _live_espn_actions_from_summary(summary: dict[str, Any]) -> list[dict[str, A
                 )
             except Exception:
                 continue
+
+        return out
+    except Exception:
+        return []
+
+
+def _live_extract_player_boxscore_from_espn_summary(summary: dict[str, Any]) -> list[dict[str, Any]]:
+    """Extract per-player boxscore totals from an ESPN /summary payload.
+
+    Returns a flat list of dicts with keys:
+      team_tri, player_id, player, mp, pts, reb, ast, stl, blk, tov, threes_made
+
+    This is best-effort and tolerant to ESPN schema changes.
+    """
+
+    def _to_num(x: Any) -> float | None:
+        try:
+            if x is None:
+                return None
+            s = str(x).strip()
+            if not s or s.lower() in {"nan", "none", "null", "dnp", "--"}:
+                return None
+            return float(s)
+        except Exception:
+            return None
+
+    def _to_int(x: Any) -> int | None:
+        try:
+            v = _to_num(x)
+            if v is None:
+                return None
+            return int(round(v))
+        except Exception:
+            return None
+
+    def _parse_made_attempts(x: Any) -> int | None:
+        try:
+            s = str(x or "").strip()
+            if not s:
+                return None
+            if "-" in s:
+                a = s.split("-", 1)[0].strip()
+                return int(float(a))
+            return int(float(s))
+        except Exception:
+            return None
+
+    def _parse_minutes(x: Any) -> float | None:
+        try:
+            s = str(x or "").strip()
+            if not s:
+                return None
+            if s.lower() in {"dnp", "--"}:
+                return 0.0
+            if ":" in s:
+                mm, ss = s.split(":", 1)
+                m = float(mm)
+                sec = float(ss)
+                return m + (sec / 60.0)
+            return float(s)
+        except Exception:
+            return None
+
+    out: list[dict[str, Any]] = []
+    try:
+        if not isinstance(summary, dict):
+            return []
+        box = summary.get("boxscore") if isinstance(summary.get("boxscore"), dict) else {}
+        teams = box.get("players") if isinstance(box, dict) else None
+        if not isinstance(teams, list) or not teams:
+            return []
+
+        for tb in teams:
+            if not isinstance(tb, dict):
+                continue
+            team = tb.get("team") if isinstance(tb.get("team"), dict) else {}
+            team_tri = _espn_to_tri(str(team.get("abbreviation") or team.get("shortDisplayName") or "").strip())
+            if not team_tri:
+                team_tri = str(team.get("abbreviation") or "").strip().upper() or None
+
+            stats_groups = tb.get("statistics")
+            if not isinstance(stats_groups, list):
+                continue
+
+            for sg in stats_groups:
+                if not isinstance(sg, dict):
+                    continue
+                labels = sg.get("labels")
+                if not isinstance(labels, list) or not labels:
+                    labels = sg.get("keys") if isinstance(sg.get("keys"), list) else []
+                labels_l = [str(x or "").strip().lower() for x in (labels or [])]
+                athletes = sg.get("athletes")
+                if not isinstance(athletes, list) or not athletes:
+                    continue
+
+                for a in athletes:
+                    if not isinstance(a, dict):
+                        continue
+                    ath = a.get("athlete") if isinstance(a.get("athlete"), dict) else {}
+                    player_id = str(ath.get("id") or "").strip() or None
+                    player = str(ath.get("displayName") or ath.get("shortName") or a.get("name") or "").strip()
+                    if not player:
+                        continue
+
+                    vals = a.get("stats") if isinstance(a.get("stats"), list) else []
+                    m: dict[str, Any] = {}
+                    for i, lab in enumerate(labels_l):
+                        try:
+                            if i < len(vals) and lab:
+                                m[lab] = vals[i]
+                        except Exception:
+                            continue
+
+                    mp = _parse_minutes(m.get("min") or m.get("minutes") or m.get("mp") or m.get("time"))
+                    if mp is None:
+                        mp = 0.0
+
+                    pts = _to_int(m.get("pts") or m.get("points"))
+                    reb = _to_int(m.get("reb") or m.get("rebs") or m.get("totreb"))
+                    ast = _to_int(m.get("ast") or m.get("assists"))
+                    stl = _to_int(m.get("stl") or m.get("steals"))
+                    blk = _to_int(m.get("blk") or m.get("blocks"))
+                    tov = _to_int(m.get("to") or m.get("tov") or m.get("turnovers"))
+
+                    threes = _parse_made_attempts(m.get("3pt") or m.get("3pm") or m.get("3p"))
+                    if threes is None:
+                        try:
+                            for k, v in m.items():
+                                kk = str(k or "").lower()
+                                if "3" in kk and "pt" in kk:
+                                    threes = _parse_made_attempts(v)
+                                    if threes is not None:
+                                        break
+                        except Exception:
+                            threes = None
+
+                    nonzero = any((x or 0) > 0 for x in [pts or 0, reb or 0, ast or 0, stl or 0, blk or 0, tov or 0, threes or 0])
+                    if mp <= 0.0 and not nonzero:
+                        continue
+
+                    out.append(
+                        {
+                            "team_tri": str(team_tri).upper().strip() if team_tri else None,
+                            "player_id": player_id,
+                            "player": player,
+                            "mp": float(mp),
+                            "pts": pts,
+                            "reb": reb,
+                            "ast": ast,
+                            "stl": stl,
+                            "blk": blk,
+                            "tov": tov,
+                            "threes_made": threes,
+                        }
+                    )
 
         return out
     except Exception:
@@ -1529,6 +1685,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lines",
             "/api/live_lens_tuning",
             "/api/live_lens_signal",
+            "/api/live_player_boxscore",
         }
         if p in allowed_api:
             return None
@@ -17156,6 +17313,51 @@ def api_live_pbp_stats():
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
     _live_pbp_multi_cache[cache_key] = (now, payload)
+    return jsonify(payload)
+
+
+@app.route("/api/live_player_boxscore")
+def api_live_player_boxscore():
+    """Live per-player boxscore totals for multiple ESPN event ids.
+
+    Query params:
+      - event_ids: comma-separated ESPN event ids (required)
+      - ttl: seconds (optional)
+
+    Uses ESPN's public summary endpoint and returns best-effort player totals.
+    """
+    ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    event_ids_raw = (request.args.get("event_ids") or "").strip()
+    if not event_ids_raw:
+        return jsonify({"error": "missing event_ids"}), 400
+    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+    if not event_ids:
+        return jsonify({"error": "missing event_ids"}), 400
+
+    now = time.time()
+    cache_key = f"{ttl}:" + ",".join(event_ids)
+    ent = _live_players_multi_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    out: list[dict[str, Any]] = []
+    for eid in event_ids:
+        players: list[dict[str, Any]] = []
+        try:
+            summ = _live_fetch_espn_summary(str(eid))
+            players = _live_extract_player_boxscore_from_espn_summary(summ) if summ else []
+        except Exception:
+            players = []
+
+        out.append({"event_id": str(eid), "players": players})
+
+    payload = {
+        "ok": True,
+        "ttl": ttl,
+        "games": out,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_players_multi_cache[cache_key] = (now, payload)
     return jsonify(payload)
 
 
