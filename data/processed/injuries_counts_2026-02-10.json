@@ -5,11 +5,17 @@
     "HOU": 2,
     "IND": 4,
     "LAC": 4,
+    "LAL": 3,
     "NYK": 2,
     "PHX": 4,
     "SAS": 2
   },
   "players": [
+    {
+      "player": "LeBron James",
+      "team": "LAL",
+      "status": "OUT"
+    },
     {
       "player": "Kyrie Irving",
       "team": "DAL",
@@ -23,6 +29,11 @@
     {
       "player": "Steven Adams",
       "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Marcus Smart",
+      "team": "LAL",
       "status": "OUT"
     },
     {
@@ -96,6 +107,11 @@
       "status": "OUT"
     },
     {
+      "player": "Austin Reaves",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
       "player": "Bennedict Mathurin",
       "team": "LAC",
       "status": "OUT"
@@ -117,6 +133,11 @@
     }
   ],
   "team_key_outs": {
+    "LAL": [
+      "LeBron James",
+      "Austin Reaves",
+      "Marcus Smart"
+    ],
     "DAL": [
       "Brandon Williams",
       "Kyrie Irving",
@@ -156,6 +177,7 @@
     ]
   },
   "team_impact": {
+    "LAL": 93.18125,
     "DAL": 25.79,
     "LAC": 28.95,
     "HOU": 19.2,
