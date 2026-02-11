@@ -1,16 +1,10 @@
 name: NBA Betting Daily Scheduler
 
 on:
-  schedule:
-    # Reconcile yesterday's slate at 10:00 UTC
-    - cron: '0 10 * * *'
-    # Composite daily run-all at 11:00 UTC
-    - cron: '0 11 * * *'
-  workflow_dispatch:
+  workflow_dispatch: {}
 
 jobs:
   reconcile-yesterday:
-    if: ${{ github.event.schedule == '0 10 * * *' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Call reconcile-games (yesterday)
@@ -23,7 +17,6 @@ jobs:
           curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/reconcile-games?date=${DATE}"
 
   daily-run-all:
-    if: ${{ github.event.schedule == '0 11 * * *' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Call run-all (push artifacts)
@@ -40,31 +33,3 @@ jobs:
           set -e
           # Hitting summary once populates recommendations_summary.json on the server
           curl -fsS "${RENDER_URL}/recommendations?format=json&view=summary" -o /dev/null
-name: "NBA Betting: Refresh Odds"
-
-on:
-  workflow_dispatch: {}
-  # Temporarily disable all scheduled runs to keep Render and local behavior identical
-  # schedule:
-  #   - cron: '*/15 15-23 * * *'
-
-jobs:
-  refresh-odds:
-    runs-on: ubuntu-latest
-    env:
-      BASE_URL: ${{ secrets.NBA_BETTING_BASE_URL }}
-      CRON_TOKEN: ${{ secrets.NBA_BETTING_CRON_TOKEN }}
-    steps:
-      - name: Validate config
-        run: |
-          test -n "$BASE_URL" || (echo 'Missing secret NBA_BETTING_BASE_URL' && exit 1)
-          test -n "$CRON_TOKEN" || (echo 'Missing secret NBA_BETTING_CRON_TOKEN' && exit 1)
-
-      - name: Health check
-        run: |
-          curl -fsS "$BASE_URL/health" || (echo 'Health check failed' && exit 1)
-
-      - name: Refresh odds (today)
-        run: |
-          T=$(date -u +%F)
-          curl -fsS -X POST "$BASE_URL/api/cron/refresh-bovada?date=$T" -H "Authorization: Bearer $CRON_TOKEN"

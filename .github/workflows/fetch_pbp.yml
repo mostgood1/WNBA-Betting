@@ -9,8 +9,7 @@ on:
       end_date:
         description: "End date (YYYY-MM-DD)"
         required: true
-  schedule:
-    - cron: "15 6 * * *"  # daily at 06:15 UTC
+
 
 jobs:
   fetch-pbp:
