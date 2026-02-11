@@ -127,8 +127,24 @@
       }catch(_){ return ''; }
     }
     function localYMD(){
-      try{ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(new Date()); }
-      catch(_){ const d=new Date(); return d.toISOString().slice(0,10); }
+      const tz = 'America/New_York';
+      const cutoffHour = 6; // Treat 12:00am–5:59am ET as the prior NBA slate day.
+      try{
+        const now = new Date();
+        const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
+        const hour = Number(hourStr);
+        const base = (Number.isFinite(hour) && hour < cutoffHour)
+          ? new Date(now.getTime() - 24*60*60*1000)
+          : now;
+        return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(base);
+      }catch(_){
+        const d=new Date();
+        const base = (d.getHours() < cutoffHour) ? new Date(d.getTime() - 24*60*60*1000) : d;
+        const y=base.getFullYear();
+        const m=String(base.getMonth()+1).padStart(2,'0');
+        const day=String(base.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
     }
     function qs(name){ try{ return new URL(window.location).searchParams.get(name); }catch(_){ return null; } }
 

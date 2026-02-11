@@ -1021,18 +1021,27 @@ function fmtLocalDate(iso){
 // Return local calendar date as YYYY-MM-DD (user timezone), avoiding UTC-based day rollover
 function localYMD(d){
   try{
-    const dt = d instanceof Date ? d : new Date();
+    const tz = 'America/New_York';
+    const cutoffHour = 6; // Treat 12:00am–5:59am ET as the prior NBA slate day.
+    const now = d instanceof Date ? d : new Date();
+    const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
+    const hour = Number(hourStr);
+    const base = (Number.isFinite(hour) && hour < cutoffHour)
+      ? new Date(now.getTime() - 24*60*60*1000)
+      : now;
     // Compute calendar date in US/Eastern
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(dt);
+    return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(base);
   }catch(_){
     try{
+      const cutoffHour = 6;
       const dt = d instanceof Date ? d : new Date();
-      const y = dt.getFullYear();
-      const m = String(dt.getMonth()+1).padStart(2,'0');
-      const day = String(dt.getDate()).padStart(2,'0');
+      const base = (dt.getHours() < cutoffHour) ? new Date(dt.getTime() - 24*60*60*1000) : dt;
+      const y = base.getFullYear();
+      const m = String(base.getMonth()+1).padStart(2,'0');
+      const day = String(base.getDate()).padStart(2,'0');
       return `${y}-${m}-${day}`;
     }catch(__){
-      return new Date().toISOString().slice(0,10);
+      return '';
     }
   }
 }

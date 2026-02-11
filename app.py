@@ -4973,11 +4973,15 @@ def _parse_date_param(req, default_to_today: bool = True) -> str:
         try:
             import os
             from datetime import datetime as _dt, timedelta as _td
+            cutoff_hour = 6  # Treat 12:00am–5:59am local as the prior NBA slate day.
             # Prefer explicit US timezone over system local time
             tz_name = (os.environ.get("APP_TZ") or "America/New_York").strip()
             try:
                 from zoneinfo import ZoneInfo  # Python 3.9+
-                dval = _dt.now(ZoneInfo(tz_name)).date().isoformat()
+                now_local = _dt.now(ZoneInfo(tz_name))
+                if now_local.hour < cutoff_hour:
+                    now_local = now_local - _td(days=1)
+                dval = now_local.date().isoformat()
                 try:
                     print(f"[_parse_date_param] tz={tz_name} via zoneinfo -> {dval}")
                 except Exception:
@@ -5002,7 +5006,10 @@ def _parse_date_param(req, default_to_today: bool = True) -> str:
                         off = int((os.environ.get("APP_TZ_OFFSET_HOURS") or "-5").strip())
                     except Exception:
                         off = -5
-                dval = (_dt.utcnow() + _td(hours=off)).date().isoformat()
+                now_local = (_dt.utcnow() + _td(hours=off))
+                if now_local.hour < cutoff_hour:
+                    now_local = now_local - _td(days=1)
+                dval = now_local.date().isoformat()
                 try:
                     print(f"[_parse_date_param] tz={tz_name} via offset {off} -> {dval}")
                 except Exception:
