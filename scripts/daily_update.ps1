@@ -1155,6 +1155,19 @@ try {
 $SmartSimWorkers = $env:DAILY_SMARTSIM_WORKERS
 if ($null -eq $SmartSimWorkers -or $SmartSimWorkers -eq '') { $SmartSimWorkers = $env:SMARTSIM_WORKERS }
 
+# Default SmartSim parallelism: if not explicitly configured, use a safe CPU-based default.
+# This affects both predict-props SmartSim and the standalone smart-sim-date step.
+try {
+  if ($null -eq $SmartSimWorkers -or $SmartSimWorkers -eq '') {
+    $cpu = [Environment]::ProcessorCount
+    # Leave at 1 for very small machines; otherwise use (cpu-1) capped at 6.
+    $auto = 1
+    if ($cpu -ge 4) { $auto = [Math]::Min(6, [Math]::Max(2, $cpu - 1)) }
+    $SmartSimWorkers = [string]$auto
+    Write-Log ("SmartSim workers defaulted to {0} (set DAILY_SMARTSIM_WORKERS or SMARTSIM_WORKERS to override)" -f $SmartSimWorkers)
+  }
+} catch {}
+
 $ppArgs = @(
   '-m','nba_betting.cli','predict-props',
   '--date', $Date,
@@ -1793,8 +1806,7 @@ try {
     $existingSmart = @(Get-ChildItem (Join-Path $RepoRoot ("data/processed/smart_sim_{0}_*.json" -f $Date)) -ErrorAction SilentlyContinue)
     if (($forceSmart -notmatch '^(1|true|yes)$') -and ($existingSmart.Count -gt 0)) {
       Write-Log ("Skipping smart-sim-date (found {0} existing smart_sim artifacts; set DAILY_FORCE_SMARTSIM_DATE=1 to rerun)" -f $existingSmart.Count)
-      return
-    }
+    } else {
 
     # Generate team advanced stats priors (pace/ratings) as-of today to avoid any future leakage.
     try {
@@ -1813,11 +1825,21 @@ try {
     $doOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
     if ($null -eq $doOverwrite -or $doOverwrite -eq '') { $doOverwrite = '0' }
     $plist = @('-m','nba_betting.cli','smart-sim-date','--date', $Date, '--n-sims', $nSmart)
+
+    # Optional: parallelize per-game SmartSim jobs (matches predict-props SmartSim workers behavior)
+    try {
+      if ($null -ne $SmartSimWorkers -and $SmartSimWorkers -match '^\d+$' -and [int]$SmartSimWorkers -gt 1) {
+        Write-Log ("Using SmartSim parallel workers for smart-sim-date: {0}" -f $SmartSimWorkers)
+        $plist += @('--workers', $SmartSimWorkers)
+      }
+    } catch {}
+
     if ($doOverwrite -match '^(1|true|yes)$') { $plist += @('--overwrite') }
     if ($null -ne $maxSmart -and $maxSmart -ne '') { $plist += @('--max-games', $maxSmart) }
     Write-Log ("Running SmartSim slate for {0} (n_sims={1})" -f $Date, $nSmart)
     $rcSmart = Invoke-PyMod -plist $plist
     Write-Log ("smart-sim-date exit code: {0}" -f $rcSmart)
+    }
   } else {
     Write-Log 'Skipping smart-sim-date (DAILY_SKIP_SMARTSIM=1)'
   }
