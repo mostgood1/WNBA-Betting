@@ -16582,6 +16582,9 @@ def _espn_to_tri(abbr: str) -> str:
         'BRK': 'BKN',
         'BK': 'BKN',
         'PHO': 'PHX',
+        # ESPN sometimes uses legacy/short abbreviations that don't match NBA tricodes
+        'SA': 'SAS',
+        'WSH': 'WAS',
         'UTAH': 'UTA',
     }
     return fix.get(s, s)
