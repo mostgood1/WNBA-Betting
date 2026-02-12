@@ -1,0 +1,4 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-02-12,2026-02-13T00:40:00Z,Oklahoma City Thunder,Milwaukee Bucks,-508.08134313357345,508.08134313357334,-13.0,13.0,,-120,214.5,102.7032424965686,-102.7032424965686,11,11,9,9,oddsapi_consensus
+2026-02-12,2026-02-13T02:10:00Z,Utah Jazz,Portland Trail Blazers,236.94580101119115,-236.9458010111912,7.5,-7.5,-110.0,-110,239.0,100.44243901903558,-100.44243901903553,10,10,10,6,oddsapi_consensus
+2026-02-12,2026-02-13T03:10:00Z,Los Angeles Lakers,Dallas Mavericks,-262.1470315905037,262.14703159050373,-7.5,7.5,-110.0,-110,236.5,101.32642933099626,-101.32642933099622,11,11,8,7,oddsapi_consensus

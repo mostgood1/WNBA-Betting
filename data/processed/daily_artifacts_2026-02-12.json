@@ -1,0 +1,28 @@
+{
+  "date": "2026-02-12",
+  "yesterday": "2026-02-11",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 3,
+  "smart_sim_count": 3,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 13,
+  "rotations_have_games_yesterday": 13,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 1.0,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [
+    "0022500785"
+  ],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "warnings": [
+    "minutes_sanity: team MIL has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: 4 players have <8 min but >=10 pred_pts (sample: Nick Smith Jr.(LAL), Dalton Knecht(LAL), Bronny James(LAL), Andre Jackson Jr.(MIL))"
+  ],
+  "missing": [],
+  "ok": true
+}
