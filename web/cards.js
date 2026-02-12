@@ -3558,8 +3558,19 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       const ev = n(x.ev);
       const evCls = ev == null ? 'neu' : (ev >= 0.02 ? 'pos' : (ev <= -0.02 ? 'neg' : 'neu'));
       const out = showResults && recon ? betOutcome(x.label, odds, actualHome, actualAway) : null;
-      const outBadge = out ? ` • ${badgeForOutcome(out)}` : '';
-      return `<span class="chip model-pick neutral">${esc(x.label)} • p=${pct(x.p, 0)} • EV <span class="ev-badge ${evCls}">${ev == null ? '—' : ev.toFixed(3)}</span>${outBadge}</span>`;
+      const outBadge = out ? ` ${badgeForOutcome(out)}` : '';
+
+      let lbl = String(x.label || '').trim();
+      if (lbl === 'ML Home') lbl = 'ML H';
+      else if (lbl === 'ML Away') lbl = 'ML A';
+      else if (lbl === 'Spread Home') lbl = 'Spr H';
+      else if (lbl === 'Spread Away') lbl = 'Spr A';
+      else if (lbl === 'Total Over') lbl = 'Tot O';
+      else if (lbl === 'Total Under') lbl = 'Tot U';
+
+      const pTxt = pct(x.p, 0);
+      const evTxt = (ev == null) ? '—' : ev.toFixed(3);
+      return `<span class="chip model-pick neutral">${esc(lbl)} p${pTxt} EV <span class="ev-badge ${evCls}">${evTxt}</span>${outBadge}</span>`;
     }).join('');
 
     const warnLines = [];
@@ -3664,8 +3675,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           <div class="market-tile market-tile-model">
             <div class="market-title">Model probabilities</div>
             <div class="model-strip">
-              <div class="kv"><span class="k">P(Home win)</span><span class="v">${pct(bet.p_home_win, 1)}</span></div>
-              <div class="kv"><span class="k">P(Home cover)</span><span class="v">${pct(bet.p_home_cover, 1)}</span></div>
+              <div class="kv"><span class="k">P(HomeWin)</span><span class="v">${pct(bet.p_home_win, 1)}</span></div>
+              <div class="kv"><span class="k">P(HomeCover)</span><span class="v">${pct(bet.p_home_cover, 1)}</span></div>
               <div class="kv"><span class="k">P(Over)</span><span class="v">${pct(bet.p_total_over, 1)}</span></div>
               <div class="kv"><span class="k">Sims</span><span class="v">${esc(sim.n_sims ?? '—')}</span></div>
             </div>

@@ -217,8 +217,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	display: flex;
 	flex-wrap: nowrap;
 	gap: 6px;
-	overflow-x: auto;
-	padding-bottom: 2px;
+	overflow: hidden;
 }
 
 .market-tile-bets .chip {
@@ -330,7 +329,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .writeup-recap { color: #e8eaf6; font-size: 13px; line-height: 1.35; }
 
 @media (max-width: 1000px) {
-	.model-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); overflow-x: auto; }
+	.model-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.market-grid { grid-template-columns: 1fr; }
 	.market-grid.market-grid-top {
 		grid-template-columns: 1fr;
