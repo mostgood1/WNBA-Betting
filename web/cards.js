@@ -690,7 +690,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
           <span class="chip neutral lens-phase">Live: —</span>
         </div>
 
-        <div class="lens-inputs">
+        <div class="lens-inputs lens-inputs-3">
           <div class="lens-input">
             <span class="k">Min remaining</span>
             <span class="v"><select class="lens-min">${renderMinRemainingOptions(12)}</select></span>
@@ -699,26 +699,19 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
             <span class="k">Total pts</span>
             <span class="v"><input class="lens-total" type="number" placeholder="—"></span>
           </div>
-        </div>
-
-        <div class="lens-inputs lens-inputs-single">
           <div class="lens-input">
             <span class="k">Live total</span>
             <span class="v"><input class="lens-live" type="number" placeholder="optional"></span>
           </div>
         </div>
 
-        <div class="row chips lens-out">
+        <div class="row chips lens-out lens-out-compact">
           <span class="chip neutral">Sim q50 @ time: <span class="fw-700 lens-sim-at">—</span></span>
           <span class="chip neutral">Δ (Sim–Act): <span class="fw-700 lens-delta">—</span></span>
           <span class="chip neutral">Pace final: <span class="fw-700 lens-pace">—</span></span>
           <span class="chip neutral">Sim q50 final: <span class="fw-700 lens-sim-final">—</span></span>
-        </div>
-        <div class="row chips lens-out" style="margin-top:6px;">
           <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
           <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
-        </div>
-        <div class="row chips lens-out" style="margin-top:6px;">
           <span class="chip neutral lens-scope-attempts">—</span>
         </div>
 
@@ -747,7 +740,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
           <span class="chip neutral lens-phase">Live: —</span>
         </div>
 
-        <div class="lens-inputs">
+        <div class="lens-inputs lens-inputs-3">
           <div class="lens-input">
             <span class="k">Min remaining</span>
             <span class="v"><select class="lens-min">${renderMinRemainingOptions(totalMinutes)}</select></span>
@@ -756,26 +749,19 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
             <span class="k">Total pts</span>
             <span class="v"><input class="lens-total" type="number" placeholder="—"></span>
           </div>
-        </div>
-
-        <div class="lens-inputs lens-inputs-single">
           <div class="lens-input">
             <span class="k">${esc(liveLineLabel)}</span>
             <span class="v"><input class="lens-live" type="number" placeholder="optional"></span>
           </div>
         </div>
 
-        <div class="row chips lens-out">
+        <div class="row chips lens-out lens-out-compact">
           <span class="chip neutral">${esc(atLabel)}: <span class="fw-700 lens-sim-at">—</span></span>
           <span class="chip neutral">Δ (Sim–Act): <span class="fw-700 lens-delta">—</span></span>
           <span class="chip neutral">${esc(paceLabel)}: <span class="fw-700 lens-pace">—</span></span>
           <span class="chip neutral">${esc(simFinalLabel)}: <span class="fw-700 lens-sim-final">—</span></span>
-        </div>
-        <div class="row chips lens-out" style="margin-top:6px;">
           <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
           <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
-        </div>
-        <div class="row chips lens-out" style="margin-top:6px;">
           <span class="chip neutral lens-scope-attempts">—</span>
         </div>
       </div>
@@ -894,8 +880,8 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
 
       <div class="lens-columns" style="margin-top:8px;">
         ${renderSegmentTile('q1', '1Q', q1SimTotal, renderQuarterCol(1))}
-        ${renderSegmentTile('q3', '3Q', q3SimTotal, renderQuarterCol(3))}
         ${renderSegmentTile('half', '1H', halfSimTotal, renderScopeCol('half', '1H interval', 24, '1H'))}
+        ${renderSegmentTile('q3', '3Q', q3SimTotal, renderQuarterCol(3))}
         ${renderSegmentTile('game', 'FULL GAME', gameSimTotal, renderScopeCol('game', 'Full game interval', 48, 'G'))}
       </div>
 
