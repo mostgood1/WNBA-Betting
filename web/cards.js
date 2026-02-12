@@ -712,7 +712,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
           <span class="chip neutral">Sim q50 final: <span class="fw-700 lens-sim-final">—</span></span>
           <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
           <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
-          <span class="chip neutral lens-scope-attempts">—</span>
+          <span class="chip neutral">Attempts: <span class="fw-700 lens-scope-attempts">—</span></span>
         </div>
 
         <details class="lens-details" style="margin-top:6px;">
@@ -762,7 +762,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
           <span class="chip neutral">${esc(simFinalLabel)}: <span class="fw-700 lens-sim-final">—</span></span>
           <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
           <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
-          <span class="chip neutral lens-scope-attempts">—</span>
+          <span class="chip neutral">Attempts: <span class="fw-700 lens-scope-attempts">—</span></span>
         </div>
       </div>
     `;
@@ -859,14 +859,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
     <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" data-player-only-lines="1" ${dAttrs.join(' ')}>
       <div class="lens-top">
         <div class="market-title">LIVE LENS</div>
-        <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
-        <div class="subtle lens-rec-row">
-          <span class="lens-rec-total">Total: —</span> ·
-          <span class="lens-rec-ats">ATS: —</span> ·
-          <span class="lens-rec-ml">ML: —</span> ·
-          <span class="lens-rec-half">1H: —</span> ·
-          <span class="lens-rec-qtr">Q: —</span>
-        </div>
+        <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · Updated <span class="lens-live-updated">—</span></div>
       </div>
 
       <div class="row chips lens-market-row" style="margin-top:4px;">
@@ -1012,6 +1005,18 @@ function attachLiveLensHandlers(root, games) {
     return null;
   }
 
+  function impliedScoreFromTotalAndHomeSpread(total, homeSpr) {
+    const t = n(total);
+    const hs = n(homeSpr);
+    if (t == null || hs == null) return null;
+    // Convention: homeSpr is HOME ATS spread (e.g. HOME -13.0 => hs=-13).
+    // Solve: H + A = total; H - A = -homeSpr.
+    const homeImp = (t - hs) / 2.0;
+    const awayImp = (t + hs) / 2.0;
+    if (!Number.isFinite(homeImp) || !Number.isFinite(awayImp)) return null;
+    return { home: homeImp, away: awayImp };
+  }
+
   function _periodNum(x) {
     // Normalize to numeric or null.
     const v = n(x);
@@ -1029,6 +1034,7 @@ function attachLiveLensHandlers(root, games) {
     const lineWinner = sumEl.querySelector('.lens-sum-line-winner');
     const lineAts = sumEl.querySelector('.lens-sum-line-ats');
     const lineTotEl = sumEl.querySelector('.lens-sum-line-total');
+    const lineScore = sumEl.querySelector('.lens-sum-line-score');
 
     const sh = _periodNum(p.home_mean);
     const sa = _periodNum(p.away_mean);
@@ -1062,6 +1068,10 @@ function attachLiveLensHandlers(root, games) {
     }
     if (lineAts) {
       if (homeSpr != null) lineAts.textContent = `${meta.home} ${fmt(homeSpr, 1)}`;
+    }
+    if (lineScore) {
+      const imp = impliedScoreFromTotalAndHomeSpread(lineTotal, homeSpr);
+      if (imp) lineScore.textContent = `${fmt(imp.away, 1)}–${fmt(imp.home, 1)}`;
     }
     if (lineWinner) {
       // No period ML; infer favorite from spread sign.
@@ -1199,6 +1209,7 @@ function attachLiveLensHandlers(root, games) {
           const lineWinner = sumGame.querySelector('.lens-sum-line-winner');
           const lineAts = sumGame.querySelector('.lens-sum-line-ats');
           const lineTotEl = sumGame.querySelector('.lens-sum-line-total');
+          const lineScore = sumGame.querySelector('.lens-sum-line-score');
 
           const sh = n(meta.sim_home_mean);
           const sa = n(meta.sim_away_mean);
@@ -1229,6 +1240,10 @@ function attachLiveLensHandlers(root, games) {
           }
           if (lineAts) {
             if (homeSpr != null) lineAts.textContent = `${meta.home} ${fmt(homeSpr, 1)}`;
+          }
+          if (lineScore) {
+            const imp = impliedScoreFromTotalAndHomeSpread(lineTotal, homeSpr);
+            if (imp) lineScore.textContent = `${fmt(imp.away, 1)}–${fmt(imp.home, 1)}`;
           }
           if (lineWinner) {
             let w = null;
@@ -2446,6 +2461,7 @@ function startLiveLensPolling(root, games, dateStr) {
       if (lineTotal != null && Math.abs(lineTotal) < 0.001) lineTotal = null;
       if (homeSpr != null && Math.abs(homeSpr) < 0.001 && lineTotal == null) homeSpr = null;
       const periodTotals = (ln && ln.lines && ln.lines.period_totals) ? ln.lines.period_totals : null;
+      const periodSpreads = (ln && ln.lines && ln.lines.period_spreads) ? ln.lines.period_spreads : null;
 
       // Fall back to pregame betting lines when live lines are missing.
       const effLineTotal = (lineTotal != null) ? lineTotal : n(meta && meta.pregame_total);
@@ -2612,6 +2628,22 @@ function startLiveLensPolling(root, games, dateStr) {
           if (v != null) lineTot.textContent = fmt(v, 1);
         }
 
+        function setLineAts(sumEl, spr) {
+          if (!sumEl) return;
+          const lineAts = sumEl.querySelector('.lens-sum-line-ats');
+          if (!lineAts) return;
+          const v = n(spr);
+          lineAts.textContent = (v != null) ? `${meta.home} ${fmt(v, 1)}` : '—';
+        }
+
+        function setLineScore(sumEl, tot, spr) {
+          if (!sumEl) return;
+          const lineScore = sumEl.querySelector('.lens-sum-line-score');
+          if (!lineScore) return;
+          const imp = impliedScoreFromTotalAndHomeSpread(tot, spr);
+          lineScore.textContent = imp ? `${fmt(imp.away, 1)}–${fmt(imp.home, 1)}` : '—';
+        }
+
         function setLiveTot(sumEl, tot) {
           if (!sumEl) return;
           const liveTot = sumEl.querySelector('.lens-sum-live-total');
@@ -2631,6 +2663,10 @@ function startLiveLensPolling(root, games, dateStr) {
             const q1LineRaw = periodTotals && periodTotals.q1 != null ? n(periodTotals.q1) : null;
             const q1Line = (q1LineRaw != null && Math.abs(q1LineRaw) < 0.001) ? null : q1LineRaw;
             setLineTot(sumQ1, q1Line);
+            const q1SprRaw = periodSpreads && periodSpreads.q1 != null ? n(periodSpreads.q1) : null;
+            const q1Spr = (q1SprRaw != null && Math.abs(q1SprRaw) < 0.001 && q1Line == null) ? null : q1SprRaw;
+            setLineAts(sumQ1, q1Spr);
+            setLineScore(sumQ1, q1Line, q1Spr);
           } catch (_) {
             // keep prefilled value
           }
@@ -2643,6 +2679,10 @@ function startLiveLensPolling(root, games, dateStr) {
             const q3LineRaw = periodTotals && periodTotals.q3 != null ? n(periodTotals.q3) : null;
             const q3Line = (q3LineRaw != null && Math.abs(q3LineRaw) < 0.001) ? null : q3LineRaw;
             setLineTot(sumQ3, q3Line);
+            const q3SprRaw = periodSpreads && periodSpreads.q3 != null ? n(periodSpreads.q3) : null;
+            const q3Spr = (q3SprRaw != null && Math.abs(q3SprRaw) < 0.001 && q3Line == null) ? null : q3SprRaw;
+            setLineAts(sumQ3, q3Spr);
+            setLineScore(sumQ3, q3Line, q3Spr);
           } catch (_) {
             // keep prefilled value
           }
@@ -2662,6 +2702,15 @@ function startLiveLensPolling(root, games, dateStr) {
               h1Line = null;
             }
             if (h1Line != null) lineTot.textContent = fmt(h1Line, 1);
+
+            try {
+              const h1SprRaw = periodSpreads && periodSpreads.h1 != null ? n(periodSpreads.h1) : null;
+              const h1Spr = (h1SprRaw != null && Math.abs(h1SprRaw) < 0.001 && h1Line == null) ? null : h1SprRaw;
+              setLineAts(sumHalf, h1Spr);
+              setLineScore(sumHalf, h1Line, h1Spr);
+            } catch (_) {
+              // ignore
+            }
           }
           if (liveScore) liveScore.textContent = scoreText || '—';
           setLiveTot(sumHalf, h1LiveTot);
@@ -2670,10 +2719,14 @@ function startLiveLensPolling(root, games, dateStr) {
         if (sumGame) {
           const lineAts = sumGame.querySelector('.lens-sum-line-ats');
           const lineTot = sumGame.querySelector('.lens-sum-line-total');
+          const lineScore = sumGame.querySelector('.lens-sum-line-score');
           const liveScore = sumGame.querySelector('.lens-sum-live-score');
-          if (lineAts) lineAts.textContent = (homeSpr != null) ? `${meta.home} ${fmt(homeSpr, 1)}` : '—';
           if (lineAts) lineAts.textContent = (effHomeSpr != null) ? `${meta.home} ${fmt(effHomeSpr, 1)}` : '—';
           if (lineTot) lineTot.textContent = (effLineTotal != null) ? fmt(effLineTotal, 1) : '—';
+          if (lineScore) {
+            const imp = impliedScoreFromTotalAndHomeSpread(effLineTotal, effHomeSpr);
+            lineScore.textContent = imp ? `${fmt(imp.away, 1)}–${fmt(imp.home, 1)}` : '—';
+          }
           if (liveScore) liveScore.textContent = scoreText || '—';
         }
       } catch (_) {
@@ -2718,9 +2771,9 @@ function startLiveLensPolling(root, games, dateStr) {
         const gameAttempts = (live && live.pbp_attempts) ? live.pbp_attempts : null;
         const gamePoss = (live && live.pbp_possessions) ? live.pbp_possessions : null;
         const txt = _fmtAttemptsPair(gameAttempts);
-        if (attemptsEl) attemptsEl.textContent = txt ? `${txt}${_fmtPossPair(gamePoss)}` : '—';
+        if (attemptsEl) attemptsEl.textContent = txt ? `Attempts: ${txt}${_fmtPossPair(gamePoss)}` : 'Attempts: —';
       } catch (_) {
-        if (attemptsEl) attemptsEl.textContent = '—';
+        if (attemptsEl) attemptsEl.textContent = 'Attempts: —';
       }
 
       // Per-scope attempts/possessions (period-exclusive) + freeze once the period completes.
