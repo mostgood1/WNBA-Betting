@@ -212,6 +212,45 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
 .market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
 
+/* Top tiles: keep content to a single line (avoid wasted vertical space) */
+.market-tile-bets .market-main {
+	display: flex;
+	flex-wrap: nowrap;
+	gap: 6px;
+	overflow-x: auto;
+	padding-bottom: 2px;
+}
+
+.market-tile-bets .chip {
+	white-space: nowrap;
+	padding: 4px 7px;
+	font-size: 10px;
+	line-height: 1.1;
+}
+
+.market-tile-model .model-strip {
+	padding: 8px;
+}
+
+.market-tile-model .kv {
+	align-items: center;
+	flex-wrap: nowrap;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.market-tile-model .kv .k {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: 11px;
+}
+
+.market-tile-model .kv .v {
+	white-space: nowrap;
+	font-size: 11px;
+}
+
 /* Top header grid: reduce wasted space next to long write-ups */
 .market-grid.market-grid-top {
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
@@ -291,7 +330,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .writeup-recap { color: #e8eaf6; font-size: 13px; line-height: 1.35; }
 
 @media (max-width: 1000px) {
-	.model-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+	.model-strip { grid-template-columns: repeat(4, minmax(0, 1fr)); overflow-x: auto; }
 	.market-grid { grid-template-columns: 1fr; }
 	.market-grid.market-grid-top {
 		grid-template-columns: 1fr;
