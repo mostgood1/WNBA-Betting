@@ -17235,6 +17235,98 @@ def _live_find_processed_csv(stem_prefix: str, date_str: str) -> Path | None:
         return None
 
 
+def _live_load_period_lines_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    """Load period lines (1H + Q1..Q4 totals/spreads) from processed CSV.
+
+    Expected file: data/processed/period_lines_<date>.csv
+
+    Returns a map keyed by (HOME_TRI, AWAY_TRI) with:
+      {
+        "period_totals": {"h1": float|None, "q1": float|None, ...},
+        "period_spreads": {"h1": float|None, "q1": float|None, ...},
+      }
+    """
+    p = _live_find_processed_csv("period_lines", date_str)
+    if not p:
+        return {}
+    try:
+        mtime = int(p.stat().st_mtime)
+    except Exception:
+        mtime = 0
+
+    cache_key = f"period_lines:{date_str}:{mtime}"
+    ent = _live_processed_cache.get(cache_key)
+    if ent is not None:
+        try:
+            return ent[1]  # type: ignore[return-value]
+        except Exception:
+            pass
+
+    def _to_tri_best(x: Any) -> str:
+        s = str(x or "").strip()
+        if not s:
+            return ""
+        try:
+            if _to_tricode is not None:
+                return str(_to_tricode(s) or "").strip().upper()
+        except Exception:
+            pass
+        try:
+            t = _get_tricode(s)
+            return str(t or "").strip().upper()
+        except Exception:
+            return s.upper()
+
+    try:
+        df = pd.read_csv(p)
+        if df is None or df.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        cols = {str(c).strip().lower(): str(c) for c in df.columns}
+        home_col = cols.get("home_team")
+        away_col = cols.get("visitor_team") or cols.get("away_team")
+        if not (home_col and away_col):
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        def _col(name: str) -> str | None:
+            return cols.get(name)
+
+        out: dict[tuple[str, str], dict[str, Any]] = {}
+        for _, r in df.iterrows():
+            try:
+                htri = _to_tri_best(r.get(home_col))
+                atri = _to_tri_best(r.get(away_col))
+                if not htri or not atri:
+                    continue
+
+                period_totals = {
+                    "h1": _safe_float(r.get(_col("h1_total")) if _col("h1_total") else None),
+                    "q1": _safe_float(r.get(_col("q1_total")) if _col("q1_total") else None),
+                    "q2": _safe_float(r.get(_col("q2_total")) if _col("q2_total") else None),
+                    "q3": _safe_float(r.get(_col("q3_total")) if _col("q3_total") else None),
+                    "q4": _safe_float(r.get(_col("q4_total")) if _col("q4_total") else None),
+                }
+                period_spreads = {
+                    "h1": _safe_float(r.get(_col("h1_spread")) if _col("h1_spread") else None),
+                    "q1": _safe_float(r.get(_col("q1_spread")) if _col("q1_spread") else None),
+                    "q2": _safe_float(r.get(_col("q2_spread")) if _col("q2_spread") else None),
+                    "q3": _safe_float(r.get(_col("q3_spread")) if _col("q3_spread") else None),
+                    "q4": _safe_float(r.get(_col("q4_spread")) if _col("q4_spread") else None),
+                }
+
+                out[(htri, atri)] = {"period_totals": period_totals, "period_spreads": period_spreads}
+            except Exception:
+                continue
+
+        _live_processed_cache[cache_key] = (mtime, out)
+        return out
+    except Exception:
+        _live_processed_cache[cache_key] = (mtime, {})
+        return {}
+
+
 def _live_stat_key(x: Any) -> str:
     s = str(x or "").strip().lower()
     m = {
@@ -17894,6 +17986,29 @@ def api_live_lines():
             except Exception:
                 oddsapi_period = {}
 
+        # Fallback: processed period lines (Bovada snapshot) when OddsAPI is missing.
+        period_totals = (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None)
+        period_spreads = (oddsapi_period.get("period_spreads") if isinstance(oddsapi_period, dict) else None)
+        period_source = (oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None)
+        if include_period_totals:
+            try:
+                need_fallback = True
+                if isinstance(period_totals, dict) and any(v is not None for v in period_totals.values()):
+                    need_fallback = False
+                if need_fallback:
+                    pl_map = _live_load_period_lines_map(str(d))
+                    rec = pl_map.get((home_tri, away_tri))
+                    if isinstance(rec, dict):
+                        pt = rec.get("period_totals")
+                        ps = rec.get("period_spreads")
+                        if isinstance(pt, dict) and any(v is not None for v in pt.values()):
+                            period_totals = pt
+                            if isinstance(ps, dict):
+                                period_spreads = ps
+                            period_source = "processed_period_lines"
+            except Exception:
+                pass
+
         # Prefer OddsAPI full-game lines when present (best-effort in-game movement).
         try:
             gl = oddsapi_period.get("game_lines") if isinstance(oddsapi_period, dict) else None
@@ -17924,11 +18039,12 @@ def api_live_lines():
                     "oddsapi_fast" if (isinstance(oddsapi_period, dict) and isinstance(oddsapi_period.get("game_lines"), dict) and oddsapi_period.get("game_lines"))
                     else ("processed_game_odds" if lines else None)
                 ),
-                "period_totals": oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None,
+                "period_totals": period_source,
             },
             "lines": {
                 **(lines or {}),
-                "period_totals": (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None),
+                "period_totals": period_totals,
+                "period_spreads": period_spreads,
             },
         })
 

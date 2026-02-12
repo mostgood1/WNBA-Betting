@@ -2593,7 +2593,30 @@ function startLiveLensPolling(root, games, dateStr) {
         const sumHalf = el.querySelector('.lens-summary[data-scope="half"]');
         const sumGame = el.querySelector('.lens-summary[data-scope="game"]');
 
-        const scoreText = scoreEl ? String(scoreEl.textContent || '') : '';
+        const hpTxt = (homePts != null) ? String(homePts) : '—';
+        const apTxt = (awayPts != null) ? String(awayPts) : '—';
+        const scoreText = `${meta.away} ${apTxt} – ${hpTxt} ${meta.home}`;
+
+        const pq = (live && live.pbp_quarters) ? live.pbp_quarters : null;
+        const qTotals = pq && pq.q_totals ? pq.q_totals : null;
+        const cur = pq && pq.current ? pq.current : null;
+
+        const q1Final = n(qTotals ? qTotals.q1 : null);
+        const q2Final = n(qTotals ? qTotals.q2 : null);
+        const q3Final = n(qTotals ? qTotals.q3 : null);
+        const curPer = cur ? Number(cur.period) : null;
+        const curQTot = n(cur ? cur.q_total : null);
+
+        const q1LiveTot = (curPer === 1 && curQTot != null) ? curQTot : q1Final;
+        const q3LiveTot = (curPer === 3 && curQTot != null) ? curQTot : q3Final;
+        let h1LiveTot = null;
+        if (period != null && period <= 2 && totalPts != null) {
+          h1LiveTot = totalPts;
+        } else if (q1Final != null && q2Final != null) {
+          h1LiveTot = q1Final + q2Final;
+        } else if (curPer === 2 && q1Final != null && curQTot != null) {
+          h1LiveTot = q1Final + curQTot;
+        }
 
         function setLineTot(sumEl, tot) {
           if (!sumEl) return;
@@ -2601,6 +2624,14 @@ function startLiveLensPolling(root, games, dateStr) {
           if (!lineTot) return;
           const v = n(tot);
           if (v != null) lineTot.textContent = fmt(v, 1);
+        }
+
+        function setLiveTot(sumEl, tot) {
+          if (!sumEl) return;
+          const liveTot = sumEl.querySelector('.lens-sum-live-total');
+          if (!liveTot) return;
+          const v = n(tot);
+          liveTot.textContent = (v != null) ? fmt(v, 1) : '—';
         }
 
         function setLiveScore(sumEl) {
@@ -2618,6 +2649,7 @@ function startLiveLensPolling(root, games, dateStr) {
             // keep prefilled value
           }
           setLiveScore(sumQ1);
+          setLiveTot(sumQ1, q1LiveTot);
         }
 
         if (sumQ3) {
@@ -2629,6 +2661,7 @@ function startLiveLensPolling(root, games, dateStr) {
             // keep prefilled value
           }
           setLiveScore(sumQ3);
+          setLiveTot(sumQ3, q3LiveTot);
         }
 
         if (sumHalf) {
@@ -2645,6 +2678,7 @@ function startLiveLensPolling(root, games, dateStr) {
             if (h1Line != null) lineTot.textContent = fmt(h1Line, 1);
           }
           if (liveScore) liveScore.textContent = scoreText || '—';
+          setLiveTot(sumHalf, h1LiveTot);
         }
 
         if (sumGame) {
