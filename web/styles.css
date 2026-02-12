@@ -185,7 +185,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .kv { display: flex; justify-content: space-between; gap: 10px; }
 .kv .k { color: #9fb0ff; font-size: 12px; }
 .kv .v { color: #e8eaf6; font-weight: 800; font-size: 12px; }
-.market-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.market-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; align-items: start; }
 .market-tile { background: #0f1530; border: 1px solid #25316a; border-radius: 12px; padding: 10px; display: grid; gap: 6px; }
 .market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
 .market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
