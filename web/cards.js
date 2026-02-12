@@ -3603,12 +3603,12 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
 
         ${warn}
 
-        <div class="market-grid">
-          <div class="market-tile">
+        <div class="market-grid market-grid-top">
+          <div class="market-tile market-tile-bets">
             <div class="market-title">Sim-based bet leans (top EV)</div>
             <div class="market-main">${betChips || '<span class="subtle">No EV computed (missing odds/prices).</span>'}</div>
           </div>
-          <div class="market-tile">
+          <div class="market-tile market-tile-model">
             <div class="market-title">Model probabilities</div>
             <div class="model-strip">
               <div class="kv"><span class="k">P(Home win)</span><span class="v">${pct(bet.p_home_win, 1)}</span></div>
@@ -3617,7 +3617,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
               <div class="kv"><span class="k">Sims</span><span class="v">${esc(sim.n_sims ?? '—')}</span></div>
             </div>
           </div>
-          <div class="market-tile">
+          <div class="market-tile market-tile-writeup">
             <div class="market-title">Write-up</div>
             <div class="writeup-recap">${esc(g.writeup || '—')}</div>
           </div>

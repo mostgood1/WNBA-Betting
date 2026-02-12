@@ -212,6 +212,18 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
 .market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
 
+/* Top header grid: reduce wasted space next to long write-ups */
+.market-grid.market-grid-top {
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr);
+	grid-template-areas:
+		"bets writeup"
+		"model writeup";
+	grid-auto-rows: min-content;
+}
+.market-grid.market-grid-top .market-tile-bets { grid-area: bets; }
+.market-grid.market-grid-top .market-tile-model { grid-area: model; }
+.market-grid.market-grid-top .market-tile-writeup { grid-area: writeup; }
+
 /* Live lens should use full row width and render a 2x2 segment grid */
 .market-tile.live-lens { grid-column: 1 / -1; }
 .live-lens .lens-top { display: grid; gap: 4px; }
@@ -281,6 +293,10 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 @media (max-width: 1000px) {
 	.model-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 	.market-grid { grid-template-columns: 1fr; }
+	.market-grid.market-grid-top {
+		grid-template-columns: 1fr;
+		grid-template-areas: "bets" "model" "writeup";
+	}
 	.live-lens .lens-columns { grid-template-columns: 1fr; }
 }
 
