@@ -99,6 +99,7 @@ $allowedPrefixes = @(
     "recommendations_",
     "recon_games_",
     "recon_props_",
+    "recon_players_",
     # PBP-derived and reconciliation artifacts we want available to the site (and for debugging)
     "pbp_reconcile_",
     "tip_winner_probs_",
@@ -119,6 +120,8 @@ $allowedPrefixes = @(
     "props_edges_",
     "props_predictions_",
     "props_recommendations_",
+    # Daily tuning dataset for Player Live Lens
+    "live_player_lens_tuning_",
     # SmartSim per-game distributions (JSON) for UI/diagnostics
     "smart_sim_",
     # Daily pipeline artifact summary

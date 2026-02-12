@@ -88,7 +88,11 @@ _live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_players_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_player_lens_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+
+# Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
+_live_processed_cache: dict[str, tuple[int, Any]] = {}
 
 try:
     from nba_betting.odds_api import (
@@ -1686,6 +1690,7 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lens_tuning",
             "/api/live_lens_signal",
             "/api/live_player_boxscore",
+            "/api/live_player_lens",
         }
         if p in allowed_api:
             return None
@@ -17197,6 +17202,189 @@ def _parse_ttl_param(req, default: int, lo: int = 1, hi: int = 3600) -> int:
         return int(default)
 
 
+def _live_game_elapsed_minutes(period: int | None, clock: Any, is_final: bool) -> float | None:
+    """Compute elapsed regulation minutes from period + clock.
+
+    Mirrors client-side logic (48-minute regulation). OT is clamped to 48.
+    """
+    try:
+        if is_final:
+            return 48.0
+        if period is None:
+            return None
+        p = int(period)
+        if p < 1:
+            return None
+        if p > 4:
+            return 48.0
+        sec_left = _live_parse_clock_to_sec_left(clock)
+        if sec_left is None:
+            return None
+        elapsed_sec = ((p - 1) * 12 * 60) + max(0, (12 * 60 - int(sec_left)))
+        return float(max(0.0, min(48.0, elapsed_sec / 60.0)))
+    except Exception:
+        return None
+
+
+def _live_find_processed_csv(stem_prefix: str, date_str: str) -> Path | None:
+    try:
+        proc = BASE_DIR / "data" / "processed"
+        p = proc / f"{stem_prefix}_{date_str}.csv"
+        return p if p.exists() else None
+    except Exception:
+        return None
+
+
+def _live_stat_key(x: Any) -> str:
+    s = str(x or "").strip().lower()
+    m = {
+        "points": "pts",
+        "point": "pts",
+        "pts": "pts",
+        "rebounds": "reb",
+        "rebound": "reb",
+        "reb": "reb",
+        "assists": "ast",
+        "assist": "ast",
+        "ast": "ast",
+        "3pt": "threes",
+        "3pm": "threes",
+        "threes": "threes",
+        "threes_made": "threes",
+        "pra": "pra",
+        "points+rebounds+assists": "pra",
+        "turnovers": "tov",
+        "tov": "tov",
+        "steals": "stl",
+        "stl": "stl",
+        "blocks": "blk",
+        "blk": "blk",
+    }
+    return m.get(s, s)
+
+
+def _live_load_props_edges_index(date_str: str) -> dict[tuple[str, str, str], float]:
+    """Return map (TEAM_TRI, NAME_KEY, STAT_KEY) -> pregame line (median across offers)."""
+    p = _live_find_processed_csv("props_edges", date_str)
+    if not p:
+        return {}
+    try:
+        mtime = int(p.stat().st_mtime)
+    except Exception:
+        mtime = 0
+    cache_key = f"props_edges:{date_str}:{mtime}"
+    ent = _live_processed_cache.get(cache_key)
+    if ent is not None:
+        try:
+            return ent[1]  # type: ignore[return-value]
+        except Exception:
+            pass
+    try:
+        df = pd.read_csv(p)
+        if df is None or df.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+        cols = {c.lower(): c for c in df.columns}
+        need = [cols.get("team"), cols.get("player_name"), cols.get("stat"), cols.get("line")]
+        if not all(need):
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+        tcol = cols["team"]
+        ncol = cols["player_name"]
+        scol = cols["stat"]
+        lcol = cols["line"]
+        tmp = df[[tcol, ncol, scol, lcol]].copy()
+        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+        tmp["_name_key"] = tmp[ncol].astype(str).map(_norm_player_name)
+        tmp["_stat_key"] = tmp[scol].map(_live_stat_key)
+        tmp["_line"] = pd.to_numeric(tmp[lcol], errors="coerce")
+        tmp = tmp.dropna(subset=["_line"]).copy()
+        if tmp.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        out: dict[tuple[str, str, str], float] = {}
+        grp = tmp.groupby([tcol, "_name_key", "_stat_key"], dropna=True)
+        for (team, name_key, stat_key), g in grp:
+            try:
+                if not team or not name_key or not stat_key:
+                    continue
+                lines = pd.to_numeric(g["_line"], errors="coerce").dropna()
+                if lines.empty:
+                    continue
+                out[(str(team), str(name_key), str(stat_key))] = float(lines.median())
+            except Exception:
+                continue
+
+        _live_processed_cache[cache_key] = (mtime, out)
+        return out
+    except Exception:
+        _live_processed_cache[cache_key] = (mtime, {})
+        return {}
+
+
+def _live_load_props_predictions_index(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
+    """Return map (TEAM_TRI, NAME_KEY) -> {mean_*, roll*_min, pred_*} dict."""
+    p = _live_find_processed_csv("props_predictions", date_str)
+    if not p:
+        return {}
+    try:
+        mtime = int(p.stat().st_mtime)
+    except Exception:
+        mtime = 0
+    cache_key = f"props_predictions:{date_str}:{mtime}"
+    ent = _live_processed_cache.get(cache_key)
+    if ent is not None:
+        try:
+            return ent[1]  # type: ignore[return-value]
+        except Exception:
+            pass
+    try:
+        df = pd.read_csv(p)
+        if df is None or df.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+        cols = {c.lower(): c for c in df.columns}
+        tcol = cols.get("team")
+        ncol = cols.get("player_name")
+        if not (tcol and ncol):
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        # Keep only the columns we care about (best-effort; tolerate schema changes)
+        keep = [tcol, ncol]
+        for c in df.columns:
+            cl = str(c).lower()
+            if cl.startswith("mean_") or cl.startswith("pred_") or cl.startswith("roll") or cl in {"lag1_min"}:
+                keep.append(c)
+        keep = list(dict.fromkeys(keep))
+        tmp = df[keep].copy()
+        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+        tmp["_name_key"] = tmp[ncol].astype(str).map(_norm_player_name)
+
+        out: dict[tuple[str, str], dict[str, Any]] = {}
+        for _, r in tmp.iterrows():
+            try:
+                team = str(r.get(tcol) or "").strip().upper()
+                nk = str(r.get("_name_key") or "").strip().upper()
+                if not team or not nk:
+                    continue
+                rec: dict[str, Any] = {}
+                for k in keep:
+                    if k in {tcol, ncol}:
+                        continue
+                    rec[str(k)] = r.get(k)
+                out[(team, nk)] = rec
+            except Exception:
+                continue
+
+        _live_processed_cache[cache_key] = (mtime, out)
+        return out
+    except Exception:
+        _live_processed_cache[cache_key] = (mtime, {})
+        return {}
+
+
 @app.route("/api/live_state")
 def api_live_state():
     """NCAAB-parity endpoint: basic live state for a slate.
@@ -17369,6 +17557,242 @@ def api_live_player_boxscore():
     }
     _live_players_multi_cache[cache_key] = (now, payload)
     return jsonify(payload)
+
+
+@app.route("/api/live_player_lens")
+def api_live_player_lens():
+    """Merged live player lens: actual vs sim vs pregame line + pacing.
+
+    Query params:
+      - date: YYYY-MM-DD (optional but recommended; used to load processed props lines + sim means)
+      - event_ids: comma-separated ESPN event ids (required)
+      - ttl: seconds (optional)
+
+    Response shape:
+      { ok, ttl, date, games:[{event_id, game_id, home, away, status:{...}, rows:[...]}], generated_at }
+    """
+    ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    event_ids_raw = (request.args.get("event_ids") or "").strip()
+    if not event_ids_raw:
+        return jsonify({"error": "missing event_ids"}), 400
+    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+    if not event_ids:
+        return jsonify({"error": "missing event_ids"}), 400
+
+    d = _parse_date_param(request, default_to_today=False) or ""
+
+    now = time.time()
+    cache_key = f"{d}:{ttl}:" + ",".join(event_ids)
+    ent = _live_player_lens_multi_cache.get(cache_key)
+    if ent and (now - ent[0] < ttl):
+        return jsonify(ent[1])
+
+    # Lookups from processed artifacts (best-effort; may be missing)
+    edges_idx: dict[tuple[str, str, str], float] = {}
+    preds_idx: dict[tuple[str, str], dict[str, Any]] = {}
+    if d:
+        try:
+            edges_idx = _live_load_props_edges_index(d)
+        except Exception:
+            edges_idx = {}
+        try:
+            preds_idx = _live_load_props_predictions_index(d)
+        except Exception:
+            preds_idx = {}
+
+    # Best-effort mapping to game_id + teams + clock/period
+    games_map: dict[str, dict[str, Any]] = {}
+    if d:
+        try:
+            _src, sb_games = _live_build_scoreboard_games(d)
+            for g in sb_games or []:
+                eid = str(g.get("espn_event_id") or "").strip()
+                if eid:
+                    games_map[eid] = g
+        except Exception:
+            games_map = {}
+
+    def _num(x: Any) -> float | None:
+        try:
+            v = pd.to_numeric(x, errors="coerce")
+            if pd.isna(v):
+                return None
+            return float(v)
+        except Exception:
+            return None
+
+    def _pred_val(pred_row: dict[str, Any] | None, stat_key: str) -> float | None:
+        if not pred_row:
+            return None
+        stat_key = _live_stat_key(stat_key)
+        candidates = [
+            f"mean_{stat_key}",
+            f"pred_{stat_key}",
+        ]
+        for c in candidates:
+            for k in [c, c.upper(), c.lower()]:
+                if k in pred_row:
+                    v = _num(pred_row.get(k))
+                    if v is not None:
+                        return v
+        return None
+
+    def _pred_exp_min(pred_row: dict[str, Any] | None) -> float | None:
+        if not pred_row:
+            return None
+        for k in ["roll10_min", "roll5_min", "roll3_min", "lag1_min"]:
+            for kk in [k, k.upper(), k.lower()]:
+                if kk in pred_row:
+                    v = _num(pred_row.get(kk))
+                    if v is not None and v > 0:
+                        return float(v)
+        return None
+
+    out_games: list[dict[str, Any]] = []
+    for eid in event_ids:
+        # Live player totals from ESPN summary
+        players: list[dict[str, Any]] = []
+        try:
+            summ = _live_fetch_espn_summary(str(eid))
+            players = _live_extract_player_boxscore_from_espn_summary(summ) if summ else []
+        except Exception:
+            players = []
+
+        g = games_map.get(str(eid)) if games_map else None
+        gid = (g.get("game_id") if isinstance(g, dict) else None)
+        home = (g.get("home") if isinstance(g, dict) else None)
+        away = (g.get("away") if isinstance(g, dict) else None)
+        period = None
+        clock = None
+        is_final = False
+        in_progress = False
+        try:
+            period = _safe_int(g.get("period")) if isinstance(g, dict) else None
+            clock = g.get("clock") if isinstance(g, dict) else None
+            is_final = bool(g.get("final")) if isinstance(g, dict) else False
+            in_progress = bool(g.get("in_progress")) if isinstance(g, dict) else False
+        except Exception:
+            period = None
+            clock = None
+
+        elapsed_min = _live_game_elapsed_minutes(period, clock, is_final)
+
+        rows: list[dict[str, Any]] = []
+        for p in players or []:
+            try:
+                team = str(p.get("team_tri") or "").strip().upper()
+                player = str(p.get("player") or "").strip()
+                if not team or not player:
+                    continue
+                nk = _norm_player_name(player)
+                pred_row = preds_idx.get((team, nk)) if preds_idx else None
+
+                mp = _num(p.get("mp"))
+                pts = _num(p.get("pts"))
+                reb = _num(p.get("reb"))
+                ast = _num(p.get("ast"))
+                threes = _num(p.get("threes_made"))
+                pra = None
+                try:
+                    if pts is not None and reb is not None and ast is not None:
+                        pra = float(pts + reb + ast)
+                except Exception:
+                    pra = None
+
+                exp_min = _pred_exp_min(pred_row)
+                # Fallback: infer expected minutes from share of game played so far
+                if exp_min is None and mp is not None and elapsed_min is not None and elapsed_min > 0:
+                    try:
+                        exp_min = float(max(mp, min(44.0, (mp / max(1e-6, elapsed_min)) * 48.0)))
+                    except Exception:
+                        exp_min = None
+
+                stat_actuals = {
+                    "pts": pts,
+                    "reb": reb,
+                    "ast": ast,
+                    "threes": threes,
+                    "pra": pra,
+                }
+                for stat_key, actual in stat_actuals.items():
+                    try:
+                        line = None
+                        if edges_idx:
+                            line = edges_idx.get((team, nk, stat_key))
+                        sim_mu = _pred_val(pred_row, stat_key)
+
+                        # Only emit rows when we have something useful to compare
+                        if line is None and sim_mu is None and actual is None:
+                            continue
+
+                        pace_proj = None
+                        if actual is not None and mp is not None and mp > 0 and exp_min is not None and exp_min > 0:
+                            try:
+                                em = float(max(mp, min(44.0, exp_min)))
+                                pace_proj = float((actual / mp) * em)
+                            except Exception:
+                                pace_proj = None
+
+                        pace_vs_line = (pace_proj - float(line)) if (pace_proj is not None and line is not None) else None
+                        sim_vs_line = (sim_mu - float(line)) if (sim_mu is not None and line is not None) else None
+
+                        lean = None
+                        strength = None
+                        if pace_vs_line is not None:
+                            lean = "OVER" if pace_vs_line > 0 else ("UNDER" if pace_vs_line < 0 else None)
+                            strength = abs(float(pace_vs_line))
+
+                        rows.append({
+                            "team_tri": team,
+                            "player": player,
+                            "name_key": nk,
+                            "mp": mp,
+                            "stat": stat_key,
+                            "actual": actual,
+                            "sim_mu": sim_mu,
+                            "line": float(line) if line is not None else None,
+                            "exp_min": exp_min,
+                            "pace_proj": pace_proj,
+                            "pace_vs_line": pace_vs_line,
+                            "sim_vs_line": sim_vs_line,
+                            "lean": lean,
+                            "strength": strength,
+                        })
+                    except Exception:
+                        continue
+            except Exception:
+                continue
+
+        # Sort: strongest pacing divergence first, then minutes
+        try:
+            rows.sort(key=lambda r: (float(r.get("strength") or 0.0), float(r.get("mp") or 0.0)), reverse=True)
+        except Exception:
+            pass
+
+        out_games.append({
+            "event_id": str(eid),
+            "game_id": gid,
+            "home": home,
+            "away": away,
+            "status": {
+                "period": period,
+                "clock": clock,
+                "in_progress": bool(in_progress),
+                "final": bool(is_final),
+                "elapsed_min": elapsed_min,
+            },
+            "rows": rows,
+        })
+
+    payload = {
+        "ok": True,
+        "ttl": ttl,
+        "date": d or None,
+        "games": out_games,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_player_lens_multi_cache[cache_key] = (now, payload)
+    return jsonify(_to_jsonable(payload))
 
 
 @app.route("/api/live_lines")

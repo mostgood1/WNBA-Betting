@@ -743,6 +743,29 @@ try {
   Write-Log ("calibrate-pbp-markets failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 2.4d) Build per-player reconciliation + live player lens tuning dataset for yesterday
+try {
+  Write-Log ("Building recon_players + live_player_lens_tuning for {0}" -f $yesterday)
+
+  # recon_players_<date>.csv (SmartSim player means vs actual)
+  try {
+    $rc_recon_players = & $Python (Join-Path $RepoRoot 'tools/build_recon_players.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
+    Write-Log "build_recon_players completed (non-fatal)"
+  } catch {
+    Write-Log ("build_recon_players failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+
+  # live_player_lens_tuning_<date>.csv (props: sim vs line vs actual)
+  try {
+    $rc_lens_tune = & $Python (Join-Path $RepoRoot 'tools/build_live_player_lens_tuning.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
+    Write-Log "build_live_player_lens_tuning completed (non-fatal)"
+  } catch {
+    Write-Log ("build_live_player_lens_tuning failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+} catch {
+  Write-Log ("Recon players / tuning block failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # 2.4c) Log daily PBP market health metrics for yesterday (CSV-first)
 try {
   Write-Log ("Logging daily PBP market metrics for {0}" -f $yesterday)

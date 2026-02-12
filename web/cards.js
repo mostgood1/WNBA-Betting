@@ -870,7 +870,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
   addAttr('actual-q3-total', am.q3_total);
 
   return `
-    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" ${dAttrs.join(' ')}>
+    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" data-player-only-lines="1" ${dAttrs.join(' ')}>
       <div class="lens-top">
         <div class="market-title">LIVE LENS</div>
         <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
@@ -902,6 +902,10 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
       <details class="lens-player-details" style="margin-top:8px;">
         <summary class="subtle cursor-pointer">Player live lens (sim vs line vs live)</summary>
         <div class="subtle" style="margin-top:6px;">Uses pregame prop lines (from recommendations) and live ESPN boxscore totals.</div>
+        <label class="subtle" style="display:inline-flex; align-items:center; gap:8px; margin-top:6px;">
+          <input type="checkbox" class="lens-player-only-lines" checked />
+          Only rows with lines
+        </label>
         <div class="lens-player-body" style="margin-top:6px;"><div class="subtle">Live player lens not loaded.</div></div>
       </details>
     </div>
@@ -911,6 +915,26 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
 function attachLiveLensHandlers(root, games) {
   const containers = root.querySelectorAll('.live-lens');
   if (!containers || !containers.length) return;
+
+  // Player lens filtering (client-side; avoids re-render churn)
+  try {
+    if (root && root.dataset && root.dataset.playerLensToggleBound !== '1') {
+      root.dataset.playerLensToggleBound = '1';
+      root.addEventListener('change', (ev) => {
+        try {
+          const t = ev && ev.target ? ev.target : null;
+          if (!t || !t.classList || !t.classList.contains('lens-player-only-lines')) return;
+          const wrap = t.closest ? t.closest('.live-lens') : null;
+          if (!wrap) return;
+          wrap.dataset.playerOnlyLines = t.checked ? '1' : '0';
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
 
   // Build intervals lookup by card key (home|away)
   const idx = new Map();
@@ -2018,121 +2042,69 @@ function getPlayerActualForMarket(p, market) {
   return null;
 }
 
-function renderPlayerLiveLens(meta, livePlayers, elapsedMin, isFinal) {
+function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
   try {
-    const recs = meta && meta.prop_recommendations && typeof meta.prop_recommendations === 'object' ? meta.prop_recommendations : null;
-    const home = Array.isArray(recs && recs.home) ? recs.home : [];
-    const away = Array.isArray(recs && recs.away) ? recs.away : [];
-    const all = [...home.map((r) => ({ ...r, _side: 'home' })), ...away.map((r) => ({ ...r, _side: 'away' }))];
-
-    if (!all.length) {
-      return '<div class="subtle">No prop recommendations to render.</div>';
+    const rowsIn = liveLensGame && typeof liveLensGame === 'object' ? liveLensGame.rows : null;
+    const rows = Array.isArray(rowsIn) ? rowsIn : [];
+    if (!rows.length) {
+      return '<div class="subtle">No live player rows yet.</div>';
     }
 
-    const playersArr = Array.isArray(livePlayers) ? livePlayers : [];
-    const byKey = new Map();
-    playersArr.forEach((p) => {
-      const nm = normPlayerName(p && p.player);
-      const tri = String(p && p.team_tri || '').toUpperCase().trim();
-      if (!nm) return;
-      const k = `${tri}|${nm}`;
-      byKey.set(k, p);
-      // Fallback: name-only (for occasional missing team tri)
-      if (!byKey.has(`|${nm}`)) byKey.set(`|${nm}`, p);
-    });
-
-    const picks = all.map((r) => {
-      const player = String(r && r.player || '').trim();
-      const b = (r && r.best && typeof r.best === 'object') ? r.best : null;
-      if (!player || !b) return null;
-      const market = String(b.market || '').toLowerCase().trim();
-      const side = String(b.side || '').toUpperCase().trim();
-      const line = n(b.line);
-      const simMu = n(b.sim_mu);
-      const pwin = n(b.p_win);
-      const evPct = n(b.ev_pct);
-      const teamTri = (r._side === 'home') ? meta.home : meta.away;
-      const lp = byKey.get(`${String(teamTri).toUpperCase().trim()}|${normPlayerName(player)}`) || byKey.get(`|${normPlayerName(player)}`) || null;
-      const mp = n(lp && lp.mp);
-      const actual = lp ? getPlayerActualForMarket(lp, market) : null;
-
-      let proj = simMu;
-      if (actual != null && mp != null && mp > 0) {
-        const em = (elapsedMin != null && elapsedMin > 0)
-          ? clamp((mp / elapsedMin) * 48.0, mp, 44.0)
-          : 36.0;
-        const paceProj = (actual / mp) * (em != null ? em : 36.0);
-        if (simMu != null) {
-          const w = Math.max(0, Math.min(1, mp / 18.0));
-          proj = ((1 - w) * simMu) + (w * paceProj);
-        } else {
-          proj = paceProj;
-        }
-      }
-
-      let edge = null;
-      if (line != null && proj != null) {
-        if (side === 'OVER') edge = proj - line;
-        else if (side === 'UNDER') edge = line - proj;
-      }
-
-      return { player, teamTri, market, side, line, simMu, pwin, evPct, mp, actual, proj, edge };
-    }).filter(Boolean);
-
-    const clean = picks
-      .filter((x) => x.market && ['pts', 'reb', 'ast', 'threes', 'pra', 'pa', 'pr', 'ra'].includes(x.market))
-      .filter((x) => x.line != null && (x.simMu != null || x.actual != null));
-
-    if (!clean.length) {
-      return '<div class="subtle">No supported prop markets available for live lens.</div>';
-    }
-
-    clean.sort((a, b) => Math.abs(n(b.edge) || 0) - Math.abs(n(a.edge) || 0));
-    const top = clean.slice(0, 12);
-
-    const rows = top.map((x) => {
-      const act = (x.actual == null) ? '—' : fmt(x.actual, 1);
-      const mu = (x.simMu == null) ? '—' : fmt(x.simMu, 1);
-      const pr = (x.proj == null) ? '—' : fmt(x.proj, 1);
-      const ed = (x.edge == null) ? '—' : fmt(x.edge, 1);
-      const mp = (x.mp == null) ? '—' : fmt(x.mp, 1);
-      const pw = (x.pwin == null) ? '—' : pct(x.pwin, 0);
-      const mk = marketLabel(x.market);
+    const tbl = rows.map((r) => {
+      const teamTri = String(r && r.team_tri != null ? r.team_tri : '').toUpperCase().trim();
+      const player = String(r && r.player != null ? r.player : '').trim();
+      const stat = String(r && r.stat != null ? r.stat : '').toLowerCase().trim();
+      const mk = marketLabel(stat);
+      const mp = n(r && r.mp);
+      const act = n(r && r.actual);
+      const mu = n(r && r.sim_mu);
+      const line = n(r && r.line);
+      const pace = n(r && r.pace_proj);
+      const dP = n(r && r.pace_vs_line);
+      const dS = n(r && r.sim_vs_line);
+      const lean = String(r && r.lean != null ? r.lean : '').toUpperCase().trim();
+      const leanTxt = lean ? lean : '—';
+      const hasLine = (line != null);
       return `
-        <tr>
-          <td><span class="badge">${esc(x.teamTri)}</span> ${esc(x.player)}</td>
-          <td>${esc(mk)} ${esc(x.side)}</td>
-          <td class="num">${fmt(x.line, 1)}</td>
-          <td class="num">${esc(mu)}</td>
-          <td class="num">${esc(act)}</td>
-          <td class="num">${esc(pr)}</td>
-          <td class="num">${esc(ed)}</td>
-          <td class="num">${esc(mp)}</td>
-          <td class="num">${esc(pw)}</td>
+        <tr data-has-line="${hasLine ? '1' : '0'}">
+          <td><span class="badge">${esc(teamTri)}</span> ${esc(player)}</td>
+          <td>${esc(mk)}</td>
+          <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
+          <td class="num">${act == null ? '—' : fmt(act, 1)}</td>
+          <td class="num">${mu == null ? '—' : fmt(mu, 1)}</td>
+          <td class="num">${line == null ? '—' : fmt(line, 1)}</td>
+          <td class="num">${pace == null ? '—' : fmt(pace, 1)}</td>
+          <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
+          <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
+          <td>${esc(leanTxt)}</td>
         </tr>
       `;
     }).join('');
 
-    const note = isFinal ? 'Final (actuals only).' : 'Proj blends sim μ with on-pace from minutes.';
+    const note = isFinal
+      ? 'Final (actuals only).'
+      : 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).';
+
     return `
       <div class="subtle">${esc(note)}</div>
       <div class="table-wrap" style="margin-top:6px;">
-        <table class="data-table boxscore-table" style="font-size:12px;">
+        <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
           <thead>
             <tr>
               <th>Player</th>
-              <th>Pick</th>
-              <th class="num">Line</th>
-              <th class="num">Sim μ</th>
-              <th class="num">Act</th>
-              <th class="num">Proj</th>
-              <th class="num">Edge</th>
+              <th>Stat</th>
               <th class="num">MP</th>
-              <th class="num">p</th>
+              <th class="num">Act</th>
+              <th class="num">Sim μ</th>
+              <th class="num">Line</th>
+              <th class="num">PaceProj</th>
+              <th class="num">ΔPace-Line</th>
+              <th class="num">ΔSim-Line</th>
+              <th>Lean</th>
             </tr>
           </thead>
           <tbody>
-            ${rows || '<tr><td colspan="9" class="subtle">No player rows.</td></tr>'}
+            ${tbl || '<tr><td colspan="10" class="subtle">No player rows.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -2406,14 +2378,14 @@ function startLiveLensPolling(root, games, dateStr) {
     // Staged fetches (NCAAB-style): pbp stats + lines for in-progress games only
     let pbpMap = new Map();
     let linesMap = new Map();
-    let playersMap = new Map();
+    let playerLensMap = new Map();
     if (detailEventIds.length) {
       try {
         const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
         const linesPromise = lineEventIds.length
           ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
           : Promise.resolve({ games: [] });
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_boxscore?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
         const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
@@ -2434,8 +2406,7 @@ function startLiveLensPolling(root, games, dateStr) {
         playerGames.forEach((gg) => {
           const eid = String(gg && gg.event_id != null ? gg.event_id : '').trim();
           if (!eid) return;
-          const arr = Array.isArray(gg && gg.players) ? gg.players : [];
-          playersMap.set(eid, arr);
+          playerLensMap.set(eid, gg);
         });
       } catch (_) {
         // ignore multi-fetch failures; we still show basic state
@@ -2451,7 +2422,7 @@ function startLiveLensPolling(root, games, dateStr) {
       const eid = sbEventByGid.get(gid);
       const pbp = eid ? pbpMap.get(eid) : null;
       const ln = eid ? linesMap.get(eid) : null;
-      const livePlayers = eid ? playersMap.get(eid) : null;
+      const livePlayerLens = eid ? playerLensMap.get(eid) : null;
 
       const isFinal = !!(s && s.final);
       const isInProgress = !!(s && s.in_progress);
@@ -2568,11 +2539,11 @@ function startLiveLensPolling(root, games, dateStr) {
         linesEl.textContent = pieces.length ? pieces.join(' · ') : 'Lines —';
       }
 
-      // Player live lens (uses prop recs + ESPN live boxscore totals)
+      // Player live lens (all players: sim vs line vs live + pacing)
       try {
         const body = el.querySelector('.lens-player-body');
         if (body) {
-          body.innerHTML = renderPlayerLiveLens(meta, livePlayers, elapsedMin, isFinal);
+          body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
         }
       } catch (_) {
         // ignore
