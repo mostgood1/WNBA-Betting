@@ -179,8 +179,30 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .subtle { color: #9fb0ff; font-size: 12px; opacity: 0.95; }
 
 /* Game cards v2 */
-.card.card-v2 { gap: 12px; }
+.card.card-v2 { padding: 12px; gap: 10px; }
 .tier-badge { margin-left: auto; background: #0f1530; border: 1px solid #25316a; color: #d5dbff; padding: 2px 8px; border-radius: 999px; font-weight: 800; font-size: 11px; }
+.card.card-v2 .row.head { font-size: 12px; gap: 6px; }
+.card.card-v2 .row.matchup { gap: 8px; }
+.card.card-v2 .team .name { font-size: 18px; line-height: 1.15; }
+.card.card-v2 .team-line img.logo { height: 30px; }
+.card.card-v2 .score-block { justify-items: center; text-align: center; }
+.card.card-v2 .live-score { font-size: 22px; }
+.card.card-v2 .sub, .card.card-v2 .proj-score { font-size: 11px; }
+.card.card-v2 .row.chips .chip { padding: 4px 7px; font-size: 10px; }
+
+.team-role {
+	display: inline-block;
+	margin-right: 6px;
+	background: #0f1530;
+	border: 1px solid #25316a;
+	color: #9fb0ff;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 900;
+	letter-spacing: 0.3px;
+	vertical-align: middle;
+}
 .model-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; background: #0f1530; border: 1px solid #25316a; border-radius: 10px; padding: 10px; }
 .kv { display: flex; justify-content: space-between; gap: 10px; }
 .kv .k { color: #9fb0ff; font-size: 12px; }

@@ -3579,8 +3579,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
 
         <div class="row matchup">
           <div class="team side">
-            <div class="subtle" style="margin-bottom:2px;">AWAY</div>
-            <div class="team-line">${logoImg(awayTri)}<div class="name">${esc(awayName)}</div></div>
+            <div class="team-line">${logoImg(awayTri)}<div class="name"><span class="team-role">AWAY</span>${esc(awayName)}</div></div>
           </div>
           <div class="score-block">
             <div class="sub">Projected score</div>
@@ -3589,8 +3588,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
             ${quantLine ? `<div class="proj-score">${esc(quantLine)}</div>` : ''}
           </div>
           <div class="team side" style="justify-self:end;">
-            <div class="subtle" style="margin-bottom:2px; text-align:right;">HOME</div>
-            <div class="team-line">${logoImg(homeTri)}<div class="name">${esc(homeName)}</div></div>
+            <div class="team-line">${logoImg(homeTri)}<div class="name"><span class="team-role">HOME</span>${esc(homeName)}</div></div>
           </div>
         </div>
 
