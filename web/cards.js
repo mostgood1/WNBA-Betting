@@ -2283,7 +2283,32 @@ function getPlayerActualForMarket(p, market) {
 function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
   try {
     const rowsIn = liveLensGame && typeof liveLensGame === 'object' ? liveLensGame.rows : null;
-    const rows = Array.isArray(rowsIn) ? rowsIn : [];
+    const rows0 = Array.isArray(rowsIn) ? rowsIn : [];
+    const rows = (() => {
+      try {
+        const arr = rows0.slice();
+        arr.sort((a, b) => {
+          const ak = String(a && a.klass != null ? a.klass : '').toUpperCase().trim();
+          const bk = String(b && b.klass != null ? b.klass : '').toUpperCase().trim();
+          const aRank = (ak === 'BET') ? 2 : ((ak === 'WATCH') ? 1 : 0);
+          const bRank = (bk === 'BET') ? 2 : ((bk === 'WATCH') ? 1 : 0);
+          if (aRank !== bRank) return bRank - aRank;
+
+          const aEdge = Math.abs(n(a && a.pace_vs_line) ?? 0);
+          const bEdge = Math.abs(n(b && b.pace_vs_line) ?? 0);
+          if (aEdge !== bEdge) return bEdge - aEdge;
+
+          const aMp = n(a && a.mp) ?? 0;
+          const bMp = n(b && b.mp) ?? 0;
+          if (aMp !== bMp) return bMp - aMp;
+
+          return 0;
+        });
+        return arr;
+      } catch (_) {
+        return rows0;
+      }
+    })();
     if (!rows.length) {
       return '<div class="subtle">No live player rows yet.</div>';
     }
