@@ -17947,6 +17947,29 @@ def api_live_player_lens():
     if ent and (now - ent[0] < ttl):
         return jsonify(ent[1])
 
+    # Player prop signal thresholds (server-side) so each row can carry klass.
+    player_prop_watch = 2.0
+    player_prop_bet = 4.0
+    try:
+        override_path = BASE_DIR / "data" / "processed" / "live_lens_tuning_override.json"
+        if override_path.exists():
+            o = json.loads(override_path.read_text(encoding="utf-8"))
+        else:
+            o = None
+        if isinstance(o, dict):
+            mk = o.get("markets")
+            if isinstance(mk, dict):
+                pp = mk.get("player_prop")
+                if isinstance(pp, dict):
+                    w = _safe_float(pp.get("watch"))
+                    b = _safe_float(pp.get("bet"))
+                    if w is not None and w > 0:
+                        player_prop_watch = float(w)
+                    if b is not None and b > 0:
+                        player_prop_bet = float(b)
+    except Exception:
+        pass
+
     # Lookups from processed artifacts (best-effort; may be missing)
     edges_idx: dict[tuple[str, str, str], float] = {}
     preds_idx: dict[tuple[str, str], dict[str, Any]] = {}
@@ -18402,9 +18425,19 @@ def api_live_player_lens():
 
                         lean = None
                         strength = None
+                        klass = "NONE"
                         if pace_vs_line is not None:
                             lean = "OVER" if pace_vs_line > 0 else ("UNDER" if pace_vs_line < 0 else None)
                             strength = abs(float(pace_vs_line))
+                            try:
+                                if strength >= float(player_prop_bet):
+                                    klass = "BET"
+                                elif strength >= float(player_prop_watch):
+                                    klass = "WATCH"
+                                else:
+                                    klass = "NONE"
+                            except Exception:
+                                klass = "NONE"
 
                         rows.append({
                             "team_tri": team,
@@ -18425,6 +18458,7 @@ def api_live_player_lens():
                             "sim_vs_line": sim_vs_line,
                             "lean": lean,
                             "strength": strength,
+                            "klass": klass,
                             "_usage_window_sec": recent_window_sec,
                             "pace_mult": pace_mult_used,
                             "role_mult": role_mult_used,
@@ -18675,6 +18709,7 @@ def api_live_lens_tuning():
             "half_total": {"watch": 3.0, "bet": 6.0},
             "quarter_total": {"watch": 2.0, "bet": 4.0},
             "ats": {"watch": 2.0, "bet": 4.0},
+            "player_prop": {"watch": 2.0, "bet": 4.0},
         },
         # Baseline-aware adjustments for total edges.
         # Goal: boost edges driven by possessions/pace, and regress edges driven by hot/cold shooting.

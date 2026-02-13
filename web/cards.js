@@ -3632,7 +3632,10 @@ function startLiveLensPolling(root, games, dateStr) {
           for (const it of scored) {
             const r = it.r;
             const strength = it.strength;
-            const klass = classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
+            const klassRaw = (r && r.klass != null) ? String(r.klass).toUpperCase().trim() : '';
+            const klass = (klassRaw === 'BET' || klassRaw === 'WATCH' || klassRaw === 'NONE')
+              ? klassRaw
+              : classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
             const nameKey = (r.name_key != null) ? String(r.name_key) : normPlayerName(r.player);
             const statKey = String(r.stat || '').toLowerCase().trim();
             const throttleKey = `player_prop:${nameKey}:${statKey}`;
