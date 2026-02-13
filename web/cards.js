@@ -1340,6 +1340,7 @@ function attachLiveLensHandlers(root, games) {
     function computeScope(scopeEl, segsLocal, segMinLocal, totalMinutes, finalIdx, labelPrefix) {
       const lensRoot = scopeEl && scopeEl.closest ? scopeEl.closest('.live-lens') : null;
       const isFinal = !!(lensRoot && lensRoot.dataset && lensRoot.dataset.final === '1');
+      const isFrozen = !!(scopeEl && scopeEl.dataset && scopeEl.dataset.frozen === '1');
       const minEl = scopeEl.querySelector('select.lens-min');
       const totEl = scopeEl.querySelector('input.lens-total');
       const liveEl = scopeEl.querySelector('input.lens-live');
@@ -1456,6 +1457,74 @@ function attachLiveLensHandlers(root, games) {
               paceFinal = blended;
             }
           }
+        }
+
+        // Recent-window adjustment: detect fast pace/eff shifts using last-N-seconds window.
+        try {
+          const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+          const rwCfg = t && t.recent_window && typeof t.recent_window === 'object' ? t.recent_window : null;
+          if (!isFinal && !isFrozen && rwCfg && rwCfg.enabled !== false && paceFinal != null && expPace != null && expPpp != null) {
+            const windowSec = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentWindowSec : null) ?? n(rwCfg.window_sec) ?? 180;
+            const windowMin = Math.max(0.25, Math.min(10.0, windowSec / 60.0));
+
+            const recentPoss = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPoss : null);
+            const recentPts = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPts : null);
+
+            const expPossWindow = expPace * (windowMin / 48.0);
+            const expPossRemaining = expPace * (minRem / 48.0);
+            const minPoss = n(rwCfg.min_possessions) ?? 6;
+            const minAtt = n(rwCfg.min_attempts) ?? 8;
+
+            // Conservative activation: require reasonable sample + some game state.
+            if (recentPoss != null && recentPoss > 0.5 && expPossWindow > 0.25 && expPossRemaining > 0.25) {
+              const paceRatioRecent = recentPoss / expPossWindow;
+              const wPoss = Math.max(0, Math.min(1, (recentPoss - minPoss) / Math.max(1e-6, minPoss)));
+              const wTime = Math.max(0, Math.min(1, (elapsedMin - (windowMin * 0.5)) / Math.max(1.0, windowMin)));
+              const w = Math.max(0, Math.min(1, Math.min(wPoss, wTime)));
+
+              if (w > 0) {
+                const paceWeight = n(rwCfg.pace_weight) ?? 0.35;
+                const paceCap = n(rwCfg.pace_cap_points) ?? 3.0;
+                const effWeight = n(rwCfg.eff_weight) ?? 0.20;
+                const effCap = n(rwCfg.eff_cap_points) ?? 2.0;
+
+                // Pace nudge: adjust remaining possessions based on recent pace ratio (shrunk).
+                const paceRatioShrunk = 1.0 + (paceRatioRecent - 1.0) * w;
+                const paceAdjRaw = (expPossRemaining * expPpp) * (paceRatioShrunk - 1.0);
+                let paceAdj = paceAdjRaw * paceWeight;
+                paceAdj = Math.max(-paceCap, Math.min(paceCap, paceAdj));
+
+                // Efficiency nudge: points-per-possession in recent window vs expected PPP (shrunk).
+                let effAdj = 0.0;
+                if (recentPts != null && recentPts >= 0) {
+                  const recentPpp = recentPts / Math.max(1.0, recentPoss);
+                  const effDelta = recentPpp - expPpp;
+                  const effAdjRaw = expPossRemaining * (effDelta * w);
+                  effAdj = effAdjRaw * effWeight;
+                  effAdj = Math.max(-effCap, Math.min(effCap, effAdj));
+                }
+
+                paceFinal = paceFinal + paceAdj + effAdj;
+                try {
+                  if (possCtx && typeof possCtx === 'object') {
+                    possCtx.recent_window = {
+                      window_sec: windowSec,
+                      poss: recentPoss,
+                      pts: recentPts,
+                      pace_ratio_recent: paceRatioRecent,
+                      w_recent: w,
+                      pace_adj: paceAdj,
+                      eff_adj: effAdj,
+                    };
+                  }
+                } catch (_) {
+                  // ignore
+                }
+              }
+            }
+          }
+        } catch (_) {
+          // ignore
         }
       } catch (_) {
         // ignore
@@ -2483,7 +2552,18 @@ function startLiveLensPolling(root, games, dateStr) {
     let playerLensMap = new Map();
     if (detailEventIds.length) {
       try {
-        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
+        // Allow server-driven recent-window size for pbp_recent feature set.
+        let recentWindowSec = 180;
+        try {
+          const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+          const rw = t && t.recent_window && typeof t.recent_window === 'object' ? t.recent_window : null;
+          const w = n(rw && rw.window_sec);
+          if (rw && rw.enabled !== false && w != null && w >= 10 && w <= 600) recentWindowSec = Math.round(w);
+        } catch (_) {
+          // ignore
+        }
+
+        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
         const linesPromise = lineEventIds.length
           ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
           : Promise.resolve({ games: [] });
@@ -2598,6 +2678,7 @@ function startLiveLensPolling(root, games, dateStr) {
         pbp_possessions: pbp && pbp.pbp_possessions ? pbp.pbp_possessions : null,
         pbp_possessions_periods: pbp && pbp.pbp_possessions_periods ? pbp.pbp_possessions_periods : null,
         pbp_quarters: pbp && pbp.pbp_quarters ? pbp.pbp_quarters : null,
+        pbp_recent: pbp && pbp.pbp_recent ? pbp.pbp_recent : null,
         _event_id: eid || null,
       };
 
@@ -2922,6 +3003,19 @@ function startLiveLensPolling(root, games, dateStr) {
             try {
               const possAvg = possAvgFromPossObj(meta, pObj);
               col.dataset.possLive = (possAvg == null) ? '' : String(possAvg);
+            } catch (_) {
+              // ignore
+            }
+
+            // Store recent-window stats (used by computeScope() for responsive pace/eff adjustments).
+            try {
+              const rw = (live && live.pbp_recent && typeof live.pbp_recent === 'object') ? live.pbp_recent : null;
+              const rwSec = n(rw && rw.window_sec);
+              const rwPts = n(rw && rw.points_total);
+              const rwPossAvg = rw && rw.possessions ? possAvgFromPossObj(meta, rw.possessions) : null;
+              col.dataset.recentWindowSec = (rwSec == null) ? '' : String(Math.round(rwSec));
+              col.dataset.recentPts = (rwPts == null) ? '' : String(rwPts);
+              col.dataset.recentPoss = (rwPossAvg == null) ? '' : String(rwPossAvg);
             } catch (_) {
               // ignore
             }

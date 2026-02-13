@@ -1544,6 +1544,99 @@ def _live_pbp_quarter_totals(actions: list[dict[str, Any]]) -> dict[str, Any]:
     return out
 
 
+def _live_pbp_recent_window_stats(actions: list[dict[str, Any]], window_sec: int = 180) -> dict[str, Any]:
+    """Compute recent-window PBP stats from CDN/ESPN-style actions.
+
+    Returns a compact dict suitable for polling payloads.
+    Regulation only (period 1..4). If the game is in OT, this returns best-effort
+    using the latest regulation timestamp.
+    """
+    try:
+        w = int(max(10, min(600, int(window_sec or 180))))
+    except Exception:
+        w = 180
+
+    def _elapsed_reg_sec(a: dict[str, Any]) -> int | None:
+        try:
+            per = _safe_int(a.get("period"))
+            if per is None or per < 1 or per > 4:
+                return None
+            sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
+            if sec_left is None:
+                return None
+            sec_left = int(max(0, min(12 * 60, sec_left)))
+            elapsed = int((per - 1) * (12 * 60) + ((12 * 60) - sec_left))
+            return int(max(0, min(48 * 60, elapsed)))
+        except Exception:
+            return None
+
+    acts = actions or []
+    if not acts:
+        return {"window_sec": w, "points_total": None, "attempts": None, "possessions": None}
+
+    # Determine the most recent regulation timestamp we can observe.
+    latest = None
+    for a in acts:
+        e = _elapsed_reg_sec(a) if isinstance(a, dict) else None
+        if e is None:
+            continue
+        if latest is None or int(e) > int(latest):
+            latest = int(e)
+    if latest is None:
+        return {"window_sec": w, "points_total": None, "attempts": None, "possessions": None}
+
+    cutoff = int(max(0, int(latest) - int(w)))
+    sub: list[dict[str, Any]] = []
+    for a in acts:
+        if not isinstance(a, dict):
+            continue
+        e = _elapsed_reg_sec(a)
+        if e is None:
+            continue
+        if int(e) < cutoff:
+            continue
+        if int(e) > int(latest):
+            continue
+        sub.append(a)
+
+    if not sub:
+        return {"window_sec": w, "points_total": None, "attempts": None, "possessions": None}
+
+    # Points delta in window (best-effort) from score fields.
+    scored: list[tuple[int, int]] = []
+    for a in sub:
+        try:
+            e = _elapsed_reg_sec(a)
+            if e is None:
+                continue
+            sh = _safe_int(a.get("scoreHome"))
+            sa = _safe_int(a.get("scoreAway"))
+            if sh is None or sa is None:
+                continue
+            scored.append((int(e), int(sh) + int(sa)))
+        except Exception:
+            continue
+    points_total = None
+    if scored:
+        scored.sort(key=lambda x: x[0])
+        try:
+            points_total = int(scored[-1][1] - scored[0][1])
+        except Exception:
+            points_total = None
+
+    attempts = _live_pbp_attempt_stats(sub) if sub else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+    possessions = _live_pbp_possession_stats(sub, attempts) if sub else {"home": {}, "away": {}, "unknown": {}, "total": {}}
+
+    return {
+        "window_sec": int(w),
+        "latest_elapsed_reg_sec": int(latest),
+        "cutoff_elapsed_reg_sec": int(cutoff),
+        "points_total": points_total,
+        "attempts": attempts,
+        "possessions": possessions,
+    }
+
+
 def _live_bovada_lines_for_date(date_str: str) -> list[dict[str, Any]]:
     """Return Bovada current full-game lines normalized to dicts."""
     try:
@@ -17538,6 +17631,11 @@ def api_live_pbp_stats():
       - date: YYYY-MM-DD (optional, used for mapping)
     """
     ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    try:
+        recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))
+    except Exception:
+        recent_window_sec = 180
+    recent_window_sec = int(max(10, min(600, recent_window_sec)))
     event_ids_raw = (request.args.get("event_ids") or "").strip()
     if not event_ids_raw:
         return jsonify({"error": "missing event_ids"}), 400
@@ -17583,6 +17681,7 @@ def api_live_pbp_stats():
         pbp_possessions = _live_pbp_possession_stats(actions, pbp_attempts) if actions else {"home": {}, "away": {}, "unknown": {}, "total": {}}
         pbp_possessions_periods = _live_pbp_possession_stats_periods(actions) if actions else {}
         pbp_quarters = _live_pbp_quarter_totals(actions) if actions else {"q_totals": {"q1": None, "q2": None, "q3": None, "q4": None}, "current": {"period": None, "q_total": None}}
+        pbp_recent = _live_pbp_recent_window_stats(actions, window_sec=recent_window_sec) if actions else {"window_sec": recent_window_sec, "points_total": None, "attempts": None, "possessions": None}
 
         out.append({
             "event_id": str(eid),
@@ -17594,6 +17693,7 @@ def api_live_pbp_stats():
             "pbp_possessions": pbp_possessions,
             "pbp_possessions_periods": pbp_possessions_periods,
             "pbp_quarters": pbp_quarters,
+            "pbp_recent": pbp_recent,
         })
 
     payload = {
@@ -18169,6 +18269,18 @@ def api_live_lens_tuning():
                 "16": -2.68,
             },
         },
+        # Recent-window live PBP features (client-side): use last N seconds of actions
+        # to detect pace/shot-volume shifts, but shrink heavily + cap adjustments.
+        "recent_window": {
+            "enabled": True,
+            "window_sec": 180,
+            "min_possessions": 6,
+            "min_attempts": 8,
+            "pace_weight": 0.35,
+            "pace_cap_points": 3.0,
+            "eff_weight": 0.20,
+            "eff_cap_points": 2.0,
+        },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
 
@@ -18194,6 +18306,10 @@ def api_live_lens_tuning():
             oid = o.get("interval_drift")
             if isinstance(oid, dict) and isinstance(payload.get("interval_drift"), dict):
                 payload["interval_drift"] = {**payload["interval_drift"], **oid}
+
+            orw = o.get("recent_window")
+            if isinstance(orw, dict) and isinstance(payload.get("recent_window"), dict):
+                payload["recent_window"] = {**payload["recent_window"], **orw}
 
     _live_tuning_cache[cache_key] = (now, payload)
     return jsonify(payload)
