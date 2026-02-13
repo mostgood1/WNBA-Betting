@@ -1580,6 +1580,55 @@ function attachLiveLensHandlers(root, games) {
         // ignore
       }
 
+      // Endgame foul-game correction (G + Q4): in close games late, possessions + FT rate
+      // jump; SmartSim ladder often underestimates this.
+      try {
+        const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+        const ef = t && t.endgame_foul && typeof t.endgame_foul === 'object' ? t.endgame_foul : null;
+        if (!isFinal && !isFrozen && ef && ef.enabled !== false && paceFinal != null) {
+          const pNow = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.period) : null;
+          const secLeft = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.secLeftPeriod) : null;
+          const marginHome = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.margin) : null;
+
+          const minSec = n(ef.min_sec_left) ?? 150;
+          const minM = n(ef.min_abs_margin) ?? 4;
+          const maxM = n(ef.max_abs_margin) ?? 12;
+          const maxAbs = n(ef.max_abs_points) ?? 4.0;
+          const fullPts = n(ef.points_at_full_intensity) ?? 2.0;
+
+          const isQ4 = (pNow != null && Math.floor(pNow) === 4);
+          const close = (marginHome != null) ? Math.abs(marginHome) : null;
+
+          const isGame = (totalMinutes === 48 && labelPrefix === 'G');
+          const isQ4Scope = (totalMinutes === 12 && /^Q4$/i.test(String(labelPrefix || '')));
+
+          if ((isGame || isQ4Scope) && isQ4 && secLeft != null && close != null) {
+            if (secLeft <= minSec && close >= minM && close <= maxM) {
+              const wTime = Math.max(0, Math.min(1, (minSec - secLeft) / Math.max(1e-6, minSec)));
+              const wClose = Math.max(0, Math.min(1, (maxM - close) / Math.max(1e-6, (maxM - minM))));
+              const w = Math.max(0, Math.min(1, Math.min(wTime, wClose)));
+              let adj = fullPts * w;
+              adj = Math.max(-maxAbs, Math.min(maxAbs, adj));
+              paceFinal = paceFinal + adj;
+              try {
+                if (possCtx && typeof possCtx === 'object') {
+                  possCtx.endgame_foul = {
+                    sec_left: secLeft,
+                    abs_margin: close,
+                    w,
+                    adj_points: adj,
+                  };
+                }
+              } catch (_) {
+                // ignore
+              }
+            }
+          }
+        }
+      } catch (_) {
+        // ignore
+      }
+
       let lean = null;
       if (liveTot != null && paceFinal != null) {
         const diff = paceFinal - liveTot;
@@ -2699,6 +2748,9 @@ function startLiveLensPolling(root, games, dateStr) {
       try {
         el.dataset.final = isFinal ? '1' : '0';
         el.dataset.inProgress = isInProgress ? '1' : '0';
+        el.dataset.period = (period != null && Number.isFinite(Number(period))) ? String(Math.floor(Number(period))) : '';
+        el.dataset.secLeftPeriod = (secLeftPeriod != null && Number.isFinite(Number(secLeftPeriod))) ? String(Math.max(0, Math.round(Number(secLeftPeriod)))) : '';
+        el.dataset.margin = (homeMargin != null && Number.isFinite(Number(homeMargin))) ? String(Math.round(Number(homeMargin))) : '';
       } catch (_) {
         // ignore
       }

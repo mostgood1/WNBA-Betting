@@ -18313,6 +18313,23 @@ def api_live_player_lens():
                                     except Exception:
                                         pass
 
+                                # Endgame foul-game boost (v1): close games late tend to have elevated
+                                # possessions + FT rate. Apply only to points-including markets.
+                                try:
+                                    if stat_key in {"pts", "pra", "pa", "pr"} and period == 4 and in_progress and not is_final:
+                                        sec_left = _live_parse_clock_to_sec_left(clock)
+                                        if sec_left is not None:
+                                            sec_left = int(max(0, min(12 * 60, int(sec_left))))
+                                            mabs = float(abs(int(margin))) if margin is not None else None
+                                            if mabs is not None and 4.0 <= mabs <= 12.0 and sec_left <= 150:
+                                                w_time = float(max(0.0, min(1.0, (150.0 - float(sec_left)) / 150.0)))
+                                                w_close = float(max(0.0, min(1.0, (12.0 - float(mabs)) / 8.0)))
+                                                w = float(max(0.0, min(1.0, min(w_time, w_close))))
+                                                foul_mult = 1.0 + (0.06 * w)
+                                                pace_raw = float(pace_raw) * float(foul_mult)
+                                except Exception:
+                                    pass
+
                                 # Stabilize early: blend toward a prior (sim mean preferred; else line).
                                 prior_total = None
                                 if sim_mu is not None:
@@ -18661,6 +18678,17 @@ def api_live_lens_tuning():
             "eff_weight": 0.20,
             "eff_cap_points": 2.0,
         },
+        # Endgame foul-game adjustment (client-side): close games late often see
+        # elevated possessions + FT rate; SmartSim ladder tends to understate this.
+        "endgame_foul": {
+            "enabled": True,
+            "min_sec_left": 150,
+            "min_abs_margin": 4,
+            "max_abs_margin": 12,
+            "max_abs_points": 4.0,
+            # Typical bump in final 2:30 of a close game.
+            "points_at_full_intensity": 2.0,
+        },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
 
@@ -18690,6 +18718,10 @@ def api_live_lens_tuning():
             orw = o.get("recent_window")
             if isinstance(orw, dict) and isinstance(payload.get("recent_window"), dict):
                 payload["recent_window"] = {**payload["recent_window"], **orw}
+
+            oef = o.get("endgame_foul")
+            if isinstance(oef, dict) and isinstance(payload.get("endgame_foul"), dict):
+                payload["endgame_foul"] = {**payload["endgame_foul"], **oef}
 
     _live_tuning_cache[cache_key] = (now, payload)
     return jsonify(payload)
