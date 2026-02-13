@@ -1468,6 +1468,49 @@ function attachLiveLensHandlers(root, games) {
         else driver = 'On track';
       }
 
+      // Interval drift correction: adjust projections within known-biased segments.
+      // This is a small, tunable nudge (typically end-of-quarter segments).
+      try {
+        const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+        const drift = t && t.interval_drift && typeof t.interval_drift === 'object' ? t.interval_drift : null;
+        if (!isFinal && drift && drift.enabled !== false && paceFinal != null) {
+          const ss0 = Array.isArray(segsLocal) ? segsLocal : [];
+          const elapsedMin = totalMinutes - minRem;
+          const segMin = Math.max(1, n(segMinLocal) ?? 1);
+          const segCount = Math.max(1, Math.min(100, (finalIdx != null ? (Number(finalIdx) + 1) : ss0.length) || ss0.length || 1));
+          const localSegIdx = Math.min(segCount, Math.max(1, Math.floor(elapsedMin / segMin) + 1));
+          const segObj = ss0[localSegIdx - 1];
+          const globalSegIdx = n(segObj && segObj.idx);
+          const biasMap = drift.seg_bias_points && typeof drift.seg_bias_points === 'object' ? drift.seg_bias_points : null;
+          const bias = (biasMap && globalSegIdx != null) ? n(biasMap[String(Math.round(globalSegIdx))]) : null;
+          if (bias != null) {
+            const within = elapsedMin - (Math.floor(elapsedMin / segMin) * segMin);
+            const rem = Math.max(0, Math.min(segMin, segMin - within));
+            const frac = (segMin > 1e-6) ? (rem / segMin) : 0.0;
+            const maxAbs = n(drift.max_abs_points);
+            let adj = bias * frac;
+            if (maxAbs != null && maxAbs > 0) {
+              adj = Math.max(-maxAbs, Math.min(maxAbs, adj));
+            }
+            paceFinal = paceFinal + adj;
+            try {
+              if (possCtx && typeof possCtx === 'object') {
+                possCtx.interval_drift = {
+                  global_seg_idx: globalSegIdx,
+                  bias_points: bias,
+                  rem_frac: frac,
+                  adj_points: adj,
+                };
+              }
+            } catch (_) {
+              // ignore
+            }
+          }
+        }
+      } catch (_) {
+        // ignore
+      }
+
       let lean = null;
       if (liveTot != null && paceFinal != null) {
         const diff = paceFinal - liveTot;
@@ -1515,6 +1558,8 @@ function attachLiveLensHandlers(root, games) {
         scopeEl.dataset.actPpp = (possCtx && possCtx.act_ppp != null) ? String(possCtx.act_ppp) : '';
         scopeEl.dataset.paceRatio = (possCtx && possCtx.pace_ratio != null) ? String(possCtx.pace_ratio) : '';
         scopeEl.dataset.wPace = (possCtx && possCtx.w_pace != null) ? String(possCtx.w_pace) : '';
+        // Optional interval drift context (if correction applied)
+        scopeEl.dataset.intervalDriftAdj = (possCtx && possCtx.interval_drift && possCtx.interval_drift.adj_points != null) ? String(possCtx.interval_drift.adj_points) : '';
       } catch (_) {
         // ignore
       }

@@ -18153,6 +18153,22 @@ def api_live_lens_tuning():
                 "eff_weight_proj": 0.5,
             },
         },
+        # Interval drift corrections (client-side): small, tunable nudges to account for
+        # systematic segment bias (notably end-of-quarter segments).
+        # Values are applied proportionally to the remaining fraction of the current segment.
+        # Convention: negative values LOWER the projection.
+        "interval_drift": {
+            "enabled": True,
+            "max_abs_points": 3.0,
+            # Default based on recent interval drift report (2026-02-01..2026-02-11).
+            # Keys are SmartSim global segment idx (1..16) for regulation.
+            "seg_bias_points": {
+                "4": -1.85,
+                "8": -1.75,
+                "12": -1.69,
+                "16": -2.68,
+            },
+        },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
 
@@ -18174,6 +18190,10 @@ def api_live_lens_tuning():
             oa = o.get("adjustments")
             if isinstance(oa, dict) and isinstance(payload.get("adjustments"), dict):
                 payload["adjustments"] = {**payload["adjustments"], **oa}
+
+            oid = o.get("interval_drift")
+            if isinstance(oid, dict) and isinstance(payload.get("interval_drift"), dict):
+                payload["interval_drift"] = {**payload["interval_drift"], **oid}
 
     _live_tuning_cache[cache_key] = (now, payload)
     return jsonify(payload)
