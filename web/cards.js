@@ -2567,7 +2567,17 @@ function startLiveLensPolling(root, games, dateStr) {
         const linesPromise = lineEventIds.length
           ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
           : Promise.resolve({ games: [] });
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
+        // Keep prop live lens aligned with the same recent-window size used by game live adjustments.
+        let recentWindowSec2 = 180;
+        try {
+          const t2 = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+          const rw2 = t2 && t2.recent_window && typeof t2.recent_window === 'object' ? t2.recent_window : null;
+          const w2 = n(rw2 && rw2.window_sec);
+          if (rw2 && rw2.enabled !== false && w2 != null && w2 >= 10 && w2 <= 600) recentWindowSec2 = Math.round(w2);
+        } catch (_) {
+          // ignore
+        }
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=20&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
         const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;

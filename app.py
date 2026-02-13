@@ -18047,6 +18047,21 @@ def api_live_player_lens():
         except Exception:
             margin = None
 
+        def _team_margin_for_tri(team_tri: str | None) -> float | None:
+            try:
+                if margin is None:
+                    return None
+                if not team_tri:
+                    return None
+                t0 = str(team_tri).upper().strip()
+                if home and t0 == str(home).upper().strip():
+                    return float(margin)
+                if away and t0 == str(away).upper().strip():
+                    return float(-margin)
+                return None
+            except Exception:
+                return None
+
         # Pull play-by-play actions once per game id to compute usage proxies (best-effort).
         usage_recent: dict[str, dict[str, Any]] = {}
         usage_game: dict[str, dict[str, Any]] = {}
@@ -18173,6 +18188,20 @@ def api_live_player_lens():
                             if st is True and m is not None and m >= 18.0 and rem > 0 and float(elapsed_min) >= 30.0:
                                 base = float(min(base, float(mp) + 0.55 * rem))
 
+                            # Game-script prior (v1): late-game margin affects star minutes.
+                            # Leading big late -> starters sit more; trailing big late -> starters may extend.
+                            try:
+                                tm = _team_margin_for_tri(team)
+                                rem_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                                if st is True and tm is not None and rem_min > 0 and float(elapsed_min) >= 36.0:
+                                    a = float(abs(tm))
+                                    if tm >= 10.0 and a >= 10.0:
+                                        base = float(min(base, float(mp) + 0.70 * rem_min))
+                                    elif tm <= -10.0 and a >= 10.0 and (pf_i is None or pf_i <= 4):
+                                        base = float(max(base, float(mp) + 0.85 * rem_min))
+                            except Exception:
+                                pass
+
                             proj_min_final = float(max(float(mp), min(44.0, base)))
                 except Exception:
                     proj_min_final = exp_min_eff
@@ -18238,6 +18267,21 @@ def api_live_player_lens():
                                                     w = float(usg_r) / float(usg_r + k)
                                                     role_mult = float(1.0 + (ratio_share - 1.0) * max(0.0, min(1.0, w)))
                                                     role_mult = float(max(0.80, min(1.20, role_mult)))
+
+                                        # Game-script prior (v1): shrink team pace shifts slightly by margin late.
+                                        try:
+                                            tm = _team_margin_for_tri(tri0)
+                                            rem_min2 = float(max(0.0, 48.0 - float(elapsed_min)))
+                                            if tm is not None and rem_min2 <= 6.0 and abs(float(tm)) >= 10.0:
+                                                # Leading tends to slow; trailing tends to speed.
+                                                script = 0.97 if tm >= 0 else 1.03
+                                                if pace_mult is None:
+                                                    pace_mult = float(script)
+                                                else:
+                                                    pace_mult = float(pace_mult) * float(script)
+                                                pace_mult = float(max(0.85, min(1.15, pace_mult)))
+                                        except Exception:
+                                            pass
 
                                         # Special-case threes: use recent 3PA proxy.
                                         if stat_key == "threes":
