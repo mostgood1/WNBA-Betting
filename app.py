@@ -18124,7 +18124,8 @@ def api_live_lens_tuning():
         "adjustments": {
             "game_total": {
                 "enabled": True,
-                "min_elapsed_min": 6.0,
+                # Recent log-based tuning: early totals are noisy; wait longer.
+                "min_elapsed_min": 12.0,
                 "pace_weight": 0.25,
                 "eff_weight": 0.25,
                 "pace_cap_points": 3.0,
@@ -18146,7 +18147,9 @@ def api_live_lens_tuning():
             },
             "quarter_total": {
                 "enabled": True,
-                "min_elapsed_min": 6.0,
+                # Interpreted as a FULL-GAME knob and scaled by scope length in the client.
+                # Setting to 4.0 yields ~1 minute minimum inside a quarter (4*(12/48)=1).
+                "min_elapsed_min": 4.0,
                 "eff_weight_proj": 0.5,
             },
         },

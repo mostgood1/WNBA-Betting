@@ -3127,7 +3127,19 @@ function startLiveLensPolling(root, games, dateStr) {
         totalDiffRaw = lens.paceFinal - effLineTotal;
         totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft);
         totalDiff = (totalCtx && totalCtx.diff_adj != null) ? n(totalCtx.diff_adj) : totalDiffRaw;
-        totalClass = classifyDiff(Math.abs(totalDiff), thr.total.watch, thr.total.bet);
+        // Suppress noisy early-game tags (server-tunable).
+        try {
+          const adjCfg = _liveLensGameTotalAdjCfg();
+          const minElapsed = n(adjCfg && adjCfg.min_elapsed_min);
+          const elapsedMin = 48.0 - curMinLeft;
+          if (minElapsed != null && elapsedMin < minElapsed) {
+            totalClass = 'NONE';
+          } else {
+            totalClass = classifyDiff(Math.abs(totalDiff), thr.total.watch, thr.total.bet);
+          }
+        } catch (_) {
+          totalClass = classifyDiff(Math.abs(totalDiff), thr.total.watch, thr.total.bet);
+        }
         if (totalDiff > 1.0) totalSide = 'Over';
         else if (totalDiff < -1.0) totalSide = 'Under';
         else totalSide = 'No edge';
@@ -3148,16 +3160,30 @@ function startLiveLensPolling(root, games, dateStr) {
           const pf = halfCol ? n(halfCol.dataset.paceFinal) : null;
           const sf = halfCol ? n(halfCol.dataset.simFinal) : null;
           const hl = halfCol ? n(halfCol.dataset.liveTotal) : null;
+
+          // Suppress very-early 1H tags (tunable; scaled to scope length).
+          let allowHalf = true;
+          try {
+            const adjCfg = _liveLensScopeTotalAdjCfg(24);
+            const minElapsedFull = n(adjCfg && adjCfg.min_elapsed_min);
+            const minElapsedHalf = (minElapsedFull != null) ? Math.max(1.0, minElapsedFull * (24.0 / 48.0)) : null;
+            const rem = (halfMinLeftRaw != null) ? Math.max(0, Math.min(24, Math.round(halfMinLeftRaw))) : null;
+            const elapsed = (rem != null) ? (24.0 - rem) : null;
+            if (minElapsedHalf != null && elapsed != null && elapsed < minElapsedHalf) allowHalf = false;
+          } catch (_) {
+            allowHalf = true;
+          }
+
           if (pf != null && hl != null) {
             halfDiff = pf - hl;
-            halfClass = classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet);
+            halfClass = allowHalf ? classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet) : 'NONE';
             if (halfDiff > 1.0) halfSide = 'Over';
             else if (halfDiff < -1.0) halfSide = 'Under';
             else halfSide = 'No edge';
           } else if (pf != null && sf != null) {
             // Fallback: vs pregame half baseline when no live half line.
             halfDiff = pf - sf;
-            halfClass = classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet);
+            halfClass = allowHalf ? classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet) : 'NONE';
             if (halfDiff > 1.0) halfSide = 'Over';
             else if (halfDiff < -1.0) halfSide = 'Under';
             else halfSide = 'No edge';
@@ -3186,16 +3212,29 @@ function startLiveLensPolling(root, games, dateStr) {
           const pf = qCol ? n(qCol.dataset.paceFinal) : null;
           const sf = qCol ? n(qCol.dataset.simFinal) : null;
           const ql = qCol ? n(qCol.dataset.liveTotal) : null;
+
+          // Suppress very-early quarter tags (tunable; scaled to scope length).
+          let allowQ = true;
+          try {
+            const adjCfg = _liveLensScopeTotalAdjCfg(12);
+            const minElapsedFull = n(adjCfg && adjCfg.min_elapsed_min);
+            const minElapsedQ = (minElapsedFull != null) ? Math.max(0.0, minElapsedFull * (12.0 / 48.0)) : null;
+            const elapsed = (secLeftPeriodRaw != null) ? (12.0 - Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0))))) : null;
+            if (minElapsedQ != null && elapsed != null && elapsed < minElapsedQ) allowQ = false;
+          } catch (_) {
+            allowQ = true;
+          }
+
           if (pf != null && ql != null) {
             qDiff = pf - ql;
-            qClass = classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet);
+            qClass = allowQ ? classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet) : 'NONE';
             if (qDiff > 1.0) qSide = 'Over';
             else if (qDiff < -1.0) qSide = 'Under';
             else qSide = 'No edge';
           } else if (pf != null && sf != null) {
             // Fallback: vs pregame quarter baseline when no live quarter line.
             qDiff = pf - sf;
-            qClass = classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet);
+            qClass = allowQ ? classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet) : 'NONE';
             if (qDiff > 1.0) qSide = 'Over';
             else if (qDiff < -1.0) qSide = 'Under';
             else qSide = 'No edge';

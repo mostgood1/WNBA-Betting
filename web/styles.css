@@ -63,6 +63,28 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 }
 
 .scoreboard-strip .s-item.neu { }
+
+/* Mobile: keep jump strip always available + easier to tap */
+@media (max-width: 640px) {
+	.scoreboard-strip {
+		position: sticky;
+		top: 0;
+		z-index: 50;
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		-webkit-overflow-scrolling: touch;
+		border-radius: 0;
+	}
+
+	.scoreboard-strip .s-item {
+		padding: 10px 12px;
+		font-size: 13px;
+		gap: 12px;
+	}
+
+	/* Ensure jump-to-card doesn't get hidden behind sticky strip */
+	.card { scroll-margin-top: 72px; }
+}
 .card { background: #141b3a; border: 1px solid #1f2a5a; border-radius: 14px; padding: 16px; display: grid; gap: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.28); }
 .card.live-edge-ok { border-color: #1e7a45; box-shadow: 0 0 0 1px rgba(30,122,69,0.45), 0 2px 10px rgba(0,0,0,0.35); }
 .card.live-edge-warn { border-color: #6a5a1f; box-shadow: 0 0 0 1px rgba(106,90,31,0.45), 0 2px 10px rgba(0,0,0,0.35); }
