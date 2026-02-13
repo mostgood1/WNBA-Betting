@@ -18225,6 +18225,17 @@ def api_live_player_lens():
                             continue
 
                         pace_proj = None
+                        pace_mult_used = None
+                        role_mult_used = None
+                        foul_mult_used = None
+                        usg_recent0 = None
+                        usg_game0 = None
+                        team_usg_recent0 = None
+                        team_usg_game0 = None
+                        fg3a_recent0 = None
+                        fg3a_game0 = None
+                        team_3a_recent0 = None
+                        team_3a_game0 = None
                         if actual is not None and mp is not None and mp > 0 and proj_min_final is not None and proj_min_final > 0:
                             try:
                                 em = float(max(mp, min(44.0, proj_min_final)))
@@ -18233,12 +18244,39 @@ def api_live_player_lens():
                                 # Role/usage detection (v1): adjust pace_raw by recent-vs-game usage proxy ratio.
                                 role_mult = None
                                 pace_mult = None
+                                foul_mult_used = 1.0
                                 try:
                                     ur = usage_recent.get(nk) if isinstance(usage_recent, dict) else None
                                     ug = usage_game.get(nk) if isinstance(usage_game, dict) else None
                                     if isinstance(ur, dict) and isinstance(ug, dict) and elapsed_min is not None:
                                         win_min = float(max(0.25, float(recent_window_sec) / 60.0))
                                         tri0 = str(ur.get("team_tri") or ug.get("team_tri") or team or "").upper().strip() or "unknown"
+
+                                        # Diagnostics: raw usage proxies (player + team)
+                                        try:
+                                            usg_recent0 = _num(ur.get("usg_proxy"))
+                                            usg_game0 = _num(ug.get("usg_proxy"))
+                                        except Exception:
+                                            usg_recent0 = None
+                                            usg_game0 = None
+                                        try:
+                                            team_usg_recent0 = _num(team_recent_usg.get(tri0))
+                                            team_usg_game0 = _num(team_game_usg.get(tri0))
+                                        except Exception:
+                                            team_usg_recent0 = None
+                                            team_usg_game0 = None
+                                        try:
+                                            fg3a_recent0 = _num(ur.get("fg3a"))
+                                            fg3a_game0 = _num(ug.get("fg3a"))
+                                        except Exception:
+                                            fg3a_recent0 = None
+                                            fg3a_game0 = None
+                                        try:
+                                            team_3a_recent0 = _num(team_recent_3a.get(tri0))
+                                            team_3a_game0 = _num(team_game_3a.get(tri0))
+                                        except Exception:
+                                            team_3a_recent0 = None
+                                            team_3a_game0 = None
 
                                         usg_r = _num(ur.get("usg_proxy"))
                                         usg_g = _num(ug.get("usg_proxy"))
@@ -18304,6 +18342,16 @@ def api_live_player_lens():
                                     role_mult = None
                                     pace_mult = None
 
+                                # Capture final multipliers (post-script/shrink). They may be None when we lack PBP.
+                                try:
+                                    pace_mult_used = float(pace_mult) if pace_mult is not None else None
+                                except Exception:
+                                    pace_mult_used = None
+                                try:
+                                    role_mult_used = float(role_mult) if role_mult is not None else None
+                                except Exception:
+                                    role_mult_used = None
+
                                 if stat_key in {"pts", "threes", "ast", "pra", "pa", "pr", "ra"}:
                                     try:
                                         if pace_mult is not None:
@@ -18326,6 +18374,7 @@ def api_live_player_lens():
                                                 w_close = float(max(0.0, min(1.0, (12.0 - float(mabs)) / 8.0)))
                                                 w = float(max(0.0, min(1.0, min(w_time, w_close))))
                                                 foul_mult = 1.0 + (0.06 * w)
+                                                foul_mult_used = float(foul_mult)
                                                 pace_raw = float(pace_raw) * float(foul_mult)
                                 except Exception:
                                     pass
@@ -18363,6 +18412,7 @@ def api_live_player_lens():
                             "name_key": nk,
                             "mp": mp,
                             "pf": pf,
+                            "starter": starter,
                             "stat": stat_key,
                             "actual": actual,
                             "sim_mu": sim_mu,
@@ -18376,6 +18426,17 @@ def api_live_player_lens():
                             "lean": lean,
                             "strength": strength,
                             "_usage_window_sec": recent_window_sec,
+                            "pace_mult": pace_mult_used,
+                            "role_mult": role_mult_used,
+                            "foul_mult": foul_mult_used,
+                            "usg_recent": usg_recent0,
+                            "usg_game": usg_game0,
+                            "team_usg_recent": team_usg_recent0,
+                            "team_usg_game": team_usg_game0,
+                            "fg3a_recent": fg3a_recent0,
+                            "fg3a_game": fg3a_game0,
+                            "team_3a_recent": team_3a_recent0,
+                            "team_3a_game": team_3a_game0,
                         })
                     except Exception:
                         continue

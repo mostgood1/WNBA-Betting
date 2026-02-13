@@ -2370,6 +2370,7 @@ function getTuningThresholds() {
     quarter_total: thr('quarter_total', 2.0, 4.0),
     ats: thr('ats', 2.0, 4.0),
     ml: thr('ml', 0.03, 0.06),
+    player_prop: thr('player_prop', 2.0, 4.0),
     roundHalf: !!(t && t.round_live_line_to_half),
     adjustments: (t && t.adjustments && typeof t.adjustments === 'object') ? t.adjustments : null,
     logging: (t && t.logging && typeof t.logging === 'object') ? t.logging : null,
@@ -3612,6 +3613,77 @@ function startLiveLensPolling(root, games, dateStr) {
         margin_home: (live && live.score) ? n(live.score.home_margin) : null,
         tuning_source: 'api',
       };
+
+      // Player props (top edges; throttled)
+      try {
+        const pr = (livePlayerLens && typeof livePlayerLens === 'object') ? livePlayerLens.rows : null;
+        const rows = Array.isArray(pr) ? pr : [];
+        if (!isFinal && rows.length) {
+          const scored = rows
+            .filter((r) => r && r.player && r.stat && r.line != null && r.pace_vs_line != null)
+            .map((r) => {
+              const strength = Math.abs(n(r.pace_vs_line) ?? 0);
+              return { r, strength };
+            })
+            .filter((x) => x.strength != null && x.strength >= (thr.player_prop ? thr.player_prop.watch : 2.0))
+            .sort((a, b) => (b.strength - a.strength))
+            .slice(0, 8);
+
+          for (const it of scored) {
+            const r = it.r;
+            const strength = it.strength;
+            const klass = classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
+            const nameKey = (r.name_key != null) ? String(r.name_key) : normPlayerName(r.player);
+            const statKey = String(r.stat || '').toLowerCase().trim();
+            const throttleKey = `player_prop:${nameKey}:${statKey}`;
+            const side = (r.lean != null && String(r.lean).trim()) ? String(r.lean).trim().toUpperCase() : ((n(r.pace_vs_line) > 0) ? 'OVER' : ((n(r.pace_vs_line) < 0) ? 'UNDER' : null));
+
+            await maybeLog(throttleKey, klass, {
+              ...baseLog,
+              klass,
+              horizon: 'live',
+              market: 'player_prop',
+              signal_key: throttleKey,
+              player: r.player,
+              team_tri: r.team_tri,
+              name_key: nameKey,
+              stat: statKey,
+              side,
+              mp: n(r.mp),
+              pf: n(r.pf),
+              starter: (r.starter != null) ? !!r.starter : null,
+              actual: n(r.actual),
+              line: n(r.line),
+              pace_proj: n(r.pace_proj),
+              sim_mu: n(r.sim_mu),
+              edge: n(r.pace_vs_line),
+              edge_raw: n(r.pace_vs_line),
+              edge_adj: n(r.pace_vs_line),
+              strength,
+              context: {
+                sim_vs_line: n(r.sim_vs_line),
+                exp_min: n(r.exp_min),
+                exp_min_eff: n(r.exp_min_eff),
+                proj_min_final: n(r.proj_min_final),
+                usage_window_sec: n(r._usage_window_sec),
+                pace_mult: n(r.pace_mult),
+                role_mult: n(r.role_mult),
+                foul_mult: n(r.foul_mult),
+                usg_recent: n(r.usg_recent),
+                usg_game: n(r.usg_game),
+                team_usg_recent: n(r.team_usg_recent),
+                team_usg_game: n(r.team_usg_game),
+                fg3a_recent: n(r.fg3a_recent),
+                fg3a_game: n(r.fg3a_game),
+                team_3a_recent: n(r.team_3a_recent),
+                team_3a_game: n(r.team_3a_game),
+              },
+            });
+          }
+        }
+      } catch (_) {
+        // ignore
+      }
 
       // Game total
       await maybeLog('game_total', totalClass, {
