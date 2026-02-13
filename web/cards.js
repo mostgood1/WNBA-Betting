@@ -1678,6 +1678,24 @@ function attachLiveLensHandlers(root, games) {
         scopeEl.dataset.wPace = (possCtx && possCtx.w_pace != null) ? String(possCtx.w_pace) : '';
         // Optional interval drift context (if correction applied)
         scopeEl.dataset.intervalDriftAdj = (possCtx && possCtx.interval_drift && possCtx.interval_drift.adj_points != null) ? String(possCtx.interval_drift.adj_points) : '';
+        scopeEl.dataset.intervalDriftSegIdx = (possCtx && possCtx.interval_drift && possCtx.interval_drift.global_seg_idx != null) ? String(possCtx.interval_drift.global_seg_idx) : '';
+        scopeEl.dataset.intervalDriftBias = (possCtx && possCtx.interval_drift && possCtx.interval_drift.bias_points != null) ? String(possCtx.interval_drift.bias_points) : '';
+        scopeEl.dataset.intervalDriftRemFrac = (possCtx && possCtx.interval_drift && possCtx.interval_drift.rem_frac != null) ? String(possCtx.interval_drift.rem_frac) : '';
+
+        // Optional recent-window context (if applied)
+        scopeEl.dataset.recentWindowSec = (possCtx && possCtx.recent_window && possCtx.recent_window.window_sec != null) ? String(possCtx.recent_window.window_sec) : (scopeEl.dataset.recentWindowSec || '');
+        scopeEl.dataset.recentWindowPoss = (possCtx && possCtx.recent_window && possCtx.recent_window.poss != null) ? String(possCtx.recent_window.poss) : '';
+        scopeEl.dataset.recentWindowPts = (possCtx && possCtx.recent_window && possCtx.recent_window.pts != null) ? String(possCtx.recent_window.pts) : '';
+        scopeEl.dataset.recentWindowPaceRatio = (possCtx && possCtx.recent_window && possCtx.recent_window.pace_ratio_recent != null) ? String(possCtx.recent_window.pace_ratio_recent) : '';
+        scopeEl.dataset.recentWindowW = (possCtx && possCtx.recent_window && possCtx.recent_window.w_recent != null) ? String(possCtx.recent_window.w_recent) : '';
+        scopeEl.dataset.recentWindowPaceAdj = (possCtx && possCtx.recent_window && possCtx.recent_window.pace_adj != null) ? String(possCtx.recent_window.pace_adj) : '';
+        scopeEl.dataset.recentWindowEffAdj = (possCtx && possCtx.recent_window && possCtx.recent_window.eff_adj != null) ? String(possCtx.recent_window.eff_adj) : '';
+
+        // Optional endgame foul context (if applied)
+        scopeEl.dataset.endgameFoulAdj = (possCtx && possCtx.endgame_foul && possCtx.endgame_foul.adj_points != null) ? String(possCtx.endgame_foul.adj_points) : '';
+        scopeEl.dataset.endgameFoulW = (possCtx && possCtx.endgame_foul && possCtx.endgame_foul.w != null) ? String(possCtx.endgame_foul.w) : '';
+        scopeEl.dataset.endgameFoulSecLeft = (possCtx && possCtx.endgame_foul && possCtx.endgame_foul.sec_left != null) ? String(possCtx.endgame_foul.sec_left) : '';
+        scopeEl.dataset.endgameFoulAbsMargin = (possCtx && possCtx.endgame_foul && possCtx.endgame_foul.abs_margin != null) ? String(possCtx.endgame_foul.abs_margin) : '';
       } catch (_) {
         // ignore
       }
@@ -3589,6 +3607,9 @@ function startLiveLensPolling(root, games, dateStr) {
         away: meta.away,
         pbp: live.pbp_attempts,
         pbp_possessions: live.pbp_possessions,
+        period: period,
+        sec_left_period: secLeftPeriodRaw,
+        margin_home: (live && live.score) ? n(live.score.home_margin) : null,
         tuning_source: 'api',
       };
 
@@ -3616,6 +3637,31 @@ function startLiveLensPolling(root, games, dateStr) {
           exp_home_pace: meta.home_pace,
           exp_away_pace: meta.away_pace,
           exp_total_mean: meta.total_mean,
+          scope_adjustments: (() => {
+            try {
+              const totalCol = el.querySelector('.lens-col[data-scope="total"]');
+              if (!totalCol || !totalCol.dataset) return null;
+              return {
+                interval_drift_adj: n(totalCol.dataset.intervalDriftAdj),
+                interval_drift_seg_idx: n(totalCol.dataset.intervalDriftSegIdx),
+                interval_drift_bias_points: n(totalCol.dataset.intervalDriftBias),
+                interval_drift_rem_frac: n(totalCol.dataset.intervalDriftRemFrac),
+                recent_window_sec: n(totalCol.dataset.recentWindowSec),
+                recent_window_poss: n(totalCol.dataset.recentWindowPoss),
+                recent_window_pts: n(totalCol.dataset.recentWindowPts),
+                recent_window_pace_ratio: n(totalCol.dataset.recentWindowPaceRatio),
+                recent_window_w: n(totalCol.dataset.recentWindowW),
+                recent_window_pace_adj: n(totalCol.dataset.recentWindowPaceAdj),
+                recent_window_eff_adj: n(totalCol.dataset.recentWindowEffAdj),
+                endgame_foul_adj: n(totalCol.dataset.endgameFoulAdj),
+                endgame_foul_w: n(totalCol.dataset.endgameFoulW),
+                endgame_foul_sec_left: n(totalCol.dataset.endgameFoulSecLeft),
+                endgame_foul_abs_margin: n(totalCol.dataset.endgameFoulAbsMargin),
+              };
+            } catch (_) {
+              return null;
+            }
+          })(),
           pace_components: (possInfoForLog && typeof possInfoForLog === 'object') ? {
             pace_final: possInfoForLog.pace_final,
             pace_points: possInfoForLog.pace_points,
@@ -3655,6 +3701,21 @@ function startLiveLensPolling(root, games, dateStr) {
               act_ppp: n(halfCol.dataset.actPpp),
               pace_ratio: n(halfCol.dataset.paceRatio),
               w_pace: n(halfCol.dataset.wPace),
+              interval_drift_adj: n(halfCol.dataset.intervalDriftAdj),
+              interval_drift_seg_idx: n(halfCol.dataset.intervalDriftSegIdx),
+              interval_drift_bias_points: n(halfCol.dataset.intervalDriftBias),
+              interval_drift_rem_frac: n(halfCol.dataset.intervalDriftRemFrac),
+              recent_window_sec: n(halfCol.dataset.recentWindowSec),
+              recent_window_poss: n(halfCol.dataset.recentWindowPoss),
+              recent_window_pts: n(halfCol.dataset.recentWindowPts),
+              recent_window_pace_ratio: n(halfCol.dataset.recentWindowPaceRatio),
+              recent_window_w: n(halfCol.dataset.recentWindowW),
+              recent_window_pace_adj: n(halfCol.dataset.recentWindowPaceAdj),
+              recent_window_eff_adj: n(halfCol.dataset.recentWindowEffAdj),
+              endgame_foul_adj: n(halfCol.dataset.endgameFoulAdj),
+              endgame_foul_w: n(halfCol.dataset.endgameFoulW),
+              endgame_foul_sec_left: n(halfCol.dataset.endgameFoulSecLeft),
+              endgame_foul_abs_margin: n(halfCol.dataset.endgameFoulAbsMargin),
             };
           } catch (_) {
             return null;
@@ -3692,6 +3753,21 @@ function startLiveLensPolling(root, games, dateStr) {
               act_ppp: n(qCol.dataset.actPpp),
               pace_ratio: n(qCol.dataset.paceRatio),
               w_pace: n(qCol.dataset.wPace),
+              interval_drift_adj: n(qCol.dataset.intervalDriftAdj),
+              interval_drift_seg_idx: n(qCol.dataset.intervalDriftSegIdx),
+              interval_drift_bias_points: n(qCol.dataset.intervalDriftBias),
+              interval_drift_rem_frac: n(qCol.dataset.intervalDriftRemFrac),
+              recent_window_sec: n(qCol.dataset.recentWindowSec),
+              recent_window_poss: n(qCol.dataset.recentWindowPoss),
+              recent_window_pts: n(qCol.dataset.recentWindowPts),
+              recent_window_pace_ratio: n(qCol.dataset.recentWindowPaceRatio),
+              recent_window_w: n(qCol.dataset.recentWindowW),
+              recent_window_pace_adj: n(qCol.dataset.recentWindowPaceAdj),
+              recent_window_eff_adj: n(qCol.dataset.recentWindowEffAdj),
+              endgame_foul_adj: n(qCol.dataset.endgameFoulAdj),
+              endgame_foul_w: n(qCol.dataset.endgameFoulW),
+              endgame_foul_sec_left: n(qCol.dataset.endgameFoulSecLeft),
+              endgame_foul_abs_margin: n(qCol.dataset.endgameFoulAbsMargin),
             };
           } catch (_) {
             return null;
