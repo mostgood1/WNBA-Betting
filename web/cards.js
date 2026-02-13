@@ -1373,6 +1373,9 @@ function attachLiveLensHandlers(root, games) {
       const delta = (simAt == null) ? null : (simAt - actTot); // Sim - Act
       let paceFinal = (simAt != null && simFinal != null) ? (actTot + (simFinal - simAt)) : null;
 
+      // Optional context for logging/tuning.
+      let possCtx = null;
+
       // Interval-smart adjustment: use live possessions (per-scope) + SmartSim expected pace/PPP.
       try {
         const adjCfg = _liveLensScopeTotalAdjCfg(totalMinutes);
@@ -1391,6 +1394,21 @@ function attachLiveLensHandlers(root, games) {
         // Prefer the scope median as the PPP prior when possible (captures quarter/half scoring shape).
         const expPppScope = (simFinal != null && possExpectedFull != null && possExpectedFull > 1e-6) ? (simFinal / possExpectedFull) : null;
         const expPpp = (expPppScope != null) ? expPppScope : expPppGame;
+
+        try {
+          const actPpp0 = (actTot != null && possLive != null) ? (actTot / Math.max(1.0, possLive)) : null;
+          possCtx = {
+            poss_live: possLive,
+            poss_expected_so_far: possExpectedSoFar,
+            poss_expected_full: possExpectedFull,
+            exp_ppp: expPpp,
+            act_ppp: actPpp0,
+            pace_ratio: (possLive != null && possExpectedSoFar != null && possExpectedSoFar > 1e-6) ? (possLive / possExpectedSoFar) : null,
+            w_pace: 0.0,
+          };
+        } catch (_) {
+          possCtx = null;
+        }
 
         if (adjCfg && adjCfg.enabled === false) {
           // disabled via tuning
@@ -1411,6 +1429,7 @@ function attachLiveLensHandlers(root, games) {
               const wPoss = Math.max(0, Math.min(1, (possLive - possMin) / Math.max(1e-6, possRange)));
               const wTime = Math.max(0, Math.min(1, (elapsedMin - timeMin) / Math.max(1e-6, timeRange)));
               const wPace = Math.max(0, Math.min(1, Math.min(wPoss, wTime)));
+              try { if (possCtx && typeof possCtx === 'object') possCtx.w_pace = wPace; } catch (_) { /* ignore */ }
 
               const paceRatioShrunk = 1.0 + (paceRatio - 1.0) * wPace;
               const actPpp = actTot / Math.max(1.0, possLive);
@@ -1488,6 +1507,14 @@ function attachLiveLensHandlers(root, games) {
         scopeEl.dataset.paceFinal = (paceFinal == null) ? '' : String(paceFinal);
         scopeEl.dataset.deltaSimMinusAct = (delta == null) ? '' : String(delta);
         scopeEl.dataset.liveTotal = (liveTot == null) ? '' : String(liveTot);
+
+        // Optional logging context (best-effort)
+        scopeEl.dataset.possExpectedSoFar = (possCtx && possCtx.poss_expected_so_far != null) ? String(possCtx.poss_expected_so_far) : '';
+        scopeEl.dataset.possExpectedFull = (possCtx && possCtx.poss_expected_full != null) ? String(possCtx.poss_expected_full) : '';
+        scopeEl.dataset.expPpp = (possCtx && possCtx.exp_ppp != null) ? String(possCtx.exp_ppp) : '';
+        scopeEl.dataset.actPpp = (possCtx && possCtx.act_ppp != null) ? String(possCtx.act_ppp) : '';
+        scopeEl.dataset.paceRatio = (possCtx && possCtx.pace_ratio != null) ? String(possCtx.pace_ratio) : '';
+        scopeEl.dataset.wPace = (possCtx && possCtx.w_pace != null) ? String(possCtx.w_pace) : '';
       } catch (_) {
         // ignore
       }
@@ -3376,6 +3403,23 @@ function startLiveLensPolling(root, games, dateStr) {
         side: halfSide,
         edge: halfDiff,
         strength: (halfDiff != null) ? Math.abs(halfDiff) : null,
+        context: (() => {
+          try {
+            const halfCol = el.querySelector('.lens-col[data-scope="half"]');
+            if (!halfCol || !halfCol.dataset) return null;
+            return {
+              poss_live: n(halfCol.dataset.possLive),
+              poss_expected_so_far: n(halfCol.dataset.possExpectedSoFar),
+              poss_expected_full: n(halfCol.dataset.possExpectedFull),
+              exp_ppp: n(halfCol.dataset.expPpp),
+              act_ppp: n(halfCol.dataset.actPpp),
+              pace_ratio: n(halfCol.dataset.paceRatio),
+              w_pace: n(halfCol.dataset.wPace),
+            };
+          } catch (_) {
+            return null;
+          }
+        })(),
       });
 
       // Current quarter total
@@ -3393,6 +3437,26 @@ function startLiveLensPolling(root, games, dateStr) {
         side: qSide,
         edge: qDiff,
         strength: (qDiff != null) ? Math.abs(qDiff) : null,
+        context: (() => {
+          try {
+            const pNow = (period == null) ? null : Number(period);
+            const qNum = (pNow != null && Number.isFinite(pNow)) ? Math.floor(pNow) : null;
+            if (qNum == null) return null;
+            const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
+            if (!qCol || !qCol.dataset) return null;
+            return {
+              poss_live: n(qCol.dataset.possLive),
+              poss_expected_so_far: n(qCol.dataset.possExpectedSoFar),
+              poss_expected_full: n(qCol.dataset.possExpectedFull),
+              exp_ppp: n(qCol.dataset.expPpp),
+              act_ppp: n(qCol.dataset.actPpp),
+              pace_ratio: n(qCol.dataset.paceRatio),
+              w_pace: n(qCol.dataset.wPace),
+            };
+          } catch (_) {
+            return null;
+          }
+        })(),
       });
 
       // ATS
