@@ -723,8 +723,9 @@ def _live_espn_actions_from_summary(summary: dict[str, Any]) -> list[dict[str, A
 def _live_extract_player_boxscore_from_espn_summary(summary: dict[str, Any]) -> list[dict[str, Any]]:
     """Extract per-player boxscore totals from an ESPN /summary payload.
 
-    Returns a flat list of dicts with keys:
-      team_tri, player_id, player, mp, pts, reb, ast, stl, blk, tov, threes_made
+        Returns a flat list of dicts with keys:
+            team_tri, player_id, player, mp, pts, reb, ast, stl, blk, tov, threes_made,
+            pf (personal fouls, best-effort), starter (best-effort)
 
     This is best-effort and tolerant to ESPN schema changes.
     """
@@ -812,6 +813,11 @@ def _live_extract_player_boxscore_from_espn_summary(summary: dict[str, Any]) -> 
                 for a in athletes:
                     if not isinstance(a, dict):
                         continue
+                    starter = None
+                    try:
+                        starter = bool(a.get("starter")) if ("starter" in a) else None
+                    except Exception:
+                        starter = None
                     ath = a.get("athlete") if isinstance(a.get("athlete"), dict) else {}
                     player_id = str(ath.get("id") or "").strip() or None
                     player = str(ath.get("displayName") or ath.get("shortName") or a.get("name") or "").strip()
@@ -837,6 +843,18 @@ def _live_extract_player_boxscore_from_espn_summary(summary: dict[str, Any]) -> 
                     stl = _to_int(m.get("stl") or m.get("steals"))
                     blk = _to_int(m.get("blk") or m.get("blocks"))
                     tov = _to_int(m.get("to") or m.get("tov") or m.get("turnovers"))
+
+                    pf = _to_int(m.get("pf") or m.get("fouls") or m.get("pfouls") or m.get("personal fouls"))
+                    if pf is None:
+                        try:
+                            for k, v in m.items():
+                                kk = str(k or "").lower().strip()
+                                if kk in {"pf", "fouls", "personal fouls"} or ("foul" in kk and len(kk) <= 20):
+                                    pf = _to_int(v)
+                                    if pf is not None:
+                                        break
+                        except Exception:
+                            pf = None
 
                     threes = _parse_made_attempts(m.get("3pt") or m.get("3pm") or m.get("3p"))
                     if threes is None:
@@ -867,6 +885,8 @@ def _live_extract_player_boxscore_from_espn_summary(summary: dict[str, Any]) -> 
                             "blk": blk,
                             "tov": tov,
                             "threes_made": threes,
+                            "pf": pf,
+                            "starter": starter,
                         }
                     )
 
@@ -1634,6 +1654,149 @@ def _live_pbp_recent_window_stats(actions: list[dict[str, Any]], window_sec: int
         "points_total": points_total,
         "attempts": attempts,
         "possessions": possessions,
+    }
+
+
+def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int = 180) -> dict[str, Any]:
+    """Compute recent-window + game-to-date player usage proxies from CDN actions.
+
+    Output:
+      {
+        window_sec, latest_elapsed_reg_sec, cutoff_elapsed_reg_sec,
+        recent: {NAME_KEY: {team_tri, fga, fg3a, fta, pts_from_shots, usg_proxy}},
+        game:   {NAME_KEY: {team_tri, fga, fg3a, fta, pts_from_shots, usg_proxy}},
+      }
+
+    Notes:
+    - NAME_KEY uses `_norm_player_name()` to match against props artifacts.
+    - usg_proxy is a simple boxscore-like usage proxy: fga + 0.44*fta.
+    - Regulation only; OT actions are ignored.
+    """
+    try:
+        w = int(max(10, min(600, int(window_sec or 180))))
+    except Exception:
+        w = 180
+
+    def _elapsed_reg_sec(a: dict[str, Any]) -> int | None:
+        try:
+            per = _safe_int(a.get("period"))
+            if per is None or per < 1 or per > 4:
+                return None
+            sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
+            if sec_left is None:
+                return None
+            sec_left = int(max(0, min(12 * 60, sec_left)))
+            elapsed = int((per - 1) * (12 * 60) + ((12 * 60) - sec_left))
+            return int(max(0, min(48 * 60, elapsed)))
+        except Exception:
+            return None
+
+    def _init(team_tri: str | None) -> dict[str, Any]:
+        return {
+            "team_tri": team_tri,
+            "fga": 0,
+            "fg3a": 0,
+            "fta": 0,
+            "pts_from_shots": 0,
+            "usg_proxy": 0.0,
+        }
+
+    def _touch(d: dict[str, Any], tri: str | None) -> dict[str, Any]:
+        if d is None:
+            d = {}
+        if d.get("team_tri") is None and tri:
+            d["team_tri"] = tri
+        return d
+
+    acts = actions or []
+    if not acts:
+        return {"window_sec": w, "latest_elapsed_reg_sec": None, "cutoff_elapsed_reg_sec": None, "recent": {}, "game": {}}
+
+    latest = None
+    for a in acts:
+        e = _elapsed_reg_sec(a) if isinstance(a, dict) else None
+        if e is None:
+            continue
+        if latest is None or int(e) > int(latest):
+            latest = int(e)
+    if latest is None:
+        return {"window_sec": w, "latest_elapsed_reg_sec": None, "cutoff_elapsed_reg_sec": None, "recent": {}, "game": {}}
+
+    cutoff = int(max(0, int(latest) - int(w)))
+
+    recent: dict[str, dict[str, Any]] = {}
+    game: dict[str, dict[str, Any]] = {}
+
+    for a in acts:
+        if not isinstance(a, dict):
+            continue
+        e = _elapsed_reg_sec(a)
+        if e is None:
+            continue
+        # Track game-to-date for regulation only.
+        tri = str(a.get("teamTricode") or "").upper().strip() or None
+        pname = str(a.get("playerName") or a.get("playerNameI") or "").strip()
+        if not pname:
+            continue
+        nk = _norm_player_name(pname)
+        if not nk:
+            continue
+
+        a_type = str(a.get("actionType") or "").lower()
+        shot_res = str(a.get("shotResult") or "").lower()
+        is_made = (shot_res == "made")
+
+        is_fg = a.get("isFieldGoal")
+        try:
+            is_fg = bool(int(is_fg))
+        except Exception:
+            is_fg = bool(is_fg)
+
+        def _apply(dest: dict[str, dict[str, Any]]):
+            d0 = dest.get(nk)
+            if not isinstance(d0, dict):
+                d0 = _init(tri)
+            d0 = _touch(d0, tri)
+
+            # Field goal attempts
+            if is_fg:
+                d0["fga"] = int(d0.get("fga") or 0) + 1
+                try:
+                    shot_val = int(a.get("shotValue") or 0)
+                except Exception:
+                    shot_val = 0
+                if shot_val == 3:
+                    d0["fg3a"] = int(d0.get("fg3a") or 0) + 1
+                if is_made:
+                    d0["pts_from_shots"] = int(d0.get("pts_from_shots") or 0) + int(max(0, shot_val))
+
+            # Free throw attempts
+            if "free throw" in a_type:
+                d0["fta"] = int(d0.get("fta") or 0) + 1
+                if is_made:
+                    d0["pts_from_shots"] = int(d0.get("pts_from_shots") or 0) + 1
+
+            try:
+                fga = int(d0.get("fga") or 0)
+                fta = int(d0.get("fta") or 0)
+                d0["usg_proxy"] = float(fga) + 0.44 * float(fta)
+            except Exception:
+                pass
+
+            dest[nk] = d0
+
+        # Always apply to game-to-date
+        _apply(game)
+        # Apply to recent window if within cutoff
+        if int(e) >= cutoff and int(e) <= int(latest):
+            _apply(recent)
+
+    return {
+        "window_sec": int(w),
+        "latest_elapsed_reg_sec": int(latest),
+        "cutoff_elapsed_reg_sec": int(cutoff),
+        "recent": recent,
+        "game": game,
     }
 
 
@@ -17764,6 +17927,11 @@ def api_live_player_lens():
       { ok, ttl, date, games:[{event_id, game_id, home, away, status:{...}, rows:[...]}], generated_at }
     """
     ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    try:
+        recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))
+    except Exception:
+        recent_window_sec = 180
+    recent_window_sec = int(max(10, min(600, recent_window_sec)))
     event_ids_raw = (request.args.get("event_ids") or "").strip()
     if not event_ids_raw:
         return jsonify({"error": "missing event_ids"}), 400
@@ -17774,7 +17942,7 @@ def api_live_player_lens():
     d = _parse_date_param(request, default_to_today=False) or ""
 
     now = time.time()
-    cache_key = f"{d}:{ttl}:" + ",".join(event_ids)
+    cache_key = f"{d}:{ttl}:{recent_window_sec}:" + ",".join(event_ids)
     ent = _live_player_lens_multi_cache.get(cache_key)
     if ent and (now - ent[0] < ttl):
         return jsonify(ent[1])
@@ -17869,6 +18037,30 @@ def api_live_player_lens():
 
         elapsed_min = _live_game_elapsed_minutes(period, clock, is_final)
 
+        # Margin (home - away) for blowout-aware minutes projections.
+        margin = None
+        try:
+            hp = _safe_int(g.get("home_pts")) if isinstance(g, dict) else None
+            ap = _safe_int(g.get("away_pts")) if isinstance(g, dict) else None
+            if hp is not None and ap is not None:
+                margin = int(hp - ap)
+        except Exception:
+            margin = None
+
+        # Pull play-by-play actions once per game id to compute usage proxies (best-effort).
+        usage_recent: dict[str, dict[str, Any]] = {}
+        usage_game: dict[str, dict[str, Any]] = {}
+        try:
+            if gid and in_progress and not is_final:
+                actions = _live_fetch_pbp_actions(str(gid))
+                u = _live_pbp_recent_player_usage(actions, window_sec=recent_window_sec) if actions else None
+                if isinstance(u, dict):
+                    usage_recent = u.get("recent") if isinstance(u.get("recent"), dict) else {}
+                    usage_game = u.get("game") if isinstance(u.get("game"), dict) else {}
+        except Exception:
+            usage_recent = {}
+            usage_game = {}
+
         rows: list[dict[str, Any]] = []
         for p in players or []:
             try:
@@ -17880,6 +18072,8 @@ def api_live_player_lens():
                 pred_row = preds_idx.get((team, nk)) if preds_idx else None
 
                 mp = _num(p.get("mp"))
+                pf = _num(p.get("pf"))
+                starter = p.get("starter") if isinstance(p, dict) else None
                 pts = _num(p.get("pts"))
                 reb = _num(p.get("reb"))
                 ast = _num(p.get("ast"))
@@ -17912,6 +18106,47 @@ def api_live_player_lens():
                     except Exception:
                         exp_min_eff = exp_min
 
+                # Minutes engine v1: apply small, conservative caps for foul trouble and blowout risk.
+                proj_min_final = exp_min_eff
+                try:
+                    if mp is not None and elapsed_min is not None:
+                        rem = float(max(0.0, 48.0 - float(elapsed_min)))
+                        base = float(proj_min_final) if proj_min_final is not None else None
+
+                        if base is not None:
+                            # Always at least what already played; cap to plausible max.
+                            base = float(max(float(mp), min(44.0, base)))
+
+                            pf_i = None
+                            try:
+                                pf_i = int(round(float(pf))) if pf is not None else None
+                            except Exception:
+                                pf_i = None
+                            st = None
+                            try:
+                                st = bool(starter) if starter is not None else None
+                            except Exception:
+                                st = None
+
+                            # Foul trouble: cap remaining minutes more aggressively with 5+ fouls.
+                            if pf_i is not None and pf_i >= 5 and rem > 0:
+                                base = float(min(base, float(mp) + 0.55 * rem))
+                            elif pf_i is not None and pf_i == 4 and rem > 0 and float(elapsed_min) <= 36.0:
+                                base = float(min(base, float(mp) + 0.75 * rem))
+
+                            # Blowout risk: only cap starters late (avoid inflating bench without more data).
+                            m = None
+                            try:
+                                m = float(abs(int(margin))) if margin is not None else None
+                            except Exception:
+                                m = None
+                            if st is True and m is not None and m >= 18.0 and rem > 0 and float(elapsed_min) >= 30.0:
+                                base = float(min(base, float(mp) + 0.55 * rem))
+
+                            proj_min_final = float(max(float(mp), min(44.0, base)))
+                except Exception:
+                    proj_min_final = exp_min_eff
+
                 stat_actuals = {
                     "pts": pts,
                     "reb": reb,
@@ -17931,10 +18166,51 @@ def api_live_player_lens():
                             continue
 
                         pace_proj = None
-                        if actual is not None and mp is not None and mp > 0 and exp_min_eff is not None and exp_min_eff > 0:
+                        if actual is not None and mp is not None and mp > 0 and proj_min_final is not None and proj_min_final > 0:
                             try:
-                                em = float(max(mp, min(44.0, exp_min_eff)))
+                                em = float(max(mp, min(44.0, proj_min_final)))
                                 pace_raw = float((actual / mp) * em)
+
+                                # Role/usage detection (v1): adjust pace_raw by recent-vs-game usage proxy ratio.
+                                role_mult = None
+                                try:
+                                    ur = usage_recent.get(nk) if isinstance(usage_recent, dict) else None
+                                    ug = usage_game.get(nk) if isinstance(usage_game, dict) else None
+                                    if isinstance(ur, dict) and isinstance(ug, dict) and elapsed_min is not None:
+                                        win_min = float(max(0.25, float(recent_window_sec) / 60.0))
+                                        usg_r = _num(ur.get("usg_proxy"))
+                                        usg_g = _num(ug.get("usg_proxy"))
+                                        if usg_r is not None and usg_g is not None and float(elapsed_min) > 1.0:
+                                            rate_r = float(usg_r) / win_min
+                                            rate_g = float(usg_g) / float(max(1.0, float(elapsed_min)))
+                                            if rate_g > 1e-6 and rate_r > 0:
+                                                ratio = float(rate_r / rate_g)
+                                                # Shrink by recent sample size.
+                                                k = 5.0
+                                                w = float(usg_r) / float(usg_r + k)
+                                                role_mult = float(1.0 + (ratio - 1.0) * max(0.0, min(1.0, w)))
+                                                # Cap to avoid chasing noise.
+                                                role_mult = float(max(0.75, min(1.25, role_mult)))
+
+                                        # Special-case threes: use recent 3PA proxy.
+                                        if stat_key == "threes":
+                                            r3 = _num(ur.get("fg3a"))
+                                            g3 = _num(ug.get("fg3a"))
+                                            if r3 is not None and g3 is not None and float(elapsed_min) > 1.0:
+                                                rate_r3 = float(r3) / win_min
+                                                rate_g3 = float(g3) / float(max(1.0, float(elapsed_min)))
+                                                if rate_g3 > 1e-6 and rate_r3 >= 0:
+                                                    ratio3 = float(rate_r3 / rate_g3) if rate_g3 > 0 else 1.0
+                                                    k3 = 3.0
+                                                    w3 = float(r3) / float(r3 + k3) if (r3 + k3) > 1e-6 else 0.0
+                                                    m3 = float(1.0 + (ratio3 - 1.0) * max(0.0, min(1.0, w3)))
+                                                    m3 = float(max(0.70, min(1.35, m3)))
+                                                    role_mult = m3
+                                except Exception:
+                                    role_mult = None
+
+                                if role_mult is not None and stat_key in {"pts", "threes", "ast", "pra", "pa", "pr", "ra"}:
+                                    pace_raw = float(pace_raw) * float(role_mult)
 
                                 # Stabilize early: blend toward a prior (sim mean preferred; else line).
                                 prior_total = None
@@ -17968,12 +18244,14 @@ def api_live_player_lens():
                             "player": player,
                             "name_key": nk,
                             "mp": mp,
+                            "pf": pf,
                             "stat": stat_key,
                             "actual": actual,
                             "sim_mu": sim_mu,
                             "line": float(line) if line is not None else None,
                             "exp_min": exp_min,
                             "exp_min_eff": exp_min_eff,
+                            "proj_min_final": proj_min_final,
                             "pace_proj": pace_proj,
                             "pace_vs_line": pace_vs_line,
                             "sim_vs_line": sim_vs_line,
