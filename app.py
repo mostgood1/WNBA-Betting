@@ -18138,6 +18138,17 @@ def api_live_lens_tuning():
                 # Optional knobs (client defaults apply if omitted)
                 "eff_weight_proj": 0.5,
             },
+            # Optional per-scope overrides (used by computeScope() via _liveLensScopeTotalAdjCfg).
+            "half_total": {
+                "enabled": True,
+                "min_elapsed_min": 6.0,
+                "eff_weight_proj": 0.5,
+            },
+            "quarter_total": {
+                "enabled": True,
+                "min_elapsed_min": 6.0,
+                "eff_weight_proj": 0.5,
+            },
         },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
