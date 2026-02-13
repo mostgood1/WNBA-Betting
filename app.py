@@ -18050,6 +18050,10 @@ def api_live_player_lens():
         # Pull play-by-play actions once per game id to compute usage proxies (best-effort).
         usage_recent: dict[str, dict[str, Any]] = {}
         usage_game: dict[str, dict[str, Any]] = {}
+        team_recent_usg: dict[str, float] = {}
+        team_game_usg: dict[str, float] = {}
+        team_recent_3a: dict[str, float] = {}
+        team_game_3a: dict[str, float] = {}
         try:
             if gid and in_progress and not is_final:
                 actions = _live_fetch_pbp_actions(str(gid))
@@ -18057,6 +18061,32 @@ def api_live_player_lens():
                 if isinstance(u, dict):
                     usage_recent = u.get("recent") if isinstance(u.get("recent"), dict) else {}
                     usage_game = u.get("game") if isinstance(u.get("game"), dict) else {}
+
+                    # Aggregate team totals to separate pace vs role-share changes.
+                    for nk0, rr in (usage_recent or {}).items():
+                        if not isinstance(rr, dict):
+                            continue
+                        tri0 = str(rr.get("team_tri") or "").upper().strip() or "unknown"
+                        try:
+                            team_recent_usg[tri0] = float(team_recent_usg.get(tri0, 0.0)) + float(_num(rr.get("usg_proxy")) or 0.0)
+                        except Exception:
+                            pass
+                        try:
+                            team_recent_3a[tri0] = float(team_recent_3a.get(tri0, 0.0)) + float(_num(rr.get("fg3a")) or 0.0)
+                        except Exception:
+                            pass
+                    for nk0, gg in (usage_game or {}).items():
+                        if not isinstance(gg, dict):
+                            continue
+                        tri0 = str(gg.get("team_tri") or "").upper().strip() or "unknown"
+                        try:
+                            team_game_usg[tri0] = float(team_game_usg.get(tri0, 0.0)) + float(_num(gg.get("usg_proxy")) or 0.0)
+                        except Exception:
+                            pass
+                        try:
+                            team_game_3a[tri0] = float(team_game_3a.get(tri0, 0.0)) + float(_num(gg.get("fg3a")) or 0.0)
+                        except Exception:
+                            pass
         except Exception:
             usage_recent = {}
             usage_game = {}
@@ -18173,44 +18203,71 @@ def api_live_player_lens():
 
                                 # Role/usage detection (v1): adjust pace_raw by recent-vs-game usage proxy ratio.
                                 role_mult = None
+                                pace_mult = None
                                 try:
                                     ur = usage_recent.get(nk) if isinstance(usage_recent, dict) else None
                                     ug = usage_game.get(nk) if isinstance(usage_game, dict) else None
                                     if isinstance(ur, dict) and isinstance(ug, dict) and elapsed_min is not None:
                                         win_min = float(max(0.25, float(recent_window_sec) / 60.0))
+                                        tri0 = str(ur.get("team_tri") or ug.get("team_tri") or team or "").upper().strip() or "unknown"
+
                                         usg_r = _num(ur.get("usg_proxy"))
                                         usg_g = _num(ug.get("usg_proxy"))
-                                        if usg_r is not None and usg_g is not None and float(elapsed_min) > 1.0:
-                                            rate_r = float(usg_r) / win_min
-                                            rate_g = float(usg_g) / float(max(1.0, float(elapsed_min)))
-                                            if rate_g > 1e-6 and rate_r > 0:
-                                                ratio = float(rate_r / rate_g)
-                                                # Shrink by recent sample size.
-                                                k = 5.0
-                                                w = float(usg_r) / float(usg_r + k)
-                                                role_mult = float(1.0 + (ratio - 1.0) * max(0.0, min(1.0, w)))
-                                                # Cap to avoid chasing noise.
-                                                role_mult = float(max(0.75, min(1.25, role_mult)))
+                                        tusg_r = _num(team_recent_usg.get(tri0))
+                                        tusg_g = _num(team_game_usg.get(tri0))
+
+                                        # Pace/context multiplier: team-level recent vs game-to-date usage rate.
+                                        if tusg_r is not None and tusg_g is not None and float(elapsed_min) > 1.0:
+                                            rate_tr = float(tusg_r) / win_min
+                                            rate_tg = float(tusg_g) / float(max(1.0, float(elapsed_min)))
+                                            if rate_tg > 1e-6 and rate_tr > 0:
+                                                ratio_pace = float(rate_tr / rate_tg)
+                                                k_t = 12.0
+                                                w_t = float(tusg_r) / float(tusg_r + k_t)
+                                                pace_mult = float(1.0 + (ratio_pace - 1.0) * max(0.0, min(1.0, w_t)))
+                                                pace_mult = float(max(0.85, min(1.15, pace_mult)))
+
+                                        # Role/share multiplier: player's share of team usage recent vs game-to-date.
+                                        if usg_r is not None and usg_g is not None and tusg_r is not None and tusg_g is not None:
+                                            if tusg_r > 1e-6 and tusg_g > 1e-6 and usg_r >= 0 and usg_g >= 0:
+                                                sh_r = float(usg_r) / float(tusg_r)
+                                                sh_g = float(usg_g) / float(tusg_g)
+                                                if sh_g > 1e-6:
+                                                    ratio_share = float(sh_r / sh_g)
+                                                    k = 5.0
+                                                    w = float(usg_r) / float(usg_r + k)
+                                                    role_mult = float(1.0 + (ratio_share - 1.0) * max(0.0, min(1.0, w)))
+                                                    role_mult = float(max(0.80, min(1.20, role_mult)))
 
                                         # Special-case threes: use recent 3PA proxy.
                                         if stat_key == "threes":
                                             r3 = _num(ur.get("fg3a"))
                                             g3 = _num(ug.get("fg3a"))
-                                            if r3 is not None and g3 is not None and float(elapsed_min) > 1.0:
-                                                rate_r3 = float(r3) / win_min
-                                                rate_g3 = float(g3) / float(max(1.0, float(elapsed_min)))
-                                                if rate_g3 > 1e-6 and rate_r3 >= 0:
-                                                    ratio3 = float(rate_r3 / rate_g3) if rate_g3 > 0 else 1.0
-                                                    k3 = 3.0
-                                                    w3 = float(r3) / float(r3 + k3) if (r3 + k3) > 1e-6 else 0.0
-                                                    m3 = float(1.0 + (ratio3 - 1.0) * max(0.0, min(1.0, w3)))
-                                                    m3 = float(max(0.70, min(1.35, m3)))
-                                                    role_mult = m3
+                                            t3r = _num(team_recent_3a.get(tri0))
+                                            t3g = _num(team_game_3a.get(tri0))
+                                            if r3 is not None and g3 is not None and t3r is not None and t3g is not None:
+                                                if t3r > 1e-6 and t3g > 1e-6 and g3 >= 0 and r3 >= 0:
+                                                    sh3_r = float(r3) / float(t3r)
+                                                    sh3_g = float(g3) / float(t3g)
+                                                    if sh3_g > 1e-6:
+                                                        ratio3 = float(sh3_r / sh3_g)
+                                                        k3 = 2.5
+                                                        w3 = float(r3) / float(r3 + k3) if (r3 + k3) > 1e-6 else 0.0
+                                                        m3 = float(1.0 + (ratio3 - 1.0) * max(0.0, min(1.0, w3)))
+                                                        m3 = float(max(0.80, min(1.25, m3)))
+                                                        role_mult = m3
                                 except Exception:
                                     role_mult = None
+                                    pace_mult = None
 
-                                if role_mult is not None and stat_key in {"pts", "threes", "ast", "pra", "pa", "pr", "ra"}:
-                                    pace_raw = float(pace_raw) * float(role_mult)
+                                if stat_key in {"pts", "threes", "ast", "pra", "pa", "pr", "ra"}:
+                                    try:
+                                        if pace_mult is not None:
+                                            pace_raw = float(pace_raw) * float(pace_mult)
+                                        if role_mult is not None:
+                                            pace_raw = float(pace_raw) * float(role_mult)
+                                    except Exception:
+                                        pass
 
                                 # Stabilize early: blend toward a prior (sim mean preferred; else line).
                                 prior_total = None
@@ -18257,6 +18314,7 @@ def api_live_player_lens():
                             "sim_vs_line": sim_vs_line,
                             "lean": lean,
                             "strength": strength,
+                            "_usage_window_sec": recent_window_sec,
                         })
                     except Exception:
                         continue
