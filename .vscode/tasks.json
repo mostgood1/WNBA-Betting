@@ -145,6 +145,54 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Live Lens: audit report (yesterday)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/daily_live_lens_audit.py"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Live Lens: audit report (pick date)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/daily_live_lens_audit.py",
+				"--date",
+				"${input:auditDate}"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Live Lens: check log fields (today)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/check_live_lens_log_fields.py"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Live Lens: check log fields (pick date)",
+			"type": "shell",
+			"command": "${workspaceFolder}\\.venv\\Scripts\\python.exe",
+			"args": [
+				"tools/check_live_lens_log_fields.py",
+				"--date",
+				"${input:auditDate}"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
 			"label": "Schedule: register nightly live lens tune (04:30)",
 			"type": "shell",
 			"command": "powershell",
@@ -161,6 +209,22 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Schedule: register nightly live lens audit (05:00)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_nightly_live_lens_audit_task.ps1",
+				"-Time",
+				"05:00"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Schedule: unregister nightly live lens tune",
 			"type": "shell",
 			"command": "powershell",
@@ -170,6 +234,20 @@
 				"Bypass",
 				"-File",
 				"${workspaceFolder}\\scripts\\unregister_nightly_live_lens_tune_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister nightly live lens audit",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_nightly_live_lens_audit_task.ps1"
 			],
 			"isBackground": false,
 			"problemMatcher": []
@@ -973,6 +1051,12 @@
 			"id": "commitDate",
 			"type": "promptString",
 			"description": "Enter date to commit (yyyy-MM-dd)",
+			"default": "$(Get-Date -Format 'yyyy-MM-dd')"
+		},
+		{
+			"id": "auditDate",
+			"type": "promptString",
+			"description": "Enter date to audit Live Lens (yyyy-MM-dd)",
 			"default": "$(Get-Date -Format 'yyyy-MM-dd')"
 		}
 	]

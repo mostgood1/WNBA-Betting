@@ -2061,6 +2061,39 @@ function clampNum(x, lo, hi) {
   return Math.max(lo, Math.min(hi, v));
 }
 
+function _liveLensEdgeShrink(rawDiff, possLive, elapsedMin, totalMinutes) {
+  // Confidence shrinkage for edges early in a scope.
+  // Returns lambda in [0,1] where 0 => fully shrunk to 0.
+  const rd = n(rawDiff);
+  if (rd == null) return { diff_shrunk: rawDiff, lambda: null, lambda_poss: null, lambda_time: null };
+
+  const tm = Number(totalMinutes);
+  const cfg = _liveLensScopeTotalAdjCfg(tm);
+  let shrinkCfg = null;
+  try {
+    shrinkCfg = cfg && cfg.edge_shrink && typeof cfg.edge_shrink === 'object' ? cfg.edge_shrink : null;
+  } catch (_) {
+    shrinkCfg = null;
+  }
+
+  if (shrinkCfg && shrinkCfg.enabled === false) {
+    return { diff_shrunk: rd, lambda: 1.0, lambda_poss: 1.0, lambda_time: 1.0 };
+  }
+
+  const scale = Math.max(0.15, (tm && Number.isFinite(tm) && tm > 0) ? (tm / 48.0) : 1.0);
+  const possMin = n(shrinkCfg && shrinkCfg.poss_min) ?? (10.0 * scale);
+  const possRange = n(shrinkCfg && shrinkCfg.poss_range) ?? (25.0 * scale);
+  const timeMin = n(shrinkCfg && shrinkCfg.time_min) ?? (6.0 * scale);
+  const timeRange = n(shrinkCfg && shrinkCfg.time_range) ?? (18.0 * scale);
+
+  const p = n(possLive);
+  const t = n(elapsedMin);
+  const wPoss = (p == null) ? 1.0 : Math.max(0, Math.min(1, (p - possMin) / Math.max(1e-6, possRange)));
+  const wTime = (t == null) ? 1.0 : Math.max(0, Math.min(1, (t - timeMin) / Math.max(1e-6, timeRange)));
+  const lambda = Math.max(0, Math.min(1, Math.min(wPoss, wTime)));
+  return { diff_shrunk: rd * lambda, lambda, lambda_poss: wPoss, lambda_time: wTime };
+}
+
 function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLeft) {
   const out = {
     diff_adj: rawDiff,
@@ -3372,6 +3405,8 @@ function startLiveLensPolling(root, games, dateStr) {
       let totalDiffRaw = null;
       let totalDiff = null;
       let totalCtx = null;
+      let totalShrink = null;
+      let totalPred = null;
       let totalClass = 'NONE';
       let totalSide = null;
 
@@ -3379,6 +3414,24 @@ function startLiveLensPolling(root, games, dateStr) {
         totalDiffRaw = lens.paceFinal - effLineTotal;
         totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft);
         totalDiff = (totalCtx && totalCtx.diff_adj != null) ? n(totalCtx.diff_adj) : totalDiffRaw;
+
+        // Possessions/time-based confidence shrinkage (reduces early-game overconfidence).
+        try {
+          const totalDiffUnshrunk = totalDiff;
+          const possLive = n(totalCtx && totalCtx.poss_live);
+          const elapsedMin = 48.0 - curMinLeft;
+          totalShrink = _liveLensEdgeShrink(totalDiff, possLive, elapsedMin, 48);
+          if (totalShrink && totalShrink.diff_shrunk != null) totalDiff = n(totalShrink.diff_shrunk);
+          if (totalCtx && typeof totalCtx === 'object') {
+            totalCtx.edge_adj_unshrunk = totalDiffUnshrunk;
+            totalCtx.edge_shrink_lambda = totalShrink ? totalShrink.lambda : null;
+            totalCtx.edge_shrink_lambda_poss = totalShrink ? totalShrink.lambda_poss : null;
+            totalCtx.edge_shrink_lambda_time = totalShrink ? totalShrink.lambda_time : null;
+          }
+        } catch (_) {
+          // ignore
+        }
+
         // Suppress noisy early-game tags (server-tunable).
         try {
           const adjCfg = _liveLensGameTotalAdjCfg();
@@ -3395,6 +3448,12 @@ function startLiveLensPolling(root, games, dateStr) {
         if (totalDiff > 1.0) totalSide = 'Over';
         else if (totalDiff < -1.0) totalSide = 'Under';
         else totalSide = 'No edge';
+
+        try {
+          totalPred = (effLineTotal != null && totalDiff != null) ? (effLineTotal + totalDiff) : null;
+        } catch (_) {
+          totalPred = null;
+        }
       }
       if (recTotalEl) {
         if (totalClass === 'BET') recTotalEl.textContent = `Total: BET ${totalSide} (${fmt(totalDiff, 1)})`;
@@ -3406,6 +3465,9 @@ function startLiveLensPolling(root, games, dateStr) {
       let halfClass = 'NONE';
       let halfSide = null;
       let halfDiff = null;
+      let halfDiffRaw = null;
+      let halfShrink = null;
+      let halfPred = null;
       try {
         if (recHalfEl && (period == null || Number(period) <= 2)) {
           const halfCol = el.querySelector('.lens-col[data-scope="half"]');
@@ -3427,14 +3489,42 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           if (pf != null && hl != null) {
-            halfDiff = pf - hl;
+            halfDiffRaw = pf - hl;
+            halfDiff = halfDiffRaw;
+            halfPred = pf;
+
+            // Confidence shrink based on possessions/time within the half.
+            try {
+              const possLive = halfCol ? n(halfCol.dataset.possLive) : null;
+              const rem = (halfMinLeftRaw != null) ? Math.max(0, Math.min(24, Math.round(halfMinLeftRaw))) : null;
+              const elapsed = (rem != null) ? (24.0 - rem) : null;
+              halfShrink = _liveLensEdgeShrink(halfDiff, possLive, elapsed, 24);
+              if (halfShrink && halfShrink.diff_shrunk != null) halfDiff = n(halfShrink.diff_shrunk);
+            } catch (_) {
+              // ignore
+            }
+
             halfClass = allowHalf ? classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet) : 'NONE';
             if (halfDiff > 1.0) halfSide = 'Over';
             else if (halfDiff < -1.0) halfSide = 'Under';
             else halfSide = 'No edge';
           } else if (pf != null && sf != null) {
             // Fallback: vs pregame half baseline when no live half line.
-            halfDiff = pf - sf;
+            halfDiffRaw = pf - sf;
+            halfDiff = halfDiffRaw;
+            halfPred = pf;
+
+            // Confidence shrink based on possessions/time within the half.
+            try {
+              const possLive = halfCol ? n(halfCol.dataset.possLive) : null;
+              const rem = (halfMinLeftRaw != null) ? Math.max(0, Math.min(24, Math.round(halfMinLeftRaw))) : null;
+              const elapsed = (rem != null) ? (24.0 - rem) : null;
+              halfShrink = _liveLensEdgeShrink(halfDiff, possLive, elapsed, 24);
+              if (halfShrink && halfShrink.diff_shrunk != null) halfDiff = n(halfShrink.diff_shrunk);
+            } catch (_) {
+              // ignore
+            }
+
             halfClass = allowHalf ? classifyDiff(Math.abs(halfDiff), thr.half_total.watch, thr.half_total.bet) : 'NONE';
             if (halfDiff > 1.0) halfSide = 'Over';
             else if (halfDiff < -1.0) halfSide = 'Under';
@@ -3454,6 +3544,9 @@ function startLiveLensPolling(root, games, dateStr) {
       let qClass = 'NONE';
       let qSide = null;
       let qDiff = null;
+      let qDiffRaw = null;
+      let qShrink = null;
+      let qPred = null;
       let qLabel = 'Q';
       try {
         const pNow = (period == null) ? null : Number(period);
@@ -3478,14 +3571,42 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           if (pf != null && ql != null) {
-            qDiff = pf - ql;
+            qDiffRaw = pf - ql;
+            qDiff = qDiffRaw;
+            qPred = pf;
+
+            // Confidence shrink based on possessions/time within the quarter.
+            try {
+              const possLive = qCol ? n(qCol.dataset.possLive) : null;
+              const rem = (secLeftPeriodRaw != null) ? Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0)))) : null;
+              const elapsed = (rem != null) ? (12.0 - rem) : null;
+              qShrink = _liveLensEdgeShrink(qDiff, possLive, elapsed, 12);
+              if (qShrink && qShrink.diff_shrunk != null) qDiff = n(qShrink.diff_shrunk);
+            } catch (_) {
+              // ignore
+            }
+
             qClass = allowQ ? classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet) : 'NONE';
             if (qDiff > 1.0) qSide = 'Over';
             else if (qDiff < -1.0) qSide = 'Under';
             else qSide = 'No edge';
           } else if (pf != null && sf != null) {
             // Fallback: vs pregame quarter baseline when no live quarter line.
-            qDiff = pf - sf;
+            qDiffRaw = pf - sf;
+            qDiff = qDiffRaw;
+            qPred = pf;
+
+            // Confidence shrink based on possessions/time within the quarter.
+            try {
+              const possLive = qCol ? n(qCol.dataset.possLive) : null;
+              const rem = (secLeftPeriodRaw != null) ? Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0)))) : null;
+              const elapsed = (rem != null) ? (12.0 - rem) : null;
+              qShrink = _liveLensEdgeShrink(qDiff, possLive, elapsed, 12);
+              if (qShrink && qShrink.diff_shrunk != null) qDiff = n(qShrink.diff_shrunk);
+            } catch (_) {
+              // ignore
+            }
+
             qClass = allowQ ? classifyDiff(Math.abs(qDiff), thr.quarter_total.watch, thr.quarter_total.bet) : 'NONE';
             if (qDiff > 1.0) qSide = 'Over';
             else if (qDiff < -1.0) qSide = 'Under';
@@ -3605,17 +3726,23 @@ function startLiveLensPolling(root, games, dateStr) {
       // Log watch/bet signals (throttled to once/minute per market)
       const logCfg = (thr && thr.logging && typeof thr.logging === 'object') ? thr.logging : null;
       const logMode = (logCfg && typeof logCfg.mode === 'string' && logCfg.mode.trim()) ? logCfg.mode.trim().toLowerCase() : 'bet';
+      // Player props tend to produce fewer "BET" classifications; default to logging WATCH+BET for player props unless overridden.
+      const logModeProps = (logCfg && typeof logCfg.player_props_mode === 'string' && logCfg.player_props_mode.trim())
+        ? logCfg.player_props_mode.trim().toLowerCase()
+        : 'watch';
       const minIntervalSecRaw = n(logCfg && logCfg.min_interval_sec);
       const minIntervalSec = (minIntervalSecRaw != null && minIntervalSecRaw >= 5) ? minIntervalSecRaw : 60;
       const bucketKey = String(Math.floor((Date.now() / 1000.0) / minIntervalSec));
 
       async function maybeLog(market, klass, payload) {
+        const isPlayerProp = (typeof market === 'string') && market.startsWith('player_prop:');
+        const mode = isPlayerProp ? logModeProps : logMode;
         // Default parity: BET only. Optional modes for tuning.
-        const allow = (logMode === 'bet')
+        const allow = (mode === 'bet')
           ? (klass === 'BET')
-          : (logMode === 'watch')
+          : (mode === 'watch')
             ? (klass === 'WATCH' || klass === 'BET')
-            : (logMode === 'all')
+            : (mode === 'all')
               ? (klass === 'NONE' || klass === 'WATCH' || klass === 'BET')
               : (klass === 'BET');
         if (!allow) return;
@@ -3668,7 +3795,7 @@ function startLiveLensPolling(root, games, dateStr) {
             const klass = (klassRaw === 'BET' || klassRaw === 'WATCH' || klassRaw === 'NONE')
               ? klassRaw
               : classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
-            const nameKey = (r.name_key != null) ? String(r.name_key) : normPlayerName(r.player);
+            const nameKey = normPlayerName((r.name_key != null) ? String(r.name_key) : String(r.player || ''));
             const statKey = String(r.stat || '').toLowerCase().trim();
             const throttleKey = `player_prop:${nameKey}:${statKey}`;
             const side = (r.lean != null && String(r.lean).trim()) ? String(r.lean).trim().toUpperCase() : ((n(r.pace_vs_line) > 0) ? 'OVER' : ((n(r.pace_vs_line) < 0) ? 'UNDER' : null));
@@ -3734,6 +3861,7 @@ function startLiveLensPolling(root, games, dateStr) {
         edge: totalDiff,
         edge_raw: totalDiffRaw,
         edge_adj: totalDiff,
+        pred: totalPred,
         strength: (totalDiff != null) ? Math.abs(totalDiff) : null,
         context: (totalCtx && typeof totalCtx === 'object') ? {
           pace_ratio: totalCtx.pace_ratio,
@@ -3741,6 +3869,10 @@ function startLiveLensPolling(root, games, dateStr) {
           poss_live: totalCtx.poss_live,
           poss_expected: totalCtx.poss_expected,
           elapsed_min: totalCtx.elapsed_min,
+          edge_adj_unshrunk: totalCtx.edge_adj_unshrunk,
+          edge_shrink_lambda: totalCtx.edge_shrink_lambda,
+          edge_shrink_lambda_poss: totalCtx.edge_shrink_lambda_poss,
+          edge_shrink_lambda_time: totalCtx.edge_shrink_lambda_time,
           exp_home_pace: meta.home_pace,
           exp_away_pace: meta.away_pace,
           exp_total_mean: meta.total_mean,
@@ -3795,12 +3927,18 @@ function startLiveLensPolling(root, games, dateStr) {
           : sanitizeTotalLine(periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null),
         side: halfSide,
         edge: halfDiff,
+        edge_raw: halfDiffRaw,
+        edge_adj: halfDiff,
+        pred: halfPred,
         strength: (halfDiff != null) ? Math.abs(halfDiff) : null,
         context: (() => {
           try {
             const halfCol = el.querySelector('.lens-col[data-scope="half"]');
             if (!halfCol || !halfCol.dataset) return null;
             return {
+              edge_shrink_lambda: halfShrink ? halfShrink.lambda : null,
+              edge_shrink_lambda_poss: halfShrink ? halfShrink.lambda_poss : null,
+              edge_shrink_lambda_time: halfShrink ? halfShrink.lambda_time : null,
               poss_live: n(halfCol.dataset.possLive),
               poss_expected_so_far: n(halfCol.dataset.possExpectedSoFar),
               poss_expected_full: n(halfCol.dataset.possExpectedFull),
@@ -3831,56 +3969,68 @@ function startLiveLensPolling(root, games, dateStr) {
       });
 
       // Current quarter total
-      await maybeLog('q_total', qClass, {
-        ...baseLog,
-        klass: qClass,
-        horizon: qLabel.toLowerCase(),
-        market: 'quarter_total',
-        elapsed: (secLeftPeriodRaw != null) ? (12 - Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0))))) : null,
-        remaining: (secLeftPeriodRaw != null) ? Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0)))) : null,
-        total_points: null,
-        live_line: shouldRound
-          ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals[qLabel.toLowerCase()] != null ? n(periodTotals[qLabel.toLowerCase()]) : null))
-          : sanitizeTotalLine(periodTotals && periodTotals[qLabel.toLowerCase()] != null ? n(periodTotals[qLabel.toLowerCase()]) : null),
-        side: qSide,
-        edge: qDiff,
-        strength: (qDiff != null) ? Math.abs(qDiff) : null,
-        context: (() => {
-          try {
-            const pNow = (period == null) ? null : Number(period);
-            const qNum = (pNow != null && Number.isFinite(pNow)) ? Math.floor(pNow) : null;
-            if (qNum == null) return null;
-            const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
-            if (!qCol || !qCol.dataset) return null;
-            return {
-              poss_live: n(qCol.dataset.possLive),
-              poss_expected_so_far: n(qCol.dataset.possExpectedSoFar),
-              poss_expected_full: n(qCol.dataset.possExpectedFull),
-              exp_ppp: n(qCol.dataset.expPpp),
-              act_ppp: n(qCol.dataset.actPpp),
-              pace_ratio: n(qCol.dataset.paceRatio),
-              w_pace: n(qCol.dataset.wPace),
-              interval_drift_adj: n(qCol.dataset.intervalDriftAdj),
-              interval_drift_seg_idx: n(qCol.dataset.intervalDriftSegIdx),
-              interval_drift_bias_points: n(qCol.dataset.intervalDriftBias),
-              interval_drift_rem_frac: n(qCol.dataset.intervalDriftRemFrac),
-              recent_window_sec: n(qCol.dataset.recentWindowSec),
-              recent_window_poss: n(qCol.dataset.recentWindowPoss),
-              recent_window_pts: n(qCol.dataset.recentWindowPts),
-              recent_window_pace_ratio: n(qCol.dataset.recentWindowPaceRatio),
-              recent_window_w: n(qCol.dataset.recentWindowW),
-              recent_window_pace_adj: n(qCol.dataset.recentWindowPaceAdj),
-              recent_window_eff_adj: n(qCol.dataset.recentWindowEffAdj),
-              endgame_foul_adj: n(qCol.dataset.endgameFoulAdj),
-              endgame_foul_w: n(qCol.dataset.endgameFoulW),
-              endgame_foul_sec_left: n(qCol.dataset.endgameFoulSecLeft),
-              endgame_foul_abs_margin: n(qCol.dataset.endgameFoulAbsMargin),
-            };
-          } catch (_) {
-            return null;
-          }
-        })(),
-      });
+      try {
+        const pNow = (period == null) ? null : Number(period);
+        const qNum = (pNow != null && Number.isFinite(pNow)) ? Math.floor(pNow) : null;
+        if (qNum != null && qNum >= 1 && qNum <= 4) {
+          const qKey = `q${qNum}`;
+          await maybeLog('q_total', qClass, {
+            ...baseLog,
+            klass: qClass,
+            horizon: qKey,
+            market: 'quarter_total',
+            elapsed: (secLeftPeriodRaw != null) ? (12 - Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0))))) : null,
+            remaining: (secLeftPeriodRaw != null) ? Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0)))) : null,
+            total_points: null,
+            live_line: shouldRound
+              ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null))
+              : sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null),
+            side: qSide,
+            edge: qDiff,
+            edge_raw: qDiffRaw,
+            edge_adj: qDiff,
+            pred: qPred,
+            strength: (qDiff != null) ? Math.abs(qDiff) : null,
+            context: (() => {
+              try {
+                const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
+                if (!qCol || !qCol.dataset) return null;
+                return {
+                  edge_shrink_lambda: qShrink ? qShrink.lambda : null,
+                  edge_shrink_lambda_poss: qShrink ? qShrink.lambda_poss : null,
+                  edge_shrink_lambda_time: qShrink ? qShrink.lambda_time : null,
+                  poss_live: n(qCol.dataset.possLive),
+                  poss_expected_so_far: n(qCol.dataset.possExpectedSoFar),
+                  poss_expected_full: n(qCol.dataset.possExpectedFull),
+                  exp_ppp: n(qCol.dataset.expPpp),
+                  act_ppp: n(qCol.dataset.actPpp),
+                  pace_ratio: n(qCol.dataset.paceRatio),
+                  w_pace: n(qCol.dataset.wPace),
+                  interval_drift_adj: n(qCol.dataset.intervalDriftAdj),
+                  interval_drift_seg_idx: n(qCol.dataset.intervalDriftSegIdx),
+                  interval_drift_bias_points: n(qCol.dataset.intervalDriftBias),
+                  interval_drift_rem_frac: n(qCol.dataset.intervalDriftRemFrac),
+                  recent_window_sec: n(qCol.dataset.recentWindowSec),
+                  recent_window_poss: n(qCol.dataset.recentWindowPoss),
+                  recent_window_pts: n(qCol.dataset.recentWindowPts),
+                  recent_window_pace_ratio: n(qCol.dataset.recentWindowPaceRatio),
+                  recent_window_w: n(qCol.dataset.recentWindowW),
+                  recent_window_pace_adj: n(qCol.dataset.recentWindowPaceAdj),
+                  recent_window_eff_adj: n(qCol.dataset.recentWindowEffAdj),
+                  endgame_foul_adj: n(qCol.dataset.endgameFoulAdj),
+                  endgame_foul_w: n(qCol.dataset.endgameFoulW),
+                  endgame_foul_sec_left: n(qCol.dataset.endgameFoulSecLeft),
+                  endgame_foul_abs_margin: n(qCol.dataset.endgameFoulAbsMargin),
+                };
+              } catch (_) {
+                return null;
+              }
+            })(),
+          });
+        }
+      } catch (_) {
+        // ignore
+      }
 
       // ATS
       await maybeLog('game_ats', atsClass, {

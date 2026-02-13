@@ -159,7 +159,9 @@ if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction Sile
 Write-Log "Starting NBA local daily update for date=$Date"
 Write-Log "Python: $Python"
 
-# Early exit: skip full run on days with no NBA games
+# Schedule gating: on no-game days, continue but anchor reconciliation to the last slate date.
+$NoSlateDay = $false
+$LastSlateDate = $null
 try {
   $jf = Join-Path $RepoRoot 'data\processed\schedule_2025_26.json'
   if (Test-Path $jf) {
@@ -181,10 +183,41 @@ try {
       $games = 0
     }
     if ($games -le 0) {
-      Write-Log "No NBA games scheduled today; exiting early"
-      return
+      $NoSlateDay = $true
+      # Find the most recent slate date on or before $Date
+      try {
+        $allDates = @()
+        foreach ($g in @($sched)) {
+          try {
+            $d = $g.date_utc
+            if ($null -eq $d) { continue }
+            $ds = ([datetime]::Parse($d)).ToString('yyyy-MM-dd')
+            if ($ds) { $allDates += $ds }
+          } catch {
+            try {
+              $ds2 = [string]$g.date_utc
+              if ($ds2) {
+                $allDates += $ds2
+              }
+            } catch { }
+          }
+        }
+        $unique = $allDates | Where-Object { $_ -and $_ -le $Date } | Sort-Object -Unique
+        if ($unique -and $unique.Count -gt 0) {
+          $LastSlateDate = $unique[-1]
+        }
+      } catch {
+        $LastSlateDate = $null
+      }
+
+      if ($LastSlateDate) {
+        Write-Log ("No NBA games scheduled for {0}; will reconcile using last slate date {1}" -f $Date, $LastSlateDate)
+      } else {
+        Write-Log ("No NBA games scheduled for {0}; could not find a last slate date (continuing anyway)" -f $Date)
+      }
+    } else {
+      Write-Log ("Slate size: {0} games" -f $games)
     }
-    Write-Log ("Slate size: {0} games" -f $games)
   } else {
     Write-Log "Schedule file not found; skipping schedule gating"
   }
@@ -379,9 +412,32 @@ try {
 try {
   $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
 } catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
+
+# On no-slate days (e.g., long breaks), reconcile against the most recent slate date.
+if ($NoSlateDay -and $LastSlateDate) {
+  $yesterday = $LastSlateDate
+}
+
 Write-Log ("Reconcile games for {0} via local CLI" -f $yesterday)
 $rc_recon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-date','--date', $yesterday)
 Write-Log ("reconcile-date exit code: {0}" -f $rc_recon)
+
+# 2.0) Ensure player prop actuals reconciliation exists (writes recon_props_<date>.csv)
+try {
+  Write-Log ("Fetching prop actuals for {0} (writes recon_props_{0}.csv when available)" -f $yesterday)
+  $rcProp = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday) -TimeoutSeconds 240 -Label 'fetch_prop_actuals'
+  Write-Log ("fetch-prop-actuals exit code: {0}" -f $rcProp)
+  try {
+    $rp = Join-Path $RepoRoot ("data/processed/recon_props_{0}.csv" -f $yesterday)
+    if (Test-Path $rp) {
+      Write-Log ("recon_props present: {0}" -f $rp)
+    } else {
+      Write-Log ("recon_props missing after fetch-prop-actuals (non-fatal): {0}" -f $rp)
+    }
+  } catch { }
+} catch {
+  Write-Log ("fetch-prop-actuals failed (non-fatal): {0}" -f $_.Exception.Message)
+}
 
 # 1.6) Calibrate games probabilities via market blend (train over last 30 days, apply to today)
 try {

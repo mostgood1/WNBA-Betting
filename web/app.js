@@ -3,7 +3,7 @@ try{ window.__APPJS_BOOTED = true; }catch(_){ /* ignore */ }
 
 // Global config and state
 const STRICT_SCHEDULE_DATES = false;
-const AUTO_ADVANCE_TO_NEXT_GAME = true; // Auto-advance to next game date if no games on current date
+const AUTO_FALLBACK_TO_LAST_GAME = true; // If a selected date has no games, fall back to the most recent prior slate date
 const PIN_DATE = '';
 // Score blending: 0.5 means equal weight to model and sim points.
 const SCORE_BLEND_ALPHA = 0.50;
@@ -3847,7 +3847,23 @@ function setupControls(){
     }
     return null; // No future games found
   };
-  const defaultDate = (paramDate || nearestScheduled(today) || (dates.includes(PIN_DATE) ? PIN_DATE : dates[0]));
+  // Find the most recent date on/before fromDate that has games
+  const lastGameDateOnOrBefore = (fromDate)=>{
+    const arr = sched;
+    if (!arr || arr.length === 0) return null;
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const ds = arr[i];
+      if (ds <= fromDate && (state.byDate.get(ds) || []).length > 0) return ds;
+    }
+    return null;
+  };
+  const defaultDate = (function(){
+    if (paramDate) return paramDate;
+    const hasToday = (state.byDate.get(today) || []).length > 0;
+    if (hasToday) return today;
+    const last = lastGameDateOnOrBefore(today);
+    return (last || nearestScheduled(today) || (dates.includes(PIN_DATE) ? PIN_DATE : dates[0]));
+  })();
   picker.value = defaultDate;
   setDebugLine(`Debug: init selected=${defaultDate} byDate.size=${state.byDate.size} schedule.len=${Array.isArray(state.schedule)?state.schedule.length:0}`);
   // Mirror NHL UX: default "Show results" to ON for past dates on initial load
@@ -3871,14 +3887,14 @@ function setupControls(){
           d = near; picker.value = near;
         }
       }
-    } else if (AUTO_ADVANCE_TO_NEXT_GAME) {
-      // Auto-advance to next game date if current date has no games
+    } else if (AUTO_FALLBACK_TO_LAST_GAME) {
+      // Fall back to the most recent prior slate date if selected date has no games
       const hasGames = (state.byDate.get(d) || []).length > 0;
       if (!hasGames) {
-        const next = nextGameDate(d);
-        if (next && next !== d) {
-          d = next;
-          picker.value = next;
+        const last = lastGameDateOnOrBefore(d);
+        if (last && last !== d) {
+          d = last;
+          picker.value = last;
         }
       }
     }
@@ -3974,21 +3990,28 @@ function setupControls(){
     renderDate(d);
   });
   todayBtn.addEventListener('click', ()=>{
-    if (sched.includes(today)) {
+    // Prefer today if it has games; otherwise fall back to last slate date.
+    const hasToday = (state.byDate.get(today) || []).length > 0;
+    if (hasToday) {
       picker.value = today;
     } else {
-      const near = (function(){
-        const t = parseYMDLocal(today);
-        const arr = sched;
-        if (!arr || arr.length === 0) return dates[0];
-        let best = arr[0]; let bestDiff = Math.abs(parseYMDLocal(arr[0]) - t);
-        for (let i=1;i<arr.length;i++){
-          const diff = Math.abs(parseYMDLocal(arr[i]) - t);
-          if (diff < bestDiff){ bestDiff = diff; best = arr[i]; }
-        }
-        return best;
-      })();
-      picker.value = near;
+      const last = lastGameDateOnOrBefore(today);
+      if (last) {
+        picker.value = last;
+      } else {
+        const near = (function(){
+          const t = parseYMDLocal(today);
+          const arr = sched;
+          if (!arr || arr.length === 0) return dates[0];
+          let best = arr[0]; let bestDiff = Math.abs(parseYMDLocal(arr[0]) - t);
+          for (let i=1;i<arr.length;i++){
+            const diff = Math.abs(parseYMDLocal(arr[i]) - t);
+            if (diff < bestDiff){ bestDiff = diff; best = arr[i]; }
+          }
+          return best;
+        })();
+        picker.value = near;
+      }
     }
     picker.dispatchEvent(new Event('change'));
   });
