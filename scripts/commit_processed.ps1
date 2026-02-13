@@ -35,6 +35,31 @@ foreach ($pat in $patterns) {
     $files += Get-ChildItem -Path $processedDir -Filter $pat -File -ErrorAction SilentlyContinue
 }
 
+# Include per-game boxscores referenced by the combined daily boxscores file, when present.
+# These files are used by the API for boxscore reconciliation and display.
+try {
+    $dailyBox = Join-Path $processedDir "boxscores_${Date}.csv"
+    if (Test-Path $dailyBox) {
+        $rows = Import-Csv -Path $dailyBox
+        $gids = @(
+            $rows |
+                ForEach-Object {
+                    if ($_.PSObject.Properties.Name -contains 'game_id' -and $_.game_id) { $_.game_id }
+                    elseif ($_.PSObject.Properties.Name -contains 'gameId' -and $_.gameId) { $_.gameId }
+                    else { $null }
+                } |
+                Where-Object { $_ } |
+                Select-Object -Unique
+        )
+        foreach ($gid in $gids) {
+            $p = Join-Path $processedDir (Join-Path 'boxscores' "boxscore_${gid}.csv")
+            if (Test-Path $p) {
+                $files += Get-Item -Path $p -ErrorAction SilentlyContinue
+            }
+        }
+    }
+} catch { }
+
 # Deduplicate in case multiple patterns match the same file
 if ($files -and $files.Count -gt 0) {
     $files = $files | Sort-Object FullName -Unique
@@ -98,8 +123,12 @@ $allowedPrefixes = @(
     "predictions_",
     "recommendations_",
     "recon_games_",
+    "recon_quarters_",
     "recon_props_",
     "recon_players_",
+    # Boxscores used by API/UI for display + reconciliation
+    "boxscores_",
+    "boxscore_",
     # PBP-derived and reconciliation artifacts we want available to the site (and for debugging)
     "pbp_reconcile_",
     "tip_winner_probs_",
@@ -184,6 +213,9 @@ if ($DryRun) {
 foreach ($f in $files) {
     $rel = Resolve-Path -Relative $f.FullName
     if (
+        $f.Name.StartsWith('boxscore_') -or
+        $f.Name.StartsWith('boxscores_') -or
+        $f.Name.StartsWith('recon_quarters_') -or
         $f.Name.StartsWith('calibration_totals_') -or
         $f.Name.StartsWith('calibration_period_probs_') -or
         $f.Name -eq 'quarters_calibration.json' -or
