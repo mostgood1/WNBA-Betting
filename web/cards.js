@@ -1375,21 +1375,29 @@ function attachLiveLensHandlers(root, games) {
 
       // Interval-smart adjustment: use live possessions (per-scope) + SmartSim expected pace/PPP.
       try {
+        const adjCfg = _liveLensScopeTotalAdjCfg(totalMinutes);
         const possLive = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.possLive : null);
         const meta = meta0;
         const expHomePace = n(meta && meta.home_pace);
         const expAwayPace = n(meta && meta.away_pace);
         const expPace = (expHomePace != null && expAwayPace != null) ? ((expHomePace + expAwayPace) / 2.0) : null;
         const expTotal = n(meta && (meta.sim_total_mean != null ? meta.sim_total_mean : null));
-        const expPpp = (expPace != null && expTotal != null && expPace > 1e-6) ? (expTotal / expPace) : null;
+        const expPppGame = (expPace != null && expTotal != null && expPace > 1e-6) ? (expTotal / expPace) : null;
 
         const elapsedMin = totalMinutes - minRem;
         const possExpectedSoFar = (expPace != null) ? (expPace * (elapsedMin / 48.0)) : null;
         const possExpectedFull = (expPace != null) ? (expPace * (totalMinutes / 48.0)) : null;
 
-        if (!isFinal && paceFinal != null && simFinal != null && possLive != null && possExpectedSoFar != null && possExpectedFull != null && expPpp != null) {
-          // Avoid noisy adjustments very early.
-          const minElapsed = Math.max(1.0, 0.25 * totalMinutes);
+        // Prefer the scope median as the PPP prior when possible (captures quarter/half scoring shape).
+        const expPppScope = (simFinal != null && possExpectedFull != null && possExpectedFull > 1e-6) ? (simFinal / possExpectedFull) : null;
+        const expPpp = (expPppScope != null) ? expPppScope : expPppGame;
+
+        if (adjCfg && adjCfg.enabled === false) {
+          // disabled via tuning
+        } else if (!isFinal && paceFinal != null && simFinal != null && possLive != null && possExpectedSoFar != null && possExpectedFull != null && expPpp != null) {
+          // Avoid noisy adjustments very early; scale server knob to scope length.
+          const minElapsedFromTuning = n(adjCfg && adjCfg.min_elapsed_min);
+          const minElapsed = (minElapsedFromTuning != null) ? Math.max(1.0, minElapsedFromTuning * (totalMinutes / 48.0)) : Math.max(1.0, 0.25 * totalMinutes);
           if (elapsedMin >= minElapsed && possLive > 2.0 && possExpectedSoFar > 1.5) {
             const paceRatio = possLive / possExpectedSoFar;
             if (paceRatio > 0.4 && paceRatio < 2.5) {
@@ -1407,7 +1415,8 @@ function attachLiveLensHandlers(root, games) {
               const paceRatioShrunk = 1.0 + (paceRatio - 1.0) * wPace;
               const actPpp = actTot / Math.max(1.0, possLive);
               const effDelta = actPpp - expPpp;
-              const wEff = 0.5 * wPace;
+              const wEffProj = n(adjCfg && adjCfg.eff_weight_proj);
+              const wEff = ((wEffProj != null) ? wEffProj : 0.5) * wPace;
               const effDeltaShrunk = effDelta * wEff;
 
               const projPossFull = possExpectedFull * paceRatioShrunk;
@@ -1415,13 +1424,15 @@ function attachLiveLensHandlers(root, games) {
               let possBased = projPossFull * projPpp;
 
               // Guardrails vs SmartSim median for the scope.
-              const maxDev = 2.0 + (25.0 * (totalMinutes / 48.0));
+              const maxDevCfg = n(adjCfg && adjCfg.max_dev_points);
+              const maxDev = (maxDevCfg != null) ? maxDevCfg : (2.0 + (25.0 * (totalMinutes / 48.0)));
               possBased = Math.max(simFinal - maxDev, Math.min(simFinal + maxDev, possBased));
 
               // Blend with points-based ladder output to preserve SmartSim ladder prior.
               const alpha = wPace;
               let blended = (1.0 - alpha) * paceFinal + alpha * possBased;
-              const maxDelta = 2.0 + (15.0 * (totalMinutes / 48.0));
+              const maxDeltaCfg = n(adjCfg && adjCfg.max_delta_points);
+              const maxDelta = (maxDeltaCfg != null) ? maxDeltaCfg : (2.0 + (15.0 * (totalMinutes / 48.0)));
               blended = Math.max(paceFinal - maxDelta, Math.min(paceFinal + maxDelta, blended));
               paceFinal = blended;
             }
@@ -1701,6 +1712,24 @@ function _liveLensGameTotalAdjCfg() {
     const a = t && t.adjustments && typeof t.adjustments === 'object' ? t.adjustments : null;
     const g = a && a.game_total && typeof a.game_total === 'object' ? a.game_total : null;
     return g;
+  } catch (_) {
+    return null;
+  }
+}
+
+function _liveLensScopeTotalAdjCfg(totalMinutes) {
+  // Optional knobs for non-full-game scopes. Falls back to game_total.
+  try {
+    const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+    const a = t && t.adjustments && typeof t.adjustments === 'object' ? t.adjustments : null;
+    if (!a) return null;
+
+    const tm = Number(totalMinutes);
+    if (tm === 12 && a.quarter_total && typeof a.quarter_total === 'object') return a.quarter_total;
+    if (tm === 24 && a.half_total && typeof a.half_total === 'object') return a.half_total;
+    if (a.scope_total && typeof a.scope_total === 'object') return a.scope_total;
+    if (a.game_total && typeof a.game_total === 'object') return a.game_total;
+    return null;
   } catch (_) {
     return null;
   }

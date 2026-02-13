@@ -17799,6 +17799,19 @@ def api_live_player_lens():
                     except Exception:
                         exp_min = None
 
+                # If we have a predicted expected-minutes, gently blend toward what live share implies.
+                exp_min_eff = exp_min
+                if exp_min is not None and mp is not None and elapsed_min is not None and elapsed_min > 0:
+                    try:
+                        inferred = float(max(mp, min(44.0, (mp / max(1e-6, elapsed_min)) * 48.0)))
+                        # Conservative: at most 50% weight on live share, ramping with game progress.
+                        w_share = min(0.50, max(0.0, float(elapsed_min) / 48.0))
+                        # Avoid twitchiness very early.
+                        if elapsed_min >= 6.0 and mp >= 2.0:
+                            exp_min_eff = float((1.0 - w_share) * float(exp_min) + w_share * inferred)
+                    except Exception:
+                        exp_min_eff = exp_min
+
                 stat_actuals = {
                     "pts": pts,
                     "reb": reb,
@@ -17818,10 +17831,26 @@ def api_live_player_lens():
                             continue
 
                         pace_proj = None
-                        if actual is not None and mp is not None and mp > 0 and exp_min is not None and exp_min > 0:
+                        if actual is not None and mp is not None and mp > 0 and exp_min_eff is not None and exp_min_eff > 0:
                             try:
-                                em = float(max(mp, min(44.0, exp_min)))
-                                pace_proj = float((actual / mp) * em)
+                                em = float(max(mp, min(44.0, exp_min_eff)))
+                                pace_raw = float((actual / mp) * em)
+
+                                # Stabilize early: blend toward a prior (sim mean preferred; else line).
+                                prior_total = None
+                                if sim_mu is not None:
+                                    prior_total = float(sim_mu)
+                                elif line is not None:
+                                    prior_total = float(line)
+
+                                if prior_total is not None:
+                                    # Minutes-based shrinkage: mp=0.. -> prior; mp big -> pace.
+                                    k = 6.0
+                                    w = float(mp) / float(mp + k)
+                                    w = max(0.0, min(1.0, w))
+                                    pace_proj = float(w * pace_raw + (1.0 - w) * prior_total)
+                                else:
+                                    pace_proj = pace_raw
                             except Exception:
                                 pace_proj = None
 
@@ -17844,6 +17873,7 @@ def api_live_player_lens():
                             "sim_mu": sim_mu,
                             "line": float(line) if line is not None else None,
                             "exp_min": exp_min,
+                            "exp_min_eff": exp_min_eff,
                             "pace_proj": pace_proj,
                             "pace_vs_line": pace_vs_line,
                             "sim_vs_line": sim_vs_line,
@@ -18099,7 +18129,15 @@ def api_live_lens_tuning():
                 "eff_weight": 0.25,
                 "pace_cap_points": 3.0,
                 "eff_cap_points": 4.0,
-            }
+            },
+            # Used by client-side computeScope() for Q/1H/G interval-smart possession blending.
+            # min_elapsed_min is interpreted as a FULL-GAME knob and is scaled by scope length.
+            "scope_total": {
+                "enabled": True,
+                "min_elapsed_min": 6.0,
+                # Optional knobs (client defaults apply if omitted)
+                "eff_weight_proj": 0.5,
+            },
         },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
