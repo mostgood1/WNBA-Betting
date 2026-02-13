@@ -2301,7 +2301,14 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const dP = n(r && r.pace_vs_line);
       const dS = n(r && r.sim_vs_line);
       const lean = String(r && r.lean != null ? r.lean : '').toUpperCase().trim();
-      const leanTxt = lean ? lean : '—';
+      const klass = String(r && r.klass != null ? r.klass : '').toUpperCase().trim();
+      const inferredSide = (dP != null) ? (dP > 0 ? 'OVER' : (dP < 0 ? 'UNDER' : '')) : '';
+      const side = lean || inferredSide;
+      const showKlass = (klass === 'BET' || klass === 'WATCH');
+      const sigTxt = showKlass ? `${klass} ${side || ''}`.trim() : (side ? side : '—');
+      const sigBadge = showKlass
+        ? `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(sigTxt)}</span>`
+        : esc(sigTxt);
       const hasLine = (line != null);
       return `
         <tr data-has-line="${hasLine ? '1' : '0'}">
@@ -2314,7 +2321,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           <td class="num">${pace == null ? '—' : fmt(pace, 1)}</td>
           <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
           <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
-          <td>${esc(leanTxt)}</td>
+          <td>${sigBadge}</td>
         </tr>
       `;
     }).join('');
@@ -2338,7 +2345,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
               <th class="num">PaceProj</th>
               <th class="num">ΔPace-Line</th>
               <th class="num">ΔSim-Line</th>
-              <th>Lean</th>
+              <th>Signal</th>
             </tr>
           </thead>
           <tbody>
