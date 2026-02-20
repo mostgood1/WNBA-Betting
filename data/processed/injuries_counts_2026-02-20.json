@@ -1,0 +1,471 @@
+{
+  "date": "2026-02-20",
+  "team_counts": {
+    "ATL": 1,
+    "BKN": 3,
+    "CHA": 1,
+    "CLE": 4,
+    "DAL": 7,
+    "DEN": 4,
+    "IND": 7,
+    "LAC": 3,
+    "LAL": 1,
+    "MEM": 7,
+    "MIA": 4,
+    "MIL": 5,
+    "MIN": 1,
+    "NOP": 3,
+    "OKC": 5,
+    "POR": 5,
+    "UTA": 5,
+    "WAS": 3
+  },
+  "players": [
+    {
+      "player": "Nicolas Batum",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Davis",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Kentavious Caldwell-Pope",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Gordon",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Andrew Wiggins",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "T.J. McConnell",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Myles Turner",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Taurean Prince",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Pascal Siakam",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ivica Zubac",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Hartenstein",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Caleb Martin",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Deandre Ayton",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Robert Williams III",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Andrew Nembhard",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Pickett",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Max Strus",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Darius Garland",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyler Herro",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Nic Claxton",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Daniel Gafford",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Ty Jerome",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Matisse Thybulle",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Dean Wade",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Nesmith",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Cole Anthony",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Naji Marshall",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Murphy III",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Evan Mobley",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Williams",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Oscar Tshiebwe",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Ryan Rollins",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Kris Murray",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Keyonte George",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Noah Clowney",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Tristan Vukcevic",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Pelle Larsson",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Elijah Harkless",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ajay Mitchell",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Branden Carlson",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Spencer Jones",
+      "team": "DEN",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "LAC": [
+      "Ivica Zubac",
+      "Nicolas Batum",
+      "Bradley Beal"
+    ],
+    "DAL": [
+      "Naji Marshall",
+      "Daniel Gafford",
+      "Caleb Martin"
+    ],
+    "POR": [
+      "Shaedon Sharpe",
+      "Robert Williams III",
+      "Damian Lillard"
+    ],
+    "MEM": [
+      "Ja Morant",
+      "Jaren Jackson Jr.",
+      "Ty Jerome"
+    ],
+    "CHA": [
+      "Mason Plumlee"
+    ],
+    "MIL": [
+      "Giannis Antetokounmpo",
+      "Ryan Rollins",
+      "Myles Turner"
+    ],
+    "DEN": [
+      "Peyton Watson",
+      "Aaron Gordon",
+      "Spencer Jones"
+    ],
+    "MIA": [
+      "Andrew Wiggins",
+      "Pelle Larsson",
+      "Terry Rozier"
+    ],
+    "IND": [
+      "Pascal Siakam",
+      "Andrew Nembhard",
+      "Aaron Nesmith"
+    ],
+    "NOP": [
+      "Trey Murphy III",
+      "Yves Missi",
+      "Dejounte Murray"
+    ],
+    "OKC": [
+      "Shai Gilgeous-Alexander",
+      "Jalen Williams",
+      "Ajay Mitchell"
+    ],
+    "BKN": [
+      "Michael Porter Jr.",
+      "Nic Claxton",
+      "Noah Clowney"
+    ],
+    "ATL": [
+      "Trae Young"
+    ],
+    "LAL": [
+      "Deandre Ayton"
+    ],
+    "CLE": [
+      "Evan Mobley",
+      "Dean Wade",
+      "Max Strus"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ],
+    "UTA": [
+      "Keyonte George",
+      "Oscar Tshiebwe",
+      "Walker Kessler"
+    ],
+    "WAS": [
+      "Alex Sarr",
+      "Tristan Vukcevic",
+      "Cam Whitmore"
+    ]
+  },
+  "team_impact": {
+    "LAC": 37.61666666666667,
+    "DAL": 76.15555555555557,
+    "POR": 55.3,
+    "MEM": 126.63333333333333,
+    "MIL": 116.55555555555554,
+    "DEN": 81.60000000000001,
+    "MIA": 57.900000000000006,
+    "IND": 97.34444444444445,
+    "NOP": 57.628181818181815,
+    "OKC": 115.04285714285714,
+    "BKN": 83.64431818181818,
+    "LAL": 23.366666666666667,
+    "CLE": 63.5,
+    "UTA": 39.879999999999995,
+    "WAS": 62.43333333333334
+  }
+}
