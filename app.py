@@ -1941,6 +1941,7 @@ def _enforce_minimal_ui_allowlist():
             allowed_web_exact = {
                 "/web/styles.css",
                 "/web/cards.js",
+                "/web/app.js",
             }
             allowed_web_prefixes = (
                 "/web/assets/",
@@ -1955,6 +1956,8 @@ def _enforce_minimal_ui_allowlist():
             "/api/cards",
             "/api/predictions",
             "/api/schedule",
+            "/api/scoreboard",
+            "/api/line-score",
             "/api/evaluate/games",
             "/api/evaluate/props",
             "/api/props",
