@@ -65,31 +65,10 @@
     <h1>NBA Betting – Recommendations</h1>
     <form class="filters" id="filters" onsubmit="event.preventDefault(); loadRecs();">
       <label>Date: <input type="date" id="datePicker" /></label>
-  <label>Min ATS edge <input type="number" id="minSpread" step="0.1" value="1.0" class="w-70" /></label>
-  <label>Min Total edge <input type="number" id="minTotal" step="0.1" value="1.5" class="w-70" /></label>
-      <label>Sort by:
-        <select id="sortBy">
-          <option value="confidence">Confidence</option>
-          <option value="time">Game time</option>
-          <option value="type">Bet type</option>
-          <option value="ev">EV</option>
-          <option value="edge">Edge</option>
-          <option value="sim_score">Sim Score</option>
-          <option value="sim_ev">Sim EV</option>
-          <option value="sim_prob">Sim Prob</option>
-        </select>
-      </label>
-      <label class="ml-8">Prop markets:
-        <label><input type="checkbox" class="prop-mkt" value="pts" checked /> Pts</label>
-        <label><input type="checkbox" class="prop-mkt" value="reb" checked /> Reb</label>
-        <label><input type="checkbox" class="prop-mkt" value="ast" checked /> Ast</label>
-        <label><input type="checkbox" class="prop-mkt" value="threes" checked /> 3PT</label>
-        <label><input type="checkbox" class="prop-mkt" value="pra" /> PRA</label>
-      </label>
-  <button type="submit">Apply</button>
+      <button type="submit">Apply</button>
       <button type="button" id="resetBtn">Reset</button>
     </form>
-  <div class="muted-small banner-small" id="seasonBanner">Last 30 days</div>
+  <div class="muted-small banner-small" id="seasonBanner">Most likely slate</div>
   <div id="cardsSummary" class="cards-summary"></div>
   <h2 class="mt-1">Daily Recaps</h2>
   <div class="muted-small">Last 30 days of results (games + props) when reconciliation files exist.</div>
@@ -195,6 +174,11 @@
     function teamBadge(nameOrTri){ const tri=teamTri(nameOrTri); const meta=tri?TEAM_META[tri]:null; const logo=tri?teamLogoUrl(tri):null; const color=meta?meta.color:'#667085'; const text=(typeof nameOrTri==='string')? nameOrTri: (tri||''); const dot=`<span class="color-dot" style="background:${color}"></span>`; const img=logo? `<img class="team-logo" src="${logo}" alt="${tri}" onerror="this.style.display='none'">`:''; return `<span class="team-badge">${img}${dot}<span class="team-text" style="color:${color}">${text}</span></span>`; }
     function parseDateStr(d){ try{ return new Date(d+'T00:00:00'); }catch(_){ return null; } }
 
+    function esc(s){
+      const str = String(s==null? '' : s);
+      return str.replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
+    }
+
     // ---- Display caps (score-only selection) ----
     // These caps are applied before rendering, independent of the UI sort dropdown.
     // Goal: show a concise “best slate” by score.
@@ -243,25 +227,245 @@
       }
     }
     async function loadRecs(){
-      // Page is intentionally limited to 30-day summary + Daily Recaps.
-      // Everything after Daily Recaps has been removed.
-
       // Immediate feedback so the page never looks blank.
       try{
         const cs = document.getElementById('cardsSummary');
-        if(cs){ cs.innerHTML = '<div class="card">Loading 30-day summary…</div>'; }
+        if(cs){ cs.innerHTML = '<div class="card">Loading curated slate…</div>'; }
         const dr = document.getElementById('dailyRecapsRoot');
         if(dr){ dr.innerHTML = '<div class="card">Loading daily recaps…</div>'; }
       }catch(_){ /* ignore */ }
 
-      try{ await renderSummary(); }catch(_){
+      try{ await renderSlate(); }catch(e){
         const cs=document.getElementById('cardsSummary');
-        if(cs){ cs.innerHTML='<div class="card">Failed to load 30-day summary.</div>'; }
+        const msg = (e && (e.message || String(e))) ? (e.message || String(e)) : 'Unknown error';
+        if(cs){ cs.innerHTML=`<div class="card">Failed to load curated slate.<div class="muted-small">${esc(msg)}</div></div>`; }
       }
       try{ await renderDailyRecaps(); }catch(_){
         const dr=document.getElementById('dailyRecapsRoot');
         if(dr){ dr.innerHTML='<div class="card">Failed to load daily recaps.</div>'; }
       }
+    }
+
+    function _dateFromPicker(){
+      const datePicker = document.getElementById('datePicker');
+      const fromQs = qs('date');
+      return (datePicker && datePicker.value) ? datePicker.value : (fromQs || localYMD());
+    }
+
+    function _numFromInput(id, fallback){
+      try{
+        const el = document.getElementById(id);
+        if(!el) return fallback;
+        const v = Number(el.value);
+        return Number.isFinite(v) ? v : fallback;
+      }catch(_){
+        return fallback;
+      }
+    }
+
+
+    function fmtPct(p){
+      const n = Number(p);
+      if(!Number.isFinite(n)) return '';
+      return (n*100).toFixed(1) + '%';
+    }
+
+    function marketLabel(m){
+      const s = String(m||'').trim().toLowerCase();
+      if(!s) return '';
+      if(s==='threes') return '3PT';
+      return s.toUpperCase();
+    }
+
+    function pickLabel(p){
+      try{
+        const side = String(p.side||'').toUpperCase();
+        const mkt = marketLabel(p.market);
+        const line = (p.line!=null && Number.isFinite(Number(p.line))) ? Number(p.line).toFixed(1) : '';
+        const odds = fmtOddsAmerican(p.price);
+        const book = p.book ? String(p.book) : '';
+        const ob = [odds, book].filter(Boolean).join(' · ');
+        return `${side} ${line} ${mkt}`.trim() + (ob?` (${ob})`: '');
+      }catch(_){
+        return '';
+      }
+    }
+
+    function _tierPill(tier){
+      const t = String(tier||'').trim();
+      if(!t) return '';
+      return `<span class="pill ${pillClass(t)}">${esc(t)}</span>`;
+    }
+
+    function _reasonsPills(reasons){
+      try{
+        if(!Array.isArray(reasons) || !reasons.length) return '';
+        return reasons.slice(0,3).map(r=> `<span class="pill">${esc(r)}</span>`).join('');
+      }catch(_){
+        return '';
+      }
+    }
+
+    function _gameLine(r){
+      const mk = String(r.market||'').toUpperCase();
+      const side = String(r.side||'');
+      const price = fmtOddsAmerican(r.price);
+      if(mk==='ML') return `${esc(side)} ML${price?` (${esc(price)})`:''}`;
+      if(mk==='ATS'){
+        const ln = (r.line!=null && Number.isFinite(Number(r.line))) ? Number(r.line) : null;
+        const lineDisp = (ln==null)? '' : (ln>0? `+${ln}` : `${ln}`);
+        return `${esc(side)} ${esc(lineDisp)}${price?` (${esc(price)})`:''}`.trim();
+      }
+      if(mk==='TOTAL'){
+        const ln = (r.line!=null && Number.isFinite(Number(r.line))) ? Number(r.line) : null;
+        return `${esc(side)}${ln!=null?` ${esc(ln)}`:''}${price?` (${esc(price)})`:''}`.trim();
+      }
+      return `${esc(side)}${price?` (${esc(price)})`:''}`.trim();
+    }
+
+    function _propLine(tp){
+      if(!tp || typeof tp!=='object') return '';
+      const price = fmtOddsAmerican(tp.price);
+      const lbl = propLabel(tp);
+      return `${esc(lbl)}${price?` (${esc(price)})`:''}`;
+    }
+
+    function _renderSlateInto(root, js){
+      const date = js && js.date ? String(js.date) : _dateFromPicker();
+      const meta = (js && js.meta) ? js.meta : {};
+      const policy = (meta && meta.policy) ? meta.policy : null;
+      const counts = (js && js.counts) ? js.counts : {};
+      const perGame = Array.isArray(js && js.per_game) ? js.per_game : [];
+      const perMarket = (js && js.per_market && typeof js.per_market==='object') ? js.per_market : {};
+
+      const banner = document.getElementById('seasonBanner');
+      if(banner){
+        const gN = counts.games!=null ? counts.games : perGame.length;
+        const mN = counts.markets!=null ? counts.markets : Object.keys(perMarket||{}).length;
+        const ng = policy && policy.n_game!=null ? ` · top ${policy.n_game}/game` : '';
+        const nm = policy && policy.n_market!=null ? ` · top ${policy.n_market}/market` : '';
+        banner.textContent = `Most likely slate for ${date} · ${gN} games · ${mN} markets${ng}${nm}`;
+      }
+
+      const head = document.createElement('div');
+      head.className = 'card card-summary game-card';
+      const pol = policy ? `<div class="muted-small">Rank: ${esc(policy.rank||'sim_win_prob')} · Model: ${esc(policy.sim_model||'smart_sim')}</div>` : '';
+      head.innerHTML = `<div class="title-sm">Most Likely</div><div class="title-lg">${esc(date)}</div>${pol}`;
+      root.appendChild(head);
+
+      // Per-game cards
+      if(!perGame.length){
+        const none = document.createElement('div');
+        none.className = 'card game-card';
+        none.innerHTML = '<div class="title-md">Per game</div><div class="muted-small">No per-game prop picks.</div>';
+        root.appendChild(none);
+      }else{
+        perGame.forEach(g=>{
+          const away = g.away || '';
+          const home = g.home || '';
+          const matchup = `${away?teamBadge(away):esc(String(away||''))} <span class="muted-small">@</span> ${home?teamBadge(home):esc(String(home||''))}`;
+          const picks = Array.isArray(g.picks) ? g.picks : [];
+          const rows = picks.map(p=>{
+            const player = String(p.player||'');
+            const team = String(p.team||'');
+            const wp = fmtPct(p.win_prob);
+            const mean = (p.sim_mean!=null && Number.isFinite(Number(p.sim_mean))) ? Number(p.sim_mean).toFixed(2) : '';
+            const sd = (p.sim_sd!=null && Number.isFinite(Number(p.sim_sd))) ? Number(p.sim_sd).toFixed(2) : '';
+            const sim = (mean||sd) ? `<div class="muted-tiny">sim μ ${esc(mean||'—')} · σ ${esc(sd||'—')}</div>` : '';
+            return `
+              <tr>
+                <td class="lh-13">${esc(player)}<div class="muted-tiny">${esc(team)}</div></td>
+                <td>${esc(String(marketLabel(p.market)||''))}</td>
+                <td>${esc(pickLabel(p))}${sim}</td>
+                <td class="tar">${esc(wp)}</td>
+              </tr>
+            `;
+          }).join('');
+          const card = document.createElement('div');
+          card.className = 'card game-card';
+          card.innerHTML = `
+            <div class="title-md">${matchup}</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Market</th>
+                    <th>Pick</th>
+                    <th class="tar">Win%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || `<tr><td colspan="4" class="muted-small">No picks.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          `;
+          root.appendChild(card);
+        });
+      }
+
+      // Per-market cards
+      const markets = Object.keys(perMarket||{}).sort((a,b)=> a.localeCompare(b));
+      if(!markets.length){
+        const none = document.createElement('div');
+        none.className = 'card game-card';
+        none.innerHTML = '<div class="title-md">Per market</div><div class="muted-small">No per-market prop picks.</div>';
+        root.appendChild(none);
+      }else{
+        markets.forEach(m=>{
+          const arr = Array.isArray(perMarket[m]) ? perMarket[m] : [];
+          const rows = arr.map(p=>{
+            const player = String(p.player||'');
+            const team = String(p.team||'');
+            const matchup = (p.away && p.home) ? `${String(p.away)} @ ${String(p.home)}` : '';
+            const wp = fmtPct(p.win_prob);
+            return `
+              <tr>
+                <td class="lh-13">${esc(player)}<div class="muted-tiny">${esc(team)}${matchup?` · ${esc(matchup)}`:''}</div></td>
+                <td>${esc(pickLabel(p))}</td>
+                <td class="tar">${esc(wp)}</td>
+              </tr>
+            `;
+          }).join('');
+          const card = document.createElement('div');
+          card.className = 'card game-card';
+          card.innerHTML = `
+            <div class="title-md">Market: ${esc(marketLabel(m))}</div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Pick</th>
+                    <th class="tar">Win%</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows || `<tr><td colspan="3" class="muted-small">No picks.</td></tr>`}
+                </tbody>
+              </table>
+            </div>
+          `;
+          root.appendChild(card);
+        });
+      }
+    }
+
+    async function renderSlate(){
+      const root = document.getElementById('cardsSummary');
+      if(!root) return;
+      root.innerHTML = '';
+
+      const date = _dateFromPicker();
+      // Defaults match the backend canonical slate cache.
+      const N_GAME = 3;
+      const N_MARKET = 10;
+      const url = apiUrl(`/recommendations?format=json&view=slate&date=${encodeURIComponent(date)}&n_game=${encodeURIComponent(N_GAME)}&n_market=${encodeURIComponent(N_MARKET)}`);
+      const r = await fetch(url, {cache:'no-store'});
+      if(!r.ok){ throw new Error(`HTTP ${r.status}`); }
+      const js = await r.json();
+      _renderSlateInto(root, js||{});
     }
 
     async function loadGameCards(date, propMkts, regularOnly){
@@ -1114,7 +1318,19 @@
         return eb-ea; // expected desc
       });
       const wrap=document.createElement('div'); wrap.className='table table-wrap'; const tbl=document.createElement('table'); tbl.innerHTML='<thead><tr><th>Matchup</th><th>Bet</th><th>Prob ≥1</th><th>Expected</th></tr></thead>'; const tb=document.createElement('tbody'); sorted.forEach(r=>{ const prob = (r.prob_ge_1!=null)? (Number(r.prob_ge_1*100).toFixed(1)+'%') : ''; const exp = (r.expected!=null)? Number(r.expected).toFixed(2) : ''; const tr=document.createElement('tr'); const away = (r.away||r.visitor_team||''); const home = (r.home||r.home_team||''); let base = (r.matchup && String(r.matchup).trim())? String(r.matchup).trim(): `${away} @ ${home}`; if(!base.trim() || base.trim()==='@'){ const gid = r.game_id? String(r.game_id): ''; base = gid? `Game ${gid}`: '—'; } const gidTxt = r.game_id? ` <span class="muted-small">(${String(r.game_id)})</span>`: ''; const ft = formatDisplayTime(r.start_time); const timeTxt = ft? ` <span class="muted-small">· ${ft}</span>`: ''; const matchupHtml = `${away? teamBadge(away): ''} @ ${home? teamBadge(home): ''}`; tr.innerHTML=`<td>${matchupHtml}${gidTxt}${timeTxt}</td><td>${r.side||''}</td><td class="tar">${prob}</td><td class="tar">${exp}</td>`; tb.appendChild(tr); }); tbl.appendChild(tb); wrap.appendChild(tbl); root.appendChild(wrap); }
-  window.addEventListener('DOMContentLoaded', ()=>{ const inp=document.getElementById('datePicker'); const qd=qs('date'); inp.value=qd || localYMD(); document.getElementById('resetBtn').addEventListener('click',()=>{ document.getElementById('minSpread').value='1.0'; document.getElementById('minTotal').value='1.5'; document.getElementById('sortBy').value='confidence'; loadRecs(); }); const psb=document.getElementById('propsSortApply'); if(psb){ psb.addEventListener('click',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const psel=document.getElementById('propsSortBy'); if(psel){ psel.addEventListener('change',()=>{ if(window.__lastProps){ renderProps(window.__lastProps); } }); } const reg=document.getElementById('propsRegularOnly'); if(reg){ reg.addEventListener('change',()=>{ loadRecs(); }); } loadRecs(); });
+  window.addEventListener('DOMContentLoaded', ()=>{
+    const inp = document.getElementById('datePicker');
+    const qd = qs('date');
+    if(inp) inp.value = qd || localYMD();
+    const rb = document.getElementById('resetBtn');
+    if(rb){
+      rb.addEventListener('click', ()=>{
+        if(inp) inp.value = qd || localYMD();
+        loadRecs();
+      });
+    }
+    loadRecs();
+  });
   </script>
 </body>
 </html>

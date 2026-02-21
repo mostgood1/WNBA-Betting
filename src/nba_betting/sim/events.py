@@ -181,13 +181,39 @@ def _player_usage_weights(players: pd.DataFrame, col_pm: str, lineup_idx: List[i
     mins_norm = (mins_floor / s_m) if np.isfinite(s_m) and s_m > 0 else np.full(len(idx), 1.0 / len(idx))
 
     s_p = float(pm_line.sum())
+
+    # Optional: anchor shot selection to predicted points so stars reliably get
+    # appropriate volume even when per-minute priors are noisy.
+    pred_weight = 0.0
+    pred_norm = None
+    if col_pm in ("_prior_fga_pm", "_prior_threes_att_pm"):
+        try:
+            pred = _safe_series(players, "pred_pts").to_numpy(dtype=float)
+            pred = np.maximum(0.0, np.where(np.isfinite(pred), pred, 0.0))
+            pred = np.log1p(pred)
+            pred_line = pred[idx]
+            s_pred = float(pred_line.sum())
+            if np.isfinite(s_pred) and s_pred > 0:
+                pred_norm = pred_line / s_pred
+                pred_weight = 0.20
+        except Exception:
+            pred_weight = 0.0
+            pred_norm = None
+
     if (not np.isfinite(s_p)) or s_p <= 0:
         probs = mins_norm
+        if pred_norm is not None and pred_weight > 0:
+            # If priors are missing, still allow pred_pts to shape volume a bit.
+            probs = pred_weight * pred_norm + (1.0 - pred_weight) * mins_norm
     else:
         pm_norm = pm_line / s_p
         # Priors-heavy but never priors-only.
         pri_weight = 0.75
-        probs = pri_weight * pm_norm + (1.0 - pri_weight) * mins_norm
+        base = pri_weight * pm_norm + (1.0 - pri_weight) * mins_norm
+        if pred_norm is not None and pred_weight > 0:
+            probs = (1.0 - pred_weight) * base + pred_weight * pred_norm
+        else:
+            probs = base
 
     probs = np.maximum(0.0, probs)
     s = float(probs.sum())
@@ -213,6 +239,8 @@ def simulate_event_level_boxscore(
     home_lineup_weights: Optional[np.ndarray] = None,
     away_lineups: Optional[List[List[int]]] = None,
     away_lineup_weights: Optional[np.ndarray] = None,
+    home_team_adj: Optional[Dict[str, float]] = None,
+    away_team_adj: Optional[Dict[str, float]] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
     """Simulate an event-driven representative boxscore.
 
@@ -225,6 +253,49 @@ def simulate_event_level_boxscore(
     a_mins = _safe_series(away_players, "_sim_min").to_numpy(dtype=float)
     h_rates = _team_rates_from_priors(home_players, cfg)
     a_rates = _team_rates_from_priors(away_players, cfg)
+
+    def _adj_value(adj: Optional[Dict[str, float]], key: str, default: float = 1.0, lo: float = 0.5, hi: float = 1.5) -> float:
+        try:
+            if not isinstance(adj, dict):
+                return float(default)
+            v = float(adj.get(key, default))
+            if not np.isfinite(v):
+                return float(default)
+            return float(np.clip(v, lo, hi))
+        except Exception:
+            return float(default)
+
+    # Optional team-level adjustments (kept bounded)
+    eff_mult_h = _adj_value(home_team_adj, "eff_mult", 1.0, lo=0.80, hi=1.20)
+    eff_mult_a = _adj_value(away_team_adj, "eff_mult", 1.0, lo=0.80, hi=1.20)
+    tov_mult_h = _adj_value(home_team_adj, "tov_mult", 1.0, lo=0.85, hi=1.15)
+    tov_mult_a = _adj_value(away_team_adj, "tov_mult", 1.0, lo=0.85, hi=1.15)
+    foul_mult_h = _adj_value(home_team_adj, "foul_mult", 1.0, lo=0.80, hi=1.25)
+    foul_mult_a = _adj_value(away_team_adj, "foul_mult", 1.0, lo=0.80, hi=1.25)
+    oreb_mult_h = _adj_value(home_team_adj, "oreb_mult", 1.0, lo=0.75, hi=1.35)
+    oreb_mult_a = _adj_value(away_team_adj, "oreb_mult", 1.0, lo=0.75, hi=1.35)
+
+    h_rates = dict(h_rates)
+    a_rates = dict(a_rates)
+    try:
+        h_rates["p_tov"] = float(np.clip(float(h_rates.get("p_tov", cfg.base_tov_per_poss)) * tov_mult_h, 0.04, 0.28))
+        a_rates["p_tov"] = float(np.clip(float(a_rates.get("p_tov", cfg.base_tov_per_poss)) * tov_mult_a, 0.04, 0.28))
+    except Exception:
+        pass
+    try:
+        h_rates["foul_per_fga"] = float(np.clip(float(h_rates.get("foul_per_fga", cfg.base_shooting_foul_per_fga)) * foul_mult_h, 0.03, 0.35))
+        a_rates["foul_per_fga"] = float(np.clip(float(a_rates.get("foul_per_fga", cfg.base_shooting_foul_per_fga)) * foul_mult_a, 0.03, 0.35))
+    except Exception:
+        pass
+
+    try:
+        oreb_rate_h = float(np.clip(float(cfg.base_oreb_rate) * float(oreb_mult_h), 0.05, 0.55))
+    except Exception:
+        oreb_rate_h = float(cfg.base_oreb_rate)
+    try:
+        oreb_rate_a = float(np.clip(float(cfg.base_oreb_rate) * float(oreb_mult_a), 0.05, 0.55))
+    except Exception:
+        oreb_rate_a = float(cfg.base_oreb_rate)
 
     # Player shooting pcts
     h_fg_pct = _player_pct(home_players, "_prior_fgm_pm", "_prior_fga_pm", default=0.46, lo=0.25, hi=0.75)
@@ -412,7 +483,8 @@ def simulate_event_level_boxscore(
 
                 # make probability
                 eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
-                make_p = float(h_3p_pct[sh] if shot_is_3 else h_fg_pct[sh]) * eff_scale
+                base_p = float(h_3p_pct[sh] if shot_is_3 else h_fg_pct[sh])
+                make_p = float(np.clip(base_p * eff_scale * float(eff_mult_h), 0.05, 0.95))
                 made = bool(rng.random() < make_p)
 
                 blk = False
@@ -470,7 +542,7 @@ def simulate_event_level_boxscore(
                             events.append({"q": q, "type": "FTA", "off": "H", "sh": sh, "fta": n_ft, "ftm": made_fts})
                     else:
                         # rebound
-                        oreb = bool(rng.random() < cfg.base_oreb_rate)
+                        oreb = bool(rng.random() < float(oreb_rate_h))
                         if oreb:
                             reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
                             ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
@@ -505,7 +577,8 @@ def simulate_event_level_boxscore(
 
                 foul = bool(rng.random() < float(off_rates["foul_per_fga"]))
                 eff_scale = cfg.garbage_time_eff_scale if blowout else 1.0
-                make_p = float(a_3p_pct[sh] if shot_is_3 else a_fg_pct[sh]) * eff_scale
+                base_p = float(a_3p_pct[sh] if shot_is_3 else a_fg_pct[sh])
+                make_p = float(np.clip(base_p * eff_scale * float(eff_mult_a), 0.05, 0.95))
                 made = bool(rng.random() < make_p)
 
                 blk = False
@@ -556,7 +629,7 @@ def simulate_event_level_boxscore(
                         if record_events:
                             events.append({"q": q, "type": "FTA", "off": "A", "sh": sh, "fta": n_ft, "ftm": made_fts})
                     else:
-                        oreb = bool(rng.random() < cfg.base_oreb_rate)
+                        oreb = bool(rng.random() < float(oreb_rate_a))
                         if oreb:
                             reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
                             ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)
@@ -778,6 +851,8 @@ def simulate_pbp_game_boxscore(
     target_home_points: Optional[float] = None,
     target_away_points: Optional[float] = None,
     quarters: Optional[List[Any]] = None,
+    home_team_adj: Optional[Dict[str, float]] = None,
+    away_team_adj: Optional[Dict[str, float]] = None,
 ) -> Tuple[Dict[str, Any], Dict[str, Any], List[int], List[int]]:
     """Simulate a possession/play-by-play style game.
 
@@ -788,11 +863,45 @@ def simulate_pbp_game_boxscore(
     """
     cfg = cfg or EventSimConfig()
 
+    def _adj_value(adj: Optional[Dict[str, float]], key: str, default: float = 1.0, lo: float = 0.5, hi: float = 1.5) -> float:
+        try:
+            if not isinstance(adj, dict):
+                return float(default)
+            v = float(adj.get(key, default))
+            if not np.isfinite(v):
+                return float(default)
+            return float(np.clip(v, lo, hi))
+        except Exception:
+            return float(default)
+
     # Precompute weights and rates
     h_mins = _safe_series(home_players, "_sim_min").to_numpy(dtype=float)
     a_mins = _safe_series(away_players, "_sim_min").to_numpy(dtype=float)
     h_rates = _team_rates_from_priors(home_players, cfg)
     a_rates = _team_rates_from_priors(away_players, cfg)
+
+    # Optional team-level adjustments (e.g., from team advanced priors). Kept bounded.
+    eff_prior_h = _adj_value(home_team_adj, "eff_mult", 1.0, lo=0.80, hi=1.20)
+    eff_prior_a = _adj_value(away_team_adj, "eff_mult", 1.0, lo=0.80, hi=1.20)
+    tov_mult_h = _adj_value(home_team_adj, "tov_mult", 1.0, lo=0.85, hi=1.15)
+    tov_mult_a = _adj_value(away_team_adj, "tov_mult", 1.0, lo=0.85, hi=1.15)
+    foul_mult_h = _adj_value(home_team_adj, "foul_mult", 1.0, lo=0.80, hi=1.25)
+    foul_mult_a = _adj_value(away_team_adj, "foul_mult", 1.0, lo=0.80, hi=1.25)
+    oreb_mult_h = _adj_value(home_team_adj, "oreb_mult", 1.0, lo=0.75, hi=1.35)
+    oreb_mult_a = _adj_value(away_team_adj, "oreb_mult", 1.0, lo=0.75, hi=1.35)
+
+    h_rates = dict(h_rates)
+    a_rates = dict(a_rates)
+    try:
+        h_rates["p_tov"] = float(np.clip(float(h_rates.get("p_tov", cfg.base_tov_per_poss)) * tov_mult_h, 0.04, 0.28))
+        a_rates["p_tov"] = float(np.clip(float(a_rates.get("p_tov", cfg.base_tov_per_poss)) * tov_mult_a, 0.04, 0.28))
+    except Exception:
+        pass
+    try:
+        h_rates["foul_per_fga"] = float(np.clip(float(h_rates.get("foul_per_fga", cfg.base_shooting_foul_per_fga)) * foul_mult_h, 0.03, 0.35))
+        a_rates["foul_per_fga"] = float(np.clip(float(a_rates.get("foul_per_fga", cfg.base_shooting_foul_per_fga)) * foul_mult_a, 0.03, 0.35))
+    except Exception:
+        pass
 
     # Player shooting pcts
     h_fg_pct = _player_pct(home_players, "_prior_fgm_pm", "_prior_fga_pm", default=0.46, lo=0.25, hi=0.75)
@@ -828,7 +937,7 @@ def simulate_pbp_game_boxscore(
         fg3_pct=_team_avg(h_3p_pct, h_mins, 0.35),
         foul_per_fga=float(h_rates["foul_per_fga"]),
         ft_pct=_team_avg(h_ft_pct, h_mins, 0.76),
-        oreb_rate=float(cfg.base_oreb_rate),
+        oreb_rate=float(cfg.base_oreb_rate) * float(oreb_mult_h),
     )
     base_ppp_a = _expected_points_per_possession(
         p_tov=float(a_rates["p_tov"]),
@@ -837,7 +946,7 @@ def simulate_pbp_game_boxscore(
         fg3_pct=_team_avg(a_3p_pct, a_mins, 0.35),
         foul_per_fga=float(a_rates["foul_per_fga"]),
         ft_pct=_team_avg(a_ft_pct, a_mins, 0.76),
-        oreb_rate=float(cfg.base_oreb_rate),
+        oreb_rate=float(cfg.base_oreb_rate) * float(oreb_mult_a),
     )
 
     eff_mult_h = 1.0
@@ -850,6 +959,13 @@ def simulate_pbp_game_boxscore(
     except Exception:
         eff_mult_h = 1.0
         eff_mult_a = 1.0
+
+    # Apply opponent-aware/team prior efficiency multipliers (kept bounded).
+    try:
+        eff_mult_h = float(np.clip(float(eff_mult_h) * float(eff_prior_h), 0.75, 1.25))
+        eff_mult_a = float(np.clip(float(eff_mult_a) * float(eff_prior_a), 0.75, 1.25))
+    except Exception:
+        pass
 
     # Aggregation arrays
     def blank(players: pd.DataFrame) -> Dict[str, np.ndarray]:
@@ -1232,7 +1348,12 @@ def simulate_pbp_game_boxscore(
                             pass
                         break
 
-                    oreb = bool(rng.random() < cfg.base_oreb_rate)
+                    try:
+                        oreb_rate = float(cfg.base_oreb_rate) * (float(oreb_mult_h) if offense_home else float(oreb_mult_a))
+                        oreb_rate = float(np.clip(oreb_rate, 0.05, 0.55))
+                    except Exception:
+                        oreb_rate = float(cfg.base_oreb_rate)
+                    oreb = bool(rng.random() < oreb_rate)
                     if oreb:
                         reb_w = _player_usage_weights(home_players, "_prior_reb_pm", h_line)
                         ridx = _pick_weighted(rng, list(range(len(home_players))), reb_w)
@@ -1345,7 +1466,12 @@ def simulate_pbp_game_boxscore(
                             pass
                         break
 
-                    oreb = bool(rng.random() < cfg.base_oreb_rate)
+                    try:
+                        oreb_rate = float(cfg.base_oreb_rate) * (float(oreb_mult_h) if offense_home else float(oreb_mult_a))
+                        oreb_rate = float(np.clip(oreb_rate, 0.05, 0.55))
+                    except Exception:
+                        oreb_rate = float(cfg.base_oreb_rate)
+                    oreb = bool(rng.random() < oreb_rate)
                     if oreb:
                         reb_w = _player_usage_weights(away_players, "_prior_reb_pm", a_line)
                         ridx = _pick_weighted(rng, list(range(len(away_players))), reb_w)

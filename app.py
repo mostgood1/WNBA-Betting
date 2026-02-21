@@ -186,7 +186,21 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                 timeout=timeout_s,
             )
             jd = r.json() if r.ok else None
-            if isinstance(jd, list):
+            if isinstance(jd, dict):
+                # OddsAPI v4 shape: {id, ... , bookmakers:[{markets:[{key,...},...]}, ...]}
+                bks = jd.get("bookmakers") or []
+                if isinstance(bks, list):
+                    for bk in bks:
+                        if not isinstance(bk, dict):
+                            continue
+                        markets = bk.get("markets") or []
+                        if not isinstance(markets, list):
+                            continue
+                        for m in markets:
+                            if isinstance(m, dict) and m.get("key"):
+                                keys.add(str(m.get("key")))
+            elif isinstance(jd, list):
+                # Some variants may return a flat list of market metadata
                 for m in jd:
                     if isinstance(m, dict) and m.get("key"):
                         keys.add(str(m.get("key")))
@@ -1066,6 +1080,23 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                     )
             return "espn", merged
 
+        # If SmartSim isn't available (common on Render / fresh deploy), still provide
+        # a usable scoreboard from ESPN. NBA CDN's dated scoreboard URLs are no longer
+        # reliably accessible (often 403), so ESPN is the safest fallback.
+        if (not sim_games) and espn_games:
+            out: list[dict[str, Any]] = []
+            for eg in espn_games:
+                try:
+                    gid = str(eg.get("game_id") or "").strip()
+                    rec = dict(eg)
+                    rec["game_id"] = gid
+                    rec["espn_event_id"] = gid
+                    rec["match"] = None
+                    out.append(rec)
+                except Exception:
+                    continue
+            return "espn", out
+
         # If we have sim games but ESPN failed/empty, still return sim list.
         if sim_games and not espn_games:
             merged = []
@@ -1089,7 +1120,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                 )
             return "sim_only", merged
 
-        # Fallback to NBA CDN scoreboard (original behavior)
+        # Fallback to NBA CDN scoreboard (best-effort; dated CDN URLs often 403)
         sb = _live_fetch_cdn_scoreboard(date_str)
         games = _live_extract_scoreboard_games(sb)
         # Normalize ids to match frontend canonicalization
@@ -4356,8 +4387,12 @@ def route_recommendations():
     # - ?format=json: serve data payloads (all/summary/game-cards/props summaries)
     fmt = str(request.args.get("format") or "").strip().lower()
     if fmt == "json":
-        view = str(request.args.get("view") or "all").strip().lower()
-        if view in {"", "all"}:
+        # If no explicit view is provided, default to the curated slate.
+        # (Explicit view=all continues to return the full, uncurated payload.)
+        view = str(request.args.get("view") or "").strip().lower()
+        if not view:
+            view = "slate"
+        if view in {"", "all", "slate", "today", "picks"}:
             return _recommendations_all()
         if view in {"summary"}:
             return _recommendations_summary()
@@ -4375,6 +4410,7 @@ def route_recommendations():
             "error": "unknown recommendations view",
             "view": view,
             "allowed": [
+                "slate",
                 "all",
                 "summary",
                 "recaps",
@@ -6424,9 +6460,10 @@ def _safe_float(x: Any) -> float | None:
         return None
 
 
-def _load_smart_sim_files_for_date(date_str: str) -> list[Path]:
+def _load_smart_sim_files_for_date(date_str: str, prefix: str | None = None) -> list[Path]:
     try:
-        return sorted((BASE_DIR / "data" / "processed").glob(f"smart_sim_{date_str}_*.json"))
+        pref = str(prefix or os.environ.get("SMART_SIM_PREFIX") or "smart_sim").strip() or "smart_sim"
+        return sorted((BASE_DIR / "data" / "processed").glob(f"{pref}_{date_str}_*.json"))
     except Exception:
         return []
 
@@ -9689,6 +9726,9 @@ def _recommendations_all():
         proc = BASE_DIR / "data" / "processed"
         out = {"date": d, "games": [], "props": [], "first_basket": [], "early_threes": []}
 
+        view = str(request.args.get("view") or "all").strip().lower()
+        curate = view in {"slate", "today", "picks"} or str(request.args.get("curate") or "0").strip().lower() in {"1", "true", "yes"}
+
         # Parse filters
         try:
             cats_q = (request.args.get("categories") or "").strip()
@@ -9703,9 +9743,888 @@ def _recommendations_all():
         compact = str(request.args.get("compact", "0") or "0").strip().lower() in {"1","true","yes"}
         # Optional: restrict props to regular-price lines (exclude ladder/alternate prices)
         regular_only = str(request.args.get("regular_only", "1") or "1").strip().lower() in {"1","true","yes"}
+
+        # Policy params for curated slate view
+        def _arg_int(name: str, default: int | None = None) -> int | None:
+            try:
+                v = request.args.get(name)
+                if v is None or str(v).strip() == "":
+                    return default
+                return int(float(str(v).strip()))
+            except Exception:
+                return default
+
+        def _arg_float(name: str, default: float | None = None) -> float | None:
+            try:
+                v = request.args.get(name)
+                if v is None or str(v).strip() == "":
+                    return default
+                return float(str(v).strip())
+            except Exception:
+                return default
+
+        def _arg_bool(name: str, default: bool = False) -> bool:
+            try:
+                v = str(request.args.get(name) or "").strip().lower()
+                if not v:
+                    return default
+                return v in {"1", "true", "yes"}
+            except Exception:
+                return default
+
+        def _arg_list(name: str) -> list[str]:
+            try:
+                q = str(request.args.get(name) or "").strip()
+                if not q:
+                    return []
+                return [x.strip() for x in q.replace(";", ",").split(",") if x.strip()]
+            except Exception:
+                return []
+
+        games_top = _arg_int("games_top", 10 if curate else None)
+        props_top = _arg_int("props_top", 25 if curate else None)
+        max_plus_odds = _arg_int("max_plus_odds", 125 if curate else None)
+        dedupe_game = _arg_bool("dedupe_game", True if curate else False)
+        dedupe_player = _arg_bool("dedupe_player", True if curate else False)
+        min_spread_edge = _arg_float("spread_edge", 1.0 if curate else None)
+        min_total_edge = _arg_float("total_edge", 1.5 if curate else None)
+        prop_stats = set([s.lower() for s in _arg_list("prop_stats")])
+        # compat: allow prop_markets alias
+        if not prop_stats:
+            prop_stats = set([s.lower() for s in _arg_list("prop_markets")])
+        # Default prop markets for curated slate (matches UI defaults)
+        if curate and not prop_stats:
+            prop_stats = {"pts", "reb", "ast", "threes"}
+
+        # ---- Curated slate (simplified): probability-first “most likely” props ----
+        # Returns ONLY:
+        #   1) Top-N props per game (any prop market)
+        #   2) Top-N props per market across the slate
+        # Ranked by sim-engine probability (SmartSim mean/sd normal approximation).
+        if curate:
+            import json as _json
+            SLATE_PROB_VERSION = "slate_prob_v2"
+            n_game = _arg_int("n_game", 3)
+            n_market = _arg_int("n_market", 4)
+            debug = _arg_bool("debug", False)
+            refresh = (
+                _arg_bool("refresh", False)
+                or _arg_bool("rebuild", False)
+                or _arg_bool("no_cache", False)
+            )
+            # Ranking policy (rooted to sim engine):
+            # - rank=ev (default): rank by per-1u expected value using sim win_prob + price
+            # - rank=prob: rank by sim win probability (accuracy-oriented)
+            # - rank=z: rank by sim z-score (directional mean-line in SD units)
+            # - rank=combo: rank by a weighted combination of sim-rooted factors (EV, z-score,
+            #   uncertainty penalty, and team/opponent/game context from SmartSim pregame JSON)
+            # Optional p_shrink in [0,1]: shrink probability extremes toward 0.5
+            rank = str(request.args.get("rank") or request.args.get("objective") or "ev").strip().lower() or "ev"
+            rank_key = str(rank or "ev").strip().lower() or "ev"
+            p_shrink = _arg_float("p_shrink", 1.0)
+            try:
+                p_shrink = float(p_shrink) if p_shrink is not None else 1.0
+            except Exception:
+                p_shrink = 1.0
+            p_shrink = max(0.0, min(1.0, float(p_shrink)))
+
+            combo_defaults = {
+                "w_ev": 1.0,
+                "w_prob": 0.0,
+                "w_z": 0.10,
+                "w_unc": 0.05,
+                "w_ctx": 0.05,
+                "w_pace": 0.02,
+                "w_inj": 0.01,
+                "w_blowout": 0.02,
+            }
+
+            def _weight(name: str, default: float) -> float:
+                try:
+                    v = _arg_float(name, default)
+                    fv = float(v) if v is not None else float(default)
+                    return fv if math.isfinite(fv) else float(default)
+                except Exception:
+                    return float(default)
+
+            # Weights are only used when rank=combo.
+            is_combo = rank_key in {"combo", "mix", "blend"}
+            w_ev = _weight("w_ev", combo_defaults["w_ev"]) if is_combo else float(combo_defaults["w_ev"])
+            w_prob = _weight("w_prob", combo_defaults["w_prob"]) if is_combo else float(combo_defaults["w_prob"])
+            w_z = _weight("w_z", combo_defaults["w_z"]) if is_combo else float(combo_defaults["w_z"])
+            w_unc = _weight("w_unc", combo_defaults["w_unc"]) if is_combo else float(combo_defaults["w_unc"])
+            w_ctx = _weight("w_ctx", combo_defaults["w_ctx"]) if is_combo else float(combo_defaults["w_ctx"])
+            w_pace = _weight("w_pace", combo_defaults["w_pace"]) if is_combo else float(combo_defaults["w_pace"])
+            w_inj = _weight("w_inj", combo_defaults["w_inj"]) if is_combo else float(combo_defaults["w_inj"])
+            w_blowout = _weight("w_blowout", combo_defaults["w_blowout"]) if is_combo else float(combo_defaults["w_blowout"])
+            # Optional thresholds to tune selection quality
+            min_prob = _arg_float("min_prob", None)
+            min_ev = _arg_float("min_ev", None)
+            try:
+                min_prob = (float(min_prob) if min_prob is not None else None)
+            except Exception:
+                min_prob = None
+            try:
+                min_ev = (float(min_ev) if min_ev is not None else None)
+            except Exception:
+                min_ev = None
+            # Global constraints
+            max_per_player = _arg_int("max_per_player", 1)
+            try:
+                max_per_player = int(max_per_player) if max_per_player is not None else 1
+            except Exception:
+                max_per_player = 1
+            if max_per_player <= 0:
+                max_per_player = 1
+            # Optional filter: restrict which prop markets are considered.
+            # If empty, we consider all markets found in the props recommendations artifact.
+            allowed_markets = set([s.lower() for s in _arg_list("prop_stats")])
+            if not allowed_markets:
+                allowed_markets = set([s.lower() for s in _arg_list("prop_markets")])
+
+            # SmartSim file selection: default is "smart_sim" (data/processed/smart_sim_<date>_*.json).
+            # For leakage audits / pregame-safe backtests you can point to a parallel prefix.
+            sim_prefix = str(
+                request.args.get("smart_sim_prefix")
+                or request.args.get("sim_prefix")
+                or os.environ.get("SMART_SIM_PREFIX")
+                or "smart_sim"
+            ).strip() or "smart_sim"
+
+            def _is_default_slate_request() -> bool:
+                try:
+                    if str(sim_prefix) != "smart_sim":
+                        return False
+                    if want_cats or want_mkts:
+                        return False
+                    if allowed_markets:
+                        return False
+                    if (int(n_game or 0) != 3) or (int(n_market or 0) != 4):
+                        return False
+                    if str(rank or "ev") != "ev":
+                        return False
+                    if abs(float(p_shrink) - 1.0) > 1e-9:
+                        return False
+                    if int(max_per_player or 1) != 1:
+                        return False
+                    return True
+                except Exception:
+                    return False
+
+            def _max_mtime(paths: list[Path]) -> int:
+                mt = 0
+                for p in paths:
+                    try:
+                        if p.exists():
+                            mt = max(mt, int(p.stat().st_mtime))
+                    except Exception:
+                        continue
+                return mt
+
+            slate_fp = proc / f"recommendations_slate_{d}.json"
+            props_fp = proc / f"props_recommendations_{d}.csv"
+            sim_files = sorted(list(proc.glob(f"{sim_prefix}_{d}_*.json")))
+            deps = [props_fp] + sim_files
+            dep_mtime = _max_mtime(deps)
+
+            # Serve precomputed slate for the default request.
+            if (not refresh) and _is_default_slate_request() and slate_fp.exists():
+                try:
+                    if int(slate_fp.stat().st_mtime) >= int(dep_mtime):
+                        import json as _json
+                        with slate_fp.open("r", encoding="utf-8") as fh:
+                            cached = _json.load(fh)
+                        # Guard against legacy cached shapes from prior implementations.
+                        cached_counts = cached.get("counts") if isinstance(cached, dict) else None
+                        cached_games = None
+                        cached_markets = None
+                        try:
+                            if isinstance(cached_counts, dict):
+                                cached_games = int(cached_counts.get("games")) if cached_counts.get("games") is not None else None
+                                cached_markets = int(cached_counts.get("markets")) if cached_counts.get("markets") is not None else None
+                        except Exception:
+                            cached_games = None
+                            cached_markets = None
+                        # Do not serve an empty slate cache when inputs exist; this often indicates
+                        # a stale cache generated by an older implementation.
+                        inputs_exist = bool(props_fp.exists()) and (len(sim_files) > 0)
+                        is_empty = ((cached_games or 0) <= 0) and ((cached_markets or 0) <= 0)
+                        cached_policy = cached.get("meta", {}).get("policy", {}) if isinstance(cached, dict) else {}
+                        cached_ver = str(cached_policy.get("version") or "").strip()
+                        if (
+                            isinstance(cached, dict)
+                            and cached.get("date") == d
+                            and isinstance(cached.get("per_game"), list)
+                            and isinstance(cached.get("per_market"), dict)
+                            and (cached_ver == SLATE_PROB_VERSION)
+                            and (not (inputs_exist and is_empty))
+                        ):
+                            return jsonify(cached)
+                except Exception:
+                    pass
+
+            # In-process cache keyed by request signature + dependency mtimes.
+            try:
+                import hashlib as _hashlib
+                sig = {
+                    "date": d,
+                    "n_game": n_game,
+                    "n_market": n_market,
+                    "sim_prefix": str(sim_prefix),
+                    "allowed_markets": sorted(list(allowed_markets)) if allowed_markets else [],
+                    "rank": str(rank_key),
+                    "p_shrink": float(p_shrink),
+                    "max_per_player": int(max_per_player),
+                    "max_plus_odds": max_plus_odds,
+                    "min_prob": min_prob,
+                    "min_ev": min_ev,
+                    "combo_weights": ({
+                        "w_ev": float(w_ev),
+                        "w_prob": float(w_prob),
+                        "w_z": float(w_z),
+                        "w_unc": float(w_unc),
+                        "w_ctx": float(w_ctx),
+                        "w_pace": float(w_pace),
+                        "w_inj": float(w_inj),
+                        "w_blowout": float(w_blowout),
+                    } if is_combo else None),
+                    "version": SLATE_PROB_VERSION,
+                }
+                sig_key = _hashlib.sha1(_json.dumps(sig, sort_keys=True, default=str).encode("utf-8")).hexdigest()[:12]
+                cache_key = f"recs_slate_prob:{d}:{sig_key}"
+                ent = _live_processed_cache.get(cache_key)
+                if ent and isinstance(ent, tuple) and len(ent) == 2:
+                    cached_mtime, cached_payload = ent
+                    if (not refresh) and isinstance(cached_mtime, int) and cached_mtime >= int(dep_mtime) and isinstance(cached_payload, dict):
+                        # Same safety rule as disk cache: don't serve empty payload if inputs exist.
+                        cc = cached_payload.get("counts") if isinstance(cached_payload, dict) else None
+                        cg = int(cc.get("games")) if isinstance(cc, dict) and (cc.get("games") is not None) else 0
+                        cm = int(cc.get("markets")) if isinstance(cc, dict) and (cc.get("markets") is not None) else 0
+                        pol = cached_payload.get("meta", {}).get("policy", {}) if isinstance(cached_payload, dict) else {}
+                        ver_ok = (str(pol.get("version") or "").strip() == SLATE_PROB_VERSION)
+                        if ver_ok and (not ((props_fp.exists() and (len(sim_files) > 0)) and (cg <= 0) and (cm <= 0))):
+                            return jsonify(cached_payload)
+            except Exception:
+                cache_key = None
+
+            def _parse_obj(val: object) -> object:
+                if isinstance(val, (dict, list)):
+                    return val
+                if val is None:
+                    return None
+                s = str(val).strip()
+                if not s:
+                    return None
+                try:
+                    import json as _json
+                    return _json.loads(s)
+                except Exception:
+                    pass
+                try:
+                    import ast as _ast
+                    return _ast.literal_eval(s)
+                except Exception:
+                    return None
+
+            def _norm_player(name: str | None) -> str:
+                s = str(name or "").strip().upper()
+                if not s:
+                    return ""
+                # Remove punctuation, collapse whitespace.
+                s = re.sub(r"[^A-Z\s]", " ", s)
+                s = re.sub(r"\s+", " ", s).strip()
+                # Drop common suffixes.
+                parts = s.split(" ")
+                while parts and parts[-1] in {"JR", "SR", "II", "III", "IV", "V"}:
+                    parts = parts[:-1]
+                return " ".join(parts).strip()
+
+            def _safe_float(x: object) -> float | None:
+                try:
+                    if x is None:
+                        return None
+                    v = float(x)
+                    return v if math.isfinite(v) else None
+                except Exception:
+                    return None
+
+            def _american_to_decimal(a: object) -> float | None:
+                try:
+                    aa = float(a)
+                except Exception:
+                    return None
+                if aa == 0:
+                    return None
+                if aa > 0:
+                    return 1.0 + (aa / 100.0)
+                return 1.0 + (100.0 / abs(aa))
+
+            def _price_allowed(price: float | None) -> bool:
+                try:
+                    if max_plus_odds is None:
+                        return True
+                    mx = float(max_plus_odds)
+                    if not math.isfinite(mx) or mx <= 0:
+                        return True
+                    if price is None:
+                        return True
+                    p = float(price)
+                    if not math.isfinite(p):
+                        return True
+                    # Only cap plus-odds; always allow negative prices.
+                    return (p <= mx) if (p > 0.0) else True
+                except Exception:
+                    return True
+
+            def _shrink_prob(p: float) -> float:
+                try:
+                    pv = max(0.0, min(1.0, float(p)))
+                    return max(0.0, min(1.0, 0.5 + float(p_shrink) * (pv - 0.5)))
+                except Exception:
+                    return p
+
+            def _ev_per_unit(p: float, price: float | None) -> float:
+                # EV per 1u stake: p*(dec-1) - (1-p) == p*dec - 1
+                try:
+                    dec = _american_to_decimal(price) or 1.909090909
+                    pv = max(0.0, min(1.0, float(p)))
+                    return float(pv * float(dec) - 1.0)
+                except Exception:
+                    return float("-inf")
+
+            def _norm_cdf(z: float) -> float:
+                try:
+                    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+                except Exception:
+                    return 0.5
+
+            def _prob_over(mean: float, sd: float, line: float) -> float:
+                # Approximate P(X > line) using a normal model.
+                if not math.isfinite(mean) or not math.isfinite(sd) or not math.isfinite(line):
+                    return 0.0
+                if sd <= 1e-9:
+                    return 1.0 if mean > line else 0.0
+                z = (line - mean) / sd
+                return max(0.0, min(1.0, 1.0 - _norm_cdf(z)))
+
+            def _play_win_prob(mean: float, sd: float, line: float, side: str) -> float | None:
+                try:
+                    s = str(side or "").strip().upper()
+                    p_over = _prob_over(mean, sd, line)
+                    if s == "OVER":
+                        return p_over
+                    if s == "UNDER":
+                        return max(0.0, min(1.0, 1.0 - p_over))
+                    return None
+                except Exception:
+                    return None
+
+            def _z_score(mean: float, sd: float, line: float, side: str) -> float:
+                try:
+                    if not math.isfinite(mean) or not math.isfinite(sd) or not math.isfinite(line):
+                        return float("-inf")
+                    if sd <= 1e-9:
+                        return float("inf") if ((str(side or "").strip().upper() == "OVER") and (mean > line)) else float("-inf")
+                    if str(side or "").strip().upper() == "UNDER":
+                        return float((line - mean) / sd)
+                    return float((mean - line) / sd)
+                except Exception:
+                    return float("-inf")
+
+            # Build SmartSim indexes: team->game + (team,player)->means/sds
+            team_to_game: dict[str, dict[str, Any]] = {}
+            player_stats: dict[tuple[str, str], dict[str, float]] = {}
+            sim_parsed = 0
+            sim_errors: list[str] = []
+            for sf in sim_files:
+                try:
+                    with sf.open("r", encoding="utf-8") as fh:
+                        sj = _json.load(fh)
+                    home = str(sj.get("home") or "").strip().upper()
+                    away = str(sj.get("away") or "").strip().upper()
+                    gid = str(sj.get("game_id") or "").strip()
+                    game_key = f"{d}:{away}@{home}" if home and away else ""
+                    if home and away:
+                        # In pregame-safe SmartSim, game_id may be intentionally absent.
+                        # Use a stable matchup key so per-game Top-N still works.
+                        ctx_obj = sj.get("context") if isinstance(sj, dict) else None
+                        ctx_obj = ctx_obj if isinstance(ctx_obj, dict) else {}
+                        mk_obj = sj.get("market") if isinstance(sj, dict) else None
+                        mk_obj = mk_obj if isinstance(mk_obj, dict) else {}
+
+                        tap = ctx_obj.get("team_advanced_priors") if isinstance(ctx_obj, dict) else None
+                        tap = tap if isinstance(tap, dict) else {}
+                        league_adv = tap.get("league") if isinstance(tap, dict) else None
+                        league_adv = league_adv if isinstance(league_adv, dict) else {}
+                        home_adv = tap.get("home") if isinstance(tap, dict) else None
+                        home_adv = home_adv if isinstance(home_adv, dict) else {}
+                        away_adv = tap.get("away") if isinstance(tap, dict) else None
+                        away_adv = away_adv if isinstance(away_adv, dict) else {}
+
+                        home_pace = _safe_float(ctx_obj.get("home_pace"))
+                        away_pace = _safe_float(ctx_obj.get("away_pace"))
+                        league_pace = _safe_float(league_adv.get("pace"))
+                        game_pace = None
+                        try:
+                            if (home_pace is not None) and (away_pace is not None):
+                                game_pace = float(0.5 * (float(home_pace) + float(away_pace)))
+                        except Exception:
+                            game_pace = None
+
+                        ctx_meta = {
+                            "home_inj_out": _safe_float(ctx_obj.get("home_injuries_out")),
+                            "away_inj_out": _safe_float(ctx_obj.get("away_injuries_out")),
+                            "home_pace": home_pace,
+                            "away_pace": away_pace,
+                            "game_pace": game_pace,
+                            "home_b2b": bool(ctx_obj.get("home_b2b")),
+                            "away_b2b": bool(ctx_obj.get("away_b2b")),
+                            "league_pace": league_pace,
+                            "league_off_rtg": _safe_float(league_adv.get("off_rtg")),
+                            "league_def_rtg": _safe_float(league_adv.get("def_rtg")),
+                            "home_off_rtg": _safe_float(home_adv.get("off_rtg")),
+                            "home_def_rtg": _safe_float(home_adv.get("def_rtg")),
+                            "away_off_rtg": _safe_float(away_adv.get("off_rtg")),
+                            "away_def_rtg": _safe_float(away_adv.get("def_rtg")),
+                            "market_total": _safe_float(mk_obj.get("market_total")),
+                            "market_home_spread": _safe_float(mk_obj.get("market_home_spread")),
+                        }
+
+                        meta = {
+                            "game_id": (gid or None),
+                            "game_key": (game_key or None),
+                            "home": home,
+                            "away": away,
+                            "ctx": ctx_meta,
+                        }
+                        team_to_game[home] = meta
+                        team_to_game[away] = meta
+                    players_obj = sj.get("players") or {}
+                    if isinstance(players_obj, dict):
+                        for side_key, team_tri in (("home", home), ("away", away)):
+                            plist = players_obj.get(side_key)
+                            if not team_tri or not isinstance(plist, list):
+                                continue
+                            for p in plist:
+                                if not isinstance(p, dict):
+                                    continue
+                                nm = _norm_player(p.get("player_name") or p.get("player") or "")
+                                if not nm:
+                                    continue
+                                # capture all *_mean/*_sd fields for later lookup
+                                stats: dict[str, float] = {}
+                                for k, v in p.items():
+                                    if not isinstance(k, str):
+                                        continue
+                                    if not (k.endswith("_mean") or k.endswith("_sd")):
+                                        continue
+                                    fv = _safe_float(v)
+                                    if fv is None:
+                                        continue
+                                    stats[k] = float(fv)
+                                if stats:
+                                    player_stats[(team_tri, nm)] = stats
+                    sim_parsed += 1
+                except Exception as e:
+                    try:
+                        if debug and len(sim_errors) < 5:
+                            sim_errors.append(f"{sf.name}: {type(e).__name__}: {e}")
+                    except Exception:
+                        pass
+                    continue
+
+            # Load props recommendations candidates
+            if not props_fp.exists():
+                _maybe_fetch_remote_processed(props_fp.name)
+            try:
+                pdf = pd.read_csv(props_fp) if props_fp.exists() else pd.DataFrame()
+            except Exception:
+                pdf = pd.DataFrame()
+
+            candidates: list[dict[str, Any]] = []
+            diag = None
+            if debug:
+                diag = {
+                    "sim_files": int(len(sim_files)),
+                    "sim_parsed": int(sim_parsed),
+                    "sim_errors": sim_errors,
+                    "team_to_game": int(len(team_to_game)),
+                    "player_stats": int(len(player_stats)),
+                    "props_rows": 0,
+                    "plays_seen": 0,
+                    "candidates": 0,
+                    "missing_player_stats_rows": 0,
+                    "missing_mean_sd_plays": 0,
+                    "missing_side_plays": 0,
+                }
+            if isinstance(pdf, pd.DataFrame) and not pdf.empty:
+                for _, r in pdf.fillna("").iterrows():
+                    try:
+                        if diag is not None:
+                            diag["props_rows"] += 1
+                        player = str(r.get("player") or "").strip()
+                        team_raw = str(r.get("team") or "").strip()
+                        team = (str(_get_tricode(team_raw) or team_raw).strip().upper() if team_raw else "")
+                        if not player or not team:
+                            continue
+                        nm = _norm_player(player)
+                        stats = player_stats.get((team, nm))
+                        if not isinstance(stats, dict):
+                            if diag is not None:
+                                diag["missing_player_stats_rows"] += 1
+                            continue
+                        plays = _parse_obj(r.get("plays"))
+                        plays_list = plays if isinstance(plays, list) else []
+                        for pl in plays_list:
+                            if not isinstance(pl, dict):
+                                continue
+                            if diag is not None:
+                                diag["plays_seen"] += 1
+                            mkt = str(pl.get("market") or "").strip().lower()
+                            if not mkt:
+                                continue
+                            if allowed_markets and (mkt not in allowed_markets):
+                                continue
+                            side = str(pl.get("side") or "").strip().upper()
+                            line = _safe_float(pl.get("line"))
+                            if line is None:
+                                continue
+
+                            def _get_mean_sd_for_market(market: str) -> tuple[float | None, float | None]:
+                                # Prefer direct fields when available (e.g., pra_mean/pra_sd).
+                                k_mean = f"{market}_mean"; k_sd = f"{market}_sd"
+                                if (k_mean in stats) and (k_sd in stats):
+                                    return float(stats[k_mean]), float(stats[k_sd])
+                                # Composite markets (approximate with independence).
+                                comps: dict[str, list[str]] = {
+                                    "pr": ["pts", "reb"],
+                                    "pa": ["pts", "ast"],
+                                    "ra": ["reb", "ast"],
+                                }
+                                if market in comps:
+                                    parts = comps[market]
+                                    means = []
+                                    vars_ = []
+                                    for part in parts:
+                                        km = f"{part}_mean"; ks = f"{part}_sd"
+                                        if (km not in stats) or (ks not in stats):
+                                            return None, None
+                                        means.append(float(stats[km]))
+                                        vars_.append(float(stats[ks]) ** 2)
+                                    return float(sum(means)), float(math.sqrt(sum(vars_)))
+                                return None, None
+
+                            mean, sd = _get_mean_sd_for_market(mkt)
+                            if mean is None or sd is None:
+                                if diag is not None:
+                                    diag["missing_mean_sd_plays"] += 1
+                                continue
+                            win_prob_raw = _play_win_prob(float(mean), float(sd), float(line), side)
+                            if win_prob_raw is None:
+                                if diag is not None:
+                                    diag["missing_side_plays"] += 1
+                                continue
+
+                            z = _z_score(float(mean), float(sd), float(line), side)
+                            try:
+                                sd_rel = float(sd) / max(1.0, float(abs(float(line))))
+                            except Exception:
+                                sd_rel = None
+
+                            price = _safe_float(pl.get("price"))
+                            if not _price_allowed(price):
+                                continue
+                            win_prob = _shrink_prob(float(win_prob_raw))
+                            ev_u = _ev_per_unit(float(win_prob), price)
+                            score = None
+                            if rank_key in {"prob", "p", "win_prob"}:
+                                score = float(win_prob)
+                            elif rank_key in {"z", "zscore", "z_score"}:
+                                score = float(z)
+                            elif is_combo:
+                                gm = team_to_game.get(team) or {}
+                                ctx = gm.get("ctx") if isinstance(gm, dict) else None
+                                ctx = ctx if isinstance(ctx, dict) else {}
+                                home_tri = str(gm.get("home") or "").strip().upper()
+                                away_tri = str(gm.get("away") or "").strip().upper()
+                                is_home = (team == home_tri) if home_tri else False
+                                dirn = 1.0 if str(side or "").strip().upper() == "OVER" else -1.0
+
+                                league_off = _safe_float(ctx.get("league_off_rtg"))
+                                league_def = _safe_float(ctx.get("league_def_rtg"))
+                                own_off = _safe_float(ctx.get("home_off_rtg" if is_home else "away_off_rtg"))
+                                opp_def = _safe_float(ctx.get("away_def_rtg" if is_home else "home_def_rtg"))
+
+                                off_adv = 0.0
+                                def_easy = 0.0
+                                try:
+                                    if (own_off is not None) and (league_off is not None):
+                                        off_adv = float(own_off - league_off) / 10.0
+                                except Exception:
+                                    off_adv = 0.0
+                                try:
+                                    if (opp_def is not None) and (league_def is not None):
+                                        def_easy = float(opp_def - league_def) / 10.0
+                                except Exception:
+                                    def_easy = 0.0
+
+                                pace_adv = 0.0
+                                try:
+                                    gp = _safe_float(ctx.get("game_pace"))
+                                    lp = _safe_float(ctx.get("league_pace"))
+                                    if (gp is not None) and (lp is not None):
+                                        pace_adv = float(gp - lp) / 10.0
+                                except Exception:
+                                    pace_adv = 0.0
+
+                                inj_adv = 0.0
+                                try:
+                                    own_inj = _safe_float(ctx.get("home_inj_out" if is_home else "away_inj_out"))
+                                    opp_inj = _safe_float(ctx.get("away_inj_out" if is_home else "home_inj_out"))
+                                    if (own_inj is not None) and (opp_inj is not None):
+                                        inj_adv = float(opp_inj - own_inj) / 5.0
+                                except Exception:
+                                    inj_adv = 0.0
+
+                                blowout = 0.0
+                                try:
+                                    hs = _safe_float(ctx.get("market_home_spread"))
+                                    if hs is not None:
+                                        team_spread = float(hs) if is_home else float(-hs)
+                                        blowout = abs(float(team_spread)) / 10.0
+                                except Exception:
+                                    blowout = 0.0
+
+                                # Scaled combo: keep EV as the main driver, add small tie-breakers.
+                                z_scaled = 0.0
+                                try:
+                                    z_scaled = float(z) / 3.0
+                                except Exception:
+                                    z_scaled = 0.0
+                                unc_pen = 0.0
+                                try:
+                                    unc_pen = -float(sd_rel) if (sd_rel is not None) else 0.0
+                                except Exception:
+                                    unc_pen = 0.0
+                                p_edge = 0.0
+                                try:
+                                    p_edge = float(win_prob) - 0.5
+                                except Exception:
+                                    p_edge = 0.0
+
+                                score = (
+                                    float(w_ev) * float(ev_u)
+                                    + float(w_prob) * float(p_edge)
+                                    + float(w_z) * float(z_scaled)
+                                    + float(w_unc) * float(unc_pen)
+                                    + float(w_ctx) * float(dirn) * float(off_adv + def_easy)
+                                    + float(w_pace) * float(dirn) * float(pace_adv)
+                                    + float(w_inj) * float(dirn) * float(inj_adv)
+                                    + float(w_blowout) * float(-blowout)
+                                )
+                            else:
+                                score = float(ev_u)
+
+                            # Apply tunable thresholds
+                            if (min_prob is not None) and (float(win_prob) < float(min_prob)):
+                                continue
+                            if (min_ev is not None) and (math.isfinite(ev_u)) and (float(ev_u) < float(min_ev)):
+                                continue
+
+                            gm = team_to_game.get(team) or {}
+                            gk = str(gm.get("game_key") or "").strip() or (f"{d}:{gm.get('away') or ''}@{gm.get('home') or ''}" if (gm.get("home") and gm.get("away")) else "")
+                            candidates.append({
+                                "player": player,
+                                "team": team,
+                                "market": mkt,
+                                "side": side,
+                                "line": float(line),
+                                "price": price,
+                                "book": (pl.get("book") or None),
+                                "win_prob": float(win_prob),
+                                "win_prob_raw": float(win_prob_raw),
+                                "ev": float(ev_u) if math.isfinite(ev_u) else None,
+                                "score": float(score) if math.isfinite(score) else None,
+                                "z": (float(z) if math.isfinite(float(z)) else None),
+                                "sd_rel": (float(sd_rel) if (sd_rel is not None and math.isfinite(float(sd_rel))) else None),
+                                "sim_mean": float(mean),
+                                "sim_sd": float(sd),
+                                "game_id": gm.get("game_id"),
+                                "game_key": gk or None,
+                                "home": gm.get("home"),
+                                "away": gm.get("away"),
+                            })
+                            if diag is not None:
+                                diag["candidates"] += 1
+                    except Exception:
+                        continue
+
+            # Keep best play per (player, team, market)
+            best_by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
+            for c in candidates:
+                try:
+                    key = (str(c.get("player") or ""), str(c.get("team") or ""), str(c.get("market") or ""))
+                    prev = best_by_key.get(key)
+                    if prev is None:
+                        best_by_key[key] = c
+                        continue
+                    c_score = float(c.get("score") or float("-inf"))
+                    p_score = float(prev.get("score") or float("-inf"))
+                    if c_score > p_score:
+                        best_by_key[key] = c
+                except Exception:
+                    continue
+            best = list(best_by_key.values())
+
+            # Global greedy selection under constraints:
+            # - <= n_game per game
+            # - <= n_market per market
+            # - <= max_per_player per player across the entire slate
+            def _game_key(c: dict[str, Any]) -> str:
+                gid = str(c.get("game_id") or "").strip()
+                gk = str(c.get("game_key") or "").strip()
+                return gid or gk
+
+            def _player_key(c: dict[str, Any]) -> str:
+                return _norm_player(str(c.get("player") or ""))
+
+            best.sort(key=lambda x: float(x.get("score") or float("-inf")), reverse=True)
+            selected: list[dict[str, Any]] = []
+            per_game_counts: dict[str, int] = {}
+            per_market_counts: dict[str, int] = {}
+            per_player_counts: dict[str, int] = {}
+            for c in best:
+                try:
+                    gkey = _game_key(c)
+                    m = str(c.get("market") or "").strip().lower()
+                    pkey = _player_key(c)
+                    if not gkey or not m or not pkey:
+                        continue
+                    if (n_game is not None) and int(n_game) > 0 and (per_game_counts.get(gkey, 0) >= int(n_game)):
+                        continue
+                    if (n_market is not None) and int(n_market) > 0 and (per_market_counts.get(m, 0) >= int(n_market)):
+                        continue
+                    if (dedupe_player is True) and (per_player_counts.get(pkey, 0) >= int(max_per_player)):
+                        continue
+                    selected.append(c)
+                    per_game_counts[gkey] = per_game_counts.get(gkey, 0) + 1
+                    per_market_counts[m] = per_market_counts.get(m, 0) + 1
+                    per_player_counts[pkey] = per_player_counts.get(pkey, 0) + 1
+                except Exception:
+                    continue
+
+            # Materialize per-game and per-market views from selected set
+            by_game: dict[str, dict[str, Any]] = {}
+            for c in selected:
+                key = _game_key(c)
+                if not key:
+                    continue
+                ent = by_game.get(key)
+                if ent is None:
+                    by_game[key] = {
+                        "game_id": (str(c.get("game_id") or "").strip() or key),
+                        "game_key": (str(c.get("game_key") or "").strip() or key),
+                        "home": c.get("home"),
+                        "away": c.get("away"),
+                        "picks": [],
+                    }
+                by_game[key]["picks"].append(c)
+
+            per_game = []
+            for key, ent in by_game.items():
+                try:
+                    picks = ent.get("picks") or []
+                    if not isinstance(picks, list):
+                        picks = []
+                    picks.sort(key=lambda x: float(x.get("score") or float("-inf")), reverse=True)
+                    per_game.append({
+                        "game_id": ent.get("game_id") or key,
+                        "game_key": ent.get("game_key") or key,
+                        "home": ent.get("home"),
+                        "away": ent.get("away"),
+                        "matchup": f"{ent.get('away') or ''} @ {ent.get('home') or ''}",
+                        "picks": picks,
+                    })
+                except Exception:
+                    continue
+            per_game.sort(key=lambda g: str(g.get("matchup") or ""))
+
+            per_market: dict[str, list[dict[str, Any]]] = {}
+            for c in selected:
+                m = str(c.get("market") or "").strip().lower()
+                if not m:
+                    continue
+                per_market.setdefault(m, []).append(c)
+            for m, arr in per_market.items():
+                arr.sort(key=lambda x: float(x.get("score") or float("-inf")), reverse=True)
+
+            payload = {
+                "date": d,
+                "per_game": per_game,
+                "per_market": per_market,
+                "meta": {
+                    "policy": {
+                        "view": view,
+                        "version": SLATE_PROB_VERSION,
+                        "rank": (
+                            "sim_win_prob" if rank_key in {"prob","p","win_prob"}
+                            else ("sim_z" if rank_key in {"z","zscore","z_score"} else ("sim_combo" if is_combo else "sim_ev"))
+                        ),
+                        "p_shrink": float(p_shrink),
+                        "min_prob": min_prob,
+                        "min_ev": min_ev,
+                        "n_game": n_game,
+                        "n_market": n_market,
+                        "max_per_player": int(max_per_player),
+                        "dedupe_player": bool(dedupe_player),
+                        "max_plus_odds": max_plus_odds,
+                        "allowed_markets": sorted(list(allowed_markets)) if allowed_markets else None,
+                        "combo_weights": ({
+                            "w_ev": float(w_ev),
+                            "w_prob": float(w_prob),
+                            "w_z": float(w_z),
+                            "w_unc": float(w_unc),
+                            "w_ctx": float(w_ctx),
+                            "w_pace": float(w_pace),
+                            "w_inj": float(w_inj),
+                            "w_blowout": float(w_blowout),
+                        } if is_combo else None),
+                        "sim_model": "smart_sim_normal_approx",
+                    },
+                    "inputs": {
+                        "props_recommendations": props_fp.name,
+                        "smart_sim_files": len(sim_files),
+                        **({"diag": diag} if diag is not None else {}),
+                    },
+                },
+                "counts": {
+                    "games": int(len(per_game)),
+                    "markets": int(len(per_market)),
+                },
+            }
+
+            # Write canonical slate file for the default request.
+            try:
+                if _is_default_slate_request():
+                    import json as _json
+                    slate_fp.parent.mkdir(parents=True, exist_ok=True)
+                    with slate_fp.open("w", encoding="utf-8") as fh:
+                        _json.dump(payload, fh, ensure_ascii=False)
+            except Exception:
+                pass
+
+            # Store in in-process cache.
+            try:
+                if cache_key:
+                    _live_processed_cache[cache_key] = (int(dep_mtime), payload)
+            except Exception:
+                pass
+
+            return jsonify(payload)
+
         # Instrumentation: marker to confirm handler path and params
         try:
-            print(f"[_recommendations_all] date={d} compact={compact} regular_only={regular_only} cats={sorted(list(want_cats))} mkts={sorted(list(want_mkts))}")
+            print(f"[_recommendations_all] view={view} curate={curate} date={d} compact={compact} regular_only={regular_only} cats={sorted(list(want_cats))} mkts={sorted(list(want_mkts))}")
         except Exception:
             pass
 
@@ -12545,6 +13464,124 @@ def _recommendations_all():
             ]
         except Exception:
             pass
+        # Curated slate policy: keep Top-N by score with optional odds cap and dedupe.
+        if curate:
+            try:
+                out.setdefault("meta", {}).setdefault("policy", {})
+                out["meta"]["policy"].update({
+                    "view": view,
+                    "games_top": games_top,
+                    "props_top": props_top,
+                    "max_plus_odds": max_plus_odds,
+                    "dedupe_game": dedupe_game,
+                    "dedupe_player": dedupe_player,
+                    "spread_edge": min_spread_edge,
+                    "total_edge": min_total_edge,
+                    "prop_stats": sorted(list(prop_stats)) if prop_stats else None,
+                })
+            except Exception:
+                pass
+
+            def _passes_odds_guard(price_val: object) -> bool:
+                if max_plus_odds is None:
+                    return True
+                try:
+                    v = float(price_val)
+                    if not math.isfinite(v):
+                        return True
+                    return not (v > 0.0 and v > float(max_plus_odds))
+                except Exception:
+                    return True
+
+            def _score_val(row: dict) -> float:
+                try:
+                    v = row.get("score")
+                    if v is None or (isinstance(v, float) and pd.isna(v)):
+                        return 0.0
+                    return float(v)
+                except Exception:
+                    return 0.0
+
+            # Games
+            try:
+                g_all = list(out.get("games") or [])
+                g_f = []
+                for r in g_all:
+                    try:
+                        mk = str(r.get("market") or "").upper()
+                        if mk == "ATS" and min_spread_edge is not None:
+                            try:
+                                if abs(float(r.get("edge") or 0.0)) < float(min_spread_edge):
+                                    continue
+                            except Exception:
+                                pass
+                        if mk == "TOTAL" and min_total_edge is not None:
+                            try:
+                                if abs(float(r.get("edge") or 0.0)) < float(min_total_edge):
+                                    continue
+                            except Exception:
+                                pass
+                        if not _passes_odds_guard(r.get("price")):
+                            continue
+                        g_f.append(r)
+                    except Exception:
+                        continue
+                g_sorted = sorted(g_f, key=_score_val, reverse=True)
+                if games_top is not None and games_top > 0:
+                    picked = []
+                    seen = set()
+                    for r in g_sorted:
+                        if dedupe_game:
+                            key = r.get("game_id") or f"{str(r.get('away') or '').strip().lower()}@@{str(r.get('home') or '').strip().lower()}"
+                            if key in seen:
+                                continue
+                            seen.add(key)
+                        picked.append(r)
+                        if len(picked) >= int(games_top):
+                            break
+                    out["games"] = picked
+                else:
+                    out["games"] = g_sorted
+            except Exception:
+                pass
+
+            # Props
+            try:
+                p_all = list(out.get("props") or [])
+                p_f = []
+                for r in p_all:
+                    try:
+                        tp = r.get("top_play")
+                        if not isinstance(tp, dict) or not tp:
+                            continue
+                        mkt = str(tp.get("market") or "").strip().lower()
+                        if prop_stats and mkt and mkt not in prop_stats:
+                            continue
+                        if not _passes_odds_guard(tp.get("price")):
+                            continue
+                        p_f.append(r)
+                    except Exception:
+                        continue
+                p_sorted = sorted(p_f, key=_score_val, reverse=True)
+                if props_top is not None and props_top > 0:
+                    picked = []
+                    seen = set()
+                    for r in p_sorted:
+                        if dedupe_player:
+                            nm = str(r.get("player") or r.get("player_name") or "").strip().lower()
+                            if nm:
+                                if nm in seen:
+                                    continue
+                                seen.add(nm)
+                        picked.append(r)
+                        if len(picked) >= int(props_top):
+                            break
+                    out["props"] = picked
+                else:
+                    out["props"] = p_sorted
+            except Exception:
+                pass
+
         if limit and limit > 0:
             for k in ("games","props","first_basket","early_threes"):
                 arr = out.get(k) or []
@@ -13792,8 +14829,37 @@ def api_props_recommendations():
         portfolio_only_q = str(request.args.get("portfolio_only", "0") or "0").strip().lower() in {"1", "true", "yes"}
         # Allow backtests to bypass snapshot and recompute using current query params.
         use_snapshot_q = str(request.args.get("use_snapshot", "1") or "1").strip().lower() in {"1", "true", "yes"}
+        # If the caller supplies optimizer/portfolio-tuning knobs, do NOT short-circuit to the
+        # fixed daily snapshot portfolio; instead recompute from the full edges universe.
+        # (Backtests use this to sweep correlation/caps, etc.)
+        force_snapshot_q = str(request.args.get("force_snapshot_portfolio", "0") or "0").strip().lower() in {"1", "true", "yes"}
+        has_portfolio_knobs = False
+        try:
+            has_portfolio_knobs = has_portfolio_knobs or (str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"})
+            has_portfolio_knobs = has_portfolio_knobs or (str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"})
+            try:
+                has_portfolio_knobs = has_portfolio_knobs or (float(str(request.args.get("corr_penalty_scale", "0") or "0")) > 0.0)
+            except Exception:
+                pass
+            try:
+                has_portfolio_knobs = has_portfolio_knobs or (int(str(request.args.get("cap_team", "0") or "0")) > 0)
+            except Exception:
+                pass
+            try:
+                has_portfolio_knobs = has_portfolio_knobs or (int(str(request.args.get("cap_market", "0") or "0")) > 0)
+            except Exception:
+                pass
+            try:
+                sb = str(request.args.get("sortBy") or "").strip().lower()
+                # score-based ranking implies recompute (snapshot is already a finalized portfolio)
+                if sb.startswith("score"):
+                    has_portfolio_knobs = True
+            except Exception:
+                pass
+        except Exception:
+            has_portfolio_knobs = False
         best_props_p = BASE_DIR / "data" / "processed" / f"best_edges_props_{d}.csv"
-        if portfolio_only_q and use_snapshot_q and best_props_p.exists():
+        if portfolio_only_q and use_snapshot_q and best_props_p.exists() and (force_snapshot_q or (not has_portfolio_knobs)):
             try:
                 snap_df = _read_csv_if_exists(best_props_p)
             except Exception:
@@ -13828,6 +14894,7 @@ def api_props_recommendations():
                             {
                                 "player": rr.get("player"),
                                 "team": rr.get("team"),
+                                "team_tricode": (_get_tricode(str(rr.get("team") or "")) or str(rr.get("team") or "").strip().upper() or None),
                                 "top_play": top_play,
                                 "score": rr.get("score"),
                                 "score_adj": rr.get("score"),
@@ -13847,6 +14914,17 @@ def api_props_recommendations():
                     "source": "best_edges_props",
                     "regular_only": True,
                 }
+                # Snapshot portfolios do not include matchup fields; per-game buckets are only
+                # available when recomputing from the full edges universe.
+                try:
+                    pgl_raw = request.args.get("per_game_limit", request.args.get("perGameLimit"))
+                    per_game_limit_n = int(str(pgl_raw)) if pgl_raw is not None else None
+                except Exception:
+                    per_game_limit_n = None
+                if per_game_limit_n is not None and per_game_limit_n > 0:
+                    payload["top_by_game"] = []
+                    payload["per_game_limit"] = int(per_game_limit_n)
+                    payload["top_slate"] = items
                 return jsonify(_to_jsonable(payload))
 
         edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
@@ -14395,8 +15473,14 @@ def api_props_recommendations():
                     def _is_regular_market(m: object) -> bool:
                         mm = str(m or "").lower()
                         return mm not in {"dd","td"}
+                    allow_non_regular_markets = False
+                    try:
+                        # If the caller explicitly asked for DD/TD, do not filter them out.
+                        allow_non_regular_markets = bool(want_mkts and (set(want_mkts) & {"dd", "td"}))
+                    except Exception:
+                        allow_non_regular_markets = False
                     if prefer_regular_only:
-                        cand_reg = [p for p in cand if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
+                        cand_reg = [p for p in cand if (allow_non_regular_markets or _is_regular_market(p.get("market"))) and _is_regular_price(p.get("price"))]
                         cand = cand_reg if cand_reg else cand
                     # Build a composite quality score for each candidate
                     def _consensus_books(mkt: object, side: object, line_val: object) -> int:
@@ -14980,6 +16064,7 @@ def api_props_recommendations():
                 cards.append({
                     "player": player,
                     "team": team,
+                    "team_tricode": (_get_tricode(str(team)) or str(team).strip().upper() if team is not None else None),
                     "opponent": opponent,
                     "opponent_ranks": opp_rank_obj if 'opp_rank_obj' in locals() else {},
                     "team_injuries_out": team_injury_count if 'team_injury_count' in locals() else 0,
@@ -15055,8 +16140,26 @@ def api_props_recommendations():
         def _is_regular_market(m: object) -> bool:
             mm = str(m or "").lower()
             return mm not in {"dd","td"}
+        allow_non_regular_markets = False
+        try:
+            allow_non_regular_markets = bool(want_mkts and (set(want_mkts) & {"dd", "td"}))
+        except Exception:
+            allow_non_regular_markets = False
         if prefer_regular_only:
-            cards = [c for c in cards if c.get("top_play") and _is_regular_market(c["top_play"].get("market")) and _is_regular_price(c["top_play"].get("price"))]
+            if allow_non_regular_markets:
+                def _is_ddtd_market(m: object) -> bool:
+                    mm = str(m or "").strip().lower()
+                    return mm in {"dd", "td"}
+                cards = [
+                    c for c in cards
+                    if c.get("top_play")
+                    and (
+                        _is_ddtd_market(c["top_play"].get("market"))
+                        or (_is_regular_market(c["top_play"].get("market")) and _is_regular_price(c["top_play"].get("price")))
+                    )
+                ]
+            else:
+                cards = [c for c in cards if c.get("top_play") and _is_regular_market(c["top_play"].get("market")) and _is_regular_price(c["top_play"].get("price"))]
         # If multi-market filter was provided, apply to chosen top_play to keep focused list
         if want_mkts:
             cards = [c for c in cards if c.get("top_play") and str(c["top_play"].get("market") or "").strip().lower() in want_mkts]
@@ -15892,6 +16995,7 @@ def api_props_recommendations():
                 compact_cards.append({
                     "player": c.get("player"),
                     "team": c.get("team"),
+                    "team_tricode": c.get("team_tricode") or (_get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper() or None),
                     "opponent": c.get("opponent"),
                     "opponent_ranks": c.get("opponent_ranks"),
                     "team_injuries_out": c.get("team_injuries_out"),
@@ -15949,6 +17053,7 @@ def api_props_recommendations():
                         port_compact.append({
                             "player": c.get("player"),
                             "team": c.get("team"),
+                            "team_tricode": c.get("team_tricode") or (_get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper() or None),
                             "opponent": c.get("opponent"),
                             "top_play": c.get("top_play"),
                             "score": c.get("score"),
@@ -16284,6 +17389,388 @@ def api_props_recommendations():
                                 pass
             except Exception:
                 pass
+        # Optional: Top-N per game (matchup buckets) in addition to overall slate portfolio.
+        # This is intentionally opt-in to avoid changing payload size for existing callers.
+        try:
+            pgl_raw = request.args.get("per_game_limit", request.args.get("perGameLimit"))
+            per_game_limit_n = int(str(pgl_raw)) if pgl_raw is not None else None
+        except Exception:
+            per_game_limit_n = None
+        if per_game_limit_n is not None and per_game_limit_n > 0:
+            try:
+                # Use full card objects for grouping even when compact mode is enabled.
+                base_cards = cards if isinstance(cards, list) else (payload.get("data") if isinstance(payload, dict) else [])
+                # Query knobs that affect ranking
+                sort_by2 = (request.args.get("sortBy") or request.args.get("sort") or "ev_desc").strip().lower()
+                reverse_rank = not str(sort_by2 or "").strip().lower().endswith("_asc")
+                penalize_corr2 = str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"}
+                optimize2 = str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"}
+                try:
+                    corr_penalty_scale2 = float(str(request.args.get("corr_penalty_scale", "0.0") or "0.0"))
+                except Exception:
+                    corr_penalty_scale2 = 0.0
+
+                def _game_key(card: dict) -> tuple[str, str] | None:
+                    try:
+                        h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                        a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                        if h and a:
+                            return (h, a)
+                    except Exception:
+                        return None
+                    return None
+
+                by_game: dict[tuple[str, str], list[dict]] = {}
+                for c in base_cards:
+                    if not isinstance(c, dict):
+                        continue
+                    gk = _game_key(c)
+                    if gk:
+                        by_game.setdefault(gk, []).append(c)
+
+                def _rank_value(card: dict) -> float:
+                    try:
+                        tp = (card.get("top_play") or {})
+                        sb = str(sort_by2 or "").strip().lower()
+                        if sb.startswith("edge"):
+                            v = tp.get("edge")
+                        elif sb.startswith("score"):
+                            v = card.get("score")
+                        else:
+                            v = tp.get("ev")
+                        return float(v) if v is not None else 0.0
+                    except Exception:
+                        return 0.0
+
+                def _adj_score(card: dict) -> float:
+                    try:
+                        base = float(_rank_value(card) or 0.0)
+                        if not (penalize_corr2 or optimize2):
+                            return base
+                        mk = str(((card.get("top_play") or {}).get("market")) or "").lower()
+                        gk = _game_key(card)
+                        overlap = 0
+                        if gk and mk:
+                            overlap = sum(1 for cc in by_game.get(gk, []) if str(((cc.get("top_play") or {}).get("market")) or "").lower() == mk) - 1
+                        cp = float(card.get("corr_proxy") or 0.0)
+                        pen_raw = 0.15 * float(max(0.0, cp)) + 0.10 * float(max(0, overlap))
+                        pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale2)))
+                        return float(max(0.0, base - pen))
+                    except Exception:
+                        return float(_rank_value(card) or 0.0)
+
+                # Produce a stable, UI-friendly list grouped by the known games list when possible.
+                game_order: list[tuple[str, str]] = []
+                try:
+                    for g in (games or []):
+                        try:
+                            h = _get_tricode(str(g.get("home_team") or "")) or str(g.get("home_team") or "").strip().upper()
+                            a = _get_tricode(str(g.get("away_team") or "")) or str(g.get("away_team") or "").strip().upper()
+                            if h and a:
+                                game_order.append((h, a))
+                        except Exception:
+                            continue
+                except Exception:
+                    game_order = []
+                # Append any game buckets that weren't in the predictions list
+                for gk in by_game.keys():
+                    if gk not in game_order:
+                        game_order.append(gk)
+
+                top_by_game = []
+                for gk in game_order:
+                    picks = []
+                    seen_players: set[tuple[str, str]] = set()
+                    group = by_game.get(gk, [])
+                    ranked = sorted(group, key=lambda c: _adj_score(c), reverse=bool(reverse_rank))
+                    for c in ranked:
+                        try:
+                            pkey = (str(c.get("player") or ""), str(c.get("team") or "").strip().upper())
+                            if pkey in seen_players:
+                                continue
+                            seen_players.add(pkey)
+                            picks.append({
+                                "player": c.get("player"),
+                                "team": c.get("team"),
+                                "team_tricode": c.get("team_tricode") or (_get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper() or None),
+                                "opponent": c.get("opponent"),
+                                "home_team": c.get("home_team"),
+                                "away_team": c.get("away_team"),
+                                "top_play": c.get("top_play"),
+                                "score": c.get("score"),
+                                "score_adj": round(float(_adj_score(c)), 6),
+                                "tier": c.get("tier"),
+                            })
+                            if len(picks) >= int(per_game_limit_n):
+                                break
+                        except Exception:
+                            continue
+                    if picks:
+                        top_by_game.append({
+                            "home_team": (group[0].get("home_team") if group else None),
+                            "away_team": (group[0].get("away_team") if group else None),
+                            "home_tricode": gk[0],
+                            "away_tricode": gk[1],
+                            "picks": picks,
+                        })
+                payload["top_by_game"] = top_by_game
+                payload["per_game_limit"] = int(per_game_limit_n)
+                # Convenience alias: overall slate top-N
+                if "portfolio" in payload:
+                    payload["top_slate"] = payload.get("portfolio")
+            except Exception:
+                pass
+
+        # Optional: Per-market Top-N outputs.
+        # Goal: top K per game *per market* + top M overall slate *per market*.
+        # Opt-in via per_market=1 to preserve backward compatibility.
+        try:
+            per_market_q = str(request.args.get("per_market", request.args.get("perMarket", "0")) or "0").strip().lower() in {"1","true","yes"}
+        except Exception:
+            per_market_q = False
+        if per_market_q:
+            try:
+                # Limits
+                try:
+                    pgl_raw = request.args.get("per_game_limit", request.args.get("perGameLimit"))
+                    per_game_limit_pm = int(str(pgl_raw)) if pgl_raw is not None else 3
+                except Exception:
+                    per_game_limit_pm = 3
+                if per_game_limit_pm < 1:
+                    per_game_limit_pm = 1
+                if per_game_limit_pm > 10:
+                    per_game_limit_pm = 10
+
+                try:
+                    spm_raw = request.args.get("slate_per_market_limit", request.args.get("slatePerMarketLimit"))
+                    slate_per_market_limit = int(str(spm_raw)) if spm_raw is not None else 4
+                except Exception:
+                    slate_per_market_limit = 4
+                if slate_per_market_limit < 1:
+                    slate_per_market_limit = 1
+                if slate_per_market_limit > 50:
+                    slate_per_market_limit = 50
+
+                # Determine requested market order (if caller passed markets, respect that).
+                def _norm_mkt(m: object) -> str:
+                    s = str(m or "").strip().lower()
+                    if s in {"pts","points","point"}:
+                        return "pts"
+                    if s in {"reb","rebs","rebound","rebounds"}:
+                        return "reb"
+                    if s in {"ast","asts","assist","assists"}:
+                        return "ast"
+                    if s in {"3pt","3pm","threes","3-pt","three","3pt made"}:
+                        return "threes"
+                    if s in {"blk","blocks","block"}:
+                        return "blk"
+                    if s in {"stl","steals","steal"}:
+                        return "stl"
+                    if s in {"pra"}:
+                        return "pra"
+                    if s in {"pr"}:
+                        return "pr"
+                    if s in {"pa"}:
+                        return "pa"
+                    if s in {"ra"}:
+                        return "ra"
+                    if s in {"dd","double double","double-double","double_double"}:
+                        return "dd"
+                    if s in {"td","triple double","triple-double","triple_double"}:
+                        return "td"
+                    return s
+
+                # Caller markets list
+                req_markets: list[str] = []
+                try:
+                    mkts_raw = (request.args.get("markets") or request.args.get("mkts") or request.args.get("market") or "").strip()
+                    if mkts_raw:
+                        req_markets = [_norm_mkt(x) for x in mkts_raw.replace(";", ",").split(",") if str(x).strip()]
+                except Exception:
+                    req_markets = []
+                if not req_markets:
+                    # Default full set when per_market is requested.
+                    req_markets = ["pts","reb","ast","threes","blk","stl","pra","pr","pa","ra","dd","td"]
+                # Dedup preserve order
+                seen_m = set(); req_markets = [m for m in req_markets if m and (m not in seen_m and not seen_m.add(m))]
+
+                base_cards = cards if isinstance(cards, list) else []
+
+                # Build candidate pick for a given market from a card's plays.
+                sort_by2 = (request.args.get("sortBy") or request.args.get("sort") or "ev_desc").strip().lower()
+                reverse_rank = not str(sort_by2 or "").strip().lower().endswith("_asc")
+
+                def _game_key(card: dict) -> tuple[str, str] | None:
+                    try:
+                        h = _get_tricode(str(card.get("home_team") or "")) or str(card.get("home_team") or "").strip().upper()
+                        a = _get_tricode(str(card.get("away_team") or "")) or str(card.get("away_team") or "").strip().upper()
+                        if h and a:
+                            return (h, a)
+                    except Exception:
+                        return None
+                    return None
+
+                def _rank_value_pick(pick: dict) -> float:
+                    try:
+                        tp = (pick.get("top_play") or {})
+                        sb = str(sort_by2 or "").strip().lower()
+                        if sb.startswith("edge"):
+                            v = tp.get("edge")
+                        elif sb.startswith("score"):
+                            v = pick.get("score")
+                        else:
+                            v = tp.get("ev")
+                        return float(v) if v is not None else 0.0
+                    except Exception:
+                        return 0.0
+
+                # Correlation knobs (cheap proxy version)
+                penalize_corr2 = str(request.args.get("penalize_correlation", "0") or "0").strip().lower() in {"1","true","yes"}
+                optimize2 = str(request.args.get("optimize", "0") or "0").strip().lower() in {"1","true","yes"}
+                try:
+                    corr_penalty_scale2 = float(str(request.args.get("corr_penalty_scale", "0.0") or "0.0"))
+                except Exception:
+                    corr_penalty_scale2 = 0.0
+
+                # Pre-group cards by game for overlap penalty
+                by_game_cards: dict[tuple[str, str], list[dict]] = {}
+                for c in base_cards:
+                    if not isinstance(c, dict):
+                        continue
+                    gk = _game_key(c)
+                    if gk:
+                        by_game_cards.setdefault(gk, []).append(c)
+
+                def _adj_score_pick(pick: dict) -> float:
+                    try:
+                        base = float(_rank_value_pick(pick) or 0.0)
+                        if not (penalize_corr2 or optimize2):
+                            return base
+                        mk = _norm_mkt(((pick.get("top_play") or {}).get("market")) or "")
+                        gk = _game_key(pick)
+                        overlap = 0
+                        if gk and mk:
+                            overlap = sum(1 for cc in by_game_cards.get(gk, []) if _norm_mkt(((cc.get("top_play") or {}).get("market")) or "") == mk) - 1
+                        pen_raw = 0.10 * float(max(0, overlap))
+                        pen = max(0.0, min(0.35, float(pen_raw) * float(corr_penalty_scale2)))
+                        return float(max(0.0, base - pen))
+                    except Exception:
+                        return float(_rank_value_pick(pick) or 0.0)
+
+                def _best_play_for_market(card: dict, market_norm: str) -> dict | None:
+                    try:
+                        plays = card.get("plays")
+                        if not isinstance(plays, list) or not plays:
+                            return None
+                        cand = [p for p in plays if _norm_mkt(p.get("market")) == market_norm]
+                        if not cand:
+                            return None
+                        # Rank plays within market by EV (or edge when requested)
+                        if str(sort_by2 or "").startswith("edge"):
+                            cand.sort(key=lambda x: float(x.get("edge") or 0.0), reverse=True)
+                        else:
+                            # prefer ev when available
+                            cand.sort(key=lambda x: float(x.get("ev") or 0.0), reverse=True)
+                        return cand[0]
+                    except Exception:
+                        return None
+
+                # Build per-game-by-market buckets
+                game_order: list[tuple[str, str]] = []
+                try:
+                    for g in (games or []):
+                        try:
+                            h = _get_tricode(str(g.get("home_team") or "")) or str(g.get("home_team") or "").strip().upper()
+                            a = _get_tricode(str(g.get("away_team") or "")) or str(g.get("away_team") or "").strip().upper()
+                            if h and a:
+                                game_order.append((h, a))
+                        except Exception:
+                            continue
+                except Exception:
+                    game_order = []
+                for gk in by_game_cards.keys():
+                    if gk not in game_order:
+                        game_order.append(gk)
+
+                top_by_game_by_market = []
+                # Also build slate-by-market in one pass
+                slate_candidates_by_market: dict[str, list[dict]] = {m: [] for m in req_markets}
+
+                for gk in game_order:
+                    group_cards = by_game_cards.get(gk, [])
+                    if not group_cards:
+                        continue
+                    by_market = []
+                    any_picks = False
+                    for m in req_markets:
+                        picks_m = []
+                        seen_players: set[tuple[str, str]] = set()
+                        # Build candidate picks for this market
+                        cand_picks = []
+                        for c in group_cards:
+                            bp = _best_play_for_market(c, m)
+                            if bp is None:
+                                continue
+                            cand_picks.append({
+                                "player": c.get("player"),
+                                "team": c.get("team"),
+                                "team_tricode": c.get("team_tricode") or (_get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper() or None),
+                                "opponent": c.get("opponent"),
+                                "home_team": c.get("home_team"),
+                                "away_team": c.get("away_team"),
+                                "top_play": bp,
+                                "score": c.get("score"),
+                                "tier": c.get("tier"),
+                            })
+                        cand_picks.sort(key=lambda x: _adj_score_pick(x), reverse=bool(reverse_rank))
+                        for pk in cand_picks:
+                            pkey = (str(pk.get("player") or ""), str(pk.get("team") or "").strip().upper())
+                            if pkey in seen_players:
+                                continue
+                            seen_players.add(pkey)
+                            pk["score_adj"] = round(float(_adj_score_pick(pk)), 6)
+                            picks_m.append(pk)
+                            if len(picks_m) >= int(per_game_limit_pm):
+                                break
+                        if picks_m:
+                            any_picks = True
+                            slate_candidates_by_market.setdefault(m, []).extend(picks_m)
+                        by_market.append({"market": m, "picks": picks_m})
+                    if any_picks:
+                        top_by_game_by_market.append({
+                            "home_tricode": gk[0],
+                            "away_tricode": gk[1],
+                            "by_market": by_market,
+                        })
+
+                # Build slate top-N per market
+                top_slate_by_market = []
+                for m in req_markets:
+                    cand = slate_candidates_by_market.get(m, []) or []
+                    # Dedup to one pick per player within market
+                    seen_players: set[tuple[str, str]] = set()
+                    ranked = sorted(cand, key=lambda x: float(x.get("score_adj") or _adj_score_pick(x)), reverse=bool(reverse_rank))
+                    out = []
+                    for pk in ranked:
+                        pkey = (str(pk.get("player") or ""), str(pk.get("team") or "").strip().upper())
+                        if pkey in seen_players:
+                            continue
+                        seen_players.add(pkey)
+                        if "score_adj" not in pk:
+                            pk["score_adj"] = round(float(_adj_score_pick(pk)), 6)
+                        out.append(pk)
+                        if len(out) >= int(slate_per_market_limit):
+                            break
+                    top_slate_by_market.append({"market": m, "picks": out})
+
+                payload["per_market"] = True
+                payload["per_game_per_market_limit"] = int(per_game_limit_pm)
+                payload["slate_per_market_limit"] = int(slate_per_market_limit)
+                payload["top_by_game_by_market"] = top_by_game_by_market
+                payload["top_slate_by_market"] = top_slate_by_market
+            except Exception:
+                pass
+
         return jsonify(_to_jsonable(payload))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -17298,6 +18785,20 @@ def api_live_game():
         # OddsAPI period totals (1H, quarters) when available
         oddsapi_period = _live_oddsapi_period_totals_for_game(d, home_tri, away_tri)
 
+    # If Bovada is unavailable (common on cloud hosts), fall back to OddsAPI game lines.
+    lines_out: dict[str, Any] = dict(lines or {})
+    lines_source = "bovada_current" if lines_out else None
+    try:
+        if (not lines_out) and isinstance(oddsapi_period, dict):
+            gl = oddsapi_period.get("game_lines")
+            if isinstance(gl, dict) and gl:
+                for k in ("total", "home_spread", "away_spread", "home_ml", "away_ml"):
+                    if k not in lines_out or lines_out.get(k) is None:
+                        lines_out[k] = gl.get(k)
+                lines_source = oddsapi_period.get("source") or "oddsapi"
+    except Exception:
+        pass
+
     # SmartSim-based 1-minute lens (prefer native 1-minute ladder when available)
     sim_obj = _live_load_smart_sim_by_game_id(d, gid)
     intervals = None
@@ -17432,8 +18933,8 @@ def api_live_game():
         "pbp_quarters": pbp_quarters,
         "lens": lens,
         "lines": {
-            **(lines or {}),
-            "source": "bovada_current" if lines else None,
+            **(lines_out or {}),
+            "source": lines_source,
             "note": "Bovada feed is best-effort and may not be true in-game line movement.",
             "period_totals": (oddsapi_period.get("period_totals") if isinstance(oddsapi_period, dict) else None),
             "period_totals_source": (oddsapi_period.get("source") if isinstance(oddsapi_period, dict) else None),
@@ -19353,6 +20854,10 @@ def api_sim_game_story():
       - away: team tricode (required)
       - n: number of samples (optional, default 1200)
       - seed: optional int seed for reproducibility
+      - rotation_shock_alpha: optional float in [0,1] (default 0; opt-in)
+      - correlated_scoring_alpha: optional float in [0,1] (default 0 unless set via CONNECTED_CORRELATED_SCORING_ALPHA)
+      - foul_trouble_alpha: optional float in [0,1] (default 0; opt-in)
+            - event_level: optional int/bool (0/1) to use event-level (possession) stat-mix for the representative box score (keeps points allocation; default 0)
     """
     d = _parse_date_param(request)
     if not d:
@@ -19394,6 +20899,9 @@ def api_sim_game_story():
                     str(away_tri),
                     str(n),
                     str(request.args.get("alpha") or ""),
+                    str(request.args.get("rotation_shock_alpha") or os.environ.get("CONNECTED_ROTATION_SHOCK_ALPHA") or ""),
+                    str(request.args.get("correlated_scoring_alpha") or os.environ.get("CONNECTED_CORRELATED_SCORING_ALPHA") or ""),
+                    str(request.args.get("foul_trouble_alpha") or os.environ.get("CONNECTED_FOUL_TROUBLE_ALPHA") or ""),
                     str(request.args.get("use_lineup") or ""),
                     str(request.args.get("event_level") or ""),
                 ]
@@ -19411,6 +20919,43 @@ def api_sim_game_story():
     if not np.isfinite(alpha_f):
         alpha_f = 0.50
     alpha_f = float(max(0.0, min(1.0, alpha_f)))
+
+    # Optional: rotation-shock flattening in connected minutes allocation.
+    # Keep default disabled (0.0) unless explicitly provided.
+    rotshock = request.args.get("rotation_shock_alpha")
+    if rotshock in (None, ""):
+        rotshock = os.environ.get("CONNECTED_ROTATION_SHOCK_ALPHA")
+    try:
+        rotshock_f = float(pd.to_numeric(rotshock, errors="coerce")) if rotshock not in (None, "") else 0.0
+    except Exception:
+        rotshock_f = 0.0
+    if not np.isfinite(rotshock_f):
+        rotshock_f = 0.0
+    rotshock_f = float(max(0.0, min(1.0, rotshock_f)))
+
+    # Optional: correlated scoring variance (latent factor scaling of quarter points).
+    corr_sc = request.args.get("correlated_scoring_alpha")
+    if corr_sc in (None, ""):
+        corr_sc = os.environ.get("CONNECTED_CORRELATED_SCORING_ALPHA")
+    try:
+        corr_sc_f = float(pd.to_numeric(corr_sc, errors="coerce")) if corr_sc not in (None, "") else 0.0
+    except Exception:
+        corr_sc_f = 0.0
+    if not np.isfinite(corr_sc_f):
+        corr_sc_f = 0.0
+    corr_sc_f = float(max(0.0, min(1.0, corr_sc_f)))
+
+    # Optional: foul-trouble minutes disruption.
+    foul_tr = request.args.get("foul_trouble_alpha")
+    if foul_tr in (None, ""):
+        foul_tr = os.environ.get("CONNECTED_FOUL_TROUBLE_ALPHA")
+    try:
+        foul_tr_f = float(pd.to_numeric(foul_tr, errors="coerce")) if foul_tr not in (None, "") else 0.0
+    except Exception:
+        foul_tr_f = 0.0
+    if not np.isfinite(foul_tr_f):
+        foul_tr_f = 0.0
+    foul_tr_f = float(max(0.0, min(1.0, foul_tr_f)))
 
     use_lineup = request.args.get("use_lineup")
     try:
@@ -19437,6 +20982,9 @@ def api_sim_game_story():
             str(away_tri),
             int(n),
             float(alpha_f),
+            float(rotshock_f),
+            float(corr_sc_f),
+            float(foul_tr_f),
             bool(use_lineup_effects),
             bool(use_event_level),
             int(seed_i or 0),
@@ -19822,6 +21370,49 @@ def api_sim_game_story():
             "margin": model_home_score - model_away_score,
         }
 
+        # Optional model guardrails for connected sim (default OFF).
+        # These do NOT replace the blend target line; they only softly anchor
+        # the sampled quarter scoring environment to model priors.
+        gr_alpha = 0.0
+        try:
+            s = request.args.get("guardrail_alpha")
+            if s is None or s == "":
+                s = os.environ.get("CONNECTED_GUARDRAIL_ALPHA")
+            gr_alpha = float(s) if s not in (None, "") else 0.0
+        except Exception:
+            gr_alpha = 0.0
+        gr_max_scale = 0.10
+        try:
+            s = request.args.get("guardrail_max_scale")
+            if s is None or s == "":
+                s = os.environ.get("CONNECTED_GUARDRAIL_MAX_SCALE")
+            gr_max_scale = float(s) if s not in (None, "") else 0.10
+        except Exception:
+            gr_max_scale = 0.10
+
+        priors: dict[str, Any] = {}
+        try:
+            if pred_total is not None:
+                priors["pred_total"] = float(pred_total)
+            if pred_margin is not None:
+                priors["pred_margin"] = float(pred_margin)
+            p_home = _num(row.get("home_win_prob"))
+            if p_home is not None:
+                priors["home_win_prob"] = float(p_home)
+            # Period priors (quarters) when present in predictions.
+            for qi in (1, 2, 3, 4):
+                qt = _num(row.get(f"quarters_q{qi}_total"))
+                qm = _num(row.get(f"quarters_q{qi}_margin"))
+                qw = _num(row.get(f"quarters_q{qi}_win"))
+                if qt is not None:
+                    priors[f"quarters_q{qi}_total"] = float(qt)
+                if qm is not None:
+                    priors[f"quarters_q{qi}_margin"] = float(qm)
+                if qw is not None:
+                    priors[f"quarters_q{qi}_win"] = float(qw)
+        except Exception:
+            priors = {}
+
         # Connected sim for player box scores (representative sample aligned to the blend line).
         sim = simulate_connected_game(
             summary.quarters,
@@ -19840,6 +21431,12 @@ def api_sim_game_story():
             date_str=d,
             use_lineup_teammate_effects=use_lineup_effects,
             use_event_level_sim=use_event_level,
+            rotation_shock_alpha=float(rotshock_f),
+            correlated_scoring_alpha=float(corr_sc_f),
+            foul_trouble_alpha=float(foul_tr_f),
+            guardrail_priors=priors,
+            guardrail_alpha=float(gr_alpha or 0.0),
+            guardrail_max_scale=float(gr_max_scale if gr_max_scale is not None else 0.10),
         )
 
         recap = write_sportswriter_recap(

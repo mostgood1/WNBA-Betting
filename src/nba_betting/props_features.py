@@ -14,6 +14,7 @@ NUM_COL_MAP = {
     "REB": ["REB", "reb", "TREB", "treb"],
     "AST": ["AST", "ast"],
     "FG3M": ["FG3M", "fg3m", "FG3M_A"],
+    "FG3A": ["FG3A", "fg3a", "threePointersAttempted"],
     "MIN": ["MIN", "min"],
     # Defensive stats
     "STL": ["STL", "stl"],
@@ -127,6 +128,7 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     reb = _find_col(logs, NUM_COL_MAP["REB"])
     ast = _find_col(logs, NUM_COL_MAP["AST"])
     fg3m = _find_col(logs, NUM_COL_MAP["FG3M"])
+    fg3a = _find_col(logs, NUM_COL_MAP["FG3A"])
     minc = _find_col(logs, NUM_COL_MAP["MIN"])
     
     # Defensive stats
@@ -157,7 +159,7 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     logs.sort_values([pid, dcol], inplace=True)
     
     # Numeric conversions for all stat columns
-    stat_cols = [pts, reb, ast, fg3m, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
+    stat_cols = [pts, reb, ast, fg3m, fg3a, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
     for c in stat_cols:
         if c is not None and c in logs.columns:
             logs[c] = pd.to_numeric(logs[c], errors="coerce")
@@ -186,6 +188,7 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     # Define all stats to create rolling features for
     stat_map = {
         "pts": pts, "reb": reb, "ast": ast, "threes": fg3m,
+        "fg3a": fg3a,
         "stl": stl, "blk": blk, "tov": tov,
         "fgm": fgm, "fga": fga, "fg_pct": fg_pct,
         "ftm": ftm, "fta": fta, "ft_pct": ft_pct,
@@ -196,6 +199,49 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
     for p, g in grp:
         g = g.copy()
         g["minutes"] = g[minc]
+        denom = g["minutes"].replace(0, np.nan)
+
+        # Derived "opportunity" features (all additive)
+        g["_pts_per_min"] = g[pts] / denom
+        g["_reb_per_min"] = g[reb] / denom
+        g["_ast_per_min"] = g[ast] / denom
+        g["_fg3m_per_min"] = g[fg3m] / denom
+        if fg3a is not None and fg3a in g.columns:
+            g["_fg3a_per_min"] = g[fg3a] / denom
+        else:
+            g["_fg3a_per_min"] = np.nan
+
+        if fga is not None and fga in g.columns:
+            g["_fga_per_min"] = g[fga] / denom
+        else:
+            g["_fga_per_min"] = np.nan
+
+        if fta is not None and fta in g.columns:
+            g["_fta_per_min"] = g[fta] / denom
+        else:
+            g["_fta_per_min"] = np.nan
+
+        if tov is not None and tov in g.columns:
+            g["_tov_per_min"] = g[tov] / denom
+        else:
+            g["_tov_per_min"] = np.nan
+
+        if (fga is not None and fga in g.columns) and (fta is not None and fta in g.columns) and (tov is not None and tov in g.columns):
+            g["_usage_per_min"] = (g[fga] + 0.44 * g[fta] + g[tov]) / denom
+        else:
+            g["_usage_per_min"] = np.nan
+
+        derived_map = {
+            "pts_per_min": "_pts_per_min",
+            "reb_per_min": "_reb_per_min",
+            "ast_per_min": "_ast_per_min",
+            "fg3m_per_min": "_fg3m_per_min",
+            "fg3a_per_min": "_fg3a_per_min",
+            "fga_per_min": "_fga_per_min",
+            "fta_per_min": "_fta_per_min",
+            "tov_per_min": "_tov_per_min",
+            "usage_per_min": "_usage_per_min",
+        }
         
         # Rolling features for all stats
         for w in windows:
@@ -203,12 +249,20 @@ def build_props_features(windows: List[int] = [3, 5, 10]) -> pd.DataFrame:
             for stat_name, stat_col in stat_map.items():
                 if stat_col is not None and stat_col in g.columns:
                     g[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().shift(1)
+
+            for feat_name, feat_col in derived_map.items():
+                if feat_col in g.columns:
+                    g[f"roll{w}_{feat_name}"] = g[feat_col].rolling(w, min_periods=1).mean().shift(1)
         
         # Lag1 features for all stats
         g["lag1_min"] = g["minutes"].shift(1)
         for stat_name, stat_col in stat_map.items():
             if stat_col is not None and stat_col in g.columns:
                 g[f"lag1_{stat_name}"] = g[stat_col].shift(1)
+
+        for feat_name, feat_col in derived_map.items():
+            if feat_col in g.columns:
+                g[f"lag1_{feat_name}"] = g[feat_col].shift(1)
         
         # b2b indicator: played previous day
         g["b2b"] = (g[dcol].diff().dt.days == 1).shift(0).astype(float)
@@ -317,6 +371,7 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     reb = _find_col(logs, NUM_COL_MAP["REB"])
     ast = _find_col(logs, NUM_COL_MAP["AST"])
     fg3m = _find_col(logs, NUM_COL_MAP["FG3M"])
+    fg3a = _find_col(logs, NUM_COL_MAP["FG3A"])
     minc = _find_col(logs, NUM_COL_MAP["MIN"])
     
     # Defensive stats
@@ -351,7 +406,7 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
         hist = hist[hist[pid].isin(players)].copy()
     
     # Convert numerics for all stats
-    stat_cols = [pts, reb, ast, fg3m, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
+    stat_cols = [pts, reb, ast, fg3m, fg3a, stl, blk, tov, fgm, fga, fg_pct, ftm, fta, ft_pct, oreb, dreb, pf, plus_minus]
     for c in stat_cols:
         if c is not None and c in hist.columns:
             hist[c] = pd.to_numeric(hist[c], errors="coerce")
@@ -365,6 +420,7 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     # Define all stats to create features for
     stat_map = {
         "pts": pts, "reb": reb, "ast": ast, "threes": fg3m,
+        "fg3a": fg3a,
         "stl": stl, "blk": blk, "tov": tov,
         "fgm": fgm, "fga": fga, "fg_pct": fg_pct,
         "ftm": ftm, "fta": fta, "ft_pct": ft_pct,
@@ -377,6 +433,48 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
     for p, g in grp:
         g = g.copy()
         g["minutes"] = g[minc]
+        denom = g["minutes"].replace(0, np.nan)
+
+        g["_pts_per_min"] = g[pts] / denom
+        g["_reb_per_min"] = g[reb] / denom
+        g["_ast_per_min"] = g[ast] / denom
+        g["_fg3m_per_min"] = g[fg3m] / denom
+        if fg3a is not None and fg3a in g.columns:
+            g["_fg3a_per_min"] = g[fg3a] / denom
+        else:
+            g["_fg3a_per_min"] = np.nan
+
+        if fga is not None and fga in g.columns:
+            g["_fga_per_min"] = g[fga] / denom
+        else:
+            g["_fga_per_min"] = np.nan
+
+        if fta is not None and fta in g.columns:
+            g["_fta_per_min"] = g[fta] / denom
+        else:
+            g["_fta_per_min"] = np.nan
+
+        if tov is not None and tov in g.columns:
+            g["_tov_per_min"] = g[tov] / denom
+        else:
+            g["_tov_per_min"] = np.nan
+
+        if (fga is not None and fga in g.columns) and (fta is not None and fta in g.columns) and (tov is not None and tov in g.columns):
+            g["_usage_per_min"] = (g[fga] + 0.44 * g[fta] + g[tov]) / denom
+        else:
+            g["_usage_per_min"] = np.nan
+
+        derived_map = {
+            "pts_per_min": "_pts_per_min",
+            "reb_per_min": "_reb_per_min",
+            "ast_per_min": "_ast_per_min",
+            "fg3m_per_min": "_fg3m_per_min",
+            "fg3a_per_min": "_fg3a_per_min",
+            "fga_per_min": "_fga_per_min",
+            "fta_per_min": "_fta_per_min",
+            "tov_per_min": "_tov_per_min",
+            "usage_per_min": "_usage_per_min",
+        }
         rec = {
             "player_id": p,
             "player_name": g.iloc[-1][_find_col(hist, PLAYER_NAME_COLS)] if _find_col(hist, PLAYER_NAME_COLS) else None,
@@ -391,6 +489,12 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
             else:
                 rec[f"lag1_{stat_name}"] = np.nan
         rec["lag1_min"] = g["minutes"].iloc[-1] if len(g) > 0 else np.nan
+
+        for feat_name, feat_col in derived_map.items():
+            if feat_col in g.columns and len(g) > 0:
+                rec[f"lag1_{feat_name}"] = g[feat_col].iloc[-1]
+            else:
+                rec[f"lag1_{feat_name}"] = np.nan
         
         # b2b based on last two games
         if len(g) >= 2:
@@ -407,5 +511,11 @@ def build_features_for_date(date: str | pd.Timestamp, windows: List[int] = [3,5,
                     rec[f"roll{w}_{stat_name}"] = g[stat_col].rolling(w, min_periods=1).mean().iloc[-1]
                 else:
                     rec[f"roll{w}_{stat_name}"] = np.nan
+
+            for feat_name, feat_col in derived_map.items():
+                if feat_col in g.columns:
+                    rec[f"roll{w}_{feat_name}"] = g[feat_col].rolling(w, min_periods=1).mean().iloc[-1]
+                else:
+                    rec[f"roll{w}_{feat_name}"] = np.nan
         rows.append(rec)
     return pd.DataFrame(rows)

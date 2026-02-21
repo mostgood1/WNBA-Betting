@@ -22,7 +22,12 @@ class TotalsRow:
     total_p90: float | None
     p_total_over: float | None
     actual_total: float | None
+    odds_total: float | None
     file: str
+
+
+def _norm_team_name(s: str) -> str:
+    return "".join(ch.lower() if ch.isalnum() or ch.isspace() else "" for ch in str(s or "")).strip()
 
 
 def _parse_date(s: str) -> date:
@@ -44,6 +49,7 @@ def _load_rows_for_date(sim_date: str, processed_dir: str) -> list[TotalsRow]:
     # Actuals (if present)
     actuals_path = os.path.join(processed_dir, f"recon_games_{sim_date}.csv")
     actuals_idx: dict[tuple[str, str], float] = {}
+    names_idx: dict[tuple[str, str], tuple[str, str]] = {}
     if os.path.exists(actuals_path):
         try:
             rg = pd.read_csv(actuals_path)
@@ -53,8 +59,28 @@ def _load_rows_for_date(sim_date: str, processed_dir: str) -> list[TotalsRow]:
                 ta = rr.get("total_actual")
                 if away and home and ta is not None and not pd.isna(ta):
                     actuals_idx[(away, home)] = float(ta)
+                vt = rr.get("visitor_team") or rr.get("away_team") or rr.get("visitor")
+                ht = rr.get("home_team") or rr.get("home")
+                if away and home and vt and ht:
+                    names_idx[(away, home)] = (str(vt), str(ht))
         except Exception:
             actuals_idx = {}
+            names_idx = {}
+
+    # Odds totals (if present)
+    odds_path = os.path.join(processed_dir, f"game_odds_{sim_date}.csv")
+    odds_idx: dict[tuple[str, str], float] = {}
+    if os.path.exists(odds_path):
+        try:
+            go = pd.read_csv(odds_path)
+            for _, rr in go.iterrows():
+                ht = rr.get("home_team")
+                vt = rr.get("visitor_team")
+                tot = rr.get("total")
+                if ht and vt and tot is not None and not pd.isna(tot):
+                    odds_idx[(_norm_team_name(str(vt)), _norm_team_name(str(ht)))] = float(tot)
+        except Exception:
+            odds_idx = {}
 
     for path in paths:
         with open(path, "r", encoding="utf-8") as f:
@@ -77,7 +103,14 @@ def _load_rows_for_date(sim_date: str, processed_dir: str) -> list[TotalsRow]:
         total_p50 = tq.get("p50")
         total_p90 = tq.get("p90")
         p_total_over = score.get("p_total_over")
-        actual_total = actuals_idx.get((str(away).upper(), str(home).upper()))
+        away_u = str(away).upper()
+        home_u = str(home).upper()
+        actual_total = actuals_idx.get((away_u, home_u))
+        odds_total = None
+        nm = names_idx.get((away_u, home_u))
+        if nm:
+            vname, hname = nm
+            odds_total = odds_idx.get((_norm_team_name(vname), _norm_team_name(hname)))
 
         rows.append(
             TotalsRow(
@@ -92,6 +125,7 @@ def _load_rows_for_date(sim_date: str, processed_dir: str) -> list[TotalsRow]:
                 total_p90=(float(total_p90) if total_p90 is not None else None),
                 p_total_over=(float(p_total_over) if p_total_over is not None else None),
                 actual_total=actual_total,
+                odds_total=odds_total,
                 file=os.path.basename(path),
             )
         )
@@ -120,6 +154,42 @@ def _summarize(df: pd.DataFrame) -> dict:
         "within3": float((err.abs() <= 3).mean() * 100),
         "within5": float((err.abs() <= 5).mean() * 100),
         "within7": float((err.abs() <= 7).mean() * 100),
+    }
+
+
+def _summarize_vs_odds(df: pd.DataFrame) -> dict:
+    dfo = df[df["odds_total"].notna()].copy()
+    if dfo.empty:
+        return {
+            "games": 0,
+            "mae": float("nan"),
+            "rmse": float("nan"),
+            "bias": float("nan"),
+        }
+    err = (dfo["sim_total_mean"].astype(float) - dfo["odds_total"].astype(float))
+    return {
+        "games": int(len(dfo)),
+        "mae": float(err.abs().mean()),
+        "rmse": float((err.pow(2).mean()) ** 0.5),
+        "bias": float(err.mean()),
+    }
+
+
+def _summarize_odds_vs_actual(df: pd.DataFrame) -> dict:
+    dfo = df[df["odds_total"].notna() & df["actual_total"].notna()].copy()
+    if dfo.empty:
+        return {
+            "games": 0,
+            "mae": float("nan"),
+            "rmse": float("nan"),
+            "bias": float("nan"),
+        }
+    err = (dfo["odds_total"].astype(float) - dfo["actual_total"].astype(float))
+    return {
+        "games": int(len(dfo)),
+        "mae": float(err.abs().mean()),
+        "rmse": float((err.pow(2).mean()) ** 0.5),
+        "bias": float(err.mean()),
     }
 
 
@@ -216,11 +286,25 @@ def main() -> None:
 
     overall = _summarize(df)
     print(
-        f"SmartSim totals vs market ({start.isoformat()}..{end.isoformat()}) "
+        f"SmartSim totals vs embedded market_total ({start.isoformat()}..{end.isoformat()}) "
         f"games={overall['games']} MAE={overall['mae']:.2f} RMSE={overall['rmse']:.2f} "
         f"bias={overall['bias']:+.2f} within±3={overall['within3']:.1f}% "
         f"within±5={overall['within5']:.1f}% within±7={overall['within7']:.1f}%"
     )
+
+    overall_vs_odds = _summarize_vs_odds(df)
+    if overall_vs_odds["games"] > 0:
+        print(
+            f"SmartSim totals vs ODDS total ({start.isoformat()}..{end.isoformat()}) "
+            f"games={overall_vs_odds['games']} MAE={overall_vs_odds['mae']:.2f} RMSE={overall_vs_odds['rmse']:.2f} bias={overall_vs_odds['bias']:+.2f}"
+        )
+
+    overall_odds_actual = _summarize_odds_vs_actual(df)
+    if overall_odds_actual["games"] > 0:
+        print(
+            f"ODDS total vs ACTUAL ({start.isoformat()}..{end.isoformat()}) "
+            f"games={overall_odds_actual['games']} MAE={overall_odds_actual['mae']:.2f} RMSE={overall_odds_actual['rmse']:.2f} bias={overall_odds_actual['bias']:+.2f}"
+        )
 
     overall_a = _summarize_actual(df)
     if overall_a["games"] > 0:
@@ -231,6 +315,19 @@ def main() -> None:
             f"tails(low/high)={overall_a['tail_low']:.1f}%/{overall_a['tail_high']:.1f}% "
             f"avg_width={overall_a['avg_width_p10_p90']:.2f} brier(over)={overall_a['brier_over']:.4f} logloss(over)={overall_a['logloss_over']:.4f}"
         )
+
+        # Suggested global points multiplier to remove average bias.
+        try:
+            dfa = df[df["actual_total"].notna()].copy()
+            sim_mu = float(dfa["sim_total_mean"].astype(float).mean())
+            act_mu = float(dfa["actual_total"].astype(float).mean())
+            if sim_mu > 0 and pd.notna(sim_mu) and pd.notna(act_mu):
+                pm = act_mu / sim_mu
+                # Keep this conservative; treat as a gentle calibration, not a refit.
+                pm = float(max(0.97, min(1.03, pm)))
+                print(f"Means (vs ACTUAL): sim_total_mean={sim_mu:.2f} actual_total_mean={act_mu:.2f} suggested_points_mult={pm:.5f}")
+        except Exception:
+            pass
 
     if missing_dates:
         print(f"Missing/empty dates (no usable market totals): {', '.join(missing_dates)}")

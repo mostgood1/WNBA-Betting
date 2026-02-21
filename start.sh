@@ -10,6 +10,9 @@ python --version || true
 
 export PYTHONUNBUFFERED=1
 
+# Default: mild correlated scoring variance (mean-preserving), tuned via eval sweeps.
+export CONNECTED_CORRELATED_SCORING_ALPHA=${CONNECTED_CORRELATED_SCORING_ALPHA:-0.2}
+
 echo "Using PORT=${PORT:-5000} WEB_CONCURRENCY=${WEB_CONCURRENCY:-1} WEB_THREADS=${WEB_THREADS:-4}"
 
 # On deploy/start: refresh today's odds and compute odds-related edges only (no retraining)

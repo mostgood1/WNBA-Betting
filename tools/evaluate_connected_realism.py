@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import unicodedata
 from dataclasses import asdict
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -54,6 +55,10 @@ def _norm_player_key(x: Any) -> str:
                 u = u[: -len(suf)].strip()
                 break
         try:
+            # Match simulator behavior: convert diacritics (e.g., Vučević -> Vucevic)
+            # rather than dropping letters.
+            u = unicodedata.normalize("NFKD", u)
+            u = "".join(ch for ch in u if not unicodedata.combining(ch))
             u = u.encode("ascii", "ignore").decode("ascii")
         except Exception:
             pass
@@ -448,6 +453,65 @@ def main() -> int:
     ap.add_argument("--n-connected-samples", type=int, default=1200, help="Connected boxscore samples per game")
     ap.add_argument("--minutes-lookback-days", type=int, default=21, help="Lookback days for minutes priors")
     ap.add_argument("--top-k", type=int, default=8, help="Evaluate top-K players by actual minutes")
+    ap.add_argument(
+        "--hist-exp-blend-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: blend rotations-history expected minutes into bench minutes (0 disables)",
+    )
+    ap.add_argument(
+        "--hist-exp-blend-max-cov",
+        type=float,
+        default=0.67,
+        help="Only apply hist-exp blending when minutes_expected_coverage <= this threshold",
+    )
+    ap.add_argument(
+        "--coach-rotation-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: scale coach/rotation shaping from rotation priors (0 disables)",
+    )
+    ap.add_argument(
+        "--rotation-shock-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: detect rotation shock and blend minutes toward priors (0 disables)",
+    )
+    ap.add_argument(
+        "--garbage-time-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: shift minutes from starters to bench when blowout likelihood is high (0 disables)",
+    )
+    ap.add_argument(
+        "--correlated-scoring-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: add correlated scoring variance via latent game factors (0 disables)",
+    )
+    ap.add_argument(
+        "--foul-trouble-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: disrupt rotation minutes from foul trouble risk (0 disables)",
+    )
+    ap.add_argument(
+        "--guardrail-alpha",
+        type=float,
+        default=0.0,
+        help="Optional: softly anchor quarter samples to model priors (0 disables)",
+    )
+    ap.add_argument(
+        "--guardrail-max-scale",
+        type=float,
+        default=0.10,
+        help="Max |scale-1| per team/quarter when applying guardrails",
+    )
+    ap.add_argument(
+        "--event-level",
+        action="store_true",
+        help="Optional: use event-level (possession) stat-mix for the representative box score (keeps points allocation; default off)",
+    )
     ap.add_argument("--skip-ot", action="store_true", help="Skip games where either team played >245 minutes (likely OT)")
     ap.add_argument("--seed", type=int, default=1, help="RNG seed base")
     ap.add_argument("--out-games-csv", type=str, default=None)
@@ -561,6 +625,26 @@ def main() -> int:
             inp = GameInputs(date=d.isoformat(), home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=market_home_spread)
 
             qsum = simulate_quarters(inp, n_samples=int(args.n_quarter_samples))
+
+            # Guardrail priors sourced from the same predictions row used to build the quarter context.
+            gr_priors: dict[str, Any] = {}
+            try:
+                pt = _to_float(r.get("pred_total")) or _to_float(r.get("totals")) or _to_float(r.get("total_pred"))
+                pm = _to_float(r.get("pred_margin")) or _to_float(r.get("spread_margin")) or _to_float(r.get("margin_pred"))
+                if pt is not None:
+                    gr_priors["pred_total"] = float(pt)
+                if pm is not None:
+                    gr_priors["pred_margin"] = float(pm)
+                for qi in (1, 2, 3, 4):
+                    qt = _to_float(r.get(f"quarters_q{qi}_total"))
+                    qm = _to_float(r.get(f"quarters_q{qi}_margin"))
+                    if qt is not None:
+                        gr_priors[f"quarters_q{qi}_total"] = float(qt)
+                    if qm is not None:
+                        gr_priors[f"quarters_q{qi}_margin"] = float(qm)
+            except Exception:
+                gr_priors = {}
+
             sim = simulate_connected_game(
                 qsum.quarters,
                 home_tri=htri,
@@ -573,6 +657,18 @@ def main() -> int:
                 minutes_lookback_days=int(args.minutes_lookback_days),
                 n_samples=int(args.n_connected_samples),
                 seed=int(args.seed) + int(gid[-4:]) if gid[-4:].isdigit() else int(args.seed),
+                date_str=d.isoformat(),
+                hist_exp_blend_alpha=float(args.hist_exp_blend_alpha or 0.0),
+                hist_exp_blend_max_cov=float(args.hist_exp_blend_max_cov if args.hist_exp_blend_max_cov is not None else 0.67),
+                coach_rotation_alpha=float(args.coach_rotation_alpha or 0.0),
+                rotation_shock_alpha=float(args.rotation_shock_alpha or 0.0),
+                garbage_time_alpha=float(args.garbage_time_alpha or 0.0),
+                correlated_scoring_alpha=float(args.correlated_scoring_alpha or 0.0),
+                foul_trouble_alpha=float(args.foul_trouble_alpha or 0.0),
+                use_event_level_sim=bool(getattr(args, "event_level", False)),
+                guardrail_priors=gr_priors,
+                guardrail_alpha=float(args.guardrail_alpha or 0.0),
+                guardrail_max_scale=float(args.guardrail_max_scale if args.guardrail_max_scale is not None else 0.10),
             )
             if not isinstance(sim, dict) or sim.get("error"):
                 continue
@@ -583,6 +679,23 @@ def main() -> int:
 
             act_home = _actual_team_box(logs, gid, htri)
             act_away = _actual_team_box(logs, gid, atri)
+
+            def _team_abs_err(act_df: pd.DataFrame, sim_df: pd.DataFrame, col: str) -> float:
+                try:
+                    a = float(pd.to_numeric(act_df.get(col), errors="coerce").fillna(0.0).sum()) if act_df is not None and not act_df.empty else 0.0
+                    s = float(pd.to_numeric(sim_df.get(col), errors="coerce").fillna(0.0).sum()) if sim_df is not None and not sim_df.empty else 0.0
+                    return float(abs(s - a))
+                except Exception:
+                    return float("nan")
+
+            home_fga_abs_err = _team_abs_err(act_home, home_box, "fga")
+            away_fga_abs_err = _team_abs_err(act_away, away_box, "fga")
+            home_fg3a_abs_err = _team_abs_err(act_home, home_box, "fg3a")
+            away_fg3a_abs_err = _team_abs_err(act_away, away_box, "fg3a")
+            home_fta_abs_err = _team_abs_err(act_home, home_box, "fta")
+            away_fta_abs_err = _team_abs_err(act_away, away_box, "fta")
+            home_tov_abs_err = _team_abs_err(act_home, home_box, "tov")
+            away_tov_abs_err = _team_abs_err(act_away, away_box, "tov")
 
             home_metrics = _match_and_score(act_home, home_box, top_k=int(args.top_k))
             away_metrics = _match_and_score(act_away, away_box, top_k=int(args.top_k))
@@ -597,18 +710,99 @@ def main() -> int:
 
             sim_path = _pathology(pd.concat([home_box.assign(team=htri), away_box.assign(team=atri)], ignore_index=True))
 
+            # Guardrails diagnostics (compact per-game summary for A/B tuning).
+            guard = ((sim.get("diagnostics") or {}).get("guardrails") or {}) if isinstance(sim, dict) else {}
+            if not isinstance(guard, dict):
+                guard = {}
+            gr_pre = guard.get("pre") or {}
+            gr_post = guard.get("post") or {}
+            if not isinstance(gr_pre, dict):
+                gr_pre = {}
+            if not isinstance(gr_post, dict):
+                gr_post = {}
+
+            gr_enabled = bool(guard.get("enabled"))
+            gr_mode = str(guard.get("mode") or "")
+            gr_alpha = _to_float(guard.get("alpha"))
+            gr_max_scale = _to_float(guard.get("max_scale"))
+            gr_pre_total_mu = _to_float(gr_pre.get("total_mu"))
+            gr_post_total_mu = _to_float(gr_post.get("total_mu"))
+            gr_pre_margin_mu = _to_float(gr_pre.get("margin_mu"))
+            gr_post_margin_mu = _to_float(gr_post.get("margin_mu"))
+
+            gr_total_mu_shift = None
+            gr_margin_mu_shift = None
+            try:
+                if gr_pre_total_mu is not None and gr_post_total_mu is not None:
+                    gr_total_mu_shift = float(gr_post_total_mu - gr_pre_total_mu)
+                if gr_pre_margin_mu is not None and gr_post_margin_mu is not None:
+                    gr_margin_mu_shift = float(gr_post_margin_mu - gr_pre_margin_mu)
+            except Exception:
+                gr_total_mu_shift = None
+                gr_margin_mu_shift = None
+
+            gr_scales = guard.get("scales") or {}
+            if not isinstance(gr_scales, dict):
+                gr_scales = {}
+
+            def _scale_stats(v: Any) -> tuple[float | None, float | None]:
+                vals: list[float] = []
+                try:
+                    if isinstance(v, list):
+                        for x in v:
+                            fx = _to_float(x)
+                            if fx is not None and np.isfinite(float(fx)):
+                                vals.append(float(fx))
+                    else:
+                        fx = _to_float(v)
+                        if fx is not None and np.isfinite(float(fx)):
+                            vals.append(float(fx))
+                except Exception:
+                    vals = []
+                if not vals:
+                    return None, None
+                mean = float(np.mean(vals))
+                max_abs_dev = float(np.max(np.abs(np.asarray(vals, dtype=float) - 1.0)))
+                return mean, max_abs_dev
+
+            home_scales = gr_scales.get("home_q") if "home_q" in gr_scales else gr_scales.get("home")
+            away_scales = gr_scales.get("away_q") if "away_q" in gr_scales else gr_scales.get("away")
+            gr_home_scale_mean, gr_home_scale_max_abs_dev = _scale_stats(home_scales)
+            gr_away_scale_mean, gr_away_scale_max_abs_dev = _scale_stats(away_scales)
+
+            try:
+                gr_warnings = guard.get("warnings")
+                if isinstance(gr_warnings, list):
+                    gr_warnings = ";".join([str(x) for x in gr_warnings if str(x or "").strip()])
+                else:
+                    gr_warnings = str(gr_warnings or "")
+            except Exception:
+                gr_warnings = ""
+
             # Per-player rows for the merged set (both teams)
             for team_tri, act_df, sim_df in [(htri, act_home, home_box), (atri, act_away, away_box)]:
                 if act_df.empty or sim_df.empty:
                     continue
                 mm = act_df.merge(sim_df, on="player_key", how="outer", suffixes=("_act", "_sim"))
                 for _, rr in mm.iterrows():
+                    def _clean_name(x: Any) -> str:
+                        try:
+                            if x is None:
+                                return ""
+                            if isinstance(x, float) and np.isnan(x):
+                                return ""
+                            s = str(x).strip()
+                            return "" if s.lower() == "nan" else s
+                        except Exception:
+                            return ""
+
+                    name = _clean_name(rr.get("player_name_act")) or _clean_name(rr.get("player_name_sim"))
                     player_rows.append(
                         {
                             "date": d.isoformat(),
                             "game_id": gid,
                             "team": team_tri,
-                            "player_name": str(rr.get("player_name_act") or rr.get("player_name_sim") or "").strip(),
+                            "player_name": name,
                             "min_act": float(rr.get("min_act") or 0.0),
                             "min_sim": float(rr.get("min_sim") or 0.0),
                             "pts_act": float(rr.get("pts_act") or 0.0),
@@ -650,9 +844,106 @@ def main() -> int:
                     "away_min_mae_topk": away_metrics["min_mae_topk"],
                     "home_pts_mae_topk": home_metrics["pts_mae_topk"],
                     "away_pts_mae_topk": away_metrics["pts_mae_topk"],
+                    "home_reb_mae_topk": home_metrics.get("reb_mae_topk"),
+                    "away_reb_mae_topk": away_metrics.get("reb_mae_topk"),
+                    "home_ast_mae_topk": home_metrics.get("ast_mae_topk"),
+                    "away_ast_mae_topk": away_metrics.get("ast_mae_topk"),
+                    "home_threes_mae_topk": home_metrics.get("threes_mae_topk"),
+                    "away_threes_mae_topk": away_metrics.get("threes_mae_topk"),
+                    "home_tov_mae_topk": home_metrics.get("tov_mae_topk"),
+                    "away_tov_mae_topk": away_metrics.get("tov_mae_topk"),
                     "home_min_corr_topk": home_metrics["min_corr"],
                     "away_min_corr_topk": away_metrics["min_corr"],
                     "sim_pathology_30min_zerostat": sim_path,
+                    "event_level_enabled": int(bool(getattr(args, "event_level", False))),
+                    "event_level_used": int(bool(((sim.get("diagnostics") or {}).get("event_level") or {}).get("used"))),
+                    "event_level_error": str(((sim.get("diagnostics") or {}).get("event_level") or {}).get("error") or ""),
+                    "guard_enabled": int(bool(gr_enabled)),
+                    "guard_mode": gr_mode,
+                    "guard_alpha": gr_alpha,
+                    "guard_max_scale": gr_max_scale,
+                    "guard_pre_total_mu": gr_pre_total_mu,
+                    "guard_post_total_mu": gr_post_total_mu,
+                    "guard_pre_margin_mu": gr_pre_margin_mu,
+                    "guard_post_margin_mu": gr_post_margin_mu,
+                    "guard_total_mu_shift": gr_total_mu_shift,
+                    "guard_margin_mu_shift": gr_margin_mu_shift,
+                    "guard_home_scale_mean": gr_home_scale_mean,
+                    "guard_away_scale_mean": gr_away_scale_mean,
+                    "guard_home_scale_max_abs_dev": gr_home_scale_max_abs_dev,
+                    "guard_away_scale_max_abs_dev": gr_away_scale_max_abs_dev,
+                    "guard_warnings": gr_warnings,
+                    "home_team_fga_abs_err": home_fga_abs_err,
+                    "away_team_fga_abs_err": away_fga_abs_err,
+                    "home_team_fg3a_abs_err": home_fg3a_abs_err,
+                    "away_team_fg3a_abs_err": away_fg3a_abs_err,
+                    "home_team_fta_abs_err": home_fta_abs_err,
+                    "away_team_fta_abs_err": away_fta_abs_err,
+                    "home_team_tov_abs_err": home_tov_abs_err,
+                    "away_team_tov_abs_err": away_tov_abs_err,
+                    # Diagnostics to help slice failures.
+                    "home_minutes_source": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_source"),
+                    "away_minutes_source": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_source"),
+                    "home_minutes_total_raw": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_total_raw"),
+                    "away_minutes_total_raw": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_total_raw"),
+                    "home_minutes_total_sim": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_total_sim"),
+                    "away_minutes_total_sim": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_total_sim"),
+                    "home_minutes_prior_coverage": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_prior_coverage"),
+                    "away_minutes_prior_coverage": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_prior_coverage"),
+                    "home_minutes_expected_coverage": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_expected_coverage"),
+                    "away_minutes_expected_coverage": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_expected_coverage"),
+                    "home_minutes_expected_asof_max": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_expected_asof_max"),
+                    "away_minutes_expected_asof_max": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_expected_asof_max"),
+                    "home_minutes_signal_n": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_signal_n"),
+                    "away_minutes_signal_n": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_signal_n"),
+                    "home_minutes_prior_divergence": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_prior_divergence"),
+                    "away_minutes_prior_divergence": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_prior_divergence"),
+                    "home_minutes_prior_divergence0": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_prior_divergence0"),
+                    "away_minutes_prior_divergence0": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_prior_divergence0"),
+                    "home_dtd_n": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("dtd_n"),
+                    "away_dtd_n": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("dtd_n"),
+                    "home_minutes_top3_share": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_top3_share"),
+                    "away_minutes_top3_share": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_top3_share"),
+                    "home_minutes_top5_share": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_top5_share"),
+                    "away_minutes_top5_share": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_top5_share"),
+                    "home_minutes_flatten_p": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("minutes_flatten_p"),
+                    "away_minutes_flatten_p": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("minutes_flatten_p"),
+                    "home_rotation_shock_shortfall": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("rotation_shock_shortfall"),
+                    "away_rotation_shock_shortfall": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("rotation_shock_shortfall"),
+                    "home_garbage_time_alpha": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_alpha"),
+                    "away_garbage_time_alpha": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_alpha"),
+                    "home_garbage_time_p_abs": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_p_abs"),
+                    "away_garbage_time_p_abs": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_p_abs"),
+                    "home_garbage_time_p_home_win_big": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_p_home_win_big"),
+                    "away_garbage_time_p_home_win_big": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_p_home_win_big"),
+                    "home_garbage_time_p_away_win_big": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_p_away_win_big"),
+                    "away_garbage_time_p_away_win_big": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_p_away_win_big"),
+                    "home_garbage_time_top3_share_sim": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_top3_share_sim"),
+                    "away_garbage_time_top3_share_sim": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_top3_share_sim"),
+                    "home_garbage_time_shift_minutes": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("garbage_time_shift_minutes"),
+                    "away_garbage_time_shift_minutes": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("garbage_time_shift_minutes"),
+                    # Foul trouble minutes diagnostics.
+                    "home_foul_trouble_alpha": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("foul_trouble_alpha"),
+                    "away_foul_trouble_alpha": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("foul_trouble_alpha"),
+                    "home_foul_trouble_pf_coverage": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("foul_trouble_pf_coverage"),
+                    "away_foul_trouble_pf_coverage": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("foul_trouble_pf_coverage"),
+                    "home_foul_trouble_p_ge5_max": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("foul_trouble_p_ge5_max"),
+                    "away_foul_trouble_p_ge5_max": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("foul_trouble_p_ge5_max"),
+                    "home_foul_trouble_shift_minutes": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("foul_trouble_shift_minutes"),
+                    "away_foul_trouble_shift_minutes": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("foul_trouble_shift_minutes"),
+                    "home_foul_trouble_whistle": ((sim.get("diagnostics") or {}).get("home_minutes") or {}).get("foul_trouble_whistle"),
+                    "away_foul_trouble_whistle": ((sim.get("diagnostics") or {}).get("away_minutes") or {}).get("foul_trouble_whistle"),
+                    "home_points_entropy": (sim.get("diagnostics") or {}).get("home_points_entropy"),
+                    "away_points_entropy": (sim.get("diagnostics") or {}).get("away_points_entropy"),
+                    # Correlated scoring variance diagnostics.
+                    "scoring_corr_enabled": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("enabled"),
+                    "scoring_corr_alpha": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("alpha"),
+                    "scoring_corr_env_sigma": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("env_sigma"),
+                    "scoring_corr_rel_sigma": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("rel_sigma"),
+                    "scoring_corr_home_mult_std": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("home_mult_std"),
+                    "scoring_corr_away_mult_std": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("away_mult_std"),
+                    "scoring_corr_clipped_frac": ((sim.get("diagnostics") or {}).get("scoring_correlation") or {}).get("clipped_frac"),
+                    "used_target_rep": (sim.get("diagnostics") or {}).get("used_target_rep"),
                     "warnings": ";".join((sim.get("diagnostics") or {}).get("warnings") or []),
                 }
             )
@@ -675,14 +966,42 @@ def main() -> int:
         def _m(col: str) -> float:
             return float(pd.to_numeric(games_df.get(col), errors="coerce").mean())
 
+        def _frac_nonempty(col: str) -> float:
+            try:
+                s = games_df.get(col)
+                if s is None:
+                    return 0.0
+                ss = s.astype(str).fillna("").str.strip()
+                return float((ss != "").mean())
+            except Exception:
+                return 0.0
+
         summary["means"] = {
             "home_min_mae_topk": _m("home_min_mae_topk"),
             "away_min_mae_topk": _m("away_min_mae_topk"),
             "home_pts_mae_topk": _m("home_pts_mae_topk"),
             "away_pts_mae_topk": _m("away_pts_mae_topk"),
+            "home_reb_mae_topk": _m("home_reb_mae_topk"),
+            "away_reb_mae_topk": _m("away_reb_mae_topk"),
+            "home_ast_mae_topk": _m("home_ast_mae_topk"),
+            "away_ast_mae_topk": _m("away_ast_mae_topk"),
+            "home_threes_mae_topk": _m("home_threes_mae_topk"),
+            "away_threes_mae_topk": _m("away_threes_mae_topk"),
+            "home_tov_mae_topk": _m("home_tov_mae_topk"),
+            "away_tov_mae_topk": _m("away_tov_mae_topk"),
             "home_min_corr_topk": _m("home_min_corr_topk"),
             "away_min_corr_topk": _m("away_min_corr_topk"),
             "sim_pathology_30min_zerostat": float(pd.to_numeric(games_df.get("sim_pathology_30min_zerostat"), errors="coerce").fillna(0).sum()),
+            "event_level_used_frac": _m("event_level_used"),
+            "event_level_error_frac": _frac_nonempty("event_level_error"),
+            "home_team_fga_abs_err": _m("home_team_fga_abs_err"),
+            "away_team_fga_abs_err": _m("away_team_fga_abs_err"),
+            "home_team_fg3a_abs_err": _m("home_team_fg3a_abs_err"),
+            "away_team_fg3a_abs_err": _m("away_team_fg3a_abs_err"),
+            "home_team_fta_abs_err": _m("home_team_fta_abs_err"),
+            "away_team_fta_abs_err": _m("away_team_fta_abs_err"),
+            "home_team_tov_abs_err": _m("home_team_tov_abs_err"),
+            "away_team_tov_abs_err": _m("away_team_tov_abs_err"),
         }
 
     out_json.write_text(json.dumps(summary, indent=2), encoding="utf-8")

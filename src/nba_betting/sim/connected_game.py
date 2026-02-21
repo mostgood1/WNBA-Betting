@@ -26,6 +26,180 @@ def _read_processed_any(parquet_path, csv_path) -> pd.DataFrame:
     return pd.DataFrame()
 
 
+def _merge_pregame_expected_minutes(props_df: Any, date_str: Optional[str]) -> Any:
+    """Best-effort merge of pregame expected minutes + starters into props_df.
+
+    Expected artifact (if present):
+      data/processed/pregame_expected_minutes_YYYY-MM-DD.(csv|parquet)
+
+    Canonical columns after merge:
+      - exp_min_mean, exp_min_sd, exp_min_cap, is_starter, exp_asof_ts, exp_min_source
+
+    This function is intentionally tolerant: if files/cols are missing, returns props_df unchanged.
+    """
+    if props_df is None or not isinstance(props_df, pd.DataFrame) or props_df.empty:
+        return props_df
+    ds = str(date_str or "").strip()
+    if not ds:
+        return props_df
+
+    exp = pd.DataFrame()
+    try:
+        # Canonical location is data/processed/, but during development/backtests we may keep
+        # expected-minutes artifacts in backup folders.
+        candidate_dirs = [
+            paths.data_processed,
+            paths.data_processed / "_bak_expected_minutes_eval",
+            paths.data_processed / "_bak_expected_minutes",
+        ]
+        for base in candidate_dirs:
+            try:
+                p_csv = base / f"pregame_expected_minutes_{ds}.csv"
+                p_pq = base / f"pregame_expected_minutes_{ds}.parquet"
+                exp = _read_processed_any(p_pq, p_csv)
+                if isinstance(exp, pd.DataFrame) and not exp.empty:
+                    break
+            except Exception:
+                continue
+    except Exception:
+        exp = pd.DataFrame()
+
+    if exp is None or exp.empty:
+        return props_df
+
+    try:
+        exp = exp.copy()
+        # Normalize team
+        team_col = None
+        for c in ("team_tri", "team", "team_abbr", "team_tricode"):
+            if c in exp.columns:
+                team_col = c
+                break
+        if team_col:
+            exp[team_col] = exp[team_col].astype(str).str.upper().str.strip()
+        # Normalize player id
+        pid_col = None
+        for c in ("player_id", "PLAYER_ID"):
+            if c in exp.columns:
+                pid_col = c
+                break
+        if pid_col:
+            exp[pid_col] = exp[pid_col].map(_clean_id_str)
+
+        # Canonicalize minutes columns
+        col_map = {}
+        for src, dst in (
+            ("exp_min_mean", "exp_min_mean"),
+            ("expected_min", "exp_min_mean"),
+            ("expected_minutes", "exp_min_mean"),
+            ("proj_min", "exp_min_mean"),
+            ("exp_min", "exp_min_mean"),
+            ("exp_min_sd", "exp_min_sd"),
+            ("expected_min_sd", "exp_min_sd"),
+            ("exp_min_cap", "exp_min_cap"),
+            ("expected_min_cap", "exp_min_cap"),
+            ("is_starter", "is_starter"),
+            ("starter", "is_starter"),
+            ("asof_ts", "exp_asof_ts"),
+            ("report_ts", "exp_asof_ts"),
+            ("source", "exp_min_source"),
+        ):
+            if src in exp.columns and dst not in exp.columns:
+                col_map[src] = dst
+        if col_map:
+            exp = exp.rename(columns=col_map)
+
+        # Ensure canonical columns exist
+        for c in ("exp_min_mean", "exp_min_sd", "exp_min_cap", "is_starter", "exp_asof_ts", "exp_min_source"):
+            if c not in exp.columns:
+                exp[c] = None
+
+        # Only merge *trusted* expected-minutes into props_df.
+        # Low-trust sources (history backfills / baseline fillers) are still loaded elsewhere
+        # for diagnostics and optional soft usage, but merging them here can perturb props
+        # pool dedup/selection even when we don't use exp minutes for simulation.
+        try:
+            s = exp.get("exp_min_source").astype(str).str.strip().str.lower().fillna("")
+            is_baseline = s.str.startswith("baseline:")
+            is_history = s.str.contains("rotations_espn_history", regex=False)
+            exp = exp[(~is_baseline) & (~is_history)].copy()
+        except Exception:
+            pass
+
+        if exp is None or exp.empty:
+            return props_df
+
+        # Merge keys: prefer (team, player_id), else (team, name_key)
+        base = props_df.copy()
+        if "team" in base.columns:
+            base["team"] = base["team"].astype(str).str.upper().str.strip()
+
+        use_team = "team" if ("team" in base.columns) else None
+        exp_team = team_col if team_col else None
+
+        # Prepare exp slice: keep latest asof_ts per (team, player)
+        try:
+            if "exp_asof_ts" in exp.columns:
+                exp["_exp_asof_dt"] = pd.to_datetime(exp.get("exp_asof_ts"), errors="coerce")
+            else:
+                exp["_exp_asof_dt"] = pd.NaT
+        except Exception:
+            exp["_exp_asof_dt"] = pd.NaT
+
+        if pid_col and "player_id" in base.columns:
+            try:
+                base["player_id"] = base["player_id"].map(_clean_id_str)
+            except Exception:
+                pass
+            exp2 = exp.copy()
+            try:
+                exp2["player_id"] = exp2[pid_col].map(_clean_id_str)
+            except Exception:
+                exp2["player_id"] = exp2.get(pid_col)
+            keys = [k for k in (use_team, "player_id") if k]
+            if exp_team and exp_team != use_team and exp_team in exp2.columns and use_team:
+                exp2[use_team] = exp2[exp_team].astype(str).str.upper().str.strip()
+            if keys:
+                try:
+                    exp2 = exp2.sort_values(["_exp_asof_dt"], ascending=True)
+                except Exception:
+                    pass
+                exp2 = exp2.drop_duplicates(subset=keys, keep="last")
+                base = base.merge(
+                    exp2[keys + ["exp_min_mean", "exp_min_sd", "exp_min_cap", "is_starter", "exp_asof_ts", "exp_min_source"]],
+                    on=keys,
+                    how="left",
+                )
+                return base
+
+        # Fallback: merge on normalized player name key.
+        if "player_name" in base.columns and ("player_name" in exp.columns or "name" in exp.columns or "PLAYER_NAME" in exp.columns):
+            exp_name_col = "player_name" if "player_name" in exp.columns else ("name" if "name" in exp.columns else ("PLAYER_NAME" if "PLAYER_NAME" in exp.columns else None))
+            if exp_name_col:
+                exp2 = exp.copy()
+                base["_pkey"] = base["player_name"].map(_norm_player_key)
+                exp2["_pkey"] = exp2[exp_name_col].astype(str).map(_norm_player_key)
+                if exp_team and exp_team in exp2.columns and use_team:
+                    exp2[use_team] = exp2[exp_team].astype(str).str.upper().str.strip()
+                keys = [k for k in (use_team, "_pkey") if k]
+                try:
+                    exp2 = exp2.sort_values(["_exp_asof_dt"], ascending=True)
+                except Exception:
+                    pass
+                exp2 = exp2.drop_duplicates(subset=keys, keep="last")
+                base = base.merge(
+                    exp2[keys + ["exp_min_mean", "exp_min_sd", "exp_min_cap", "is_starter", "exp_asof_ts", "exp_min_source"]],
+                    on=keys,
+                    how="left",
+                )
+                base = base.drop(columns=["_pkey"], errors="ignore")
+                return base
+    except Exception:
+        return props_df
+
+    return props_df
+
+
 def _clean_id_str(x: Any) -> str:
     try:
         s = str(x or "").strip()
@@ -389,10 +563,15 @@ def _apply_lineup_teammate_effects_to_priors(
     return _set_diag(out, attempted=True, applied=(nudges > 0), mapped_players=mapped_n, nudges=int(nudges), max_abs_mult_delta=float(max_abs_mult_delta))
 
 
-def _load_rotation_first_sub_priors() -> dict[str, float]:
+def _load_rotation_first_sub_priors() -> dict[str, dict[str, Any]]:
     """Load team-level first bench sub-in timing priors (seconds elapsed in Q1).
 
     File is written by nba_betting.rotation_priors.write_rotation_priors().
+
+    Returns a dict keyed by team tricode. Values contain:
+      - elapsed_sec_mean (float)
+      - top_enter_player_name (str | None)
+      - top_enter_share (float | None)
     """
     p = paths.data_processed / "rotation_priors_first_bench_sub_in.csv"
     if not p.exists():
@@ -403,12 +582,29 @@ def _load_rotation_first_sub_priors() -> dict[str, float]:
             return {}
         if "team" not in df.columns or "elapsed_sec_mean" not in df.columns:
             return {}
-        out: dict[str, float] = {}
+        out: dict[str, dict[str, Any]] = {}
         for _, r in df.iterrows():
             team = str(r.get("team") or "").strip().upper()
             v = pd.to_numeric(r.get("elapsed_sec_mean"), errors="coerce")
-            if team and np.isfinite(v):
-                out[team] = float(v)
+            if not team or not np.isfinite(v):
+                continue
+
+            top_name = None
+            try:
+                tn = str(r.get("top_enter_player_name") or "").strip()
+                if tn:
+                    top_name = tn
+            except Exception:
+                top_name = None
+
+            top_share = pd.to_numeric(r.get("top_enter_share"), errors="coerce")
+            top_share_f = float(top_share) if top_share is not None and np.isfinite(top_share) else None
+
+            out[team] = {
+                "elapsed_sec_mean": float(v),
+                "top_enter_player_name": top_name,
+                "top_enter_share": top_share_f,
+            }
         return out
     except Exception:
         return {}
@@ -711,7 +907,7 @@ def simulate_connected_game(
     home_roster: Optional[List[str]] = None,
     away_roster: Optional[List[str]] = None,
     minutes_priors: Optional[Dict[Tuple[str, str], float]] = None,
-    player_priors: Optional[Dict[Tuple[str, str], Dict[str, float]]] = None,
+    player_priors: Optional[Any] = None,
     minutes_lookback_days: int = 21,
     n_samples: int = 1500,
     seed: Optional[int] = None,
@@ -721,7 +917,17 @@ def simulate_connected_game(
     rotation_priors: Optional[Dict[str, float]] = None,
     date_str: Optional[str] = None,
     use_lineup_teammate_effects: bool = True,
-    use_event_level_sim: bool = True,
+    use_event_level_sim: bool = False,
+    hist_exp_blend_alpha: float = 0.0,
+    hist_exp_blend_max_cov: float = 0.67,
+    coach_rotation_alpha: float = 0.0,
+    rotation_shock_alpha: float = 0.0,
+    garbage_time_alpha: float = 0.0,
+    correlated_scoring_alpha: float = 0.0,
+    foul_trouble_alpha: float = 0.0,
+    guardrail_priors: Optional[Dict[str, Any]] = None,
+    guardrail_alpha: float = 0.0,
+    guardrail_max_scale: float = 0.10,
 ) -> Dict[str, Any]:
     """Connected simulation: quarter team points + player box scores share the same scoring totals.
 
@@ -730,6 +936,102 @@ def simulate_connected_game(
     - Generates a representative single-game box score (median margin) and also returns means.
     """
     rng = np.random.default_rng(seed)
+
+    # Event-level sim is explicitly opt-in. Only a boolean True (or np.bool_) enables it;
+    # this prevents accidental enablement via truthy strings/ints.
+    use_event_level_sim = bool(use_event_level_sim) if isinstance(use_event_level_sim, (bool, np.bool_)) else False
+
+    # Optional pregame expected minutes + starters. If present, it becomes the highest-priority
+    # minutes signal (ahead of roll mins) for connected minutes allocation.
+    try:
+        props_df = _merge_pregame_expected_minutes(props_df, date_str=date_str)
+    except Exception:
+        pass
+
+    # Also load the expected-minutes artifact for use when roster restriction/augmentation
+    # rebuilds players not present in the props pool.
+    expected_minutes_art = pd.DataFrame()
+    try:
+        ds = str(date_str or "").strip()
+        if ds:
+            candidate_dirs = [
+                paths.data_processed,
+                paths.data_processed / "_bak_expected_minutes_eval",
+                paths.data_processed / "_bak_expected_minutes",
+            ]
+            for base in candidate_dirs:
+                try:
+                    p_csv = base / f"pregame_expected_minutes_{ds}.csv"
+                    p_pq = base / f"pregame_expected_minutes_{ds}.parquet"
+                    expected_minutes_art = _read_processed_any(p_pq, p_csv)
+                    if isinstance(expected_minutes_art, pd.DataFrame) and not expected_minutes_art.empty:
+                        break
+                except Exception:
+                    continue
+
+        if isinstance(expected_minutes_art, pd.DataFrame) and not expected_minutes_art.empty:
+            expected_minutes_art = expected_minutes_art.copy()
+            # Normalize team
+            team_col = None
+            for c in ("team_tri", "team", "team_abbr", "team_tricode"):
+                if c in expected_minutes_art.columns:
+                    team_col = c
+                    break
+            if team_col:
+                expected_minutes_art["team"] = expected_minutes_art[team_col].astype(str).str.upper().str.strip()
+            else:
+                expected_minutes_art["team"] = None
+
+            # Normalize name key
+            name_col = None
+            for c in ("player_name", "name", "PLAYER_NAME"):
+                if c in expected_minutes_art.columns:
+                    name_col = c
+                    break
+            if name_col:
+                expected_minutes_art["_pkey"] = expected_minutes_art[name_col].astype(str).map(_norm_player_key)
+            else:
+                expected_minutes_art["_pkey"] = ""
+
+            # Canonicalize expected-minutes columns (best-effort)
+            col_map = {}
+            for src, dst in (
+                ("exp_min_mean", "exp_min_mean"),
+                ("expected_min", "exp_min_mean"),
+                ("expected_minutes", "exp_min_mean"),
+                ("proj_min", "exp_min_mean"),
+                ("exp_min", "exp_min_mean"),
+                ("exp_min_sd", "exp_min_sd"),
+                ("expected_min_sd", "exp_min_sd"),
+                ("exp_min_cap", "exp_min_cap"),
+                ("expected_min_cap", "exp_min_cap"),
+                ("is_starter", "is_starter"),
+                ("starter", "is_starter"),
+                ("asof_ts", "exp_asof_ts"),
+                ("report_ts", "exp_asof_ts"),
+                ("source", "exp_min_source"),
+            ):
+                if src in expected_minutes_art.columns and dst not in expected_minutes_art.columns:
+                    col_map[src] = dst
+            if col_map:
+                expected_minutes_art = expected_minutes_art.rename(columns=col_map)
+            for c in ("exp_min_mean", "exp_min_sd", "exp_min_cap", "is_starter", "exp_asof_ts", "exp_min_source"):
+                if c not in expected_minutes_art.columns:
+                    expected_minutes_art[c] = None
+
+            try:
+                expected_minutes_art["_asof_dt"] = pd.to_datetime(expected_minutes_art.get("exp_asof_ts"), errors="coerce")
+            except Exception:
+                expected_minutes_art["_asof_dt"] = pd.NaT
+
+            # Keep latest per (team, player_key)
+            try:
+                expected_minutes_art = expected_minutes_art.sort_values(["_asof_dt"], ascending=True)
+            except Exception:
+                pass
+            expected_minutes_art = expected_minutes_art.drop_duplicates(subset=["team", "_pkey"], keep="last")
+    except Exception:
+        expected_minutes_art = pd.DataFrame()
 
     rotation_first_sub = rotation_priors if isinstance(rotation_priors, dict) else None
     if rotation_first_sub is None:
@@ -794,6 +1096,307 @@ def simulate_connected_game(
             t_away_total = None
 
     home_q, away_q = sample_quarter_scores(quarters, n_samples=int(n_samples), rng=rng, round_to_int=True)
+
+    # Optional: correlated scoring variance.
+    # Add a per-sample latent factor that:
+    #   - Moves both teams in the same direction (shared "environment": pace/whistle/shooting)
+    #   - Moves teams in opposite directions (relative "strength": one side runs hot, the other cold)
+    # This increases tails and induces realistic intra-game correlation while preserving the mean
+    # (lognormal with mean 1.0).
+    try:
+        corr_alpha = float(correlated_scoring_alpha or 0.0)
+    except Exception:
+        corr_alpha = 0.0
+    corr_alpha = float(np.clip(corr_alpha, 0.0, 1.0))
+
+    scoring_corr_diag: Dict[str, Any] = {
+        "enabled": bool(corr_alpha > 0.0),
+        "alpha": float(corr_alpha),
+        "env_sigma": 0.0,
+        "rel_sigma": 0.0,
+        "home_mult_mean": None,
+        "away_mult_mean": None,
+        "home_mult_std": None,
+        "away_mult_std": None,
+        "clipped_frac": None,
+    }
+
+    # Optional: model guardrails (soft anchoring of quarter samples to model priors).
+    # Default is OFF (alpha=0.0). When enabled, this gently scales the sampled quarter
+    # points so the aggregate mean (and optionally per-quarter means) do not drift far
+    # from the model priors provided by the caller.
+    guard_diag: Dict[str, Any] = {
+        "enabled": False,
+        "alpha": None,
+        "max_scale": None,
+        "mode": None,
+        "priors": {},
+        "pre": {},
+        "post": {},
+        "scales": {},
+        "warnings": [],
+    }
+    try:
+        gr_alpha = float(guardrail_alpha or 0.0)
+    except Exception:
+        gr_alpha = 0.0
+    gr_alpha = float(np.clip(gr_alpha, 0.0, 1.0))
+    try:
+        gr_max_scale = float(guardrail_max_scale if guardrail_max_scale is not None else 0.10)
+    except Exception:
+        gr_max_scale = 0.10
+    gr_max_scale = float(np.clip(gr_max_scale, 0.0, 0.50))
+    priors = guardrail_priors if isinstance(guardrail_priors, dict) else None
+    guard_diag["alpha"] = float(gr_alpha)
+    guard_diag["max_scale"] = float(gr_max_scale)
+
+    def _gr_warn(msg: str) -> None:
+        try:
+            if msg and msg not in (guard_diag.get("warnings") or []):
+                (guard_diag["warnings"] if isinstance(guard_diag.get("warnings"), list) else []).append(msg)
+        except Exception:
+            pass
+
+    def _pick_prior_num(d: Dict[str, Any], keys: Tuple[str, ...]) -> float | None:
+        for k in keys:
+            try:
+                v = _to_num(d.get(k))
+                if v is not None and np.isfinite(float(v)):
+                    return float(v)
+            except Exception:
+                continue
+        return None
+
+    def _solve_home_away_targets(
+        pre_home_mu: float,
+        pre_away_mu: float,
+        total_tgt: float | None,
+        margin_tgt: float | None,
+    ) -> Tuple[float | None, float | None]:
+        # Convert (total, margin) → (home, away). If one is missing, preserve the
+        # pre-sample split as much as possible.
+        try:
+            pre_total = float(pre_home_mu + pre_away_mu)
+            if total_tgt is not None and np.isfinite(float(total_tgt)):
+                t = float(total_tgt)
+            else:
+                t = float(pre_total)
+            if margin_tgt is not None and np.isfinite(float(margin_tgt)):
+                m = float(margin_tgt)
+                h = 0.5 * (t + m)
+                a = 0.5 * (t - m)
+            else:
+                # Preserve home share of total from the sampled distribution.
+                h_share = float(pre_home_mu / max(1e-6, pre_total)) if pre_total > 0 else 0.5
+                h_share = float(np.clip(h_share, 0.05, 0.95))
+                h = float(t * h_share)
+                a = float(max(0.0, t - h))
+            if not np.isfinite(h) or not np.isfinite(a) or h < 0 or a < 0:
+                return None, None
+            return float(h), float(a)
+        except Exception:
+            return None, None
+
+    def _clip_scale(ratio: float) -> float:
+        try:
+            r = float(ratio)
+            if not np.isfinite(r) or r <= 0:
+                return 1.0
+            lo = 1.0 - float(gr_max_scale)
+            hi = 1.0 + float(gr_max_scale)
+            return float(np.clip(r, lo, hi))
+        except Exception:
+            return 1.0
+
+    def _scale_quarters_int(q_int: np.ndarray, mult: np.ndarray) -> np.ndarray:
+        q_int = np.asarray(q_int, dtype=int)
+        mult = np.asarray(mult, dtype=float)
+        if q_int.ndim != 2 or q_int.shape[0] == 0:
+            return q_int
+        n_samp = int(q_int.shape[0])
+        n_q = int(q_int.shape[1])
+        out = np.zeros_like(q_int, dtype=int)
+        for i in range(n_samp):
+            m = float(mult[i]) if i < int(mult.size) else 1.0
+            if not np.isfinite(m) or m <= 0:
+                out[i] = q_int[i]
+                continue
+            qf = np.maximum(0.0, q_int[i].astype(float) * m)
+            tgt = int(round(float(np.sum(qf))))
+            floors = np.floor(qf).astype(int)
+            rema = qf - floors
+            vals = floors.copy()
+            cur = int(np.sum(vals))
+            if cur < tgt:
+                need = int(tgt - cur)
+                order = np.argsort(-rema)
+                k = 0
+                while need > 0 and k < 2000:
+                    vals[int(order[k % n_q])] += 1
+                    need -= 1
+                    k += 1
+            elif cur > tgt:
+                need = int(cur - tgt)
+                order = np.argsort(rema)
+                k = 0
+                while need > 0 and k < 2000:
+                    j = int(order[k % n_q])
+                    if vals[j] > 0:
+                        vals[j] -= 1
+                        need -= 1
+                    k += 1
+            out[i] = np.maximum(0, vals)
+        return out
+
+    if corr_alpha > 0.0:
+        try:
+            n0 = int(home_q.shape[0])
+            # Small sigmas: keep the feature safe by default.
+            env_sigma = float(0.060 * corr_alpha)
+            rel_sigma = float(0.045 * corr_alpha)
+            scoring_corr_diag["env_sigma"] = float(env_sigma)
+            scoring_corr_diag["rel_sigma"] = float(rel_sigma)
+
+            z_env = rng.normal(0.0, 1.0, size=n0)
+            z_rel = rng.normal(0.0, 1.0, size=n0)
+
+            env = np.exp(env_sigma * z_env - 0.5 * (env_sigma**2))
+            rel = np.exp(rel_sigma * z_rel - 0.5 * (rel_sigma**2))
+            home_mult = env * rel
+            away_mult = env / np.maximum(1e-9, rel)
+
+            # Guardrails against pathological multipliers.
+            lo, hi = 0.80, 1.25
+            home_mult_c = np.clip(home_mult, lo, hi)
+            away_mult_c = np.clip(away_mult, lo, hi)
+            clipped_frac = float(
+                np.mean((home_mult != home_mult_c) | (away_mult != away_mult_c))
+            )
+
+            home_q = _scale_quarters_int(home_q, home_mult_c)
+            away_q = _scale_quarters_int(away_q, away_mult_c)
+
+            scoring_corr_diag["home_mult_mean"] = float(np.mean(home_mult_c))
+            scoring_corr_diag["away_mult_mean"] = float(np.mean(away_mult_c))
+            scoring_corr_diag["home_mult_std"] = float(np.std(home_mult_c))
+            scoring_corr_diag["away_mult_std"] = float(np.std(away_mult_c))
+            scoring_corr_diag["clipped_frac"] = float(clipped_frac)
+        except Exception:
+            pass
+
+    # Apply guardrails after correlated-scoring variance so we anchor the final
+    # scoring environment (still before representative sample selection).
+    if gr_alpha > 0.0 and priors and isinstance(home_q, np.ndarray) and isinstance(away_q, np.ndarray):
+        try:
+            guard_diag["enabled"] = True
+
+            # Pre means
+            pre_hq_mu = np.mean(home_q, axis=0).astype(float) if home_q.size else np.zeros(4, dtype=float)
+            pre_aq_mu = np.mean(away_q, axis=0).astype(float) if away_q.size else np.zeros(4, dtype=float)
+            pre_home_mu = float(np.sum(pre_hq_mu))
+            pre_away_mu = float(np.sum(pre_aq_mu))
+            guard_diag["pre"] = {
+                "home_mu": float(pre_home_mu),
+                "away_mu": float(pre_away_mu),
+                "total_mu": float(pre_home_mu + pre_away_mu),
+                "margin_mu": float(pre_home_mu - pre_away_mu),
+                "home_q_mu": [float(x) for x in list(pre_hq_mu)],
+                "away_q_mu": [float(x) for x in list(pre_aq_mu)],
+            }
+
+            # Extract priors
+            pred_total = _pick_prior_num(priors, ("pred_total", "totals", "total_pred"))
+            pred_margin = _pick_prior_num(priors, ("pred_margin", "spread_margin", "margin_pred"))
+            q_totals = []
+            q_margins = []
+            for qi in (1, 2, 3, 4):
+                q_totals.append(_pick_prior_num(priors, (f"quarters_q{qi}_total", f"q{qi}_total", f"quarters_{'q'+str(qi)}_total")))
+                q_margins.append(_pick_prior_num(priors, (f"quarters_q{qi}_margin", f"q{qi}_margin", f"quarters_{'q'+str(qi)}_margin")))
+
+            guard_diag["priors"] = {
+                "pred_total": float(pred_total) if pred_total is not None else None,
+                "pred_margin": float(pred_margin) if pred_margin is not None else None,
+                "quarters_total": [float(x) if x is not None else None for x in q_totals],
+                "quarters_margin": [float(x) if x is not None else None for x in q_margins],
+            }
+
+            have_any_q = any(x is not None for x in q_totals) or any(x is not None for x in q_margins)
+            if have_any_q:
+                guard_diag["mode"] = "quarters"
+                scales_h = []
+                scales_a = []
+                for j in range(4):
+                    pre_h = float(pre_hq_mu[j])
+                    pre_a = float(pre_aq_mu[j])
+                    h_tgt, a_tgt = _solve_home_away_targets(pre_h, pre_a, q_totals[j], q_margins[j])
+
+                    # If only some quarter priors are present, optionally backfill totals/margins from full-game priors.
+                    if (h_tgt is None or a_tgt is None) and (pred_total is not None or pred_margin is not None):
+                        try:
+                            pre_t = float(pre_h + pre_a)
+                            pre_T = float(pre_home_mu + pre_away_mu)
+                            share = float(pre_t / max(1e-6, pre_T)) if pre_T > 0 else 0.25
+                            total_fb = float(pred_total * share) if pred_total is not None else None
+                            # margin share can be negative; scale similarly by absolute share.
+                            margin_fb = float(pred_margin * share) if pred_margin is not None else None
+                            h_tgt, a_tgt = _solve_home_away_targets(pre_h, pre_a, total_fb, margin_fb)
+                        except Exception:
+                            h_tgt, a_tgt = None, None
+
+                    if h_tgt is None or a_tgt is None:
+                        scales_h.append(1.0)
+                        scales_a.append(1.0)
+                        continue
+
+                    # Blend the target toward the prior.
+                    h_blend = float((1.0 - gr_alpha) * pre_h + gr_alpha * float(h_tgt))
+                    a_blend = float((1.0 - gr_alpha) * pre_a + gr_alpha * float(a_tgt))
+
+                    sh = _clip_scale(h_blend / max(1e-6, pre_h)) if pre_h > 0 else 1.0
+                    sa = _clip_scale(a_blend / max(1e-6, pre_a)) if pre_a > 0 else 1.0
+                    scales_h.append(float(sh))
+                    scales_a.append(float(sa))
+
+                    home_q[:, j] = np.maximum(0, np.rint(home_q[:, j].astype(float) * float(sh))).astype(int)
+                    away_q[:, j] = np.maximum(0, np.rint(away_q[:, j].astype(float) * float(sa))).astype(int)
+
+                guard_diag["scales"] = {"home_q": [float(x) for x in scales_h], "away_q": [float(x) for x in scales_a]}
+            elif pred_total is not None or pred_margin is not None:
+                guard_diag["mode"] = "game"
+                pre_home = float(pre_home_mu)
+                pre_away = float(pre_away_mu)
+                h_tgt, a_tgt = _solve_home_away_targets(pre_home, pre_away, pred_total, pred_margin)
+                if h_tgt is not None and a_tgt is not None and pre_home > 0 and pre_away > 0:
+                    h_blend = float((1.0 - gr_alpha) * pre_home + gr_alpha * float(h_tgt))
+                    a_blend = float((1.0 - gr_alpha) * pre_away + gr_alpha * float(a_tgt))
+                    sh = _clip_scale(h_blend / max(1e-6, pre_home))
+                    sa = _clip_scale(a_blend / max(1e-6, pre_away))
+                    home_q = _scale_quarters_int(home_q, np.full(int(home_q.shape[0]), float(sh)))
+                    away_q = _scale_quarters_int(away_q, np.full(int(away_q.shape[0]), float(sa)))
+                    guard_diag["scales"] = {"home": float(sh), "away": float(sa)}
+                else:
+                    _gr_warn("guardrails: could not compute valid home/away targets")
+            else:
+                guard_diag["mode"] = "none"
+
+            # Post means
+            post_hq_mu = np.mean(home_q, axis=0).astype(float) if home_q.size else np.zeros(4, dtype=float)
+            post_aq_mu = np.mean(away_q, axis=0).astype(float) if away_q.size else np.zeros(4, dtype=float)
+            post_home_mu = float(np.sum(post_hq_mu))
+            post_away_mu = float(np.sum(post_aq_mu))
+            guard_diag["post"] = {
+                "home_mu": float(post_home_mu),
+                "away_mu": float(post_away_mu),
+                "total_mu": float(post_home_mu + post_away_mu),
+                "margin_mu": float(post_home_mu - post_away_mu),
+                "home_q_mu": [float(x) for x in list(post_hq_mu)],
+                "away_q_mu": [float(x) for x in list(post_aq_mu)],
+            }
+
+        except Exception as e:
+            guard_diag["enabled"] = False
+            guard_diag["mode"] = "error"
+            _gr_warn(f"guardrails error: {e}")
     n = int(home_q.shape[0])
     if n == 0:
         return {"error": "no samples"}
@@ -803,6 +1406,24 @@ def simulate_connected_game(
     margin = home_final - away_final
 
     total = home_final + away_final
+
+    # Optional: garbage-time/blowout minutes behavior.
+    # Use the sampled final-margin distribution to estimate blowout likelihood.
+    try:
+        gt_alpha = float(garbage_time_alpha or 0.0)
+    except Exception:
+        gt_alpha = 0.0
+    gt_alpha = float(np.clip(gt_alpha, 0.0, 1.0))
+    blow_thr = 18.0
+    try:
+        m = margin.astype(float)
+        p_abs_blow = float(np.mean(np.abs(m) >= blow_thr)) if m.size else 0.0
+        p_home_win_big = float(np.mean(m >= blow_thr)) if m.size else 0.0
+        p_away_win_big = float(np.mean(m <= -blow_thr)) if m.size else 0.0
+    except Exception:
+        p_abs_blow = 0.0
+        p_home_win_big = 0.0
+        p_away_win_big = 0.0
 
     # Pick a representative sample: if a target line is provided, choose a sample close to
     # that target total/margin; otherwise use near-median margin AND near-median total.
@@ -859,8 +1480,8 @@ def simulate_connected_game(
             out = out[out["player_name"].astype(str).str.strip().ne("")]
 
         # If an explicit roster was provided, restrict to those players.
-        # However, be tolerant of mismatches: if the filter would wipe out most rows,
-        # keep the props_df-derived pool to avoid producing nonsense box scores.
+        # We prefer trusting the roster (especially in evaluator/backtests) over props_df,
+        # because props pools can contain stale/traded players that would otherwise steal minutes.
         try:
             roster_names = [(_norm_player_key(x), _norm_name(x)) for x in (roster or []) if _norm_player_key(x)]
             if roster_names and ("player_name" in out.columns) and (not out.empty):
@@ -868,9 +1489,13 @@ def simulate_connected_game(
                 before = int(len(out))
                 filtered = out[out["player_name"].map(_norm_player_key).isin(allowed)].copy()
                 after = int(len(filtered))
-                # Keep restriction only if it still leaves a plausible rotation.
-                if after >= 7 or (before > 0 and (after / before) >= 0.55):
+                # If we matched anyone, keep only matched roster players.
+                # If we matched nobody but roster is non-trivial, drop the props pool entirely;
+                # roster expansion below will rebuild a plausible rotation.
+                if after > 0:
                     out = filtered
+                elif int(len(allowed)) >= 8:
+                    out = out.head(0).copy()
         except Exception:
             pass
 
@@ -892,8 +1517,10 @@ def simulate_connected_game(
             try:
                 out = out.copy()
                 out["_player_norm"] = out["player_name"].map(_norm_player_key)
-                # pick best minutes feature available (based on non-empty data)
-                mins_col = _pick_minutes_col(out, ("pred_min", "roll10_min", "roll5_min", "roll20_min", "roll30_min"))
+                # Pick best minutes feature available (based on non-empty data).
+                # Important: do NOT use exp_min_mean here, because expected-minutes columns
+                # (especially low-trust backfills) can perturb which duplicate row we keep.
+                mins_col = _pick_minutes_col(out, ("roll5_min", "roll10_min", "roll20_min", "roll30_min", "pred_min"))
                 if mins_col:
                     out["_mins"] = pd.to_numeric(out[mins_col], errors="coerce")
                 else:
@@ -914,12 +1541,35 @@ def simulate_connected_game(
             pass
         out = out.reset_index(drop=True)
 
-        # Expand with roster players (no placeholders). Only include roster players with some minutes prior,
-        # unless needed to reach a minimal rotation size.
+        # Expand with roster players (no placeholders).
+        # Important: roster players may be missing from team-keyed priors (e.g., recent trades).
+        # In that case, fall back to a team-agnostic minutes prior by player key.
         try:
             pri = minutes_priors or {}
             team_u = str(team or "").strip().upper()
+            explicit_roster = bool(roster)
             roster_names = [(_norm_player_key(x), _norm_name(x)) for x in (roster or []) if _norm_player_key(x)]
+
+            # Build a team-agnostic minutes prior map for robustness (trades, team-code mismatches).
+            # Use a mean across teams (not max) to avoid inflating newly-added roster players
+            # from their previous team context.
+            pri_any: dict[str, float] = {}
+            try:
+                pri_sum: dict[str, float] = {}
+                pri_cnt: dict[str, int] = {}
+                for (t, nm), m in pri.items():
+                    key = _norm_player_key(nm)
+                    mm = _to_num(m)
+                    if not key or mm is None or mm <= 0:
+                        continue
+                    pri_sum[key] = float(pri_sum.get(key, 0.0)) + float(mm)
+                    pri_cnt[key] = int(pri_cnt.get(key, 0)) + 1
+                for k, s in pri_sum.items():
+                    c = int(pri_cnt.get(k, 0))
+                    if c > 0:
+                        pri_any[k] = float(s) / float(c)
+            except Exception:
+                pri_any = {}
 
             # If roster isn't available, derive a pseudo-roster from minutes priors for this team.
             # This prevents inflating a tiny player pool up to 240 minutes.
@@ -943,9 +1593,13 @@ def simulate_connected_game(
                     pass
 
             # If roster exists but is undersized, augment it from priors.
+            # IMPORTANT: only do this when an explicit roster was NOT provided.
+            # In evaluator/backtests, explicit rosters come from actual logs and should be treated
+            # as authoritative; augmenting from priors can introduce non-participating players
+            # that steal minutes and break realism scoring.
             try:
                 min_roster_target = 10
-                if pri and roster_names and int(len(roster_names)) < min_roster_target:
+                if (not explicit_roster) and pri and roster_names and int(len(roster_names)) < min_roster_target:
                     have = set(k for k, _ in roster_names)
                     cand2: list[tuple[str, float]] = []
                     for (t, nm), m in pri.items():
@@ -972,18 +1626,30 @@ def simulate_connected_game(
             if (not out.empty) and ("player_name" in out.columns) and pri:
                 try:
                     out = out.copy()
-                    out["_prior_min"] = out["player_name"].map(lambda nm: pri.get((team_u, _norm_player_key(nm))))
+                    out["_prior_min"] = out["player_name"].map(
+                        lambda nm: (pri.get((team_u, _norm_player_key(nm))) if pri else None) or (pri_any.get(_norm_player_key(nm)) if pri_any else None)
+                    )
                 except Exception:
                     pass
 
             # Attach broader player priors (rates) if provided.
             try:
-                if (not out.empty) and ("player_name" in out.columns) and player_priors:
+                pp = None
+                if isinstance(player_priors, dict):
+                    pp = player_priors
+                else:
+                    try:
+                        # evaluator may pass PlayerPriors dataclass; use its `.rates` dict
+                        pp = getattr(player_priors, "rates", None)
+                    except Exception:
+                        pp = None
+
+                if (not out.empty) and ("player_name" in out.columns) and pp:
                     out = out.copy()
                     out["_pkey"] = out["player_name"].map(_norm_player_key)
                     def _p(team_key: str, player_key: str, k: str) -> Optional[float]:
                         try:
-                            v = (player_priors.get((team_key, player_key)) or {}).get(k)
+                            v = (pp.get((team_key, player_key)) or {}).get(k)
                             return float(v) if v is not None and np.isfinite(float(v)) else None
                         except Exception:
                             return None
@@ -1018,14 +1684,17 @@ def simulate_connected_game(
                 for key_norm, disp in roster_names:
                     if key_norm in existing:
                         continue
-                    m = pri.get((team_u, key_norm))
-                    if m is None:
-                        continue
+                    m = _to_num((pri.get((team_u, key_norm)) if pri else None) or (pri_any.get(key_norm) if pri_any else None))
+                    # If we have no minutes prior at all, still include the player with a conservative
+                    # minutes signal so they don't vanish from the pool.
+                    if m is None or m <= 0:
+                        m = 2.0
                     additions.append(
                         {
                             "player_name": disp,
                             "team": team_u,
                             # Provide a minutes signal so _attach_sim_minutes can normalize.
+                            # Prefer roll-based minutes selection downstream, so seed roll mins too.
                             "pred_min": float(m),
                             # Very conservative stat priors so these players don't steal usage.
                             "pred_pts": 0.0,
@@ -1077,20 +1746,31 @@ def simulate_connected_game(
                     out = out.copy()
                     if "_prior_min" not in out.columns:
                         out["_prior_min"] = None
-                    mins_map = out["player_name"].map(lambda nm: pri.get((team_u, _norm_player_key(nm))))
+                    mins_map = out["player_name"].map(
+                        lambda nm: (pri.get((team_u, _norm_player_key(nm))) if pri else None) or (pri_any.get(_norm_player_key(nm)) if pri_any else None)
+                    )
                     out["_prior_min"] = pd.to_numeric(out["_prior_min"], errors="coerce")
                     out["_prior_min"] = out["_prior_min"].where(out["_prior_min"].notna(), mins_map)
             except Exception:
                 pass
 
             try:
-                if (not out.empty) and ("player_name" in out.columns) and player_priors:
+                pp = None
+                if isinstance(player_priors, dict):
+                    pp = player_priors
+                else:
+                    try:
+                        pp = getattr(player_priors, "rates", None)
+                    except Exception:
+                        pp = None
+
+                if (not out.empty) and ("player_name" in out.columns) and pp:
                     out = out.copy()
                     out["_pkey"] = out["player_name"].map(_norm_player_key)
 
                     def _p(team_key: str, player_key: str, k: str) -> Optional[float]:
                         try:
-                            v = (player_priors.get((team_key, player_key)) or {}).get(k)
+                            v = (pp.get((team_key, player_key)) or {}).get(k)
                             return float(v) if v is not None and np.isfinite(float(v)) else None
                         except Exception:
                             return None
@@ -1126,6 +1806,40 @@ def simulate_connected_game(
                     out = out.drop(columns=["_pkey"], errors="ignore")
             except Exception:
                 pass
+
+            # After roster augmentation, attach expected minutes for any players missing it.
+            # This matters when the props pool is empty/incorrect for the roster and we rebuild
+            # the rotation from actual logs/priors.
+            try:
+                expa = expected_minutes_art
+                if isinstance(expa, pd.DataFrame) and (not expa.empty) and (not out.empty) and ("player_name" in out.columns) and ("team" in out.columns):
+                    out = out.copy()
+                    out["_pkey"] = out["player_name"].map(_norm_player_key)
+                    exp_cols = [
+                        "team",
+                        "_pkey",
+                        "exp_min_mean",
+                        "exp_min_sd",
+                        "exp_min_cap",
+                        "is_starter",
+                        "exp_asof_ts",
+                        "exp_min_source",
+                    ]
+                    expx = expa[[c for c in exp_cols if c in expa.columns]].copy()
+                    expx = expx[(expx.get("team").astype(str).str.len() > 0) & (expx.get("_pkey").astype(str).str.len() > 0)].copy()
+                    out = out.merge(expx, on=["team", "_pkey"], how="left", suffixes=("", "_exp"))
+                    for c in ("exp_min_mean", "exp_min_sd", "exp_min_cap", "is_starter", "exp_asof_ts", "exp_min_source"):
+                        ce = f"{c}_exp"
+                        if c not in out.columns and ce in out.columns:
+                            out[c] = out[ce]
+                        elif c in out.columns and ce in out.columns:
+                            cur = out[c]
+                            add = out[ce]
+                            out[c] = cur.where(pd.to_numeric(cur, errors="coerce").notna(), add)
+                    out = out.drop(columns=[c for c in out.columns if c.endswith("_exp")], errors="ignore")
+                    out = out.drop(columns=["_pkey"], errors="ignore")
+            except Exception:
+                pass
         except Exception:
             pass
 
@@ -1144,10 +1858,35 @@ def simulate_connected_game(
             "minutes_target": 240.0,
             "fillers_added": 0,
             "players": 0,
+            "minutes_prior_coverage": None,
+            "minutes_prior_divergence": None,
+            "minutes_expected_coverage": None,
+            "minutes_expected_asof_max": None,
             "rotation_first_sub_elapsed_sec_mean": None,
+            "rotation_first_sub_top_enter_name": None,
+            "rotation_first_sub_top_enter_share": None,
+            "rotation_bench_anchor_applied": False,
+            "rotation_bench_anchor_mult": None,
+            "rotation_bench_shape_applied": False,
+            "rotation_bench_shape_p": None,
             "rotation_starter_share_target": None,
             "rotation_starter_share_before": None,
             "rotation_starter_share_after": None,
+            "coach_rotation_alpha": None,
+            "rotation_shock_detected": False,
+            "rotation_shock_divergence": None,
+            "rotation_shock_top5_overlap": None,
+            "rotation_shock_alpha": None,
+            "garbage_time_alpha": float(gt_alpha),
+            "garbage_time_p_abs": float(p_abs_blow),
+            "garbage_time_p_home_win_big": float(p_home_win_big),
+            "garbage_time_p_away_win_big": float(p_away_win_big),
+            "garbage_time_shift_minutes": 0.0,
+            "foul_trouble_alpha": None,
+            "foul_trouble_pf_coverage": None,
+            "foul_trouble_p_ge5_max": None,
+            "foul_trouble_shift_minutes": 0.0,
+            "foul_trouble_whistle": None,
         }
         if players is None or players.empty:
             return players, diag
@@ -1156,44 +1895,529 @@ def simulate_connected_game(
 
         # No placeholder players. If minutes signals are missing, we'll normalize whatever is available.
 
-        mins_col = _pick_minutes_col(players, ("pred_min", "roll10_min", "roll5_min", "roll20_min", "roll30_min"))
-        diag["minutes_source"] = mins_col
-        raw = pd.to_numeric(players.get(mins_col), errors="coerce").fillna(0.0).to_numpy(dtype=float) if mins_col else np.zeros(len(players), dtype=float)
-
-        # If we have priors, fill missing/near-zero minutes from priors.
+        # 1) Pregame expected minutes (if present) can be high-leverage, but some sources are
+        #    low-trust (e.g. backfilled baselines / history-derived approximations). For those,
+        #    only use it to fill players missing the primary minutes signal.
+        # 2) Prefer roll-based minutes over model minutes (pred_min).
+        mins_col = None
+        exp_col = _pick_minutes_col(players, ("exp_min_mean", "expected_min", "expected_minutes", "proj_min", "exp_min"))
+        exp_vals = None
+        exp_ok_mask = None
+        exp_use_mask = None
+        exp_hard_mask = None
+        exp_hist_mask = None
         try:
-            if "_prior_min" in players.columns:
-                pri = pd.to_numeric(players.get("_prior_min"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
-                use = (raw < 1.0) & (pri > 0.0)
-                if bool(np.any(use)):
-                    raw = np.where(use, pri, raw)
-                    diag["minutes_source"] = f"{mins_col or 'none'}+prior"
+            if exp_col and exp_col in players.columns:
+                exp_vals = pd.to_numeric(players.get(exp_col), errors="coerce")
+                exp_ok_mask = np.isfinite(exp_vals.to_numpy(dtype=float)) & (exp_vals.to_numpy(dtype=float) > 0)
+                diag["minutes_expected_coverage"] = float(int(exp_ok_mask.sum())) / max(1.0, float(len(players)))
+        except Exception:
+            exp_vals = None
+            exp_ok_mask = None
+
+        try:
+            if "exp_asof_ts" in players.columns:
+                dt = pd.to_datetime(players.get("exp_asof_ts"), errors="coerce")
+                mx = dt.max()
+                diag["minutes_expected_asof_max"] = str(mx) if pd.notna(mx) else None
         except Exception:
             pass
 
-        # Second fallback: use player_logs-derived minutes mean if provided.
+        # Choose fallback minutes column (roll-based preferred).
+        roll_candidates = ("roll5_min", "roll10_min", "roll20_min", "roll30_min")
+        mins_col = _pick_minutes_col(players, roll_candidates)
+        if mins_col is None:
+            mins_col = _pick_minutes_col(players, ("pred_min",))
+
+        # Extra bias toward roll5_min when it has reasonable coverage.
+        try:
+            if "roll5_min" in players.columns:
+                v5 = pd.to_numeric(players.get("roll5_min"), errors="coerce")
+                ok5 = v5[np.isfinite(v5) & (v5 > 0)]
+                if int(ok5.shape[0]) >= 8:
+                    mins_col = "roll5_min"
+        except Exception:
+            pass
+
+        fb_raw = (
+            pd.to_numeric(players.get(mins_col), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+            if mins_col
+            else np.zeros(len(players), dtype=float)
+        )
+
+        # Determine which expected-minutes rows are eligible to be used.
+        # - Trusted sources: allowed to override per-player minutes signal.
+        # - rotations_espn_history: treat as a soft signal (blend into roll mins).
+        try:
+            if exp_vals is not None and exp_ok_mask is not None:
+                src = players.get("exp_min_source") if isinstance(players, pd.DataFrame) else None
+                if src is not None:
+                    s = src.astype(str).str.strip().str.lower().fillna("")
+                    is_baseline = s.str.startswith("baseline:").to_numpy(dtype=bool)
+                    is_history = s.str.contains("rotations_espn_history", regex=False).to_numpy(dtype=bool)
+                    exp_hard_mask = exp_ok_mask & (~is_baseline) & (~is_history)
+                    exp_hist_mask = exp_ok_mask & is_history
+                else:
+                    exp_hard_mask = exp_ok_mask
+                    exp_hist_mask = np.zeros(int(len(players)), dtype=bool)
+
+                exp_use_mask = exp_hard_mask
+        except Exception:
+            exp_use_mask = None
+            exp_hard_mask = None
+            exp_hist_mask = None
+
+        # Hybrid: allow trusted sources to override per-player signals.
+        # rotations_espn_history is treated as fill-only (only when the primary minutes signal
+        # is missing for that player) to avoid overriding stable roll minutes.
+        using_expected = bool(exp_vals is not None and exp_use_mask is not None and np.any(exp_use_mask))
+        raw = fb_raw
+        if exp_vals is not None and exp_ok_mask is not None:
+            exp_raw = exp_vals.fillna(0.0).to_numpy(dtype=float)
+
+            # Fill-only for rotations history: only for players missing fallback minutes.
+            try:
+                diag["minutes_source"] = mins_col
+                if exp_hist_mask is not None and bool(np.any(exp_hist_mask)):
+                    fb_ok = np.isfinite(fb_raw) & (fb_raw > 0)
+                    hist_fill = exp_hist_mask & (~fb_ok)
+                    if bool(np.any(hist_fill)):
+                        raw = np.where(hist_fill, exp_raw, raw)
+                        diag["minutes_source"] = f"{mins_col or 'none'}+{exp_col}[hist_fill]"
+
+                    # Optional: softly blend rotations-history expected minutes into *bench* players
+                    # when it meaningfully disagrees with recent-roll minutes.
+                    # This is opt-in (alpha=0 by default) to avoid regressions.
+                    try:
+                        a = float(hist_exp_blend_alpha or 0.0)
+                    except Exception:
+                        a = 0.0
+                    if a > 0.0:
+                        a = float(np.clip(a, 0.0, 0.95))
+
+                        # Only activate blending when expected-minutes coverage is not already high.
+                        # (When coverage is high, roll mins are typically stable and blending can regress.)
+                        try:
+                            cov = float(diag.get("minutes_expected_coverage") or 0.0)
+                        except Exception:
+                            cov = 0.0
+                        try:
+                            max_cov = float(hist_exp_blend_max_cov if hist_exp_blend_max_cov is not None else 0.7)
+                        except Exception:
+                            max_cov = 0.67
+                        if not np.isfinite(max_cov):
+                            max_cov = 0.67
+                        if not np.isfinite(cov):
+                            cov = 0.0
+                        if cov > max_cov:
+                            # skip blend
+                            pass
+                        else:
+                            # Only adjust players that look bench-ish by the primary minutes signal.
+                            bench_cutoff = 24.0
+                            # Only adjust when disagreement is material.
+                            diff_cutoff = 6.0
+                            exp_ok = np.isfinite(exp_raw) & (exp_raw > 0)
+                            bench_like = np.isfinite(fb_raw) & (fb_raw > 0) & (fb_raw <= bench_cutoff)
+                            material_diff = np.isfinite(fb_raw) & np.isfinite(exp_raw) & (np.abs(fb_raw - exp_raw) >= diff_cutoff)
+                            hist_blend = exp_hist_mask & fb_ok & exp_ok & bench_like & material_diff
+                            if bool(np.any(hist_blend)):
+                                raw = np.where(hist_blend, (1.0 - a) * raw + a * exp_raw, raw)
+                                tag = f"hist_blend_{a:.2f}".rstrip("0").rstrip(".")
+                                diag["minutes_source"] = f"{diag.get('minutes_source') or (mins_col or 'none')}+{exp_col}[{tag}]"
+                    
+            except Exception:
+                diag["minutes_source"] = mins_col
+
+            # Hard override for trusted sources.
+            if using_expected:
+                raw = np.where(exp_use_mask, exp_raw, raw)
+                diag["minutes_source"] = f"{exp_col}+{diag.get('minutes_source') or (mins_col or 'none')}"
+        else:
+            diag["minutes_source"] = mins_col
+
+        
+        # Track minutes signal coverage for fallback heuristics.
+        try:
+            if exp_vals is not None and exp_use_mask is not None and bool(np.any(exp_use_mask)):
+                diag["minutes_signal_n"] = int(exp_use_mask.sum())
+            elif mins_col and mins_col in players.columns:
+                v = pd.to_numeric(players.get(mins_col), errors="coerce")
+                ok = v[np.isfinite(v) & (v > 0)]
+                diag["minutes_signal_n"] = int(ok.shape[0])
+            else:
+                diag["minutes_signal_n"] = 0
+        except Exception:
+            pass
+
+        # If a team has multiple DAY-TO-DAY flags, minutes are often more uncertain.
+        # Apply a very small flattening of minute shares (team-level, not per-player),
+        # which nudges minutes toward the bench without hard-capping specific players.
+        dtd_n = 0
+        try:
+            if "injury_status" in players.columns:
+                st = players.get("injury_status").astype(str).str.upper().str.strip()
+                dtd_n = int(st.eq("DAY-TO-DAY").sum())
+        except Exception:
+            dtd_n = 0
+
+        # Build an effective prior minutes vector for this roster.
+        # Prefer explicit minutes priors (_prior_min), then fill remaining gaps from broader min_mu priors.
+        pri_eff = np.zeros(len(players), dtype=float)
+        pri_tag = None
+        try:
+            if "_prior_min" in players.columns:
+                pri_eff = pd.to_numeric(players.get("_prior_min"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
+                pri_tag = "prior"
+        except Exception:
+            pri_eff = np.zeros(len(players), dtype=float)
+            pri_tag = None
+
         try:
             if "_prior_min_mu" in players.columns:
                 pri2 = pd.to_numeric(players.get("_prior_min_mu"), errors="coerce").fillna(0.0).to_numpy(dtype=float)
-                use2 = (raw < 1.0) & (pri2 > 0.0)
-                if bool(np.any(use2)):
-                    raw = np.where(use2, pri2, raw)
-                    diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+logs"
+                if pri_tag is None or float(np.sum(pri_eff)) <= 0.0:
+                    pri_eff = pri2
+                    pri_tag = "logs"
+                else:
+                    pri_eff = np.where(pri_eff > 0.0, pri_eff, pri2)
+        except Exception:
+            pass
+
+        try:
+            cov = float(np.mean((pri_eff > 0.0).astype(float))) if pri_eff.size > 0 else 0.0
+            diag["minutes_prior_coverage"] = cov
+        except Exception:
+            pass
+
+        # When expected-minutes coverage is sparse, we are often in a rotation-shock regime
+        # (rest/injuries/blowout), where deep bench players can soak up meaningful minutes.
+        # In that case, flatten minute shares a bit and boost players missing expected minutes.
+        # Prefer priors (when available) for those missing players; otherwise apply a small floor.
+        try:
+            exp_cov = diag.get("minutes_expected_coverage")
+            sig_n = int(diag.get("minutes_signal_n") or 0)
+            if using_expected and exp_ok_mask is not None and exp_cov is not None:
+                exp_cov_f = float(exp_cov)
+                if raw.size >= 10 and sig_n >= 3 and exp_cov_f <= 0.55:
+                    shortfall = max(0.0, (0.55 - exp_cov_f) / 0.55)
+
+                    raw_pos = np.maximum(0.0, np.where(np.isfinite(raw), raw, 0.0))
+                    s = float(np.sum(raw_pos))
+                    if s > 0:
+                        sh = raw_pos / s
+                        # More aggressive flattening when coverage is very low.
+                        p = float(np.clip(0.90 - 0.20 * shortfall, 0.75, 0.90))
+                        sh2 = np.power(np.maximum(1e-12, sh), p)
+                        sh2 = sh2 / float(np.sum(sh2))
+                        raw = sh2 * s
+
+                    miss = (~exp_ok_mask) & (np.isfinite(raw))
+                    if bool(np.any(miss)):
+                        raw = raw.copy()
+                        # Apply a dynamic floor based on roster size to all players missing
+                        # expected minutes. This prevents low priors (or low fallbacks) from
+                        # starving the bench in true rotation-shock games.
+                        avg = 240.0 / float(max(1, raw.size))
+                        floor_uncertain = float(np.clip(max(10.0, 0.90 * avg), 10.0, 18.0))
+                        raw[miss] = np.maximum(raw[miss], floor_uncertain)
+
+                        # If we have priors for missing players, also respect them (useful
+                        # for missing starters like Harden/Zubac).
+                        try:
+                            pri_ok = (pri_eff > 0.0) & np.isfinite(pri_eff)
+                            use_pri = miss & pri_ok
+                            if bool(np.any(use_pri)):
+                                raw[use_pri] = np.maximum(raw[use_pri], pri_eff[use_pri])
+                        except Exception:
+                            pass
+
+                    diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+exp_sparse"
+        except Exception:
+            pass
+
+        exp_sparse_applied = bool(str(diag.get("minutes_source") or "").find("+exp_sparse") >= 0)
+
+        # Rotation-shock tuning knobs (used by multiple downstream heuristics).
+        try:
+            alpha_rs = float(rotation_shock_alpha or 0.0)
+        except Exception:
+            alpha_rs = 0.0
+        alpha_rs = float(np.clip(alpha_rs, 0.0, 1.0))
+        diag["rotation_shock_alpha"] = float(alpha_rs)
+        try:
+            exp_cov = diag.get("minutes_expected_coverage")
+            exp_cov_f = float(exp_cov) if exp_cov is not None and np.isfinite(float(exp_cov)) else None
+        except Exception:
+            exp_cov_f = None
+
+        try:
+            sig_n = int(diag.get("minutes_signal_n") or 0)
+            cov = float(diag.get("minutes_prior_coverage") or 0.0)
+            if dtd_n >= 3 and sig_n >= 8 and cov >= 0.80 and raw.size >= 8:
+                diag["dtd_n"] = int(dtd_n)
+                raw_pos = np.maximum(0.0, np.where(np.isfinite(raw), raw, 0.0))
+                s = float(np.sum(raw_pos))
+                if s > 0:
+                    sh = raw_pos / s
+                    rot_tag = None
+                    top3_share = None
+                    div0 = None
+                    try:
+                        sh_sorted = np.sort(np.maximum(0.0, np.where(np.isfinite(sh), sh, 0.0)))
+                        top3_share = float(np.sum(sh_sorted[-3:]))
+                        diag["minutes_top3_share"] = float(top3_share)
+                        diag["minutes_top5_share"] = float(np.sum(sh_sorted[-5:]))
+                    except Exception:
+                        pass
+
+                    # Pre-divergence vs priors (used for gating). If roll mins already disagree
+                    # with priors, additional flattening can push minutes in the wrong direction.
+                    try:
+                        if pri_tag and pri_eff.size == raw.size and float(np.sum(pri_eff)) > 0.0:
+                            pri_pos = np.maximum(0.0, np.where(np.isfinite(pri_eff), pri_eff, 0.0))
+                            # Use the union support (raw OR priors) so this metric exists even
+                            # when priors have zeros for some active players.
+                            mm = (raw_pos > 0.0) | (pri_pos > 0.0)
+                            if bool(np.any(mm)) and int(np.sum(mm)) >= 6:
+                                rs = float(np.sum(raw_pos[mm]))
+                                ps = float(np.sum(pri_pos[mm]))
+                                if rs > 0 and ps > 0:
+                                    raw_sh0 = raw_pos[mm] / rs
+                                    pri_sh0 = pri_pos[mm] / ps
+                                    div0 = float(np.mean(np.abs(raw_sh0 - pri_sh0)))
+                                    diag["minutes_prior_divergence0"] = div0
+                    except Exception:
+                        pass
+                    # Gentle flattening. Exponent < 1 boosts smaller shares.
+                    # If rotation-shock conditions are met, strengthen the flattening
+                    # within this single transform (avoid applying two separate power
+                    # transforms which can over-flatten and regress p95/max).
+                    p = 0.95
+                    try:
+                        if (
+                            alpha_rs > 0.0
+                            and (not using_expected)
+                            and mins_col == "roll5_min"
+                            and int(raw.size) >= 9
+                            and exp_cov_f is not None
+                            and exp_cov_f <= 0.60
+                        ):
+                            # Extra gating to avoid harming games where roll mins are already
+                            # either very diffuse (flattening unnecessary) or extremely
+                            # concentrated (flattening can push minutes to the wrong bench).
+                            # Also require stronger injury/DTD uncertainty signal.
+                            if int(dtd_n) < 4:
+                                raise RuntimeError("rot_shock_skip_low_dtd")
+                            if top3_share is not None:
+                                if (top3_share < 0.46) or (top3_share > 0.58):
+                                    raise RuntimeError("rot_shock_skip_top3_band")
+                            if div0 is not None and div0 > 0.05:
+                                raise RuntimeError("rot_shock_skip_div0")
+
+                            # Stronger flattening when expected coverage is lower.
+                            # Anchor at p0=0.95 when shortfall=0 so exp_cov==0.60 doesn't
+                            # add any extra flatten beyond baseline.
+                            shortfall = float(np.clip((0.60 - exp_cov_f) / 0.60, 0.0, 1.0))
+                            diag["rotation_shock_shortfall"] = float(shortfall)
+                            sf = float(np.sqrt(shortfall))
+                            # Cap maximum flattening (avoid rare over-flatten tails).
+                            p0 = float(np.clip(0.95 - 0.35 * sf, 0.82, 0.95))
+                            p_rs = 1.0 - alpha_rs * (1.0 - p0)
+                            # Only strengthen flattening beyond baseline.
+                            if p_rs < (p - 1e-6):
+                                p = float(p_rs)
+                                diag["rotation_shock_detected"] = True
+                                rot_tag = f"+rot_shock_flat[{alpha_rs:.2f}]"
+                    except Exception:
+                        pass
+
+                    diag["minutes_flatten_p"] = float(p)
+                    sh2 = np.power(np.maximum(1e-12, sh), p)
+                    sh2 = sh2 / float(np.sum(sh2))
+                    raw = sh2 * s
+                    ms = str(diag.get("minutes_source") or mins_col or "none")
+                    if "dtd_flat" not in ms:
+                        ms = f"{ms}+dtd_flat"
+                    if rot_tag and ("rot_shock_flat" not in ms):
+                        ms = f"{ms}{rot_tag}"
+                    diag["minutes_source"] = ms
+        except Exception:
+            pass
+
+        # If the minutes signal is sparse (e.g., many NaNs/zeros), prefer priors as primary.
+        try:
+            sig_n = int(diag.get("minutes_signal_n") or 0)
+            cov = float(diag.get("minutes_prior_coverage") or 0.0)
+            # Don't override expected-minutes when we have it, even if partial coverage.
+            if (not using_expected) and pri_tag and sig_n > 0 and sig_n < 8 and cov >= 0.60 and float(np.sum(pri_eff)) > 0.0:
+                raw = np.where(pri_eff > 0.0, pri_eff, raw)
+                diag["minutes_source"] = f"{mins_col or 'none'}+priors_primary"
+
+                # Very short-rotation + very sparse roll signal: bias minutes toward the few
+                # roll-signaled players and shrink priors for players with no roll signal.
+                # This helps when priors include non-rotation players (trade deadline / call-ups)
+                # and the props pool only covers a couple of actual high-minutes guys.
+                try:
+                    if mins_col == "roll5_min" and int(sig_n) <= 3 and raw.size >= 8 and raw.size <= 9:
+                        v = pd.to_numeric(players.get(mins_col), errors="coerce").to_numpy(dtype=float)
+                        ok = np.isfinite(v) & (v > 0)
+                        miss = ~ok
+
+                        pri = np.maximum(0.0, np.where(np.isfinite(pri_eff), pri_eff, 0.0))
+                        base = np.maximum(0.0, np.where(np.isfinite(raw), raw, 0.0))
+
+                        # Boost signaled players toward (slightly amplified) roll mins.
+                        roll_boost = 1.20
+                        base = np.where(ok, np.maximum(base, roll_boost * np.maximum(0.0, v)), base)
+                        # Shrink missing-signal priors so they don't steal minutes.
+                        shrink = 0.80
+                        base = np.where(miss, shrink * base, base)
+
+                        raw = np.maximum(0.0, base)
+                        diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+sparse_roll_bias"
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+        # If the chosen minutes signal strongly disagrees with priors on a well-covered roster,
+        # softly align toward priors. This helps when roll mins are stale (injuries/trades) but
+        # player-log priors are reliable. Keep gated to avoid broad regressions.
+        try:
+            cov = float(diag.get("minutes_prior_coverage") or 0.0)
+            if pri_tag and cov >= 0.80 and pri_eff.size == raw.size and raw.size >= 8:
+                raw_pos = np.maximum(0.0, np.where(np.isfinite(raw), raw, 0.0))
+                pri_pos = np.maximum(0.0, np.where(np.isfinite(pri_eff), pri_eff, 0.0))
+                m = (raw_pos > 0.0) & (pri_pos > 0.0)
+                if bool(np.any(m)) and int(np.sum(m)) >= 6:
+                    rs = float(np.sum(raw_pos[m]))
+                    ps = float(np.sum(pri_pos[m]))
+                    if rs > 0 and ps > 0:
+                        raw_sh = raw_pos[m] / rs
+                        pri_sh = pri_pos[m] / ps
+                        div = float(np.mean(np.abs(raw_sh - pri_sh)))
+                        diag["minutes_prior_divergence"] = div
+                        if div >= 0.12:
+                            blend = 0.65
+                            raw = np.where(m, (1.0 - blend) * raw + blend * pri_eff, raw)
+                            diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+align_{pri_tag}"
+        except Exception:
+            pass
+
+        # Rotation shock: in some games (injuries/trades/rest), roll mins can be badly stale and
+        # even with decent priors coverage we can end up allocating minutes to the wrong players.
+        # Detect via low top-5 overlap + high share divergence vs priors, then blend toward priors.
+        # Keep opt-in and tightly gated.
+        # Rotation shock (priors disagreement): if roll minutes are stale relative to strong priors,
+        # blend toward priors. This is a distinct trigger from the flattening regime above.
+        try:
+            if (
+                alpha_rs > 0.0
+                and (not using_expected)
+                and pri_tag
+                and pri_eff.size == raw.size
+                and raw.size >= 8
+                and float(np.sum(pri_eff)) > 0.0
+            ):
+                cov = float(diag.get("minutes_prior_coverage") or 0.0)
+                minutes_source = str(diag.get("minutes_source") or "")
+                # If we already switched to priors as primary, don't re-apply.
+                if cov >= 0.55 and ("priors_primary" not in minutes_source):
+                    raw_pos = np.maximum(0.0, np.where(np.isfinite(raw), raw, 0.0))
+                    pri_pos = np.maximum(0.0, np.where(np.isfinite(pri_eff), pri_eff, 0.0))
+                    m = (raw_pos > 0.0) & (pri_pos > 0.0)
+                    if bool(np.any(m)) and int(np.sum(m)) >= 6:
+                        rs = float(np.sum(raw_pos[m]))
+                        ps = float(np.sum(pri_pos[m]))
+                        if rs > 0 and ps > 0:
+                            raw_sh = raw_pos[m] / rs
+                            pri_sh = pri_pos[m] / ps
+                            div = float(np.mean(np.abs(raw_sh - pri_sh)))
+                            diag["rotation_shock_divergence"] = div
+
+                            # Top-5 overlap (by minutes) between raw and priors.
+                            top5_raw = set(np.argsort(-raw_pos)[:5].tolist())
+                            top5_pri = set(np.argsort(-pri_pos)[:5].tolist())
+                            overlap = int(len(top5_raw.intersection(top5_pri)))
+                            diag["rotation_shock_top5_overlap"] = overlap
+
+                            # Trigger thresholds: very different shapes and different top-5.
+                            if div >= 0.18 and overlap <= 2:
+                                # Blend strength scales with alpha and divergence.
+                                # Keep bounded to avoid over-correcting.
+                                div_factor = float(np.clip((div - 0.18) / 0.18, 0.0, 1.0))
+                                blend = float(np.clip(0.35 + 0.25 * div_factor, 0.35, 0.60))
+                                blend = float(np.clip(alpha_rs * blend, 0.10, 0.60))
+                                raw = np.where(m, (1.0 - blend) * raw + blend * pri_eff, raw)
+                                diag["rotation_shock_detected"] = True
+                                diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+rot_shock_{pri_tag}[{alpha_rs:.2f}]"
+        except Exception:
+            pass
+
+        # Fill missing/near-zero minutes from effective priors.
+        try:
+            use = (raw < 1.0) & (pri_eff > 0.0)
+            if bool(np.any(use)):
+                raw = np.where(use, pri_eff, raw)
+                if pri_tag:
+                    diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+{pri_tag}"
+        except Exception:
+            pass
+
+        # Targeted strong prior blend: only when our primary minutes signal is weak (roll10/pred)
+        # and priors cover most of the roster.
+        try:
+            cov = float(diag.get("minutes_prior_coverage") or 0.0)
+            if (mins_col in ("roll10_min", "pred_min")) and pri_tag and cov >= 0.80:
+                has = (raw >= 1.0) & (pri_eff > 0.0)
+                if bool(np.any(has)):
+                    blend = 0.80
+                    raw = np.where(has, (1.0 - blend) * raw + blend * pri_eff, raw)
+                    diag["minutes_source"] = f"{diag.get('minutes_source') or mins_col or 'none'}+strong_{pri_tag}"
         except Exception:
             pass
         # If all zeros, give a small default so we can still allocate a rotation.
         if float(np.sum(raw)) <= 0:
             raw = np.full(len(players), 24.0, dtype=float)
 
-        # Rotation prior: adjust starter-vs-bench minute share based on expected first bench sub timing.
+        # Rotation priors: adjust starter-vs-bench minute share based on expected first bench sub timing,
+        # and (optionally) nudge the most-common first-sub bench entrant to look more like a real "6th man".
         try:
             team_u = str(team_label or "").strip().upper()
-            sec = None
+            prior = None
             if rotation_first_sub:
-                sec = rotation_first_sub.get(team_u)
+                prior = rotation_first_sub.get(team_u)
+
+            sec = None
+            top_enter_name = None
+            top_enter_share = None
+            if isinstance(prior, dict):
+                sec = prior.get("elapsed_sec_mean")
+                top_enter_name = prior.get("top_enter_player_name")
+                top_enter_share = prior.get("top_enter_share")
+            else:
+                # Back-compat: allow dict[str,float] priors passed in by callers.
+                sec = prior
+
             if sec is not None and np.isfinite(float(sec)) and len(raw) >= 8:
                 sec_f = float(sec)
                 diag["rotation_first_sub_elapsed_sec_mean"] = sec_f
+                try:
+                    alpha = float(coach_rotation_alpha or 0.0)
+                except Exception:
+                    alpha = 0.0
+                alpha = float(np.clip(alpha, 0.0, 1.0))
+                diag["coach_rotation_alpha"] = float(alpha)
+                try:
+                    diag["rotation_first_sub_top_enter_name"] = str(top_enter_name) if top_enter_name else None
+                except Exception:
+                    diag["rotation_first_sub_top_enter_name"] = None
+                try:
+                    sh = float(top_enter_share) if top_enter_share is not None and np.isfinite(float(top_enter_share)) else None
+                    diag["rotation_first_sub_top_enter_share"] = sh
+                except Exception:
+                    diag["rotation_first_sub_top_enter_share"] = None
 
                 # Map elapsed seconds to a target starter share (top 5 minutes / team minutes).
                 # Earlier subs => more bench usage (lower starter share).
@@ -1201,12 +2425,33 @@ def simulate_connected_game(
                 late = 360.0   # 6:00 elapsed
                 z = (sec_f - early) / max(1e-6, (late - early))
                 z = float(np.clip(z, 0.0, 1.0))
-                starter_share_target = 0.66 + 0.08 * z  # [0.66, 0.74]
+                if exp_sparse_applied:
+                    # In rotation-shock games, bench usage can be materially higher than normal.
+                    # Allow a lower starter share target when expected-minutes coverage was sparse.
+                    starter_share_target = 0.58 + 0.08 * z  # [0.58, 0.66]
+                else:
+                    starter_share_target = 0.66 + 0.08 * z  # [0.66, 0.74]
                 diag["rotation_starter_share_target"] = float(starter_share_target)
 
                 total = float(np.sum(raw))
                 if total > 0:
-                    top_idx = np.argsort(-raw)[:5]
+                    # Prefer explicit starters when provided.
+                    top_idx = None
+                    try:
+                        if "is_starter" in players.columns:
+                            st = players.get("is_starter")
+                            if st is not None:
+                                stv = st.astype(str).str.lower().str.strip()
+                                m = stv.isin(["1", "true", "t", "yes", "y"]) | (pd.to_numeric(st, errors="coerce") == 1)
+                                idx = np.flatnonzero(m.to_numpy(dtype=bool))
+                                if idx.size >= 5:
+                                    # If more than 5 flagged, take the 5 with highest raw.
+                                    ord5 = idx[np.argsort(-raw[idx])][:5]
+                                    top_idx = ord5
+                    except Exception:
+                        top_idx = None
+                    if top_idx is None:
+                        top_idx = np.argsort(-raw)[:5]
                     s_raw = float(np.sum(raw[top_idx]))
                     b_raw = max(1e-9, float(total - s_raw))
                     cur = s_raw / total if total > 0 else None
@@ -1214,9 +2459,14 @@ def simulate_connected_game(
 
                     # Solve for multiplier f on starters to hit target share:
                     # (f*S) / (f*S + B) = target => f = target*B / (S*(1-target))
-                    if s_raw > 0 and (1.0 - starter_share_target) > 1e-6:
+                    if alpha > 0.0 and s_raw > 0 and (1.0 - starter_share_target) > 1e-6:
                         f = (starter_share_target * b_raw) / (s_raw * (1.0 - starter_share_target))
-                        f = float(np.clip(f, 0.75, 1.25))
+                        # Scale effect by alpha (alpha=0 => no-op).
+                        f = 1.0 + alpha * (f - 1.0)
+                        if exp_sparse_applied:
+                            f = float(np.clip(f, 0.65, 1.35))
+                        else:
+                            f = float(np.clip(f, 0.75, 1.25))
                         adj = raw.copy()
                         adj[top_idx] = adj[top_idx] * f
                         # Keep minute signals non-negative.
@@ -1225,10 +2475,107 @@ def simulate_connected_game(
                         if total2 > 0:
                             s2 = float(np.sum(raw[top_idx]))
                             diag["rotation_starter_share_after"] = float(s2 / total2)
+
+                    # Bench depth shaping: for teams that sub late (tight rotations), concentrate
+                    # bench minutes into fewer players; for early subs (deeper rotations), spread
+                    # bench minutes across more of the bench. Keep total bench minutes fixed.
+                    try:
+                        if alpha > 0.0:
+                            top_set = set([int(x) for x in np.asarray(top_idx).tolist()])
+                            bench_idx = np.array([i for i in range(len(raw)) if i not in top_set], dtype=int)
+                            if bench_idx.size >= 3:
+                                bench_total = float(np.sum(raw[bench_idx]))
+                                if bench_total > 1e-6:
+                                    # Map first-sub timing to a shaping exponent p.
+                                    # p>1 concentrates; p<1 spreads.
+                                    z2 = (sec_f - 120.0) / max(1e-6, (360.0 - 120.0))
+                                    z2 = float(np.clip(z2, 0.0, 1.0))
+                                    sh2 = float(diag.get("rotation_first_sub_top_enter_share") or 0.0)
+                                    sh2 = float(np.clip(sh2, 0.0, 1.0))
+                                    # If the first sub entrant is very consistent, rotations tend to
+                                    # have a more defined 6th-man core (slightly more concentration).
+                                    sh_boost = float(np.clip((sh2 - 0.50) / 0.50, 0.0, 1.0))
+                                    if exp_sparse_applied:
+                                        p0 = 0.80 + 0.35 * z2 + 0.08 * sh_boost  # ~[0.80, 1.23]
+                                    else:
+                                        p0 = 0.85 + 0.40 * z2 + 0.10 * sh_boost  # ~[0.85, 1.35]
+                                    p0 = float(np.clip(p0, 0.80, 1.35))
+                                    # Scale effect by alpha: alpha=0 => p=1 (no reshape).
+                                    p = 1.0 + alpha * (p0 - 1.0)
+                                    p = float(np.clip(p, 0.80, 1.35))
+
+                                    b = np.maximum(0.0, np.where(np.isfinite(raw[bench_idx]), raw[bench_idx], 0.0))
+                                    # If all bench minutes are zero/NaN, skip.
+                                    if float(np.sum(b)) > 1e-9:
+                                        w = np.power(np.maximum(1e-9, b), p)
+                                        ws = float(np.sum(w))
+                                        if ws > 1e-12:
+                                            raw2 = raw.copy()
+                                            raw2[bench_idx] = bench_total * (w / ws)
+                                            raw = raw2
+                                            diag["rotation_bench_shape_applied"] = True
+                                            diag["rotation_bench_shape_p"] = float(p)
+                    except Exception:
+                        pass
+
+                    # Bench anchor nudge: if we have a consistent first-sub entrant, concentrate
+                    # a tiny bit of the bench minutes into that player (without changing starter share).
+                    try:
+                        enter_key = _norm_player_key(top_enter_name) if top_enter_name else ""
+                        if enter_key:
+                            keys = players.get("player_name").map(_norm_player_key).to_numpy(dtype=object)
+                            m = np.flatnonzero(keys == enter_key)
+                            if m.size > 0:
+                                anchor_i = int(m[0])
+                                top_set = set([int(x) for x in np.asarray(top_idx).tolist()])
+                                if anchor_i not in top_set:
+                                    bench_idx = np.array([i for i in range(len(raw)) if i not in top_set], dtype=int)
+                                    if bench_idx.size > 0:
+                                        bench_total = float(np.sum(raw[bench_idx]))
+                                        if bench_total > 1e-6 and raw[anchor_i] > 0:
+                                            z = (sec_f - 120.0) / max(1e-6, (360.0 - 120.0))
+                                            z = float(np.clip(z, 0.0, 1.0))
+                                            sh = float(diag.get("rotation_first_sub_top_enter_share") or 0.0)
+                                            sh = float(np.clip(sh, 0.0, 1.0))
+                                            share_factor = float(np.clip((sh - 0.25) / 0.75, 0.0, 1.0))
+                                            mult = 1.0 + 0.10 * (1.0 - z) + 0.12 * share_factor
+                                            # Scale effect by alpha (alpha=0 => mult=1.0).
+                                            mult = 1.0 + alpha * (mult - 1.0)
+                                            mult = float(np.clip(mult, 1.0, 1.22))
+
+                                            others = np.array([i for i in bench_idx.tolist() if i != anchor_i and raw[i] > 0], dtype=int)
+                                            if others.size > 0:
+                                                # Keep bench total fixed by scaling other bench minutes.
+                                                new_anchor = float(raw[anchor_i] * mult)
+                                                new_anchor = min(new_anchor, 0.65 * bench_total)
+                                                rem = max(1e-9, bench_total - new_anchor)
+                                                other_sum = float(np.sum(raw[others]))
+                                                if other_sum > 1e-9:
+                                                    raw[anchor_i] = new_anchor
+                                                    raw[others] = raw[others] * (rem / other_sum)
+                                                    diag["rotation_bench_anchor_applied"] = True
+                                                    diag["rotation_bench_anchor_mult"] = float(mult)
+                    except Exception:
+                        pass
         except Exception:
             pass
 
         diag["minutes_total_raw"] = float(np.sum(raw))
+
+        # For very short rotations, scaling minutes up is realistic and the "fill bench" heuristic
+        # can be counterproductive (it may lock players into the bench soft-cap when priors mis-rank
+        # the top-5). In priors-primary mode with <=9 players, skip bench-filling and allow a
+        # slightly higher cap so 40+ minute games are possible.
+        minutes_source = str(diag.get("minutes_source") or "")
+        cap_player_minutes = 40.0
+        skip_bench_fill = False
+        try:
+            if ("priors_primary" in minutes_source) and int(len(raw)) <= 9:
+                skip_bench_fill = True
+                cap_player_minutes = 44.0
+        except Exception:
+            pass
+        diag["minutes_cap"] = float(cap_player_minutes)
 
         # If the raw minutes sum is meaningfully below 240, scaling everyone up can create
         # unrealistic 40+ minute allocations. In that case, prefer to "fill" minutes into
@@ -1237,8 +2584,23 @@ def simulate_connected_game(
             raw2 = raw.copy()
             total_raw = float(np.sum(raw2))
             n_players = int(len(raw2))
-            if n_players >= 8 and np.isfinite(total_raw) and total_raw > 0 and total_raw < 232.0:
-                top5 = set(np.argsort(-raw2)[:5].tolist())
+            if (not skip_bench_fill) and n_players >= 8 and np.isfinite(total_raw) and total_raw > 0 and total_raw < 232.0:
+                # Prefer explicit starters when provided.
+                top5 = None
+                try:
+                    if "is_starter" in players.columns:
+                        st = players.get("is_starter")
+                        if st is not None:
+                            stv = st.astype(str).str.lower().str.strip()
+                            m = stv.isin(["1", "true", "t", "yes", "y"]) | (pd.to_numeric(st, errors="coerce") == 1)
+                            idx = np.flatnonzero(m.to_numpy(dtype=bool))
+                            if idx.size >= 5:
+                                ord5 = idx[np.argsort(-raw2[idx])][:5]
+                                top5 = set(ord5.tolist())
+                except Exception:
+                    top5 = None
+                if top5 is None:
+                    top5 = set(np.argsort(-raw2)[:5].tolist())
                 bench_idx = np.array([i for i in range(n_players) if i not in top5], dtype=int)
                 if bench_idx.size > 0:
                     bench_floor = 6.0
@@ -1256,7 +2618,338 @@ def simulate_connected_game(
         except Exception:
             pass
 
-        sim_mins = _normalize_team_minutes(raw, total_minutes=240.0, cap_player_minutes=40.0, floor_minutes=0.0)
+        sim_mins = _normalize_team_minutes(raw, total_minutes=240.0, cap_player_minutes=cap_player_minutes, floor_minutes=0.0)
+
+        # Optional: garbage-time/blowout adjustment to minutes.
+        try:
+            # Gate tightly: blowouts are common-ish, so only act when our quarter sim
+            # thinks a blowout is meaningfully likely.
+            if gt_alpha > 0.0 and int(sim_mins.size) >= 8 and float(p_abs_blow) >= 0.39:
+                p_abs = float(p_abs_blow)
+                # Ramp from 0 at 0.35 -> full at 0.60.
+                # Keep shifts small near the activation threshold.
+                p_scale = float(np.clip((p_abs - 0.35) / 0.25, 0.0, 1.0))
+                max_shift_minutes = 4.0
+                shift_total = float(gt_alpha * p_scale * max_shift_minutes)
+
+                if shift_total >= 0.50:
+                    # Only apply to the likely blowout winner side; applying to the
+                    # likely loser can be unrealistic and has caused regressions.
+                    try:
+                        tl = str(team_label or "").strip().upper()
+                        ht = str(home_tri or "").strip().upper()
+                        at = str(away_tri or "").strip().upper()
+                        team_is_home = bool(tl and ht and tl == ht)
+                        team_is_away = bool(tl and at and tl == at)
+                        if team_is_home:
+                            p_team_win_big = float(p_home_win_big)
+                            p_opp_win_big = float(p_away_win_big)
+                        elif team_is_away:
+                            p_team_win_big = float(p_away_win_big)
+                            p_opp_win_big = float(p_home_win_big)
+                        else:
+                            p_team_win_big = float(p_home_win_big)
+                            p_opp_win_big = float(p_away_win_big)
+                        if not (np.isfinite(p_team_win_big) and np.isfinite(p_opp_win_big)):
+                            raise RuntimeError("garbage_time_skip_bad_probs")
+                        # Only apply to the more-likely blowout winner side.
+                        if p_team_win_big <= p_opp_win_big:
+                            raise RuntimeError("garbage_time_skip_not_favored")
+                        # Also require meaningful directional confidence.
+                        # This blocks borderline "blowout-ish" distributions that have
+                        # tended to create points regressions even with small minute shifts.
+                        if p_team_win_big < 0.40:
+                            raise RuntimeError("garbage_time_skip_low_dir_prob")
+                    except RuntimeError:
+                        raise
+                    except Exception:
+                        raise RuntimeError("garbage_time_skip_prob_logic")
+
+                    ms0 = str(diag.get("minutes_source") or "")
+                    if "priors_primary" in ms0:
+                        raise RuntimeError("garbage_time_skip_priors_primary")
+
+                    mins0 = np.maximum(0.0, np.where(np.isfinite(sim_mins), sim_mins, 0.0)).astype(float)
+                    n_players = int(mins0.size)
+
+                    # Only apply when minutes are fairly starter-heavy (otherwise there's
+                    # little to gain and shifting can add noise).
+                    top3_share_sim = None
+                    try:
+                        denom = float(np.sum(mins0))
+                        if np.isfinite(denom) and denom > 1e-9 and int(mins0.size) >= 3:
+                            sh_sorted = np.sort(np.maximum(0.0, mins0) / denom)
+                            top3_share_sim = float(np.sum(sh_sorted[-3:]))
+                    except Exception:
+                        top3_share_sim = None
+                    diag["garbage_time_top3_share_sim"] = float(top3_share_sim) if top3_share_sim is not None else None
+                    if top3_share_sim is None or not (0.37 <= float(top3_share_sim) <= 0.45):
+                        raise RuntimeError("garbage_time_skip_not_topheavy")
+
+                    donors = None
+                    try:
+                        if "is_starter" in players.columns:
+                            st = players.get("is_starter")
+                            if st is not None:
+                                stv = st.astype(str).str.lower().str.strip()
+                                msk = stv.isin(["1", "true", "t", "yes", "y"]) | (pd.to_numeric(st, errors="coerce") == 1)
+                                st_idx = np.flatnonzero(msk.to_numpy(dtype=bool))
+                                if st_idx.size >= 5:
+                                    donors = st_idx[np.argsort(-mins0[st_idx])][:5].astype(int)
+                    except Exception:
+                        donors = None
+                    if donors is None:
+                        donors = np.argsort(-mins0)[:5].astype(int)
+
+                    donors_set = set(int(i) for i in donors.tolist())
+                    recips_all = np.array([i for i in range(n_players) if i not in donors_set], dtype=int)
+                    # Prefer shifting minutes to "real bench rotation" players rather than
+                    # the deepest end-of-bench. This tends to preserve points realism.
+                    recips = recips_all
+                    try:
+                        if recips_all.size > 0:
+                            mins_rec = mins0[recips_all]
+                            cand = recips_all[(mins_rec >= 4.0) & (mins_rec <= 26.0)]
+                            if cand.size >= 3:
+                                recips = cand[np.argsort(-mins0[cand])][:5].astype(int)
+                    except Exception:
+                        recips = recips_all
+
+                    if recips.size > 0 and float(np.sum(mins0[donors])) > 1e-6:
+                        donor_floor = np.maximum(18.0, 0.60 * mins0[donors])
+                        recip_cap = 32.0
+
+                        donor_room = np.maximum(0.0, mins0[donors] - donor_floor)
+                        feasible = float(np.sum(donor_room))
+                        amt = float(min(shift_total, feasible))
+                        if amt >= 0.25:
+                            w_take = np.maximum(1e-6, mins0[donors])
+                            take = amt * (w_take / float(np.sum(w_take)))
+                            for _ in range(6):
+                                over = (mins0[donors] - take) < donor_floor
+                                if not bool(np.any(over)):
+                                    break
+                                take[over] = np.maximum(0.0, mins0[donors][over] - donor_floor[over])
+                                rem = float(amt - float(np.sum(take)))
+                                if rem <= 1e-6:
+                                    break
+                                ok = ~over
+                                if not bool(np.any(ok)):
+                                    break
+                                w2 = np.maximum(1e-6, mins0[donors][ok] - donor_floor[ok])
+                                take[ok] = take[ok] + rem * (w2 / float(np.sum(w2)))
+
+                            mins1 = mins0.copy()
+                            mins1[donors] = np.maximum(0.0, mins1[donors] - take)
+
+                            # Give minutes mainly to the selected bench rotation.
+                            w_give = np.maximum(1e-6, mins1[recips])
+                            give = amt * (w_give / float(np.sum(w_give)))
+                            for _ in range(6):
+                                over = (mins1[recips] + give) > recip_cap
+                                if not bool(np.any(over)):
+                                    break
+                                give[over] = np.maximum(0.0, recip_cap - mins1[recips][over])
+                                rem = float(amt - float(np.sum(give)))
+                                if rem <= 1e-6:
+                                    break
+                                ok = ~over
+                                if not bool(np.any(ok)):
+                                    break
+                                w2 = np.maximum(1e-6, mins1[recips][ok])
+                                give[ok] = give[ok] + rem * (w2 / float(np.sum(w2)))
+                            mins1[recips] = np.maximum(0.0, mins1[recips] + give)
+
+                            sim_mins = _normalize_team_minutes(
+                                mins1,
+                                total_minutes=240.0,
+                                cap_player_minutes=cap_player_minutes,
+                                floor_minutes=0.0,
+                            )
+
+                            diag["garbage_time_shift_minutes"] = float(amt)
+                            diag["garbage_time_p_scale"] = float(p_scale)
+                            ms = str(diag.get("minutes_source") or mins_col or "none")
+                            if "garbage_time" not in ms:
+                                ms = f"{ms}+garbage_time[{gt_alpha:.2f}]"
+                            diag["minutes_source"] = ms
+        except Exception:
+            pass
+
+        # Optional: foul-trouble rotation disruption.
+        # If a key rotation player is likely to reach 5+ fouls, cap their minutes
+        # and reallocate to the bench rotation. Mean-preserving (renormalizes to 240).
+        try:
+            try:
+                ft_alpha = float(foul_trouble_alpha or 0.0)
+            except Exception:
+                ft_alpha = 0.0
+            ft_alpha = float(np.clip(ft_alpha, 0.0, 1.0))
+            diag["foul_trouble_alpha"] = float(ft_alpha)
+            diag["foul_trouble_shift_minutes"] = 0.0
+
+            if ft_alpha <= 0.0:
+                raise RuntimeError("foul_trouble_skip_alpha")
+            if "_prior_pf_pm" not in players.columns:
+                raise RuntimeError("foul_trouble_skip_no_pf_prior")
+
+            mins0 = np.maximum(0.0, np.where(np.isfinite(sim_mins), sim_mins, 0.0)).astype(float)
+            n_players = int(mins0.size)
+            if n_players < 8:
+                raise RuntimeError("foul_trouble_skip_small_roster")
+
+            pf_pm = pd.to_numeric(players.get("_prior_pf_pm"), errors="coerce").to_numpy(dtype=float)
+            if pf_pm.size != mins0.size:
+                raise RuntimeError("foul_trouble_skip_pf_shape")
+
+            rot = mins0 > 0.5
+            ok = rot & np.isfinite(pf_pm) & (pf_pm > 0)
+            cov = float(np.sum(ok)) / float(max(1, int(np.sum(rot))))
+            diag["foul_trouble_pf_coverage"] = float(cov)
+            if cov < 0.60:
+                raise RuntimeError("foul_trouble_skip_low_pf_coverage")
+
+            def _poisson_p_ge(lam: float, k: int) -> float:
+                # P(X >= k) for Poisson(lam), computed via sum_{i=0..k-1}.
+                if (not np.isfinite(lam)) or lam <= 0:
+                    return 0.0
+                kk = int(max(0, k))
+                if kk <= 0:
+                    return 1.0
+                term = 1.0
+                s = 1.0
+                for i in range(1, kk):
+                    term *= lam / float(i)
+                    s += term
+                p_lt = float(np.exp(-lam) * s)
+                return float(max(0.0, min(1.0, 1.0 - p_lt)))
+
+            # Evaluate foul-trouble risk among key rotation players.
+            # IMPORTANT: avoid consuming RNG unless this actually applies.
+            key = np.argsort(-mins0)[: min(5, n_players)].astype(int)
+            p_ge5_base = np.zeros(int(key.size), dtype=float)
+            for j, idx in enumerate(key.tolist()):
+                lam = float(max(0.0, pf_pm[int(idx)] * mins0[int(idx)]))
+                p_ge5_base[j] = float(_poisson_p_ge(lam, 5))
+            p_max_base = float(np.max(p_ge5_base) if p_ge5_base.size else 0.0)
+
+            # Probability that "real" foul trouble happens for the key rotation.
+            # This keeps the effect rare (only in games with meaningfully elevated risk).
+            event_prob = float(np.clip((p_max_base - 0.28) / 0.22, 0.0, 1.0))
+            diag["foul_trouble_event_prob"] = float(event_prob)
+            if event_prob <= 0.0:
+                raise RuntimeError("foul_trouble_skip_event_prob")
+            if float(rng.random()) > event_prob:
+                raise RuntimeError("foul_trouble_skip_event_draw")
+
+            # Team-level whistle intensity (mean 1.0), small variance.
+            whistle_sigma = float(0.18 * ft_alpha)
+            z = float(rng.normal(0.0, 1.0))
+            whistle = float(np.exp(whistle_sigma * z - 0.5 * (whistle_sigma**2)))
+            diag["foul_trouble_whistle"] = float(whistle)
+
+            p_ge5 = np.zeros(int(key.size), dtype=float)
+            for j, idx in enumerate(key.tolist()):
+                lam = float(max(0.0, pf_pm[int(idx)] * mins0[int(idx)] * whistle))
+                p_ge5[j] = float(_poisson_p_ge(lam, 5))
+            p_max = float(np.max(p_ge5) if p_ge5.size else 0.0)
+            diag["foul_trouble_p_ge5_max"] = float(p_max)
+
+            # Convert risk into a small shift budget.
+            p_scale = float(np.clip((p_max - 0.30) / 0.25, 0.0, 1.0))
+            max_shift_minutes = 2.0
+            shift_total = float(ft_alpha * p_scale * max_shift_minutes)
+            if shift_total < 0.60:
+                raise RuntimeError("foul_trouble_skip_small_shift")
+
+            # Donors: high-minute, high-risk key rotation players.
+            donors = []
+            for j, idx in enumerate(key.tolist()):
+                if float(p_ge5[j]) >= 0.30 and mins0[int(idx)] >= 24.0:
+                    donors.append(int(idx))
+            if not donors:
+                raise RuntimeError("foul_trouble_skip_no_donors")
+            donors = np.array(donors, dtype=int)
+
+            # Recipients: bench rotation players (not top5), prefer realistic bench mins.
+            top5 = set(int(i) for i in key.tolist())
+            recips_all = np.array([i for i in range(n_players) if i not in top5], dtype=int)
+            recips = recips_all
+            try:
+                if recips_all.size > 0:
+                    mins_rec = mins0[recips_all]
+                    cand = recips_all[(mins_rec >= 4.0) & (mins_rec <= 26.0)]
+                    if cand.size >= 3:
+                        recips = cand[np.argsort(-mins0[cand])][:5].astype(int)
+            except Exception:
+                recips = recips_all
+            if recips.size == 0:
+                raise RuntimeError("foul_trouble_skip_no_recipients")
+
+            donor_floor = np.maximum(16.0, 0.60 * mins0[donors])
+            recip_cap = 34.0
+            donor_room = np.maximum(0.0, mins0[donors] - donor_floor)
+            feasible = float(np.sum(donor_room))
+            amt = float(min(shift_total, feasible))
+            if amt < 0.25:
+                raise RuntimeError("foul_trouble_skip_infeasible")
+
+            # Take minutes from donors proportionally to foul-trouble risk.
+            risk_w = np.zeros(int(donors.size), dtype=float)
+            for j, idx in enumerate(donors.tolist()):
+                lam = float(max(0.0, pf_pm[int(idx)] * mins0[int(idx)] * whistle))
+                risk_w[j] = float(_poisson_p_ge(lam, 5) + 1e-6)
+            take = amt * (risk_w / float(np.sum(risk_w)))
+            for _ in range(6):
+                over = (mins0[donors] - take) < donor_floor
+                if not bool(np.any(over)):
+                    break
+                take[over] = np.maximum(0.0, mins0[donors][over] - donor_floor[over])
+                rem = float(amt - float(np.sum(take)))
+                if rem <= 1e-6:
+                    break
+                ok2 = ~over
+                if not bool(np.any(ok2)):
+                    break
+                w2 = np.maximum(1e-6, mins0[donors][ok2] - donor_floor[ok2])
+                take[ok2] = take[ok2] + rem * (w2 / float(np.sum(w2)))
+
+            mins1 = mins0.copy()
+            mins1[donors] = np.maximum(0.0, mins1[donors] - take)
+
+            # Give minutes mainly to bench rotation.
+            w_give = np.maximum(1e-6, mins1[recips])
+            give = amt * (w_give / float(np.sum(w_give)))
+            for _ in range(6):
+                over = (mins1[recips] + give) > recip_cap
+                if not bool(np.any(over)):
+                    break
+                give[over] = np.maximum(0.0, recip_cap - mins1[recips][over])
+                rem = float(amt - float(np.sum(give)))
+                if rem <= 1e-6:
+                    break
+                ok2 = ~over
+                if not bool(np.any(ok2)):
+                    break
+                w2 = np.maximum(1e-6, mins1[recips][ok2])
+                give[ok2] = give[ok2] + rem * (w2 / float(np.sum(w2)))
+            mins1[recips] = np.maximum(0.0, mins1[recips] + give)
+
+            sim_mins = _normalize_team_minutes(
+                mins1,
+                total_minutes=240.0,
+                cap_player_minutes=cap_player_minutes,
+                floor_minutes=0.0,
+            )
+
+            diag["foul_trouble_shift_minutes"] = float(amt)
+            ms = str(diag.get("minutes_source") or mins_col or "none")
+            if "foul_trouble" not in ms:
+                ms = f"{ms}+foul_trouble[{ft_alpha:.2f}]"
+            diag["minutes_source"] = ms
+        except Exception:
+            pass
+
         diag["minutes_total_sim"] = float(np.sum(sim_mins))
         out = players.copy()
         out["_sim_min"] = sim_mins
@@ -2119,30 +3812,134 @@ def simulate_connected_game(
     rep_hq = rep_home_q if rep_home_q is not None else home_q[idx]
     rep_aq = rep_away_q if rep_away_q is not None else away_q[idx]
 
-    home_box = None
-    away_box = None
-    event_diag: Dict[str, Any] = {"enabled": bool(use_event_level_sim), "used": False, "error": None}
+    def _blend_event_mix_into_base(base_box: Dict[str, Any], event_box: Dict[str, Any]) -> Dict[str, Any]:
+        # Goal: keep point distribution from connected allocator (base_box), but adopt
+        # event-level stat mix (attempts/FTA/TOV/etc.) for better realism.
+        try:
+            base_players = list((base_box or {}).get("players") or [])
+            event_players = list((event_box or {}).get("players") or [])
+        except Exception:
+            return base_box
+
+        if not base_players or not event_players:
+            return base_box
+
+        event_map: Dict[str, Dict[str, Any]] = {}
+        for p in event_players:
+            try:
+                k = _norm_player_key(p.get("player_name"))
+                if k:
+                    event_map[k] = p
+            except Exception:
+                continue
+
+        def _gi(d: Dict[str, Any], k: str) -> int:
+            try:
+                v = d.get(k)
+                if v is None:
+                    return 0
+                if isinstance(v, bool):
+                    return int(v)
+                return int(float(v))
+            except Exception:
+                return 0
+
+        out_players: List[Dict[str, Any]] = []
+        for bp in base_players:
+            try:
+                k = _norm_player_key(bp.get("player_name"))
+                ep = event_map.get(k) if k else None
+
+                out = dict(bp)
+                if ep is not None:
+                    # Keep connected allocator's points-related fields.
+                    pts = _gi(out, "pts")
+                    threes = _gi(out, "threes")
+                    fgm = _gi(out, "fgm")
+                    ftm = _gi(out, "ftm")
+                    fg3m = _gi(out, "fg3m")
+                    if fg3m <= 0:
+                        fg3m = threes
+
+                    # Adopt event-level stat mix for attempts and non-points stats.
+                    out["reb"] = _gi(ep, "reb")
+                    out["ast"] = _gi(ep, "ast")
+                    out["stl"] = _gi(ep, "stl")
+                    out["blk"] = _gi(ep, "blk")
+                    out["tov"] = _gi(ep, "tov")
+                    out["pf"] = _gi(ep, "pf")
+
+                    out["fga"] = max(int(fgm), _gi(ep, "fga"))
+                    out["fg3a"] = max(int(fg3m), _gi(ep, "fg3a"))
+                    out["fta"] = max(int(ftm), _gi(ep, "fta"))
+
+                    # Restore points-related fields (in case event box had different values).
+                    out["pts"] = int(pts)
+                    out["threes"] = int(threes)
+                    out["fgm"] = int(fgm)
+                    out["ftm"] = int(ftm)
+                    out["fg3m"] = int(fg3m)
+
+                out_players.append(out)
+            except Exception:
+                out_players.append(dict(bp))
+
+        # Recompute team totals.
+        def _sum_int(col: str) -> int:
+            return int(sum(_gi(p, col) for p in out_players))
+
+        out_players.sort(key=lambda r: ((r.get("min") or 0.0), r.get("pts") or 0), reverse=True)
+        out_box = dict(base_box)
+        out_box["players"] = out_players
+        out_box["team_total_pts"] = _sum_int("pts")
+        out_box["team_total_reb"] = _sum_int("reb")
+        out_box["team_total_ast"] = _sum_int("ast")
+        out_box["team_total_threes"] = _sum_int("threes")
+        out_box["team_total_fg3a"] = _sum_int("fg3a")
+        out_box["team_total_fga"] = _sum_int("fga")
+        out_box["team_total_fgm"] = _sum_int("fgm")
+        out_box["team_total_fta"] = _sum_int("fta")
+        out_box["team_total_ftm"] = _sum_int("ftm")
+        out_box["team_total_pf"] = _sum_int("pf")
+        out_box["team_total_tov"] = _sum_int("tov")
+        out_box["team_total_stl"] = _sum_int("stl")
+        out_box["team_total_blk"] = _sum_int("blk")
+        return out_box
+
+    # Base representative box score from the connected allocator (keeps points consistent).
+    home_box_base = _build_box(hp, h_alloc, home_q, rep_alloc_override=rep_h_alloc, rep_q_override=rep_home_q)
+    away_box_base = _build_box(ap, a_alloc, away_q, rep_alloc_override=rep_a_alloc, rep_q_override=rep_away_q)
+
+    home_box = home_box_base
+    away_box = away_box_base
+    event_diag: Dict[str, Any] = {
+        "enabled": bool(use_event_level_sim),
+        "used": False,
+        "mode": None,
+        "error": None,
+    }
+
     if use_event_level_sim:
         try:
             from .events import simulate_event_level_boxscore
 
-            home_box, away_box = simulate_event_level_boxscore(
+            home_evt, away_evt = simulate_event_level_boxscore(
                 rng=rng,
                 home_players=hp,
                 away_players=ap,
                 home_q_pts=[int(x) for x in list(rep_hq)],
                 away_q_pts=[int(x) for x in list(rep_aq)],
             )
+
+            # Blend stat-mix from event-level into base box (preserve base points allocation).
+            home_box = _blend_event_mix_into_base(home_box_base, home_evt)
+            away_box = _blend_event_mix_into_base(away_box_base, away_evt)
             event_diag["used"] = True
+            event_diag["mode"] = "stat_mix_blend"
         except Exception as e:
             event_diag["error"] = str(e)
-            home_box = None
-            away_box = None
-
-    if home_box is None or away_box is None:
-        # Fallback to the aggregate allocator
-        home_box = _build_box(hp, h_alloc, home_q, rep_alloc_override=rep_h_alloc, rep_q_override=rep_home_q)
-        away_box = _build_box(ap, a_alloc, away_q, rep_alloc_override=rep_a_alloc, rep_q_override=rep_away_q)
+            home_box = home_box_base
+            away_box = away_box_base
 
     def _q_line(h: np.ndarray, a: np.ndarray) -> List[Dict[str, int]]:
         out = []
@@ -2237,6 +4034,8 @@ def simulate_connected_game(
     diagnostics = {
         "home_minutes": home_min_diag,
         "away_minutes": away_min_diag,
+        "scoring_correlation": scoring_corr_diag,
+        "guardrails": guard_diag,
         "home_dedup_removed": int(getattr(home_players, "attrs", {}).get("_dedup_removed", 0)) if isinstance(home_players, pd.DataFrame) else 0,
         "away_dedup_removed": int(getattr(away_players, "attrs", {}).get("_dedup_removed", 0)) if isinstance(away_players, pd.DataFrame) else 0,
         "home_points_entropy": float(_shannon_entropy(_dirichlet_weights(home_players))) if isinstance(home_players, pd.DataFrame) and not home_players.empty else 0.0,

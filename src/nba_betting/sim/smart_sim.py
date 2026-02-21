@@ -15,6 +15,471 @@ from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_pla
 from ..teams import to_tricode
 
 
+@lru_cache(maxsize=64)
+def _load_pregame_expected_minutes(date_str: str) -> pd.DataFrame:
+    """Load pregame expected minutes artifact for a slate date.
+
+    Expected path: data/processed/pregame_expected_minutes_<YYYY-MM-DD>.csv
+    """
+    ds = str(date_str).strip()
+    fp_csv = paths.data_processed / f"pregame_expected_minutes_{ds}.csv"
+    fp_parq = paths.data_processed / f"pregame_expected_minutes_{ds}.parquet"
+
+    fp = fp_csv if fp_csv.exists() else fp_parq
+    if fp is None or (not fp.exists()):
+        return pd.DataFrame()
+
+    try:
+        if fp.suffix.lower() == ".parquet":
+            try:
+                df = pd.read_parquet(fp)
+            except Exception:
+                # parquet is optional; fall back to CSV if present
+                if fp_csv.exists():
+                    df = pd.read_csv(fp_csv)
+                else:
+                    return pd.DataFrame()
+        else:
+            df = pd.read_csv(fp)
+    except Exception:
+        return pd.DataFrame()
+
+    if df is None or df.empty:
+        return pd.DataFrame()
+
+    out = df.copy()
+    out.columns = [str(c).strip() for c in out.columns]
+
+    # Normalize schema
+    if "team_tri" not in out.columns:
+        if "team" in out.columns:
+            out = out.rename(columns={"team": "team_tri"})
+        elif "team_abbrev" in out.columns:
+            out = out.rename(columns={"team_abbrev": "team_tri"})
+    if "team_tri" in out.columns:
+        out["team_tri"] = out["team_tri"].astype(str).str.upper().str.strip()
+    if "player_name" in out.columns:
+        out["player_name"] = out["player_name"].astype(str).str.strip()
+    if "player_id" in out.columns:
+        out["player_id"] = pd.to_numeric(out["player_id"], errors="coerce")
+
+    if "exp_min_mean" in out.columns:
+        out["exp_min_mean"] = pd.to_numeric(out["exp_min_mean"], errors="coerce")
+    if "starter_prob" in out.columns:
+        out["starter_prob"] = pd.to_numeric(out["starter_prob"], errors="coerce")
+    for c in ["exp_min_sd", "exp_min_cap"]:
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c], errors="coerce")
+    if "is_starter" in out.columns:
+        try:
+            out["is_starter"] = out["is_starter"].astype(bool)
+        except Exception:
+            out["is_starter"] = out["is_starter"].astype(str).str.strip().str.lower().isin({"true", "1", "yes", "y"})
+
+    keep = [
+        c
+        for c in [
+            "date",
+            "team_tri",
+            "player_id",
+            "player_name",
+            "exp_min_mean",
+            "exp_min_source",
+            "starter_prob",
+            "is_starter",
+            "exp_min_sd",
+            "exp_min_cap",
+            "exp_asof_ts",
+        ]
+        if c in out.columns
+    ]
+    out = out[keep].copy() if keep else pd.DataFrame()
+    out = out.dropna(subset=["team_tri"]).copy() if (not out.empty and "team_tri" in out.columns) else out
+    return out
+
+
+def _merge_pregame_expected_minutes_for_team(team_df: pd.DataFrame, *, date_str: str, team_tri: str) -> tuple[pd.DataFrame, dict[str, Any]]:
+    diag: dict[str, Any] = {
+        "attempted": True,
+        "applied": False,
+        "date": str(date_str),
+        "team": str(team_tri).upper().strip(),
+        "path": str(paths.data_processed / f"pregame_expected_minutes_{str(date_str).strip()}.csv"),
+    }
+    if team_df is None or team_df.empty:
+        diag["reason"] = "empty_team_df"
+        return (pd.DataFrame() if team_df is None else team_df), diag
+
+    pem = _load_pregame_expected_minutes(str(date_str))
+    if pem is None or pem.empty:
+        diag["reason"] = "missing_pregame_expected_minutes"
+        return team_df, diag
+
+    t = str(team_tri or "").upper().strip()
+    if not t:
+        diag["reason"] = "missing_team"
+        return team_df, diag
+    if "team_tri" not in pem.columns:
+        diag["reason"] = "bad_schema"
+        return team_df, diag
+
+    pem_t = pem[pem["team_tri"].astype(str).str.upper().str.strip() == t].copy()
+    if pem_t.empty:
+        diag["reason"] = "team_not_found"
+        return team_df, diag
+
+    out = team_df.copy()
+    if "player_name" in out.columns:
+        out["player_name"] = out["player_name"].astype(str).str.strip()
+    out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+
+    pem_t["player_name"] = pem_t.get("player_name", "").astype(str).str.strip()
+    pem_t["_pkey"] = pem_t.get("player_name", "").map(_norm_player_key)
+
+    # Dedupe so mapping is stable.
+    try:
+        if "player_id" in pem_t.columns and pem_t["player_id"].notna().any():
+            pem_t = pem_t.sort_values(["player_id", "exp_min_mean"], ascending=[True, False], kind="stable")
+            pem_t = pem_t.drop_duplicates(subset=["player_id"], keep="first")
+        pem_t = pem_t.sort_values(["_pkey", "exp_min_mean"], ascending=[True, False], kind="stable")
+        pem_t = pem_t.drop_duplicates(subset=["_pkey"], keep="first")
+    except Exception:
+        pass
+
+    # Build mappings (prefer player_id match, fall back to normalized name key).
+    cols = [c for c in pem_t.columns if c not in {"date", "team_tri", "player_name"}]
+    pid_maps: dict[str, dict[int, Any]] = {}
+    key_maps: dict[str, dict[str, Any]] = {}
+    try:
+        pid_ser = pd.to_numeric(pem_t.get("player_id"), errors="coerce").astype("Int64") if "player_id" in pem_t.columns else pd.Series([], dtype="Int64")
+        for c in cols:
+            if c == "player_id":
+                continue
+            if len(pid_ser) and pid_ser.notna().any():
+                m = {}
+                v = pem_t[c]
+                for pid, vv in zip(pid_ser.tolist(), v.tolist()):
+                    if pid is None or (isinstance(pid, float) and (not np.isfinite(pid))):
+                        continue
+                    try:
+                        m[int(pid)] = vv
+                    except Exception:
+                        continue
+                pid_maps[c] = m
+            km = dict(zip(pem_t.get("_pkey", pd.Series([], dtype=str)).astype(str).tolist(), pem_t[c].tolist()))
+            key_maps[c] = km
+    except Exception:
+        pid_maps = {}
+        key_maps = {}
+
+    for c in cols:
+        if c == "_pkey":
+            continue
+        if c in out.columns:
+            base = out[c]
+        else:
+            base = pd.Series([np.nan] * len(out), index=out.index)
+
+        v_pid = pd.Series([np.nan] * len(out), index=out.index)
+        if c in pid_maps and pid_maps[c]:
+            try:
+                v_pid = pid_out.map(pid_maps[c])
+            except Exception:
+                v_pid = pd.Series([np.nan] * len(out), index=out.index)
+
+        v_key = pd.Series([np.nan] * len(out), index=out.index)
+        if c in key_maps and key_maps[c]:
+            try:
+                v_key = out["_pkey"].astype(str).map(key_maps[c])
+            except Exception:
+                v_key = pd.Series([np.nan] * len(out), index=out.index)
+
+        # Prefer pid-derived values; fill remaining by key; preserve any existing (non-null) values.
+        filled = base.where(base.notna(), other=v_pid)
+        filled = filled.where(filled.notna(), other=v_key)
+        out[c] = filled
+
+    try:
+        pid_out = pd.to_numeric(out.get("player_id"), errors="coerce").astype("Int64") if "player_id" in out.columns else pd.Series([pd.NA] * len(out), index=out.index, dtype="Int64")
+        if "exp_min_mean" in out.columns:
+            exp = pd.to_numeric(out["exp_min_mean"], errors="coerce")
+            diag["matched_exp_min"] = int(exp.notna().sum())
+
+            v_pid = pd.Series([np.nan] * len(out), index=out.index)
+            if pid_maps.get("exp_min_mean"):
+                v_pid = pid_out.map(pid_maps["exp_min_mean"])
+            v_key = pd.Series([np.nan] * len(out), index=out.index)
+            if key_maps.get("exp_min_mean"):
+                v_key = out["_pkey"].astype(str).map(key_maps["exp_min_mean"])
+
+            diag["matched_pid_n"] = int(v_pid.notna().sum())
+            diag["matched_key_n"] = int(v_key.notna().sum())
+    except Exception:
+        pass
+
+    diag.setdefault("matched_pid_n", 0)
+    diag.setdefault("matched_key_n", 0)
+    diag["applied"] = True
+    out = out.drop(columns=["_pkey"], errors="ignore")
+    return out, diag
+
+
+@lru_cache(maxsize=96)
+def _compute_player_priors_cached(asof_date_str: str, days_back: int) -> Any:
+    """Cached wrapper for compute_player_priors.
+
+    compute_player_priors can be expensive (loads/aggregates history). During SmartSim
+    range runs it was being recomputed once per game; caching makes it once per as-of date.
+    """
+    cfg = PlayerPriorsConfig(days_back=int(days_back))
+    return compute_player_priors(str(asof_date_str), cfg)
+
+
+def _season_from_date_str(date_str: str) -> int:
+    """Infer NBA season-year from a YYYY-MM-DD date.
+
+    Example: 2026-02-13 -> 2026 (2025-26 season).
+    """
+    try:
+        ts = pd.to_datetime(str(date_str), errors="coerce")
+        if ts is None or pd.isna(ts):
+            raise ValueError("bad date")
+        y = int(ts.year)
+        m = int(ts.month)
+        return int(y + 1) if m >= 7 else int(y)
+    except Exception:
+        # Conservative fallback
+        try:
+            return int(str(date_str)[:4])
+        except Exception:
+            return 0
+
+
+def _norm_pct01(v: Any) -> float:
+    """Normalize percent-like values to 0..1 when inputs are 0..100."""
+    try:
+        x = float(v)
+        if not np.isfinite(x):
+            return float("nan")
+        if x > 1.5:
+            x = x / 100.0
+        return float(x)
+    except Exception:
+        return float("nan")
+
+
+@lru_cache(maxsize=96)
+def _load_team_advanced_stats_asof(season: int, as_of_date_str: str) -> pd.DataFrame:
+    """Load team advanced stats (prefer as-of cache; fall back to season-level).
+
+        Schema (expected):
+            - Core: team, pace, off_rtg, def_rtg, efg_pct, tov_pct, orb_pct, ft_rate, games, source
+            - Optional (if present): fg3a_rate, fg3_pct, ts_pct, ast_per_100
+    """
+
+    s = int(season)
+    ds = str(as_of_date_str).strip()
+    fp_asof = paths.data_processed / f"team_advanced_stats_{s}_asof_{ds}.csv"
+    fp_season = paths.data_processed / f"team_advanced_stats_{s}.csv"
+
+    fp = fp_asof if fp_asof.exists() else fp_season
+    if not fp.exists():
+        return pd.DataFrame()
+
+    try:
+        df = pd.read_csv(fp)
+        if df is None or df.empty:
+            return pd.DataFrame()
+        df = df.copy()
+
+        # Some cached CSVs can have stray whitespace/newlines in headers (e.g. "ft_rate\r\n").
+        df.columns = [str(c).strip() for c in df.columns]
+
+        team_col = "team" if "team" in df.columns else ("team_tri" if "team_tri" in df.columns else None)
+        if team_col is None:
+            return pd.DataFrame()
+        df[team_col] = df[team_col].astype(str).str.upper().str.strip()
+        if team_col != "team":
+            df = df.rename(columns={team_col: "team"})
+
+        for c in [
+            "pace",
+            "off_rtg",
+            "def_rtg",
+            "efg_pct",
+            "tov_pct",
+            "orb_pct",
+            "ft_rate",
+            "fg3a_rate",
+            "fg3_pct",
+            "ts_pct",
+            "ast_per_100",
+            "games",
+        ]:
+            if c in df.columns:
+                df[c] = pd.to_numeric(df[c], errors="coerce")
+
+        # Normalize percent-like columns when sourced from scrapes.
+        for c in ["efg_pct", "tov_pct", "orb_pct", "fg3a_rate", "fg3_pct", "ts_pct"]:
+            if c in df.columns:
+                df[c] = df[c].map(_norm_pct01)
+        if "ft_rate" in df.columns:
+            # FT rate should already be ~0.15..0.35; this keeps 0.xx as-is and converts 20..35 to 0.20..0.35.
+            df["ft_rate"] = df["ft_rate"].map(_norm_pct01)
+
+        df = df.replace([np.inf, -np.inf], np.nan)
+        df = df.dropna(subset=["team"]).reset_index(drop=True)
+        return df
+    except Exception:
+        return pd.DataFrame()
+
+
+def _team_adv_row(df: pd.DataFrame, team_tri: str) -> dict[str, float] | None:
+    if df is None or df.empty:
+        return None
+    t = str(team_tri or "").upper().strip()
+    if not t:
+        return None
+    if "team" not in df.columns:
+        return None
+    m = df[df["team"].astype(str).str.upper().str.strip() == t]
+    if m.empty:
+        return None
+    r = m.iloc[0].to_dict()
+    out: dict[str, float] = {}
+    for k in ["pace", "off_rtg", "def_rtg", "efg_pct", "tov_pct", "orb_pct", "ft_rate", "games"]:
+        try:
+            v = float(r.get(k))
+            out[k] = float(v) if np.isfinite(v) else float("nan")
+        except Exception:
+            out[k] = float("nan")
+    return out
+
+
+def _league_means(df: pd.DataFrame) -> dict[str, float]:
+    out: dict[str, float] = {}
+    if df is None or df.empty:
+        return {
+            "pace": 98.0,
+            "off_rtg": 110.0,
+            "def_rtg": 110.0,
+            "tov_pct": 0.135,
+            "orb_pct": 0.240,
+            "ft_rate": 0.220,
+        }
+
+    def mean_col(c: str, default: float) -> float:
+        try:
+            if c not in df.columns:
+                return float(default)
+            arr = pd.to_numeric(df[c], errors="coerce").to_numpy(dtype=float)
+            m = float(np.nanmean(arr))
+            return float(m) if np.isfinite(m) else float(default)
+        except Exception:
+            return float(default)
+
+    out["pace"] = mean_col("pace", 98.0)
+    out["off_rtg"] = mean_col("off_rtg", 110.0)
+    out["def_rtg"] = mean_col("def_rtg", 110.0)
+    out["tov_pct"] = mean_col("tov_pct", 0.135)
+    out["orb_pct"] = mean_col("orb_pct", 0.240)
+    out["ft_rate"] = mean_col("ft_rate", 0.220)
+    return out
+
+
+def _team_adj_from_advanced_stats(
+    date_str: str,
+    home_tri: str,
+    away_tri: str,
+) -> tuple[Optional[dict[str, float]], Optional[dict[str, float]], float, dict[str, Any]]:
+    """Return (home_adj, away_adj, pace_mult, diag) from cached team advanced stats.
+
+    - Uses as-of cache when present (no-leakage).
+    - Does NOT use market lines.
+    """
+    diag: dict[str, Any] = {"attempted": True, "applied": False, "source": None, "as_of": str(date_str)}
+    try:
+        season = _season_from_date_str(date_str)
+        if season <= 0:
+            diag["reason"] = "bad_season"
+            return None, None, 1.0, diag
+        df = _load_team_advanced_stats_asof(int(season), str(date_str))
+        if df is None or df.empty:
+            diag["reason"] = "missing_team_advanced_stats"
+            return None, None, 1.0, diag
+
+        if isinstance(df, pd.DataFrame) and "source" in df.columns and not df["source"].empty:
+            try:
+                diag["source"] = str(df["source"].iloc[0])
+            except Exception:
+                diag["source"] = "cache"
+        else:
+            diag["source"] = "cache"
+        h = _team_adv_row(df, home_tri)
+        a = _team_adv_row(df, away_tri)
+        lg = _league_means(df)
+        diag["league"] = lg
+        diag["home"] = h
+        diag["away"] = a
+
+        if not h or not a:
+            diag["reason"] = "team_not_found"
+            return None, None, 1.0, diag
+
+        # Pace multiplier: based on average matchup pace vs league.
+        pace_vals = [float(h.get("pace", float("nan"))), float(a.get("pace", float("nan")))]
+        pace_vals = [x for x in pace_vals if np.isfinite(x) and x > 0]
+        league_pace = float(lg.get("pace", 98.0))
+        if pace_vals and np.isfinite(league_pace) and league_pace > 0:
+            pace_match = float(np.mean(pace_vals))
+            pace_mult = float(np.clip(pace_match / league_pace, 0.92, 1.08))
+        else:
+            pace_mult = 1.0
+
+        league_off = float(lg.get("off_rtg", 110.0))
+        league_def = float(lg.get("def_rtg", 110.0))
+
+        def _ratio(x: float, base: float, lo: float, hi: float) -> float:
+            try:
+                x = float(x)
+                base = float(base)
+                if (not np.isfinite(x)) or (not np.isfinite(base)) or base <= 0:
+                    return 1.0
+                return float(np.clip(x / base, lo, hi))
+            except Exception:
+                return 1.0
+
+        # Efficiency is opponent-aware: offense strength * opponent defense weakness.
+        eff_h = _ratio(float(h.get("off_rtg", float("nan"))), league_off, 0.85, 1.15) * _ratio(float(a.get("def_rtg", float("nan"))), league_def, 0.90, 1.10)
+        eff_a = _ratio(float(a.get("off_rtg", float("nan"))), league_off, 0.85, 1.15) * _ratio(float(h.get("def_rtg", float("nan"))), league_def, 0.90, 1.10)
+        eff_h = float(np.clip(eff_h, 0.80, 1.20))
+        eff_a = float(np.clip(eff_a, 0.80, 1.20))
+
+        # Other four-factor style adjustments (offense-side only; kept bounded).
+        league_tov = float(lg.get("tov_pct", 0.135))
+        league_orb = float(lg.get("orb_pct", 0.240))
+        league_ft = float(lg.get("ft_rate", 0.220))
+
+        tov_h = _ratio(float(h.get("tov_pct", float("nan"))), league_tov, 0.85, 1.15)
+        tov_a = _ratio(float(a.get("tov_pct", float("nan"))), league_tov, 0.85, 1.15)
+        foul_h = _ratio(float(h.get("ft_rate", float("nan"))), league_ft, 0.80, 1.25)
+        foul_a = _ratio(float(a.get("ft_rate", float("nan"))), league_ft, 0.80, 1.25)
+        oreb_h = _ratio(float(h.get("orb_pct", float("nan"))), league_orb, 0.75, 1.35)
+        oreb_a = _ratio(float(a.get("orb_pct", float("nan"))), league_orb, 0.75, 1.35)
+
+        home_adj = {"eff_mult": eff_h, "tov_mult": tov_h, "foul_mult": foul_h, "oreb_mult": oreb_h}
+        away_adj = {"eff_mult": eff_a, "tov_mult": tov_a, "foul_mult": foul_a, "oreb_mult": oreb_a}
+
+        diag["applied"] = True
+        diag["pace_mult"] = pace_mult
+        diag["home_adj"] = home_adj
+        diag["away_adj"] = away_adj
+        return home_adj, away_adj, pace_mult, diag
+    except Exception as e:
+        diag["reason"] = str(e)
+        return None, None, 1.0, diag
+
+
 def _finite_float_or_nan(x: Any) -> float:
     try:
         v = float(x)
@@ -38,6 +503,76 @@ def _load_intervals_band_calibration() -> dict[str, Any] | None:
         return obj if isinstance(obj, dict) else None
     except Exception:
         return None
+
+
+@lru_cache(maxsize=1)
+def _load_intervals_time_profile() -> dict[str, Any] | None:
+    """Load optional interval time-profile calibration.
+
+    If present, this adjusts the *shape* of regulation 3-minute segments before
+    we compute interval quantiles (p10/p50/p90), while preserving each simulation's
+    total points by renormalizing per-sim totals.
+
+    Expected JSON at data/processed/intervals_time_profile.json:
+      {"segment_multipliers": [m1..m16], "clip": [lo, hi], ...}
+
+    If missing/invalid, returns None and SmartSim outputs remain unchanged.
+    """
+
+    p = paths.data_processed / "intervals_time_profile.json"
+    if not p.exists():
+        return None
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+        return obj if isinstance(obj, dict) else None
+    except Exception:
+        return None
+
+
+def _apply_intervals_time_profile(
+    reg_total: np.ndarray,
+    profile: dict[str, Any] | None,
+) -> np.ndarray:
+    """Apply time-profile multipliers to reg_total (n_sims x n_reg_segs).
+
+    Multiplies each segment by its multiplier, then rescales each sim row to keep
+    the row sum unchanged.
+    """
+
+    if reg_total is None or not isinstance(reg_total, np.ndarray) or reg_total.size == 0:
+        return reg_total
+    if not profile or not isinstance(profile, dict):
+        return reg_total
+
+    mults = profile.get("segment_multipliers")
+    if not isinstance(mults, list) or len(mults) != int(reg_total.shape[1]):
+        return reg_total
+
+    m = np.asarray([_finite_float_or_nan(x) for x in mults], dtype=float)
+    if m.size != int(reg_total.shape[1]) or not np.isfinite(m).all():
+        return reg_total
+
+    # Optional clip guardrail (extra safety beyond what the builder should already do).
+    try:
+        clip = profile.get("clip")
+        if isinstance(clip, (list, tuple)) and len(clip) == 2:
+            lo = float(clip[0])
+            hi = float(clip[1])
+            if np.isfinite(lo) and np.isfinite(hi) and lo > 0 and hi > 0 and lo <= hi:
+                m = np.clip(m, lo, hi)
+    except Exception:
+        pass
+
+    # Apply per-segment multipliers.
+    adj = reg_total.astype(float) * m.reshape(1, -1)
+
+    # Renormalize per sim so total points stays identical.
+    orig_sum = np.sum(reg_total.astype(float), axis=1)
+    adj_sum = np.sum(adj, axis=1)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        scale = np.where(adj_sum > 0, orig_sum / adj_sum, 1.0)
+    scale = np.where(np.isfinite(scale), scale, 1.0)
+    return adj * scale.reshape(-1, 1)
 
 
 @lru_cache(maxsize=1)
@@ -131,11 +666,99 @@ def _read_hist_any(pq_path, csv_path) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+@lru_cache(maxsize=1)
+def _load_player_logs_processed() -> pd.DataFrame:
+    p = paths.data_processed / "player_logs.csv"
+    if not p.exists():
+        return pd.DataFrame()
+    try:
+        df = pd.read_csv(p)
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+def _parse_min_to_float(v: Any) -> float:
+    try:
+        if v is None:
+            return float("nan")
+        if isinstance(v, str) and ":" in v:
+            mm, ss = v.split(":", 1)
+            return float(mm) + float(ss) / 60.0
+        x = float(v)
+        return float(x) if np.isfinite(x) else float("nan")
+    except Exception:
+        return float("nan")
+
+
+@lru_cache(maxsize=512)
+def _minutes_priors_from_player_logs(*, date_str: str, team_tri: str, lookback_days: int = 21) -> dict[str, float]:
+    """Return {PLAYER_KEY -> avg_minutes} from recent games for a team."""
+
+    try:
+        ds = str(date_str)
+        if not ds:
+            return {}
+        team = str(team_tri or "").strip().upper()
+        if not team:
+            return {}
+
+        logs = _load_player_logs_processed()
+        if logs is None or logs.empty:
+            return {}
+
+        if "GAME_DATE" not in logs.columns or "TEAM_ABBREVIATION" not in logs.columns:
+            return {}
+
+        x = logs.copy()
+        x["GAME_DATE"] = pd.to_datetime(x["GAME_DATE"], errors="coerce")
+        end = pd.to_datetime(ds, errors="coerce")
+        if pd.isna(end):
+            return {}
+
+        start = end - pd.Timedelta(days=int(max(1, lookback_days)))
+        x = x[(x["GAME_DATE"] >= start) & (x["GAME_DATE"] < end)].copy()
+        if x.empty:
+            return {}
+
+        x["TEAM_ABBREVIATION"] = x["TEAM_ABBREVIATION"].astype(str).str.upper().str.strip()
+        x = x[x["TEAM_ABBREVIATION"] == team].copy()
+        if x.empty:
+            return {}
+
+        name_col = "PLAYER_NAME" if "PLAYER_NAME" in x.columns else ("player_name" if "player_name" in x.columns else None)
+        if not name_col:
+            return {}
+
+        min_col = "MIN" if "MIN" in x.columns else ("min" if "min" in x.columns else None)
+        if not min_col:
+            return {}
+
+        x["_pkey"] = x[name_col].map(_norm_player_key)
+        x["_min"] = x[min_col].map(_parse_min_to_float)
+        x = x[np.isfinite(x["_min"])].copy()
+        x = x[x["_pkey"].astype(str).str.len() > 0].copy()
+        if x.empty:
+            return {}
+
+        pri = x.groupby("_pkey", as_index=True)["_min"].mean().to_dict()
+        return {str(k): float(v) for k, v in pri.items() if k and v is not None and np.isfinite(float(v))}
+    except Exception:
+        return {}
+
+
 @dataclass
 class SmartSimConfig:
     n_sims: int = 2000
     seed: Optional[int] = None
     priors_days_back: int = 21
+
+    # Roster sourcing mode:
+    # - "historical" (default): may use completed-game artifacts (processed boxscores, ESPN boxscore)
+    #   to build a full roster when the props pool is sparse.
+    # - "pregame": do not use postgame boxscore-derived roster sources; only use props pool and
+    #   processed season rosters as fallback.
+    roster_mode: str = "historical"
 
     # If true, run a unified possession-level sim that produces quarter/game scores
     # and player stats from one coherent event stream (no quarter targets + reconciliation).
@@ -207,7 +830,20 @@ def _team_players_from_props(props_df: pd.DataFrame, team_tri: str, opp_tri: str
             pass
 
     if "player_name" in out.columns:
-        out = out[out["player_name"].astype(str).str.strip().ne("")].copy()
+        out["player_name"] = out["player_name"].astype(str).str.strip()
+        out = out[out["player_name"].ne("")].copy()
+
+    # Props feeds can contain multiple rows per player (one per market/stat).
+    # SmartSim expects one row per player; duplicates cause minutes/usage to be split
+    # across multiple rows and then effectively disappear from per-player exports.
+    try:
+        if "player_name" in out.columns:
+            if "team" in out.columns:
+                out = out.drop_duplicates(subset=["player_name", "team"], keep="last")
+            else:
+                out = out.drop_duplicates(subset=["player_name"], keep="last")
+    except Exception:
+        pass
 
     return out
 
@@ -852,11 +1488,25 @@ def _team_players_from_processed_rosters(
 def _roll_minutes_unscaled(team_df: pd.DataFrame) -> pd.Series:
     if team_df is None or team_df.empty:
         return pd.Series(dtype=float)
-    min_cols = [c for c in ("roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
-    if not min_cols:
-        return pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
-    mins = pd.to_numeric(team_df[min_cols[0]], errors="coerce").fillna(0.0).astype(float)
-    return mins.clip(lower=0.0, upper=44.0)
+    min_cols = [c for c in ("exp_min_mean", "roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
+    mins = pd.Series([np.nan] * len(team_df), index=team_df.index, dtype=float)
+
+    for c in min_cols:
+        alt = pd.to_numeric(team_df[c], errors="coerce").astype(float)
+        alt = alt.where(alt > 0.0, np.nan)
+        mins = mins.where(mins.notna(), other=alt)
+
+    # Avoid collapse to a few rows when roster augmentation introduced missing features.
+    pos_n = int((pd.to_numeric(mins, errors="coerce").fillna(0.0) > 0.0).sum())
+    if len(team_df) >= 8 and pos_n < 8:
+        try:
+            med = float(pd.to_numeric(mins[mins.notna()], errors="coerce").median())
+            fill_val = med if np.isfinite(med) and med > 0.0 else 18.0
+        except Exception:
+            fill_val = 18.0
+        mins = mins.where(mins.notna(), other=float(fill_val))
+    mins = mins.fillna(24.0)
+    return pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float).clip(lower=0.0, upper=44.0)
 
 
 def _cap_and_redistribute_minutes(
@@ -1000,10 +1650,30 @@ def _rotation_sim_minutes_for_team(
 
     mins_df["player_id"] = mins_df["player_id"].astype(str).map(_clean_id_str)
     mins_df["minutes"] = pd.to_numeric(mins_df["minutes"], errors="coerce").fillna(0.0).astype(float)
-    id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes"].astype(float)))
+    total_raw = float(mins_df["minutes"].sum())
+    diag["rotation_total_minutes_raw"] = total_raw
+    # Guardrail: rotation stints files can occasionally be incomplete/corrupt; treat them
+    # as a distribution only if totals look plausible.
+    if (not np.isfinite(total_raw)) or total_raw <= 0 or total_raw < 200.0 or total_raw > 340.0:
+        sim_min, lineups, lw, diag2 = _rotation_sim_minutes_from_history(
+            team_df=team_df,
+            date_str=date_str,
+            home_tri=home_tri,
+            away_tri=away_tri,
+            team_tri=team_tri,
+            lookback_days=28,
+        )
+        diag.update({k: v for k, v in (diag2 or {}).items() if k not in {"attempted", "team"}})
+        diag["applied"] = bool(diag.get("applied", False))
+        diag["fallback_reason"] = "bad_rotation_total_minutes"
+        diag["reason"] = str(diag.get("reason") or "bad_rotation_total_minutes")
+        return sim_min, lineups, lw, diag
 
-    total_target = float(mins_df["minutes"].sum())
-    diag["rotation_total_minutes"] = total_target
+    # Treat stints minutes as a *distribution*; normalize to regulation team minutes.
+    mins_df["minutes_scaled"] = mins_df["minutes"] * (240.0 / float(total_raw))
+    id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes_scaled"].astype(float)))
+    total_target = 240.0
+    diag["rotation_total_minutes"] = float(total_target)
 
     # Assign mapped minutes; handle duplicated ESPN IDs by splitting proportionally.
     base_w = _roll_minutes_unscaled(tmp)
@@ -1055,6 +1725,9 @@ def _rotation_sim_minutes_for_team(
     total_sim = float(sim_min.sum())
     if np.isfinite(total_target) and total_target > 0 and np.isfinite(total_sim) and total_sim > 0:
         sim_min = sim_min * (total_target / total_sim)
+
+    # Enforce a regulation-style cap and preserve team minutes.
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=44.0, iters=12)
 
     # Build observed lineup pool from stints (5-man units) mapped to row indices.
     lineup_pool: List[List[int]] = []
@@ -1108,15 +1781,15 @@ def _rotation_sim_minutes_for_team(
     return sim_min.astype(float), (lineup_pool if lineup_pool else None), (np.asarray(lineup_w, dtype=float) if lineup_w else None), diag
 
 
-def _derive_sim_minutes(team_df: pd.DataFrame) -> pd.Series:
+def _derive_sim_minutes(team_df: pd.DataFrame, *, date_str: str | None = None, team_tri: str | None = None) -> pd.Series:
     if team_df is None or team_df.empty:
         return pd.Series(dtype=float)
 
-    # Prefer roll10/roll5 minutes from props predictions.
+    # Prefer pregame expected minutes when available; otherwise fall back to roll10/roll5 minutes.
     # NOTE: roster augmentation can introduce rows with missing minute features; if we
     # leave those at 0, SmartSim will allocate nearly all team stats to the remaining
     # few players with non-zero minutes.
-    min_cols = [c for c in ("roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
+    min_cols = [c for c in ("exp_min_mean", "roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
     if not min_cols:
         mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
     else:
@@ -1127,6 +1800,21 @@ def _derive_sim_minutes(team_df: pd.DataFrame) -> pd.Series:
                 break
             alt = pd.to_numeric(team_df[c], errors="coerce").fillna(0.0).astype(float)
             mins = mins.where(mins > 0.0, alt)
+
+        # If minutes are sparse, try to fill from recent actual minutes (player_logs.csv).
+        pos_n = int((mins > 0.0).sum())
+        if len(team_df) >= 8 and pos_n < 8 and date_str and team_tri:
+            pri = _minutes_priors_from_player_logs(date_str=str(date_str), team_tri=str(team_tri), lookback_days=21)
+            if pri:
+                try:
+                    pkeys = team_df.get("player_name", "").map(_norm_player_key)
+                    pri_m = pkeys.map(pri)
+                    pri_m = pd.to_numeric(pri_m, errors="coerce").fillna(0.0).astype(float)
+                    # Only use priors if we matched a reasonable number of players.
+                    if int((pri_m > 0.0).sum()) >= 5:
+                        mins = mins.where(mins > 0.0, other=pri_m)
+                except Exception:
+                    pass
 
         # If we still have too few players with minutes, assign a conservative
         # default to the remaining roster so the sim doesn't collapse to 1-3 players.
@@ -1188,7 +1876,7 @@ def _derive_sim_minutes(team_df: pd.DataFrame) -> pd.Series:
     return mins
 
 
-def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minutes: Optional[pd.Series] = None) -> pd.DataFrame:
+def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minutes: Optional[pd.Series] = None, *, date_str: str | None = None) -> pd.DataFrame:
     if team_df is None or team_df.empty:
         return pd.DataFrame()
 
@@ -1199,7 +1887,7 @@ def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minut
     if sim_minutes is not None and len(sim_minutes) == len(out):
         out["_sim_min"] = pd.to_numeric(sim_minutes, errors="coerce").fillna(0.0).astype(float)
     else:
-        out["_sim_min"] = _derive_sim_minutes(out)
+        out["_sim_min"] = _derive_sim_minutes(out, date_str=date_str, team_tri=team_tri)
 
     # Prediction-derived per-minute fallbacks
     pred_cols = {
@@ -1403,6 +2091,25 @@ def _market_lines_from_processed_odds(date_str: str, home_tri: str, away_tri: st
         return None, None
 
 
+def _load_smartsim_total_calibration() -> dict[str, Any]:
+    """Optional post-hoc calibration for total points.
+
+    If present, expects data/processed/smart_sim_total_calibration.json:
+      {"points_mult": 0.99, ...}
+    """
+    fp = paths.data_processed / "smart_sim_total_calibration.json"
+    if not fp.exists():
+        return {}
+    try:
+        import json
+
+        with open(fp, "r", encoding="utf-8") as f:
+            j = json.load(f)
+        return j if isinstance(j, dict) else {}
+    except Exception:
+        return {}
+
+
 def _period_lines_from_processed(date_str: str, home_tri: str, away_tri: str) -> Optional[dict[str, Any]]:
     """Best-effort period lines (Q1-Q4 + H1) from data/processed/period_lines_<date>.csv."""
     fp = paths.data_processed / f"period_lines_{str(date_str).strip()}.csv"
@@ -1489,6 +2196,68 @@ def simulate_smart_game(
     except Exception:
         event_cfg = cfg.event_cfg
 
+    roster_mode = str(getattr(cfg, "roster_mode", None) or "historical").strip().lower()
+    pregame_safe = roster_mode in {"pregame", "pregame_safe", "pregame-safe", "safe_pregame", "no_boxscore", "no-boxscore"}
+
+    # Strict as-of cutoff for pregame-safe backtests:
+    # many cached artifacts (player_logs, boxscore-derived team stats, etc.) are keyed by game date.
+    # When evaluating historical dates *as if pregame*, we should not include same-day games.
+    asof_date_str = str(date_str)
+    if pregame_safe:
+        try:
+            ts = pd.to_datetime(str(date_str), errors="coerce")
+            if ts is not None and (not pd.isna(ts)):
+                asof_date_str = (ts.normalize() - pd.Timedelta(days=1)).date().isoformat()
+        except Exception:
+            asof_date_str = str(date_str)
+
+    # Opponent-aware team priors from cached advanced stats (no market inputs).
+    home_team_adj: Optional[dict[str, float]] = None
+    away_team_adj: Optional[dict[str, float]] = None
+    team_adv_diag: dict[str, Any] = {"attempted": False, "applied": False}
+    try:
+        home_team_adj, away_team_adj, pace_mult, team_adv_diag = _team_adj_from_advanced_stats(
+            date_str=str(asof_date_str),
+            home_tri=str(home_tri),
+            away_tri=str(away_tri),
+        )
+        pm = float(pace_mult) if np.isfinite(float(pace_mult)) else 1.0
+        if np.isfinite(pm) and pm != 1.0:
+            base_poss = float(getattr(event_cfg, "possessions_per_game", 98.0))
+            # Keep bounded to preserve existing tuning + quarters model.
+            new_poss = float(np.clip(base_poss * pm, 88.0, 112.0))
+            event_cfg = replace(event_cfg, possessions_per_game=float(new_poss))
+            team_adv_diag["possessions_per_game_before"] = float(base_poss)
+            team_adv_diag["possessions_per_game_after"] = float(new_poss)
+    except Exception:
+        home_team_adj = None
+        away_team_adj = None
+        team_adv_diag = {"attempted": True, "applied": False, "reason": "exception"}
+
+    # Optional: global total-points calibration (acts as a gentle PPP multiplier).
+    # Applied via team efficiency multipliers so player stats remain coherent.
+    try:
+        cal = _load_smartsim_total_calibration()
+        pm = float(cal.get("points_mult", 1.0))
+        if not np.isfinite(pm):
+            pm = 1.0
+        pm = float(np.clip(pm, 0.97, 1.03))
+        if abs(pm - 1.0) > 1e-9:
+            def _apply(adj: Optional[dict[str, float]]) -> dict[str, float]:
+                out = dict(adj) if isinstance(adj, dict) else {}
+                out["eff_mult"] = float(out.get("eff_mult", 1.0)) * pm
+                return out
+
+            home_team_adj = _apply(home_team_adj)
+            away_team_adj = _apply(away_team_adj)
+            try:
+                team_adv_diag["points_mult"] = float(pm)
+                team_adv_diag["points_mult_source"] = "smart_sim_total_calibration.json"
+            except Exception:
+                pass
+    except Exception:
+        pass
+
     if market_total is None or market_home_spread is None:
         t2, s2 = _market_lines_from_processed_odds(date_str=date_str, home_tri=home_tri, away_tri=away_tri)
         if market_total is None:
@@ -1504,9 +2273,8 @@ def simulate_smart_game(
         inp = GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=market_home_spread)
         quarters = simulate_quarters(inp, n_samples=3000).quarters
 
-    # Player priors
-    pri_cfg = PlayerPriorsConfig(days_back=int(cfg.priors_days_back))
-    pri = compute_player_priors(date_str, pri_cfg)
+    # Player priors (cached per as-of date)
+    pri = _compute_player_priors_cached(str(asof_date_str), int(cfg.priors_days_back))
 
     excluded_map: dict[str, set[str]] = {}
     try:
@@ -1524,22 +2292,35 @@ def simulate_smart_game(
     def _drop_excluded(df: pd.DataFrame, team_tri: str) -> pd.DataFrame:
         if df is None or df.empty:
             return pd.DataFrame() if df is None else df
+        out = df.copy()
+
+        # Always enforce non-empty player names. Some fallback pools (or partial joins)
+        # can introduce blank names; if those rows receive minutes they will silently
+        # vanish from exports/minutes summaries.
+        if "player_name" in out.columns:
+            out["player_name"] = out["player_name"].astype(str).str.strip()
+            out = out[out["player_name"].ne("")].copy()
+        if out.empty:
+            return out
+
         t = str(team_tri or "").strip().upper()
         ban = excluded_map.get(t)
-        if not ban:
-            return df
-        out = df.copy()
-        out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
-        out = out[~out["_pkey"].astype(str).str.upper().isin(ban)].drop(columns=["_pkey"], errors="ignore")
+        if ban:
+            out["_pkey"] = out.get("player_name", "").map(_norm_player_key)
+            out = out[~out["_pkey"].astype(str).str.upper().isin(ban)].drop(columns=["_pkey"], errors="ignore")
         return out
 
     home_raw = _drop_excluded(_team_players_from_props(props_df, home_tri, away_tri), home_tri)
     away_raw = _drop_excluded(_team_players_from_props(props_df, away_tri, home_tri), away_tri)
 
+    allow_processed_boxscores = (not pregame_safe)
+    allow_espn_boxscore = (not pregame_safe)
+
     # Roster guardrail: SmartSim needs a reasonably-sized player pool.
-    # If props-based pool is missing most of the roster, augment with:
-    # 1) processed boxscores roster (best for completed games)
-    # 2) ESPN boxscore roster (best-effort pregame / when boxscores missing)
+    # If props-based pool is missing most of the roster, augment with (in order):
+    # 1) processed boxscores roster (completed games only; disabled in pregame-safe mode)
+    # 2) ESPN boxscore roster (often postgame; disabled in pregame-safe mode)
+    # 3) processed season rosters (pregame-safe fallback)
     # letting props rows override on name/team.
     def _augment_team_players(team_raw: pd.DataFrame, team_tri: str, gid: Optional[str]) -> pd.DataFrame:
         try:
@@ -1549,34 +2330,38 @@ def simulate_smart_game(
             if (not base.empty) and (len(base) >= 8):
                 return _drop_excluded(base, team_tri)
 
-            from_box = _team_players_from_processed_boxscores(
-                date_str=str(date_str),
-                home_tri=str(home_tri),
-                away_tri=str(away_tri),
-                team_tri=str(team_tri),
-                game_id=gid,
-            )
-            if from_box is not None and not from_box.empty:
-                comb = pd.concat([from_box, base], ignore_index=True, sort=False)
-                if "team" in comb.columns:
-                    comb["team"] = comb["team"].astype(str).str.upper().str.strip()
-                if "player_name" in comb.columns:
-                    comb["player_name"] = comb["player_name"].astype(str).str.strip()
-                    comb = comb[comb["player_name"].ne("")].copy()
+            if allow_processed_boxscores:
+                from_box = _team_players_from_processed_boxscores(
+                    date_str=str(date_str),
+                    home_tri=str(home_tri),
+                    away_tri=str(away_tri),
+                    team_tri=str(team_tri),
+                    game_id=gid,
+                )
+                if from_box is not None and not from_box.empty:
+                    comb = pd.concat([from_box, base], ignore_index=True, sort=False)
                     if "team" in comb.columns:
-                        comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
-                    else:
-                        comb = comb.drop_duplicates(subset=["player_name"], keep="last")
-                return _drop_excluded(comb, team_tri)
+                        comb["team"] = comb["team"].astype(str).str.upper().str.strip()
+                    if "player_name" in comb.columns:
+                        comb["player_name"] = comb["player_name"].astype(str).str.strip()
+                        comb = comb[comb["player_name"].ne("")].copy()
+                        if "team" in comb.columns:
+                            comb = comb.drop_duplicates(subset=["player_name", "team"], keep="last")
+                        else:
+                            comb = comb.drop_duplicates(subset=["player_name"], keep="last")
+                    return _drop_excluded(comb, team_tri)
 
-            espn = _team_players_from_espn_boxscore(
-                date_str,
-                home_tri=home_tri,
-                away_tri=away_tri,
-                team_tri=team_tri,
-            )
+            espn = None
+            if allow_espn_boxscore:
+                espn = _team_players_from_espn_boxscore(
+                    date_str,
+                    home_tri=home_tri,
+                    away_tri=away_tri,
+                    team_tri=team_tri,
+                )
+
             if espn is None or espn.empty:
-                # Last-ditch pregame fallback: season rosters.
+                # Pregame-safe fallback: season rosters.
                 rost = _team_players_from_processed_rosters(
                     date_str=str(date_str),
                     home_tri=str(home_tri),
@@ -1596,6 +2381,7 @@ def simulate_smart_game(
                     else:
                         comb = comb.drop_duplicates(subset=["player_name"], keep="last")
                 return _drop_excluded(comb, team_tri)
+
             # Prefer props rows when present by concatenating ESPN first then props and keeping last.
             comb = pd.concat([espn, base], ignore_index=True, sort=False)
             if "team" in comb.columns:
@@ -1611,23 +2397,44 @@ def simulate_smart_game(
         except Exception:
             return team_raw if isinstance(team_raw, pd.DataFrame) else pd.DataFrame()
 
-    gid = str(game_id or "").strip() or (_infer_game_id(date_str, home_tri=home_tri, away_tri=away_tri) or "")
+    # IMPORTANT: In pregame-safe mode, never use a concrete game_id.
+    # A gid enables reading per-game rotation stints which are postgame artifacts in backfills.
+    gid = "" if pregame_safe else str(game_id or "").strip()
+    if (not gid) and (not pregame_safe):
+        gid = str(_infer_game_id(date_str, home_tri=home_tri, away_tri=away_tri) or "").strip()
+    gid = gid or None
 
     home_raw = _augment_team_players(home_raw, team_tri=home_tri, gid=gid)
     away_raw = _augment_team_players(away_raw, team_tri=away_tri, gid=gid)
 
-    # Final fallback: if still empty, try processed boxscores then ESPN.
+    # Final fallback: if still empty, try processed boxscores/ESPN only when allowed.
+    if allow_processed_boxscores:
+        if home_raw is None or home_raw.empty:
+            home_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri, game_id=gid)
+        if away_raw is None or away_raw.empty:
+            away_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=away_tri, game_id=gid)
+    if allow_espn_boxscore:
+        if home_raw is None or home_raw.empty:
+            home_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri)
+        if away_raw is None or away_raw.empty:
+            away_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=away_tri)
+    # Pregame-safe final fallback: season rosters.
     if home_raw is None or home_raw.empty:
-        home_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri, game_id=gid)
+        home_raw = _team_players_from_processed_rosters(date_str=str(date_str), home_tri=str(home_tri), away_tri=str(away_tri), team_tri=str(home_tri))
     if away_raw is None or away_raw.empty:
-        away_raw = _team_players_from_processed_boxscores(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=away_tri, game_id=gid)
-    if home_raw is None or home_raw.empty:
-        home_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=home_tri)
-    if away_raw is None or away_raw.empty:
-        away_raw = _team_players_from_espn_boxscore(date_str, home_tri=home_tri, away_tri=away_tri, team_tri=away_tri)
+        away_raw = _team_players_from_processed_rosters(date_str=str(date_str), home_tri=str(home_tri), away_tri=str(away_tri), team_tri=str(away_tri))
 
     home_raw = home_raw.reset_index(drop=True) if isinstance(home_raw, pd.DataFrame) else pd.DataFrame()
     away_raw = away_raw.reset_index(drop=True) if isinstance(away_raw, pd.DataFrame) else pd.DataFrame()
+
+    # Merge pregame expected minutes into the roster rows (if available).
+    pem_diag: dict[str, Any] = {"home": None, "away": None}
+    try:
+        home_raw, pem_diag_home = _merge_pregame_expected_minutes_for_team(home_raw, date_str=str(date_str), team_tri=str(home_tri))
+        away_raw, pem_diag_away = _merge_pregame_expected_minutes_for_team(away_raw, date_str=str(date_str), team_tri=str(away_tri))
+        pem_diag = {"home": pem_diag_home, "away": pem_diag_away}
+    except Exception:
+        pem_diag = {"home": None, "away": None}
 
     # Best-effort ESPN event id for this matchup (useful for lineup teammate effects even pregame).
     eid_matchup: Optional[str] = None
@@ -1639,9 +2446,11 @@ def simulate_smart_game(
     except Exception:
         eid_matchup = None
 
+    rot_date_str = str(asof_date_str) if pregame_safe else str(date_str)
+
     rot_home_min, home_lineups, home_lineup_w, rot_home_diag = _rotation_sim_minutes_for_team(
         home_raw,
-        date_str=date_str,
+        date_str=rot_date_str,
         home_tri=home_tri,
         away_tri=away_tri,
         team_tri=home_tri,
@@ -1650,7 +2459,7 @@ def simulate_smart_game(
     )
     rot_away_min, away_lineups, away_lineup_w, rot_away_diag = _rotation_sim_minutes_for_team(
         away_raw,
-        date_str=date_str,
+        date_str=rot_date_str,
         home_tri=home_tri,
         away_tri=away_tri,
         team_tri=away_tri,
@@ -1658,8 +2467,8 @@ def simulate_smart_game(
         game_id=gid,
     )
 
-    home_players = _apply_player_priors(home_raw, pri, team_tri=home_tri, sim_minutes=rot_home_min)
-    away_players = _apply_player_priors(away_raw, pri, team_tri=away_tri, sim_minutes=rot_away_min)
+    home_players = _apply_player_priors(home_raw, pri, team_tri=home_tri, sim_minutes=rot_home_min, date_str=str(rot_date_str))
+    away_players = _apply_player_priors(away_raw, pri, team_tri=away_tri, sim_minutes=rot_away_min, date_str=str(rot_date_str))
 
     # Optional: lineup-conditioned teammate effects (learned from historical play context + rotation pairs).
     lineup_effects_diag: dict[str, Any] = {"home": None, "away": None}
@@ -1872,6 +2681,8 @@ def simulate_smart_game(
                 target_home_points=target_home_points,
                 target_away_points=target_away_points,
                 quarters=quarters,
+                home_team_adj=home_team_adj,
+                away_team_adj=away_team_adj,
             )
 
             hq_sims[i, :] = np.asarray(list(hq_i or [0, 0, 0, 0])[:4], dtype=int)
@@ -2027,11 +2838,13 @@ def simulate_smart_game(
                 away_players=away_players,
                 home_q_pts=hq_i,
                 away_q_pts=aq_i,
-                cfg=cfg.event_cfg,
+                cfg=event_cfg,
                 home_lineups=home_lineups,
                 home_lineup_weights=home_lineup_w,
                 away_lineups=away_lineups,
                 away_lineup_weights=away_lineup_w,
+                home_team_adj=home_team_adj,
+                away_team_adj=away_team_adj,
             )
 
             hq_sims[i, :] = np.asarray(list(hq_i or [0, 0, 0, 0])[:4], dtype=int)
@@ -2249,6 +3062,31 @@ def simulate_smart_game(
             ctx_out = dict(pregame_context)
     except Exception:
         ctx_out = {}
+
+    # Record which simulation path was used.
+    try:
+        ctx_out["pbp_used"] = bool(getattr(cfg, "use_pbp", False))
+    except Exception:
+        pass
+
+    try:
+        ctx_out["roster_mode"] = str(roster_mode)
+        ctx_out["asof_date"] = str(asof_date_str)
+    except Exception:
+        pass
+
+    try:
+        if isinstance(pem_diag, dict) and pem_diag:
+            ctx_out["pregame_expected_minutes"] = pem_diag
+    except Exception:
+        pass
+
+    try:
+        if isinstance(team_adv_diag, dict) and team_adv_diag:
+            # Always overwrite to reflect the actual priors used by this simulation.
+            ctx_out["team_advanced_priors"] = team_adv_diag
+    except Exception:
+        pass
     try:
         if excluded_map:
             ctx_out.setdefault(
@@ -2289,9 +3127,9 @@ def simulate_smart_game(
     # (e.g., pregame: stints unavailable, ESPN mapping incomplete, or fallback rosters used.)
     try:
         if not home_minutes_by_name:
-            home_minutes_by_name = _sim_minutes_by_name(home_raw, _derive_sim_minutes(home_raw))
+            home_minutes_by_name = _sim_minutes_by_name(home_raw, _derive_sim_minutes(home_raw, date_str=str(date_str), team_tri=str(home_tri)))
         if not away_minutes_by_name:
-            away_minutes_by_name = _sim_minutes_by_name(away_raw, _derive_sim_minutes(away_raw))
+            away_minutes_by_name = _sim_minutes_by_name(away_raw, _derive_sim_minutes(away_raw, date_str=str(date_str), team_tri=str(away_tri)))
     except Exception:
         pass
 
@@ -2316,9 +3154,11 @@ def simulate_smart_game(
     intervals_1m: Optional[dict[str, Any]] = None
     try:
         cal = _load_intervals_band_calibration()
+        tp = _load_intervals_time_profile()
 
         n_reg_segs = int(4 * n_seg_per_q)
         reg_total = (hqseg_sims + aqseg_sims).reshape(int(n_sims), n_reg_segs).astype(float)
+        reg_total = _apply_intervals_time_profile(reg_total, tp)
         reg_cum = np.cumsum(reg_total, axis=1)
 
         def _seg_label(qi: int, si: int, seconds_per_seg: int) -> str:

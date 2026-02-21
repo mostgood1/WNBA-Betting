@@ -652,6 +652,7 @@ def _smart_sim_worker_init(
     seed: Optional[int],
     pbp: bool,
     props_path: str,
+    roster_mode: str,
     excluded_map: dict[str, set[str]],
     adv_map: dict[str, dict[str, float]],
     game_id_map: dict[tuple[str, str], int],
@@ -673,6 +674,7 @@ def _smart_sim_worker_init(
         "n_sims": int(n_sims),
         "seed": seed,
         "pbp": bool(pbp),
+        "roster_mode": str(roster_mode or "historical"),
         "props_df": props_df,
         "excluded_map": excluded_map or {},
         "adv_map": adv_map or {},
@@ -765,7 +767,13 @@ def _smart_sim_worker_run(job: dict) -> dict:
             n_samples=3000,
         )
 
-        cfg = SmartSimConfig(n_sims=int(st.get("n_sims") or job.get("n_sims") or 0), seed=st.get("seed"), use_pbp=bool(st.get("pbp")))
+        roster_mode = str(st.get("roster_mode") or job.get("roster_mode") or "historical")
+        cfg = SmartSimConfig(
+            n_sims=int(st.get("n_sims") or job.get("n_sims") or 0),
+            seed=st.get("seed"),
+            use_pbp=bool(st.get("pbp")),
+            roster_mode=roster_mode,
+        )
         pre_ctx = {
             "home_injuries_out": int(home_outs),
             "away_injuries_out": int(away_outs),
@@ -856,6 +864,8 @@ def _smart_sim_run_date(
     overwrite: bool,
     pbp: bool = True,
     workers: Optional[int] = None,
+    roster_mode: str = "historical",
+    out_prefix: str = "smart_sim",
 ) -> dict:
     """Internal: run SmartSim for every game on a date.
 
@@ -1332,20 +1342,32 @@ def _smart_sim_run_date(
     if pdf.empty:
         return {"date": date_str, "wrote": 0, "skipped": 0, "failures": 0, "reason": "no_valid_games"}
 
-    # If overwriting, remove stale smart_sim files that don't correspond to today's predictions.
-    # This prevents validators from tripping over leftover/duplicate matchup files.
+    out_prefix_s = str(out_prefix or "smart_sim").strip()
+    if not out_prefix_s:
+        out_prefix_s = "smart_sim"
+
+    # If overwriting, clean up old SmartSim outputs.
+    # - When running the full slate, only remove stale matchup files.
+    # - When using --max-games, remove ALL files for the date to avoid mixing stale/new outputs.
     if overwrite:
         try:
-            expected = set(
-                f"smart_sim_{date_str}_{str(r.get('home_tri') or '').strip().upper()}_{str(r.get('away_tri') or '').strip().upper()}.json"
-                for _, r in pdf.iterrows()
-            )
-            for fp in paths.data_processed.glob(f"smart_sim_{date_str}_*.json"):
-                if fp.name not in expected:
+            if max_games is not None:
+                for fp in paths.data_processed.glob(f"{out_prefix_s}_{date_str}_*.json"):
                     try:
                         fp.unlink()
                     except Exception:
                         pass
+            else:
+                expected = set(
+                    f"{out_prefix_s}_{date_str}_{str(r.get('home_tri') or '').strip().upper()}_{str(r.get('away_tri') or '').strip().upper()}.json"
+                    for _, r in pdf.iterrows()
+                )
+                for fp in paths.data_processed.glob(f"{out_prefix_s}_{date_str}_*.json"):
+                    if fp.name not in expected:
+                        try:
+                            fp.unlink()
+                        except Exception:
+                            pass
         except Exception:
             pass
 
@@ -1468,7 +1490,7 @@ def _smart_sim_run_date(
         if not home_tri or not away_tri:
             continue
 
-        out_path = paths.data_processed / f"smart_sim_{date_str}_{home_tri}_{away_tri}.json"
+        out_path = paths.data_processed / f"{out_prefix_s}_{date_str}_{home_tri}_{away_tri}.json"
         if out_path.exists() and (not overwrite):
             skipped += 1
             continue
@@ -1554,6 +1576,7 @@ def _smart_sim_run_date(
                 "home_tri": home_tri,
                 "away_tri": away_tri,
                 "out_path": str(out_path),
+                "roster_mode": str(roster_mode or "historical"),
                 "market_total": market_total,
                 "home_spread": home_spread,
                 "home_pace": float(home_pace),
@@ -1596,6 +1619,7 @@ def _smart_sim_run_date(
                 seed=seed,
                 pbp=bool(pbp),
                 props_path=str(props_path),
+                roster_mode=str(roster_mode or "historical"),
                 excluded_map=excluded_map,
                 adv_map=adv_map,
                 game_id_map=game_id_map,
@@ -1619,6 +1643,7 @@ def _smart_sim_run_date(
                     seed,
                     bool(pbp),
                     str(props_path),
+                    str(roster_mode or "historical"),
                     excluded_map,
                     adv_map,
                     game_id_map,
@@ -1639,7 +1664,7 @@ def _smart_sim_run_date(
                         failures.append({"home": res.get("home"), "away": res.get("away"), "error": res.get("error")})
 
     if failures:
-        fp = paths.data_processed / f"smart_sim_failures_{date_str}.csv"
+        fp = paths.data_processed / f"{out_prefix_s}_failures_{date_str}.csv"
         try:
             pd.DataFrame(failures).to_csv(fp, index=False)
         except Exception:
@@ -1710,6 +1735,20 @@ def _ensure_team_advanced_stats_asof(season: int, as_of: str) -> Path | None:
 @click.option("--max-games", type=int, default=None, help="Optional cap for quick runs")
 @click.option("--workers", type=int, default=1, show_default=True, help="Parallel workers (per-game). Use >1 to speed up full slates")
 @click.option(
+    "--roster-mode",
+    type=str,
+    default="historical",
+    show_default=True,
+    help="Roster sourcing mode: 'historical' (may use boxscore fallbacks) or 'pregame' (props+season rosters only)",
+)
+@click.option(
+    "--out-prefix",
+    type=str,
+    default="smart_sim",
+    show_default=True,
+    help="Output filename prefix under data/processed (default: smart_sim). Example: smart_sim_pregame",
+)
+@click.option(
     "--refresh-asof-priors/--no-refresh-asof-priors",
     default=True,
     show_default=True,
@@ -1723,6 +1762,8 @@ def smart_sim_date_cmd(
     pbp: bool,
     max_games: Optional[int],
     workers: int,
+    roster_mode: str,
+    out_prefix: str,
     refresh_asof_priors: bool,
     overwrite: bool,
 ):
@@ -1732,12 +1773,28 @@ def smart_sim_date_cmd(
     """
     if refresh_asof_priors:
         try:
-            season = _season_year_from_date_str(date_str)
-            _ensure_team_advanced_stats_asof(season=season, as_of=date_str)
+            asof_for_priors = str(date_str)
+            rm = str(roster_mode or "historical").strip().lower()
+            if rm in {"pregame", "pregame_safe", "pregame-safe", "safe_pregame", "no_boxscore", "no-boxscore"}:
+                ts = pd.to_datetime(asof_for_priors, errors="coerce")
+                if ts is not None and (not pd.isna(ts)):
+                    asof_for_priors = (ts.normalize() - pd.Timedelta(days=1)).date().isoformat()
+            season = _season_year_from_date_str(asof_for_priors)
+            _ensure_team_advanced_stats_asof(season=season, as_of=asof_for_priors)
         except Exception:
             pass
 
-    summary = _smart_sim_run_date(date_str=date_str, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp), workers=int(workers))
+    summary = _smart_sim_run_date(
+        date_str=date_str,
+        n_sims=n_sims,
+        seed=seed,
+        max_games=max_games,
+        overwrite=overwrite,
+        pbp=bool(pbp),
+        workers=int(workers),
+        roster_mode=str(roster_mode or "historical"),
+        out_prefix=str(out_prefix or "smart_sim"),
+    )
     console.print(summary)
 
 
@@ -1747,6 +1804,20 @@ def smart_sim_date_cmd(
 @click.option("--n-sims", type=int, default=2000, show_default=True, help="Number of event-level sims per game")
 @click.option("--seed", type=int, default=None, help="Optional RNG seed")
 @click.option("--pbp/--no-pbp", default=True, show_default=True, help="Use unified possession-level sim (no forced quarter totals)")
+@click.option(
+    "--roster-mode",
+    type=str,
+    default="historical",
+    show_default=True,
+    help="Roster sourcing mode: 'historical' (may use boxscore fallbacks) or 'pregame' (props+season rosters only)",
+)
+@click.option(
+    "--out-prefix",
+    type=str,
+    default="smart_sim",
+    show_default=True,
+    help="Output filename prefix under data/processed (default: smart_sim). Example: smart_sim_pregame",
+)
 @click.option(
     "--refresh-asof-priors/--no-refresh-asof-priors",
     default=True,
@@ -1763,6 +1834,8 @@ def smart_sim_range_cmd(
     n_sims: int,
     seed: Optional[int],
     pbp: bool,
+    roster_mode: str,
+    out_prefix: str,
     refresh_asof_priors: bool,
     overwrite: bool,
     max_games: Optional[int],
@@ -1794,11 +1867,27 @@ def smart_sim_range_cmd(
         days += 1
         if refresh_asof_priors:
             try:
-                season = _season_year_from_date_str(ds)
-                _ensure_team_advanced_stats_asof(season=season, as_of=ds)
+                asof_for_priors = str(ds)
+                rm = str(roster_mode or "historical").strip().lower()
+                if rm in {"pregame", "pregame_safe", "pregame-safe", "safe_pregame", "no_boxscore", "no-boxscore"}:
+                    ts = pd.to_datetime(asof_for_priors, errors="coerce")
+                    if ts is not None and (not pd.isna(ts)):
+                        asof_for_priors = (ts.normalize() - pd.Timedelta(days=1)).date().isoformat()
+                season = _season_year_from_date_str(asof_for_priors)
+                _ensure_team_advanced_stats_asof(season=season, as_of=asof_for_priors)
             except Exception:
                 pass
-        summary = _smart_sim_run_date(date_str=ds, n_sims=n_sims, seed=seed, max_games=max_games, overwrite=overwrite, pbp=bool(pbp), workers=int(workers))
+        summary = _smart_sim_run_date(
+            date_str=ds,
+            n_sims=n_sims,
+            seed=seed,
+            max_games=max_games,
+            overwrite=overwrite,
+            pbp=bool(pbp),
+            workers=int(workers),
+            roster_mode=str(roster_mode or "historical"),
+            out_prefix=str(out_prefix or "smart_sim"),
+        )
         console.print(summary)
         total_wrote += int(summary.get("wrote") or 0)
         total_skipped += int(summary.get("skipped") or 0)
@@ -2061,6 +2150,68 @@ def evaluate_sim_realism_cmd(start: str | None, end: str | None, days: int, n_sa
 @click.option("--n-connected-samples", "n_connected_samples", type=int, default=1200, show_default=True, help="Connected sim samples per game")
 @click.option("--minutes-lookback-days", "minutes_lookback_days", type=int, default=21, show_default=True, help="Lookback window for minutes priors")
 @click.option("--top-k", "top_k", type=int, default=8, show_default=True, help="Score top-K players by actual minutes")
+@click.option(
+    "--hist-exp-blend-alpha",
+    "hist_exp_blend_alpha",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Optional: blend rotations-history expected minutes into bench minutes (0 disables)",
+)
+@click.option(
+    "--hist-exp-blend-max-cov",
+    "hist_exp_blend_max_cov",
+    type=float,
+    default=0.67,
+    show_default=True,
+    help="Only apply hist-exp blending when minutes_expected_coverage <= this threshold",
+)
+@click.option(
+    "--coach-rotation-alpha",
+    "coach_rotation_alpha",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Optional: scale coach/rotation shaping from rotation priors (0 disables)",
+)
+@click.option(
+    "--rotation-shock-alpha",
+    "rotation_shock_alpha",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Optional: detect rotation shock and blend minutes toward priors (0 disables)",
+)
+@click.option(
+    "--garbage-time-alpha",
+    "garbage_time_alpha",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Optional: shift minutes from starters to bench when blowout likelihood is high (0 disables)",
+)
+@click.option(
+    "--guardrail-alpha",
+    "guardrail_alpha",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Optional: softly anchor quarter samples to model priors (0 disables)",
+)
+@click.option(
+    "--guardrail-max-scale",
+    "guardrail_max_scale",
+    type=float,
+    default=0.10,
+    show_default=True,
+    help="Max |scale-1| per team/quarter when applying guardrails",
+)
+@click.option(
+    "--event-level",
+    "event_level",
+    is_flag=True,
+    help="Use event-level (possession) stat-mix for representative box score (keeps points allocation)",
+)
 @click.option("--skip-ot", "skip_ot", is_flag=True, help="Skip likely OT games (team minutes >245)")
 @click.option("--seed", "seed", type=int, default=1, show_default=True, help="Seed base")
 @click.option("--out-games-csv", "out_games_csv", type=str, required=False, help="Override output games CSV path")
@@ -2074,6 +2225,14 @@ def evaluate_connected_realism_cmd(
     n_connected_samples: int,
     minutes_lookback_days: int,
     top_k: int,
+    hist_exp_blend_alpha: float,
+    hist_exp_blend_max_cov: float,
+    coach_rotation_alpha: float,
+    rotation_shock_alpha: float,
+    garbage_time_alpha: float,
+    guardrail_alpha: float,
+    guardrail_max_scale: float,
+    event_level: bool,
     skip_ot: bool,
     seed: int,
     out_games_csv: str | None,
@@ -2100,9 +2259,25 @@ def evaluate_connected_realism_cmd(
             str(int(minutes_lookback_days)),
             "--top-k",
             str(int(top_k)),
+            "--hist-exp-blend-alpha",
+            str(float(hist_exp_blend_alpha or 0.0)),
+            "--hist-exp-blend-max-cov",
+            str(float(hist_exp_blend_max_cov if hist_exp_blend_max_cov is not None else 0.67)),
+            "--coach-rotation-alpha",
+            str(float(coach_rotation_alpha or 0.0)),
+            "--rotation-shock-alpha",
+            str(float(rotation_shock_alpha or 0.0)),
+            "--garbage-time-alpha",
+            str(float(garbage_time_alpha or 0.0)),
+            "--guardrail-alpha",
+            str(float(guardrail_alpha or 0.0)),
+            "--guardrail-max-scale",
+            str(float(guardrail_max_scale if guardrail_max_scale is not None else 0.10)),
             "--seed",
             str(int(seed)),
         ]
+        if event_level:
+            args += ["--event-level"]
         if skip_ot:
             args += ["--skip-ot"]
         if out_games_csv:
@@ -6431,7 +6606,23 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
 @click.option("--min-ml-edge", "min_ml_edge", type=float, default=0.015, show_default=True, help="Minimum ML probability edge vs market no-vig implied probability")
 @click.option("--ml-blend", "ml_blend", type=float, default=0.25, show_default=True, help="Blend for ML win prob: w*model + (1-w)*market_no_vig")
 @click.option("--max-abs-ml-odds", "max_abs_ml_odds", type=float, default=200.0, show_default=True, help="Skip ML recs when |odds| exceeds this (set <=0 to disable)")
-def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: float, min_ml_edge: float, ml_blend: float, max_abs_ml_odds: float):
+@click.option(
+    "--max-plus-odds",
+    "max_plus_odds",
+    type=float,
+    default=0.0,
+    show_default=True,
+    help="Skip any recommendation priced above this positive American odds threshold (e.g. 125). Set <=0 to disable.",
+)
+def export_recommendations_cmd(
+    date_str: str,
+    out_path: str | None,
+    min_ml_ev: float,
+    min_ml_edge: float,
+    ml_blend: float,
+    max_abs_ml_odds: float,
+    max_plus_odds: float,
+):
     """Export game recommendations (ML/ATS/TOTAL) to CSV from predictions + odds."""
     import pandas as pd
     import math
@@ -6650,6 +6841,18 @@ def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: f
                         except Exception:
                             price = None
 
+                    # Optional: skip longshot prices above +X (e.g. +125)
+                    try:
+                        mpo = float(max_plus_odds)
+                    except Exception:
+                        mpo = 0.0
+                    if mpo > 0 and price is not None:
+                        try:
+                            if float(price) > mpo:
+                                price = None
+                        except Exception:
+                            price = None
+
                     if (price is not None) and (ev_ml is not None) and (not pd.isna(ev_ml)):
                         if (float(ev_ml) >= ev_thr) and (prob_edge >= edge_thr):
                             recs.append({
@@ -6696,6 +6899,18 @@ def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: f
                     implied = _implied(price)
 
                 line = hs if side_ats == home else (-hs if hs is not None else None)
+                # Optional odds guard: skip longshot prices above +X (rare for spreads)
+                try:
+                    mpo = float(max_plus_odds)
+                except Exception:
+                    mpo = 0.0
+                if (mpo > 0) and (price is not None):
+                    try:
+                        if float(price) > mpo:
+                            continue
+                    except Exception:
+                        continue
+
                 recs.append({
                     "market": "ATS",
                     "side": side_ats,
@@ -6739,6 +6954,18 @@ def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: f
                     implied = _implied(price)
 
                 # Always emit a closeout TOTAL pick when we have a market total.
+                # Optional odds guard: skip longshot prices above +X (rare for totals)
+                try:
+                    mpo = float(max_plus_odds)
+                except Exception:
+                    mpo = 0.0
+                if (mpo > 0) and (price is not None):
+                    try:
+                        if float(price) > mpo:
+                            continue
+                    except Exception:
+                        continue
+
                 recs.append({
                     "market": "TOTAL",
                     "side": side_tot,
@@ -6776,7 +7003,15 @@ def export_recommendations_cmd(date_str: str, out_path: str | None, min_ml_ev: f
 @cli.command("export-props-recommendations")
 @click.option("--date", "date_str", type=str, required=True, help="Slate date YYYY-MM-DD")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; defaults to data/processed/props_recommendations_YYYY-MM-DD.csv")
-def _export_props_recommendations_cards(date_str: str, out_path: str | None) -> tuple[int, "Path"]:
+@click.option(
+    "--max-plus-odds",
+    "max_plus_odds",
+    type=float,
+    default=150.0,
+    show_default=True,
+    help="Max allowed positive American odds for props cards (default matches regular pricing window).",
+)
+def _export_props_recommendations_cards(date_str: str, out_path: str | None, max_plus_odds: float) -> tuple[int, "Path"]:
     """Internal helper: write props recommendation cards to CSV.
 
     This is used both by the CLI command and by daily-update so that
@@ -6838,7 +7073,13 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None) -> 
                 if not pd.notna(price):
                     return False
                 # Regular pricing window (production filter)
-                if price < -150 or price > 150:
+                try:
+                    mpo = float(max_plus_odds)
+                except Exception:
+                    mpo = 150.0
+                if mpo <= 0:
+                    mpo = 1e9
+                if price < -150 or price > mpo:
                     return False
                 # PTS/PRA have recently underperformed; only show them on cards
                 # when the edge is meaningfully strong.
@@ -13421,6 +13662,7 @@ def fetch_advanced_stats(season: int, as_of: str | None):
     try:
         from .scrapers import BasketballReferenceScraper
         from .advanced_stats_boxscores import compute_team_advanced_stats_from_boxscores
+        from .advanced_stats_player_logs import compute_team_advanced_stats_from_player_logs
         
         scraper = BasketballReferenceScraper()
         
@@ -13446,7 +13688,46 @@ def fetch_advanced_stats(season: int, as_of: str | None):
                     stats = stats_bs
                     console.print(f"[OK] Built advanced stats from cached boxscores (teams={len(stats)}).", style="green")
                 else:
-                    console.print("Boxscore-derived advanced stats unavailable; keeping Basketball Reference results.", style="yellow")
+                    console.print("Boxscore-derived advanced stats unavailable; trying player-log-derived stats.", style="yellow")
+                    try:
+                        stats_pl = compute_team_advanced_stats_from_player_logs(season, as_of=as_of)
+                        if stats_pl is not None and not stats_pl.empty:
+                            stats = stats_pl
+                            console.print(f"[OK] Built advanced stats from cached player logs (teams={len(stats)}).", style="green")
+                        else:
+                            console.print("Player-log-derived advanced stats unavailable; keeping Basketball Reference results.", style="yellow")
+                    except Exception:
+                        console.print("Player-log-derived advanced stats failed; keeping Basketball Reference results.", style="yellow")
+        except Exception:
+            pass
+
+        # Optional augmentation: add-on columns from local cached data.
+        # This keeps BR as primary for pace/ratings/four-factors, but enriches the output
+        # without requiring any new external sources.
+        try:
+            opt_cols = ["fg3a_rate", "fg3_pct", "ts_pct", "ast_per_100"]
+            local = compute_team_advanced_stats_from_boxscores(season, as_of=as_of)
+            if local is None or local.empty:
+                local = compute_team_advanced_stats_from_player_logs(season, as_of=as_of)
+
+            if local is not None and not local.empty and "team" in local.columns:
+                local = local.copy()
+                local["team"] = local["team"].astype(str).str.upper().str.strip()
+                local_opt = local[[c for c in (["team"] + opt_cols) if c in local.columns]].copy()
+
+                if stats is not None and not stats.empty and "team" in stats.columns:
+                    stats = stats.copy()
+                    stats["team"] = stats["team"].astype(str).str.upper().str.strip()
+                    stats = stats.merge(local_opt, on="team", how="left", suffixes=("", "_local"))
+                    for c in opt_cols:
+                        lc = f"{c}_local"
+                        if lc in stats.columns:
+                            if c not in stats.columns:
+                                stats[c] = stats[lc]
+                            else:
+                                stats[c] = stats[c].combine_first(stats[lc])
+                            stats = stats.drop(columns=[lc])
+                    console.print("[OK] Augmented advanced stats with local add-ons (3P/TS/AST).", style="green")
         except Exception:
             pass
         

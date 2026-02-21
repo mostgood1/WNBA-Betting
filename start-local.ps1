@@ -67,6 +67,7 @@ try {
 
 Write-Info "Starting Flask app on http://127.0.0.1:$Port ..."
 $env:PORT = "$Port"
+$env:CONNECTED_CORRELATED_SCORING_ALPHA = "0.2"
 
 if ($Foreground) {
     & $VenvPython app.py

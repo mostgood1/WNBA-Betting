@@ -53,8 +53,23 @@ def add_advanced_stats_features(df: pd.DataFrame, season: int = 2025) -> pd.Data
         suffixes=('', '_home_adv')
     )
     
+    adv_cols = [
+        'pace',
+        'off_rtg',
+        'def_rtg',
+        'efg_pct',
+        'tov_pct',
+        'orb_pct',
+        'ft_rate',
+        # Optional add-ons (present in some cached advanced-stats builds)
+        'fg3a_rate',
+        'fg3_pct',
+        'ts_pct',
+        'ast_per_100',
+    ]
+
     # Rename home team columns
-    for col in ['pace', 'off_rtg', 'def_rtg', 'efg_pct', 'tov_pct', 'orb_pct', 'ft_rate']:
+    for col in adv_cols:
         if col in df.columns:
             df[f'home_{col}'] = df[col]
             df.drop(columns=[col], inplace=True)
@@ -73,7 +88,7 @@ def add_advanced_stats_features(df: pd.DataFrame, season: int = 2025) -> pd.Data
     )
     
     # Rename visitor team columns
-    for col in ['pace', 'off_rtg', 'def_rtg', 'efg_pct', 'tov_pct', 'orb_pct', 'ft_rate']:
+    for col in adv_cols:
         if col in df.columns:
             df[f'visitor_{col}'] = df[col]
             df.drop(columns=[col], inplace=True)
@@ -91,6 +106,13 @@ def add_advanced_stats_features(df: pd.DataFrame, season: int = 2025) -> pd.Data
         df['home_net_rtg'] = df['home_off_rtg'] - df['home_def_rtg']
         df['visitor_net_rtg'] = df['visitor_off_rtg'] - df['visitor_def_rtg']
         df['net_rtg_diff'] = df['home_net_rtg'] - df['visitor_net_rtg']
+
+    # Optional differentials
+    for c in ['fg3a_rate', 'fg3_pct', 'ts_pct', 'ast_per_100']:
+        hc = f'home_{c}'
+        vc = f'visitor_{c}'
+        if hc in df.columns and vc in df.columns:
+            df[f'{c}_diff'] = df[hc] - df[vc]
     
     print(f"Added {len([c for c in df.columns if 'pace' in c or 'rtg' in c or 'efg' in c])} advanced stats features")
     

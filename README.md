@@ -175,6 +175,43 @@ powershell -NoProfile -ExecutionPolicy Bypass -File scripts\register_nightly_cal
 
 The script `scripts\daily_update.ps1` ignores any token flags and enforces local-only execution.
 
+### Connected Sim Guardrails (Optional)
+
+Connected sim supports opt-in **model guardrails** (soft anchoring of sampled quarter scoring toward model priors). Default is OFF.
+
+For the daily connected-realism evaluation step inside `scripts\daily_update.ps1`, you can enable guardrails via env vars:
+
+```powershell
+# OFF by default
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_ALPHA = '0.10'      # recommended starting point
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_MAX_SCALE = '0.10'  # clamp |scale-1| per team/quarter
+
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date "2026-01-24"
+```
+
+To run **only** the connected-realism evaluation (skip the rest of the daily pipeline), set one of:
+
+- `DAILY_ONLY_CONNECTED_REALISM=1`, or
+- `DAILY_MODE=connected-realism`
+
+Example:
+
+```powershell
+$env:DAILY_ONLY_CONNECTED_REALISM = '1'
+$env:DAILY_CONNECTED_REALISM_DAYS = '1'
+$env:DAILY_CONNECTED_REALISM_TOPK = '8'
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_ALPHA = '0.10'
+$env:DAILY_CONNECTED_REALISM_GUARDRAIL_MAX_SCALE = '0.10'
+
+powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date "2026-01-24"
+```
+
+Notes:
+- A recent sweep summary (30d window ending 2026-01-24) was written to:
+	`data/processed/guardrail_alpha_sweep_summary_2025-12-26_2026-01-24.csv`
+- The API endpoint `/api/sim/game-story` also supports runtime knobs:
+	`guardrail_alpha`, `guardrail_max_scale` (or env `CONNECTED_GUARDRAIL_ALPHA`, `CONNECTED_GUARDRAIL_MAX_SCALE`).
+
 ## Player Prop Actuals (nbastatR)
 
 We use nbastatR (R) to fetch player game logs and compute actuals for props: PTS, REB, AST, 3PM, PRA.

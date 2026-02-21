@@ -19,10 +19,12 @@ class TeamGameTotals:
     fgm: float
     fga: float
     tpm: float
+    tpa: float
     fta: float
     oreb: float
     dreb: float
     tov: float
+    ast: float
     opp_dreb: float
     poss_for: float
     poss_against: float
@@ -111,63 +113,73 @@ def compute_team_advanced_stats_from_player_logs(
         return pd.DataFrame()
 
     # Aggregate player rows -> team totals per game.
-    tmp = df[
-        [
-            "GAME_ID",
-            "TEAM_ABBREVIATION",
-            "PTS",
-            "FGM",
-            "FGA",
-            "FG3M",
-            "FTA",
-            "OREB",
-            "DREB",
-            "TOV",
-        ]
-    ].copy()
+    base_cols = [
+        "GAME_ID",
+        "TEAM_ABBREVIATION",
+        "PTS",
+        "FGM",
+        "FGA",
+        "FG3M",
+        "FTA",
+        "OREB",
+        "DREB",
+        "TOV",
+    ]
+    opt_cols = []
+    if "FG3A" in df.columns:
+        opt_cols.append("FG3A")
+    if "AST" in df.columns:
+        opt_cols.append("AST")
 
+    tmp = df[base_cols + opt_cols].copy()
     tmp["GAME_ID"] = tmp["GAME_ID"].astype(str).str.strip()
     tmp["TEAM_ABBREVIATION"] = tmp["TEAM_ABBREVIATION"].astype(str).str.upper().str.strip()
 
-    for c in ["PTS", "FGM", "FGA", "FG3M", "FTA", "OREB", "DREB", "TOV"]:
-        tmp[c] = _coerce_num(tmp[c])
+    for c in ["PTS", "FGM", "FGA", "FG3M", "FG3A", "FTA", "OREB", "DREB", "TOV", "AST"]:
+        if c in tmp.columns:
+            tmp[c] = _coerce_num(tmp[c])
 
-    g = (
-        tmp.groupby(["GAME_ID", "TEAM_ABBREVIATION"], as_index=False)
-        .agg(
-            pts_for=("PTS", "sum"),
-            fgm=("FGM", "sum"),
-            fga=("FGA", "sum"),
-            tpm=("FG3M", "sum"),
-            fta=("FTA", "sum"),
-            oreb=("OREB", "sum"),
-            dreb=("DREB", "sum"),
-            tov=("TOV", "sum"),
-        )
-        .rename(columns={"TEAM_ABBREVIATION": "team", "GAME_ID": "game_id"})
-    )
+    agg_spec: dict[str, tuple[str, str]] = {
+        "pts_for": ("PTS", "sum"),
+        "fgm": ("FGM", "sum"),
+        "fga": ("FGA", "sum"),
+        "tpm": ("FG3M", "sum"),
+        "fta": ("FTA", "sum"),
+        "oreb": ("OREB", "sum"),
+        "dreb": ("DREB", "sum"),
+        "tov": ("TOV", "sum"),
+    }
+    if "FG3A" in tmp.columns:
+        agg_spec["tpa"] = ("FG3A", "sum")
+    if "AST" in tmp.columns:
+        agg_spec["ast"] = ("AST", "sum")
 
+    g = tmp.groupby(["GAME_ID", "TEAM_ABBREVIATION"], as_index=False).agg(**agg_spec)
+    g = g.rename(columns={"TEAM_ABBREVIATION": "team", "GAME_ID": "game_id"})
     if g.empty:
         return pd.DataFrame()
 
     # Self-join to attach opponent totals.
-    opp = g.rename(
-        columns={
-            "team": "opp",
-            "pts_for": "pts_against",
-            "fgm": "opp_fgm",
-            "fga": "opp_fga",
-            "tpm": "opp_tpm",
-            "fta": "opp_fta",
-            "oreb": "opp_oreb",
-            "dreb": "opp_dreb",
-            "tov": "opp_tov",
-        }
-    )
+    opp_cols = {
+        "team": "opp",
+        "pts_for": "pts_against",
+        "fgm": "opp_fgm",
+        "fga": "opp_fga",
+        "tpm": "opp_tpm",
+        "fta": "opp_fta",
+        "oreb": "opp_oreb",
+        "dreb": "opp_dreb",
+        "tov": "opp_tov",
+    }
+    if "tpa" in g.columns:
+        opp_cols["tpa"] = "opp_tpa"
+    if "ast" in g.columns:
+        opp_cols["ast"] = "opp_ast"
+
+    opp = g.rename(columns=opp_cols)
 
     m = g.merge(opp, on="game_id", how="inner")
     m = m[m["team"] != m["opp"]].copy()
-
     if m.empty:
         return pd.DataFrame()
 
@@ -189,10 +201,12 @@ def compute_team_advanced_stats_from_player_logs(
                 fgm=float(r["fgm"]),
                 fga=float(r["fga"]),
                 tpm=float(r["tpm"]),
+                tpa=float(r["tpa"]) if "tpa" in m.columns else float("nan"),
                 fta=float(r["fta"]),
                 oreb=float(r["oreb"]),
                 dreb=float(r["dreb"]),
                 tov=float(r["tov"]),
+                ast=float(r["ast"]) if "ast" in m.columns else float("nan"),
                 opp_dreb=float(r["opp_dreb"]),
                 poss_for=poss_for,
                 poss_against=poss_against,
@@ -205,23 +219,28 @@ def compute_team_advanced_stats_from_player_logs(
 
     tg = pd.DataFrame([t.__dict__ for t in team_games])
 
-    agg = tg.groupby("team", as_index=False).agg(
-        games=("team", "size"),
-        pts_for=("pts_for", "sum"),
-        pts_against=("pts_against", "sum"),
-        fgm=("fgm", "sum"),
-        fga=("fga", "sum"),
-        tpm=("tpm", "sum"),
-        fta=("fta", "sum"),
-        oreb=("oreb", "sum"),
-        dreb=("dreb", "sum"),
-        tov=("tov", "sum"),
-        opp_dreb=("opp_dreb", "sum"),
-        poss_for=("poss_for", "sum"),
-        poss_against=("poss_against", "sum"),
-        pace=("pace_game", "mean"),
-    )
+    season_agg_spec: dict[str, tuple[str, str]] = {
+        "games": ("team", "size"),
+        "pts_for": ("pts_for", "sum"),
+        "pts_against": ("pts_against", "sum"),
+        "fgm": ("fgm", "sum"),
+        "fga": ("fga", "sum"),
+        "tpm": ("tpm", "sum"),
+        "fta": ("fta", "sum"),
+        "oreb": ("oreb", "sum"),
+        "dreb": ("dreb", "sum"),
+        "tov": ("tov", "sum"),
+        "opp_dreb": ("opp_dreb", "sum"),
+        "poss_for": ("poss_for", "sum"),
+        "poss_against": ("poss_against", "sum"),
+        "pace": ("pace_game", "mean"),
+    }
+    if "tpa" in tg.columns:
+        season_agg_spec["tpa"] = ("tpa", "sum")
+    if "ast" in tg.columns:
+        season_agg_spec["ast"] = ("ast", "sum")
 
+    agg = tg.groupby("team", as_index=False).agg(**season_agg_spec)
     agg = agg[agg["games"] >= int(min_games)].copy()
     if agg.empty:
         return pd.DataFrame()
@@ -235,10 +254,52 @@ def compute_team_advanced_stats_from_player_logs(
     agg["orb_pct"] = agg["oreb"] / (agg["oreb"] + agg["opp_dreb"] + eps)
     agg["ft_rate"] = agg["fta"] / (agg["fga"] + eps)
 
-    out = agg[["team", "pace", "off_rtg", "def_rtg", "efg_pct", "tov_pct", "orb_pct", "ft_rate", "games"]].copy()
+    if "tpa" in agg.columns:
+        agg["fg3a_rate"] = agg["tpa"] / (agg["fga"] + eps)
+        agg["fg3_pct"] = agg["tpm"] / (agg["tpa"] + eps)
+    else:
+        agg["fg3a_rate"] = np.nan
+        agg["fg3_pct"] = np.nan
+
+    agg["ts_pct"] = agg["pts_for"] / (2.0 * (agg["fga"] + 0.44 * agg["fta"]) + eps)
+
+    if "ast" in agg.columns:
+        agg["ast_per_100"] = 100.0 * agg["ast"] / (agg["poss_for"] + eps)
+    else:
+        agg["ast_per_100"] = np.nan
+
+    out = agg[
+        [
+            "team",
+            "pace",
+            "off_rtg",
+            "def_rtg",
+            "efg_pct",
+            "tov_pct",
+            "orb_pct",
+            "ft_rate",
+            "fg3a_rate",
+            "fg3_pct",
+            "ts_pct",
+            "ast_per_100",
+            "games",
+        ]
+    ].copy()
     out["source"] = "player_logs"
 
-    for c in ["pace", "off_rtg", "def_rtg", "efg_pct", "tov_pct", "orb_pct", "ft_rate"]:
+    for c in [
+        "pace",
+        "off_rtg",
+        "def_rtg",
+        "efg_pct",
+        "tov_pct",
+        "orb_pct",
+        "ft_rate",
+        "fg3a_rate",
+        "fg3_pct",
+        "ts_pct",
+        "ast_per_100",
+    ]:
         out[c] = pd.to_numeric(out[c], errors="coerce")
 
     out = out.replace([np.inf, -np.inf], np.nan).dropna(subset=["pace", "off_rtg", "def_rtg"])

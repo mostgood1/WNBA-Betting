@@ -900,8 +900,8 @@ def compute_props_edges(
     merged["price"] = pd.to_numeric(merged.get("price"), errors="coerce")
     # Compute model probability; special handling for YES/NO markets (double/triple-double)
     def _calc_model_prob(r) -> float:
-        stat = r.get("stat")
-        side = r.get("side")
+        stat = str(r.get("stat") or "").strip().lower()
+        side = str(r.get("side") or "").strip().upper()
         if stat in ("dd", "td"):
             # Approximate independence on Pts/Reb/Ast reaching 10+
             mean_pts = r.get(pred_map["pts"], np.nan)
@@ -932,7 +932,12 @@ def compute_props_edges(
         p_over = _prob_over(r.get("model_mean"), r.get("sigma"), r.get("line"))
         if pd.isna(p_over):
             return np.nan
-        return (1.0 - p_over) if side == "UNDER" else p_over
+        if side == "UNDER":
+            return (1.0 - p_over)
+        if side == "OVER":
+            return p_over
+        # Unknown side value
+        return np.nan
     merged["model_prob"] = merged.apply(_calc_model_prob, axis=1)
     # Optional: calibrate probabilities using reliability bins / isotonic mapping.
     # This is intentionally opt-in because our default Normal(mean, sigma) probabilities

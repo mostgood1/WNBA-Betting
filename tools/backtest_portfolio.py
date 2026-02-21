@@ -19,6 +19,51 @@ BASE_URL = os.environ.get("NBA_API_BASE_URL", "http://127.0.0.1:5051").rstrip("/
 PROCESSED_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "data", "processed")
 
 
+def _slugify(s: str) -> str:
+    out = []
+    for ch in str(s or ""):
+        if ch.isalnum():
+            out.append(ch)
+        elif ch in ("-", "_", "."):
+            out.append(ch)
+    return "".join(out)[:80] or "run"
+
+
+def _config_tag(
+    limit: int,
+    optimize: bool,
+    penalize_correlation: bool,
+    opt_alpha: float,
+    corr_scale: float,
+    cap_team: int,
+    cap_market: int,
+    regular_only: bool,
+    markets: str | None,
+    min_ev: float | None,
+    sort_by: str | None,
+    use_snapshot: bool,
+) -> str:
+    parts: list[str] = []
+    parts.append(f"lim{int(limit)}")
+    parts.append("snap" if use_snapshot else "live")
+    parts.append("opt" if optimize else "rank")
+    if optimize:
+        parts.append(f"ct{int(cap_team)}")
+        parts.append(f"cm{int(cap_market)}")
+    if penalize_correlation or (corr_scale is not None and float(corr_scale) > 0):
+        parts.append(f"corr{float(corr_scale):g}")
+        parts.append(f"a{float(opt_alpha):g}")
+    if regular_only:
+        parts.append("reg")
+    if markets:
+        parts.append(f"mkt{_slugify(markets).replace('_','').replace('-','')}")
+    if min_ev is not None:
+        parts.append(f"minEV{float(min_ev):g}")
+    if sort_by:
+        parts.append(f"sort{_slugify(sort_by)}")
+    return "_".join(parts)
+
+
 def american_to_decimal(a: Any) -> float | None:
     try:
         aa = float(a)
@@ -59,12 +104,14 @@ def fetch_portfolio(
         "limit": str(limit),
         "use_snapshot": ("1" if use_snapshot else "0"),
     }
+    # Penalize-correlation and caps are meaningful even without full optimizer.
+    # (The API uses correlation penalties during portfolio selection for ranking-only mode too.)
+    if penalize_correlation or (corr_scale is not None and float(corr_scale) > 0):
+        params["penalize_correlation"] = "1"
+        params["corr_penalty_scale"] = str(corr_scale)
+        params["opt_alpha"] = str(opt_alpha)
     if optimize:
         params["optimize"] = "1"
-        if penalize_correlation or (corr_scale is not None and float(corr_scale) > 0):
-            params["penalize_correlation"] = "1"
-            params["opt_alpha"] = str(opt_alpha)
-            params["corr_penalty_scale"] = str(corr_scale)
         if cap_team:
             params["cap_team"] = str(cap_team)
         if cap_market:
@@ -267,7 +314,14 @@ def backtest(
                 tp = p
             player_disp = (p.get("player") if isinstance(p, dict) else None) or (tp.get("player") if isinstance(tp, dict) else None)
             player = norm_name(player_disp)
-            team = tri_team((p.get("team") if isinstance(p, dict) else None) or (p.get("team_tricode") if isinstance(p, dict) else None) or (p.get("TEAM") if isinstance(p, dict) else None) or (tp.get("team") if isinstance(tp, dict) else None))
+            # Prefer tricode when available; recon files usually key by tricode.
+            team = tri_team(
+                (p.get("team_tricode") if isinstance(p, dict) else None)
+                or (p.get("team") if isinstance(p, dict) else None)
+                or (p.get("TEAM") if isinstance(p, dict) else None)
+                or (tp.get("team_tricode") if isinstance(tp, dict) else None)
+                or (tp.get("team") if isinstance(tp, dict) else None)
+            )
             stats = idx.get((player, team))
             if not stats:
                 # unresolved (DNP or missing)
@@ -360,6 +414,7 @@ def main():
     ap.add_argument("--no-snapshot", action="store_true", help="Bypass best_edges_props snapshot and recompute portfolio using current query params")
     ap.add_argument("--regular-only", action="store_true")
     ap.add_argument("--outdir", type=str, default=os.path.join(PROCESSED_DIR, "backtests"))
+    ap.add_argument("--tag", type=str, default=None, help="Optional tag to include in output filenames")
     args = ap.parse_args()
 
     optimize = bool(args.optimize) and (not bool(args.no_optimize))
@@ -390,13 +445,30 @@ def main():
     )
     os.makedirs(args.outdir, exist_ok=True)
     stamp = f"{start.isoformat()}_{end.isoformat()}"
-    with open(os.path.join(args.outdir, f"portfolio_{stamp}.json"), "w", encoding="utf-8") as fh:
+
+    tag = _slugify(args.tag) if args.tag else _config_tag(
+        args.limit,
+        optimize,
+        bool(args.penalize_correlation),
+        float(args.opt_alpha),
+        float(args.corr_penalty_scale),
+        int(args.cap_team),
+        int(args.cap_market),
+        bool(args.regular_only),
+        (str(args.markets) if args.markets else None),
+        (float(args.min_ev) if args.min_ev is not None else None),
+        (str(args.sort_by) if args.sort_by else None),
+        use_snapshot,
+    )
+
+    out_json = os.path.join(args.outdir, f"portfolio_{stamp}_{tag}.json")
+    with open(out_json, "w", encoding="utf-8") as fh:
         json.dump(res, fh, indent=2)
     # Write rows CSV
     try:
         df = pd.DataFrame(res.get("rows", []))
         if not df.empty:
-            df.to_csv(os.path.join(args.outdir, f"portfolio_rows_{stamp}.csv"), index=False)
+            df.to_csv(os.path.join(args.outdir, f"portfolio_rows_{stamp}_{tag}.csv"), index=False)
     except Exception:
         pass
     # Print summary

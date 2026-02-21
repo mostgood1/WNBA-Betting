@@ -208,29 +208,66 @@ def evaluate_window(end_date: dt.date, days: int, base_dir: Path) -> Dict:
         result["metrics"]["sharpness_var"] = sharp
         return result
 
-    y = normalize_outcome(df[outcome_col].dropna())
+    # Normalize outcomes; keep as Series aligned to df index
+    try:
+        y_raw = df[outcome_col]
+    except Exception:
+        y_raw = pd.Series([], dtype=float)
+    y_norm = normalize_outcome(y_raw)
     metrics: Dict[str, float] = {}
 
     # Evaluate for each prob column and also combined if multiple
     for c in prob_cols:
-        p = df[c].loc[y.index].astype(float).values
-        yt = y.values
-        if len(p) == 0 or len(yt) == 0:
+        # Coerce probabilities to numeric and drop NaNs alongside outcomes.
+        try:
+            p_ser = pd.to_numeric(df[c], errors="coerce")
+        except Exception:
             continue
+
+        mask = p_ser.notna() & y_norm.notna()
+        if not bool(mask.any()):
+            continue
+
+        p = p_ser[mask].astype(float).to_numpy()
+        yt = y_norm[mask].astype(int).to_numpy()
+        if p.size == 0 or yt.size == 0:
+            continue
+
         metrics[f"brier_{c}"] = brier_score(yt, p)
         metrics[f"logloss_{c}"] = log_loss_safe(yt, p)
+
         # Calibration curve bins=10
         calib = calibration_curve(yt, p, bins=10)
         result.setdefault("calibration", {})[c] = calib.to_dict(orient="records")
-        # Calibration slope via linear fit of y on p
+
+        # Calibration slope via OLS fit of y on p; closed-form to avoid LAPACK edge-case warnings.
         try:
-            slope, intercept = np.polyfit(p, yt, 1)
-            metrics[f"calibration_slope_{c}"] = float(slope)
-            metrics[f"calibration_intercept_{c}"] = float(intercept)
+            if p.size >= 2 and np.unique(p).size >= 2:
+                pf = p.astype(float)
+                yf = yt.astype(float)
+                pm = float(pf.mean())
+                ym = float(yf.mean())
+                denom = float(np.sum((pf - pm) ** 2))
+                if denom > 0 and np.isfinite(denom):
+                    slope = float(np.sum((pf - pm) * (yf - ym)) / denom)
+                    intercept = float(ym - slope * pm)
+                    if np.isfinite(slope) and np.isfinite(intercept):
+                        metrics[f"calibration_slope_{c}"] = slope
+                        metrics[f"calibration_intercept_{c}"] = intercept
         except Exception:
             pass
-    # Sharpness overall
-    sharp = float(np.nanmean([np.var(df[c].dropna().values) for c in prob_cols]))
+
+    # Sharpness overall (variance of predicted probabilities, finite-only)
+    try:
+        sharp_vals: list[float] = []
+        for c in prob_cols:
+            v = pd.to_numeric(df[c], errors="coerce")
+            v = v[np.isfinite(v)]
+            if len(v) > 0:
+                sharp_vals.append(float(np.var(v.to_numpy())))
+        sharp = float(np.nanmean(sharp_vals)) if sharp_vals else float("nan")
+    except Exception:
+        sharp = float("nan")
     metrics["sharpness_var"] = sharp
 
     result["metrics"] = metrics

@@ -20,10 +20,12 @@ class TeamGameTotals:
     fgm: float
     fga: float
     tpm: float
+    tpa: float
     fta: float
     oreb: float
     dreb: float
     tov: float
+    ast: float
     opp_dreb: float
     poss_for: float
     poss_against: float
@@ -73,18 +75,6 @@ def compute_team_advanced_stats_from_boxscores(
         games_path = paths.data_raw / "games_nba_api.csv"
 
     season_key = f"{(int(season) - 1) % 100:02d}"
-
-    required_cols = {
-        "teamTricode",
-        "points",
-        "fieldGoalsMade",
-        "fieldGoalsAttempted",
-        "threePointersMade",
-        "freeThrowsAttempted",
-        "reboundsOffensive",
-        "reboundsDefensive",
-        "turnovers",
-    }
 
     as_of_ts = None
     try:
@@ -141,13 +131,9 @@ def compute_team_advanced_stats_from_boxscores(
             continue
 
         cols = set(df.columns)
-        if not required_cols.issubset(cols):
-            continue
-
-        # Aggregate player stats -> team totals.
-        tmp = df[[c for c in df.columns if c in required_cols]].copy()
-        tmp["teamTricode"] = tmp["teamTricode"].astype(str).str.upper().str.strip()
-        for c in [
+        # Core required stats
+        core_required = {
+            "teamTricode",
             "points",
             "fieldGoalsMade",
             "fieldGoalsAttempted",
@@ -156,24 +142,50 @@ def compute_team_advanced_stats_from_boxscores(
             "reboundsOffensive",
             "reboundsDefensive",
             "turnovers",
-        ]:
-            tmp[c] = _coerce_num(tmp[c])
+        }
+        if not core_required.issubset(cols):
+            continue
 
-        g = (
-            tmp.groupby("teamTricode", as_index=False)[
-                [
-                    "points",
-                    "fieldGoalsMade",
-                    "fieldGoalsAttempted",
-                    "threePointersMade",
-                    "freeThrowsAttempted",
-                    "reboundsOffensive",
-                    "reboundsDefensive",
-                    "turnovers",
-                ]
-            ]
-            .sum()
-        )
+        # Aggregate player stats -> team totals.
+        want_cols = list(core_required)
+        if "threePointersAttempted" in cols:
+            want_cols.append("threePointersAttempted")
+        if "assists" in cols:
+            want_cols.append("assists")
+
+        tmp = df[[c for c in df.columns if c in want_cols]].copy()
+        tmp["teamTricode"] = tmp["teamTricode"].astype(str).str.upper().str.strip()
+        for c in [
+            "points",
+            "fieldGoalsMade",
+            "fieldGoalsAttempted",
+            "threePointersMade",
+            "threePointersAttempted",
+            "freeThrowsAttempted",
+            "reboundsOffensive",
+            "reboundsDefensive",
+            "turnovers",
+            "assists",
+        ]:
+            if c in tmp.columns:
+                tmp[c] = _coerce_num(tmp[c])
+
+        group_cols = [
+            "points",
+            "fieldGoalsMade",
+            "fieldGoalsAttempted",
+            "threePointersMade",
+            "freeThrowsAttempted",
+            "reboundsOffensive",
+            "reboundsDefensive",
+            "turnovers",
+        ]
+        if "threePointersAttempted" in tmp.columns:
+            group_cols.append("threePointersAttempted")
+        if "assists" in tmp.columns:
+            group_cols.append("assists")
+
+        g = tmp.groupby("teamTricode", as_index=False)[group_cols].sum()
 
         if g is None or len(g) != 2:
             continue
@@ -208,10 +220,12 @@ def compute_team_advanced_stats_from_boxscores(
                 fgm=float(t0["fieldGoalsMade"]),
                 fga=float(t0["fieldGoalsAttempted"]),
                 tpm=float(t0["threePointersMade"]),
+                tpa=float(t0["threePointersAttempted"]) if "threePointersAttempted" in g.columns else float("nan"),
                 fta=float(t0["freeThrowsAttempted"]),
                 oreb=float(t0["reboundsOffensive"]),
                 dreb=float(t0["reboundsDefensive"]),
                 tov=float(t0["turnovers"]),
+                ast=float(t0["assists"]) if "assists" in g.columns else float("nan"),
                 opp_dreb=float(t1["reboundsDefensive"]),
                 poss_for=poss0,
                 poss_against=poss1,
@@ -227,10 +241,12 @@ def compute_team_advanced_stats_from_boxscores(
                 fgm=float(t1["fieldGoalsMade"]),
                 fga=float(t1["fieldGoalsAttempted"]),
                 tpm=float(t1["threePointersMade"]),
+                tpa=float(t1["threePointersAttempted"]) if "threePointersAttempted" in g.columns else float("nan"),
                 fta=float(t1["freeThrowsAttempted"]),
                 oreb=float(t1["reboundsOffensive"]),
                 dreb=float(t1["reboundsDefensive"]),
                 tov=float(t1["turnovers"]),
+                ast=float(t1["assists"]) if "assists" in g.columns else float("nan"),
                 opp_dreb=float(t0["reboundsDefensive"]),
                 poss_for=poss1,
                 poss_against=poss0,
@@ -251,10 +267,12 @@ def compute_team_advanced_stats_from_boxscores(
         fgm=("fgm", "sum"),
         fga=("fga", "sum"),
         tpm=("tpm", "sum"),
+        tpa=("tpa", lambda s: s.sum(min_count=1)),
         fta=("fta", "sum"),
         oreb=("oreb", "sum"),
         dreb=("dreb", "sum"),
         tov=("tov", "sum"),
+        ast=("ast", lambda s: s.sum(min_count=1)),
         opp_dreb=("opp_dreb", "sum"),
         poss_for=("poss_for", "sum"),
         poss_against=("poss_against", "sum"),
@@ -276,12 +294,45 @@ def compute_team_advanced_stats_from_boxscores(
     agg["orb_pct"] = agg["oreb"] / (agg["oreb"] + agg["opp_dreb"] + eps)
     agg["ft_rate"] = agg["fta"] / (agg["fga"] + eps)
 
+    agg["fg3a_rate"] = agg["tpa"] / (agg["fga"] + eps)
+    agg["fg3_pct"] = agg["tpm"] / (agg["tpa"] + eps)
+    agg["ts_pct"] = agg["pts_for"] / (2.0 * (agg["fga"] + 0.44 * agg["fta"]) + eps)
+    agg["ast_per_100"] = 100.0 * agg["ast"] / (agg["poss_for"] + eps)
+
     # Keep output schema consistent with Basketball Reference scraper output
-    out = agg[["team", "pace", "off_rtg", "def_rtg", "efg_pct", "tov_pct", "orb_pct", "ft_rate", "games"]].copy()
+    out = agg[
+        [
+            "team",
+            "pace",
+            "off_rtg",
+            "def_rtg",
+            "efg_pct",
+            "tov_pct",
+            "orb_pct",
+            "ft_rate",
+            "fg3a_rate",
+            "fg3_pct",
+            "ts_pct",
+            "ast_per_100",
+            "games",
+        ]
+    ].copy()
     out["source"] = "boxscores"
 
     # Clean up numeric types
-    for c in ["pace", "off_rtg", "def_rtg", "efg_pct", "tov_pct", "orb_pct", "ft_rate"]:
+    for c in [
+        "pace",
+        "off_rtg",
+        "def_rtg",
+        "efg_pct",
+        "tov_pct",
+        "orb_pct",
+        "ft_rate",
+        "fg3a_rate",
+        "fg3_pct",
+        "ts_pct",
+        "ast_per_100",
+    ]:
         out[c] = pd.to_numeric(out[c], errors="coerce")
 
     out = out.replace([np.inf, -np.inf], np.nan).dropna(subset=["pace", "off_rtg", "def_rtg"])

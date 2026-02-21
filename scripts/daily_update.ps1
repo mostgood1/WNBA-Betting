@@ -8,6 +8,14 @@ Param(
   [switch]$GitSyncFirst,
   # If set, skip applying totals calibration to predictions (safety valve)
   [switch]$SkipTotalsCalib,
+  # Optional: Override the curated slate JSON build query/output (top-N artifact)
+  # These map to env vars DAILY_SLATE_QUERY / DAILY_SLATE_QUERY_EXTRA / DAILY_SLATE_OUT
+  [string]$SlateQuery,
+  [string]$SlateQueryExtra,
+  [string]$SlateOut,
+  # If set, allow a custom slate query to write to the default output filename
+  # (data/processed/recommendations_slate_{Date}.json) instead of *_custom.json.
+  [switch]$SlateForceDefaultOut,
   # Optional: Remote server base URL (updated to the correct Render site)
   [string]$RemoteBaseUrl = "https://nba-betting-5qgf.onrender.com",
   # Optional: Bare -CronToken flag is accepted (no value) to avoid task failures
@@ -46,6 +54,12 @@ $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 # Repo root is the parent of the scripts folder
 $RepoRoot = (Resolve-Path (Join-Path $ScriptDir '..')).Path
 Set-Location -Path $RepoRoot
+
+# Optional: wire slate override params into env vars (so the existing slate builder block picks them up)
+if ($null -ne $SlateQuery -and $SlateQuery -ne '') { $env:DAILY_SLATE_QUERY = $SlateQuery }
+if ($null -ne $SlateQueryExtra -and $SlateQueryExtra -ne '') { $env:DAILY_SLATE_QUERY_EXTRA = $SlateQueryExtra }
+if ($null -ne $SlateOut -and $SlateOut -ne '') { $env:DAILY_SLATE_OUT = $SlateOut }
+if ($SlateForceDefaultOut) { $env:DAILY_SLATE_FORCE_DEFAULT_OUT = '1' }
 
 # Python resolution (prefer local venv which has all dependencies)
 $VenvPy = Join-Path $RepoRoot '.venv\Scripts\python.exe'
@@ -294,10 +308,76 @@ function Invoke-PyModWithTimeout {
   return $exitCode
 }
 
+# Helper to run the connected realism evaluation (used by the full pipeline and an optional "only" mode)
+function Invoke-ConnectedRealismEval {
+  $skipConn = $env:DAILY_SKIP_CONNECTED_REALISM
+  if ($null -ne $skipConn -and $skipConn -match '^(1|true|yes)$') {
+    Write-Log 'Skipping connected realism (DAILY_SKIP_CONNECTED_REALISM=1)'
+    return 0
+  }
+
+  $connDays = $env:DAILY_CONNECTED_REALISM_DAYS
+  if ($null -eq $connDays -or $connDays -notmatch '^\d+$') { $connDays = '1' }
+  $connTopK = $env:DAILY_CONNECTED_REALISM_TOPK
+  if ($null -eq $connTopK -or $connTopK -notmatch '^\d+$') { $connTopK = '8' }
+  $connSkipOt = $env:DAILY_CONNECTED_REALISM_SKIP_OT
+  if ($null -eq $connSkipOt -or $connSkipOt -eq '') { $connSkipOt = '1' }
+  $connQS = $env:DAILY_CONNECTED_REALISM_QSAMPLES
+  if ($null -eq $connQS -or $connQS -notmatch '^\d+$') { $connQS = '' }
+  $connCS = $env:DAILY_CONNECTED_REALISM_CSAMPLES
+  if ($null -eq $connCS -or $connCS -notmatch '^\d+$') { $connCS = '' }
+
+  # Optional: connected-sim model guardrails (OFF by default).
+  # Recommended starting point (from sweep): alpha=0.10, max_scale=0.10
+  $connGrAlpha = $env:DAILY_CONNECTED_REALISM_GUARDRAIL_ALPHA
+  if ($null -eq $connGrAlpha -or $connGrAlpha -eq '') { $connGrAlpha = '0.0' }
+  $connGrMax = $env:DAILY_CONNECTED_REALISM_GUARDRAIL_MAX_SCALE
+  if ($null -eq $connGrMax -or $connGrMax -eq '') { $connGrMax = '0.10' }
+
+  Write-Log ("Running connected realism (days={0}, topK={1}, skipOT={2})" -f $connDays, $connTopK, $connSkipOt)
+  $plist = @('-m','nba_betting.cli','evaluate-connected-realism','--days', $connDays, '--top-k', $connTopK)
+  if ($connSkipOt -match '^(1|true|yes)$') { $plist += '--skip-ot' }
+  if ($connQS -ne '') { $plist += @('--n-quarter-samples', $connQS) }
+  if ($connCS -ne '') { $plist += @('--n-connected-samples', $connCS) }
+
+  try {
+    $ga = [double]$connGrAlpha
+    if ($ga -gt 0.0) {
+      Write-Log ("Connected realism: guardrails enabled (alpha={0}, max_scale={1})" -f $connGrAlpha, $connGrMax)
+      $plist += @('--guardrail-alpha', $connGrAlpha, '--guardrail-max-scale', $connGrMax)
+    }
+  } catch {
+    # If parsing fails, keep guardrails off.
+  }
+
+  $elapsed = Measure-Command { $rcConn = Invoke-PyMod -plist $plist }
+  Write-Log ("evaluate-connected-realism exit code: {0} (elapsed={1:n2}s)" -f $rcConn, $elapsed.TotalSeconds)
+  return $rcConn
+}
+
 # Enforce local-only pipeline; skip any server detection/calls
 $BaseUrl = "http://127.0.0.1:5050"
 $UseServer = $false
 Write-Log 'Remote server calls disabled; running everything locally'
+
+# Optional: run ONLY connected-realism evaluation and exit early.
+# This is useful for lightweight monitoring smoke tests without triggering the full daily pipeline.
+try {
+  $onlyConn = $env:DAILY_ONLY_CONNECTED_REALISM
+  $mode = $env:DAILY_MODE
+  $only = $false
+  if ($null -ne $onlyConn -and $onlyConn -match '^(1|true|yes)$') { $only = $true }
+  if ($null -ne $mode -and $mode -match '^(connected[-_ ]?realism|connected[-_ ]?realism[-_ ]?only)$') { $only = $true }
+  if ($only) {
+    Write-Log 'Mode: connected-realism only (skipping full daily pipeline)'
+    $rcOnly = Invoke-ConnectedRealismEval
+    Write-Log 'Connected-realism only: done; exiting'
+    exit $rcOnly
+  }
+} catch {
+  Write-Log ("Connected-realism only mode failed: {0}" -f $_.Exception.Message)
+  throw
+}
 
 # Always run local pipeline to produce site CSVs
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
@@ -532,30 +612,7 @@ try {
 # 1.6b++) Connected sim realism (player boxscore) evaluation
 # This is for accuracy/regression monitoring. It is enabled by default; set DAILY_SKIP_CONNECTED_REALISM=1 to skip.
 try {
-  $skipConn = $env:DAILY_SKIP_CONNECTED_REALISM
-  if ($null -ne $skipConn -and $skipConn -match '^(1|true|yes)$') {
-    Write-Log 'Skipping connected realism (DAILY_SKIP_CONNECTED_REALISM=1)'
-  } else {
-    $connDays = $env:DAILY_CONNECTED_REALISM_DAYS
-    if ($null -eq $connDays -or $connDays -notmatch '^\d+$') { $connDays = '1' }
-    $connTopK = $env:DAILY_CONNECTED_REALISM_TOPK
-    if ($null -eq $connTopK -or $connTopK -notmatch '^\d+$') { $connTopK = '8' }
-    $connSkipOt = $env:DAILY_CONNECTED_REALISM_SKIP_OT
-    if ($null -eq $connSkipOt -or $connSkipOt -eq '') { $connSkipOt = '1' }
-    $connQS = $env:DAILY_CONNECTED_REALISM_QSAMPLES
-    if ($null -eq $connQS -or $connQS -notmatch '^\d+$') { $connQS = '' }
-    $connCS = $env:DAILY_CONNECTED_REALISM_CSAMPLES
-    if ($null -eq $connCS -or $connCS -notmatch '^\d+$') { $connCS = '' }
-
-    Write-Log ("Running connected realism (days={0}, topK={1}, skipOT={2})" -f $connDays, $connTopK, $connSkipOt)
-    $plist = @('-m','nba_betting.cli','evaluate-connected-realism','--days', $connDays, '--top-k', $connTopK)
-    if ($connSkipOt -match '^(1|true|yes)$') { $plist += '--skip-ot' }
-    if ($connQS -ne '') { $plist += @('--n-quarter-samples', $connQS) }
-    if ($connCS -ne '') { $plist += @('--n-connected-samples', $connCS) }
-
-    $elapsed = Measure-Command { $rcConn = Invoke-PyMod -plist $plist }
-    Write-Log ("evaluate-connected-realism exit code: {0} (elapsed={1:n2}s)" -f $rcConn, $elapsed.TotalSeconds)
-  }
+  $null = Invoke-ConnectedRealismEval
 } catch { Write-Log ("Connected realism failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 1.6c) Drift monitoring (reference 30d vs current 7d)
@@ -1444,6 +1501,95 @@ print(f"FILTERED:{before}->{after}")
   }
 } catch { Write-Log ("Props predictions filter failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# 3.2) Build pregame expected minutes for today (leakage-safe: rotations history up to yesterday)
+# Controlled by env DAILY_SKIP_PREGAME_EXPECTED_MINUTES=1
+try {
+  $skipPem = $env:DAILY_SKIP_PREGAME_EXPECTED_MINUTES
+  if ($null -eq $skipPem -or $skipPem -notmatch '^(1|true|yes)$') {
+    $pemLookback = $env:DAILY_PREGAME_EXPECTED_MINUTES_LOOKBACK_DAYS
+    if ($null -eq $pemLookback -or $pemLookback -eq '') { $pemLookback = '60' }
+    $pemHalfLife = $env:DAILY_PREGAME_EXPECTED_MINUTES_HALF_LIFE_DAYS
+    if ($null -eq $pemHalfLife -or $pemHalfLife -eq '') { $pemHalfLife = '12' }
+    $pemAlpha = $env:DAILY_PREGAME_EXPECTED_MINUTES_BLEND_ALPHA
+    if ($null -eq $pemAlpha -or $pemAlpha -eq '') { $pemAlpha = '1.0' }
+
+    # Sanity guard: only use rotations-derived expected minutes if rotations history is present and fresh through yesterday.
+    $pemSource = 'rotations'
+    try {
+      $rotHist = Join-Path $RepoRoot 'data/processed/rotation_stints_history.csv'
+      if (-not (Test-Path $rotHist)) {
+        $pemSource = 'props'
+        Write-Log 'pregame_expected_minutes: rotation_stints_history.csv missing; falling back to props-based minutes'
+      } else {
+        $env:ROT_HIST_PATH = $rotHist
+        $env:ROT_HIST_YESTERDAY = $yesterday
+        $pyRotOk = @'
+import os
+from pathlib import Path
+
+import pandas as pd
+
+fp = Path(os.environ.get("ROT_HIST_PATH", ""))
+y = (os.environ.get("ROT_HIST_YESTERDAY", "") or "").strip()
+try:
+    df = pd.read_csv(fp, usecols=["date"])
+except Exception:
+    print("0")
+    raise SystemExit(0)
+
+if df is None or df.empty or "date" not in df.columns:
+    print("0")
+    raise SystemExit(0)
+
+d = pd.to_datetime(df["date"], errors="coerce").dropna()
+if d.empty:
+    print("0")
+    raise SystemExit(0)
+
+mx = d.max().strftime("%Y-%m-%d")
+print("1" if (mx >= y and y) else "0")
+'@
+        $tmpPyPemRot = Join-Path $LogPath ("pem_rotations_fresh_{0}.py" -f $Stamp)
+        Set-Content -Path $tmpPyPemRot -Value $pyRotOk -Encoding UTF8
+        $rotOk = (& $Python $tmpPyPemRot 2>$null | Select-Object -First 1)
+        if ($null -eq $rotOk -or [string]$rotOk -notmatch '^(1)$') {
+          $pemSource = 'props'
+          Write-Log ("pregame_expected_minutes: rotations history stale (need >= {0}); falling back to props-based minutes" -f $yesterday)
+        }
+      }
+    } catch {
+      $pemSource = 'props'
+      Write-Log ("pregame_expected_minutes: rotations freshness check failed; falling back to props-based minutes ({0})" -f $_.Exception.Message)
+    }
+
+    if ($pemSource -eq 'rotations') {
+      Write-Log ("Building pregame_expected_minutes for {0} from ESPN rotations history (lookback={1}d, half-life={2}d, alpha={3})" -f $Date, $pemLookback, $pemHalfLife, $pemAlpha)
+      $rcPem = Invoke-PyMod -plist @(
+        'tools/build_pregame_expected_minutes_range.py',
+        '--start', $Date,
+        '--end', $Date,
+        '--source', 'rotations',
+        '--rotations-lookback-days', $pemLookback,
+        '--rotations-half-life-days', $pemHalfLife,
+        '--rotations-blend-alpha', $pemAlpha,
+        '--overwrite'
+      )
+    } else {
+      Write-Log ("Building pregame_expected_minutes for {0} from props roll-minutes (fallback)" -f $Date)
+      $rcPem = Invoke-PyMod -plist @(
+        'tools/build_pregame_expected_minutes_range.py',
+        '--start', $Date,
+        '--end', $Date,
+        '--source', 'props',
+        '--overwrite'
+      )
+    }
+    Write-Log ("build_pregame_expected_minutes exit code: {0}" -f $rcPem)
+  } else {
+    Write-Log 'Skipping pregame_expected_minutes build (DAILY_SKIP_PREGAME_EXPECTED_MINUTES=1)'
+  }
+} catch { Write-Log ("pregame_expected_minutes build failed (non-fatal): {0}" -f $_.Exception.Message) }
+
 # 4) Props actuals upsert for yesterday (CLI)
 $rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
 Write-Log ("props-actuals exit code: {0}" -f $rc3)
@@ -1525,7 +1671,20 @@ Write-Log ("props-edges (oddsapi, mode=current) exit code: {0}" -f $rc4a)
 
 # 6) Export recommendations CSVs for site consumption
 # 6a) Game recommendations from predictions + odds
-$rc5 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-recommendations','--date', $Date)
+$maxPlusOdds = $env:DAILY_MAX_PLUS_ODDS
+$exportGamesArgs = @('-m','nba_betting.cli','export-recommendations','--date', $Date)
+if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
+  try {
+    $mpo = [double]$maxPlusOdds
+    if ($mpo -gt 0) {
+      $exportGamesArgs += @('--max-plus-odds', ([string]$mpo))
+      Write-Log ("Applying odds guard to game exports: max_plus_odds={0}" -f $mpo)
+    }
+  } catch {
+    Write-Log ("Invalid DAILY_MAX_PLUS_ODDS='{0}' (skipping odds guard)" -f $maxPlusOdds)
+  }
+}
+$rc5 = Invoke-PyMod -plist $exportGamesArgs
 Write-Log ("export-recommendations exit code: {0}" -f $rc5)
 # 6b) High-confidence picks (blended scoring) for games
 try {
@@ -1547,8 +1706,98 @@ try {
   Write-Log ("recommend-picks failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 # 6c) Props recommendations
-$rc6 = Invoke-PyMod -plist @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+$exportPropsArgs = @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
+  try {
+    $mpo2 = [double]$maxPlusOdds
+    if ($mpo2 -gt 0) {
+      $exportPropsArgs += @('--max-plus-odds', ([string]$mpo2))
+      Write-Log ("Applying odds guard to props exports: max_plus_odds={0}" -f $mpo2)
+    }
+  } catch {
+    # already logged above for games
+  }
+}
+$rc6 = Invoke-PyMod -plist $exportPropsArgs
 Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
+
+# 6c.0) Optional: export per-game Top-N props JSON (non-fatal)
+# Uses the Flask endpoint logic in-process (no server required).
+# Controlled by env DAILY_SKIP_PROPS_TOP_BY_GAME=1
+try {
+  $skipTopByGame = $env:DAILY_SKIP_PROPS_TOP_BY_GAME
+  if ($null -ne $skipTopByGame -and $skipTopByGame -match '^(1|true|yes)$') {
+    Write-Log 'Skipping props per-game Top-N export (DAILY_SKIP_PROPS_TOP_BY_GAME=1)'
+  } else {
+    $perGameLimit = $env:DAILY_PROPS_PER_GAME_LIMIT
+    if ($null -eq $perGameLimit -or $perGameLimit -eq '') { $perGameLimit = '3' }
+    try { $perGameLimitInt = [int]$perGameLimit } catch { $perGameLimitInt = 3 }
+    if ($perGameLimitInt -lt 1) { $perGameLimitInt = 1 }
+    if ($perGameLimitInt -gt 10) { $perGameLimitInt = 10 }
+
+    $slateLimit = $env:DAILY_PROPS_SLATE_LIMIT
+    if ($null -eq $slateLimit -or $slateLimit -eq '') { $slateLimit = '25' }
+    try { $slateLimitInt = [int]$slateLimit } catch { $slateLimitInt = 25 }
+    if ($slateLimitInt -lt 1) { $slateLimitInt = 1 }
+    if ($slateLimitInt -gt 200) { $slateLimitInt = 200 }
+
+    $slatePerMarketLimit = $env:DAILY_PROPS_SLATE_PER_MARKET_LIMIT
+    if ($null -eq $slatePerMarketLimit -or $slatePerMarketLimit -eq '') { $slatePerMarketLimit = '4' }
+    try { $slatePerMarketLimitInt = [int]$slatePerMarketLimit } catch { $slatePerMarketLimitInt = 4 }
+    if ($slatePerMarketLimitInt -lt 1) { $slatePerMarketLimitInt = 1 }
+    if ($slatePerMarketLimitInt -gt 50) { $slatePerMarketLimitInt = 50 }
+
+    $mkts = $env:DAILY_PROPS_MARKETS
+    if ($null -eq $mkts -or $mkts -eq '') { $mkts = 'pts,reb,ast,threes,blk,stl,pra,pr,pa,ra,dd,td' }
+
+    $outTopByGame = Join-Path $RepoRoot ("data/processed/props_recommendations_top_by_game_{0}.json" -f $Date)
+    Write-Log ("Exporting props per-game + per-market Top-N JSON for {0} (per_game_limit={1}, slate_per_market_limit={2}, slate_limit={3}, markets={4})" -f $Date, $perGameLimitInt, $slatePerMarketLimitInt, $slateLimitInt, $mkts)
+
+    $tmpPyTop = Join-Path $LogPath ("export_props_top_by_game_{0}.py" -f $Stamp)
+    $pyTop = @"
+import json
+from pathlib import Path
+
+import app
+
+date_str = r"{DATE_PLACEHOLDER}"
+out_path = Path(r"{OUT_PLACEHOLDER}")
+per_game_limit = int(r"{PGL_PLACEHOLDER}")
+slate_limit = int(r"{SL_PLACEHOLDER}")
+markets = r"{MKTS_PLACEHOLDER}".strip()
+slate_per_market_limit = int(r"{SPML_PLACEHOLDER}")
+
+q = f"/api/props/recommendations?date={date_str}&compact=1&portfolio_only=1&use_snapshot=0&limit={slate_limit}&per_game_limit={per_game_limit}&per_market=1&slate_per_market_limit={slate_per_market_limit}"
+if markets:
+  q += "&markets=" + markets
+
+client = app.app.test_client()
+resp = client.get(q)
+try:
+  payload = resp.get_json() if resp is not None else None
+except Exception:
+  payload = None
+
+if not isinstance(payload, dict):
+  payload = {"error": "no_json", "status": int(getattr(resp, 'status_code', 0) or 0)}
+
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+print("OK")
+"@
+    $pyTop = $pyTop.Replace('{DATE_PLACEHOLDER}', $Date)
+    $pyTop = $pyTop.Replace('{OUT_PLACEHOLDER}', $outTopByGame)
+    $pyTop = $pyTop.Replace('{PGL_PLACEHOLDER}', $perGameLimitInt)
+    $pyTop = $pyTop.Replace('{SL_PLACEHOLDER}', $slateLimitInt)
+    $pyTop = $pyTop.Replace('{MKTS_PLACEHOLDER}', $mkts)
+    $pyTop = $pyTop.Replace('{SPML_PLACEHOLDER}', $slatePerMarketLimitInt)
+    Set-Content -Path $tmpPyTop -Value $pyTop -Encoding UTF8
+    $outTop = & $Python $tmpPyTop 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outTop -match 'OK') { Write-Log ("Wrote {0}" -f $outTopByGame) } else { Write-Log ("Top-by-game export returned: {0}" -f $outTop) }
+  }
+} catch {
+  Write-Log ("Props per-game Top-N export failed (non-fatal): {0}" -f $_.Exception.Message)
+}
 
 # 6d) Export authoritative best-edges snapshots (games + props) for tracking/UI
 try {
@@ -1806,6 +2055,79 @@ print("OK")
   }
 } catch {
   Write-Log ("Props recommendations post-process failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
+# 6c.1.5) Build curated slate JSON artifact for /recommendations (non-fatal)
+# Uses the Flask endpoint logic in-process (no server required).
+# Controlled by env DAILY_SKIP_SLATE_JSON=1
+try {
+  $skipSlate = $env:DAILY_SKIP_SLATE_JSON
+  if ($null -ne $skipSlate -and $skipSlate -match '^(1|true|yes)$') {
+    Write-Log 'Skipping curated slate JSON build (DAILY_SKIP_SLATE_JSON=1)'
+  } else {
+    $defaultSlateQuery = ("/recommendations?format=json&view=slate&date={0}" -f $Date)
+    $slateQuery = $env:DAILY_SLATE_QUERY
+    $slateQueryExtra = $env:DAILY_SLATE_QUERY_EXTRA
+    if ($null -eq $slateQuery -or $slateQuery -eq '') {
+      $slateQuery = $defaultSlateQuery
+      if ($null -ne $slateQueryExtra -and $slateQueryExtra -ne '') {
+        if ($slateQueryExtra.StartsWith('&') -or $slateQueryExtra.StartsWith('?')) {
+          $slateQuery = ($slateQuery + $slateQueryExtra)
+        } else {
+          $slateQuery = ($slateQuery + '&' + $slateQueryExtra)
+        }
+      }
+    }
+
+    $slateOutEnv = $env:DAILY_SLATE_OUT
+    $forceDefaultOut = $env:DAILY_SLATE_FORCE_DEFAULT_OUT
+    if ($null -ne $slateOutEnv -and $slateOutEnv -ne '') {
+      $slateOut = $slateOutEnv
+    } else {
+      if ($slateQuery -ne $defaultSlateQuery -and -not ($null -ne $forceDefaultOut -and $forceDefaultOut -match '^(1|true|yes)$')) {
+        $slateOut = Join-Path $RepoRoot ("data/processed/recommendations_slate_{0}_custom.json" -f $Date)
+      } else {
+        $slateOut = Join-Path $RepoRoot ("data/processed/recommendations_slate_{0}.json" -f $Date)
+      }
+    }
+    try { if (Test-Path $slateOut) { Remove-Item $slateOut -Force -ErrorAction SilentlyContinue } } catch { }
+    Write-Log ("Building curated slate JSON for {0} -> {1}" -f $Date, $slateOut)
+
+    $tmpPySlate = Join-Path $LogPath ("build_recommendations_slate_{0}.py" -f $Stamp)
+    $pySlate = @"
+import json
+from pathlib import Path
+
+import app
+
+date_str = r"{DATE_PLACEHOLDER}"
+out_path = Path(r"{OUT_PLACEHOLDER}")
+
+q = r"{QUERY_PLACEHOLDER}"
+
+client = app.app.test_client()
+resp = client.get(q)
+try:
+  payload = resp.get_json() if resp is not None else None
+except Exception:
+  payload = None
+
+if not isinstance(payload, dict):
+  payload = {"error": "no_json", "status": int(getattr(resp, 'status_code', 0) or 0)}
+
+out_path.parent.mkdir(parents=True, exist_ok=True)
+out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+print("OK")
+"@
+    $pySlate = $pySlate.Replace('{DATE_PLACEHOLDER}', $Date)
+    $pySlate = $pySlate.Replace('{OUT_PLACEHOLDER}', $slateOut)
+    $pySlate = $pySlate.Replace('{QUERY_PLACEHOLDER}', $slateQuery)
+    Set-Content -Path $tmpPySlate -Value $pySlate -Encoding UTF8
+    $outSlate = & $Python $tmpPySlate 2>&1 | Tee-Object -FilePath $LogFile -Append
+    if ($outSlate -match 'OK') { Write-Log ("Wrote {0}" -f $slateOut) } else { Write-Log ("Curated slate build returned: {0}" -f $outSlate) }
+  }
+} catch {
+  Write-Log ("Curated slate JSON build failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
 # 6c.2) Props reliability (60d) and probability calibration JSON (local-only)

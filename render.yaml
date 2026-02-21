@@ -22,6 +22,8 @@ services:
         value: "4"
       - key: ALLOW_REMOTE_ARTIFACTS
         value: "1"
+      - key: CONNECTED_CORRELATED_SCORING_ALPHA
+        value: "0.2"
       - key: GITHUB_REPOSITORY
         value: mostgood1/NBA-Betting
       - key: GIT_BRANCH
