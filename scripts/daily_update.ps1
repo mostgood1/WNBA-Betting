@@ -289,8 +289,19 @@ function Invoke-PyModWithTimeout {
   } catch { $finished = $false }
 
   if (-not $finished) {
-    try { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } catch {}
-    Write-Log ("TIMEOUT: killed process after {0}s (pid={1})" -f $TimeoutSeconds, $p.Id)
+    # On Windows, a venv python.exe may be a launcher that spawns a child interpreter.
+    # Kill the entire process tree so we don't leave orphaned python.exe processes behind.
+    $killed = $false
+    try {
+      & taskkill /PID $p.Id /T /F 2>&1 | Out-Null
+      $killed = $true
+    } catch {
+      $killed = $false
+    }
+    if (-not $killed) {
+      try { Stop-Process -Id $p.Id -Force -ErrorAction SilentlyContinue } catch {}
+    }
+    Write-Log ("TIMEOUT: killed process tree after {0}s (pid={1})" -f $TimeoutSeconds, $p.Id)
     try {
       if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
       if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
@@ -381,6 +392,18 @@ try {
 
 # Always run local pipeline to produce site CSVs
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
+
+# Guard against preflight network hangs (rosters/logs/injuries/league status)
+$PreflightTimeoutSeconds = 240
+try {
+  $to = $env:DAILY_PREFLIGHT_TIMEOUT_SEC
+  if ($null -eq $to -or $to -eq '') { $to = '240' }
+  try { $toInt = [int]$to } catch { $toInt = 240 }
+  if ($toInt -lt 30) { $toInt = 30 }
+  if ($toInt -gt 900) { $toInt = 900 }
+  $PreflightTimeoutSeconds = $toInt
+} catch { }
+
 # 0) Ensure current season rosters are fetched/updated prior to projections
 try {
   # Compute NBA season starting year (e.g., 2025 for 2025-26) for CLI that expects an int
@@ -394,7 +417,7 @@ try {
   }
   $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
   Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
-  $rc0 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr)
+  $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
   Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
@@ -402,7 +425,7 @@ try {
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
   Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
-  $rcLogs = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr)
+  $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
   Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
 } catch {
   Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)
@@ -412,13 +435,13 @@ try {
 # This must run BEFORE any predictions/sims so the player pool is up-to-date.
 try {
   Write-Log "Fetching injuries from ESPN (availability gate)"
-  $rcInjEarly = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-injuries')
+  $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries') -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
   Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
 
 try {
   Write-Log "Building league_status for today's slate (availability gate)"
-  $rcLSEarly = Invoke-PyMod -plist @('-m','nba_betting.cli','build-league-status','--date', $Date)
+  $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'build_league_status'
   Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
@@ -1224,7 +1247,12 @@ else:
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
   Write-Log ("Running roster audit for {0}" -f $yesterday)
-  $rc_audit = Invoke-PyMod -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday)
+  $to = $env:DAILY_ROSTER_AUDIT_TIMEOUT_SEC
+  if ($null -eq $to -or $to -eq '') { $to = '240' }
+  try { $toInt = [int]$to } catch { $toInt = 240 }
+  if ($toInt -lt 30) { $toInt = 30 }
+  if ($toInt -gt 1800) { $toInt = 1800 }
+  $rc_audit = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
   Write-Log ("audit-rosters exit code: {0}" -f $rc_audit)
 } catch {
   Write-Log ("audit-rosters error (non-fatal): {0}" -f $_.Exception.Message)
@@ -1756,7 +1784,12 @@ try {
     $tmpPyTop = Join-Path $LogPath ("export_props_top_by_game_{0}.py" -f $Stamp)
     $pyTop = @"
 import json
+import sys
 from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+  sys.path.insert(0, str(repo_root))
 
 import app
 
@@ -1786,6 +1819,7 @@ out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 print("OK")
 "@
     $pyTop = $pyTop.Replace('{DATE_PLACEHOLDER}', $Date)
+  $pyTop = $pyTop.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
     $pyTop = $pyTop.Replace('{OUT_PLACEHOLDER}', $outTopByGame)
     $pyTop = $pyTop.Replace('{PGL_PLACEHOLDER}', $perGameLimitInt)
     $pyTop = $pyTop.Replace('{SL_PLACEHOLDER}', $slateLimitInt)
@@ -2096,7 +2130,12 @@ try {
     $tmpPySlate = Join-Path $LogPath ("build_recommendations_slate_{0}.py" -f $Stamp)
     $pySlate = @"
 import json
+import sys
 from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+  sys.path.insert(0, str(repo_root))
 
 import app
 
@@ -2120,6 +2159,7 @@ out_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
 print("OK")
 "@
     $pySlate = $pySlate.Replace('{DATE_PLACEHOLDER}', $Date)
+  $pySlate = $pySlate.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
     $pySlate = $pySlate.Replace('{OUT_PLACEHOLDER}', $slateOut)
     $pySlate = $pySlate.Replace('{QUERY_PLACEHOLDER}', $slateQuery)
     Set-Content -Path $tmpPySlate -Value $pySlate -Encoding UTF8

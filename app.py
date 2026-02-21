@@ -433,7 +433,11 @@ def _live_load_smart_sim_by_game_id(date_str: str, game_id: str) -> dict[str, An
     try:
         if not date_str or not game_id:
             return None
-        key = f"{date_str}:{game_id}"
+        gid_norm = _live_norm_game_id(game_id)
+        if not gid_norm:
+            return None
+
+        key = f"{date_str}:{gid_norm}"
         now = time.time()
         ent = _live_sim_cache.get(key)
         if ent and (now - ent[0] < 60):
@@ -445,8 +449,14 @@ def _live_load_smart_sim_by_game_id(date_str: str, game_id: str) -> dict[str, An
                 obj = json.loads(raw)
                 if not isinstance(obj, dict):
                     continue
-                gid = str(obj.get("game_id") or "").strip()
-                if gid and str(gid) == str(game_id):
+                # SmartSim JSONs may store 8-digit ids (e.g., 22500814) while live
+                # endpoints/frontends may use 10-digit normalized ids (e.g., 0022500814).
+                # Compare canonicalized forms so the lookup works either way.
+                gid_raw = obj.get("game_id")
+                if gid_raw is None:
+                    gid_raw = obj.get("nba_game_id")
+                gid = _live_norm_game_id(gid_raw) if gid_raw is not None else ""
+                if gid and gid == gid_norm:
                     _live_sim_cache[key] = (now, obj)
                     return obj
             except Exception:
@@ -1021,9 +1031,13 @@ def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
         away = str(obj.get("away") or "").strip().upper()
         if not home or not away:
             continue
-        # SmartSim files sometimes omit numeric NBA game ids; for Live Lens we only
-        # need a stable matchup id to join against ESPN scoreboard rows.
-        out.append({"game_id": f"{away}@{home}", "home": home, "away": away})
+        # Prefer the numeric NBA game id used by SmartSim (/api/cards uses this).
+        # Fall back to a stable matchup id when missing.
+        gid_raw = obj.get("game_id")
+        if gid_raw is None:
+            gid_raw = obj.get("nba_game_id")
+        gid_norm = _live_norm_game_id(gid_raw) if gid_raw is not None else ""
+        out.append({"game_id": gid_norm or f"{away}@{home}", "home": home, "away": away})
     return out
 
 
@@ -1059,7 +1073,9 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             for sg in sim_games:
                 home = str(sg.get("home") or "").upper()
                 away = str(sg.get("away") or "").upper()
-                gid = _matchup_id(home, away) or str(sg.get("game_id") or "").strip()
+                sg_gid = str(sg.get("game_id") or "").strip()
+                gid = _live_norm_game_id(sg_gid) if sg_gid else ""
+                gid = gid or _matchup_id(home, away)
                 eg = espn_by_pair.get((home, away))
                 if eg:
                     merged.append(
@@ -1121,9 +1137,11 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
         if sim_games and not espn_games:
             merged = []
             for sg in sim_games:
+                sg_gid = str(sg.get("game_id") or "").strip()
+                gid = _live_norm_game_id(sg_gid) if sg_gid else ""
                 merged.append(
                     {
-                        "game_id": _matchup_id(sg.get("home"), sg.get("away")) or str(sg.get("game_id") or "").strip(),
+                        "game_id": gid or _matchup_id(sg.get("home"), sg.get("away")) or sg_gid,
                         "home": sg.get("home"),
                         "away": sg.get("away"),
                         "home_pts": None,
