@@ -546,7 +546,14 @@ def _live_fetch_cdn_scoreboard(date_str: str) -> dict[str, Any]:
         else:
             ymd = target.strftime("%Y%m%d")
             u = f"https://cdn.nba.com/static/json/liveData/scoreboard/scoreboard_{ymd}.json"
-        r = requests.get(u, headers=headers, timeout=15)
+        # Some environments inject broken proxy settings via env vars.
+        # Use a session that ignores env (trust_env=False) for reliability.
+        try:
+            sess = requests.Session()
+            sess.trust_env = False
+            r = sess.get(u, headers=headers, timeout=15)
+        except Exception:
+            r = requests.get(u, headers=headers, timeout=15)
         if not r.ok:
             payload = {}
         else:
@@ -614,7 +621,13 @@ def _live_fetch_espn_summary(event_id: str) -> dict[str, Any]:
                 ),
                 "Referer": "https://www.espn.com/",
             }
-            r = requests.get(url, headers=headers, timeout=10)
+            # Ignore proxy env vars for stability.
+            try:
+                sess = requests.Session()
+                sess.trust_env = False
+                r = sess.get(url, headers=headers, timeout=10)
+            except Exception:
+                r = requests.get(url, headers=headers, timeout=10)
             if not r.ok:
                 _live_espn_summary_cache[eid] = (now, {})
                 return {}
@@ -18367,7 +18380,24 @@ def _fetch_espn_scoreboard(date_str_local: str) -> Optional[dict[str, Any]]:
     try:
         ymd = date_str_local.replace('-', '')
         url = f"https://site.web.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard?dates={ymd}"
-        r = _rq.get(url, timeout=8)
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Cache-Control": "no-cache",
+            "Pragma": "no-cache",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/125.0.0.0 Safari/537.36"
+            ),
+            "Referer": "https://www.espn.com/",
+        }
+        try:
+            sess = _rq.Session()
+            sess.trust_env = False
+            r = sess.get(url, headers=headers, timeout=8)
+        except Exception:
+            r = _rq.get(url, headers=headers, timeout=8)
         if r.status_code != 200:
             return None
         jd = r.json()
