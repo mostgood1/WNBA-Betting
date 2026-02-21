@@ -1,0 +1,30 @@
+{
+  "date": "2026-02-21",
+  "yesterday": "2026-02-20",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 6,
+  "smart_sim_count": 6,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 0,
+  "rotations_have_games_yesterday": 0,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": null,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "warnings": [
+    "minutes_sanity: team MEM top10 minutes sum low (174.0) using lag1_min",
+    "minutes_sanity: team NOP top10 minutes sum low (145.0) using lag1_min",
+    "minutes_sanity: team NOP has <5 players at 20+ min (found 3) using lag1_min",
+    "minutes_sanity: team SAC top10 minutes sum low (156.0) using lag1_min",
+    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using lag1_min",
+    "minutes_sanity: 27 players have <8 min but >=10 pred_pts (sample: Leonard Miller(CHI), Emanuel Miller(CHI), Trentyn Flowers(CHI), Marcus Sasser(DET), Colby Jones(DET), Bobi Klintman(DET))"
+  ],
+  "missing": [],
+  "ok": true
+}
