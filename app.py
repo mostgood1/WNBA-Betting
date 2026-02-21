@@ -8,7 +8,7 @@ import math
 import json
 import base64
 import os
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from flask import Flask, jsonify, request, send_from_directory, redirect
 import subprocess
 import sys
@@ -145,6 +145,8 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         timeout_s = 3
 
         # 1) List events and match by team tricodes.
+        # Important: OddsAPI can return multiple events for the same teams over a season.
+        # Choose the best match closest to now to avoid pulling a future/past instance.
         event_id = None
         swapped = False
         try:
@@ -154,22 +156,46 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         except Exception:
             events = []
 
+        def _parse_commence_time_utc_naive(x: Any) -> datetime | None:
+            try:
+                s = str(x or "").strip()
+                if not s:
+                    return None
+                # OddsAPI commonly returns ISO strings like '2026-02-21T03:10:00Z'
+                dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+                if dt.tzinfo is not None:
+                    dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+                return dt
+            except Exception:
+                return None
+
+        best: tuple[float, Any, bool] | None = None  # (abs_seconds_from_now, event_id, swapped)
+        now_utc = datetime.utcnow()
         for ev in events:
             try:
                 if not isinstance(ev, dict):
                     continue
                 eh = _get_tricode(str(ev.get("home_team") or ""))
                 ea = _get_tricode(str(ev.get("away_team") or ""))
-                if eh == h and ea == a:
-                    event_id = ev.get("id")
-                    swapped = False
-                    break
-                if eh == a and ea == h:
-                    event_id = ev.get("id")
-                    swapped = True
-                    break
+                if not ((eh == h and ea == a) or (eh == a and ea == h)):
+                    continue
+
+                dt = _parse_commence_time_utc_naive(ev.get("commence_time"))
+                if dt is None:
+                    # Still allow selection, but strongly de-prioritize unknown timestamps.
+                    abs_s = 1e18
+                else:
+                    abs_s = float(abs((dt - now_utc).total_seconds()))
+
+                sw = bool(eh == a and ea == h)
+                if best is None or abs_s < best[0]:
+                    best = (abs_s, ev.get("id"), sw)
             except Exception:
                 continue
+
+        if best is not None:
+            event_id = best[1]
+            swapped = best[2]
 
         if not event_id:
             out = {}
@@ -259,6 +285,14 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
             obj = None
 
         mk_to_label = {mkey: label for label, mkey in picked.items()}
+        # Aggregate across bookmakers to avoid arbitrary "first book wins" volatility.
+        period_pts: dict[str, list[float]] = {k: [] for k in ["h1", "q1", "q2", "q3", "q4"]}
+        game_total_pts: list[float] = []
+        home_spreads: list[float] = []
+        away_spreads: list[float] = []
+        home_mls: list[float] = []
+        away_mls: list[float] = []
+
         if isinstance(obj, dict):
             bks = obj.get("bookmakers") or []
             if isinstance(bks, list):
@@ -280,8 +314,6 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                             continue
 
                         if label in {"h1", "q1", "q2", "q3", "q4"}:
-                            if label in period_totals:
-                                continue
                             for oc in outs:
                                 if not isinstance(oc, dict):
                                     continue
@@ -289,15 +321,12 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                 try:
                                     v = float(pt)
                                     if np.isfinite(v):
-                                        period_totals[label] = float(v)
-                                        break
+                                        period_pts[label].append(float(v))
                                 except Exception:
                                     continue
 
                         # Full-game markets
                         if label == "game_total":
-                            if "total" in game_lines:
-                                continue
                             for oc in outs:
                                 if not isinstance(oc, dict):
                                     continue
@@ -305,8 +334,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                 try:
                                     v = float(pt)
                                     if np.isfinite(v):
-                                        game_lines["total"] = float(v)
-                                        break
+                                        game_total_pts.append(float(v))
                                 except Exception:
                                     continue
 
@@ -323,10 +351,10 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                         continue
                                 except Exception:
                                     continue
-                                if tri == h and "home_spread" not in game_lines:
-                                    game_lines["home_spread"] = float(v)
-                                if tri == a and "away_spread" not in game_lines:
-                                    game_lines["away_spread"] = float(v)
+                                if tri == h:
+                                    home_spreads.append(float(v))
+                                if tri == a:
+                                    away_spreads.append(float(v))
 
                         if label == "game_h2h":
                             for oc in outs:
@@ -341,10 +369,37 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
                                         continue
                                 except Exception:
                                     continue
-                                if tri == h and "home_ml" not in game_lines:
-                                    game_lines["home_ml"] = float(v)
-                                if tri == a and "away_ml" not in game_lines:
-                                    game_lines["away_ml"] = float(v)
+                                if tri == h:
+                                    home_mls.append(float(v))
+                                if tri == a:
+                                    away_mls.append(float(v))
+
+        # Reduce aggregated values to a single best-effort line.
+        try:
+            for label, pts in period_pts.items():
+                if pts:
+                    period_totals[label] = float(np.median(np.asarray(pts, dtype=float)))
+        except Exception:
+            pass
+        try:
+            if game_total_pts:
+                game_lines["total"] = float(np.median(np.asarray(game_total_pts, dtype=float)))
+        except Exception:
+            pass
+        try:
+            if home_spreads:
+                game_lines["home_spread"] = float(np.median(np.asarray(home_spreads, dtype=float)))
+            if away_spreads:
+                game_lines["away_spread"] = float(np.median(np.asarray(away_spreads, dtype=float)))
+        except Exception:
+            pass
+        try:
+            if home_mls:
+                game_lines["home_ml"] = float(np.median(np.asarray(home_mls, dtype=float)))
+            if away_mls:
+                game_lines["away_ml"] = float(np.median(np.asarray(away_mls, dtype=float)))
+        except Exception:
+            pass
 
         out = {
             "source": "oddsapi_fast",

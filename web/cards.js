@@ -2956,6 +2956,13 @@ function startLiveLensPolling(root, games, dateStr) {
           if (v != null) lineTot.textContent = fmt(v, 1);
         }
 
+        function clearLineTot(sumEl) {
+          if (!sumEl) return;
+          const lineTot = sumEl.querySelector('.lens-sum-line-total');
+          if (!lineTot) return;
+          lineTot.textContent = '—';
+        }
+
         function setLineAts(sumEl, spr) {
           if (!sumEl) return;
           const lineAts = sumEl.querySelector('.lens-sum-line-ats');
@@ -2990,7 +2997,9 @@ function startLiveLensPolling(root, games, dateStr) {
           try {
             const q1LineRaw = periodTotals && periodTotals.q1 != null ? n(periodTotals.q1) : null;
             const q1Line = (q1LineRaw != null && Math.abs(q1LineRaw) < 0.001) ? null : q1LineRaw;
-            setLineTot(sumQ1, q1Line);
+            // If game is in Q1 and we don't have a live Q1 line, don't keep prefill.
+            if (isInProgress && period === 1 && q1Line == null) clearLineTot(sumQ1);
+            else setLineTot(sumQ1, q1Line);
             const q1SprRaw = periodSpreads && periodSpreads.q1 != null ? n(periodSpreads.q1) : null;
             const q1Spr = (q1SprRaw != null && Math.abs(q1SprRaw) < 0.001 && q1Line == null) ? null : q1SprRaw;
             setLineAts(sumQ1, q1Spr);
@@ -3006,7 +3015,9 @@ function startLiveLensPolling(root, games, dateStr) {
           try {
             const q3LineRaw = periodTotals && periodTotals.q3 != null ? n(periodTotals.q3) : null;
             const q3Line = (q3LineRaw != null && Math.abs(q3LineRaw) < 0.001) ? null : q3LineRaw;
-            setLineTot(sumQ3, q3Line);
+            // If game is in Q3 and we don't have a live Q3 line, don't keep prefill.
+            if (isInProgress && period === 3 && q3Line == null) clearLineTot(sumQ3);
+            else setLineTot(sumQ3, q3Line);
             const q3SprRaw = periodSpreads && periodSpreads.q3 != null ? n(periodSpreads.q3) : null;
             const q3Spr = (q3SprRaw != null && Math.abs(q3SprRaw) < 0.001 && q3Line == null) ? null : q3SprRaw;
             setLineAts(sumQ3, q3Spr);
