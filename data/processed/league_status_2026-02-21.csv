@@ -215,7 +215,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629636,Darius Garland,CLE,OUT,False,False
 1629637,Jaxson Hayes,LAL,DAY-TO-DAY,False,False
 1629638,Nickeil Alexander-Walker,ATL,DAY-TO-DAY,False,False
-1629639,Tyler Herro,MIA,OUT,True,False
+1629639,Tyler Herro,MIA,DAY-TO-DAY,True,True
 1629640,Keldon Johnson,SAS,,True,True
 1629643,Chuma Okeke,CLE,,False,False
 1629645,Kevin Porter Jr.,MIL,,False,False
@@ -315,7 +315,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630553,Keon Johnson,BKN,,False,False
 1630556,Kessler Edwards,DAL,,False,False
 1630557,Corey Kispert,ATL,DAY-TO-DAY,False,False
-1630558,Davion Mitchell,MIA,,True,True
+1630558,Davion Mitchell,MIA,DAY-TO-DAY,True,True
 1630559,Austin Reaves,LAL,DAY-TO-DAY,False,False
 1630560,Cam Thomas,MIL,DAY-TO-DAY,False,False
 1630561,David Duke Jr.,SAS,,True,True
@@ -359,7 +359,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630703,Scoot Henderson,POR,DAY-TO-DAY,False,False
 1630762,Phillip Wheeler,,,False,False
 1630811,Keaton Wallace,ATL,DAY-TO-DAY,False,False
-1631093,Jaden Ivey,CHI,DAY-TO-DAY,True,True
+1631093,Jaden Ivey,CHI,OUT,True,False
 1631094,Paolo Banchero,ORL,,True,True
 1631095,Jabari Smith Jr.,HOU,DAY-TO-DAY,True,True
 1631096,Chet Holmgren,OKC,DAY-TO-DAY,False,False

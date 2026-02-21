@@ -1,11 +1,11 @@
 {
   "date": "2026-02-21",
   "team_counts": {
-    "CHI": 6,
+    "CHI": 7,
     "DET": 1,
     "HOU": 3,
     "MEM": 5,
-    "MIA": 4,
+    "MIA": 3,
     "NOP": 3,
     "NYK": 2,
     "ORL": 3,
@@ -126,11 +126,6 @@
       "status": "OUT"
     },
     {
-      "player": "Tyler Herro",
-      "team": "MIA",
-      "status": "OUT"
-    },
-    {
       "player": "Quentin Grimes",
       "team": "PHI",
       "status": "OUT"
@@ -188,6 +183,11 @@
     {
       "player": "Colin Castleton",
       "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaden Ivey",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -278,7 +278,8 @@
       "Colin Castleton"
     ],
     "DET": [
-      "Ronald Holland II"
+      "Ronald Holland II",
+      "Jaden Ivey"
     ]
   },
   "team_impact": {
@@ -294,6 +295,6 @@
     "NYK": 59.24285714285714,
     "CLE": 21.400000000000002,
     "ORL": 26.8,
-    "DET": 19.166666666666668
+    "DET": 32.05
   }
 }
