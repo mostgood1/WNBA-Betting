@@ -1004,12 +1004,13 @@ def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
             continue
         if not isinstance(obj, dict):
             continue
-        gid_raw = str(obj.get("game_id") or "").strip()
         home = str(obj.get("home") or "").strip().upper()
         away = str(obj.get("away") or "").strip().upper()
-        if not gid_raw or not home or not away:
+        if not home or not away:
             continue
-        out.append({"game_id": _live_norm_game_id(gid_raw), "home": home, "away": away})
+        # SmartSim files sometimes omit numeric NBA game ids; for Live Lens we only
+        # need a stable matchup id to join against ESPN scoreboard rows.
+        out.append({"game_id": f"{away}@{home}", "home": home, "away": away})
     return out
 
 
@@ -1026,6 +1027,11 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
         jd = _live_fetch_espn_scoreboard(date_str)
         espn_games = _live_extract_espn_games(jd) if jd else []
 
+        def _matchup_id(home_tri: Any, away_tri: Any) -> str:
+            h = str(home_tri or "").strip().upper()
+            a = str(away_tri or "").strip().upper()
+            return f"{a}@{h}" if h and a else ""
+
         if sim_games and espn_games:
             espn_by_pair: dict[tuple[str, str], dict[str, Any]] = {}
             for eg in espn_games:
@@ -1040,7 +1046,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             for sg in sim_games:
                 home = str(sg.get("home") or "").upper()
                 away = str(sg.get("away") or "").upper()
-                gid = str(sg.get("game_id") or "").strip()
+                gid = _matchup_id(home, away) or str(sg.get("game_id") or "").strip()
                 eg = espn_by_pair.get((home, away))
                 if eg:
                     merged.append(
@@ -1087,10 +1093,11 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             out: list[dict[str, Any]] = []
             for eg in espn_games:
                 try:
-                    gid = str(eg.get("game_id") or "").strip()
+                    eid = str(eg.get("game_id") or "").strip()
+                    gid = _matchup_id(eg.get("home"), eg.get("away"))
                     rec = dict(eg)
                     rec["game_id"] = gid
-                    rec["espn_event_id"] = gid
+                    rec["espn_event_id"] = eid
                     rec["match"] = None
                     out.append(rec)
                 except Exception:
@@ -1103,7 +1110,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
             for sg in sim_games:
                 merged.append(
                     {
-                        "game_id": str(sg.get("game_id") or "").strip(),
+                        "game_id": _matchup_id(sg.get("home"), sg.get("away")) or str(sg.get("game_id") or "").strip(),
                         "home": sg.get("home"),
                         "away": sg.get("away"),
                         "home_pts": None,
@@ -1123,10 +1130,15 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
         # Fallback to NBA CDN scoreboard (best-effort; dated CDN URLs often 403)
         sb = _live_fetch_cdn_scoreboard(date_str)
         games = _live_extract_scoreboard_games(sb)
-        # Normalize ids to match frontend canonicalization
+        # Prefer matchup ids for frontend joins; retain NBA numeric id separately when present.
         for g in games:
             try:
-                g["game_id"] = _live_norm_game_id(str(g.get("game_id") or "").strip()) or g.get("game_id")
+                nba_gid = str(g.get("game_id") or "").strip()
+                h = str(g.get("home") or "").strip().upper()
+                a = str(g.get("away") or "").strip().upper()
+                g["nba_game_id"] = _live_norm_game_id(nba_gid) if nba_gid else None
+                g["game_id"] = _matchup_id(h, a) or nba_gid
+                g.setdefault("espn_event_id", None)
             except Exception:
                 continue
         return "nba_cdn", games
@@ -7440,9 +7452,15 @@ def api_cards():
         # Ensure interval ladders exist (historical UI should not go blank).
         _itv, _itv1 = _ensure_intervals(obj)
 
+        # Live Lens polling requires a stable, canonical game_id to join cards -> scoreboard.
+        # Some SmartSim JSON files omit "game_id"; fall back to the matchup id (AWAY@HOME).
+        sim_game_id = obj.get("game_id")
+        if not sim_game_id:
+            sim_game_id = f"{away_tri}@{home_tri}"
+
         sim = {
             "file": fp.name,
-            "game_id": obj.get("game_id"),
+            "game_id": sim_game_id,
             "n_sims": obj.get("n_sims"),
             "mode": obj.get("mode"),
             "market": obj.get("market"),
