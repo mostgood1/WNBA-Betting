@@ -2620,11 +2620,45 @@ function renderLivePropCallouts(callouts) {
       const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
       const player = String(x.player || '').trim();
-      const lineTxt = (n(x.line) == null) ? '—' : fmt(x.line, 1);
+      const pid = n(x.player_id);
+      const photo = String(x.player_photo || '').trim() || ((pid != null) ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${pid}.png` : '');
+      const img = photo
+        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="22" height="22" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
+        : '';
+      const preLine = n(x.line_pregame);
+      const liveLine = n(x.line_live);
+      const lineUsed = n(x.line);
+      const act = n(x.actual);
+      const proj = n(x.pace_proj);
       const dp = n(x.dP);
       const ds = n(x.dS);
+
+      const lineTxt = (lineUsed == null) ? '—' : fmt(lineUsed, 1);
+      const preTxt = (preLine == null) ? '—' : fmt(preLine, 1);
+      const liveTxt = (liveLine == null) ? '—' : fmt(liveLine, 1);
+      const actTxt = (act == null) ? '—' : fmt(act, 1);
+      const projTxt = (proj == null) ? '—' : fmt(proj, 1);
       const dpTxt = (dp == null) ? '—' : fmt(dp, 1);
       const dsTxt = (ds == null) ? '—' : fmt(ds, 1);
+
+      const why = (() => {
+        try {
+          const tags = [];
+          if (x.injury_flag) tags.push('<span class="badge bad">INJ</span>');
+          const pf = n(x.pf);
+          if (pf != null && pf >= 5) tags.push('<span class="badge bad">F5+</span>');
+          else if (pf != null && pf >= 4) tags.push('<span class="badge ok">F4</span>');
+          const rem = n(x.rem_min);
+          if (rem != null && rem < 1.5) tags.push('<span class="badge bad">LOWMIN</span>');
+          else if (rem != null && rem < 3.5) tags.push('<span class="badge ok">LOWMIN</span>');
+          if (x.bench_long) tags.push('<span class="badge ok">BENCH</span>');
+          if (x.simDisagree) tags.push('<span class="badge bad">SIM≠</span>');
+          if (!tags.length) return '';
+          return tags.join('');
+        } catch (_) {
+          return '';
+        }
+      })();
 
       const simFlag = x.simDisagree ? '<span class="badge bad">SIM≠</span>' : (x.simAgree ? '<span class="badge good">SIM✓</span>' : '');
 
@@ -2641,9 +2675,20 @@ function renderLivePropCallouts(callouts) {
             ${simFlag}
             ${liveLineBadge}
             <span class="badge">${esc(String(x.team || ''))}</span>
+            ${why}
           </div>
-          <div class="fw-700" style="line-height:1.15;">${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span></div>
-          <div class="subtle" style="line-height:1.15;">${esc(game)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}</div>
+          <div class="fw-700" style="line-height:1.15; display:flex; gap:6px; align-items:center;">
+            ${img}
+            <div style="min-width:0;">
+              ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span>
+            </div>
+          </div>
+          <div class="subtle" style="line-height:1.15;">
+            ${esc(game)} · Act ${esc(actTxt)} · Proj ${esc(projTxt)}
+          </div>
+          <div class="subtle" style="line-height:1.15;">
+            Pre ${esc(preTxt)} · Live ${esc(liveTxt)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
+          </div>
         </button>
       `;
     }).join('');
@@ -4425,16 +4470,32 @@ function startLiveLensPolling(root, games, dateStr) {
           const meta = byGameId.get(gid);
           if (!meta) continue;
 
+          const asof = (gg && gg.live_prop_lines && gg.live_prop_lines.generated_at)
+            ? String(gg.live_prop_lines.generated_at)
+            : '';
+
           const rows = Array.isArray(gg && gg.rows) ? gg.rows : [];
           for (const r of rows) {
             try {
               if (!r) continue;
-              const line = n(r.line);
-              if (line == null) continue;
-              const dP = n(r.pace_vs_line);
-              if (dP == null) continue;
+
+              // Require live line for BET/WATCH callouts.
+              const lineLive = n(r.line_live);
+              if (lineLive == null) continue;
+
+              const paceProj = n(r.pace_proj);
+              if (paceProj == null) continue;
+
+              const dP = paceProj - lineLive;
               const strength = Math.abs(dP);
-              const adj = adjustPlayerPropSignal(r, strength, thrPp);
+              const rForAdj = (() => {
+                try {
+                  return { ...r, line: lineLive, line_source: 'oddsapi', pace_vs_line: dP };
+                } catch (_) {
+                  return r;
+                }
+              })();
+              const adj = adjustPlayerPropSignal(rForAdj, strength, thrPp);
               const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
               if (klass !== 'BET' && klass !== 'WATCH') continue;
 
@@ -4444,23 +4505,44 @@ function startLiveLensPolling(root, games, dateStr) {
               if (seen.has(key)) continue;
               seen.add(key);
 
+              const mp = n(r.mp);
+              const projMin = n(r.proj_min_final != null ? r.proj_min_final : (r.exp_min_eff != null ? r.exp_min_eff : r.exp_min));
+              const remMin = (mp != null && projMin != null) ? (projMin - mp) : null;
+              const rotOn = (r && r.rot_on_court != null) ? !!r.rot_on_court : null;
+              const offSec = n(r.rot_cur_off_sec);
+              const benchLong = (rotOn === false && offSec != null && offSec >= 480);
+
+              const simMu = n(r.sim_mu);
+              const dS = (simMu != null) ? (simMu - lineLive) : null;
+
               cands.push({
                 gid,
                 home: meta.home,
                 away: meta.away,
                 team: String(r.team_tri || '').toUpperCase().trim(),
                 player,
+                player_id: n(r.player_id),
+                player_photo: (r && r.player_photo) ? String(r.player_photo) : '',
                 stat,
-                line,
-                is_live_line: (String(r.line_source || '').toLowerCase().trim() === 'oddsapi') && (n(r.line_live) != null),
+                line: lineLive,
+                line_live: lineLive,
+                line_pregame: n(r.line_pregame),
+                is_live_line: true,
+                actual: n(r.actual),
+                pace_proj: paceProj,
                 dP,
-                dS: n(r.sim_vs_line),
+                dS,
                 klass,
                 side: String(adj && adj.side != null ? adj.side : ''),
                 rank: n(adj && adj.rank) ?? 0,
                 score: n(adj && adj.score) ?? 0,
                 simDisagree: !!(adj && adj.sim_disagree),
                 simAgree: !!(adj && adj.sim_agree),
+                asof,
+                injury_flag: !!(r && r.injury_flag),
+                pf: n(r.pf),
+                rem_min: remMin,
+                bench_long: benchLong,
               });
             } catch (_) {
               // ignore

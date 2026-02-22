@@ -20106,6 +20106,27 @@ def api_live_player_lens():
         except Exception:
             games_map = {}
 
+    # Best-effort roster-based player_id lookup (fast, avoids per-row nba_api work).
+    roster_pid_by_team_nk: dict[tuple[str, str], int] = {}
+    try:
+        roster = _ensure_rosters_loaded()
+        if isinstance(roster, pd.DataFrame) and (not roster.empty):
+            for _, rr in roster.iterrows():
+                try:
+                    tri0 = str(rr.get("TEAM_ABBREVIATION") or "").strip().upper()
+                    nm0 = str(rr.get("PLAYER") or "").strip()
+                    pid0 = _safe_int(rr.get("PLAYER_ID"))
+                    if not tri0 or not nm0 or pid0 is None:
+                        continue
+                    nk0 = _norm_player_name(nm0)
+                    if not nk0:
+                        continue
+                    roster_pid_by_team_nk[(tri0, nk0)] = int(pid0)
+                except Exception:
+                    continue
+    except Exception:
+        roster_pid_by_team_nk = {}
+
     def _num(x: Any) -> float | None:
         try:
             v = pd.to_numeric(x, errors="coerce")
@@ -20393,6 +20414,14 @@ def api_live_player_lens():
                     continue
                 nk = _norm_player_name(player)
                 pred_row = preds_idx.get((team, nk)) if preds_idx else None
+
+                # Best-effort player_id + photo for UI (callouts).
+                pid = None
+                try:
+                    pid = roster_pid_by_team_nk.get((team, nk)) if roster_pid_by_team_nk else None
+                except Exception:
+                    pid = None
+                photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
 
                 mp = _num(p.get("mp"))
                 pf = _num(p.get("pf"))
@@ -20936,6 +20965,8 @@ def api_live_player_lens():
                             "team_tri": team,
                             "player": player,
                             "name_key": nk,
+                            "player_id": pid,
+                            "player_photo": photo,
                             "mp": mp,
                             "pf": pf,
                             "starter": starter,
