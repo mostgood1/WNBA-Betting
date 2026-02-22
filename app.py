@@ -20416,12 +20416,27 @@ def api_live_player_lens():
                 pred_row = preds_idx.get((team, nk)) if preds_idx else None
 
                 # Best-effort player_id + photo for UI (callouts).
+                espn_pid = None
+                try:
+                    espn_pid = _safe_int(p.get("player_id"))
+                except Exception:
+                    espn_pid = None
                 pid = None
                 try:
                     pid = roster_pid_by_team_nk.get((team, nk)) if roster_pid_by_team_nk else None
                 except Exception:
                     pid = None
-                photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                if pid is None:
+                    try:
+                        pid = _resolve_player_id(player, team)
+                    except Exception:
+                        pid = None
+                if pid:
+                    photo = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png"
+                elif espn_pid:
+                    photo = f"https://a.espncdn.com/i/headshots/nba/players/full/{espn_pid}.png"
+                else:
+                    photo = None
 
                 mp = _num(p.get("mp"))
                 pf = _num(p.get("pf"))
@@ -20966,6 +20981,7 @@ def api_live_player_lens():
                             "player": player,
                             "name_key": nk,
                             "player_id": pid,
+                            "player_id_espn": espn_pid,
                             "player_photo": photo,
                             "mp": mp,
                             "pf": pf,
