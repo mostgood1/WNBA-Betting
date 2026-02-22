@@ -2667,7 +2667,7 @@ function renderLivePropCallouts(callouts) {
           type="button"
           class="chip neutral prop-callout"
           data-game-id="${esc(String(x.gid))}"
-          style="text-align:left; display:flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; width:100%; min-width:0;"
+          style="text-align:left; display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; min-width:220px; max-width:260px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
@@ -2695,7 +2695,7 @@ function renderLivePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
-      <div style="margin-top:6px; max-height:560px; overflow-y:auto; overflow-x:hidden; display:flex; flex-direction:column; gap:8px; align-items:stretch; padding-right:4px;">
+      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px;">
         ${items}
       </div>
     `;
