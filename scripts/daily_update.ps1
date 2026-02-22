@@ -1267,8 +1267,9 @@ else:
 try {
   Write-Log ("Running roster audit for {0}" -f $yesterday)
   $to = $env:DAILY_ROSTER_AUDIT_TIMEOUT_SEC
-  if ($null -eq $to -or $to -eq '') { $to = '240' }
-  try { $toInt = [int]$to } catch { $toInt = 240 }
+  # Default higher: nba_api boxscore pulls can be slow.
+  if ($null -eq $to -or $to -eq '') { $to = '600' }
+  try { $toInt = [int]$to } catch { $toInt = 600 }
   if ($toInt -lt 30) { $toInt = 30 }
   if ($toInt -gt 1800) { $toInt = 1800 }
   $rc_audit = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
@@ -1311,7 +1312,42 @@ try {
     Write-Log ("Auditing rosters/team assignments for {0}" -f $Date)
     $rcRoster = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
     Write-Log ("audit_rosters_today exit code: {0}" -f $rcRoster)
-    if ($rcRoster -ne 0) { throw "Roster correctness audit failed (exit=$rcRoster)" }
+
+    # Exit=4 means rosters file mtime < date (stale). This can happen if fetch-rosters timed out
+    # earlier (non-fatal) or nba_api was flaky. Auto-remediate: refresh rosters, rebuild league_status,
+    # and retry once before failing.
+    if ($rcRoster -eq 4) {
+      Write-Log "Roster audit reports stale rosters; refreshing rosters + rebuilding league_status and retrying"
+
+      # Refresh rosters with a longer timeout
+      $rfTo = [int]([Math]::Min(1800, [Math]::Max($PreflightTimeoutSeconds * 2, 300)))
+      Write-Log ("Retrying fetch-rosters with timeout {0}s (season {1})" -f $rfTo, $seasonStr)
+      $rcRF = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $rfTo -Label 'fetch_rosters_retry'
+      Write-Log ("fetch-rosters retry exit code: {0}" -f $rcRF)
+
+      # Rebuild league_status to reflect refreshed rosters/injuries
+      $lsTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds, 120)))
+      Write-Log ("Rebuilding league_status after roster refresh (timeout {0}s)" -f $lsTo)
+      $rcLS2 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $lsTo -Label 'build_league_status_after_rosters'
+      Write-Log ("build-league-status (post-rosters) exit code: {0}" -f $rcLS2)
+
+      # Retry audit once
+      $rcRoster2 = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
+      Write-Log ("audit_rosters_today retry exit code: {0}" -f $rcRoster2)
+
+      if ($rcRoster2 -eq 4) {
+        $strict = $env:DAILY_STRICT_ROSTERS
+        if ($null -ne $strict -and $strict -match '^(1|true|yes)$') {
+          throw "Roster correctness audit still reports stale rosters after refresh (exit=$rcRoster2)"
+        } else {
+          Write-Log "WARNING: roster audit still reports stale rosters after refresh; continuing (set DAILY_STRICT_ROSTERS=1 to fail)"
+        }
+      } elseif ($rcRoster2 -ne 0) {
+        throw "Roster correctness audit failed after refresh (exit=$rcRoster2)"
+      }
+    } elseif ($rcRoster -ne 0) {
+      throw "Roster correctness audit failed (exit=$rcRoster)"
+    }
   } else {
     Write-Log 'Skipping roster correctness audit (DAILY_SKIP_ROSTER_AUDIT=1)'
   }
