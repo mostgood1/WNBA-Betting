@@ -4563,9 +4563,7 @@ function startLiveLensPolling(root, games, dateStr) {
           return 0;
         });
 
-        // Keep it compact so it doesn't harm UX.
-        const maxCards = 10;
-        const html = renderLivePropCallouts(cands.slice(0, maxCards));
+        const html = renderLivePropCallouts(cands);
 
         if (html) {
           __calloutsEmptyStreak = 0;
