@@ -2528,6 +2528,18 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const act = n(r && r.actual);
       const mu = n(r && r.sim_mu);
       const line = n(r && r.line);
+      const lineLive = n(r && r.line_live);
+      const linePregame = n(r && r.line_pregame);
+      const lineSource = String(r && r.line_source != null ? r.line_source : '').toLowerCase().trim();
+      const hasLiveLine = (lineSource === 'oddsapi') && (lineLive != null);
+      const hasPregameLine = (lineSource === 'pregame') && (linePregame != null);
+      const lineBadge = (line != null)
+        ? (hasLiveLine
+          ? '<span class="badge good" style="margin-left:6px;">LIVE</span>'
+          : (hasPregameLine
+            ? '<span class="badge" style="margin-left:6px;">PRE</span>'
+            : '<span class="badge" style="margin-left:6px;">UNK</span>'))
+        : '';
       const pace = n(r && r.pace_proj);
       const dP = n(r && r.pace_vs_line);
       const dS = n(r && r.sim_vs_line);
@@ -2548,7 +2560,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
           <td class="num">${act == null ? '—' : fmt(act, 1)}</td>
           <td class="num">${mu == null ? '—' : fmt(mu, 1)}</td>
-          <td class="num">${line == null ? '—' : fmt(line, 1)}</td>
+          <td class="num">${line == null ? '—' : (fmt(line, 1) + lineBadge)}</td>
           <td class="num">${pace == null ? '—' : fmt(pace, 1)}</td>
           <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
           <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
@@ -2601,6 +2613,9 @@ function renderLivePropCallouts(callouts) {
       const side = String(x.side || '').toUpperCase().trim();
       const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
       const badge = `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(`${klass} ${sideShort}`.trim())}</span>`;
+      const liveLineBadge = (x && x.is_live_line)
+        ? '<span class="badge good">LIVE</span>'
+        : '<span class="badge">PRE</span>';
 
       const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
@@ -2624,6 +2639,7 @@ function renderLivePropCallouts(callouts) {
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             ${badge}
             ${simFlag}
+            ${liveLineBadge}
             <span class="badge">${esc(String(x.team || ''))}</span>
           </div>
           <div class="fw-700" style="line-height:1.15;">${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span></div>
@@ -4436,6 +4452,7 @@ function startLiveLensPolling(root, games, dateStr) {
                 player,
                 stat,
                 line,
+                is_live_line: (String(r.line_source || '').toLowerCase().trim() === 'oddsapi') && (n(r.line_live) != null),
                 dP,
                 dS: n(r.sim_vs_line),
                 klass,
