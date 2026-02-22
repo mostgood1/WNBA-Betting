@@ -1,12 +1,14 @@
 """
 Test NPU/ONNX models directly without sklearn dependencies
 """
-import onnxruntime as ort
-import numpy as np
 from pathlib import Path
 
-def test_onnx_model(model_path: str):
-    """Load and test an ONNX model"""
+import numpy as np
+import pytest
+
+def _run_onnx_model(model_path: str) -> None:
+    """Load and smoke-test an ONNX model."""
+    ort = pytest.importorskip("onnxruntime")
     print(f"\n{'='*60}")
     print(f"Testing: {model_path}")
     print(f"{'='*60}")
@@ -44,7 +46,25 @@ def test_onnx_model(model_path: str):
     print(f"Output shape: {result[0].shape}")
     print(f"Sample prediction: {result[0][0][:5] if len(result[0][0]) > 5 else result[0][0]}")
     
-    return True
+    return
+
+
+@pytest.mark.parametrize(
+    "model_name",
+    [
+        "t_pts_ridge.onnx",
+        "t_reb_ridge.onnx",
+        "t_ast_ridge.onnx",
+        "t_pra_ridge.onnx",
+        "t_threes_ridge.onnx",
+    ],
+)
+def test_onnx_model_smoke(model_name: str) -> None:
+    models_dir = Path("models")
+    model_path = models_dir / model_name
+    if not model_path.exists():
+        pytest.skip(f"Model not found: {model_path}")
+    _run_onnx_model(str(model_path))
 
 def main():
     print("\n" + "="*60)
@@ -65,7 +85,8 @@ def main():
         model_path = models_dir / model_name
         if model_path.exists():
             try:
-                results[model_name] = test_onnx_model(str(model_path))
+                _run_onnx_model(str(model_path))
+                results[model_name] = True
             except Exception as e:
                 print(f"❌ Error testing {model_name}: {e}")
                 results[model_name] = False

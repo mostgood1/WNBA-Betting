@@ -1,29 +1,19 @@
-import requests
-import json
+from __future__ import annotations
 
-try:
-    resp = requests.get('http://127.0.0.1:5051/api/props-recommendations?date=2025-10-17', timeout=3)
+import pytest
+
+
+def test_player_cards_smoke() -> None:
+    requests = pytest.importorskip("requests")
+
+    url = "http://127.0.0.1:5051/api/props-recommendations?date=2025-10-17"
+    try:
+        resp = requests.get(url, timeout=3)
+    except requests.exceptions.RequestException as exc:
+        pytest.skip(f"Local API not reachable at {url}: {exc}")
+
+    assert resp.status_code == 200
     data = resp.json()
-    
-    print(f"Total players: {len(data['data'])}\n")
-    
-    # Check a few players
-    for player_card in data['data'][:5]:
-        print(f"Player: {player_card['player']}")
-        print(f"  Team: {player_card['team']}")
-        print(f"  Opponent: {player_card.get('opponent', 'N/A')}")
-        print(f"  Home: {player_card.get('home_team', 'N/A')}")
-        print(f"  Away: {player_card.get('away_team', 'N/A')}")
-        print(f"  Model stats: {list(player_card.get('model', {}).keys())}")
-        print(f"  Number of props: {len(player_card.get('plays', []))}")
-        print()
-    
-    # Check LaMelo Ball specifically
-    lamelo = next((c for c in data['data'] if 'LaMelo' in c.get('player', '')), None)
-    if lamelo:
-        print("LaMelo Ball details:")
-        print(f"  Model: {lamelo['model']}")
-        print(f"  Plays: {len(lamelo['plays'])} props")
-        
-except Exception as e:
-    print(f"Error: {e}")
+    assert isinstance(data, dict)
+    cards = data.get("data") or []
+    assert isinstance(cards, list)

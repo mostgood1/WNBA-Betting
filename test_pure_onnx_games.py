@@ -13,6 +13,14 @@ import numpy as np
 import pandas as pd
 from nba_betting.games_onnx_pure import PureONNXGamePredictor
 
+
+def _make_feature_row(feature_columns: list[str], overrides: dict) -> dict:
+    row = {c: 0.0 for c in feature_columns}
+    for k, v in overrides.items():
+        if k in row:
+            row[k] = float(v)
+    return row
+
 def test_pure_onnx_games():
     """Test pure ONNX game predictor with sample data."""
     print("=" * 70)
@@ -22,7 +30,12 @@ def test_pure_onnx_games():
     # Initialize predictor
     models_dir = Path(__file__).parent / "models"
     print(f"\n📦 Loading ONNX models from: {models_dir}")
-    predictor = PureONNXGamePredictor(models_dir)
+    try:
+        predictor = PureONNXGamePredictor(models_dir)
+    except (FileNotFoundError, ImportError) as exc:
+        import pytest
+
+        pytest.skip(f"Pure ONNX game models not available: {exc}")
     
     # Get model info
     info = predictor.get_model_info()
@@ -32,50 +45,42 @@ def test_pure_onnx_games():
     print(f"   - Total points: {info['total_model']['providers']}")
     print(f"   - Features required: {info['num_features']}")
     
-    # Create sample game features (17 features per game)
+    # Create sample game features matching the model's expected feature columns.
     # Simulating opening night games:
     # Game 1: Thunder (home) vs Rockets (visitor)
     # Game 2: Lakers (home) vs Warriors (visitor)
     
+    cols = list(getattr(predictor, "feature_columns", []) or [])
+    if not cols:
+        import pytest
+
+        pytest.skip("Predictor did not expose feature_columns")
+
     sample_features = pd.DataFrame([
-        {
-            'elo_diff': 45.0,  # Thunder favored
-            'home_rest_days': 5.0,
-            'visitor_rest_days': 5.0,
-            'home_b2b': 0.0,
-            'visitor_b2b': 0.0,
-            'home_form_off_5': 116.5,
-            'home_form_def_5': 108.2,
-            'visitor_form_off_5': 113.8,
-            'visitor_form_def_5': 111.4,
-            'home_games_last3': 0.0,  # Season opener
-            'visitor_games_last3': 0.0,
-            'home_games_last5': 0.0,
-            'visitor_games_last5': 0.0,
-            'home_3in4': 0.0,
-            'visitor_3in4': 0.0,
-            'home_4in6': 0.0,
-            'visitor_4in6': 0.0
-        },
-        {
-            'elo_diff': -25.0,  # Warriors favored (visitor)
-            'home_rest_days': 5.0,
-            'visitor_rest_days': 5.0,
-            'home_b2b': 0.0,
-            'visitor_b2b': 0.0,
-            'home_form_off_5': 115.2,
-            'home_form_def_5': 109.8,
-            'visitor_form_off_5': 118.6,
-            'visitor_form_def_5': 107.4,
-            'home_games_last3': 0.0,
-            'visitor_games_last3': 0.0,
-            'home_games_last5': 0.0,
-            'visitor_games_last5': 0.0,
-            'home_3in4': 0.0,
-            'visitor_3in4': 0.0,
-            'home_4in6': 0.0,
-            'visitor_4in6': 0.0
-        }
+        _make_feature_row(
+            cols,
+            {
+                "elo_diff": 45.0,
+                "home_rest_days": 5.0,
+                "visitor_rest_days": 5.0,
+                "home_form_off_5": 116.5,
+                "home_form_def_5": 108.2,
+                "visitor_form_off_5": 113.8,
+                "visitor_form_def_5": 111.4,
+            },
+        ),
+        _make_feature_row(
+            cols,
+            {
+                "elo_diff": -25.0,
+                "home_rest_days": 5.0,
+                "visitor_rest_days": 5.0,
+                "home_form_off_5": 115.2,
+                "home_form_def_5": 109.8,
+                "visitor_form_off_5": 118.6,
+                "visitor_form_def_5": 107.4,
+            },
+        ),
     ])
     
     games = [
@@ -138,7 +143,7 @@ def test_pure_onnx_games():
     print(f"\n✅ Pure ONNX game prediction test PASSED!")
     print("=" * 70)
     
-    return predictions
+    assert len(predictions) == len(sample_features)
 
 
 if __name__ == "__main__":

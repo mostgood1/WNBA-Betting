@@ -3,14 +3,16 @@ Test NPU inference with enhanced ONNX models (45 features).
 Verifies that Qualcomm NPU can run the new models successfully.
 """
 
-import onnxruntime as ort
 import numpy as np
 from pathlib import Path
 import joblib
+import pytest
 
 
 def test_npu_enhanced():
     """Test enhanced models with NPU acceleration."""
+
+    ort = pytest.importorskip("onnxruntime")
     
     print("\n" + "="*70)
     print("TESTING ENHANCED MODELS WITH NPU")
@@ -21,9 +23,7 @@ def test_npu_enhanced():
     # Load feature columns to know expected input size
     feature_cols_file = models_dir / "feature_columns_enhanced.joblib"
     if not feature_cols_file.exists():
-        print(f"\nError: {feature_cols_file} not found")
-        print("Run: python -m nba_betting.train_enhanced")
-        return False
+        pytest.skip(f"Missing enhanced feature columns: {feature_cols_file}")
     
     feature_cols = joblib.load(feature_cols_file)
     n_features = len(feature_cols)
@@ -72,12 +72,16 @@ def test_npu_enhanced():
     npu_count = 0
     cpu_count = 0
     failed_count = 0
+
+    missing_models = [m for m in enhanced_models if not (models_dir / m).exists()]
+    if missing_models:
+        pytest.skip(f"Missing enhanced ONNX models: {missing_models[:5]}" + (f" (and {len(missing_models)-5} more)" if len(missing_models) > 5 else ""))
     
     for model_file in enhanced_models:
         model_path = models_dir / model_file
         
         if not model_path.exists():
-            print(f"\n{model_file}: MISSING")
+            # Should be unreachable due to the pre-check above.
             failed_count += 1
             continue
         
@@ -135,24 +139,10 @@ def test_npu_enhanced():
     print(f"   CPU fallback: {cpu_count} models")
     print(f"   Failed: {failed_count} models")
     
-    if failed_count == 0 and npu_count == len(enhanced_models):
-        print(f"\nResult: ALL TESTS PASSED!")
-        print(f"   All {len(enhanced_models)} enhanced models running on NPU")
-        success = True
-    elif failed_count == 0:
-        print(f"\nResult: TESTS PASSED (with CPU fallback)")
-        print(f"   {cpu_count} models using CPU instead of NPU")
-        success = True
-    else:
-        print(f"\nResult: TESTS FAILED")
-        print(f"   {failed_count} models failed to load")
-        success = False
-    
+    assert failed_count == 0, f"{failed_count} models failed to load"
     print("="*70 + "\n")
-    
-    return success
+    return
 
 
 if __name__ == "__main__":
-    success = test_npu_enhanced()
-    exit(0 if success else 1)
+    test_npu_enhanced()

@@ -83,6 +83,7 @@ _live_espn_summary_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_game_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
 _live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_oddsapi_player_props_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -411,6 +412,280 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         }
         _live_oddsapi_period_cache[cache_key] = (now, out)
         return out
+
+
+def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: str) -> dict[str, Any]:
+    """Best-effort OddsAPI live player prop lines for a matchup.
+
+    Notes:
+      - Uses short HTTP timeouts to avoid blocking UI polling.
+      - Aggregates lines as the median across returned bookmakers.
+      - Returns only a small subset of markets used by the live player lens.
+
+    Returns:
+      {
+        source,
+        event_id,
+        swapped,
+        markets_requested: [...],
+        lines: { "<NAME_KEY>|<stat>": float, ... },
+                prices: { "<NAME_KEY>|<stat>": {"over": float|None, "under": float|None}, ... },
+        generated_at,
+      }
+    """
+    api_key = (os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY") or "").strip()
+    if not api_key:
+        return {}
+
+    # Allow a quick kill-switch if quota/cost becomes an issue.
+    if str(os.environ.get("LIVE_PLAYER_PROPS_ODDSAPI", "1")).strip().lower() in {"0", "false", "no"}:
+        return {}
+
+    h = str(home_tri or "").upper().strip()
+    a = str(away_tri or "").upper().strip()
+    if not h or not a:
+        return {}
+
+    # Cache separately from endpoint TTL to keep quota under control.
+    cache_ttl = 60
+    cache_key = f"{date_str}:{h}:{a}"
+    now = time.time()
+    ent = _live_oddsapi_player_props_cache.get(cache_key)
+    if ent and (now - ent[0] < cache_ttl):
+        return ent[1]
+
+    base = "https://api.the-odds-api.com"
+    sport = "basketball_nba"
+    headers = {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
+    timeout_s = 3
+
+    # Map lens stats -> OddsAPI market keys.
+    stat_to_market: dict[str, str] = {
+        "pts": "player_points",
+        "reb": "player_rebounds",
+        "ast": "player_assists",
+        "threes": "player_threes",
+        "pra": "player_points_rebounds_assists",
+    }
+    desired_markets = sorted(set(stat_to_market.values()))
+
+    # 1) List events and match by team tricodes; select closest commence_time to now.
+    event_id = None
+    swapped = False
+    try:
+        r = requests.get(
+            f"{base}/v4/sports/{sport}/events",
+            params={"apiKey": api_key},
+            headers=headers,
+            timeout=timeout_s,
+        )
+        evs = r.json() if r.ok else []
+        events = evs if isinstance(evs, list) else []
+    except Exception:
+        events = []
+
+    def _parse_commence_time_utc_naive(x: Any) -> datetime | None:
+        try:
+            s = str(x or "").strip()
+            if not s:
+                return None
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+        except Exception:
+            return None
+
+    best: tuple[float, Any, bool] | None = None
+    now_utc = datetime.utcnow()
+    for ev in events:
+        try:
+            if not isinstance(ev, dict):
+                continue
+            eh = _get_tricode(str(ev.get("home_team") or ""))
+            ea = _get_tricode(str(ev.get("away_team") or ""))
+            if not ((eh == h and ea == a) or (eh == a and ea == h)):
+                continue
+            dt = _parse_commence_time_utc_naive(ev.get("commence_time"))
+            abs_s = 1e18 if dt is None else float(abs((dt - now_utc).total_seconds()))
+            sw = bool(eh == a and ea == h)
+            if best is None or abs_s < best[0]:
+                best = (abs_s, ev.get("id"), sw)
+        except Exception:
+            continue
+
+    if best is not None:
+        event_id = best[1]
+        swapped = best[2]
+
+    if not event_id:
+        out = {}
+        _live_oddsapi_player_props_cache[cache_key] = (now, out)
+        return out
+
+    # 2) Discover market keys (some books/plans won't expose player markets).
+    keys: set[str] = set()
+    try:
+        r = requests.get(
+            f"{base}/v4/sports/{sport}/events/{event_id}/markets",
+            params={"apiKey": api_key, "regions": "us"},
+            headers=headers,
+            timeout=timeout_s,
+        )
+        jd = r.json() if r.ok else None
+        if isinstance(jd, dict):
+            bks = jd.get("bookmakers") or []
+            if isinstance(bks, list):
+                for bk in bks:
+                    if not isinstance(bk, dict):
+                        continue
+                    markets = bk.get("markets") or []
+                    if not isinstance(markets, list):
+                        continue
+                    for m in markets:
+                        if isinstance(m, dict) and m.get("key"):
+                            keys.add(str(m.get("key")))
+        elif isinstance(jd, list):
+            for m in jd:
+                if isinstance(m, dict) and m.get("key"):
+                    keys.add(str(m.get("key")))
+    except Exception:
+        keys = set()
+
+    req_markets = [m for m in desired_markets if m in keys] if keys else desired_markets
+    if not req_markets:
+        out = {
+            "source": "oddsapi_fast",
+            "event_id": str(event_id),
+            "swapped": bool(swapped),
+            "markets_requested": [],
+            "lines": {},
+            "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+        _live_oddsapi_player_props_cache[cache_key] = (now, out)
+        return out
+
+    # 3) Fetch odds for those markets and aggregate player lines.
+    try:
+        r = requests.get(
+            f"{base}/v4/sports/{sport}/events/{event_id}/odds",
+            params={
+                "apiKey": api_key,
+                "regions": "us",
+                "markets": ",".join(req_markets),
+                "oddsFormat": "american",
+            },
+            headers=headers,
+            timeout=timeout_s,
+        )
+        obj = r.json() if r.ok else None
+    except Exception:
+        obj = None
+
+    # Collect points + prices across books; reduce with median.
+    pts_by_key: dict[tuple[str, str], list[float]] = {}
+    prices_by_key: dict[tuple[str, str, str], list[float]] = {}
+    if isinstance(obj, dict):
+        bks = obj.get("bookmakers") or []
+        if isinstance(bks, list):
+            for bk in bks:
+                if not isinstance(bk, dict):
+                    continue
+                markets = bk.get("markets") or []
+                if not isinstance(markets, list):
+                    continue
+                for m in markets:
+                    if not isinstance(m, dict):
+                        continue
+                    mkey = str(m.get("key") or "")
+                    if mkey not in desired_markets:
+                        continue
+                    # Reverse lookup to stat.
+                    stat = None
+                    for st, mk in stat_to_market.items():
+                        if mk == mkey:
+                            stat = st
+                            break
+                    if not stat:
+                        continue
+                    outs = m.get("outcomes") or []
+                    if not isinstance(outs, list):
+                        continue
+                    for oc in outs:
+                        if not isinstance(oc, dict):
+                            continue
+                        player_name = oc.get("description") or oc.get("participant")
+                        if not player_name:
+                            # Some payloads omit description; keep best-effort.
+                            player_name = oc.get("description") or oc.get("participant")
+                        if not player_name:
+                            continue
+                        nk = _norm_player_name(str(player_name))
+                        if not nk:
+                            continue
+
+                        # Outcome side: typically "Over" / "Under".
+                        side_raw = str(oc.get("name") or oc.get("side") or "").strip().upper()
+                        side = None
+                        if side_raw in {"OVER", "O"}:
+                            side = "OVER"
+                        elif side_raw in {"UNDER", "U"}:
+                            side = "UNDER"
+
+                        pt = oc.get("point")
+                        try:
+                            v = float(pt)
+                            if not np.isfinite(v):
+                                continue
+                        except Exception:
+                            continue
+                        pts_by_key.setdefault((nk, stat), []).append(float(v))
+
+                        # Capture price when available.
+                        if side is not None:
+                            pr = oc.get("price")
+                            try:
+                                pv = float(pr)
+                                if np.isfinite(pv) and abs(pv) <= 20000:
+                                    prices_by_key.setdefault((nk, stat, side), []).append(float(pv))
+                            except Exception:
+                                pass
+
+    lines: dict[str, float] = {}
+    try:
+        for (nk, stat), pts in pts_by_key.items():
+            if not pts:
+                continue
+            lines[f"{nk}|{stat}"] = float(np.median(np.asarray(pts, dtype=float)))
+    except Exception:
+        lines = {}
+
+    prices: dict[str, dict[str, float]] = {}
+    try:
+        for (nk, stat, side), prs in prices_by_key.items():
+            if not prs:
+                continue
+            med = float(np.median(np.asarray(prs, dtype=float)))
+            k = f"{nk}|{stat}"
+            rec = prices.setdefault(k, {})
+            if side == "OVER":
+                rec["over"] = med
+            elif side == "UNDER":
+                rec["under"] = med
+    except Exception:
+        prices = {}
+
+    out = {
+        "source": "oddsapi_fast",
+        "event_id": str(event_id),
+        "swapped": bool(swapped),
+        "markets_requested": req_markets,
+        "lines": lines,
+        "prices": prices,
+        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+    }
+    _live_oddsapi_player_props_cache[cache_key] = (now, out)
+    return out
 
 
 
@@ -1825,7 +2100,12 @@ def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int
             "team_tri": team_tri,
             "fga": 0,
             "fg3a": 0,
+            "fg2a": 0,
+            "fgm": 0,
+            "fg3m": 0,
+            "fg2m": 0,
             "fta": 0,
+            "ftm": 0,
             "pts_from_shots": 0,
             "usg_proxy": 0.0,
         }
@@ -1896,6 +2176,14 @@ def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int
                     shot_val = 0
                 if shot_val == 3:
                     d0["fg3a"] = int(d0.get("fg3a") or 0) + 1
+                    if is_made:
+                        d0["fg3m"] = int(d0.get("fg3m") or 0) + 1
+                else:
+                    d0["fg2a"] = int(d0.get("fg2a") or 0) + 1
+                    if is_made:
+                        d0["fg2m"] = int(d0.get("fg2m") or 0) + 1
+                if is_made:
+                    d0["fgm"] = int(d0.get("fgm") or 0) + 1
                 if is_made:
                     d0["pts_from_shots"] = int(d0.get("pts_from_shots") or 0) + int(max(0, shot_val))
 
@@ -1903,6 +2191,7 @@ def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int
             if "free throw" in a_type:
                 d0["fta"] = int(d0.get("fta") or 0) + 1
                 if is_made:
+                    d0["ftm"] = int(d0.get("ftm") or 0) + 1
                     d0["pts_from_shots"] = int(d0.get("pts_from_shots") or 0) + 1
 
             try:
@@ -1927,6 +2216,203 @@ def _live_pbp_recent_player_usage(actions: list[dict[str, Any]], window_sec: int
         "recent": recent,
         "game": game,
     }
+
+
+def _live_pbp_rotation_state(actions: list[dict[str, Any]], starters_by_team: dict[str, set[str]] | None = None) -> dict[str, Any]:
+    """Derive a lightweight on/off + stint/rest summary from NBA-CDN play-by-play.
+
+    This is best-effort and regulation-only.
+
+    Output:
+      {
+        latest_elapsed_reg_sec,
+        players: {
+          NAME_KEY: {
+            team_tri, on_court,
+            cur_on_sec, cur_off_sec,
+            last_enter_sec, last_exit_sec,
+            avg_stint_sec, avg_rest_sec,
+            stints_n, rests_n,
+          }
+        }
+      }
+    """
+
+    def _elapsed_reg_sec(a: dict[str, Any]) -> int | None:
+        try:
+            per = _safe_int(a.get("period"))
+            if per is None or per < 1 or per > 4:
+                return None
+            sec_left = _live_parse_clock_to_sec_left(a.get("clock") or a.get("timeRemaining"))
+            if sec_left is None:
+                return None
+            sec_left = int(max(0, min(12 * 60, sec_left)))
+            elapsed = int((per - 1) * (12 * 60) + ((12 * 60) - sec_left))
+            return int(max(0, min(48 * 60, elapsed)))
+        except Exception:
+            return None
+
+    def _mean(xs: list[int]) -> float | None:
+        try:
+            if not xs:
+                return None
+            return float(sum(xs)) / float(len(xs))
+        except Exception:
+            return None
+
+    def _parse_sub(desc: str) -> tuple[str | None, str | None]:
+        try:
+            s = str(desc or "").strip()
+            if not s:
+                return None, None
+            # Typical: "SUB: Kleber FOR Powell"
+            if ":" in s:
+                # keep RHS of first colon
+                s = s.split(":", 1)[1].strip()
+            u = s.upper()
+            j = u.find(" FOR ")
+            if j < 0:
+                return None, None
+            incoming = s[:j].strip()
+            outgoing = s[j + 5 :].strip()
+            incoming = incoming.replace("  ", " ").strip()
+            outgoing = outgoing.replace("  ", " ").strip()
+            return (incoming or None), (outgoing or None)
+        except Exception:
+            return None, None
+
+    acts = [a for a in (actions or []) if isinstance(a, dict)]
+    if not acts:
+        return {"latest_elapsed_reg_sec": None, "players": {}}
+
+    latest = None
+    for a in acts:
+        e = _elapsed_reg_sec(a)
+        if e is None:
+            continue
+        if latest is None or int(e) > int(latest):
+            latest = int(e)
+    if latest is None:
+        return {"latest_elapsed_reg_sec": None, "players": {}}
+
+    def _sort_key(a: dict[str, Any]) -> tuple[int, int]:
+        e = _elapsed_reg_sec(a)
+        try:
+            an = int(a.get("actionNumber") or a.get("actionId") or 0)
+        except Exception:
+            an = 0
+        return (int(e) if e is not None else 10**9, int(an))
+
+    acts_sorted = sorted(acts, key=_sort_key)
+
+    starters_by_team = starters_by_team or {}
+    on_court_by_team: dict[str, set[str]] = {str(k).upper().strip(): set(v or set()) for k, v in starters_by_team.items() if str(k).strip()}
+
+    last_enter: dict[tuple[str, str], int] = {}
+    last_exit: dict[tuple[str, str], int] = {}
+    stints: dict[tuple[str, str], list[int]] = {}
+    rests: dict[tuple[str, str], list[int]] = {}
+
+    # Seed starter enter-times at t=0 (when known).
+    for tri, starters in on_court_by_team.items():
+        for nk in starters:
+            if nk:
+                last_enter[(tri, nk)] = 0
+
+    for a in acts_sorted:
+        try:
+            e = _elapsed_reg_sec(a)
+            if e is None:
+                continue
+
+            a_type = str(a.get("actionType") or "").strip().lower()
+            if "sub" not in a_type:
+                continue
+            tri = str(a.get("teamTricode") or "").upper().strip() or "unknown"
+            desc = str(a.get("description") or "").strip()
+            incoming, outgoing = _parse_sub(desc)
+
+            # Outgoing defaults to action playerName (often the player subbed out)
+            if not outgoing:
+                outgoing = str(a.get("playerName") or a.get("playerNameI") or "").strip() or None
+
+            nk_out = _norm_player_name(outgoing) if outgoing else ""
+            nk_in = _norm_player_name(incoming) if incoming else ""
+
+            oc = on_court_by_team.setdefault(tri, set())
+
+            # Mark outgoing off-court
+            if nk_out:
+                if nk_out in oc:
+                    enter_t = last_enter.get((tri, nk_out))
+                    if enter_t is not None and int(e) >= int(enter_t):
+                        dur = int(e) - int(enter_t)
+                        if dur > 0:
+                            stints.setdefault((tri, nk_out), []).append(dur)
+                oc.discard(nk_out)
+                last_exit[(tri, nk_out)] = int(e)
+
+            # Mark incoming on-court
+            if nk_in:
+                if nk_in not in oc:
+                    exit_t = last_exit.get((tri, nk_in))
+                    if exit_t is not None and int(e) >= int(exit_t):
+                        dur = int(e) - int(exit_t)
+                        if dur > 0:
+                            rests.setdefault((tri, nk_in), []).append(dur)
+                    oc.add(nk_in)
+                    last_enter[(tri, nk_in)] = int(e)
+        except Exception:
+            continue
+
+    players_out: dict[str, dict[str, Any]] = {}
+    # Collect all seen players (from stints/rests + on-court + last-enter/exit)
+    all_keys: set[tuple[str, str]] = set()
+    all_keys |= set(stints.keys())
+    all_keys |= set(rests.keys())
+    all_keys |= set(last_enter.keys())
+    all_keys |= set(last_exit.keys())
+    for tri, oc in on_court_by_team.items():
+        for nk in oc:
+            if nk:
+                all_keys.add((tri, nk))
+
+    for tri, nk in sorted(all_keys):
+        try:
+            if not nk:
+                continue
+            oc = on_court_by_team.get(tri, set())
+            on_now = bool(nk in oc)
+            le = last_enter.get((tri, nk))
+            lx = last_exit.get((tri, nk))
+            cur_on = None
+            cur_off = None
+            if on_now and le is not None:
+                cur_on = int(max(0, int(latest) - int(le)))
+            if (not on_now) and lx is not None:
+                cur_off = int(max(0, int(latest) - int(lx)))
+
+            s = stints.get((tri, nk), [])
+            r = rests.get((tri, nk), [])
+            avg_s = _mean(s)
+            avg_r = _mean(r)
+
+            players_out[nk] = {
+                "team_tri": tri,
+                "on_court": on_now,
+                "cur_on_sec": cur_on,
+                "cur_off_sec": cur_off,
+                "last_enter_sec": int(le) if le is not None else None,
+                "last_exit_sec": int(lx) if lx is not None else None,
+                "avg_stint_sec": float(avg_s) if avg_s is not None else None,
+                "avg_rest_sec": float(avg_r) if avg_r is not None else None,
+                "stints_n": int(len(s)),
+                "rests_n": int(len(r)),
+            }
+        except Exception:
+            continue
+
+    return {"latest_elapsed_reg_sec": int(latest), "players": players_out}
 
 
 def _live_bovada_lines_for_date(date_str: str) -> list[dict[str, Any]]:
@@ -19666,6 +20152,30 @@ def api_live_player_lens():
         except Exception:
             players = []
 
+        # Starter sets (best-effort) for rotation modeling.
+        starters_by_team: dict[str, set[str]] = {}
+        try:
+            for p0 in players or []:
+                if not isinstance(p0, dict):
+                    continue
+                tri0 = str(p0.get("team_tri") or "").upper().strip()
+                if not tri0:
+                    continue
+                st0 = None
+                try:
+                    st0 = bool(p0.get("starter")) if ("starter" in p0) else None
+                except Exception:
+                    st0 = None
+                if st0 is not True:
+                    continue
+                nm0 = str(p0.get("player") or "").strip()
+                nk0 = _norm_player_name(nm0)
+                if not nk0:
+                    continue
+                starters_by_team.setdefault(tri0, set()).add(nk0)
+        except Exception:
+            starters_by_team = {}
+
         g = games_map.get(str(eid)) if games_map else None
         gid = (g.get("game_id") if isinstance(g, dict) else None)
         home = (g.get("home") if isinstance(g, dict) else None)
@@ -19695,6 +20205,118 @@ def api_live_player_lens():
         except Exception:
             margin = None
 
+        # Best-effort live prop lines from OddsAPI (cached).
+        live_prop_lines: dict[str, Any] = {}
+        live_prop_prices: dict[str, Any] = {}
+        live_prop_meta: dict[str, Any] = {}
+        try:
+            if in_progress and not is_final and home and away:
+                live_prop_meta = _live_oddsapi_player_props_for_game(d or "", str(home), str(away))
+                if isinstance(live_prop_meta, dict):
+                    live_prop_lines = live_prop_meta.get("lines") if isinstance(live_prop_meta.get("lines"), dict) else {}
+                    live_prop_prices = live_prop_meta.get("prices") if isinstance(live_prop_meta.get("prices"), dict) else {}
+        except Exception:
+            live_prop_lines = {}
+            live_prop_prices = {}
+            live_prop_meta = {}
+
+        # Best-effort SmartSim per-player mean/sd (pregame uncertainty proxy) for EV calcs.
+        smartsim_player_stats: dict[tuple[str, str], dict[str, float]] = {}
+        try:
+            if d and gid:
+                sj = _live_load_smart_sim_by_game_id(str(d), str(gid))
+            else:
+                sj = None
+            sj = sj if isinstance(sj, dict) else None
+            if sj:
+                players_obj = sj.get("players") if isinstance(sj, dict) else None
+                players_obj = players_obj if isinstance(players_obj, dict) else {}
+
+                def _pull(team_tri: str, plist: Any) -> None:
+                    if not team_tri or not isinstance(plist, list):
+                        return
+                    for pp in plist:
+                        if not isinstance(pp, dict):
+                            continue
+                        nm = pp.get("player_name") or pp.get("player") or pp.get("name")
+                        nk0 = _norm_player_name(nm)
+                        if not nk0:
+                            continue
+                        stats: dict[str, float] = {}
+                        for k, v in pp.items():
+                            if not isinstance(k, str):
+                                continue
+                            if not (k.endswith("_mean") or k.endswith("_sd")):
+                                continue
+                            fv = _safe_float(v)
+                            if fv is None:
+                                continue
+                            stats[k] = float(fv)
+                        if stats:
+                            smartsim_player_stats[(str(team_tri).upper().strip(), nk0)] = stats
+
+                # Prefer explicit home/away team tricodes from the SmartSim object if present.
+                sh = str(sj.get("home") or "").upper().strip()
+                sa = str(sj.get("away") or "").upper().strip()
+                _pull(sh, players_obj.get("home"))
+                _pull(sa, players_obj.get("away"))
+        except Exception:
+            smartsim_player_stats = {}
+
+        def _american_to_decimal(a: float | None) -> float | None:
+            try:
+                if a is None:
+                    return None
+                aa = float(a)
+                if not math.isfinite(aa) or aa == 0:
+                    return None
+                if aa > 0:
+                    return 1.0 + (aa / 100.0)
+                return 1.0 + (100.0 / abs(aa))
+            except Exception:
+                return None
+
+        def _implied_prob_american(a: float | None) -> float | None:
+            try:
+                if a is None:
+                    return None
+                aa = float(a)
+                if not math.isfinite(aa) or aa == 0:
+                    return None
+                if aa > 0:
+                    return float(100.0 / (aa + 100.0))
+                return float(abs(aa) / (abs(aa) + 100.0))
+            except Exception:
+                return None
+
+        def _norm_cdf(z: float) -> float:
+            try:
+                return 0.5 * (1.0 + math.erf(float(z) / math.sqrt(2.0)))
+            except Exception:
+                return 0.5
+
+        def _prob_over(mean: float, sd: float, line: float) -> float:
+            try:
+                if (not math.isfinite(mean)) or (not math.isfinite(sd)) or (not math.isfinite(line)):
+                    return 0.0
+                if sd <= 1e-9:
+                    return 1.0 if mean > line else 0.0
+                z = (float(line) - float(mean)) / float(sd)
+                return float(max(0.0, min(1.0, 1.0 - _norm_cdf(z))))
+            except Exception:
+                return 0.0
+
+        def _ev_per_unit(p: float, price: float | None) -> float | None:
+            # EV per 1u stake: p*(dec-1) - (1-p) == p*dec - 1
+            try:
+                pv = float(max(0.0, min(1.0, float(p))))
+                dec = _american_to_decimal(price)
+                if dec is None:
+                    return None
+                return float(pv * float(dec) - 1.0)
+            except Exception:
+                return None
+
         def _team_margin_for_tri(team_tri: str | None) -> float | None:
             try:
                 if margin is None:
@@ -19717,6 +20339,7 @@ def api_live_player_lens():
         team_game_usg: dict[str, float] = {}
         team_recent_3a: dict[str, float] = {}
         team_game_3a: dict[str, float] = {}
+        rotation_players: dict[str, dict[str, Any]] = {}
         try:
             if gid and in_progress and not is_final:
                 actions = _live_fetch_pbp_actions(str(gid))
@@ -19724,6 +20347,13 @@ def api_live_player_lens():
                 if isinstance(u, dict):
                     usage_recent = u.get("recent") if isinstance(u.get("recent"), dict) else {}
                     usage_game = u.get("game") if isinstance(u.get("game"), dict) else {}
+
+                    try:
+                        rot = _live_pbp_rotation_state(actions, starters_by_team=starters_by_team) if actions else None
+                        if isinstance(rot, dict):
+                            rotation_players = rot.get("players") if isinstance(rot.get("players"), dict) else {}
+                    except Exception:
+                        rotation_players = {}
 
                     # Aggregate team totals to separate pace vs role-share changes.
                     for nk0, rr in (usage_recent or {}).items():
@@ -19799,8 +20429,66 @@ def api_live_player_lens():
                     except Exception:
                         exp_min_eff = exp_min
 
+                # Rotation/stint adjustment (v2): use on/off + stint/rest cadence to downweight
+                # minutes when a player has been off unusually long, and slightly upweight when
+                # a player is in a long current stint.
+                rot_on_court = None
+                rot_cur_on_sec = None
+                rot_cur_off_sec = None
+                rot_avg_stint_sec = None
+                rot_avg_rest_sec = None
+                rot_w = None
+                exp_min_rot = None
+                exp_min_eff_used = exp_min_eff
+                try:
+                    rot = rotation_players.get(nk) if isinstance(rotation_players, dict) else None
+                    if isinstance(rot, dict) and mp is not None and elapsed_min is not None and exp_min_eff is not None and elapsed_min >= 6.0:
+                        rot_on_court = bool(rot.get("on_court"))
+                        rot_cur_on_sec = _safe_int(rot.get("cur_on_sec"))
+                        rot_cur_off_sec = _safe_int(rot.get("cur_off_sec"))
+                        rot_avg_stint_sec = _safe_float(rot.get("avg_stint_sec"))
+                        rot_avg_rest_sec = _safe_float(rot.get("avg_rest_sec"))
+                        stints_n = _safe_int(rot.get("stints_n")) or 0
+                        rests_n = _safe_int(rot.get("rests_n")) or 0
+
+                        base = float(max(float(mp), min(44.0, float(exp_min_eff))))
+                        rem_game_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                        rem_target_min = float(max(0.0, base - float(mp)))
+                        if rem_game_min > 0 and rem_target_min > 0:
+                            st = None
+                            try:
+                                st = bool(starter) if starter is not None else None
+                            except Exception:
+                                st = None
+                            # Fallback priors when we have no completed stint/rest history.
+                            avg_stint_sec = float(rot_avg_stint_sec) if rot_avg_stint_sec is not None else (390.0 if st is True else 330.0)
+                            avg_rest_sec = float(rot_avg_rest_sec) if rot_avg_rest_sec is not None else (240.0 if st is True else 300.0)
+                            avg_stint_sec = float(max(120.0, min(720.0, avg_stint_sec)))
+                            avg_rest_sec = float(max(60.0, min(900.0, avg_rest_sec)))
+
+                            playable_min = None
+                            if rot_on_court:
+                                cur_on = float(rot_cur_on_sec or 0)
+                                t_left = float(max(0.0, avg_stint_sec - cur_on)) / 60.0
+                                rest_after = float(avg_rest_sec) / 60.0
+                                playable_min = float(min(rem_target_min, min(rem_game_min, t_left + max(0.0, rem_game_min - t_left - rest_after))))
+                            else:
+                                cur_off = float(rot_cur_off_sec or 0)
+                                wait = float(max(0.0, avg_rest_sec - cur_off)) / 60.0
+                                playable_min = float(min(rem_target_min, max(0.0, rem_game_min - wait)))
+
+                            exp_min_rot = float(max(float(mp), min(44.0, float(mp) + float(max(0.0, playable_min)))))
+
+                            # Confidence: more weight once we observed at least one true stint or rest.
+                            conf = max(0.0, min(1.0, float(max(stints_n, rests_n)) / 2.0))
+                            w_time = max(0.0, min(0.60, float(elapsed_min - 6.0) / 42.0))
+                            rot_w = float(max(0.0, min(0.60, w_time * (0.35 + 0.65 * conf))))
+                            exp_min_eff_used = float((1.0 - float(rot_w)) * base + float(rot_w) * float(exp_min_rot))
+                except Exception:
+                    pass
+
                 # Minutes engine v1: apply small, conservative caps for foul trouble and blowout risk.
-                proj_min_final = exp_min_eff
+                proj_min_final = exp_min_eff_used
                 try:
                     if mp is not None and elapsed_min is not None:
                         rem = float(max(0.0, 48.0 - float(elapsed_min)))
@@ -19852,7 +20540,47 @@ def api_live_player_lens():
 
                             proj_min_final = float(max(float(mp), min(44.0, base)))
                 except Exception:
-                    proj_min_final = exp_min_eff
+                    proj_min_final = exp_min_eff_used
+
+                # In-game injury heuristic (v1): long unexplained absence vs expectation.
+                injury_flag = False
+                injury_gap = None
+                try:
+                    if in_progress and not is_final and elapsed_min is not None and mp is not None and exp_min_eff_used is not None:
+                        if rot_on_court is False and rot_cur_off_sec is not None and float(elapsed_min) >= 10.0 and float(elapsed_min) <= 44.0:
+                            rem_game_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                            if rem_game_min >= 6.0:
+                                expected_so_far = float(exp_min_eff_used) * float(elapsed_min) / 48.0
+                                gap = float(expected_so_far - float(mp))
+                                injury_gap = gap
+                                pf_i = None
+                                try:
+                                    pf_i = int(round(float(pf))) if pf is not None else None
+                                except Exception:
+                                    pf_i = None
+                                mabs = None
+                                try:
+                                    mabs = float(abs(int(margin))) if margin is not None else None
+                                except Exception:
+                                    mabs = None
+
+                                # Off duration threshold: absolute + relative to typical rest.
+                                thr = 480.0
+                                if rot_avg_rest_sec is not None:
+                                    thr = max(thr, 1.8 * float(rot_avg_rest_sec))
+                                if gap >= 4.0 and float(rot_cur_off_sec) >= thr:
+                                    if (pf_i is None) or (pf_i <= 3):
+                                        if (mabs is None) or (mabs < 18.0) or (float(elapsed_min) < 30.0):
+                                            # Only for players with meaningful expected role.
+                                            if float(exp_min_eff_used) >= 18.0:
+                                                injury_flag = True
+
+                        # If flagged, cap the remaining minutes more aggressively.
+                        if injury_flag and proj_min_final is not None:
+                            rem_min = float(max(0.0, 48.0 - float(elapsed_min)))
+                            proj_min_final = float(min(float(proj_min_final), float(mp) + 0.40 * rem_min))
+                except Exception:
+                    injury_flag = False
 
                 stat_actuals = {
                     "pts": pts,
@@ -19863,19 +20591,117 @@ def api_live_player_lens():
                 }
                 for stat_key, actual in stat_actuals.items():
                     try:
-                        line = None
+                        line_pregame = None
                         if edges_idx:
-                            line = edges_idx.get((team, nk, stat_key))
+                            line_pregame = edges_idx.get((team, nk, stat_key))
+                        line_live = None
+                        try:
+                            if live_prop_lines:
+                                line_live = _safe_float(live_prop_lines.get(f"{nk}|{stat_key}"))
+                        except Exception:
+                            line_live = None
+
+                        line_used = line_live if line_live is not None else (float(line_pregame) if line_pregame is not None else None)
+                        line_source = ("oddsapi" if line_live is not None else ("pregame" if line_pregame is not None else None))
                         sim_mu = _pred_val(pred_row, stat_key)
 
+                        # Live Over/Under prices (OddsAPI) when available.
+                        price_over = None
+                        price_under = None
+                        try:
+                            if live_prop_prices:
+                                pr_obj = live_prop_prices.get(f"{nk}|{stat_key}")
+                                if isinstance(pr_obj, dict):
+                                    price_over = _safe_float(pr_obj.get("over"))
+                                    price_under = _safe_float(pr_obj.get("under"))
+                        except Exception:
+                            price_over = None
+                            price_under = None
+
+                        # Best-effort SD for probability/EV.
+                        sim_sd = None
+                        try:
+                            st = smartsim_player_stats.get((team, nk)) if smartsim_player_stats else None
+                            if isinstance(st, dict):
+                                k_sd = f"{stat_key}_sd"
+                                if k_sd in st:
+                                    sim_sd = float(st.get(k_sd))
+                                elif stat_key == "pra":
+                                    # Composite approximation: sqrt(var pts + var reb + var ast)
+                                    if ("pts_sd" in st) and ("reb_sd" in st) and ("ast_sd" in st):
+                                        sim_sd = float(math.sqrt(float(st["pts_sd"]) ** 2 + float(st["reb_sd"]) ** 2 + float(st["ast_sd"]) ** 2))
+                        except Exception:
+                            sim_sd = None
+
+                        # Fallback SDs by market (conservative).
+                        if sim_sd is None:
+                            try:
+                                fallback_sd = {
+                                    "pts": 7.0,
+                                    "reb": 3.0,
+                                    "ast": 3.0,
+                                    "threes": 1.4,
+                                    "pra": 9.0,
+                                }.get(str(stat_key), 6.0)
+                                sim_sd = float(fallback_sd)
+                            except Exception:
+                                sim_sd = None
+
+                        # Probability/EV based on live mean (pace projection when available).
+                        ev_side = None
+                        win_prob_side = None
+                        implied_prob_side = None
+                        ev_best = None
+                        win_prob_over = None
+                        win_prob_under = None
+                        implied_prob_over = None
+                        implied_prob_under = None
+                        try:
+                            mean_for_prob = None
+                            if pace_proj is not None and math.isfinite(float(pace_proj)):
+                                mean_for_prob = float(pace_proj)
+                            elif sim_mu is not None and math.isfinite(float(sim_mu)):
+                                mean_for_prob = float(sim_mu)
+
+                            if (mean_for_prob is not None) and (line_used is not None) and (sim_sd is not None) and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
+                                win_prob_over = _prob_over(float(mean_for_prob), float(sim_sd), float(line_used))
+                                win_prob_under = float(max(0.0, min(1.0, 1.0 - float(win_prob_over))))
+                                implied_prob_over = _implied_prob_american(price_over)
+                                implied_prob_under = _implied_prob_american(price_under)
+
+                                ev_over = _ev_per_unit(float(win_prob_over), price_over)
+                                ev_under = _ev_per_unit(float(win_prob_under), price_under)
+
+                                # Choose side by EV when prices exist; else leave null.
+                                if (ev_over is not None) or (ev_under is not None):
+                                    eo = float(ev_over) if (ev_over is not None and math.isfinite(float(ev_over))) else float("-inf")
+                                    eu = float(ev_under) if (ev_under is not None and math.isfinite(float(ev_under))) else float("-inf")
+                                    if eo >= eu:
+                                        ev_side = "OVER"
+                                        ev_best = None if eo == float("-inf") else eo
+                                        win_prob_side = float(win_prob_over)
+                                        implied_prob_side = implied_prob_over
+                                    else:
+                                        ev_side = "UNDER"
+                                        ev_best = None if eu == float("-inf") else eu
+                                        win_prob_side = float(win_prob_under)
+                                        implied_prob_side = implied_prob_under
+                        except Exception:
+                            pass
+
                         # Only emit rows when we have something useful to compare
-                        if line is None and sim_mu is None and actual is None:
+                        if line_used is None and sim_mu is None and actual is None:
                             continue
 
                         pace_proj = None
                         pace_mult_used = None
                         role_mult_used = None
                         foul_mult_used = None
+                        hot_cold_mult_used = None
+                        hot_ppp_recent = None
+                        hot_ppp_game = None
+                        hot_p3_recent = None
+                        hot_p3_game = None
                         usg_recent0 = None
                         usg_game0 = None
                         team_usg_recent0 = None
@@ -20009,6 +20835,48 @@ def api_live_player_lens():
                                     except Exception:
                                         pass
 
+                                # Hot/cold efficiency (v1): separate from volume/share.
+                                try:
+                                    if isinstance(ur, dict) and isinstance(ug, dict):
+                                        eff = None
+                                        if stat_key in {"pts", "pra", "pa", "pr"}:
+                                            pr = _num(ur.get("pts_from_shots"))
+                                            pg = _num(ug.get("pts_from_shots"))
+                                            ur_u = _num(ur.get("usg_proxy"))
+                                            ug_u = _num(ug.get("usg_proxy"))
+                                            if pr is not None and pg is not None and ur_u is not None and ug_u is not None and ur_u >= 2.5 and ug_u >= 6.0:
+                                                ppp_r = float(pr) / float(max(1e-6, ur_u))
+                                                ppp_g = float(pg) / float(max(1e-6, ug_u))
+                                                hot_ppp_recent = float(ppp_r)
+                                                hot_ppp_game = float(ppp_g)
+                                                if ppp_g > 1e-6:
+                                                    ratio = float(ppp_r / ppp_g)
+                                                    k = 6.0
+                                                    w = float(ur_u) / float(ur_u + k)
+                                                    eff = float(1.0 + (ratio - 1.0) * max(0.0, min(1.0, w)))
+                                        elif stat_key == "threes":
+                                            r3a = _num(ur.get("fg3a"))
+                                            r3m = _num(ur.get("fg3m"))
+                                            g3a = _num(ug.get("fg3a"))
+                                            g3m = _num(ug.get("fg3m"))
+                                            if r3a is not None and r3m is not None and g3a is not None and g3m is not None and r3a >= 2.0 and g3a >= 4.0:
+                                                p3r = float(r3m) / float(max(1e-6, r3a))
+                                                p3g = float(g3m) / float(max(1e-6, g3a))
+                                                hot_p3_recent = float(p3r)
+                                                hot_p3_game = float(p3g)
+                                                if p3g > 0.05:
+                                                    ratio = float(p3r / p3g)
+                                                    k = 4.0
+                                                    w = float(r3a) / float(r3a + k)
+                                                    eff = float(1.0 + (ratio - 1.0) * max(0.0, min(1.0, w)))
+
+                                        if eff is not None:
+                                            eff = float(max(0.95, min(1.05, eff)))
+                                            hot_cold_mult_used = float(eff)
+                                            pace_raw = float(pace_raw) * float(eff)
+                                except Exception:
+                                    pass
+
                                 # Endgame foul-game boost (v1): close games late tend to have elevated
                                 # possessions + FT rate. Apply only to points-including markets.
                                 try:
@@ -20031,8 +20899,8 @@ def api_live_player_lens():
                                 prior_total = None
                                 if sim_mu is not None:
                                     prior_total = float(sim_mu)
-                                elif line is not None:
-                                    prior_total = float(line)
+                                elif line_used is not None:
+                                    prior_total = float(line_used)
 
                                 if prior_total is not None:
                                     # Minutes-based shrinkage: mp=0.. -> prior; mp big -> pace.
@@ -20045,8 +20913,8 @@ def api_live_player_lens():
                             except Exception:
                                 pace_proj = None
 
-                        pace_vs_line = (pace_proj - float(line)) if (pace_proj is not None and line is not None) else None
-                        sim_vs_line = (sim_mu - float(line)) if (sim_mu is not None and line is not None) else None
+                        pace_vs_line = (pace_proj - float(line_used)) if (pace_proj is not None and line_used is not None) else None
+                        sim_vs_line = (sim_mu - float(line_used)) if (sim_mu is not None and line_used is not None) else None
 
                         lean = None
                         strength = None
@@ -20074,9 +20942,32 @@ def api_live_player_lens():
                             "stat": stat_key,
                             "actual": actual,
                             "sim_mu": sim_mu,
-                            "line": float(line) if line is not None else None,
+                            "sim_sd": sim_sd,
+                            "line": float(line_used) if line_used is not None else None,
+                            "line_live": float(line_live) if line_live is not None else None,
+                            "line_pregame": float(line_pregame) if line_pregame is not None else None,
+                            "line_source": line_source,
+                            "price_over": price_over,
+                            "price_under": price_under,
+                            "win_prob_over": win_prob_over,
+                            "win_prob_under": win_prob_under,
+                            "implied_prob_over": implied_prob_over,
+                            "implied_prob_under": implied_prob_under,
+                            "ev_side": ev_side,
+                            "win_prob": win_prob_side,
+                            "implied_prob": implied_prob_side,
+                            "ev": ev_best,
                             "exp_min": exp_min,
                             "exp_min_eff": exp_min_eff,
+                            "exp_min_rot": exp_min_rot,
+                            "rot_w": rot_w,
+                            "rot_on_court": rot_on_court,
+                            "rot_cur_on_sec": rot_cur_on_sec,
+                            "rot_cur_off_sec": rot_cur_off_sec,
+                            "rot_avg_stint_sec": rot_avg_stint_sec,
+                            "rot_avg_rest_sec": rot_avg_rest_sec,
+                            "injury_flag": bool(injury_flag),
+                            "injury_gap": injury_gap,
                             "proj_min_final": proj_min_final,
                             "pace_proj": pace_proj,
                             "pace_vs_line": pace_vs_line,
@@ -20088,6 +20979,11 @@ def api_live_player_lens():
                             "pace_mult": pace_mult_used,
                             "role_mult": role_mult_used,
                             "foul_mult": foul_mult_used,
+                            "hot_cold_mult": hot_cold_mult_used,
+                            "hot_ppp_recent": hot_ppp_recent,
+                            "hot_ppp_game": hot_ppp_game,
+                            "hot_p3_recent": hot_p3_recent,
+                            "hot_p3_game": hot_p3_game,
                             "usg_recent": usg_recent0,
                             "usg_game": usg_game0,
                             "team_usg_recent": team_usg_recent0,
@@ -20120,6 +21016,11 @@ def api_live_player_lens():
                 "final": bool(is_final),
                 "elapsed_min": elapsed_min,
             },
+            "live_prop_lines": {
+                "source": (live_prop_meta.get("source") if isinstance(live_prop_meta, dict) else None),
+                "event_id": (live_prop_meta.get("event_id") if isinstance(live_prop_meta, dict) else None),
+                "generated_at": (live_prop_meta.get("generated_at") if isinstance(live_prop_meta, dict) else None),
+            } if live_prop_meta else None,
             "rows": rows,
         })
 

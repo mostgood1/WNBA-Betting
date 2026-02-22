@@ -63,7 +63,7 @@
       const onlyEV = document.getElementById('onlyEV').checked;
       const minEV = parseFloat(document.getElementById('minEV').value) || 0;
       const game = document.getElementById('game').value || '';
-      const sortBy = document.getElementById('sortBy').value || 'ev_desc';
+      const sortBy = document.getElementById('sortBy').value || 'edge_desc';
       const params = new URLSearchParams({date, market, only_ev:onlyEV?'1':'0', min_ev_pct:minEV, sort:sortBy});
       // If a specific game is selected (label: "Away Team @ Home Team"), pass explicit filters
       if (game && game.includes('@')){
@@ -363,9 +363,9 @@
   <input id="minEV" type="number" step="0.1" value="1.0" placeholder="0.0" title="Minimum EV percent" class="w-80" />
       <label for="sortBy">Sort</label>
       <select id="sortBy" title="Sort player cards">
-        <option value="ev_desc" selected>Best EV</option>
+        <option value="ev_desc">Best EV</option>
         <option value="ev_asc">Worst EV</option>
-        <option value="edge_desc">Biggest Edge</option>
+        <option value="edge_desc" selected>Biggest Edge</option>
         <option value="edge_asc">Smallest Edge</option>
       </select>
     </div>

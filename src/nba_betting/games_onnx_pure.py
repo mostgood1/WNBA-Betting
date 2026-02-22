@@ -40,12 +40,12 @@ class PureONNXGamePredictor:
     
     This predictor:
     - Uses ONNX models exclusively (no sklearn)
-    - Leverages QNN ExecutionProvider for NPU acceleration
-    - Requires 17 input features per game
+    - Leverages QNN ExecutionProvider for NPU acceleration (when available)
+    - Requires N input features per game (driven by the model + feature columns file)
     - Provides win probability, spread, and total predictions
     """
     
-    # Expected features (17 total)
+    # Legacy/default expected features (17 total)
     EXPECTED_FEATURES = [
         'elo_diff', 'home_rest_days', 'visitor_rest_days', 'home_b2b', 'visitor_b2b',
         'home_form_off_5', 'home_form_def_5', 'visitor_form_off_5', 'visitor_form_def_5',
@@ -93,14 +93,19 @@ class PureONNXGamePredictor:
             return self.EXPECTED_FEATURES
         
         try:
-            with open(feature_path, 'rb') as f:
+            with open(feature_path, "rb") as f:
                 columns = pickle.load(f)
-            
-            if len(columns) != 17:
-                print(f"[OK]⚠️  Expected 17 features, got {len(columns)}")
-                print(f"[OK]   Using default features")
+
+            if not isinstance(columns, (list, tuple)) or not columns:
+                print(f"[OK]⚠️  Feature columns file invalid: {feature_path}")
+                print(f"[OK]   Using default {len(self.EXPECTED_FEATURES)} features")
                 return self.EXPECTED_FEATURES
-            
+
+            columns = list(columns)
+            if len(columns) != 17:
+                # Models may evolve (e.g., enhanced 45-feature models). Use whatever
+                # the pipeline wrote and validate against the ONNX input at runtime.
+                print(f"[OK]⚠️  Feature columns count is {len(columns)} (legacy default is 17)")
             return columns
         except Exception as e:
             print(f"[OK]⚠️  Error loading feature columns: {e}")
@@ -188,11 +193,12 @@ class PureONNXGamePredictor:
                 - pred_margin: Predicted point spread (+ favors home)
                 - pred_total: Predicted total points scored
         """
-        # Validate features
-        if len(features_df.columns) != 17:
+        # Validate required columns are present (allow extra columns).
+        missing = [c for c in self.feature_columns if c not in features_df.columns]
+        if missing:
             raise ValueError(
-                f"Expected 17 features, got {len(features_df.columns)}. "
-                f"Required: {self.EXPECTED_FEATURES}"
+                f"Missing required feature columns: {missing[:10]}"
+                + (f" (and {len(missing) - 10} more)" if len(missing) > 10 else "")
             )
         
         # Prepare input for ONNX (float32)

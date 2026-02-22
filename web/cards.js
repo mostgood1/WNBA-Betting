@@ -391,10 +391,12 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
         const mu = n(pp.sim_mu);
         const bits = [
           `${esc(mk)} ${esc(side)} ${fmt(line, 1)}`,
+          (pwin != null) ? `p≈${pct(pwin, 0)}` : '',
+          (mu != null) ? `(μ ${fmt(mu, 1)})` : '',
           book ? `@ ${esc(book)}` : '',
           n(price) != null ? `(${esc(fmtAmer(price))})` : '',
-          (pwin != null && mu != null) ? `p≈${pct(pwin, 0)} (μ ${fmt(mu, 1)})` : '',
-          evPct != null ? `EV ${fmt(evPct, 1)}%` : '',
+          // EV is informative but intentionally low priority in the display.
+          (evPct != null && Math.abs(evPct) >= 0.5) ? `EV ${fmt(evPct, 1)}%` : '',
         ].filter(Boolean).join(' ');
         return `<div>${bits}</div>`;
       }).join('');
@@ -894,6 +896,29 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
 function attachLiveLensHandlers(root, games) {
   const containers = root.querySelectorAll('.live-lens');
   if (!containers || !containers.length) return;
+
+  // Track manual toggles so auto-open logic can respect user intent.
+  try {
+    containers.forEach((wrap) => {
+      try {
+        const det = wrap && wrap.querySelector ? wrap.querySelector('details.lens-player-details') : null;
+        if (!det) return;
+        if (det.dataset && det.dataset.toggleBound === '1') return;
+        if (det.dataset) det.dataset.toggleBound = '1';
+        det.addEventListener('toggle', () => {
+          try {
+            if (det && det.dataset) det.dataset.userToggled = '1';
+          } catch (_) {
+            // ignore
+          }
+        });
+      } catch (_) {
+        // ignore
+      }
+    });
+  } catch (_) {
+    // ignore
+  }
 
   // Player lens filtering (client-side; avoids re-render churn)
   try {
@@ -2055,6 +2080,148 @@ function classifyDiff(absDiff, watchThresh, betThresh) {
   return 'NONE';
 }
 
+function _normKlass(k) {
+  const s = String(k || '').toUpperCase().trim();
+  return (s === 'BET' || s === 'WATCH' || s === 'NONE') ? s : '';
+}
+
+function _playerPropSide(r) {
+  try {
+    const lean = (r && r.lean != null && String(r.lean).trim()) ? String(r.lean).trim().toUpperCase() : '';
+    if (lean === 'OVER' || lean === 'UNDER') return lean;
+    const dP = n(r && r.pace_vs_line);
+    if (dP != null) return (dP > 0) ? 'OVER' : ((dP < 0) ? 'UNDER' : '');
+    const evSide = (r && r.ev_side != null && String(r.ev_side).trim()) ? String(r.ev_side).trim().toUpperCase() : '';
+    if (evSide === 'OVER' || evSide === 'UNDER') return evSide;
+    return '';
+  } catch (_) {
+    return '';
+  }
+}
+
+function adjustPlayerPropSignal(r, strength, thr) {
+  // Conservative policy:
+  // - Start from base klass derived from pace_vs_line strength.
+  // - Downgrade when other live data suggests the edge is fragile (injury, long bench time,
+  //   foul trouble, little remaining projected minutes).
+  // - Never upgrade beyond base; EV is only a light tie-breaker.
+  // - If SmartSim strongly disagrees with the live pace edge (opposite sign), downgrade.
+  try {
+    const watch = (thr && thr.watch != null) ? Number(thr.watch) : 2.0;
+    const bet = (thr && thr.bet != null) ? Number(thr.bet) : 4.0;
+
+    const baseKlass = _normKlass(r && r.klass) || classifyDiff(strength, watch, bet);
+    let klass = baseKlass;
+
+    const mp = n(r && r.mp);
+    const pf = n(r && r.pf);
+    const projMin = n(r && (r.proj_min_final != null ? r.proj_min_final : r.exp_min_eff));
+    const remMin = (mp != null && projMin != null) ? (projMin - mp) : null;
+
+    const injuryFlag = !!(r && r.injury_flag);
+    const rotOn = (r && r.rot_on_court != null) ? !!r.rot_on_court : null;
+    const offSec = n(r && r.rot_cur_off_sec);
+
+    const paceMult = n(r && r.pace_mult);
+    const roleMult = n(r && r.role_mult);
+    const hotMult = n(r && r.hot_cold_mult);
+    const ev = n(r && r.ev);
+    const dP = n(r && r.pace_vs_line);
+    const dS = n(r && r.sim_vs_line);
+
+    let risk = 0.0;
+    if (injuryFlag) risk += 3.0;
+    if (pf != null) {
+      if (pf >= 5) risk += 2.0;
+      else if (pf >= 4) risk += 1.0;
+    }
+    if (remMin != null) {
+      if (remMin < 1.5) risk += 2.0;
+      else if (remMin < 3.5) risk += 1.0;
+    }
+    if (rotOn === false && offSec != null) {
+      if (offSec >= 720) risk += 2.0;
+      else if (offSec >= 480) risk += 1.0;
+    }
+    if (mp != null && mp < 3.0) risk += 1.0;
+
+    // SmartSim disagreement penalty: if sim_vs_line and pace_vs_line are opposite sign and both
+    // meaningfully large, treat the live edge as fragile/noisy.
+    // (This is particularly important early in games where pace extrapolation can be unstable.)
+    let simDisagree = false;
+    let simAgree = false;
+    if (dP != null && dS != null && dP !== 0 && dS !== 0) {
+      const opp = (dP * dS) < 0;
+      const paceAbs = Math.abs(dP);
+      const simAbs = Math.abs(dS);
+      simDisagree = opp && (paceAbs >= watch) && (simAbs >= watch);
+      simAgree = (!opp) && (paceAbs >= watch) && (simAbs >= watch);
+
+      if (opp) {
+        if (paceAbs >= bet && simAbs >= bet) risk += 3.0;
+        else if (paceAbs >= bet && simAbs >= watch) risk += 2.0;
+        else risk += 1.0;
+      }
+    }
+
+    // Support signals (kept small): role/pace/hot-cold and EV.
+    let support = 0.0;
+    if (roleMult != null) {
+      if (roleMult >= 1.10) support += 0.8;
+      else if (roleMult <= 0.90) support -= 0.4;
+    }
+    if (paceMult != null) {
+      if (paceMult >= 1.07) support += 0.4;
+      else if (paceMult <= 0.93) support -= 0.2;
+    }
+    if (hotMult != null) {
+      if (hotMult >= 1.03) support += 0.2;
+      else if (hotMult <= 0.97) support -= 0.2;
+    }
+    // EV is deliberately low priority.
+    if (ev != null) {
+      if (ev >= 0.03) support += 0.15;
+      else if (ev <= -0.03) support -= 0.15;
+    }
+
+    // When SmartSim agrees (same sign), allow a small support bump (still cannot upgrade klass).
+    if (simAgree) support += 0.35;
+    // When SmartSim disagrees (opposite sign), apply a small additional drag.
+    if (simDisagree) support -= 0.25;
+
+    // Downgrade rules.
+    if (klass === 'BET') {
+      if (risk >= 4.0) klass = 'NONE';
+      else if (risk >= 2.0) klass = 'WATCH';
+      else if (support <= -0.8) klass = 'WATCH';
+    } else if (klass === 'WATCH') {
+      if (risk >= 3.0) klass = 'NONE';
+      else if (support <= -1.2) klass = 'NONE';
+    }
+
+    const side = _playerPropSide(r);
+    const rank = (klass === 'BET') ? 2 : ((klass === 'WATCH') ? 1 : 0);
+    const score = (Number.isFinite(Number(strength)) ? Number(strength) : 0)
+      + 0.25 * support
+      - 0.35 * risk;
+
+    return {
+      klass,
+      side,
+      rank,
+      score,
+      risk,
+      support,
+      sim_disagree: simDisagree,
+      sim_agree: simAgree,
+    };
+  } catch (_) {
+    const side = _playerPropSide(r);
+    const k0 = _normKlass(r && r.klass) || 'NONE';
+    return { klass: k0, side, rank: (k0 === 'BET') ? 2 : ((k0 === 'WATCH') ? 1 : 0), score: 0, risk: null, support: null };
+  }
+}
+
 function clampNum(x, lo, hi) {
   const v = n(x);
   if (v == null) return null;
@@ -2315,20 +2482,26 @@ function getPlayerActualForMarket(p, market) {
 
 function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
   try {
+    const thrAll = getTuningThresholds();
+    const thrPp = thrAll && thrAll.player_prop ? thrAll.player_prop : { watch: 2.0, bet: 4.0 };
     const rowsIn = liveLensGame && typeof liveLensGame === 'object' ? liveLensGame.rows : null;
     const rows0 = Array.isArray(rowsIn) ? rowsIn : [];
     const rows = (() => {
       try {
         const arr = rows0.slice();
         arr.sort((a, b) => {
-          const ak = String(a && a.klass != null ? a.klass : '').toUpperCase().trim();
-          const bk = String(b && b.klass != null ? b.klass : '').toUpperCase().trim();
-          const aRank = (ak === 'BET') ? 2 : ((ak === 'WATCH') ? 1 : 0);
-          const bRank = (bk === 'BET') ? 2 : ((bk === 'WATCH') ? 1 : 0);
-          if (aRank !== bRank) return bRank - aRank;
-
           const aEdge = Math.abs(n(a && a.pace_vs_line) ?? 0);
           const bEdge = Math.abs(n(b && b.pace_vs_line) ?? 0);
+          const aAdj = adjustPlayerPropSignal(a, aEdge, thrPp);
+          const bAdj = adjustPlayerPropSignal(b, bEdge, thrPp);
+          const aRank = n(aAdj && aAdj.rank) ?? 0;
+          const bRank = n(bAdj && bAdj.rank) ?? 0;
+          if (aRank !== bRank) return bRank - aRank;
+
+          const aScore = n(aAdj && aAdj.score) ?? 0;
+          const bScore = n(bAdj && bAdj.score) ?? 0;
+          if (aScore !== bScore) return bScore - aScore;
+
           if (aEdge !== bEdge) return bEdge - aEdge;
 
           const aMp = n(a && a.mp) ?? 0;
@@ -2358,10 +2531,10 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const pace = n(r && r.pace_proj);
       const dP = n(r && r.pace_vs_line);
       const dS = n(r && r.sim_vs_line);
-      const lean = String(r && r.lean != null ? r.lean : '').toUpperCase().trim();
-      const klass = String(r && r.klass != null ? r.klass : '').toUpperCase().trim();
-      const inferredSide = (dP != null) ? (dP > 0 ? 'OVER' : (dP < 0 ? 'UNDER' : '')) : '';
-      const side = lean || inferredSide;
+      const strength = Math.abs(dP ?? 0);
+      const adj = adjustPlayerPropSignal(r, strength, thrPp);
+      const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
+      const side = String(adj && adj.side != null ? adj.side : '').toUpperCase().trim();
       const showKlass = (klass === 'BET' || klass === 'WATCH');
       const sigTxt = showKlass ? `${klass} ${side || ''}`.trim() : (side ? side : '—');
       const sigBadge = showKlass
@@ -2414,6 +2587,59 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
     `;
   } catch (_) {
     return '<div class="subtle">Player live lens unavailable.</div>';
+  }
+}
+
+function renderLivePropCallouts(callouts) {
+  try {
+    const arr0 = Array.isArray(callouts) ? callouts : [];
+    const arr = arr0.filter((x) => x && (x.klass === 'BET' || x.klass === 'WATCH') && x.gid);
+    if (!arr.length) return '';
+
+    const items = arr.map((x) => {
+      const klass = String(x.klass || '').toUpperCase().trim();
+      const side = String(x.side || '').toUpperCase().trim();
+      const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
+      const badge = `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(`${klass} ${sideShort}`.trim())}</span>`;
+
+      const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
+      const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
+      const player = String(x.player || '').trim();
+      const lineTxt = (n(x.line) == null) ? '—' : fmt(x.line, 1);
+      const dp = n(x.dP);
+      const ds = n(x.dS);
+      const dpTxt = (dp == null) ? '—' : fmt(dp, 1);
+      const dsTxt = (ds == null) ? '—' : fmt(ds, 1);
+
+      const simFlag = x.simDisagree ? '<span class="badge bad">SIM≠</span>' : (x.simAgree ? '<span class="badge good">SIM✓</span>' : '');
+
+      return `
+        <button
+          type="button"
+          class="chip neutral prop-callout"
+          data-game-id="${esc(String(x.gid))}"
+          style="text-align:left; display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; min-width:220px; max-width:260px;"
+          aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
+        >
+          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            ${badge}
+            ${simFlag}
+            <span class="badge">${esc(String(x.team || ''))}</span>
+          </div>
+          <div class="fw-700" style="line-height:1.15;">${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span></div>
+          <div class="subtle" style="line-height:1.15;">${esc(game)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}</div>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
+      <div class="row chips" style="margin-top:6px; overflow:auto; display:flex; gap:8px; flex-wrap:nowrap; padding-bottom:2px;">
+        ${items}
+      </div>
+    `;
+  } catch (_) {
+    return '';
   }
 }
 
@@ -2473,6 +2699,52 @@ function startLiveLensPolling(root, games, dateStr) {
     return best;
   }
 
+  function pickCurrentPeriodTotalTagFromLensEl(lensEl, scoreboardRow) {
+    // Goal: show the *current bettable total scope* for the game.
+    // Mapping (simple, matches existing lens tags available in UI):
+    // - Q1/Q3: quarter total tag
+    // - Q2: 1H total tag
+    // - Q4+: full game total tag
+    if (!lensEl) return { klass: 'NONE', text: '' };
+
+    const p0 = (scoreboardRow && scoreboardRow.period != null && Number.isFinite(Number(scoreboardRow.period)))
+      ? Math.floor(Number(scoreboardRow.period))
+      : null;
+
+    let sel = '.lens-rec-total';
+    let label = 'G';
+    if (p0 === 1 || p0 === 3) {
+      sel = '.lens-rec-qtr';
+      label = `Q${p0}`;
+    } else if (p0 === 2) {
+      sel = '.lens-rec-half';
+      label = '1H';
+    } else {
+      sel = '.lens-rec-total';
+      label = 'G';
+    }
+
+    const el = lensEl.querySelector(sel);
+    const raw = el ? String(el.textContent || '').trim() : '';
+    const t = (() => {
+      const out = (raw ? raw : '');
+      return out ? out : '';
+    })();
+
+    // Parse klass + side from the tag text.
+    // Examples:
+    // - "Q3: BET Over (+4.2)"
+    // - "1H: WATCH Under (-2.1)"
+    // - "Total: BET Over (+6.0)"
+    const m = String(t).match(/\b(BET|WATCH)\b\s+(Over|Under)\b/i);
+    if (!m) return { klass: 'NONE', text: '' };
+    const klass = String(m[1] || '').toUpperCase();
+    const side = String(m[2] || '').toUpperCase();
+    const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
+    const txt = `${label} ${klass} ${sideShort}`.trim();
+    return { klass, text: txt };
+  }
+
   function updateScoreboardStrip(sbById) {
     try {
       const strip = root.querySelector('.scoreboard-strip');
@@ -2494,7 +2766,7 @@ function startLiveLensPolling(root, games, dateStr) {
         }
 
         const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
-        const tag = pickBestTagFromLensEl(lensEl);
+        const tag = pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '' };
         const tagEl = item.querySelector('.s-tag');
         if (tagEl) tagEl.textContent = tag.text || '';
 
@@ -2874,6 +3146,17 @@ function startLiveLensPolling(root, games, dateStr) {
         const body = el.querySelector('.lens-player-body');
         if (body) {
           body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
+        }
+      } catch (_) {
+        // ignore
+      }
+
+      // Auto-expand Player Live Lens when games are live (unless user toggled it).
+      try {
+        const det = el.querySelector('details.lens-player-details');
+        if (det) {
+          const userToggled = det.dataset && det.dataset.userToggled === '1';
+          if (!userToggled && isInProgress && !isFinal) det.open = true;
         }
       } catch (_) {
         // ignore
@@ -3793,23 +4076,31 @@ function startLiveLensPolling(root, games, dateStr) {
             .filter((r) => r && r.player && r.stat && r.line != null && r.pace_vs_line != null)
             .map((r) => {
               const strength = Math.abs(n(r.pace_vs_line) ?? 0);
-              return { r, strength };
+              const adj = adjustPlayerPropSignal(r, strength, thr.player_prop);
+              return { r, strength, adj };
             })
             .filter((x) => x.strength != null && x.strength >= (thr.player_prop ? thr.player_prop.watch : 2.0))
-            .sort((a, b) => (b.strength - a.strength))
+            .sort((a, b) => {
+              const ar = n(a && a.adj && a.adj.rank) ?? 0;
+              const br = n(b && b.adj && b.adj.rank) ?? 0;
+              if (ar !== br) return br - ar;
+              const as = n(a && a.adj && a.adj.score) ?? 0;
+              const bs = n(b && b.adj && b.adj.score) ?? 0;
+              if (as !== bs) return bs - as;
+              return (b.strength - a.strength);
+            })
             .slice(0, 8);
 
           for (const it of scored) {
             const r = it.r;
             const strength = it.strength;
-            const klassRaw = (r && r.klass != null) ? String(r.klass).toUpperCase().trim() : '';
-            const klass = (klassRaw === 'BET' || klassRaw === 'WATCH' || klassRaw === 'NONE')
-              ? klassRaw
-              : classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
+            const adj = it.adj;
+            const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim() || classifyDiff(strength, thr.player_prop.watch, thr.player_prop.bet);
             const nameKey = normPlayerName((r.name_key != null) ? String(r.name_key) : String(r.player || ''));
             const statKey = String(r.stat || '').toLowerCase().trim();
             const throttleKey = `player_prop:${nameKey}:${statKey}`;
-            const side = (r.lean != null && String(r.lean).trim()) ? String(r.lean).trim().toUpperCase() : ((n(r.pace_vs_line) > 0) ? 'OVER' : ((n(r.pace_vs_line) < 0) ? 'UNDER' : null));
+            const side = String(adj && adj.side != null ? adj.side : '').toUpperCase().trim()
+              || ((r.lean != null && String(r.lean).trim()) ? String(r.lean).trim().toUpperCase() : ((n(r.pace_vs_line) > 0) ? 'OVER' : ((n(r.pace_vs_line) < 0) ? 'UNDER' : null)));
 
             await maybeLog(throttleKey, klass, {
               ...baseLog,
@@ -3835,13 +4126,28 @@ function startLiveLensPolling(root, games, dateStr) {
               strength,
               context: {
                 sim_vs_line: n(r.sim_vs_line),
+                sim_sd: n(r.sim_sd),
                 exp_min: n(r.exp_min),
                 exp_min_eff: n(r.exp_min_eff),
+                exp_min_rot: n(r.exp_min_rot),
                 proj_min_final: n(r.proj_min_final),
+                rot_w: n(r.rot_w),
+                rot_on_court: (r.rot_on_court != null) ? !!r.rot_on_court : null,
+                rot_cur_on_sec: n(r.rot_cur_on_sec),
+                rot_cur_off_sec: n(r.rot_cur_off_sec),
+                rot_avg_stint_sec: n(r.rot_avg_stint_sec),
+                rot_avg_rest_sec: n(r.rot_avg_rest_sec),
+                injury_flag: (r.injury_flag != null) ? !!r.injury_flag : null,
+                injury_gap: n(r.injury_gap),
                 usage_window_sec: n(r._usage_window_sec),
                 pace_mult: n(r.pace_mult),
                 role_mult: n(r.role_mult),
                 foul_mult: n(r.foul_mult),
+                hot_cold_mult: n(r.hot_cold_mult),
+                hot_ppp_recent: n(r.hot_ppp_recent),
+                hot_ppp_game: n(r.hot_ppp_game),
+                hot_p3_recent: n(r.hot_p3_recent),
+                hot_p3_game: n(r.hot_p3_game),
                 usg_recent: n(r.usg_recent),
                 usg_game: n(r.usg_game),
                 team_usg_recent: n(r.team_usg_recent),
@@ -3850,6 +4156,19 @@ function startLiveLensPolling(root, games, dateStr) {
                 fg3a_game: n(r.fg3a_game),
                 team_3a_recent: n(r.team_3a_recent),
                 team_3a_game: n(r.team_3a_game),
+                price_over: n(r.price_over),
+                price_under: n(r.price_under),
+                win_prob_over: n(r.win_prob_over),
+                win_prob_under: n(r.win_prob_under),
+                implied_prob_over: n(r.implied_prob_over),
+                implied_prob_under: n(r.implied_prob_under),
+                ev_side: (r.ev_side != null) ? String(r.ev_side) : null,
+                win_prob: n(r.win_prob),
+                implied_prob: n(r.implied_prob),
+                ev: n(r.ev),
+                adj_risk: n(adj && adj.risk),
+                adj_support: n(adj && adj.support),
+                adj_score: n(adj && adj.score),
               },
             });
           }
@@ -4058,6 +4377,99 @@ function startLiveLensPolling(root, games, dateStr) {
         strength: (atsEdge != null) ? Math.abs(atsEdge) : null,
       });
     }));
+
+    // Live prop callouts: aggregate BET/WATCH player-prop signals across live games.
+    try {
+      const calloutsEl = root.querySelector('#live-prop-callouts');
+      if (calloutsEl) {
+        const invEventToGid = new Map();
+        sbEventByGid.forEach((eid, gid) => {
+          if (eid) invEventToGid.set(String(eid), String(gid));
+        });
+
+        const thrAll = getTuningThresholds();
+        const thrPp = thrAll && thrAll.player_prop ? thrAll.player_prop : { watch: 2.0, bet: 4.0 };
+
+        const cands = [];
+        const seen = new Set();
+
+        for (const [eid, gg] of (playerLensMap && playerLensMap.entries ? playerLensMap.entries() : [])) {
+          const gid = invEventToGid.get(String(eid));
+          if (!gid) continue;
+          const s = sbById.get(gid);
+          if (!s || !s.in_progress || s.final) continue;
+          const meta = byGameId.get(gid);
+          if (!meta) continue;
+
+          const rows = Array.isArray(gg && gg.rows) ? gg.rows : [];
+          for (const r of rows) {
+            try {
+              if (!r) continue;
+              const line = n(r.line);
+              if (line == null) continue;
+              const dP = n(r.pace_vs_line);
+              if (dP == null) continue;
+              const strength = Math.abs(dP);
+              const adj = adjustPlayerPropSignal(r, strength, thrPp);
+              const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
+              if (klass !== 'BET' && klass !== 'WATCH') continue;
+
+              const player = String(r.player || '').trim();
+              const stat = String(r.stat || '').toLowerCase().trim();
+              const key = `${gid}|${player}|${stat}`;
+              if (seen.has(key)) continue;
+              seen.add(key);
+
+              cands.push({
+                gid,
+                home: meta.home,
+                away: meta.away,
+                team: String(r.team_tri || '').toUpperCase().trim(),
+                player,
+                stat,
+                line,
+                dP,
+                dS: n(r.sim_vs_line),
+                klass,
+                side: String(adj && adj.side != null ? adj.side : ''),
+                rank: n(adj && adj.rank) ?? 0,
+                score: n(adj && adj.score) ?? 0,
+                simDisagree: !!(adj && adj.sim_disagree),
+                simAgree: !!(adj && adj.sim_agree),
+              });
+            } catch (_) {
+              // ignore
+            }
+          }
+        }
+
+        cands.sort((a, b) => {
+          const ar = n(a.rank) ?? 0;
+          const br = n(b.rank) ?? 0;
+          if (ar !== br) return br - ar;
+          const as = n(a.score) ?? 0;
+          const bs = n(b.score) ?? 0;
+          if (as !== bs) return bs - as;
+          const ae = Math.abs(n(a.dP) ?? 0);
+          const be = Math.abs(n(b.dP) ?? 0);
+          if (ae !== be) return be - ae;
+          return 0;
+        });
+
+        // Keep it compact so it doesn't harm UX.
+        const maxCards = 10;
+        const html = renderLivePropCallouts(cands.slice(0, maxCards));
+        if (html) {
+          calloutsEl.innerHTML = html;
+          calloutsEl.classList.remove('hidden');
+        } else {
+          calloutsEl.innerHTML = '';
+          calloutsEl.classList.add('hidden');
+        }
+      }
+    } catch (_) {
+      // ignore
+    }
 
     // Re-run strip update after signals/classes may have changed.
     updateScoreboardStrip(sbById);
@@ -4397,7 +4809,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     `;
   }).join('\n');
 
-  root.innerHTML = `${stripHtml}\n${html}`;
+  root.innerHTML = `${stripHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
 
   // Scoreboard strip click-to-scroll
   try {
@@ -4412,6 +4824,31 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
         if (!target) return;
         try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  // Live prop callouts click-to-scroll
+  try {
+    const callouts = root.querySelector('#live-prop-callouts');
+    if (callouts && !callouts.dataset.bound) {
+      callouts.dataset.bound = '1';
+      callouts.addEventListener('click', (ev) => {
+        const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
+        if (!btn) return;
+        const gid = canonGameId(btn.dataset.gameId);
+        if (!gid) return;
+        const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
+        if (!target) return;
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+        try {
+          const det = target.querySelector('details.lens-player-details');
+          if (det) det.open = true;
+        } catch (_) {
+          // ignore
+        }
       });
     }
   } catch (_) {

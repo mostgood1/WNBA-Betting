@@ -1,49 +1,54 @@
-"""Simple test of enhanced predictions - ASCII only"""
-import pandas as pd
-import numpy as np
+"""Smoke test for enhanced game predictions.
+
+Historically this file was used as a runnable script; pytest will import any
+`test_*.py` file, so we keep it import-safe and convert it into a real test.
+"""
+
+from __future__ import annotations
+
 from pathlib import Path
-import joblib
 import sys
+
+import numpy as np
+import pandas as pd
+import pytest
+
+
 sys.path.insert(0, str(Path(__file__).parent / "src"))
 
-from nba_betting.features_enhanced import build_features_enhanced, get_enhanced_feature_columns
+from nba_betting.features_enhanced import build_features_enhanced
 from nba_betting.games_npu import NPUGamePredictor
 
-print("\n" + "="*70)
-print("TESTING ENHANCED PREDICTION PIPELINE")
-print("="*70)
 
-# Load games and build features
-games = pd.read_csv('data/raw/games_nba_api.csv').tail(5)
-df = build_features_enhanced(games, include_advanced_stats=True, include_injuries=True)
+def test_enhanced_predictions_smoke() -> None:
+    games_path = Path("data/raw/games_nba_api.csv")
+    if not games_path.exists():
+        pytest.skip(f"Missing raw games file: {games_path}")
 
-# Load feature columns  
-feature_cols = joblib.load("models/feature_columns.joblib")
-print(f"\nFeature count: {len(feature_cols)}")
+    games = pd.read_csv(games_path).tail(5)
+    if games.empty:
+        pytest.skip("No games available in games_nba_api.csv")
 
-# Get feature matrix
-X = df[feature_cols].values.astype(np.float32)
-print(f"Feature matrix shape: {X.shape}, dtype: {X.dtype}")
+    # Build features using the enhanced pipeline.
+    df = build_features_enhanced(games, include_advanced_stats=True, include_injuries=True)
+    if df.empty:
+        pytest.skip("Enhanced feature builder returned empty dataframe")
 
-# Make prediction
-predictor = NPUGamePredictor()
-pred = predictor.predict_game(X[0:1], include_periods=True)
+    # Predictor loads feature columns from models dir; skip if models aren't present.
+    try:
+        predictor = NPUGamePredictor()
+    except FileNotFoundError as exc:
+        pytest.skip(f"Game models/feature columns not available: {exc}")
 
-print(f"\nPREDICTION RESULTS:")
-print(f"Win Probability: {pred['win_prob']:.1%}")
-print(f"Spread: {pred['spread_margin']:.1f}")
-print(f"Total: {pred['total']:.1f}")
+    feature_cols = predictor.feature_columns
+    assert feature_cols, "Expected predictor.feature_columns to be populated"
 
-if 'halves' in pred:
-    print(f"\nHalves:")
-    for period, data in pred['halves'].items():
-        print(f"  {period}: Margin={data['margin']:.1f}, Total={data['total']:.1f}")
+    # Some rows may be missing due to joins; take the first valid row.
+    X = df[feature_cols].values.astype(np.float32)
+    assert X.shape[0] >= 1
 
-if 'quarters' in pred:
-    print(f"\nQuarters:")
-    for period, data in pred['quarters'].items():
-        print(f"  {period}: Margin={data['margin']:.1f}, Total={data['total']:.1f}")
-
-print(f"\n{'='*70}")
-print("SUCCESS! Enhanced models working with 45 features on NPU")
-print("="*70 + "\n")
+    pred = predictor.predict_game(X[0:1], include_periods=True)
+    assert isinstance(pred, dict)
+    assert "win_prob" in pred
+    assert "spread_margin" in pred
+    assert ("totals" in pred) or ("total" in pred)

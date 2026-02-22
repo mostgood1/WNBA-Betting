@@ -1,33 +1,20 @@
-import requests
-import json
+from __future__ import annotations
 
-url = "http://127.0.0.1:5051/api/props-recommendations?date=2025-10-17"
+import pytest
 
-print(f"Testing: {url}\n")
 
-try:
-    resp = requests.get(url, timeout=5)
-    print(f"Status Code: {resp.status_code}")
-    
-    if resp.status_code == 200:
-        data = resp.json()
-        print(f"\nResponse Keys: {list(data.keys())}")
-        print(f"Date: {data.get('date')}")
-        print(f"Total Rows: {data.get('rows')}")
-        print(f"Games: {len(data.get('games', []))}")
-        print(f"Player Cards: {len(data.get('data', []))}")
-        
-        if data.get('data'):
-            print(f"\nFirst Player Card:")
-            first_card = data['data'][0]
-            print(json.dumps(first_card, indent=2))
-        else:
-            print(f"\n❌ NO PLAYER CARDS!")
-            print(f"\nFull response:")
-            print(json.dumps(data, indent=2))
-    else:
-        print(f"\n❌ Error Response:")
-        print(resp.text)
-        
-except Exception as e:
-    print(f"\n❌ Exception: {e}")
+def test_props_recommendations_api_smoke() -> None:
+    requests = pytest.importorskip("requests")
+
+    url = "http://127.0.0.1:5051/api/props-recommendations?date=2025-10-17"
+    try:
+        resp = requests.get(url, timeout=3)
+    except requests.exceptions.RequestException as exc:
+        pytest.skip(f"Local API not reachable at {url}: {exc}")
+
+    assert resp.status_code == 200
+    data = resp.json()
+    assert isinstance(data, dict)
+    # shape is stable even if no plays are present
+    assert "date" in data
+    assert "data" in data
