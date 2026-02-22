@@ -1,0 +1,457 @@
+{
+  "date": "2026-02-22",
+  "team_counts": {
+    "ATL": 1,
+    "BKN": 2,
+    "BOS": 1,
+    "CHI": 6,
+    "CLE": 2,
+    "DAL": 5,
+    "DEN": 3,
+    "GSW": 4,
+    "IND": 5,
+    "LAC": 3,
+    "LAL": 1,
+    "MIL": 5,
+    "MIN": 1,
+    "NYK": 2,
+    "OKC": 6,
+    "ORL": 2,
+    "PHI": 2,
+    "PHX": 4,
+    "POR": 5,
+    "TOR": 1,
+    "WAS": 2
+  },
+  "players": [
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Davis",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Seth Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Gordon",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Joel Embiid",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Booker",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Myles Turner",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Taurean Prince",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Pascal Siakam",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ivica Zubac",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Caruso",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Jayson Tatum",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "John Collins",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "OG Anunoby",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Hartenstein",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Brooks",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Grayson Allen",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Deandre Ayton",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Robert Williams III",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Haywood Highsmith",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Pickett",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Max Strus",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Coby White",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Darius Garland",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Nic Claxton",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Matisse Thybulle",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Nesmith",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Cole Anthony",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Smith",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Tre Jones",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jonathan Kuminga",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Naji Marshall",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Franz Wagner",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Ziaire Williams",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Miles McBride",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Terrence Shannon Jr.",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Scottie Barnes",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Josh Giddey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Colin Castleton",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "MarJon Beauchamp",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaden Ivey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Williams",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Ryan Rollins",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Kris Murray",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ajay Mitchell",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Branden Carlson",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "GSW": [
+      "Stephen Curry",
+      "Jimmy Butler III",
+      "Seth Curry"
+    ],
+    "DAL": [
+      "Naji Marshall",
+      "Kyrie Irving",
+      "Anthony Davis"
+    ],
+    "LAC": [
+      "John Collins",
+      "Ivica Zubac",
+      "Bradley Beal"
+    ],
+    "POR": [
+      "Robert Williams III",
+      "Shaedon Sharpe",
+      "Damian Lillard"
+    ],
+    "MIL": [
+      "Giannis Antetokounmpo",
+      "Ryan Rollins",
+      "Myles Turner"
+    ],
+    "DEN": [
+      "Peyton Watson",
+      "Aaron Gordon",
+      "Jalen Pickett"
+    ],
+    "PHI": [
+      "Joel Embiid",
+      "MarJon Beauchamp"
+    ],
+    "PHX": [
+      "Devin Booker",
+      "Dillon Brooks",
+      "Grayson Allen"
+    ],
+    "IND": [
+      "Pascal Siakam",
+      "Aaron Nesmith",
+      "Johnny Furphy"
+    ],
+    "OKC": [
+      "Shai Gilgeous-Alexander",
+      "Jalen Williams",
+      "Isaiah Hartenstein"
+    ],
+    "BOS": [
+      "Jayson Tatum"
+    ],
+    "CHI": [
+      "Coby White",
+      "Josh Giddey",
+      "Jalen Smith"
+    ],
+    "NYK": [
+      "OG Anunoby",
+      "Miles McBride"
+    ],
+    "ATL": [
+      "Trae Young"
+    ],
+    "LAL": [
+      "Deandre Ayton"
+    ],
+    "CLE": [
+      "Max Strus",
+      "Darius Garland"
+    ],
+    "BKN": [
+      "Nic Claxton",
+      "Ziaire Williams"
+    ],
+    "ORL": [
+      "Franz Wagner",
+      "Colin Castleton"
+    ],
+    "MIN": [
+      "Terrence Shannon Jr."
+    ],
+    "TOR": [
+      "Scottie Barnes"
+    ],
+    "DET": [
+      "Jaden Ivey"
+    ],
+    "WAS": [
+      "Alex Sarr",
+      "Cam Whitmore"
+    ]
+  },
+  "team_impact": {
+    "GSW": 35.766666666666666,
+    "DAL": 30.825000000000003,
+    "LAC": 53.989999999999995,
+    "POR": 52.64285714285714,
+    "MIL": 116.22083333333333,
+    "DEN": 69.73333333333333,
+    "PHI": 74.86428571428571,
+    "PHX": 104.80757575757575,
+    "IND": 78.8625,
+    "OKC": 110.36666666666667,
+    "CHI": 81.6,
+    "NYK": 59.24285714285714,
+    "LAL": 24.7875,
+    "BKN": 50.80714285714286,
+    "ORL": 19.2,
+    "TOR": 45.81111111111111,
+    "DET": 12.883333333333333,
+    "WAS": 38.885714285714286
+  }
+}
