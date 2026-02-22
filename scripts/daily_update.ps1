@@ -445,6 +445,25 @@ try {
   Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+# Ensure league_status artifact exists (roster-sanity depends on it). If missing, retry once
+# with a longer timeout, then fail-fast with a clear message.
+try {
+  $lsPath = Join-Path $RepoRoot ("data\processed\league_status_{0}.csv" -f $Date)
+  if (-not (Test-Path $lsPath)) {
+    Write-Log ("league_status missing after build-league-status: {0}" -f $lsPath)
+    $retryTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds * 2, 120)))
+    Write-Log ("Retrying build-league-status with timeout {0}s" -f $retryTo)
+    $rcLSRetry = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $retryTo -Label 'build_league_status_retry'
+    Write-Log ("build-league-status retry exit code: {0}" -f $rcLSRetry)
+    if (-not (Test-Path $lsPath)) {
+      throw ("build-league-status did not produce league_status file: {0} (exit={1})" -f $lsPath, $rcLSRetry)
+    }
+  }
+} catch {
+  Write-Log ("League status prerequisite failed: {0}" -f $_.Exception.Message)
+  throw
+}
+
 # 0.65) Roster sanity check: validates slate-team roster depth + duplicates + basic team mapping.
 try {
   Write-Log "Roster sanity check (fail-fast)"
