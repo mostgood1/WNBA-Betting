@@ -2634,7 +2634,7 @@ function renderLivePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
-      <div class="row chips" style="margin-top:6px; overflow:auto; display:flex; gap:8px; flex-wrap:nowrap; padding-bottom:2px;">
+      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px;">
         ${items}
       </div>
     `;
@@ -2673,6 +2673,12 @@ function startLiveLensPolling(root, games, dateStr) {
     try { clearInterval(__liveLensTimer); } catch (_) { /* ignore */ }
     __liveLensTimer = null;
   }
+
+  // Live prop callouts stability: avoid flicker when a poll temporarily returns
+  // no rows (e.g., transient API failure / brief empty payload).
+  let __calloutsLastHtml = '';
+  let __calloutsLastNonEmptyAt = 0;
+  let __calloutsEmptyStreak = 0;
 
   function pickBestTagFromLensEl(lensEl) {
     if (!lensEl) return { klass: 'NONE', text: '' };
@@ -2731,13 +2737,15 @@ function startLiveLensPolling(root, games, dateStr) {
       return out ? out : '';
     })();
 
+    const inProg = !!(scoreboardRow && scoreboardRow.in_progress);
+
     // Parse klass + side from the tag text.
     // Examples:
     // - "Q3: BET Over (+4.2)"
     // - "1H: WATCH Under (-2.1)"
     // - "Total: BET Over (+6.0)"
-    const m = String(t).match(/\b(BET|WATCH)\b\s+(Over|Under)\b/i);
-    if (!m) return { klass: 'NONE', text: '' };
+    const m = String(t).match(/\b(BET|WATCH)\b(?:\s+(Over|Under))?\b/i);
+    if (!m) return { klass: 'NONE', text: inProg ? `${label} —` : '' };
     const klass = String(m[1] || '').toUpperCase();
     const side = String(m[2] || '').toUpperCase();
     const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
@@ -4459,12 +4467,28 @@ function startLiveLensPolling(root, games, dateStr) {
         // Keep it compact so it doesn't harm UX.
         const maxCards = 10;
         const html = renderLivePropCallouts(cands.slice(0, maxCards));
+
         if (html) {
+          __calloutsEmptyStreak = 0;
+          __calloutsLastHtml = html;
+          __calloutsLastNonEmptyAt = Date.now();
           calloutsEl.innerHTML = html;
           calloutsEl.classList.remove('hidden');
         } else {
-          calloutsEl.innerHTML = '';
-          calloutsEl.classList.add('hidden');
+          __calloutsEmptyStreak += 1;
+          const ageMs = (__calloutsLastNonEmptyAt > 0) ? (Date.now() - __calloutsLastNonEmptyAt) : 1e18;
+
+          // Keep last non-empty render for a short time to avoid flicker.
+          // Hide only after a few consecutive empties or when the last non-empty is old.
+          const allowKeep = (__calloutsLastHtml && ageMs < 45000 && __calloutsEmptyStreak < 3);
+          if (allowKeep) {
+            calloutsEl.innerHTML = __calloutsLastHtml;
+            calloutsEl.classList.remove('hidden');
+          } else {
+            __calloutsLastHtml = '';
+            calloutsEl.innerHTML = '';
+            calloutsEl.classList.add('hidden');
+          }
         }
       }
     } catch (_) {
