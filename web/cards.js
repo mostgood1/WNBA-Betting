@@ -2695,7 +2695,7 @@ function renderLivePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
-      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px;">
+      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
         ${items}
       </div>
     `;
