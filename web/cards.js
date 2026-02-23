@@ -2667,7 +2667,7 @@ function renderLivePropCallouts(callouts) {
           type="button"
           class="chip neutral prop-callout"
           data-game-id="${esc(String(x.gid))}"
-          style="text-align:left; display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; min-width:220px; max-width:260px;"
+          style="text-align:left; display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; min-width:240px; max-width:300px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
           <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
@@ -2697,6 +2697,17 @@ function renderLivePropCallouts(callouts) {
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
       <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
         ${items}
+      </div>
+      <div class="subtle" style="margin-top:6px;">
+        <span class="fw-700">Notes:</span>
+        <span class="badge good">LIVE</span> live line (OddsAPI);
+        <span class="badge">PRE</span> pregame line;
+        <span class="badge good">SIM✓</span> SmartSim agrees with the pace-vs-line direction;
+        <span class="badge bad">SIM≠</span> SmartSim disagrees;
+        <span class="badge bad">INJ</span> injury flag;
+        <span class="badge ok">F4</span>/<span class="badge bad">F5+</span> foul trouble;
+        <span class="badge ok">LOWMIN</span> low projected minutes remaining;
+        <span class="badge ok">BENCH</span> extended bench stint.
       </div>
     `;
   } catch (_) {
