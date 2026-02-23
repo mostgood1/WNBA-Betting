@@ -30,25 +30,26 @@
     .controls label { font-size:13px; color:var(--muted); margin-right:4px; }
     .controls input[type="date"], .controls input[type="number"], .controls select { padding:6px 10px; background:var(--input-bg); color:var(--text); border:1px solid var(--input-br); border-radius:6px; font-size:13px; }
     .controls input[type="checkbox"] { width:16px; height:16px; cursor:pointer; }
-    .summary { font-size:14px; color:var(--muted); margin-bottom:12px; }
-    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(450px, 1fr)); gap:16px; }
+    .summary { font-size:14px; color:var(--muted); margin-bottom:10px; }
+    /* Tighter layout so more player cards fit on screen (aim for ~3 columns on desktop). */
+    .grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(360px, 1fr)); gap:12px; }
     @media(max-width:768px){ .grid{ grid-template-columns:1fr; } }
-    .card { background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; padding:16px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
-    .card-head { display:flex; align-items:center; gap:12px; padding-bottom:12px; border-bottom:1px solid var(--border); margin-bottom:12px; }
-    .avatar { width:56px; height:56px; border-radius:50%; object-fit:cover; background:var(--input-bg); }
+    .card { background:linear-gradient(180deg, var(--card), var(--card2)); border:1px solid var(--border); border-radius:8px; padding:12px; box-shadow:0 2px 8px rgba(0,0,0,0.1); }
+    .card-head { display:flex; align-items:center; gap:10px; padding-bottom:8px; border-bottom:1px solid var(--border); margin-bottom:8px; }
+    .avatar { width:48px; height:48px; border-radius:50%; object-fit:cover; background:var(--input-bg); }
     .player-info { flex:1; }
     .player-name { font-size:16px; font-weight:600; margin-bottom:2px; }
     .player-team { font-size:13px; color:var(--muted); display:flex; align-items:center; gap:8px; }
     .team-logo { width:28px; height:28px; object-fit:contain; }
-    .plays { display:flex; flex-direction:column; gap:8px; }
-    .play { display:flex; justify-content:space-between; align-items:center; padding:8px; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; font-size:13px; }
+    .plays { display:flex; flex-direction:column; gap:6px; }
+    .play { display:flex; justify-content:space-between; align-items:center; padding:6px 8px; background:var(--input-bg); border:1px solid var(--border); border-radius:6px; font-size:13px; }
     .play > div:first-child { font-weight:500; }
     .pill { display:inline-block; padding:3px 8px; background:var(--button-bg); border:1px solid var(--button-br); border-radius:12px; font-size:12px; margin-left:4px; }
     .pill-muted { color: var(--muted); }
     .ev { color:var(--green); font-weight:600; margin-left:4px; }
     .edge { color:var(--blue); font-weight:600; margin-left:4px; }
-    .model-baseline { font-size:12px; color:var(--muted); padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; margin-bottom:8px; }
-    .ladder { margin-top:8px; padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; }
+    .model-baseline { font-size:12px; color:var(--muted); padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; margin-bottom:6px; }
+    .ladder { margin-top:6px; padding:8px; background:var(--card2); border:1px solid var(--border); border-radius:6px; }
     .ladder > div:first-child { font-size:13px; color:var(--muted); margin-bottom:4px; display:flex; align-items:center; }
     .ladder a { color:var(--link); text-decoration:none; font-size:12px; }
     .ladder a:hover { text-decoration:underline; }

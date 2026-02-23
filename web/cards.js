@@ -2654,7 +2654,7 @@ function renderLivePropCallouts(callouts) {
       const pid = n(x.player_id);
       const photo = String(x.player_photo || '').trim() || ((pid != null) ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${pid}.png` : '');
       const img = photo
-        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="22" height="22" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
+        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
         : '';
       const preLine = n(x.line_pregame);
       const liveLine = n(x.line_live);
@@ -2698,27 +2698,29 @@ function renderLivePropCallouts(callouts) {
           type="button"
           class="chip neutral prop-callout"
           data-game-id="${esc(String(x.gid))}"
-          style="text-align:left; display:inline-flex; flex-direction:column; align-items:flex-start; gap:2px; padding:6px 8px; font-size:11px; white-space:normal; min-width:240px; max-width:300px;"
+          style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
-          <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+          <div style="width:100%; display:flex; gap:6px; justify-content:flex-start; align-items:center; flex-wrap:wrap;">
             ${badge}
             ${simFlag}
             ${liveLineBadge}
             <span class="badge">${esc(String(x.team || ''))}</span>
             ${why}
           </div>
-          <div class="fw-700" style="line-height:1.15; display:flex; gap:6px; align-items:center;">
+          <div style="width:100%; display:flex; gap:10px; align-items:center;">
             ${img}
-            <div style="min-width:0;">
-              ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span>
+            <div style="min-width:0; flex:1;">
+              <div class="fw-700" style="line-height:1.15;">
+                ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span>
+              </div>
+              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+                ${esc(game)} · Act ${esc(actTxt)} · Proj ${esc(projTxt)}
+              </div>
+              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+                Pre ${esc(preTxt)} · Live ${esc(liveTxt)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
+              </div>
             </div>
-          </div>
-          <div class="subtle" style="line-height:1.15;">
-            ${esc(game)} · Act ${esc(actTxt)} · Proj ${esc(projTxt)}
-          </div>
-          <div class="subtle" style="line-height:1.15;">
-            Pre ${esc(preTxt)} · Live ${esc(liveTxt)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
           </div>
         </button>
       `;
@@ -2726,7 +2728,7 @@ function renderLivePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
-      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(2, auto); gap:8px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
+      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(3, auto); gap:6px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
         ${items}
       </div>
       <div class="subtle" style="margin-top:6px;">
@@ -3018,7 +3020,7 @@ function startLiveLensPolling(root, games, dateStr) {
           source: legacy?.source,
           games: legacyGames.map((g) => ({
             game_id: g?.game_id,
-            event_id: g?.espn_event_id,
+            event_id: (g?.event_id ?? g?.espn_event_id ?? g?.eventId),
             home: g?.home,
             away: g?.away,
             home_pts: g?.home_pts,
@@ -3043,7 +3045,7 @@ function startLiveLensPolling(root, games, dateStr) {
       const gid = canonGameId(x && x.game_id != null ? x.game_id : '');
       if (!gid) return;
       sbById.set(gid, x);
-      const eid = String(x && x.event_id != null ? x.event_id : '').trim();
+      const eid = String((x && (x.event_id ?? x.espn_event_id ?? x.eventId)) ?? '').trim();
       if (eid) sbEventByGid.set(gid, eid);
     });
 
