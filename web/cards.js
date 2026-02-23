@@ -4451,6 +4451,17 @@ function startLiveLensPolling(root, games, dateStr) {
     try {
       const calloutsEl = root.querySelector('#live-prop-callouts');
       if (calloutsEl) {
+        const hasAnyLiveGame = (() => {
+          try {
+            for (const s of (sbById && sbById.values ? sbById.values() : [])) {
+              if (s && s.in_progress && !s.final) return true;
+            }
+            return false;
+          } catch (_) {
+            return false;
+          }
+        })();
+
         const invEventToGid = new Map();
         sbEventByGid.forEach((eid, gid) => {
           if (eid) invEventToGid.set(String(eid), String(gid));
@@ -4583,8 +4594,13 @@ function startLiveLensPolling(root, games, dateStr) {
             calloutsEl.classList.remove('hidden');
           } else {
             __calloutsLastHtml = '';
-            calloutsEl.innerHTML = '';
-            calloutsEl.classList.add('hidden');
+            if (hasAnyLiveGame) {
+              calloutsEl.innerHTML = '<div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH): no signals yet (or player props not loaded).</div>';
+              calloutsEl.classList.remove('hidden');
+            } else {
+              calloutsEl.innerHTML = '';
+              calloutsEl.classList.add('hidden');
+            }
           }
         }
       }
