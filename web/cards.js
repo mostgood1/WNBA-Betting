@@ -2791,15 +2791,19 @@ function startLiveLensPolling(root, games, dateStr) {
 
     let sel = '.lens-rec-total';
     let label = 'G';
+    let scopeKey = 'game';
     if (p0 === 1 || p0 === 3) {
       sel = '.lens-rec-qtr';
       label = `Q${p0}`;
+      scopeKey = `q${p0}`;
     } else if (p0 === 2) {
       sel = '.lens-rec-half';
       label = '1H';
+      scopeKey = 'half';
     } else {
       sel = '.lens-rec-total';
       label = 'G';
+      scopeKey = 'game';
     }
 
     const el = lensEl.querySelector(sel);
@@ -2814,8 +2818,14 @@ function startLiveLensPolling(root, games, dateStr) {
     let proj = null;
     let line = null;
     try {
-      proj = el ? n(el.dataset.projTotal) : null;
-      line = el ? n(el.dataset.lineTotal) : null;
+      // Prefer values from the scope column (always updated by polling auto-fill).
+      const scopeCol = lensEl ? lensEl.querySelector(`.lens-col[data-scope="${CSS.escape(String(scopeKey))}"]`) : null;
+      proj = scopeCol ? n(scopeCol.dataset.paceFinal) : null;
+      line = scopeCol ? n(scopeCol.dataset.liveTotal) : null;
+
+      // Fallback to values attached to the rec element (if present).
+      if (proj == null && el) proj = n(el.dataset.projTotal);
+      if (line == null && el) line = n(el.dataset.lineTotal);
     } catch (_) {
       proj = null;
       line = null;
