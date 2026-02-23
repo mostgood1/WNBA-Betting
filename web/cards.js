@@ -3021,6 +3021,7 @@ function startLiveLensPolling(root, games, dateStr) {
 
     const detailIds = [];
     const detailEventIds = [];
+    const inProgEventIds = [];
     const lineEventIds = [];
     byGameId.forEach((meta, gid) => {
       const s = sbById.get(gid);
@@ -3028,7 +3029,10 @@ function startLiveLensPolling(root, games, dateStr) {
         detailIds.push(gid);
         const eid = sbEventByGid.get(gid);
         if (eid) detailEventIds.push(eid);
-        if (s.in_progress && eid) lineEventIds.push(eid);
+        if (s.in_progress && !s.final && eid) {
+          lineEventIds.push(eid);
+          inProgEventIds.push(eid);
+        }
       }
 
       // Always update status line if present
@@ -3073,8 +3077,12 @@ function startLiveLensPolling(root, games, dateStr) {
           if (rw && rw.enabled !== false && w != null && w >= 10 && w <= 600) recentWindowSec = Math.round(w);
         } catch (_) {
           // ignore
-        }
 
+                // Keep heavier live endpoints limited to in-progress games for latency.
+                const pbpIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+                const playerIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+
+                const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(pbpIds.join(','))}&date=${encodeURIComponent(dateStr)}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const _ts = Date.now();
         const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const linesPromise = lineEventIds.length
@@ -3090,7 +3098,7 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(playerIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
@@ -4586,18 +4594,33 @@ function startLiveLensPolling(root, games, dateStr) {
             try {
               if (!r) continue;
 
-              // Require live line for BET/WATCH callouts.
+              // Prefer live line when available; fall back to pregame line so the
+              // callouts don't disappear when OddsAPI live prop lines are missing.
               const lineLive = n(r.line_live);
-              if (lineLive == null) continue;
+              const lineBase = n((r.line != null) ? r.line : r.line_pregame);
+              const lineUsed = (lineLive != null) ? lineLive : lineBase;
+              if (lineUsed == null) continue;
 
               const paceProj = n(r.pace_proj);
-              if (paceProj == null) continue;
+              const dP0 = n(r.pace_vs_line);
+              const dP = (paceProj != null) ? (paceProj - lineUsed) : dP0;
+              if (dP == null) continue;
 
-              const dP = paceProj - lineLive;
               const strength = Math.abs(dP);
               const rForAdj = (() => {
                 try {
-                  return { ...r, line: lineLive, line_source: 'oddsapi', pace_vs_line: dP };
+                  const isLiveLine = (lineLive != null);
+                  const src = isLiveLine
+                    ? 'oddsapi'
+                    : ((r && r.line_source != null && String(r.line_source).trim()) ? String(r.line_source).trim() : 'pregame');
+                  return {
+                    ...r,
+                    line: lineUsed,
+                    line_source: src,
+                    pace_vs_line: dP,
+                    is_live_line: isLiveLine,
+                    line_live: lineLive,
+                  };
                 } catch (_) {
                   return r;
                 }
@@ -4620,7 +4643,7 @@ function startLiveLensPolling(root, games, dateStr) {
               const benchLong = (rotOn === false && offSec != null && offSec >= 480);
 
               const simMu = n(r.sim_mu);
-              const dS = (simMu != null) ? (simMu - lineLive) : null;
+              const dS = (simMu != null) ? (simMu - lineUsed) : null;
 
               cands.push({
                 gid,
@@ -4631,12 +4654,12 @@ function startLiveLensPolling(root, games, dateStr) {
                 player_id: n(r.player_id),
                 player_photo: (r && r.player_photo) ? String(r.player_photo) : '',
                 stat,
-                line: lineLive,
+                line: lineUsed,
                 line_live: lineLive,
                 line_pregame: n(r.line_pregame),
-                is_live_line: true,
+                is_live_line: (lineLive != null),
                 actual: n(r.actual),
-                pace_proj: paceProj,
+                pace_proj: (paceProj != null) ? paceProj : null,
                 dP,
                 dS,
                 klass,
