@@ -2811,17 +2811,33 @@ function startLiveLensPolling(root, games, dateStr) {
 
     const inProg = !!(scoreboardRow && scoreboardRow.in_progress);
 
+    let proj = null;
+    let line = null;
+    try {
+      proj = el ? n(el.dataset.projTotal) : null;
+      line = el ? n(el.dataset.lineTotal) : null;
+    } catch (_) {
+      proj = null;
+      line = null;
+    }
+    const extra = (proj != null && line != null)
+      ? `P${fmt(proj, 1)} L${fmt(line, 1)}`
+      : ((proj != null) ? `P${fmt(proj, 1)}` : '');
+
     // Parse klass + side from the tag text.
     // Examples:
     // - "Q3: BET Over (+4.2)"
     // - "1H: WATCH Under (-2.1)"
     // - "Total: BET Over (+6.0)"
     const m = String(t).match(/\b(BET|WATCH)\b(?:\s+(Over|Under))?\b/i);
-    if (!m) return { klass: 'NONE', text: inProg ? `${label} —` : '' };
+    if (!m) {
+      if (inProg && extra) return { klass: 'NONE', text: `${label} ${extra}`.trim() };
+      return { klass: 'NONE', text: inProg ? `${label} —` : '' };
+    }
     const klass = String(m[1] || '').toUpperCase();
     const side = String(m[2] || '').toUpperCase();
     const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
-    const txt = `${label} ${klass} ${sideShort}`.trim();
+    const txt = `${label} ${klass} ${sideShort} ${extra}`.trim();
     return { klass, text: txt };
   }
 
@@ -3833,6 +3849,15 @@ function startLiveLensPolling(root, games, dateStr) {
         if (totalClass === 'BET') recTotalEl.textContent = `Total: BET ${totalSide} (${fmt(totalDiff, 1)})`;
         else if (totalClass === 'WATCH') recTotalEl.textContent = `Total: WATCH ${totalSide} (${fmt(totalDiff, 1)})`;
         else recTotalEl.textContent = 'Total: —';
+
+        try {
+          if (totalPred != null) recTotalEl.dataset.projTotal = String(totalPred);
+          else recTotalEl.removeAttribute('data-proj-total');
+          if (effLineTotal != null) recTotalEl.dataset.lineTotal = String(effLineTotal);
+          else recTotalEl.removeAttribute('data-line-total');
+        } catch (_) {
+          // ignore
+        }
       }
 
       // Half-level signal (vs pregame half baseline) during 1H only
@@ -3842,12 +3867,14 @@ function startLiveLensPolling(root, games, dateStr) {
       let halfDiffRaw = null;
       let halfShrink = null;
       let halfPred = null;
+      let halfLine = null;
       try {
         if (recHalfEl && (period == null || Number(period) <= 2)) {
           const halfCol = el.querySelector('.lens-col[data-scope="half"]');
           const pf = halfCol ? n(halfCol.dataset.paceFinal) : null;
           const sf = halfCol ? n(halfCol.dataset.simFinal) : null;
           const hl = halfCol ? n(halfCol.dataset.liveTotal) : null;
+          halfLine = hl;
 
           // Suppress very-early 1H tags (tunable; scaled to scope length).
           let allowHalf = true;
@@ -3907,11 +3934,33 @@ function startLiveLensPolling(root, games, dateStr) {
           if (halfClass === 'BET') recHalfEl.textContent = `1H: BET ${halfSide} (${fmt(halfDiff, 1)})`;
           else if (halfClass === 'WATCH') recHalfEl.textContent = `1H: WATCH ${halfSide} (${fmt(halfDiff, 1)})`;
           else recHalfEl.textContent = '1H: —';
+
+          try {
+            const halfProjOut = (halfLine != null && halfDiff != null) ? (halfLine + halfDiff) : halfPred;
+            if (halfProjOut != null) recHalfEl.dataset.projTotal = String(halfProjOut);
+            else recHalfEl.removeAttribute('data-proj-total');
+            if (halfLine != null) recHalfEl.dataset.lineTotal = String(halfLine);
+            else recHalfEl.removeAttribute('data-line-total');
+          } catch (_) {
+            // ignore
+          }
         } else if (recHalfEl) {
           recHalfEl.textContent = '1H: —';
+          try {
+            recHalfEl.removeAttribute('data-proj-total');
+            recHalfEl.removeAttribute('data-line-total');
+          } catch (_) {
+            // ignore
+          }
         }
       } catch (_) {
         if (recHalfEl) recHalfEl.textContent = '1H: —';
+        try {
+          recHalfEl.removeAttribute('data-proj-total');
+          recHalfEl.removeAttribute('data-line-total');
+        } catch (_) {
+          // ignore
+        }
       }
 
       // Quarter-level signal for the current regulation quarter (vs pregame quarter baseline)
@@ -3922,6 +3971,7 @@ function startLiveLensPolling(root, games, dateStr) {
       let qShrink = null;
       let qPred = null;
       let qLabel = 'Q';
+      let qLine = null;
       try {
         const pNow = (period == null) ? null : Number(period);
         if (recQtrEl && pNow != null && Number.isFinite(pNow) && pNow >= 1 && pNow <= 4) {
@@ -3931,6 +3981,7 @@ function startLiveLensPolling(root, games, dateStr) {
           const pf = qCol ? n(qCol.dataset.paceFinal) : null;
           const sf = qCol ? n(qCol.dataset.simFinal) : null;
           const ql = qCol ? n(qCol.dataset.liveTotal) : null;
+          qLine = ql;
 
           // Suppress very-early quarter tags (tunable; scaled to scope length).
           let allowQ = true;
@@ -3989,11 +4040,33 @@ function startLiveLensPolling(root, games, dateStr) {
           if (qClass === 'BET') recQtrEl.textContent = `${qLabel}: BET ${qSide} (${fmt(qDiff, 1)})`;
           else if (qClass === 'WATCH') recQtrEl.textContent = `${qLabel}: WATCH ${qSide} (${fmt(qDiff, 1)})`;
           else recQtrEl.textContent = `${qLabel}: —`;
+
+          try {
+            const qProjOut = (qLine != null && qDiff != null) ? (qLine + qDiff) : qPred;
+            if (qProjOut != null) recQtrEl.dataset.projTotal = String(qProjOut);
+            else recQtrEl.removeAttribute('data-proj-total');
+            if (qLine != null) recQtrEl.dataset.lineTotal = String(qLine);
+            else recQtrEl.removeAttribute('data-line-total');
+          } catch (_) {
+            // ignore
+          }
         } else if (recQtrEl) {
           recQtrEl.textContent = 'Q: —';
+          try {
+            recQtrEl.removeAttribute('data-proj-total');
+            recQtrEl.removeAttribute('data-line-total');
+          } catch (_) {
+            // ignore
+          }
         }
       } catch (_) {
         if (recQtrEl) recQtrEl.textContent = 'Q: —';
+        try {
+          recQtrEl.removeAttribute('data-proj-total');
+          recQtrEl.removeAttribute('data-line-total');
+        } catch (_) {
+          // ignore
+        }
       }
 
       // Compute tags (ATS) using blended margin (pregame -> live)
