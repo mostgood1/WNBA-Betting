@@ -1,6 +1,6 @@
 /* NHL-style theme and components for pixel-perfect card parity */
 * { box-sizing: border-box; }
-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; margin: 0; padding: 0; background: #0b1020; color: #e8eaf6; line-height: 1.35; }
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji"; margin: 0; padding: 0; background: #0b1020; color: #e8eaf6; line-height: 1.35; overflow-x: hidden; }
 header { background: #121a33; padding: 12px 0; }
 header .header-inner { display: flex; align-items: center; gap: 12px; padding: 0 16px; }
 header h1 { margin: 0 12px 0 0; font-size: 20px; }
@@ -8,6 +8,9 @@ header .btn, header button { background: #2b5cff; color: white; border: none; pa
 header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opacity: 0.9; }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
 .cards { display: grid; grid-template-columns: 1fr; gap: 16px; padding: 18px 0; }
+
+/* Confine any wide-callout overflow to the callouts scroller (not the whole page). */
+#live-prop-callouts { max-width: 100%; overflow-x: hidden; }
 
 /* ESPN-style compact scoreboard strip */
 .scoreboard-strip {
