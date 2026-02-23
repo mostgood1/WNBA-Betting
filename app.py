@@ -136,7 +136,7 @@ def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri:
         cache_key = f"{date_str}:{h}:{a}"
         now = time.time()
         ent = _live_oddsapi_period_cache.get(cache_key)
-        if ent and (now - ent[0] < 60):
+        if ent and (now - ent[0] < 20):
             return ent[1]
 
         # Fast direct HTTP calls with short timeouts (avoid blocking UI/pollers).

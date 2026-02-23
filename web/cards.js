@@ -2821,8 +2821,8 @@ function startLiveLensPolling(root, games, dateStr) {
       line = null;
     }
     const extra = (proj != null && line != null)
-      ? `P${fmt(proj, 1)} L${fmt(line, 1)}`
-      : ((proj != null) ? `P${fmt(proj, 1)}` : '');
+      ? `P${fmt(proj, 1)}/${fmt(line, 1)}`
+      : ((proj != null) ? `P${fmt(proj, 1)}` : ((line != null) ? `L${fmt(line, 1)}` : ''));
 
     // Parse klass + side from the tag text.
     // Examples:
@@ -2837,7 +2837,8 @@ function startLiveLensPolling(root, games, dateStr) {
     const klass = String(m[1] || '').toUpperCase();
     const side = String(m[2] || '').toUpperCase();
     const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
-    const txt = `${label} ${klass} ${sideShort} ${extra}`.trim();
+    // Keep this compact: tile color communicates BET/WATCH.
+    const txt = `${label} ${extra} ${sideShort}`.trim();
     return { klass, text: txt };
   }
 
@@ -3064,9 +3065,10 @@ function startLiveLensPolling(root, games, dateStr) {
           // ignore
         }
 
-        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=20&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}`, 8000);
+        const _ts = Date.now();
+        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const linesPromise = lineEventIds.length
-          ? fetchJsonWithTimeout(`/api/live_lines?ttl=20&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1`, 8000)
+          ? fetchJsonWithTimeout(`/api/live_lines?ttl=10&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1&_ts=${encodeURIComponent(String(_ts))}`, 8000)
           : Promise.resolve({ games: [] });
         // Keep prop live lens aligned with the same recent-window size used by game live adjustments.
         let recentWindowSec2 = 180;
@@ -3078,7 +3080,7 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=20&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}`, 8000);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
