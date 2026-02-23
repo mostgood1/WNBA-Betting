@@ -1,0 +1,147 @@
+{
+  "date": "2026-02-23",
+  "team_counts": {
+    "DET": 1,
+    "HOU": 3,
+    "MEM": 5,
+    "SAC": 3,
+    "SAS": 2,
+    "UTA": 5
+  },
+  "players": [
+    {
+      "player": "Kentavious Caldwell-Pope",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach LaVine",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Fred VanVleet",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Lauri Markkanen",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Ja Morant",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "De'Andre Hunter",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Brandon Clarke",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Jae'Sean Tate",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Lindy Waters III",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Oscar Tshiebwe",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Keyonte George",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "MEM": [
+      "Jaren Jackson Jr.",
+      "Santi Aldama",
+      "Kentavious Caldwell-Pope"
+    ],
+    "SAS": [
+      "Lindy Waters III",
+      "Mason Plumlee"
+    ],
+    "HOU": [
+      "Jae'Sean Tate",
+      "Steven Adams",
+      "Fred VanVleet"
+    ],
+    "SAC": [
+      "Domantas Sabonis",
+      "Zach LaVine"
+    ],
+    "UTA": [
+      "Lauri Markkanen",
+      "Keyonte George",
+      "Oscar Tshiebwe"
+    ],
+    "CLE": [
+      "De'Andre Hunter"
+    ],
+    "DET": [
+      "Isaac Jones"
+    ]
+  },
+  "team_impact": {
+    "MEM": 86.71388888888889,
+    "SAS": 1.5,
+    "HOU": 5.766666666666667,
+    "SAC": 61.935,
+    "UTA": 72.3,
+    "CLE": 27.6
+  }
+}
