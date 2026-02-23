@@ -4915,7 +4915,56 @@ def api_processed_recon_players():
 @app.route("/")
 def root():
     # Serve the NBA slate homepage directly at '/'
-    return send_from_directory(str(WEB_DIR), "index.html")
+    # Server-render the default date so the page never boots with a blank date input
+    # (some browsers can reject programmatic input[type=date] assignment).
+    try:
+        from datetime import datetime, timedelta
+        from flask import Response as _Resp
+
+        now = None
+        try:
+            from zoneinfo import ZoneInfo
+            now = datetime.now(ZoneInfo("America/New_York"))
+        except Exception:
+            # Windows dev machines often lack the IANA tz database unless tzdata is installed.
+            # Fall back to local time rather than returning a blank date.
+            now = datetime.now()
+
+        base = now - timedelta(days=1) if now.hour < 6 else now
+        ymd = base.strftime("%Y-%m-%d")
+
+        html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+        # Only skip injection if the datePicker itself already has a value.
+        has_date_value = (
+            'id="datePicker" value="' in html
+            or "id='datePicker' value='" in html
+            or 'id="datePicker" value=' in html
+            or "id='datePicker' value=" in html
+        )
+        if "id=\"datePicker\"" in html and not has_date_value:
+            html = html.replace(
+                '<input type="date" id="datePicker" />',
+                f'<input type="date" id="datePicker" value="{ymd}" />',
+            )
+            html = html.replace(
+                '<input type="date" id="datePicker"/>',
+                f'<input type="date" id="datePicker" value="{ymd}"/>',
+            )
+            html = html.replace(
+                '<input type="date" id="datePicker">',
+                f'<input type="date" id="datePicker" value="{ymd}">',
+            )
+
+        resp = _Resp(html, mimetype="text/html")
+        resp.headers["Cache-Control"] = "no-store, max-age=0"
+        return resp
+    except Exception:
+        try:
+            import traceback
+            print("root() HTML injection failed:\n" + traceback.format_exc())
+        except Exception:
+            pass
+        return send_from_directory(str(WEB_DIR), "index.html")
 
 
 @app.route("/web/")

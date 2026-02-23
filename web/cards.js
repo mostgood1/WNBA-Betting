@@ -6,21 +6,27 @@ function localYMD() {
   const cutoffHour = 6; // Treat 12:00am–5:59am ET as the prior NBA slate day.
   try {
     const now = new Date();
-    const hourStr = new Intl.DateTimeFormat('en-US', {
+    const hourParts = new Intl.DateTimeFormat('en-US', {
       timeZone: tz,
       hour: '2-digit',
       hour12: false,
-    }).format(now);
+    }).formatToParts(now);
+    const hourStr = (hourParts || []).find((p) => p && p.type === 'hour')?.value;
     const hour = Number(hourStr);
     const base = (Number.isFinite(hour) && hour < cutoffHour)
       ? new Date(now.getTime() - 24 * 60 * 60 * 1000)
       : now;
-    return new Intl.DateTimeFormat('en-CA', {
+    const parts = new Intl.DateTimeFormat('en-US', {
       timeZone: tz,
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
-    }).format(base);
+    }).formatToParts(base);
+    const y = (parts || []).find((p) => p && p.type === 'year')?.value;
+    const m = (parts || []).find((p) => p && p.type === 'month')?.value;
+    const d = (parts || []).find((p) => p && p.type === 'day')?.value;
+    if (y && m && d) return `${y}-${m}-${d}`;
+    throw new Error('bad date parts');
   } catch (_) {
     const d = new Date();
     const base = (d.getHours() < cutoffHour)
@@ -127,6 +133,31 @@ function setNote(msg) {
   note.textContent = String(msg);
   note.classList.remove('hidden');
 }
+
+// Surface JS runtime failures directly in the page so it doesn't look like a "blank" load.
+(function installGlobalErrorTraps() {
+  try {
+    if (window.__cardsErrorTrapsInstalled) return;
+    window.__cardsErrorTrapsInstalled = true;
+
+    window.addEventListener('error', (e) => {
+      try {
+        const msg = e && e.message ? e.message : 'Unknown error';
+        setNote(`JS error: ${msg}`);
+      } catch (_) { /* ignore */ }
+    });
+
+    window.addEventListener('unhandledrejection', (e) => {
+      try {
+        const r = e && e.reason;
+        const msg = (r && r.message) ? r.message : String(r);
+        setNote(`JS error: ${msg}`);
+      } catch (_) { /* ignore */ }
+    });
+  } catch (_) {
+    // ignore
+  }
+})();
 
 function buildReconIndex(rows) {
   const idx = new Map();
@@ -3077,14 +3108,21 @@ function startLiveLensPolling(root, games, dateStr) {
           if (rw && rw.enabled !== false && w != null && w >= 10 && w <= 600) recentWindowSec = Math.round(w);
         } catch (_) {
           // ignore
+        }
 
-                // Keep heavier live endpoints limited to in-progress games for latency.
-                const pbpIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
-                const playerIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+        // Keep heavier live endpoints limited to in-progress games for latency.
+        const pbpIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+        const playerIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
 
-                const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(pbpIds.join(','))}&date=${encodeURIComponent(dateStr)}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const _ts = Date.now();
-        const pbpPromise = fetchJsonWithTimeout(`/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}&event_ids=${encodeURIComponent(detailEventIds.join(','))}&date=${encodeURIComponent(dateStr)}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
+
+        const pbpPromise = fetchJsonWithTimeout(
+          `/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}`
+          + `&event_ids=${encodeURIComponent(pbpIds.join(','))}`
+          + `&date=${encodeURIComponent(dateStr)}`
+          + `&_ts=${encodeURIComponent(String(_ts))}`,
+          8000,
+        );
         const linesPromise = lineEventIds.length
           ? fetchJsonWithTimeout(`/api/live_lines?ttl=10&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1&_ts=${encodeURIComponent(String(_ts))}`, 8000)
           : Promise.resolve({ games: [] });
@@ -5193,7 +5231,7 @@ function makeBoxscoreTablesSortable(root) {
 }
 
 async function load(dateStr) {
-  setNote('');
+  setNote('Loading cards…');
   const today = localYMD();
   const isHistorical = isYmd(dateStr) && dateStr < today;
 
@@ -5209,6 +5247,7 @@ async function load(dateStr) {
   try {
     const payload = await fetchJson(`/api/cards?date=${encodeURIComponent(dateStr)}`);
     const games = Array.isArray(payload?.games) ? payload.games : [];
+    setNote(`Rendering ${games.length} games…`);
 
     let reconGameRows = [];
     let reconQuarterRows = [];
@@ -5225,9 +5264,14 @@ async function load(dateStr) {
     }
 
     renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, dateStr);
+    setNote('');
   } catch (e) {
     setNote(`Failed to load cards: ${String(e && e.message ? e.message : e)}`);
-    renderCards([], [], [], [], false, false, dateStr);
+    try {
+      renderCards([], [], [], [], false, false, dateStr);
+    } catch (_) {
+      // ignore
+    }
   }
 }
 
@@ -5235,6 +5279,21 @@ function setUrlDate(dateStr) {
   const u = new URL(window.location.href);
   u.searchParams.set('date', dateStr);
   window.history.replaceState({}, '', u.toString());
+}
+
+function setDatePickerYmd(datePicker, ymd) {
+  if (!datePicker) return;
+  datePicker.value = ymd;
+  if (datePicker.value) return;
+  try {
+    const parts = String(ymd || '').split('-').map((x) => Number(x));
+    const y = parts[0], m = parts[1], d = parts[2];
+    if (Number.isFinite(y) && Number.isFinite(m) && Number.isFinite(d)) {
+      datePicker.valueAsDate = new Date(y, m - 1, d);
+    }
+  } catch (_) {
+    // ignore
+  }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -5247,17 +5306,24 @@ window.addEventListener('DOMContentLoaded', () => {
   const u = new URL(window.location.href);
   const qd = u.searchParams.get('date');
   const d0 = isYmd(qd) ? qd : localYMD();
-  if (datePicker) datePicker.value = d0;
+  setDatePickerYmd(datePicker, d0);
 
   function apply() {
     const d = (datePicker && datePicker.value) ? datePicker.value : localYMD();
     setUrlDate(d);
-    load(d);
+    setNote('Loading…');
+    Promise.resolve(load(d)).catch((e) => {
+      try {
+        setNote(`Failed to load cards: ${String(e && e.message ? e.message : e)}`);
+      } catch (_) {
+        setNote('Failed to load cards');
+      }
+    });
   }
 
   if (applyBtn) applyBtn.addEventListener('click', apply);
   if (todayBtn) todayBtn.addEventListener('click', () => {
-    if (datePicker) datePicker.value = localYMD();
+    setDatePickerYmd(datePicker, localYMD());
     apply();
   });
   if (resultsToggle) resultsToggle.addEventListener('change', apply);
