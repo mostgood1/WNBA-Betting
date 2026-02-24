@@ -19,8 +19,6 @@
   "require_rotations_espn": true,
   "warnings": [
     "minutes_sanity: team MEM top10 minutes sum low (174.0) using lag1_min",
-    "minutes_sanity: team SAC top10 minutes sum low (156.0) using lag1_min",
-    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using lag1_min",
     "minutes_sanity: 9 players have <8 min but >=10 pred_pts (sample: Marcus Sasser(DET), Colby Jones(DET), Bobi Klintman(DET), Drew Eubanks(SAC), Stanley Umude(SAS), Jeremy Sochan(SAS))"
   ],
   "missing": [],
