@@ -1,0 +1,363 @@
+{
+  "date": "2026-02-24",
+  "team_counts": {
+    "ATL": 1,
+    "BKN": 2,
+    "BOS": 1,
+    "CHI": 4,
+    "CLE": 2,
+    "DAL": 4,
+    "GSW": 4,
+    "IND": 4,
+    "MIA": 1,
+    "MIL": 4,
+    "NOP": 3,
+    "NYK": 1,
+    "OKC": 3,
+    "ORL": 1,
+    "PHI": 1,
+    "PHX": 4,
+    "POR": 3,
+    "TOR": 2,
+    "WAS": 2
+  },
+  "players": [
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Davis",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Seth Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Joel Embiid",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Booker",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Myles Turner",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dejounte Murray",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Jakob Poeltl",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Taurean Prince",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jayson Tatum",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Brooks",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Shai Gilgeous-Alexander",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Anfernee Simons",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Trae Young",
+      "team": "ATL",
+      "status": "OUT"
+    },
+    {
+      "player": "Haywood Highsmith",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Max Strus",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Coby White",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Darius Garland",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Nic Claxton",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Deni Avdija",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Obi Toppin",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Tyrese Haliburton",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Aaron Nesmith",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Cole Anthony",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jonathan Kuminga",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Murphy III",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Franz Wagner",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Ziaire Williams",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Miles McBride",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Scottie Barnes",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jordan Goodwin",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaden Ivey",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Williams",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Ajay Mitchell",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "GSW": [
+      "Stephen Curry",
+      "Jimmy Butler III",
+      "Seth Curry"
+    ],
+    "DAL": [
+      "Kyrie Irving",
+      "Anthony Davis",
+      "D'Angelo Russell"
+    ],
+    "POR": [
+      "Deni Avdija",
+      "Shaedon Sharpe",
+      "Damian Lillard"
+    ],
+    "MIL": [
+      "Myles Turner",
+      "Cole Anthony",
+      "Giannis Antetokounmpo"
+    ],
+    "PHI": [
+      "Joel Embiid"
+    ],
+    "PHX": [
+      "Dillon Brooks",
+      "Devin Booker",
+      "Jordan Goodwin"
+    ],
+    "MIA": [
+      "Terry Rozier"
+    ],
+    "NOP": [
+      "Trey Murphy III",
+      "Yves Missi",
+      "Dejounte Murray"
+    ],
+    "TOR": [
+      "Scottie Barnes",
+      "Jakob Poeltl"
+    ],
+    "BOS": [
+      "Anfernee Simons",
+      "Jayson Tatum"
+    ],
+    "CHI": [
+      "Coby White",
+      "Zach Collins"
+    ],
+    "OKC": [
+      "Shai Gilgeous-Alexander",
+      "Jalen Williams",
+      "Ajay Mitchell"
+    ],
+    "ATL": [
+      "Trae Young"
+    ],
+    "CLE": [
+      "Max Strus",
+      "Darius Garland"
+    ],
+    "BKN": [
+      "Nic Claxton",
+      "Ziaire Williams"
+    ],
+    "IND": [
+      "Aaron Nesmith",
+      "Johnny Furphy",
+      "Obi Toppin"
+    ],
+    "ORL": [
+      "Franz Wagner"
+    ],
+    "NYK": [
+      "Miles McBride"
+    ],
+    "DET": [
+      "Jaden Ivey"
+    ],
+    "WAS": [
+      "Alex Sarr",
+      "Cam Whitmore"
+    ]
+  },
+  "team_impact": {
+    "GSW": 35.766666666666666,
+    "POR": 57.458333333333336,
+    "MIL": 45.125,
+    "PHI": 52.699999999999996,
+    "PHX": 94.14999999999999,
+    "NOP": 57.96805555555556,
+    "TOR": 61.0125,
+    "BOS": 22.6,
+    "CHI": 29.8,
+    "OKC": 81.6,
+    "BKN": 49.53888888888889,
+    "IND": 38.51428571428571,
+    "ORL": 19.2,
+    "NYK": 22.4,
+    "DET": 12.42,
+    "WAS": 39.65
+  }
+}
