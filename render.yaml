@@ -43,8 +43,10 @@ services:
         sync: false
       - key: ODDS_API_KEY
         sync: false
+      - key: RENDER_PRESTART_REFRESH
+        value: "0"  # opt-in prestart refresh/export (can be memory-heavy on small plans)
       - key: RENDER_PUSH_ON_DEPLOY
-        value: "1"  # commit/push refreshed odds/edges/recs on deploy (requires GH_TOKEN or GIT_PAT secret)
+        value: "1"  # commit/push refreshed artifacts (requires RENDER_PRESTART_REFRESH=1 + GH_TOKEN/GIT_PAT)
 
 # Note: Some Render accounts don’t support defining Cron Jobs in Blueprints yet.
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
