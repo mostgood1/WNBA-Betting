@@ -1,0 +1,4 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-02-23,0022500828,DET,SAS,0.5,,,,Cade Cunningham,0.1186337797000221,,,,,1.121681381642794,0.674268345288727,,,
+2026-02-23,0022500829,MEM,SAC,0.5,,,,Keegan Murray,0.1203856809815976,,,,,1.1132868317359732,0.6715224655696612,,,
+2026-02-23,0022500830,HOU,UTA,0.5,,,,Amen Thompson,0.1161998346893988,,,,,1.0958339231589962,0.6657392570854794,,,

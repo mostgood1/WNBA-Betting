@@ -1,0 +1,4 @@
+date,home_team,visitor_team,home_tri,away_tri,home_pts,visitor_pts,pred_margin,pred_total,actual_margin,total_actual,margin_error,total_error
+2026-02-23,Detroit Pistons,San Antonio Spurs,DET,SAS,103,114,5.708996295928955,231.97392791362643,-11,217,16.708996295928955,14.973927913626426
+2026-02-23,Houston Rockets,Utah Jazz,HOU,UTA,125,105,9.617154121398926,236.20668383548403,20,230,-10.382845878601074,6.206683835484029
+2026-02-23,Memphis Grizzlies,Sacramento Kings,MEM,SAC,114,123,1.895814061164856,226.5426713050026,-9,237,10.895814061164856,-10.457328694997386
