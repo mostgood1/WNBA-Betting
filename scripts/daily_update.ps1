@@ -1759,9 +1759,11 @@ $exportGamesArgs = @('-m','nba_betting.cli','export-recommendations','--date', $
 if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
   try {
     $mpo = [double]$maxPlusOdds
+    $exportGamesArgs += @('--max-plus-odds', ([string]$mpo))
     if ($mpo -gt 0) {
-      $exportGamesArgs += @('--max-plus-odds', ([string]$mpo))
       Write-Log ("Applying odds guard to game exports: max_plus_odds={0}" -f $mpo)
+    } else {
+      Write-Log ("Disabling odds guard for game exports: max_plus_odds={0}" -f $mpo)
     }
   } catch {
     Write-Log ("Invalid DAILY_MAX_PLUS_ODDS='{0}' (skipping odds guard)" -f $maxPlusOdds)
@@ -1793,9 +1795,11 @@ $exportPropsArgs = @('-m','nba_betting.cli','export-props-recommendations','--da
 if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
   try {
     $mpo2 = [double]$maxPlusOdds
+    $exportPropsArgs += @('--max-plus-odds', ([string]$mpo2))
     if ($mpo2 -gt 0) {
-      $exportPropsArgs += @('--max-plus-odds', ([string]$mpo2))
       Write-Log ("Applying odds guard to props exports: max_plus_odds={0}" -f $mpo2)
+    } else {
+      Write-Log ("Disabling odds guard for props exports: max_plus_odds={0}" -f $mpo2)
     }
   } catch {
     # already logged above for games
@@ -2426,6 +2430,48 @@ try {
       '--write-override'
     )
     Write-Log ("daily_live_lens_tune exit code: {0}" -f $rcLens)
+
+    # Optional: player prop threshold tune (from settled prop outcomes)
+    try {
+      $skipPropTune = $env:DAILY_SKIP_LIVE_LENS_PROP_TUNE
+      if ($null -eq $skipPropTune -or $skipPropTune -notmatch '^(1|true|yes)$') {
+        $rp = Join-Path $RepoRoot ("data/processed/recon_props_{0}.csv" -f $yesterday)
+        if (Test-Path $rp) {
+          Write-Log ("Live Lens prop tune: recon_props present for {0}; optimizing player_prop thresholds" -f $yesterday)
+          $rcPropTune = Invoke-PyMod -plist @(
+            'tools/optimize_live_lens_player_prop_thresholds.py',
+            '--start', $yesterday,
+            '--end', $yesterday,
+            '--min-bets', '30',
+            '--write-override'
+          )
+          Write-Log ("optimize_live_lens_player_prop_thresholds exit code: {0}" -f $rcPropTune)
+        } else {
+          Write-Log ("Live Lens prop tune: no recon_props for {0}; skipping" -f $yesterday)
+        }
+      } else {
+        Write-Log 'Skipping Live Lens prop tune (DAILY_SKIP_LIVE_LENS_PROP_TUNE=1)'
+      }
+    } catch {
+      Write-Log ("Live Lens prop tune failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+
+    # Optional: ROI report (settle logged signals into units)
+    try {
+      $skipRoi = $env:DAILY_SKIP_LIVE_LENS_ROI
+      if ($null -eq $skipRoi -or $skipRoi -notmatch '^(1|true|yes)$') {
+        Write-Log ("Live Lens ROI: generating report for {0}" -f $yesterday)
+        $rcRoi = Invoke-PyMod -plist @(
+          'tools/daily_live_lens_roi.py',
+          '--date', $yesterday
+        )
+        Write-Log ("daily_live_lens_roi exit code: {0}" -f $rcRoi)
+      } else {
+        Write-Log 'Skipping Live Lens ROI (DAILY_SKIP_LIVE_LENS_ROI=1)'
+      }
+    } catch {
+      Write-Log ("Live Lens ROI failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
   } else {
     Write-Log ("Live Lens tune: no signals file for {0}; skipping" -f $yesterday)
   }

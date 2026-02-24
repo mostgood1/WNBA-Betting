@@ -5,7 +5,6 @@ from typing import List, Tuple
 
 import numpy as np
 import pandas as pd
-from sklearn.isotonic import IsotonicRegression
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 PROC_DIR = BASE_DIR / "data" / "processed"
@@ -27,6 +26,8 @@ def load_reliability_bins(path: Path) -> Tuple[List[float], List[float]]:
 
 
 def fit_isotonic(xs: List[float], ys: List[float]) -> Tuple[np.ndarray, np.ndarray]:
+    from sklearn.isotonic import IsotonicRegression
+
     # Bound x to [0,1]
     xs_arr = np.clip(np.asarray(xs, dtype=float), 0.0, 1.0)
     ys_arr = np.clip(np.asarray(ys, dtype=float), 0.0, 1.0)

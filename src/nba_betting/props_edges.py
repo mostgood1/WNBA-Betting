@@ -19,7 +19,7 @@ from .teams import to_tricode as _tri, normalize_team as _norm_team
 from .odds_bovada import fetch_bovada_player_props_current
 
 
-_PROPS_PROB_CALIB_CACHE: dict[str, list[float]] | None = None
+_PROPS_PROB_CALIB_CACHE: dict[str, object] | None = None
 
 
 def _is_sane_prob_calibration(xs: list[float], ys: list[float]) -> bool:
@@ -64,16 +64,15 @@ def _is_sane_prob_calibration(xs: list[float], ys: list[float]) -> bool:
         y50 = _interp(0.50)
         y90 = _interp(0.90)
 
-        # Midpoint should be near 0.5.
-        if not (0.35 <= float(y50) <= 0.65):
+        # Midpoint should stay near 0.5.
+        if not (0.40 <= float(y50) <= 0.60):
             return False
 
-        # Curve must have meaningful spread; otherwise it will collapse probabilities.
-        if float(y90) - float(y10) < 0.25:
-            return False
-        if not (0.05 <= float(y10) <= 0.40):
-            return False
-        if not (0.60 <= float(y90) <= 0.95):
+        # In this project, prop win probabilities often live in a narrow band around 0.5
+        # (especially after guardrails), so requiring a huge [0.1..0.9] spread can
+        # incorrectly reject valid shrinkage curves. We only require that the mapping
+        # isn't effectively constant.
+        if float(y90) - float(y10) < 0.05:
             return False
 
         return True
@@ -81,40 +80,73 @@ def _is_sane_prob_calibration(xs: list[float], ys: list[float]) -> bool:
         return False
 
 
-def _load_props_prob_calibration() -> dict[str, list[float]] | None:
+def _load_props_prob_calibration() -> dict[str, object] | None:
     """Load piecewise-linear probability calibration for props.
 
-    Expected JSON: {"x": [...], "y": [...]} mapping raw model_prob -> calibrated.
+    Supported JSON formats:
+      - Legacy global: {"x": [...], "y": [...]}
+      - Per-stat: {"global": {"x": [...], "y": [...]}, "per_stat": {"pts": {"x": [...], "y": [...]}, ...}}
+
+    Primary lookup is per-stat, with fallback to global.
     """
     global _PROPS_PROB_CALIB_CACHE
     if _PROPS_PROB_CALIB_CACHE is not None:
         return _PROPS_PROB_CALIB_CACHE
     try:
-        fp = paths.data_processed / "props_prob_calibration.json"
-        if not fp.exists():
-            _PROPS_PROB_CALIB_CACHE = None
-            return None
         import json
 
-        obj = json.loads(fp.read_text(encoding="utf-8"))
-        xs = obj.get("x") or []
-        ys = obj.get("y") or []
-        if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
-            _PROPS_PROB_CALIB_CACHE = None
-            return None
-        xs_f = [float(v) for v in xs]
-        ys_f = [float(v) for v in ys]
-        if not _is_sane_prob_calibration(xs_f, ys_f):
-            _PROPS_PROB_CALIB_CACHE = None
-            return None
-        _PROPS_PROB_CALIB_CACHE = {"x": xs_f, "y": ys_f}
-        return _PROPS_PROB_CALIB_CACHE
+        def _curve(obj: object) -> dict[str, list[float]] | None:
+            try:
+                if not isinstance(obj, dict):
+                    return None
+                xs = obj.get("x") or []
+                ys = obj.get("y") or []
+                if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
+                    return None
+                xs_f = [float(v) for v in xs]
+                ys_f = [float(v) for v in ys]
+                if not _is_sane_prob_calibration(xs_f, ys_f):
+                    return None
+                return {"x": xs_f, "y": ys_f}
+            except Exception:
+                return None
+
+        fp_by = paths.data_processed / "props_prob_calibration_by_stat.json"
+        fp_global = paths.data_processed / "props_prob_calibration.json"
+
+        # Prefer per-stat calibration when available.
+        if fp_by.exists():
+            obj = json.loads(fp_by.read_text(encoding="utf-8"))
+            if isinstance(obj, dict):
+                global_curve = _curve(obj.get("global") if isinstance(obj.get("global"), dict) else obj)
+                per_stat: dict[str, dict[str, list[float]]] = {}
+                ps = obj.get("per_stat")
+                if isinstance(ps, dict):
+                    for k, v in ps.items():
+                        cv = _curve(v)
+                        if cv is None:
+                            continue
+                        per_stat[str(k).strip().lower()] = cv
+                if global_curve is not None or per_stat:
+                    _PROPS_PROB_CALIB_CACHE = {"global": global_curve, "per_stat": per_stat}
+                    return _PROPS_PROB_CALIB_CACHE
+
+        # Fall back to legacy global calibration.
+        if fp_global.exists():
+            obj = json.loads(fp_global.read_text(encoding="utf-8"))
+            global_curve = _curve(obj)
+            if global_curve is not None:
+                _PROPS_PROB_CALIB_CACHE = {"global": global_curve, "per_stat": {}}
+                return _PROPS_PROB_CALIB_CACHE
+
+        _PROPS_PROB_CALIB_CACHE = None
+        return None
     except Exception:
         _PROPS_PROB_CALIB_CACHE = None
         return None
 
 
-def _apply_props_prob_calibration(p: float) -> float:
+def _apply_props_prob_calibration(p: float, stat: str | None = None) -> float:
     """Calibrate/shrink prop win probabilities.
 
         If a saved isotonic calibration curve exists and passes sanity checks,
@@ -132,10 +164,26 @@ def _apply_props_prob_calibration(p: float) -> float:
     try:
         pv = float(max(0.0, min(1.0, float(p))))
         if cal is None:
-                        return pv
+            return pv
 
-        xs = cal["x"]
-        ys = cal["y"]
+        curve = None
+        try:
+            st = str(stat or "").strip().lower()
+            if st:
+                ps = cal.get("per_stat") if isinstance(cal, dict) else None
+                if isinstance(ps, dict):
+                    curve = ps.get(st)
+        except Exception:
+            curve = None
+        if curve is None:
+            curve = cal.get("global") if isinstance(cal, dict) else None
+        if not isinstance(curve, dict):
+            return pv
+
+        xs = curve.get("x") or []
+        ys = curve.get("y") or []
+        if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
+            return pv
         if pv <= xs[0]:
             return float(ys[0])
         if pv >= xs[-1]:
@@ -944,11 +992,64 @@ def compute_props_edges(
     # are already a derived distribution; applying a generic calibration curve can easily
     # distort the signal and wipe out edges.
     merged["model_prob_raw"] = merged["model_prob"]
+    merged["_prob_calibrated"] = False
     if calibrate_prob:
         try:
-            merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").apply(
-                lambda v: _apply_props_prob_calibration(float(v)) if np.isfinite(float(v)) else np.nan
-            )
+            mp = pd.to_numeric(merged["model_prob"], errors="coerce")
+            st = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
+            cal = _load_props_prob_calibration() or {}
+            by_stat_exists = bool((paths.data_processed / "props_prob_calibration_by_stat.json").exists())
+
+            if st is not None and isinstance(cal, dict):
+                out = mp.copy()
+                applied = pd.Series(False, index=out.index)
+                ps = cal.get("per_stat") if isinstance(cal.get("per_stat"), dict) else {}
+                global_curve = cal.get("global") if isinstance(cal.get("global"), dict) else None
+
+                for mk in sorted(set(st.dropna().astype(str).tolist())):
+                    mk2 = str(mk).strip().lower()
+                    if not mk2:
+                        continue
+                    mask = st == mk2
+                    if not bool(mask.any()):
+                        continue
+
+                    used_per_stat = False
+                    curve = ps.get(mk2) if isinstance(ps, dict) else None
+                    if isinstance(curve, dict):
+                        used_per_stat = True
+                    else:
+                        curve = global_curve
+                    if not isinstance(curve, dict):
+                        continue
+
+                    xs = curve.get("x") or []
+                    ys = curve.get("y") or []
+                    if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
+                        continue
+                    x = np.asarray(xs, dtype=float)
+                    y = np.asarray(ys, dtype=float)
+
+                    vals = pd.to_numeric(out.loc[mask], errors="coerce").to_numpy(dtype=float)
+                    ok = np.isfinite(vals)
+                    if ok.any():
+                        vals2 = np.clip(vals, 0.0, 1.0)
+                        vals2[ok] = np.interp(vals2[ok], x, y)
+                        out.loc[mask] = vals2
+                        # Only mark as calibrated for the purpose of skipping additional guardrails
+                        # when we're actually using the by-stat calibration artifact. When we're
+                        # falling back to the legacy global calibration file, keep guardrails on.
+                        if used_per_stat or bool(by_stat_exists):
+                            applied.loc[mask] = True
+
+                merged["model_prob"] = out
+                merged.loc[applied.index, "_prob_calibrated"] = applied
+            else:
+                # Scalar fallback (should be rare): apply global curve only.
+                merged["model_prob"] = mp.apply(
+                    lambda v: _apply_props_prob_calibration(float(v)) if np.isfinite(float(v)) else np.nan
+                )
+                merged["_prob_calibrated"] = bool(by_stat_exists) and (merged["model_prob"].notna() & merged["model_prob_raw"].notna())
         except Exception:
             pass
 
@@ -959,7 +1060,7 @@ def compute_props_edges(
         if stat_s is not None:
             k_by_stat = {"pts": 0.45, "pra": 0.50}
             for st, k in k_by_stat.items():
-                mask = stat_s == st
+                mask = (stat_s == st) & (~pd.to_numeric(merged.get("_prob_calibrated"), errors="coerce").fillna(False).astype(bool))
                 if mask.any():
                     p = pd.to_numeric(merged.loc[mask, "model_prob"], errors="coerce")
                     merged.loc[mask, "model_prob"] = (0.5 + float(k) * (p - 0.5)).clip(lower=0.0, upper=1.0)
@@ -991,7 +1092,7 @@ def compute_props_edges(
                     "reb": 0.15,
                 }
                 for st, w in w_by_stat.items():
-                    mask = stat_s == st
+                    mask = (stat_s == st) & (~pd.to_numeric(merged.get("_prob_calibrated"), errors="coerce").fillna(False).astype(bool))
                     if mask.any():
                         pmm = pm.loc[mask].clip(0.0, 1.0)
                         pii = pi.loc[mask].clip(0.0, 1.0)
@@ -1004,7 +1105,7 @@ def compute_props_edges(
     try:
         stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else None
         if stat_s is not None:
-            mask = stat_s == "pra"
+            mask = (stat_s == "pra") & (~pd.to_numeric(merged.get("_prob_calibrated"), errors="coerce").fillna(False).astype(bool))
             if mask.any():
                 pm = pd.to_numeric(merged.loc[mask, "model_prob"], errors="coerce").clip(0.0, 1.0)
                 pi = pd.to_numeric(merged.loc[mask, "implied_prob"], errors="coerce").clip(0.0, 1.0)

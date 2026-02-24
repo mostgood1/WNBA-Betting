@@ -2563,6 +2563,13 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lines",
             "/api/live_lens_tuning",
             "/api/live_lens_signal",
+            "/api/live_lens_projection",
+            "/api/download_live_lens_signals",
+            "/api/upload_live_lens_signals",
+            "/api/download_live_lens_projections",
+            "/api/upload_live_lens_projections",
+            "/api/download_live_lens_tuning",
+            "/api/upload_live_lens_tuning",
             "/api/live_player_boxscore",
             "/api/live_player_lens",
         }
@@ -10523,6 +10530,11 @@ def _recommendations_all():
             allowed_markets = set([s.lower() for s in _arg_list("prop_stats")])
             if not allowed_markets:
                 allowed_markets = set([s.lower() for s in _arg_list("prop_markets")])
+            # Accuracy-first default: PA/RA have been the strongest markets in recent
+            # pregame evaluation. If caller does not specify a market universe,
+            # default to PA+RA rather than "everything".
+            if not allowed_markets:
+                allowed_markets = {"pa", "ra"}
 
             # SmartSim file selection: default is "smart_sim" (data/processed/smart_sim_<date>_*.json).
             # For leakage audits / pregame-safe backtests you can point to a parallel prefix.
@@ -21457,6 +21469,62 @@ def _append_live_lens_signal_jsonl(body: dict[str, Any], date_str: str) -> tuple
     return True, str(out_path)
 
 
+def _append_live_lens_projection_jsonl(body: dict[str, Any], date_str: str) -> tuple[bool, str]:
+    out_dir = BASE_DIR / "data" / "processed"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_path = out_dir / f"live_lens_projections_{date_str}.jsonl"
+    try:
+        with open(out_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(body, ensure_ascii=False) + "\n")
+    except Exception as e:
+        return False, str(e)
+    return True, str(out_path)
+
+
+def _live_lens_admin_token() -> str:
+    # Optional: gate upload endpoints when deployed publicly.
+    return str(os.getenv("LIVE_LENS_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or "").strip()
+
+
+def _check_live_lens_admin_token() -> tuple[bool, dict[str, Any] | None, int]:
+    tok = _live_lens_admin_token()
+    if not tok:
+        # Disabled by default unless a token is configured.
+        return False, {"status": "skipped", "reason": "LIVE_LENS_ADMIN_TOKEN not configured"}, 200
+    provided = (request.headers.get("X-Admin-Token") or request.headers.get("Authorization") or "").strip()
+    if provided.startswith("Bearer "):
+        provided = provided[len("Bearer ") :].strip()
+    if not provided or provided != tok:
+        return False, {"status": "forbidden"}, 403
+    return True, None, 200
+
+
+def _live_lens_date_param(default_to_today: bool = True) -> str:
+    ds = _parse_date_param(request, default_to_today=default_to_today)
+    if ds:
+        return ds
+    return datetime.now().date().isoformat()
+
+
+def _send_processed_artifact(filename: str):
+    base = BASE_DIR / "data" / "processed"
+    fp = base / filename
+    if not fp.exists():
+        return jsonify({"ok": False, "error": "missing", "file": filename}), 404
+    return send_from_directory(str(base), filename, as_attachment=True)
+
+
+def _write_processed_artifact(filename: str, raw: bytes) -> tuple[bool, str]:
+    base = BASE_DIR / "data" / "processed"
+    base.mkdir(parents=True, exist_ok=True)
+    fp = base / filename
+    try:
+        fp.write_bytes(raw)
+    except Exception as e:
+        return False, str(e)
+    return True, str(fp)
+
+
 @app.route("/api/live_lens_signal", methods=["POST"])
 def api_live_lens_signal():
     """NCAAB-parity endpoint: append a client-computed signal to JSONL."""
@@ -21481,6 +21549,128 @@ def api_live_lens_signal():
     if not ok:
         return jsonify({"ok": False, "error": info}), 500
     return jsonify({"ok": True, "path": info})
+
+
+@app.route("/api/live_lens_projection", methods=["POST"])
+def api_live_lens_projection():
+    """NCAAB-parity endpoint: append a client-computed projection row to JSONL.
+
+    Writes to: data/processed/live_lens_projections_<date>.jsonl
+    """
+    try:
+        body = request.get_json(silent=True) or {}
+    except Exception:
+        body = {}
+    if not isinstance(body, dict):
+        return jsonify({"error": "invalid json"}), 400
+
+    date_str = str(body.get("date") or "").strip()
+    if not date_str:
+        date_str = _live_lens_date_param(default_to_today=True)
+
+    try:
+        body = _to_jsonable(body)
+    except Exception:
+        pass
+    body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+
+    ok, info = _append_live_lens_projection_jsonl(body, date_str)
+    if not ok:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info})
+
+
+@app.route("/api/download_live_lens_signals")
+def api_download_live_lens_signals():
+    """Download Live Lens signals JSONL for a date.
+
+    Query params:
+      - date: YYYY-MM-DD (optional)
+    """
+    ds = _live_lens_date_param(default_to_today=False)
+    return _send_processed_artifact(f"live_lens_signals_{ds}.jsonl")
+
+
+@app.route("/api/download_live_lens_projections")
+def api_download_live_lens_projections():
+    """Download Live Lens projections JSONL for a date.
+
+    Query params:
+      - date: YYYY-MM-DD (optional)
+    """
+    ds = _live_lens_date_param(default_to_today=False)
+    return _send_processed_artifact(f"live_lens_projections_{ds}.jsonl")
+
+
+@app.route("/api/download_live_lens_tuning")
+def api_download_live_lens_tuning():
+    """Download the server-side Live Lens tuning override JSON.
+
+    Note: the base tuning defaults live in code; this endpoint serves the override file.
+    """
+    return _send_processed_artifact("live_lens_tuning_override.json")
+
+
+@app.route("/api/upload_live_lens_signals", methods=["POST"])
+def api_upload_live_lens_signals():
+    """Upload (overwrite) Live Lens signals JSONL for a date.
+
+    Requires LIVE_LENS_ADMIN_TOKEN (header X-Admin-Token or Bearer token).
+    """
+    ok, payload, code = _check_live_lens_admin_token()
+    if not ok:
+        return jsonify(payload), code
+
+    ds = _live_lens_date_param(default_to_today=False)
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "missing file"}), 400
+    raw = f.read() or b""
+    ok2, info = _write_processed_artifact(f"live_lens_signals_{ds}.jsonl", raw)
+    if not ok2:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info, "bytes": len(raw)})
+
+
+@app.route("/api/upload_live_lens_projections", methods=["POST"])
+def api_upload_live_lens_projections():
+    """Upload (overwrite) Live Lens projections JSONL for a date.
+
+    Requires LIVE_LENS_ADMIN_TOKEN (header X-Admin-Token or Bearer token).
+    """
+    ok, payload, code = _check_live_lens_admin_token()
+    if not ok:
+        return jsonify(payload), code
+
+    ds = _live_lens_date_param(default_to_today=False)
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "missing file"}), 400
+    raw = f.read() or b""
+    ok2, info = _write_processed_artifact(f"live_lens_projections_{ds}.jsonl", raw)
+    if not ok2:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info, "bytes": len(raw)})
+
+
+@app.route("/api/upload_live_lens_tuning", methods=["POST"])
+def api_upload_live_lens_tuning():
+    """Upload (overwrite) Live Lens tuning override JSON.
+
+    Requires LIVE_LENS_ADMIN_TOKEN (header X-Admin-Token or Bearer token).
+    """
+    ok, payload, code = _check_live_lens_admin_token()
+    if not ok:
+        return jsonify(payload), code
+
+    f = request.files.get("file")
+    if f is None:
+        return jsonify({"error": "missing file"}), 400
+    raw = f.read() or b""
+    ok2, info = _write_processed_artifact("live_lens_tuning_override.json", raw)
+    if not ok2:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info, "bytes": len(raw)})
 
 
 @app.route("/api/live/log", methods=["POST"])

@@ -3,18 +3,21 @@ param(
     [switch]$GitPush
 )
 
-# Registers a Windows Scheduled Task to run multi-window props calibration nightly.
-# Produces data/processed/props_prob_calibration_{30,60,90}.json and props_prob_calibration_windows.json.
+# Registers a Windows Scheduled Task to run props probability calibration nightly.
+# Produces:
+#   - data/processed/props_prob_calibration_{30,60,90}.json and props_prob_calibration_windows.json
+#   - data/processed/props_prob_calibration_by_stat.json
 
 $TaskName = "NBA-Betting - Nightly Props Calibration"
 $Workspace = (Get-Location).Path
 $PyExe = Join-Path $Workspace ".venv\Scripts\python.exe"
-$ScriptPath = Join-Path $Workspace "tools\calibrate_props_probability_multi.py"
+$RunnerPath = Join-Path $Workspace "scripts\run_props_calibration.ps1"
 
 if (-not (Test-Path $PyExe)) { throw "Python venv not found: $PyExe" }
-if (-not (Test-Path $ScriptPath)) { throw "Calibration script missing: $ScriptPath" }
+if (-not (Test-Path $RunnerPath)) { throw "Calibration runner missing: $RunnerPath" }
 
-$Action = New-ScheduledTaskAction -Execute $PyExe -Argument $ScriptPath -WorkingDirectory $Workspace
+$psCmd = "-NoProfile -ExecutionPolicy Bypass -File `"$RunnerPath`""
+$Action = New-ScheduledTaskAction -Execute "powershell" -Argument $psCmd -WorkingDirectory $Workspace
 $Trigger = New-ScheduledTaskTrigger -Daily -At ([DateTime]::Parse($Time))
 $Principal = New-ScheduledTaskPrincipal -UserId $env:USERNAME -LogonType Interactive -RunLevel Highest
 
@@ -26,13 +29,8 @@ try {
     # Fallback: attempt registration via schtasks for current user (no elevation)
     try {
         $t24 = ([DateTime]::Parse($Time)).ToString('HH:mm')
-        # Build a simple PowerShell command string; avoid semicolons that schtasks may misparse.
-        # Use -File to avoid quoting complexities
-        $runner = Join-Path $Workspace "scripts\_run_calibration.ps1"
-        $scriptContent = "param`nPush-Location `"$Workspace`"`n& `"$PyExe`" `"$ScriptPath`"`nPop-Location"
-        Set-Content -Path $runner -Encoding UTF8 -Value $scriptContent
-        $psCmd = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$runner`""
-        schtasks.exe /Create /TN "$TaskName" /SC DAILY /ST $t24 /TR "$psCmd" /F | Out-Null
+        $psCmd2 = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$RunnerPath`""
+        schtasks.exe /Create /TN "$TaskName" /SC DAILY /ST $t24 /TR "$psCmd2" /F | Out-Null
         Write-Host "✅ Registered via schtasks: $TaskName at $t24"
     } catch {
         Write-Error ("schtasks registration failed: " + $_.Exception.Message)

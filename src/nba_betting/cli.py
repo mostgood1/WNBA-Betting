@@ -6610,7 +6610,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     "--max-plus-odds",
     "max_plus_odds",
     type=float,
-    default=0.0,
+    default=125.0,
     show_default=True,
     help="Skip any recommendation priced above this positive American odds threshold (e.g. 125). Set <=0 to disable.",
 )
@@ -7007,9 +7007,9 @@ def export_recommendations_cmd(
     "--max-plus-odds",
     "max_plus_odds",
     type=float,
-    default=150.0,
+    default=125.0,
     show_default=True,
-    help="Max allowed positive American odds for props cards (default matches regular pricing window).",
+    help="Max allowed positive American odds for props cards (set <=0 to disable).",
 )
 def _export_props_recommendations_cards(date_str: str, out_path: str | None, max_plus_odds: float) -> tuple[int, "Path"]:
     """Internal helper: write props recommendation cards to CSV.
@@ -7124,6 +7124,7 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
     out = paths.data_processed / f"props_recommendations_{date_str}.csv" if not out_path else Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     pd.DataFrame(cards).to_csv(out, index=False)
+    console.print({"rows": int(len(cards)), "output": str(out)})
     return int(len(cards)), out
 
 

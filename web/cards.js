@@ -2423,6 +2423,7 @@ async function postJson(url, body) {
 
 let __liveLensTimer = null;
 const __liveLensLastLogged = new Map();
+const __liveLensLastProjLogged = new Map();
 let __liveLensTuning = null;
 let __liveLensTuningAt = 0;
 
@@ -4264,6 +4265,28 @@ function startLiveLensPolling(root, games, dateStr) {
         }
       }
 
+      async function maybeLogProj(key, klass, payload) {
+        const isPlayerProp = (typeof key === 'string') && key.startsWith('player_prop:');
+        const mode = isPlayerProp ? logModeProps : logMode;
+        const allow = (mode === 'bet')
+          ? (klass === 'BET')
+          : (mode === 'watch')
+            ? (klass === 'WATCH' || klass === 'BET')
+            : (mode === 'all')
+              ? (klass === 'NONE' || klass === 'WATCH' || klass === 'BET')
+              : (klass === 'BET');
+        if (!allow) return;
+        const k = `${gid}:${key}`;
+        const last = __liveLensLastProjLogged.get(k);
+        if (last === bucketKey) return;
+        __liveLensLastProjLogged.set(k, bucketKey);
+        try {
+          await postJson('/api/live_lens_projection', payload);
+        } catch (_) {
+          // ignore projection logging failures
+        }
+      }
+
       const shouldRound = thr.roundHalf;
       const safeLineTotal = sanitizeTotalLine(lineTotal);
       const baseLog = {
@@ -4278,6 +4301,7 @@ function startLiveLensPolling(root, games, dateStr) {
         sec_left_period: secLeftPeriodRaw,
         margin_home: (live && live.score) ? n(live.score.home_margin) : null,
         tuning_source: 'api',
+        schema_version: 2,
       };
 
       // Player props (top edges; throttled)
@@ -4383,6 +4407,30 @@ function startLiveLensPolling(root, games, dateStr) {
                 adj_support: n(adj && adj.support),
                 adj_score: n(adj && adj.score),
               },
+            });
+
+            // Projection log (separate artifact; mirrors NCAAB signal/projection streams)
+            await maybeLogProj(throttleKey, klass, {
+              ...baseLog,
+              klass,
+              horizon: 'live',
+              market: 'player_prop',
+              proj_key: throttleKey,
+              player: r.player,
+              team_tri: r.team_tri,
+              name_key: nameKey,
+              stat: statKey,
+              side,
+              line: n(r.line),
+              proj: n(r.pace_proj),
+              sim_mu: n(r.sim_mu),
+              win_prob_over: n(r.win_prob_over),
+              win_prob_under: n(r.win_prob_under),
+              implied_prob_over: n(r.implied_prob_over),
+              implied_prob_under: n(r.implied_prob_under),
+              price_over: n(r.price_over),
+              price_under: n(r.price_under),
+              strength,
             });
           }
         }
