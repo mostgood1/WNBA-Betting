@@ -2499,15 +2499,32 @@ function applyPlayerLensGlobalPills(root) {
     // ignore
   }
 }
+function applyPlayerPropCalloutsFilter(root) {
+  try {
+    if (!root) return;
+    const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
+    const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const statsAny = !!(statsSel && statsSel.size);
+    const sigAny = !!(sigSel && sigSel.size);
+
+    const items = root.querySelectorAll('#live-prop-callouts button.prop-callout[data-stat][data-sig]');
+    items.forEach((btn) => {
+      const stat = String(btn.dataset.stat || '').toLowerCase().trim();
+      const sig = String(btn.dataset.sig || '').toUpperCase().trim();
+      const okStat = statsAny ? statsSel.has(stat) : true;
+      const okSig = sigAny ? sigSel.has(sig) : true;
+      btn.classList.toggle('hidden', !(okStat && okSig));
+    });
+  } catch (_) {
+    // ignore
+  }
+}
 
 function applyPlayerLensFiltersAll(root) {
   try {
     if (!root) return;
     applyPlayerLensGlobalPills(root);
-    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
-    wraps.forEach((w) => {
-      try { applyPlayerLensFiltersForWrap(w); } catch (_) { /* ignore */ }
-    });
+    applyPlayerPropCalloutsFilter(root);
   } catch (_) {
     // ignore
   }
@@ -2830,6 +2847,8 @@ function renderLivePropCallouts(callouts) {
           type="button"
           class="chip neutral prop-callout"
           data-game-id="${esc(String(x.gid))}"
+          data-stat="${esc(String(x.stat || '').toLowerCase().trim())}"
+          data-sig="${esc(String(klass || '').toUpperCase().trim())}"
           style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
@@ -3448,9 +3467,6 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
-
-          // Re-apply user filters after re-render.
-          try { applyPlayerLensFiltersForWrap(el); } catch (_) { /* ignore */ }
 
           try {
             if (prev && typeof requestAnimationFrame === 'function') {
@@ -4960,6 +4976,7 @@ function startLiveLensPolling(root, games, dateStr) {
           __calloutsLastNonEmptyAt = Date.now();
           calloutsEl.innerHTML = html;
           calloutsEl.classList.remove('hidden');
+          try { applyPlayerLensFiltersAll(root); } catch (_) { /* ignore */ }
         } else {
           __calloutsEmptyStreak += 1;
           const ageMs = (__calloutsLastNonEmptyAt > 0) ? (Date.now() - __calloutsLastNonEmptyAt) : 1e18;
@@ -4970,6 +4987,7 @@ function startLiveLensPolling(root, games, dateStr) {
           if (allowKeep) {
             calloutsEl.innerHTML = __calloutsLastHtml;
             calloutsEl.classList.remove('hidden');
+            try { applyPlayerLensFiltersAll(root); } catch (_) { /* ignore */ }
           } else {
             __calloutsLastHtml = '';
             if (hasAnyLiveGame) {
