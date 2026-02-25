@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 import subprocess
 import sys
 from datetime import date, datetime, timedelta
@@ -9,6 +10,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> date:
@@ -68,7 +70,7 @@ def main() -> int:
     if not optimizer.exists():
         raise SystemExit(f"Missing optimizer: {optimizer}")
 
-    out_path = PROCESSED / f"live_lens_adjustments_optimized_{_iso(start)}_{_iso(end)}.json"
+    out_path = LIVE_LENS_DIR / f"live_lens_adjustments_optimized_{_iso(start)}_{_iso(end)}.json"
 
     cmd = [
         sys.executable,

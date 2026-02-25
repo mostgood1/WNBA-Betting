@@ -20,6 +20,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from dataclasses import dataclass
 from datetime import date as _date
 from datetime import datetime, timedelta
@@ -31,6 +32,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> _date:
@@ -196,7 +198,7 @@ def _settle_over_under(actual: float, line: float, side: str) -> tuple[str, bool
 
 
 def _iter_prop_rows(ds: str, assumed_juice: float) -> list[dict[str, Any]]:
-    sigs = _load_jsonl(PROCESSED / f"live_lens_signals_{ds}.jsonl")
+    sigs = _load_jsonl(LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl")
     if not sigs:
         return []
     rp = _prep_recon_props(_load_csv(PROCESSED / f"recon_props_{ds}.csv"))
@@ -334,8 +336,16 @@ def main() -> int:
     ap.add_argument("--end", required=True)
     ap.add_argument("--assumed-juice", type=float, default=110.0)
     ap.add_argument("--min-bets", type=int, default=40)
-    ap.add_argument("--out", default="", help="Output CSV path (default: data/processed/live_lens_player_prop_thresholds_<start>_<end>.csv)")
-    ap.add_argument("--write-override", action="store_true", help="Merge best thresholds into data/processed/live_lens_tuning_override.json")
+    ap.add_argument(
+        "--out",
+        default="",
+        help="Output CSV path (default: <NBA_LIVE_LENS_DIR>/live_lens_player_prop_thresholds_<start>_<end>.csv; defaults to data/processed)",
+    )
+    ap.add_argument(
+        "--write-override",
+        action="store_true",
+        help="Merge best thresholds into <NBA_LIVE_LENS_DIR>/live_lens_tuning_override.json (defaults to data/processed)",
+    )
     args = ap.parse_args()
 
     start = _parse_date(args.start)
@@ -370,7 +380,7 @@ def main() -> int:
 
     res = pd.DataFrame(scored).sort_values(["roi_u_per_bet", "profit_u", "bets"], ascending=[False, False, False])
 
-    out_path = Path(args.out) if args.out else (PROCESSED / f"live_lens_player_prop_thresholds_{start.isoformat()}_{end.isoformat()}.csv")
+    out_path = Path(args.out) if args.out else (LIVE_LENS_DIR / f"live_lens_player_prop_thresholds_{start.isoformat()}_{end.isoformat()}.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     res.to_csv(out_path, index=False)
 
@@ -379,7 +389,8 @@ def main() -> int:
     print("Wrote:", out_path)
 
     if args.write_override:
-        override_path = PROCESSED / "live_lens_tuning_override.json"
+        override_path = LIVE_LENS_DIR / "live_lens_tuning_override.json"
+        override_path.parent.mkdir(parents=True, exist_ok=True)
         _merge_override(best, override_path)
         print("Wrote override:", override_path)
 

@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 import urllib.error
 import urllib.request
@@ -30,6 +31,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _post_json(url: str, payload: dict[str, Any], timeout: float = 8.0) -> tuple[int, str]:
@@ -85,7 +87,7 @@ def main() -> int:
     ds = str(args.date).strip()
     timeout = float(args.timeout)
 
-    PROCESSED.mkdir(parents=True, exist_ok=True)
+    LIVE_LENS_DIR.mkdir(parents=True, exist_ok=True)
 
     print(f"Base URL: {base}")
     print(f"Test date: {ds}")
@@ -103,8 +105,8 @@ def main() -> int:
         return 2
     print("OK: /api/live_lens_tuning")
 
-    sig_path = PROCESSED / f"live_lens_signals_{ds}.jsonl"
-    proj_path = PROCESSED / f"live_lens_projections_{ds}.jsonl"
+    sig_path = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
+    proj_path = LIVE_LENS_DIR / f"live_lens_projections_{ds}.jsonl"
 
     sig_before = _file_len(sig_path)
     proj_before = _file_len(proj_path)

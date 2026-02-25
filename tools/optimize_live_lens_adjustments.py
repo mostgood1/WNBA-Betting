@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -13,6 +14,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> date:
@@ -280,7 +282,7 @@ def main() -> int:
     ap.add_argument(
         "--write-override",
         action="store_true",
-        help="Write data/processed/live_lens_tuning_override.json with best adjustments.game_total",
+        help="Write <NBA_LIVE_LENS_DIR>/live_lens_tuning_override.json with best adjustments.game_total (defaults to data/processed)",
     )
     args = ap.parse_args()
 
@@ -293,7 +295,7 @@ def main() -> int:
     missing_signal_days: list[str] = []
     present_signal_days: list[str] = []
     for d in days:
-        p = PROCESSED / f"live_lens_signals_{d.isoformat()}.jsonl"
+        p = LIVE_LENS_DIR / f"live_lens_signals_{d.isoformat()}.jsonl"
         if not p.exists():
             missing_signal_days.append(d.isoformat())
             continue
@@ -536,13 +538,14 @@ def main() -> int:
 
     print(json.dumps(out, indent=2))
 
-    out_path = Path(args.out) if args.out else (PROCESSED / f"live_lens_adjustments_optimized_{start.isoformat()}_{end.isoformat()}.json")
+    out_path = Path(args.out) if args.out else (LIVE_LENS_DIR / f"live_lens_adjustments_optimized_{start.isoformat()}_{end.isoformat()}.json")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     out_path.write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"Wrote: {out_path}")
 
     if bool(args.write_override) and best and isinstance(best.get("params"), dict):
-        op = PROCESSED / "live_lens_tuning_override.json"
+        op = LIVE_LENS_DIR / "live_lens_tuning_override.json"
+        op.parent.mkdir(parents=True, exist_ok=True)
 
         existing: dict[str, Any] = {}
         if op.exists():

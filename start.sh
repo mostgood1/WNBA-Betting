@@ -6,6 +6,11 @@ echo "🚀 Starting NBA Betting (static frontend) on Render..."
 # Ensure directories
 mkdir -p logs
 
+# Optional: persist Live Lens logs on a mounted disk.
+if [ -n "${NBA_LIVE_LENS_DIR:-}" ]; then
+  mkdir -p "${NBA_LIVE_LENS_DIR}" || true
+fi
+
 python --version || true
 
 export PYTHONUNBUFFERED=1

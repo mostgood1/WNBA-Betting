@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from dataclasses import dataclass
 from datetime import date as _date
 from datetime import datetime, timedelta
@@ -29,6 +30,7 @@ import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parents[1]
 PROCESSED = BASE_DIR / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> _date:
@@ -70,7 +72,7 @@ class SignalRow:
 
 
 def _load_signals(ds: str) -> list[SignalRow]:
-    fp = PROCESSED / f"live_lens_signals_{ds}.jsonl"
+    fp = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     if not fp.exists():
         return []
 

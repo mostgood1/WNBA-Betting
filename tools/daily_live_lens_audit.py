@@ -20,6 +20,8 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
+import re
 from dataclasses import dataclass
 from datetime import date as _date
 from datetime import datetime, timedelta
@@ -31,6 +33,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> _date:
@@ -64,6 +67,61 @@ def _canon_nba_game_id(game_id: Any) -> str:
     if len(digits) == 9:
         return "0" + digits
     return digits
+
+
+def _is_canon_gid(gid: str | None) -> bool:
+    g = str(gid or "").strip()
+    return len(g) == 10 and g.isdigit()
+
+
+def _load_gid_map(ds: str) -> dict[tuple[str, str], str]:
+    """Build (home_tri, away_tri) -> canonical gid map.
+
+    Prefer game_cards_<date>.csv because recon_games_<date>.csv typically does not
+    contain NBA game_id.
+    """
+    path = PROCESSED / f"game_cards_{ds}.csv"
+    df = _load_csv(path)
+    if df is None or df.empty:
+        return {}
+    if "game_id" not in df.columns:
+        return {}
+    if "home_tri" not in df.columns or "away_tri" not in df.columns:
+        return {}
+
+    out: dict[tuple[str, str], str] = {}
+    for _, r in df.iterrows():
+        home = _safe_upper(r.get("home_tri"))
+        away = _safe_upper(r.get("away_tri"))
+        gid = _canon_nba_game_id(r.get("game_id"))
+        if home and away and _is_canon_gid(gid):
+            out[(home, away)] = gid
+    return out
+
+
+def _resolve_gid_for_props(obj: dict[str, Any], gid_map: dict[tuple[str, str], str]) -> str | None:
+    # Prefer numeric NBA game id if present.
+    gid0 = _canon_nba_game_id(obj.get("game_id"))
+    if _is_canon_gid(gid0):
+        return gid0
+
+    home = _safe_upper(obj.get("home"))
+    away = _safe_upper(obj.get("away"))
+    if home and away:
+        gid = gid_map.get((home, away))
+        if gid:
+            return gid
+
+    # Support simple team-based ids like "BKN@ATL".
+    raw = str(obj.get("game_id") or "").strip().upper()
+    m = re.match(r"^([A-Z]{3})\s*@\s*([A-Z]{3})$", raw)
+    if m:
+        away2, home2 = m.group(1), m.group(2)
+        gid = gid_map.get((home2, away2))
+        if gid:
+            return gid
+
+    return None
 
 
 def _norm_player_name(s: str) -> str:
@@ -146,7 +204,7 @@ class ScoredRow:
 
 
 def _load_signals(ds: str) -> list[dict[str, Any]]:
-    fp = PROCESSED / f"live_lens_signals_{ds}.jsonl"
+    fp = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     if not fp.exists():
         return []
     out: list[dict[str, Any]] = []
@@ -339,6 +397,8 @@ def _score_day(ds: str) -> pd.DataFrame:
     rq_ok = int(not rq.empty)
     rp_ok = int(not rp.empty)
 
+    gid_map = _load_gid_map(ds)
+
     prop_index: dict[tuple[str, str], dict[str, Any]] = {}
     if not rp.empty:
         for _, r in rp.iterrows():
@@ -431,17 +491,12 @@ def _score_day(ds: str) -> pd.DataFrame:
             continue
 
         if market == "player_prop":
-            gid = _canon_nba_game_id(obj.get("game_id")) or None
-            if not gid:
-                continue
+            gid = _resolve_gid_for_props(obj, gid_map)
             stat = str(obj.get("stat") or "").strip()
             stat_key = _live_stat_key(stat)
-            name_key = str(obj.get("name_key") or "").strip() or None
             player = str(obj.get("player") or "").strip() or None
-            if not name_key and player:
-                name_key = _norm_player_name(player)
-            if not name_key:
-                continue
+            name_key_raw = str(obj.get("name_key") or "").strip() or None
+            name_key = _norm_player_name(name_key_raw or player or "") or None
             side = str(obj.get("side") or "").strip().lower() or None
 
             line = _n(obj.get("line"))
@@ -455,12 +510,18 @@ def _score_day(ds: str) -> pd.DataFrame:
             pred = (line + edge) if (line is not None and edge is not None) else None
 
             act = None
-            r = prop_index.get((gid, name_key))
-            if r is not None:
-                act = _n(r.get(stat_key))
+            r = None
+            if gid and name_key:
+                r = prop_index.get((gid, name_key))
+                if r is not None:
+                    act = _n(r.get(stat_key))
             if act is None:
                 if rp_ok == 0:
                     missing_reason = "missing_recon_props"
+                elif not gid:
+                    missing_reason = "missing_gid"
+                elif not name_key:
+                    missing_reason = "missing_name_key"
                 elif r is None:
                     missing_reason = "player_join_failed"
                 else:

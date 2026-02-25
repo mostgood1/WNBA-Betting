@@ -2557,13 +2557,86 @@ try {
 # Optional: Live Lens tuning (optimize adjustments from logged signals + recon actuals)
 # Writes data/processed/live_lens_tuning_override.json when enough signal-backed bets exist.
 try {
-  $sigPath = Join-Path $RepoRoot ("data/processed/live_lens_signals_{0}.jsonl" -f $yesterday)
+  $LiveLensDir = $env:NBA_LIVE_LENS_DIR
+  if ($null -eq $LiveLensDir -or $LiveLensDir -eq '') { $LiveLensDir = $env:LIVE_LENS_DIR }
+  if ($null -eq $LiveLensDir -or $LiveLensDir -eq '') { $LiveLensDir = (Join-Path $RepoRoot 'data/processed') }
+  if (-not (Test-Path $LiveLensDir)) { New-Item -ItemType Directory -Path $LiveLensDir | Out-Null }
+
+  # Ensure downstream Python tools read/write Live Lens artifacts in the same place.
+  $env:NBA_LIVE_LENS_DIR = $LiveLensDir
+
+  # Optional: fetch recent Live Lens logs from a remote server (e.g., Render) before tuning.
+  # This is OFF by default to preserve local-only behavior.
+  $fetchRemote = $env:DAILY_FETCH_REMOTE_LIVE_LENS
+  if ($null -ne $fetchRemote -and $fetchRemote -match '^(1|true|yes)$') {
+    try {
+      $remote = $RemoteBaseUrl
+      if ($null -ne $remote -and $remote -ne '') {
+        $remote = $remote.TrimEnd('/')
+
+        $forceFetch = $env:DAILY_FORCE_FETCH_REMOTE_LIVE_LENS
+        $doForce = ($null -ne $forceFetch -and $forceFetch -match '^(1|true|yes)$')
+
+        $lookbackDays = 14
+        try {
+          $lb = $env:DAILY_LIVE_LENS_LOOKBACK_DAYS
+          if ($null -ne $lb -and $lb -ne '') { $lookbackDays = [int]$lb }
+        } catch { $lookbackDays = 14 }
+        if ($lookbackDays -lt 1) { $lookbackDays = 1 }
+        if ($lookbackDays -gt 60) { $lookbackDays = 60 }
+
+        $endD = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
+        $startD = $endD.AddDays(-($lookbackDays - 1))
+
+        Write-Log ("Live Lens: fetching remote JSONLs {0}..{1} -> {2}" -f $startD.ToString('yyyy-MM-dd'), $endD.ToString('yyyy-MM-dd'), $LiveLensDir)
+
+        for ($d = $startD; $d -le $endD; $d = $d.AddDays(1)) {
+          $ds = $d.ToString('yyyy-MM-dd')
+          $sigOut = Join-Path $LiveLensDir ("live_lens_signals_{0}.jsonl" -f $ds)
+          $projOut = Join-Path $LiveLensDir ("live_lens_projections_{0}.jsonl" -f $ds)
+
+          try {
+            if ($doForce -or -not (Test-Path $sigOut)) {
+              $u1 = "{0}/api/download_live_lens_signals?date={1}" -f $remote, $ds
+              Invoke-WebRequest -Uri $u1 -OutFile $sigOut -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
+              Write-Log ("Live Lens: downloaded signals {0}" -f $ds)
+            }
+          } catch {
+            Write-Log ("Live Lens: signals missing/failed for {0} (non-fatal)" -f $ds)
+          }
+
+          try {
+            if ($doForce -or -not (Test-Path $projOut)) {
+              $u2 = "{0}/api/download_live_lens_projections?date={1}" -f $remote, $ds
+              Invoke-WebRequest -Uri $u2 -OutFile $projOut -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
+              Write-Log ("Live Lens: downloaded projections {0}" -f $ds)
+            }
+          } catch {
+            # Projections are optional; do not log loudly.
+          }
+        }
+      } else {
+        Write-Log 'Live Lens: DAILY_FETCH_REMOTE_LIVE_LENS=1 but RemoteBaseUrl is empty; skipping fetch'
+      }
+    } catch {
+      Write-Log ("Live Lens: remote fetch failed (non-fatal): {0}" -f $_.Exception.Message)
+    }
+  }
+
+  $sigPath = Join-Path $LiveLensDir ("live_lens_signals_{0}.jsonl" -f $yesterday)
   if (Test-Path $sigPath) {
     Write-Log ("Live Lens tune: signals present for {0}; running optimizer" -f $yesterday)
+    $lookbackDays = 14
+    try {
+      $lb2 = $env:DAILY_LIVE_LENS_LOOKBACK_DAYS
+      if ($null -ne $lb2 -and $lb2 -ne '') { $lookbackDays = [int]$lb2 }
+    } catch { $lookbackDays = 14 }
+    if ($lookbackDays -lt 1) { $lookbackDays = 1 }
+    if ($lookbackDays -gt 60) { $lookbackDays = 60 }
     $rcLens = Invoke-PyMod -plist @(
       'tools/daily_live_lens_tune.py',
       '--end', $yesterday,
-      '--lookback-days', '14',
+      '--lookback-days', $lookbackDays,
       '--min-bets', '10',
       '--write-override'
     )

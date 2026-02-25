@@ -76,6 +76,22 @@ WEB_DIR = BASE_DIR / "web"
 CRON_META_PATH = BASE_DIR / "data" / "processed" / ".cron_meta.json"
 PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
 
+
+def _live_lens_artifacts_dir() -> Path:
+    """Directory where Live Lens runtime artifacts are stored.
+
+    This is intentionally configurable so deployed environments (e.g. Render)
+    can persist JSONL logs on a mounted disk, while local runs continue using
+    the repo snapshot under data/processed.
+    """
+    raw = (os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip()
+    if raw:
+        try:
+            return Path(raw).expanduser()
+        except Exception:
+            return Path(raw)
+    return BASE_DIR / "data" / "processed"
+
 # ---- Live Lens caches (TTL) ----
 _live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_espn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -90,6 +106,11 @@ _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_players_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_player_lens_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+
+# ---- Live Lens cron tick (best-effort throttling) ----
+_live_lens_tick_last_logged: dict[str, str] = {}
+_live_lens_tick_last_proj_logged: dict[str, str] = {}
+_live_lens_tick_lock = threading.Lock()
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
 # Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
@@ -2551,6 +2572,10 @@ def _enforce_minimal_ui_allowlist():
         return None
     try:
         p = str(request.path or "/")
+
+        # Cron endpoints are token-gated; allow them even in minimal UI mode.
+        if p.startswith("/api/cron/"):
+            return None
 
         # Exact pages
         allowed_exact = {
@@ -20167,7 +20192,7 @@ def api_live_player_lens():
     player_prop_watch = 2.0
     player_prop_bet = 4.0
     try:
-        override_path = BASE_DIR / "data" / "processed" / "live_lens_tuning_override.json"
+        override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
         if override_path.exists():
             o = json.loads(override_path.read_text(encoding="utf-8"))
         else:
@@ -21424,7 +21449,7 @@ def api_live_lens_tuning():
     """NCAAB-parity endpoint: thresholds used by client-side Live Lens signals."""
     ttl = _parse_ttl_param(request, default=300, lo=1, hi=3600)
     now = time.time()
-    override_path = BASE_DIR / "data" / "processed" / "live_lens_tuning_override.json"
+    override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
     try:
         override_mtime = int(override_path.stat().st_mtime) if override_path.exists() else 0
     except Exception:
@@ -21562,7 +21587,7 @@ def api_live_lens_tuning():
 
 
 def _append_live_lens_signal_jsonl(body: dict[str, Any], date_str: str) -> tuple[bool, str]:
-    out_dir = BASE_DIR / "data" / "processed"
+    out_dir = _live_lens_artifacts_dir()
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
     try:
@@ -21574,7 +21599,7 @@ def _append_live_lens_signal_jsonl(body: dict[str, Any], date_str: str) -> tuple
 
 
 def _append_live_lens_projection_jsonl(body: dict[str, Any], date_str: str) -> tuple[bool, str]:
-    out_dir = BASE_DIR / "data" / "processed"
+    out_dir = _live_lens_artifacts_dir()
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"live_lens_projections_{date_str}.jsonl"
     try:
@@ -21611,7 +21636,7 @@ def _live_lens_date_param(default_to_today: bool = True) -> str:
 
 
 def _send_processed_artifact(filename: str):
-    base = BASE_DIR / "data" / "processed"
+    base = _live_lens_artifacts_dir()
     fp = base / filename
     if not fp.exists():
         return jsonify({"ok": False, "error": "missing", "file": filename}), 404
@@ -21619,7 +21644,7 @@ def _send_processed_artifact(filename: str):
 
 
 def _write_processed_artifact(filename: str, raw: bytes) -> tuple[bool, str]:
-    base = BASE_DIR / "data" / "processed"
+    base = _live_lens_artifacts_dir()
     base.mkdir(parents=True, exist_ok=True)
     fp = base / filename
     try:
@@ -21659,7 +21684,7 @@ def api_live_lens_signal():
 def api_live_lens_projection():
     """NCAAB-parity endpoint: append a client-computed projection row to JSONL.
 
-    Writes to: data/processed/live_lens_projections_<date>.jsonl
+    Writes to: <NBA_LIVE_LENS_DIR>/live_lens_projections_<date>.jsonl (defaults to data/processed)
     """
     try:
         body = request.get_json(silent=True) or {}
@@ -21782,7 +21807,7 @@ def api_live_log():
     """Append a client-computed Live Lens signal to a JSONL artifact.
 
     Body: arbitrary JSON (kept small); server adds received_at.
-    Writes to: data/processed/live_lens_signals_<date>.jsonl
+    Writes to: <NBA_LIVE_LENS_DIR>/live_lens_signals_<date>.jsonl (defaults to data/processed)
     """
     try:
         body = request.get_json(silent=True) or {}
@@ -21803,7 +21828,7 @@ def api_live_log():
         pass
     body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
-    out_dir = BASE_DIR / "data" / "processed"
+    out_dir = _live_lens_artifacts_dir()
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
     try:
@@ -23927,6 +23952,7 @@ def api_cron_config():
             "endpoints": [
                 "/api/cron/run-all",
                 "/api/cron/daily-update",
+                "/api/cron/live-lens-tick",
                 "/api/cron/refresh-bovada",
                 "/api/cron/reconcile-games",
                 "/api/cron/capture-closing",
@@ -23954,6 +23980,499 @@ def api_cron_ping():
         })
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/cron/live-lens-tick", methods=["POST", "GET"])
+def api_cron_live_lens_tick():
+    """Server-side Live Lens logger tick.
+
+    Goal: write Live Lens JSONL logs even when the UI is not open.
+
+    Writes (under NBA_LIVE_LENS_DIR / LIVE_LENS_DIR):
+      - live_lens_signals_<date>.jsonl
+      - live_lens_projections_<date>.jsonl (player props only)
+
+    Query params:
+      - date: YYYY-MM-DD (optional; defaults via _parse_date_param w/ US cutoff)
+      - min_interval_sec: throttle window per (game_id, signal_key) (default 60)
+      - max_props_per_game: cap logged player props per game (default 8)
+      - recent_window_sec: passed to /api/live_player_lens (default 180)
+      - include_total: 1/0 (default 1)
+      - include_player_props: 1/0 (default 1)
+      - ttl: forwarded to live endpoints (default 15)
+
+    Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    ds = _parse_date_param(request, default_to_today=True)
+    try:
+        min_interval_sec = int(float((request.args.get("min_interval_sec") or "60").strip()))
+    except Exception:
+        min_interval_sec = 60
+    min_interval_sec = int(max(5, min(3600, min_interval_sec)))
+
+    try:
+        max_props = int(float((request.args.get("max_props_per_game") or "8").strip()))
+    except Exception:
+        max_props = 8
+    max_props = int(max(0, min(50, max_props)))
+
+    try:
+        recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))
+    except Exception:
+        recent_window_sec = 180
+    recent_window_sec = int(max(10, min(600, recent_window_sec)))
+
+    include_total = str(request.args.get("include_total") or "1").strip().lower() in {"1", "true", "yes"}
+    include_player_props = str(request.args.get("include_player_props") or "1").strip().lower() in {"1", "true", "yes"}
+    ttl = _parse_ttl_param(request, default=15, lo=1, hi=300)
+
+    # Pull tuning (including optional override file) so server-side classifications match UI.
+    tune: dict[str, Any] = {}
+    try:
+        with app.test_client() as c:
+            r = c.get(f"/api/live_lens_tuning?ttl={int(max(30, ttl))}")
+            if r.status_code == 200:
+                j = r.get_json(silent=True)
+                if isinstance(j, dict):
+                    tune = j
+    except Exception:
+        tune = {}
+
+    def _klass(abs_edge: float | None, watch: float, bet: float) -> str:
+        try:
+            if abs_edge is None:
+                return "NONE"
+            v = float(abs_edge)
+            if not math.isfinite(v):
+                return "NONE"
+            if v >= float(bet):
+                return "BET"
+            if v >= float(watch):
+                return "WATCH"
+            return "NONE"
+        except Exception:
+            return "NONE"
+
+    mk = (tune.get("markets") if isinstance(tune.get("markets"), dict) else {})
+    tot_thr = mk.get("total") if isinstance(mk.get("total"), dict) else {"watch": 3.0, "bet": 6.0}
+    pp_thr = mk.get("player_prop") if isinstance(mk.get("player_prop"), dict) else {"watch": 2.0, "bet": 4.0}
+    try:
+        tot_watch = float(tot_thr.get("watch", 3.0))
+        tot_bet = float(tot_thr.get("bet", 6.0))
+    except Exception:
+        tot_watch, tot_bet = 3.0, 6.0
+    try:
+        pp_watch = float(pp_thr.get("watch", 2.0))
+        pp_bet = float(pp_thr.get("bet", 4.0))
+    except Exception:
+        pp_watch, pp_bet = 2.0, 4.0
+
+    log_cfg = (tune.get("logging") if isinstance(tune.get("logging"), dict) else {})
+    log_mode = str(log_cfg.get("mode") or "bet").strip().lower() or "bet"
+    # Match client default: player props log WATCH+BET unless explicitly overridden.
+    log_mode_props = str(log_cfg.get("player_props_mode") or "watch").strip().lower() or "watch"
+
+    def _allow(mode: str, klass: str) -> bool:
+        k = str(klass or "NONE").strip().upper()
+        m = str(mode or "bet").strip().lower()
+        if m == "bet":
+            return k == "BET"
+        if m == "watch":
+            return k in {"WATCH", "BET"}
+        if m == "all":
+            return k in {"NONE", "WATCH", "BET"}
+        return k == "BET"
+
+    # Find in-progress games.
+    try:
+        _src, sb_games = _live_build_scoreboard_games(ds)
+    except Exception:
+        sb_games = []
+
+    inprog: list[dict[str, Any]] = []
+    for g in sb_games or []:
+        try:
+            if bool(g.get("in_progress")) and not bool(g.get("final")):
+                inprog.append(g)
+        except Exception:
+            continue
+
+    event_ids = [str(g.get("espn_event_id") or "").strip() for g in inprog]
+    event_ids = [x for x in event_ids if x]
+
+    now = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+    bucket_key = str(int(time.time() // float(min_interval_sec)))
+
+    wrote_signals = 0
+    wrote_projections = 0
+    skipped_throttle = 0
+    errors: list[str] = []
+
+    # ---- Game totals (SmartSim ladder + live score) ----
+    if include_total:
+        try:
+            with app.test_client() as c:
+                # Fetch current totals lines for all in-progress games.
+                lines_by_eid: dict[str, Any] = {}
+                if event_ids:
+                    r = c.get(
+                        f"/api/live_lines?ttl={int(ttl)}&date={ds}&event_ids={','.join(event_ids)}&include_period_totals=0"
+                    )
+                    if r.status_code == 200:
+                        j = r.get_json(silent=True)
+                        if isinstance(j, dict) and isinstance(j.get("games"), list):
+                            for rec in j.get("games") or []:
+                                if isinstance(rec, dict) and rec.get("event_id") is not None:
+                                    lines_by_eid[str(rec.get("event_id"))] = rec
+
+                for g in inprog:
+                    try:
+                        eid = str(g.get("espn_event_id") or "").strip()
+                        gid = g.get("game_id")
+                        home = g.get("home")
+                        away = g.get("away")
+                        period = _safe_int(g.get("period"))
+                        clock = g.get("clock")
+                        sec_left_period = _live_parse_clock_to_sec_left(clock)
+                        elapsed_min = _live_game_elapsed_minutes(period, clock, is_final=False)
+                        try:
+                            total_pts = float((_safe_int(g.get("home_pts")) or 0) + (_safe_int(g.get("away_pts")) or 0))
+                        except Exception:
+                            total_pts = None
+
+                        # Live line
+                        live_line = None
+                        try:
+                            rec = lines_by_eid.get(eid) if lines_by_eid else None
+                            if isinstance(rec, dict):
+                                lines = rec.get("lines") if isinstance(rec.get("lines"), dict) else {}
+                                live_line = _safe_float(lines.get("total"))
+                        except Exception:
+                            live_line = None
+                        if live_line is None:
+                            continue
+
+                        # SmartSim baseline
+                        ss = _live_load_smart_sim_by_game_id(str(ds), str(gid or "")) if gid else None
+                        score = ss.get("score") if isinstance(ss, dict) else None
+                        total_mean = _safe_float((score or {}).get("total_mean")) if isinstance(score, dict) else None
+                        if total_mean is None:
+                            # Without SmartSim, skip total logging (avoid noisy projections).
+                            continue
+                        intervals = None
+                        if isinstance(ss, dict):
+                            itv1 = ss.get("intervals_1m") if isinstance(ss.get("intervals_1m"), dict) else None
+                            itv3 = ss.get("intervals") if isinstance(ss.get("intervals"), dict) else None
+                            intervals = itv1 or itv3
+
+                        exp_cum = None
+                        if elapsed_min is not None and intervals is not None:
+                            exp_cum = _live_interp_cum_p50(intervals, elapsed_min=float(elapsed_min), total_minutes=48)
+                        if exp_cum is None and elapsed_min is not None:
+                            exp_cum = float(total_mean) * float(max(0.0, min(48.0, float(elapsed_min)))) / 48.0
+
+                        if total_pts is None or elapsed_min is None or exp_cum is None:
+                            continue
+
+                        w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
+                        proj = float(total_mean) + w * float(float(total_pts) - float(exp_cum))
+                        edge = float(proj) - float(live_line)
+                        klass = _klass(abs(edge), tot_watch, tot_bet)
+                        if not _allow(log_mode, klass):
+                            continue
+
+                        side = "OVER" if edge > 0 else ("UNDER" if edge < 0 else None)
+
+                        signal_key = "game_total"
+                        throttle_k = f"{str(gid)}:{signal_key}"
+                        with _live_lens_tick_lock:
+                            last = _live_lens_tick_last_logged.get(throttle_k)
+                            if last == bucket_key:
+                                skipped_throttle += 1
+                                continue
+                            _live_lens_tick_last_logged[throttle_k] = bucket_key
+
+                        body = {
+                            "date": ds,
+                            "game_id": gid,
+                            "event_id": eid,
+                            "home": home,
+                            "away": away,
+                            "period": period,
+                            "sec_left_period": sec_left_period,
+                            "margin_home": (float((_safe_int(g.get("home_pts")) or 0) - (_safe_int(g.get("away_pts")) or 0)) if (g.get("home_pts") is not None and g.get("away_pts") is not None) else None),
+                            "tuning_source": "cron",
+                            "schema_version": 2,
+                            "klass": klass,
+                            "horizon": "game",
+                            "market": "total",
+                            "signal_key": signal_key,
+                            "elapsed": float(elapsed_min),
+                            "total_points": float(total_pts),
+                            "live_line": float(live_line),
+                            "side": side,
+                            "edge": float(edge),
+                            "edge_raw": float(edge),
+                            "edge_adj": float(edge),
+                            "pred": float(proj),
+                            "strength": float(abs(edge)),
+                            "context": {
+                                "total_mean": float(total_mean),
+                                "exp_cum_p50": float(exp_cum) if exp_cum is not None else None,
+                                "w_blend": float(w),
+                            },
+                            "received_at": now,
+                            "tick_bucket": bucket_key,
+                        }
+
+                        ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                        if ok:
+                            wrote_signals += 1
+                        else:
+                            errors.append(f"total:{eid}:{info}")
+                    except Exception as e:
+                        errors.append(f"total:{str(e)}")
+        except Exception as e:
+            errors.append(f"total_block:{str(e)}")
+
+    # ---- Player props (use /api/live_player_lens rows; already has pace_vs_line + klass) ----
+    if include_player_props and event_ids and max_props > 0:
+        try:
+            with app.test_client() as c:
+                r = c.get(
+                    f"/api/live_player_lens?ttl={int(ttl)}&recent_window_sec={int(recent_window_sec)}&date={ds}&event_ids={','.join(event_ids)}"
+                )
+                if r.status_code == 200:
+                    j = r.get_json(silent=True)
+                else:
+                    j = None
+
+            games_obj = (j.get("games") if isinstance(j, dict) else None)
+            games_obj = games_obj if isinstance(games_obj, list) else []
+
+            for gg in games_obj:
+                if not isinstance(gg, dict):
+                    continue
+                try:
+                    st = gg.get("status") if isinstance(gg.get("status"), dict) else {}
+                    if not bool(st.get("in_progress")) or bool(st.get("final")):
+                        continue
+
+                    eid = str(gg.get("event_id") or "").strip()
+                    gid = gg.get("game_id")
+                    home = gg.get("home")
+                    away = gg.get("away")
+                    period = _safe_int(st.get("period"))
+                    clock = st.get("clock")
+                    sec_left_period = _live_parse_clock_to_sec_left(clock)
+                    elapsed_min = _safe_float(st.get("elapsed_min"))
+
+                    # Use server-side row klass/strength, but re-check thresholds from tuning
+                    rows = gg.get("rows") if isinstance(gg.get("rows"), list) else []
+                    # Keep only meaningful candidates
+                    cands: list[dict[str, Any]] = []
+                    for r0 in rows:
+                        if not isinstance(r0, dict):
+                            continue
+                        if r0.get("player") is None or r0.get("stat") is None:
+                            continue
+                        if _safe_float(r0.get("line")) is None:
+                            continue
+                        ev = _safe_float(r0.get("pace_vs_line"))
+                        if ev is None:
+                            continue
+                        strength = abs(float(ev))
+                        klass = _klass(strength, pp_watch, pp_bet)
+                        if not _allow(log_mode_props, klass):
+                            continue
+                        r1 = dict(r0)
+                        r1["_edge"] = float(ev)
+                        r1["_strength"] = float(strength)
+                        r1["_klass"] = klass
+                        cands.append(r1)
+                    cands.sort(key=lambda r: float(r.get("_strength") or 0.0), reverse=True)
+                    cands = cands[: int(max_props)]
+
+                    for r0 in cands:
+                        try:
+                            player = str(r0.get("player") or "").strip() or None
+                            team_tri = str(r0.get("team_tri") or "").strip().upper() or None
+                            stat_key = str(r0.get("stat") or "").strip().lower() or None
+                            name_key = str(r0.get("name_key") or player or "").strip() or None
+                            name_norm = _norm_player_name(name_key or "")
+                            if not (player and stat_key and name_norm):
+                                continue
+
+                            throttle_key = f"player_prop:{name_norm}:{stat_key}"
+                            edge = _safe_float(r0.get("_edge"))
+                            strength = _safe_float(r0.get("_strength"))
+                            klass = str(r0.get("_klass") or "NONE")
+                            side = None
+                            try:
+                                if edge is not None:
+                                    side = "OVER" if float(edge) > 0 else ("UNDER" if float(edge) < 0 else None)
+                            except Exception:
+                                side = None
+
+                            # Best-effort throttling per (gid, throttle_key)
+                            throttle_k = f"{str(gid)}:{throttle_key}"
+                            with _live_lens_tick_lock:
+                                last = _live_lens_tick_last_logged.get(throttle_k)
+                                if last == bucket_key:
+                                    skipped_throttle += 1
+                                    continue
+                                _live_lens_tick_last_logged[throttle_k] = bucket_key
+
+                            base = {
+                                "date": ds,
+                                "game_id": gid,
+                                "event_id": eid,
+                                "home": home,
+                                "away": away,
+                                "period": period,
+                                "sec_left_period": sec_left_period,
+                                "tuning_source": "cron",
+                                "schema_version": 2,
+                                "tick_bucket": bucket_key,
+                            }
+
+                            body = {
+                                **base,
+                                "klass": klass,
+                                "horizon": "live",
+                                "market": "player_prop",
+                                "signal_key": throttle_key,
+                                "player": player,
+                                "team_tri": team_tri,
+                                "name_key": name_norm,
+                                "stat": stat_key,
+                                "side": side,
+                                "mp": _safe_float(r0.get("mp")),
+                                "pf": _safe_float(r0.get("pf")),
+                                "starter": (bool(r0.get("starter")) if ("starter" in r0 and r0.get("starter") is not None) else None),
+                                "actual": _safe_float(r0.get("actual")),
+                                "line": _safe_float(r0.get("line")),
+                                "pace_proj": _safe_float(r0.get("pace_proj")),
+                                "sim_mu": _safe_float(r0.get("sim_mu")),
+                                "edge": _safe_float(edge),
+                                "edge_raw": _safe_float(edge),
+                                "edge_adj": _safe_float(edge),
+                                "strength": _safe_float(strength),
+                                "context": {
+                                    "sim_vs_line": _safe_float(r0.get("sim_vs_line")),
+                                    "sim_sd": _safe_float(r0.get("sim_sd")),
+                                    "exp_min": _safe_float(r0.get("exp_min")),
+                                    "exp_min_eff": _safe_float(r0.get("exp_min_eff")),
+                                    "exp_min_rot": _safe_float(r0.get("exp_min_rot")),
+                                    "proj_min_final": _safe_float(r0.get("proj_min_final")),
+                                    "rot_w": _safe_float(r0.get("rot_w")),
+                                    "rot_on_court": (bool(r0.get("rot_on_court")) if ("rot_on_court" in r0 and r0.get("rot_on_court") is not None) else None),
+                                    "rot_cur_on_sec": _safe_int(r0.get("rot_cur_on_sec")),
+                                    "rot_cur_off_sec": _safe_int(r0.get("rot_cur_off_sec")),
+                                    "rot_avg_stint_sec": _safe_float(r0.get("rot_avg_stint_sec")),
+                                    "rot_avg_rest_sec": _safe_float(r0.get("rot_avg_rest_sec")),
+                                    "injury_flag": (bool(r0.get("injury_flag")) if ("injury_flag" in r0 and r0.get("injury_flag") is not None) else None),
+                                    "injury_gap": _safe_float(r0.get("injury_gap")),
+                                    "usage_window_sec": int(recent_window_sec),
+                                    "pace_mult": _safe_float(r0.get("pace_mult")),
+                                    "role_mult": _safe_float(r0.get("role_mult")),
+                                    "foul_mult": _safe_float(r0.get("foul_mult")),
+                                    "hot_cold_mult": _safe_float(r0.get("hot_cold_mult")),
+                                    "hot_ppp_recent": _safe_float(r0.get("hot_ppp_recent")),
+                                    "hot_ppp_game": _safe_float(r0.get("hot_ppp_game")),
+                                    "hot_p3_recent": _safe_float(r0.get("hot_p3_recent")),
+                                    "hot_p3_game": _safe_float(r0.get("hot_p3_game")),
+                                    "usg_recent": _safe_float(r0.get("usg_recent")),
+                                    "usg_game": _safe_float(r0.get("usg_game")),
+                                    "team_usg_recent": _safe_float(r0.get("team_usg_recent")),
+                                    "team_usg_game": _safe_float(r0.get("team_usg_game")),
+                                    "fg3a_recent": _safe_float(r0.get("fg3a_recent")),
+                                    "fg3a_game": _safe_float(r0.get("fg3a_game")),
+                                    "team_3a_recent": _safe_float(r0.get("team_3a_recent")),
+                                    "team_3a_game": _safe_float(r0.get("team_3a_game")),
+                                    "price_over": _safe_float(r0.get("price_over")),
+                                    "price_under": _safe_float(r0.get("price_under")),
+                                    "win_prob_over": _safe_float(r0.get("win_prob_over")),
+                                    "win_prob_under": _safe_float(r0.get("win_prob_under")),
+                                    "implied_prob_over": _safe_float(r0.get("implied_prob_over")),
+                                    "implied_prob_under": _safe_float(r0.get("implied_prob_under")),
+                                    "ev_side": (str(r0.get("ev_side")) if r0.get("ev_side") is not None else None),
+                                    "win_prob": _safe_float(r0.get("win_prob")),
+                                    "implied_prob": _safe_float(r0.get("implied_prob")),
+                                    "ev": _safe_float(r0.get("ev")),
+                                },
+                                "elapsed": float(elapsed_min) if elapsed_min is not None else None,
+                                "received_at": now,
+                            }
+
+                            ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                            if ok:
+                                wrote_signals += 1
+                            else:
+                                errors.append(f"prop:{eid}:{throttle_key}:{info}")
+
+                            # Projection stream (mirrors client): throttle separately
+                            throttle_p = f"{str(gid)}:{throttle_key}:proj"
+                            with _live_lens_tick_lock:
+                                lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                if lastp == bucket_key:
+                                    continue
+                                _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+
+                            proj_body = {
+                                **base,
+                                "klass": klass,
+                                "horizon": "live",
+                                "market": "player_prop",
+                                "proj_key": throttle_key,
+                                "player": player,
+                                "team_tri": team_tri,
+                                "name_key": name_norm,
+                                "stat": stat_key,
+                                "side": side,
+                                "line": _safe_float(r0.get("line")),
+                                "proj": _safe_float(r0.get("pace_proj")),
+                                "sim_mu": _safe_float(r0.get("sim_mu")),
+                                "win_prob_over": _safe_float(r0.get("win_prob_over")),
+                                "win_prob_under": _safe_float(r0.get("win_prob_under")),
+                                "implied_prob_over": _safe_float(r0.get("implied_prob_over")),
+                                "implied_prob_under": _safe_float(r0.get("implied_prob_under")),
+                                "price_over": _safe_float(r0.get("price_over")),
+                                "price_under": _safe_float(r0.get("price_under")),
+                                "strength": _safe_float(strength),
+                                "elapsed": float(elapsed_min) if elapsed_min is not None else None,
+                                "received_at": now,
+                            }
+                            okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                            if okp:
+                                wrote_projections += 1
+                            else:
+                                errors.append(f"proj:{eid}:{throttle_key}:{infop}")
+                        except Exception as e:
+                            errors.append(f"prop_row:{str(e)}")
+                except Exception as e:
+                    errors.append(f"prop_game:{str(e)}")
+        except Exception as e:
+            errors.append(f"props_block:{str(e)}")
+
+    return jsonify({
+        "ok": True,
+        "date": ds,
+        "in_progress_games": int(len(inprog)),
+        "event_ids": event_ids,
+        "wrote_signals": int(wrote_signals),
+        "wrote_projections": int(wrote_projections),
+        "skipped_throttle": int(skipped_throttle),
+        "min_interval_sec": int(min_interval_sec),
+        "max_props_per_game": int(max_props),
+        "recent_window_sec": int(recent_window_sec),
+        "artifacts_dir": str(_live_lens_artifacts_dir()),
+        "errors": errors[:25],
+        "utc": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+    })
 
 
 @app.route("/api/admin/daily-update", methods=["POST", "GET"])

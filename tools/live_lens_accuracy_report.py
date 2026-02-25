@@ -25,6 +25,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 from dataclasses import dataclass
 from datetime import date as _date
 from datetime import datetime, timedelta
@@ -36,6 +37,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 REPORTS = PROCESSED / "reports"
 
 
@@ -208,7 +210,7 @@ class DayArtifacts:
 def _artifacts_for_day(ds: str) -> DayArtifacts:
     return DayArtifacts(
         ds=ds,
-        projections_path=PROCESSED / f"live_lens_projections_{ds}.jsonl",
+        projections_path=LIVE_LENS_DIR / f"live_lens_projections_{ds}.jsonl",
         recon_props_path=PROCESSED / f"recon_props_{ds}.csv",
     )
 

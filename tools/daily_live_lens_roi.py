@@ -22,6 +22,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 from dataclasses import dataclass
 from datetime import date as _date
@@ -34,6 +35,7 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 REPORTS = PROCESSED / "reports"
 
 
@@ -403,7 +405,7 @@ class Scored:
 
 
 def _score_rows(ds: str, assumed_juice: float, include_watch: bool) -> list[Scored]:
-    sig_path = PROCESSED / f"live_lens_signals_{ds}.jsonl"
+    sig_path = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     sigs = _load_jsonl(sig_path)
     if not sigs:
         return []

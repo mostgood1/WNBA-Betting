@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import date as _date
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -26,6 +27,7 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 PROCESSED = ROOT / "data" / "processed"
+LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
 def _parse_date(s: str) -> _date:
@@ -47,7 +49,7 @@ def main() -> int:
     else:
         ds = _date.today().isoformat()
 
-    fp = PROCESSED / f"live_lens_signals_{ds}.jsonl"
+    fp = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     if not fp.exists():
         print(f"Missing: {fp}")
         return 2

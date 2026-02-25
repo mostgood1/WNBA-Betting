@@ -43,10 +43,18 @@ services:
         sync: false
       - key: ODDS_API_KEY
         sync: false
+      # Persist Live Lens runtime artifacts (signals/projections/tuning overrides)
+      - key: NBA_LIVE_LENS_DIR
+        value: /opt/render/project/data/live_lens
       - key: RENDER_PRESTART_REFRESH
         value: "0"  # opt-in prestart refresh/export (can be memory-heavy on small plans)
       - key: RENDER_PUSH_ON_DEPLOY
         value: "1"  # commit/push refreshed artifacts (requires RENDER_PRESTART_REFRESH=1 + GH_TOKEN/GIT_PAT)
+
+    disks:
+      - name: data
+        mountPath: /opt/render/project/data
+        sizeGB: 1
 
 # Note: Some Render accounts don’t support defining Cron Jobs in Blueprints yet.
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
@@ -54,6 +62,8 @@ services:
 # Alternatively, use the provided GitHub Actions scheduler in .github/workflows/nbabetting-scheduler.yml.
 
 # Suggested Render Cron Jobs (create in Render UI):
+# - Name: live-lens-tick (every 60 seconds, all day; cheap no-op when no games)
+#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180"
 # - Name: refresh-odds-today (every 15 minutes 15:00–23:59 UTC on game days)
 #   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-bovada?date=$(date -u +%F)"
 # - Name: reconcile-yesterday (daily at 10:00 UTC)
