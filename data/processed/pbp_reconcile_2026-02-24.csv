@@ -1,0 +1,8 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-02-24,0022500835,CLE,NYK,0.5,,,,Jalen Brunson,0.1077396586914575,,,,,1.3110026435399005,0.730450341372848,,,
+2026-02-24,0022500836,CHI,CHA,0.5,,,,Miles Bridges,0.1065254580835142,,,,,1.3195539428342455,0.7327455138389758,,,
+2026-02-24,0022500837,MIL,MIA,0.5,,,,Kevin Porter Jr.,0.1094764819899559,,,,,1.2133487171027866,0.7027996287863443,,,
+2026-02-24,0022500838,NOP,GSW,0.5,,,,Trey Murphy III,0.1219126897024117,,,,,1.2560458019542615,0.7152221288150891,,,
+2026-02-24,0022500839,PHX,BOS,0.5,,,,Derrick White,0.1122743122344251,,,,,1.3400311921023125,0.7381624988091787,,,
+2026-02-24,0022500840,LAL,ORL,0.51499550161941,,,,Luka Dončić,0.1105741335834669,,,,,1.090429750778711,0.6639279645505051,,,
+2026-02-24,0022500841,POR,MIN,0.5,,,,Anthony Edwards,0.1112000479278812,,,,,1.3046786839016564,0.7287403188534886,,,

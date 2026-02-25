@@ -3,25 +3,31 @@
   "team_counts": {
     "ATL": 1,
     "BKN": 2,
-    "BOS": 1,
-    "CHI": 4,
+    "BOS": 2,
+    "CHI": 5,
     "CLE": 2,
     "DAL": 4,
-    "GSW": 4,
-    "IND": 4,
+    "GSW": 5,
+    "IND": 5,
+    "LAL": 1,
     "MIA": 1,
     "MIL": 4,
     "NOP": 3,
     "NYK": 1,
     "OKC": 3,
     "ORL": 1,
-    "PHI": 1,
+    "PHI": 2,
     "PHX": 4,
     "POR": 3,
     "TOR": 2,
     "WAS": 2
   },
   "players": [
+    {
+      "player": "Al Horford",
+      "team": "GSW",
+      "status": "OUT"
+    },
     {
       "player": "Stephen Curry",
       "team": "GSW",
@@ -98,6 +104,16 @@
       "status": "OUT"
     },
     {
+      "player": "Jaylen Brown",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Pascal Siakam",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
       "player": "Jayson Tatum",
       "team": "BOS",
       "status": "OUT"
@@ -148,6 +164,11 @@
       "status": "OUT"
     },
     {
+      "player": "Jaxson Hayes",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
       "player": "Nic Claxton",
       "team": "BKN",
       "status": "OUT"
@@ -175,6 +196,11 @@
     {
       "player": "Cole Anthony",
       "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jalen Smith",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -210,6 +236,11 @@
     {
       "player": "Jordan Goodwin",
       "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "MarJon Beauchamp",
+      "team": "PHI",
       "status": "OUT"
     },
     {
@@ -261,8 +292,8 @@
   "team_key_outs": {
     "GSW": [
       "Stephen Curry",
-      "Jimmy Butler III",
-      "Seth Curry"
+      "Al Horford",
+      "Jimmy Butler III"
     ],
     "DAL": [
       "Kyrie Irving",
@@ -280,7 +311,8 @@
       "Giannis Antetokounmpo"
     ],
     "PHI": [
-      "Joel Embiid"
+      "Joel Embiid",
+      "MarJon Beauchamp"
     ],
     "PHX": [
       "Dillon Brooks",
@@ -300,11 +332,18 @@
       "Jakob Poeltl"
     ],
     "BOS": [
+      "Jaylen Brown",
       "Anfernee Simons",
       "Jayson Tatum"
     ],
+    "IND": [
+      "Pascal Siakam",
+      "Aaron Nesmith",
+      "Johnny Furphy"
+    ],
     "CHI": [
       "Coby White",
+      "Jalen Smith",
       "Zach Collins"
     ],
     "OKC": [
@@ -319,14 +358,12 @@
       "Max Strus",
       "Darius Garland"
     ],
+    "LAL": [
+      "Jaxson Hayes"
+    ],
     "BKN": [
       "Nic Claxton",
       "Ziaire Williams"
-    ],
-    "IND": [
-      "Aaron Nesmith",
-      "Johnny Furphy",
-      "Obi Toppin"
     ],
     "ORL": [
       "Franz Wagner"
@@ -343,18 +380,19 @@
     ]
   },
   "team_impact": {
-    "GSW": 35.766666666666666,
+    "GSW": 61.09166666666667,
     "POR": 57.458333333333336,
     "MIL": 45.125,
-    "PHI": 52.699999999999996,
+    "PHI": 74.14999999999999,
     "PHX": 94.14999999999999,
     "NOP": 57.96805555555556,
     "TOR": 61.0125,
-    "BOS": 22.6,
-    "CHI": 29.8,
+    "BOS": 63.51428571428571,
+    "IND": 77.1,
+    "CHI": 53.980000000000004,
     "OKC": 81.6,
+    "LAL": 19.977777777777778,
     "BKN": 49.53888888888889,
-    "IND": 38.51428571428571,
     "ORL": 19.2,
     "NYK": 22.4,
     "DET": 12.42,

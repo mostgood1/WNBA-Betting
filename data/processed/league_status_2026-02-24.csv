@@ -4,7 +4,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 200768,Kyle Lowry,PHI,NAN,True,
 200782,P.J. Tucker,NYK,,True,True
 201142,Kevin Durant,HOU,DAY-TO-DAY,False,False
-201143,Al Horford,GSW,DAY-TO-DAY,True,True
+201143,Al Horford,GSW,OUT,True,False
 201144,Mike Conley,MIN,DAY-TO-DAY,True,True
 201145,Jeff Green,HOU,,False,False
 201566,Russell Westbrook,SAC,,False,False
@@ -109,11 +109,11 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1627750,Jamal Murray,DEN,DAY-TO-DAY,False,False
 1627751,Jakob Poeltl,TOR,OUT,True,False
 1627752,Taurean Prince,MIL,OUT,True,False
-1627759,Jaylen Brown,BOS,DAY-TO-DAY,True,True
+1627759,Jaylen Brown,BOS,OUT,True,False
 1627763,Malcolm Brogdon,WAS,,True,True
 1627777,Georges Niang,MEM,,False,False
 1627780,Gary Payton II,GSW,DAY-TO-DAY,True,True
-1627783,Pascal Siakam,IND,DAY-TO-DAY,True,True
+1627783,Pascal Siakam,IND,OUT,True,False
 1627814,Damion Lee,PHX,,True,True
 1627824,Guerschon Yabusele,CHI,DAY-TO-DAY,True,True
 1627826,Ivica Zubac,LAC,OUT,False,False
@@ -213,7 +213,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629632,Coby White,CHI,OUT,True,False
 1629634,Brandon Clarke,MEM,OUT,False,False
 1629636,Darius Garland,CLE,OUT,True,False
-1629637,Jaxson Hayes,LAL,DAY-TO-DAY,True,True
+1629637,Jaxson Hayes,LAL,OUT,True,False
 1629638,Nickeil Alexander-Walker,ATL,DAY-TO-DAY,True,True
 1629639,Tyler Herro,MIA,DAY-TO-DAY,True,True
 1629640,Keldon Johnson,SAS,,False,False
@@ -242,7 +242,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630162,Anthony Edwards,MIN,DAY-TO-DAY,True,True
 1630163,LaMelo Ball,CHA,DAY-TO-DAY,True,True
 1630164,James Wiseman,IND,,True,True
-1630165,Killian Hayes,,,False,False
+1630165,Killian Hayes,SAC,,False,False
 1630166,Deni Avdija,POR,OUT,True,False
 1630167,Obi Toppin,IND,OUT,True,False
 1630168,Onyeka Okongwu,ATL,,True,True
@@ -256,7 +256,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630178,Tyrese Maxey,PHI,,True,True
 1630182,Josh Green,CHA,DAY-TO-DAY,True,True
 1630183,Jaden McDaniels,MIN,DAY-TO-DAY,True,True
-1630188,Jalen Smith,CHI,DAY-TO-DAY,True,True
+1630188,Jalen Smith,CHI,OUT,True,False
 1630191,Isaiah Stewart,DET,DAY-TO-DAY,False,False
 1630192,Zeke Nnaji,DEN,DAY-TO-DAY,False,False
 1630193,Immanuel Quickley,TOR,DAY-TO-DAY,True,True
@@ -353,7 +353,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630692,Jordan Goodwin,PHX,OUT,True,False
 1630695,Micah Potter,IND,DAY-TO-DAY,True,True
 1630696,Dru Smith,MIA,DAY-TO-DAY,True,True
-1630699,MarJon Beauchamp,PHI,DAY-TO-DAY,True,True
+1630699,MarJon Beauchamp,PHI,OUT,True,False
 1630700,Dyson Daniels,ATL,DAY-TO-DAY,True,True
 1630702,Jaden Hardy,WAS,,True,True
 1630703,Scoot Henderson,POR,DAY-TO-DAY,True,True
@@ -418,7 +418,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631232,Keion Brooks Jr.,NOP,,True,True
 1631243,Mouhamed Gueye,ATL,DAY-TO-DAY,True,True
 1631245,Quenton Jackson,IND,DAY-TO-DAY,True,True
-1631246,Vince Williams Jr.,UTA,DAY-TO-DAY,False,False
+1631246,Vince Williams Jr.,UTA,OUT,False,False
 1631247,Luke Travers,CLE,DAY-TO-DAY,True,True
 1631248,Baylor Scheierman,BOS,,True,True
 1631250,Pete Nance,MIL,DAY-TO-DAY,True,True
@@ -437,7 +437,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641705,Victor Wembanyama,SAS,DAY-TO-DAY,False,False
 1641706,Brandon Miller,CHA,DAY-TO-DAY,True,True
 1641707,Taylor Hendricks,MEM,DAY-TO-DAY,False,False
-1641708,Amen Thompson,HOU,DAY-TO-DAY,False,False
+1641708,Amen Thompson,HOU,OUT,False,False
 1641709,Ausar Thompson,DET,DAY-TO-DAY,False,False
 1641710,Anthony Black,ORL,,True,True
 1641711,Gradey Dick,TOR,DAY-TO-DAY,True,True
