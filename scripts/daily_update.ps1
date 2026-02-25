@@ -283,10 +283,20 @@ function Invoke-PyModWithTimeout {
     return 1
   }
 
+  # IMPORTANT: Wait-Process returns *no output* unless -PassThru is used.
+  # Using its return value as a boolean causes false timeouts.
   $finished = $false
   try {
-    $finished = Wait-Process -Id $p.Id -Timeout $TimeoutSeconds -ErrorAction SilentlyContinue
-  } catch { $finished = $false }
+    $ms = [int]([Math]::Max(1, $TimeoutSeconds) * 1000)
+    $finished = $p.WaitForExit($ms)
+  } catch {
+    try {
+      $p.Refresh()
+      $finished = [bool]$p.HasExited
+    } catch {
+      $finished = $false
+    }
+  }
 
   if (-not $finished) {
     # On Windows, a venv python.exe may be a launcher that spawns a child interpreter.
@@ -306,8 +316,12 @@ function Invoke-PyModWithTimeout {
       if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
       if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
     } catch {}
+    try { Remove-Item -Force -ErrorAction SilentlyContinue $outStd, $outErr } catch {}
     return 124
   }
+
+  # Ensure process fully exited and output handles are released.
+  try { $p.WaitForExit() } catch {}
 
   try {
     if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
@@ -316,7 +330,24 @@ function Invoke-PyModWithTimeout {
 
   $exitCode = 0
   try { $exitCode = $p.ExitCode } catch { $exitCode = 0 }
+  try { Remove-Item -Force -ErrorAction SilentlyContinue $outStd, $outErr } catch {}
   return $exitCode
+}
+
+# Helper: check if a file exists and is "fresh" (recently updated).
+function Test-FreshFile {
+  param(
+    [string]$Path,
+    [int]$MaxAgeMinutes = 60
+  )
+  try {
+    if (-not (Test-Path $Path)) { return $false }
+    if ($MaxAgeMinutes -le 0) { return $true }
+    $age = (Get-Date) - (Get-Item $Path).LastWriteTime
+    return ($age.TotalMinutes -le [double]$MaxAgeMinutes)
+  } catch {
+    return $false
+  }
 }
 
 # Helper to run the connected realism evaluation (used by the full pipeline and an optional "only" mode)
@@ -394,11 +425,11 @@ try {
 Write-Log 'Running local pipeline to produce predictions/odds/props/edges/exports'
 
 # Guard against preflight network hangs (rosters/logs/injuries/league status)
-$PreflightTimeoutSeconds = 240
+$PreflightTimeoutSeconds = 600
 try {
   $to = $env:DAILY_PREFLIGHT_TIMEOUT_SEC
-  if ($null -eq $to -or $to -eq '') { $to = '240' }
-  try { $toInt = [int]$to } catch { $toInt = 240 }
+  if ($null -eq $to -or $to -eq '') { $to = '600' }
+  try { $toInt = [int]$to } catch { $toInt = 600 }
   if ($toInt -lt 30) { $toInt = 30 }
   if ($toInt -gt 900) { $toInt = 900 }
   $PreflightTimeoutSeconds = $toInt
@@ -416,17 +447,35 @@ try {
     $seasonYear = $yr - 1
   }
   $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
-  Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
-  $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
-  Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
+  $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
+  $maxAgeH = $env:DAILY_ROSTERS_MAX_AGE_HOURS
+  # NBA Stats rosters are relatively stable day-to-day, and the endpoint can be flaky.
+  # Default to a wider freshness window to avoid repeated slow fetches.
+  if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '72' }
+  try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
+  if (Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) {
+    Write-Log ("Rosters already fresh (<= {0}h); skipping fetch-rosters: {1}" -f $maxAgeH, $rostersPath)
+  } else {
+    Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
+    $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
+    Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
+  }
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
-  Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
-  $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
-  Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
+  $plCsv = Join-Path $RepoRoot 'data/processed/player_logs.csv'
+  $maxAgeH = $env:DAILY_PLAYER_LOGS_MAX_AGE_HOURS
+  if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '12' }
+  try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
+  if (Test-FreshFile -Path $plCsv -MaxAgeMinutes $maxAgeMin) {
+    Write-Log ("player_logs.csv already fresh (<= {0}h); skipping fetch-player-logs" -f $maxAgeH)
+  } else {
+    Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
+    $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
+    Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
+  }
 } catch {
   Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)
 }
@@ -434,15 +483,31 @@ try {
 # 0.6) Trade-deadline hardening: fetch injuries + build league_status + validate expected dressed players
 # This must run BEFORE any predictions/sims so the player pool is up-to-date.
 try {
-  Write-Log "Fetching injuries from ESPN (availability gate)"
-  $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries') -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
-  Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
+  $injPath = Join-Path $RepoRoot 'data/raw/injuries.csv'
+  $maxAgeMin = $env:DAILY_INJURIES_MAX_AGE_MINUTES
+  if ($null -eq $maxAgeMin -or $maxAgeMin -eq '') { $maxAgeMin = '30' }
+  try { $maxAgeMinInt = [int]$maxAgeMin } catch { $maxAgeMinInt = 30 }
+  if (Test-FreshFile -Path $injPath -MaxAgeMinutes $maxAgeMinInt) {
+    Write-Log ("injuries.csv already fresh (<= {0}m); skipping fetch-injuries" -f $maxAgeMinInt)
+  } else {
+    Write-Log "Fetching injuries from ESPN (availability gate)"
+    $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries') -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
+    Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
+  }
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
 
 try {
-  Write-Log "Building league_status for today's slate (availability gate)"
-  $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'build_league_status'
-  Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
+  $lsPath = Join-Path $RepoRoot ("data/processed/league_status_{0}.csv" -f $Date)
+  $maxAgeMin = $env:DAILY_LEAGUE_STATUS_MAX_AGE_MINUTES
+  if ($null -eq $maxAgeMin -or $maxAgeMin -eq '') { $maxAgeMin = '60' }
+  try { $maxAgeMinInt = [int]$maxAgeMin } catch { $maxAgeMinInt = 60 }
+  if (Test-FreshFile -Path $lsPath -MaxAgeMinutes $maxAgeMinInt) {
+    Write-Log ("league_status already fresh (<= {0}m); skipping build-league-status" -f $maxAgeMinInt)
+  } else {
+    Write-Log "Building league_status for today's slate (availability gate)"
+    $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'build_league_status'
+    Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
+  }
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # Ensure league_status artifact exists (roster-sanity depends on it). If missing, retry once
@@ -1325,25 +1390,34 @@ try {
       $rcRF = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $rfTo -Label 'fetch_rosters_retry'
       Write-Log ("fetch-rosters retry exit code: {0}" -f $rcRF)
 
-      # Rebuild league_status to reflect refreshed rosters/injuries
-      $lsTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds, 120)))
-      Write-Log ("Rebuilding league_status after roster refresh (timeout {0}s)" -f $lsTo)
-      $rcLS2 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $lsTo -Label 'build_league_status_after_rosters'
-      Write-Log ("build-league-status (post-rosters) exit code: {0}" -f $rcLS2)
-
-      # Retry audit once
-      $rcRoster2 = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
-      Write-Log ("audit_rosters_today retry exit code: {0}" -f $rcRoster2)
-
-      if ($rcRoster2 -eq 4) {
+      if ($rcRF -ne 0) {
         $strict = $env:DAILY_STRICT_ROSTERS
         if ($null -ne $strict -and $strict -match '^(1|true|yes)$') {
-          throw "Roster correctness audit still reports stale rosters after refresh (exit=$rcRoster2)"
+          throw "fetch-rosters retry failed during roster remediation (exit=$rcRF)"
         } else {
-          Write-Log "WARNING: roster audit still reports stale rosters after refresh; continuing (set DAILY_STRICT_ROSTERS=1 to fail)"
+          Write-Log "WARNING: fetch-rosters retry failed; skipping league_status rebuild + audit retry and continuing with existing rosters (set DAILY_STRICT_ROSTERS=1 to fail)"
         }
-      } elseif ($rcRoster2 -ne 0) {
-        throw "Roster correctness audit failed after refresh (exit=$rcRoster2)"
+      } else {
+        # Rebuild league_status to reflect refreshed rosters/injuries
+        $lsTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds, 120)))
+        Write-Log ("Rebuilding league_status after roster refresh (timeout {0}s)" -f $lsTo)
+        $rcLS2 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $lsTo -Label 'build_league_status_after_rosters'
+        Write-Log ("build-league-status (post-rosters) exit code: {0}" -f $rcLS2)
+
+        # Retry audit once
+        $rcRoster2 = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
+        Write-Log ("audit_rosters_today retry exit code: {0}" -f $rcRoster2)
+
+        if ($rcRoster2 -eq 4) {
+          $strict = $env:DAILY_STRICT_ROSTERS
+          if ($null -ne $strict -and $strict -match '^(1|true|yes)$') {
+            throw "Roster correctness audit still reports stale rosters after refresh (exit=$rcRoster2)"
+          } else {
+            Write-Log "WARNING: roster audit still reports stale rosters after refresh; continuing (set DAILY_STRICT_ROSTERS=1 to fail)"
+          }
+        } elseif ($rcRoster2 -ne 0) {
+          throw "Roster correctness audit failed after refresh (exit=$rcRoster2)"
+        }
       }
     } elseif ($rcRoster -ne 0) {
       throw "Roster correctness audit failed (exit=$rcRoster)"
@@ -1374,6 +1448,24 @@ try {
 $SmartSimWorkers = $env:DAILY_SMARTSIM_WORKERS
 if ($null -eq $SmartSimWorkers -or $SmartSimWorkers -eq '') { $SmartSimWorkers = $env:SMARTSIM_WORKERS }
 
+# SmartSim knobs (shared with the later smart-sim-date step):
+# - DAILY_SMARTSIM_NSIMS controls n_sims
+# - DAILY_SMARTSIM_OVERWRITE controls overwrite behavior
+# - DAILY_SKIP_SMARTSIM can skip SmartSim entirely (faster iteration)
+$SmartSimNSims = $env:DAILY_SMARTSIM_NSIMS
+if ($null -eq $SmartSimNSims -or $SmartSimNSims -eq '') { $SmartSimNSims = '2000' }
+try {
+  $nTmp = [int]$SmartSimNSims
+  if ($nTmp -lt 100) { $nTmp = 100 }
+  if ($nTmp -gt 20000) { $nTmp = 20000 }
+  $SmartSimNSims = [string]$nTmp
+} catch {
+  $SmartSimNSims = '2000'
+}
+
+$SmartSimOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
+$SkipSmartSim = $env:DAILY_SKIP_SMARTSIM
+
 # Default SmartSim parallelism: if not explicitly configured, use a safe CPU-based default.
 # This affects both predict-props SmartSim and the standalone smart-sim-date step.
 try {
@@ -1395,12 +1487,32 @@ $ppArgs = @(
   '--calibrate-player','--player-calib-window','30',
   '--use-pure-onnx',
   '--use-smart-sim',
-  '--smart-sim-n-sims','2000',
-  '--smart-sim-pbp',
-  '--smart-sim-overwrite'
+  '--smart-sim-n-sims', $SmartSimNSims,
+  '--smart-sim-pbp'
 )
+
+# Optional: disable SmartSim entirely for faster iteration
+if ($null -ne $SkipSmartSim -and $SkipSmartSim -match '^(1|true|yes)$') {
+  Write-Log 'Skipping SmartSim inside predict-props (DAILY_SKIP_SMARTSIM=1)'
+  $ppArgs = @(
+    '-m','nba_betting.cli','predict-props',
+    '--date', $Date,
+    '--slate-only',
+    '--calibrate','--calib-window','7',
+    '--calibrate-player','--player-calib-window','30',
+    '--use-pure-onnx',
+    '--no-use-smart-sim'
+  )
+} else {
+  # Only overwrite SmartSim artifacts when explicitly requested.
+  if ($null -ne $SmartSimOverwrite -and $SmartSimOverwrite -match '^(1|true|yes)$') {
+    $ppArgs += '--smart-sim-overwrite'
+  }
+}
 try {
-  if ($null -ne $SmartSimWorkers -and $SmartSimWorkers -match '^\d+$' -and [int]$SmartSimWorkers -gt 1) {
+  if ($null -ne $SkipSmartSim -and $SkipSmartSim -match '^(1|true|yes)$') {
+    # no-op
+  } elseif ($null -ne $SmartSimWorkers -and $SmartSimWorkers -match '^\d+$' -and [int]$SmartSimWorkers -gt 1) {
     Write-Log ("Using SmartSim parallel workers: {0}" -f $SmartSimWorkers)
     $ppArgs += @('--smart-sim-workers', $SmartSimWorkers)
   }
@@ -1745,6 +1857,26 @@ print('OK' if ok else f'NO:{why}')
   $out2 = & $Python $tmpPy2 2>&1 | Tee-Object -FilePath $LogFile -Append
   if ($out2 -match 'OK') { Write-Log 'Saved player props odds snapshots (processed + raw per-day)' } else { Write-Log ("Props odds snapshot returned: {0}" -f $out2) }
 } catch { Write-Log ("Props odds snapshot block failed: {0}" -f $_.Exception.Message) }
+
+# Optional: control runtime probability calibration strength in props edge scoring.
+# - Set DAILY_PROPS_PROB_CALIB_ALPHA to override for this run.
+# - Or set PROPS_PROB_CALIB_ALPHA directly in the environment.
+try {
+  $dailyAlpha = $env:DAILY_PROPS_PROB_CALIB_ALPHA
+  if ($null -ne $dailyAlpha -and $dailyAlpha.Trim() -ne '') {
+    try {
+      $a = [double]$dailyAlpha
+      if ($a -lt 0) { $a = 0 }
+      if ($a -gt 1) { $a = 1 }
+      $env:PROPS_PROB_CALIB_ALPHA = ([string]$a)
+      Write-Log ("Using PROPS_PROB_CALIB_ALPHA={0} (from DAILY_PROPS_PROB_CALIB_ALPHA)" -f $a)
+    } catch {
+      Write-Log ("Invalid DAILY_PROPS_PROB_CALIB_ALPHA='{0}' (ignoring)" -f $dailyAlpha)
+    }
+  } elseif ($null -ne $env:PROPS_PROB_CALIB_ALPHA -and $env:PROPS_PROB_CALIB_ALPHA.Trim() -ne '') {
+    Write-Log ("Using PROPS_PROB_CALIB_ALPHA={0}" -f $env:PROPS_PROB_CALIB_ALPHA)
+  }
+} catch { Write-Log ("PROPS_PROB_CALIB_ALPHA wiring failed (non-fatal): {0}" -f $_.Exception.Message) }
 
 # 5) Props edges for today: force mode=current to ensure processed per-day odds snapshots are written
 # Apply probability calibration (uses last saved curve; loader validates sanity)
@@ -2393,13 +2525,19 @@ try {
   $skipAud = $env:DAILY_SKIP_PLAYER_AUDITS
   if ($null -eq $skipAud -or $skipAud -notmatch '^(1|true|yes)$') {
     Write-Log ("Running player audits for {0}" -f $Date)
-    $rcCov = Invoke-PyMod -plist @('tools/audit_smart_sim_player_coverage.py','--date', $Date)
-    Write-Log ("audit_smart_sim_player_coverage exit code: {0}" -f $rcCov)
-    if ($rcCov -ne 0) { throw "SmartSim player coverage audit failed (exit=$rcCov)" }
 
-    $rcMin = Invoke-PyMod -plist @('tools/audit_smart_sim_minutes.py','--date', $Date)
-    Write-Log ("audit_smart_sim_minutes exit code: {0}" -f $rcMin)
-    if ($rcMin -ne 0) { throw "SmartSim minutes audit failed (exit=$rcMin)" }
+    $skipSmartAud = $env:DAILY_SKIP_SMARTSIM
+    if ($null -ne $skipSmartAud -and $skipSmartAud -match '^(1|true|yes)$') {
+      Write-Log 'Skipping SmartSim audits (DAILY_SKIP_SMARTSIM=1)'
+    } else {
+      $rcCov = Invoke-PyMod -plist @('tools/audit_smart_sim_player_coverage.py','--date', $Date)
+      Write-Log ("audit_smart_sim_player_coverage exit code: {0}" -f $rcCov)
+      if ($rcCov -ne 0) { throw "SmartSim player coverage audit failed (exit=$rcCov)" }
+
+      $rcMin = Invoke-PyMod -plist @('tools/audit_smart_sim_minutes.py','--date', $Date)
+      Write-Log ("audit_smart_sim_minutes exit code: {0}" -f $rcMin)
+      if ($rcMin -ne 0) { throw "SmartSim minutes audit failed (exit=$rcMin)" }
+    }
 
     $rcStale = Invoke-PyMod -plist @('tools/audit_stale_exclusions_today.py','--date', $Date)
     Write-Log ("audit_stale_exclusions_today exit code: {0}" -f $rcStale)

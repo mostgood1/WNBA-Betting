@@ -1,6 +1,7 @@
 param(
     [int]$Days = 60,
-    [int]$MinBetsPerStat = 250
+    [int]$MinBetsPerStat = 250,
+    [double]$Alpha = 0.35
 )
 
 $ErrorActionPreference = 'Stop'
@@ -18,7 +19,7 @@ if (-not (Test-Path $ByStatScript)) { throw "Calibration script missing: $ByStat
 Push-Location $Workspace
 try {
     & $PyExe $MultiScript
-    & $PyExe $ByStatScript --days $Days --min-bets-per-stat $MinBetsPerStat
+    & $PyExe $ByStatScript --days $Days --min-bets-per-stat $MinBetsPerStat --alpha $Alpha
 } finally {
     Pop-Location
 }

@@ -48,6 +48,17 @@ def _load_actuals() -> pd.DataFrame:
                 frames.append(df)
         except Exception:
             continue
+    if frames:
+        return pd.concat(frames, ignore_index=True)
+
+    # Fallback: daily reconciliation outputs (same columns as props_actuals snapshots)
+    for p in sorted(PROC_DIR.glob("recon_props_*.csv")):
+        try:
+            df = pd.read_csv(p)
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                frames.append(df)
+        except Exception:
+            continue
     return pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
 
 

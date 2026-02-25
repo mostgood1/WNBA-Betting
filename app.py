@@ -459,6 +459,24 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     headers = {"Accept": "application/json", "User-Agent": "nba-betting/1.0"}
     timeout_s = 3
 
+    def _parse_iso_utc_naive(x: Any) -> datetime | None:
+        try:
+            s = str(x or "").strip()
+            if not s:
+                return None
+            dt = datetime.fromisoformat(s.replace("Z", "+00:00"))
+            if dt.tzinfo is not None:
+                dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+            return dt
+        except Exception:
+            return None
+
+    def _dt_to_z(dt: datetime) -> str:
+        try:
+            return dt.replace(tzinfo=timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
+        except Exception:
+            return dt.isoformat(timespec="seconds") + "Z"
+
     # Map lens stats -> OddsAPI market keys.
     stat_to_market: dict[str, str] = {
         "pts": "player_points",
@@ -585,12 +603,14 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     # Collect points + prices across books; reduce with median.
     pts_by_key: dict[tuple[str, str], list[float]] = {}
     prices_by_key: dict[tuple[str, str, str], list[float]] = {}
+    last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
     if isinstance(obj, dict):
         bks = obj.get("bookmakers") or []
         if isinstance(bks, list):
             for bk in bks:
                 if not isinstance(bk, dict):
                     continue
+                bk_lu = _parse_iso_utc_naive(bk.get("last_update"))
                 markets = bk.get("markets") or []
                 if not isinstance(markets, list):
                     continue
@@ -600,6 +620,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                     mkey = str(m.get("key") or "")
                     if mkey not in desired_markets:
                         continue
+                    m_lu = _parse_iso_utc_naive(m.get("last_update"))
+                    lu = m_lu if m_lu is not None else bk_lu
                     # Reverse lookup to stat.
                     stat = None
                     for st, mk in stat_to_market.items():
@@ -640,6 +662,9 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                         except Exception:
                             continue
                         pts_by_key.setdefault((nk, stat), []).append(float(v))
+
+                        if lu is not None:
+                            last_update_by_key.setdefault((nk, stat), []).append(lu)
 
                         # Capture price when available.
                         if side is not None:
@@ -682,8 +707,27 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "markets_requested": req_markets,
         "lines": lines,
         "prices": prices,
+        "last_update_max": None,
+        "last_update_by_key": {},
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # Reduce last_update timestamps (max = freshest).
+    try:
+        dt_all: list[datetime] = []
+        lu_map: dict[str, str] = {}
+        for (nk, stat), dts in last_update_by_key.items():
+            if not dts:
+                continue
+            dt_max = max(dts)
+            dt_all.append(dt_max)
+            lu_map[f"{nk}|{stat}"] = _dt_to_z(dt_max)
+        out["last_update_by_key"] = lu_map
+        if dt_all:
+            out["last_update_max"] = _dt_to_z(max(dt_all))
+    except Exception:
+        pass
+
     _live_oddsapi_player_props_cache[cache_key] = (now, out)
     return out
 
@@ -20291,16 +20335,19 @@ def api_live_player_lens():
         live_prop_lines: dict[str, Any] = {}
         live_prop_prices: dict[str, Any] = {}
         live_prop_meta: dict[str, Any] = {}
+        live_prop_last_update_by_key: dict[str, Any] = {}
         try:
             if in_progress and not is_final and home and away:
                 live_prop_meta = _live_oddsapi_player_props_for_game(d or "", str(home), str(away))
                 if isinstance(live_prop_meta, dict):
                     live_prop_lines = live_prop_meta.get("lines") if isinstance(live_prop_meta.get("lines"), dict) else {}
                     live_prop_prices = live_prop_meta.get("prices") if isinstance(live_prop_meta.get("prices"), dict) else {}
+                    live_prop_last_update_by_key = live_prop_meta.get("last_update_by_key") if isinstance(live_prop_meta.get("last_update_by_key"), dict) else {}
         except Exception:
             live_prop_lines = {}
             live_prop_prices = {}
             live_prop_meta = {}
+            live_prop_last_update_by_key = {}
 
         # Best-effort SmartSim per-player mean/sd (pregame uncertainty proxy) for EV calcs.
         smartsim_player_stats: dict[tuple[str, str], dict[str, float]] = {}
@@ -20700,11 +20747,64 @@ def api_live_player_lens():
                         if edges_idx:
                             line_pregame = edges_idx.get((team, nk, stat_key))
                         line_live = None
+                        line_live_as_of = None
+                        line_live_age_sec = None
+                        line_live_filtered = False
+                        line_live_filter_reason = None
                         try:
                             if live_prop_lines:
                                 line_live = _safe_float(live_prop_lines.get(f"{nk}|{stat_key}"))
                         except Exception:
                             line_live = None
+
+                        # Pull market freshness (OddsAPI last_update) when available.
+                        try:
+                            if live_prop_last_update_by_key:
+                                lu_s = live_prop_last_update_by_key.get(f"{nk}|{stat_key}")
+                                if lu_s:
+                                    line_live_as_of = str(lu_s)
+                                    dt = datetime.fromisoformat(str(lu_s).replace("Z", "+00:00"))
+                                    if dt.tzinfo is not None:
+                                        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+                                    line_live_age_sec = float((datetime.utcnow() - dt).total_seconds())
+                        except Exception:
+                            line_live_as_of = None
+                            line_live_age_sec = None
+
+                        # Sanity/staleness filter:
+                        # - If the line is already below the player's current total, it's not usable as a live line.
+                        # - If we can see a last_update, require it to be reasonably recent once the game is underway.
+                        try:
+                            if line_live is not None:
+                                # 1) Impossible: already surpassed.
+                                a0 = _safe_float(actual)
+                                if (a0 is not None) and (float(a0) > float(line_live) + 1e-9):
+                                    line_live_filter_reason = "surpassed"
+
+                                # 2) Stale/unknown as-of.
+                                if line_live_filter_reason is None:
+                                    try:
+                                        max_age_sec = int(str(os.environ.get("LIVE_PROPS_MAX_AGE_SEC", "900")).strip())
+                                    except Exception:
+                                        max_age_sec = 900
+
+                                    if in_progress and not is_final:
+                                        try:
+                                            em = float(elapsed_min) if elapsed_min is not None else 0.0
+                                        except Exception:
+                                            em = 0.0
+                                        # Don't be strict in the opening couple minutes.
+                                        if em >= 3.0:
+                                            if line_live_age_sec is None:
+                                                line_live_filter_reason = "unknown_age"
+                                            elif float(line_live_age_sec) > float(max_age_sec):
+                                                line_live_filter_reason = "stale"
+
+                                if line_live_filter_reason is not None:
+                                    line_live = None
+                                    line_live_filtered = True
+                        except Exception:
+                            pass
 
                         line_used = line_live if line_live is not None else (float(line_pregame) if line_pregame is not None else None)
                         line_source = ("oddsapi" if line_live is not None else ("pregame" if line_pregame is not None else None))
@@ -21053,6 +21153,10 @@ def api_live_player_lens():
                             "sim_sd": sim_sd,
                             "line": float(line_used) if line_used is not None else None,
                             "line_live": float(line_live) if line_live is not None else None,
+                            "line_live_as_of": line_live_as_of,
+                            "line_live_age_sec": line_live_age_sec,
+                            "line_live_filtered": bool(line_live_filtered),
+                            "line_live_filter_reason": line_live_filter_reason,
                             "line_pregame": float(line_pregame) if line_pregame is not None else None,
                             "line_source": line_source,
                             "price_over": price_over,

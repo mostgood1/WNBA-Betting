@@ -28,7 +28,8 @@ def fetch_rosters(season: str = "2025-26", rate_delay: float = 0.75, max_retries
         last_err = None
         for attempt in range(int(max_retries)):
             try:
-                res = commonteamroster.CommonTeamRoster(team_id=tid, season=season)
+                # nba_api uses requests under the hood; explicit per-request timeout prevents hangs.
+                res = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=30)
                 nd = res.get_normalized_dict()
                 df = pd.DataFrame(nd.get('CommonTeamRoster', []))
                 if df.empty:

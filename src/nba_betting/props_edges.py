@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, Optional, Tuple
+import os
 
 import unicodedata
 
@@ -20,6 +21,32 @@ from .odds_bovada import fetch_bovada_player_props_current
 
 
 _PROPS_PROB_CALIB_CACHE: dict[str, object] | None = None
+_PROPS_PROB_CALIB_ALPHA: float | None = None
+
+
+def _get_props_prob_calib_alpha() -> float:
+    """Return runtime blend strength for probability calibration.
+
+    This blends between identity and the saved monotone calibration curve:
+      p_final = (1-alpha) * p_raw + alpha * p_curve
+
+    Set via env var PROPS_PROB_CALIB_ALPHA in [0, 1]. Default: 1.
+    """
+    global _PROPS_PROB_CALIB_ALPHA
+    if _PROPS_PROB_CALIB_ALPHA is not None:
+        return float(_PROPS_PROB_CALIB_ALPHA)
+    raw = (os.environ.get("PROPS_PROB_CALIB_ALPHA") or "").strip()
+    if not raw:
+        _PROPS_PROB_CALIB_ALPHA = 1.0
+        return 1.0
+    try:
+        v = float(raw)
+        v = float(max(0.0, min(1.0, v)))
+        _PROPS_PROB_CALIB_ALPHA = v
+        return v
+    except Exception:
+        _PROPS_PROB_CALIB_ALPHA = 1.0
+        return 1.0
 
 
 def _is_sane_prob_calibration(xs: list[float], ys: list[float]) -> bool:
@@ -184,16 +211,26 @@ def _apply_props_prob_calibration(p: float, stat: str | None = None) -> float:
         ys = curve.get("y") or []
         if not (isinstance(xs, list) and isinstance(ys, list) and len(xs) >= 2 and len(xs) == len(ys)):
             return pv
+
+        ycal: float
         if pv <= xs[0]:
-            return float(ys[0])
-        if pv >= xs[-1]:
-            return float(ys[-1])
-        for i in range(len(xs) - 1):
-            x0 = float(xs[i]); x1 = float(xs[i + 1])
-            if x0 <= pv <= x1:
-                y0 = float(ys[i]); y1 = float(ys[i + 1])
-                t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
-                return float((1.0 - t) * y0 + t * y1)
+            ycal = float(ys[0])
+        elif pv >= xs[-1]:
+            ycal = float(ys[-1])
+        else:
+            ycal = pv
+            for i in range(len(xs) - 1):
+                x0 = float(xs[i]); x1 = float(xs[i + 1])
+                if x0 <= pv <= x1:
+                    y0 = float(ys[i]); y1 = float(ys[i + 1])
+                    t = 0.0 if x1 == x0 else (pv - x0) / (x1 - x0)
+                    ycal = float((1.0 - t) * y0 + t * y1)
+                    break
+
+        a = _get_props_prob_calib_alpha()
+        if a >= 0.999:
+            return float(max(0.0, min(1.0, ycal)))
+        return float(max(0.0, min(1.0, (1.0 - a) * pv + a * ycal)))
         return pv
     except Exception:
         try:

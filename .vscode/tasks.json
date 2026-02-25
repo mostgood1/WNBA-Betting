@@ -819,6 +819,36 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Tune: props prob calibration alpha sweep (60d)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\sweep_props_prob_calib_alpha.py' --days 60 --step 0.05 --by-stat"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
+			"label": "Tune: rebuild props calibration + sweep alpha (60d)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-Command",
+				"& '${workspaceFolder}\\scripts\\run_props_calibration.ps1' -Days 60 -MinBetsPerStat 250 -Alpha 0.35; & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\sweep_props_prob_calib_alpha.py' --days 60 --step 0.05 --by-stat"
+			],
+			"isBackground": false,
+			"group": "build",
+			"problemMatcher": []
+		},
+		{
 			"label": "Health: ping endpoints",
 			"type": "shell",
 			"command": "powershell",

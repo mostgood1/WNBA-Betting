@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -33,6 +34,13 @@ def _mtime_date(p: Path):
         return None
 
 
+def _mtime_dt(p: Path):
+    try:
+        return datetime.fromtimestamp(p.stat().st_mtime)
+    except Exception:
+        return None
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(
         description=(
@@ -48,6 +56,15 @@ def main() -> None:
         type=int,
         default=0,
         help="Allowed mismatches before failing (default 0)",
+    )
+    ap.add_argument(
+        "--stale-grace-hours",
+        type=float,
+        default=None,
+        help=(
+            "If --fail-if-stale is set, allow rosters whose mtime is within this many hours of the target date "
+            "(prevents noisy refresh loops when NBA Stats endpoints are flaky). Default: env DAILY_ROSTERS_STALE_GRACE_HOURS or 72."
+        ),
     )
     args = ap.parse_args()
 
@@ -65,8 +82,33 @@ def main() -> None:
 
     # Freshness check
     rosters_mtime = _mtime_date(rosters_path)
-    target_date = pd.to_datetime(date_str, errors="coerce").date()
-    stale = bool(rosters_mtime is not None and rosters_mtime < target_date)
+    rosters_mtime_dt = _mtime_dt(rosters_path)
+    target_dt = pd.to_datetime(date_str, errors="coerce")
+    if pd.isna(target_dt):
+        raise SystemExit(f"invalid date: {date_str}")
+    target_dt = datetime(target_dt.year, target_dt.month, target_dt.day)
+
+    stale_strict = bool(rosters_mtime_dt is not None and rosters_mtime_dt < target_dt)
+
+    # Grace window: treat a roster file as acceptable if it's only slightly older than the target date.
+    grace_hours = args.stale_grace_hours
+    if grace_hours is None:
+        ev = os.environ.get("DAILY_ROSTERS_STALE_GRACE_HOURS", "").strip()
+        try:
+            grace_hours = float(ev) if ev else 72.0
+        except Exception:
+            grace_hours = 72.0
+    if grace_hours < 0:
+        grace_hours = 0.0
+
+    within_grace = False
+    if stale_strict and rosters_mtime_dt is not None and grace_hours > 0:
+        try:
+            within_grace = (target_dt - rosters_mtime_dt).total_seconds() <= float(grace_hours) * 3600.0
+        except Exception:
+            within_grace = False
+
+    stale_for_fail = bool(stale_strict and not within_grace)
 
     league = pd.read_csv(league_path)
     rosters = pd.read_csv(rosters_path)
@@ -163,7 +205,11 @@ def main() -> None:
         "league_status": str(league_path),
         "rosters": str(rosters_path),
         "rosters_mtime_date": None if rosters_mtime is None else rosters_mtime.isoformat(),
-        "stale": stale,
+        "rosters_mtime": None if rosters_mtime_dt is None else rosters_mtime_dt.isoformat(timespec="seconds"),
+        "stale_strict": stale_strict,
+        "stale_grace_hours": float(grace_hours),
+        "within_stale_grace": within_grace,
+        "stale": stale_for_fail,
         "on_slate_rows_checked": int(len(league_small)),
         "mismatches_n": int(len(mism)),
         "duplicate_roster_player_ids": dup_players,
@@ -175,7 +221,7 @@ def main() -> None:
     print(json.dumps(out, indent=2))
 
     # Multi-team duplicates are common around trades/transactions; report but do not fail.
-    if args.fail_if_stale and stale:
+    if args.fail_if_stale and stale_for_fail:
         raise SystemExit(4)
     if int(len(mism)) > int(args.max_mismatches):
         raise SystemExit(2)
