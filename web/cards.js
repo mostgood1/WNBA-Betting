@@ -971,48 +971,6 @@ function attachLiveLensHandlers(root, games) {
     // ignore
   }
 
-  // Player lens pills (stat + signal) click handler
-  try {
-    if (root && root.dataset && root.dataset.playerLensPillsBound !== '1') {
-      root.dataset.playerLensPillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const btn = ev && ev.target && ev.target.closest
-            ? ev.target.closest('button.lens-player-filter-btn[data-kind][data-key]')
-            : null;
-          if (!btn) return;
-          const wrap = btn.closest ? btn.closest('.live-lens') : null;
-          if (!wrap) return;
-          const gid = canonGameId(wrap.dataset.gameId);
-          if (!gid) return;
-
-          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
-          const rawKey = String(btn.dataset.key || '').trim();
-          if (!rawKey) return;
-
-          const st = getPlayerLensFilterForGid(gid);
-          if (kind === 'stat') {
-            const key = rawKey.toLowerCase();
-            if (st.stats.has(key)) st.stats.delete(key);
-            else st.stats.add(key);
-          } else if (kind === 'sig') {
-            const key = rawKey.toUpperCase();
-            if (st.signals.has(key)) st.signals.delete(key);
-            else st.signals.add(key);
-          } else {
-            return;
-          }
-
-          applyPlayerLensFiltersForWrap(wrap);
-        } catch (_) {
-          // ignore
-        }
-      });
-    }
-  } catch (_) {
-    // ignore
-  }
-
   // Build intervals lookup by card key (home|away)
   const idx = new Map();
   const gameMetaByKey = new Map();
@@ -2472,6 +2430,7 @@ let __liveLensTuningAt = 0;
 // UI filters (client-side only)
 const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
 const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string> }
+const __playerLensGlobalFilters = { stats: new Set(), signals: new Set() }; // empty => all
 
 function chipSetActive(el, active) {
   try {
@@ -2518,14 +2477,56 @@ function getPlayerLensFilterForGid(gid) {
   return fresh;
 }
 
+function applyPlayerLensGlobalPills(root) {
+  try {
+    if (!root) return;
+    const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
+    const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const statsAny = !!(statsSel && statsSel.size);
+    const sigAny = !!(sigSel && sigSel.size);
+
+    const statBtns = root.querySelectorAll('button.player-prop-pill[data-kind="stat"][data-key]');
+    statBtns.forEach((b) => {
+      const key = String(b.dataset.key || '').toLowerCase().trim();
+      chipSetActive(b, statsAny ? statsSel.has(key) : false);
+    });
+    const sigBtns = root.querySelectorAll('button.player-prop-pill[data-kind="sig"][data-key]');
+    sigBtns.forEach((b) => {
+      const key = String(b.dataset.key || '').toUpperCase().trim();
+      chipSetActive(b, sigAny ? sigSel.has(key) : false);
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function applyPlayerLensFiltersAll(root) {
+  try {
+    if (!root) return;
+    applyPlayerLensGlobalPills(root);
+    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
+    wraps.forEach((w) => {
+      try { applyPlayerLensFiltersForWrap(w); } catch (_) { /* ignore */ }
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
 function applyPlayerLensFiltersForWrap(wrap) {
   try {
     if (!wrap) return;
     const gid = canonGameId(wrap.dataset.gameId);
     if (!gid) return;
+    const g = __playerLensGlobalFilters || { stats: new Set(), signals: new Set() };
+    const gStatsSel = g.stats || new Set();
+    const gSigSel = g.signals || new Set();
+    const gStatsAny = !!(gStatsSel && gStatsSel.size);
+    const gSigAny = !!(gSigSel && gSigSel.size);
+
     const st = getPlayerLensFilterForGid(gid);
-    const statsSel = st.stats;
-    const sigSel = st.signals;
+    const statsSel = (gStatsAny ? gStatsSel : st.stats);
+    const sigSel = (gSigAny ? gSigSel : st.signals);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
@@ -2735,23 +2736,8 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       ? 'Final (actuals only).'
       : 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).';
 
-    const pills = `
-      <div class="row chips lens-player-filters" style="margin-top:6px; flex-wrap:wrap;">
-        <span class="chip title">Props</span>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
-        <span class="chip title" style="margin-left:6px;">Signal</span>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
-      </div>
-    `;
-
     return `
       <div class="subtle">${esc(note)}</div>
-      ${pills}
       <div class="table-wrap" style="margin-top:6px;">
         <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
           <thead>
@@ -5361,7 +5347,29 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     }
   })();
 
-  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+  // Global player prop filters (stat + BET/WATCH). Empty selection => show all.
+  const playerPropPillsHtml = (() => {
+    try {
+      return `
+        <div class="row chips" id="player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
+          <span class="chip title">Player Props</span>
+          <button type="button" class="chip neutral" data-player-prop-pill-all="1" aria-pressed="false">ALL</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
+          <span class="chip title" style="margin-left:6px;">Signal</span>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
+        </div>
+      `;
+    } catch (_) {
+      return '';
+    }
+  })();
+
+  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n${playerPropPillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
 
   // Game pills click handler
   try {
@@ -5388,6 +5396,51 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       });
     }
     applyGamePillsFilter(root);
+  } catch (_) {
+    // ignore
+  }
+
+  // Global player prop pills click handler
+  try {
+    if (root && root.dataset && root.dataset.playerPropPillsBound !== '1') {
+      root.dataset.playerPropPillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-player-prop-pill-all]') : null;
+          if (allBtn) {
+            try { __playerLensGlobalFilters.stats.clear(); } catch (_) { /* ignore */ }
+            try { __playerLensGlobalFilters.signals.clear(); } catch (_) { /* ignore */ }
+            applyPlayerLensFiltersAll(root);
+            return;
+          }
+
+          const btn = ev.target && ev.target.closest
+            ? ev.target.closest('button.player-prop-pill[data-kind][data-key]')
+            : null;
+          if (!btn) return;
+          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+          const rawKey = String(btn.dataset.key || '').trim();
+          if (!rawKey) return;
+
+          if (kind === 'stat') {
+            const key = rawKey.toLowerCase();
+            if (__playerLensGlobalFilters.stats.has(key)) __playerLensGlobalFilters.stats.delete(key);
+            else __playerLensGlobalFilters.stats.add(key);
+          } else if (kind === 'sig') {
+            const key = rawKey.toUpperCase();
+            if (__playerLensGlobalFilters.signals.has(key)) __playerLensGlobalFilters.signals.delete(key);
+            else __playerLensGlobalFilters.signals.add(key);
+          } else {
+            return;
+          }
+
+          applyPlayerLensFiltersAll(root);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+    applyPlayerLensFiltersAll(root);
   } catch (_) {
     // ignore
   }
