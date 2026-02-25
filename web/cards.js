@@ -3302,7 +3302,44 @@ function startLiveLensPolling(root, games, dateStr) {
       try {
         const body = el.querySelector('.lens-player-body');
         if (body) {
+          // Preserve scroll position within the player lens table across refreshes.
+          // The polling loop re-renders via innerHTML, which otherwise resets scrollTop.
+          let prev = null;
+          try {
+            const oldWrap = body.querySelector('.table-wrap');
+            if (oldWrap && (oldWrap.scrollHeight > oldWrap.clientHeight + 2 || oldWrap.scrollWidth > oldWrap.clientWidth + 2)) {
+              prev = { kind: 'wrap', top: oldWrap.scrollTop, left: oldWrap.scrollLeft };
+            } else if (body.scrollHeight > body.clientHeight + 2 || body.scrollWidth > body.clientWidth + 2) {
+              prev = { kind: 'body', top: body.scrollTop, left: body.scrollLeft };
+            }
+          } catch (_) {
+            prev = null;
+          }
+
           body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
+
+          try {
+            if (prev && typeof requestAnimationFrame === 'function') {
+              requestAnimationFrame(() => {
+                try {
+                  if (prev.kind === 'wrap') {
+                    const newWrap = body.querySelector('.table-wrap');
+                    if (newWrap) {
+                      newWrap.scrollTop = prev.top;
+                      newWrap.scrollLeft = prev.left;
+                      return;
+                    }
+                  }
+                  body.scrollTop = prev.top;
+                  body.scrollLeft = prev.left;
+                } catch (_) {
+                  // ignore
+                }
+              });
+            }
+          } catch (_) {
+            // ignore
+          }
         }
       } catch (_) {
         // ignore
