@@ -971,6 +971,48 @@ function attachLiveLensHandlers(root, games) {
     // ignore
   }
 
+  // Player lens pills (stat + signal) click handler
+  try {
+    if (root && root.dataset && root.dataset.playerLensPillsBound !== '1') {
+      root.dataset.playerLensPillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const btn = ev && ev.target && ev.target.closest
+            ? ev.target.closest('button.lens-player-filter-btn[data-kind][data-key]')
+            : null;
+          if (!btn) return;
+          const wrap = btn.closest ? btn.closest('.live-lens') : null;
+          if (!wrap) return;
+          const gid = canonGameId(wrap.dataset.gameId);
+          if (!gid) return;
+
+          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+          const rawKey = String(btn.dataset.key || '').trim();
+          if (!rawKey) return;
+
+          const st = getPlayerLensFilterForGid(gid);
+          if (kind === 'stat') {
+            const key = rawKey.toLowerCase();
+            if (st.stats.has(key)) st.stats.delete(key);
+            else st.stats.add(key);
+          } else if (kind === 'sig') {
+            const key = rawKey.toUpperCase();
+            if (st.signals.has(key)) st.signals.delete(key);
+            else st.signals.add(key);
+          } else {
+            return;
+          }
+
+          applyPlayerLensFiltersForWrap(wrap);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
+
   // Build intervals lookup by card key (home|away)
   const idx = new Map();
   const gameMetaByKey = new Map();
@@ -2427,6 +2469,93 @@ const __liveLensLastProjLogged = new Map();
 let __liveLensTuning = null;
 let __liveLensTuningAt = 0;
 
+// UI filters (client-side only)
+const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
+const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string> }
+
+function chipSetActive(el, active) {
+  try {
+    if (!el || !el.classList) return;
+    el.classList.remove('neutral', 'positive');
+    el.classList.add(active ? 'positive' : 'neutral');
+    try { el.setAttribute('aria-pressed', active ? 'true' : 'false'); } catch (_) { /* ignore */ }
+  } catch (_) {
+    // ignore
+  }
+}
+
+function applyGamePillsFilter(root) {
+  try {
+    if (!root) return;
+    const activeSet = __gamePillsSelected;
+    const any = !!(activeSet && activeSet.size);
+
+    const pills = root.querySelectorAll('button.game-pill[data-game-id]');
+    pills.forEach((btn) => {
+      const gid = canonGameId(btn.dataset.gameId);
+      const on = any ? activeSet.has(gid) : false;
+      chipSetActive(btn, on);
+    });
+
+    const cards = root.querySelectorAll('.card.card-v2[data-game-id]');
+    cards.forEach((sec) => {
+      const gid = canonGameId(sec.dataset.gameId);
+      const show = any ? activeSet.has(gid) : true;
+      sec.classList.toggle('hidden', !show);
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function getPlayerLensFilterForGid(gid) {
+  const k = canonGameId(gid);
+  if (!k) return { stats: new Set(), signals: new Set() };
+  const cur = __playerLensFilters.get(k);
+  if (cur && cur.stats && cur.signals) return cur;
+  const fresh = { stats: new Set(), signals: new Set() };
+  __playerLensFilters.set(k, fresh);
+  return fresh;
+}
+
+function applyPlayerLensFiltersForWrap(wrap) {
+  try {
+    if (!wrap) return;
+    const gid = canonGameId(wrap.dataset.gameId);
+    if (!gid) return;
+    const st = getPlayerLensFilterForGid(gid);
+    const statsSel = st.stats;
+    const sigSel = st.signals;
+    const statsAny = !!(statsSel && statsSel.size);
+    const sigAny = !!(sigSel && sigSel.size);
+
+    const statBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="stat"]');
+    statBtns.forEach((b) => {
+      const key = String(b.dataset.key || '').toLowerCase().trim();
+      chipSetActive(b, statsAny ? statsSel.has(key) : false);
+    });
+
+    const sigBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="sig"]');
+    sigBtns.forEach((b) => {
+      const key = String(b.dataset.key || '').toUpperCase().trim();
+      chipSetActive(b, sigAny ? sigSel.has(key) : false);
+    });
+
+    const body = wrap.querySelector('.lens-player-body');
+    if (!body) return;
+    const rows = body.querySelectorAll('table.player-lens-table tbody tr');
+    rows.forEach((tr) => {
+      const stat = String(tr.dataset.stat || '').toLowerCase().trim();
+      const sig = String(tr.dataset.sig || '').toUpperCase().trim();
+      const okStat = statsAny ? statsSel.has(stat) : true;
+      const okSig = sigAny ? sigSel.has(sig) : true;
+      tr.classList.toggle('hidden', !(okStat && okSig));
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
 function roundHalf(x) {
   const v = n(x);
   if (v == null) return null;
@@ -2585,8 +2714,9 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
         ? `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(sigTxt)}</span>`
         : esc(sigTxt);
       const hasLine = (line != null);
+      const sigKey = (klass === 'BET' || klass === 'WATCH') ? klass : 'NONE';
       return `
-        <tr data-has-line="${hasLine ? '1' : '0'}">
+        <tr data-has-line="${hasLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}">
           <td><span class="badge">${esc(teamTri)}</span> ${esc(player)}</td>
           <td>${esc(mk)}</td>
           <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
@@ -2605,8 +2735,23 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       ? 'Final (actuals only).'
       : 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).';
 
+    const pills = `
+      <div class="row chips lens-player-filters" style="margin-top:6px; flex-wrap:wrap;">
+        <span class="chip title">Props</span>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
+        <span class="chip title" style="margin-left:6px;">Signal</span>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
+      </div>
+    `;
+
     return `
       <div class="subtle">${esc(note)}</div>
+      ${pills}
       <div class="table-wrap" style="margin-top:6px;">
         <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
           <thead>
@@ -3317,6 +3462,9 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
+
+          // Re-apply user filters after re-render.
+          try { applyPlayerLensFiltersForWrap(el); } catch (_) { /* ignore */ }
 
           try {
             if (prev && typeof requestAnimationFrame === 'function') {
@@ -5190,7 +5338,59 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     `;
   }).join('\n');
 
-  root.innerHTML = `${stripHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+  // Game filter pills (multi-select). Empty selection => show all.
+  const gamePillsHtml = (() => {
+    try {
+      const items = games.map((g) => {
+        const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''))
+          || `${String(g.home_tri || '').toUpperCase().trim()}_${String(g.away_tri || '').toUpperCase().trim()}`;
+        const homeTri = String(g.home_tri || '').toUpperCase().trim();
+        const awayTri = String(g.away_tri || '').toUpperCase().trim();
+        const txt = `${awayTri} @ ${homeTri}`.trim();
+        return `<button type="button" class="chip neutral game-pill" data-game-id="${esc(gid)}" aria-pressed="false">${esc(txt)}</button>`;
+      }).join('');
+      return `
+        <div class="row chips" id="game-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
+          <span class="chip title">Games</span>
+          <button type="button" class="chip neutral" data-game-pill-all="1" aria-pressed="false">ALL</button>
+          ${items}
+        </div>
+      `;
+    } catch (_) {
+      return '';
+    }
+  })();
+
+  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+
+  // Game pills click handler
+  try {
+    if (root && root.dataset && root.dataset.gamePillsBound !== '1') {
+      root.dataset.gamePillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-game-pill-all]') : null;
+          if (allBtn) {
+            __gamePillsSelected.clear();
+            applyGamePillsFilter(root);
+            return;
+          }
+          const btn = ev.target && ev.target.closest ? ev.target.closest('button.game-pill[data-game-id]') : null;
+          if (!btn) return;
+          const gid = canonGameId(btn.dataset.gameId);
+          if (!gid) return;
+          if (__gamePillsSelected.has(gid)) __gamePillsSelected.delete(gid);
+          else __gamePillsSelected.add(gid);
+          applyGamePillsFilter(root);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+    applyGamePillsFilter(root);
+  } catch (_) {
+    // ignore
+  }
 
   // Scoreboard strip click-to-scroll
   try {
