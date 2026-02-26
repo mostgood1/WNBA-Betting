@@ -783,7 +783,7 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
                 if c not in gdf.columns:
                     gdf[c] = ""
             rows = []
-            for keys, g in gdf.groupby(grp_cols, dropna=False):
+            for keys, g in gdf.groupby(grp_cols, dropna=False, observed=False):
                 h = _hit_rate(g)
                 n = int(h.get("wins", 0) + h.get("losses", 0) + h.get("pushes", 0))
                 denom = int(h.get("wins", 0) + h.get("losses", 0))
@@ -851,6 +851,62 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
             for s in suggestions[:8]:
                 lines.append(f"- {s}")
             lines.append("")
+
+        # De-dup diagnostics: repeated ticks can inflate/deflate hit rates.
+        # These views approximate "one decision per prop" policies.
+        try:
+            p0 = props_scored.copy()
+            p0["_idx"] = range(len(p0))
+            p0["_elapsed"] = pd.to_numeric(p0.get("elapsed"), errors="coerce")
+
+            def _dedup_latest(df0: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+                d = df0.copy().sort_values(["_elapsed", "_idx"], ascending=[True, True], na_position="last")
+                return d.drop_duplicates(subset=cols, keep="last")
+
+            def _dedup_earliest(df0: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+                d = df0.copy().sort_values(["_elapsed", "_idx"], ascending=[True, True], na_position="last")
+                return d.drop_duplicates(subset=cols, keep="first")
+
+            def _dedup_max_strength(df0: pd.DataFrame, cols: list[str]) -> pd.DataFrame:
+                d = df0.copy()
+                d["_abs_strength"] = pd.to_numeric(d.get("strength"), errors="coerce").abs()
+                d = d.sort_values(["_abs_strength", "_idx"], ascending=[True, True], na_position="last")
+                return d.drop_duplicates(subset=cols, keep="last")
+
+            key_line = ["game_id", "name_key", "stat_key", "side", "live_line"]
+            key_base = ["game_id", "name_key", "stat_key", "side"]
+
+            a_last = _dedup_latest(p0, key_line)
+            b_last = _dedup_latest(p0, key_base)
+            b_first = _dedup_earliest(p0, key_base)
+            b_max = _dedup_max_strength(p0, key_base)
+
+            # Base-key: first time it becomes BET, else first seen.
+            # Avoid groupby.apply (pandas deprecation) by using stable sort + head(1).
+            p_sorted = p0.sort_values(["_elapsed", "_idx"], ascending=[True, True], na_position="last")
+            first_any = p_sorted.groupby(key_base, dropna=False, sort=False).head(1).set_index(key_base)
+            first_bet = (
+                p_sorted[p_sorted.get("klass").astype(str) == "BET"]
+                .groupby(key_base, dropna=False, sort=False)
+                .head(1)
+                .set_index(key_base)
+            )
+            b_first_bet = first_any.copy()
+            if not first_bet.empty:
+                idx = first_bet.index
+                b_first_bet.loc[idx, :] = first_bet.loc[idx, :].values
+            b_first_bet = b_first_bet.reset_index(drop=True)
+
+            lines.append("### De-dup diagnostics")
+            lines.append(f"- no dedup: {_fmt_hits(_hit_rate(p0))}")
+            lines.append(f"- key=(game,player,stat,side,live_line) latest: {_fmt_hits(_hit_rate(a_last))}")
+            lines.append(f"- key=(game,player,stat,side) latest: {_fmt_hits(_hit_rate(b_last))}")
+            lines.append(f"- key=(game,player,stat,side) first seen: {_fmt_hits(_hit_rate(b_first))}")
+            lines.append(f"- key=(game,player,stat,side) first BET (else first): {_fmt_hits(_hit_rate(b_first_bet))}")
+            lines.append(f"- key=(game,player,stat,side) max |strength|: {_fmt_hits(_hit_rate(b_max))}")
+            lines.append("")
+        except Exception:
+            pass
 
         # Biggest misses (high |edge| but wrong side)
         props_scored["abs_edge"] = props_scored["edge"].abs().fillna(0.0)

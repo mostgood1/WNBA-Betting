@@ -150,6 +150,25 @@ def _american_profit(price: float, win: bool) -> float:
     return 100.0 / abs(p)
 
 
+def _clean_american_price(price: float | None) -> float | None:
+    """Validate that an American odds price looks plausible for betting markets."""
+    try:
+        if price is None:
+            return None
+        p = float(price)
+        if not math.isfinite(p) or p == 0:
+            return None
+        ap = abs(p)
+        # Props odds are rarely shorter than -2000 or longer than +2000.
+        # Also guard against clearly-wrong values like -4 or 0.95.
+        if ap < 50:
+            return None
+        if ap > 10000:
+            return None
+        return float(p)
+    except Exception:
+        return None
+
 def _settle_over_under(actual: float, line: float, side: str) -> tuple[str, bool | None]:
     s = (side or "").strip().upper()
     if s not in {"OVER", "UNDER"}:
@@ -239,6 +258,101 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
             if isinstance(obj, dict):
                 out.append(obj)
     return out
+
+
+def _dedup_key_for_signal(obj: dict[str, Any]) -> tuple[Any, ...] | None:
+    try:
+        market = str(obj.get("market") or "").strip().lower()
+        if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
+            return None
+
+        gid = _canon_nba_game_id(obj.get("game_id")) or None
+        horizon = str(obj.get("horizon") or "").strip().lower() or None
+        side = str(obj.get("side") or "").strip().upper() or None
+
+        if market == "player_prop":
+            stat_key = _live_stat_key(obj.get("stat"))
+            name_key = _norm_player_name(str(obj.get("name_key") or obj.get("player") or ""))
+            if not name_key or not stat_key:
+                return None
+            # "Bet idea" key: (game, player, stat, side)
+            return (market, gid, name_key, stat_key, side)
+
+        if market in {"total", "half_total", "quarter_total"}:
+            return (market, gid, horizon, side)
+
+        # ATS side strings include team+spread, so side is already descriptive.
+        return (market, gid, side)
+    except Exception:
+        return None
+
+
+def _signal_sort_key(obj: dict[str, Any], idx: int) -> tuple[float, int]:
+    # Earlier first. Fall back to original order for stability.
+    ts = None
+    for k in ("received_at", "ts", "created_at"):
+        if obj.get(k):
+            ts = _parse_iso_ts(obj.get(k))
+            if ts is not None:
+                break
+    if ts is not None:
+        try:
+            return (float(ts.timestamp()), int(idx))
+        except Exception:
+            return (float(idx), int(idx))
+    return (float(idx), int(idx))
+
+
+def _dedup_signals(signals: list[dict[str, Any]], policy: str) -> list[dict[str, Any]]:
+    p = str(policy or "none").strip().lower()
+    if p in {"none", "off", "0", "false"}:
+        return signals
+
+    groups: dict[tuple[Any, ...], list[tuple[int, dict[str, Any]]]] = {}
+    for i, obj in enumerate(signals):
+        if not isinstance(obj, dict):
+            continue
+        k = _dedup_key_for_signal(obj)
+        if k is None:
+            # Keep unkeyable rows (rare) by giving them unique keys.
+            k = ("__unkeyable__", i)
+        groups.setdefault(k, []).append((i, obj))
+
+    picked: list[tuple[int, dict[str, Any]]] = []
+    for _, items in groups.items():
+        if not items:
+            continue
+
+        if p == "latest":
+            best = max(items, key=lambda it: _signal_sort_key(it[1], it[0]))
+            picked.append(best)
+            continue
+
+        if p == "max_strength":
+            def _strength_key(it: tuple[int, dict[str, Any]]) -> tuple[float, float, int]:
+                i0, o0 = it
+                s = _n(o0.get("strength"))
+                v = abs(float(s)) if (s is not None and math.isfinite(float(s))) else float("-inf")
+                ts0, _ = _signal_sort_key(o0, i0)
+                return (v, -float(ts0), -int(i0))
+
+            best = max(items, key=_strength_key)
+            picked.append(best)
+            continue
+
+        if p == "first_bet":
+            bet_items = [it for it in items if str(it[1].get("klass") or "").strip().upper() == "BET"]
+            cand = bet_items or items
+            best = min(cand, key=lambda it: _signal_sort_key(it[1], it[0]))
+            picked.append(best)
+            continue
+
+        # default: first
+        best = min(items, key=lambda it: _signal_sort_key(it[1], it[0]))
+        picked.append(best)
+
+    picked.sort(key=lambda it: it[0])
+    return [obj for _, obj in picked]
 
 
 def _load_csv(path: Path) -> pd.DataFrame:
@@ -404,11 +518,26 @@ class Scored:
     strength: float | None
 
 
-def _score_rows(ds: str, assumed_juice: float, include_watch: bool) -> list[Scored]:
+def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy: str) -> tuple[list[Scored], dict[str, Any]]:
     sig_path = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     sigs = _load_jsonl(sig_path)
     if not sigs:
-        return []
+        return [], {"dedup_policy": str(dedup_policy), "signals_raw": 0, "signals_filtered": 0, "signals_dedup": 0}
+
+    # Pre-filter to the rows we're going to consider in this run, then de-dup.
+    filtered: list[dict[str, Any]] = []
+    for obj in sigs:
+        if not isinstance(obj, dict):
+            continue
+        market = str(obj.get("market") or "").strip().lower()
+        if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
+            continue
+        klass = str(obj.get("klass") or "").strip().upper() or None
+        if not include_watch and klass != "BET":
+            continue
+        filtered.append(obj)
+
+    sigs = _dedup_signals(filtered, policy=str(dedup_policy))
 
     rg = _prep_recon_games(_load_csv(PROCESSED / f"recon_games_{ds}.csv"))
     rq = _prep_recon_quarters(_load_csv(PROCESSED / f"recon_quarters_{ds}.csv"))
@@ -418,12 +547,7 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool) -> list[Scor
 
     for obj in sigs:
         market = str(obj.get("market") or "").strip().lower()
-        if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
-            continue
-
         klass = str(obj.get("klass") or "").strip().upper() or None
-        if not include_watch and klass != "BET":
-            continue
 
         gid = _canon_nba_game_id(obj.get("game_id")) or None
         home = str(obj.get("home") or "").strip().upper() or None
@@ -514,6 +638,8 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool) -> list[Scor
                 if ctx_price is None:
                     ctx_price = _n(ctx.get("price"))
 
+            ctx_price = _clean_american_price(ctx_price)
+
             if ctx_price is not None:
                 price = float(ctx_price)
             else:
@@ -573,7 +699,13 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool) -> list[Scor
             )
         )
 
-    return out
+    meta = {
+        "dedup_policy": str(dedup_policy),
+        "signals_raw": int(len(_load_jsonl(sig_path))),
+        "signals_filtered": int(len(filtered)),
+        "signals_dedup": int(len(sigs)),
+    }
+    return out, meta
 
 
 def _summary_table(df: pd.DataFrame) -> pd.DataFrame:
@@ -604,11 +736,34 @@ def _summary_table(df: pd.DataFrame) -> pd.DataFrame:
             }
         )
 
+    d = df.copy()
+    d["profit_u"] = pd.to_numeric(d["profit_u"], errors="coerce")
+    d["_is_settled"] = d["outcome"].isin(["WIN", "LOSS", "PUSH"]).astype(int)
+    d["_is_win"] = (d["outcome"] == "WIN").astype(int)
+    d["_is_loss"] = (d["outcome"] == "LOSS").astype(int)
+    d["_is_push"] = (d["outcome"] == "PUSH").astype(int)
+
     group_cols = ["market", "horizon", "klass"]
-    out = df.groupby(group_cols, dropna=False, as_index=False).apply(_agg).reset_index()
-    # pandas adds extra index columns sometimes
-    out = out.drop(columns=["level_0", "level_1", "index"], errors="ignore")
-    out = out.sort_values(["market", "horizon", "klass"], ascending=[True, True, True])
+    out = (
+        d.groupby(group_cols, dropna=False, as_index=False)
+        .agg(
+            n=("outcome", "size"),
+            settled=("_is_settled", "sum"),
+            wins=("_is_win", "sum"),
+            losses=("_is_loss", "sum"),
+            pushes=("_is_push", "sum"),
+            profit_u=("profit_u", "sum"),
+        )
+        .sort_values(["market", "horizon", "klass"], ascending=[True, True, True])
+    )
+
+    out["profit_u"] = out["profit_u"].fillna(0.0).astype(float).round(4)
+
+    denom = (out["wins"] + out["losses"] + out["pushes"]).clip(lower=1).astype(float)
+    out["roi_u_per_bet"] = (out["profit_u"] / denom).round(4)
+
+    wr_denom = (out["wins"] + out["losses"]).clip(lower=1).astype(float)
+    out["win_rate"] = (out["wins"].astype(float) / wr_denom).round(4)
     return out
 
 
@@ -650,6 +805,12 @@ def main() -> int:
         action="store_true",
         help="Include WATCH rows (default: BET only)",
     )
+    ap.add_argument(
+        "--dedup-policy",
+        default="first_bet",
+        choices=["first_bet", "first", "latest", "max_strength", "none"],
+        help="De-duplicate signals per bet-idea before settling (default: first_bet)",
+    )
     args = ap.parse_args()
 
     if args.date:
@@ -659,7 +820,12 @@ def main() -> int:
 
     REPORTS.mkdir(parents=True, exist_ok=True)
 
-    scored = _score_rows(ds, assumed_juice=float(args.assumed_juice), include_watch=bool(args.include_watch))
+    scored, meta = _score_rows(
+        ds,
+        assumed_juice=float(args.assumed_juice),
+        include_watch=bool(args.include_watch),
+        dedup_policy=str(args.dedup_policy),
+    )
     if not scored:
         print(f"No scored rows for {ds} (missing logs or no settled markets)")
         return 2
@@ -705,13 +871,28 @@ def main() -> int:
                 }
             )
 
+        tmp["profit_u"] = pd.to_numeric(tmp["profit_u"], errors="coerce")
+        tmp["_is_win"] = (tmp["outcome"] == "WIN").astype(int)
+        tmp["_is_loss"] = (tmp["outcome"] == "LOSS").astype(int)
+        tmp["_is_push"] = (tmp["outcome"] == "PUSH").astype(int)
+
         bucket_df = (
-            tmp.groupby(["market", "rem_bucket", "klass"], dropna=False)
-            .apply(_agg_b)
-            .reset_index()
-            .drop(columns=["index"], errors="ignore")
+            tmp.groupby(["market", "rem_bucket", "klass"], dropna=False, as_index=False)
+            .agg(
+                n=("outcome", "size"),
+                wins=("_is_win", "sum"),
+                losses=("_is_loss", "sum"),
+                pushes=("_is_push", "sum"),
+                profit_u=("profit_u", "sum"),
+            )
             .sort_values(["market", "klass", "rem_bucket"], ascending=[True, True, False])
         )
+
+        bucket_df["profit_u"] = bucket_df["profit_u"].fillna(0.0).astype(float).round(4)
+        denom = (bucket_df["wins"] + bucket_df["losses"] + bucket_df["pushes"]).clip(lower=1).astype(float)
+        bucket_df["roi_u_per_bet"] = (bucket_df["profit_u"] / denom).round(4)
+        wr_denom = (bucket_df["wins"] + bucket_df["losses"]).clip(lower=1).astype(float)
+        bucket_df["win_rate"] = (bucket_df["wins"].astype(float) / wr_denom).round(4)
 
     out_md = REPORTS / f"live_lens_roi_{ds}.md"
 
@@ -720,6 +901,11 @@ def main() -> int:
     md.append("")
     md.append(f"- include_watch: {bool(args.include_watch)}")
     md.append(f"- assumed_juice: -{abs(float(args.assumed_juice))}")
+    md.append(f"- dedup_policy: {str(args.dedup_policy)}")
+    try:
+        md.append(f"- signals: {int(meta.get('signals_filtered') or 0)} -> {int(meta.get('signals_dedup') or 0)} (deduped)")
+    except Exception:
+        pass
     md.append("")
     md.append("## Summary (by market / horizon / klass)")
     md.append("")

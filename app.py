@@ -112,6 +112,7 @@ _live_player_lens_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 # ---- Live Lens cron tick (best-effort throttling) ----
 _live_lens_tick_last_logged: dict[str, str] = {}
 _live_lens_tick_last_proj_logged: dict[str, str] = {}
+_live_lens_tick_first_bet_logged: dict[str, str] = {}
 _live_lens_tick_lock = threading.Lock()
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
@@ -24053,6 +24054,7 @@ def api_cron_live_lens_tick():
       - recent_window_sec: passed to /api/live_player_lens (default 180)
       - include_total: 1/0 (default 1)
       - include_player_props: 1/0 (default 1)
+            - first_bet_only: 1/0 (default 1; when enabled, logs at most the first BET per unique idea)
       - ttl: forwarded to live endpoints (default 15)
 
     Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
@@ -24079,9 +24081,22 @@ def api_cron_live_lens_tick():
         recent_window_sec = 180
     recent_window_sec = int(max(10, min(600, recent_window_sec)))
 
+    first_bet_only = str(request.args.get("first_bet_only") or "1").strip().lower() in {"1", "true", "yes"}
+
     include_total = str(request.args.get("include_total") or "1").strip().lower() in {"1", "true", "yes"}
     include_player_props = str(request.args.get("include_player_props") or "1").strip().lower() in {"1", "true", "yes"}
     ttl = _parse_ttl_param(request, default=15, lo=1, hi=300)
+
+    # Keep the in-memory first-BET cache bounded across long-lived processes.
+    try:
+        with _live_lens_tick_lock:
+            if len(_live_lens_tick_first_bet_logged) > 20000:
+                prefix = f"{ds}:"
+                for k in list(_live_lens_tick_first_bet_logged.keys()):
+                    if not str(k).startswith(prefix):
+                        _live_lens_tick_first_bet_logged.pop(k, None)
+    except Exception:
+        pass
 
     # Pull tuning (including optional override file) so server-side classifications match UI.
     tune: dict[str, Any] = {}
@@ -24126,8 +24141,8 @@ def api_cron_live_lens_tick():
 
     log_cfg = (tune.get("logging") if isinstance(tune.get("logging"), dict) else {})
     log_mode = str(log_cfg.get("mode") or "bet").strip().lower() or "bet"
-    # Match client default: player props log WATCH+BET unless explicitly overridden.
-    log_mode_props = str(log_cfg.get("player_props_mode") or "watch").strip().lower() or "watch"
+    # Cron logger default: BET-only to keep logs decision-focused and small.
+    log_mode_props = str(log_cfg.get("player_props_mode") or "bet").strip().lower() or "bet"
 
     def _allow(mode: str, klass: str) -> bool:
         k = str(klass or "NONE").strip().upper()
@@ -24163,6 +24178,7 @@ def api_cron_live_lens_tick():
     wrote_signals = 0
     wrote_projections = 0
     skipped_throttle = 0
+    skipped_first_bet = 0
     errors: list[str] = []
 
     # ---- Game totals (SmartSim ladder + live score) ----
@@ -24238,7 +24254,21 @@ def api_cron_live_lens_tick():
                         if not _allow(log_mode, klass):
                             continue
 
+                        if first_bet_only and klass != "BET":
+                            continue
+
                         side = "OVER" if edge > 0 else ("UNDER" if edge < 0 else None)
+                        if first_bet_only and side is None:
+                            continue
+
+                        first_bet_k = None
+                        if first_bet_only:
+                            first_bet_k = f"{ds}:{str(gid)}:total:game:{str(side)}"
+                            with _live_lens_tick_lock:
+                                if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                    skipped_first_bet += 1
+                                    continue
+                                _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
 
                         signal_key = "game_total"
                         throttle_k = f"{str(gid)}:{signal_key}"
@@ -24285,8 +24315,14 @@ def api_cron_live_lens_tick():
                         ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
                         if ok:
                             wrote_signals += 1
+                            if first_bet_only and first_bet_k is not None:
+                                with _live_lens_tick_lock:
+                                    _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
                         else:
                             errors.append(f"total:{eid}:{info}")
+                            if first_bet_only and first_bet_k is not None:
+                                with _live_lens_tick_lock:
+                                    _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
                     except Exception as e:
                         errors.append(f"total:{str(e)}")
         except Exception as e:
@@ -24342,6 +24378,9 @@ def api_cron_live_lens_tick():
                         klass = _klass(strength, pp_watch, pp_bet)
                         if not _allow(log_mode_props, klass):
                             continue
+
+                        if first_bet_only and klass != "BET":
+                            continue
                         r1 = dict(r0)
                         r1["_edge"] = float(ev)
                         r1["_strength"] = float(strength)
@@ -24379,6 +24418,15 @@ def api_cron_live_lens_tick():
                                     skipped_throttle += 1
                                     continue
                                 _live_lens_tick_last_logged[throttle_k] = bucket_key
+
+                            first_bet_k = None
+                            if first_bet_only and side is not None:
+                                first_bet_k = f"{ds}:{str(gid)}:player_prop:{name_norm}:{stat_key}:{str(side)}"
+                                with _live_lens_tick_lock:
+                                    if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                        skipped_first_bet += 1
+                                        continue
+                                    _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
 
                             base = {
                                 "date": ds,
@@ -24465,8 +24513,14 @@ def api_cron_live_lens_tick():
                             ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
                             if ok:
                                 wrote_signals += 1
+                                if first_bet_only and first_bet_k is not None:
+                                    with _live_lens_tick_lock:
+                                        _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
                             else:
                                 errors.append(f"prop:{eid}:{throttle_key}:{info}")
+                                if first_bet_only and first_bet_k is not None:
+                                    with _live_lens_tick_lock:
+                                        _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
 
                             # Projection stream (mirrors client): throttle separately
                             throttle_p = f"{str(gid)}:{throttle_key}:proj"
@@ -24520,6 +24574,8 @@ def api_cron_live_lens_tick():
         "wrote_signals": int(wrote_signals),
         "wrote_projections": int(wrote_projections),
         "skipped_throttle": int(skipped_throttle),
+        "skipped_first_bet": int(skipped_first_bet),
+        "first_bet_only": bool(first_bet_only),
         "min_interval_sec": int(min_interval_sec),
         "max_props_per_game": int(max_props),
         "recent_window_sec": int(recent_window_sec),
