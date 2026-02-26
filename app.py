@@ -100,6 +100,8 @@ _live_game_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
 _live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_oddsapi_player_props_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_oddsapi_player_props_event_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_oddsapi_player_props_markets_cache: dict[str, tuple[float, list[str]]] = {}
 _live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -467,12 +469,27 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     if not h or not a:
         return {}
 
+    def _env_int(name: str, default: int, lo: int, hi: int) -> int:
+        try:
+            raw = str(os.environ.get(name, str(default))).strip()
+            v = int(float(raw))
+            return int(max(lo, min(hi, v)))
+        except Exception:
+            return int(max(lo, min(hi, int(default))))
+
     # Cache separately from endpoint TTL to keep quota under control.
-    cache_ttl = 60
-    cache_key = f"{date_str}:{h}:{a}"
+    # Important: this function does multiple OddsAPI requests (events + markets + odds).
+    # We keep event discovery + market discovery on longer TTLs, and only refresh odds
+    # more frequently.
+    odds_cache_ttl = _env_int("LIVE_PLAYER_PROPS_ODDS_TTL_SEC", 30, 5, 300)
+    event_cache_ttl = _env_int("LIVE_PLAYER_PROPS_EVENT_TTL_SEC", 6 * 60 * 60, 300, 48 * 60 * 60)
+    markets_cache_ttl = _env_int("LIVE_PLAYER_PROPS_MARKETS_TTL_SEC", 30 * 60, 60, 6 * 60 * 60)
+
+    matchup_key = f"{date_str}:{h}:{a}"
     now = time.time()
-    ent = _live_oddsapi_player_props_cache.get(cache_key)
-    if ent and (now - ent[0] < cache_ttl):
+
+    ent = _live_oddsapi_player_props_cache.get(matchup_key)
+    if ent and (now - ent[0] < float(odds_cache_ttl)):
         return ent[1]
 
     base = "https://api.the-odds-api.com"
@@ -509,19 +526,35 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     desired_markets = sorted(set(stat_to_market.values()))
 
     # 1) List events and match by team tricodes; select closest commence_time to now.
+    # Cache this step aggressively; event ids should be stable for the day.
     event_id = None
     swapped = False
-    try:
-        r = requests.get(
-            f"{base}/v4/sports/{sport}/events",
-            params={"apiKey": api_key},
-            headers=headers,
-            timeout=timeout_s,
-        )
-        evs = r.json() if r.ok else []
-        events = evs if isinstance(evs, list) else []
-    except Exception:
-        events = []
+
+    ev_ent = _live_oddsapi_player_props_event_cache.get(matchup_key)
+    if ev_ent and (now - ev_ent[0] < float(event_cache_ttl)):
+        try:
+            obj0 = ev_ent[1]
+            if isinstance(obj0, dict):
+                eid0 = str(obj0.get("event_id") or "").strip()
+                if eid0:
+                    event_id = eid0
+                    swapped = bool(obj0.get("swapped"))
+        except Exception:
+            event_id = None
+            swapped = False
+
+    if not event_id:
+        try:
+            r = requests.get(
+                f"{base}/v4/sports/{sport}/events",
+                params={"apiKey": api_key},
+                headers=headers,
+                timeout=timeout_s,
+            )
+            evs = r.json() if r.ok else []
+            events = evs if isinstance(evs, list) else []
+        except Exception:
+            events = []
 
     def _parse_commence_time_utc_naive(x: Any) -> datetime | None:
         try:
@@ -535,63 +568,84 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         except Exception:
             return None
 
-    best: tuple[float, Any, bool] | None = None
-    now_utc = datetime.utcnow()
-    for ev in events:
-        try:
-            if not isinstance(ev, dict):
+        best: tuple[float, Any, bool] | None = None
+        now_utc = datetime.utcnow()
+        for ev in events:
+            try:
+                if not isinstance(ev, dict):
+                    continue
+                eh = _get_tricode(str(ev.get("home_team") or ""))
+                ea = _get_tricode(str(ev.get("away_team") or ""))
+                if not ((eh == h and ea == a) or (eh == a and ea == h)):
+                    continue
+                dt = _parse_commence_time_utc_naive(ev.get("commence_time"))
+                abs_s = 1e18 if dt is None else float(abs((dt - now_utc).total_seconds()))
+                sw = bool(eh == a and ea == h)
+                if best is None or abs_s < best[0]:
+                    best = (abs_s, ev.get("id"), sw)
+            except Exception:
                 continue
-            eh = _get_tricode(str(ev.get("home_team") or ""))
-            ea = _get_tricode(str(ev.get("away_team") or ""))
-            if not ((eh == h and ea == a) or (eh == a and ea == h)):
-                continue
-            dt = _parse_commence_time_utc_naive(ev.get("commence_time"))
-            abs_s = 1e18 if dt is None else float(abs((dt - now_utc).total_seconds()))
-            sw = bool(eh == a and ea == h)
-            if best is None or abs_s < best[0]:
-                best = (abs_s, ev.get("id"), sw)
-        except Exception:
-            continue
 
-    if best is not None:
-        event_id = best[1]
-        swapped = best[2]
+        if best is not None:
+            event_id = best[1]
+            swapped = best[2]
+
+        try:
+            eid_s = str(event_id or "").strip()
+            if eid_s:
+                _live_oddsapi_player_props_event_cache[matchup_key] = (now, {"event_id": eid_s, "swapped": bool(swapped)})
+        except Exception:
+            pass
 
     if not event_id:
         out = {}
-        _live_oddsapi_player_props_cache[cache_key] = (now, out)
+        _live_oddsapi_player_props_cache[matchup_key] = (now, out)
         return out
 
     # 2) Discover market keys (some books/plans won't expose player markets).
-    keys: set[str] = set()
-    try:
-        r = requests.get(
-            f"{base}/v4/sports/{sport}/events/{event_id}/markets",
-            params={"apiKey": api_key, "regions": "us"},
-            headers=headers,
-            timeout=timeout_s,
-        )
-        jd = r.json() if r.ok else None
-        if isinstance(jd, dict):
-            bks = jd.get("bookmakers") or []
-            if isinstance(bks, list):
-                for bk in bks:
-                    if not isinstance(bk, dict):
-                        continue
-                    markets = bk.get("markets") or []
-                    if not isinstance(markets, list):
-                        continue
-                    for m in markets:
-                        if isinstance(m, dict) and m.get("key"):
-                            keys.add(str(m.get("key")))
-        elif isinstance(jd, list):
-            for m in jd:
-                if isinstance(m, dict) and m.get("key"):
-                    keys.add(str(m.get("key")))
-    except Exception:
-        keys = set()
+    mk_cache_key = f"{str(event_id)}:" + ",".join(desired_markets)
+    req_markets: list[str] = []
+    mk_ent = _live_oddsapi_player_props_markets_cache.get(mk_cache_key)
+    if mk_ent and (now - mk_ent[0] < float(markets_cache_ttl)):
+        try:
+            req_markets = [str(x) for x in (mk_ent[1] or []) if str(x).strip()]
+        except Exception:
+            req_markets = []
 
-    req_markets = [m for m in desired_markets if m in keys] if keys else desired_markets
+    if not req_markets:
+        keys: set[str] = set()
+        try:
+            r = requests.get(
+                f"{base}/v4/sports/{sport}/events/{event_id}/markets",
+                params={"apiKey": api_key, "regions": "us"},
+                headers=headers,
+                timeout=timeout_s,
+            )
+            jd = r.json() if r.ok else None
+            if isinstance(jd, dict):
+                bks = jd.get("bookmakers") or []
+                if isinstance(bks, list):
+                    for bk in bks:
+                        if not isinstance(bk, dict):
+                            continue
+                        markets = bk.get("markets") or []
+                        if not isinstance(markets, list):
+                            continue
+                        for m in markets:
+                            if isinstance(m, dict) and m.get("key"):
+                                keys.add(str(m.get("key")))
+            elif isinstance(jd, list):
+                for m in jd:
+                    if isinstance(m, dict) and m.get("key"):
+                        keys.add(str(m.get("key")))
+        except Exception:
+            keys = set()
+
+        req_markets = [m for m in desired_markets if m in keys] if keys else desired_markets
+        try:
+            _live_oddsapi_player_props_markets_cache[mk_cache_key] = (now, list(req_markets))
+        except Exception:
+            pass
     if not req_markets:
         out = {
             "source": "oddsapi_fast",
@@ -601,7 +655,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             "lines": {},
             "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
         }
-        _live_oddsapi_player_props_cache[cache_key] = (now, out)
+        _live_oddsapi_player_props_cache[matchup_key] = (now, out)
         return out
 
     # 3) Fetch odds for those markets and aggregate player lines.
@@ -749,7 +803,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     except Exception:
         pass
 
-    _live_oddsapi_player_props_cache[cache_key] = (now, out)
+    _live_oddsapi_player_props_cache[matchup_key] = (now, out)
     return out
 
 

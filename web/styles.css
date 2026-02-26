@@ -142,6 +142,16 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .chip.positive { background: #0f2d1b; border-color: #1e7a45; color: #a7f3c6; }
 .chip.neutral { background: #161c3b; border-color: #2a3a7a; color: #d5dbff; }
 .chip.negative { background: #2a1620; border-color: #7a1e49; color: #ffd5e6; }
+.chip.bet { background: #0f2d1b; border-color: #1e7a45; color: #a7f3c6; }
+.chip.watch { background: #2a2310; border-color: #6a5a1f; color: #ffeaa7; }
+
+.row.head .venue.lens-card-tag:empty { display: none; }
+.row.head .venue.lens-card-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; font-weight: 900; }
+.row.head .venue.lens-card-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; font-weight: 900; }
+
+.row.head .lens-why-badges { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.row.head .lens-why-badges:empty { display: none; }
+.row.head .lens-why-badges .badge { font-size: 10px; padding: 1px 5px; border-radius: 999px; }
 .chip.model-pick { box-shadow: 0 0 0 2px rgba(43, 92, 255, 0.35); position: relative; }
 .chip.model-pick::after { content: ''; position: absolute; inset: -3px; border-radius: 999px; pointer-events: none; border: 1px dashed rgba(43,92,255,0.4); }
 .ev-badge { padding: 1px 5px; border-radius: 999px; font-weight: 700; font-size: 10px; }

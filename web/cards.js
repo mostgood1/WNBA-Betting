@@ -892,7 +892,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
     <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" data-player-only-lines="1" ${dAttrs.join(' ')}>
       <div class="lens-top">
         <div class="market-title">LIVE LENS</div>
-        <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · Updated <span class="lens-live-updated">—</span></div>
+        <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
       </div>
 
       <div class="row chips lens-market-row" style="margin-top:4px;">
@@ -902,6 +902,14 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
         <span class="chip neutral lens-market-1h-ats">1H ATS: —</span>
         <span class="chip neutral lens-market-1h-total">1H Total: —</span>
         <span class="chip neutral lens-live-attempts">Attempts: —</span>
+      </div>
+
+      <div class="row chips lens-rec-row" style="margin-top:4px;">
+        <span class="chip neutral lens-rec-total" title="Live Lens total recommendation">Total: —</span>
+        <span class="chip neutral lens-rec-half" title="Live Lens 1H total recommendation">1H: —</span>
+        <span class="chip neutral lens-rec-qtr" title="Live Lens quarter total recommendation">Q: —</span>
+        <span class="chip neutral lens-rec-ats" title="Live Lens ATS recommendation">ATS: —</span>
+        <span class="chip neutral lens-rec-ml" title="Live Lens ML recommendation">ML: —</span>
       </div>
 
       <div class="lens-columns" style="margin-top:8px;">
@@ -2731,6 +2739,44 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const sigBadge = showKlass
         ? `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(sigTxt)}</span>`
         : esc(sigTxt);
+
+      const whyCell = (() => {
+        try {
+          const tags = [];
+          if (r && r.injury_flag) tags.push('<span class="badge bad">INJ</span>');
+
+          const pf = n(r && r.pf);
+          if (pf != null && pf >= 5) tags.push('<span class="badge bad">F5+</span>');
+          else if (pf != null && pf >= 4) tags.push('<span class="badge ok">F4</span>');
+
+          const projMin = n(r && (r.proj_min_final != null ? r.proj_min_final : r.exp_min_eff));
+          const remMin = (mp != null && projMin != null) ? (projMin - mp) : null;
+          if (remMin != null && remMin < 1.5) tags.push('<span class="badge bad">LOWMIN</span>');
+          else if (remMin != null && remMin < 3.5) tags.push('<span class="badge ok">LOWMIN</span>');
+
+          const rotOn = (r && r.rot_on_court != null) ? !!r.rot_on_court : null;
+          const offSec = n(r && r.rot_cur_off_sec);
+          const benchLong = (rotOn === false && offSec != null && offSec >= 480);
+          if (benchLong) tags.push('<span class="badge ok">BENCH</span>');
+
+          if (adj && adj.sim_disagree) tags.push('<span class="badge bad">SIM≠</span>');
+          else if (adj && adj.sim_agree) tags.push('<span class="badge good">SIM✓</span>');
+
+          const risk = (adj && adj.risk != null) ? Number(adj.risk) : null;
+          const support = (adj && adj.support != null) ? Number(adj.support) : null;
+          const tip = [
+            (risk != null ? `risk ${fmt(risk, 2)}` : null),
+            (support != null ? `support ${fmt(support, 2)}` : null),
+            (dP != null ? `ΔP ${fmt(dP, 1)}` : null),
+            (dS != null ? `ΔS ${fmt(dS, 1)}` : null),
+          ].filter(Boolean).join(' · ');
+
+          const inner = tags.length ? tags.join('') : '<span class="subtle">—</span>';
+          return `<span title="${esc(tip)}">${inner}</span>`;
+        } catch (_) {
+          return '<span class="subtle">—</span>';
+        }
+      })();
       const hasLine = (line != null);
       const sigKey = (klass === 'BET' || klass === 'WATCH') ? klass : 'NONE';
       return `
@@ -2745,6 +2791,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
           <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
           <td>${sigBadge}</td>
+          <td>${whyCell}</td>
         </tr>
       `;
     }).join('');
@@ -2769,10 +2816,11 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
               <th class="num">ΔPace-Line</th>
               <th class="num">ΔSim-Line</th>
               <th>Signal</th>
+              <th>Why</th>
             </tr>
           </thead>
           <tbody>
-            ${tbl || '<tr><td colspan="10" class="subtle">No player rows.</td></tr>'}
+            ${tbl || '<tr><td colspan="11" class="subtle">No player rows.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -2992,6 +3040,8 @@ function startLiveLensPolling(root, games, dateStr) {
 
     const el = lensEl.querySelector(sel);
     const raw = el ? String(el.textContent || '').trim() : '';
+    let whyTitle = '';
+    try { whyTitle = el && el.title ? String(el.title) : ''; } catch (_) { whyTitle = ''; }
     const t = (() => {
       const out = (raw ? raw : '');
       return out ? out : '';
@@ -3025,15 +3075,15 @@ function startLiveLensPolling(root, games, dateStr) {
     // - "Total: BET Over (+6.0)"
     const m = String(t).match(/\b(BET|WATCH)\b(?:\s+(Over|Under))?\b/i);
     if (!m) {
-      if (inProg && extra) return { klass: 'NONE', text: `${label} ${extra}`.trim() };
-      return { klass: 'NONE', text: inProg ? `${label} —` : '' };
+      if (inProg && extra) return { klass: 'NONE', text: `${label} ${extra}`.trim(), scopeKey, title: whyTitle };
+      return { klass: 'NONE', text: inProg ? `${label} —` : '', scopeKey, title: whyTitle };
     }
     const klass = String(m[1] || '').toUpperCase();
     const side = String(m[2] || '').toUpperCase();
     const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
     // Keep this compact: tile color communicates BET/WATCH.
     const txt = `${label} ${extra} ${sideShort}`.trim();
-    return { klass, text: txt };
+    return { klass, text: txt, scopeKey, title: whyTitle };
   }
 
   function updateScoreboardStrip(sbById) {
@@ -3059,7 +3109,10 @@ function startLiveLensPolling(root, games, dateStr) {
         const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
         const tag = pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '' };
         const tagEl = item.querySelector('.s-tag');
-        if (tagEl) tagEl.textContent = tag.text || '';
+        if (tagEl) {
+          tagEl.textContent = tag.text || '';
+          try { tagEl.title = tag.title || ''; } catch (_) { /* ignore */ }
+        }
 
         const inProg = !!(s && s.in_progress) || (lensEl && lensEl.dataset.inProgress === '1');
         item.classList.remove('bet', 'watch', 'live', 'neu');
@@ -3067,6 +3120,77 @@ function startLiveLensPolling(root, games, dateStr) {
         else if (tag.klass === 'WATCH') item.classList.add('watch');
         else if (inProg) item.classList.add('live');
         else item.classList.add('neu');
+      });
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  function updateCompactCardTags(sbById) {
+    try {
+      const cards = root.querySelectorAll('.card.card-v2[data-game-id]');
+      cards.forEach((card) => {
+        try {
+          const gid = canonGameId(card.dataset.gameId);
+          if (!gid) return;
+          const s = sbById ? sbById.get(gid) : null;
+          const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
+          const tag = pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '', title: '' };
+          const tagEl = card.querySelector('.lens-card-tag');
+          if (!tagEl) return;
+          const whyEl = card.querySelector('.lens-why-badges');
+
+          function _whyBadgesFromTitle(title, klass) {
+            try {
+              const t = String(title || '');
+              if (!t.trim()) return '';
+
+              const has = (needle) => t.indexOf(needle) >= 0;
+              const out = [];
+              if (has('edge ')) out.push('EDGE');
+              if (has('ctx ')) out.push('CTX');
+              if (has('pace×')) out.push('PACE');
+              if (has('pppΔ')) out.push('PPP');
+              if (has('poss ')) out.push('POSS');
+              if (has('shrunk ')) out.push('SHR');
+              if (has('λ')) out.push('λ');
+              if (has('pScore ')) out.push('LIVE');
+              if (has('impHome ')) out.push('ODDS');
+              if (has('pHome ')) out.push('PROB');
+
+              const priority = ['EDGE', 'CTX', 'PACE', 'PPP', 'POSS', 'LIVE', 'ODDS', 'PROB', 'SHR', 'λ'];
+              const uniq = Array.from(new Set(out));
+              uniq.sort((a, b) => priority.indexOf(a) - priority.indexOf(b));
+              const chosen = uniq.slice(0, 3);
+              if (!chosen.length) return '';
+
+              const badgeClass = (klass === 'BET') ? 'good' : ((klass === 'WATCH') ? 'ok' : '');
+              const cls = badgeClass ? `badge ${badgeClass}` : 'badge';
+              return chosen.map((x) => `<span class="${cls}">${esc(x)}</span>`).join('');
+            } catch (_) {
+              return '';
+            }
+          }
+
+          tagEl.textContent = tag.text || '';
+          try { tagEl.title = tag.title || ''; } catch (_) { /* ignore */ }
+          tagEl.classList.remove('bet', 'watch');
+          if (tag.klass === 'BET') tagEl.classList.add('bet');
+          else if (tag.klass === 'WATCH') tagEl.classList.add('watch');
+
+          try {
+            if (whyEl) {
+              whyEl.innerHTML = _whyBadgesFromTitle(tag.title || '', tag.klass || '');
+              whyEl.classList.toggle('bet', tag.klass === 'BET');
+              whyEl.classList.toggle('watch', tag.klass === 'WATCH');
+              try { whyEl.title = tag.title || ''; } catch (_) { /* ignore */ }
+            }
+          } catch (_) {
+            // ignore
+          }
+        } catch (_) {
+          // ignore
+        }
       });
     } catch (_) {
       // ignore
@@ -3202,6 +3326,7 @@ function startLiveLensPolling(root, games, dateStr) {
 
     // Keep the top scoreboard strip in sync with basic status/score.
     updateScoreboardStrip(sbById);
+    updateCompactCardTags(sbById);
 
     const detailIds = [];
     const detailEventIds = [];
@@ -4008,6 +4133,15 @@ function startLiveLensPolling(root, games, dateStr) {
           if (recQtrEl) recQtrEl.textContent = 'Q: —';
           if (recATSEl) recATSEl.textContent = 'ATS: —';
           if (recMLEl) recMLEl.textContent = 'ML: —';
+          try {
+            [recTotalEl, recHalfEl, recQtrEl, recATSEl, recMLEl].forEach((x) => {
+              if (!x) return;
+              x.classList.remove('bet', 'watch');
+              x.title = '';
+            });
+          } catch (_) {
+            // ignore
+          }
         } catch (_) {
           // ignore
         }
@@ -4099,6 +4233,25 @@ function startLiveLensPolling(root, games, dateStr) {
         else recTotalEl.textContent = 'Total: —';
 
         try {
+          recTotalEl.classList.remove('bet', 'watch');
+          if (totalClass === 'BET') recTotalEl.classList.add('bet');
+          else if (totalClass === 'WATCH') recTotalEl.classList.add('watch');
+
+          const why = [];
+          if (totalDiffRaw != null) why.push(`raw ${fmt(totalDiffRaw, 1)}`);
+          if (totalCtx && totalCtx.diff_adj != null) why.push(`ctx ${fmt(totalCtx.diff_adj, 1)}`);
+          if (totalDiff != null && totalDiffRaw != null && Math.abs(totalDiff - totalDiffRaw) > 1e-6) why.push(`shrunk ${fmt(totalDiff, 1)}`);
+          if (totalShrink && totalShrink.lambda != null) why.push(`λ ${fmt(totalShrink.lambda, 2)}`);
+          if (totalCtx && totalCtx.poss_live != null) why.push(`poss ${fmt(totalCtx.poss_live, 1)}`);
+          if (totalCtx && totalCtx.pace_ratio != null) why.push(`pace× ${fmt(totalCtx.pace_ratio, 2)}`);
+          if (totalCtx && totalCtx.eff_ppp_delta != null) why.push(`pppΔ ${fmt(totalCtx.eff_ppp_delta, 3)}`);
+          why.push(`thr ${fmt(thr.total.watch, 1)}/${fmt(thr.total.bet, 1)}`);
+          recTotalEl.title = why.filter(Boolean).join(' · ');
+        } catch (_) {
+          // ignore
+        }
+
+        try {
           if (totalPred != null) recTotalEl.dataset.projTotal = String(totalPred);
           else recTotalEl.removeAttribute('data-proj-total');
           if (effLineTotal != null) recTotalEl.dataset.lineTotal = String(effLineTotal);
@@ -4184,6 +4337,22 @@ function startLiveLensPolling(root, games, dateStr) {
           else recHalfEl.textContent = '1H: —';
 
           try {
+            recHalfEl.classList.remove('bet', 'watch');
+            if (halfClass === 'BET') recHalfEl.classList.add('bet');
+            else if (halfClass === 'WATCH') recHalfEl.classList.add('watch');
+
+            const why = [];
+            if (halfDiffRaw != null) why.push(`raw ${fmt(halfDiffRaw, 1)}`);
+            if (halfDiff != null && halfDiffRaw != null && Math.abs(halfDiff - halfDiffRaw) > 1e-6) why.push(`shrunk ${fmt(halfDiff, 1)}`);
+            if (halfShrink && halfShrink.lambda != null) why.push(`λ ${fmt(halfShrink.lambda, 2)}`);
+            if (halfLine != null) why.push(`L ${fmt(halfLine, 1)}`);
+            why.push(`thr ${fmt(thr.half_total.watch, 1)}/${fmt(thr.half_total.bet, 1)}`);
+            recHalfEl.title = why.filter(Boolean).join(' · ');
+          } catch (_) {
+            // ignore
+          }
+
+          try {
             const halfProjOut = (halfLine != null && halfDiff != null) ? (halfLine + halfDiff) : halfPred;
             if (halfProjOut != null) recHalfEl.dataset.projTotal = String(halfProjOut);
             else recHalfEl.removeAttribute('data-proj-total');
@@ -4195,6 +4364,12 @@ function startLiveLensPolling(root, games, dateStr) {
         } else if (recHalfEl) {
           recHalfEl.textContent = '1H: —';
           try {
+            recHalfEl.classList.remove('bet', 'watch');
+            recHalfEl.title = '';
+          } catch (_) {
+            // ignore
+          }
+          try {
             recHalfEl.removeAttribute('data-proj-total');
             recHalfEl.removeAttribute('data-line-total');
           } catch (_) {
@@ -4203,6 +4378,14 @@ function startLiveLensPolling(root, games, dateStr) {
         }
       } catch (_) {
         if (recHalfEl) recHalfEl.textContent = '1H: —';
+        try {
+          if (recHalfEl) {
+            recHalfEl.classList.remove('bet', 'watch');
+            recHalfEl.title = '';
+          }
+        } catch (_) {
+          // ignore
+        }
         try {
           recHalfEl.removeAttribute('data-proj-total');
           recHalfEl.removeAttribute('data-line-total');
@@ -4290,6 +4473,22 @@ function startLiveLensPolling(root, games, dateStr) {
           else recQtrEl.textContent = `${qLabel}: —`;
 
           try {
+            recQtrEl.classList.remove('bet', 'watch');
+            if (qClass === 'BET') recQtrEl.classList.add('bet');
+            else if (qClass === 'WATCH') recQtrEl.classList.add('watch');
+
+            const why = [];
+            if (qDiffRaw != null) why.push(`raw ${fmt(qDiffRaw, 1)}`);
+            if (qDiff != null && qDiffRaw != null && Math.abs(qDiff - qDiffRaw) > 1e-6) why.push(`shrunk ${fmt(qDiff, 1)}`);
+            if (qShrink && qShrink.lambda != null) why.push(`λ ${fmt(qShrink.lambda, 2)}`);
+            if (qLine != null) why.push(`L ${fmt(qLine, 1)}`);
+            why.push(`thr ${fmt(thr.quarter_total.watch, 1)}/${fmt(thr.quarter_total.bet, 1)}`);
+            recQtrEl.title = why.filter(Boolean).join(' · ');
+          } catch (_) {
+            // ignore
+          }
+
+          try {
             const qProjOut = (qLine != null && qDiff != null) ? (qLine + qDiff) : qPred;
             if (qProjOut != null) recQtrEl.dataset.projTotal = String(qProjOut);
             else recQtrEl.removeAttribute('data-proj-total');
@@ -4301,6 +4500,12 @@ function startLiveLensPolling(root, games, dateStr) {
         } else if (recQtrEl) {
           recQtrEl.textContent = 'Q: —';
           try {
+            recQtrEl.classList.remove('bet', 'watch');
+            recQtrEl.title = '';
+          } catch (_) {
+            // ignore
+          }
+          try {
             recQtrEl.removeAttribute('data-proj-total');
             recQtrEl.removeAttribute('data-line-total');
           } catch (_) {
@@ -4309,6 +4514,14 @@ function startLiveLensPolling(root, games, dateStr) {
         }
       } catch (_) {
         if (recQtrEl) recQtrEl.textContent = 'Q: —';
+        try {
+          if (recQtrEl) {
+            recQtrEl.classList.remove('bet', 'watch');
+            recQtrEl.title = '';
+          }
+        } catch (_) {
+          // ignore
+        }
         try {
           recQtrEl.removeAttribute('data-proj-total');
           recQtrEl.removeAttribute('data-line-total');
@@ -4338,16 +4551,44 @@ function startLiveLensPolling(root, games, dateStr) {
         else if (atsClass === 'WATCH') atsText = `ATS: WATCH ${side} (${fmt(atsEdge, 1)})`;
       }
       if (recATSEl) recATSEl.textContent = atsText;
+      try {
+        if (recATSEl) {
+          recATSEl.classList.remove('bet', 'watch');
+          if (atsClass === 'BET') recATSEl.classList.add('bet');
+          else if (atsClass === 'WATCH') recATSEl.classList.add('watch');
+          const why = [];
+          if (atsEdge != null) why.push(`edge ${fmt(atsEdge, 1)}`);
+          if (effHomeSpr != null) why.push(`spr ${fmt(effHomeSpr, 1)}`);
+          why.push(`thr ${fmt(thr.ats.watch, 1)}/${fmt(thr.ats.bet, 1)}`);
+          recATSEl.title = why.filter(Boolean).join(' · ');
+        }
+      } catch (_) {
+        // ignore
+      }
 
       // Compute tags (ML) using sim win prob blended with live score state and betting MLs.
       let mlClass = 'NONE';
       let mlText = 'ML: —';
+      let mlEdge = null;
+      let mlSide = '';
+      let mlPHomeModel = null;
+      let mlPHomeImplied = null;
+      let mlPAwayImplied = null;
+      let mlCurMargin = null;
+      let mlMinLeft = null;
+      let mlPHomeScore = null;
+      let mlScale = null;
       try {
         const pPregame = n(meta && meta.p_home_win != null ? meta.p_home_win : null);
         const curMargin = n(live && live.score ? live.score.home_margin : null);
         const minLeft = n(live && live.time ? live.time.game_min_left : null);
         const pHomeImplied = impliedProbFromAmer(effHomeMl);
         const pAwayImplied = impliedProbFromAmer(effAwayMl);
+
+        mlCurMargin = curMargin;
+        mlMinLeft = minLeft;
+        mlPHomeImplied = pHomeImplied;
+        mlPAwayImplied = pAwayImplied;
 
         let pHomeScore = null;
         if (curMargin != null && minLeft != null) {
@@ -4374,6 +4615,8 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           pHomeScore = 1.0 / (1.0 + Math.exp(-(curMargin / scale)));
+          mlPHomeScore = pHomeScore;
+          mlScale = scale;
         }
 
         let pHomeModel = pPregame;
@@ -4386,11 +4629,14 @@ function startLiveLensPolling(root, games, dateStr) {
         }
 
         if (pHomeModel != null && pHomeImplied != null && pAwayImplied != null) {
+          mlPHomeModel = pHomeModel;
           const edgeHome = pHomeModel - pHomeImplied;
           const edgeAway = (1.0 - pHomeModel) - pAwayImplied;
           const pickHome = Math.abs(edgeHome) >= Math.abs(edgeAway);
           const edge = pickHome ? edgeHome : edgeAway;
           const side = pickHome ? meta.home : meta.away;
+          mlEdge = edge;
+          mlSide = side;
           mlClass = classifyDiff(Math.abs(edge), thr.ml.watch, thr.ml.bet);
           if (mlClass === 'BET') mlText = `ML: BET ${side} (${fmt(edge * 100.0, 1)}pp)`;
           else if (mlClass === 'WATCH') mlText = `ML: WATCH ${side} (${fmt(edge * 100.0, 1)}pp)`;
@@ -4400,6 +4646,25 @@ function startLiveLensPolling(root, games, dateStr) {
         mlText = 'ML: —';
       }
       if (recMLEl) recMLEl.textContent = mlText;
+      try {
+        if (recMLEl) {
+          recMLEl.classList.remove('bet', 'watch');
+          if (mlClass === 'BET') recMLEl.classList.add('bet');
+          else if (mlClass === 'WATCH') recMLEl.classList.add('watch');
+          const why = [];
+          if (mlEdge != null) why.push(`edge ${fmt(mlEdge * 100.0, 1)}pp`);
+          if (mlPHomeModel != null) why.push(`pHome ${fmt(mlPHomeModel * 100.0, 1)}%`);
+          if (mlPHomeImplied != null) why.push(`impHome ${fmt(mlPHomeImplied * 100.0, 1)}%`);
+          if (mlCurMargin != null) why.push(`mgn ${fmt(mlCurMargin, 0)}`);
+          if (mlMinLeft != null) why.push(`minLeft ${fmt(mlMinLeft, 1)}`);
+          if (mlPHomeScore != null) why.push(`pScore ${fmt(mlPHomeScore * 100.0, 1)}%`);
+          if (mlScale != null) why.push(`scale ${fmt(mlScale, 1)}`);
+          why.push(`thr ${fmt(thr.ml.watch, 1)}/${fmt(thr.ml.bet, 1)}`);
+          recMLEl.title = why.filter(Boolean).join(' · ');
+        }
+      } catch (_) {
+        // ignore
+      }
 
       // Card-level highlight (NCAAB parity)
       try {
@@ -5006,6 +5271,7 @@ function startLiveLensPolling(root, games, dateStr) {
 
     // Re-run strip update after signals/classes may have changed.
     updateScoreboardStrip(sbById);
+    updateCompactCardTags(sbById);
   }
 
   // Kick off immediately, then every 12s (NCAAB parity)
@@ -5260,6 +5526,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         <div class="row head">
           <span class="venue">${esc(timeStr || '')}</span>
           <span class="venue">${esc(odds.bookmaker || odds.bookmaker_odds || 'odds')}</span>
+          <span class="venue lens-card-tag" title="Live Lens (current scope)"></span>
+          <span class="lens-why-badges" title="Live Lens why (current scope)"></span>
           ${showResults && recon ? `<span class="result-badge">${finalLine}</span>` : ''}
         </div>
 

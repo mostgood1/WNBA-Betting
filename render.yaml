@@ -43,6 +43,10 @@ services:
         sync: false
       - key: ODDS_API_KEY
         sync: false
+
+      # Live player props OddsAPI refresh throttles
+      - key: LIVE_PLAYER_PROPS_ODDS_TTL_SEC
+        value: "30"
       # Persist Live Lens runtime artifacts (signals/projections/tuning overrides)
       - key: NBA_LIVE_LENS_DIR
         value: /opt/render/project/data/live_lens
