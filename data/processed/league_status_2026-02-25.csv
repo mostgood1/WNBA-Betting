@@ -242,7 +242,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630162,Anthony Edwards,MIN,DAY-TO-DAY,False,False
 1630163,LaMelo Ball,CHA,DAY-TO-DAY,False,False
 1630164,James Wiseman,IND,,False,False
-1630165,Killian Hayes,,,False,False
+1630165,Killian Hayes,SAC,,True,True
 1630166,Deni Avdija,POR,DAY-TO-DAY,False,False
 1630167,Obi Toppin,IND,OUT,False,False
 1630168,Onyeka Okongwu,ATL,,False,False

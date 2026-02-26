@@ -1,0 +1,7 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-02-25,0022500842,DET,OKC,0.5,,,,Cade Cunningham,0.120179453303543,,,,,1.1191500035904176,0.6734427508220289,,,
+2026-02-25,0022500843,TOR,SAS,0.5,,,,Scottie Barnes,0.112658772967784,,,,,1.1486371689434451,0.682931414018286,,,
+2026-02-25,0022500844,MEM,GSW,0.5,,,,Stephen Curry,0.1115059356214101,,,,,1.353391940432297,0.7416375772473052,,,
+2026-02-25,0022500845,HOU,SAC,0.4700359482354282,,,,Amen Thompson,0.113792149781889,,,,,0.9875209758162172,0.6275010186571083,,,
+2026-02-25,0022500846,MIL,CLE,0.5,,,,Donovan Mitchell,0.1083562914582749,,,,,1.274761157786249,0.7205022838967634,,,
+2026-02-25,0022500847,DEN,BOS,0.5,,,,Jamal Murray,0.1137849783973312,,,,,1.2515694752642628,0.7139445126492638,,,
