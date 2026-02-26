@@ -6936,6 +6936,11 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
 def _find_predictions_for_date(date_str: str) -> Optional[Path]:
     # Prefer processed path
     p = BASE_DIR / "data" / "processed" / f"predictions_{date_str}.csv"
+    if not p.exists():
+        try:
+            _maybe_fetch_remote_processed(p.name)
+        except Exception:
+            pass
     if p.exists():
         return p
     # Legacy root fallback
@@ -6948,6 +6953,11 @@ def _find_predictions_for_date(date_str: str) -> Optional[Path]:
 def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
     # Processed standardized game odds
     p = BASE_DIR / "data" / "processed" / f"game_odds_{date_str}.csv"
+    if not p.exists():
+        try:
+            _maybe_fetch_remote_processed(p.name)
+        except Exception:
+            pass
     if p.exists():
         return p
     # Alternate names we search for
@@ -6957,6 +6967,11 @@ def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
         f"market_{date_str}.csv",
     ]:
         q = BASE_DIR / "data" / "processed" / name
+        if not q.exists():
+            try:
+                _maybe_fetch_remote_processed(q.name)
+            except Exception:
+                pass
         if q.exists():
             return q
     return None
@@ -23490,10 +23505,13 @@ def api_cron_predict_date():
 
     Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
     """
-    if not _debug_routes_enabled():
-        return jsonify({"error": "disabled"}), 404
-    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+    cron_ok = _cron_auth_ok(request)
+    admin_ok = _admin_auth_ok(request)
+    if not (cron_ok or admin_ok):
         return jsonify({"error": "unauthorized"}), 401
+    # Allow CRON_TOKEN access in production; keep ADMIN_KEY access debug-only.
+    if (not _debug_routes_enabled()) and (not cron_ok):
+        return jsonify({"error": "disabled"}), 404
     d = _parse_date_param(request, default_to_today=True)
     do_push = (str(request.args.get("push", "0")).lower() in {"1","true","yes"})
     do_async = (str(request.args.get("async", "0")).lower() in {"1","true","yes"})
@@ -23904,8 +23922,6 @@ def api_finals_export():
 @app.route("/api/cron/daily-update", methods=["POST", "GET"])
 def api_cron_daily_update():
     """Trigger the daily update job via cron token. Git push is disabled by default for cron."""
-    if not _debug_routes_enabled():
-        return jsonify({"error": "disabled"}), 404
     if not _cron_auth_ok(request):
         return jsonify({"error": "unauthorized"}), 401
     if _job_state["running"]:

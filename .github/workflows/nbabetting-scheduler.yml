@@ -2,6 +2,13 @@ name: NBA Betting Daily Scheduler
 
 on:
   workflow_dispatch: {}
+  schedule:
+    # Daily around early morning US/Eastern (UTC time).
+    - cron: "5 11 * * *"
+
+concurrency:
+  group: nbabetting-daily-scheduler
+  cancel-in-progress: true
 
 jobs:
   reconcile-yesterday:
@@ -26,6 +33,14 @@ jobs:
         run: |
           set -e
           curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/run-all?push=1"
+      - name: Call predict-date (today, async)
+        env:
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+        run: |
+          set -e
+          DATE=$(date -u +%F)
+          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
       - name: Warm summary cache
         env:
           RENDER_URL: ${{ secrets.RENDER_URL }}
