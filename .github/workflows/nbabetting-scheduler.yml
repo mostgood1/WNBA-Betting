@@ -26,13 +26,13 @@ jobs:
   daily-run-all:
     runs-on: ubuntu-latest
     steps:
-      - name: Call run-all (push artifacts)
+      - name: Call run-all
         env:
           CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
           RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/run-all?push=1"
+          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/run-all"
       - name: Call predict-date (today, async)
         env:
           CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
