@@ -20199,6 +20199,106 @@ def _live_load_props_edges_index(date_str: str) -> dict[tuple[str, str, str], fl
         return {}
 
 
+def _live_load_props_recommendations_line_index(date_str: str) -> dict[tuple[str, str, str], float]:
+    """Return map (TEAM_TRI, NAME_KEY, STAT_KEY) -> pregame line derived from props_recommendations.
+
+    This is a fallback when props_edges_YYYY-MM-DD.csv is missing.
+    """
+    p = _live_find_processed_csv("props_recommendations", date_str)
+    if not p:
+        return {}
+    try:
+        mtime = int(p.stat().st_mtime)
+    except Exception:
+        mtime = 0
+    cache_key = f"props_recommendations_lines:{date_str}:{mtime}"
+    ent = _live_processed_cache.get(cache_key)
+    if ent is not None:
+        try:
+            return ent[1]  # type: ignore[return-value]
+        except Exception:
+            pass
+
+    try:
+        df = pd.read_csv(p)
+        if df is None or df.empty:
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        cols = {c.lower(): c for c in df.columns}
+        tcol = cols.get("team")
+        pcol = cols.get("player") or cols.get("player_name")
+        plays_col = cols.get("plays")
+        if not (tcol and pcol and plays_col):
+            _live_processed_cache[cache_key] = (mtime, {})
+            return {}
+
+        import ast
+
+        def _parse_plays(x: Any) -> list[dict[str, Any]]:
+            try:
+                if x is None:
+                    return []
+                if isinstance(x, float) and np.isnan(x):
+                    return []
+                s = str(x).strip()
+                if not s or s.lower() == "nan":
+                    return []
+                v = ast.literal_eval(s)
+                if not isinstance(v, list):
+                    return []
+                outv: list[dict[str, Any]] = []
+                for it in v:
+                    if isinstance(it, dict):
+                        outv.append(it)
+                return outv
+            except Exception:
+                return []
+
+        accum: dict[tuple[str, str, str], list[float]] = {}
+        tmp = df[[tcol, pcol, plays_col]].copy()
+        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+        tmp["_name_key"] = tmp[pcol].astype(str).map(_norm_player_name)
+
+        for _, r in tmp.iterrows():
+            try:
+                team = str(r.get(tcol) or "").strip().upper()
+                nk = str(r.get("_name_key") or "").strip().upper()
+                if not team or not nk:
+                    continue
+                plays = _parse_plays(r.get(plays_col))
+                if not plays:
+                    continue
+                for pl in plays:
+                    try:
+                        stat_key = _live_stat_key(pl.get("market"))
+                        if stat_key not in {"pts", "reb", "ast", "threes", "pra"}:
+                            continue
+                        ln = _safe_float(pl.get("line"))
+                        if ln is None or not math.isfinite(float(ln)):
+                            continue
+                        accum.setdefault((team, nk, str(stat_key)), []).append(float(ln))
+                    except Exception:
+                        continue
+            except Exception:
+                continue
+
+        out: dict[tuple[str, str, str], float] = {}
+        for k, lines in (accum or {}).items():
+            try:
+                if not lines:
+                    continue
+                out[k] = float(np.median(np.asarray(lines, dtype=float)))
+            except Exception:
+                continue
+
+        _live_processed_cache[cache_key] = (mtime, out)
+        return out
+    except Exception:
+        _live_processed_cache[cache_key] = (mtime, {})
+        return {}
+
+
 def _live_load_props_predictions_index(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
     """Return map (TEAM_TRI, NAME_KEY) -> {mean_*, roll*_min, pred_*} dict."""
     p = _live_find_processed_csv("props_predictions", date_str)
@@ -20512,12 +20612,17 @@ def api_live_player_lens():
 
     # Lookups from processed artifacts (best-effort; may be missing)
     edges_idx: dict[tuple[str, str, str], float] = {}
+    rec_lines_idx: dict[tuple[str, str, str], float] = {}
     preds_idx: dict[tuple[str, str], dict[str, Any]] = {}
     if d:
         try:
             edges_idx = _live_load_props_edges_index(d)
         except Exception:
             edges_idx = {}
+        try:
+            rec_lines_idx = _live_load_props_recommendations_line_index(d)
+        except Exception:
+            rec_lines_idx = {}
         try:
             preds_idx = _live_load_props_predictions_index(d)
         except Exception:
@@ -21070,6 +21175,8 @@ def api_live_player_lens():
                         line_pregame = None
                         if edges_idx:
                             line_pregame = edges_idx.get((team, nk, stat_key))
+                        if line_pregame is None and rec_lines_idx:
+                            line_pregame = rec_lines_idx.get((team, nk, stat_key))
                         line_live = None
                         line_live_as_of = None
                         line_live_age_sec = None
@@ -21133,6 +21240,20 @@ def api_live_player_lens():
                         line_used = line_live if line_live is not None else (float(line_pregame) if line_pregame is not None else None)
                         line_source = ("oddsapi" if line_live is not None else ("pregame" if line_pregame is not None else None))
                         sim_mu = _pred_val(pred_row, stat_key)
+
+                        # Last-resort baseline: if we have no market line at all, use the model mean
+                        # so we can still compute pace_vs_line and surface signals in the UI.
+                        if line_used is None and sim_mu is not None:
+                            try:
+                                mu0 = float(sim_mu)
+                                if math.isfinite(mu0):
+                                    line_used = mu0
+                                    if line_pregame is None:
+                                        line_pregame = mu0
+                                    if line_source is None:
+                                        line_source = "model"
+                            except Exception:
+                                pass
 
                         # Live Over/Under prices (OddsAPI) when available.
                         price_over = None
