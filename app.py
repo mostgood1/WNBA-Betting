@@ -15724,6 +15724,27 @@ def api_props_recommendations():
         preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
         props_preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
         df = _read_csv_if_exists(edges_p)
+        if not isinstance(df, pd.DataFrame) or df is None or df.empty:
+            # Attempt remote fetch (Render disk mounts can shadow repo files).
+            try:
+                _maybe_fetch_remote_processed(edges_p.name)
+            except Exception:
+                pass
+            df = _read_csv_if_exists(edges_p)
+        if not isinstance(df, pd.DataFrame) or df is None or df.empty:
+            return jsonify(_to_jsonable({
+                "date": d,
+                "rows": 0,
+                "games": [],
+                "data": [],
+                "portfolio": [],
+                "portfolio_only": False,
+                "snapshot_used": False,
+                "source": "props_edges",
+                "regular_only": True,
+                "reason": "props_edges missing or empty",
+                "requested_path": str(edges_p),
+            }))
         # Optional: apply roster team overrides to ensure correct team identity per player
         try:
             from pathlib import Path as _Path
@@ -15912,7 +15933,6 @@ def api_props_recommendations():
             except Exception:
                 pass
 
-        # Normalize and compute ev_pct for convenience on edges
         # Normalize and compute ev_pct for convenience
         df = df.copy()
         # Ensure we have a unified bookmaker column for downstream logic.
@@ -20243,14 +20263,26 @@ def api_live_player_lens():
     except Exception:
         recent_window_sec = 180
     recent_window_sec = int(max(10, min(600, recent_window_sec)))
+    d = _parse_date_param(request, default_to_today=False) or ""
     event_ids_raw = (request.args.get("event_ids") or "").strip()
     if not event_ids_raw:
-        return jsonify({"error": "missing event_ids"}), 400
-    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+        # Backwards-compatible: if caller only provides date, infer event_ids from scoreboard.
+        if not d:
+            return jsonify({"error": "missing event_ids"}), 400
+        try:
+            _src, sb_games = _live_build_scoreboard_games(d)
+            inferred = []
+            for g in sb_games or []:
+                eid = str(g.get("espn_event_id") or g.get("game_id") or "").strip()
+                if eid:
+                    inferred.append(eid)
+            event_ids = inferred
+        except Exception:
+            event_ids = []
+    else:
+        event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
     if not event_ids:
         return jsonify({"error": "missing event_ids"}), 400
-
-    d = _parse_date_param(request, default_to_today=False) or ""
 
     now = time.time()
     cache_key = f"{d}:{ttl}:{recent_window_sec}:" + ",".join(event_ids)
@@ -21358,8 +21390,29 @@ def api_live_lines():
     ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
     event_ids_raw = (request.args.get("event_ids") or "").strip()
     if not event_ids_raw:
-        return jsonify({"error": "missing event_ids"}), 400
-    event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
+        # Backwards-compatible: if caller omits event_ids, infer from scoreboard for the date.
+        try:
+            jd = _live_fetch_espn_scoreboard(d)
+            sb_games = _live_extract_espn_games(jd) if jd else []
+        except Exception:
+            sb_games = []
+        if not sb_games:
+            try:
+                sb = _live_fetch_cdn_scoreboard(d)
+                sb_games = _live_extract_scoreboard_games(sb) if sb else []
+            except Exception:
+                sb_games = []
+        inferred = []
+        for g in sb_games or []:
+            try:
+                eid = str(g.get("espn_event_id") or g.get("game_id") or "").strip()
+                if eid:
+                    inferred.append(eid)
+            except Exception:
+                continue
+        event_ids = inferred
+    else:
+        event_ids = [x.strip() for x in event_ids_raw.split(",") if x.strip()]
     if not event_ids:
         return jsonify({"error": "missing event_ids"}), 400
 
