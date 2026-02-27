@@ -22052,6 +22052,94 @@ def _append_live_lens_projection_jsonl(body: dict[str, Any], date_str: str) -> t
     return True, str(out_path)
 
 
+_live_lens_schedule_idx: dict[str, dict[tuple[str, str], str]] | None = None
+
+
+def _live_lens_safe_upper(x: Any) -> str | None:
+    try:
+        if x is None:
+            return None
+        if isinstance(x, float) and math.isnan(x):
+            return None
+        s = str(x).strip().upper()
+        if not s or s in {"NAN", "NONE", "NULL"}:
+            return None
+        return s
+    except Exception:
+        return None
+
+
+def _canon_nba_game_id10(game_id: Any) -> str:
+    try:
+        raw = str(game_id or "").strip()
+    except Exception:
+        return ""
+    digits = "".join([c for c in raw if c.isdigit()])
+    if len(digits) == 8:
+        return "00" + digits
+    if len(digits) == 9:
+        return "0" + digits
+    return digits
+
+
+def _is_canon_gid(gid: str | None) -> bool:
+    g = str(gid or "").strip()
+    return len(g) == 10 and g.isdigit()
+
+
+def _load_live_lens_schedule_index() -> dict[str, dict[tuple[str, str], str]]:
+    """Load schedule index: date -> (home_tri, away_tri) -> canonical gid."""
+    global _live_lens_schedule_idx
+    if _live_lens_schedule_idx is not None:
+        return _live_lens_schedule_idx
+
+    idx: dict[str, dict[tuple[str, str], str]] = {}
+    try:
+        p = BASE_DIR / "data" / "processed" / "schedule_2025_26.json"
+        if not p.exists():
+            _live_lens_schedule_idx = {}
+            return _live_lens_schedule_idx
+        raw = p.read_text(encoding="utf-8")
+        data = json.loads(raw)
+        if not isinstance(data, list):
+            _live_lens_schedule_idx = {}
+            return _live_lens_schedule_idx
+        for g in data:
+            if not isinstance(g, dict):
+                continue
+            ds = str(g.get("date_est") or "")[:10]
+            if not ds:
+                continue
+            home = _live_lens_safe_upper(g.get("home_tricode"))
+            away = _live_lens_safe_upper(g.get("away_tricode"))
+            gid = _canon_nba_game_id10(g.get("game_id"))
+            if home and away and _is_canon_gid(gid):
+                idx.setdefault(ds, {})[(home, away)] = gid
+    except Exception:
+        idx = {}
+
+    _live_lens_schedule_idx = idx
+    return _live_lens_schedule_idx
+
+
+def _resolve_live_lens_canon_gid(body: dict[str, Any], date_str: str) -> str | None:
+    # Already canonical?
+    gid0 = _canon_nba_game_id10(body.get("game_id_canon"))
+    if _is_canon_gid(gid0):
+        return gid0
+    gid1 = _canon_nba_game_id10(body.get("game_id"))
+    if _is_canon_gid(gid1):
+        return gid1
+
+    home = _live_lens_safe_upper(body.get("home"))
+    away = _live_lens_safe_upper(body.get("away"))
+    if not home or not away:
+        return None
+    idx = _load_live_lens_schedule_index()
+    gm = idx.get(str(date_str or "")[:10]) or {}
+    return gm.get((home, away))
+
+
 def _live_lens_admin_token() -> str:
     # Optional: gate upload endpoints when deployed publicly.
     return str(os.getenv("LIVE_LENS_ADMIN_TOKEN") or os.getenv("ADMIN_TOKEN") or "").strip()
@@ -22114,6 +22202,14 @@ def api_live_lens_signal():
         body = _to_jsonable(body)
     except Exception:
         pass
+
+    # Attach canonical NBA game_id when possible (for stable joins vs recon).
+    try:
+        gid = _resolve_live_lens_canon_gid(body, date_str)
+        if gid and "game_id_canon" not in body:
+            body["game_id_canon"] = gid
+    except Exception:
+        pass
     body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
     ok, info = _append_live_lens_signal_jsonl(body, date_str)
@@ -22141,6 +22237,14 @@ def api_live_lens_projection():
 
     try:
         body = _to_jsonable(body)
+    except Exception:
+        pass
+
+    # Attach canonical NBA game_id when possible (for stable joins vs recon).
+    try:
+        gid = _resolve_live_lens_canon_gid(body, date_str)
+        if gid and "game_id_canon" not in body:
+            body["game_id_canon"] = gid
     except Exception:
         pass
     body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"

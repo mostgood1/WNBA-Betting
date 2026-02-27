@@ -3,7 +3,7 @@
   "team_counts": {
     "BOS": 1,
     "CLE": 4,
-    "DAL": 5,
+    "DAL": 6,
     "DEN": 3,
     "MEM": 6,
     "MIL": 3,
@@ -59,6 +59,11 @@
     {
       "player": "Donovan Mitchell",
       "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Marvin Bagley III",
+      "team": "DAL",
       "status": "OUT"
     },
     {
@@ -149,9 +154,9 @@
   ],
   "team_key_outs": {
     "DAL": [
+      "Marvin Bagley III",
       "Daniel Gafford",
-      "Kyrie Irving",
-      "Anthony Davis"
+      "Kyrie Irving"
     ],
     "MEM": [
       "Santi Aldama",
@@ -186,7 +191,7 @@
     ]
   },
   "team_impact": {
-    "DAL": 24.925,
+    "DAL": 52.858333333333334,
     "MEM": 67.0,
     "MIL": 11.966666666666669,
     "DEN": 37.63142857142857,

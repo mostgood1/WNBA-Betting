@@ -210,6 +210,21 @@ def smart_sim_cmd(
         raise SystemExit(2)
     props_df = pd.read_csv(props_path)
 
+    # When full-game odds are missing, attempt to approximate a market total from period lines
+    # so quarter priors are not completely unanchored.
+    market_total_for_quarters = market_total
+    if market_total_for_quarters is None:
+        try:
+            from .sim.smart_sim import _period_lines_from_processed
+
+            pl = _period_lines_from_processed(date_str=date_str, home_tri=home_tri, away_tri=away_tri) or {}
+            h1 = pl.get("h1_total") if isinstance(pl, dict) else None
+            h1f = float(h1) if h1 is not None else float("nan")
+            if np.isfinite(h1f) and h1f > 0:
+                market_total_for_quarters = float(2.0 * h1f)
+        except Exception:
+            pass
+
     def _injuries_excluded_map_for_date(ds: str) -> dict[str, set[str]]:
         """Return TEAM_TRI -> {PLAYER_KEY} for players excluded due to injury.
 
@@ -613,7 +628,10 @@ def smart_sim_cmd(
         back_to_back=bool(away_b2b),
         rest_days=away_rest_days,
     )
-    qsum = simulate_quarters(GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread), n_samples=3000)
+    qsum = simulate_quarters(
+        GameInputs(date=date_str, home=home_ctx, away=away_ctx, market_total=market_total_for_quarters, market_home_spread=home_spread),
+        n_samples=3000,
+    )
 
     sim_cfg = SmartSimConfig(n_sims=int(n_sims), seed=seed, use_pbp=bool(pbp))
     pre_ctx = {
@@ -729,6 +747,19 @@ def _smart_sim_worker_run(job: dict) -> dict:
     try:
         market_total = job.get("market_total")
         home_spread = job.get("home_spread")
+
+        market_total_for_quarters = market_total
+        if market_total_for_quarters is None:
+            try:
+                from .sim.smart_sim import _period_lines_from_processed
+
+                pl = _period_lines_from_processed(date_str=date_s, home_tri=home_tri, away_tri=away_tri) or {}
+                h1 = pl.get("h1_total") if isinstance(pl, dict) else None
+                h1f = float(h1) if h1 is not None else float("nan")
+                if np.isfinite(h1f) and h1f > 0:
+                    market_total_for_quarters = float(2.0 * h1f)
+            except Exception:
+                pass
         home_pace = float(job.get("home_pace") or 98.0)
         away_pace = float(job.get("away_pace") or 98.0)
         matchup_pace = float(job.get("matchup_pace") or np.mean([home_pace, away_pace]))
@@ -763,7 +794,7 @@ def _smart_sim_worker_run(job: dict) -> dict:
         )
 
         qsum = simulate_quarters(
-            GameInputs(date=date_s, home=home_ctx, away=away_ctx, market_total=market_total, market_home_spread=home_spread),
+            GameInputs(date=date_s, home=home_ctx, away=away_ctx, market_total=market_total_for_quarters, market_home_spread=home_spread),
             n_samples=3000,
         )
 

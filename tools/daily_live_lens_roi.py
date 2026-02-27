@@ -72,6 +72,78 @@ def _canon_nba_game_id(game_id: Any) -> str:
     return digits
 
 
+def _is_canon_gid(gid: str | None) -> bool:
+    g = str(gid or "").strip()
+    return len(g) == 10 and g.isdigit()
+
+
+def _safe_upper(x: Any) -> str | None:
+    try:
+        if x is None:
+            return None
+        if isinstance(x, float) and math.isnan(x):
+            return None
+        s = str(x).strip().upper()
+        if not s or s in {"NAN", "NONE", "NULL"}:
+            return None
+        return s
+    except Exception:
+        return None
+
+
+def _load_gid_map(ds: str) -> dict[tuple[str, str], str]:
+    """Build (home_tri, away_tri) -> canonical NBA game_id map for a date.
+
+    Live Lens logs often carry matchup ids like "WAS@ATL" while recon files
+    are keyed by the canonical 10-digit NBA game_id.
+    """
+    out: dict[tuple[str, str], str] = {}
+    sched_path = PROCESSED / "schedule_2025_26.json"
+    if not sched_path.exists():
+        return out
+    try:
+        data = json.loads(sched_path.read_text(encoding="utf-8"))
+    except Exception:
+        return out
+    if not isinstance(data, list):
+        return out
+    for g in data:
+        if not isinstance(g, dict):
+            continue
+        date_est = str(g.get("date_est") or "")
+        if date_est[:10] != ds:
+            continue
+        home = _safe_upper(g.get("home_tricode"))
+        away = _safe_upper(g.get("away_tricode"))
+        gid = _canon_nba_game_id(g.get("game_id"))
+        if home and away and _is_canon_gid(gid):
+            out[(home, away)] = gid
+    return out
+
+
+def _resolve_gid(obj: dict[str, Any], gid_map: dict[tuple[str, str], str]) -> str | None:
+    gid0 = _canon_nba_game_id(obj.get("game_id_canon") or obj.get("game_id"))
+    if _is_canon_gid(gid0):
+        return gid0
+
+    home = _safe_upper(obj.get("home"))
+    away = _safe_upper(obj.get("away"))
+    if home and away:
+        gid = gid_map.get((home, away))
+        if gid:
+            return gid
+
+    raw = str(obj.get("game_id") or "").strip().upper()
+    m = re.match(r"^([A-Z]{3})\s*@\s*([A-Z]{3})$", raw)
+    if m:
+        away2, home2 = m.group(1), m.group(2)
+        gid = gid_map.get((home2, away2))
+        if gid:
+            return gid
+
+    return None
+
+
 def _norm_player_name(s: str) -> str:
     if s is None:
         return ""
@@ -266,7 +338,7 @@ def _dedup_key_for_signal(obj: dict[str, Any]) -> tuple[Any, ...] | None:
         if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
             return None
 
-        gid = _canon_nba_game_id(obj.get("game_id")) or None
+        gid = obj.get("_gid") or (_canon_nba_game_id(obj.get("game_id")) or None)
         horizon = str(obj.get("horizon") or "").strip().lower() or None
         side = str(obj.get("side") or "").strip().upper() or None
 
@@ -524,6 +596,8 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy
     if not sigs:
         return [], {"dedup_policy": str(dedup_policy), "signals_raw": 0, "signals_filtered": 0, "signals_dedup": 0}
 
+    gid_map = _load_gid_map(ds)
+
     # Pre-filter to the rows we're going to consider in this run, then de-dup.
     filtered: list[dict[str, Any]] = []
     for obj in sigs:
@@ -535,6 +609,7 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy
         klass = str(obj.get("klass") or "").strip().upper() or None
         if not include_watch and klass != "BET":
             continue
+        obj["_gid"] = _resolve_gid(obj, gid_map)
         filtered.append(obj)
 
     sigs = _dedup_signals(filtered, policy=str(dedup_policy))
@@ -549,7 +624,7 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy
         market = str(obj.get("market") or "").strip().lower()
         klass = str(obj.get("klass") or "").strip().upper() or None
 
-        gid = _canon_nba_game_id(obj.get("game_id")) or None
+        gid = obj.get("_gid") or (_canon_nba_game_id(obj.get("game_id")) or None)
         home = str(obj.get("home") or "").strip().upper() or None
         away = str(obj.get("away") or "").strip().upper() or None
         horizon = str(obj.get("horizon") or "").strip().lower() or None

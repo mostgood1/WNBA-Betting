@@ -3,7 +3,7 @@
   "yesterday": "2026-02-26",
   "predictions_ok": true,
   "props_predictions_ok": true,
-  "game_odds_ok": false,
+  "game_odds_ok": true,
   "slate_games": 5,
   "smart_sim_count": 5,
   "rotations_dir_exists": true,
@@ -21,8 +21,6 @@
     "minutes_sanity: team MEM top10 minutes sum low (162.0) using roll5_min",
     "minutes_sanity: 11 players have <8 min but >=10 pred_pts (sample: E.J. Liddell(BKN), Tyson Etienne(BKN), Josh Minott(BOS), Chris Livingston(CLE), Colby Jones(DET), Bobi Klintman(DET))"
   ],
-  "missing": [
-    "game_odds_2026-02-27.csv"
-  ],
-  "ok": false
+  "missing": [],
+  "ok": true
 }

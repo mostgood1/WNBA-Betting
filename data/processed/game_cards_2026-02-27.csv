@@ -1,11 +1,6 @@
-date,game_id,home_team,visitor_team,commence_time,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1
-2026-02-27,0000225008,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500848,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500849,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500851,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500852,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500853,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500854,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500855,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500856,,,,,,0.5,1.2,0.6988057880877978
-2026-02-27,0022500857,,,,,,0.5,1.2,0.6988057880877978
+date,game_id,home_team,visitor_team,commence_time,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,bookmaker,home_tri,away_tri,prob_home_tip,early_threes_expected,early_threes_prob_ge_1,first_basket_top5
+2026-02-27,0022500860,Milwaukee Bucks,New York Knicks,2026-02-28T01:10:00Z,269.11404747949007,-269.11404747949007,8.5,-8.5,-110,-110,218.0,100.50673471845523,-100.50673471845528,11,oddsapi_consensus,MIL,NYK,0.5,1.2541200905240375,0.71467320044429,NYK: Jalen Brunson (10.9%); NYK: Mikal Bridges (10.9%); MIL: Kevin Porter Jr. (10.6%); NYK: OG Anunoby (10.4%); MIL: Ryan Rollins (10.1%)
+2026-02-27,0022500861,Dallas Mavericks,Memphis Grizzlies,2026-02-28T01:40:00Z,-161.3101370979532,161.31013709795323,-4.0,4.0,-115,-105,238.5,100.14146272457204,-100.1414627245721,11,oddsapi_consensus,DAL,MEM,0.5,1.1371740305607276,0.6792759011442548,DAL: Cooper Flagg (11.6%); DAL: Anthony Davis (10.6%); MEM: Jaren Jackson Jr. (10.4%); DAL: P.J. Washington (10.4%); DAL: Max Christie (10.0%)
+2026-02-27,0022500862,Oklahoma City Thunder,Denver Nuggets,2026-02-28T02:40:00Z,-257.5134681047257,257.51346810472563,-8.0,8.0,-110,-110,233.5,-100.87028429538258,100.87028429538256,11,oddsapi_consensus,OKC,DEN,0.5,1.1667468581532805,0.6886217469716247,DEN: Jamal Murray (11.6%); DEN: Nikola Jokić (11.2%); OKC: Shai Gilgeous-Alexander (10.8%); DEN: Peyton Watson (10.0%); DEN: Cameron Johnson (9.9%)
+2026-02-27,0022500858,Detroit Pistons,Cleveland Cavaliers,2026-02-28T00:10:00Z,-202.03540217956376,202.03540217956368,-5.5,5.5,-115,-105,227.5,100.14527145155508,-100.14527145155508,11,oddsapi_consensus,DET,CLE,0.5,1.1814312647071117,0.6931607440296608,DET: Cade Cunningham (11.6%); CLE: Donovan Mitchell (11.2%); CLE: Evan Mobley (11.1%); CLE: James Harden (10.6%); CLE: Darius Garland (10.1%)
+2026-02-27,0022500859,Boston Celtics,Brooklyn Nets,2026-02-28T00:40:00Z,-880.7893908364805,880.7893908364805,-17.5,17.5,-115,-105,209.5,-100.37237672600882,100.37237672600884,11,oddsapi_consensus,BOS,BKN,0.5,1.3358584696099518,0.7370676408981036,BOS: Derrick White (11.7%); BOS: Jaylen Brown (11.7%); BKN: Michael Porter Jr. (11.3%); BOS: Payton Pritchard (11.2%); BKN: Nic Claxton (10.0%)

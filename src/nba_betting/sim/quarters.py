@@ -167,7 +167,17 @@ def _apply_totals_calibration(
             sqb = g.get("sim_quarters")
             if isinstance(sqb, dict):
                 for k, v in sqb.items():
-                    q_biases[str(k)] = float(q_biases.get(str(k), 0.0)) + _clamp(v, -6.0, 6.0)
+                    kk = str(k)
+                    combined = float(q_biases.get(kk, 0.0)) + _clamp(v, -6.0, 6.0)
+                    q_biases[kk] = _clamp(combined, -6.0, 6.0)
+
+            # Ensure quarter biases redistribute (sum ~ 0) rather than shifting the full-game total.
+            # Full-game bias is handled by game_total_bias/sim_game_total_bias below.
+            keys = [f"q{i}" for i in range(1, 5) if f"q{i}" in q_biases]
+            if len(keys) == 4:
+                mean_b = float(sum(float(q_biases[k]) for k in keys) / 4.0)
+                for k in keys:
+                    q_biases[k] = _clamp(float(q_biases[k]) - mean_b, -6.0, 6.0)
     except Exception:
         q_biases = {}
 
@@ -189,6 +199,7 @@ def _apply_totals_calibration(
             gb = _clamp(g.get("game_total_bias", 0.0), -15.0, 15.0)
             # Optional: smart-sim global total bias (actual - pred) from smart_sim_quarter_eval
             gb += _clamp(g.get("sim_game_total_bias", 0.0), -15.0, 15.0)
+            gb = _clamp(gb, -15.0, 15.0)
             home_mu += 0.5 * gb
             away_mu += 0.5 * gb
     except Exception:

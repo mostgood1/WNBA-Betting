@@ -83,17 +83,44 @@ def _load_gid_map(ds: str) -> dict[tuple[str, str], str]:
     path = PROCESSED / f"game_cards_{ds}.csv"
     df = _load_csv(path)
     if df is None or df.empty:
-        return {}
+        df = pd.DataFrame()
     if "game_id" not in df.columns:
-        return {}
+        df = pd.DataFrame()
     if "home_tri" not in df.columns or "away_tri" not in df.columns:
-        return {}
+        df = pd.DataFrame()
 
     out: dict[tuple[str, str], str] = {}
-    for _, r in df.iterrows():
-        home = _safe_upper(r.get("home_tri"))
-        away = _safe_upper(r.get("away_tri"))
-        gid = _canon_nba_game_id(r.get("game_id"))
+    if not df.empty:
+        for _, r in df.iterrows():
+            home = _safe_upper(r.get("home_tri"))
+            away = _safe_upper(r.get("away_tri"))
+            gid = _canon_nba_game_id(r.get("game_id"))
+            if home and away and _is_canon_gid(gid):
+                out[(home, away)] = gid
+    if out:
+        return out
+
+    # Fallback: schedule JSON contains tricodes + canonical NBA game_id.
+    sched_path = PROCESSED / "schedule_2025_26.json"
+    if not sched_path.exists():
+        return {}
+    try:
+        raw = sched_path.read_text(encoding="utf-8")
+        data = json.loads(raw)
+    except Exception:
+        return {}
+    if not isinstance(data, list):
+        return {}
+
+    for g in data:
+        if not isinstance(g, dict):
+            continue
+        date_est = str(g.get("date_est") or "")
+        if date_est[:10] != ds:
+            continue
+        home = _safe_upper(g.get("home_tricode"))
+        away = _safe_upper(g.get("away_tricode"))
+        gid = _canon_nba_game_id(g.get("game_id"))
         if home and away and _is_canon_gid(gid):
             out[(home, away)] = gid
     return out
@@ -101,7 +128,7 @@ def _load_gid_map(ds: str) -> dict[tuple[str, str], str]:
 
 def _resolve_gid_for_props(obj: dict[str, Any], gid_map: dict[tuple[str, str], str]) -> str | None:
     # Prefer numeric NBA game id if present.
-    gid0 = _canon_nba_game_id(obj.get("game_id"))
+    gid0 = _canon_nba_game_id(obj.get("game_id_canon") or obj.get("game_id"))
     if _is_canon_gid(gid0):
         return gid0
 
@@ -122,6 +149,16 @@ def _resolve_gid_for_props(obj: dict[str, Any], gid_map: dict[tuple[str, str], s
             return gid
 
     return None
+
+
+def _resolve_gid_for_game(obj: dict[str, Any], gid_map: dict[tuple[str, str], str]) -> str | None:
+    """Resolve a canonical NBA gid for non-prop markets.
+
+    Live Lens logs sometimes use matchup ids like "WAS@ATL"; recon quarters/props
+    are keyed by the canonical 10-digit NBA game_id.
+    """
+    gid = _resolve_gid_for_props(obj, gid_map)
+    return gid
 
 
 def _norm_player_name(s: str) -> str:
@@ -169,8 +206,14 @@ def _live_stat_key(x: Any) -> str:
 
 def _safe_upper(x: Any) -> str | None:
     try:
-        s = str(x or "").strip().upper()
-        return s or None
+        if x is None:
+            return None
+        if isinstance(x, float) and math.isnan(x):
+            return None
+        s = str(x).strip().upper()
+        if not s or s in {"NAN", "NONE", "NULL"}:
+            return None
+        return s
     except Exception:
         return None
 
@@ -414,7 +457,7 @@ def _score_day(ds: str) -> pd.DataFrame:
 
         if market in {"total", "half_total", "quarter_total"}:
             horizon = str(obj.get("horizon") or "").strip().lower() or None
-            gid = _canon_nba_game_id(obj.get("game_id")) or None
+            gid = _resolve_gid_for_game(obj, gid_map)
             home = _safe_upper(obj.get("home"))
             away = _safe_upper(obj.get("away"))
             live_line = _n(obj.get("live_line"))
@@ -423,6 +466,7 @@ def _score_day(ds: str) -> pd.DataFrame:
             if pred is None:
                 pred = (live_line + edge) if (live_line is not None and edge is not None) else None
             act = _actual_total(market, horizon, gid, home, away, rg, rq)
+            missing_reason = ""
             if act is None:
                 if market == "half_total" and horizon not in {"h1", "h2"}:
                     missing_reason = "unsupported_horizon"

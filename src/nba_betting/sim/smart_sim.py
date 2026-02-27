@@ -2156,6 +2156,9 @@ def simulate_smart_game(
     cfg = cfg or SmartSimConfig()
     rng = np.random.default_rng(cfg.seed)
 
+    market_total_source: Optional[str] = None
+    market_home_spread_source: Optional[str] = None
+
     # Derive a per-game event config using pregame data features (pace, injuries, schedule).
     # This keeps the possession engine aligned to expected possession volume.
     event_cfg = cfg.event_cfg
@@ -2260,10 +2263,27 @@ def simulate_smart_game(
 
     if market_total is None or market_home_spread is None:
         t2, s2 = _market_lines_from_processed_odds(date_str=date_str, home_tri=home_tri, away_tri=away_tri)
-        if market_total is None:
+        if market_total is None and t2 is not None:
             market_total = t2
-        if market_home_spread is None:
+            market_total_source = "processed_game_odds"
+        if market_home_spread is None and s2 is not None:
             market_home_spread = s2
+            market_home_spread_source = "processed_game_odds"
+
+    # Best-effort per-period lines (quarters/halves). Also serves as a fallback market anchor.
+    period_lines = _period_lines_from_processed(date_str=date_str, home_tri=home_tri, away_tri=away_tri) or {}
+
+    # Fallback: if full-game totals are missing but H1 total exists, approximate full-game total.
+    # This is intentionally simple and is only used to avoid completely unanchored totals.
+    if market_total is None and isinstance(period_lines, dict):
+        try:
+            h1_total = period_lines.get("h1_total")
+            h1_total_f = float(h1_total) if h1_total is not None else float("nan")
+            if np.isfinite(h1_total_f) and h1_total_f > 0:
+                market_total = float(2.0 * h1_total_f)
+                market_total_source = "period_lines_h1_total_x2"
+        except Exception:
+            pass
 
     # Quarter distribution
     if quarters is None:
@@ -2531,8 +2551,6 @@ def simulate_smart_game(
 
     hq = None
     aq = None
-
-    period_lines = _period_lines_from_processed(date_str=date_str, home_tri=home_tri, away_tri=away_tri) or {}
 
     def _period_quantiles(arr: np.ndarray) -> dict[str, float]:
         arr = np.asarray(arr, dtype=float)
@@ -3357,6 +3375,8 @@ def simulate_smart_game(
         "market": {
             "market_total": float(market_total) if market_total is not None else None,
             "market_home_spread": float(market_home_spread) if market_home_spread is not None else None,
+            "market_total_source": market_total_source,
+            "market_home_spread_source": market_home_spread_source,
         },
         "rotation_minutes": {
             "home": rot_home_diag,
