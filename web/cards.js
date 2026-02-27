@@ -2464,12 +2464,26 @@ function applyGamePillsFilter(root) {
       chipSetActive(btn, on);
     });
 
-    const cards = root.querySelectorAll('.card.card-v2[data-game-id]');
-    cards.forEach((sec) => {
-      const gid = canonGameId(sec.dataset.gameId);
-      const show = any ? activeSet.has(gid) : true;
-      sec.classList.toggle('hidden', !show);
+    // Filter player props (not game cards):
+    // 1) Live prop callouts list
+    const callouts = root.querySelectorAll('#live-prop-callouts button.prop-callout[data-game-id]');
+    callouts.forEach((btn) => {
+      const gid = canonGameId(btn.dataset.gameId);
+      const okGame = any ? activeSet.has(gid) : true;
+      btn.classList.toggle('hidden', !okGame);
     });
+
+    // 2) Per-game live player lens details blocks
+    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
+    wraps.forEach((wrap) => {
+      const gid = canonGameId(wrap.dataset.gameId);
+      const okGame = any ? activeSet.has(gid) : true;
+      const det = wrap.querySelector('details.lens-player-details');
+      if (det) det.classList.toggle('hidden', !okGame);
+    });
+
+    // Re-apply stat/signal filters after game-level filtering.
+    applyPlayerLensFiltersAll(root);
   } catch (_) {
     // ignore
   }
@@ -2515,13 +2529,20 @@ function applyPlayerPropCalloutsFilter(root) {
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
+    const activeSet = __gamePillsSelected;
+    const anyGame = !!(activeSet && activeSet.size);
+
     const items = root.querySelectorAll('#live-prop-callouts button.prop-callout[data-stat][data-sig]');
     items.forEach((btn) => {
       const stat = String(btn.dataset.stat || '').toLowerCase().trim();
       const sig = String(btn.dataset.sig || '').toUpperCase().trim();
       const okStat = statsAny ? statsSel.has(stat) : true;
       const okSig = sigAny ? sigSel.has(sig) : true;
-      btn.classList.toggle('hidden', !(okStat && okSig));
+
+      const gid = canonGameId(btn.dataset.gameId);
+      const okGame = anyGame ? activeSet.has(gid) : true;
+
+      btn.classList.toggle('hidden', !(okGame && okStat && okSig));
     });
   } catch (_) {
     // ignore
@@ -3098,12 +3119,16 @@ function startLiveLensPolling(root, games, dateStr) {
         const s = sbById ? sbById.get(gid) : null;
         const statusEl = item.querySelector('.s-status');
         const scoreEl = item.querySelector('.s-score');
+        const awayScoreEl = item.querySelector('.s-score-away');
+        const homeScoreEl = item.querySelector('.s-score-home');
 
         if (statusEl) statusEl.textContent = (s && s.status) ? String(s.status) : (statusEl.textContent || '');
-        if (scoreEl) {
+        {
           const ap = (s && s.away_pts != null) ? s.away_pts : null;
           const hp = (s && s.home_pts != null) ? s.home_pts : null;
-          if (ap != null && hp != null) scoreEl.textContent = `${ap}-${hp}`;
+          if (awayScoreEl) awayScoreEl.textContent = (ap != null) ? String(ap) : '';
+          if (homeScoreEl) homeScoreEl.textContent = (hp != null) ? String(hp) : '';
+          if (scoreEl && ap != null && hp != null) scoreEl.textContent = `${ap}-${hp}`;
         }
 
         const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
@@ -5378,6 +5403,9 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       const homeTri = String(g.home_tri || '').toUpperCase().trim();
       const awayTri = String(g.away_tri || '').toUpperCase().trim();
 
+      const homeName = String(g.home_name || homeTri).trim();
+      const awayName = String(g.away_name || awayTri).trim();
+
       const recon = showResults ? (reconIndex.get(`${homeTri}|${awayTri}`) || reconIndex.get(`${String(g.home_name || '').trim()}|${String(g.away_name || '').trim()}`)) : null;
       const actualHome = recon ? n(recon.home_pts) : null;
       const actualAway = recon ? n(recon.visitor_pts) : null;
@@ -5385,16 +5413,29 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       const odds = g.odds || {};
       const timeStr = fmtTime(odds.commence_time);
       const statusTxt = (actualHome != null && actualAway != null) ? 'Final' : (timeStr || '—');
-      const scoreTxt = (actualHome != null && actualAway != null) ? `${actualAway}-${actualHome}` : '';
+      const awayScoreTxt = (actualHome != null && actualAway != null) ? String(actualAway) : '';
+      const homeScoreTxt = (actualHome != null && actualAway != null) ? String(actualHome) : '';
 
       return `
         <button type="button" class="s-item neu" data-game-id="${esc(gid)}" aria-label="Jump to ${esc(awayTri)} at ${esc(homeTri)}">
-          <span class="s-teams">${esc(awayTri)} @ ${esc(homeTri)}</span>
-          <span class="s-mid">
+          <span class="s-top">
             <span class="s-status">${esc(statusTxt)}</span>
-            <span class="s-score">${esc(scoreTxt)}</span>
+            <span class="s-tag"></span>
           </span>
-          <span class="s-tag"></span>
+
+          <span class="s-rows">
+            <span class="s-row">
+              <span class="s-team away">${logoImg(awayTri)}<span class="s-name" title="${esc(awayName)}">${esc(awayName)}</span></span>
+              <span class="s-score-away" aria-label="Away score">${esc(awayScoreTxt)}</span>
+            </span>
+            <span class="s-row">
+              <span class="s-team home">${logoImg(homeTri)}<span class="s-name" title="${esc(homeName)}">${esc(homeName)}</span></span>
+              <span class="s-score-home" aria-label="Home score">${esc(homeScoreTxt)}</span>
+            </span>
+          </span>
+
+          <span class="s-teams" style="display:none;">${esc(awayTri)} @ ${esc(homeTri)}</span>
+          <span class="s-mid" style="display:none;"><span class="s-score">${esc(awayScoreTxt && homeScoreTxt ? `${awayScoreTxt}-${homeScoreTxt}` : '')}</span></span>
         </button>
       `;
     }).join('');

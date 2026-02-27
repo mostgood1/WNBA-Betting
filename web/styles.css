@@ -25,21 +25,72 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 }
 
 .scoreboard-strip .s-item {
-	display: grid;
-	grid-template-columns: 1fr auto auto;
-	align-items: center;
-	gap: 10px;
-	padding: 8px 10px;
-	border-radius: 999px;
+	display: flex;
+	flex-direction: column;
+	align-items: stretch;
+	gap: 4px;
+	padding: 7px 9px;
+	border-radius: 12px;
 	border: 1px solid #2a3a7a;
 	background: #161c3b;
 	color: #d5dbff;
 	font-size: 12px;
 	line-height: 1.1;
 	cursor: pointer;
+	min-width: 160px;
+	max-width: 220px;
 }
 
 .scoreboard-strip .s-item:hover { filter: brightness(1.06); }
+
+
+.scoreboard-strip .s-top {
+	display: inline-flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 8px;
+	color: #cfe0ff;
+}
+.scoreboard-strip .s-status { opacity: 0.95; font-weight: 800; font-size: 11px; }
+.scoreboard-strip .s-tag { color: #9fb0ff; font-weight: 900; white-space: nowrap; font-size: 11px; }
+
+.scoreboard-strip .s-rows { display: grid; gap: 2px; }
+.scoreboard-strip .s-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+}
+
+.scoreboard-strip .s-team {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	min-width: 0;
+}
+
+.scoreboard-strip img.logo {
+	height: 14px;
+	width: auto;
+	margin: 0;
+	vertical-align: middle;
+	object-fit: contain;
+}
+
+.scoreboard-strip .s-name {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	font-weight: 900;
+}
+
+.scoreboard-strip .s-score-away,
+.scoreboard-strip .s-score-home {
+	flex: 0 0 auto;
+	font-weight: 900;
+	font-variant-numeric: tabular-nums;
+}
 
 .scoreboard-strip .s-teams {
 	font-weight: 900;
@@ -50,9 +101,7 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 	white-space: nowrap;
 }
 .scoreboard-strip .s-mid { display: inline-flex; gap: 8px; align-items: center; color: #cfe0ff; }
-.scoreboard-strip .s-status { opacity: 0.95; font-weight: 700; }
 .scoreboard-strip .s-score { font-weight: 900; }
-.scoreboard-strip .s-tag { color: #9fb0ff; font-weight: 800; white-space: nowrap; }
 
 .scoreboard-strip .s-item.bet {
 	border-color: #1e7a45;
@@ -82,14 +131,14 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 		z-index: 50;
 		flex-wrap: nowrap;
 		overflow-x: auto;
-		-webkit-overflow-scrolling: touch;
 		border-radius: 0;
 	}
 
 	.scoreboard-strip .s-item {
-		padding: 10px 12px;
-		font-size: 13px;
-		gap: 12px;
+		padding: 8px 10px;
+		font-size: 12px;
+		gap: 4px;
+		min-width: 170px;
 	}
 
 	/* Ensure jump-to-card doesn't get hidden behind sticky strip */
