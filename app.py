@@ -15732,19 +15732,216 @@ def api_props_recommendations():
                 pass
             df = _read_csv_if_exists(edges_p)
         if not isinstance(df, pd.DataFrame) or df is None or df.empty:
-            return jsonify(_to_jsonable({
-                "date": d,
-                "rows": 0,
-                "games": [],
-                "data": [],
-                "portfolio": [],
-                "portfolio_only": False,
-                "snapshot_used": False,
-                "source": "props_edges",
-                "regular_only": True,
-                "reason": "props_edges missing or empty",
-                "requested_path": str(edges_p),
-            }))
+            # Fallback: return projection-only cards from props_predictions.
+            # This keeps the endpoint usable even when odds/edges are unavailable.
+            try:
+                if not props_preds_p.exists():
+                    try:
+                        _maybe_fetch_remote_processed(props_preds_p.name)
+                    except Exception:
+                        pass
+                if not preds_p.exists():
+                    try:
+                        _maybe_fetch_remote_processed(preds_p.name)
+                    except Exception:
+                        pass
+                pp_f = _read_csv_if_exists(props_preds_p)
+                games_df_f = _read_csv_if_exists(preds_p)
+                if not isinstance(pp_f, pd.DataFrame) or pp_f is None or pp_f.empty:
+                    return jsonify(_to_jsonable({
+                        "date": d,
+                        "rows": 0,
+                        "games": [],
+                        "data": [],
+                        "portfolio": [],
+                        "portfolio_only": False,
+                        "snapshot_used": False,
+                        "source": "props_predictions_fallback",
+                        "regular_only": True,
+                        "reason": "props_edges missing/empty and props_predictions missing/empty",
+                        "requested_path": str(edges_p),
+                        "requested_predictions_path": str(props_preds_p),
+                    }))
+
+                # Optional game filter (home_team/away_team) to keep output manageable.
+                home_q = (request.args.get("home_team") or "").strip()
+                away_q = (request.args.get("away_team") or "").strip()
+                keep_tris: set[str] | None = None
+                if (home_q or away_q) and isinstance(games_df_f, pd.DataFrame) and games_df_f is not None and (not games_df_f.empty):
+                    try:
+                        keep_teams: set[str] = set()
+                        g = games_df_f[["home_team", "visitor_team"]].dropna()
+                        for _, r in g.iterrows():
+                            h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                            if (not home_q or h == home_q) and (not away_q or a == away_q):
+                                keep_teams.update({h, a})
+                        if keep_teams:
+                            keep_tris = {(_get_tricode(t) or str(t).strip().upper()) for t in keep_teams}
+                    except Exception:
+                        keep_tris = None
+
+                # Build a lightweight card per player/team with model projections.
+                items: list[dict] = []
+                try:
+                    tmp = pp_f.copy()
+                    for c in ("player_name", "team"):
+                        if c not in tmp.columns:
+                            tmp[c] = None
+                    tmp["team"] = tmp["team"].astype(str).str.strip().str.upper()
+
+                    # Default to slate-only teams to keep payload size manageable.
+                    try:
+                        slate_param = (request.args.get("slateOnly", request.args.get("slate_only", "1")) or "1").strip().lower()
+                        slate_only = slate_param not in ("0", "false", "no")
+                    except Exception:
+                        slate_only = True
+                    if slate_only:
+                        try:
+                            tris = _get_slate_team_tricodes(d)
+                        except Exception:
+                            tris = None
+                        if tris:
+                            try:
+                                tmp["_team_tri"] = tmp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+                                tmp = tmp[tmp["_team_tri"].isin(set(tris))].drop(columns=["_team_tri"], errors="ignore")
+                            except Exception:
+                                pass
+                    # Derive games list if available
+                    games_out: list[dict] = []
+                    if isinstance(games_df_f, pd.DataFrame) and games_df_f is not None and (not games_df_f.empty):
+                        try:
+                            g2 = games_df_f[["home_team", "visitor_team"]].dropna()
+                            for _, r in g2.iterrows():
+                                games_out.append({"home_team": r.get("home_team"), "away_team": r.get("visitor_team")})
+                        except Exception:
+                            games_out = []
+                    # Map matchup per team for context
+                    matchup_map: dict[str, tuple[str, str]] = {}
+                    if isinstance(games_df_f, pd.DataFrame) and games_df_f is not None and (not games_df_f.empty):
+                        try:
+                            for _, r in games_df_f.iterrows():
+                                h = str(r.get("home_team") or "").strip(); a = str(r.get("visitor_team") or "").strip()
+                                if h and a:
+                                    matchup_map[h.upper()] = (a, h)
+                                    matchup_map[a.upper()] = (a, h)
+                                    h_tri = _get_tricode(h)
+                                    a_tri = _get_tricode(a)
+                                    if h_tri:
+                                        matchup_map[h_tri.upper()] = (a, h)
+                                    if a_tri:
+                                        matchup_map[a_tri.upper()] = (a, h)
+                        except Exception:
+                            matchup_map = {}
+
+                    # Group by player/team
+                    for (player, team), grp in tmp.groupby(["player_name", "team"], dropna=False):
+                        try:
+                            tri = (_get_tricode(str(team)) or str(team).strip().upper() or None)
+                            if keep_tris is not None and tri is not None and tri.upper() not in keep_tris:
+                                continue
+                            model: dict[str, float] = {}
+                            for mean_col, pred_col, key in [
+                                ("mean_pts", "pred_pts", "pts"),
+                                ("mean_reb", "pred_reb", "reb"),
+                                ("mean_ast", "pred_ast", "ast"),
+                                ("mean_threes", "pred_threes", "threes"),
+                                ("mean_pra", "pred_pra", "pra"),
+                            ]:
+                                col = mean_col if mean_col in grp.columns else pred_col
+                                if col in grp.columns:
+                                    v = pd.to_numeric(grp[col], errors="coerce").dropna()
+                                    if not v.empty:
+                                        model[key] = float(v.iloc[0])
+                            away, home = (None, None)
+                            try:
+                                mm = matchup_map.get(str(team).strip().upper()) or (matchup_map.get(str(tri).upper()) if tri else None)
+                                if mm:
+                                    away, home = mm
+                            except Exception:
+                                pass
+                            pid = None
+                            if "player_id" in grp.columns:
+                                try:
+                                    pid = int(pd.to_numeric(grp["player_id"], errors="coerce").dropna().iloc[0])
+                                except Exception:
+                                    pid = None
+                            photo = (f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png" if pid else None)
+                            team_id = _get_team_id(str(team)) if team is not None else None
+                            if team_id:
+                                team_logo = f"https://cdn.nba.com/logos/nba/{team_id}/primary/L/logo.svg"
+                            else:
+                                team_logo = (f"/web/assets/logos/{(tri or '').upper()}.svg" if tri else None)
+
+                            items.append({
+                                "player": player,
+                                "team": tri,
+                                "team_tricode": tri,
+                                "home_team": home,
+                                "away_team": away,
+                                "opponent": None,
+                                "plays": [],
+                                "ladders": [],
+                                "model": model,
+                                "photo": photo,
+                                "team_logo": team_logo,
+                                "top_play": None,
+                            })
+                        except Exception:
+                            continue
+
+                    # Apply optional limit (common frontend param)
+                    try:
+                        lim_raw = request.args.get("limit")
+                        lim = int(str(lim_raw)) if lim_raw is not None else None
+                    except Exception:
+                        lim = None
+                    if lim is not None and lim > 0:
+                        items = items[: int(lim)]
+
+                    payload = {
+                        "date": d,
+                        "rows": int(len(items)),
+                        "games": games_out if 'games_out' in locals() else [],
+                        "data": items,
+                        "portfolio": [],
+                        "portfolio_only": False,
+                        "snapshot_used": False,
+                        "source": "props_predictions_fallback",
+                        "regular_only": True,
+                        "reason": "props_edges missing or empty; returning projection-only cards",
+                        "requested_path": str(edges_p),
+                        "requested_predictions_path": str(props_preds_p),
+                    }
+                    return jsonify(_to_jsonable(payload))
+                except Exception:
+                    return jsonify(_to_jsonable({
+                        "date": d,
+                        "rows": 0,
+                        "games": [],
+                        "data": [],
+                        "portfolio": [],
+                        "portfolio_only": False,
+                        "snapshot_used": False,
+                        "source": "props_predictions_fallback",
+                        "regular_only": True,
+                        "reason": "props_edges missing or empty; fallback build failed",
+                        "requested_path": str(edges_p),
+                        "requested_predictions_path": str(props_preds_p),
+                    }))
+            except Exception:
+                return jsonify(_to_jsonable({
+                    "date": d,
+                    "rows": 0,
+                    "games": [],
+                    "data": [],
+                    "portfolio": [],
+                    "portfolio_only": False,
+                    "snapshot_used": False,
+                    "source": "props_edges",
+                    "regular_only": True,
+                    "reason": "props_edges missing or empty",
+                    "requested_path": str(edges_p),
+                }))
         # Optional: apply roster team overrides to ensure correct team identity per player
         try:
             from pathlib import Path as _Path
