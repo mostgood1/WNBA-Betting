@@ -569,6 +569,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         except Exception:
             return None
 
+    if not event_id:
         best: tuple[float, Any, bool] | None = None
         now_utc = datetime.utcnow()
         for ev in events:
