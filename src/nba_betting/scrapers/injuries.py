@@ -1,14 +1,20 @@
-"""
-ESPN Injury Report scraper for NBA teams.
-Tracks injuries, questionable players, and impact on team strength.
+"""NBA injuries scrapers.
+
+Primary goal for the pipeline is *availability gating* for a given date.
+
+- Preferred source: NBA official injury report PDFs from official.nba.com.
+- Fallbacks: Rotowire + ESPN HTML pages.
 """
 
+import io
+import re
 import time
 from typing import List, Dict, Optional
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
+from pypdf import PdfReader
 try:
     from ..teams import to_tricode as _to_tri
 except Exception:
@@ -493,32 +499,74 @@ class NBAInjuryDatabase:
     def __init__(self, filepath: str = "data/raw/injuries.csv"):
         self.filepath = filepath
         self.scraper = ESPNInjuryScraper()
-    
-    def update_injuries(self) -> pd.DataFrame:
-        """Fetch latest injuries and append to database."""
-        # Prefer Rotowire; fallback to ESPN
+
+    def update_injuries(self, date_str: Optional[str] = None) -> pd.DataFrame:
+        """Fetch latest injuries and append to database.
+
+        If date_str is provided, attempts to fetch the NBA official injury report for that date.
+        """
+        if not date_str:
+            date_str = datetime.now().strftime("%Y-%m-%d")
+
+        # Prefer NBA official for the target date; only use fallbacks if official is unavailable.
         combined_new = pd.DataFrame()
+        official_ok = False
+
         try:
-            rw = RotowireInjuryScraper()
-            rw_df = rw.get_all_injuries()
-            if not rw_df.empty:
-                combined_new = rw_df
+            off = NBAOfficialInjuryReportScraper()
+            off_df = off.get_injuries_for_date(date_str)
+            if not off_df.empty:
+                combined_new = off_df
+                official_ok = True
         except Exception as e:
-            print(f"Rotowire scrape failed: {e}")
-        try:
-            espn_df = self.scraper.get_all_injuries()
-            if not espn_df.empty:
-                combined_new = pd.concat([combined_new, espn_df], ignore_index=True) if not combined_new.empty else espn_df
-        except Exception as e:
-            print(f"ESPN scrape failed: {e}")
+            print(f"NBA official injury report fetch failed: {e}")
+
+        if not official_ok:
+            try:
+                rw = RotowireInjuryScraper()
+                rw_df = rw.get_all_injuries()
+                if not rw_df.empty:
+                    combined_new = (
+                        pd.concat([combined_new, rw_df], ignore_index=True)
+                        if not combined_new.empty
+                        else rw_df
+                    )
+            except Exception as e:
+                print(f"Rotowire scrape failed: {e}")
+            try:
+                espn_df = self.scraper.get_all_injuries()
+                if not espn_df.empty:
+                    combined_new = (
+                        pd.concat([combined_new, espn_df], ignore_index=True)
+                        if not combined_new.empty
+                        else espn_df
+                    )
+            except Exception as e:
+                print(f"ESPN scrape failed: {e}")
 
         if combined_new.empty:
             print("No new injury data fetched from either source")
             return pd.DataFrame()
-        
-        # Load existing data
+
+        # Ensure a deterministic date column for availability gating.
+        try:
+            combined_new = combined_new.copy()
+            if "date" not in combined_new.columns:
+                combined_new["date"] = str(date_str)
+            else:
+                combined_new["date"] = combined_new["date"].fillna("").astype(str)
+                # If upstream returned an empty date, force to date_str.
+                combined_new["date"] = combined_new["date"].where(
+                    combined_new["date"].astype(str).str.len() > 0, other=str(date_str)
+                )
+        except Exception:
+            pass
+
+        # Load existing data; for a date-scoped run, replace that day's rows.
         try:
             existing = pd.read_csv(self.filepath)
+            if not existing.empty and "date" in existing.columns:
+                existing = existing[existing["date"].astype(str) != str(date_str)].copy()
             # Append new data (we will re-normalize and then de-duplicate by team/player/date)
             combined = pd.concat([existing, combined_new], ignore_index=True)
         except FileNotFoundError:
@@ -526,8 +574,8 @@ class NBAInjuryDatabase:
 
         # Normalize statuses across entire set to remove positional leakage and infer from notes where possible
         if not combined.empty:
-            POS = {'G','F','C','PG','SG','SF','PF'}
-            for c in ('team','player','status','injury','date'):
+            POS = {"G", "F", "C", "PG", "SG", "SF", "PF"}
+            for c in ("team", "player", "status", "injury", "date"):
                 if c in combined.columns:
                     combined[c] = combined[c].astype(str)
             # Normalize team to tri-codes; drop rows with invalid/unrecognized teams
@@ -535,87 +583,419 @@ class NBAInjuryDatabase:
                 from ..teams import to_tricode as _to_tri
             except Exception:
                 def _to_tri(x: str) -> str:
-                    return (x or '').strip().upper()
-            combined['team'] = combined['team'].map(lambda x: _to_tri(str(x)))
-            combined = combined[combined['team'].astype(str).str.len() == 3]
-            status_norm = combined.get('status', '').astype(str).str.upper().str.strip()
-            status_norm = status_norm.where(~status_norm.isin(POS), other='')
+                    return (x or "").strip().upper()
+            combined["team"] = combined["team"].map(lambda x: _to_tri(str(x)))
+            combined = combined[combined["team"].astype(str).str.len() == 3]
+            status_norm = combined.get("status", "").astype(str).str.upper().str.strip()
+            status_norm = status_norm.where(~status_norm.isin(POS), other="")
             # Infer from injury text when empty
-            inj_txt = combined.get('injury', '').astype(str).str.upper()
-            needs_infer = status_norm.eq('') & inj_txt.notna()
+            inj_txt = combined.get("injury", "").astype(str).str.upper()
+            needs_infer = status_norm.eq("") & inj_txt.notna()
             infer_vals = []
-            for i, (need, txt) in enumerate(zip(needs_infer.tolist(), inj_txt.tolist())):
+            for need, txt in zip(needs_infer.tolist(), inj_txt.tolist()):
                 if not need:
                     infer_vals.append(None)
                     continue
                 val = None
-                for key in ['OUT','QUESTIONABLE','DOUBTFUL','DAY-TO-DAY','DTD','SUSPENDED','INACTIVE','REST']:
+                for key in [
+                    "OUT",
+                    "QUESTIONABLE",
+                    "DOUBTFUL",
+                    "PROBABLE",
+                    "DAY-TO-DAY",
+                    "DTD",
+                    "SUSPENDED",
+                    "INACTIVE",
+                    "REST",
+                ]:
                     if key in txt:
-                        val = key; break
+                        val = key
+                        break
                 infer_vals.append(val)
             import numpy as _np
             infer_series = pd.Series(infer_vals, index=status_norm.index)
-            status_norm = status_norm.where(~needs_infer, other=infer_series.fillna(''))
-            combined['status'] = status_norm
+            status_norm = status_norm.where(~needs_infer, other=infer_series.fillna(""))
+            combined["status"] = status_norm
             # De-duplicate by team/player/date (keep last = prefer newest scrape in file order)
-            if 'date' in combined.columns:
-                # ensure date sorting by appending row index for stable keep='last'
-                combined['_row'] = _np.arange(len(combined))
-                combined = combined.sort_values(['date','_row'])
-                combined = combined.drop(columns=['_row'])
-            combined = combined.drop_duplicates(subset=['team','player','date'], keep='last')
-        
+            if "date" in combined.columns:
+                combined["_row"] = _np.arange(len(combined))
+                combined = combined.sort_values(["date", "_row"]).drop(columns=["_row"])
+            combined = combined.drop_duplicates(subset=["team", "player", "date"], keep="last")
+
         # Save updated database
         combined.to_csv(self.filepath, index=False)
         print(f"Saved {len(combined)} injury records to {self.filepath}")
-        
         return combined
-    
+
     def get_injury_features(self, team: str, date: str) -> Dict[str, float]:
-        """
-        Get injury features for a team on a specific date.
-        
-        Args:
-            team: Team abbreviation
-            date: Date in YYYY-MM-DD format
-        
-        Returns:
-            Dict with injury-related features
-        """
+        """Get injury features for a team on a specific date."""
         try:
             df = pd.read_csv(self.filepath)
-            # Filter to date and team
-            team_injuries = df[(df['team'] == team) & (df['date'] == date)]
-            
+            team_injuries = df[(df["team"] == team) & (df["date"] == date)]
+
             if team_injuries.empty:
                 return {
-                    'injuries_out': 0,
-                    'injuries_questionable': 0,
-                    'injuries_total': 0,
-                    'injury_impact': 0.0,
+                    "injuries_out": 0,
+                    "injuries_questionable": 0,
+                    "injuries_total": 0,
+                    "injury_impact": 0.0,
                 }
-            
-            out = len(team_injuries[team_injuries['status'] == 'OUT'])
-            questionable = len(team_injuries[team_injuries['status'] == 'QUESTIONABLE'])
-            doubtful = len(team_injuries[team_injuries['status'] == 'DOUBTFUL'])
-            
+
+            out = len(team_injuries[team_injuries["status"] == "OUT"])
+            questionable = len(team_injuries[team_injuries["status"] == "QUESTIONABLE"])
+            doubtful = len(team_injuries[team_injuries["status"] == "DOUBTFUL"])
+
             impact = out * 1.0 + doubtful * 0.5 + questionable * 0.3
-            
+
             return {
-                'injuries_out': out,
-                'injuries_questionable': questionable,
-                'injuries_total': len(team_injuries),
-                'injury_impact': float(impact),
+                "injuries_out": int(out),
+                "injuries_questionable": int(questionable),
+                "injuries_total": int(len(team_injuries)),
+                "injury_impact": float(impact),
             }
-            
+
         except Exception as e:
             print(f"Error getting injury features: {e}")
             return {
-                'injuries_out': 0,
-                'injuries_questionable': 0,
-                'injuries_total': 0,
-                'injury_impact': 0.0,
+                "injuries_out": 0,
+                "injuries_questionable": 0,
+                "injuries_total": 0,
+                "injury_impact": 0.0,
             }
+
+
+class NBAOfficialInjuryReportScraper:
+    """Fetches NBA official injury report PDF and parses it into injuries rows.
+
+    Source is official.nba.com, which links to PDFs hosted at ak-static.cms.nba.com.
+
+    Output schema matches the historical injuries database used by the rest of the repo:
+    team (tricode), player ("First Last"), status (OUT/QUESTIONABLE/...), injury (free text), date (YYYY-MM-DD).
+    """
+
+    SEASON_PAGE_TMPL = "https://official.nba.com/nba-injury-report-{season}-season/"
+
+    _KNOWN_TRIS = {
+        "ATL",
+        "BOS",
+        "BKN",
+        "CHA",
+        "CHI",
+        "CLE",
+        "DAL",
+        "DEN",
+        "DET",
+        "GSW",
+        "HOU",
+        "IND",
+        "LAC",
+        "LAL",
+        "MEM",
+        "MIA",
+        "MIL",
+        "MIN",
+        "NOP",
+        "NYK",
+        "OKC",
+        "ORL",
+        "PHI",
+        "PHX",
+        "POR",
+        "SAC",
+        "SAS",
+        "TOR",
+        "UTA",
+        "WAS",
+    }
+
+    def __init__(self):
+        self.session = requests.Session()
+        self.session.trust_env = False
+        self.session.headers.update(
+            {
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                "Accept-Language": "en-US,en;q=0.9",
+                "Cache-Control": "no-cache",
+                "Pragma": "no-cache",
+                "User-Agent": (
+                    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 (KHTML, like Gecko) "
+                    "Chrome/125.0.0.0 Safari/537.36"
+                ),
+            }
+        )
+
+    @staticmethod
+    def _season_slug_for_date(date_str: str) -> str:
+        """Return season slug like '2025-26' for a YYYY-MM-DD date."""
+        try:
+            d = datetime.strptime(date_str, "%Y-%m-%d")
+            season_year = d.year if d.month >= 7 else (d.year - 1)
+            season = f"{season_year}-{(season_year + 1) % 100:02d}"
+            return season
+        except Exception:
+            # Best-effort fallback to current season
+            now = datetime.now()
+            season_year = now.year if now.month >= 7 else (now.year - 1)
+            return f"{season_year}-{(season_year + 1) % 100:02d}"
+
+    @staticmethod
+    def _parse_report_time_key(url: str) -> int:
+        """Return minutes since midnight for the report timestamp in a PDF URL."""
+        # Injury-Report_YYYY-MM-DD_HH_MMAM.pdf
+        m = re.search(r"Injury-Report_\d{4}-\d{2}-\d{2}_(\d{2})_(\d{2})(AM|PM)\.pdf", str(url))
+        if not m:
+            return -1
+        hh = int(m.group(1))
+        mm = int(m.group(2))
+        ap = m.group(3)
+        if hh == 12:
+            hh = 0
+        if ap == "PM":
+            hh += 12
+        return hh * 60 + mm
+
+    def _latest_pdf_url_for_date(self, date_str: str) -> Optional[str]:
+        season = self._season_slug_for_date(date_str)
+        page_url = self.SEASON_PAGE_TMPL.format(season=season)
+        try:
+            r = self.session.get(page_url, timeout=20)
+            if not r.ok:
+                return None
+            soup = BeautifulSoup(r.text, "html.parser")
+            hrefs = [a.get("href") for a in soup.find_all("a") if a.get("href")]
+            needle = f"Injury-Report_{date_str}_"
+            pdfs = [h for h in hrefs if isinstance(h, str) and needle in h and h.lower().endswith(".pdf")]
+            if not pdfs:
+                return None
+            # Normalize protocol-relative/relative links (the page tends to use absolute, but be safe)
+            fixed = []
+            for h in pdfs:
+                if h.startswith("//"):
+                    fixed.append("https:" + h)
+                elif h.startswith("/"):
+                    fixed.append("https://official.nba.com" + h)
+                else:
+                    fixed.append(h)
+            fixed = sorted(fixed, key=self._parse_report_time_key)
+            return fixed[-1]
+        except Exception:
+            return None
+
+    def _download_pdf(self, url: str) -> Optional[bytes]:
+        try:
+            # PDF host is ak-static.cms.nba.com and is generally accessible.
+            r = self.session.get(url, timeout=30)
+            if not r.ok:
+                return None
+            ct = (r.headers.get("content-type") or "").lower()
+            if "pdf" not in ct and not url.lower().endswith(".pdf"):
+                return None
+            return r.content
+        except Exception:
+            return None
+
+    def _parse_pdf_rows(self, pdf_bytes: bytes, *, date_str: str) -> pd.DataFrame:
+        """Parse PDF bytes into rows.
+
+        The PDF text extraction is token-like (often one word per line). The injury report
+        uses a row-based table where Matchup/Team may be omitted for subsequent player rows.
+        This parser is stateful: it carries the current matchup and team forward until the next
+        explicit matchup/team token appears.
+        """
+
+        try:
+            reader = PdfReader(io.BytesIO(pdf_bytes))
+            text = "\n".join((p.extract_text() or "") for p in reader.pages)
+        except Exception:
+            return pd.DataFrame()
+
+        toks = [t.strip() for t in text.splitlines() if t and str(t).strip()]
+        if not toks:
+            return pd.DataFrame()
+
+        try:
+            from ..teams import normalize_team, to_tricode
+        except Exception:
+
+            def to_tricode(x: str) -> str:
+                return (x or "").strip().upper()
+
+            def normalize_team(x: str) -> str:
+                return x
+
+        DATE_RE = re.compile(r"\d{2}/\d{2}/\d{4}")
+        TIME_RE = re.compile(r"\d{2}:\d{2}")
+        MATCHUP_RE = re.compile(r"[A-Z]{2,3}@[A-Z]{2,3}")
+        STATUS_TOKS = {"Out", "Questionable", "Doubtful", "Probable"}
+
+        def norm_status(s: str) -> str:
+            s = str(s or "").strip()
+            if not s:
+                return ""
+            m = {
+                "Out": "OUT",
+                "Questionable": "QUESTIONABLE",
+                "Doubtful": "DOUBTFUL",
+                "Probable": "PROBABLE",
+            }
+            return m.get(s, s.upper())
+
+        def match_team_at(pos: int) -> tuple[Optional[str], int]:
+            for n in (4, 3, 2, 1):
+                if pos + n > len(toks):
+                    continue
+                s = " ".join(toks[pos : pos + n]).strip()
+                if not s:
+                    continue
+                tri = (to_tricode(normalize_team(s)) or "").strip().upper()
+                if tri in self._KNOWN_TRIS:
+                    return tri, n
+            return None, 0
+
+        def looks_like_player_start(pos: int) -> tuple[bool, int]:
+            """Return (is_player, comma_pos) where comma_pos is index of token ending with ',' for last-name part."""
+            if pos >= len(toks):
+                return False, -1
+            t0 = toks[pos]
+            if t0.endswith(","):
+                return True, pos
+            if pos + 1 < len(toks) and toks[pos + 1].endswith(","):
+                # Allow multi-token last names like "Moore Jr.," or "Van Vleet,"
+                # but avoid false positives on headers.
+                if t0 not in {"Game", "Date", "Time", "Matchup", "Team", "Player", "Name", "Current", "Status", "Reason"}:
+                    return True, pos + 1
+            return False, -1
+
+        out_rows: list[dict[str, str]] = []
+        current_team: Optional[str] = None
+        current_matchup: Optional[str] = None
+
+        i = 0
+        while i < len(toks):
+            t = toks[i]
+
+            # Skip boilerplate/header tokens commonly repeated at page breaks.
+            if t in {"Injury", "Report:", "Page", "of", "Game", "Date", "Time", "Matchup", "Team", "Player", "Name", "Current", "Status", "Reason", "(ET)"}:
+                i += 1
+                continue
+            if TIME_RE.fullmatch(t) or DATE_RE.fullmatch(t):
+                i += 1
+                continue
+            if t in {"AM", "PM"}:
+                i += 1
+                continue
+            if t.isdigit():
+                # Page numbers and other counters
+                i += 1
+                continue
+
+            # Track matchup boundaries.
+            if MATCHUP_RE.fullmatch(t):
+                current_matchup = t
+                current_team = None
+                i += 1
+                continue
+
+            # Team names can appear repeatedly; update state.
+            tri, n_team = match_team_at(i)
+            if tri and n_team > 0:
+                current_team = tri
+                i += n_team
+                continue
+
+            # Player row start
+            is_player, comma_pos = looks_like_player_start(i)
+            if not is_player:
+                i += 1
+                continue
+
+            # Parse "Last[, suffix], First ... <Status> <Reason...>"
+            last_tokens = toks[i : comma_pos + 1]
+            last_tokens = [lt.rstrip(",").strip() for lt in last_tokens if lt and lt.strip()]
+            j = comma_pos + 1
+            if j >= len(toks):
+                break
+            # Find the next status token; stop early if we hit a matchup/team boundary.
+            st_j: Optional[int] = None
+            while j < len(toks):
+                tj = toks[j]
+                if tj in STATUS_TOKS:
+                    st_j = j
+                    break
+                if MATCHUP_RE.fullmatch(tj):
+                    break
+                tri2, n2 = match_team_at(j)
+                if tri2 and n2 > 0:
+                    break
+                if DATE_RE.fullmatch(tj) or TIME_RE.fullmatch(tj) or tj in {"(ET)", "Injury", "Report:", "Page", "of"}:
+                    break
+                j += 1
+            if st_j is None or not current_team:
+                # Can't safely emit a row without a status/team.
+                i = comma_pos + 1
+                continue
+
+            first_tokens = [ft.strip() for ft in toks[comma_pos + 1 : st_j] if ft and ft.strip()]
+            if not first_tokens:
+                i = st_j + 1
+                continue
+            player = (" ".join(first_tokens) + " " + " ".join(last_tokens)).strip()
+            status = norm_status(toks[st_j])
+
+            # Collect reason tokens until the next player/team/matchup boundary.
+            k = st_j + 1
+            reason_tokens: list[str] = []
+            while k < len(toks):
+                tk = toks[k]
+                if MATCHUP_RE.fullmatch(tk) or DATE_RE.fullmatch(tk) or TIME_RE.fullmatch(tk):
+                    break
+                tri3, n3 = match_team_at(k)
+                if tri3 and n3 > 0:
+                    break
+                is_next_player, _ = looks_like_player_start(k)
+                if is_next_player:
+                    break
+                # Page-break boilerplate shouldn't become part of the reason.
+                if tk in {"Injury", "Report:", "Page", "of"}:
+                    break
+                reason_tokens.append(tk)
+                k += 1
+            reason = re.sub(r"\s+", " ", " ".join(reason_tokens)).strip()
+
+            out_rows.append(
+                {
+                    "team": current_team,
+                    "player": player,
+                    "status": status,
+                    "injury": reason,
+                    "date": str(date_str),
+                }
+            )
+
+            i = k
+
+        df = pd.DataFrame(out_rows)
+        if df.empty:
+            return df
+        df["team"] = df["team"].astype(str).str.upper().str.strip()
+        df["player"] = df["player"].astype(str).str.strip()
+        df["status"] = df["status"].astype(str).str.upper().str.strip()
+        df["injury"] = df.get("injury", "").astype(str)
+        df["date"] = df.get("date", str(date_str)).astype(str)
+        df = df[df["team"].isin(sorted(self._KNOWN_TRIS))].copy()
+        df = df[df["player"].astype(str).str.len() > 0].copy()
+        df = df.drop_duplicates(subset=["team", "player", "date"], keep="last")
+        return df
+
+    def get_injuries_for_date(self, date_str: str) -> pd.DataFrame:
+        url = self._latest_pdf_url_for_date(date_str)
+        if not url:
+            return pd.DataFrame()
+        pdf = self._download_pdf(url)
+        if not pdf:
+            return pd.DataFrame()
+        return self._parse_pdf_rows(pdf, date_str=date_str)
 
 
 # Example usage

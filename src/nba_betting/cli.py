@@ -13783,16 +13783,20 @@ def fetch_advanced_stats(season: int, as_of: str | None):
 
 
 @cli.command()
-def fetch_injuries():
-    """Fetch current injury reports from ESPN."""
+@click.option("--date", "date_str", type=str, default=None, help="Target date YYYY-MM-DD (uses NBA official report when available).")
+def fetch_injuries(date_str: str | None):
+    """Fetch current injury reports (prefers NBA official)."""
     console.rule("Fetch Injury Reports")
     try:
         from .scrapers import NBAInjuryDatabase
         
         db = NBAInjuryDatabase()
-        console.print("Fetching injury reports from ESPN...")
-        
-        injuries = db.update_injuries()
+        if date_str:
+            console.print(f"Fetching injury reports for {date_str} (NBA official preferred)...")
+        else:
+            console.print("Fetching injury reports (NBA official preferred)...")
+
+        injuries = db.update_injuries(date_str=date_str)
         
         if injuries.empty:
             console.print("No injuries fetched", style="yellow")

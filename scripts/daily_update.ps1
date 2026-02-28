@@ -490,8 +490,8 @@ try {
   if (Test-FreshFile -Path $injPath -MaxAgeMinutes $maxAgeMinInt) {
     Write-Log ("injuries.csv already fresh (<= {0}m); skipping fetch-injuries" -f $maxAgeMinInt)
   } else {
-    Write-Log "Fetching injuries from ESPN (availability gate)"
-    $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries') -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
+    Write-Log "Fetching injuries from NBA official (availability gate; fallback to Rotowire/ESPN)"
+    $rcInjEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-injuries','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_injuries'
     Write-Log ("fetch-injuries exit code: {0}" -f $rcInjEarly)
   }
 } catch { Write-Log ("fetch-injuries error (non-fatal): {0}" -f $_.Exception.Message) }
