@@ -75,11 +75,11 @@ def _http_get_json(url: str, timeout: int = 18) -> dict[str, Any]:
         return {}
 
 
-def _espn_scoreboard(date_str: str) -> dict[str, Any]:
+def _espn_scoreboard(date_str: str, *, force: bool = False) -> dict[str, Any]:
     # ESPN expects YYYYMMDD
     ymd = str(date_str).replace("-", "")
     cache = _espn_cache_dir() / f"scoreboard_{ymd}.json"
-    if cache.exists():
+    if (not force) and cache.exists():
         jd = _read_json(cache)
         if jd:
             return jd
@@ -103,8 +103,8 @@ def _espn_summary(event_id: str, *, force: bool = False) -> dict[str, Any]:
     return jd
 
 
-def _espn_event_id_for_matchup(date_str: str, home_tri: str, away_tri: str) -> Optional[str]:
-    sb = _espn_scoreboard(date_str)
+def _espn_event_id_for_matchup(date_str: str, home_tri: str, away_tri: str, *, force_scoreboard: bool = False) -> Optional[str]:
+    sb = _espn_scoreboard(date_str, force=bool(force_scoreboard))
     events = sb.get("events") if isinstance(sb, dict) else None
     if not isinstance(events, list):
         return None

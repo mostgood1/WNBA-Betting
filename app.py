@@ -2639,6 +2639,8 @@ def _enforce_minimal_ui_allowlist():
             "/recommendations",
             "/reconciliation",
             "/features",
+            "/accuracy-market",
+            "/live-lens-accuracy",
             "/health",
             "/favicon.ico",
         }
@@ -2669,6 +2671,9 @@ def _enforce_minimal_ui_allowlist():
             "/api/line-score",
             "/api/evaluate/games",
             "/api/evaluate/props",
+            # Accuracy (frontend analytics)
+            "/api/accuracy-market",
+            "/api/accuracy_market",
             "/api/props",
             "/api/version",
             "/api/features",
@@ -2689,6 +2694,8 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lens_tuning",
             "/api/live_lens_signal",
             "/api/live_lens_projection",
+            "/api/live_lens_accuracy",
+            "/api/live_lens_side_accuracy",
             "/api/download_live_lens_signals",
             "/api/upload_live_lens_signals",
             "/api/download_live_lens_projections",
@@ -5200,6 +5207,16 @@ def route_reconciliation():
 @app.route("/features")
 def route_features():
     return send_from_directory(str(WEB_DIR), "features.html")
+
+
+@app.route("/accuracy-market")
+def route_market_accuracy():
+    return send_from_directory(str(WEB_DIR), "market_accuracy.html")
+
+
+@app.route("/live-lens-accuracy")
+def route_live_lens_accuracy():
+    return send_from_directory(str(WEB_DIR), "live_lens_accuracy.html")
 
 
 @app.route("/health")
@@ -10490,6 +10507,544 @@ def api_evaluate_props():
         return jsonify({"window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "tier": (tier_filter or "All"), "regular_only": regular_only, "calibration_used": ("auto" if calib_window == "auto" else (calib_window or "default")), "buckets": out})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/accuracy-market")
+@app.route("/api/accuracy_market")
+def api_accuracy_market():
+    """Daily pregame market accuracy for games + props.
+
+    Uses existing production artifacts under data/processed:
+      - Games: recommendations_<date>.csv + recon_games_<date>.csv
+      - Props: props_recommendations_<date>.csv + recon_props_<date>.csv
+
+    Query params:
+      - date: YYYY-MM-DD (optional; if provided returns a single day)
+      - days: integer window length (default 30)
+      - since/until: YYYY-MM-DD overrides window (inclusive)
+    """
+
+    def _parse_date(s: str):
+        try:
+            return datetime.strptime(str(s).strip(), "%Y-%m-%d").date()
+        except Exception:
+            return None
+
+    def _american_to_decimal(a: Any) -> float | None:
+        try:
+            aa = float(a)
+        except Exception:
+            return None
+        if aa == 0:
+            return None
+        if aa > 0:
+            return 1.0 + (aa / 100.0)
+        return 1.0 + (100.0 / abs(aa))
+
+    def _norm(s: Any) -> str:
+        return re.sub(r"\s+", " ", str(s or "").strip().lower())
+
+    def _init_bucket() -> dict[str, Any]:
+        return {
+            "bets": 0,
+            "resolved": 0,
+            "wins": 0,
+            "losses": 0,
+            "pushes": 0,
+            "stake_total": 0.0,
+            "profit_total": 0.0,
+        }
+
+    def _finalize_bucket(b: dict[str, Any]) -> dict[str, Any]:
+        res = int(b.get("resolved") or 0)
+        wins = int(b.get("wins") or 0)
+        stake = float(b.get("stake_total") or 0.0)
+        profit = float(b.get("profit_total") or 0.0)
+        acc = (float(wins) / float(res)) if res > 0 else None
+        roi = (profit / stake) if stake > 0 else None
+        out = dict(b)
+        out["accuracy"] = acc
+        out["accuracy_pct"] = (round(100.0 * acc, 3) if acc is not None else None)
+        out["roi"] = roi
+        out["roi_pct"] = (round(100.0 * roi, 3) if roi is not None else None)
+        return out
+
+    def _apply_result(b: dict[str, Any], result: str | None, price: Any) -> None:
+        b["bets"] += 1
+        if not result:
+            return
+        b["resolved"] += 1
+        stake = 1.0
+        dec = _american_to_decimal(price) or 1.909090909
+        profit = 0.0
+        if result == "push":
+            b["pushes"] += 1
+            profit = 0.0
+        elif result == "win":
+            b["wins"] += 1
+            profit = (float(dec) - 1.0) * stake
+        elif result == "loss":
+            b["losses"] += 1
+            profit = -stake
+        b["stake_total"] += stake
+        b["profit_total"] += float(profit)
+
+    def _score_games_day(ds: str, proc: Path) -> dict[str, Any]:
+        rec_fp = proc / f"recommendations_{ds}.csv"
+        recon_fp = proc / f"recon_games_{ds}.csv"
+        if (not rec_fp.exists()) or (not recon_fp.exists()):
+            return {"available": False}
+        try:
+            rec = pd.read_csv(rec_fp)
+            recon = pd.read_csv(recon_fp)
+        except Exception:
+            return {"available": False}
+
+        # (home, away) -> (home_pts, away_pts)
+        fin: dict[tuple[str, str], tuple[float, float]] = {}
+        try:
+            for _, r in recon.iterrows():
+                home = _norm(r.get("home_team"))
+                away = _norm(r.get("visitor_team"))
+                hp = pd.to_numeric(r.get("home_pts"), errors="coerce")
+                ap = pd.to_numeric(r.get("visitor_pts"), errors="coerce")
+                if home and away and pd.notna(hp) and pd.notna(ap):
+                    fin[(home, away)] = (float(hp), float(ap))
+        except Exception:
+            fin = {}
+
+        overall = _init_bucket()
+        by_market: dict[str, dict[str, Any]] = {}
+
+        for _, r in rec.iterrows():
+            try:
+                market = str(r.get("market") or "").strip().upper()
+                side = str(r.get("side") or "").strip()
+                home = _norm(r.get("home"))
+                away = _norm(r.get("away"))
+                price = r.get("price")
+                line = pd.to_numeric(r.get("line"), errors="coerce")
+                if not market or not home or not away:
+                    continue
+                hp = ap = None
+                if (home, away) in fin:
+                    hp, ap = fin[(home, away)]
+                elif (away, home) in fin:
+                    # defensive: swap if rec file flipped
+                    ap, hp = fin[(away, home)]
+                if hp is None or ap is None:
+                    _apply_result(overall, None, price)
+                    continue
+
+                result = None
+                if market == "TOTAL":
+                    if pd.notna(line):
+                        act_total = float(hp) + float(ap)
+                        if abs(act_total - float(line)) < 1e-9:
+                            result = "push"
+                        else:
+                            s = str(side or "").strip().lower()
+                            if s.startswith("o"):
+                                result = "win" if act_total > float(line) else "loss"
+                            elif s.startswith("u"):
+                                result = "win" if act_total < float(line) else "loss"
+                elif market == "ATS":
+                    if pd.notna(line):
+                        side_n = _norm(side)
+                        margin = float(hp) - float(ap)
+                        if side_n == home:
+                            diff = margin + float(line)
+                        elif side_n == away:
+                            diff = (float(ap) - float(hp)) + float(line)
+                        else:
+                            diff = None
+                        if diff is not None:
+                            if abs(diff) < 1e-9:
+                                result = "push"
+                            else:
+                                result = "win" if diff > 0 else "loss"
+                elif market == "ML":
+                    side_n = _norm(side)
+                    home_won = float(hp) > float(ap)
+                    away_won = float(ap) > float(hp)
+                    if home_won or away_won:
+                        if side_n == home:
+                            result = "win" if home_won else "loss"
+                        elif side_n == away:
+                            result = "win" if away_won else "loss"
+
+                if market not in by_market:
+                    by_market[market] = _init_bucket()
+                _apply_result(overall, result, price)
+                _apply_result(by_market[market], result, price)
+            except Exception:
+                continue
+
+        return {
+            "available": True,
+            "overall": _finalize_bucket(overall),
+            "by_market": {k: _finalize_bucket(v) for k, v in by_market.items()},
+        }
+
+    def _score_props_day(ds: str, proc: Path) -> dict[str, Any]:
+        rec_fp = proc / f"props_recommendations_{ds}.csv"
+        recon_fp = proc / f"recon_props_{ds}.csv"
+        if (not rec_fp.exists()) or (not recon_fp.exists()):
+            return {"available": False}
+        try:
+            props_df = pd.read_csv(rec_fp)
+            recon_df = pd.read_csv(recon_fp)
+        except Exception:
+            return {"available": False}
+
+        def _parse_obj(val):
+            if isinstance(val, (list, dict)):
+                return val
+            s = str(val or "")
+            if s.strip() in {"", "None", "nan"}:
+                return None
+            try:
+                return json.loads(s)
+            except Exception:
+                try:
+                    import ast as _ast
+
+                    return _ast.literal_eval(s)
+                except Exception:
+                    return None
+
+        def _norm_name(s: Any) -> str:
+            return str(s or "").strip().lower()
+
+        recon_index: dict[tuple[str, str], dict[str, float]] = {}
+        try:
+            for _, rr in recon_df.iterrows():
+                key = (_norm_name(rr.get("player_name")), str(rr.get("team_abbr") or "").strip().upper())
+                recon_index[key] = {
+                    "pts": float(pd.to_numeric(rr.get("pts"), errors="coerce") or 0.0),
+                    "reb": float(pd.to_numeric(rr.get("reb"), errors="coerce") or 0.0),
+                    "ast": float(pd.to_numeric(rr.get("ast"), errors="coerce") or 0.0),
+                    "threes": float(pd.to_numeric(rr.get("threes"), errors="coerce") or 0.0),
+                    "pra": float(pd.to_numeric(rr.get("pra"), errors="coerce") or 0.0),
+                }
+        except Exception:
+            recon_index = {}
+
+        def _actual_for_market(stats: dict[str, float], mkt: str) -> float | None:
+            mm = str(mkt or "").strip().lower()
+            if not stats:
+                return None
+            if mm in {"pts", "reb", "ast", "threes", "pra"}:
+                return stats.get(mm)
+            if mm == "pr":
+                return float(stats.get("pts", 0.0) + stats.get("reb", 0.0))
+            if mm == "ra":
+                return float(stats.get("reb", 0.0) + stats.get("ast", 0.0))
+            if mm == "pa":
+                return float(stats.get("pts", 0.0) + stats.get("ast", 0.0))
+            return None
+
+        def _pick_top_play(plays: list[dict[str, Any]]) -> dict[str, Any] | None:
+            if not plays:
+                return None
+            # Prefer regular price range, else fall back.
+            def _is_regular_price(p: Any) -> bool:
+                try:
+                    v = float(p)
+                    return (v >= -150.0) and (v <= 150.0)
+                except Exception:
+                    return False
+
+            def _is_regular_market(m: Any) -> bool:
+                mm = str(m or "").strip().lower()
+                return mm not in {"dd", "td"}
+
+            regular = [p for p in plays if _is_regular_market(p.get("market")) and _is_regular_price(p.get("price"))]
+            cand = regular if regular else plays
+
+            def _score(p: dict[str, Any]) -> float:
+                try:
+                    evp = p.get("ev_pct")
+                    if evp is not None and not pd.isna(evp):
+                        return float(evp)
+                except Exception:
+                    pass
+                try:
+                    ev = p.get("ev")
+                    return float(ev) * 100.0 if ev is not None and not pd.isna(ev) else -1e18
+                except Exception:
+                    return -1e18
+
+            cand = sorted(cand, key=_score, reverse=True)
+            return cand[0] if cand else None
+
+        overall = _init_bucket()
+        by_market: dict[str, dict[str, Any]] = {}
+
+        for _, pr in props_df.iterrows():
+            try:
+                plays = _parse_obj(pr.get("plays") or pr.get("_plays_list"))
+                plays_list = plays if isinstance(plays, list) else []
+                tp = _pick_top_play(plays_list)
+                if not isinstance(tp, dict):
+                    continue
+                mkt = str(tp.get("market") or "").strip().lower()
+                side = str(tp.get("side") or "").strip().upper()
+                ln = pd.to_numeric(tp.get("line"), errors="coerce")
+                price = tp.get("price")
+                if not mkt or (not side) or (not pd.notna(ln)):
+                    _apply_result(overall, None, price)
+                    continue
+
+                player = _norm_name(pr.get("player"))
+                team = str(pr.get("team") or "").strip().upper()
+                stats = recon_index.get((player, team))
+                actual = _actual_for_market(stats or {}, mkt)
+                result = None
+                if actual is not None:
+                    if abs(float(actual) - float(ln)) < 1e-9:
+                        result = "push"
+                    else:
+                        if side == "OVER":
+                            result = "win" if float(actual) > float(ln) else "loss"
+                        elif side == "UNDER":
+                            result = "win" if float(actual) < float(ln) else "loss"
+
+                if mkt not in by_market:
+                    by_market[mkt] = _init_bucket()
+                _apply_result(overall, result, price)
+                _apply_result(by_market[mkt], result, price)
+            except Exception:
+                continue
+
+        return {
+            "available": True,
+            "overall": _finalize_bucket(overall),
+            "by_market": {k: _finalize_bucket(v) for k, v in by_market.items()},
+        }
+
+    try:
+        # Window selection
+        single = (request.args.get("date") or "").strip()
+        if single:
+            d0 = _parse_date(single)
+            if not d0:
+                return jsonify({"ok": False, "error": "invalid date"}), 400
+            since = until = d0
+        else:
+            days = int(request.args.get("days") or 30)
+            since_q = (request.args.get("since") or "").strip()
+            until_q = (request.args.get("until") or "").strip()
+            if since_q and until_q:
+                since = _parse_date(since_q)
+                until = _parse_date(until_q)
+            else:
+                # Default to settled window ending yesterday (UTC) to reduce partial-day noise.
+                until = (datetime.utcnow().date() - timedelta(days=1))
+                since = until - timedelta(days=max(1, days) - 1)
+            if not since or not until:
+                return jsonify({"ok": False, "error": "invalid since/until"}), 400
+            if until < since:
+                since, until = until, since
+
+        proc = BASE_DIR / "data" / "processed"
+        rows: list[dict[str, Any]] = []
+        sum_games = _init_bucket()
+        sum_props = _init_bucket()
+
+        d = since
+        while d <= until:
+            ds = d.isoformat()
+            g = _score_games_day(ds, proc)
+            p = _score_props_day(ds, proc)
+
+            g_over = g.get("overall") if isinstance(g, dict) else None
+            p_over = p.get("overall") if isinstance(p, dict) else None
+            if isinstance(g_over, dict):
+                for k in sum_games.keys():
+                    sum_games[k] += float(g_over.get(k) or 0.0) if k in {"stake_total", "profit_total"} else int(g_over.get(k) or 0)
+            if isinstance(p_over, dict):
+                for k in sum_props.keys():
+                    sum_props[k] += float(p_over.get(k) or 0.0) if k in {"stake_total", "profit_total"} else int(p_over.get(k) or 0)
+
+            combined = _init_bucket()
+            if isinstance(g_over, dict):
+                for k in combined.keys():
+                    combined[k] += float(g_over.get(k) or 0.0) if k in {"stake_total", "profit_total"} else int(g_over.get(k) or 0)
+            if isinstance(p_over, dict):
+                for k in combined.keys():
+                    combined[k] += float(p_over.get(k) or 0.0) if k in {"stake_total", "profit_total"} else int(p_over.get(k) or 0)
+
+            rows.append(
+                {
+                    "date": ds,
+                    "games": g,
+                    "props": p,
+                    "combined": {"available": bool(g.get("available") or p.get("available")), "overall": _finalize_bucket(combined)},
+                }
+            )
+            d = d + timedelta(days=1)
+
+        combined_sum = _init_bucket()
+        for k in combined_sum.keys():
+            combined_sum[k] = sum_games[k] + sum_props[k]
+
+        payload = {
+            "ok": True,
+            "version": "accuracy-market-v1",
+            "window": {"since": since.isoformat(), "until": until.isoformat()},
+            "days": rows,
+            "summary": {
+                "games": {"available": True, "overall": _finalize_bucket(sum_games)},
+                "props": {"available": True, "overall": _finalize_bucket(sum_props)},
+                "combined": {"available": True, "overall": _finalize_bucket(combined_sum)},
+            },
+            "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+        return jsonify(payload)
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/live_lens_accuracy")
+@app.route("/api/live_lens_side_accuracy")
+def api_live_lens_accuracy():
+    """Daily Live Lens accuracy (live games + props), with tag breakdowns.
+
+    Reads Live Lens JSONL (signals) and settles vs recon_* for each date using the
+    same logic as tools/daily_live_lens_audit.py.
+
+    Query params:
+      - date: YYYY-MM-DD (optional; if provided returns a single day)
+      - days: integer window length (default 7)
+      - since/until: YYYY-MM-DD overrides window (inclusive)
+    """
+
+    def _parse_date(s: str):
+        try:
+            return datetime.strptime(str(s).strip(), "%Y-%m-%d").date()
+        except Exception:
+            return None
+
+    def _hit_summary(df: pd.DataFrame) -> dict[str, Any]:
+        if df is None or df.empty:
+            return {"n": 0, "wins": 0, "losses": 0, "pushes": 0, "hit_rate": None}
+        d2 = df[df.get("result").notna()].copy() if "result" in df.columns else pd.DataFrame()
+        if d2 is None or d2.empty:
+            return {"n": int(len(df)), "wins": 0, "losses": 0, "pushes": 0, "hit_rate": None}
+        wins = int((d2["result"].astype(str) == "win").sum())
+        losses = int((d2["result"].astype(str) == "loss").sum())
+        pushes = int((d2["result"].astype(str) == "push").sum())
+        denom = wins + losses
+        hr = (float(wins) / float(denom)) if denom > 0 else None
+        return {"n": int(len(df)), "wins": wins, "losses": losses, "pushes": pushes, "hit_rate": hr, "hit_rate_pct": (round(100.0 * hr, 3) if hr is not None else None)}
+
+    def _by_key(df: pd.DataFrame, col: str) -> list[dict[str, Any]]:
+        if df is None or df.empty or col not in df.columns:
+            return []
+        out: list[dict[str, Any]] = []
+        for key, g in df.groupby(df[col].fillna(""), dropna=False):
+            k = str(key) if str(key) else "(blank)"
+            s = _hit_summary(g)
+            out.append({"key": k, **s})
+        out.sort(key=lambda r: (-(r.get("n") or 0), str(r.get("key") or "")))
+        return out
+
+    def _by_tag(df: pd.DataFrame) -> list[dict[str, Any]]:
+        if df is None or df.empty or "tags" not in df.columns:
+            return []
+        try:
+            tmp = df.copy()
+            tmp["tags"] = tmp["tags"].apply(lambda x: x if isinstance(x, list) else ([] if x is None else [str(x)]))
+            ex = tmp.explode("tags")
+            ex = ex[ex["tags"].notna()]
+            ex["tags"] = ex["tags"].astype(str)
+            out: list[dict[str, Any]] = []
+            for tag, g in ex.groupby("tags"):
+                s = _hit_summary(g)
+                out.append({"tag": str(tag), **s})
+            out.sort(key=lambda r: (-(r.get("n") or 0), str(r.get("tag") or "")))
+            return out
+        except Exception:
+            return []
+
+    def _score_day(ds: str) -> pd.DataFrame:
+        import sys as _sys
+
+        tools_dir = BASE_DIR / "tools"
+        if str(tools_dir) not in _sys.path:
+            _sys.path.insert(0, str(tools_dir))
+        import daily_live_lens_audit as _audit  # type: ignore
+
+        # De-dup repeated tick signals: grade the first BET per decision key.
+        return _audit._score_day(ds, dedup_policy="first_bet")
+
+    try:
+        single = (request.args.get("date") or "").strip()
+        if single:
+            d0 = _parse_date(single)
+            if not d0:
+                return jsonify({"ok": False, "error": "invalid date"}), 400
+            since = until = d0
+        else:
+            days = int(request.args.get("days") or 7)
+            since_q = (request.args.get("since") or "").strip()
+            until_q = (request.args.get("until") or "").strip()
+            if since_q and until_q:
+                since = _parse_date(since_q)
+                until = _parse_date(until_q)
+            else:
+                until = (datetime.utcnow().date() - timedelta(days=1))
+                since = until - timedelta(days=max(1, days) - 1)
+            if not since or not until:
+                return jsonify({"ok": False, "error": "invalid since/until"}), 400
+            if until < since:
+                since, until = until, since
+
+        rows: list[dict[str, Any]] = []
+        all_frames: list[pd.DataFrame] = []
+        d = since
+        while d <= until:
+            ds = d.isoformat()
+            df = _score_day(ds)
+            if isinstance(df, pd.DataFrame) and not df.empty:
+                df = df.copy()
+                df["_date"] = ds
+                all_frames.append(df)
+            day_payload = {
+                "date": ds,
+                "available": bool(isinstance(df, pd.DataFrame) and not df.empty),
+                "summary": _hit_summary(df),
+                "by_market": _by_key(df, "market"),
+                "by_horizon": _by_key(df, "horizon"),
+                "by_klass": _by_key(df, "klass"),
+                "by_stat": _by_key(df, "stat_key"),
+                "by_tag": _by_tag(df),
+            }
+            rows.append(day_payload)
+            d = d + timedelta(days=1)
+
+        all_df = pd.concat(all_frames, ignore_index=True) if all_frames else pd.DataFrame()
+
+        payload = {
+            "ok": True,
+            "version": "live-lens-accuracy-v1",
+            "window": {"since": since.isoformat(), "until": until.isoformat()},
+            "days": rows,
+            "summary": {
+                "available": bool(not all_df.empty),
+                "summary": _hit_summary(all_df),
+                "by_market": _by_key(all_df, "market"),
+                "by_horizon": _by_key(all_df, "horizon"),
+                "by_klass": _by_key(all_df, "klass"),
+                "by_stat": _by_key(all_df, "stat_key"),
+                "by_tag": _by_tag(all_df),
+            },
+            "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+        }
+        return jsonify(payload)
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 
 def _recommendations_all():

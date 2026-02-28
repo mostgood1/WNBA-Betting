@@ -376,6 +376,55 @@ def _result_for_side(side: str | None, act: float | None, line: float | None) ->
     return None
 
 
+def _dedup_first_bets(df: pd.DataFrame) -> pd.DataFrame:
+        """De-dup repeated tick signals by treating the first BET as the graded decision.
+
+        Live Lens can emit the same BET signal repeatedly across ticks. For accuracy
+        reporting we want to grade the *first* actionable BET for a given decision.
+
+        Decision keys:
+            - player_prop: (market, game, player, stat, side)
+            - totals/quarters/halves/ats: (market, horizon, game, side)
+
+        Notes:
+            - We intentionally ignore live_line/line so later line updates do not
+                create new decisions.
+            - Ordering uses elapsed (ascending) then original row order.
+        """
+        if df is None or df.empty:
+                return pd.DataFrame() if df is None else df
+        if "klass" not in df.columns:
+                return pd.DataFrame()
+
+        d0 = df.copy()
+        d0["_idx"] = range(len(d0))
+        d0["_elapsed"] = pd.to_numeric(d0.get("elapsed"), errors="coerce")
+        klass = d0["klass"].astype(str).str.upper()
+        bets = d0[klass == "BET"].copy()
+        if bets.empty:
+                return bets
+
+        m = bets.get("market", pd.Series([""] * len(bets), index=bets.index)).astype(str).str.strip().str.lower()
+        horizon = bets.get("horizon", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.lower()
+        gid = bets.get("game_id", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip()
+        home = bets.get("home", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.upper()
+        away = bets.get("away", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.upper()
+        side = bets.get("side", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.lower()
+        name_key = bets.get("name_key", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.lower()
+        stat_key = bets.get("stat_key", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.lower()
+
+        gid2 = gid.where(gid.str.len() > 0, other=(home + "@" + away))
+        key_player = m + "|" + gid2 + "|" + name_key + "|" + stat_key + "|" + side
+        key_other = m + "|" + horizon + "|" + gid2 + "|" + side
+        key = key_other.where(m != "player_prop", other=key_player)
+        bets["_dedup_key"] = key
+
+        bets = bets.sort_values(["_elapsed", "_idx"], ascending=[True, True], na_position="last")
+        bets = bets.drop_duplicates(subset=["_dedup_key"], keep="first")
+        bets = bets.drop(columns=["_idx", "_elapsed", "_dedup_key"], errors="ignore")
+        return bets.reset_index(drop=True)
+
+
 def _metrics(df: pd.DataFrame) -> dict[str, float]:
     if df is None or df.empty:
         return {"n": 0}
@@ -398,6 +447,100 @@ def _hit_rate(df: pd.DataFrame) -> dict[str, float]:
     denom = wins + losses
     hr = float(wins) / float(denom) if denom > 0 else float("nan")
     return {"n": int(len(df)), "wins": wins, "losses": losses, "pushes": pushes, "hit_rate": hr}
+
+
+def _parse_tags(obj: dict[str, Any]) -> list[str]:
+    """Extract a normalized tag list from a raw signal payload.
+
+    We support multiple potential fields for NCAAB parity and forward-compat:
+      - tags: [..] or "a,b"
+      - driver_tags: [..]
+      - signal_tags: [..]
+
+    We intentionally do NOT infer tags from player names or signal_key to avoid
+    exploding cardinality.
+    """
+    cand: list[Any] = []
+    for k in ("tags", "driver_tags", "signal_tags"):
+        v = obj.get(k)
+        if v is None:
+            continue
+        if isinstance(v, list):
+            cand.extend(v)
+        elif isinstance(v, str):
+            cand.extend([x.strip() for x in v.replace(";", ",").split(",")])
+        else:
+            cand.append(v)
+
+    out: list[str] = []
+    seen: set[str] = set()
+    for x in cand:
+        try:
+            s = str(x or "").strip()
+        except Exception:
+            s = ""
+        if not s:
+            continue
+        s2 = re.sub(r"\s+", "_", s.strip().lower())
+        if not s2 or s2 in {"none", "null", "nan"}:
+            continue
+        if s2 not in seen:
+            seen.add(s2)
+            out.append(s2)
+    return out
+
+
+def _derive_tags(
+    *,
+    obj: dict[str, Any],
+    market: str,
+    horizon: str | None,
+    klass: str | None,
+    stat_key: str | None,
+    interval_drift_on: int | None,
+    recent_window_on: int | None,
+    endgame_foul_on: int | None,
+) -> list[str]:
+    tags: list[str] = []
+
+    def _add(t: str | None):
+        if not t:
+            return
+        t2 = re.sub(r"\s+", "_", str(t).strip().lower())
+        if not t2 or t2 in {"none", "null", "nan"}:
+            return
+        tags.append(t2)
+
+    # Raw, client-provided tags (if any).
+    for t in _parse_tags(obj):
+        _add(t)
+
+    # Stable, low-cardinality derived tags.
+    _add(f"market:{market}")
+    if horizon:
+        _add(f"horizon:{horizon}")
+    if klass:
+        _add(f"klass:{klass}")
+    if market == "player_prop" and stat_key:
+        _add(f"stat:{stat_key}")
+
+    # Adjustment toggles for totals signals.
+    if interval_drift_on is not None:
+        _add("interval_drift:on" if int(interval_drift_on) == 1 else "interval_drift:off")
+    if recent_window_on is not None:
+        _add("recent_window:on" if int(recent_window_on) == 1 else "recent_window:off")
+    if endgame_foul_on is not None:
+        _add("endgame_foul:on" if int(endgame_foul_on) == 1 else "endgame_foul:off")
+
+    # Dedupe while preserving order.
+    seen: set[str] = set()
+    out: list[str] = []
+    for t in tags:
+        if t in seen:
+            continue
+        seen.add(t)
+        out.append(t)
+    return out
 
 
 def _flag_adjustments(ctx: Any) -> tuple[int | None, int | None, int | None]:
@@ -423,7 +566,7 @@ def _flag_adjustments(ctx: Any) -> tuple[int | None, int | None, int | None]:
     return (interval_on, recent_on, foul_on)
 
 
-def _score_day(ds: str) -> pd.DataFrame:
+def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
     sigs = _load_signals(ds)
     if not sigs:
         return pd.DataFrame()
@@ -519,6 +662,16 @@ def _score_day(ds: str) -> pd.DataFrame:
                     "act": act,
                     "result": result,
                     "err": err,
+                    "tags": _derive_tags(
+                        obj=obj,
+                        market=market,
+                        horizon=horizon,
+                        klass=str(obj.get("klass") or "") or None,
+                        stat_key=None,
+                        interval_drift_on=interval_on,
+                        recent_window_on=recent_on,
+                        endgame_foul_on=foul_on,
+                    ),
                     "w_pace": w_pace,
                     "edge_shrink_lambda": edge_shrink_lambda,
                     "edge_shrink_lambda_poss": edge_shrink_lambda_poss,
@@ -530,6 +683,101 @@ def _score_day(ds: str) -> pd.DataFrame:
                     "interval_drift_on": interval_on,
                     "recent_window_on": recent_on,
                     "endgame_foul_on": foul_on,
+                }
+            )
+            continue
+
+        if market == "ats":
+            # Live ATS signals settle on final score vs the *picked-side spread*.
+            gid = _resolve_gid_for_game(obj, gid_map)
+            home = _safe_upper(obj.get("home"))
+            away = _safe_upper(obj.get("away"))
+            line = _n(obj.get("live_line"))
+            side_raw = str(obj.get("side") or "").strip()
+            side = _safe_upper(side_raw)
+            klass = str(obj.get("klass") or "") or None
+            # Actuals come from recon_games.
+            hp = ap = None
+            try:
+                if not rg.empty:
+                    hit = pd.DataFrame()
+                    if gid and "_gid" in rg.columns:
+                        hit = rg[rg.get("_gid") == gid]
+                    if hit.empty and home and away:
+                        hit = rg[(rg.get("home_tri") == home) & (rg.get("away_tri") == away)]
+                    if not hit.empty:
+                        hp = _n(hit.iloc[0].get("home_pts"))
+                        ap = _n(hit.iloc[0].get("visitor_pts"))
+            except Exception:
+                hp = ap = None
+
+            missing_reason = ""
+            if hp is None or ap is None:
+                missing_reason = "missing_recon_games" if rg_ok == 0 else "join_failed"
+            if line is None:
+                missing_reason = missing_reason or "missing_line"
+            if not side:
+                missing_reason = missing_reason or "missing_side"
+
+            result = None
+            act = None
+            if hp is not None and ap is not None and side and line is not None and home and away:
+                margin = float(hp) - float(ap)
+                act = margin
+                # Convention: line is the spread for the PICKED TEAM (positive for underdog).
+                if side == home:
+                    diff = margin + float(line)
+                elif side == away:
+                    diff = (float(ap) - float(hp)) + float(line)
+                else:
+                    diff = None
+                if diff is not None:
+                    if abs(diff) < 1e-9:
+                        result = "push"
+                    else:
+                        result = "win" if diff > 0 else "loss"
+
+            scored.append(
+                {
+                    "date": str(obj.get("date") or ds),
+                    "market": market,
+                    "horizon": str(obj.get("horizon") or "").strip().lower() or None,
+                    "signal_key": str(obj.get("signal_key") or "") or None,
+                    "game_id": gid,
+                    "home": home,
+                    "away": away,
+                    "team_tri": None,
+                    "player": None,
+                    "name_key": None,
+                    "stat": None,
+                    "stat_key": None,
+                    "side": (side_raw.strip().lower() or None),
+                    "klass": klass,
+                    "elapsed": _n(obj.get("elapsed")),
+                    "live_line": line,
+                    "edge": _n(obj.get("edge")),
+                    "strength": (abs(float(_n(obj.get("edge")) or 0.0)) if _n(obj.get("edge")) is not None else None),
+                    "pred": None,
+                    "act": act,
+                    "result": result,
+                    "err": None,
+                    "tags": _derive_tags(
+                        obj=obj,
+                        market=market,
+                        horizon=str(obj.get("horizon") or "").strip().lower() or None,
+                        klass=klass,
+                        stat_key=None,
+                        interval_drift_on=None,
+                        recent_window_on=None,
+                        endgame_foul_on=None,
+                    ),
+                    "missing_reason": missing_reason,
+                    "has_recon_games": rg_ok,
+                    "has_recon_quarters": rq_ok,
+                    "has_recon_props": rp_ok,
+                    "interval_drift_on": None,
+                    "recent_window_on": None,
+                    "endgame_foul_on": None,
                 }
             )
             continue
@@ -623,6 +871,16 @@ def _score_day(ds: str) -> pd.DataFrame:
                     "act": act,
                     "result": result,
                     "err": err,
+                    "tags": _derive_tags(
+                        obj=obj,
+                        market=market,
+                        horizon=None,
+                        klass=str(obj.get("klass") or "") or None,
+                        stat_key=stat_key,
+                        interval_drift_on=None,
+                        recent_window_on=None,
+                        endgame_foul_on=None,
+                    ),
                     "exp_min": exp_min,
                     "exp_min_eff": exp_min_eff,
                     "proj_min_final": proj_min_final,
@@ -651,7 +909,10 @@ def _score_day(ds: str) -> pd.DataFrame:
 
     if not scored:
         return pd.DataFrame()
-    return pd.DataFrame(scored)
+    df = pd.DataFrame(scored)
+    if str(dedup_policy or "none").strip().lower() in {"first_bet", "first_bets"}:
+        return _dedup_first_bets(df)
+    return df
 
 
 def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:

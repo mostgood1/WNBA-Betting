@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Betting – Live Lens Accuracy</title>
+  <meta name="description" content="Daily Live Lens accuracy (live games + props), including tag breakdowns." />
+  <link rel="icon" href="data:,">
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{--bg:#080d1a;--card:#0d1426;--card2:#121b31;--text:#f5f7ff;--muted:#c3cee4;--border:#243356;--link:#b8d1ff;--pill-bg:#101a2e;--pill-br:#2a3a63;--badge-bg:#162247;--badge-br:#2a3a63}
+    body.light{--bg:#ffffff;--card:#f8fafc;--card2:#f1f5fb;--text:#0a1020;--muted:#475569;--border:#cbd5e1;--link:#1e3a8a;--pill-bg:#eef3fb;--pill-br:#94a3b8;--badge-bg:#e2e8f0;--badge-br:#94a3b8}
+    body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .container{max-width:1100px;margin:24px auto;padding:0 16px}
+    a{color:var(--link)} h1{margin:0 0 12px;font-size:26px}
+    .nav{font-size:14px;margin-bottom:10px} .nav a{color:var(--link);text-decoration:none;margin-right:10px}
+    .nav button.theme-toggle{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;cursor:pointer}
+    .cards-summary{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;align-items:stretch}
+    .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+    .card-summary{flex:1;min-width:240px;padding:10px;background:linear-gradient(180deg,#132a52,#0d1426)}
+    .title-sm{font-size:14px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted)}
+    .title-lg{font-size:20px;font-weight:600} .title-md{font-size:18px;font-weight:600}
+    .muted-small{font-size:12px;color:var(--muted)}
+    table{width:100%;border-collapse:collapse} th,td{padding:8px} thead th{text-align:left;border-bottom:1px solid var(--border)} tbody tr{border-top:1px solid var(--border)}
+    .day-good{border-color:#2e8b57}
+    .day-bad{border-color:#8b2e2e}
+    .day-good summary .title-md{color:#9ae6b4}
+    .day-bad summary .title-md{color:#fca5a5}
+    form.filters{margin:8px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    form.filters input{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px}
+    form.filters button{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;text-decoration:none;font-size:13px;cursor:pointer}
+    .mt-1{margin-top:1rem} .mt-4{margin-top:4px}
+    details > summary{cursor:pointer}
+    .table-wrap{overflow-x:auto}
+    @media (max-width:760px){ .container{padding:0 10px;margin:12px auto} h1{font-size:20px;margin-bottom:6px} .nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px} .nav a{display:inline-block;margin-right:6px} table{font-size:12px} th,td{padding:6px 4px} thead th{font-size:11px} form.filters input{padding:4px 6px;font-size:12px} form.filters button{padding:4px 8px;font-size:12px} }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <a href="/">Cards</a> |
+      <a href="/recommendations">Recommendations</a> |
+      <a href="/accuracy-market">Market Accuracy</a> |
+      <a href="/live-lens-accuracy" aria-current="page">Live Lens Accuracy</a> |
+      <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button>
+    </div>
+    <h1>NBA Betting – Live Lens Accuracy</h1>
+    <form class="filters" id="filters" onsubmit="event.preventDefault(); loadAll();">
+      <label>Date: <input type="date" id="datePicker" /></label>
+      <button type="submit">Apply</button>
+      <button type="button" id="resetBtn">Reset</button>
+    </form>
+
+    <div class="muted-small" id="windowBanner">Last 30 days</div>
+    <div id="summaryRoot" class="cards-summary"></div>
+
+    <h2 class="mt-1">Daily Recaps</h2>
+    <div class="muted-small">Settles Live Lens signals vs recon files; includes breakdowns by market/horizon/klass/stat/tag.</div>
+    <div id="dailyRoot" class="cards-summary"></div>
+  </div>
+
+  <script>
+    window.addEventListener('error', function(ev){
+      try{
+        const root = document.getElementById('dailyRoot') || document.getElementById('summaryRoot');
+        if(root){
+          const msg = (ev && ev.error && ev.error.message) ? ev.error.message : (ev && ev.message ? ev.message : 'Unknown error');
+          root.innerHTML = `<div class="card">An error occurred while rendering: ${String(msg)}</div>`;
+        }
+      }catch(_){ /* ignore */ }
+    });
+
+    (function(){
+      try{
+        const body=document.body;
+        const saved=localStorage.getItem('theme');
+        if(saved==='light') body.classList.add('light');
+        const t=document.getElementById('themeToggle');
+        if(t){
+          t.addEventListener('click',()=>{
+            body.classList.toggle('light');
+            localStorage.setItem('theme', body.classList.contains('light')?'light':'dark');
+          });
+        }
+      }catch(_){ /* ignore */ }
+    })();
+
+    function localYMD(){
+      const tz = 'America/New_York';
+      const cutoffHour = 6;
+      try{
+        const now = new Date();
+        const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
+        const hour = Number(hourStr);
+        const base = (Number.isFinite(hour) && hour < cutoffHour)
+          ? new Date(now.getTime() - 24*60*60*1000)
+          : now;
+        return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(base);
+      }catch(_){
+        const d=new Date();
+        const base = (d.getHours() < cutoffHour) ? new Date(d.getTime() - 24*60*60*1000) : d;
+        const y=base.getFullYear();
+        const m=String(base.getMonth()+1).padStart(2,'0');
+        const day=String(base.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+    }
+
+    const API_BASE = (()=>{
+      try{
+        const proto = String(window.location && window.location.protocol || '');
+        const origin = String(window.location && window.location.origin || '');
+        if(proto === 'file:' || origin === 'null' || !origin.startsWith('http')) return 'http://127.0.0.1:5051';
+        return origin;
+      }catch(_){
+        return 'http://127.0.0.1:5051';
+      }
+    })();
+
+    function apiUrl(path){
+      const s = String(path||'');
+      if(!s) return API_BASE;
+      if(/^https?:\/\//i.test(s)) return s;
+      return API_BASE + (s.startsWith('/') ? s : ('/' + s));
+    }
+
+    function esc(s){
+      const str = String(s==null? '' : s);
+      return str.replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
+    }
+
+    function fmtPct01(x){
+      try{ if(x==null) return '—'; const v=Number(x); return Number.isFinite(v) ? (v.toFixed(1)+'%') : '—'; }catch(_){ return '—'; }
+    }
+
+    function isoTodayUTC(){ try{ return new Date().toISOString().slice(0,10); }catch(_){ return ''; } }
+    function addDaysUTC(iso, days){
+      try{
+        const d = new Date(String(iso).slice(0,10) + 'T00:00:00Z');
+        if(Number.isFinite(Number(days))) d.setUTCDate(d.getUTCDate() + Number(days));
+        return d.toISOString().slice(0,10);
+      }catch(_){ return iso; }
+    }
+
+    function pickYmdFromQuery(){
+      try{ return new URL(window.location.href).searchParams.get('date'); }catch(_){ return null; }
+    }
+
+    function updateUrlDate(d){
+      try{
+        const u = new URL(window.location.href);
+        u.searchParams.set('date', d);
+        window.history.replaceState({},'',u.toString());
+      }catch(_){ /* ignore */ }
+    }
+
+    function hitLine(s){
+      if(!s) return '—';
+      const n = Number(s.n||0);
+      const w = Number(s.wins||0), l=Number(s.losses||0), p=Number(s.pushes||0);
+      const hr = (s.hit_rate_pct!=null) ? fmtPct01(Number(s.hit_rate_pct)) : (s.hit_rate!=null ? fmtPct01(Number(s.hit_rate)*100) : '—');
+      return `${w}-${l}${p?('-'+p+'P'):''} · hit ${hr} · n=${n}`;
+    }
+
+    function hrPctFromRow(r){
+      try{
+        if(!r) return '—';
+        if(r.hit_rate_pct!=null && Number.isFinite(Number(r.hit_rate_pct))) return fmtPct01(Number(r.hit_rate_pct));
+        if(r.hit_rate!=null && Number.isFinite(Number(r.hit_rate))) return fmtPct01(Number(r.hit_rate)*100);
+        return '—';
+      }catch(_){ return '—'; }
+    }
+
+    function renderBreakdownTable(items, title, keyField, keyTitle){
+      const arr = Array.isArray(items) ? items : [];
+      if(!arr.length) return '';
+      const rows = arr.map((r)=>{
+        const key = r && r[keyField]!=null ? String(r[keyField]) : (r && r.key!=null ? String(r.key) : '');
+        const n = Number(r.n||0);
+        const w = Number(r.wins||0), l=Number(r.losses||0), p=Number(r.pushes||0);
+        const hr = (r.hit_rate_pct!=null) ? fmtPct01(Number(r.hit_rate_pct)) : (r.hit_rate!=null ? fmtPct01(Number(r.hit_rate)*100) : '—');
+        return `<tr><td>${esc(key||'(blank)')}</td><td>${n}</td><td>${w}-${l}${p?('-'+p):''}</td><td>${hr}</td></tr>`;
+      }).join('');
+      return `
+        <div class="mt-4">
+          <div class="title-sm">${esc(title)}</div>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>${esc(keyTitle)}</th><th>N</th><th>W-L-P</th><th>Hit%</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSummaryCards(js){
+      const root = document.getElementById('summaryRoot');
+      if(!root) return;
+      root.innerHTML = '';
+      const win = js && js.window ? js.window : null;
+      const since = win && win.since ? String(win.since) : '';
+      const until = win && win.until ? String(win.until) : '';
+
+      const sum = js && js.summary ? js.summary : null;
+      const all = sum && sum.summary ? sum.summary : null;
+
+      const head = document.createElement('div');
+      head.className = 'card card-summary';
+      head.innerHTML = `<div class="title-sm">Last 30 days</div><div class="title-lg">Live Lens Accuracy</div><div class="muted-small">${esc(since)} → ${esc(until)}</div>`;
+      root.appendChild(head);
+
+      const c = document.createElement('div');
+      c.className = 'card card-summary';
+      c.innerHTML = `<div class="title-sm">Overall</div><div class="mt-4 title-md">${esc(hitLine(all))}</div>`;
+      root.appendChild(c);
+
+      const m = document.createElement('div');
+      m.className = 'card card-summary';
+      const byM = sum && Array.isArray(sum.by_market) ? sum.by_market : [];
+      const topM = byM.slice(0, 6).map((r)=>`${String(r.key||'')}: ${hrPctFromRow(r)}`).join(' · ');
+      m.innerHTML = `<div class="title-sm">Top markets</div><div class="mt-4 muted-small">${esc(topM || '—')}</div>`;
+      root.appendChild(m);
+
+      try{
+        const banner = document.getElementById('windowBanner');
+        if(banner) banner.textContent = `Last 30 days (${since} → ${until})`;
+      }catch(_){ /* ignore */ }
+    }
+
+    function renderDailyRecaps(js){
+      const root = document.getElementById('dailyRoot');
+      if(!root) return;
+      const days = js && Array.isArray(js.days) ? js.days.slice() : [];
+      if(!days.length){ root.innerHTML = '<div class="card">No recap data available.</div>'; return; }
+
+      days.sort((a,b)=> String(b.date||'').localeCompare(String(a.date||'')));
+      root.innerHTML = '';
+
+      days.forEach((it)=>{
+        const date = String(it && it.date || '');
+        const s = it && it.summary ? it.summary : null;
+        const hr = s && s.hit_rate!=null ? Number(s.hit_rate) : null;
+        const dayClass = (hr==null) ? '' : (hr>=0.55 ? 'day-good' : (hr<=0.45 ? 'day-bad' : ''));
+
+        const byMarket = it && Array.isArray(it.by_market) ? it.by_market : [];
+        const byHorizon = it && Array.isArray(it.by_horizon) ? it.by_horizon : [];
+        const byKlass = it && Array.isArray(it.by_klass) ? it.by_klass : [];
+        const byStat = it && Array.isArray(it.by_stat) ? it.by_stat : [];
+        const byTag = it && Array.isArray(it.by_tag) ? it.by_tag : [];
+
+        const mTbl = renderBreakdownTable(byMarket, 'By market', 'key', 'Market');
+        const hTbl = renderBreakdownTable(byHorizon, 'By horizon', 'key', 'Horizon');
+        const kTbl = renderBreakdownTable(byKlass, 'By klass', 'key', 'Klass');
+        const sTbl = renderBreakdownTable(byStat, 'By stat', 'key', 'Stat');
+        const tTbl = renderBreakdownTable(byTag, 'By tag', 'tag', 'Tag');
+
+        const topTagLine = byTag.slice(0,6).map((r)=>`${String(r.tag||'')}: ${hrPctFromRow(r)}`).join(' · ');
+
+        const card = document.createElement('div');
+        card.className = `card ${dayClass}`;
+        card.innerHTML = `
+          <details>
+            <summary><span class="title-md">${esc(date)}</span> <span class="muted-small">· ${esc(hitLine(s))} · ${esc(topTagLine || '')}</span></summary>
+            ${mTbl}
+            ${hTbl}
+            ${kTbl}
+            ${sTbl}
+            ${tTbl}
+          </details>
+        `;
+        root.appendChild(card);
+      });
+    }
+
+    async function loadAll(){
+      const summaryRoot = document.getElementById('summaryRoot');
+      const dailyRoot = document.getElementById('dailyRoot');
+      if(summaryRoot) summaryRoot.innerHTML = '<div class="card">Loading…</div>';
+      if(dailyRoot) dailyRoot.innerHTML = '<div class="card">Loading daily recaps…</div>';
+
+      const WINDOW_DAYS = 30;
+      const datePicker = document.getElementById('datePicker');
+      const until = (datePicker && String(datePicker.value||'').trim()) ? String(datePicker.value||'').trim() : isoTodayUTC();
+      const since = addDaysUTC(until, -(WINDOW_DAYS-1));
+
+      try{
+        updateUrlDate(until);
+        const res = await fetch(apiUrl(`/api/live_lens_accuracy?since=${encodeURIComponent(since)}&until=${encodeURIComponent(until)}`), {cache:'no-store'});
+        const js = await res.json();
+        if(!js || js.ok !== true){
+          const msg = js && js.error ? String(js.error) : 'Failed to load live lens accuracy.';
+          if(summaryRoot) summaryRoot.innerHTML = `<div class="card">${esc(msg)}</div>`;
+          if(dailyRoot) dailyRoot.innerHTML = `<div class="card">${esc(msg)}</div>`;
+          return;
+        }
+        renderSummaryCards(js);
+        renderDailyRecaps(js);
+      }catch(e){
+        const msg = (e && e.message) ? e.message : String(e||'Failed');
+        if(summaryRoot) summaryRoot.innerHTML = `<div class="card">Failed to load: ${esc(msg)}</div>`;
+        if(dailyRoot) dailyRoot.innerHTML = `<div class="card">Failed to load: ${esc(msg)}</div>`;
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      const qd = pickYmdFromQuery();
+      const d = (qd && /^\d{4}-\d{2}-\d{2}$/.test(qd)) ? qd : localYMD();
+      const inp = document.getElementById('datePicker');
+      if(inp) inp.value = d;
+      const resetBtn = document.getElementById('resetBtn');
+      if(resetBtn) resetBtn.addEventListener('click', ()=>{ if(inp) inp.value = localYMD(); loadAll(); });
+      loadAll();
+    });
+  </script>
+</body>
+</html>

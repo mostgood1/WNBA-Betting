@@ -5979,14 +5979,29 @@ window.addEventListener('DOMContentLoaded', () => {
   const todayBtn = document.getElementById('todayBtn');
   const resultsToggle = document.getElementById('resultsToggle');
   const hideOddsToggle = document.getElementById('hideOdds');
+  const marketAccuracyBtn = document.getElementById('marketAccuracyBtn');
+  const liveLensAccuracyBtn = document.getElementById('liveLensAccuracyBtn');
 
   const u = new URL(window.location.href);
   const qd = u.searchParams.get('date');
   const d0 = isYmd(qd) ? qd : localYMD();
   setDatePickerYmd(datePicker, d0);
 
+  function updateAccuracyLinks(d) {
+    try {
+      const ds = (isYmd(d) ? d : (datePicker && datePicker.value) ? datePicker.value : localYMD());
+      const q = encodeURIComponent(ds);
+      if (marketAccuracyBtn) marketAccuracyBtn.setAttribute('href', `/accuracy-market?date=${q}`);
+      if (liveLensAccuracyBtn) liveLensAccuracyBtn.setAttribute('href', `/live-lens-accuracy?date=${q}`);
+    } catch (_) {
+      // ignore
+    }
+  }
+  updateAccuracyLinks(d0);
+
   function apply() {
     const d = (datePicker && datePicker.value) ? datePicker.value : localYMD();
+    updateAccuracyLinks(d);
     setUrlDate(d);
     setNote('Loading…');
     Promise.resolve(load(d)).catch((e) => {

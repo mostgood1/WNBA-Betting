@@ -9206,10 +9206,49 @@ def reconcile_quarters_cmd(date_str: str):
                 if pbp_espn.exists():
                     dfe = pd.read_csv(pbp_espn)
 
+                # If we have a cached ESPN daily file but it covers only a small fraction of the
+                # matchups we predicted for this date, refresh from ESPN to avoid partial slates
+                # (e.g., a prior interrupted fetch).
+                try:
+                    expected_pairs = set(
+                        zip(
+                            preds["home_tri"].astype(str).str.upper(),
+                            preds["away_tri"].astype(str).str.upper(),
+                        )
+                    )
+                    expected_pairs = {p for p in expected_pairs if all(x and x != "NAN" for x in p)}
+                    have_pairs = set()
+                    if (dfe is not None) and (not dfe.empty) and {"home_tri", "away_tri"}.issubset(set(dfe.columns)):
+                        have_pairs = set(
+                            zip(
+                                dfe["home_tri"].astype(str).str.upper(),
+                                dfe["away_tri"].astype(str).str.upper(),
+                            )
+                        )
+                        have_pairs = {p for p in have_pairs if all(x and x != "NAN" for x in p)}
+                    if expected_pairs and have_pairs:
+                        cov = float(len(have_pairs & expected_pairs)) / float(len(expected_pairs))
+                        if cov < 0.80:
+                            console.print(
+                                f"Cached pbp_espn_{date_str}.csv appears incomplete vs predictions (coverage={cov:.0%}); refreshing from ESPN",
+                                style="yellow",
+                            )
+                            from .pbp_espn import fetch_pbp_espn_for_date
+                            dfe2, _ = fetch_pbp_espn_for_date(
+                                date_str,
+                                only_final=True,
+                                rate_delay=0.15,
+                                force_scoreboard=True,
+                            )
+                            if (dfe2 is not None) and (not dfe2.empty):
+                                dfe = dfe2
+                except Exception:
+                    pass
+
                 # If missing or schema is too old, fetch fresh from ESPN.
                 if (dfe is None) or dfe.empty or ("home_score" not in dfe.columns) or ("away_score" not in dfe.columns):
                     from .pbp_espn import fetch_pbp_espn_for_date
-                    dfe, _ = fetch_pbp_espn_for_date(date_str, only_final=True, rate_delay=0.15)
+                    dfe, _ = fetch_pbp_espn_for_date(date_str, only_final=True, rate_delay=0.15, force_scoreboard=True)
 
                 if (dfe is not None) and (not dfe.empty):
                     key_col = "game_id" if "game_id" in dfe.columns and dfe["game_id"].notna().any() else ("event_id" if "event_id" in dfe.columns else None)
@@ -9235,7 +9274,14 @@ def reconcile_quarters_cmd(date_str: str):
                                 gid = stem.replace("pbp_espn_", "").strip()
                             if not gid:
                                 continue
-                            pbp_map[gid] = pd.read_csv(f)
+                            dfx = pd.read_csv(f)
+                            if (dfx is None) or dfx.empty or ("date" not in dfx.columns):
+                                continue
+                            dfx["date"] = pd.to_datetime(dfx["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+                            dfx = dfx[dfx["date"] == date_str]
+                            if dfx is None or dfx.empty:
+                                continue
+                            pbp_map[gid] = dfx
                         except Exception:
                             continue
             except Exception:

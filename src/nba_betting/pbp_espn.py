@@ -95,6 +95,8 @@ def fetch_pbp_espn_for_date(
     date_str: str,
     only_final: bool = True,
     rate_delay: float = 0.25,
+    *,
+    force_scoreboard: bool = False,
 ) -> Tuple[pd.DataFrame, List[str]]:
     """Fetch play-by-play for all games on a date from ESPN summary endpoint.
 
@@ -126,7 +128,7 @@ def fetch_pbp_espn_for_date(
 
     # If we have no NBA gids (rare), fall back to ESPN event list and write event-scoped rows.
     if not game_ids:
-        sb = _espn_scoreboard(date_str)
+        sb = _espn_scoreboard(date_str, force=bool(force_scoreboard))
         events = sb.get("events") if isinstance(sb, dict) else None
         if not isinstance(events, list) or not events:
             return pd.DataFrame(), []
@@ -136,7 +138,10 @@ def fetch_pbp_espn_for_date(
                 continue
             summ = _espn_summary(eid)
             try:
-                plays = summ.get("plays") or []
+                plays = summ.get("plays") if isinstance(summ, dict) else None
+                if (not isinstance(plays, list)) or (not plays):
+                    summ = _espn_summary(eid, force=True)
+                    plays = summ.get("plays") if isinstance(summ, dict) else None
                 if not isinstance(plays, list) or not plays:
                     continue
                 team_map = _team_id_to_tricode_from_summary(summ)
@@ -214,13 +219,16 @@ def fetch_pbp_espn_for_date(
                 if st and ("final" not in st):
                     continue
 
-        eid = _espn_event_id_for_matchup(date_str, home_tri=home_tri, away_tri=away_tri)
+        eid = _espn_event_id_for_matchup(date_str, home_tri=home_tri, away_tri=away_tri, force_scoreboard=bool(force_scoreboard))
         if not eid:
             continue
 
         summ = _espn_summary(eid)
         try:
-            plays = summ.get("plays") or []
+            plays = summ.get("plays") if isinstance(summ, dict) else None
+            if (not isinstance(plays, list)) or (not plays):
+                summ = _espn_summary(eid, force=True)
+                plays = summ.get("plays") if isinstance(summ, dict) else None
             if not isinstance(plays, list) or not plays:
                 continue
 
