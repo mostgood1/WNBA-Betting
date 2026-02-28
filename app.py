@@ -10991,6 +10991,25 @@ def api_live_lens_accuracy():
         except Exception:
             return {"exists": False, "lines": 0, "bytes": 0}
 
+    def _artifacts_dir_info() -> dict[str, Any]:
+        try:
+            base = _live_lens_artifacts_dir()
+            env_val = (os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip()
+            # Heuristic: on Render, missing env var means we fall back to repo data/processed (ephemeral).
+            running_on_render = bool(os.getenv("RENDER") or os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_SERVICE_ID"))
+            persisted_configured = bool(env_val)
+            warnings: list[str] = []
+            if running_on_render and (not persisted_configured):
+                warnings.append("live_lens_dir_env_missing")
+            return {
+                "path": str(base),
+                "env_configured": persisted_configured,
+                "running_on_render": running_on_render,
+                "warnings": warnings,
+            }
+        except Exception:
+            return {"path": None, "env_configured": False, "running_on_render": False, "warnings": ["artifacts_dir_unknown"]}
+
     try:
         single = (request.args.get("date") or "").strip()
         if single:
@@ -11051,6 +11070,7 @@ def api_live_lens_accuracy():
         payload = {
             "ok": True,
             "version": "live-lens-accuracy-v1",
+            "artifacts_dir": _artifacts_dir_info(),
             "window": {"since": since.isoformat(), "until": until.isoformat()},
             "days": rows,
             "summary": {
