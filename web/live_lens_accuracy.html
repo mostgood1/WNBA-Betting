@@ -244,6 +244,12 @@
         const hr = s && s.hit_rate!=null ? Number(s.hit_rate) : null;
         const dayClass = (hr==null) ? '' : (hr>=0.55 ? 'day-good' : (hr<=0.45 ? 'day-bad' : ''));
 
+        const sig = it && it.signals ? it.signals : null;
+        const sigLine = (sig && sig.exists) ? (`signals=${Number(sig.lines||0)} (${Math.round(Number(sig.bytes||0)/1024)}KB)`) : '';
+        const warns = it && Array.isArray(it.warnings) ? it.warnings : [];
+        const warnLine = warns.length ? (`WARN: ${warns.join(', ')}`) : '';
+        const metaLine = [sigLine, warnLine].filter(Boolean).join(' · ');
+
         const byMarket = it && Array.isArray(it.by_market) ? it.by_market : [];
         const byHorizon = it && Array.isArray(it.by_horizon) ? it.by_horizon : [];
         const byKlass = it && Array.isArray(it.by_klass) ? it.by_klass : [];
@@ -262,7 +268,7 @@
         card.className = `card ${dayClass}`;
         card.innerHTML = `
           <details>
-            <summary><span class="title-md">${esc(date)}</span> <span class="muted-small">· ${esc(hitLine(s))} · ${esc(topTagLine || '')}</span></summary>
+            <summary><span class="title-md">${esc(date)}</span> <span class="muted-small">· ${esc(hitLine(s))} · ${esc(topTagLine || '')}${metaLine?(' · '+esc(metaLine)):''}</span></summary>
             ${mTbl}
             ${hTbl}
             ${kTbl}

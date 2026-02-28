@@ -10979,6 +10979,18 @@ def api_live_lens_accuracy():
         # De-dup repeated tick signals: grade the first BET per decision key.
         return _audit._score_day(ds, dedup_policy="first_bet")
 
+    def _signals_info(ds: str) -> dict[str, Any]:
+        try:
+            base = _live_lens_artifacts_dir()
+            fp = base / f"live_lens_signals_{ds}.jsonl"
+            if not fp.exists():
+                return {"exists": False, "lines": 0, "bytes": 0, "path": str(fp)}
+            b = int(fp.stat().st_size)
+            n = _count_lines_in_file(fp)
+            return {"exists": True, "lines": int(n), "bytes": b, "path": str(fp)}
+        except Exception:
+            return {"exists": False, "lines": 0, "bytes": 0}
+
     try:
         single = (request.args.get("date") or "").strip()
         if single:
@@ -11006,14 +11018,24 @@ def api_live_lens_accuracy():
         d = since
         while d <= until:
             ds = d.isoformat()
+            sig = _signals_info(ds)
             df = _score_day(ds)
             if isinstance(df, pd.DataFrame) and not df.empty:
                 df = df.copy()
                 df["_date"] = ds
                 all_frames.append(df)
+            warnings: list[str] = []
+            try:
+                if isinstance(sig, dict) and sig.get("exists") and int(sig.get("lines") or 0) > 0:
+                    if int(sig.get("lines") or 0) < 500:
+                        warnings.append("signals_file_small")
+            except Exception:
+                pass
             day_payload = {
                 "date": ds,
                 "available": bool(isinstance(df, pd.DataFrame) and not df.empty),
+                "signals": sig,
+                "warnings": warnings,
                 "summary": _hit_summary(df),
                 "by_market": _by_key(df, "market"),
                 "by_horizon": _by_key(df, "horizon"),
@@ -22739,6 +22761,42 @@ def _write_processed_artifact(filename: str, raw: bytes) -> tuple[bool, str]:
     return True, str(fp)
 
 
+def _count_lines_in_bytes(raw: bytes) -> int:
+    if not raw:
+        return 0
+    n = int(raw.count(b"\n"))
+    if raw and not raw.endswith(b"\n"):
+        n += 1
+    return int(n)
+
+
+def _count_lines_in_file(fp: Path) -> int:
+    try:
+        if not fp.exists():
+            return 0
+        size = fp.stat().st_size
+        if size <= 0:
+            return 0
+        n = 0
+        with open(fp, "rb") as f:
+            while True:
+                chunk = f.read(1024 * 1024)
+                if not chunk:
+                    break
+                n += int(chunk.count(b"\n"))
+        try:
+            with open(fp, "rb") as f2:
+                f2.seek(-1, os.SEEK_END)
+                last = f2.read(1)
+            if last != b"\n":
+                n += 1
+        except Exception:
+            pass
+        return int(n)
+    except Exception:
+        return 0
+
+
 @app.route("/api/live_lens_signal", methods=["POST"])
 def api_live_lens_signal():
     """NCAAB-parity endpoint: append a client-computed signal to JSONL."""
@@ -22856,10 +22914,55 @@ def api_upload_live_lens_signals():
     if f is None:
         return jsonify({"error": "missing file"}), 400
     raw = f.read() or b""
-    ok2, info = _write_processed_artifact(f"live_lens_signals_{ds}.jsonl", raw)
+
+    force = str(request.args.get("force") or "").strip().lower() in {"1", "true", "yes"}
+    base = _live_lens_artifacts_dir()
+    base.mkdir(parents=True, exist_ok=True)
+    filename = f"live_lens_signals_{ds}.jsonl"
+    fp = base / filename
+
+    old_lines = _count_lines_in_file(fp) if fp.exists() else 0
+    old_bytes = int(fp.stat().st_size) if fp.exists() else 0
+    new_lines = _count_lines_in_bytes(raw)
+    new_bytes = int(len(raw))
+
+    # Refuse to overwrite a large file with a much smaller one unless explicitly forced.
+    if (old_lines >= 500) and (new_lines < max(100, int(0.50 * old_lines))) and (not force):
+        return (
+            jsonify(
+                {
+                    "ok": False,
+                    "error": "refusing to overwrite signals with much smaller file",
+                    "date": ds,
+                    "existing": {"lines": int(old_lines), "bytes": int(old_bytes), "path": str(fp)},
+                    "upload": {"lines": int(new_lines), "bytes": int(new_bytes)},
+                    "hint": "Re-try with ?force=1 to override (dangerous) if you are sure.",
+                }
+            ),
+            409,
+        )
+
+    # Best-effort backup when overwriting.
+    if fp.exists():
+        try:
+            ts = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+            bak = base / f"{filename}.bak_{ts}"
+            bak.write_bytes(fp.read_bytes())
+        except Exception:
+            pass
+
+    ok2, info = _write_processed_artifact(filename, raw)
     if not ok2:
         return jsonify({"ok": False, "error": info}), 500
-    return jsonify({"ok": True, "path": info, "bytes": len(raw)})
+    return jsonify(
+        {
+            "ok": True,
+            "path": info,
+            "bytes": len(raw),
+            "lines": int(new_lines),
+            "replaced": {"lines": int(old_lines), "bytes": int(old_bytes)} if (old_lines or old_bytes) else None,
+        }
+    )
 
 
 @app.route("/api/upload_live_lens_projections", methods=["POST"])
