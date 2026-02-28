@@ -1,0 +1,172 @@
+{
+  "date": "2026-02-28",
+  "team_counts": {
+    "GSW": 3,
+    "HOU": 4,
+    "LAL": 2,
+    "MIA": 1,
+    "NOP": 3,
+    "POR": 3,
+    "UTA": 4,
+    "WAS": 2
+  },
+  "players": [
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Damian Lillard",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Seth Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Terry Rozier",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Fred VanVleet",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Rui Hachimura",
+      "team": "LAL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Deni Avdija",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Jae'Sean Tate",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Murphy III",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Jabari Smith Jr.",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Shaedon Sharpe",
+      "team": "POR",
+      "status": "OUT"
+    },
+    {
+      "player": "Walker Kessler",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Vince Williams Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Keyonte George",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Yves Missi",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Bronny James",
+      "team": "LAL",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "GSW": [
+      "Stephen Curry",
+      "Jimmy Butler III",
+      "Seth Curry"
+    ],
+    "POR": [
+      "Deni Avdija",
+      "Shaedon Sharpe",
+      "Damian Lillard"
+    ],
+    "HOU": [
+      "Jabari Smith Jr.",
+      "Jae'Sean Tate",
+      "Steven Adams"
+    ],
+    "MIA": [
+      "Terry Rozier"
+    ],
+    "UTA": [
+      "Jaren Jackson Jr.",
+      "Keyonte George",
+      "Vince Williams Jr."
+    ],
+    "LAL": [
+      "Rui Hachimura",
+      "Bronny James"
+    ],
+    "NOP": [
+      "Trey Murphy III",
+      "Yves Missi",
+      "Trey Alexander"
+    ],
+    "WAS": [
+      "Alex Sarr",
+      "Cam Whitmore"
+    ]
+  },
+  "team_impact": {
+    "GSW": 26.2,
+    "POR": 48.245,
+    "HOU": 41.01794871794872,
+    "UTA": 74.39999999999999,
+    "LAL": 27.254545454545458,
+    "NOP": 54.02142857142857,
+    "WAS": 33.6
+  }
+}
