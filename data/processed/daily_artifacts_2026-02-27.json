@@ -18,8 +18,12 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
-    "minutes_sanity: team MEM top10 minutes sum low (162.0) using roll5_min",
-    "minutes_sanity: 11 players have <8 min but >=10 pred_pts (sample: E.J. Liddell(BKN), Tyson Etienne(BKN), Josh Minott(BOS), Chris Livingston(CLE), Colby Jones(DET), Bobi Klintman(DET))"
+    "minutes_sanity: team CLE top10 minutes sum low (167.0) using roll10_min",
+    "minutes_sanity: team CLE has <5 players at 20+ min (found 3) using roll10_min",
+    "minutes_sanity: team DAL top10 minutes sum low (154.4) using roll10_min",
+    "minutes_sanity: team DAL has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: team MEM top10 minutes sum low (142.1) using roll10_min",
+    "minutes_sanity: 6 players have <8 min but >=10 pred_pts (sample: Josh Minott(BOS), Chris Livingston(CLE), Colby Jones(DET), Isaac Jones(DET), Tosan Evbuomwan(NYK), Trey Jemison III(NYK))"
   ],
   "missing": [],
   "ok": true

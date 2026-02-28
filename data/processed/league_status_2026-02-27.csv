@@ -13,7 +13,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 201572,Brook Lopez,LAC,DAY-TO-DAY,False,False
 201587,Nicolas Batum,LAC,,False,False
 201599,DeAndre Jordan,NOP,DAY-TO-DAY,False,False
-201935,James Harden,CLE,DAY-TO-DAY,True,True
+201935,James Harden,CLE,OUT,True,False
 201939,Stephen Curry,GSW,OUT,False,False
 201942,DeMar DeRozan,SAC,DAY-TO-DAY,False,False
 201949,James Johnson,IND,,False,False
@@ -92,7 +92,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1626171,Bobby Portis,MIL,DAY-TO-DAY,True,True
 1626172,Kevon Looney,NOP,DAY-TO-DAY,False,False
 1626179,Terry Rozier,MIA,OUT,False,False
-1626181,Norman Powell,MIA,DAY-TO-DAY,False,False
+1626181,Norman Powell,MIA,OUT,False,False
 1626192,Pat Connaughton,CHA,DAY-TO-DAY,False,False
 1626196,Josh Richardson,,,False,False
 1626204,Larry Nance Jr.,CLE,,True,True
@@ -237,7 +237,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629684,Grant Williams,CHA,DAY-TO-DAY,False,False
 1629723,John Konchar,UTA,DAY-TO-DAY,False,False
 1629726,Garrison Mathews,IND,,False,False
-1629731,Dean Wade,CLE,DAY-TO-DAY,True,True
+1629731,Dean Wade,CLE,OUT,True,False
 1629750,Javonte Green,DET,,True,True
 1630162,Anthony Edwards,MIN,DAY-TO-DAY,False,False
 1630163,LaMelo Ball,CHA,DAY-TO-DAY,False,False
@@ -361,11 +361,11 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630811,Keaton Wallace,ATL,DAY-TO-DAY,False,False
 1631093,Jaden Ivey,CHI,OUT,False,False
 1631094,Paolo Banchero,ORL,,False,False
-1631095,Jabari Smith Jr.,HOU,DAY-TO-DAY,False,False
+1631095,Jabari Smith Jr.,HOU,OUT,False,False
 1631096,Chet Holmgren,OKC,DAY-TO-DAY,True,True
 1631097,Bennedict Mathurin,LAC,DAY-TO-DAY,False,False
 1631098,Johnny Davis,,,False,False
-1631099,Keegan Murray,SAC,DAY-TO-DAY,False,False
+1631099,Keegan Murray,SAC,OUT,False,False
 1631101,Shaedon Sharpe,POR,OUT,False,False
 1631102,TyTy Washington Jr.,LAC,,False,False
 1631103,Malaki Branham,WAS,DAY-TO-DAY,False,False
@@ -393,7 +393,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631133,Jabari Walker,PHI,,False,False
 1631157,Ryan Rollins,MIL,,True,True
 1631159,Leonard Miller,CHI,DAY-TO-DAY,False,False
-1631165,Keon Ellis,CLE,DAY-TO-DAY,True,True
+1631165,Keon Ellis,CLE,OUT,True,False
 1631166,Drew Timme,LAL,DAY-TO-DAY,False,False
 1631169,Josh Minott,BOS,DAY-TO-DAY,True,True
 1631170,Jaime Jaquez Jr.,MIA,DAY-TO-DAY,False,False

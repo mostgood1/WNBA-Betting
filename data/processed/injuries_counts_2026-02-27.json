@@ -2,7 +2,7 @@
   "date": "2026-02-27",
   "team_counts": {
     "BOS": 1,
-    "CLE": 4,
+    "CLE": 7,
     "DAL": 6,
     "DEN": 3,
     "MEM": 6,
@@ -11,6 +11,11 @@
     "OKC": 4
   },
   "players": [
+    {
+      "player": "James Harden",
+      "team": "CLE",
+      "status": "OUT"
+    },
     {
       "player": "Kyrie Irving",
       "team": "DAL",
@@ -102,6 +107,11 @@
       "status": "OUT"
     },
     {
+      "player": "Dean Wade",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
       "player": "Cole Anthony",
       "team": "MIL",
       "status": "OUT"
@@ -124,6 +134,11 @@
     {
       "player": "Jalen Williams",
       "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Keon Ellis",
+      "team": "CLE",
       "status": "OUT"
     },
     {
@@ -153,6 +168,11 @@
     }
   ],
   "team_key_outs": {
+    "CLE": [
+      "Donovan Mitchell",
+      "James Harden",
+      "Evan Mobley"
+    ],
     "DAL": [
       "Marvin Bagley III",
       "Daniel Gafford",
@@ -176,11 +196,6 @@
     "BOS": [
       "Jayson Tatum"
     ],
-    "CLE": [
-      "Donovan Mitchell",
-      "Max Strus",
-      "Darius Garland"
-    ],
     "OKC": [
       "Shai Gilgeous-Alexander",
       "Jalen Williams",
@@ -191,11 +206,11 @@
     ]
   },
   "team_impact": {
-    "DAL": 52.858333333333334,
-    "MEM": 67.0,
+    "CLE": 99.70097402597402,
+    "DAL": 52.599999999999994,
+    "MEM": 64.625,
     "MIL": 11.966666666666669,
     "DEN": 37.63142857142857,
-    "CLE": 44.25714285714286,
-    "OKC": 103.0
+    "OKC": 99.69999999999999
   }
 }
