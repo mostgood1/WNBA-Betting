@@ -136,6 +136,50 @@ def main() -> int:
         return 2
     print("OK: /api/live_lens_signal")
 
+    # 2b) Game market signal logging (ATS) - validates that ATS context fields persist.
+    ats_payload = {
+        "date": ds,
+        "schema_version": 2,
+        "healthcheck": True,
+        "market": "ats",
+        "klass": "WATCH",
+        "horizon": "game",
+        "game_id": "0026000001",
+        "home": "BOS",
+        "away": "NYK",
+        "elapsed": 24,
+        "remaining": 24,
+        "total_points": 120,
+        # Use picked-side spread, consistent with the client logger.
+        "live_line": -3.5,
+        # Use a stable side key (team tricode), consistent with the client logger.
+        "side": "BOS",
+        "edge": 1.2,
+        "edge_raw": 1.2,
+        "edge_adj": 1.2,
+        "strength": 1.2,
+        # Mirrors the ATS context shape derived in web/cards.js.
+        "context": {
+            "thr_watch": 1.5,
+            "thr_bet": 3.0,
+            "spr_home": -3.5,
+            "spr_home_raw": -3.5,
+            "pregame_margin_mean": 0.5,
+            "cur_margin_home": 2.0,
+            "elapsed_min": 24.0,
+            "blend_w": 0.5,
+            "adj_margin_home": 1.25,
+            "edge_home": 1.25 + (-3.5),
+            "edge_away": -1.25 - (-3.5),
+            "pick_home": 1,
+        },
+    }
+    st, body = _try_post_json(f"{base}/api/live_lens_signal", ats_payload, timeout=timeout)
+    if st != 200:
+        print("FAIL: /api/live_lens_signal (ats)", st, body[:200])
+        return 2
+    print("OK: /api/live_lens_signal (ats)")
+
     # 3) Projection logging
     proj_payload = {
         "date": ds,

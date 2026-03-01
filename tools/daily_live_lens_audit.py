@@ -503,6 +503,16 @@ def _derive_tags(
 ) -> list[str]:
     tags: list[str] = []
 
+    def _nf(x: Any) -> float | None:
+        try:
+            if x is None:
+                return None
+            if isinstance(x, float) and math.isnan(x):
+                return None
+            return float(x)
+        except Exception:
+            return None
+
     def _add(t: str | None):
         if not t:
             return
@@ -523,6 +533,273 @@ def _derive_tags(
         _add(f"klass:{klass}")
     if market == "player_prop" and stat_key:
         _add(f"stat:{stat_key}")
+
+    # Player-prop driver tags (low-cardinality, decision-shaping context).
+    # Source of truth for these drivers is the client-side adjustPlayerPropSignal() policy.
+    try:
+        if market == "player_prop":
+            ctx = obj.get("context")
+
+            # Top-level fields (present in live_lens_signal payload for props)
+            mp = _nf(obj.get("mp"))
+            pf = _nf(obj.get("pf"))
+
+            inj = None
+            rot_on = None
+            rot_off_sec = None
+            sim_vs_line = None
+            proj_min_final = None
+            exp_min_eff = None
+            adj_risk = None
+            adj_support = None
+
+            if isinstance(ctx, dict):
+                inj = ctx.get("injury_flag")
+                rot_on = ctx.get("rot_on_court")
+                rot_off_sec = _nf(ctx.get("rot_cur_off_sec"))
+                sim_vs_line = _nf(ctx.get("sim_vs_line"))
+                proj_min_final = _nf(ctx.get("proj_min_final"))
+                exp_min_eff = _nf(ctx.get("exp_min_eff"))
+                adj_risk = _nf(ctx.get("adj_risk"))
+                adj_support = _nf(ctx.get("adj_support"))
+
+            # Injury / rotation availability
+            if inj is not None:
+                _add("injury:on" if bool(inj) else "injury:off")
+            if rot_on is not None:
+                _add("rot:on_court" if bool(rot_on) else "rot:off_court")
+            if rot_off_sec is not None:
+                if rot_off_sec >= 720:
+                    _add("rot_off:12m+")
+                elif rot_off_sec >= 480:
+                    _add("rot_off:8-12m")
+                elif rot_off_sec >= 240:
+                    _add("rot_off:4-8m")
+                else:
+                    _add("rot_off:<4m")
+
+            # Foul trouble
+            if pf is not None:
+                if pf >= 5:
+                    _add("pf:5+")
+                elif pf >= 4:
+                    _add("pf:4")
+                elif pf >= 2:
+                    _add("pf:2-3")
+                else:
+                    _add("pf:0-1")
+
+            # Minutes remaining (proj - mp)
+            proj = proj_min_final if proj_min_final is not None else exp_min_eff
+            rem = (proj - mp) if (proj is not None and mp is not None) else None
+            if proj is not None:
+                if proj < 16:
+                    _add("proj_min:<16")
+                elif proj < 24:
+                    _add("proj_min:16-24")
+                elif proj < 32:
+                    _add("proj_min:24-32")
+                else:
+                    _add("proj_min:32+")
+            if rem is not None:
+                if rem < 1.5:
+                    _add("rem_min:<1.5")
+                elif rem < 3.5:
+                    _add("rem_min:1.5-3.5")
+                else:
+                    _add("rem_min:3.5+")
+            if mp is not None and mp < 3.0:
+                _add("mp:<3")
+
+            # SmartSim agreement / disagreement (coarse)
+            edge = _nf(obj.get("edge"))
+            if edge is None:
+                edge = _nf(obj.get("pace_vs_line"))
+            if edge is not None and sim_vs_line is not None and edge != 0 and sim_vs_line != 0:
+                if (edge * sim_vs_line) < 0 and abs(edge) >= 2.0 and abs(sim_vs_line) >= 2.0:
+                    _add("sim:disagree")
+                elif (edge * sim_vs_line) > 0 and abs(edge) >= 2.0 and abs(sim_vs_line) >= 2.0:
+                    _add("sim:agree")
+
+            # Adjusted risk/support (from client-side adjustment)
+            if adj_risk is not None:
+                if adj_risk >= 4.0:
+                    _add("risk:4+")
+                elif adj_risk >= 2.0:
+                    _add("risk:2-4")
+                else:
+                    _add("risk:<2")
+            if adj_support is not None:
+                if adj_support >= 0.8:
+                    _add("support:high")
+                elif adj_support <= -0.8:
+                    _add("support:low")
+                else:
+                    _add("support:mid")
+    except Exception:
+        pass
+
+    # Totals driver tags
+    try:
+        if market in {"total", "half_total", "quarter_total"}:
+            ctx = obj.get("context")
+            _add("ctx:present" if isinstance(ctx, dict) else "ctx:missing")
+            lam = _nf(ctx.get("edge_shrink_lambda")) if isinstance(ctx, dict) else None
+            if lam is not None:
+                if lam < 0.25:
+                    _add("shrink:0-0.25")
+                elif lam < 0.5:
+                    _add("shrink:0.25-0.5")
+                elif lam < 0.75:
+                    _add("shrink:0.5-0.75")
+                else:
+                    _add("shrink:0.75+")
+
+            # Scope/time buckets (low-cardinality; helps optimize when signals work).
+            scope_min = 48.0 if market == "total" else (24.0 if market == "half_total" else 12.0)
+            rem = _nf(obj.get("remaining"))
+            if rem is not None and scope_min > 0:
+                frac = max(0.0, min(1.0, float(rem) / float(scope_min)))
+                if frac > 0.66:
+                    _add("time:early")
+                elif frac > 0.33:
+                    _add("time:mid")
+                else:
+                    _add("time:late")
+
+            # Margin buckets (game state).
+            margin = _nf(obj.get("margin_home"))
+            if margin is not None:
+                am = abs(float(margin))
+                if am <= 4.0:
+                    _add("mgn:close")
+                elif am <= 10.0:
+                    _add("mgn:mid")
+                else:
+                    _add("mgn:blowout")
+
+            # Quarter scope availability (q1/q3 have UI scope columns; q2/q4 may be missing).
+            if market == "quarter_total" and isinstance(ctx, dict):
+                sp = ctx.get("scope_present")
+                if sp is not None:
+                    _add("scope:present" if int(sp) == 1 else "scope:missing")
+
+            # Pace / possessions / PPP condition tags (only when context carries these).
+            if isinstance(ctx, dict):
+                pace_ratio = _nf(ctx.get("pace_ratio"))
+                if pace_ratio is not None:
+                    if pace_ratio < 0.96:
+                        _add("pace:slow")
+                    elif pace_ratio > 1.04:
+                        _add("pace:fast")
+                    else:
+                        _add("pace:normal")
+
+                poss_live = _nf(ctx.get("poss_live"))
+                poss_exp = _nf(ctx.get("poss_expected_so_far"))
+                if poss_exp is None:
+                    poss_exp = _nf(ctx.get("poss_expected"))
+                if poss_live is not None and poss_exp is not None and float(poss_exp) > 1e-9:
+                    pr = float(poss_live) / float(poss_exp)
+                    if pr < 0.9:
+                        _add("poss:low")
+                    elif pr > 1.1:
+                        _add("poss:high")
+                    else:
+                        _add("poss:normal")
+
+                ppp_delta = _nf(ctx.get("eff_ppp_delta"))
+                if ppp_delta is None:
+                    exp_ppp = _nf(ctx.get("exp_ppp"))
+                    act_ppp = _nf(ctx.get("act_ppp"))
+                    if exp_ppp is not None and act_ppp is not None:
+                        ppp_delta = float(act_ppp) - float(exp_ppp)
+                if ppp_delta is not None:
+                    if ppp_delta > 0.03:
+                        _add("ppp:hot")
+                    elif ppp_delta < -0.03:
+                        _add("ppp:cold")
+                    else:
+                        _add("ppp:normal")
+
+                # Adjustment magnitude buckets (when adjustments are on).
+                sa = ctx.get("scope_adjustments")
+                src = sa if isinstance(sa, dict) else ctx
+
+                id_adj = _nf(src.get("interval_drift_adj"))
+                if id_adj is not None and interval_drift_on is not None and int(interval_drift_on) == 1:
+                    mag = abs(float(id_adj))
+                    if mag < 0.5:
+                        _add("interval_drift_mag:small")
+                    elif mag < 1.5:
+                        _add("interval_drift_mag:med")
+                    else:
+                        _add("interval_drift_mag:large")
+
+                rw_w = _nf(src.get("recent_window_w"))
+                if rw_w is not None and recent_window_on is not None and int(recent_window_on) == 1:
+                    ww = abs(float(rw_w))
+                    if ww < 0.25:
+                        _add("recent_window_w:small")
+                    elif ww < 0.6:
+                        _add("recent_window_w:med")
+                    else:
+                        _add("recent_window_w:large")
+
+                foul_adj = _nf(src.get("endgame_foul_adj"))
+                if foul_adj is not None and endgame_foul_on is not None and int(endgame_foul_on) == 1:
+                    mag = abs(float(foul_adj))
+                    if mag < 0.5:
+                        _add("endgame_foul_mag:small")
+                    elif mag < 1.5:
+                        _add("endgame_foul_mag:med")
+                    else:
+                        _add("endgame_foul_mag:large")
+    except Exception:
+        pass
+
+    # ATS driver tags
+    try:
+        if market == "ats":
+            ctx = obj.get("context")
+            _add("ctx:present" if isinstance(ctx, dict) else "ctx:missing")
+
+            margin = _nf(obj.get("margin_home"))
+            if margin is not None:
+                am = abs(float(margin))
+                if am <= 4.0:
+                    _add("mgn:close")
+                elif am <= 10.0:
+                    _add("mgn:mid")
+                else:
+                    _add("mgn:blowout")
+
+            if isinstance(ctx, dict):
+                pick_home = ctx.get("pick_home")
+                if pick_home is not None:
+                    _add("ats_side:home" if int(pick_home) == 1 else "ats_side:away")
+
+                spr = _nf(ctx.get("spr_home"))
+                if spr is not None:
+                    s = abs(float(spr))
+                    if s < 3.0:
+                        _add("spr:<3")
+                    elif s < 7.0:
+                        _add("spr:3-7")
+                    else:
+                        _add("spr:7+")
+
+                elapsed = _nf(ctx.get("elapsed_min"))
+                if elapsed is not None:
+                    frac = max(0.0, min(1.0, float(elapsed) / 48.0))
+                    if frac < 0.34:
+                        _add("time:early")
+                    elif frac < 0.67:
+                        _add("time:mid")
+                    else:
+                        _add("time:late")
+    except Exception:
+        pass
 
     # Adjustment toggles for totals signals.
     if interval_drift_on is not None:
@@ -662,6 +939,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
                     "act": act,
                     "result": result,
                     "err": err,
+                    "has_context": (1 if isinstance(obj.get("context"), dict) else 0),
                     "tags": _derive_tags(
                         obj=obj,
                         market=market,
@@ -761,6 +1039,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
                     "act": act,
                     "result": result,
                     "err": None,
+                    "has_context": (1 if isinstance(obj.get("context"), dict) else 0),
                     "tags": _derive_tags(
                         obj=obj,
                         market=market,
@@ -871,6 +1150,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
                     "act": act,
                     "result": result,
                     "err": err,
+                    "has_context": (1 if isinstance(obj.get("context"), dict) else 0),
                     "tags": _derive_tags(
                         obj=obj,
                         market=market,
@@ -945,7 +1225,15 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
         f"- recon files loaded: games={int(df.get('has_recon_games', pd.Series([0])).max() if not df.empty else 0)} quarters={int(df.get('has_recon_quarters', pd.Series([0])).max() if not df.empty else 0)} props={int(df.get('has_recon_props', pd.Series([0])).max() if not df.empty else 0)}"
     )
     for k in sorted(counts.keys()):
-        lines.append(f"- {k}: {int(counts[k])}")
+        n0 = int(counts[k])
+        if "has_context" in df.columns:
+            try:
+                n_ctx = int(pd.to_numeric(df[df["market"] == k].get("has_context"), errors="coerce").fillna(0).sum())
+            except Exception:
+                n_ctx = 0
+            lines.append(f"- {k}: {n0}  ctx={n_ctx}/{n0}")
+        else:
+            lines.append(f"- {k}: {n0}")
     if "missing_reason" in df.columns:
         miss = df[df["missing_reason"].astype(str).str.len() > 0]
         if not miss.empty:
@@ -1210,6 +1498,46 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
             lines.append(f"- key=(game,player,stat,side) first BET (else first): {_fmt_hits(_hit_rate(b_first_bet))}")
             lines.append(f"- key=(game,player,stat,side) max |strength|: {_fmt_hits(_hit_rate(b_max))}")
             lines.append("")
+
+            # Driver-tag breakdown on a decision-level view (avoids tick spam).
+            try:
+                if "tags" in b_first_bet.columns and b_first_bet["tags"].notna().any():
+                    tdf = b_first_bet.copy()
+                    tdf = tdf[tdf["result"].notna()].copy()
+                    if not tdf.empty:
+                        tdf["_tag"] = tdf["tags"].apply(lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else [str(v)]))
+                        tdf = tdf.explode("_tag")
+                        tdf = tdf[tdf["_tag"].notna()].copy()
+                        tdf["_tag"] = tdf["_tag"].astype(str).str.strip()
+                        tdf = tdf[tdf["_tag"].str.len() > 0].copy()
+
+                        rows = []
+                        for tag, g in tdf.groupby("_tag", dropna=False):
+                            h = _hit_rate(g)
+                            denom = int(h.get("wins", 0) + h.get("losses", 0))
+                            if denom < 10:
+                                continue
+                            rows.append(
+                                {
+                                    "tag": str(tag),
+                                    "wins": int(h.get("wins", 0)),
+                                    "losses": int(h.get("losses", 0)),
+                                    "pushes": int(h.get("pushes", 0)),
+                                    "denom": denom,
+                                    "hit": float(h.get("hit_rate", float("nan"))),
+                                }
+                            )
+
+                        if rows:
+                            tstats = pd.DataFrame(rows).sort_values(["denom", "hit"], ascending=[False, False]).head(18)
+                            lines.append("### Driver tags (decision-level; denom>=10)")
+                            for _, r in tstats.iterrows():
+                                lines.append(
+                                    f"- {r['tag']}: W={int(r['wins'])} L={int(r['losses'])} P={int(r['pushes'])} hit={float(r['hit']):.3f} (denom={int(r['denom'])})"
+                                )
+                            lines.append("")
+            except Exception:
+                pass
         except Exception:
             pass
 

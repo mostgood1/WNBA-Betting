@@ -977,6 +977,44 @@ function attachLiveLensHandlers(root, games) {
           const wrap = t.closest ? t.closest('.live-lens') : null;
           if (!wrap) return;
           wrap.dataset.playerOnlyLines = t.checked ? '1' : '0';
+          applyPlayerLensFiltersForWrap(wrap);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  // Player lens filter pills (e.g., LIVE LINE)
+  try {
+    if (root && root.dataset && root.dataset.playerLensPillsBound !== '1') {
+      root.dataset.playerLensPillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const btn = ev && ev.target && ev.target.closest
+            ? ev.target.closest('button.lens-player-filter-btn[data-kind][data-key]')
+            : null;
+          if (!btn) return;
+
+          const wrap = btn.closest ? btn.closest('.live-lens') : null;
+          if (!wrap) return;
+          const gid = canonGameId(wrap.dataset.gameId);
+          if (!gid) return;
+
+          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+          const key = String(btn.dataset.key || '').toLowerCase().trim();
+          if (!kind || !key) return;
+
+          const st = getPlayerLensFilterForGid(gid);
+          if (kind === 'line' && key === 'live') {
+            st.liveLineOnly = !st.liveLineOnly;
+          } else {
+            return;
+          }
+
+          applyPlayerLensFiltersForWrap(wrap);
         } catch (_) {
           // ignore
         }
@@ -2444,7 +2482,7 @@ let __liveLensTuningAt = 0;
 
 // UI filters (client-side only)
 const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
-const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string> }
+  const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string>, liveLineOnly:boolean }
 const __playerLensGlobalFilters = { stats: new Set(), signals: new Set() }; // empty => all
 
 function chipSetActive(el, active) {
@@ -2498,10 +2536,10 @@ function applyGamePillsFilter(root) {
 
 function getPlayerLensFilterForGid(gid) {
   const k = canonGameId(gid);
-  if (!k) return { stats: new Set(), signals: new Set() };
+  if (!k) return { stats: new Set(), signals: new Set(), liveLineOnly: false };
   const cur = __playerLensFilters.get(k);
   if (cur && cur.stats && cur.signals) return cur;
-  const fresh = { stats: new Set(), signals: new Set() };
+  const fresh = { stats: new Set(), signals: new Set(), liveLineOnly: false };
   __playerLensFilters.set(k, fresh);
   return fresh;
 }
@@ -2583,6 +2621,8 @@ function applyPlayerLensFiltersForWrap(wrap) {
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
+    const lineOnly = !!(st && st.liveLineOnly);
+
     const statBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="stat"]');
     statBtns.forEach((b) => {
       const key = String(b.dataset.key || '').toLowerCase().trim();
@@ -2595,6 +2635,24 @@ function applyPlayerLensFiltersForWrap(wrap) {
       chipSetActive(b, sigAny ? sigSel.has(key) : false);
     });
 
+    const lineBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="line"]');
+    lineBtns.forEach((b) => {
+      chipSetActive(b, lineOnly);
+    });
+
+    let onlyLines = true;
+    try {
+      const ds = (wrap.dataset && wrap.dataset.playerOnlyLines != null) ? String(wrap.dataset.playerOnlyLines).trim() : '';
+      if (ds === '0') onlyLines = false;
+      else if (ds === '1') onlyLines = true;
+      else {
+        const cb = wrap.querySelector('input.lens-player-only-lines');
+        if (cb) onlyLines = !!cb.checked;
+      }
+    } catch (_) {
+      onlyLines = true;
+    }
+
     const body = wrap.querySelector('.lens-player-body');
     if (!body) return;
     const rows = body.querySelectorAll('table.player-lens-table tbody tr');
@@ -2603,7 +2661,13 @@ function applyPlayerLensFiltersForWrap(wrap) {
       const sig = String(tr.dataset.sig || '').toUpperCase().trim();
       const okStat = statsAny ? statsSel.has(stat) : true;
       const okSig = sigAny ? sigSel.has(sig) : true;
-      tr.classList.toggle('hidden', !(okStat && okSig));
+
+      const hasLine = String(tr.dataset.hasLine || '').trim() === '1';
+      const hasLiveLine = String(tr.dataset.liveLine || '').trim() === '1';
+      const okOnlyLines = onlyLines ? hasLine : true;
+      const okLiveLine = lineOnly ? hasLiveLine : true;
+
+      tr.classList.toggle('hidden', !(okStat && okSig && okOnlyLines && okLiveLine));
     });
   } catch (_) {
     // ignore
@@ -2629,7 +2693,6 @@ function parseClockToSecondsLeft(clock) {
   if (typeof clock === 'number' && Number.isFinite(clock)) return Math.max(0, Math.round(clock));
   const s = String(clock || '').trim();
   if (!s) return null;
-  // ISO-ish: PT11M45.00S
   const m = s.match(/^PT(?:(\d+)M)?(?:(\d+)(?:\.\d+)?)S$/);
   if (m) {
     const mm = Number(m[1] || 0);
@@ -2808,7 +2871,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const hasLine = (line != null);
       const sigKey = (klass === 'BET' || klass === 'WATCH') ? klass : 'NONE';
       return `
-        <tr data-has-line="${hasLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}">
+        <tr data-has-line="${hasLine ? '1' : '0'}" data-live-line="${hasLiveLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}">
           <td><span class="badge">${esc(teamTri)}</span> ${esc(player)}</td>
           <td>${esc(mk)}</td>
           <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
@@ -2830,6 +2893,11 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
 
     return `
       <div class="subtle">${esc(note)}</div>
+
+      <div class="row chips" style="margin-top:6px;">
+        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="line" data-key="live" title="OddsAPI live line exists">Live line exists</button>
+      </div>
+
       <div class="table-wrap" style="margin-top:6px;">
         <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
           <thead>
@@ -3624,6 +3692,9 @@ function startLiveLensPolling(root, games, dateStr) {
           }
 
           body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
+
+          // Re-apply client-side filters (pills + only-lines) after re-render.
+          applyPlayerLensFiltersForWrap(el);
 
           try {
             if (prev && typeof requestAnimationFrame === 'function') {
@@ -4566,6 +4637,9 @@ function startLiveLensPolling(root, games, dateStr) {
       let atsClass = 'NONE';
       let atsText = 'ATS: —';
       let atsEdge = null;
+      let atsPickHome = null;
+      let atsSideKey = null;
+      let atsLinePicked = null;
       if (effHomeSpr != null && meta.margin_mean != null && live && live.score) {
         const curMargin = n(live.score.home_margin);
         const minLeft = n(live.time ? live.time.game_min_left : null);
@@ -4576,8 +4650,11 @@ function startLiveLensPolling(root, games, dateStr) {
         const homeEdge = adjMargin + effHomeSpr;
         const awayEdge = -adjMargin - effHomeSpr;
         const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+        atsPickHome = pickHome;
         atsEdge = pickHome ? homeEdge : awayEdge;
         const side = pickHome ? meta.home : meta.away;
+        atsSideKey = side;
+        atsLinePicked = pickHome ? effHomeSpr : (-effHomeSpr);
         atsClass = classifyDiff(Math.abs(atsEdge), thr.ats.watch, thr.ats.bet);
         if (atsClass === 'BET') atsText = `ATS: BET ${side} (${fmt(atsEdge, 1)})`;
         else if (atsClass === 'WATCH') atsText = `ATS: WATCH ${side} (${fmt(atsEdge, 1)})`;
@@ -4949,6 +5026,8 @@ function startLiveLensPolling(root, games, dateStr) {
         pred: totalPred,
         strength: (totalDiff != null) ? Math.abs(totalDiff) : null,
         context: (totalCtx && typeof totalCtx === 'object') ? {
+          thr_watch: (thr && thr.total) ? thr.total.watch : null,
+          thr_bet: (thr && thr.total) ? thr.total.bet : null,
           pace_ratio: totalCtx.pace_ratio,
           eff_ppp_delta: totalCtx.eff_ppp_delta,
           poss_live: totalCtx.poss_live,
@@ -5021,6 +5100,8 @@ function startLiveLensPolling(root, games, dateStr) {
             const halfCol = el.querySelector('.lens-col[data-scope="half"]');
             if (!halfCol || !halfCol.dataset) return null;
             return {
+              thr_watch: (thr && thr.half_total) ? thr.half_total.watch : null,
+              thr_bet: (thr && thr.half_total) ? thr.half_total.bet : null,
               edge_shrink_lambda: halfShrink ? halfShrink.lambda : null,
               edge_shrink_lambda_poss: halfShrink ? halfShrink.lambda_poss : null,
               edge_shrink_lambda_time: halfShrink ? halfShrink.lambda_time : null,
@@ -5077,10 +5158,18 @@ function startLiveLensPolling(root, games, dateStr) {
             pred: qPred,
             strength: (qDiff != null) ? Math.abs(qDiff) : null,
             context: (() => {
+              const base = {
+                scope_present: 0,
+                q_num: qNum,
+                thr_watch: (thr && thr.quarter_total) ? thr.quarter_total.watch : null,
+                thr_bet: (thr && thr.quarter_total) ? thr.quarter_total.bet : null,
+              };
               try {
                 const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
-                if (!qCol || !qCol.dataset) return null;
+                if (!qCol || !qCol.dataset) return base;
                 return {
+                  ...base,
+                  scope_present: 1,
                   edge_shrink_lambda: qShrink ? qShrink.lambda : null,
                   edge_shrink_lambda_poss: qShrink ? qShrink.lambda_poss : null,
                   edge_shrink_lambda_time: qShrink ? qShrink.lambda_time : null,
@@ -5108,7 +5197,7 @@ function startLiveLensPolling(root, games, dateStr) {
                   endgame_foul_abs_margin: n(qCol.dataset.endgameFoulAbsMargin),
                 };
               } catch (_) {
-                return null;
+                return base;
               }
             })(),
           });
@@ -5126,10 +5215,45 @@ function startLiveLensPolling(root, games, dateStr) {
         elapsed: (curMinLeft != null) ? (48 - curMinLeft) : null,
         remaining: curMinLeft,
         total_points: totalPts,
-        live_line: shouldRound ? roundHalf(homeSpr) : homeSpr,
-        side: (atsClass === 'BET' || atsClass === 'WATCH') ? atsText.replace(/^ATS:\s*(BET|WATCH)\s*/i, '').replace(/\s*\([^)]*\)\s*$/, '') : null,
+        live_line: shouldRound
+          ? roundHalf((atsLinePicked != null) ? atsLinePicked : homeSpr)
+          : ((atsLinePicked != null) ? atsLinePicked : homeSpr),
+        side: (atsClass === 'BET' || atsClass === 'WATCH') ? atsSideKey : null,
         edge: atsEdge,
+        edge_raw: atsEdge,
+        edge_adj: atsEdge,
         strength: (atsEdge != null) ? Math.abs(atsEdge) : null,
+        context: (() => {
+          try {
+            const curMargin = n(live && live.score ? live.score.home_margin : null);
+            const minLeft = n(live && live.time ? live.time.game_min_left : null);
+            const elapsed = (minLeft != null) ? (48 - minLeft) : (lens ? lens.elapsedMinutes : 0);
+            const w = Math.max(0, Math.min(1, (elapsed || 0) / 48.0));
+            const adjMargin = (1 - w) * meta.margin_mean + w * (curMargin ?? 0);
+            const homeEdge = adjMargin + effHomeSpr;
+            const awayEdge = -adjMargin - effHomeSpr;
+            const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+            return {
+              thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
+              thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
+              spr_home: effHomeSpr,
+              spr_home_raw: homeSpr,
+              pregame_margin_mean: meta.margin_mean,
+              cur_margin_home: curMargin,
+              elapsed_min: elapsed,
+              blend_w: w,
+              adj_margin_home: adjMargin,
+              edge_home: homeEdge,
+              edge_away: awayEdge,
+              pick_home: pickHome ? 1 : 0,
+            };
+          } catch (_) {
+            return {
+              thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
+              thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
+            };
+          }
+        })(),
       });
     }));
 
