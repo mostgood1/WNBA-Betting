@@ -2481,8 +2481,8 @@ let __liveLensTuningAt = 0;
 
 // UI filters (client-side only)
 const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
-  const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string>, liveLineOnly:boolean }
-const __playerLensGlobalFilters = { stats: new Set(), signals: new Set() }; // empty => all
+const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string>, liveLineOnly:boolean }
+const __playerLensGlobalFilters = { stats: new Set(), signals: new Set(), liveLineOnly: false }; // empty => all
 
 function chipSetActive(el, active) {
   try {
@@ -2548,6 +2548,7 @@ function applyPlayerLensGlobalPills(root) {
     if (!root) return;
     const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
     const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const liveLineOnly = !!(__playerLensGlobalFilters && __playerLensGlobalFilters.liveLineOnly);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
@@ -2561,6 +2562,11 @@ function applyPlayerLensGlobalPills(root) {
       const key = String(b.dataset.key || '').toUpperCase().trim();
       chipSetActive(b, sigAny ? sigSel.has(key) : false);
     });
+
+    const lineBtns = root.querySelectorAll('button.player-prop-pill[data-kind="line"][data-key]');
+    lineBtns.forEach((b) => {
+      chipSetActive(b, liveLineOnly);
+    });
   } catch (_) {
     // ignore
   }
@@ -2570,6 +2576,7 @@ function applyPlayerPropCalloutsFilter(root) {
     if (!root) return;
     const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
     const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const liveLineOnly = !!(__playerLensGlobalFilters && __playerLensGlobalFilters.liveLineOnly);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
@@ -2583,10 +2590,13 @@ function applyPlayerPropCalloutsFilter(root) {
       const okStat = statsAny ? statsSel.has(stat) : true;
       const okSig = sigAny ? sigSel.has(sig) : true;
 
+      const hasLiveLine = String(btn.dataset.liveLine || '').trim() === '1';
+      const okLiveLine = liveLineOnly ? hasLiveLine : true;
+
       const gid = canonGameId(btn.dataset.gameId);
       const okGame = anyGame ? activeSet.has(gid) : true;
 
-      btn.classList.toggle('hidden', !(okGame && okStat && okSig));
+      btn.classList.toggle('hidden', !(okGame && okStat && okSig && okLiveLine));
     });
   } catch (_) {
     // ignore
@@ -2598,6 +2608,12 @@ function applyPlayerLensFiltersAll(root) {
     if (!root) return;
     applyPlayerLensGlobalPills(root);
     applyPlayerPropCalloutsFilter(root);
+
+    // Also re-apply global filters to each per-game player lens table.
+    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
+    wraps.forEach((w) => {
+      try { applyPlayerLensFiltersForWrap(w); } catch (_) { /* ignore */ }
+    });
   } catch (_) {
     // ignore
   }
@@ -2611,6 +2627,7 @@ function applyPlayerLensFiltersForWrap(wrap) {
     const g = __playerLensGlobalFilters || { stats: new Set(), signals: new Set() };
     const gStatsSel = g.stats || new Set();
     const gSigSel = g.signals || new Set();
+    const gLiveLineOnly = !!g.liveLineOnly;
     const gStatsAny = !!(gStatsSel && gStatsSel.size);
     const gSigAny = !!(gSigSel && gSigSel.size);
 
@@ -2620,7 +2637,7 @@ function applyPlayerLensFiltersForWrap(wrap) {
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
 
-    const lineOnly = !!(st && st.liveLineOnly);
+    const lineOnly = !!(gLiveLineOnly || (st && st.liveLineOnly));
 
     const statBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="stat"]');
     statBtns.forEach((b) => {
@@ -2891,10 +2908,6 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
     return `
       <div class="subtle">${esc(note)}</div>
 
-      <div class="row chips" style="margin-top:6px;">
-        <button type="button" class="chip neutral lens-player-filter-btn" data-kind="line" data-key="live" title="OddsAPI live line exists">Live line exists</button>
-      </div>
-
       <div class="table-wrap" style="margin-top:6px;">
         <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
           <thead>
@@ -2990,6 +3003,7 @@ function renderLivePropCallouts(callouts) {
           data-game-id="${esc(String(x.gid))}"
           data-stat="${esc(String(x.stat || '').toLowerCase().trim())}"
           data-sig="${esc(String(klass || '').toUpperCase().trim())}"
+          data-live-line="${x && x.is_live_line ? '1' : '0'}"
           style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
@@ -5824,6 +5838,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
+          <span class="chip title" style="margin-left:6px;">Line</span>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="line" data-key="live" aria-pressed="false" title="OddsAPI live line exists">Live line exists</button>
           <span class="chip title" style="margin-left:6px;">Signal</span>
           <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
@@ -5875,6 +5891,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           if (allBtn) {
             try { __playerLensGlobalFilters.stats.clear(); } catch (_) { /* ignore */ }
             try { __playerLensGlobalFilters.signals.clear(); } catch (_) { /* ignore */ }
+            try { __playerLensGlobalFilters.liveLineOnly = false; } catch (_) { /* ignore */ }
             applyPlayerLensFiltersAll(root);
             return;
           }
@@ -5895,6 +5912,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
             const key = rawKey.toUpperCase();
             if (__playerLensGlobalFilters.signals.has(key)) __playerLensGlobalFilters.signals.delete(key);
             else __playerLensGlobalFilters.signals.add(key);
+          } else if (kind === 'line' && rawKey.toLowerCase() === 'live') {
+            __playerLensGlobalFilters.liveLineOnly = !__playerLensGlobalFilters.liveLineOnly;
           } else {
             return;
           }
