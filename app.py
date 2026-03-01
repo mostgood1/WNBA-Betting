@@ -22745,13 +22745,14 @@ def _live_lens_admin_token() -> str:
 def _check_live_lens_admin_token() -> tuple[bool, dict[str, Any] | None, int]:
     tok = _live_lens_admin_token()
     if not tok:
-        # Disabled by default unless a token is configured.
-        return False, {"status": "skipped", "reason": "LIVE_LENS_ADMIN_TOKEN not configured"}, 200
+        # Disabled unless a token is configured. Fail loudly so scheduled jobs / scripts
+        # don't silently believe an upload succeeded.
+        return False, {"ok": False, "status": "disabled", "reason": "LIVE_LENS_ADMIN_TOKEN not configured"}, 501
     provided = (request.headers.get("X-Admin-Token") or request.headers.get("Authorization") or "").strip()
     if provided.startswith("Bearer "):
         provided = provided[len("Bearer ") :].strip()
     if not provided or provided != tok:
-        return False, {"status": "forbidden"}, 403
+        return False, {"ok": False, "status": "forbidden"}, 403
     return True, None, 200
 
 
