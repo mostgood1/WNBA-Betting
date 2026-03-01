@@ -246,7 +246,6 @@ function fmtTime(iso) {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true,
-      timeZoneName: 'short',
     }).format(d);
   } catch (_) {
     return String(iso);
@@ -2793,10 +2792,6 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
         return rows0;
       }
     })();
-    if (!rows.length) {
-      return '<div class="subtle">No live player rows yet.</div>';
-    }
-
     const tbl = rows.map((r) => {
       const teamTri = String(r && r.team_tri != null ? r.team_tri : '').toUpperCase().trim();
       const player = String(r && r.player != null ? r.player : '').trim();
@@ -2889,7 +2884,9 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
 
     const note = isFinal
       ? 'Final (actuals only).'
-      : 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).';
+      : (rows.length
+        ? 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).'
+        : 'No live player rows yet.');
 
     return `
       <div class="subtle">${esc(note)}</div>
