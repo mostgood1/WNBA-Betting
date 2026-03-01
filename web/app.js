@@ -83,22 +83,27 @@ function setDebugLine(msg){
 }
 
 function formatEtTimesInCards(){
+  // Back-compat name: formats ISO timestamps into the user's local timezone.
   try{
     const nodes = Array.from(document.querySelectorAll('.card .js-local-time'));
     if (!nodes.length) return;
     const fmt = new Intl.DateTimeFormat('en-US', {
-      timeZone: 'America/New_York',
       year: 'numeric',
       month: '2-digit',
       day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
-      hour12: true
+      hour12: true,
+      timeZoneName: 'short'
     });
+    const isDateOnly = (s)=> /^\d{4}-\d{2}-\d{2}$/.test(String(s||'').trim());
     nodes.forEach((node)=>{
-      const iso = node.textContent;
-      const d = new Date(iso);
-      if (!isNaN(d)) node.textContent = fmt.format(d) + ' ET';
+      const raw = String(node.textContent || '').trim();
+      if (!raw) return;
+      // Avoid UTC date-shift bugs for date-only strings like "2026-03-01".
+      if (isDateOnly(raw)) return;
+      const d = new Date(raw);
+      if (!isNaN(d)) node.textContent = fmt.format(d);
     });
   }catch(_){ /* ignore */ }
 }
@@ -1000,25 +1005,37 @@ function getQueryParam(name){
   }catch(_){ return null; }
 }
 
-// Format helpers in US/Eastern timezone (NBA slate standard)
+// Format helpers in the user's local timezone.
 function fmtLocalTime(iso){
   try{
-    const d = new Date(iso);
+    const s = String(iso || '').trim();
+    if (!s) return '';
+    // If we only have a date, don't let Date("YYYY-MM-DD") shift days via UTC.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
+    const d = new Date(s);
     if (isNaN(d)) return '';
-    return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour:'2-digit', minute:'2-digit', hour12:true }).format(d) + ' ET';
+    return new Intl.DateTimeFormat('en-US', {
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+      timeZoneName: 'short'
+    }).format(d);
   }catch(_){ return ''; }
 }
 
 function fmtLocalDate(iso){
   try{
-    const d = new Date(iso);
+    const s = String(iso || '').trim();
+    if (!s) return '';
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const d = new Date(s);
     if (isNaN(d)) return '';
-    // en-CA yields YYYY-MM-DD reliably; force ET day
-    return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year:'numeric', month:'2-digit', day:'2-digit' }).format(d);
+    // en-CA yields YYYY-MM-DD reliably.
+    return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'2-digit', day:'2-digit' }).format(d);
   }catch(_){ return ''; }
 }
 
-// Return local calendar date as YYYY-MM-DD (user timezone), avoiding UTC-based day rollover
+// Return the NBA "slate date" as YYYY-MM-DD (US/Eastern) to match backend artifacts.
 function localYMD(d){
   try{
     const tz = 'America/New_York';
@@ -2015,7 +2032,7 @@ function renderDateLegacy(dateStr){
   }
   for (const g of list){
   const time = g.datetime_est || g.datetime_utc || g.date_est || g.date_utc;
-  // Compute local date/time strings, preferring OddsAPI commence_time in ET
+  // Compute local date/time strings, preferring OddsAPI commence_time (UTC ISO)
   const oddsForGame = state.oddsByKey.get(`${dateStr}|${g.home_tricode}|${g.away_tricode}`);
   const dtIso = (oddsForGame && oddsForGame.commence_time) ? oddsForGame.commence_time : (g.datetime_utc || g.datetime_est || null);
   const localTime = dtIso ? fmtLocalTime(dtIso) : (typeof time === 'string' ? (time.includes('T') ? time.split('T')[1].slice(0,5) : '') : fmtLocalTime(time));

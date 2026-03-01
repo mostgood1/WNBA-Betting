@@ -238,9 +238,16 @@ function fmtAmer(x) {
 function fmtTime(iso) {
   if (!iso) return '';
   try {
-    const d = new Date(iso);
+    const s = String(iso).trim();
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+    const d = new Date(s);
     if (Number.isNaN(d.getTime())) return String(iso);
-    return d.toLocaleString(undefined, { hour: 'numeric', minute: '2-digit' });
+    return new Intl.DateTimeFormat(undefined, {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true,
+      timeZoneName: 'short',
+    }).format(d);
   } catch (_) {
     return String(iso);
   }
