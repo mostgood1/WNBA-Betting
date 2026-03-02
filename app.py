@@ -520,6 +520,13 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     # Example: set LIVE_PLAYER_PROPS_REGIONS="us,us2".
     regions = str(os.environ.get("LIVE_PLAYER_PROPS_REGIONS", "us") or "us").strip() or "us"
 
+    want_all_markets = str(os.environ.get("LIVE_PLAYER_PROPS_ALL_MARKETS", "1")).strip().lower() in {"1", "true", "yes"}
+    try:
+        markets_batch = int(float(str(os.environ.get("LIVE_PLAYER_PROPS_MARKETS_BATCH", "20")).strip()))
+        markets_batch = int(max(1, min(100, markets_batch)))
+    except Exception:
+        markets_batch = 20
+
     # Map lens stats -> OddsAPI market keys.
     # Note: some feeds expose player props primarily under *_alternate keys.
     stat_to_markets: dict[str, list[str]] = {
@@ -616,7 +623,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         return out
 
     # 2) Discover market keys (some books/plans won't expose player markets).
-    mk_cache_key = f"{str(event_id)}:" + ",".join(desired_markets)
+    mk_cache_key = (f"{str(event_id)}:ALL:{regions}" if want_all_markets else (f"{str(event_id)}:" + ",".join(desired_markets)))
     req_markets: list[str] = []
     mk_ent = _live_oddsapi_player_props_markets_cache.get(mk_cache_key)
     if mk_ent and (now - mk_ent[0] < float(markets_cache_ttl)):
@@ -654,7 +661,11 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         except Exception:
             keys = set()
 
-        req_markets = [m for m in desired_markets if m in keys] if keys else desired_markets
+        if want_all_markets and keys:
+            # "All" player props markets visible for the event.
+            req_markets = sorted({k for k in keys if str(k).startswith("player_")})
+        else:
+            req_markets = [m for m in desired_markets if m in keys] if keys else desired_markets
         try:
             _live_oddsapi_player_props_markets_cache[mk_cache_key] = (now, list(req_markets))
         except Exception:
@@ -672,90 +683,123 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         return out
 
     # 3) Fetch odds for those markets and aggregate player lines.
-    try:
-        r = requests.get(
-            f"{base}/v4/sports/{sport}/events/{event_id}/odds",
-            params={
-                "apiKey": api_key,
-                "regions": regions,
-                "markets": ",".join(req_markets),
-                "oddsFormat": "american",
-            },
-            headers=headers,
-            timeout=timeout_s,
-        )
-        obj = r.json() if r.ok else None
-    except Exception:
-        obj = None
+    def _chunks(xs: list[str], n: int) -> list[list[str]]:
+        outc: list[list[str]] = []
+        if n <= 0:
+            return [list(xs)]
+        cur: list[str] = []
+        for x in xs:
+            cur.append(x)
+            if len(cur) >= n:
+                outc.append(cur)
+                cur = []
+        if cur:
+            outc.append(cur)
+        return outc
 
     # Collect points + prices across books; reduce with median.
+    # Core (lens) keys: (name_key, stat_key)
     pts_by_key: dict[tuple[str, str], list[float]] = {}
     prices_by_key: dict[tuple[str, str, str], list[float]] = {}
     last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
-    if isinstance(obj, dict):
+
+    # All-markets keys: (name_key, market_key)
+    pts_by_mk: dict[tuple[str, str], list[float]] = {}
+    prices_by_mk: dict[tuple[str, str, str], list[float]] = {}
+    last_update_by_mk: dict[tuple[str, str], list[datetime]] = {}
+
+    for batch in _chunks(list(req_markets), int(markets_batch)):
+        if not batch:
+            continue
+        try:
+            r = requests.get(
+                f"{base}/v4/sports/{sport}/events/{event_id}/odds",
+                params={
+                    "apiKey": api_key,
+                    "regions": regions,
+                    "markets": ",".join(batch),
+                    "oddsFormat": "american",
+                },
+                headers=headers,
+                timeout=timeout_s,
+            )
+            obj = r.json() if r.ok else None
+        except Exception:
+            obj = None
+
+        if not isinstance(obj, dict):
+            continue
+
         bks = obj.get("bookmakers") or []
-        if isinstance(bks, list):
-            for bk in bks:
-                if not isinstance(bk, dict):
-                    continue
-                bk_lu = _parse_iso_utc_naive(bk.get("last_update"))
-                markets = bk.get("markets") or []
-                if not isinstance(markets, list):
-                    continue
-                for m in markets:
-                    if not isinstance(m, dict):
-                        continue
-                    mkey = str(m.get("key") or "")
-                    stat = market_to_stat.get(mkey)
-                    if not stat:
-                        continue
-                    m_lu = _parse_iso_utc_naive(m.get("last_update"))
-                    lu = m_lu if m_lu is not None else bk_lu
-                    outs = m.get("outcomes") or []
-                    if not isinstance(outs, list):
-                        continue
-                    for oc in outs:
-                        if not isinstance(oc, dict):
-                            continue
-                        player_name = oc.get("description") or oc.get("participant")
-                        if not player_name:
-                            # Some payloads omit description; keep best-effort.
-                            player_name = oc.get("description") or oc.get("participant")
-                        if not player_name:
-                            continue
-                        nk = _norm_player_name(str(player_name))
-                        if not nk:
-                            continue
+        if not isinstance(bks, list):
+            continue
 
-                        # Outcome side: typically "Over" / "Under".
-                        side_raw = str(oc.get("name") or oc.get("side") or "").strip().upper()
-                        side = None
-                        if side_raw in {"OVER", "O"}:
-                            side = "OVER"
-                        elif side_raw in {"UNDER", "U"}:
-                            side = "UNDER"
+        for bk in bks:
+            if not isinstance(bk, dict):
+                continue
+            bk_lu = _parse_iso_utc_naive(bk.get("last_update"))
+            markets = bk.get("markets") or []
+            if not isinstance(markets, list):
+                continue
+            for m in markets:
+                if not isinstance(m, dict):
+                    continue
+                mkey = str(m.get("key") or "").strip()
+                if not mkey:
+                    continue
 
-                        pt = oc.get("point")
-                        try:
-                            v = float(pt)
-                            if not np.isfinite(v):
-                                continue
-                        except Exception:
+                stat = market_to_stat.get(mkey)
+                m_lu = _parse_iso_utc_naive(m.get("last_update"))
+                lu = m_lu if m_lu is not None else bk_lu
+                outs = m.get("outcomes") or []
+                if not isinstance(outs, list):
+                    continue
+                for oc in outs:
+                    if not isinstance(oc, dict):
+                        continue
+                    player_name = oc.get("description") or oc.get("participant")
+                    if not player_name:
+                        continue
+                    nk = _norm_player_name(str(player_name))
+                    if not nk:
+                        continue
+
+                    # Outcome side: typically "Over" / "Under".
+                    side_raw = str(oc.get("name") or oc.get("side") or "").strip().upper()
+                    side = None
+                    if side_raw in {"OVER", "O"}:
+                        side = "OVER"
+                    elif side_raw in {"UNDER", "U"}:
+                        side = "UNDER"
+
+                    pt = oc.get("point")
+                    try:
+                        v = float(pt)
+                        if not np.isfinite(v):
                             continue
+                    except Exception:
+                        continue
+
+                    pts_by_mk.setdefault((nk, mkey), []).append(float(v))
+                    if lu is not None:
+                        last_update_by_mk.setdefault((nk, mkey), []).append(lu)
+
+                    if stat:
                         pts_by_key.setdefault((nk, stat), []).append(float(v))
-
                         if lu is not None:
                             last_update_by_key.setdefault((nk, stat), []).append(lu)
 
-                        # Capture price when available.
-                        if side is not None:
-                            pr = oc.get("price")
-                            try:
-                                pv = float(pr)
-                                if np.isfinite(pv) and abs(pv) <= 20000:
+                    # Capture price when available.
+                    if side is not None:
+                        pr = oc.get("price")
+                        try:
+                            pv = float(pr)
+                            if np.isfinite(pv) and abs(pv) <= 20000:
+                                prices_by_mk.setdefault((nk, mkey, side), []).append(float(pv))
+                                if stat:
                                     prices_by_key.setdefault((nk, stat, side), []).append(float(pv))
-                            except Exception:
-                                pass
+                        except Exception:
+                            pass
 
     lines: dict[str, float] = {}
     try:
@@ -808,10 +852,58 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "prices": prices,
         "points_span_by_key": points_span_by_key,
         "points_n_by_key": points_n_by_key,
+        "all_lines": {},
+        "all_prices": {},
+        "all_points_span_by_key": {},
+        "all_points_n_by_key": {},
         "last_update_max": None,
         "last_update_by_key": {},
+        "all_last_update_by_key": {},
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # All-markets reductions.
+    try:
+        all_lines: dict[str, float] = {}
+        for (nk, mkey), pts in pts_by_mk.items():
+            if not pts:
+                continue
+            all_lines[f"{nk}|{mkey}"] = float(np.median(np.asarray(pts, dtype=float)))
+        out["all_lines"] = all_lines
+    except Exception:
+        out["all_lines"] = {}
+
+    try:
+        all_prices: dict[str, dict[str, float]] = {}
+        for (nk, mkey, side), prs in prices_by_mk.items():
+            if not prs:
+                continue
+            med = float(np.median(np.asarray(prs, dtype=float)))
+            k = f"{nk}|{mkey}"
+            rec = all_prices.setdefault(k, {})
+            if side == "OVER":
+                rec["over"] = med
+            elif side == "UNDER":
+                rec["under"] = med
+        out["all_prices"] = all_prices
+    except Exception:
+        out["all_prices"] = {}
+
+    try:
+        span_map: dict[str, float] = {}
+        n_map: dict[str, int] = {}
+        for (nk, mkey), pts in pts_by_mk.items():
+            if not pts:
+                continue
+            k = f"{nk}|{mkey}"
+            n_map[k] = int(len(pts))
+            uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
+            span_map[k] = float(max(uniq) - min(uniq)) if len(uniq) >= 2 else 0.0
+        out["all_points_span_by_key"] = span_map
+        out["all_points_n_by_key"] = n_map
+    except Exception:
+        out["all_points_span_by_key"] = {}
+        out["all_points_n_by_key"] = {}
 
     # Reduce last_update timestamps (max = freshest).
     try:
@@ -828,6 +920,18 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             out["last_update_max"] = _dt_to_z(max(dt_all))
     except Exception:
         pass
+
+    # Reduce last_update timestamps for all markets.
+    try:
+        lu_all: dict[str, str] = {}
+        for (nk, mkey), dts in last_update_by_mk.items():
+            if not dts:
+                continue
+            dt_max = max(dts)
+            lu_all[f"{nk}|{mkey}"] = _dt_to_z(dt_max)
+        out["all_last_update_by_key"] = lu_all
+    except Exception:
+        out["all_last_update_by_key"] = {}
 
     _live_oddsapi_player_props_cache[matchup_key] = (now, out)
     return out
@@ -21228,6 +21332,11 @@ def api_live_player_lens():
       { ok, ttl, date, games:[{event_id, game_id, home, away, status:{...}, rows:[...]}], generated_at }
     """
     ttl = _parse_ttl_param(request, default=20, lo=1, hi=300)
+    include_all_prop_lines = str(
+        request.args.get("include_all_prop_lines")
+        if ("include_all_prop_lines" in request.args)
+        else os.environ.get("LIVE_PLAYER_LENS_INCLUDE_ALL_PROP_LINES", "1")
+    ).strip().lower() in {"1", "true", "yes"}
     try:
         recent_window_sec = int(float((request.args.get("recent_window_sec") or "180").strip()))
     except Exception:
@@ -21460,6 +21569,11 @@ def api_live_player_lens():
         live_prop_lines: dict[str, Any] = {}
         live_prop_prices: dict[str, Any] = {}
         live_prop_meta: dict[str, Any] = {}
+        live_prop_all_lines: dict[str, Any] = {}
+        live_prop_all_prices: dict[str, Any] = {}
+        live_prop_all_last_update_by_key: dict[str, Any] = {}
+        live_prop_all_points_span_by_key: dict[str, Any] = {}
+        live_prop_all_points_n_by_key: dict[str, Any] = {}
         live_prop_last_update_by_key: dict[str, Any] = {}
         live_prop_last_update_max: str | None = None
         live_prop_points_span_by_key: dict[str, Any] = {}
@@ -21470,6 +21584,12 @@ def api_live_player_lens():
                 if isinstance(live_prop_meta, dict):
                     live_prop_lines = live_prop_meta.get("lines") if isinstance(live_prop_meta.get("lines"), dict) else {}
                     live_prop_prices = live_prop_meta.get("prices") if isinstance(live_prop_meta.get("prices"), dict) else {}
+                    if include_all_prop_lines:
+                        live_prop_all_lines = live_prop_meta.get("all_lines") if isinstance(live_prop_meta.get("all_lines"), dict) else {}
+                        live_prop_all_prices = live_prop_meta.get("all_prices") if isinstance(live_prop_meta.get("all_prices"), dict) else {}
+                        live_prop_all_last_update_by_key = live_prop_meta.get("all_last_update_by_key") if isinstance(live_prop_meta.get("all_last_update_by_key"), dict) else {}
+                        live_prop_all_points_span_by_key = live_prop_meta.get("all_points_span_by_key") if isinstance(live_prop_meta.get("all_points_span_by_key"), dict) else {}
+                        live_prop_all_points_n_by_key = live_prop_meta.get("all_points_n_by_key") if isinstance(live_prop_meta.get("all_points_n_by_key"), dict) else {}
                     live_prop_last_update_by_key = live_prop_meta.get("last_update_by_key") if isinstance(live_prop_meta.get("last_update_by_key"), dict) else {}
                     live_prop_points_span_by_key = live_prop_meta.get("points_span_by_key") if isinstance(live_prop_meta.get("points_span_by_key"), dict) else {}
                     live_prop_points_n_by_key = live_prop_meta.get("points_n_by_key") if isinstance(live_prop_meta.get("points_n_by_key"), dict) else {}
@@ -21481,6 +21601,11 @@ def api_live_player_lens():
             live_prop_lines = {}
             live_prop_prices = {}
             live_prop_meta = {}
+            live_prop_all_lines = {}
+            live_prop_all_prices = {}
+            live_prop_all_last_update_by_key = {}
+            live_prop_all_points_span_by_key = {}
+            live_prop_all_points_n_by_key = {}
             live_prop_last_update_by_key = {}
             live_prop_last_update_max = None
             live_prop_points_span_by_key = {}
@@ -22547,10 +22672,18 @@ def api_live_player_lens():
                 "markets_requested": (live_prop_meta.get("markets_requested") if isinstance(live_prop_meta, dict) else None),
                 "last_update_max": (live_prop_meta.get("last_update_max") if isinstance(live_prop_meta, dict) else None),
                 "lines_count": (len(live_prop_lines) if isinstance(live_prop_lines, dict) else 0),
+                "all_lines_count": (len(live_prop_all_lines) if isinstance(live_prop_all_lines, dict) else 0),
                 "rows_count": len(rows),
                 "line_source_counts": source_counts,
                 "line_live_filtered_counts": filtered_counts,
             } if live_prop_meta else None,
+            "live_prop_lines_all": {
+                "lines": live_prop_all_lines,
+                "prices": live_prop_all_prices,
+                "last_update_by_key": live_prop_all_last_update_by_key,
+                "points_span_by_key": live_prop_all_points_span_by_key,
+                "points_n_by_key": live_prop_all_points_n_by_key,
+            } if (include_all_prop_lines and live_prop_meta and isinstance(live_prop_all_lines, dict) and live_prop_all_lines) else None,
             "rows": rows,
         })
 
