@@ -197,7 +197,7 @@ def _settle_over_under(actual: float, line: float, side: str) -> tuple[str, bool
     return ("WIN", True) if actual < line else ("LOSS", False)
 
 
-def _iter_prop_rows(ds: str, assumed_juice: float) -> list[dict[str, Any]]:
+def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) -> list[dict[str, Any]]:
     sigs = _load_jsonl(LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl")
     if not sigs:
         return []
@@ -209,6 +209,15 @@ def _iter_prop_rows(ds: str, assumed_juice: float) -> list[dict[str, Any]]:
     for obj in sigs:
         if str(obj.get("market") or "").strip().lower() != "player_prop":
             continue
+
+        # Default: exclude model fallback lines (not market-bettable).
+        if not include_model_lines:
+            try:
+                ls = str(obj.get("line_source") or "").strip().lower()
+            except Exception:
+                ls = ""
+            if ls == "model":
+                continue
 
         strength = _n(obj.get("strength"))
         if strength is None:
@@ -337,6 +346,11 @@ def main() -> int:
     ap.add_argument("--assumed-juice", type=float, default=110.0)
     ap.add_argument("--min-bets", type=int, default=40)
     ap.add_argument(
+        "--include-model-lines",
+        action="store_true",
+        help="Include signals where line_source=model (default: excluded)",
+    )
+    ap.add_argument(
         "--out",
         default="",
         help="Output CSV path (default: <NBA_LIVE_LENS_DIR>/live_lens_player_prop_thresholds_<start>_<end>.csv; defaults to data/processed)",
@@ -354,7 +368,7 @@ def main() -> int:
     frames: list[pd.DataFrame] = []
     for d in _daterange(start, end):
         ds = d.isoformat()
-        rows = _iter_prop_rows(ds, assumed_juice=float(args.assumed_juice))
+        rows = _iter_prop_rows(ds, assumed_juice=float(args.assumed_juice), include_model_lines=bool(args.include_model_lines))
         if rows:
             frames.append(pd.DataFrame(rows))
 

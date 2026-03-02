@@ -843,7 +843,7 @@ def _flag_adjustments(ctx: Any) -> tuple[int | None, int | None, int | None]:
     return (interval_on, recent_on, foul_on)
 
 
-def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
+def _score_day(ds: str, *, dedup_policy: str = "none", include_model_lines: bool = False) -> pd.DataFrame:
     sigs = _load_signals(ds)
     if not sigs:
         return pd.DataFrame()
@@ -1062,6 +1062,14 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
             continue
 
         if market == "player_prop":
+            # Align with ROI/tuning policy: model-fallback lines are diagnostic-only.
+            # Exclude them from audit metrics by default (opt-in via CLI).
+            try:
+                if (not include_model_lines) and (str(obj.get("line_source") or "").strip().lower() == "model"):
+                    continue
+            except Exception:
+                pass
+
             gid = _resolve_gid_for_props(obj, gid_map)
             stat = str(obj.get("stat") or "").strip()
             stat_key = _live_stat_key(stat)
@@ -1069,6 +1077,11 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
             name_key_raw = str(obj.get("name_key") or "").strip() or None
             name_key = _norm_player_name(name_key_raw or player or "") or None
             side = str(obj.get("side") or "").strip().lower() or None
+
+            try:
+                line_source = str(obj.get("line_source") or "").strip().lower() or None
+            except Exception:
+                line_source = None
 
             line = _n(obj.get("line"))
             if line is None:
@@ -1142,6 +1155,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none") -> pd.DataFrame:
                     "stat_key": stat_key,
                     "side": side,
                     "klass": str(obj.get("klass") or "") or None,
+                    "line_source": line_source,
                     "elapsed": _n(obj.get("elapsed")),
                     "live_line": line,
                     "edge": edge,
@@ -1322,6 +1336,24 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
     n_props_act = int(props["act"].notna().sum()) if "act" in props.columns else 0
     n_props_pred = int(props["pred"].notna().sum()) if "pred" in props.columns else 0
     lines.append(f"- scored: {_fmt_hits(_hit_rate(props_scored))}  have_pred={n_props_pred}/{n_props}  have_act={n_props_act}/{n_props}")
+
+    # Diagnostics: where are prop lines coming from?
+    try:
+        if "line_source" in props.columns and not props.empty:
+            vc = (
+                props["line_source"]
+                .fillna("")
+                .astype(str)
+                .str.strip()
+                .replace({"": "(missing)"})
+                .value_counts()
+                .to_dict()
+            )
+            if vc:
+                parts = [f"{k}={int(v)}" for k, v in vc.items()]
+                lines.append(f"- line_source: {', '.join(parts)}")
+    except Exception:
+        pass
 
     if not props_scored.empty:
         by_klass = props_scored.groupby(props_scored["klass"].fillna(""))
@@ -1567,6 +1599,11 @@ def main() -> int:
         default=str(PROCESSED / "reports"),
         help="Output directory (default: data/processed/reports)",
     )
+    ap.add_argument(
+        "--include-model-lines",
+        action="store_true",
+        help="Include player_prop rows where line_source=model (default: excluded)",
+    )
     args = ap.parse_args()
 
     if args.date:
@@ -1577,7 +1614,7 @@ def main() -> int:
     out_dir = Path(args.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    df = _score_day(ds)
+    df = _score_day(ds, include_model_lines=bool(args.include_model_lines))
 
     scored_csv = out_dir / f"live_lens_scored_{ds}.csv"
     audit_md = out_dir / f"live_lens_audit_{ds}.md"

@@ -590,7 +590,13 @@ class Scored:
     strength: float | None
 
 
-def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy: str) -> tuple[list[Scored], dict[str, Any]]:
+def _score_rows(
+    ds: str,
+    assumed_juice: float,
+    include_watch: bool,
+    dedup_policy: str,
+    include_model_lines: bool,
+) -> tuple[list[Scored], dict[str, Any]]:
     sig_path = LIVE_LENS_DIR / f"live_lens_signals_{ds}.jsonl"
     sigs = _load_jsonl(sig_path)
     if not sigs:
@@ -606,6 +612,17 @@ def _score_rows(ds: str, assumed_juice: float, include_watch: bool, dedup_policy
         market = str(obj.get("market") or "").strip().lower()
         if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
             continue
+
+        # Player props: avoid evaluating model fallback lines as "bets".
+        # These are useful for UI diagnostics but are not market-settled bet ideas.
+        if market == "player_prop" and not include_model_lines:
+            try:
+                ls = str(obj.get("line_source") or "").strip().lower()
+            except Exception:
+                ls = ""
+            if ls == "model":
+                continue
+
         klass = str(obj.get("klass") or "").strip().upper() or None
         if not include_watch and klass != "BET":
             continue
@@ -886,6 +903,11 @@ def main() -> int:
         choices=["first_bet", "first", "latest", "max_strength", "none"],
         help="De-duplicate signals per bet-idea before settling (default: first_bet)",
     )
+    ap.add_argument(
+        "--include-model-lines",
+        action="store_true",
+        help="Include player_prop signals with line_source=model (default: excluded)",
+    )
     args = ap.parse_args()
 
     if args.date:
@@ -900,6 +922,7 @@ def main() -> int:
         assumed_juice=float(args.assumed_juice),
         include_watch=bool(args.include_watch),
         dedup_policy=str(args.dedup_policy),
+        include_model_lines=bool(args.include_model_lines),
     )
     if not scored:
         print(f"No scored rows for {ds} (missing logs or no settled markets)")
@@ -975,6 +998,7 @@ def main() -> int:
     md.append(f"# Live Lens ROI report ({ds})")
     md.append("")
     md.append(f"- include_watch: {bool(args.include_watch)}")
+    md.append(f"- include_model_lines: {bool(args.include_model_lines)}")
     md.append(f"- assumed_juice: -{abs(float(args.assumed_juice))}")
     md.append(f"- dedup_policy: {str(args.dedup_policy)}")
     try:

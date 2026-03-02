@@ -703,6 +703,13 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     prices_by_key: dict[tuple[str, str, str], list[float]] = {}
     last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
 
+    # Short-key fallback (LAST+FIRST_INITIAL) for OddsAPI abbreviated names.
+    # Only emitted when the short key maps to exactly one full name_key for the event.
+    short_pts_by_key: dict[tuple[str, str], list[float]] = {}
+    short_prices_by_key: dict[tuple[str, str, str], list[float]] = {}
+    short_last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
+    short_owners_by_key: dict[tuple[str, str], set[str]] = {}
+
     # All-markets keys: (name_key, market_key)
     pts_by_mk: dict[tuple[str, str], list[float]] = {}
     prices_by_mk: dict[tuple[str, str, str], list[float]] = {}
@@ -763,6 +770,12 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                     nk = _norm_player_name(str(player_name))
                     if not nk:
                         continue
+                    sk = None
+                    try:
+                        sk0 = _short_player_key(nk)
+                        sk = str(sk0 or "").strip().upper() or None
+                    except Exception:
+                        sk = None
 
                     # Outcome side: typically "Over" / "Under".
                     side_raw = str(oc.get("name") or oc.get("side") or "").strip().upper()
@@ -789,6 +802,13 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                         if lu is not None:
                             last_update_by_key.setdefault((nk, stat), []).append(lu)
 
+                        # Short-key aggregation for abbreviated player names.
+                        if sk is not None:
+                            short_owners_by_key.setdefault((sk, stat), set()).add(nk)
+                            short_pts_by_key.setdefault((sk, stat), []).append(float(v))
+                            if lu is not None:
+                                short_last_update_by_key.setdefault((sk, stat), []).append(lu)
+
                     # Capture price when available.
                     if side is not None:
                         pr = oc.get("price")
@@ -798,6 +818,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                                 prices_by_mk.setdefault((nk, mkey, side), []).append(float(pv))
                                 if stat:
                                     prices_by_key.setdefault((nk, stat, side), []).append(float(pv))
+                                    if sk is not None:
+                                        short_prices_by_key.setdefault((sk, stat, side), []).append(float(pv))
                         except Exception:
                             pass
 
@@ -843,6 +865,57 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     except Exception:
         prices = {}
 
+    # Reduce short-key maps (only when unambiguous).
+    short_lines: dict[str, float] = {}
+    short_points_span_by_key: dict[str, float] = {}
+    short_points_n_by_key: dict[str, int] = {}
+    short_prices: dict[str, dict[str, float]] = {}
+    short_last_update_by_key_out: dict[str, str] = {}
+    try:
+        # lines + dispersion
+        for (sk, stat), pts in short_pts_by_key.items():
+            owners = short_owners_by_key.get((sk, stat)) or set()
+            if len(owners) != 1:
+                continue
+            if not pts:
+                continue
+            k = f"{sk}|{stat}"
+            short_lines[k] = float(np.median(np.asarray(pts, dtype=float)))
+            short_points_n_by_key[k] = int(len(pts))
+            uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
+            short_points_span_by_key[k] = float(max(uniq) - min(uniq)) if len(uniq) >= 2 else 0.0
+
+        # prices
+        for (sk, stat, side), prs in short_prices_by_key.items():
+            owners = short_owners_by_key.get((sk, stat)) or set()
+            if len(owners) != 1:
+                continue
+            if not prs:
+                continue
+            med = float(np.median(np.asarray(prs, dtype=float)))
+            k = f"{sk}|{stat}"
+            rec = short_prices.setdefault(k, {})
+            if side == "OVER":
+                rec["over"] = med
+            elif side == "UNDER":
+                rec["under"] = med
+
+        # last_update
+        for (sk, stat), dts in short_last_update_by_key.items():
+            owners = short_owners_by_key.get((sk, stat)) or set()
+            if len(owners) != 1:
+                continue
+            if not dts:
+                continue
+            dt_max = max(dts)
+            short_last_update_by_key_out[f"{sk}|{stat}"] = _dt_to_z(dt_max)
+    except Exception:
+        short_lines = {}
+        short_points_span_by_key = {}
+        short_points_n_by_key = {}
+        short_prices = {}
+        short_last_update_by_key_out = {}
+
     out = {
         "source": "oddsapi_fast",
         "event_id": str(event_id),
@@ -850,14 +923,19 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "markets_requested": req_markets,
         "lines": lines,
         "prices": prices,
+        "short_lines": short_lines,
+        "short_prices": short_prices,
         "points_span_by_key": points_span_by_key,
         "points_n_by_key": points_n_by_key,
+        "short_points_span_by_key": short_points_span_by_key,
+        "short_points_n_by_key": short_points_n_by_key,
         "all_lines": {},
         "all_prices": {},
         "all_points_span_by_key": {},
         "all_points_n_by_key": {},
         "last_update_max": None,
         "last_update_by_key": {},
+        "short_last_update_by_key": short_last_update_by_key_out,
         "all_last_update_by_key": {},
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
@@ -21569,6 +21647,11 @@ def api_live_player_lens():
         live_prop_lines: dict[str, Any] = {}
         live_prop_prices: dict[str, Any] = {}
         live_prop_meta: dict[str, Any] = {}
+        live_prop_short_lines: dict[str, Any] = {}
+        live_prop_short_prices: dict[str, Any] = {}
+        live_prop_short_last_update_by_key: dict[str, Any] = {}
+        live_prop_short_points_span_by_key: dict[str, Any] = {}
+        live_prop_short_points_n_by_key: dict[str, Any] = {}
         live_prop_all_lines: dict[str, Any] = {}
         live_prop_all_prices: dict[str, Any] = {}
         live_prop_all_last_update_by_key: dict[str, Any] = {}
@@ -21584,6 +21667,17 @@ def api_live_player_lens():
                 if isinstance(live_prop_meta, dict):
                     live_prop_lines = live_prop_meta.get("lines") if isinstance(live_prop_meta.get("lines"), dict) else {}
                     live_prop_prices = live_prop_meta.get("prices") if isinstance(live_prop_meta.get("prices"), dict) else {}
+                    live_prop_short_lines = live_prop_meta.get("short_lines") if isinstance(live_prop_meta.get("short_lines"), dict) else {}
+                    live_prop_short_prices = live_prop_meta.get("short_prices") if isinstance(live_prop_meta.get("short_prices"), dict) else {}
+                    live_prop_short_last_update_by_key = (
+                        live_prop_meta.get("short_last_update_by_key") if isinstance(live_prop_meta.get("short_last_update_by_key"), dict) else {}
+                    )
+                    live_prop_short_points_span_by_key = (
+                        live_prop_meta.get("short_points_span_by_key") if isinstance(live_prop_meta.get("short_points_span_by_key"), dict) else {}
+                    )
+                    live_prop_short_points_n_by_key = (
+                        live_prop_meta.get("short_points_n_by_key") if isinstance(live_prop_meta.get("short_points_n_by_key"), dict) else {}
+                    )
                     if include_all_prop_lines:
                         live_prop_all_lines = live_prop_meta.get("all_lines") if isinstance(live_prop_meta.get("all_lines"), dict) else {}
                         live_prop_all_prices = live_prop_meta.get("all_prices") if isinstance(live_prop_meta.get("all_prices"), dict) else {}
@@ -21601,6 +21695,11 @@ def api_live_player_lens():
             live_prop_lines = {}
             live_prop_prices = {}
             live_prop_meta = {}
+            live_prop_short_lines = {}
+            live_prop_short_prices = {}
+            live_prop_short_last_update_by_key = {}
+            live_prop_short_points_span_by_key = {}
+            live_prop_short_points_n_by_key = {}
             live_prop_all_lines = {}
             live_prop_all_prices = {}
             live_prop_all_last_update_by_key = {}
@@ -22011,6 +22110,7 @@ def api_live_player_lens():
                         if line_pregame is None and rec_lines_idx:
                             line_pregame = rec_lines_idx.get((team, nk, stat_key))
                         line_live = None
+                        line_live_key = None
                         line_live_as_of = None
                         line_live_age_sec = None
                         line_live_span = None
@@ -22018,25 +22118,49 @@ def api_live_player_lens():
                         line_live_filtered = False
                         line_live_filter_reason = None
                         try:
+                            k_full = f"{nk}|{stat_key}"
+                            k_short = f"{_short_player_key(nk)}|{stat_key}"
                             if live_prop_lines:
-                                line_live = _safe_float(live_prop_lines.get(f"{nk}|{stat_key}"))
+                                v0 = live_prop_lines.get(k_full)
+                                vv = _safe_float(v0)
+                                if vv is not None:
+                                    line_live = vv
+                                    line_live_key = k_full
+                            if (line_live is None) and live_prop_short_lines:
+                                v1 = live_prop_short_lines.get(k_short)
+                                vv = _safe_float(v1)
+                                if vv is not None:
+                                    line_live = vv
+                                    line_live_key = k_short
                         except Exception:
                             line_live = None
+                            line_live_key = None
 
                         # Market dispersion / sample size (OddsAPI aggregation).
                         try:
-                            if line_live is not None and live_prop_points_span_by_key:
-                                line_live_span = _safe_float(live_prop_points_span_by_key.get(f"{nk}|{stat_key}"))
-                            if line_live is not None and live_prop_points_n_by_key:
-                                line_live_n = _safe_int(live_prop_points_n_by_key.get(f"{nk}|{stat_key}"))
+                            if line_live is not None and line_live_key:
+                                if (line_live_key in live_prop_points_span_by_key) or (line_live_key in live_prop_points_n_by_key):
+                                    if live_prop_points_span_by_key:
+                                        line_live_span = _safe_float(live_prop_points_span_by_key.get(line_live_key))
+                                    if live_prop_points_n_by_key:
+                                        line_live_n = _safe_int(live_prop_points_n_by_key.get(line_live_key))
+                                else:
+                                    if live_prop_short_points_span_by_key:
+                                        line_live_span = _safe_float(live_prop_short_points_span_by_key.get(line_live_key))
+                                    if live_prop_short_points_n_by_key:
+                                        line_live_n = _safe_int(live_prop_short_points_n_by_key.get(line_live_key))
                         except Exception:
                             line_live_span = None
                             line_live_n = None
 
                         # Pull market freshness (OddsAPI last_update) when available.
                         try:
-                            if live_prop_last_update_by_key:
-                                lu_s = live_prop_last_update_by_key.get(f"{nk}|{stat_key}")
+                            if line_live_key:
+                                lu_s = None
+                                if live_prop_last_update_by_key and (line_live_key in live_prop_last_update_by_key):
+                                    lu_s = live_prop_last_update_by_key.get(line_live_key)
+                                elif live_prop_short_last_update_by_key and (line_live_key in live_prop_short_last_update_by_key):
+                                    lu_s = live_prop_short_last_update_by_key.get(line_live_key)
                                 if lu_s:
                                     line_live_as_of = str(lu_s)
                                     dt = datetime.fromisoformat(str(lu_s).replace("Z", "+00:00"))
@@ -22125,6 +22249,11 @@ def api_live_player_lens():
                         try:
                             if live_prop_prices:
                                 pr_obj = live_prop_prices.get(f"{nk}|{stat_key}")
+                                if isinstance(pr_obj, dict):
+                                    price_over = _safe_float(pr_obj.get("over"))
+                                    price_under = _safe_float(pr_obj.get("under"))
+                            if (price_over is None and price_under is None) and live_prop_short_prices:
+                                pr_obj = live_prop_short_prices.get(f"{_short_player_key(nk)}|{stat_key}")
                                 if isinstance(pr_obj, dict):
                                     price_over = _safe_float(pr_obj.get("over"))
                                     price_under = _safe_float(pr_obj.get("under"))
@@ -22445,6 +22574,12 @@ def api_live_player_lens():
                                     klass = "NONE"
                             except Exception:
                                 klass = "NONE"
+
+                        # Hard constraint: never emit BET/WATCH without a real market line.
+                        # (The bettability gate can be toggled, but a model fallback line is
+                        # not a bettable market, and including it inflates ROI/backtests.)
+                        if line_source in {None, "model"}:
+                            klass = "NONE"
 
                         # Bettability signals (server-side): enrich rows and optionally gate klass.
                         bettable_score = None
