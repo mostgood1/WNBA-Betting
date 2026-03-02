@@ -4301,6 +4301,28 @@ function startLiveLensPolling(root, games, dateStr) {
         totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft);
         totalDiff = (totalCtx && totalCtx.diff_adj != null) ? n(totalCtx.diff_adj) : totalDiffRaw;
 
+        // Optional bias correction (server-tunable): compensates systematic under/over in the
+        // SmartSim-based projection vs market totals. Ramp in with elapsed time.
+        try {
+          const adjCfg = _liveLensGameTotalAdjCfg();
+          const b = n(adjCfg && adjCfg.bias_points);
+          const cap = n(adjCfg && adjCfg.bias_cap_points);
+          if (b != null && totalDiff != null && Math.abs(b) > 1e-9) {
+            const elapsedMin = 48.0 - curMinLeft;
+            const frac = Math.max(0, Math.min(1, elapsedMin / 48.0));
+            let bEff = b * frac;
+            if (cap != null && cap > 0) bEff = Math.max(-cap, Math.min(cap, bEff));
+            totalDiff = totalDiff + bEff;
+            if (totalCtx && typeof totalCtx === 'object') {
+              totalCtx.bias_points = b;
+              totalCtx.bias_eff = bEff;
+              totalCtx.bias_frac = frac;
+            }
+          }
+        } catch (_) {
+          // ignore
+        }
+
         // Possessions/time-based confidence shrinkage (reduces early-game overconfidence).
         try {
           const totalDiffUnshrunk = totalDiff;
@@ -5044,6 +5066,9 @@ function startLiveLensPolling(root, games, dateStr) {
           poss_live: totalCtx.poss_live,
           poss_expected: totalCtx.poss_expected,
           elapsed_min: totalCtx.elapsed_min,
+          bias_points: totalCtx.bias_points,
+          bias_eff: totalCtx.bias_eff,
+          bias_frac: totalCtx.bias_frac,
           edge_adj_unshrunk: totalCtx.edge_adj_unshrunk,
           edge_shrink_lambda: totalCtx.edge_shrink_lambda,
           edge_shrink_lambda_poss: totalCtx.edge_shrink_lambda_poss,

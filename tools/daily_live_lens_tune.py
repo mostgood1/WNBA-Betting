@@ -24,7 +24,7 @@ def _iso(d: date) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(
         description=(
-            "Daily Live Lens tuner: runs optimize_live_lens_adjustments.py over a rolling window and optionally writes the override."
+            "Daily Live Lens tuner: runs totals + player-prop optimizers over rolling windows and optionally writes live_lens_tuning_override.json."
         )
     )
     ap.add_argument(
@@ -39,18 +39,30 @@ def main() -> int:
         default=7,
         help="Rolling window size (default: 7)",
     )
+    ap.add_argument(
+        "--props-lookback-days",
+        type=int,
+        default=14,
+        help="Rolling window size for player-prop tuning (default: 14)",
+    )
     ap.add_argument("--bet-threshold", type=float, default=6.0)
     ap.add_argument("--juice", type=float, default=110.0)
     ap.add_argument("--min-bets", type=int, default=25)
+    ap.add_argument("--props-min-bets", type=int, default=40)
     ap.add_argument(
         "--write-override",
         action="store_true",
-        help="Write data/processed/live_lens_tuning_override.json with best adjustments.game_total",
+        help="Merge best settings into live_lens_tuning_override.json",
     )
     ap.add_argument(
         "--dry-run",
         action="store_true",
         help="Run optimizer but do not write override",
+    )
+    ap.add_argument(
+        "--props-require-logged-bets",
+        action="store_true",
+        help="Tune prop bettability gating using only rows logged as klass=BET",
     )
 
     args = ap.parse_args()
@@ -64,7 +76,12 @@ def main() -> int:
     if lookback <= 0:
         raise SystemExit("--lookback-days must be >= 1")
 
+    props_lookback = int(args.props_lookback_days)
+    if props_lookback <= 0:
+        raise SystemExit("--props-lookback-days must be >= 1")
+
     start = end - timedelta(days=lookback - 1)
+    props_start = end - timedelta(days=props_lookback - 1)
 
     optimizer = ROOT / "tools" / "optimize_live_lens_adjustments.py"
     if not optimizer.exists():
@@ -93,11 +110,68 @@ def main() -> int:
         cmd.append("--write-override")
 
     print(
-        f"Live Lens daily tune: window={_iso(start)}..{_iso(end)} lookback_days={lookback} write_override={bool(args.write_override and not args.dry_run)}"
+        f"Live Lens daily tune: totals={_iso(start)}..{_iso(end)} props={_iso(props_start)}..{_iso(end)} write_override={bool(args.write_override and not args.dry_run)}"
     )
 
+    write_override = bool(args.write_override and not args.dry_run)
+
+    rc = 0
     proc = subprocess.run(cmd, cwd=str(ROOT), capture_output=False)
-    return int(proc.returncode)
+    rc = max(rc, int(proc.returncode))
+
+    # Player-prop watch/bet thresholds
+    try:
+        pp_thr = ROOT / "tools" / "optimize_live_lens_player_prop_thresholds.py"
+        if pp_thr.exists():
+            cmd2 = [
+                sys.executable,
+                str(pp_thr),
+                "--start",
+                _iso(props_start),
+                "--end",
+                _iso(end),
+                "--min-bets",
+                str(int(args.props_min_bets)),
+                "--assumed-juice",
+                str(float(args.juice)),
+            ]
+            if write_override:
+                cmd2.append("--write-override")
+            proc2 = subprocess.run(cmd2, cwd=str(ROOT), capture_output=False)
+            rc = max(rc, int(proc2.returncode))
+        else:
+            print(f"WARN: missing player-prop threshold optimizer: {pp_thr}")
+    except Exception as e:
+        print(f"WARN: player-prop threshold tune failed: {e}")
+
+    # Player-prop bettability gating threshold
+    try:
+        pp_bett = ROOT / "tools" / "optimize_live_lens_player_prop_bettability.py"
+        if pp_bett.exists():
+            cmd3 = [
+                sys.executable,
+                str(pp_bett),
+                "--start",
+                _iso(props_start),
+                "--end",
+                _iso(end),
+                "--min-bets",
+                str(int(args.props_min_bets)),
+                "--assumed-juice",
+                str(float(args.juice)),
+            ]
+            if bool(args.props_require_logged_bets):
+                cmd3.append("--require-logged-bets")
+            if write_override:
+                cmd3.append("--write-override")
+            proc3 = subprocess.run(cmd3, cwd=str(ROOT), capture_output=False)
+            rc = max(rc, int(proc3.returncode))
+        else:
+            print(f"WARN: missing player-prop bettability optimizer: {pp_bett}")
+    except Exception as e:
+        print(f"WARN: player-prop bettability tune failed: {e}")
+
+    return int(rc)
 
 
 if __name__ == "__main__":

@@ -13,6 +13,9 @@ data/processed/props_actuals.csv
 # Local server cron token (do not commit)
 .cron_token
 
+# Local cron run metadata (do not commit)
+data/processed/.cron_meta.json
+
 # Local caches and test artifacts
 .pytest_cache/
 http_cache.sqlite

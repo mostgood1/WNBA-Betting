@@ -516,15 +516,26 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         except Exception:
             return dt.isoformat(timespec="seconds") + "Z"
 
+    # Regions: allow expanding beyond "us" if a deployment/book mix requires it.
+    # Example: set LIVE_PLAYER_PROPS_REGIONS="us,us2".
+    regions = str(os.environ.get("LIVE_PLAYER_PROPS_REGIONS", "us") or "us").strip() or "us"
+
     # Map lens stats -> OddsAPI market keys.
-    stat_to_market: dict[str, str] = {
-        "pts": "player_points",
-        "reb": "player_rebounds",
-        "ast": "player_assists",
-        "threes": "player_threes",
-        "pra": "player_points_rebounds_assists",
+    # Note: some feeds expose player props primarily under *_alternate keys.
+    stat_to_markets: dict[str, list[str]] = {
+        "pts": ["player_points", "player_points_alternate"],
+        "reb": ["player_rebounds", "player_rebounds_alternate"],
+        "ast": ["player_assists", "player_assists_alternate"],
+        "threes": ["player_threes"],
+        "pra": ["player_points_rebounds_assists", "player_points_rebounds_assists_alternate"],
     }
-    desired_markets = sorted(set(stat_to_market.values()))
+    market_to_stat: dict[str, str] = {}
+    for st, mks in stat_to_markets.items():
+        for mk in (mks or []):
+            mk0 = str(mk or "").strip()
+            if mk0:
+                market_to_stat[mk0] = st
+    desired_markets = sorted(set(market_to_stat.keys()))
 
     # 1) List events and match by team tricodes; select closest commence_time to now.
     # Cache this step aggressively; event ids should be stable for the day.
@@ -619,7 +630,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         try:
             r = requests.get(
                 f"{base}/v4/sports/{sport}/events/{event_id}/markets",
-                params={"apiKey": api_key, "regions": "us"},
+                params={"apiKey": api_key, "regions": regions},
                 headers=headers,
                 timeout=timeout_s,
             )
@@ -666,7 +677,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             f"{base}/v4/sports/{sport}/events/{event_id}/odds",
             params={
                 "apiKey": api_key,
-                "regions": "us",
+                "regions": regions,
                 "markets": ",".join(req_markets),
                 "oddsFormat": "american",
             },
@@ -695,18 +706,11 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                     if not isinstance(m, dict):
                         continue
                     mkey = str(m.get("key") or "")
-                    if mkey not in desired_markets:
+                    stat = market_to_stat.get(mkey)
+                    if not stat:
                         continue
                     m_lu = _parse_iso_utc_naive(m.get("last_update"))
                     lu = m_lu if m_lu is not None else bk_lu
-                    # Reverse lookup to stat.
-                    stat = None
-                    for st, mk in stat_to_market.items():
-                        if mk == mkey:
-                            stat = st
-                            break
-                    if not stat:
-                        continue
                     outs = m.get("outcomes") or []
                     if not isinstance(outs, list):
                         continue
@@ -762,6 +766,24 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     except Exception:
         lines = {}
 
+    # Line dispersion / sample size by key (helps downstream bettability and diagnostics).
+    points_span_by_key: dict[str, float] = {}
+    points_n_by_key: dict[str, int] = {}
+    try:
+        for (nk, stat), pts in pts_by_key.items():
+            if not pts:
+                continue
+            k = f"{nk}|{stat}"
+            points_n_by_key[k] = int(len(pts))
+            uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
+            if len(uniq) >= 2:
+                points_span_by_key[k] = float(max(uniq) - min(uniq))
+            else:
+                points_span_by_key[k] = 0.0
+    except Exception:
+        points_span_by_key = {}
+        points_n_by_key = {}
+
     prices: dict[str, dict[str, float]] = {}
     try:
         for (nk, stat, side), prs in prices_by_key.items():
@@ -784,6 +806,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "markets_requested": req_markets,
         "lines": lines,
         "prices": prices,
+        "points_span_by_key": points_span_by_key,
+        "points_n_by_key": points_n_by_key,
         "last_update_max": None,
         "last_update_by_key": {},
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
@@ -807,6 +831,28 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
 
     _live_oddsapi_player_props_cache[matchup_key] = (now, out)
     return out
+
+
+def _live_append_snapshot(kind: str, date_str: str, record: dict[str, Any]) -> None:
+    """Append a Live Lens snapshot record to JSONL (best-effort).
+
+    Controlled by env var LIVE_LENS_SNAPSHOTS in {"1","true","yes"}.
+    Writes under <live_lens_artifacts_dir>/live_snapshots/<kind>_<date>.jsonl
+    """
+    try:
+        enabled = str(os.environ.get("LIVE_LENS_SNAPSHOTS", "0")).strip().lower() in {"1", "true", "yes"}
+        if not enabled:
+            return
+        ds = str(date_str or "").strip() or datetime.utcnow().date().isoformat()
+        kk = str(kind or "").strip() or "snapshot"
+        root = _live_lens_artifacts_dir() / "live_snapshots"
+        root.mkdir(parents=True, exist_ok=True)
+        path = root / f"{kk}_{ds}.jsonl"
+        rec = _to_jsonable(record)
+        with path.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except Exception:
+        return
 
 
 
@@ -21006,6 +21052,18 @@ def api_live_state():
         "games": out_games,
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # Optional persistence: snapshot live state used for decisions.
+    _live_append_snapshot(
+        "live_state",
+        d,
+        {
+            "ts": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "endpoint": "/api/live_state",
+            "query": {"date": d, "ttl": ttl},
+            "payload": payload,
+        },
+    )
     _live_state_cache[cache_key] = (now, payload)
     return jsonify(payload)
 
@@ -21091,6 +21149,23 @@ def api_live_pbp_stats():
         "games": out,
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # Optional persistence: snapshot PBP-derived stats used for decisions.
+    _live_append_snapshot(
+        "live_pbp_stats",
+        d or "",
+        {
+            "ts": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "endpoint": "/api/live_pbp_stats",
+            "query": {
+                "date": d or None,
+                "event_ids": event_ids,
+                "recent_window_sec": recent_window_sec,
+                "ttl": ttl,
+            },
+            "payload": payload,
+        },
+    )
     _live_pbp_multi_cache[cache_key] = (now, payload)
     return jsonify(payload)
 
@@ -21188,6 +21263,15 @@ def api_live_player_lens():
     # Player prop signal thresholds (server-side) so each row can carry klass.
     player_prop_watch = 2.0
     player_prop_bet = 4.0
+    # Player prop bettability gating (server-side): allow tuning override to control it.
+    try:
+        player_prop_bettability_gate = str(os.environ.get("LIVE_PLAYER_PROPS_BETTABLE_GATING", "0")).strip().lower() in {"1", "true", "yes"}
+    except Exception:
+        player_prop_bettability_gate = False
+    try:
+        player_prop_bettability_min_score = float(str(os.environ.get("LIVE_PROPS_BETTABLE_MIN_SCORE", "0.60")).strip())
+    except Exception:
+        player_prop_bettability_min_score = 0.60
     try:
         override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
         if override_path.exists():
@@ -21205,6 +21289,20 @@ def api_live_player_lens():
                         player_prop_watch = float(w)
                     if b is not None and b > 0:
                         player_prop_bet = float(b)
+                    bett = pp.get("bettability")
+                    if isinstance(bett, dict):
+                        try:
+                            g = bett.get("gating")
+                            if g is not None:
+                                player_prop_bettability_gate = bool(g)
+                        except Exception:
+                            pass
+                        try:
+                            ms = _safe_float(bett.get("min_score"))
+                            if ms is not None and ms >= 0:
+                                player_prop_bettability_min_score = float(ms)
+                        except Exception:
+                            pass
     except Exception:
         pass
 
@@ -21363,6 +21461,9 @@ def api_live_player_lens():
         live_prop_prices: dict[str, Any] = {}
         live_prop_meta: dict[str, Any] = {}
         live_prop_last_update_by_key: dict[str, Any] = {}
+        live_prop_last_update_max: str | None = None
+        live_prop_points_span_by_key: dict[str, Any] = {}
+        live_prop_points_n_by_key: dict[str, Any] = {}
         try:
             if in_progress and not is_final and home and away:
                 live_prop_meta = _live_oddsapi_player_props_for_game(d or "", str(home), str(away))
@@ -21370,11 +21471,20 @@ def api_live_player_lens():
                     live_prop_lines = live_prop_meta.get("lines") if isinstance(live_prop_meta.get("lines"), dict) else {}
                     live_prop_prices = live_prop_meta.get("prices") if isinstance(live_prop_meta.get("prices"), dict) else {}
                     live_prop_last_update_by_key = live_prop_meta.get("last_update_by_key") if isinstance(live_prop_meta.get("last_update_by_key"), dict) else {}
+                    live_prop_points_span_by_key = live_prop_meta.get("points_span_by_key") if isinstance(live_prop_meta.get("points_span_by_key"), dict) else {}
+                    live_prop_points_n_by_key = live_prop_meta.get("points_n_by_key") if isinstance(live_prop_meta.get("points_n_by_key"), dict) else {}
+                    try:
+                        live_prop_last_update_max = str(live_prop_meta.get("last_update_max") or "").strip() or None
+                    except Exception:
+                        live_prop_last_update_max = None
         except Exception:
             live_prop_lines = {}
             live_prop_prices = {}
             live_prop_meta = {}
             live_prop_last_update_by_key = {}
+            live_prop_last_update_max = None
+            live_prop_points_span_by_key = {}
+            live_prop_points_n_by_key = {}
 
         # Best-effort SmartSim per-player mean/sd (pregame uncertainty proxy) for EV calcs.
         smartsim_player_stats: dict[tuple[str, str], dict[str, float]] = {}
@@ -21778,6 +21888,8 @@ def api_live_player_lens():
                         line_live = None
                         line_live_as_of = None
                         line_live_age_sec = None
+                        line_live_span = None
+                        line_live_n = None
                         line_live_filtered = False
                         line_live_filter_reason = None
                         try:
@@ -21785,6 +21897,16 @@ def api_live_player_lens():
                                 line_live = _safe_float(live_prop_lines.get(f"{nk}|{stat_key}"))
                         except Exception:
                             line_live = None
+
+                        # Market dispersion / sample size (OddsAPI aggregation).
+                        try:
+                            if line_live is not None and live_prop_points_span_by_key:
+                                line_live_span = _safe_float(live_prop_points_span_by_key.get(f"{nk}|{stat_key}"))
+                            if line_live is not None and live_prop_points_n_by_key:
+                                line_live_n = _safe_int(live_prop_points_n_by_key.get(f"{nk}|{stat_key}"))
+                        except Exception:
+                            line_live_span = None
+                            line_live_n = None
 
                         # Pull market freshness (OddsAPI last_update) when available.
                         try:
@@ -21799,6 +21921,18 @@ def api_live_player_lens():
                         except Exception:
                             line_live_as_of = None
                             line_live_age_sec = None
+
+                        # Fallback: if per-market last_update is missing, use the best-effort
+                        # max last_update across all returned markets for the event.
+                        try:
+                            if line_live is not None and (line_live_age_sec is None) and live_prop_last_update_max:
+                                line_live_as_of = str(live_prop_last_update_max)
+                                dt = datetime.fromisoformat(str(live_prop_last_update_max).replace("Z", "+00:00"))
+                                if dt.tzinfo is not None:
+                                    dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+                                line_live_age_sec = float((datetime.utcnow() - dt).total_seconds())
+                        except Exception:
+                            pass
 
                         # Sanity/staleness filter:
                         # - If the line is already below the player's current total, it's not usable as a live line.
@@ -21824,7 +21958,14 @@ def api_live_player_lens():
                                             em = 0.0
                                         # Don't be strict in the opening couple minutes.
                                         if em >= 3.0:
-                                            if line_live_age_sec is None:
+                                            # Default: keep lines even when last_update is missing.
+                                            # Can be tightened via LIVE_PROPS_FILTER_UNKNOWN_AGE=1.
+                                            filter_unknown = str(os.environ.get("LIVE_PROPS_FILTER_UNKNOWN_AGE", "0")).strip().lower() in {
+                                                "1",
+                                                "true",
+                                                "yes",
+                                            }
+                                            if line_live_age_sec is None and filter_unknown:
                                                 line_live_filter_reason = "unknown_age"
                                             elif float(line_live_age_sec) > float(max_age_sec):
                                                 line_live_filter_reason = "stale"
@@ -22180,6 +22321,112 @@ def api_live_player_lens():
                             except Exception:
                                 klass = "NONE"
 
+                        # Bettability signals (server-side): enrich rows and optionally gate klass.
+                        bettable_score = None
+                        bettable = None
+                        bettable_reasons: list[str] = []
+                        price_hold = None
+                        edge_sigma = None
+                        klass_raw = klass
+                        try:
+                            # Base requirements
+                            score = 1.0
+
+                            # Must have a real market line (not model fallback)
+                            if line_source in {None, "model"}:
+                                score = 0.0
+                                bettable_reasons.append("no_market_line")
+
+                            # Prefer live lines once the game is underway
+                            try:
+                                em = float(elapsed_min) if elapsed_min is not None else 0.0
+                            except Exception:
+                                em = 0.0
+                            if score > 0 and (line_source == "pregame") and em >= 12.0:
+                                score -= 0.20
+                                bettable_reasons.append("pregame_line_in_live")
+
+                            # Prices
+                            if score > 0 and (price_over is None or price_under is None):
+                                score -= 0.30
+                                bettable_reasons.append("missing_prices")
+
+                            # Hold/vig sanity (when both implied probs are present)
+                            if implied_prob_over is not None and implied_prob_under is not None:
+                                try:
+                                    price_hold = float(implied_prob_over) + float(implied_prob_under) - 1.0
+                                    if math.isfinite(price_hold) and price_hold > 0.08:
+                                        score -= 0.10
+                                        bettable_reasons.append("high_hold")
+                                except Exception:
+                                    price_hold = None
+
+                            # Injury / minutes risk
+                            if bool(injury_flag):
+                                score -= 0.45
+                                bettable_reasons.append("injury_flag")
+
+                            # Foul trouble (more volatile minutes)
+                            try:
+                                pf_i = int(round(float(pf))) if pf is not None else None
+                            except Exception:
+                                pf_i = None
+                            if pf_i is not None and pf_i >= 5:
+                                score -= 0.20
+                                bettable_reasons.append("foul_trouble")
+
+                            # Blowout risk late (starters sit)
+                            try:
+                                mabs = float(abs(int(margin))) if margin is not None else None
+                            except Exception:
+                                mabs = None
+                            try:
+                                st_bool = bool(starter) if starter is not None else None
+                            except Exception:
+                                st_bool = None
+                            if st_bool is True and mabs is not None and mabs >= 20.0 and em >= 30.0:
+                                score -= 0.20
+                                bettable_reasons.append("blowout_risk")
+
+                            # Line staleness / market disagreement
+                            if line_live_age_sec is not None and math.isfinite(float(line_live_age_sec)) and float(line_live_age_sec) > 600.0:
+                                score -= 0.10
+                                bettable_reasons.append("line_old")
+                            if line_live_span is not None and math.isfinite(float(line_live_span)) and float(line_live_span) >= 1.0:
+                                score -= 0.10
+                                bettable_reasons.append("market_disagreement")
+
+                            # Edge vs volatility
+                            if strength is not None and sim_sd is not None and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
+                                edge_sigma = float(strength) / float(sim_sd)
+                                if math.isfinite(edge_sigma) and edge_sigma < 0.50:
+                                    score -= 0.10
+                                    bettable_reasons.append("weak_vs_vol")
+
+                            score = float(max(0.0, min(1.0, score)))
+                            bettable_score = score
+
+                            bettable = bool(
+                                score >= float(player_prop_bettability_min_score)
+                                and (price_over is not None or price_under is not None)
+                                and (line_source not in {None, "model"})
+                            )
+
+                            if bool(player_prop_bettability_gate) and klass in {"BET", "WATCH"} and (bettable is False):
+                                # Downgrade rather than hide: keep the row but reduce aggressiveness.
+                                if klass == "BET":
+                                    klass = "WATCH" if (strength is not None and strength >= float(player_prop_watch)) else "NONE"
+                                elif klass == "WATCH":
+                                    klass = "NONE"
+                                bettable_reasons.append("klass_gated")
+                        except Exception:
+                            bettable_score = None
+                            bettable = None
+                            bettable_reasons = []
+                            price_hold = None
+                            edge_sigma = None
+                            klass_raw = klass
+
                         rows.append({
                             "team_tri": team,
                             "player": player,
@@ -22198,6 +22445,8 @@ def api_live_player_lens():
                             "line_live": float(line_live) if line_live is not None else None,
                             "line_live_as_of": line_live_as_of,
                             "line_live_age_sec": line_live_age_sec,
+                            "line_live_span": line_live_span,
+                            "line_live_n": line_live_n,
                             "line_live_filtered": bool(line_live_filtered),
                             "line_live_filter_reason": line_live_filter_reason,
                             "line_pregame": float(line_pregame) if line_pregame is not None else None,
@@ -22230,6 +22479,12 @@ def api_live_player_lens():
                             "lean": lean,
                             "strength": strength,
                             "klass": klass,
+                            "klass_raw": klass_raw,
+                            "bettable": bettable,
+                            "bettable_score": bettable_score,
+                            "bettable_reasons": bettable_reasons,
+                            "price_hold": price_hold,
+                            "edge_sigma": edge_sigma,
                             "_usage_window_sec": recent_window_sec,
                             "pace_mult": pace_mult_used,
                             "role_mult": role_mult_used,
@@ -22259,6 +22514,20 @@ def api_live_player_lens():
         except Exception:
             pass
 
+        # Coverage diagnostics (helps explain why LIVE lines are missing).
+        source_counts: dict[str, int] = {}
+        filtered_counts: dict[str, int] = {}
+        try:
+            for r in rows:
+                src = str(r.get("line_source") or "none")
+                source_counts[src] = int(source_counts.get(src, 0) + 1)
+                if bool(r.get("line_live_filtered")):
+                    rsn = str(r.get("line_live_filter_reason") or "unknown")
+                    filtered_counts[rsn] = int(filtered_counts.get(rsn, 0) + 1)
+        except Exception:
+            source_counts = {}
+            filtered_counts = {}
+
         out_games.append({
             "event_id": str(eid),
             "game_id": gid,
@@ -22275,6 +22544,12 @@ def api_live_player_lens():
                 "source": (live_prop_meta.get("source") if isinstance(live_prop_meta, dict) else None),
                 "event_id": (live_prop_meta.get("event_id") if isinstance(live_prop_meta, dict) else None),
                 "generated_at": (live_prop_meta.get("generated_at") if isinstance(live_prop_meta, dict) else None),
+                "markets_requested": (live_prop_meta.get("markets_requested") if isinstance(live_prop_meta, dict) else None),
+                "last_update_max": (live_prop_meta.get("last_update_max") if isinstance(live_prop_meta, dict) else None),
+                "lines_count": (len(live_prop_lines) if isinstance(live_prop_lines, dict) else 0),
+                "rows_count": len(rows),
+                "line_source_counts": source_counts,
+                "line_live_filtered_counts": filtered_counts,
             } if live_prop_meta else None,
             "rows": rows,
         })
@@ -22286,6 +22561,23 @@ def api_live_player_lens():
         "games": out_games,
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # Optional persistence: save the live decision context used by the UI.
+    _live_append_snapshot(
+        "live_player_lens",
+        d or "",
+        {
+            "ts": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "endpoint": "/api/live_player_lens",
+            "query": {
+                "date": d or None,
+                "event_ids": event_ids,
+                "recent_window_sec": recent_window_sec,
+                "ttl": ttl,
+            },
+            "payload": payload,
+        },
+    )
     _live_player_lens_multi_cache[cache_key] = (now, payload)
     return jsonify(_to_jsonable(payload))
 
@@ -22479,6 +22771,23 @@ def api_live_lines():
         "games": out,
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
+
+    # Optional persistence: save the live lines context used by the UI.
+    _live_append_snapshot(
+        "live_lines",
+        d or "",
+        {
+            "ts": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+            "endpoint": "/api/live_lines",
+            "query": {
+                "date": d,
+                "event_ids": event_ids,
+                "ttl": ttl,
+                "include_period_totals": bool(include_period_totals),
+            },
+            "payload": payload,
+        },
+    )
     _live_lines_multi_cache[cache_key] = (now, payload)
     return jsonify(payload)
 
@@ -22525,6 +22834,10 @@ def api_live_lens_tuning():
                 "eff_weight": 0.25,
                 "pace_cap_points": 3.0,
                 "eff_cap_points": 4.0,
+                # Optional: systematic bias correction (adds to edge; + => more OVER, - => more UNDER).
+                # Client ramps this in with elapsed time to avoid early-game overreaction.
+                "bias_points": 0.0,
+                "bias_cap_points": 8.0,
             },
             # Used by client-side computeScope() for Q/1H/G interval-smart possession blending.
             # min_elapsed_min is interpreted as a FULL-GAME knob and is scaled by scope length.
