@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-02,2026-03-03T02:10:00Z,Utah Jazz,Denver Nuggets,442.7037794081245,-442.7037794081244,11.5,-11.5,,,243.5,101.23014739490701,-101.23014739490701,11,11,8,9,oddsapi_consensus
+2026-03-02,2026-03-03T00:10:00Z,Washington Wizards,Houston Rockets,715.2492122093503,-715.249212209351,15.5,-15.5,,,224.5,-100.0,-100.0,11,11,7,10,oddsapi_consensus
+2026-03-02,2026-03-03T00:40:00Z,Milwaukee Bucks,Boston Celtics,265.70236661455215,-265.7023666145524,7.5,-7.5,,,215.5,-100.21226915729144,100.21226915729144,11,11,11,6,oddsapi_consensus
+2026-03-02,2026-03-03T03:10:00Z,Golden State Warriors,Los Angeles Clippers,111.51694707226441,-111.51694707226437,1.5,-1.5,,,216.0,-100.3185727938834,100.3185727938834,11,11,8,4,oddsapi_consensus

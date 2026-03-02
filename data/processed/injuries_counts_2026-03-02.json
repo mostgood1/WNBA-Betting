@@ -1,0 +1,90 @@
+{
+  "date": "2026-03-02",
+  "team_counts": {
+    "BOS": 1,
+    "DEN": 1,
+    "GSW": 1,
+    "HOU": 2,
+    "LAC": 1,
+    "UTA": 2,
+    "WAS": 1
+  },
+  "players": [
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Jayson Tatum",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Jabari Smith Jr.",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Peyton Watson",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Vince Williams Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "GSW": [
+      "Jimmy Butler III"
+    ],
+    "LAC": [
+      "Bradley Beal"
+    ],
+    "HOU": [
+      "Jabari Smith Jr.",
+      "Steven Adams"
+    ],
+    "BOS": [
+      "Jayson Tatum"
+    ],
+    "UTA": [
+      "Jaren Jackson Jr.",
+      "Vince Williams Jr."
+    ],
+    "DEN": [
+      "Peyton Watson"
+    ],
+    "WAS": [
+      "Alex Sarr"
+    ]
+  },
+  "team_impact": {
+    "HOU": 32.50833333333333,
+    "UTA": 49.49999999999999,
+    "DEN": 33.699999999999996,
+    "WAS": 28.633333333333336
+  }
+}
