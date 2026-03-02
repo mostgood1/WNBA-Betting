@@ -73,8 +73,13 @@ except Exception:
         pass
 
 WEB_DIR = BASE_DIR / "web"
-CRON_META_PATH = BASE_DIR / "data" / "processed" / ".cron_meta.json"
-PLAYER_ID_CACHE_PATH = BASE_DIR / "data" / "processed" / "player_ids.csv"
+_DATA_ROOT = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+try:
+    _DATA_ROOT_P = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+except Exception:
+    _DATA_ROOT_P = (BASE_DIR / "data")
+CRON_META_PATH = _DATA_ROOT_P / "processed" / ".cron_meta.json"
+PLAYER_ID_CACHE_PATH = _DATA_ROOT_P / "processed" / "player_ids.csv"
 
 
 def _live_lens_artifacts_dir() -> Path:
@@ -25173,6 +25178,133 @@ def api_cron_refresh_bovada():
         return jsonify({"error": f"bovada fetch failed: {e}"}), 500
 
 
+@app.route("/api/cron/refresh-oddsapi-props", methods=["POST", "GET"])
+def api_cron_refresh_oddsapi_props():
+    """Fetch current OddsAPI player props for a given date and persist under data/raw.
+
+    Query params:
+      - date (optional): YYYY-MM-DD (defaults to today UTC)
+      - regions (optional): OddsAPI regions (default 'us')
+      - markets (optional): comma-separated market keys; default uses our full player_* list
+      - edges (optional): '1' to run props-edges from OddsAPI after snapshot
+      - export (optional): '1' to run export-props-recommendations after edges
+      - push (optional): '1' to git commit/push artifacts
+
+    Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
+    Writes:
+      - data/raw/odds_nba_player_props_<date>.csv (via CLI odds-snapshots-props)
+      - data/processed/props_edges_<date>.csv (optional, via CLI)
+      - data/processed/props_recommendations_<date>.csv (optional, via CLI)
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+    d = _parse_date_param(request, default_to_today=True)
+    regions = (request.args.get("regions") or "us").strip() or "us"
+    markets = (request.args.get("markets") or "").strip()
+    do_edges = (str(request.args.get("edges", "0")).lower() in {"1", "true", "yes"})
+    do_export = (str(request.args.get("export", "0")).lower() in {"1", "true", "yes"})
+    do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
+
+    py = _resolve_python()
+    logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
+    try:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
+
+        # 1) Snapshot player props to data/raw
+        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
+        if markets:
+            snap_cmd += ["--markets", markets]
+        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # 2) Optionally compute props edges from OddsAPI (prefers saved snapshot by default)
+        rc_edges = None
+        if do_edges:
+            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "oddsapi", "--mode", "current"]
+            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # 3) Optionally export props recommendations (uses props_edges_<date>.csv)
+        rc_export = None
+        if do_export:
+            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", d]
+            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
+        try:
+            from nba_betting.config import paths as _paths  # type: ignore
+            raw_fp = _paths.data_raw / f"odds_nba_player_props_{d}.csv"
+            edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
+            rec_fp = _paths.data_processed / f"props_recommendations_{d}.csv"
+        except Exception:
+            raw_fp = BASE_DIR / "data" / "raw" / f"odds_nba_player_props_{d}.csv"
+            edges_fp = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+            rec_fp = BASE_DIR / "data" / "processed" / f"props_recommendations_{d}.csv"
+
+        snap_rows = 0
+        try:
+            if raw_fp.exists():
+                snap_rows = int(len(pd.read_csv(raw_fp)))
+        except Exception:
+            snap_rows = 0
+
+        edges_rows = 0
+        try:
+            if edges_fp.exists():
+                edges_rows = int(len(pd.read_csv(edges_fp)))
+        except Exception:
+            edges_rows = 0
+
+        rec_rows = 0
+        try:
+            if rec_fp.exists():
+                rec_rows = int(len(pd.read_csv(rec_fp)))
+        except Exception:
+            rec_rows = 0
+
+        # Cron meta best-effort
+        try:
+            _cron_meta_update(
+                "refresh_oddsapi_props",
+                {
+                    "date": d,
+                    "snapshot_rows": int(snap_rows),
+                    "snapshot": str(raw_fp),
+                    "edges_rows": int(edges_rows),
+                    "edges": str(edges_fp),
+                    "recs_rows": int(rec_rows),
+                    "recs": str(rec_fp),
+                },
+            )
+        except Exception:
+            pass
+
+        pushed = None; push_detail = None
+        if do_push:
+            ok, detail = _git_commit_and_push(msg=f"refresh-oddsapi-props {d}")
+            pushed = bool(ok); push_detail = detail
+
+        return jsonify({
+            "date": d,
+            "regions": regions,
+            "markets": markets,
+            "rc_snapshot": int(rc_snap),
+            "snapshot_rows": int(snap_rows),
+            "snapshot_path": str(raw_fp),
+            "rc_edges": (int(rc_edges) if rc_edges is not None else None),
+            "edges_rows": int(edges_rows),
+            "edges_path": str(edges_fp),
+            "rc_export": (int(rc_export) if rc_export is not None else None),
+            "recs_rows": int(rec_rows),
+            "recs_path": str(rec_fp),
+            "log_file": str(log_file),
+            "pushed": pushed,
+            "push_detail": push_detail,
+        })
+    except Exception as e:
+        return jsonify({"error": f"oddsapi props refresh failed: {e}", "log_file": str(log_file)}), 500
+
+
 @app.route("/api/cron/probe-bovada")
 def api_cron_probe_bovada():
     """Debug endpoint: probe Bovada endpoints and report event counts for a date.
@@ -25761,6 +25893,8 @@ def api_cron_config():
                 "/api/cron/daily-update",
                 "/api/cron/live-lens-tick",
                 "/api/cron/refresh-bovada",
+                "/api/cron/refresh-oddsapi-props",
+                "/api/cron/assess-oddsapi",
                 "/api/cron/reconcile-games",
                 "/api/cron/capture-closing",
                 "/api/cron/probe-bovada",
@@ -25770,6 +25904,162 @@ def api_cron_config():
         })
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/cron/assess-oddsapi", methods=["POST", "GET"])
+def api_cron_assess_oddsapi():
+    """Assess OddsAPI key capabilities (markets/books + quota headers).
+
+    Query params:
+      - date (optional): YYYY-MM-DD (defaults to today UTC)
+      - regions (optional): OddsAPI regions (default 'us')
+      - event_id (optional): assess a specific event id (otherwise first event on date)
+      - sample_markets (optional): comma-separated markets to sample via /odds
+
+    Auth: CRON_TOKEN (preferred) or ADMIN_KEY (fallback/manual).
+    Persists JSON under data/processed/oddsapi_capabilities_<date>.json (respects NBA_BETTING_DATA_ROOT).
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    api_key = (os.environ.get("ODDS_API_KEY") or "").strip()
+    if not api_key:
+        return jsonify({"error": "missing ODDS_API_KEY"}), 500
+
+    d = _parse_date_param(request, default_to_today=True)
+    regions = (request.args.get("regions") or "us").strip() or "us"
+    event_id_q = (request.args.get("event_id") or request.args.get("event-id") or "").strip()
+    sample_markets_q = (request.args.get("sample_markets") or request.args.get("sample-markets") or "").strip()
+    if not sample_markets_q:
+        sample_markets_q = "h2h,spreads,totals,player_points,player_rebounds,player_assists,player_threes"
+    sample_markets = [m.strip() for m in str(sample_markets_q).split(",") if m.strip()]
+
+    try:
+        target = pd.to_datetime(d).date()
+    except Exception:
+        return jsonify({"error": "invalid date"}), 400
+
+    # Local imports (avoid import cost on unrelated requests)
+    try:
+        from nba_betting.odds_api import (
+            NBA_SPORT_KEY,
+            ODDS_HOST,
+            OddsApiConfig,
+            discover_event_market_keys,
+            fetch_event_odds_current,
+            list_events_current,
+        )
+        from nba_betting.config import paths as _paths
+    except Exception as e:
+        return jsonify({"error": f"oddsapi modules unavailable: {e}"}), 500
+
+    def _usage_headers(resp) -> dict:
+        try:
+            h = {str(k).lower(): v for k, v in (resp.headers or {}).items()}
+        except Exception:
+            h = {}
+        out = {}
+        for k in [
+            "x-requests-remaining",
+            "x-requests-used",
+            "x-requests-last",
+            "x-requests-per-minute-remaining",
+            "x-requests-per-minute-used",
+        ]:
+            if k in h:
+                out[k] = h.get(k)
+        return out
+
+    usage = {}
+    try:
+        r = requests.get(
+            f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events",
+            params={"apiKey": api_key},
+            headers={"Accept": "application/json", "User-Agent": "nba-betting/1.0"},
+            timeout=45,
+        )
+        r.raise_for_status()
+        usage = _usage_headers(r)
+    except Exception:
+        usage = {}
+
+    cfg = OddsApiConfig(api_key=api_key, regions=regions)
+    events = list_events_current(cfg, pd.to_datetime(str(target)))
+
+    chosen_event = None
+    if event_id_q:
+        for ev in events:
+            if str(ev.get("id")) == str(event_id_q):
+                chosen_event = ev
+                break
+    if chosen_event is None and events:
+        chosen_event = events[0]
+
+    eid = str(chosen_event.get("id")) if chosen_event else ""
+    discovered = sorted(discover_event_market_keys(cfg, eid)) if eid else []
+
+    sampled_df = pd.DataFrame()
+    if eid and sample_markets:
+        try:
+            sampled_df = fetch_event_odds_current(cfg, eid, sample_markets, verbose=False)
+        except Exception:
+            sampled_df = pd.DataFrame()
+
+    books = []
+    try:
+        if sampled_df is not None and not sampled_df.empty:
+            cols = [c for c in ["bookmaker", "bookmaker_title"] if c in sampled_df.columns]
+            if cols:
+                books = (
+                    sampled_df[cols]
+                    .dropna()
+                    .drop_duplicates()
+                    .sort_values(cols)
+                    .to_dict(orient="records")
+                )
+    except Exception:
+        books = []
+
+    out = {
+        "ok": True,
+        "asof_utc": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "target_date": str(target),
+        "regions": regions,
+        "usage_headers": usage,
+        "events_count": int(len(events)),
+        "chosen_event": {
+            "event_id": eid,
+            "commence_time": (chosen_event.get("commence_time") if chosen_event else None),
+            "home_team": (chosen_event.get("home_team") if chosen_event else None),
+            "away_team": (chosen_event.get("away_team") if chosen_event else None),
+        },
+        "discovered_markets_count": int(len(discovered)),
+        "discovered_markets": discovered,
+        "sample_markets": sample_markets,
+        "sample_rows": int(0 if sampled_df is None else len(sampled_df)),
+        "sample_markets_returned": (
+            sorted([str(x) for x in sampled_df["market"].dropna().astype(str).unique()])
+            if (sampled_df is not None and ("market" in sampled_df.columns) and (not sampled_df.empty))
+            else []
+        ),
+        "sample_bookmakers": books,
+    }
+
+    # Persist best-effort
+    try:
+        _paths.data_processed.mkdir(parents=True, exist_ok=True)
+        p = _paths.data_processed / f"oddsapi_capabilities_{target}.json"
+        p.write_text(json.dumps(out, indent=2, sort_keys=True), encoding="utf-8")
+        out["output"] = str(p)
+    except Exception:
+        pass
+
+    try:
+        _cron_meta_update("assess_oddsapi", {"date": str(target), "regions": regions, "events": int(len(events))})
+    except Exception:
+        pass
+
+    return jsonify(out)
 
 
 @app.route("/api/cron/ping")

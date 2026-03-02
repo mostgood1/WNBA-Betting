@@ -5,19 +5,42 @@ on:
   schedule:
     # Daily around early morning US/Eastern (UTC time).
     - cron: "5 11 * * *"
+    # Hourly refresh for pregame props snapshots + recommendations (UTC).
+    - cron: "7 * * * *"
 
 concurrency:
   group: nbabetting-daily-scheduler
   cancel-in-progress: true
 
 jobs:
+  refresh-oddsapi-props-hourly:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Refresh OddsAPI props snapshot + edges + export (today)
+        env:
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+        run: |
+          set -e
+          DATE=$(date -u +%F)
+          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+
+  assess-oddsapi-daily:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Assess OddsAPI capabilities (today)
+        env:
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+        run: |
+          set -e
+          DATE=$(date -u +%F)
+          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+
   reconcile-yesterday:
     runs-on: ubuntu-latest
     steps:
       - name: Call reconcile-games (yesterday)
-        env:
-          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           DATE=$(date -u -d yesterday +%F)
@@ -27,16 +50,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call run-all
-        env:
-          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/run-all"
       - name: Call predict-date (today, async)
-        env:
-          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           DATE=$(date -u +%F)

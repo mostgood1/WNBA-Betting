@@ -50,6 +50,9 @@ services:
       # Persist Live Lens runtime artifacts (signals/projections/tuning overrides)
       - key: NBA_LIVE_LENS_DIR
         value: /opt/render/project/data/live_lens
+      # Persist data/raw + data/processed (OddsAPI/Bovada snapshots, props edges, recommendations)
+      - key: NBA_BETTING_DATA_ROOT
+        value: /opt/render/project/data
       - key: RENDER_PRESTART_REFRESH
         value: "0"  # opt-in prestart refresh/export (can be memory-heavy on small plans)
       - key: RENDER_PUSH_ON_DEPLOY
@@ -68,6 +71,8 @@ services:
 # Suggested Render Cron Jobs (create in Render UI):
 # - Name: live-lens-tick (every 60 seconds, all day; cheap no-op when no games)
 #   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180"
+# - Name: refresh-oddsapi-props (every 60 minutes on game days)
+#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"
 # - Name: refresh-odds-today (every 15 minutes 15:00–23:59 UTC on game days)
 #   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-bovada?date=$(date -u +%F)"
 # - Name: reconcile-yesterday (daily at 10:00 UTC)

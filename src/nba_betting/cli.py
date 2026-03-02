@@ -8121,6 +8121,78 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
     except Exception as e:
         console.print(f"Events snapshot write failed: {e}", style="yellow")
 
+
+@cli.command("odds-snapshots-props")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
+@click.option("--regions", type=str, required=False, default="us", show_default=True, help="OddsAPI regions (e.g. us, us2)")
+@click.option(
+    "--markets",
+    type=str,
+    required=False,
+    default="",
+    show_default=False,
+    help="Comma-separated OddsAPI market keys. Defaults to our full supported player_* set.",
+)
+def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions: str, markets: str):
+    """Write a per-date OddsAPI player props snapshot under data/raw.
+
+    Output (used by props-edges when --use-saved):
+    - data/raw/odds_nba_player_props_<date>.csv
+    """
+    console.rule("Odds Snapshots (player props)")
+    import datetime as _dt
+    from .odds_api import OddsApiConfig, fetch_player_props_current
+
+    try:
+        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red")
+        return
+
+    if not api_key:
+        api_key = _load_dotenv_key("ODDS_API_KEY")
+    if not api_key:
+        console.print("Provide --api-key, set ODDS_API_KEY env, or add to .env at repo root.", style="red")
+        return
+
+    mkts_list = [m.strip() for m in str(markets or "").split(",") if m.strip()]
+    cfg = OddsApiConfig(api_key=api_key, regions=(regions or "us").strip() or "us")
+
+    try:
+        df = fetch_player_props_current(cfg, pd.to_datetime(str(target_date)), markets=(mkts_list or None), verbose=False)
+    except Exception as e:
+        console.print(f"Player props snapshot failed: {e}", style="yellow")
+        return
+
+    out = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
+    try:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        (df if df is not None else pd.DataFrame()).to_csv(out, index=False)
+    except Exception as e:
+        console.print(f"Failed writing snapshot: {e}", style="yellow")
+        return
+
+    rows = 0 if df is None else int(len(df))
+    markets_n = 0
+    try:
+        markets_n = int(df["market"].nunique()) if (df is not None and ("market" in df.columns)) else 0
+    except Exception:
+        markets_n = 0
+    books_n = 0
+    try:
+        books_n = int(df["bookmaker"].nunique()) if (df is not None and ("bookmaker" in df.columns)) else 0
+    except Exception:
+        books_n = 0
+
+    console.print({
+        "date": str(target_date),
+        "rows": rows,
+        "markets": markets_n,
+        "bookmakers": books_n,
+        "output": str(out),
+    })
+
 @cli.command("train-pbp-markets")
 @click.option("--start", type=str, required=False, help="Optional start date YYYY-MM-DD to fetch PBP if needed")
 @click.option("--end", type=str, required=False, help="Optional end date YYYY-MM-DD to fetch PBP if needed")
