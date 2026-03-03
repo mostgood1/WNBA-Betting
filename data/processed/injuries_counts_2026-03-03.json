@@ -1,0 +1,194 @@
+{
+  "date": "2026-03-03",
+  "team_counts": {
+    "CHA": 1,
+    "CHI": 1,
+    "DAL": 3,
+    "DET": 2,
+    "LAL": 2,
+    "MIN": 1,
+    "NOP": 2,
+    "NYK": 2,
+    "OKC": 1,
+    "ORL": 1,
+    "PHI": 1,
+    "PHX": 1,
+    "SAC": 1,
+    "SAS": 1,
+    "WAS": 1
+  },
+  "players": [
+    {
+      "player": "Taj Gibson",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Brooks",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Marvin Bagley III",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Rui Hachimura",
+      "team": "LAL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Trey Murphy III",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Colin Castleton",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "MarJon Beauchamp",
+      "team": "PHI",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Harrison Ingram",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tosan Evbuomwan",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Jemison III",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Bronny James",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Branden Carlson",
+      "team": "OKC",
+      "status": "OUT"
+    },
+    {
+      "player": "Enrique Freeman",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "CHA": [
+      "Taj Gibson"
+    ],
+    "DAL": [
+      "Marvin Bagley III",
+      "D'Angelo Russell",
+      "Dereck Lively II"
+    ],
+    "SAC": [
+      "Domantas Sabonis"
+    ],
+    "CHI": [
+      "Zach Collins"
+    ],
+    "PHX": [
+      "Dillon Brooks"
+    ],
+    "LAL": [
+      "Rui Hachimura",
+      "Bronny James"
+    ],
+    "NOP": [
+      "Trey Murphy III",
+      "Trey Alexander"
+    ],
+    "ORL": [
+      "Colin Castleton"
+    ],
+    "PHI": [
+      "MarJon Beauchamp"
+    ],
+    "DET": [
+      "Wendell Moore Jr.",
+      "Isaac Jones"
+    ],
+    "SAS": [
+      "Harrison Ingram"
+    ],
+    "NYK": [
+      "Trey Jemison III",
+      "Tosan Evbuomwan"
+    ],
+    "WAS": [
+      "Alex Sarr"
+    ],
+    "OKC": [
+      "Branden Carlson"
+    ],
+    "MIN": [
+      "Enrique Freeman"
+    ]
+  },
+  "team_impact": {
+    "DAL": 28.2,
+    "SAC": 48.5,
+    "PHX": 27.400000000000002,
+    "LAL": 28.916666666666668,
+    "NOP": 41.96,
+    "PHI": 21.45,
+    "DET": 4.7,
+    "SAS": 2.75,
+    "NYK": 2.625,
+    "WAS": 28.633333333333336,
+    "OKC": 14.1,
+    "MIN": 3.3
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-03-03",
+  "yesterday": "2026-03-02",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 10,
+  "smart_sim_count": 10,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 0,
+  "rotations_have_games_yesterday": 0,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": null,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "warnings": [
+    "minutes_sanity: team MEM top10 minutes sum low (169.6) using roll10_min",
+    "minutes_sanity: team PHI has <5 players at 20+ min (found 3) using roll10_min",
+    "minutes_sanity: team SAC top10 minutes sum low (147.8) using roll10_min",
+    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: 23 players have <8 min but >=10 pred_pts (sample: Josh Minott(BKN), Pat Connaughton(CHA), Xavier Tillman(CHA), Leonard Miller(CHI), Emanuel Miller(CHI), Trentyn Flowers(CHI))"
+  ],
+  "missing": [],
+  "ok": true
+}
