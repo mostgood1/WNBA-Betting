@@ -50,6 +50,22 @@ def main() -> int:
     ap.add_argument("--min-bets", type=int, default=25)
     ap.add_argument("--props-min-bets", type=int, default=40)
     ap.add_argument(
+        "--props-sigma",
+        action="store_true",
+        help="Also tune sigma-normalized prop thresholds (writes *_sigma keys into override when --write-override is set)",
+    )
+    ap.add_argument(
+        "--props-sigma-per-stat",
+        action="store_true",
+        help="When tuning sigma thresholds, also tune per-stat sigma thresholds",
+    )
+    ap.add_argument(
+        "--props-sigma-min-bets-per-stat",
+        type=int,
+        default=15,
+        help="Minimum per-stat sample size for sigma per-stat tuning (default: 15)",
+    )
+    ap.add_argument(
         "--write-override",
         action="store_true",
         help="Merge best settings into live_lens_tuning_override.json",
@@ -82,6 +98,16 @@ def main() -> int:
 
     start = end - timedelta(days=lookback - 1)
     props_start = end - timedelta(days=props_lookback - 1)
+
+    # End-to-end wiring: default to sigma tuning unless explicitly disabled.
+    # This is additive (writes extra keys) and does not remove legacy thresholds.
+    props_sigma = bool(args.props_sigma) or str(os.environ.get("LIVE_LENS_TUNE_SIGMA", "1")).strip().lower() in {"1", "true", "yes"}
+    props_sigma_per_stat = bool(args.props_sigma_per_stat) or str(os.environ.get("LIVE_LENS_TUNE_SIGMA_PER_STAT", "1")).strip().lower() in {"1", "true", "yes"}
+    try:
+        sigma_min_bets_per_stat = int(args.props_sigma_min_bets_per_stat)
+    except Exception:
+        sigma_min_bets_per_stat = 15
+    sigma_min_bets_per_stat = int(max(5, min(200, sigma_min_bets_per_stat)))
 
     optimizer = ROOT / "tools" / "optimize_live_lens_adjustments.py"
     if not optimizer.exists():
@@ -135,6 +161,11 @@ def main() -> int:
                 "--assumed-juice",
                 str(float(args.juice)),
             ]
+            if props_sigma:
+                cmd2.append("--also-sigma")
+                if props_sigma_per_stat:
+                    cmd2.append("--sigma-per-stat")
+                    cmd2.extend(["--sigma-min-bets-per-stat", str(int(sigma_min_bets_per_stat))])
             if write_override:
                 cmd2.append("--write-override")
             proc2 = subprocess.run(cmd2, cwd=str(ROOT), capture_output=False)

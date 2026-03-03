@@ -2654,6 +2654,9 @@ try {
             '--start', $yesterday,
             '--end', $yesterday,
             '--min-bets', '30',
+            '--also-sigma',
+            '--sigma-per-stat',
+            '--sigma-min-bets-per-stat', '15',
             '--write-override'
           )
           Write-Log ("optimize_live_lens_player_prop_thresholds exit code: {0}" -f $rcPropTune)

@@ -141,6 +141,11 @@ _live_lens_tick_first_bet_logged: dict[str, str] = {}
 _live_lens_tick_lock = threading.Lock()
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
+# Additional small caches used by /api/live_player_lens
+_live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
+_live_lens_override_cache: tuple[float, float, dict[str, Any] | None] = (0.0, 0.0, None)  # (loaded_at, mtime, obj)
+_roster_pid_by_team_nk_cache: tuple[int, dict[tuple[str, str], int]] | None = None
+
 # Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
 _live_processed_cache: dict[str, tuple[int, Any]] = {}
 
@@ -1926,6 +1931,14 @@ def _live_extract_scoreboard_games(sb_json: dict[str, Any]) -> list[dict[str, An
 
 def _live_fetch_pbp_actions(game_id: str) -> list[dict[str, Any]]:
     try:
+        # Cache CDN PBP fetches (these are the slowest piece of live_player_lens).
+        # Keep TTL separate from endpoint TTL so frequent UI polling doesn't hammer the CDN.
+        try:
+            ttl = int(float(str(os.environ.get("LIVE_PBP_TTL_SEC", "10")).strip()))
+        except Exception:
+            ttl = 10
+        ttl = int(max(1, min(120, ttl)))
+
         headers = {
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "en-US,en;q=0.9",
@@ -1941,6 +1954,12 @@ def _live_fetch_pbp_actions(game_id: str) -> list[dict[str, Any]]:
         gid = str(game_id).strip()
         if not gid:
             return []
+
+        now = time.time()
+        ent = _live_pbp_actions_cache.get(gid)
+        if ent and (now - float(ent[0]) < float(ttl)):
+            return ent[1]
+
         u = f"https://cdn.nba.com/static/json/liveData/playbyplay/playbyplay_00_{gid}.json"
         r = requests.get(u, headers=headers, timeout=15)
         if not r.ok:
@@ -1949,9 +1968,113 @@ def _live_fetch_pbp_actions(game_id: str) -> list[dict[str, Any]]:
         if not r.ok:
             return []
         j = r.json() or {}
-        return ((j.get("game") or {}).get("actions") or [])
+        actions = ((j.get("game") or {}).get("actions") or [])
+        try:
+            if isinstance(actions, list):
+                _live_pbp_actions_cache[gid] = (now, actions)
+        except Exception:
+            pass
+        return actions if isinstance(actions, list) else []
     except Exception:
         return []
+
+
+def _live_load_lens_override() -> dict[str, Any] | None:
+    """Best-effort cached read of live_lens_tuning_override.json.
+
+    This file can be read on every poll via /api/live_player_lens; cache it by
+    mtime (plus a short TTL) to avoid repeated disk I/O.
+    """
+    global _live_lens_override_cache
+    try:
+        p = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
+    except Exception:
+        return None
+
+    if not p.exists():
+        return None
+
+    try:
+        ttl = int(float(str(os.environ.get("LIVE_LENS_OVERRIDE_TTL_SEC", "5")).strip()))
+    except Exception:
+        ttl = 5
+    ttl = int(max(1, min(60, ttl)))
+
+    now = time.time()
+    try:
+        mtime = float(p.stat().st_mtime)
+    except Exception:
+        mtime = 0.0
+
+    try:
+        loaded_at, last_mtime, cached = _live_lens_override_cache
+        if cached is not None and (now - float(loaded_at) < float(ttl)) and float(last_mtime) == float(mtime):
+            return cached
+    except Exception:
+        pass
+
+    try:
+        obj = json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        obj = None
+
+    if not isinstance(obj, dict):
+        obj = None
+
+    try:
+        _live_lens_override_cache = (now, mtime, obj)
+    except Exception:
+        pass
+    return obj
+
+
+def _live_roster_pid_by_team_nk() -> dict[tuple[str, str], int]:
+    """Cached mapping (TEAM_TRI, name_key) -> player_id."""
+    global _roster_pid_by_team_nk_cache
+    try:
+        roster = _ensure_rosters_loaded()
+    except Exception:
+        roster = None
+
+    if not isinstance(roster, pd.DataFrame) or roster.empty:
+        return {}
+
+    try:
+        n = int(len(roster.index))
+    except Exception:
+        n = -1
+
+    try:
+        if _roster_pid_by_team_nk_cache is not None and int(_roster_pid_by_team_nk_cache[0]) == int(n):
+            return _roster_pid_by_team_nk_cache[1]
+    except Exception:
+        pass
+
+    out: dict[tuple[str, str], int] = {}
+    try:
+        # itertuples is much faster than iterrows for tight loops.
+        for rr in roster.itertuples(index=False):
+            try:
+                # Access via getattr to tolerate missing columns.
+                tri0 = str(getattr(rr, "TEAM_ABBREVIATION", "") or "").strip().upper()
+                nm0 = str(getattr(rr, "PLAYER", "") or "").strip()
+                pid0 = _safe_int(getattr(rr, "PLAYER_ID", None))
+                if not tri0 or not nm0 or pid0 is None:
+                    continue
+                nk0 = _norm_player_name(nm0)
+                if not nk0:
+                    continue
+                out[(tri0, nk0)] = int(pid0)
+            except Exception:
+                continue
+    except Exception:
+        out = {}
+
+    try:
+        _roster_pid_by_team_nk_cache = (n, out)
+    except Exception:
+        pass
+    return out
 
 
 def _live_pbp_attempt_stats(actions: list[dict[str, Any]]) -> dict[str, Any]:
@@ -6625,12 +6748,46 @@ def _append_log(line: str) -> None:
 
 
 def _ensure_logs_dir() -> Path:
-    p = BASE_DIR / "logs"
+    """Return a writable logs directory.
+
+    Primary: repo-local logs/ (good for local dev)
+    Fallbacks: persistent data disk (Render) and /tmp.
+    """
+    candidates: list[Path] = []
     try:
-        p.mkdir(parents=True, exist_ok=True)
+        candidates.append(BASE_DIR / "logs")
     except Exception:
         pass
-    return p
+    try:
+        # Prefer mounted disk when configured (Render): NBA_BETTING_DATA_ROOT
+        candidates.append(DATA_DIR / "logs")
+    except Exception:
+        pass
+    try:
+        candidates.append(Path("/tmp") / "nba_betting_logs")
+    except Exception:
+        pass
+
+    for p in candidates:
+        try:
+            p.mkdir(parents=True, exist_ok=True)
+            # Verify we can write a small file.
+            test_fp = p / ".write_test"
+            test_fp.write_text("ok", encoding="utf-8")
+            try:
+                test_fp.unlink(missing_ok=True)  # type: ignore[arg-type]
+            except Exception:
+                try:
+                    if test_fp.exists():
+                        test_fp.unlink()
+                except Exception:
+                    pass
+            return p
+        except Exception:
+            continue
+
+    # Last resort: return BASE_DIR even if unwritable (callers should handle failures).
+    return BASE_DIR
 
 
 def _count_csv_rows_quick(p: Optional[Path]) -> int:
@@ -7762,24 +7919,70 @@ def _sim_vs_line_prop_recommendations(
     def _norm_cdf(x: float) -> float:
         return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
 
-    def _p_under(mu: float, sd: float, line: float) -> float:
-        if sd <= 0 or not np.isfinite(sd):
-            if mu < line:
-                return 1.0
-            if mu > line:
-                return 0.0
-            return 0.5
-        z = (line - mu) / sd
-        p = _norm_cdf(z)
-        return float(max(0.0, min(1.0, p)))
+    def _american_to_decimal(a: float | None) -> float | None:
+        try:
+            if a is None:
+                return None
+            aa = float(a)
+            if not math.isfinite(aa) or aa == 0:
+                return None
+            if aa > 0:
+                return 1.0 + (aa / 100.0)
+            return 1.0 + (100.0 / abs(aa))
+        except Exception:
+            return None
 
-    def _p_win_for_side(mu: float, sd: float, line: float, side: str) -> float | None:
+    def _ev_per_unit(p_win: float, price: float | None, p_push: float = 0.0) -> float | None:
+        # EV per 1u stake with pushes: p_win*(dec-1) - p_lose, p_lose=1-p_win-p_push
+        # => EV = p_win*dec + p_push - 1
+        try:
+            pv = float(max(0.0, min(1.0, float(p_win))))
+            pp = float(max(0.0, min(1.0, float(p_push))))
+            dec = _american_to_decimal(price)
+            if dec is None:
+                return None
+            return float(pv * float(dec) + pp - 1.0)
+        except Exception:
+            return None
+
+    def _p_over_under_push(mu: float, sd: float, line: float) -> tuple[float, float, float]:
+        """Push-aware probabilities for integer-valued props (Normal approx + continuity correction)."""
+        try:
+            if sd <= 0 or not np.isfinite(sd) or not np.isfinite(mu) or not np.isfinite(line):
+                if mu > line:
+                    return 1.0, 0.0, 0.0
+                if mu < line:
+                    return 0.0, 1.0, 0.0
+                return 0.0, 0.0, 1.0
+            is_int_line = abs(float(line) - round(float(line))) <= 1e-6
+            if is_int_line:
+                # Over win if X >= L+1 => threshold L+0.5
+                z_over = (float(line) + 0.5 - float(mu)) / float(sd)
+                p_over = 1.0 - _norm_cdf(z_over)
+                # Under win if X <= L-1 => threshold L-0.5
+                z_under = (float(line) - 0.5 - float(mu)) / float(sd)
+                p_under = _norm_cdf(z_under)
+                p_push = 1.0 - float(p_over) - float(p_under)
+            else:
+                z = (float(line) - float(mu)) / float(sd)
+                p_over = 1.0 - _norm_cdf(z)
+                p_under = 1.0 - float(p_over)
+                p_push = 0.0
+            p_over = float(max(0.0, min(1.0, p_over)))
+            p_under = float(max(0.0, min(1.0, p_under)))
+            p_push = float(max(0.0, min(1.0, p_push)))
+            return p_over, p_under, p_push
+        except Exception:
+            return 0.0, 0.0, 0.0
+
+    def _p_win_for_side(mu: float, sd: float, line: float, side: str) -> tuple[float | None, float]:
         s = str(side or "").strip().lower()
+        p_over, p_under, p_push = _p_over_under_push(mu, sd, line)
         if s in {"under", "u"}:
-            return _p_under(mu, sd, line)
+            return float(p_under), float(p_push)
         if s in {"over", "o"}:
-            return 1.0 - _p_under(mu, sd, line)
-        return None
+            return float(p_over), float(p_push)
+        return None, 0.0
 
     def _get_mu_sd(p: dict[str, Any], market: str) -> tuple[float | None, float | None]:
         m = str(market or "").strip().lower()
@@ -7904,12 +8107,12 @@ def _sim_vs_line_prop_recommendations(
                     mu, sd = _apply_guardrails(mu, sd, str(market))
                     if mu is None or sd is None:
                         continue
-                    pw = _p_win_for_side(float(mu), float(sd), float(line), str(side))
+                    pw, p_push = _p_win_for_side(float(mu), float(sd), float(line), str(side))
                     if pw is None:
                         continue
                     # Cap extremes to avoid infinite-looking EV from SD underestimation.
                     pw = float(max(0.02, min(0.98, float(pw))))
-                    ev = _ev_from_prob_and_american(float(pw), price if price is not None else -110)
+                    ev = _ev_per_unit(float(pw), _safe_float(price) if price is not None else -110.0, p_push=float(p_push))
                     if ev is None:
                         continue
                     if min_ev_pct is not None:
@@ -7961,10 +8164,10 @@ def _sim_vs_line_prop_recommendations(
                             mu, sd = _get_mu_sd(p, str(market))
                             mu, sd = _apply_guardrails(mu, sd, str(market))
                             if mu is not None and sd is not None:
-                                pw = _p_win_for_side(float(mu), float(sd), float(line), str(side))
+                                pw, p_push = _p_win_for_side(float(mu), float(sd), float(line), str(side))
                                 if pw is not None:
                                     pw = float(max(0.02, min(0.98, float(pw))))
-                                ev = _ev_from_prob_and_american(float(pw), price if price is not None else -110) if pw is not None else None
+                                ev = _ev_per_unit(float(pw), _safe_float(price) if price is not None else -110.0, p_push=float(p_push)) if pw is not None else None
                                 if pw is not None and ev is not None:
                                     if min_ev_pct is not None:
                                         try:
@@ -21466,8 +21669,13 @@ def api_live_player_lens():
     if not event_ids:
         return jsonify({"error": "missing event_ids"}), 400
 
+    # Normalize cache key so the same set of games hits cache regardless of ordering.
+    event_ids_for_key = sorted({str(x) for x in event_ids if str(x).strip()})
+    if not event_ids_for_key:
+        return jsonify({"error": "missing event_ids"}), 400
+
     now = time.time()
-    cache_key = f"{d}:{ttl}:{recent_window_sec}:" + ",".join(event_ids)
+    cache_key = f"{d}:{ttl}:{recent_window_sec}:" + ",".join(event_ids_for_key)
     ent = _live_player_lens_multi_cache.get(cache_key)
     if ent and (now - ent[0] < ttl):
         return jsonify(ent[1])
@@ -21475,6 +21683,50 @@ def api_live_player_lens():
     # Player prop signal thresholds (server-side) so each row can carry klass.
     player_prop_watch = 2.0
     player_prop_bet = 4.0
+
+    # Optional: sigma-based thresholds (per-stat) for higher signal consistency.
+    # These are opt-in so we can A/B against the legacy raw-strength thresholds.
+    sigma_env_raw = os.environ.get("LIVE_PLAYER_LENS_SIGMA_THRESHOLDS")
+    if sigma_env_raw is None or str(sigma_env_raw).strip() == "":
+        use_sigma_thresholds: bool | None = None  # infer from override when present
+    else:
+        try:
+            use_sigma_thresholds = str(sigma_env_raw).strip().lower() in {"1", "true", "yes"}
+        except Exception:
+            use_sigma_thresholds = False
+    sigma_watch_by_stat: dict[str, float] = {
+        # Conservative defaults: roughly "edge / typical sd".
+        "pts": 0.55,
+        "reb": 0.70,
+        "ast": 0.70,
+        "threes": 0.80,
+        "pra": 0.55,
+    }
+    sigma_bet_by_stat: dict[str, float] = {
+        "pts": 0.85,
+        "reb": 1.05,
+        "ast": 1.05,
+        "threes": 1.15,
+        "pra": 0.85,
+    }
+    sigma_watch_global = None
+    sigma_bet_global = None
+
+    # Optional: stricter market quality gating for klass.
+    try:
+        require_prices_for_signal = str(os.environ.get("LIVE_PLAYER_LENS_REQUIRE_PRICES_FOR_SIGNAL", "0")).strip().lower() in {"1", "true", "yes"}
+    except Exception:
+        require_prices_for_signal = False
+    try:
+        require_live_line_after_min = float(str(os.environ.get("LIVE_PLAYER_LENS_REQUIRE_LIVE_LINE_AFTER_MIN", "0")).strip())
+    except Exception:
+        require_live_line_after_min = 0.0
+    require_live_line_after_min = float(max(0.0, min(48.0, require_live_line_after_min)))
+    try:
+        require_min_books = int(float(str(os.environ.get("LIVE_PLAYER_LENS_REQUIRE_MIN_BOOKS", "0")).strip()))
+    except Exception:
+        require_min_books = 0
+    require_min_books = int(max(0, min(10, require_min_books)))
     # Player prop bettability gating (server-side): allow tuning override to control it.
     try:
         player_prop_bettability_gate = str(os.environ.get("LIVE_PLAYER_PROPS_BETTABLE_GATING", "0")).strip().lower() in {"1", "true", "yes"}
@@ -21485,11 +21737,7 @@ def api_live_player_lens():
     except Exception:
         player_prop_bettability_min_score = 0.60
     try:
-        override_path = _live_lens_artifacts_dir() / "live_lens_tuning_override.json"
-        if override_path.exists():
-            o = json.loads(override_path.read_text(encoding="utf-8"))
-        else:
-            o = None
+        o = _live_load_lens_override()
         if isinstance(o, dict):
             mk = o.get("markets")
             if isinstance(mk, dict):
@@ -21501,6 +21749,43 @@ def api_live_player_lens():
                         player_prop_watch = float(w)
                     if b is not None and b > 0:
                         player_prop_bet = float(b)
+
+                    # Optional sigma thresholds from override.
+                    try:
+                        wsg = _safe_float(pp.get("watch_sigma"))
+                        bsg = _safe_float(pp.get("bet_sigma"))
+                        if wsg is not None and wsg > 0:
+                            sigma_watch_global = float(wsg)
+                        if bsg is not None and bsg > 0:
+                            sigma_bet_global = float(bsg)
+                    except Exception:
+                        pass
+                    try:
+                        st_cfg = pp.get("sigma_thresholds")
+                        if isinstance(st_cfg, dict):
+                            for k0, vv in st_cfg.items():
+                                sk = _live_stat_key(k0)
+                                if not isinstance(vv, dict):
+                                    continue
+                                ww = _safe_float(vv.get("watch"))
+                                bb = _safe_float(vv.get("bet"))
+                                if ww is not None and ww > 0:
+                                    sigma_watch_by_stat[sk] = float(ww)
+                                if bb is not None and bb > 0:
+                                    sigma_bet_by_stat[sk] = float(bb)
+                    except Exception:
+                        pass
+
+                    # If LIVE_PLAYER_LENS_SIGMA_THRESHOLDS isn't explicitly set,
+                    # automatically enable sigma mode when override provides sigma thresholds.
+                    if use_sigma_thresholds is None:
+                        has_sigma = bool(
+                            (sigma_watch_global is not None)
+                            or (sigma_bet_global is not None)
+                            or (isinstance(pp.get("sigma_thresholds"), dict) and len(pp.get("sigma_thresholds")) > 0)
+                        )
+                        use_sigma_thresholds = bool(has_sigma)
+
                     bett = pp.get("bettability")
                     if isinstance(bett, dict):
                         try:
@@ -21517,6 +21802,10 @@ def api_live_player_lens():
                             pass
     except Exception:
         pass
+
+    # Default: if env isn't set and override has no sigma thresholds, keep legacy behavior.
+    if use_sigma_thresholds is None:
+        use_sigma_thresholds = False
 
     # Lookups from processed artifacts (best-effort; may be missing)
     edges_idx: dict[tuple[str, str, str], float] = {}
@@ -21549,23 +21838,8 @@ def api_live_player_lens():
             games_map = {}
 
     # Best-effort roster-based player_id lookup (fast, avoids per-row nba_api work).
-    roster_pid_by_team_nk: dict[tuple[str, str], int] = {}
     try:
-        roster = _ensure_rosters_loaded()
-        if isinstance(roster, pd.DataFrame) and (not roster.empty):
-            for _, rr in roster.iterrows():
-                try:
-                    tri0 = str(rr.get("TEAM_ABBREVIATION") or "").strip().upper()
-                    nm0 = str(rr.get("PLAYER") or "").strip()
-                    pid0 = _safe_int(rr.get("PLAYER_ID"))
-                    if not tri0 or not nm0 or pid0 is None:
-                        continue
-                    nk0 = _norm_player_name(nm0)
-                    if not nk0:
-                        continue
-                    roster_pid_by_team_nk[(tri0, nk0)] = int(pid0)
-                except Exception:
-                    continue
+        roster_pid_by_team_nk = _live_roster_pid_by_team_nk()
     except Exception:
         roster_pid_by_team_nk = {}
 
@@ -21810,25 +22084,78 @@ def api_live_player_lens():
             except Exception:
                 return 0.5
 
-        def _prob_over(mean: float, sd: float, line: float) -> float:
+        def _prob_over_under_push(mean: float, sd: float, line: float) -> tuple[float, float, float]:
+            """Approximate win probabilities for integer-valued props with pushes.
+
+            For most props we treat the final stat as integer-valued (points, rebounds,
+            assists, threes, PRA, etc.). When the book line is a whole number, a push
+            (X == line) is possible and materially affects EV.
+
+            We use a Normal approximation with continuity correction:
+              - Over wins if X >= line+1 when line is integer.
+              - Under wins if X <= line-1 when line is integer.
+              - Otherwise (half points / alt lines), push ~ 0.
+            """
             try:
                 if (not math.isfinite(mean)) or (not math.isfinite(sd)) or (not math.isfinite(line)):
-                    return 0.0
+                    return 0.0, 0.0, 0.0
                 if sd <= 1e-9:
-                    return 1.0 if mean > line else 0.0
-                z = (float(line) - float(mean)) / float(sd)
-                return float(max(0.0, min(1.0, 1.0 - _norm_cdf(z))))
-            except Exception:
-                return 0.0
+                    if mean > line:
+                        return 1.0, 0.0, 0.0
+                    if mean < line:
+                        return 0.0, 1.0, 0.0
+                    return 0.0, 0.0, 1.0
 
-        def _ev_per_unit(p: float, price: float | None) -> float | None:
-            # EV per 1u stake: p*(dec-1) - (1-p) == p*dec - 1
+                m = float(mean)
+                s = float(sd)
+                l = float(line)
+                is_int_line = abs(l - round(l)) <= 1e-6
+
+                if is_int_line:
+                    # Over: X >= L+1  -> threshold L+0.5
+                    z_over = (float(l + 0.5) - m) / s
+                    p_over = 1.0 - _norm_cdf(z_over)
+                    # Under: X <= L-1 -> threshold L-0.5
+                    z_under = (float(l - 0.5) - m) / s
+                    p_under = _norm_cdf(z_under)
+                    p_push = 1.0 - float(p_over) - float(p_under)
+                else:
+                    # No push at half points; wins are split by the line itself.
+                    z = (float(l) - m) / s
+                    p_over = 1.0 - _norm_cdf(z)
+                    p_under = 1.0 - float(p_over)
+                    p_push = 0.0
+
+                p_over = float(max(0.0, min(1.0, p_over)))
+                p_under = float(max(0.0, min(1.0, p_under)))
+                p_push = float(max(0.0, min(1.0, p_push)))
+                # Numerical guard: keep probabilities summing to <= 1.
+                s0 = float(p_over) + float(p_under) + float(p_push)
+                if s0 > 1.0 + 1e-6:
+                    # Normalize wins first, then leave push.
+                    denom = float(p_over) + float(p_under)
+                    if denom > 1e-9:
+                        scale = max(0.0, min(1.0, (1.0 - float(p_push)) / denom))
+                        p_over = float(p_over) * float(scale)
+                        p_under = float(p_under) * float(scale)
+                    else:
+                        p_over, p_under = 0.0, 0.0
+                        p_push = 1.0
+                return p_over, p_under, p_push
+            except Exception:
+                return 0.0, 0.0, 0.0
+
+        def _ev_per_unit(p_win: float, price: float | None, p_push: float = 0.0) -> float | None:
+            # EV per 1u stake with pushes: p_win*(dec-1) - p_lose
+            # where p_lose = 1 - p_win - p_push
+            # => EV = p_win*dec + p_push - 1
             try:
-                pv = float(max(0.0, min(1.0, float(p))))
+                pv = float(max(0.0, min(1.0, float(p_win))))
+                pp = float(max(0.0, min(1.0, float(p_push))))
                 dec = _american_to_decimal(price)
                 if dec is None:
                     return None
-                return float(pv * float(dec) - 1.0)
+                return float(pv * float(dec) + pp - 1.0)
             except Exception:
                 return None
 
@@ -22315,7 +22642,7 @@ def api_live_player_lens():
                             except Exception:
                                 sim_sd = None
 
-                        # Probability/EV based on live mean (pace projection when available).
+                        # Probability/EV based on mean (computed after pace_proj is available).
                         ev_side = None
                         win_prob_side = None
                         implied_prob_side = None
@@ -22324,38 +22651,6 @@ def api_live_player_lens():
                         win_prob_under = None
                         implied_prob_over = None
                         implied_prob_under = None
-                        try:
-                            mean_for_prob = None
-                            if pace_proj is not None and math.isfinite(float(pace_proj)):
-                                mean_for_prob = float(pace_proj)
-                            elif sim_mu is not None and math.isfinite(float(sim_mu)):
-                                mean_for_prob = float(sim_mu)
-
-                            if (mean_for_prob is not None) and (line_used is not None) and (sim_sd is not None) and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
-                                win_prob_over = _prob_over(float(mean_for_prob), float(sim_sd), float(line_used))
-                                win_prob_under = float(max(0.0, min(1.0, 1.0 - float(win_prob_over))))
-                                implied_prob_over = _implied_prob_american(price_over)
-                                implied_prob_under = _implied_prob_american(price_under)
-
-                                ev_over = _ev_per_unit(float(win_prob_over), price_over)
-                                ev_under = _ev_per_unit(float(win_prob_under), price_under)
-
-                                # Choose side by EV when prices exist; else leave null.
-                                if (ev_over is not None) or (ev_under is not None):
-                                    eo = float(ev_over) if (ev_over is not None and math.isfinite(float(ev_over))) else float("-inf")
-                                    eu = float(ev_under) if (ev_under is not None and math.isfinite(float(ev_under))) else float("-inf")
-                                    if eo >= eu:
-                                        ev_side = "OVER"
-                                        ev_best = None if eo == float("-inf") else eo
-                                        win_prob_side = float(win_prob_over)
-                                        implied_prob_side = implied_prob_over
-                                    else:
-                                        ev_side = "UNDER"
-                                        ev_best = None if eu == float("-inf") else eu
-                                        win_prob_side = float(win_prob_under)
-                                        implied_prob_side = implied_prob_under
-                        except Exception:
-                            pass
 
                         # Only emit rows when we have something useful to compare
                         if line_used is None and sim_mu is None and actual is None:
@@ -22573,6 +22868,41 @@ def api_live_player_lens():
                                 if prior_total is not None:
                                     # Minutes-based shrinkage: mp=0.. -> prior; mp big -> pace.
                                     k = 6.0
+                                    # Under volatile minutes/rotation conditions, shrink harder toward the prior.
+                                    try:
+                                        risk = 0.0
+                                        if bool(injury_flag):
+                                            risk += 0.9
+                                        try:
+                                            pf_i = int(round(float(pf))) if pf is not None else None
+                                        except Exception:
+                                            pf_i = None
+                                        if pf_i is not None and pf_i >= 5:
+                                            risk += 0.35
+                                        try:
+                                            em_v = float(elapsed_min) if elapsed_min is not None else 0.0
+                                        except Exception:
+                                            em_v = 0.0
+                                        try:
+                                            mabs_v = float(abs(int(margin))) if margin is not None else None
+                                        except Exception:
+                                            mabs_v = None
+                                        try:
+                                            st_bool_v = bool(starter) if starter is not None else None
+                                        except Exception:
+                                            st_bool_v = None
+                                        if st_bool_v is True and mabs_v is not None and mabs_v >= 18.0 and em_v >= 30.0:
+                                            risk += 0.40
+                                        try:
+                                            if rot_on_court is False and em_v >= 34.0:
+                                                risk += 0.25
+                                        except Exception:
+                                            pass
+                                        risk = float(max(0.0, min(2.0, risk)))
+                                        k = float(k) * float(1.0 + risk)
+                                    except Exception:
+                                        k = 6.0
+
                                     w = float(mp) / float(mp + k)
                                     w = max(0.0, min(1.0, w))
                                     pace_proj = float(w * pace_raw + (1.0 - w) * prior_total)
@@ -22581,22 +22911,163 @@ def api_live_player_lens():
                             except Exception:
                                 pace_proj = None
 
+                        # Probability/EV (now that pace_proj is available).
+                        try:
+                            mean_for_prob = None
+                            if pace_proj is not None and math.isfinite(float(pace_proj)):
+                                mean_for_prob = float(pace_proj)
+                            elif sim_mu is not None and math.isfinite(float(sim_mu)):
+                                mean_for_prob = float(sim_mu)
+
+                            if (mean_for_prob is not None) and (line_used is not None) and (sim_sd is not None) and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
+                                # Accuracy: the uncertainty about the *final* stat should shrink as minutes elapse.
+                                # Approximate remaining variance by scaling full-game SD by sqrt(remaining_minutes/expected_minutes).
+                                sd_for_prob = float(sim_sd)
+                                try:
+                                    mp0 = float(mp) if mp is not None and math.isfinite(float(mp)) else None
+                                except Exception:
+                                    mp0 = None
+                                try:
+                                    expm0 = float(proj_min_final) if proj_min_final is not None and math.isfinite(float(proj_min_final)) else None
+                                except Exception:
+                                    expm0 = None
+                                if expm0 is not None:
+                                    expm0 = float(max(1.0, min(48.0, expm0)))
+                                if mp0 is not None:
+                                    mp0 = float(max(0.0, min(48.0, mp0)))
+
+                                # Stat-specific SD floors: avoid pathological certainty late.
+                                try:
+                                    sd_floor = {
+                                        "pts": 2.5,
+                                        "reb": 1.1,
+                                        "ast": 1.1,
+                                        "threes": 0.7,
+                                        "pra": 3.2,
+                                        "pa": 2.8,
+                                        "pr": 2.8,
+                                        "ra": 2.2,
+                                    }.get(str(stat_key), 1.0)
+                                    sd_floor = float(max(0.5, min(10.0, float(sd_floor))))
+                                except Exception:
+                                    sd_floor = 1.0
+
+                                try:
+                                    if expm0 is not None and mp0 is not None:
+                                        rem = float(max(0.0, expm0 - mp0))
+                                        frac = float(max(0.0, min(1.0, rem / expm0)))
+                                        # If the player is projected to finish with very low minutes, don't over-shrink.
+                                        if expm0 < 14.0:
+                                            frac = float(max(frac, 0.60))
+                                        sd_for_prob = float(sd_for_prob) * float(math.sqrt(max(1e-6, frac)))
+                                except Exception:
+                                    sd_for_prob = float(sim_sd)
+
+                                # Volatility bumps: when minutes are unstable, widen the distribution.
+                                sd_mult = 1.0
+                                try:
+                                    if bool(injury_flag):
+                                        sd_mult *= 1.25
+                                except Exception:
+                                    pass
+                                try:
+                                    pf_i2 = int(round(float(pf))) if pf is not None else None
+                                except Exception:
+                                    pf_i2 = None
+                                if pf_i2 is not None and pf_i2 >= 5:
+                                    sd_mult *= 1.12
+                                # Late blowouts: minutes volatility dominates.
+                                try:
+                                    em2 = float(elapsed_min) if elapsed_min is not None else 0.0
+                                except Exception:
+                                    em2 = 0.0
+                                try:
+                                    mabs2 = float(abs(int(margin))) if margin is not None else None
+                                except Exception:
+                                    mabs2 = None
+                                try:
+                                    st_bool2 = bool(starter) if starter is not None else None
+                                except Exception:
+                                    st_bool2 = None
+                                if st_bool2 is True and mabs2 is not None and mabs2 >= 18.0 and em2 >= 30.0:
+                                    sd_mult *= 1.10
+                                # Rotation uncertainty late if the player isn't currently on-court.
+                                try:
+                                    if rot_on_court is False and em2 >= 34.0:
+                                        sd_mult *= 1.08
+                                except Exception:
+                                    pass
+
+                                sd_for_prob = float(max(sd_floor, float(sd_for_prob) * float(sd_mult)))
+
+                                p_over, p_under, p_push = _prob_over_under_push(float(mean_for_prob), float(sd_for_prob), float(line_used))
+                                win_prob_over = float(p_over)
+                                win_prob_under = float(p_under)
+                                implied_prob_over = _implied_prob_american(price_over)
+                                implied_prob_under = _implied_prob_american(price_under)
+
+                                # Cap extremes to avoid unstable EV when SD is under-estimated.
+                                win_prob_over = float(max(0.01, min(0.99, float(win_prob_over))))
+                                win_prob_under = float(max(0.01, min(0.99, float(win_prob_under))))
+
+                                ev_over = _ev_per_unit(float(win_prob_over), price_over, p_push=float(p_push))
+                                ev_under = _ev_per_unit(float(win_prob_under), price_under, p_push=float(p_push))
+
+                                if (ev_over is not None) or (ev_under is not None):
+                                    eo = float(ev_over) if (ev_over is not None and math.isfinite(float(ev_over))) else float("-inf")
+                                    eu = float(ev_under) if (ev_under is not None and math.isfinite(float(ev_under))) else float("-inf")
+                                    if eo >= eu:
+                                        ev_side = "OVER"
+                                        ev_best = None if eo == float("-inf") else eo
+                                        win_prob_side = float(win_prob_over)
+                                        implied_prob_side = implied_prob_over
+                                    else:
+                                        ev_side = "UNDER"
+                                        ev_best = None if eu == float("-inf") else eu
+                                        win_prob_side = float(win_prob_under)
+                                        implied_prob_side = implied_prob_under
+                        except Exception:
+                            pass
+
                         pace_vs_line = (pace_proj - float(line_used)) if (pace_proj is not None and line_used is not None) else None
                         sim_vs_line = (sim_mu - float(line_used)) if (sim_mu is not None and line_used is not None) else None
 
                         lean = None
                         strength = None
+                        strength_sigma = None
                         klass = "NONE"
                         if pace_vs_line is not None:
                             lean = "OVER" if pace_vs_line > 0 else ("UNDER" if pace_vs_line < 0 else None)
                             strength = abs(float(pace_vs_line))
+
+                            # Sigma-normalize when possible.
                             try:
-                                if strength >= float(player_prop_bet):
-                                    klass = "BET"
-                                elif strength >= float(player_prop_watch):
-                                    klass = "WATCH"
+                                if sim_sd is not None and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
+                                    strength_sigma = float(strength) / float(sim_sd)
+                            except Exception:
+                                strength_sigma = None
+
+                            try:
+                                if bool(use_sigma_thresholds) and (strength_sigma is not None) and math.isfinite(float(strength_sigma)):
+                                    st0 = _live_stat_key(stat_key)
+                                    w_thr = float(sigma_watch_by_stat.get(st0, sigma_watch_global if sigma_watch_global is not None else 0.65))
+                                    b_thr = float(sigma_bet_by_stat.get(st0, sigma_bet_global if sigma_bet_global is not None else 0.95))
+                                    # Enforce b >= w
+                                    if b_thr < w_thr:
+                                        b_thr = w_thr
+                                    if float(strength_sigma) >= float(b_thr):
+                                        klass = "BET"
+                                    elif float(strength_sigma) >= float(w_thr):
+                                        klass = "WATCH"
+                                    else:
+                                        klass = "NONE"
                                 else:
-                                    klass = "NONE"
+                                    if strength >= float(player_prop_bet):
+                                        klass = "BET"
+                                    elif strength >= float(player_prop_watch):
+                                        klass = "WATCH"
+                                    else:
+                                        klass = "NONE"
                             except Exception:
                                 klass = "NONE"
 
@@ -22606,6 +23077,31 @@ def api_live_player_lens():
                         if line_source in {None, "model"}:
                             klass = "NONE"
 
+                        # Optional stricter constraints for higher signal quality.
+                        try:
+                            em0 = float(elapsed_min) if elapsed_min is not None else 0.0
+                        except Exception:
+                            em0 = 0.0
+
+                        # Require prices for BET/WATCH when enabled.
+                        if bool(require_prices_for_signal) and klass in {"BET", "WATCH"}:
+                            if price_over is None and price_under is None:
+                                klass = "NONE"
+
+                        # Require a live line (OddsAPI) after a given game minute.
+                        if float(require_live_line_after_min) > 0 and klass in {"BET", "WATCH"} and em0 >= float(require_live_line_after_min):
+                            if line_source != "oddsapi":
+                                klass = "NONE"
+
+                        # Require minimum number of books contributing to the line.
+                        if int(require_min_books) > 0 and klass in {"BET", "WATCH"}:
+                            try:
+                                nn = int(line_live_n) if line_live_n is not None else 0
+                            except Exception:
+                                nn = 0
+                            if nn > 0 and nn < int(require_min_books):
+                                klass = "NONE"
+
                         # Bettability signals (server-side): enrich rows and optionally gate klass.
                         bettable_score = None
                         bettable = None
@@ -22613,6 +23109,10 @@ def api_live_player_lens():
                         price_hold = None
                         edge_sigma = None
                         klass_raw = klass
+                        try:
+                            gate_neg_ev = str(os.environ.get("LIVE_PLAYER_LENS_GATE_NEGATIVE_EV", "0")).strip().lower() in {"1", "true", "yes"}
+                        except Exception:
+                            gate_neg_ev = False
                         try:
                             # Base requirements
                             score = 1.0
@@ -22630,6 +23130,17 @@ def api_live_player_lens():
                             if score > 0 and (line_source == "pregame") and em >= 12.0:
                                 score -= 0.20
                                 bettable_reasons.append("pregame_line_in_live")
+
+                            # Freshness: unknown age is a risk once the game is underway.
+                            try:
+                                soft_max_age = int(float(str(os.environ.get("LIVE_PLAYER_LENS_LINE_AGE_SOFT_MAX_SEC", "600")).strip()))
+                            except Exception:
+                                soft_max_age = 600
+                            soft_max_age = int(max(60, min(3600, soft_max_age)))
+
+                            if score > 0 and line_source == "oddsapi" and em >= 6.0 and line_live_age_sec is None:
+                                score -= 0.12
+                                bettable_reasons.append("line_unknown_age")
 
                             # Prices
                             if score > 0 and (price_over is None or price_under is None):
@@ -22674,12 +23185,29 @@ def api_live_player_lens():
                                 bettable_reasons.append("blowout_risk")
 
                             # Line staleness / market disagreement
-                            if line_live_age_sec is not None and math.isfinite(float(line_live_age_sec)) and float(line_live_age_sec) > 600.0:
-                                score -= 0.10
+                            if line_live_age_sec is not None and math.isfinite(float(line_live_age_sec)) and float(line_live_age_sec) > float(soft_max_age):
+                                score -= 0.15
                                 bettable_reasons.append("line_old")
                             if line_live_span is not None and math.isfinite(float(line_live_span)) and float(line_live_span) >= 1.0:
-                                score -= 0.10
+                                score -= 0.12
                                 bettable_reasons.append("market_disagreement")
+                            # If OddsAPI only gives us one book/point, downweight confidence.
+                            if line_live_n is not None:
+                                try:
+                                    nn = int(line_live_n)
+                                    if nn <= 1:
+                                        score -= 0.10
+                                        bettable_reasons.append("single_book")
+                                    elif nn == 2:
+                                        score -= 0.05
+                                        bettable_reasons.append("two_books")
+                                except Exception:
+                                    pass
+
+                            # Optional: don't allow BET/WATCH when best-available EV is negative.
+                            if bool(gate_neg_ev) and (ev_best is not None) and math.isfinite(float(ev_best)) and float(ev_best) < 0.0:
+                                score -= 0.25
+                                bettable_reasons.append("negative_ev")
 
                             # Edge vs volatility
                             if strength is not None and sim_sd is not None and math.isfinite(float(sim_sd)) and float(sim_sd) > 1e-6:
@@ -22763,6 +23291,7 @@ def api_live_player_lens():
                             "sim_vs_line": sim_vs_line,
                             "lean": lean,
                             "strength": strength,
+                            "strength_sigma": strength_sigma,
                             "klass": klass,
                             "klass_raw": klass_raw,
                             "bettable": bettable,
@@ -25227,10 +25756,26 @@ def api_cron_refresh_oddsapi_props():
 
     py = _resolve_python()
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    log_file = logs_dir / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
+    try:
+        log_file = logs_dir / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
+    except Exception:
+        # Extremely defensive fallback: ensure we can still run without logging.
+        log_file = Path("/tmp") / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
     try:
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
+
+        # Fast preflight: if OddsAPI key is missing, treat as a clean no-op.
+        api_key = (os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY") or "").strip()
+        if not api_key:
+            return jsonify({
+                "date": d,
+                "regions": regions,
+                "markets": markets,
+                "skipped": True,
+                "reason": "missing ODDS_API_KEY",
+                "log_file": str(log_file),
+            }), 200
 
         # 1) Snapshot player props to data/raw
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
@@ -25304,6 +25849,8 @@ def api_cron_refresh_oddsapi_props():
             ok, detail = _git_commit_and_push(msg=f"refresh-oddsapi-props {d}")
             pushed = bool(ok); push_detail = detail
 
+        # Note: even if CLI rc != 0, return 200 so Render Cron Jobs don't show "failed"
+        # for expected operational conditions (rate limits, no markets yet, etc.).
         return jsonify({
             "date": d,
             "regions": regions,
@@ -25320,9 +25867,16 @@ def api_cron_refresh_oddsapi_props():
             "log_file": str(log_file),
             "pushed": pushed,
             "push_detail": push_detail,
-        })
+        }), 200
     except Exception as e:
-        return jsonify({"error": f"oddsapi props refresh failed: {e}", "log_file": str(log_file)}), 500
+        # Still avoid non-2xx for cron: return diagnostics for inspection.
+        return jsonify({
+            "date": d,
+            "regions": regions,
+            "markets": markets,
+            "error": f"oddsapi props refresh failed: {e}",
+            "log_file": str(log_file),
+        }), 200
 
 
 @app.route("/api/cron/probe-bovada")

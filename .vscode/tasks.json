@@ -213,7 +213,7 @@
 				"-ExecutionPolicy",
 				"Bypass",
 				"-Command",
-				"$end = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd'); $start = (Get-Date).AddDays(-14).ToString('yyyy-MM-dd'); & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\optimize_live_lens_player_prop_thresholds.py' --start $start --end $end --min-bets 40 --write-override"
+				"$end = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd'); $start = (Get-Date).AddDays(-14).ToString('yyyy-MM-dd'); & '${workspaceFolder}\\.venv\\Scripts\\python.exe' '${workspaceFolder}\\tools\\optimize_live_lens_player_prop_thresholds.py' --start $start --end $end --min-bets 40 --also-sigma --sigma-per-stat --sigma-min-bets-per-stat 15 --write-override"
 			],
 			"isBackground": false,
 			"group": "build",

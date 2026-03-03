@@ -223,6 +223,20 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
         if strength is None:
             continue
 
+        # sim_sd is often logged in the player-prop signal context; if missing,
+        # use conservative market-level fallbacks to enable sigma tuning.
+        sim_sd = None
+        try:
+            sim_sd = _n(obj.get("sim_sd"))
+        except Exception:
+            sim_sd = None
+        ctx = obj.get("context")
+        if sim_sd is None and isinstance(ctx, dict):
+            try:
+                sim_sd = _n(ctx.get("sim_sd"))
+            except Exception:
+                sim_sd = None
+
         side = str(obj.get("side") or "").strip().upper()
         line = _n(obj.get("line"))
         if not side or line is None:
@@ -233,6 +247,29 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
         stat_key = _live_stat_key(stat)
         name_key = str(obj.get("name_key") or "").strip().upper() or _norm_player_name(player)
 
+        if sim_sd is None:
+            try:
+                fallback_sd = {
+                    "pts": 7.0,
+                    "reb": 3.0,
+                    "ast": 3.0,
+                    "threes": 1.4,
+                    "pra": 9.0,
+                    "pr": 6.5,
+                    "pa": 6.5,
+                    "ra": 4.5,
+                }.get(str(stat_key), 6.0)
+                sim_sd = float(fallback_sd)
+            except Exception:
+                sim_sd = None
+
+        strength_sigma = None
+        try:
+            if sim_sd is not None and float(sim_sd) > 1e-9:
+                strength_sigma = float(strength) / float(sim_sd)
+        except Exception:
+            strength_sigma = None
+
         actual = _actual_prop(name_key, stat_key, rp)
         if actual is None:
             continue
@@ -241,7 +278,6 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
         if outcome not in {"WIN", "LOSS", "PUSH"}:
             continue
 
-        ctx = obj.get("context")
         ctx_price = None
         if isinstance(ctx, dict):
             if side == "OVER":
@@ -264,6 +300,8 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
                 "line": float(line),
                 "actual": float(actual),
                 "strength": float(strength),
+                "sim_sd": (float(sim_sd) if sim_sd is not None else None),
+                "strength_sigma": (float(strength_sigma) if strength_sigma is not None else None),
                 "price": float(price),
                 "outcome": outcome,
                 "profit_u": float(profit),
@@ -273,14 +311,18 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
     return rows
 
 
-def _score_thresholds(df: pd.DataFrame, watch_thr: float, bet_thr: float, min_bets: int) -> dict[str, Any] | None:
+def _score_thresholds(df: pd.DataFrame, metric_col: str, watch_thr: float, bet_thr: float, min_bets: int) -> dict[str, Any] | None:
     if df is None or df.empty:
         return None
     if bet_thr < watch_thr:
         return None
+    if metric_col not in df.columns:
+        return None
 
     d = df.copy()
-    s = d["strength"].astype(float)
+    s = pd.to_numeric(d.get(metric_col), errors="coerce")
+    if s is None:
+        return None
     d["klass"] = "NONE"
     d.loc[s >= float(watch_thr), "klass"] = "WATCH"
     d.loc[s >= float(bet_thr), "klass"] = "BET"
@@ -299,6 +341,7 @@ def _score_thresholds(df: pd.DataFrame, watch_thr: float, bet_thr: float, min_be
     wr = wins / float(wr_denom)
 
     return {
+        "metric": str(metric_col),
         "watch": float(watch_thr),
         "bet": float(bet_thr),
         "bets": int(len(bets)),
@@ -311,7 +354,24 @@ def _score_thresholds(df: pd.DataFrame, watch_thr: float, bet_thr: float, min_be
     }
 
 
-def _merge_override(payload: dict[str, Any], override_path: Path) -> None:
+def _best_thresholds(df: pd.DataFrame, metric_col: str, watch_grid: list[float], bet_grid: list[float], min_bets: int) -> pd.DataFrame:
+    scored: list[dict[str, Any]] = []
+    for w in watch_grid:
+        for b in bet_grid:
+            ent = _score_thresholds(df, metric_col, w, b, min_bets=int(min_bets))
+            if ent:
+                scored.append(ent)
+    if not scored:
+        return pd.DataFrame()
+    return pd.DataFrame(scored).sort_values(["roi_u_per_bet", "profit_u", "bets"], ascending=[False, False, False])
+
+
+def _merge_override(
+    payload: dict[str, Any],
+    override_path: Path,
+    sigma_global: dict[str, Any] | None = None,
+    sigma_by_stat: dict[str, dict[str, Any]] | None = None,
+) -> None:
     base: dict[str, Any] = {}
     if override_path.exists():
         try:
@@ -331,6 +391,33 @@ def _merge_override(payload: dict[str, Any], override_path: Path) -> None:
 
     pp["watch"] = float(payload["watch"])
     pp["bet"] = float(payload["bet"])
+
+    # Optional sigma thresholds (used when LIVE_PLAYER_LENS_SIGMA_THRESHOLDS=1).
+    try:
+        if isinstance(sigma_global, dict):
+            wsg = sigma_global.get("watch")
+            bsg = sigma_global.get("bet")
+            if wsg is not None:
+                pp["watch_sigma"] = float(wsg)
+            if bsg is not None:
+                pp["bet_sigma"] = float(bsg)
+    except Exception:
+        pass
+    try:
+        if isinstance(sigma_by_stat, dict) and sigma_by_stat:
+            out_cfg: dict[str, Any] = {}
+            for st, vv in sigma_by_stat.items():
+                if not isinstance(vv, dict):
+                    continue
+                w0 = vv.get("watch")
+                b0 = vv.get("bet")
+                if w0 is None or b0 is None:
+                    continue
+                out_cfg[str(st)] = {"watch": float(w0), "bet": float(b0)}
+            if out_cfg:
+                pp["sigma_thresholds"] = out_cfg
+    except Exception:
+        pass
     markets["player_prop"] = pp
     base["markets"] = markets
 
@@ -360,6 +447,22 @@ def main() -> int:
         action="store_true",
         help="Merge best thresholds into <NBA_LIVE_LENS_DIR>/live_lens_tuning_override.json (defaults to data/processed)",
     )
+    ap.add_argument(
+        "--also-sigma",
+        action="store_true",
+        help="Also optimize sigma-normalized thresholds (strength_sigma) and include them in the output + override when available.",
+    )
+    ap.add_argument(
+        "--sigma-per-stat",
+        action="store_true",
+        help="When also tuning sigma thresholds, optimize separately per stat (pts/reb/ast/threes/pra).",
+    )
+    ap.add_argument(
+        "--sigma-min-bets-per-stat",
+        type=int,
+        default=15,
+        help="Minimum settled bets for per-stat sigma tuning (default: 15).",
+    )
     args = ap.parse_args()
 
     start = _parse_date(args.start)
@@ -378,34 +481,83 @@ def main() -> int:
 
     df = pd.concat(frames, ignore_index=True)
 
+    # ---- Raw strength thresholds (legacy) ----
     watch_grid = [1.5, 2.0, 2.5, 3.0, 3.5]
     bet_grid = [2.5, 3.0, 3.5, 4.0, 4.5, 5.0]
-
-    scored: list[dict[str, Any]] = []
-    for w in watch_grid:
-        for b in bet_grid:
-            ent = _score_thresholds(df, w, b, min_bets=int(args.min_bets))
-            if ent:
-                scored.append(ent)
-
-    if not scored:
-        print("No thresholds met min_bets")
+    res_raw = _best_thresholds(df, "strength", watch_grid, bet_grid, min_bets=int(args.min_bets))
+    if res_raw.empty:
+        print("No thresholds met min_bets (raw strength)")
         return 2
+    res_raw["stat_scope"] = "ALL"
 
-    res = pd.DataFrame(scored).sort_values(["roi_u_per_bet", "profit_u", "bets"], ascending=[False, False, False])
+    # ---- Sigma thresholds (optional) ----
+    res_sigma_all = pd.DataFrame()
+    res_sigma_stats: list[pd.DataFrame] = []
+    sigma_global_best: dict[str, Any] | None = None
+    sigma_by_stat_best: dict[str, dict[str, Any]] = {}
+    also_sigma = bool(args.also_sigma) or (str(os.environ.get("LIVE_LENS_TUNE_SIGMA", "1")).strip().lower() in {"1", "true", "yes"})
+    sigma_per_stat = bool(args.sigma_per_stat) or (str(os.environ.get("LIVE_LENS_TUNE_SIGMA_PER_STAT", "1")).strip().lower() in {"1", "true", "yes"})
+
+    if also_sigma and ("strength_sigma" in df.columns):
+        df_sigma = df[pd.to_numeric(df.get("strength_sigma"), errors="coerce").notna()].copy()
+        if not df_sigma.empty:
+            watch_grid_sigma = [0.45, 0.55, 0.65, 0.75, 0.85]
+            bet_grid_sigma = [0.70, 0.85, 1.00, 1.15, 1.30]
+
+            res_sigma_all = _best_thresholds(df_sigma, "strength_sigma", watch_grid_sigma, bet_grid_sigma, min_bets=int(args.min_bets))
+            if not res_sigma_all.empty:
+                res_sigma_all["stat_scope"] = "ALL"
+                try:
+                    sigma_global_best = {
+                        "watch": float(res_sigma_all.iloc[0].get("watch")),
+                        "bet": float(res_sigma_all.iloc[0].get("bet")),
+                    }
+                except Exception:
+                    sigma_global_best = None
+
+            if sigma_per_stat:
+                for st in sorted({str(x) for x in df_sigma.get("stat").astype(str).tolist()}):
+                    dd = df_sigma[df_sigma.get("stat").astype(str) == str(st)].copy()
+                    if dd.empty:
+                        continue
+                    res_st = _best_thresholds(dd, "strength_sigma", watch_grid_sigma, bet_grid_sigma, min_bets=int(args.sigma_min_bets_per_stat))
+                    if res_st.empty:
+                        continue
+                    res_st["stat_scope"] = str(st)
+                    res_sigma_stats.append(res_st)
+                    try:
+                        sigma_by_stat_best[str(st)] = {
+                            "watch": float(res_st.iloc[0].get("watch")),
+                            "bet": float(res_st.iloc[0].get("bet")),
+                        }
+                    except Exception:
+                        pass
+
+    # Combine results for output CSV.
+    res = pd.concat([x for x in [res_raw, res_sigma_all] if isinstance(x, pd.DataFrame) and (not x.empty)] + res_sigma_stats, ignore_index=True)
 
     out_path = Path(args.out) if args.out else (LIVE_LENS_DIR / f"live_lens_player_prop_thresholds_{start.isoformat()}_{end.isoformat()}.csv")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     res.to_csv(out_path, index=False)
 
-    best = res.iloc[0].to_dict()
-    print("Best:", best)
+    best = res_raw.iloc[0].to_dict()
+    print("Best (raw strength):", best)
+    if not res_sigma_all.empty:
+        try:
+            print("Best (sigma ALL):", res_sigma_all.iloc[0].to_dict())
+        except Exception:
+            pass
+    if sigma_by_stat_best:
+        try:
+            print("Best (sigma per-stat):", sigma_by_stat_best)
+        except Exception:
+            pass
     print("Wrote:", out_path)
 
     if args.write_override:
         override_path = LIVE_LENS_DIR / "live_lens_tuning_override.json"
         override_path.parent.mkdir(parents=True, exist_ok=True)
-        _merge_override(best, override_path)
+        _merge_override(best, override_path, sigma_global=sigma_global_best, sigma_by_stat=sigma_by_stat_best or None)
         print("Wrote override:", override_path)
 
     return 0
