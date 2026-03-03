@@ -1,0 +1,25 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1631106,Tari,Eason,T. Eason,tari-eason,F,,,24:34,4,11,0.364,0,2,0.0,1,1,1.0,2,4,6,2,0,1,0,1,9,13.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,201142,Kevin,Durant,K. Durant,kevin-durant,F,,,37:01,8,15,0.533,3,6,0.5,11,11,1.0,1,6,7,1,0,1,6,1,30,-1.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1630578,Alperen,Sengun,A. Sengun,alperen-sengun,C,,,38:04,12,20,0.6,0,1,0.0,8,11,0.727,6,7,13,2,1,1,8,2,32,-4.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1641708,Amen,Thompson,A. Thompson,amen-thompson,G,,,30:55,10,15,0.667,1,1,1.0,1,1,1.0,3,9,12,4,2,0,2,2,22,6.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1642263,Reed,Sheppard,R. Sheppard,reed-sheppard,G,,,42:05,7,18,0.389,4,11,0.364,1,2,0.5,0,7,7,10,6,2,3,2,19,10.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1627827,Dorian,Finney-Smith,D. Finney-Smith,dorian-finney-smith,,,,26:58,2,6,0.333,1,1,1.0,0,0,0.0,3,3,6,1,1,0,0,2,5,1.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,203991,Clint,Capela,C. Capela,clint-capela,,,,11:16,1,3,0.333,0,0,0.0,2,2,1.0,6,2,8,1,0,0,1,2,4,6.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1628988,Aaron,Holiday,A. Holiday,aaron-holiday,,,,20:07,1,3,0.333,0,2,0.0,0,0,0.0,0,0,0,0,0,0,0,1,2,-8.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1629006,Josh,Okogie,J. Okogie,josh-okogie,,,,8:59,0,1,0.0,0,1,0.0,0,0,0.0,0,0,0,0,0,0,0,4,0,2.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1642384,Isaiah,Crawford,I. Crawford,isaiah-crawford,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,201145,Jeff,Green,J. Green,jeff-green,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500879
+0022500879,1610612745,Houston,Rockets,HOU,rockets,1630256,Jae'Sean,Tate,J. Tate,jaesean-tate,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1641731,Bilal,Coulibaly,B. Coulibaly,bilal-coulibaly,F,,,26:30,9,16,0.563,5,7,0.714,0,0,0.0,0,1,1,0,1,2,1,2,23,4.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642273,Kyshawn,George,K. George,kyshawn-george,F,,,21:36,5,13,0.385,3,6,0.5,3,4,0.75,0,1,1,2,1,0,0,2,16,-5.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642882,Julian,Reese,J. Reese,julian-reese,C,,,27:40,1,3,0.333,0,0,0.0,0,0,0.0,0,4,4,0,3,0,4,6,2,-12.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642848,Tre,Johnson,T. Johnson,tre-johnson,G,,,21:31,2,10,0.2,1,3,0.333,0,0,0.0,1,3,4,3,1,1,1,2,5,-5.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642267,Bub,Carrington,B. Carrington,bub-carrington,G,,,28:25,4,10,0.4,2,3,0.667,1,1,1.0,2,3,5,4,2,0,0,1,11,1.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1630536,Sharife,Cooper,S. Cooper,sharife-cooper,,,,17:29,8,10,0.8,3,4,0.75,2,2,1.0,1,1,2,3,0,0,0,1,21,7.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642860,Will,Riley,W. Riley,will-riley,,,,32:59,1,9,0.111,1,5,0.2,4,4,1.0,0,1,1,1,3,0,2,3,7,-13.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1630551,Justin,Champagnie,J. Champagnie,justin-champagnie,,,,26:55,5,7,0.714,2,3,0.667,0,0,0.0,2,0,2,2,3,1,2,3,12,3.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1642364,Jamir,Watkins,J. Watkins,jamir-watkins,,,,18:28,3,4,0.75,1,2,0.5,0,0,0.0,0,3,3,4,1,0,0,3,7,4.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1630702,Jaden,Hardy,J. Hardy,jaden-hardy,,,,18:27,6,9,0.667,1,2,0.5,1,3,0.333,1,3,4,1,0,0,2,1,14,-9.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1630264,Anthony,Gill,A. Gill,anthony-gill,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500879
+0022500879,1610612764,Washington,Wizards,WAS,wizards,1641774,Tristan,Vukcevic,T. Vukcevic,tristan-vukcevic,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500879

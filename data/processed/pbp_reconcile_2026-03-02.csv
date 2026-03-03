@@ -1,0 +1,5 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-03-02,0022500879,WAS,HOU,0.5,,,,Amen Thompson,0.1175542255160903,,,,,1.0895600074807188,0.6636355410017531,,,
+2026-03-02,0022500880,MIL,BOS,0.5,,,,Derrick White,0.1126462447314954,,,,,1.298283800767513,0.727000086532888,,,
+2026-03-02,0022500881,UTA,DEN,0.5,,,,Jamal Murray,0.1113325152160082,,,,,1.169340617710224,0.6894283407838344,,,
+2026-03-02,0022500882,GSW,LAC,0.5,,,,James Harden,0.1183319088625778,,,,,1.2884990847432656,0.7243157485793319,,,
