@@ -18,7 +18,7 @@ export PYTHONUNBUFFERED=1
 # Default: mild correlated scoring variance (mean-preserving), tuned via eval sweeps.
 export CONNECTED_CORRELATED_SCORING_ALPHA=${CONNECTED_CORRELATED_SCORING_ALPHA:-0.2}
 
-echo "Using PORT=${PORT:-5000} WEB_CONCURRENCY=${WEB_CONCURRENCY:-1} WEB_THREADS=${WEB_THREADS:-4}"
+echo "Using PORT=${PORT:-5000} WEB_CONCURRENCY=${WEB_CONCURRENCY:-1} WEB_THREADS=${WEB_THREADS:-1} GUNICORN_MAX_REQUESTS=${GUNICORN_MAX_REQUESTS:-0}"
 
 # IMPORTANT (Render memory): boot should be as light as possible.
 # The prestart refresh/export jobs can be CPU/memory heavy and can cause OOM
@@ -69,6 +69,8 @@ exec gunicorn app:app \
   --bind 0.0.0.0:${PORT:-5000} \
   --workers ${WEB_CONCURRENCY:-1} \
   --worker-class gthread \
-  --threads ${WEB_THREADS:-4} \
+  --threads ${WEB_THREADS:-1} \
+  --max-requests ${GUNICORN_MAX_REQUESTS:-0} \
+  --max-requests-jitter ${GUNICORN_MAX_REQUESTS_JITTER:-0} \
   --timeout 120 \
   --log-level info

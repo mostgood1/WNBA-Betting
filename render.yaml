@@ -19,7 +19,12 @@ services:
       - key: WEB_CONCURRENCY
         value: "1"
       - key: WEB_THREADS
-        value: "4"
+        value: "1"
+      # Reduce long-lived memory growth on small instances
+      - key: GUNICORN_MAX_REQUESTS
+        value: "200"
+      - key: GUNICORN_MAX_REQUESTS_JITTER
+        value: "50"
       - key: ALLOW_REMOTE_ARTIFACTS
         value: "1"
       - key: CONNECTED_CORRELATED_SCORING_ALPHA
