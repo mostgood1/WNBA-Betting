@@ -6728,6 +6728,122 @@ _job_state = {
     "log_file": None,
 }
 
+# Separate lightweight job state for OddsAPI props refresh (snapshot/edges/export).
+_oddsapi_props_job_state = {
+    "running": False,
+    "started_at": None,
+    "ended_at": None,
+    "ok": None,
+    "log_file": None,
+    "last": None,
+}
+
+
+def _oddsapi_props_refresh_job(
+    *,
+    date_str: str,
+    regions: str,
+    markets: str,
+    do_edges: bool,
+    do_export: bool,
+    do_push: bool,
+    log_file: Path,
+) -> None:
+    """Background job for refresh-oddsapi-props.
+
+    Runs the same subprocess steps as the synchronous endpoint, but out-of-band so
+    the HTTP request can return quickly (avoid proxy/gunicorn timeouts).
+    """
+    _oddsapi_props_job_state["running"] = True
+    _oddsapi_props_job_state["started_at"] = datetime.utcnow().isoformat()
+    _oddsapi_props_job_state["ended_at"] = None
+    _oddsapi_props_job_state["ok"] = None
+    _oddsapi_props_job_state["log_file"] = str(log_file)
+    _oddsapi_props_job_state["last"] = {
+        "date": date_str,
+        "regions": regions,
+        "markets": markets,
+        "edges": bool(do_edges),
+        "export": bool(do_export),
+        "push": bool(do_push),
+    }
+
+    try:
+        py = _resolve_python()
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
+
+        # 1) Snapshot player props to data/raw
+        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
+        if markets:
+            snap_cmd += ["--markets", markets]
+        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # 2) Optionally compute props edges from OddsAPI
+        rc_edges = None
+        if do_edges:
+            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
+            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # 3) Optionally export props recommendations
+        rc_export = None
+        if do_export:
+            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
+            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
+        try:
+            from nba_betting.config import paths as _paths  # type: ignore
+
+            raw_fp = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+            edges_fp = _paths.data_processed / f"props_edges_{date_str}.csv"
+            rec_fp = _paths.data_processed / f"props_recommendations_{date_str}.csv"
+        except Exception:
+            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+            edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
+            rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+
+        snap_rows = _count_csv_rows_quick(raw_fp)
+        edges_rows = _count_csv_rows_quick(edges_fp)
+        rec_rows = _count_csv_rows_quick(rec_fp)
+
+        # Cron meta best-effort
+        try:
+            _cron_meta_update(
+                "refresh_oddsapi_props",
+                {
+                    "date": date_str,
+                    "regions": regions,
+                    "markets": markets,
+                    "rc_snapshot": int(rc_snap),
+                    "snapshot_rows": int(snap_rows),
+                    "snapshot": str(raw_fp),
+                    "rc_edges": (int(rc_edges) if rc_edges is not None else None),
+                    "edges_rows": int(edges_rows),
+                    "edges": str(edges_fp),
+                    "rc_export": (int(rc_export) if rc_export is not None else None),
+                    "recs_rows": int(rec_rows),
+                    "recs": str(rec_fp),
+                    "log_file": str(log_file),
+                },
+            )
+        except Exception:
+            pass
+
+        if do_push:
+            try:
+                _ = _git_commit_and_push(msg=f"refresh-oddsapi-props {date_str}")
+            except Exception:
+                pass
+
+        # Mark job OK if snapshot succeeded; edges/export are best-effort.
+        _oddsapi_props_job_state["ok"] = (int(rc_snap) == 0)
+    except Exception:
+        _oddsapi_props_job_state["ok"] = False
+    finally:
+        _oddsapi_props_job_state["ended_at"] = datetime.utcnow().isoformat()
+        _oddsapi_props_job_state["running"] = False
+
 
 def _append_log(line: str) -> None:
     try:
@@ -25772,7 +25888,11 @@ def api_cron_refresh_oddsapi_props():
     do_export = (str(request.args.get("export", "0")).lower() in {"1", "true", "yes"})
     do_push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
 
-    py = _resolve_python()
+    # Render/gunicorn proxies may time out long requests, presenting as HTTP 502.
+    # Default to async execution when heavy work is requested.
+    force_sync = (str(request.args.get("sync", "0")).lower() in {"1", "true", "yes"})
+    use_async = (not force_sync) and (do_edges or do_export)
+
     logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
     try:
         log_file = logs_dir / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
@@ -25780,9 +25900,6 @@ def api_cron_refresh_oddsapi_props():
         # Extremely defensive fallback: ensure we can still run without logging.
         log_file = Path("/tmp") / f"cron_refresh_oddsapi_props_{d}_{stamp}.log"
     try:
-        env = dict(os.environ)
-        env["PYTHONPATH"] = str(SRC_DIR)
-
         # Fast preflight: if OddsAPI key is missing, treat as a clean no-op.
         api_key = (os.environ.get("ODDS_API_KEY") or os.environ.get("THE_ODDS_API_KEY") or "").strip()
         if not api_key:
@@ -25794,6 +25911,51 @@ def api_cron_refresh_oddsapi_props():
                 "reason": "missing ODDS_API_KEY",
                 "log_file": str(log_file),
             }), 200
+
+        if use_async:
+            if _oddsapi_props_job_state.get("running"):
+                return jsonify({
+                    "status": "already-running",
+                    "async": True,
+                    "started_at": _oddsapi_props_job_state.get("started_at"),
+                    "log_file": _oddsapi_props_job_state.get("log_file"),
+                    "last": _oddsapi_props_job_state.get("last"),
+                    "note": "A refresh job is already running; skipping new start.",
+                }), 202
+
+            t = threading.Thread(
+                target=_oddsapi_props_refresh_job,
+                kwargs={
+                    "date_str": d,
+                    "regions": regions,
+                    "markets": markets,
+                    "do_edges": bool(do_edges),
+                    "do_export": bool(do_export),
+                    "do_push": bool(do_push),
+                    "log_file": Path(log_file),
+                },
+                daemon=True,
+            )
+            t.start()
+
+            # Accept quickly so schedulers don't fail due to timeouts.
+            return jsonify({
+                "status": "started",
+                "async": True,
+                "date": d,
+                "regions": regions,
+                "markets": markets,
+                "edges": bool(do_edges),
+                "export": bool(do_export),
+                "push": bool(do_push),
+                "started_at": datetime.utcnow().isoformat(),
+                "log_file": str(log_file),
+                "note": "Running in background to avoid request timeouts; check artifacts/logs later.",
+            }), 202
+
+        py = _resolve_python()
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
 
         # 1) Snapshot player props to data/raw
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
