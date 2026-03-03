@@ -17,9 +17,50 @@ jobs:
 
       - name: Health check
         run: |
-          curl -fsS "$BASE_URL/health" || (echo 'Health check failed' && exit 1)
+          set -euo pipefail
+          URL="${BASE_URL%/}/health"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              cat resp.txt || true
+              exit 0
+            fi
+            echo "Health check attempt $i -> HTTP $http" >&2
+            cat resp.txt >&2 || true
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
 
       - name: Refresh odds (today)
         run: |
+          set -euo pipefail
           T=$(date -u +%F)
-          curl -fsS -X POST "$BASE_URL/api/cron/refresh-bovada?date=$T" -H "Authorization: Bearer $CRON_TOKEN"
+          URL="${BASE_URL%/}/api/cron/refresh-bovada?date=$T"
+          echo "POST $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -X POST -o resp.txt -w "%{http_code}" "$URL" -H "Authorization: Bearer $CRON_TOKEN")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Refresh odds attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1

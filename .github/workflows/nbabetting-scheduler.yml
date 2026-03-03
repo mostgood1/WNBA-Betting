@@ -21,44 +21,257 @@ jobs:
   refresh-oddsapi-props-hourly:
     runs-on: ubuntu-latest
     steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
+          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Refresh OddsAPI props snapshot + edges + export (today)
         run: |
-          set -e
+          set -euo pipefail
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
 
   assess-oddsapi-daily:
     runs-on: ubuntu-latest
     steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
+          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Assess OddsAPI capabilities (today)
         run: |
-          set -e
+          set -euo pipefail
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
 
   reconcile-yesterday:
     runs-on: ubuntu-latest
     steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
+          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Call reconcile-games (yesterday)
         run: |
-          set -e
+          set -euo pipefail
           DATE=$(date -u -d yesterday +%F)
-          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/reconcile-games?date=${DATE}"
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/reconcile-games?date=${DATE}"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
 
   daily-run-all:
     runs-on: ubuntu-latest
     steps:
+      - name: Preflight (config + cron ping)
+        run: |
+          set -euo pipefail
+          test -n "${NBA_BETTING_BASE_URL}" || (echo 'Missing NBA_BETTING_BASE_URL' && exit 1)
+          test -n "${NBA_BETTING_CRON_TOKEN}" || (echo 'Missing NBA_BETTING_CRON_TOKEN (set CRON_TOKEN or NBA_BETTING_CRON_TOKEN secret)' && exit 1)
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          echo "[preflight] GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Preflight attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Call run-all
         run: |
-          set -e
-          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/run-all"
+          set -euo pipefail
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/run-all"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Call predict-date (today, async)
         run: |
-          set -e
+          set -euo pipefail
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            cat resp.txt || true
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Request attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
       - name: Warm summary cache
         run: |
-          set -e
+          set -euo pipefail
           # Hitting summary once populates recommendations_summary.json on the server
-          curl -fsS "${NBA_BETTING_BASE_URL}/recommendations?format=json&view=summary" -o /dev/null
+          URL="${NBA_BETTING_BASE_URL%/}/recommendations?format=json&view=summary"
+          echo "GET $URL"
+          for i in 1 2 3 4 5 6; do
+            set +e
+            http=$(curl -sS -o /dev/null -w "%{http_code}" "$URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              exit 0
+            fi
+            echo "Warm cache attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              sleep $((i * 5))
+              continue
+            fi
+            exit 1
+          done
+          exit 1
