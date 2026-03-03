@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import math
 import sys
+import os
 import pandas as pd
 import numpy as np
 try:
@@ -27,7 +28,10 @@ try:
 except Exception:
     build_features = None
 
-PROCESSED = Path("data/processed")
+BASE_DIR = Path(__file__).resolve().parent.parent
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 
 FEATURES = [
     "elo_diff",

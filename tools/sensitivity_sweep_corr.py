@@ -1,10 +1,17 @@
 import argparse
 import datetime as dt
 import json
+import os
 from pathlib import Path
 from typing import Dict, List, Tuple
 
 import sys
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 try:
     import requests  # type: ignore
@@ -49,7 +56,7 @@ def main():
     parser.add_argument("--base-url", type=str, default="http://127.0.0.1:5051")
     parser.add_argument("--date", type=str, default=dt.date.today().strftime("%Y-%m-%d"))
     parser.add_argument("--scales", type=str, default="0.0,0.5,1.0,1.5,2.0")
-    parser.add_argument("--outdir", type=str, default=str(Path("data/processed/metrics")))
+    parser.add_argument("--outdir", type=str, default=str(PROC_DIR / "metrics"))
     args = parser.parse_args()
 
     scales = [float(s) for s in args.scales.split(",")]

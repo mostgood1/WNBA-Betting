@@ -71,7 +71,10 @@ def main() -> None:
     date_str = str(args.date).strip()
     season = str(args.season).strip() if args.season else _season_for_date(date_str)
 
-    processed = Path("data/processed")
+    repo_root = Path(__file__).resolve().parent.parent
+    _DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+    data_root = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (repo_root / "data")
+    processed = data_root / "processed"
     league_path = processed / f"league_status_{date_str}.csv"
     if not league_path.exists():
         raise SystemExit(f"missing {league_path}")

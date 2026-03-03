@@ -1,11 +1,18 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 
 def _norm_player_key(x: Any) -> str:
@@ -54,8 +61,8 @@ def main() -> int:
     ap.add_argument("--k", type=int, default=5)
     args = ap.parse_args()
 
-    games_path = Path(f"data/processed/connected_realism_games_{args.start}_{args.end}.csv")
-    players_path = Path(f"data/processed/connected_realism_players_{args.start}_{args.end}.csv")
+    games_path = PROC_DIR / f"connected_realism_games_{args.start}_{args.end}.csv"
+    players_path = PROC_DIR / f"connected_realism_players_{args.start}_{args.end}.csv"
 
     G = pd.read_csv(games_path)
     P = pd.read_csv(players_path)
@@ -78,7 +85,7 @@ def main() -> int:
         team = str(r.get("away_tri") or "").strip().upper()
         opp = str(r.get("home_tri") or "").strip().upper()
 
-        fp = Path(f"data/processed/props_predictions_{date_s}.csv")
+        fp = PROC_DIR / f"props_predictions_{date_s}.csv"
         if not fp.exists():
             print(f"\n[{gid} {team} @ {opp}] missing props file: {fp}")
             continue

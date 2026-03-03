@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import date, timedelta
 from pathlib import Path
 from typing import List, Tuple
@@ -12,7 +13,9 @@ except Exception:
     IsotonicRegression = None
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-PROC_DIR = BASE_DIR / "data" / "processed"
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 DEFAULT_OUT_JSON = PROC_DIR / "games_prob_calibration.json"
 DEFAULT_OUT_BINS = PROC_DIR / "reliability_games.csv"
 

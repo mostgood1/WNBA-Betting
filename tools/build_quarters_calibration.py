@@ -18,6 +18,7 @@ import argparse
 import glob
 import json
 from dataclasses import asdict, dataclass
+import os
 from pathlib import Path
 
 import numpy as np
@@ -44,7 +45,9 @@ def _safe_norm_split(x: list[float]) -> list[float]:
 
 
 def build(workspace: Path) -> QuartersCalibration:
-    processed = workspace / "data" / "processed"
+    data_root_env = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+    data_root = Path(data_root_env).expanduser().resolve() if data_root_env else (workspace / "data")
+    processed = data_root / "processed"
 
     # Team splits
     team_split_by_tri: dict[str, list[float]] = {}
@@ -140,7 +143,13 @@ def main() -> int:
     ws = Path(args.workspace).resolve()
     cal = build(ws)
 
-    out_fp = (ws / args.out).resolve()
+    data_root_env = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+    data_root = Path(data_root_env).expanduser().resolve() if data_root_env else (ws / "data")
+    processed = data_root / "processed"
+    if str(args.out).replace("\\", "/") == "data/processed/quarters_calibration.json":
+        out_fp = (processed / "quarters_calibration.json").resolve()
+    else:
+        out_fp = (ws / args.out).resolve()
     out_fp.parent.mkdir(parents=True, exist_ok=True)
     out_fp.write_text(json.dumps(asdict(cal), indent=2, sort_keys=True), encoding="utf-8")
     print(f"Wrote {out_fp}")

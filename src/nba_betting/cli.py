@@ -16,7 +16,7 @@ from rich.console import Console
 import re
 from rich.progress import track
 
-from .config import paths
+from .config import paths, reconcile_repo_data_to_active
 # from .scrape_bref import scrape_games  # deprecated
 from .features import build_features
 # from .train import train_models  # MOVED TO CONDITIONAL IMPORT - requires sklearn
@@ -68,6 +68,14 @@ from .pbp_markets import _desc_cols as _pbp_desc_cols
 from .pbp_markets import build_early_threes_dataset as _build_early_threes_dataset
 
 console = Console()
+
+# When running on Render with NBA_BETTING_DATA_ROOT pointing at a persistent disk,
+# reconcile repo-committed artifacts into the active data root so deploys don't
+# leave the disk stale.
+try:
+    reconcile_repo_data_to_active()
+except Exception:
+    pass
 
 # --- Calibration config helpers ---
 def _load_player_calib_overrides():

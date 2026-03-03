@@ -12,30 +12,29 @@ concurrency:
   group: nbabetting-daily-scheduler
   cancel-in-progress: true
 
+env:
+  # Prefer repo secrets, but default the base URL to the known Render service.
+  NBA_BETTING_BASE_URL: ${{ secrets.RENDER_URL || secrets.NBA_BETTING_BASE_URL || 'https://nba-betting-5qgf.onrender.com' }}
+  NBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
+
 jobs:
   refresh-oddsapi-props-hourly:
     runs-on: ubuntu-latest
     steps:
       - name: Refresh OddsAPI props snapshot + edges + export (today)
-        env:
-          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
 
   assess-oddsapi-daily:
     runs-on: ubuntu-latest
     steps:
       - name: Assess OddsAPI capabilities (today)
-        env:
-          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
+          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
 
   reconcile-yesterday:
     runs-on: ubuntu-latest
@@ -44,7 +43,7 @@ jobs:
         run: |
           set -e
           DATE=$(date -u -d yesterday +%F)
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/reconcile-games?date=${DATE}"
+          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/reconcile-games?date=${DATE}"
 
   daily-run-all:
     runs-on: ubuntu-latest
@@ -52,16 +51,14 @@ jobs:
       - name: Call run-all
         run: |
           set -e
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/run-all"
+          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/run-all"
       - name: Call predict-date (today, async)
         run: |
           set -e
           DATE=$(date -u +%F)
-          curl -fsS -H "Authorization: Bearer ${CRON_TOKEN}" "${RENDER_URL}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
+          curl -fsS -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "${NBA_BETTING_BASE_URL}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
       - name: Warm summary cache
-        env:
-          RENDER_URL: ${{ secrets.RENDER_URL }}
         run: |
           set -e
           # Hitting summary once populates recommendations_summary.json on the server
-          curl -fsS "${RENDER_URL}/recommendations?format=json&view=summary" -o /dev/null
+          curl -fsS "${NBA_BETTING_BASE_URL}/recommendations?format=json&view=summary" -o /dev/null

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -34,7 +35,9 @@ def main() -> None:
     start = _parse_date(args.start)
     end = _parse_date(args.end)
 
-    processed = Path("data/processed")
+    _DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+    data_root = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (REPO_ROOT / "data")
+    processed = data_root / "processed"
     issues: list[dict] = []
     days_scanned = 0
     games_scanned = 0

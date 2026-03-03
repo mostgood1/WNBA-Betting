@@ -29,7 +29,9 @@ from typing import Any, Iterable
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-PROCESSED = BASE_DIR / "data" / "processed"
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 

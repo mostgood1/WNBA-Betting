@@ -9,6 +9,12 @@ import numpy as np
 import pandas as pd
 
 
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
+
+
 def find_probability_columns(df: pd.DataFrame) -> List[str]:
     candidates = [
         "prob", "probability", "p", "p_over", "p_under",
@@ -278,12 +284,17 @@ def main():
     parser = argparse.ArgumentParser(description="Simulation alignment report across windows")
     parser.add_argument("--date", type=str, default=dt.date.today().strftime("%Y-%m-%d"), help="End date (YYYY-MM-DD)")
     parser.add_argument("--windows", type=str, default="30,60,90", help="Comma-separated windows (days)")
-    parser.add_argument("--outdir", type=str, default=str(Path("data/processed/metrics")), help="Output directory for reports")
+    parser.add_argument(
+        "--outdir",
+        type=str,
+        default=str(PROC_DIR / "metrics"),
+        help="Output directory for reports",
+    )
     args = parser.parse_args()
 
     end_date = dt.datetime.strptime(args.date, "%Y-%m-%d").date()
     windows = [int(x) for x in args.windows.split(",") if x.strip()]
-    base_dir = Path("data/processed")
+    base_dir = PROC_DIR
 
     os.makedirs(args.outdir, exist_ok=True)
 

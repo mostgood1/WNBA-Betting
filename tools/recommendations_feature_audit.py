@@ -1,6 +1,7 @@
 import argparse
 import datetime as dt
 import json
+import os
 from pathlib import Path
 from typing import Dict, List
 
@@ -10,6 +11,12 @@ except Exception:
     requests = None
     import urllib.request
     import urllib.parse
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 FEATURES = [
     "team_injury_impact",
@@ -73,7 +80,7 @@ def main():
     ap = argparse.ArgumentParser(description="Audit recommendations feature coverage")
     ap.add_argument("--base-url", default="http://127.0.0.1:5051")
     ap.add_argument("--date", default=dt.date.today().strftime("%Y-%m-%d"))
-    ap.add_argument("--out", default=str(Path("data/processed/metrics/recs_feature_audit.json")))
+    ap.add_argument("--out", default=str(PROC_DIR / "metrics" / "recs_feature_audit.json"))
     args = ap.parse_args()
 
     rows = fetch_recs(args.base_url, args.date)

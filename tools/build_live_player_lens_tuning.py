@@ -14,6 +14,7 @@ Provide a compact daily artifact to tune Live Lens thresholds and name/team matc
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from typing import Any, Optional
 
@@ -21,7 +22,9 @@ import pandas as pd
 
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-PROC_DIR = BASE_DIR / "data" / "processed"
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 BOXSCORES_DIR = PROC_DIR / "boxscores"
 
 

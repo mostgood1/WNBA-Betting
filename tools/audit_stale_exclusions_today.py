@@ -13,6 +13,13 @@ from nba_betting.player_priors import _norm_player_key  # type: ignore
 from nba_betting.teams import to_tricode
 
 
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
+RAW_DIR = DATA_ROOT / "raw"
+
+
 def main() -> None:
     ap = argparse.ArgumentParser(description="Audit stale injury exclusions for a date.")
     ap.add_argument("--date", type=str, default=None, help="YYYY-MM-DD (default: $NBA_DATE or today UTC)")
@@ -22,9 +29,9 @@ def main() -> None:
     if not date_str:
         date_str = datetime.utcnow().date().isoformat()
 
-    props_path = Path(f"data/processed/props_predictions_{date_str}.csv")
-    inj_excl_path = Path(f"data/processed/injuries_excluded_{date_str}.csv")
-    raw_inj_path = Path("data/raw/injuries.csv")
+    props_path = PROC_DIR / f"props_predictions_{date_str}.csv"
+    inj_excl_path = PROC_DIR / f"injuries_excluded_{date_str}.csv"
+    raw_inj_path = RAW_DIR / "injuries.csv"
 
     if not props_path.exists():
         raise SystemExit(f"missing {props_path}")

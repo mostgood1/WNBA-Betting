@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 
@@ -83,7 +84,10 @@ def main() -> None:
     args = ap.parse_args()
 
     ds = args.date.strip()
-    processed = Path("data/processed")
+    repo_root = Path(__file__).resolve().parent.parent
+    _DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+    data_root = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (repo_root / "data")
+    processed = data_root / "processed"
     props_path = processed / f"props_predictions_{ds}.csv"
     if not props_path.exists():
         raise SystemExit(f"missing {props_path}")

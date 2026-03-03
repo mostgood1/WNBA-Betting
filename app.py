@@ -78,8 +78,28 @@ try:
     _DATA_ROOT_P = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
 except Exception:
     _DATA_ROOT_P = (BASE_DIR / "data")
-CRON_META_PATH = _DATA_ROOT_P / "processed" / ".cron_meta.json"
-PLAYER_ID_CACHE_PATH = _DATA_ROOT_P / "processed" / "player_ids.csv"
+
+# Prefer canonical paths from the package config when importable.
+try:
+    from nba_betting.config import paths as _paths  # type: ignore
+    from nba_betting.config import reconcile_repo_data_to_active as _reconcile_repo_data_to_active  # type: ignore
+
+    try:
+        _reconcile_repo_data_to_active()
+    except Exception:
+        pass
+
+    _DATA_ROOT_P = _paths.data_root
+except Exception:
+    _paths = None  # type: ignore
+
+DATA_DIR = _DATA_ROOT_P
+DATA_RAW_DIR = DATA_DIR / "raw"
+DATA_PROCESSED_DIR = DATA_DIR / "processed"
+DATA_OVERRIDES_DIR = DATA_DIR / "overrides"
+
+CRON_META_PATH = DATA_PROCESSED_DIR / ".cron_meta.json"
+PLAYER_ID_CACHE_PATH = DATA_PROCESSED_DIR / "player_ids.csv"
 
 
 def _live_lens_artifacts_dir() -> Path:
@@ -95,7 +115,7 @@ def _live_lens_artifacts_dir() -> Path:
             return Path(raw).expanduser()
         except Exception:
             return Path(raw)
-    return BASE_DIR / "data" / "processed"
+    return DATA_PROCESSED_DIR
 
 # ---- Live Lens caches (TTL) ----
 _live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -3097,7 +3117,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
 
     # 1) Processed daily exclusions
     try:
-        proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
+        proc_path = DATA_PROCESSED_DIR / f"injuries_excluded_{date_str}.csv"
         if (not proc_path.exists()):
             try:
                 _maybe_fetch_remote_processed(proc_path.name)
@@ -3138,7 +3158,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
 
     # 2) Overrides up to the cutoff date
     try:
-        raw_dir = BASE_DIR / "data" / "raw"
+        raw_dir = DATA_RAW_DIR
         for p in sorted(raw_dir.glob("injuries_overrides_*.csv")):
             try:
                 dstr = p.stem.replace("injuries_overrides_", "")
@@ -3176,7 +3196,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
 
     # 3) Raw injuries.csv latest rows
     try:
-        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        inj_path = DATA_RAW_DIR / "injuries.csv"
         if inj_path.exists():
             inj = pd.read_csv(inj_path)
             if isinstance(inj, pd.DataFrame) and not inj.empty and ("player" in inj.columns) and ("status" in inj.columns):
@@ -3211,7 +3231,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
     # they must not be excluded by stale injury rows.
     # This directly fixes cases where injuries.csv isn't updated for RTP.
     try:
-        bs_path = BASE_DIR / "data" / "processed" / f"boxscores_{date_str}.csv"
+        bs_path = DATA_PROCESSED_DIR / f"boxscores_{date_str}.csv"
         if bs_path.exists():
             bs = pd.read_csv(bs_path)
             if isinstance(bs, pd.DataFrame) and (not bs.empty):
@@ -3237,7 +3257,7 @@ def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
     # 5) Secondary override: if we have player props lines for the date,
     # treat those players as active for exclusion purposes.
     try:
-        pp_path = BASE_DIR / "data" / "processed" / f"props_predictions_{date_str}.csv"
+        pp_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
         if pp_path.exists():
             pp = pd.read_csv(pp_path)
             if isinstance(pp, pd.DataFrame) and (not pp.empty):
@@ -3347,7 +3367,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
 
     # 1) Processed daily exclusions (team-aware)
     try:
-        proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
+        proc_path = DATA_PROCESSED_DIR / f"injuries_excluded_{date_str}.csv"
         if not proc_path.exists():
             try:
                 _maybe_fetch_remote_processed(proc_path.name)
@@ -3385,7 +3405,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
 
     # 2) Overrides up to cutoff (team-aware) with allowlist removals
     try:
-        raw_dir = BASE_DIR / "data" / "raw"
+        raw_dir = DATA_RAW_DIR
         for p in sorted(raw_dir.glob("injuries_overrides_*.csv")):
             try:
                 dstr = p.stem.replace("injuries_overrides_", "")
@@ -3426,7 +3446,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
 
     # 3) Raw injuries.csv latest rows (team-aware)
     try:
-        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        inj_path = DATA_RAW_DIR / "injuries.csv"
         if inj_path.exists():
             inj = pd.read_csv(inj_path)
             if isinstance(inj, pd.DataFrame) and (not inj.empty) and ("player" in inj.columns) and ("status" in inj.columns):
@@ -3455,7 +3475,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
     # 4) Hard override: if a player actually logged minutes on this date,
     # they must not be excluded by stale injury rows.
     try:
-        bs_path = BASE_DIR / "data" / "processed" / f"boxscores_{date_str}.csv"
+        bs_path = DATA_PROCESSED_DIR / f"boxscores_{date_str}.csv"
         if bs_path.exists():
             bs = pd.read_csv(bs_path)
             if isinstance(bs, pd.DataFrame) and (not bs.empty):
@@ -3481,7 +3501,7 @@ def _injury_name_sets_for_teams(date_str: str, team_tris: set[str]) -> tuple[set
     # 5) Secondary override: if we have player props lines for the date,
     # treat those players as active for exclusion purposes.
     try:
-        pp_path = BASE_DIR / "data" / "processed" / f"props_predictions_{date_str}.csv"
+        pp_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
         if pp_path.exists():
             pp = pd.read_csv(pp_path)
             if isinstance(pp, pd.DataFrame) and (not pp.empty):
@@ -3514,7 +3534,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
     # Prefer league_status for a per-date team assignment + broad injury status context.
     # This keeps "who" + status consistent even when raw injury feeds have stale team tags.
     try:
-        ls_path = BASE_DIR / "data" / "processed" / f"league_status_{date_str}.csv"
+        ls_path = DATA_PROCESSED_DIR / f"league_status_{date_str}.csv"
         if ls_path.exists():
             ls = pd.read_csv(ls_path)
             if isinstance(ls, pd.DataFrame) and (not ls.empty):
@@ -3556,7 +3576,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
 
     # Prefer the processed daily snapshot (committed to git for Render parity).
     # This avoids relying on raw injuries.csv being present in the deployed filesystem.
-    snap_path = BASE_DIR / "data" / "processed" / f"injuries_counts_{date_str}.json"
+    snap_path = DATA_PROCESSED_DIR / f"injuries_counts_{date_str}.json"
     if snap_path.exists():
         try:
             obj = json.loads(snap_path.read_text(encoding="utf-8"))
@@ -3617,7 +3637,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
         # Note: do not early-return; we may enrich injury description/date from raw injuries.csv
         # while keeping league_status/snapshot as the primary team+status context.
 
-    inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+    inj_path = DATA_RAW_DIR / "injuries.csv"
     if not inj_path.exists():
         return out
 
@@ -3829,7 +3849,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
 
         # 1) Strongest evidence: boxscore minutes > 0.
         try:
-            bs_path = BASE_DIR / "data" / "processed" / f"boxscores_{date_str}.csv"
+            bs_path = DATA_PROCESSED_DIR / f"boxscores_{date_str}.csv"
             if bs_path.exists():
                 bs = pd.read_csv(bs_path)
                 if isinstance(bs, pd.DataFrame) and (not bs.empty):
@@ -3851,7 +3871,7 @@ def _load_injury_context_map(date_str: str) -> dict[tuple[str, str], dict[str, A
 
         # 2) Pregame evidence: props predictions implies a line exists (usually only for active players).
         try:
-            pp_path = BASE_DIR / "data" / "processed" / f"props_predictions_{date_str}.csv"
+            pp_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
             if pp_path.exists():
                 pp = pd.read_csv(pp_path)
                 if isinstance(pp, pd.DataFrame) and (not pp.empty):
@@ -4072,7 +4092,7 @@ def _injury_designations_for_matchup(
 
     # 1) processed_excluded (best when present)
     try:
-        proc_path = BASE_DIR / "data" / "processed" / f"injuries_excluded_{date_str}.csv"
+        proc_path = DATA_PROCESSED_DIR / f"injuries_excluded_{date_str}.csv"
         if proc_path.exists():
             _ingest_latest_status(pd.read_csv(proc_path), "processed_excluded", recency_days=30)
     except Exception:
@@ -4080,7 +4100,7 @@ def _injury_designations_for_matchup(
 
     # 2) overrides
     try:
-        raw_dir = BASE_DIR / "data" / "raw"
+        raw_dir = DATA_RAW_DIR
         odfs: list[pd.DataFrame] = []
         for p in sorted(raw_dir.glob("injuries_overrides_*.csv")):
             try:
@@ -4098,7 +4118,7 @@ def _injury_designations_for_matchup(
 
     # 3) raw injuries.csv (fallback for designation only; team fields are ignored)
     try:
-        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        inj_path = DATA_RAW_DIR / "injuries.csv"
         if inj_path.exists():
             _ingest_latest_status(pd.read_csv(inj_path), "raw")
     except Exception:
@@ -4144,7 +4164,7 @@ def _load_team_metadata() -> None:
     try:
         if _TEAM_META_TZ and _TEAM_META_ALT:
             return
-        p = BASE_DIR / "data" / "raw" / "team_metadata.csv"
+        p = DATA_RAW_DIR / "team_metadata.csv"
         if not p.exists():
             return
         import pandas as _pd
@@ -4239,7 +4259,7 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
     try:
         if date_str in _OPP_ALLOWED_CACHE and date_str in _OPP_ALLOWED_RANKS_CACHE:
             return _OPP_ALLOWED_CACHE[date_str], _OPP_ALLOWED_RANKS_CACHE[date_str]
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         if not base.exists():
             _OPP_ALLOWED_CACHE[date_str] = {}
             _OPP_ALLOWED_RANKS_CACHE[date_str] = {}
@@ -4354,7 +4374,7 @@ def _compute_team_offense_stats(date_str: str, days_back: int = 21) -> tuple[dic
     Reads data/processed/boxscores_YYYY-MM-DD.csv files and aggregates per game.
     """
     try:
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         if not base.exists():
             return {}, {}
         cutoff = pd.to_datetime(date_str, errors="coerce")
@@ -4465,7 +4485,7 @@ def _compute_player_minutes_priors(date_str: str, days_back: int = 21) -> dict[t
         if key in _PLAYER_MIN_PRIORS_CACHE:
             return _PLAYER_MIN_PRIORS_CACHE[key]
 
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         if not base.exists():
             _PLAYER_MIN_PRIORS_CACHE[key] = {}
             return _PLAYER_MIN_PRIORS_CACHE[key]
@@ -4595,7 +4615,7 @@ def _team_injury_counts(date_str: str) -> dict[str, int]:
     try:
         if date_str in _TEAM_INJURY_COUNTS_CACHE:
             return _TEAM_INJURY_COUNTS_CACHE[date_str]
-        inj_path = BASE_DIR / "data" / "raw" / "injuries.csv"
+        inj_path = DATA_RAW_DIR / "injuries.csv"
         out: dict[str, int] = {}
         if not inj_path.exists():
             _TEAM_INJURY_COUNTS_CACHE[date_str] = out
@@ -4683,7 +4703,7 @@ def _team_injury_identity(date_str: str) -> tuple[dict[str, list[str]], dict[str
     try:
         if date_str in _TEAM_INJURY_IDENTITY_CACHE:
             return _TEAM_INJURY_IDENTITY_CACHE[date_str]
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         fp = proc / f"injuries_counts_{date_str}.json"
         names_map: dict[str, list[str]] = {}
         impact_map: dict[str, float] = {}
@@ -4740,7 +4760,7 @@ def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
     """
     out: dict[str, set[str]] = {}
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         fp = proc / f"league_status_{date_str}.csv"
         if fp.exists():
             df = pd.read_csv(fp)
@@ -4756,7 +4776,7 @@ def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
                     out[str(tri).strip().upper()] = set(sg["_name_key"].dropna().astype(str).tolist())
         else:
             # fallback to overrides
-            ov = BASE_DIR / "data" / "overrides" / f"team_roster_{date_str}.csv"
+            ov = DATA_OVERRIDES_DIR / f"team_roster_{date_str}.csv"
             if ov.exists():
                 df = pd.read_csv(ov)
                 cols = {c.upper(): c for c in df.columns}
@@ -4893,7 +4913,7 @@ def api_list_processed():
     try:
         from datetime import datetime as _dt
         pat = (request.args.get("pattern") or "*.csv").strip() or "*.csv"
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         items = []
         if base.exists():
             for p in sorted(base.glob(pat)):
@@ -5120,7 +5140,7 @@ def api_sim_smart_sim():
             n_samples=3000,
         )
 
-        props_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        props_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         if not props_p.exists():
             _maybe_fetch_remote_processed(props_p.name)
         props_df = _read_csv_if_exists(props_p)
@@ -5161,7 +5181,7 @@ def api_sim_smart_sim():
             used_total = used_market.get("market_total")
             used_spread = used_market.get("market_home_spread")
 
-        odds_fp = BASE_DIR / "data" / "processed" / f"game_odds_{d}.csv"
+        odds_fp = DATA_PROCESSED_DIR / f"game_odds_{d}.csv"
         odds_exists = bool(getattr(odds_fp, "exists")())
 
         if used_total is None:
@@ -5213,7 +5233,7 @@ def api_processed_recon_games():
         d = (request.args.get("date") or "").strip()
         if not d:
             return jsonify({"error": "missing date"}), 400
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         fp = base / f"recon_games_{d}.csv"
         if fp.exists():
             try:
@@ -5242,7 +5262,7 @@ def api_processed_recon_quarters():
         d = (request.args.get("date") or "").strip()
         if not d:
             return jsonify({"error": "missing date"}), 400
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         fp = base / f"recon_quarters_{d}.csv"
         if fp.exists():
             try:
@@ -5268,7 +5288,7 @@ def api_processed_recon_players():
         d = (request.args.get("date") or "").strip()
         if not d:
             return jsonify({"error": "missing date"}), 400
-        base = BASE_DIR / "data" / "processed"
+        base = DATA_PROCESSED_DIR
         fp = base / f"recon_players_{d}.csv"
         if fp.exists():
             try:
@@ -5357,7 +5377,7 @@ def data_static(path: str):
     # Serve data files (JSON/CSV) referenced by the frontend.
     # Many processed artifacts are optional per-date; returning 200 with an empty payload
     # avoids noisy 404 logs while letting the frontend treat the content as "missing".
-    data_dir = BASE_DIR / "data"
+    data_dir = DATA_DIR
     try:
         # Only special-case missing files under data/processed/
         norm = str(path).replace("\\", "/")
@@ -5686,7 +5706,7 @@ def _load_latest_rosters(date_str: str | None = None) -> pd.DataFrame:
     3) Otherwise, newest rosters_*.csv by mtime.
     """
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         files = list(proc.glob("rosters_*.csv"))
         if not files:
             return pd.DataFrame(columns=["PLAYER","PLAYER_ID","TEAM_ABBREVIATION"])
@@ -5739,7 +5759,7 @@ def _build_roster_team_maps(date_str: str | None = None) -> tuple[dict[int, str]
         ls_names: set[str] = set()
         if date_str:
             try:
-                proc = BASE_DIR / "data" / "processed"
+                proc = DATA_PROCESSED_DIR
                 ls = proc / f"league_status_{str(date_str)}.csv"
                 if ls.exists():
                     ldf = pd.read_csv(ls)
@@ -5810,7 +5830,7 @@ def _build_roster_team_maps(date_str: str | None = None) -> tuple[dict[int, str]
                         continue
         # Apply roster overrides (if any)
         try:
-            ov = BASE_DIR / "data" / "overrides" / "roster_overrides.csv"
+            ov = DATA_OVERRIDES_DIR / "roster_overrides.csv"
             if ov.exists():
                 odf = pd.read_csv(ov)
                 if isinstance(odf, pd.DataFrame) and not odf.empty:
@@ -6143,7 +6163,7 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
     for col in ("home_tri","away_tri","home_pts","visitor_pts"):
         if col not in df.columns:
             df[col] = pd.NA
-    out = BASE_DIR / "data" / "processed" / f"finals_{date_str}.csv"
+    out = DATA_PROCESSED_DIR / f"finals_{date_str}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     keep = ["home_tri","away_tri","home_pts","visitor_pts"]
     df2 = df[keep].copy()
@@ -6153,7 +6173,7 @@ def _write_finals_csv_for_date(date_str: str) -> tuple[str, int]:
 
 def _ensure_rosters_loaded() -> pd.DataFrame:
     global _rosters_df_cache, _rosters_df_cache_key
-    proc = BASE_DIR / "data" / "processed"
+    proc = DATA_PROCESSED_DIR
 
     # Cache invalidation: if the underlying roster CSV(s) changed on disk (mtime/size),
     # reload so the app reflects trade-deadline churn without requiring a restart.
@@ -6367,7 +6387,7 @@ def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
         # Only allow safe filenames under processed/
         if not fname or "/" in fname or ".." in fname:
             return None
-        out = BASE_DIR / "data" / "processed" / fname
+        out = DATA_PROCESSED_DIR / fname
         if out.exists():
             return out
         repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
@@ -6561,7 +6581,7 @@ def _has_games_for_date(date_str: str, verbose: bool = False) -> bool:
             print(f"[_has_games_for_date] bovada error: {e}")
     # Last-resort: check processed schedule JSON (if present)
     try:
-        sched = BASE_DIR / "data" / "processed" / "schedule_2025_26.json"
+        sched = DATA_PROCESSED_DIR / "schedule_2025_26.json"
         if sched.exists():
             sdf = pd.read_json(sched)
             if not sdf.empty:
@@ -6644,9 +6664,9 @@ def _find_fallback_odds_for_date(date_str: str) -> Optional[Path]:
       3) market_{date}.csv
     """
     candidates = [
-        BASE_DIR / "data" / "processed" / f"closing_lines_{date_str}.csv",
-        BASE_DIR / "data" / "processed" / f"odds_{date_str}.csv",
-        BASE_DIR / "data" / "processed" / f"market_{date_str}.csv",
+        DATA_PROCESSED_DIR / f"closing_lines_{date_str}.csv",
+        DATA_PROCESSED_DIR / f"odds_{date_str}.csv",
+        DATA_PROCESSED_DIR / f"market_{date_str}.csv",
     ]
     for p in candidates:
         try:
@@ -6891,7 +6911,7 @@ def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
         logs_dir = _ensure_logs_dir(); stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
         lf = Path(log_fp) if log_fp else (logs_dir / f"cron_train_autofix_{stamp}.log")
         # Build features only if missing
-        feats = BASE_DIR / "data" / "processed" / "features.parquet"
+        feats = DATA_PROCESSED_DIR / "features.parquet"
         rc_build = 0
         if not feats.exists():
             rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], lf, cwd=BASE_DIR, env=env)
@@ -7186,7 +7206,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
 
 def _find_predictions_for_date(date_str: str) -> Optional[Path]:
     # Prefer processed path
-    p = BASE_DIR / "data" / "processed" / f"predictions_{date_str}.csv"
+    p = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
     if not p.exists():
         try:
             _maybe_fetch_remote_processed(p.name)
@@ -7203,7 +7223,7 @@ def _find_predictions_for_date(date_str: str) -> Optional[Path]:
 
 def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
     # Processed standardized game odds
-    p = BASE_DIR / "data" / "processed" / f"game_odds_{date_str}.csv"
+    p = DATA_PROCESSED_DIR / f"game_odds_{date_str}.csv"
     if not p.exists():
         try:
             _maybe_fetch_remote_processed(p.name)
@@ -7217,7 +7237,7 @@ def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
         f"odds_{date_str}.csv",
         f"market_{date_str}.csv",
     ]:
-        q = BASE_DIR / "data" / "processed" / name
+        q = DATA_PROCESSED_DIR / name
         if not q.exists():
             try:
                 _maybe_fetch_remote_processed(q.name)
@@ -7231,7 +7251,7 @@ def _find_game_odds_for_date(date_str: str) -> Optional[Path]:
 @app.route("/api/status")
 def api_status():
     try:
-        dproc = BASE_DIR / "data" / "processed"
+        dproc = DATA_PROCESSED_DIR
         files = [str(x.name) for x in dproc.glob("*.csv")] if dproc.exists() else []
         return jsonify({
             "status": "ok",
@@ -7286,7 +7306,7 @@ def api_cron_meta():
                 pass
         # Fallback: scan for the newest odds CSV mtime
         try:
-            dproc = BASE_DIR / "data" / "processed"
+            dproc = DATA_PROCESSED_DIR
             newest_ts = None
             newest_file = None
             if dproc.exists():
@@ -7366,7 +7386,7 @@ def api_data_status():
         out["game_odds_rows"] = 0
     try:
         # Props
-        pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+        pe = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
         out["props_edges_path"] = str(pe) if pe.exists() else None
         out["props_edges_rows"] = _count_csv_rows_quick(pe) if pe.exists() else 0
     except Exception:
@@ -7380,7 +7400,7 @@ def api_data_status():
                 prev = (pd.to_datetime(d) - pd.Timedelta(days=1)).date().isoformat()
                 p = _find_predictions_for_date(prev)
                 go = _find_game_odds_for_date(prev)
-                pe = BASE_DIR / "data" / "processed" / f"props_edges_{prev}.csv"
+                pe = DATA_PROCESSED_DIR / f"props_edges_{prev}.csv"
                 if (p or go or pe.exists()):
                     out["date"] = prev
                     out["predictions_path"] = str(p) if p else None
@@ -7393,7 +7413,7 @@ def api_data_status():
         pass
     try:
         # Recon
-        rg = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
+        rg = DATA_PROCESSED_DIR / f"recon_games_{d}.csv"
         out["recon_games_path"] = str(rg) if rg.exists() else None
         out["recon_games_rows"] = _count_csv_rows_quick(rg) if rg.exists() else 0
     except Exception:
@@ -7496,7 +7516,7 @@ def _safe_float(x: Any) -> float | None:
 def _load_smart_sim_files_for_date(date_str: str, prefix: str | None = None) -> list[Path]:
     try:
         pref = str(prefix or os.environ.get("SMART_SIM_PREFIX") or "smart_sim").strip() or "smart_sim"
-        return sorted((BASE_DIR / "data" / "processed").glob(f"{pref}_{date_str}_*.json"))
+        return sorted(DATA_PROCESSED_DIR.glob(f"{pref}_{date_str}_*.json"))
     except Exception:
         return []
 
@@ -7528,7 +7548,7 @@ def _load_game_odds_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
 
 def _load_props_predictions_map(date_str: str) -> dict[int, dict[str, Any]]:
     out: dict[int, dict[str, Any]] = {}
-    p = BASE_DIR / "data" / "processed" / f"props_predictions_{date_str}.csv"
+    p = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
     if not p.exists():
         try:
             _maybe_fetch_remote_processed(p.name)
@@ -7564,7 +7584,7 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
     such as plays/top_play. We parse these into structured JSON-safe objects.
     """
     out: dict[str, list[dict[str, Any]]] = {}
-    p = BASE_DIR / "data" / "processed" / f"props_recommendations_{date_str}.csv"
+    p = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
     if not p.exists():
         try:
             _maybe_fetch_remote_processed(p.name)
@@ -8140,7 +8160,7 @@ def api_cards():
     recon_games_map: dict[tuple[str, str], dict[str, Any]] = {}
     recon_quarters_map: dict[tuple[str, str], dict[str, Any]] = {}
     try:
-        rg = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
+        rg = DATA_PROCESSED_DIR / f"recon_games_{d}.csv"
         if rg.exists():
             df = pd.read_csv(rg)
             for _, row in df.iterrows():
@@ -8151,7 +8171,7 @@ def api_cards():
     except Exception:
         recon_games_map = {}
     try:
-        rq = BASE_DIR / "data" / "processed" / f"recon_quarters_{d}.csv"
+        rq = DATA_PROCESSED_DIR / f"recon_quarters_{d}.csv"
         if rq.exists():
             df = pd.read_csv(rq)
             for _, row in df.iterrows():
@@ -8178,7 +8198,7 @@ def api_cards():
         gid = _canon_nba_game_id(game_id)
         if not gid:
             return None
-        p = BASE_DIR / "data" / "processed" / "boxscores" / f"boxscore_{gid}.csv"
+        p = DATA_PROCESSED_DIR / "boxscores" / f"boxscore_{gid}.csv"
         if not p.exists():
             return {"ok": False, "game_id": gid, "reason": "missing_boxscore"}
         try:
@@ -8688,7 +8708,7 @@ def _recommendations_summary():
 
         # Fast path: serve cached summary if available (only if it matches the requested window + schema)
         try:
-            _cache_p = BASE_DIR / "data" / "processed" / "recommendations_summary.json"
+            _cache_p = DATA_PROCESSED_DIR / "recommendations_summary.json"
             if _cache_p.exists():
                 with open(_cache_p, "r", encoding="utf-8") as fh:
                     cached = _json.load(fh)
@@ -8704,7 +8724,7 @@ def _recommendations_summary():
             pass
 
         # Collect dates by existing recommendation files within range
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         ds = _parse_date(since) or datetime.utcnow()
         de = _parse_date(until) or datetime.utcnow()
         if de < ds:
@@ -8786,7 +8806,7 @@ def _recommendations_summary():
             # Final scores for this date
             gfin = None
             try:
-                gpath = BASE_DIR / "data" / "processed" / f"recon_games_{dstr}.csv"
+                gpath = DATA_PROCESSED_DIR / f"recon_games_{dstr}.csv"
                 if gpath.exists():
                     gfin = pd.read_csv(gpath)
             except Exception:
@@ -8979,9 +8999,9 @@ def _recommendations_summary():
 
             # Evaluate props recommendations for the same date using recon_props_*
             # Prefer authoritative props best-edges snapshots when present
-            best_props_path = BASE_DIR / "data" / "processed" / f"best_edges_props_{dstr}.csv"
-            props_path = best_props_path if best_props_path.exists() else (BASE_DIR / "data" / "processed" / f"props_recommendations_{dstr}.csv")
-            recon_props_path = BASE_DIR / "data" / "processed" / f"recon_props_{dstr}.csv"
+            best_props_path = DATA_PROCESSED_DIR / f"best_edges_props_{dstr}.csv"
+            props_path = best_props_path if best_props_path.exists() else (DATA_PROCESSED_DIR / f"props_recommendations_{dstr}.csv")
+            recon_props_path = DATA_PROCESSED_DIR / f"recon_props_{dstr}.csv"
             if props_path.exists() and recon_props_path.exists():
                 try:
                     props_df = pd.read_csv(props_path)
@@ -9163,7 +9183,7 @@ def _recommendations_summary():
 
             # PBP recon metrics (first basket, early threes)
             try:
-                pbp_recon = BASE_DIR / "data" / "processed" / f"pbp_reconcile_{dstr}.csv"
+                pbp_recon = DATA_PROCESSED_DIR / f"pbp_reconcile_{dstr}.csv"
                 if pbp_recon.exists():
                     dfp = pd.read_csv(pbp_recon)
                     # Compute means per date for standard columns if present
@@ -9258,7 +9278,7 @@ def _recommendations_summary():
                         pass
                     # Tiered accuracy for Early Threes (Yes/No on >=1 made in 0-3m)
                     try:
-                        thr_p = BASE_DIR / "data" / "processed" / f"early_threes_{dstr}.csv"
+                        thr_p = DATA_PROCESSED_DIR / f"early_threes_{dstr}.csv"
                         if thr_p.exists():
                             th = pd.read_csv(thr_p)
                             if not th.empty:
@@ -9365,7 +9385,7 @@ def _recommendations_summary():
             "early_threes_buckets": early_threes_buckets,
         }
         try:
-            _cache_p = BASE_DIR / "data" / "processed" / "recommendations_summary.json"
+            _cache_p = DATA_PROCESSED_DIR / "recommendations_summary.json"
             _cache_p.parent.mkdir(parents=True, exist_ok=True)
             with open(_cache_p, "w", encoding="utf-8") as fh:
                 _json.dump(_out, fh)
@@ -9497,7 +9517,7 @@ def _recommendations_recaps():
         if de < ds:
             ds, de = de, ds
 
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         if not proc.exists():
             return jsonify({"version": "recaps-v1", "window": {"since": ds.date().isoformat(), "until": de.date().isoformat()}, "items": []})
 
@@ -10026,7 +10046,7 @@ def _recommendations_summary_props():
       - days: override window size description in payload (does not recompute)
     """
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         json_path = proc / "reliability_props_summary.json"
         csv_path = proc / "reliability_props.csv"
         # Prefer JSON if available
@@ -10107,7 +10127,7 @@ def _recommendations_summary_props_calibration():
       - reliability_csv, calibration_json, total_bets, rmse_calibration
     """
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         windows = [30, 60, 90]
         items = []
         for d in windows:
@@ -10172,7 +10192,7 @@ def _recommendations_summary_games_calibration():
       - reliability_csv, calibration_json, total_games, rmse_calibration
     """
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         windows = [30, 60, 90]
         items = []
         for d in windows:
@@ -10286,7 +10306,7 @@ def api_evaluate_games():
             ds = now - timedelta(days=days)
         if de < ds:
             ds, de = de, ds
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         # Discover files within window
         rec_files = []
         if proc.exists():
@@ -10330,7 +10350,7 @@ def api_evaluate_games():
             # Finals and odds
             gfin = None; godds = None
             try:
-                gpath = BASE_DIR / "data" / "processed" / f"recon_games_{dstr}.csv"
+                gpath = DATA_PROCESSED_DIR / f"recon_games_{dstr}.csv"
                 if gpath.exists():
                     gfin = pd.read_csv(gpath)
             except Exception: gfin = None
@@ -10521,7 +10541,7 @@ def api_evaluate_props():
         else:
             de = now; ds = now - timedelta(days=days)
         if de < ds: ds, de = de, ds
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         rec_files = []
         if proc.exists():
             for p in sorted(proc.glob("props_recommendations_*.csv")):
@@ -10542,13 +10562,13 @@ def api_evaluate_props():
             chosen_fp = None
             _calib_selected_via = "default"
             if calib_window and calib_window in {"30","60","90"}:
-                fp = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{calib_window}.json"
+                fp = DATA_PROCESSED_DIR / f"props_prob_calibration_{calib_window}.json"
                 if fp.exists():
                     chosen_fp = fp; _calib_selected_via = "param"
             elif calib_window == "auto":
                 _calib_selected_via = "auto"
             if chosen_fp is None:
-                summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                summary_fp = DATA_PROCESSED_DIR / "props_prob_calibration_windows.json"
                 if summary_fp.exists():
                     try:
                         with open(summary_fp, "r", encoding="utf-8") as fh:
@@ -10562,11 +10582,11 @@ def api_evaluate_props():
                             if best is None or float(it["rmse_calibration"]) < float(best["rmse_calibration"]): best = it
                         if isinstance(best, dict) and best.get("days"):
                             dwin = str(best["days"]).strip()
-                            fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{dwin}.json"
+                            fp2 = DATA_PROCESSED_DIR / f"props_prob_calibration_{dwin}.json"
                             if fp2.exists(): chosen_fp = fp2; _calib_selected_via = "auto"
                     except Exception: pass
             if chosen_fp is None:
-                chosen_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"; _calib_selected_via = "default"
+                chosen_fp = DATA_PROCESSED_DIR / "props_prob_calibration.json"; _calib_selected_via = "default"
             if chosen_fp.exists():
                 with open(chosen_fp, "r", encoding="utf-8") as fh:
                     _props_calib = _json.load(fh)
@@ -10603,7 +10623,7 @@ def api_evaluate_props():
         def _is_regular_market(m) -> bool:
             mm = str(m or "").lower(); return mm not in {"dd","td"}
         for dstr, fp in rec_files:
-            recon_props_path = BASE_DIR / "data" / "processed" / f"recon_props_{dstr}.csv"
+            recon_props_path = DATA_PROCESSED_DIR / f"recon_props_{dstr}.csv"
             if not recon_props_path.exists():
                 continue
             try:
@@ -11080,7 +11100,7 @@ def api_accuracy_market():
             if until < since:
                 since, until = until, since
 
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         rows: list[dict[str, Any]] = []
         sum_games = _init_bucket()
         sum_props = _init_bucket()
@@ -11342,7 +11362,7 @@ def _recommendations_all():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         out = {"date": d, "games": [], "props": [], "first_basket": [], "early_threes": []}
 
         view = str(request.args.get("view") or "all").strip().lower()
@@ -12330,7 +12350,7 @@ def _recommendations_all():
             # If user specified window (30/60/90) and file exists, use it.
             # Special value 'auto' forces RMSE-based selection when available.
             if calib_window and calib_window in {"30","60","90"}:
-                fp = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{calib_window}.json"
+                fp = DATA_PROCESSED_DIR / f"props_prob_calibration_{calib_window}.json"
                 if fp.exists():
                     chosen_fp = fp
                     _calib_selected_via = "param"
@@ -12343,7 +12363,7 @@ def _recommendations_all():
                 _calib_selected_via = "auto"
             # Else, auto-pick best RMSE window if summary exists
             if chosen_fp is None:
-                summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                summary_fp = DATA_PROCESSED_DIR / "props_prob_calibration_windows.json"
                 if summary_fp.exists():
                     try:
                         with open(summary_fp, "r", encoding="utf-8") as fh:
@@ -12361,7 +12381,7 @@ def _recommendations_all():
                                 best = it
                         if isinstance(best, dict) and best.get("days"):
                             days_str = str(best["days"]).strip()
-                            fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{days_str}.json"
+                            fp2 = DATA_PROCESSED_DIR / f"props_prob_calibration_{days_str}.json"
                             if fp2.exists():
                                 chosen_fp = fp2
                                 _calib_selected_via = "auto"
@@ -12373,7 +12393,7 @@ def _recommendations_all():
                         pass
             # Fallback to default calibration file
             if chosen_fp is None:
-                chosen_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"
+                chosen_fp = DATA_PROCESSED_DIR / "props_prob_calibration.json"
                 _calib_selected_via = "default"
                 _calib_window_days = None
 
@@ -14303,7 +14323,7 @@ def _recommendations_all():
             "early_threes": {"prob": 0.40, "expected": 0.40, "injury": 0.10, "pace": 0.06, "threes": 0.04},
         }
         try:
-            wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
+            wpath = DATA_OVERRIDES_DIR / "reco_weights.json"
             if wpath.exists():
                 with open(wpath, "r", encoding="utf-8") as fh:
                     wjson = json.load(fh)
@@ -15227,7 +15247,7 @@ def api_props():
         # Fast path: if the caller explicitly requests predictions, bypass edges logic and return projections
         requested_source = (request.args.get("source") or "").strip().lower() or None
         if requested_source == "predictions":
-            preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+            preds_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
             if not preds_p.exists():
                 _maybe_fetch_remote_processed(preds_p.name)
             pdf = _read_csv_if_exists(preds_p)
@@ -15390,7 +15410,7 @@ def api_props():
                     long = long[long["team"].astype(str).str.strip().str.upper().isin(want)]
                 # Optional per-day team roster overrides: data/overrides/team_roster_<date>.csv
                 try:
-                    ov = BASE_DIR / "data" / "overrides" / f"team_roster_{d}.csv"
+                    ov = DATA_OVERRIDES_DIR / f"team_roster_{d}.csv"
                     if ov.exists():
                         ovdf = pd.read_csv(ov)
                         if not ovdf.empty:
@@ -15456,8 +15476,8 @@ def api_props():
             return jsonify({"date": d, "source": "predictions", "rows": rows, "collapsed": False})
 
         # Prefer edges if available, fall back to predictions (unless source=predictions requested)
-        edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
-        preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        edges_p = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
+        preds_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         use_predictions_first = (requested_source == "predictions")
         df = None
         src = None
@@ -15775,7 +15795,7 @@ def _recommendations_game_cards():
     if not d:
         return jsonify({"error": "missing date"}), 400
 
-    proc = BASE_DIR / "data" / "processed"
+    proc = DATA_PROCESSED_DIR
 
     def _as_int(v):
         try:
@@ -16364,7 +16384,7 @@ def api_debug_recommendations_status():
     d = _parse_date_param(request)
     if not d:
         return jsonify({"error": "missing date"}), 400
-    proc = BASE_DIR / "data" / "processed"
+    proc = DATA_PROCESSED_DIR
     def info(stem):
         try:
             p = proc / f"{stem}_{d}.csv"
@@ -16482,7 +16502,7 @@ def api_props_recommendations():
                 pass
         except Exception:
             has_portfolio_knobs = False
-        best_props_p = BASE_DIR / "data" / "processed" / f"best_edges_props_{d}.csv"
+        best_props_p = DATA_PROCESSED_DIR / f"best_edges_props_{d}.csv"
         if portfolio_only_q and use_snapshot_q and best_props_p.exists() and (force_snapshot_q or (not has_portfolio_knobs)):
             try:
                 snap_df = _read_csv_if_exists(best_props_p)
@@ -16551,9 +16571,9 @@ def api_props_recommendations():
                     payload["top_slate"] = items
                 return jsonify(_to_jsonable(payload))
 
-        edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
-        preds_p = BASE_DIR / "data" / "processed" / f"predictions_{d}.csv"
-        props_preds_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        edges_p = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
+        preds_p = DATA_PROCESSED_DIR / f"predictions_{d}.csv"
+        props_preds_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         df = _read_csv_if_exists(edges_p)
         if not isinstance(df, pd.DataFrame) or df is None or df.empty:
             # Attempt remote fetch (Render disk mounts can shadow repo files).
@@ -16776,7 +16796,7 @@ def api_props_recommendations():
         # Optional: apply roster team overrides to ensure correct team identity per player
         try:
             from pathlib import Path as _Path
-            _ov_path = BASE_DIR / "data" / "overrides" / "roster_overrides.csv"
+            _ov_path = DATA_OVERRIDES_DIR / "roster_overrides.csv"
             _override_team_by_player: dict[str, str] = {}
             if _ov_path.exists():
                 try:
@@ -16828,7 +16848,7 @@ def api_props_recommendations():
         reliability_weight = 1.0
         try:
             import json as _json
-            _rp = BASE_DIR / "data" / "processed" / "reliability_props_summary.json"
+            _rp = DATA_PROCESSED_DIR / "reliability_props_summary.json"
             if _rp.exists():
                 with open(_rp, "r", encoding="utf-8") as fh:
                     _rj = _json.load(fh)
@@ -17162,7 +17182,7 @@ def api_props_recommendations():
                     roster = [{"player": r[pcol], "team": r[tcol]} for _, r in _tmp[[pcol, tcol]].dropna().drop_duplicates().iterrows()]
                 else:
                     roster = [{"player": r[pcol], "team": str(r.get("team") or "")} for _, r in _tmp[[pcol]].dropna().drop_duplicates().iterrows()]
-            mf = MinutesForecaster.from_processed(d, str(BASE_DIR / "data" / "processed"))
+            mf = MinutesForecaster.from_processed(d, str(DATA_PROCESSED_DIR))
             mins = mf.forecast(roster, injuries_map={})
             for pm in mins:
                 try:
@@ -17220,7 +17240,7 @@ def api_props_recommendations():
                     try:
                         import json as _json
                         chosen_fp = None
-                        summary_fp = BASE_DIR / "data" / "processed" / "props_prob_calibration_windows.json"
+                        summary_fp = DATA_PROCESSED_DIR / "props_prob_calibration_windows.json"
                         if summary_fp.exists():
                             with open(summary_fp, "r", encoding="utf-8") as fh:
                                 win_sum = _json.load(fh)
@@ -17233,11 +17253,11 @@ def api_props_recommendations():
                                     if best is None or float(it["rmse_calibration"]) < float(best["rmse_calibration"]):
                                         best = it
                             if isinstance(best, dict) and best.get("days"):
-                                fp2 = BASE_DIR / "data" / "processed" / f"props_prob_calibration_{best['days']}.json"
+                                fp2 = DATA_PROCESSED_DIR / f"props_prob_calibration_{best['days']}.json"
                                 if fp2.exists():
                                     chosen_fp = fp2
                         if chosen_fp is None:
-                            fp = BASE_DIR / "data" / "processed" / "props_prob_calibration.json"
+                            fp = DATA_PROCESSED_DIR / "props_prob_calibration.json"
                             if fp.exists():
                                 chosen_fp = fp
                         if chosen_fp and chosen_fp.exists():
@@ -18016,11 +18036,11 @@ def api_props_recommendations():
                 corr_method = corr_param
             else:
                 try:
-                    ov = BASE_DIR / "data" / "overrides" / "corr_method.txt"
+                    ov = DATA_OVERRIDES_DIR / "corr_method.txt"
                     corr_method = (ov.read_text(encoding="utf-8").strip().lower() if ov.exists() else "phi")
                 except Exception:
                     corr_method = "phi"
-            proc_dir = BASE_DIR / "data" / "processed"
+            proc_dir = DATA_PROCESSED_DIR
             cache_dir = proc_dir / "cache"
             import json as _json
             import time as _time
@@ -18422,7 +18442,7 @@ def api_props_recommendations():
             # Default weights (can be overridden by data/overrides/reco_weights.json)
             _weights_props = {"ev_pct": 0.38, "payout": 0.14, "baseline": 0.14, "consensus": 0.15, "line_adv": 0.10, "injury": 0.05, "pace": 0.02, "liquidity": 0.06, "density_penalty": 0.04, "usage_boost": 0.06, "travel_penalty": 0.02, "volatility_penalty": 0.04, "minutes_stability": 0.08}
             try:
-                wpath = BASE_DIR / "data" / "overrides" / "reco_weights.json"
+                wpath = DATA_OVERRIDES_DIR / "reco_weights.json"
                 if wpath.exists():
                     with open(wpath, "r", encoding="utf-8") as fh:
                         wjson = _json.load(fh)
@@ -19630,7 +19650,7 @@ def api_props_reconciliation():
     if not d:
         return jsonify({"error": "missing date"}), 400
     try:
-        p = BASE_DIR / "data" / "processed" / f"recon_props_{d}.csv"
+        p = DATA_PROCESSED_DIR / f"recon_props_{d}.csv"
         if not p.exists():
             return jsonify({"date": d, "rows": 0, "data": [], "note": "no recon props for date"})
         df = pd.read_csv(p)
@@ -19664,7 +19684,7 @@ def api_admin_corr_cache():
         corr_method = str((request.args.get("corr_method") or _body.get("corr_method") or "phi") or "phi").strip().lower()
         if corr_method not in {"phi", "proxy"}:
             corr_method = "phi"
-        proc_dir = BASE_DIR / "data" / "processed"
+        proc_dir = DATA_PROCESSED_DIR
         cache_dir = proc_dir / "cache"
         cache_path = cache_dir / f"market_pair_penalties_{corr_method}.json"
         import json as _json
@@ -19876,8 +19896,8 @@ def api_reconciliation():
         return jsonify({"error": "missing date"}), 400
     try:
         # Use recon files if present
-        gpath = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
-        ppath = BASE_DIR / "data" / "processed" / f"recon_props_{d}.csv"
+        gpath = DATA_PROCESSED_DIR / f"recon_games_{d}.csv"
+        ppath = DATA_PROCESSED_DIR / f"recon_props_{d}.csv"
         gdf = _read_csv_if_exists(gpath)
         pdf = _read_csv_if_exists(ppath)
         out: Dict[str, Any] = {"date": d}
@@ -19908,8 +19928,8 @@ def api_features():
     Optional: data/features_catalog.json can provide human-friendly descriptions.
     """
     try:
-        proc = BASE_DIR / "data" / "processed"
-        catalog_path = BASE_DIR / "data" / "features_catalog.json"
+        proc = DATA_PROCESSED_DIR
+        catalog_path = DATA_DIR / "features_catalog.json"
 
         catalog: dict[str, Any] = {}
         try:
@@ -20144,7 +20164,7 @@ def api_cron_train_games():
     try:
         env = {"PYTHONPATH": str(SRC_DIR)}
         # Minimal sequence: build-features (if needed) then train
-        feats = BASE_DIR / "data" / "processed" / "features.parquet"
+        feats = DATA_PROCESSED_DIR / "features.parquet"
         rc_build = 0
         if not feats.exists():
             rc_build = _run_to_file([str(py), "-m", "nba_betting.cli", "build-features"], log_file, cwd=BASE_DIR, env=env)
@@ -20843,7 +20863,7 @@ def _live_game_elapsed_minutes(period: int | None, clock: Any, is_final: bool) -
 
 def _live_find_processed_csv(stem_prefix: str, date_str: str) -> Path | None:
     try:
-        proc = BASE_DIR / "data" / "processed"
+        proc = DATA_PROCESSED_DIR
         p = proc / f"{stem_prefix}_{date_str}.csv"
         return p if p.exists() else None
     except Exception:
@@ -23278,7 +23298,7 @@ def _load_live_lens_schedule_index() -> dict[str, dict[tuple[str, str], str]]:
 
     idx: dict[str, dict[tuple[str, str], str]] = {}
     try:
-        p = BASE_DIR / "data" / "processed" / "schedule_2025_26.json"
+        p = DATA_PROCESSED_DIR / "schedule_2025_26.json"
         if not p.exists():
             _live_lens_schedule_idx = {}
             return _live_lens_schedule_idx
@@ -23660,7 +23680,7 @@ def api_schedule():
     """
     season = (request.args.get("season") or "2025-26").strip()
     date_str = _parse_date_param(request, default_to_today=False)
-    out_dir = BASE_DIR / "data" / "processed"
+    out_dir = DATA_PROCESSED_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     json_path = out_dir / "schedule_2025_26.json"  # schema tied to function name for now
     try:
@@ -23823,7 +23843,7 @@ def api_sim_quarters():
         qodds_df = None
         try:
             from nba_betting.odds.quarter_odds import load_quarter_odds  # type: ignore
-            qodds_df = load_quarter_odds(d, BASE_DIR / "data" / "processed")
+            qodds_df = load_quarter_odds(d, DATA_PROCESSED_DIR)
         except Exception:
             qodds_df = None
 
@@ -24287,7 +24307,7 @@ def api_sim_game_story():
         row = pdf[m].iloc[0].to_dict()
 
         # Load props predictions for player baselines
-        props_p = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        props_p = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         if not props_p.exists():
             _maybe_fetch_remote_processed(props_p.name)
         props_df = _read_csv_if_exists(props_p)
@@ -24709,7 +24729,7 @@ def api_sim_game_story():
                 try:
                     # Apply same calibration as /api/recommendations when available
                     # (Inlined minimal version: use games_prob_calibration.json if present)
-                    fp = BASE_DIR / "data" / "processed" / "games_prob_calibration.json"
+                    fp = DATA_PROCESSED_DIR / "games_prob_calibration.json"
                     if fp.exists():
                         with open(fp, "r", encoding="utf-8") as fh:
                             cmap = json.load(fh)
@@ -24800,7 +24820,7 @@ def api_sim_game_story():
                 rep_players = []
             rep_keys = set(_norm_player_name(x) for x in rep_players if x and "Replacement" not in str(x))
 
-            edges_p = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+            edges_p = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
             if edges_p.exists():
                 edf = pd.read_csv(edges_p)
                 if isinstance(edf, pd.DataFrame) and not edf.empty:
@@ -24831,7 +24851,7 @@ def api_sim_game_story():
         # Props recommendations (derived from edges) filtered to teams in this matchup
         try:
             import ast as _ast
-            pr_p = BASE_DIR / "data" / "processed" / f"props_recommendations_{d}.csv"
+            pr_p = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
             if pr_p.exists():
                 pr = pd.read_csv(pr_p)
                 if isinstance(pr, pd.DataFrame) and not pr.empty:
@@ -25067,8 +25087,8 @@ def api_cron_refresh_bovada():
     try:
         df = _fetch_bovada_odds_current(d)
         rows = 0 if df is None else len(df)
-        out = BASE_DIR / "data" / "processed" / f"game_odds_{d}.csv"
-        out_periods = BASE_DIR / "data" / "processed" / f"period_lines_{d}.csv"
+        out = DATA_PROCESSED_DIR / f"game_odds_{d}.csv"
+        out_periods = DATA_PROCESSED_DIR / f"period_lines_{d}.csv"
         used_fallback = False
         fallback_path = None
         # For props: we'll attempt to fetch Bovada player props and compute edges if present
@@ -25113,7 +25133,7 @@ def api_cron_refresh_bovada():
                 except Exception:
                     props_df = None
             if props_df is not None and not props_df.empty:
-                raw_dir = BASE_DIR / "data" / "raw"
+                raw_dir = DATA_RAW_DIR
                 raw_dir.mkdir(parents=True, exist_ok=True)
                 props_raw = raw_dir / f"odds_bovada_player_props_{d}.csv"
                 try:
@@ -25135,7 +25155,7 @@ def api_cron_refresh_bovada():
                     log_file = logs_dir / f"cron_props_edges_from_bovada_{d}_{stamp}.log"
                     # Compute props edges without running models server-side
                     _ = _run_to_file([str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "bovada", "--no-use-saved", "--file-only"], log_file, cwd=BASE_DIR, env=env)
-                    pe = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+                    pe = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
                     if pe.exists():
                         try:
                             props_edges_rows = int(len(pd.read_csv(pe)))
@@ -25237,9 +25257,9 @@ def api_cron_refresh_oddsapi_props():
             edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
             rec_fp = _paths.data_processed / f"props_recommendations_{d}.csv"
         except Exception:
-            raw_fp = BASE_DIR / "data" / "raw" / f"odds_nba_player_props_{d}.csv"
-            edges_fp = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
-            rec_fp = BASE_DIR / "data" / "processed" / f"props_recommendations_{d}.csv"
+            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv"
+            edges_fp = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
+            rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
 
         snap_rows = 0
         try:
@@ -25347,7 +25367,7 @@ def api_cron_capture_closing():
     try:
         env = {"PYTHONPATH": str(SRC_DIR)}
         rc = _run_to_file([str(py), "-m", "nba_betting.cli", "export-closing-lines-csv", "--date", d], log_file, cwd=BASE_DIR, env=env)
-        out = BASE_DIR / "data" / "processed" / f"closing_lines_{d}.csv"
+        out = DATA_PROCESSED_DIR / f"closing_lines_{d}.csv"
         rows = 0
         if out.exists():
             try:
@@ -25434,7 +25454,7 @@ def api_cron_predict_date():
         # Locate predictions from either processed/ or legacy root
         pred_path = _find_predictions_for_date(d)
         pred = pred_path if pred_path is not None else (BASE_DIR / f"predictions_{d}.csv")
-        odds = BASE_DIR / "data" / "processed" / f"game_odds_{d}.csv"
+        odds = DATA_PROCESSED_DIR / f"game_odds_{d}.csv"
         n_pred = int(len(pd.read_csv(pred))) if (hasattr(pred, 'exists') and pred.exists()) else (int(len(pd.read_csv(pred))) if pred_path is not None else 0)
         n_odds = int(len(pd.read_csv(odds))) if odds.exists() else 0
         pushed = None; push_detail = None
@@ -25619,7 +25639,7 @@ def api_cron_reconcile_games():
     ))
     try:
         # Prefer a pre-generated finals CSV if available
-        finals_csv = BASE_DIR / "data" / "processed" / f"finals_{d}.csv"
+        finals_csv = DATA_PROCESSED_DIR / f"finals_{d}.csv"
         finals: pd.DataFrame
         if finals_csv.exists():
             try:
@@ -25721,7 +25741,7 @@ def api_cron_reconcile_games():
         merged["date"] = d
     out_df = merged[[c for c in keep if c in merged.columns]]
 
-    out = BASE_DIR / "data" / "processed" / f"recon_games_{d}.csv"
+    out = DATA_PROCESSED_DIR / f"recon_games_{d}.csv"
     out.parent.mkdir(parents=True, exist_ok=True)
     out_df.to_csv(out, index=False)
 
@@ -26725,7 +26745,7 @@ def api_cron_props_edges():
         # Synchronous path: ensure models now, then run
         _okp, _info = _ensure_props_models(log_file)
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
-        out = BASE_DIR / "data" / "processed" / f"props_edges_{d}.csv"
+        out = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
         rows = 0
         if out.exists():
             try:
@@ -26775,7 +26795,7 @@ def api_cron_fetch_rosters():
         env = dict(os.environ); env["PYTHONPATH"] = str(SRC_DIR)
         cmd = [str(py), "-m", "nba_betting.cli", "fetch-rosters-cmd", "--season", season]
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
-        out_csv = BASE_DIR / "data" / "processed" / f"rosters_{season.replace('/', '-')}.csv"
+        out_csv = DATA_PROCESSED_DIR / f"rosters_{season.replace('/', '-')}.csv"
         rows = 0
         if out_csv.exists():
             try:
@@ -26861,7 +26881,7 @@ def api_cron_props_predictions():
         # Synchronous: ensure models then run
         _okp, _info = _ensure_props_models(log_file)
         rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
-        out = BASE_DIR / "data" / "processed" / f"props_predictions_{d}.csv"
+        out = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
         rows = 0
         if out.exists():
             try:

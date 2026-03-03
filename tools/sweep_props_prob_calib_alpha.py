@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 from dataclasses import dataclass
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -9,7 +10,9 @@ import numpy as np
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-PROC_DIR = BASE_DIR / "data" / "processed"
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 PRICE_MIN = -400.0
 PRICE_MAX = 400.0

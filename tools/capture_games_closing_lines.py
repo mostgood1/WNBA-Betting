@@ -10,6 +10,10 @@ import sys
 BASE_DIR = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(BASE_DIR / "src"))
 
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
+
 try:
     from nba_betting.odds_api import fetch_game_odds_current, OddsApiConfig
 except Exception:
@@ -78,7 +82,7 @@ def consensus_last(odds: pd.DataFrame) -> pd.DataFrame:
 
 
 def _try_load_existing_odds(target: date) -> Optional[pd.DataFrame]:
-    proc = BASE_DIR / "data" / "processed"
+    proc = PROC_DIR
     # Prefer whatever the app expects/creates today
     for name in [
         f"game_odds_{target:%Y-%m-%d}.csv",
@@ -117,7 +121,7 @@ def main():
     # Fallback: use existing odds snapshots if present
     if odds_df is None or (isinstance(odds_df, pd.DataFrame) and odds_df.empty):
         odds_df = _try_load_existing_odds(target)
-    out_dir = BASE_DIR / "data" / "processed"
+    out_dir = PROC_DIR
     out_dir.mkdir(parents=True, exist_ok=True)
     # Frontend + API expect closing_lines_<date>.csv
     out_path = out_dir / f"closing_lines_{target:%Y-%m-%d}.csv"

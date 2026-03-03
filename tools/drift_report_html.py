@@ -7,11 +7,15 @@ data/processed/drift_games_<date>.html with sortable table and quick flags.
 """
 
 from pathlib import Path
+import os
 import argparse
 from datetime import datetime
 import pandas as pd
 
-PROCESSED = Path("data/processed")
+BASE_DIR = Path(__file__).resolve().parent.parent
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 
 TEMPLATE = """
 <!doctype html>

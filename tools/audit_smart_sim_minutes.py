@@ -11,8 +11,15 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 
 def _safe_float(x: Any) -> float | None:
@@ -42,7 +49,7 @@ def _team_minutes_from_obj(obj: dict[str, Any], side: str) -> list[float]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--date", required=True, help="YYYY-MM-DD")
-    ap.add_argument("--processed", default="data/processed", help="Processed dir (default data/processed)")
+    ap.add_argument("--processed", default=str(PROC_DIR), help="Processed dir (default data/processed)")
     ap.add_argument("--cap", type=float, default=44.0, help="Max allowed min_mean per player (default 44.0)")
     ap.add_argument(
         "--sum-tol",

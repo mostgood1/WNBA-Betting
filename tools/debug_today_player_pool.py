@@ -1,9 +1,16 @@
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 
 import pandas as pd
+
+
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 
 def _norm_bool(x) -> str:
@@ -39,7 +46,7 @@ def main() -> None:
     team = "PHI"
     player = "Tyrese Maxey"
 
-    pp = Path(f"data/processed/props_predictions_{date_str}.csv")
+    pp = PROC_DIR / f"props_predictions_{date_str}.csv"
     if not pp.exists():
         raise SystemExit(f"missing {pp}")
 

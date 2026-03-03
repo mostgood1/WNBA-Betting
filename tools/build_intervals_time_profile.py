@@ -33,6 +33,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -40,7 +41,10 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
-PROCESSED = Path("data/processed")
+BASE_DIR = Path(__file__).resolve().parent.parent
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 
 
 def _safe_float(x: Any) -> float:

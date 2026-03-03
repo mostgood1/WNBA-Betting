@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -20,7 +21,9 @@ import numpy as np
 import pandas as pd
 
 BASE_DIR = Path(__file__).resolve().parents[1]
-PROC_DIR = BASE_DIR / "data" / "processed"
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 
 def _safe_float(x: Any) -> float | None:

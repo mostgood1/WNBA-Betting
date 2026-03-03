@@ -1,10 +1,14 @@
 import argparse
 from datetime import datetime, timedelta
+import os
 from pathlib import Path
 import pandas as pd
 import numpy as np
 
-PROCESSED = Path('data/processed')
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 
 WIN_PROB_CANDIDATES = [
     ('home_win_prob', 'Model: blended'),

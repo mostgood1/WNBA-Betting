@@ -9,12 +9,15 @@ Primary goal for the pipeline is *availability gating* for a given date.
 import io
 import re
 import time
+from pathlib import Path
 from typing import List, Dict, Optional
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 from pypdf import PdfReader
+
+from ..config import paths
 try:
     from ..teams import to_tricode as _to_tri
 except Exception:
@@ -497,7 +500,10 @@ class NBAInjuryDatabase:
     """Manages injury data with historical tracking."""
     
     def __init__(self, filepath: str = "data/raw/injuries.csv"):
-        self.filepath = filepath
+        fp = Path(filepath)
+        if not fp.is_absolute() and fp.parts and fp.parts[0].lower() == "data":
+            fp = paths.data_root / Path(*fp.parts[1:])
+        self.filepath = fp
         self.scraper = ESPNInjuryScraper()
 
     def update_injuries(self, date_str: Optional[str] = None) -> pd.DataFrame:
@@ -623,6 +629,10 @@ class NBAInjuryDatabase:
             combined = combined.drop_duplicates(subset=["team", "player", "date"], keep="last")
 
         # Save updated database
+        try:
+            Path(self.filepath).parent.mkdir(parents=True, exist_ok=True)
+        except Exception:
+            pass
         combined.to_csv(self.filepath, index=False)
         print(f"Saved {len(combined)} injury records to {self.filepath}")
         return combined

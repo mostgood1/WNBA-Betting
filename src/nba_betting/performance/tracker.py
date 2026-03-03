@@ -9,14 +9,26 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Tuple
 from pathlib import Path
 
+from nba_betting.config import paths
+
+
+def _resolve_against_data_root(p: str) -> Path:
+    path = Path(p)
+    if path.is_absolute():
+        return path
+    parts = path.parts
+    if len(parts) >= 1 and parts[0].lower() == "data":
+        return paths.data_root / Path(*parts[1:])
+    return path
+
 
 class PerformanceTracker:
     """Tracks model performance against actual results."""
     
     def __init__(self, predictions_dir: str = "data/processed", 
                  results_dir: str = "data/raw"):
-        self.predictions_dir = Path(predictions_dir)
-        self.results_dir = Path(results_dir)
+        self.predictions_dir = _resolve_against_data_root(predictions_dir)
+        self.results_dir = _resolve_against_data_root(results_dir)
     
     def load_predictions_and_results(self, start_date: str = None, 
                                      end_date: str = None) -> pd.DataFrame:

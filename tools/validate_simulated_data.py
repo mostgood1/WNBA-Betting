@@ -8,6 +8,12 @@ import numpy as np
 import pandas as pd
 
 
+BASE_DIR = Path(__file__).resolve().parents[1]
+_DATA_ROOT_ENV = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
+PROC_DIR = DATA_ROOT / "processed"
+
+
 SCHEMA_RULES = {
     "probability_range": (0.0, 1.0),
     "ev_range": (-100.0, 100.0),
@@ -86,10 +92,10 @@ def main():
     parser = argparse.ArgumentParser(description="Validate simulated data schemas and ranges")
     parser.add_argument("--start-date", type=str, default=None)
     parser.add_argument("--end-date", type=str, default=None)
-    parser.add_argument("--outdir", type=str, default=str(Path("data/processed/metrics")))
+    parser.add_argument("--outdir", type=str, default=str(PROC_DIR / "metrics"))
     args = parser.parse_args()
 
-    base_dir = Path("data/processed")
+    base_dir = PROC_DIR
     os.makedirs(args.outdir, exist_ok=True)
 
     files = collect_files(base_dir, ["props_predictions", "recon_props"], args.start_date, args.end_date)

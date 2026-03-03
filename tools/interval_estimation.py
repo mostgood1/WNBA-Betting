@@ -17,10 +17,14 @@ Outputs:
 import argparse
 from datetime import datetime, timedelta
 from pathlib import Path
+import os
 import pandas as pd
 import numpy as np
 
-PROCESSED = Path("data/processed")
+BASE_DIR = Path(__file__).resolve().parent.parent
+_DATA_ROOT = os.environ.get("NBA_BETTING_DATA_ROOT")
+DATA_ROOT = Path(_DATA_ROOT).expanduser() if _DATA_ROOT else (BASE_DIR / "data")
+PROCESSED = DATA_ROOT / "processed"
 PREDICTIONS_PREFIX = "predictions_"
 SPREAD_COLS = ["pred_margin", "spread_margin"]
 TOTAL_COLS = ["pred_total", "totals"]

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
@@ -11,6 +12,10 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 PY = ROOT / ".venv" / "Scripts" / "python.exe"
+
+_DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (ROOT / "data")
+PROC_DIR = DATA_ROOT / "processed"
 
 
 @dataclass(frozen=True)
@@ -47,7 +52,7 @@ def main() -> int:
     ap.add_argument("--n-connected", type=int, default=50)
     ap.add_argument("--n-quarter", type=int, default=25)
     ap.add_argument("--seed", type=int, default=1337)
-    ap.add_argument("--out-csv", default="data/processed/sweep_expected_minutes.csv")
+    ap.add_argument("--out-csv", default=str(PROC_DIR / "sweep_expected_minutes.csv"))
     args = ap.parse_args()
 
     if not PY.exists():
@@ -60,7 +65,7 @@ def main() -> int:
     rows: list[dict] = []
     for c in combos:
         tag = f"hl{c.half_life:g}_a{c.alpha:g}".replace(".", "p")
-        out_json = ROOT / "data" / "processed" / f"connected_realism_{args.start}_{args.end}_rotmin_{tag}.json"
+        out_json = PROC_DIR / f"connected_realism_{args.start}_{args.end}_rotmin_{tag}.json"
 
         # 1) Build expected minutes
         _run(

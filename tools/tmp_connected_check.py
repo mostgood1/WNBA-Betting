@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import pandas as pd
 
+import os
+
 from pathlib import Path
 
 
@@ -10,7 +12,10 @@ def main() -> None:
     home = "PHI"
     away = "HOU"
 
-    proc = Path("data/processed")
+    base_dir = Path(__file__).resolve().parents[1]
+    data_root_env = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
+    data_root = Path(data_root_env).expanduser().resolve() if data_root_env else (base_dir / "data")
+    proc = data_root / "processed"
     pp = proc / f"props_predictions_{ds}.csv"
     if not pp.exists():
         raise SystemExit(f"Missing {pp}")
