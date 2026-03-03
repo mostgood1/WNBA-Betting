@@ -8,6 +8,9 @@ models/
 .DS_Store
 logs/
 *.log
+
+# Local VS Code settings (machine-specific paths)
+.vscode/settings.json
 # Deprecated rolling file; replaced by dated snapshots
 data/processed/props_actuals.csv
 # Local server cron token (do not commit)
