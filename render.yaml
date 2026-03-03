@@ -1,9 +1,9 @@
 services:
   - type: web
     name: nba-betting
-    env: python
+    runtime: python
     # plan intentionally omitted to preserve Render dashboard plan (avoid accidental downgrades)
-    autoDeploy: true
+    autoDeployTrigger: commit
     buildCommand: |
       pip install --upgrade pip
       pip install -r requirements.txt
@@ -58,10 +58,10 @@ services:
       - key: RENDER_PUSH_ON_DEPLOY
         value: "1"  # commit/push refreshed artifacts (requires RENDER_PRESTART_REFRESH=1 + GH_TOKEN/GIT_PAT)
 
-    disks:
-      - name: data
-        mountPath: /opt/render/project/data
-        sizeGB: 1
+    disk:
+      name: data
+      mountPath: /opt/render/project/data
+      sizeGB: 1
 
 # Note: Some Render accounts don’t support defining Cron Jobs in Blueprints yet.
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
