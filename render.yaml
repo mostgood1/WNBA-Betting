@@ -61,7 +61,7 @@ services:
     disk:
       name: data
       mountPath: /opt/render/project/data
-      sizeGB: 1
+      sizeGB: 5
 
 # Note: Some Render accounts don’t support defining Cron Jobs in Blueprints yet.
 # If you see errors like "field jobs not found" in the Blueprint editor, deploy just the Web Service
