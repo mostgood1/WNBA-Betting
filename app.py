@@ -7131,23 +7131,31 @@ def _ensure_props_models(log_fp: Path | None = None) -> tuple[bool, dict]:
 def _admin_auth_ok(req) -> bool:
     key = os.environ.get("ADMIN_KEY")
     if not key:
-        # If no key configured, allow only local (127.0.0.1) requests
+        # If no key configured, allow only local loopback requests by default.
+        #
+        # IMPORTANT: Do NOT automatically allow private RFC1918 ranges here.
+        # On hosted setups behind a reverse proxy (e.g., Render), Flask's
+        # req.remote_addr can be the proxy's internal IP (often 10.*), which
+        # would unintentionally grant admin access to the public internet.
+        #
+        # Local-dev convenience: set ADMIN_ALLOW_LAN=1 to allow private LAN IPs.
         try:
             host = (req.remote_addr or "").strip()
             if host in {"127.0.0.1", "::1", "::ffff:127.0.0.1"}:
                 return True
-            # Also allow private LAN ranges for local development convenience
-            if host.startswith("192.168.") or host.startswith("10."):
-                return True
-            if host.startswith("172."):
-                try:
-                    parts = host.split(".")
-                    if len(parts) >= 2:
-                        second = int(parts[1])
-                        if 16 <= second <= 31:
-                            return True
-                except Exception:
-                    pass
+            allow_lan = (os.environ.get("ADMIN_ALLOW_LAN") or "").strip().lower() in {"1", "true", "yes", "on"}
+            if allow_lan:
+                if host.startswith("192.168.") or host.startswith("10."):
+                    return True
+                if host.startswith("172."):
+                    try:
+                        parts = host.split(".")
+                        if len(parts) >= 2:
+                            second = int(parts[1])
+                            if 16 <= second <= 31:
+                                return True
+                    except Exception:
+                        pass
             return False
         except Exception:
             return False
