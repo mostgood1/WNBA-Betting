@@ -24,6 +24,171 @@ _PROPS_PROB_CALIB_CACHE: dict[str, object] | None = None
 _PROPS_PROB_CALIB_ALPHA: float | None = None
 
 
+def _env_bool(name: str, default: bool = True) -> bool:
+    try:
+        raw = os.environ.get(name)
+        if raw is None:
+            return bool(default)
+        s = str(raw).strip().lower()
+        if s in {"1", "true", "yes", "y", "on"}:
+            return True
+        if s in {"0", "false", "no", "n", "off"}:
+            return False
+        return bool(default)
+    except Exception:
+        return bool(default)
+
+
+def _env_float(name: str, default: float, lo: float | None = None, hi: float | None = None) -> float:
+    try:
+        raw = os.environ.get(name)
+        v = float(default) if raw is None or str(raw).strip() == "" else float(str(raw).strip())
+        if lo is not None:
+            v = max(float(lo), v)
+        if hi is not None:
+            v = min(float(hi), v)
+        return float(v)
+    except Exception:
+        return float(default)
+
+
+_PROPS_OPENING_CACHE: dict[str, pd.DataFrame] = {}
+
+
+def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
+    """Return opening (earliest snapshot) prop lines/prices for the slate date.
+
+    This is a lightweight "sentiment" proxy: if the market has moved meaningfully
+    since the earliest saved snapshot, we shrink model probabilities toward the
+    market break-even.
+
+    Source: data/raw/odds_nba_player_props*.parquet/csv (OddsAPI snapshots).
+    """
+    day_str = pd.to_datetime(date).date().isoformat()
+    if day_str in _PROPS_OPENING_CACHE:
+        return _PROPS_OPENING_CACHE[day_str]
+
+    # Prefer per-day snapshots first (smaller, and guaranteed to contain the slate if present),
+    # then fall back to the cumulative history file.
+    raw_day_pq = paths.data_raw / f"odds_nba_player_props_{day_str}.parquet"
+    raw_day_csv = paths.data_raw / f"odds_nba_player_props_{day_str}.csv"
+    raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
+    raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
+    candidates = [raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
+
+    usecols = [
+        "snapshot_ts",
+        "event_id",
+        "commence_time",
+        "bookmaker",
+        "market",
+        "outcome_name",
+        "player_name",
+        "point",
+        "price",
+    ]
+
+    df = None
+    for p in candidates:
+        if not p.exists():
+            continue
+        try:
+            if str(p).lower().endswith(".parquet"):
+                df_try = pd.read_parquet(p, columns=usecols)
+            else:
+                df_try = pd.read_csv(p, usecols=usecols)
+        except Exception:
+            continue
+
+        if df_try is None or df_try.empty:
+            continue
+
+        if "snapshot_ts" not in df_try.columns or "commence_time" not in df_try.columns:
+            continue
+
+        # Filter to this slate date using the event commence_time (ET calendar day).
+        try:
+            dt_utc = pd.to_datetime(df_try["commence_time"], errors="coerce", utc=True)
+            try:
+                et_dates = dt_utc.dt.tz_convert("America/New_York").dt.date
+            except Exception:
+                try:
+                    et_dates = dt_utc.dt.tz_convert("US/Eastern").dt.date
+                except Exception:
+                    et_dates = dt_utc.dt.date
+            df_try = df_try.loc[et_dates == pd.to_datetime(date).date()].copy()
+        except Exception:
+            df_try = pd.DataFrame()
+
+        if df_try is None or df_try.empty:
+            # This file doesn't contain the slate; try the next candidate.
+            continue
+
+        df = df_try
+        break
+
+    if df is None or df.empty:
+        out = pd.DataFrame()
+        _PROPS_OPENING_CACHE[day_str] = out
+        return out
+
+    # (Filter to slate date was applied during candidate selection.)
+
+    # Normalize and map side.
+    def _map_side(x: str) -> Optional[str]:
+        u = str(x).upper()
+        if "OVER" in u:
+            return "OVER"
+        if "UNDER" in u:
+            return "UNDER"
+        if u in ("YES", "Y"):
+            return "YES"
+        if u in ("NO", "N"):
+            return "NO"
+        return None
+
+    try:
+        df["name_key"] = df["player_name"].astype(str).map(_norm_name)
+        df["side"] = df["outcome_name"].astype(str).map(_map_side)
+    except Exception:
+        out = pd.DataFrame()
+        _PROPS_OPENING_CACHE[day_str] = out
+        return out
+
+    # Keep only rows we can join.
+    need = ["snapshot_ts", "event_id", "bookmaker", "market", "name_key", "side", "point", "price"]
+    df = df[[c for c in need if c in df.columns]].copy()
+    df = df[df["event_id"].notna() & df["bookmaker"].notna() & df["market"].notna() & df["name_key"].notna() & df["side"].notna()].copy()
+    if df.empty:
+        out = pd.DataFrame()
+        _PROPS_OPENING_CACHE[day_str] = out
+        return out
+
+    # Opening snapshot per prop outcome = earliest snapshot_ts.
+    df["snapshot_ts_dt"] = pd.to_datetime(df["snapshot_ts"], errors="coerce", utc=True)
+    df = df[df["snapshot_ts_dt"].notna()].copy()
+    if df.empty:
+        out = pd.DataFrame()
+        _PROPS_OPENING_CACHE[day_str] = out
+        return out
+
+    df = df.sort_values(["snapshot_ts_dt"])
+    keys = ["event_id", "bookmaker", "market", "name_key", "side"]
+    opening = df.groupby(keys, as_index=False).first()
+    opening = opening.rename(
+        columns={
+            "point": "open_line",
+            "price": "open_price",
+            "snapshot_ts": "open_snapshot_ts",
+        }
+    )
+    keep = ["event_id", "bookmaker", "market", "name_key", "side", "open_line", "open_price", "open_snapshot_ts"]
+    opening = opening[[c for c in keep if c in opening.columns]].copy()
+
+    _PROPS_OPENING_CACHE[day_str] = opening
+    return opening
+
+
 def _get_props_prob_calib_alpha() -> float:
     """Return runtime blend strength for probability calibration.
 
@@ -611,6 +776,7 @@ def compute_props_edges(
 
     # Normalize odds
     keep_cols = [
+        "snapshot_ts", "event_id",
         "bookmaker", "bookmaker_title", "market", "outcome_name", "player_name", "point", "price", "commence_time",
         "home_team", "away_team",
     ]
@@ -656,6 +822,21 @@ def compute_props_edges(
             return not pd.isna(row.get("price"))
         return (not pd.isna(row.get("point"))) and (not pd.isna(row.get("price")))
     odds = odds[odds.apply(_row_ok, axis=1)].copy()
+
+    # Attach opening snapshot (sentiment proxy) when we have saved OddsAPI snapshots.
+    # This is intentionally conservative: if no opening snapshot is available for a row,
+    # we do nothing.
+    if _env_bool("PROPS_SENTIMENT_ENABLE", True):
+        try:
+            if "event_id" in odds.columns and odds["event_id"].notna().any():
+                opening = _load_opening_props_odds_for_date(target_date)
+                if opening is not None and not opening.empty:
+                    join_keys = ["event_id", "bookmaker", "market", "name_key", "side"]
+                    ok_keys = [k for k in join_keys if k in odds.columns and k in opening.columns]
+                    if len(ok_keys) == len(join_keys):
+                        odds = odds.merge(opening, on=join_keys, how="left")
+        except Exception:
+            pass
 
     # Merge odds with predictions on name_key
     # Include optional per-player uncertainty columns (from SmartSim) when present.
@@ -1150,6 +1331,51 @@ def compute_props_edges(
                 merged.loc[mask, "model_prob"] = (pi + float(w) * (pm - pi)).clip(0.0, 1.0)
     except Exception:
         pass
+
+    # --- Market movement "sentiment" shrink (pregame props) ---
+    # If we have an opening snapshot for the same prop outcome and the market has
+    # moved materially (line and/or price), shrink model_prob toward implied_prob.
+    # This does NOT add alpha; it reduces overconfidence in high-information markets.
+    merged["sentiment_strength"] = np.nan
+    merged["sentiment_w"] = np.nan
+    merged["sentiment_applied"] = False
+    try:
+        if _env_bool("PROPS_SENTIMENT_ENABLE", True) and ("open_price" in merged.columns or "open_line" in merged.columns):
+            alpha = _env_float("PROPS_SENTIMENT_ALPHA", 0.22, lo=0.0, hi=1.0)
+            w_max = _env_float("PROPS_SENTIMENT_MAX_SHRINK", 0.35, lo=0.0, hi=1.0)
+            line_scale = _env_float("PROPS_SENTIMENT_LINE_SCALE", 1.5, lo=0.1, hi=10.0)
+            prob_scale = _env_float("PROPS_SENTIMENT_PROB_SCALE", 0.06, lo=0.005, hi=0.5)
+
+            mp = pd.to_numeric(merged.get("model_prob"), errors="coerce")
+            ip = pd.to_numeric(merged.get("implied_prob"), errors="coerce")
+
+            ol = pd.to_numeric(merged.get("open_line"), errors="coerce") if "open_line" in merged.columns else pd.Series(np.nan, index=merged.index)
+            op = pd.to_numeric(merged.get("open_price"), errors="coerce") if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
+            oip = op.map(_american_implied_prob) if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
+
+            lm = (pd.to_numeric(merged.get("line"), errors="coerce") - ol) if "open_line" in merged.columns else pd.Series(np.nan, index=merged.index)
+            pm = (ip - oip) if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
+
+            # Strength combines line and probability movement; NaNs contribute 0.
+            strength = (lm.abs() / float(line_scale)).fillna(0.0) + (pm.abs() / float(prob_scale)).fillna(0.0)
+            w = (float(alpha) * strength).clip(lower=0.0, upper=float(w_max))
+
+            ok = mp.notna() & ip.notna() & (w > 1e-9)
+            if ok.any():
+                merged.loc[ok, "model_prob"] = (ip.loc[ok] + (1.0 - w.loc[ok]) * (mp.loc[ok] - ip.loc[ok])).clip(0.0, 1.0)
+                merged.loc[ok, "sentiment_applied"] = True
+            merged["sentiment_strength"] = strength
+            merged["sentiment_w"] = w
+            # Keep raw movement columns when available (useful for debugging / analysis)
+            if "open_price" in merged.columns:
+                merged["open_implied_prob"] = oip
+            if "open_line" in merged.columns:
+                merged["line_move"] = lm
+            if "open_price" in merged.columns:
+                merged["implied_move"] = pm
+    except Exception:
+        pass
+
     merged["edge"] = merged["model_prob"] - merged["implied_prob"]
     merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
 
@@ -1168,7 +1394,9 @@ def compute_props_edges(
 
     desired_cols = [
         "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "model_prob_raw", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time",
-        "home_team", "away_team"
+        "home_team", "away_team",
+        # Optional sentiment / market-movement columns (present when saved snapshots exist)
+        "open_line", "open_price", "open_implied_prob", "line_move", "implied_move", "sentiment_strength", "sentiment_w", "sentiment_applied",
     ]
     out_cols = [c for c in desired_cols if c in merged.columns]
     if not out_cols:

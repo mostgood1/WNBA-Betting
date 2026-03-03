@@ -102,7 +102,7 @@ function formatEtTimesInCards(){
       if (!raw) return;
       // Avoid UTC date-shift bugs for date-only strings like "2026-03-01".
       if (isDateOnly(raw)) return;
-      const d = new Date(raw);
+      const d = parseGameDateTime(raw) || new Date(raw);
       if (!isNaN(d)) node.textContent = fmt.format(d);
     });
   }catch(_){ /* ignore */ }
@@ -1005,6 +1005,71 @@ function getQueryParam(name){
   }catch(_){ return null; }
 }
 
+// ---- Timezone parsing helpers ----
+// Some backend artifacts include `datetime_est` like "2026-03-03T19:00:00" without an offset.
+// Browsers interpret that as *local* time, which makes Central users see Eastern times.
+// Treat offset-less datetimes as America/New_York and convert to a real Date.
+function _tzOffsetMinutesAt(utcMs, timeZone){
+  try{
+    const d = new Date(Number(utcMs));
+    if (isNaN(d)) return 0;
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: String(timeZone||'UTC'),
+      hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+    }).formatToParts(d);
+    const get = (t)=>{
+      const p = parts.find(x=>x && x.type===t);
+      return p ? Number(p.value) : NaN;
+    };
+    const y=get('year'), mo=get('month'), da=get('day'), h=get('hour'), mi=get('minute'), se=get('second');
+    if (![y,mo,da,h,mi,se].every(Number.isFinite)) return 0;
+    const asUtc = Date.UTC(y, mo-1, da, h, mi, se);
+    return Math.round((asUtc - Number(utcMs)) / 60000);
+  }catch(_){ return 0; }
+}
+
+function parseGameDateTime(raw){
+  try{
+    const s0 = String(raw||'').trim();
+    if (!s0) return null;
+    // Date-only (YYYY-MM-DD) is treated specially by callers.
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s0)) return null;
+
+    // Normalize common variants.
+    const s = (s0.includes(' ') && !s0.includes('T')) ? s0.replace(' ', 'T') : s0;
+
+    // If string already has timezone info, trust JS parsing.
+    if (/Z$/.test(s) || /[+-]\d{2}:?\d{2}$/.test(s)){
+      const d = new Date(s);
+      return isNaN(d) ? null : d;
+    }
+
+    // If it's a naive ISO datetime, interpret it as America/New_York.
+    const m = s.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/);
+    if (m){
+      const Y = Number(m[1]), M = Number(m[2]), D = Number(m[3]);
+      const hh = Number(m[4]), mm = Number(m[5]), ss = Number(m[6]||'0');
+      if (![Y,M,D,hh,mm,ss].every(Number.isFinite)) return null;
+
+      // Iteratively solve for UTC given local NY time (handles DST changes).
+      const localAsUtc = Date.UTC(Y, M-1, D, hh, mm, ss);
+      let utc = localAsUtc;
+      for (let i=0;i<2;i++){
+        const off = _tzOffsetMinutesAt(utc, 'America/New_York');
+        utc = localAsUtc - off*60000;
+      }
+      const d = new Date(utc);
+      return isNaN(d) ? null : d;
+    }
+
+    // Last resort.
+    const d = new Date(s);
+    return isNaN(d) ? null : d;
+  }catch(_){ return null; }
+}
+
 // Format helpers in the user's local timezone.
 function fmtLocalTime(iso){
   try{
@@ -1012,7 +1077,7 @@ function fmtLocalTime(iso){
     if (!s) return '';
     // If we only have a date, don't let Date("YYYY-MM-DD") shift days via UTC.
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return '';
-    const d = new Date(s);
+    const d = parseGameDateTime(s) || new Date(s);
     if (isNaN(d)) return '';
     return new Intl.DateTimeFormat('en-US', {
       hour: '2-digit',
@@ -1028,7 +1093,7 @@ function fmtLocalDate(iso){
     const s = String(iso || '').trim();
     if (!s) return '';
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
-    const d = new Date(s);
+    const d = parseGameDateTime(s) || new Date(s);
     if (isNaN(d)) return '';
     // en-CA yields YYYY-MM-DD reliably.
     return new Intl.DateTimeFormat('en-CA', { year:'numeric', month:'2-digit', day:'2-digit' }).format(d);

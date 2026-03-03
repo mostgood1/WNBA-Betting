@@ -25607,7 +25607,12 @@ def api_cron_refresh_bovada():
         # Default to yesterday (UTC) for closing lines capture
         d = (datetime.utcnow().date() - timedelta(days=1)).isoformat()
     if _fetch_bovada_odds_current is None:
-        return jsonify({"error": "bovada fetcher not available"}), 500
+        try:
+            _cron_meta_update("refresh_bovada", {"date": d, "ok": False, "error": "bovada fetcher not available"})
+        except Exception:
+            pass
+        # Render cron: avoid non-2xx for operational conditions
+        return jsonify({"date": d, "ok": False, "error": "bovada fetcher not available"}), 200
     # Pass date string directly; function treats as ET calendar date
     try:
         _ = pd.to_datetime(d)
@@ -25724,7 +25729,12 @@ def api_cron_refresh_bovada():
             "pushed": pushed, "push_detail": push_detail,
         })
     except Exception as e:
-        return jsonify({"error": f"bovada fetch failed: {e}"}), 500
+        # Render cron: avoid non-2xx for operational conditions
+        try:
+            _cron_meta_update("refresh_bovada", {"date": d, "ok": False, "error": f"bovada fetch failed: {e}"})
+        except Exception:
+            pass
+        return jsonify({"date": d, "ok": False, "error": f"bovada fetch failed: {e}"}), 200
 
 
 @app.route("/api/cron/refresh-oddsapi-props", methods=["POST", "GET"])
@@ -26057,7 +26067,12 @@ def api_cron_reconcile_games():
     try:
         preds = pd.read_csv(pred_path)
     except Exception as e:
-        return jsonify({"error": f"failed to read predictions: {e}"}), 500
+        # Cron should not hard-fail due to a transient/partial artifact; return diagnostics.
+        try:
+            _cron_meta_update("reconcile_games", {"date": d, "ok": False, "error": f"failed to read predictions: {e}", "predictions": str(pred_path)})
+        except Exception:
+            pass
+        return jsonify({"date": d, "ok": False, "error": f"failed to read predictions: {e}", "predictions": str(pred_path)}), 200
 
     # Normalize prediction team names to tricodes
     try:

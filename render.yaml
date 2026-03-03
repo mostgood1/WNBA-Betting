@@ -75,12 +75,13 @@ services:
 
 # Suggested Render Cron Jobs (create in Render UI):
 # - Name: live-lens-tick (every 60 seconds, all day; cheap no-op when no games)
-#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180"
+#   Env (Cron Job): NBA_BETTING_BASE_URL=https://nba-betting-5qgf.onrender.com  NBA_BETTING_CRON_TOKEN=<same as web service CRON_TOKEN>
+#   Command: bash scripts/render_cron_call.sh "/api/cron/live-lens-tick?ttl=15&min_interval_sec=60&max_props_per_game=8&recent_window_sec=180"
 # - Name: refresh-oddsapi-props (every 60 minutes on game days)
-#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"
+#   Command: bash scripts/render_cron_call.sh "/api/cron/refresh-oddsapi-props?date=$(date -u +%F)&regions=us&edges=1&export=1"
 # - Name: refresh-odds-today (every 15 minutes 15:00–23:59 UTC on game days)
-#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/refresh-bovada?date=$(date -u +%F)"
+#   Command: bash scripts/render_cron_call.sh "/api/cron/refresh-bovada?date=$(date -u +%F)"
 # - Name: reconcile-yesterday (daily at 10:00 UTC)
-#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/reconcile-games?date=$(date -u -d yesterday +%F)"
+#   Command: bash scripts/render_cron_call.sh "/api/cron/reconcile-games?date=$(date -u -d yesterday +%F)"
 # - Name: composite-run-all (optional, daily at 11:00 UTC)
-#   Command: curl -fsS -H "Authorization: Bearer $CRON_TOKEN" "$RENDER_EXTERNAL_URL/api/cron/run-all?push=1"
+#   Command: bash scripts/render_cron_call.sh "/api/cron/run-all?push=1"
