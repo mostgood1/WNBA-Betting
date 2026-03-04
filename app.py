@@ -18,6 +18,7 @@ import threading
 import re
 import requests
 from pathlib import Path
+import traceback
 
 # Ensure local package in src/ is importable (for odds, schedule, CLI)
 from pathlib import Path as _PathEarly
@@ -6736,6 +6737,10 @@ _oddsapi_props_job_state = {
     "ok": None,
     "log_file": None,
     "last": None,
+    "rc_snapshot": None,
+    "rc_edges": None,
+    "rc_export": None,
+    "error": None,
 }
 
 
@@ -6759,6 +6764,10 @@ def _oddsapi_props_refresh_job(
     _oddsapi_props_job_state["ended_at"] = None
     _oddsapi_props_job_state["ok"] = None
     _oddsapi_props_job_state["log_file"] = str(log_file)
+    _oddsapi_props_job_state["rc_snapshot"] = None
+    _oddsapi_props_job_state["rc_edges"] = None
+    _oddsapi_props_job_state["rc_export"] = None
+    _oddsapi_props_job_state["error"] = None
     _oddsapi_props_job_state["last"] = {
         "date": date_str,
         "regions": regions,
@@ -6769,6 +6778,7 @@ def _oddsapi_props_refresh_job(
     }
 
     try:
+        started = time.time()
         py = _resolve_python()
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
@@ -6777,19 +6787,22 @@ def _oddsapi_props_refresh_job(
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
         if markets:
             snap_cmd += ["--markets", markets]
-        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env)
+        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60)
+        _oddsapi_props_job_state["rc_snapshot"] = int(rc_snap)
 
         # 2) Optionally compute props edges from OddsAPI
         rc_edges = None
         if do_edges:
             edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
-            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env)
+            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
+            _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
 
         # 3) Optionally export props recommendations
         rc_export = None
         if do_export:
             export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
-            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env)
+            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60)
+            _oddsapi_props_job_state["rc_export"] = int(rc_export)
 
         # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
         try:
@@ -6807,6 +6820,9 @@ def _oddsapi_props_refresh_job(
         edges_rows = _count_csv_rows_quick(edges_fp)
         rec_rows = _count_csv_rows_quick(rec_fp)
 
+        ok = (int(rc_snap) == 0) and (not do_edges or int(rc_edges or 0) == 0) and (not do_export or int(rc_export or 0) == 0)
+        ended = time.time()
+
         # Cron meta best-effort
         try:
             _cron_meta_update(
@@ -6815,6 +6831,7 @@ def _oddsapi_props_refresh_job(
                     "date": date_str,
                     "regions": regions,
                     "markets": markets,
+                    "ok": bool(ok),
                     "rc_snapshot": int(rc_snap),
                     "snapshot_rows": int(snap_rows),
                     "snapshot": str(raw_fp),
@@ -6825,6 +6842,9 @@ def _oddsapi_props_refresh_job(
                     "recs_rows": int(rec_rows),
                     "recs": str(rec_fp),
                     "log_file": str(log_file),
+                    "started_at": _oddsapi_props_job_state.get("started_at"),
+                    "ended_at": datetime.utcnow().isoformat(),
+                    "duration_s": float(max(0.0, ended - started)),
                 },
             )
         except Exception:
@@ -6836,13 +6856,57 @@ def _oddsapi_props_refresh_job(
             except Exception:
                 pass
 
-        # Mark job OK if snapshot succeeded; edges/export are best-effort.
-        _oddsapi_props_job_state["ok"] = (int(rc_snap) == 0)
-    except Exception:
+        _oddsapi_props_job_state["ok"] = bool(ok)
+    except Exception as e:
         _oddsapi_props_job_state["ok"] = False
+        _oddsapi_props_job_state["error"] = f"{type(e).__name__}: {e}"
+        tb = traceback.format_exc(limit=25)
+        try:
+            with Path(log_file).open("a", encoding="utf-8", errors="ignore") as out:
+                out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Exception: {type(e).__name__}: {e}\n")
+                out.write(tb + "\n")
+        except Exception:
+            pass
+        try:
+            _cron_meta_update(
+                "refresh_oddsapi_props",
+                {
+                    "date": date_str,
+                    "regions": regions,
+                    "markets": markets,
+                    "ok": False,
+                    "error": f"{type(e).__name__}: {e}",
+                    "log_file": str(log_file),
+                    "started_at": _oddsapi_props_job_state.get("started_at"),
+                    "ended_at": datetime.utcnow().isoformat(),
+                },
+            )
+        except Exception:
+            pass
     finally:
         _oddsapi_props_job_state["ended_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["running"] = False
+
+
+def _tail_text_file(fp: Path, *, max_lines: int = 200, max_bytes: int = 64_000) -> list[str]:
+    """Best-effort tail of a UTF-8-ish log file without reading the whole thing."""
+    try:
+        if max_lines <= 0:
+            return []
+        if not fp.exists():
+            return []
+        size = fp.stat().st_size
+        start = int(max(0, size - int(max_bytes)))
+        with fp.open("rb") as f:
+            f.seek(start)
+            chunk = f.read()
+        text = chunk.decode("utf-8", errors="ignore")
+        lines = text.splitlines()
+        if len(lines) > max_lines:
+            lines = lines[-max_lines:]
+        return [str(x) for x in lines]
+    except Exception:
+        return []
 
 
 def _append_log(line: str) -> None:
@@ -7133,7 +7197,13 @@ def api_cron_git_diag():
     return jsonify(data)
 
 
-def _run_to_file(cmd: list[str] | str, log_fp: Path, cwd: Path | None = None, env: dict | None = None) -> int:
+def _run_to_file(
+    cmd: list[str] | str,
+    log_fp: Path,
+    cwd: Path | None = None,
+    env: dict | None = None,
+    timeout_s: int | None = None,
+) -> int:
     if isinstance(cmd, list):
         popen_cmd = cmd
     else:
@@ -7151,10 +7221,61 @@ def _run_to_file(cmd: list[str] | str, log_fp: Path, cwd: Path | None = None, en
             bufsize=1,
             universal_newlines=True,
         )
-        proc.wait()
+        try:
+            proc.wait(timeout=timeout_s)
+        except subprocess.TimeoutExpired:
+            try:
+                out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Timeout after {timeout_s}s; terminating...\n")
+                out.flush()
+            except Exception:
+                pass
+            try:
+                proc.terminate()
+            except Exception:
+                pass
+            try:
+                proc.wait(timeout=30)
+            except Exception:
+                try:
+                    proc.kill()
+                except Exception:
+                    pass
+            try:
+                out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Killed due to timeout\n")
+                out.flush()
+            except Exception:
+                pass
+            return 124
         out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Exited with code {proc.returncode}\n")
         out.flush()
         return int(proc.returncode)
+
+
+@app.route("/api/cron/refresh-oddsapi-props/status", methods=["GET"])
+def api_cron_refresh_oddsapi_props_status():
+    """Status endpoint for async refresh-oddsapi-props.
+
+    Auth: CRON_TOKEN or ADMIN_KEY.
+    Query:
+      - tail (optional): N lines of log tail to include (default 0)
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+    tail_n = 0
+    try:
+        tail_n = int(request.args.get("tail", "0") or 0)
+    except Exception:
+        tail_n = 0
+
+    payload = dict(_oddsapi_props_job_state)
+    if tail_n > 0:
+        try:
+            lf = payload.get("log_file")
+            if lf:
+                payload["log_tail"] = _tail_text_file(Path(str(lf)), max_lines=min(2000, max(1, tail_n)))
+        except Exception:
+            pass
+    return jsonify(payload), 200
 
 
 def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
