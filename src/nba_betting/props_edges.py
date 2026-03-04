@@ -68,15 +68,17 @@ def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
     if day_str in _PROPS_OPENING_CACHE:
         return _PROPS_OPENING_CACHE[day_str]
 
-    # Prefer per-day *history* first (captures multiple snapshots over the day),
-    # then fall back to the per-day latest snapshot, then the cumulative history file.
+    # Prefer a per-day "opening" snapshot first (small, avoids loading an all-day history),
+    # then fall back to per-day history, then the per-day latest snapshot, then the cumulative history file.
+    raw_open_pq = paths.data_raw / f"odds_nba_player_props_opening_{day_str}.parquet"
+    raw_open_csv = paths.data_raw / f"odds_nba_player_props_opening_{day_str}.csv"
     raw_hist_pq = paths.data_raw / f"odds_nba_player_props_history_{day_str}.parquet"
     raw_hist_csv = paths.data_raw / f"odds_nba_player_props_history_{day_str}.csv"
     raw_day_pq = paths.data_raw / f"odds_nba_player_props_{day_str}.parquet"
     raw_day_csv = paths.data_raw / f"odds_nba_player_props_{day_str}.csv"
     raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
     raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
-    candidates = [raw_hist_pq, raw_hist_csv, raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
+    candidates = [raw_open_pq, raw_open_csv, raw_hist_pq, raw_hist_csv, raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
 
     usecols = [
         "snapshot_ts",

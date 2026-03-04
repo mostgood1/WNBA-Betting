@@ -116,9 +116,11 @@ Create a manual slate CSV with the teams/players playing on Oct 21, then modify 
    ↓
    Gets: Betting lines and prices
 
-   (OddsAPI only) Also appends a per-date history file:
-   - `data/raw/odds_nba_player_props_history_YYYY-MM-DD.parquet` (or `.csv` fallback)
-     This is what enables true "opening" line tracking and line/price movement.
+    (OddsAPI only) Also persists opening + movement tracking:
+    - `data/raw/odds_nba_player_props_opening_YYYY-MM-DD.parquet` (or `.csv` fallback)
+       First non-empty snapshot of the day (opening reference).
+    - `data/raw/odds_nba_player_props_history_YYYY-MM-DD.csv`
+       Append-only raw snapshot history for auditing movement without an in-memory rewrite.
    
 3. props-edges (Combine predictions + odds)
    ↓
