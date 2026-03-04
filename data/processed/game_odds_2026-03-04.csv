@@ -1,0 +1,7 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-04,2026-03-05T00:40:00Z,Boston Celtics,Charlotte Hornets,-212.69250902872218,212.69250902872227,-6.5,6.5,,,212.5,-100.19437742640184,100.19437742640184,11,11,8,11,oddsapi_consensus
+2026-03-04,2026-03-05T01:10:00Z,Memphis Grizzlies,Portland Trail Blazers,289.49308696639787,-289.49308696639787,9.0,-9.0,,,236.0,-100.0,-100.0,11,11,8,4,oddsapi_consensus
+2026-03-04,2026-03-05T00:40:00Z,Philadelphia 76ers,Utah Jazz,-311.2093568072765,311.2093568072766,-8.5,8.5,,,237.5,-100.32375732111149,100.32375732111149,11,11,11,8,oddsapi_consensus
+2026-03-04,2026-03-05T03:40:00Z,Los Angeles Clippers,Indiana Pacers,-493.08150102431597,493.0815010243156,-12.5,12.5,,,227.0,100.3185727938834,-100.3185727938834,11,11,6,4,oddsapi_consensus
+2026-03-04,2026-03-05T00:10:00Z,New York Knicks,Oklahoma City Thunder,155.15847022975078,-155.15847022975078,4.5,-4.5,,,222.5,100.62102158049991,-100.62102158049993,11,11,9,7,oddsapi_consensus
+2026-03-04,2026-03-05T02:40:00Z,Milwaukee Bucks,Atlanta Hawks,-107.7374818429004,107.7374818429004,-1.5,1.5,,,231.5,-103.9302107921928,103.93021079219285,11,11,7,6,oddsapi_consensus
