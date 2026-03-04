@@ -100,11 +100,17 @@ jobs:
                   print(json.dumps(st, indent=2)[:8000])
                   sys.exit(1)
               except urllib.error.HTTPError as e:
+                  code = int(getattr(e, "code", 0) or 0)
                   # During deploy windows, the status endpoint might not exist yet.
                   # Treat 202 as accepted in that case.
-                  if int(getattr(e, "code", 0) or 0) == 404:
+                  if code == 404:
                       print("Status endpoint not available (404); treating 202 as accepted")
                       sys.exit(0)
+                  # Render can briefly return 5xx/429 during restarts or deploys.
+                  if code in (429, 500, 502, 503, 504):
+                    print(f"Status endpoint transient HTTP {code}; retrying")
+                    time.sleep(15)
+                    continue
                   raise
               except Exception as e:
                   print(f"Status poll error: {e}")
