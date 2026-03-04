@@ -108,9 +108,9 @@ jobs:
                       sys.exit(0)
                   # Render can briefly return 5xx/429 during restarts or deploys.
                   if code in (429, 500, 502, 503, 504):
-                    print(f"Status endpoint transient HTTP {code}; retrying")
-                    time.sleep(15)
-                    continue
+                      print(f"Status endpoint transient HTTP {code}; retrying")
+                      time.sleep(15)
+                      continue
                   raise
               except Exception as e:
                   print(f"Status poll error: {e}")
