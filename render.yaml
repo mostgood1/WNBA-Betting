@@ -22,9 +22,19 @@ services:
         value: "1"
       # Reduce long-lived memory growth on small instances
       - key: GUNICORN_MAX_REQUESTS
-        value: "200"
+        value: "75"
       - key: GUNICORN_MAX_REQUESTS_JITTER
-        value: "50"
+        value: "25"
+
+      # Cap large in-process caches (avoid Render 512MB OOM)
+      - key: LIVE_PROCESSED_CACHE_MAX_ITEMS
+        value: "24"
+      - key: LIVE_ESPN_SUMMARY_CACHE_MAX_ITEMS
+        value: "8"
+      - key: LIVE_PBP_ACTIONS_CACHE_MAX_ITEMS
+        value: "12"
+      - key: LIVE_SIM_CACHE_MAX_ITEMS
+        value: "16"
       - key: ALLOW_REMOTE_ARTIFACTS
         value: "1"
       - key: CONNECTED_CORRELATED_SCORING_ALPHA
