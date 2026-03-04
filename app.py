@@ -118,17 +118,77 @@ def _live_lens_artifacts_dir() -> Path:
             return Path(raw)
     return DATA_PROCESSED_DIR
 
+
+def _env_int_clamped(name: str, default: int, lo: int, hi: int) -> int:
+    try:
+        raw = str(os.environ.get(name, str(default))).strip()
+        v = int(float(raw))
+        return int(max(lo, min(hi, v)))
+    except Exception:
+        return int(max(lo, min(hi, int(default))))
+
+
+class _CappedDict(dict):
+    """Insertion-ordered dict with a max size controlled by an env var.
+
+    Why: CPython's allocator often doesn't return freed memory to the OS quickly.
+    If we let caches grow unbounded (even with TTL checks), RSS can climb until
+    Render kills the process on small instances.
+    """
+
+    def __init__(self, *, max_items_env: str, default_max: int, lo: int = 0, hi: int = 2000):
+        super().__init__()
+        self._max_items_env = str(max_items_env)
+        self._default_max = int(default_max)
+        self._lo = int(lo)
+        self._hi = int(hi)
+
+    def _max_items(self) -> int:
+        return _env_int_clamped(self._max_items_env, self._default_max, self._lo, self._hi)
+
+    def _prune(self) -> None:
+        try:
+            max_items = int(self._max_items())
+            if max_items <= 0:
+                super().clear()
+                return
+            while len(self) > max_items:
+                try:
+                    super().pop(next(iter(self)))
+                except Exception:
+                    break
+        except Exception:
+            pass
+
+    def __setitem__(self, key: Any, value: Any) -> None:
+        super().__setitem__(key, value)
+        self._prune()
+
+    def update(self, *args: Any, **kwargs: Any) -> None:  # type: ignore[override]
+        super().update(*args, **kwargs)
+        self._prune()
+
 # ---- Live Lens caches (TTL) ----
 _live_cdn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_espn_scoreboard_cache: dict[str, tuple[float, dict[str, Any]]] = {}
-_live_espn_summary_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_espn_summary_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_ESPN_SUMMARY_CACHE_MAX_ITEMS",
+    default_max=8,
+    lo=0,
+    hi=200,
+)
 _live_game_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_bovada_lines_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
 _live_oddsapi_period_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_oddsapi_player_props_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_oddsapi_player_props_event_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_oddsapi_player_props_markets_cache: dict[str, tuple[float, list[str]]] = {}
-_live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = {}
+_live_sim_cache: dict[str, tuple[float, dict[str, Any]]] = _CappedDict(
+    max_items_env="LIVE_SIM_CACHE_MAX_ITEMS",
+    default_max=16,
+    lo=0,
+    hi=500,
+)
 _live_state_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_pbp_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 _live_lines_multi_cache: dict[str, tuple[float, dict[str, Any]]] = {}
@@ -143,12 +203,22 @@ _live_lens_tick_lock = threading.Lock()
 _live_tuning_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 
 # Additional small caches used by /api/live_player_lens
-_live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = {}
+_live_pbp_actions_cache: dict[str, tuple[float, list[dict[str, Any]]]] = _CappedDict(
+    max_items_env="LIVE_PBP_ACTIONS_CACHE_MAX_ITEMS",
+    default_max=12,
+    lo=0,
+    hi=500,
+)
 _live_lens_override_cache: tuple[float, float, dict[str, Any] | None] = (0.0, 0.0, None)  # (loaded_at, mtime, obj)
 _roster_pid_by_team_nk_cache: tuple[int, dict[tuple[str, str], int]] | None = None
 
 # Processed artifact caches for live endpoints (avoid re-reading CSVs on every poll)
-_live_processed_cache: dict[str, tuple[int, Any]] = {}
+_live_processed_cache: dict[str, tuple[int, Any]] = _CappedDict(
+    max_items_env="LIVE_PROCESSED_CACHE_MAX_ITEMS",
+    default_max=24,
+    lo=0,
+    hi=500,
+)
 
 try:
     from nba_betting.odds_api import (
