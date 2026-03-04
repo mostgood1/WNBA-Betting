@@ -68,13 +68,15 @@ def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
     if day_str in _PROPS_OPENING_CACHE:
         return _PROPS_OPENING_CACHE[day_str]
 
-    # Prefer per-day snapshots first (smaller, and guaranteed to contain the slate if present),
-    # then fall back to the cumulative history file.
+    # Prefer per-day *history* first (captures multiple snapshots over the day),
+    # then fall back to the per-day latest snapshot, then the cumulative history file.
+    raw_hist_pq = paths.data_raw / f"odds_nba_player_props_history_{day_str}.parquet"
+    raw_hist_csv = paths.data_raw / f"odds_nba_player_props_history_{day_str}.csv"
     raw_day_pq = paths.data_raw / f"odds_nba_player_props_{day_str}.parquet"
     raw_day_csv = paths.data_raw / f"odds_nba_player_props_{day_str}.csv"
     raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
     raw_all_csv = paths.data_raw / "odds_nba_player_props.csv"
-    candidates = [raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
+    candidates = [raw_hist_pq, raw_hist_csv, raw_day_pq, raw_day_csv, raw_all_pq, raw_all_csv]
 
     usecols = [
         "snapshot_ts",
@@ -1393,6 +1395,9 @@ def compute_props_edges(
         merged["bookmaker_title"] = merged["bookmaker"].map(lambda b: "Bovada" if str(b).lower()=="bovada" else None)
 
     desired_cols = [
+        # Odds snapshot timestamps (useful for documenting opening + movement)
+        "snapshot_ts",
+        "open_snapshot_ts",
         "player_id", "player_name", "team", "stat", "side", "line", "price", "implied_prob", "model_prob", "model_prob_raw", "edge", "ev", "bookmaker", "bookmaker_title", "commence_time",
         "home_team", "away_team",
         # Optional sentiment / market-movement columns (present when saved snapshots exist)

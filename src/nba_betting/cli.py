@@ -8181,6 +8181,69 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         console.print(f"Failed writing snapshot: {e}", style="yellow")
         return
 
+    # Also append to a per-date history file so we can document opening lines
+    # and track line/price movement over time (e.g., hourly refresh jobs).
+    # This is best-effort and won't fail the snapshot command.
+    try:
+        hist_pq = paths.data_raw / f"odds_nba_player_props_history_{target_date}.parquet"
+        hist_csv = paths.data_raw / f"odds_nba_player_props_history_{target_date}.csv"
+
+        base = None
+        if hist_pq.exists():
+            try:
+                base = pd.read_parquet(hist_pq)
+            except Exception:
+                base = None
+        if base is None and hist_csv.exists():
+            try:
+                base = pd.read_csv(hist_csv)
+            except Exception:
+                base = None
+
+        cur = df.copy() if isinstance(df, pd.DataFrame) else pd.DataFrame()
+        if base is not None and not base.empty:
+            merged = pd.concat([base, cur], ignore_index=True)
+        else:
+            merged = cur
+
+        # De-dup obvious duplicates while preserving time series.
+        dedup_keys = [
+            "snapshot_ts",
+            "event_id",
+            "bookmaker",
+            "market",
+            "outcome_name",
+            "player_name",
+            "point",
+            "price",
+        ]
+        keys = [c for c in dedup_keys if c in merged.columns]
+        if keys:
+            merged = merged.drop_duplicates(subset=keys, keep="last")
+
+        if "snapshot_ts" in merged.columns:
+            # Ensure this is a standalone frame before assigning columns.
+            merged = merged.copy()
+            merged.loc[:, "_snap_dt"] = pd.to_datetime(merged["snapshot_ts"], errors="coerce", utc=True)
+            merged = merged.sort_values(["_snap_dt"], kind="mergesort")
+            merged = merged.drop(columns=["_snap_dt"], errors="ignore")
+
+        wrote_path = None
+        try:
+            merged.to_parquet(hist_pq, index=False)
+            wrote_path = hist_pq
+        except Exception:
+            merged.to_csv(hist_csv, index=False)
+            wrote_path = hist_csv
+
+        try:
+            snaps = int(pd.to_datetime(merged["snapshot_ts"], errors="coerce", utc=True).dropna().nunique()) if "snapshot_ts" in merged.columns else 0
+        except Exception:
+            snaps = 0
+        console.print({"history_rows": int(len(merged)), "history_snaps": snaps, "history_output": str(wrote_path)})
+    except Exception as e:
+        console.print(f"History append skipped: {e}", style="yellow")
+
     rows = 0 if df is None else int(len(df))
     markets_n = 0
     try:
