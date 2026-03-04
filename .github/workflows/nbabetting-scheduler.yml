@@ -64,48 +64,50 @@ jobs:
               if [ "$http" = "202" ]; then
                 STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=80"
                 echo "Polling $STATUS_URL"
-                python - <<'PY'
-import json, sys, time
-import urllib.request
+                python - "$STATUS_URL" "${NBA_BETTING_CRON_TOKEN}" <<'PY'
+                import json, sys, time
+                import urllib.request
 
-status_url = sys.argv[1]
-token = sys.argv[2]
+                status_url = sys.argv[1]
+                token = sys.argv[2]
 
-def fetch():
-    req = urllib.request.Request(status_url, headers={"Authorization": f"Bearer {token}", "Accept": "application/json"})
-    with urllib.request.urlopen(req, timeout=10) as r:
-        return json.loads(r.read().decode("utf-8", errors="ignore") or "{}")
+                def fetch():
+                  req = urllib.request.Request(
+                    status_url,
+                    headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
+                  )
+                  with urllib.request.urlopen(req, timeout=10) as r:
+                    return json.loads(r.read().decode("utf-8", errors="ignore") or "{}")
 
-deadline = time.time() + 25*60  # 25 minutes
-last = None
-while time.time() < deadline:
-    try:
-        st = fetch()
-        last = st
-        running = bool(st.get("running"))
-        if running:
-            time.sleep(15)
-            continue
-        ok = st.get("ok")
-        if ok is True:
-            print("Job finished ok")
-            sys.exit(0)
-        print("Job finished but not ok")
-        print(json.dumps(st, indent=2)[:8000])
-        sys.exit(1)
-    except Exception as e:
-        print(f"Status poll error: {e}")
-        time.sleep(10)
+                deadline = time.time() + 25 * 60  # 25 minutes
+                last = None
+                while time.time() < deadline:
+                  try:
+                    st = fetch()
+                    last = st
+                    running = bool(st.get("running"))
+                    if running:
+                      time.sleep(15)
+                      continue
+                    ok = st.get("ok")
+                    if ok is True:
+                      print("Job finished ok")
+                      sys.exit(0)
+                    print("Job finished but not ok")
+                    print(json.dumps(st, indent=2)[:8000])
+                    sys.exit(1)
+                  except Exception as e:
+                    print(f"Status poll error: {e}")
+                    time.sleep(10)
 
-print("Timed out waiting for job completion")
-if last is not None:
-    try:
-        print(json.dumps(last, indent=2)[:8000])
-    except Exception:
-        pass
-sys.exit(1)
-PY
-                "$STATUS_URL" "${NBA_BETTING_CRON_TOKEN}"
+                print("Timed out waiting for job completion")
+                if last is not None:
+                  try:
+                    print(json.dumps(last, indent=2)[:8000])
+                  except Exception:
+                    pass
+                sys.exit(1)
+              PY
               fi
 
               exit 0
