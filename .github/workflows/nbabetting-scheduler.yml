@@ -64,7 +64,7 @@ jobs:
               if [ "$http" = "202" ]; then
                 STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=80"
                 echo "Polling $STATUS_URL"
-                python3 - "$STATUS_URL" "${NBA_BETTING_CRON_TOKEN}" <<'PY'
+                python3 -c '
           import json
           import sys
           import time
@@ -117,7 +117,7 @@ jobs:
               except Exception:
                   pass
           sys.exit(1)
-          PY
+          ' "$STATUS_URL" "${NBA_BETTING_CRON_TOKEN}"
               fi
 
               exit 0
