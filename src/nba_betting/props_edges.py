@@ -505,6 +505,41 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
     # Load saved odds and filter to commence_time date.
     # Prefer per-date snapshots (created by our daily pipeline) when available.
     date_str = pd.to_datetime(date).date().isoformat()
+    # Keep memory bounded: only load the columns we actually use downstream.
+    usecols = [
+        "snapshot_ts",
+        "event_id",
+        "commence_time",
+        "bookmaker",
+        "bookmaker_title",
+        "market",
+        "outcome_name",
+        "player_name",
+        "point",
+        "price",
+        "home_team",
+        "away_team",
+    ]
+    usecols_set = set(usecols)
+
+    def _read_parquet(fp: Path) -> pd.DataFrame | None:
+        try:
+            return pd.read_parquet(fp, columns=usecols)
+        except Exception:
+            try:
+                return pd.read_parquet(fp)
+            except Exception:
+                return None
+
+    def _read_csv(fp: Path) -> pd.DataFrame | None:
+        try:
+            return pd.read_csv(fp, usecols=lambda c: c in usecols_set)
+        except Exception:
+            try:
+                return pd.read_csv(fp)
+            except Exception:
+                return None
+
     raw_pq = paths.data_raw / f"odds_nba_player_props_{date_str}.parquet"
     raw_csv = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
     raw_all_pq = paths.data_raw / "odds_nba_player_props.parquet"
@@ -512,22 +547,22 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
     df = None
     if raw_pq.exists():
         try:
-            df = pd.read_parquet(raw_pq)
+            df = _read_parquet(raw_pq)
         except Exception:
             df = None
     if df is None and raw_csv.exists():
         try:
-            df = pd.read_csv(raw_csv)
+            df = _read_csv(raw_csv)
         except Exception:
             df = None
     if df is None and raw_all_pq.exists():
         try:
-            df = pd.read_parquet(raw_all_pq)
+            df = _read_parquet(raw_all_pq)
         except Exception:
             df = None
     if df is None and raw_all_csv.exists():
         try:
-            df = pd.read_csv(raw_all_csv)
+            df = _read_csv(raw_all_csv)
         except Exception:
             df = None
     if df is None or df.empty:
@@ -535,19 +570,14 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
     # Filter by commence_time date
     if "commence_time" in df.columns:
         dt_utc = pd.to_datetime(df["commence_time"], errors="coerce", utc=True)
-        # Convert to US/Eastern date for correct slate filtering
-        def _to_et_date(ts):
+        # Convert to US/Eastern date for correct slate filtering (vectorized).
+        try:
+            et_dates = dt_utc.dt.tz_convert("America/New_York").dt.date
+        except Exception:
             try:
-                return ts.tz_convert("America/New_York").date()
+                et_dates = dt_utc.dt.tz_convert("US/Eastern").dt.date
             except Exception:
-                try:
-                    return ts.tz_convert("US/Eastern").date()
-                except Exception:
-                    # Fallback: approximate DST offset by month
-                    month = int(ts.month)
-                    offset = 4 if 3 <= month <= 11 else 5
-                    return (ts - pd.Timedelta(hours=offset)).date()
-        et_dates = dt_utc.map(_to_et_date)
+                et_dates = dt_utc.dt.date
         df = df.loc[et_dates == pd.to_datetime(date).date()].copy()
     return df
 
@@ -818,14 +848,14 @@ def compute_props_edges(
             odds[col] = None
     # Map markets to stat
     odds["stat"] = odds["market"].map(MARKET_TO_STAT)
-    # Keep rows depending on market type: dd/td have no point/line
-    def _row_ok(row) -> bool:
-        if pd.isna(row.get("name_key")) or pd.isna(row.get("stat")) or pd.isna(row.get("side")):
-            return False
-        if row.get("stat") in ("dd", "td"):
-            return not pd.isna(row.get("price"))
-        return (not pd.isna(row.get("point"))) and (not pd.isna(row.get("price")))
-    odds = odds[odds.apply(_row_ok, axis=1)].copy()
+    # Keep rows depending on market type: dd/td have no point/line.
+    # Avoid DataFrame.apply(axis=1) here: it allocates per-row Series objects and can
+    # blow up memory on large slates.
+    base_ok = odds["name_key"].notna() & odds["stat"].notna() & odds["side"].notna()
+    is_yesno = odds["stat"].isin(["dd", "td"])  # YES/NO markets (no point)
+    price_ok = odds["price"].notna()
+    point_ok = odds["point"].notna()
+    odds = odds.loc[base_ok & price_ok & (is_yesno | point_ok)].copy()
 
     # Attach opening snapshot (sentiment proxy) when we have saved OddsAPI snapshots.
     # This is intentionally conservative: if no opening snapshot is available for a row,
@@ -973,25 +1003,43 @@ def compute_props_edges(
                                 merged[base] = merged[base].fillna(merged[aux])
     except Exception:
         pass
-    # Choose model mean based on stat
-    def _select_pred(row) -> float:
-        stat = row["stat"]
-        # Derived combos from base predictions
-        if stat == "pr":
-            return (row.get(pred_map["pts"], np.nan)) + (row.get(pred_map["reb"], np.nan))
-        if stat == "pa":
-            return (row.get(pred_map["pts"], np.nan)) + (row.get(pred_map["ast"], np.nan))
-        if stat == "ra":
-            return (row.get(pred_map["reb"], np.nan)) + (row.get(pred_map["ast"], np.nan))
-        col = pred_map.get(stat)
-        val = row.get(col, np.nan)
-        if pd.isna(val):
-            # try alt merged columns
-            alt_col = f"{col}_alt"
-            return row.get(alt_col, np.nan)
-        return val
+    # Choose model mean based on stat.
+    # Avoid DataFrame.apply(axis=1): it allocates per-row Series objects and can
+    # blow up memory on large slates.
+    stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else pd.Series("", index=merged.index)
 
-    merged["model_mean"] = merged.apply(_select_pred, axis=1)
+    def _num_col(col_name: str | None) -> pd.Series:
+        if (not col_name) or (col_name not in merged.columns):
+            return pd.Series(np.nan, index=merged.index, dtype="float64")
+        return pd.to_numeric(merged[col_name], errors="coerce")
+
+    model_mean = pd.Series(np.nan, index=merged.index, dtype="float64")
+
+    # Derived combos from base predictions
+    pts_v = _num_col(pred_map.get("pts"))
+    reb_v = _num_col(pred_map.get("reb"))
+    ast_v = _num_col(pred_map.get("ast"))
+    m_pr = stat_s == "pr"
+    if m_pr.any():
+        model_mean.loc[m_pr] = (pts_v + reb_v).loc[m_pr]
+    m_pa = stat_s == "pa"
+    if m_pa.any():
+        model_mean.loc[m_pa] = (pts_v + ast_v).loc[m_pa]
+    m_ra = stat_s == "ra"
+    if m_ra.any():
+        model_mean.loc[m_ra] = (reb_v + ast_v).loc[m_ra]
+
+    # Base stats: prefer direct prediction columns, with _alt fallback when present.
+    for st in ("pts", "reb", "ast", "threes", "pra", "stl", "blk", "tov"):
+        col = pred_map.get(st)
+        base = _num_col(col)
+        if col and (f"{col}_alt" in merged.columns):
+            base = base.fillna(pd.to_numeric(merged[f"{col}_alt"], errors="coerce"))
+        mask = stat_s == st
+        if mask.any():
+            model_mean.loc[mask] = base.loc[mask]
+
+    merged["model_mean"] = model_mean
 
     # Projection sanity check: suppress clearly corrupted projections.
     # If the model mean is wildly inconsistent with recent rolling production given
@@ -1053,88 +1101,73 @@ def compute_props_edges(
     except Exception:
         pass
     # Sigma by stat; combos derived assuming independence of components
-    def _safe_sd(v: object) -> float | None:
-        try:
-            x = float(pd.to_numeric(v, errors="coerce"))
-            if not np.isfinite(x):
-                return None
-            # Basic bounds to avoid pathological sigmas.
-            if x <= 0.05 or x >= 50.0:
-                return None
-            return float(x)
-        except Exception:
-            return None
+    stat_s = merged.get("stat").astype(str).str.lower() if "stat" in merged.columns else pd.Series("", index=merged.index)
 
-    def _sigma_fallback(stat: str) -> float:
-        if stat == "pts":
-            return sigma.pts
-        if stat == "reb":
-            return sigma.reb
-        if stat == "ast":
-            return sigma.ast
-        if stat == "threes":
-            return sigma.threes
-        if stat == "pra":
-            return sigma.pra
-        if stat == "pr":
-            return float(np.sqrt(sigma.pts ** 2 + sigma.reb ** 2))
-        if stat == "pa":
-            return float(np.sqrt(sigma.pts ** 2 + sigma.ast ** 2))
-        if stat == "ra":
-            return float(np.sqrt(sigma.reb ** 2 + sigma.ast ** 2))
-        if stat == "stl":
-            return sigma.stl
-        if stat == "blk":
-            return sigma.blk
-        if stat == "tov":
-            return sigma.tov
-        return np.nan
+    def _safe_sd_series(col_name: str) -> pd.Series:
+        if (not col_name) or (col_name not in merged.columns):
+            return pd.Series(np.nan, index=merged.index, dtype="float64")
+        s = pd.to_numeric(merged[col_name], errors="coerce").astype(float)
+        s = s.where(np.isfinite(s))
+        s = s.where((s > 0.05) & (s < 50.0))
+        return s
 
-    def _row_sigma(r) -> float:
-        stat = str(r.get("stat") or "").lower()
-        # Prefer per-player simulated SDs if provided.
-        if stat == "pts":
-            s = _safe_sd(r.get("sd_pts"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "reb":
-            s = _safe_sd(r.get("sd_reb"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "ast":
-            s = _safe_sd(r.get("sd_ast"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "threes":
-            s = _safe_sd(r.get("sd_threes"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "pra":
-            s = _safe_sd(r.get("sd_pra"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "stl":
-            s = _safe_sd(r.get("sd_stl"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "blk":
-            s = _safe_sd(r.get("sd_blk"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
-        if stat == "tov":
-            s = _safe_sd(r.get("sd_tov"))
-            return float(s) if s is not None else float(_sigma_fallback(stat))
+    sd_pts = _safe_sd_series("sd_pts")
+    sd_reb = _safe_sd_series("sd_reb")
+    sd_ast = _safe_sd_series("sd_ast")
+    sd_threes = _safe_sd_series("sd_threes")
+    sd_pra = _safe_sd_series("sd_pra")
+    sd_stl = _safe_sd_series("sd_stl")
+    sd_blk = _safe_sd_series("sd_blk")
+    sd_tov = _safe_sd_series("sd_tov")
 
-        # Derived combos: prefer direct SD if available, else combine component SDs (sim or fallback).
-        if stat == "pr":
-            s1 = _safe_sd(r.get("sd_pts")) or sigma.pts
-            s2 = _safe_sd(r.get("sd_reb")) or sigma.reb
-            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
-        if stat == "pa":
-            s1 = _safe_sd(r.get("sd_pts")) or sigma.pts
-            s2 = _safe_sd(r.get("sd_ast")) or sigma.ast
-            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
-        if stat == "ra":
-            s1 = _safe_sd(r.get("sd_reb")) or sigma.reb
-            s2 = _safe_sd(r.get("sd_ast")) or sigma.ast
-            return float(np.sqrt(float(s1) ** 2 + float(s2) ** 2))
+    fallback_sig = {
+        "pts": float(sigma.pts),
+        "reb": float(sigma.reb),
+        "ast": float(sigma.ast),
+        "threes": float(sigma.threes),
+        "pra": float(sigma.pra),
+        "stl": float(sigma.stl),
+        "blk": float(sigma.blk),
+        "tov": float(sigma.tov),
+        "pr": float(np.sqrt(float(sigma.pts) ** 2 + float(sigma.reb) ** 2)),
+        "pa": float(np.sqrt(float(sigma.pts) ** 2 + float(sigma.ast) ** 2)),
+        "ra": float(np.sqrt(float(sigma.reb) ** 2 + float(sigma.ast) ** 2)),
+    }
+    sig = stat_s.map(fallback_sig).astype(float)
 
-        return float(_sigma_fallback(stat))
+    # Base stats: prefer simulated SDs when present/valid.
+    for st, sd in (
+        ("pts", sd_pts),
+        ("reb", sd_reb),
+        ("ast", sd_ast),
+        ("threes", sd_threes),
+        ("pra", sd_pra),
+        ("stl", sd_stl),
+        ("blk", sd_blk),
+        ("tov", sd_tov),
+    ):
+        m = stat_s == st
+        if m.any():
+            sig.loc[m] = sd.loc[m].fillna(sig.loc[m])
 
-    merged["sigma"] = merged.apply(_row_sigma, axis=1)
+    # Derived combos: combine component SDs (sim or fallback).
+    m_pr = stat_s == "pr"
+    if m_pr.any():
+        s1 = sd_pts.fillna(float(sigma.pts))
+        s2 = sd_reb.fillna(float(sigma.reb))
+        sig.loc[m_pr] = np.sqrt(np.square(s1.loc[m_pr]) + np.square(s2.loc[m_pr]))
+    m_pa = stat_s == "pa"
+    if m_pa.any():
+        s1 = sd_pts.fillna(float(sigma.pts))
+        s2 = sd_ast.fillna(float(sigma.ast))
+        sig.loc[m_pa] = np.sqrt(np.square(s1.loc[m_pa]) + np.square(s2.loc[m_pa]))
+    m_ra = stat_s == "ra"
+    if m_ra.any():
+        s1 = sd_reb.fillna(float(sigma.reb))
+        s2 = sd_ast.fillna(float(sigma.ast))
+        sig.loc[m_ra] = np.sqrt(np.square(s1.loc[m_ra]) + np.square(s2.loc[m_ra]))
+
+    merged["sigma"] = sig
 
     # Extra variance safety for higher-variance markets (empirically pts/pra have
     # been more overconfident recently). Inflating sigma shrinks probabilities
@@ -1154,61 +1187,127 @@ def compute_props_edges(
         pass
 
     # Model probability for Over: P(X > line) under Normal(mean, sigma)
-    from math import erf, sqrt
-
-    def _norm_cdf(x):
-        return 0.5 * (1.0 + erf(x / sqrt(2.0)))
-
-    def _prob_over(mean, sigma, line):
-        if pd.isna(mean) or pd.isna(sigma) or pd.isna(line) or sigma <= 0:
-            return np.nan
-        z = (line - mean) / sigma
-        # P(X > line) = 1 - CDF(line)
-        return 1.0 - _norm_cdf(z)
-
     merged["line"] = pd.to_numeric(merged.get("point"), errors="coerce")
     merged["price"] = pd.to_numeric(merged.get("price"), errors="coerce")
-    # Compute model probability; special handling for YES/NO markets (double/triple-double)
-    def _calc_model_prob(r) -> float:
-        stat = str(r.get("stat") or "").strip().lower()
-        side = str(r.get("side") or "").strip().upper()
-        if stat in ("dd", "td"):
-            # Approximate independence on Pts/Reb/Ast reaching 10+
-            mean_pts = r.get(pred_map["pts"], np.nan)
-            mean_reb = r.get(pred_map["reb"], np.nan)
-            mean_ast = r.get(pred_map["ast"], np.nan)
-            vals = [(mean_pts, sigma.pts), (mean_reb, sigma.reb), (mean_ast, sigma.ast)]
-            p10 = []
-            for m, s in vals:
-                if pd.isna(m) or s is None or s <= 0:
-                    p10.append(np.nan)
-                else:
-                    z = (10.0 - float(m)) / float(s)
-                    p10.append(1.0 - _norm_cdf(z))
-            p1, p2, p3 = p10
-            if any(pd.isna(x) for x in (p1, p2, p3)):
-                return np.nan
-            if stat == "td":
-                p_yes = float(p1 * p2 * p3)
-            else:
-                # at least two of three
-                p_yes = float(p1 * p2 + p1 * p3 + p2 * p3 - p1 * p2 * p3)
-            if side == "YES":
-                return p_yes
-            if side == "NO":
-                return 1.0 - p_yes
-            return np.nan
-        # Default OVER/UNDER path
-        p_over = _prob_over(r.get("model_mean"), r.get("sigma"), r.get("line"))
-        if pd.isna(p_over):
-            return np.nan
-        if side == "UNDER":
-            return (1.0 - p_over)
-        if side == "OVER":
-            return p_over
-        # Unknown side value
-        return np.nan
-    merged["model_prob"] = merged.apply(_calc_model_prob, axis=1)
+    # Compute model probability (vectorized); special handling for YES/NO markets (double/triple-double)
+    stat_s = merged.get("stat").astype(str).str.strip().str.lower() if "stat" in merged.columns else pd.Series("", index=merged.index)
+    side_s = merged.get("side").astype(str).str.strip().str.upper() if "side" in merged.columns else pd.Series("", index=merged.index)
+
+    def _norm_cdf_vec(x: np.ndarray) -> np.ndarray:
+        """Vectorized standard Normal CDF.
+
+        Uses a fast erf approximation (Numerical Recipes) to avoid SciPy imports.
+        Accuracy is sufficient for probability/EV calculations.
+        """
+        x = np.asarray(x, dtype=float)
+        z = x / np.sqrt(2.0)
+        t = 1.0 / (1.0 + 0.5 * np.abs(z))
+        tau = t * np.exp(
+            -z * z
+            - 1.26551223
+            + t
+            * (
+                1.00002368
+                + t
+                * (
+                    0.37409196
+                    + t
+                    * (
+                        0.09678418
+                        + t
+                        * (
+                            -0.18628806
+                            + t
+                            * (
+                                0.27886807
+                                + t
+                                * (
+                                    -1.13520398
+                                    + t
+                                    * (
+                                        1.48851587 + t * (-0.82215223 + t * 0.17087277)
+                                    )
+                                )
+                            )
+                        )
+                    )
+                )
+            )
+        )
+        erf_approx = np.sign(z) * (1.0 - tau)
+        cdf = 0.5 * (1.0 + erf_approx)
+        return np.clip(cdf, 0.0, 1.0)
+
+    n = int(len(merged))
+    prob = np.full(n, np.nan, dtype=float)
+
+    # OVER/UNDER markets
+    mean_arr = pd.to_numeric(merged.get("model_mean"), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    sig_arr = pd.to_numeric(merged.get("sigma"), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    line_arr = pd.to_numeric(merged.get("line"), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+    over_arr = np.full(n, np.nan, dtype=float)
+    valid = np.isfinite(mean_arr) & np.isfinite(sig_arr) & np.isfinite(line_arr) & (sig_arr > 0)
+    if bool(valid.any()):
+        z = (line_arr[valid] - mean_arr[valid]) / sig_arr[valid]
+        over_arr[valid] = 1.0 - _norm_cdf_vec(z)
+    over_arr = np.clip(over_arr, 0.0, 1.0)
+
+    is_yesno = stat_s.isin(["dd", "td"]).to_numpy(dtype=bool)
+    side_over = (side_s == "OVER").to_numpy(dtype=bool)
+    side_under = (side_s == "UNDER").to_numpy(dtype=bool)
+
+    mask_ou = ~is_yesno
+    if bool((mask_ou & side_over).any()):
+        prob[mask_ou & side_over] = over_arr[mask_ou & side_over]
+    if bool((mask_ou & side_under).any()):
+        prob[mask_ou & side_under] = 1.0 - over_arr[mask_ou & side_under]
+
+    # YES/NO markets (double-double / triple-double)
+    if bool(is_yesno.any()):
+        mean_pts = pd.to_numeric(merged.get(pred_map.get("pts") or ""), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+        mean_reb = pd.to_numeric(merged.get(pred_map.get("reb") or ""), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+        mean_ast = pd.to_numeric(merged.get(pred_map.get("ast") or ""), errors="coerce").to_numpy(dtype=float, na_value=np.nan)
+
+        p10_pts = np.full(n, np.nan, dtype=float)
+        p10_reb = np.full(n, np.nan, dtype=float)
+        p10_ast = np.full(n, np.nan, dtype=float)
+
+        if float(sigma.pts) > 0:
+            ok = np.isfinite(mean_pts)
+            if bool(ok.any()):
+                z = (10.0 - mean_pts[ok]) / float(sigma.pts)
+                p10_pts[ok] = 1.0 - _norm_cdf_vec(z)
+        if float(sigma.reb) > 0:
+            ok = np.isfinite(mean_reb)
+            if bool(ok.any()):
+                z = (10.0 - mean_reb[ok]) / float(sigma.reb)
+                p10_reb[ok] = 1.0 - _norm_cdf_vec(z)
+        if float(sigma.ast) > 0:
+            ok = np.isfinite(mean_ast)
+            if bool(ok.any()):
+                z = (10.0 - mean_ast[ok]) / float(sigma.ast)
+                p10_ast[ok] = 1.0 - _norm_cdf_vec(z)
+
+        p_td_yes = p10_pts * p10_reb * p10_ast
+        p_dd_yes = (p10_pts * p10_reb) + (p10_pts * p10_ast) + (p10_reb * p10_ast) - (p10_pts * p10_reb * p10_ast)
+
+        stat_arr = stat_s.to_numpy(dtype=str)
+        p_yes = np.full(n, np.nan, dtype=float)
+        m_td = stat_arr == "td"
+        if bool(m_td.any()):
+            p_yes[m_td] = p_td_yes[m_td]
+        m_dd = stat_arr == "dd"
+        if bool(m_dd.any()):
+            p_yes[m_dd] = p_dd_yes[m_dd]
+
+        side_yes = (side_s == "YES").to_numpy(dtype=bool)
+        side_no = (side_s == "NO").to_numpy(dtype=bool)
+        if bool((is_yesno & side_yes).any()):
+            prob[is_yesno & side_yes] = p_yes[is_yesno & side_yes]
+        if bool((is_yesno & side_no).any()):
+            prob[is_yesno & side_no] = 1.0 - p_yes[is_yesno & side_no]
+
+    merged["model_prob"] = prob
     # Optional: calibrate probabilities using reliability bins / isotonic mapping.
     # This is intentionally opt-in because our default Normal(mean, sigma) probabilities
     # are already a derived distribution; applying a generic calibration curve can easily
@@ -1294,7 +1393,16 @@ def compute_props_edges(
         merged["model_prob"] = pd.to_numeric(merged["model_prob"], errors="coerce").clip(lower=0.01, upper=0.99)
     except Exception:
         pass
-    merged["implied_prob"] = merged["price"].map(_american_implied_prob)
+    # Implied probability from American odds (vectorized).
+    price_num = pd.to_numeric(merged.get("price"), errors="coerce")
+    implied = pd.Series(np.nan, index=merged.index, dtype="float64")
+    m_pos = price_num > 0
+    if m_pos.any():
+        implied.loc[m_pos] = 100.0 / (price_num.loc[m_pos] + 100.0)
+    m_neg = price_num < 0
+    if m_neg.any():
+        implied.loc[m_neg] = (-price_num.loc[m_neg]) / ((-price_num.loc[m_neg]) + 100.0)
+    merged["implied_prob"] = implied
 
     # Market-blend guardrail: for the combo markets we actually recommend most often,
     # shrink the model probability toward the market break-even probability.
@@ -1355,7 +1463,16 @@ def compute_props_edges(
 
             ol = pd.to_numeric(merged.get("open_line"), errors="coerce") if "open_line" in merged.columns else pd.Series(np.nan, index=merged.index)
             op = pd.to_numeric(merged.get("open_price"), errors="coerce") if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
-            oip = op.map(_american_implied_prob) if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
+            if "open_price" in merged.columns:
+                oip = pd.Series(np.nan, index=merged.index, dtype="float64")
+                m_pos = op > 0
+                if m_pos.any():
+                    oip.loc[m_pos] = 100.0 / (op.loc[m_pos] + 100.0)
+                m_neg = op < 0
+                if m_neg.any():
+                    oip.loc[m_neg] = (-op.loc[m_neg]) / ((-op.loc[m_neg]) + 100.0)
+            else:
+                oip = pd.Series(np.nan, index=merged.index)
 
             lm = (pd.to_numeric(merged.get("line"), errors="coerce") - ol) if "open_line" in merged.columns else pd.Series(np.nan, index=merged.index)
             pm = (ip - oip) if "open_price" in merged.columns else pd.Series(np.nan, index=merged.index)
@@ -1381,7 +1498,20 @@ def compute_props_edges(
         pass
 
     merged["edge"] = merged["model_prob"] - merged["implied_prob"]
-    merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
+    # EV per 1u stake (vectorized).
+    try:
+        price_num = pd.to_numeric(merged.get("price"), errors="coerce")
+        mp = pd.to_numeric(merged.get("model_prob"), errors="coerce")
+        ev = pd.Series(np.nan, index=merged.index, dtype="float64")
+        m_pos = price_num > 0
+        if m_pos.any():
+            ev.loc[m_pos] = mp.loc[m_pos] * (price_num.loc[m_pos] / 100.0) - (1.0 - mp.loc[m_pos])
+        m_neg = price_num < 0
+        if m_neg.any():
+            ev.loc[m_neg] = mp.loc[m_neg] * (100.0 / (-price_num.loc[m_neg])) - (1.0 - mp.loc[m_neg])
+        merged["ev"] = ev
+    except Exception:
+        merged["ev"] = merged.apply(lambda r: _ev_per_unit(r["price"], r["model_prob"]), axis=1)
 
     # Ensure we have a player_name column available; prefer odds name, then prediction name
     if "player_name" not in merged.columns:
