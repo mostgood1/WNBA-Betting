@@ -1,0 +1,29 @@
+{
+  "date": "2026-03-05",
+  "yesterday": "2026-03-04",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 9,
+  "smart_sim_count": 9,
+  "rotations_dir_exists": true,
+  "rotations_expected_games_yesterday": 6,
+  "rotations_have_games_yesterday": 6,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 1.0,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": true,
+  "require_smartsim": true,
+  "require_rotations_espn": true,
+  "warnings": [
+    "minutes_sanity: team BKN top10 minutes sum low (170.7) using roll3_min",
+    "minutes_sanity: team SAC top10 minutes sum low (154.0) using roll3_min",
+    "minutes_sanity: team SAC has <5 players at 20+ min (found 4) using roll3_min",
+    "minutes_sanity: team WAS top10 minutes sum low (172.7) using roll3_min",
+    "minutes_sanity: 20 players have <8 min but >=10 pred_pts (sample: Emanuel Miller(CHI), Trentyn Flowers(CHI), Jeremiah Robinson-Earl(DAL), Marcus Sasser(DET), Colby Jones(DET), Isaiah Crawford(HOU))"
+  ],
+  "missing": [],
+  "ok": true
+}
