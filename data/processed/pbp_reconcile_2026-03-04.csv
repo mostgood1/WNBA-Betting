@@ -1,0 +1,7 @@
+date,game_id,home_team,visitor_team,tip_prob_home,tip_outcome_home,tip_brier,tip_logloss,first_basket_top1_name,first_basket_top1_prob,first_basket_actual_name,first_basket_hit_top1,first_basket_hit_top5,first_basket_prob_actual,early_threes_expected,early_threes_prob_ge_1,early_threes_actual,early_threes_error,early_threes_brier_ge1
+2026-03-04,0022500893,NYK,OKC,0.5,,,,Jalen Brunson,0.1118888818846489,,,,,1.2492918858804087,0.7132922532004441,,,
+2026-03-04,0022500894,BOS,CHA,0.5,,,,Derrick White,0.1152833184038116,,,,,1.370880370152192,0.7461166501857421,,,
+2026-03-04,0022500895,PHI,UTA,0.5,,,,Tyrese Maxey,0.1200215326618471,,,,,1.183376007567419,0.6937568876210889,,,
+2026-03-04,0022500896,MEM,POR,0.5,,,,Deni Avdija,0.1136886833789951,,,,,1.3097862508564038,0.7301222636450333,,,
+2026-03-04,0022500897,MIL,ATL,0.5,,,,Jalen Johnson,0.1118006692511926,,,,,1.2460756788313827,0.7123686572824647,,,
+2026-03-04,0022500898,LAC,IND,0.5,,,,James Harden,0.1136681579502399,,,,,1.155525232668122,0.685107898157554,,,

@@ -63,7 +63,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 203926,Doug McDermott,SAC,DAY-TO-DAY,False,False
 203932,Aaron Gordon,DEN,,False,False
 203935,Marcus Smart,LAL,DAY-TO-DAY,False,False
-203937,Kyle Anderson,MEM,DAY-TO-DAY,True,True
+203937,Kyle Anderson,MIN,DAY-TO-DAY,False,False
 203939,Dwight Powell,DAL,DAY-TO-DAY,False,False
 203944,Julius Randle,MIN,DAY-TO-DAY,False,False
 203952,Andrew Wiggins,MIA,,False,False
@@ -152,7 +152,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1628470,Torrey Craig,BOS,,True,True
 1628960,Grayson Allen,PHX,DAY-TO-DAY,False,False
 1628963,Marvin Bagley III,DAL,OUT,False,False
-1628964,Mo Bamba,TOR,,False,False
+1628964,Mo Bamba,UTA,,True,True
 1628969,Mikal Bridges,NYK,NAN,True,
 1628970,Miles Bridges,CHA,DAY-TO-DAY,True,True
 1628971,Bruce Brown,DEN,DAY-TO-DAY,False,False
@@ -212,7 +212,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629631,De'Andre Hunter,SAC,DAY-TO-DAY,False,False
 1629632,Coby White,CHA,DAY-TO-DAY,True,True
 1629634,Brandon Clarke,MEM,,True,True
-1629636,Darius Garland,CLE,,False,False
+1629636,Darius Garland,LAC,,True,True
 1629637,Jaxson Hayes,LAL,DAY-TO-DAY,False,False
 1629638,Nickeil Alexander-Walker,ATL,DAY-TO-DAY,True,True
 1629639,Tyler Herro,MIA,DAY-TO-DAY,False,False
