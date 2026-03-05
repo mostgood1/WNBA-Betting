@@ -3088,6 +3088,8 @@ def _enforce_minimal_ui_allowlist():
             "/features",
             "/accuracy-market",
             "/live-lens-accuracy",
+            "/live-game-lens-accuracy",
+            "/live-player-props-lens-accuracy",
             "/health",
             "/favicon.ico",
         }
@@ -3143,6 +3145,9 @@ def _enforce_minimal_ui_allowlist():
             "/api/live_lens_projection",
             "/api/live_lens_accuracy",
             "/api/live_lens_side_accuracy",
+            "/api/live_lens_analytics",
+            "/api/live_game_lens_analytics",
+            "/api/live_player_props_lens_analytics",
             "/api/download_live_lens_signals",
             "/api/upload_live_lens_signals",
             "/api/download_live_lens_projections",
@@ -5664,6 +5669,16 @@ def route_market_accuracy():
 @app.route("/live-lens-accuracy")
 def route_live_lens_accuracy():
     return send_from_directory(str(WEB_DIR), "live_lens_accuracy.html")
+
+
+@app.route("/live-game-lens-accuracy")
+def route_live_game_lens_accuracy():
+    return send_from_directory(str(WEB_DIR), "live_game_lens_accuracy.html")
+
+
+@app.route("/live-player-props-lens-accuracy")
+def route_live_player_props_lens_accuracy():
+    return send_from_directory(str(WEB_DIR), "live_player_props_lens_accuracy.html")
 
 
 @app.route("/health")
@@ -11860,6 +11875,1105 @@ def api_live_lens_accuracy():
         return jsonify({"ok": False, "error": str(e)}), 500
 
 
+# ---- Live Lens ROI analytics (NCAAB-style; split by lens) ----
+def _ll_parse_ymd(s: Any) -> Optional[datetime.date]:
+    try:
+        return datetime.strptime(str(s).strip(), "%Y-%m-%d").date()
+    except Exception:
+        return None
+
+
+def _ll_arg_bool(name: str, default: bool = False) -> bool:
+    try:
+        raw = request.args.get(name)
+        if raw is None:
+            return bool(default)
+        return str(raw).strip().lower() in {"1", "true", "yes"}
+    except Exception:
+        return bool(default)
+
+
+def _ll_arg_int(name: str, default: int, lo: int, hi: int) -> int:
+    try:
+        raw = request.args.get(name)
+        if raw is None or str(raw).strip() == "":
+            return int(max(lo, min(hi, int(default))))
+        v = int(float(str(raw).strip()))
+        return int(max(lo, min(hi, v)))
+    except Exception:
+        return int(max(lo, min(hi, int(default))))
+
+
+def _ll_arg_float(name: str, default: float) -> float:
+    try:
+        raw = request.args.get(name)
+        if raw is None or str(raw).strip() == "":
+            return float(default)
+        v = float(str(raw).strip())
+        return float(v)
+    except Exception:
+        return float(default)
+
+
+def _ll_assume_price() -> float:
+    # Accept either -110 or 110 (normalize to negative).
+    try:
+        p = float(_ll_arg_float("assume_price", -110.0))
+        if not math.isfinite(p) or p == 0:
+            p = -110.0
+        if p > 0:
+            p = -abs(p)
+        return float(p)
+    except Exception:
+        return -110.0
+
+
+def _ll_window_params(*, default_days: int = 14) -> tuple[datetime.date, datetime.date, int] | tuple[None, None, int]:
+    try:
+        start_q = (request.args.get("start") or "").strip()
+        end_q = (request.args.get("end") or "").strip()
+        days = _ll_arg_int("days", int(default_days), 1, 120)
+
+        if start_q and end_q:
+            start = _ll_parse_ymd(start_q)
+            end = _ll_parse_ymd(end_q)
+            if not start or not end:
+                return None, None, days
+        else:
+            end = _ll_parse_ymd(end_q) if end_q else (datetime.utcnow().date() - timedelta(days=1))
+            if not end:
+                return None, None, days
+            start = end - timedelta(days=max(1, int(days)) - 1)
+
+        if end < start:
+            start, end = end, start
+        days_out = int((end - start).days + 1)
+        # Hard clamp to avoid accidental huge windows.
+        if days_out > 120:
+            start = end - timedelta(days=119)
+            days_out = 120
+        return start, end, days_out
+    except Exception:
+        return None, None, int(default_days)
+
+
+def _ll_profit_units(price: float, result: str | None) -> float | None:
+    try:
+        r = str(result or "").strip().lower()
+        if r not in {"win", "loss", "push"}:
+            return None
+        if r == "push":
+            return 0.0
+        if r == "loss":
+            return -1.0
+        p = float(price)
+        if not math.isfinite(p) or p == 0:
+            return None
+        if p > 0:
+            return float(p / 100.0)
+        return float(100.0 / abs(p))
+    except Exception:
+        return None
+
+
+def _ll_tag_is_meta(tag: str) -> bool:
+    t = str(tag or "").strip().lower()
+    return t.startswith("market:") or t.startswith("horizon:") or t.startswith("klass:") or t.startswith("stat:")
+
+
+def _ll_tag_type(tag: str) -> str:
+    try:
+        t = str(tag or "").strip().lower()
+        if ":" in t:
+            return t.split(":", 1)[0]
+        return t
+    except Exception:
+        return ""
+
+
+def _ll_canonical_tag(tag: str) -> str:
+    # Low-cardinality canonicalization: preserve type, wildcard value.
+    try:
+        t = str(tag or "").strip().lower()
+        if not t:
+            return ""
+        if ":" not in t:
+            return t
+        return t.split(":", 1)[0] + ":*"
+    except Exception:
+        return ""
+
+
+def _ll_driver_from_type(tag_type: str) -> str:
+    t = str(tag_type or "").strip().lower()
+    if not t:
+        return ""
+    if t in {"injury"}:
+        return "injury"
+    if t in {"rot", "rot_off"}:
+        return "rotation"
+    if t in {"pf"}:
+        return "foul_trouble"
+    if t in {"proj_min", "rem_min", "mp"}:
+        return "minutes"
+    if t in {"sim"}:
+        return "sim"
+    if t in {"risk", "support"}:
+        return "adjustment"
+    if t in {"shrink"}:
+        return "shrink"
+    if t in {"interval_drift", "interval_drift_mag"}:
+        return "interval_drift"
+    if t in {"recent_window", "recent_window_w"}:
+        return "recent_window"
+    if t in {"endgame_foul", "endgame_foul_mag"}:
+        return "endgame_foul"
+    if t in {"time"}:
+        return "time"
+    if t in {"mgn"}:
+        return "margin"
+    if t in {"pace", "poss", "ppp"}:
+        return "pace_eff"
+    if t in {"spr", "ats_side"}:
+        return "spread"
+    if t in {"ctx", "scope"}:
+        return "context"
+    return t
+
+
+def _ll_load_audit_module():
+    import sys as _sys
+
+    tools_dir = BASE_DIR / "tools"
+    if str(tools_dir) not in _sys.path:
+        _sys.path.insert(0, str(tools_dir))
+    import daily_live_lens_audit as _audit  # type: ignore
+
+    return _audit
+
+
+def _ll_load_jsonl(path: Path) -> list[dict[str, Any]]:
+    if not path.exists():
+        return []
+    out: list[dict[str, Any]] = []
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    obj = json.loads(line)
+                except Exception:
+                    continue
+                if isinstance(obj, dict):
+                    out.append(obj)
+    except Exception:
+        return []
+    return out
+
+
+def _ll_canon_gid10(game_id: Any) -> str:
+    try:
+        raw = str(game_id or "").strip()
+    except Exception:
+        return ""
+    digits = "".join([c for c in raw if c.isdigit()])
+    if len(digits) == 8:
+        return "00" + digits
+    if len(digits) == 9:
+        return "0" + digits
+    return digits
+
+
+def _ll_is_canon_gid(gid: str | None) -> bool:
+    g = str(gid or "").strip()
+    return len(g) == 10 and g.isdigit()
+
+
+def _ll_resolve_gid(obj: dict[str, Any], ds: str) -> str | None:
+    try:
+        gid0 = _ll_canon_gid10(obj.get("game_id_canon") or obj.get("game_id"))
+        if _ll_is_canon_gid(gid0):
+            return gid0
+    except Exception:
+        pass
+    try:
+        gid = _resolve_live_lens_canon_gid(obj, ds)
+        if gid and _ll_is_canon_gid(str(gid)):
+            return str(gid)
+    except Exception:
+        pass
+    return None
+
+
+def _ll_prep_recon_games(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = df.copy()
+    if "game_id" in out.columns:
+        out["_gid"] = out["game_id"].map(_ll_canon_gid10)
+    else:
+        out["_gid"] = ""
+    for c in ("home_tri", "away_tri"):
+        if c in out.columns:
+            out[c] = out[c].astype(str).str.strip().str.upper()
+    return out
+
+
+def _ll_prep_recon_quarters(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = df.copy()
+    if "game_id" in out.columns:
+        out["_gid"] = out["game_id"].map(_ll_canon_gid10)
+    else:
+        out["_gid"] = ""
+    for c in ("home_tri", "away_tri"):
+        if c in out.columns:
+            out[c] = out[c].astype(str).str.strip().str.upper()
+    return out
+
+
+def _ll_prep_recon_props(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame()
+    out = df.copy()
+    if "game_id" in out.columns:
+        out["_gid"] = out["game_id"].map(_ll_canon_gid10)
+    else:
+        out["_gid"] = ""
+    if "player_name" in out.columns:
+        out["_name_key"] = out["player_name"].astype(str).map(_norm_player_name)
+    else:
+        out["_name_key"] = ""
+
+    # Ensure numeric stat cols
+    for c in ("pts", "reb", "ast", "threes"):
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c], errors="coerce")
+
+    # Derive combos if absent
+    if all(c in out.columns for c in ("pts", "reb")) and "pr" not in out.columns:
+        out["pr"] = out["pts"] + out["reb"]
+    if all(c in out.columns for c in ("pts", "ast")) and "pa" not in out.columns:
+        out["pa"] = out["pts"] + out["ast"]
+    if all(c in out.columns for c in ("reb", "ast")) and "ra" not in out.columns:
+        out["ra"] = out["reb"] + out["ast"]
+    if all(c in out.columns for c in ("pts", "reb", "ast")) and "pra" not in out.columns:
+        out["pra"] = out["pts"] + out["reb"] + out["ast"]
+    return out
+
+
+def _ll_build_recon_indexes(ds: str) -> dict[str, Any]:
+    rg = pd.DataFrame()
+    rq = pd.DataFrame()
+    rp = pd.DataFrame()
+    try:
+        p = DATA_PROCESSED_DIR / f"recon_games_{ds}.csv"
+        if p.exists():
+            rg = _ll_prep_recon_games(pd.read_csv(p))
+    except Exception:
+        rg = pd.DataFrame()
+    try:
+        p = DATA_PROCESSED_DIR / f"recon_quarters_{ds}.csv"
+        if p.exists():
+            rq = _ll_prep_recon_quarters(pd.read_csv(p))
+    except Exception:
+        rq = pd.DataFrame()
+    try:
+        p = DATA_PROCESSED_DIR / f"recon_props_{ds}.csv"
+        if p.exists():
+            rp = _ll_prep_recon_props(pd.read_csv(p))
+    except Exception:
+        rp = pd.DataFrame()
+
+    rg_by_gid: dict[str, dict[str, Any]] = {}
+    rg_by_ha: dict[tuple[str, str], dict[str, Any]] = {}
+    if not rg.empty:
+        for r in rg.to_dict(orient="records"):
+            gid = str(r.get("_gid") or "").strip()
+            h = str(r.get("home_tri") or "").strip().upper()
+            a = str(r.get("away_tri") or "").strip().upper()
+            if gid and gid not in rg_by_gid:
+                rg_by_gid[gid] = r
+            if h and a and (h, a) not in rg_by_ha:
+                rg_by_ha[(h, a)] = r
+
+    rq_by_gid: dict[str, dict[str, Any]] = {}
+    rq_by_ha: dict[tuple[str, str], dict[str, Any]] = {}
+    if not rq.empty:
+        for r in rq.to_dict(orient="records"):
+            gid = str(r.get("_gid") or "").strip()
+            h = str(r.get("home_tri") or "").strip().upper()
+            a = str(r.get("away_tri") or "").strip().upper()
+            if gid and gid not in rq_by_gid:
+                rq_by_gid[gid] = r
+            if h and a and (h, a) not in rq_by_ha:
+                rq_by_ha[(h, a)] = r
+
+    rp_by_gid_name: dict[tuple[str, str], dict[str, Any]] = {}
+    if not rp.empty:
+        for r in rp.to_dict(orient="records"):
+            gid = str(r.get("_gid") or "").strip()
+            nk = str(r.get("_name_key") or "").strip().upper()
+            if gid and nk and (gid, nk) not in rp_by_gid_name:
+                rp_by_gid_name[(gid, nk)] = r
+
+    return {
+        "rg_ok": bool(not rg.empty),
+        "rq_ok": bool(not rq.empty),
+        "rp_ok": bool(not rp.empty),
+        "rg_by_gid": rg_by_gid,
+        "rg_by_ha": rg_by_ha,
+        "rq_by_gid": rq_by_gid,
+        "rq_by_ha": rq_by_ha,
+        "rp_by_gid_name": rp_by_gid_name,
+    }
+
+
+def _ll_actual_total(*, market: str, horizon: str | None, gid: str | None, home: str | None, away: str | None, idx: dict[str, Any]) -> float | None:
+    try:
+        m = str(market or "").strip().lower()
+        hz = str(horizon or "").strip().lower() or None
+        if m == "total":
+            row = None
+            if gid:
+                row = (idx.get("rg_by_gid") or {}).get(str(gid))
+            if row is None and home and away:
+                row = (idx.get("rg_by_ha") or {}).get((str(home).upper(), str(away).upper()))
+            if not row:
+                return None
+            return _number(row.get("total_actual"))
+
+        if m in {"half_total", "quarter_total"}:
+            row = None
+            if gid:
+                row = (idx.get("rq_by_gid") or {}).get(str(gid))
+            if row is None and home and away:
+                row = (idx.get("rq_by_ha") or {}).get((str(home).upper(), str(away).upper()))
+            if not row:
+                return None
+            if m == "half_total":
+                if hz == "h1":
+                    return _number(row.get("actual_h1_total"))
+                if hz == "h2":
+                    return _number(row.get("actual_h2_total"))
+                return None
+            if m == "quarter_total":
+                if hz in {"q1", "q2", "q3", "q4"}:
+                    return _number(row.get(f"actual_{hz}_total"))
+                return None
+    except Exception:
+        return None
+    return None
+
+
+def _ll_actual_ats_margin_home(*, gid: str | None, home: str | None, away: str | None, idx: dict[str, Any]) -> float | None:
+    row = None
+    try:
+        if gid:
+            row = (idx.get("rg_by_gid") or {}).get(str(gid))
+        if row is None and home and away:
+            row = (idx.get("rg_by_ha") or {}).get((str(home).upper(), str(away).upper()))
+        if not row:
+            return None
+        hp = _number(row.get("home_pts"))
+        ap = _number(row.get("visitor_pts"))
+        if hp is None or ap is None:
+            return None
+        return float(hp) - float(ap)
+    except Exception:
+        return None
+
+
+def _ll_actual_prop(*, gid: str | None, name_key: str | None, stat_key: str, idx: dict[str, Any]) -> float | None:
+    try:
+        if not gid or not name_key:
+            return None
+        row = (idx.get("rp_by_gid_name") or {}).get((str(gid), str(name_key).upper()))
+        if not row:
+            return None
+        return _number(row.get(stat_key))
+    except Exception:
+        return None
+
+
+def _ll_settle_over_under(*, actual: float | None, line: float | None, side: str | None) -> str | None:
+    if actual is None or line is None:
+        return None
+    s = str(side or "").strip().upper()
+    if s not in {"OVER", "UNDER"}:
+        return None
+    if float(actual) == float(line):
+        return "push"
+    if s == "OVER":
+        return "win" if float(actual) > float(line) else "loss"
+    return "win" if float(actual) < float(line) else "loss"
+
+
+def _ll_settle_ats(*, margin_home: float | None, line: float | None, pick_team: str | None, home: str | None, away: str | None) -> str | None:
+    if margin_home is None or line is None or not pick_team or not home or not away:
+        return None
+    side = str(pick_team).strip().upper()
+    h = str(home).strip().upper()
+    a = str(away).strip().upper()
+    if side not in {h, a}:
+        return None
+    diff = None
+    if side == h:
+        diff = float(margin_home) + float(line)
+    else:
+        diff = (-float(margin_home)) + float(line)
+    if diff is None:
+        return None
+    if abs(float(diff)) < 1e-9:
+        return "push"
+    return "win" if float(diff) > 0 else "loss"
+
+
+def _ll_dedup_first(signals: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    # De-dup repeated tick logs: grade the first BET per decision key.
+    def _ts_key(obj: dict[str, Any], idx: int) -> tuple[float, int]:
+        for k in ("received_at", "ts", "created_at"):
+            v = obj.get(k)
+            if not v:
+                continue
+            try:
+                dt = pd.to_datetime(str(v), errors="coerce", utc=True)
+                if pd.isna(dt):
+                    continue
+                return (float(dt.to_pydatetime().timestamp()), int(idx))
+            except Exception:
+                continue
+        return (float(idx), int(idx))
+
+    def _key(obj: dict[str, Any]) -> tuple[Any, ...] | None:
+        try:
+            market = str(obj.get("market") or "").strip().lower()
+            if market not in {"total", "half_total", "quarter_total", "ats", "player_prop"}:
+                return None
+            gid = obj.get("_gid") or _ll_canon_gid10(obj.get("game_id_canon") or obj.get("game_id"))
+            horizon = str(obj.get("horizon") or "").strip().lower() or None
+            if market == "player_prop":
+                name_key = _norm_player_name(str(obj.get("name_key") or obj.get("player") or ""))
+                stat_key = str(obj.get("stat") or "").strip().lower()
+                side = str(obj.get("side") or "").strip().upper() or None
+                if not name_key or not stat_key or not side:
+                    return None
+                return (market, gid, name_key, stat_key, side)
+            if market in {"total", "half_total", "quarter_total"}:
+                side = str(obj.get("side") or "").strip().upper() or None
+                if not side:
+                    return None
+                return (market, gid, horizon, side)
+            if market == "ats":
+                side = str(obj.get("side") or "").strip().upper() or None
+                if not side:
+                    return None
+                return (market, gid, side)
+        except Exception:
+            return None
+        return None
+
+    groups: dict[tuple[Any, ...], tuple[int, dict[str, Any]]] = {}
+    for i, obj in enumerate(signals):
+        if not isinstance(obj, dict):
+            continue
+        k = _key(obj)
+        if k is None:
+            continue
+        cur = groups.get(k)
+        if cur is None:
+            groups[k] = (i, obj)
+            continue
+        # pick the earlier one
+        if _ts_key(obj, i) < _ts_key(cur[1], cur[0]):
+            groups[k] = (i, obj)
+    picked = [it for _, it in sorted(groups.values(), key=lambda x: x[0])]
+    return picked
+
+
+def _ll_score_day(ds: str, *, allowed_markets: set[str], assume_price: float) -> tuple[pd.DataFrame, dict[str, Any]]:
+    base = _live_lens_artifacts_dir()
+    sig_path = base / f"live_lens_signals_{ds}.jsonl"
+    sigs = _ll_load_jsonl(sig_path)
+    if not sigs:
+        return pd.DataFrame(), {"signals": {"exists": False, "raw": 0, "filtered": 0, "dedup": 0}, "path": str(sig_path)}
+
+    # Filter BET rows and allowed markets.
+    filtered: list[dict[str, Any]] = []
+    for obj in sigs:
+        try:
+            market = str(obj.get("market") or "").strip().lower()
+            if market not in allowed_markets:
+                continue
+            if str(obj.get("klass") or "").strip().upper() != "BET":
+                continue
+            # Exclude model fallback prop lines (diagnostic-only).
+            if market == "player_prop":
+                try:
+                    if str(obj.get("line_source") or "").strip().lower() == "model":
+                        continue
+                except Exception:
+                    pass
+            gid = _ll_resolve_gid(obj, ds)
+            obj2 = dict(obj)
+            if gid:
+                obj2["_gid"] = gid
+            filtered.append(obj2)
+        except Exception:
+            continue
+
+    deduped = _ll_dedup_first(filtered)
+
+    idx = _ll_build_recon_indexes(ds)
+    audit = _ll_load_audit_module()
+
+    rows: list[dict[str, Any]] = []
+    for obj in deduped:
+        try:
+            market = str(obj.get("market") or "").strip().lower()
+            horizon = str(obj.get("horizon") or "").strip().lower() or None
+            gid = str(obj.get("_gid") or "").strip() or None
+            home = str(obj.get("home") or "").strip().upper() or None
+            away = str(obj.get("away") or "").strip().upper() or None
+            klass = str(obj.get("klass") or "").strip().upper() or None
+            elapsed = _number(obj.get("elapsed"))
+            remaining = _number(obj.get("remaining"))
+
+            # Normalize line fields.
+            if market == "player_prop":
+                live_line = _number(obj.get("line"))
+                if live_line is None:
+                    live_line = _number(obj.get("live_line"))
+            else:
+                live_line = _number(obj.get("live_line"))
+
+            edge = _number(obj.get("edge_adj"))
+            if edge is None:
+                edge = _number(obj.get("edge"))
+
+            side = None
+            stat_key = None
+            player = None
+            name_key = None
+
+            if market == "player_prop":
+                player = str(obj.get("player") or "").strip() or None
+                try:
+                    stat_key = str(obj.get("stat") or "").strip().lower() or None
+                except Exception:
+                    stat_key = None
+                # Normalize stat key to the audit's compact naming.
+                try:
+                    if stat_key:
+                        stat_key = str(audit._live_stat_key(stat_key))
+                except Exception:
+                    pass
+                name_key = _norm_player_name(str(obj.get("name_key") or player or "")) or None
+                side = str(obj.get("side") or "").strip().upper() or None
+            elif market in {"total", "half_total", "quarter_total"}:
+                side = str(obj.get("side") or "").strip().upper() or None
+            elif market == "ats":
+                side = str(obj.get("side") or "").strip().upper() or None
+
+            # Settle.
+            result = None
+            if market in {"total", "half_total", "quarter_total"}:
+                actual = _ll_actual_total(market=market, horizon=horizon, gid=gid, home=home, away=away, idx=idx)
+                result = _ll_settle_over_under(actual=actual, line=live_line, side=side)
+            elif market == "ats":
+                margin_home = _ll_actual_ats_margin_home(gid=gid, home=home, away=away, idx=idx)
+                result = _ll_settle_ats(margin_home=margin_home, line=live_line, pick_team=side, home=home, away=away)
+            elif market == "player_prop":
+                actual = _ll_actual_prop(gid=gid, name_key=name_key, stat_key=str(stat_key or ""), idx=idx)
+                result = _ll_settle_over_under(actual=actual, line=live_line, side=side)
+
+            profit_units = _ll_profit_units(assume_price, result)
+
+            # Tags: reuse audit's low-cardinality derived tags.
+            ctx = obj.get("context")
+            interval_on = recent_on = foul_on = None
+            try:
+                interval_on, recent_on, foul_on = audit._flag_adjustments(ctx)
+            except Exception:
+                interval_on, recent_on, foul_on = None, None, None
+
+            tags = []
+            try:
+                tags = audit._derive_tags(
+                    obj=obj,
+                    market=market,
+                    horizon=horizon,
+                    klass=klass,
+                    stat_key=stat_key if market == "player_prop" else None,
+                    interval_drift_on=interval_on,
+                    recent_window_on=recent_on,
+                    endgame_foul_on=foul_on,
+                )
+            except Exception:
+                tags = []
+            tags = tags if isinstance(tags, list) else ([] if tags is None else [str(tags)])
+            tags = [str(t) for t in tags if t is not None and str(t).strip()]
+
+            driver_tags = [t for t in tags if not _ll_tag_is_meta(t)]
+            driver_types = sorted({t for t in (_ll_tag_type(x) for x in driver_tags) if t})
+            drivers = sorted({_ll_driver_from_type(t) for t in driver_types if t})
+            driver = drivers[0] if drivers else ""
+
+            # Lens field used by the split pages:
+            # - game lens: horizon
+            # - player props lens: stat_key
+            lens = ""
+            if market == "player_prop":
+                lens = str(stat_key or "")
+            else:
+                lens = str(horizon or "")
+
+            rows.append(
+                {
+                    "date": str(obj.get("date") or ds),
+                    "market": market,
+                    "horizon": horizon,
+                    "game_id": gid,
+                    "home": home,
+                    "away": away,
+                    "player": player,
+                    "name_key": name_key,
+                    "stat": stat_key,
+                    "side": side,
+                    "klass": klass,
+                    "elapsed": elapsed,
+                    "remaining": remaining,
+                    "live_line": live_line,
+                    "edge": edge,
+                    "result": result,
+                    "profit_units": profit_units,
+                    "lens": lens,
+                    "driver": driver,
+                    "driver_tags": driver_tags,
+                    "tags": tags,
+                }
+            )
+        except Exception:
+            continue
+
+    df = pd.DataFrame(rows) if rows else pd.DataFrame()
+    meta = {
+        "signals": {
+            "exists": True,
+            "raw": int(len(sigs)),
+            "filtered": int(len(filtered)),
+            "dedup": int(len(deduped)),
+            "path": str(sig_path),
+        },
+        "recon": {"games": bool(idx.get("rg_ok")), "quarters": bool(idx.get("rq_ok")), "props": bool(idx.get("rp_ok"))},
+    }
+    return df, meta
+
+
+def _ll_summary(df: pd.DataFrame) -> dict[str, Any]:
+    if df is None or df.empty:
+        return {
+            "status": "empty",
+            "n_settled": 0,
+            "wins": 0,
+            "losses": 0,
+            "pushes": 0,
+            "win_rate": None,
+            "roi_units_per_bet": None,
+        }
+    d = df.copy()
+    if "result" not in d.columns:
+        return {
+            "status": "empty",
+            "n_settled": 0,
+            "wins": 0,
+            "losses": 0,
+            "pushes": 0,
+            "win_rate": None,
+            "roi_units_per_bet": None,
+        }
+    settled = d[d["result"].isin(["win", "loss", "push"])].copy()
+    wins = int((settled["result"] == "win").sum())
+    losses = int((settled["result"] == "loss").sum())
+    pushes = int((settled["result"] == "push").sum())
+    n_settled = int(wins + losses + pushes)
+    profit_total = float(pd.to_numeric(settled.get("profit_units"), errors="coerce").fillna(0.0).sum())
+    roi = (profit_total / float(n_settled)) if n_settled > 0 else None
+    wr = (float(wins) / float(wins + losses)) if (wins + losses) > 0 else None
+    return {
+        "status": "ok" if n_settled > 0 else "empty",
+        "n_settled": n_settled,
+        "wins": wins,
+        "losses": losses,
+        "pushes": pushes,
+        "win_rate": wr,
+        "roi_units_per_bet": roi,
+        "profit_units": profit_total,
+    }
+
+
+def _ll_group_stats(df: pd.DataFrame, key_cols: list[str], key_out: list[str]) -> list[dict[str, Any]]:
+    if df is None or df.empty:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+    rows: list[dict[str, Any]] = []
+    for keys, g in d.groupby(key_cols, dropna=False):
+        if not isinstance(keys, tuple):
+            keys = (keys,)
+        s = _ll_summary(g)
+        row = {k: ("" if v is None else str(v)) for k, v in zip(key_out, keys)}
+        rows.append({**row, "n": int(s.get("n_settled") or 0), "wins": int(s.get("wins") or 0), "losses": int(s.get("losses") or 0), "pushes": int(s.get("pushes") or 0), "win_rate": s.get("win_rate"), "roi_units_per_bet": s.get("roi_units_per_bet")})
+    rows.sort(key=lambda r: (-(r.get("n") or 0), str(r.get(key_out[0]) or ""), str(r.get(key_out[-1]) or "")))
+    return rows
+
+
+def _ll_by_driver_tag(df: pd.DataFrame, *, top_n: int = 80) -> list[dict[str, Any]]:
+    if df is None or df.empty or "driver_tags" not in df.columns:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+    d["driver_tags"] = d["driver_tags"].apply(lambda x: x if isinstance(x, list) else ([] if x is None else [str(x)]))
+    ex = d.explode("driver_tags")
+    ex = ex[ex["driver_tags"].notna()]
+    ex["driver_tags"] = ex["driver_tags"].astype(str)
+    ex = ex[ex["driver_tags"].astype(str).str.len() > 0]
+    out = _ll_group_stats(ex.rename(columns={"driver_tags": "tag"}), ["tag"], ["tag"])
+    return out[: int(max(0, top_n))]
+
+
+def _ll_by_driver_tagset(df: pd.DataFrame, *, top_n: int = 80) -> list[dict[str, Any]]:
+    if df is None or df.empty or "driver_tags" not in df.columns:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+
+    def _mk(x: Any) -> str:
+        try:
+            tags = x if isinstance(x, list) else ([] if x is None else [str(x)])
+            tags2 = [str(t) for t in tags if t is not None and str(t).strip()]
+            tags2 = sorted(set(tags2))
+            if not tags2:
+                return ""
+            return "|".join(tags2[:4])
+        except Exception:
+            return ""
+
+    d["tagset"] = d["driver_tags"].apply(_mk)
+    d2 = d[d["tagset"].astype(str).str.len() > 0]
+    out = _ll_group_stats(d2, ["tagset"], ["tagset"])
+    return out[: int(max(0, top_n))]
+
+
+def _ll_by_driver_canonical(df: pd.DataFrame, *, top_n: int = 80) -> list[dict[str, Any]]:
+    if df is None or df.empty or "driver_tags" not in df.columns:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+    d["driver_tags"] = d["driver_tags"].apply(lambda x: x if isinstance(x, list) else ([] if x is None else [str(x)]))
+    ex = d.explode("driver_tags")
+    ex = ex[ex["driver_tags"].notna()]
+    ex["tag"] = ex["driver_tags"].astype(str).map(_ll_canonical_tag)
+    ex = ex[ex["tag"].astype(str).str.len() > 0]
+    out = _ll_group_stats(ex, ["tag"], ["tag"])
+    return out[: int(max(0, top_n))]
+
+
+def _ll_by_driver_tag_type(df: pd.DataFrame, *, top_n: int = 80) -> list[dict[str, Any]]:
+    if df is None or df.empty or "driver_tags" not in df.columns:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+    d["driver_tags"] = d["driver_tags"].apply(lambda x: x if isinstance(x, list) else ([] if x is None else [str(x)]))
+    ex = d.explode("driver_tags")
+    ex = ex[ex["driver_tags"].notna()]
+    ex["type"] = ex["driver_tags"].astype(str).map(_ll_tag_type)
+    ex = ex[ex["type"].astype(str).str.len() > 0]
+    out = _ll_group_stats(ex, ["type"], ["type"])
+    return out[: int(max(0, top_n))]
+
+
+def _ll_by_driver(df: pd.DataFrame, *, top_n: int = 80) -> list[dict[str, Any]]:
+    if df is None or df.empty or "driver_tags" not in df.columns:
+        return []
+    d = df[df["result"].isin(["win", "loss", "push"])].copy() if "result" in df.columns else pd.DataFrame()
+    if d.empty:
+        return []
+
+    def _drivers(x: Any) -> list[str]:
+        try:
+            tags = x if isinstance(x, list) else ([] if x is None else [str(x)])
+            types = {_ll_tag_type(t) for t in tags if t}
+            ds = {_ll_driver_from_type(t) for t in types if t}
+            return sorted([z for z in ds if z])
+        except Exception:
+            return []
+
+    d["_drivers"] = d["driver_tags"].apply(_drivers)
+    ex = d.explode("_drivers")
+    ex = ex[ex["_drivers"].notna()]
+    ex["driver"] = ex["_drivers"].astype(str)
+    ex = ex[ex["driver"].astype(str).str.len() > 0]
+    out = _ll_group_stats(ex, ["driver"], ["driver"])
+    return out[: int(max(0, top_n))]
+
+
+def _ll_attach_breakdowns(summary: dict[str, Any], df: pd.DataFrame) -> dict[str, Any]:
+    d = dict(summary or {})
+    d["by_lens_side"] = _ll_group_stats(df, ["lens", "side"], ["lens", "side"])
+    d["by_driver_tag"] = _ll_by_driver_tag(df)
+    d["by_driver_tagset"] = _ll_by_driver_tagset(df)
+    d["by_driver_tag_canonical"] = _ll_by_driver_canonical(df)
+    d["by_driver_tag_type"] = _ll_by_driver_tag_type(df)
+    d["by_driver"] = _ll_by_driver(df)
+    return d
+
+
+@app.route("/api/live_lens_analytics")
+@app.route("/api/live_game_lens_analytics")
+def api_live_game_lens_analytics():
+    try:
+        start, end, days = _ll_window_params(default_days=14)
+        if not start or not end:
+            return jsonify({"ok": False, "error": "invalid date window"}), 400
+        assume_price = _ll_assume_price()
+        full_game_only = _ll_arg_bool("full_game_only", False)
+        include_rows = _ll_arg_bool("include_rows", False)
+        max_rows = _ll_arg_int("max_rows", 2000, 100, 20000)
+
+        allowed_markets = {"total", "half_total", "quarter_total", "ats"}
+        all_days: list[pd.DataFrame] = []
+        per_day: list[dict[str, Any]] = []
+        meta_days: list[dict[str, Any]] = []
+
+        d = start
+        while d <= end:
+            ds = d.isoformat()
+            try:
+                df_day, meta = _ll_score_day(ds, allowed_markets=allowed_markets, assume_price=assume_price)
+                if isinstance(df_day, pd.DataFrame) and not df_day.empty:
+                    if full_game_only:
+                        df_day = df_day[df_day["market"].isin(["total", "ats"])].copy()
+                    all_days.append(df_day)
+                meta_days.append({"date": ds, **(meta or {})})
+
+                # Split per-day summaries
+                tot = df_day[df_day["market"].isin(["total", "half_total", "quarter_total"])].copy() if (isinstance(df_day, pd.DataFrame) and not df_day.empty) else pd.DataFrame()
+                if full_game_only and not tot.empty:
+                    tot = tot[tot["market"] == "total"].copy()
+                ats = df_day[df_day["market"] == "ats"].copy() if (isinstance(df_day, pd.DataFrame) and not df_day.empty) else pd.DataFrame()
+                per_day.append({"date": ds, "totals": _ll_summary(tot), "ats": _ll_summary(ats)})
+            except Exception as e:
+                per_day.append({"date": ds, "totals": _ll_summary(pd.DataFrame()), "ats": _ll_summary(pd.DataFrame()), "error": str(e)})
+                meta_days.append({"date": ds, "error": str(e)})
+            d = d + timedelta(days=1)
+
+        all_df = pd.concat(all_days, ignore_index=True) if all_days else pd.DataFrame()
+
+        totals_df = all_df[all_df["market"].isin(["total", "half_total", "quarter_total"])].copy() if not all_df.empty else pd.DataFrame()
+        if full_game_only and not totals_df.empty:
+            totals_df = totals_df[totals_df["market"] == "total"].copy()
+        ats_df = all_df[all_df["market"] == "ats"].copy() if not all_df.empty else pd.DataFrame()
+
+        totals_summary = _ll_attach_breakdowns(_ll_summary(totals_df), totals_df)
+        ats_summary = _ll_attach_breakdowns(_ll_summary(ats_df), ats_df)
+
+        history = None
+        if include_rows and not all_df.empty:
+            h = all_df[all_df["result"].isin(["win", "loss", "push"])].copy() if "result" in all_df.columns else pd.DataFrame()
+            if not h.empty:
+                h = h.sort_values(["date", "market", "game_id"], ascending=[False, True, True])
+                h = h.head(int(max_rows))
+                history = {
+                    "rows": [
+                        {
+                            "date": r.get("date"),
+                            "market": r.get("market"),
+                            "game_id": r.get("game_id"),
+                            "lens": r.get("lens"),
+                            "side": r.get("side"),
+                            "live_line": r.get("live_line"),
+                            "edge": r.get("edge"),
+                            "elapsed": r.get("elapsed"),
+                            "remaining": r.get("remaining"),
+                            "result": r.get("result"),
+                            "profit_units": r.get("profit_units"),
+                            "driver": r.get("driver"),
+                            "driver_tags": r.get("driver_tags"),
+                        }
+                        for r in h.to_dict(orient="records")
+                    ]
+                }
+
+        if totals_summary.get("n_settled", 0) <= 0 and ats_summary.get("n_settled", 0) <= 0:
+            return jsonify(
+                _to_jsonable(
+                    {
+                        "ok": True,
+                        "status": "empty",
+                        "message": "No settled BET rows (missing signals and/or recon outputs).",
+                        "meta": {
+                            "start": start.isoformat(),
+                            "end": end.isoformat(),
+                            "days": int(days),
+                            "assume_price": assume_price,
+                            "full_game_only": bool(full_game_only),
+                            "include_rows": bool(include_rows),
+                            "max_rows": int(max_rows),
+                        },
+                        "overall": {"totals": totals_summary, "ats": ats_summary},
+                        "per_day": per_day,
+                        "history": history,
+                        "debug": {"days": meta_days},
+                        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                    }
+                )
+            )
+
+        return jsonify(
+            _to_jsonable(
+                {
+                    "ok": True,
+                    "status": "ok",
+                    "meta": {
+                        "start": start.isoformat(),
+                        "end": end.isoformat(),
+                        "days": int(days),
+                        "assume_price": assume_price,
+                        "full_game_only": bool(full_game_only),
+                        "include_rows": bool(include_rows),
+                        "max_rows": int(max_rows),
+                    },
+                    "overall": {"totals": totals_summary, "ats": ats_summary},
+                    "per_day": per_day,
+                    "history": history,
+                    "debug": {"days": meta_days},
+                    "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                }
+            )
+        )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
+@app.route("/api/live_player_props_lens_analytics")
+def api_live_player_props_lens_analytics():
+    try:
+        start, end, days = _ll_window_params(default_days=14)
+        if not start or not end:
+            return jsonify({"ok": False, "error": "invalid date window"}), 400
+        assume_price = _ll_assume_price()
+        include_rows = _ll_arg_bool("include_rows", False)
+        max_rows = _ll_arg_int("max_rows", 2000, 100, 20000)
+
+        allowed_markets = {"player_prop"}
+        all_days: list[pd.DataFrame] = []
+        per_day: list[dict[str, Any]] = []
+        meta_days: list[dict[str, Any]] = []
+
+        d = start
+        while d <= end:
+            ds = d.isoformat()
+            try:
+                df_day, meta = _ll_score_day(ds, allowed_markets=allowed_markets, assume_price=assume_price)
+                if isinstance(df_day, pd.DataFrame) and not df_day.empty:
+                    all_days.append(df_day)
+                meta_days.append({"date": ds, **(meta or {})})
+                per_day.append({"date": ds, "props": _ll_summary(df_day)})
+            except Exception as e:
+                per_day.append({"date": ds, "props": _ll_summary(pd.DataFrame()), "error": str(e)})
+                meta_days.append({"date": ds, "error": str(e)})
+            d = d + timedelta(days=1)
+
+        all_df = pd.concat(all_days, ignore_index=True) if all_days else pd.DataFrame()
+        props_summary = _ll_attach_breakdowns(_ll_summary(all_df), all_df)
+
+        history = None
+        if include_rows and not all_df.empty:
+            h = all_df[all_df["result"].isin(["win", "loss", "push"])].copy() if "result" in all_df.columns else pd.DataFrame()
+            if not h.empty:
+                h = h.sort_values(["date", "game_id", "player", "stat"], ascending=[False, True, True, True])
+                h = h.head(int(max_rows))
+                history = {
+                    "rows": [
+                        {
+                            "date": r.get("date"),
+                            "market": r.get("market"),
+                            "game_id": r.get("game_id"),
+                            "lens": r.get("lens"),
+                            "side": r.get("side"),
+                            "live_line": r.get("live_line"),
+                            "player": r.get("player"),
+                            "stat": r.get("stat"),
+                            "edge": r.get("edge"),
+                            "elapsed": r.get("elapsed"),
+                            "remaining": r.get("remaining"),
+                            "result": r.get("result"),
+                            "profit_units": r.get("profit_units"),
+                            "driver": r.get("driver"),
+                            "driver_tags": r.get("driver_tags"),
+                        }
+                        for r in h.to_dict(orient="records")
+                    ]
+                }
+
+        if props_summary.get("n_settled", 0) <= 0:
+            return jsonify(
+                _to_jsonable(
+                    {
+                        "ok": True,
+                        "status": "empty",
+                        "message": "No settled BET player-prop rows (missing signals and/or recon outputs).",
+                        "meta": {
+                            "start": start.isoformat(),
+                            "end": end.isoformat(),
+                            "days": int(days),
+                            "assume_price": assume_price,
+                            "include_rows": bool(include_rows),
+                            "max_rows": int(max_rows),
+                        },
+                        "overall": {"props": props_summary},
+                        "per_day": per_day,
+                        "history": history,
+                        "debug": {"days": meta_days},
+                        "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                    }
+                )
+            )
+
+        return jsonify(
+            _to_jsonable(
+                {
+                    "ok": True,
+                    "status": "ok",
+                    "meta": {
+                        "start": start.isoformat(),
+                        "end": end.isoformat(),
+                        "days": int(days),
+                        "assume_price": assume_price,
+                        "include_rows": bool(include_rows),
+                        "max_rows": int(max_rows),
+                    },
+                    "overall": {"props": props_summary},
+                    "per_day": per_day,
+                    "history": history,
+                    "debug": {"days": meta_days},
+                    "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
+                }
+            )
+        )
+    except Exception as e:  # noqa: BLE001
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+
 def _recommendations_all():
     """Unified recommendations endpoint across categories for a given date.
 
@@ -17040,6 +18154,14 @@ def api_props_recommendations():
                             "side": rr.get("side"),
                             "line": rr.get("line"),
                             "price": rr.get("price"),
+                            # Opening + movement (when present in snapshot CSV)
+                            "snapshot_ts": rr.get("snapshot_ts"),
+                            "open_snapshot_ts": rr.get("open_snapshot_ts"),
+                            "open_line": rr.get("open_line"),
+                            "open_price": rr.get("open_price"),
+                            "open_implied_prob": rr.get("open_implied_prob"),
+                            "line_move": rr.get("line_move"),
+                            "implied_move": rr.get("implied_move"),
                             "edge": rr.get("edge"),
                             "ev": rr.get("ev"),
                             "ev_pct": (evf * 100.0) if evf is not None else None,
@@ -17518,7 +18640,7 @@ def api_props_recommendations():
                 df["ev_pct"] = df["ev"] * 100.0
             except Exception:
                 df["ev_pct"] = None
-        for c in ("edge","line","price"):
+        for c in ("edge","line","price","open_line","open_price","open_implied_prob","line_move","implied_move"):
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors="coerce")
 
@@ -17733,11 +18855,31 @@ def api_props_recommendations():
                                 line_val = None
                     except Exception:
                         line_val = None
+
+                    # Opening line uses the same dd/td semantics.
+                    raw_open_line = r.get("open_line")
+                    try:
+                        if str(mkt).lower() in {"dd", "td"}:
+                            open_line_val = None
+                        else:
+                            open_line_val = float(raw_open_line)
+                            if pd.isna(open_line_val):
+                                open_line_val = None
+                    except Exception:
+                        open_line_val = None
                     plays.append({
                         "market": mkt,
                         "side": r.get("side"),
                         "line": line_val,
                         "price": r.get("price"),
+                        # Opening + movement (when present in props_edges_<date>.csv)
+                        "snapshot_ts": r.get("snapshot_ts"),
+                        "open_snapshot_ts": r.get("open_snapshot_ts"),
+                        "open_line": open_line_val,
+                        "open_price": r.get("open_price"),
+                        "open_implied_prob": r.get("open_implied_prob"),
+                        "line_move": r.get("line_move"),
+                        "implied_move": r.get("implied_move"),
                         "edge": r.get("edge"),
                         "ev": r.get("ev"),
                         "ev_pct": r.get("ev_pct"),
@@ -19375,6 +20517,7 @@ def api_props_recommendations():
                     "player": c.get("player"),
                     "team": c.get("team"),
                     "team_tricode": c.get("team_tricode") or (_get_tricode(str(c.get("team") or "")) or str(c.get("team") or "").strip().upper() or None),
+                    "tier": c.get("tier"),
                     "opponent": c.get("opponent"),
                     "opponent_ranks": c.get("opponent_ranks"),
                     "team_injuries_out": c.get("team_injuries_out"),
@@ -19393,6 +20536,7 @@ def api_props_recommendations():
                     "photo": c.get("photo"),
                     "team_logo": c.get("team_logo"),
                     "minutes_stability": _ms_val,
+                    "top_play": c.get("top_play"),
                     "top_play_baseline": c.get("top_play_baseline"),
                     "top_play_reasons": c.get("top_play_reasons"),
                     "top_play_explain": c.get("top_play_explain"),

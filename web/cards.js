@@ -3054,6 +3054,98 @@ function renderLivePropCallouts(callouts) {
   }
 }
 
+function renderPregamePropCallouts(callouts) {
+  try {
+    const arr0 = Array.isArray(callouts) ? callouts : [];
+    const arr = arr0.filter((x) => x && x.gid && x.player && x.stat);
+    if (!arr.length) return '';
+
+    const items = arr.map((x) => {
+      const tier = String(x.tier || '').trim();
+      const tierU = tier.toUpperCase();
+      const tierShort = (tierU === 'MEDIUM') ? 'MED' : tierU;
+      const tierCls = (tierU === 'HIGH') ? 'good' : ((tierU === 'MEDIUM') ? 'ok' : '');
+
+      const side = String(x.side || '').toUpperCase().trim();
+      const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
+      const headTxt = `${tierShort} ${sideShort}`.trim();
+      const badge = headTxt ? `<span class="badge ${tierCls}">${esc(headTxt)}</span>` : '';
+
+      const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
+      const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
+      const player = String(x.player || '').trim();
+      const team = String(x.team || '').toUpperCase().trim();
+
+      const photo = String(x.player_photo || '').trim() || String(x.photo || '').trim();
+      const img = photo
+        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
+        : '';
+
+      const openLine = n(x.open_line);
+      const curLine = n(x.line);
+      let lineMove = n(x.line_move);
+      if (lineMove == null && openLine != null && curLine != null) lineMove = curLine - openLine;
+      const impliedMove = n(x.implied_move);
+
+      const openPrice = n(x.open_price);
+      const curPrice = n(x.price);
+
+      const openLineTxt = (openLine == null) ? '—' : fmt(openLine, 1);
+      const curLineTxt = (curLine == null) ? '—' : fmt(curLine, 1);
+      const openPriceTxt = (openPrice == null) ? '—' : fmtAmer(openPrice);
+      const curPriceTxt = (curPrice == null) ? '—' : fmtAmer(curPrice);
+
+      const lmTxt = (lineMove == null) ? '—' : `${lineMove >= 0 ? '+' : ''}${lineMove.toFixed(1)}`;
+      const impp = (impliedMove == null) ? null : (impliedMove * 100.0);
+      const imTxt = (impp == null) ? '—' : `${impp >= 0 ? '+' : ''}${impp.toFixed(1)}pp`;
+
+      const evp = n(x.ev_pct);
+      const evTxt = (evp == null) ? '' : `EV ${evp.toFixed(1)}%`;
+
+      return `
+        <button
+          type="button"
+          class="chip neutral prop-callout pregame-prop-callout"
+          data-game-id="${esc(String(x.gid))}"
+          data-stat="${esc(String(x.stat || '').toLowerCase().trim())}"
+          style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
+          aria-label="Jump to ${esc(player)} ${esc(stat)} pregame movement"
+        >
+          <div style="width:100%; display:flex; gap:6px; justify-content:flex-start; align-items:center; flex-wrap:wrap;">
+            ${badge}
+            <span class="badge">${esc(stat)}</span>
+            ${team ? `<span class="badge">${esc(team)}</span>` : ''}
+            ${evTxt ? `<span class="badge">${esc(evTxt)}</span>` : ''}
+          </div>
+          <div style="width:100%; display:flex; gap:10px; align-items:center;">
+            ${img}
+            <div style="min-width:0; flex:1;">
+              <div class="fw-700" style="line-height:1.15;">
+                ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(curLineTxt)}</span> <span class="subtle">${esc(curPriceTxt)}</span>
+              </div>
+              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+                ${esc(game)}
+              </div>
+              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+                Open ${esc(openLineTxt)} ${esc(openPriceTxt)} → Now ${esc(curLineTxt)} ${esc(curPriceTxt)} · ΔLine ${esc(lmTxt)} · ΔImp ${esc(imTxt)}
+              </div>
+            </div>
+          </div>
+        </button>
+      `;
+    }).join('');
+
+    return `
+      <div class="subtle" style="margin-top:8px;">Pregame prop movement (Open → Current) — click to jump:</div>
+      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(3, auto); gap:6px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
+        ${items}
+      </div>
+    `;
+  } catch (_) {
+    return '';
+  }
+}
+
 function getTuningThresholds() {
   const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
   const mk = t && t.markets ? t.markets : null;
@@ -3077,6 +3169,125 @@ function getTuningThresholds() {
     adjustments: (t && t.adjustments && typeof t.adjustments === 'object') ? t.adjustments : null,
     logging: (t && t.logging && typeof t.logging === 'object') ? t.logging : null,
   };
+}
+
+async function loadPregamePropCallouts(root, games, dateStr) {
+  const el = root && root.querySelector ? root.querySelector('#pregame-prop-callouts') : null;
+  if (!el) return;
+
+  const ds = (typeof dateStr === 'string' && isYmd(dateStr)) ? dateStr : localYMD();
+
+  // Guard against out-of-order async updates when the user changes dates quickly.
+  const reqId = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+  try { el.dataset.reqId = reqId; } catch (_) { /* ignore */ }
+
+  // Map matchup -> card gid so click-to-scroll works even when cards use numeric game_id.
+  const gidByMatchup = new Map();
+  try {
+    (Array.isArray(games) ? games : []).forEach((g) => {
+      const homeTri = String(g && g.home_tri != null ? g.home_tri : '').toUpperCase().trim();
+      const awayTri = String(g && g.away_tri != null ? g.away_tri : '').toUpperCase().trim();
+      if (!homeTri || !awayTri) return;
+      const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''))
+        || `${homeTri}_${awayTri}`;
+      gidByMatchup.set(`${homeTri}|${awayTri}`, gid);
+    });
+  } catch (_) {
+    // ignore
+  }
+
+  try {
+    // Keep payload small: compact mode returns top_play per player.
+    const url = `/api/props/recommendations?date=${encodeURIComponent(ds)}`
+      + `&compact=1&use_snapshot=0`
+      + `&onlyEV=1&minEV=1.0`
+      + `&markets=pts,reb,ast,threes,pra`;
+
+    const payload = await fetchJsonWithTimeout(url, 8000);
+    try {
+      if (el.dataset.reqId !== reqId) return;
+    } catch (_) {
+      // ignore
+    }
+
+    const data = Array.isArray(payload && payload.data) ? payload.data : [];
+    const callouts = [];
+
+    for (const c of data) {
+      if (!c || typeof c !== 'object') continue;
+      const tp = (c.top_play && typeof c.top_play === 'object') ? c.top_play : null;
+      if (!tp) continue;
+
+      const home = String(c.home_tricode || '').toUpperCase().trim();
+      const away = String(c.away_tricode || '').toUpperCase().trim();
+      if (!home || !away) continue;
+
+      const gid = gidByMatchup.get(`${home}|${away}`) || `${home}_${away}`;
+
+      const openLine = n(tp.open_line);
+      const curLine = n(tp.line);
+      if (openLine == null || curLine == null) continue;
+      let lineMove = n(tp.line_move);
+      if (lineMove == null) lineMove = curLine - openLine;
+
+      const impliedMove = n(tp.implied_move);
+      const absLine = (lineMove == null) ? 0 : Math.abs(lineMove);
+      const absImp = (impliedMove == null) ? 0 : Math.abs(impliedMove);
+      if (!(absLine >= 0.5 || absImp >= 0.02)) continue;
+
+      callouts.push({
+        gid,
+        home,
+        away,
+        team: String(c.team_tricode || c.team || '').toUpperCase().trim(),
+        player: String(c.player || '').trim(),
+        photo: String(c.photo || '').trim(),
+        tier: c.tier,
+        stat: String(tp.market || '').toLowerCase().trim(),
+        side: String(tp.side || '').toUpperCase().trim(),
+        open_line: tp.open_line,
+        line: tp.line,
+        open_price: tp.open_price,
+        price: tp.price,
+        line_move: tp.line_move,
+        implied_move: tp.implied_move,
+        ev_pct: tp.ev_pct,
+      });
+    }
+
+    callouts.sort((a, b) => {
+      const aLm = Math.abs(n(a.line_move) ?? ((n(a.line) != null && n(a.open_line) != null) ? (n(a.line) - n(a.open_line)) : 0));
+      const bLm = Math.abs(n(b.line_move) ?? ((n(b.line) != null && n(b.open_line) != null) ? (n(b.line) - n(b.open_line)) : 0));
+      if (bLm !== aLm) return bLm - aLm;
+      const aIm = Math.abs(n(a.implied_move) ?? 0);
+      const bIm = Math.abs(n(b.implied_move) ?? 0);
+      if (bIm !== aIm) return bIm - aIm;
+      const aEv = n(a.ev_pct) ?? -1e9;
+      const bEv = n(b.ev_pct) ?? -1e9;
+      return bEv - aEv;
+    });
+
+    const html = renderPregamePropCallouts(callouts.slice(0, 21));
+    if (html) {
+      el.innerHTML = html;
+      el.classList.remove('hidden');
+    } else {
+      el.innerHTML = '';
+      el.classList.add('hidden');
+    }
+  } catch (_) {
+    try {
+      if (el.dataset.reqId !== reqId) return;
+    } catch (_) {
+      // ignore
+    }
+    try {
+      el.innerHTML = '';
+      el.classList.add('hidden');
+    } catch (_) {
+      // ignore
+    }
+  }
 }
 
 function startLiveLensPolling(root, games, dateStr) {
@@ -5875,7 +6086,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     }
   })();
 
-  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n${playerPropPillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n${playerPropPillsHtml}\n<div id="pregame-prop-callouts" class="hidden"></div>\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
 
   // Game pills click handler
   try {
@@ -5973,6 +6184,25 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     // ignore
   }
 
+  // Pregame prop movement callouts click-to-scroll
+  try {
+    const callouts = root.querySelector('#pregame-prop-callouts');
+    if (callouts && !callouts.dataset.bound) {
+      callouts.dataset.bound = '1';
+      callouts.addEventListener('click', (ev) => {
+        const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
+        if (!btn) return;
+        const gid = canonGameId(btn.dataset.gameId);
+        if (!gid) return;
+        const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
+        if (!target) return;
+        try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
+
   // Live prop callouts click-to-scroll
   try {
     const callouts = root.querySelector('#live-prop-callouts');
@@ -6008,6 +6238,13 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   // Attach live lens handlers (uses game intervals ladder)
   try {
     attachLiveLensHandlers(root, games);
+  } catch (_) {
+    // ignore
+  }
+
+  // Pregame movement callouts (one-shot load)
+  try {
+    Promise.resolve(loadPregamePropCallouts(root, games, dateStr)).catch(() => { /* ignore */ });
   } catch (_) {
     // ignore
   }
@@ -6152,7 +6389,8 @@ window.addEventListener('DOMContentLoaded', () => {
   const resultsToggle = document.getElementById('resultsToggle');
   const hideOddsToggle = document.getElementById('hideOdds');
   const marketAccuracyBtn = document.getElementById('marketAccuracyBtn');
-  const liveLensAccuracyBtn = document.getElementById('liveLensAccuracyBtn');
+  const liveGameLensAccuracyBtn = document.getElementById('liveGameLensAccuracyBtn');
+  const livePlayerPropsLensAccuracyBtn = document.getElementById('livePlayerPropsLensAccuracyBtn');
 
   const u = new URL(window.location.href);
   const qd = u.searchParams.get('date');
@@ -6164,7 +6402,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const ds = (isYmd(d) ? d : (datePicker && datePicker.value) ? datePicker.value : localYMD());
       const q = encodeURIComponent(ds);
       if (marketAccuracyBtn) marketAccuracyBtn.setAttribute('href', `/accuracy-market?date=${q}`);
-      if (liveLensAccuracyBtn) liveLensAccuracyBtn.setAttribute('href', `/live-lens-accuracy?date=${q}`);
+      if (liveGameLensAccuracyBtn) liveGameLensAccuracyBtn.setAttribute('href', `/live-game-lens-accuracy?date=${q}`);
+      if (livePlayerPropsLensAccuracyBtn) livePlayerPropsLensAccuracyBtn.setAttribute('href', `/live-player-props-lens-accuracy?date=${q}`);
     } catch (_) {
       // ignore
     }

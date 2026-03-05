@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Betting – Live Game Lens Accuracy</title>
+  <meta name="description" content="Aggregated settled BET performance for Live Game Lens (Totals + ATS)." />
+  <link rel="icon" href="data:,">
+  <meta http-equiv="Cache-Control" content="no-store" />
+  <meta name="color-scheme" content="dark light" />
+  <style>
+    :root{--bg:#080d1a;--card:#0d1426;--card2:#121b31;--text:#f5f7ff;--muted:#c3cee4;--border:#243356;--link:#b8d1ff;--pill-bg:#101a2e;--pill-br:#2a3a63;--badge-bg:#162247;--badge-br:#2a3a63}
+    body.light{--bg:#ffffff;--card:#f8fafc;--card2:#f1f5fb;--text:#0a1020;--muted:#475569;--border:#cbd5e1;--link:#1e3a8a;--pill-bg:#eef3fb;--pill-br:#94a3b8;--badge-bg:#e2e8f0;--badge-br:#94a3b8}
+    body{font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:var(--text)}
+    .container{max-width:1150px;margin:24px auto;padding:0 16px}
+    a{color:var(--link)}
+    h1{margin:0 0 10px;font-size:24px}
+    h2{margin:18px 0 8px;font-size:18px}
+    .nav{font-size:14px;margin-bottom:10px}
+    .nav a{color:var(--link);text-decoration:none;margin-right:10px}
+    .nav button.theme-toggle{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:6px;padding:6px 10px;cursor:pointer}
+
+    .card{background:linear-gradient(180deg,var(--card),var(--card2));border:1px solid var(--border);border-radius:14px;padding:12px;box-shadow:0 10px 24px rgba(0,0,0,.35)}
+    .cards-summary{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0;align-items:stretch}
+    .card-summary{flex:1;min-width:260px}
+
+    .muted-small{font-size:12px;color:var(--muted)}
+    .pill{display:inline-block;padding:2px 8px;border-radius:999px;background:var(--badge-bg);border:1px solid var(--badge-br);font-size:12px}
+
+    form.filters{margin:10px 0 0;display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap}
+    form.filters label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+    form.filters input{background:var(--bg);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 8px;font-size:13px;min-width:160px}
+    form.filters input[type="number"]{min-width:110px}
+    .row-inline{display:flex;gap:8px;align-items:center;height:34px}
+    .btn{background:var(--pill-bg);color:var(--text);border:1px solid var(--pill-br);border-radius:8px;padding:8px 12px;text-decoration:none;font-size:13px;cursor:pointer}
+
+    .kpis{display:grid;grid-template-columns:repeat(4, minmax(140px, 1fr));gap:10px}
+    .kpi{background:rgba(0,0,0,.08);border:1px solid var(--border);border-radius:12px;padding:10px}
+    .kpi .t{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+    .kpi .v{font-size:16px;font-weight:650;margin-top:4px}
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;vertical-align:top}
+    thead th{text-align:left;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.3px}
+    tbody tr{border-top:1px solid var(--border)}
+    .table-wrap{overflow-x:auto}
+
+    details > summary{cursor:pointer}
+
+    @media (max-width:760px){
+      .container{padding:0 10px;margin:12px auto}
+      h1{font-size:19px;margin-bottom:6px}
+      .nav{font-size:12px;overflow-x:auto;white-space:nowrap;padding-bottom:4px}
+      form.filters input{padding:5px 7px;font-size:12px;min-width:140px}
+      .btn{padding:7px 10px;font-size:12px}
+      th,td{padding:6px 4px}
+      .kpis{grid-template-columns:repeat(2, minmax(120px, 1fr))}
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="nav">
+      <a href="/">Cards</a> |
+      <a href="/recommendations">Recommendations</a> |
+      <a href="/accuracy-market">Market Accuracy</a> |
+      <a href="/live-game-lens-accuracy" aria-current="page">Live Game Lens Accuracy</a> |
+      <a href="/live-player-props-lens-accuracy">Live Player Props Lens Accuracy</a> |
+      <button type="button" class="theme-toggle" id="themeToggle" title="Toggle light/dark">Toggle Theme</button>
+    </div>
+
+    <h1>NBA Betting – Live Game Lens Accuracy</h1>
+
+    <div class="card">
+      <div class="muted-small">Aggregated settled <b>BET</b> performance from Live Lens signal logs + recon results.</div>
+      <div class="muted-small" style="margin-top:6px;">API: <span class="pill">/api/live_game_lens_analytics</span> (alias: <span class="pill">/api/live_lens_analytics</span>)</div>
+
+      <form class="filters" id="filters" onsubmit="event.preventDefault(); refresh();">
+        <label>Start (YYYY-MM-DD)
+          <input id="start" type="date" />
+        </label>
+        <label>End (YYYY-MM-DD)
+          <input id="end" type="date" />
+        </label>
+        <label>Days (lookback)
+          <input id="days" type="number" min="1" max="120" step="1" value="14" />
+        </label>
+        <label>Assume price
+          <input id="assume_price" type="text" value="-110" />
+        </label>
+        <label>Full game only
+          <div class="row-inline">
+            <input id="full_game_only" type="checkbox" />
+            <span class="muted-small">exclude 1H/QTR</span>
+          </div>
+        </label>
+        <label>Include history rows
+          <div class="row-inline">
+            <input id="include_rows" type="checkbox" />
+            <span class="muted-small">(slower)</span>
+          </div>
+        </label>
+        <label>Max rows
+          <input id="max_rows" type="number" min="100" max="20000" step="100" value="2000" />
+        </label>
+        <button type="submit" class="btn" id="refreshBtn">Refresh</button>
+      </form>
+
+      <div id="status" class="muted-small" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="cards-summary">
+      <div class="card card-summary">
+        <div class="muted-small">Overall — Totals</div>
+        <div class="kpis" id="kpiTotals"></div>
+      </div>
+      <div class="card card-summary">
+        <div class="muted-small">Overall — ATS</div>
+        <div class="kpis" id="kpiAts"></div>
+      </div>
+    </div>
+
+    <h2>Overall — Totals</h2>
+    <div class="muted-small">By lens + side</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lens</th><th>Side</th><th>N</th><th>W</th><th>L</th><th>P</th><th>Win%</th><th>ROI/u</th></tr></thead>
+        <tbody id="tbl_totals_by_lens_side"></tbody>
+      </table>
+    </div>
+
+    <h2>Overall — ATS</h2>
+    <div class="muted-small">By lens + side</div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Lens</th><th>Side</th><th>N</th><th>W</th><th>L</th><th>P</th><th>Win%</th><th>ROI/u</th></tr></thead>
+        <tbody id="tbl_ats_by_lens_side"></tbody>
+      </table>
+    </div>
+
+    <h2>Per Day</h2>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Totals N</th><th>Totals Win%</th><th>Totals ROI/u</th>
+            <th>ATS N</th><th>ATS Win%</th><th>ATS ROI/u</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbl_per_day"></tbody>
+      </table>
+    </div>
+
+    <details class="card" style="margin-top:14px;" open>
+      <summary><b>Driver breakdowns</b> <span class="muted-small">(tags, tagsets, types)</span></summary>
+
+      <h2 style="margin-top:12px;">Driver Tags — Totals</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tag</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_totals_driver"></tbody></table></div>
+
+      <h2>Driver Tags — ATS</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tag</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_ats_driver"></tbody></table></div>
+
+      <h2>Tagsets (Combos) — Totals</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tagset</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_totals_tagset"></tbody></table></div>
+
+      <h2>Tagsets (Combos) — ATS</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tagset</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_ats_tagset"></tbody></table></div>
+
+      <h2>Canonical Tags — Totals</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tag</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_totals_driver_canonical"></tbody></table></div>
+
+      <h2>Canonical Tags — ATS</h2>
+      <div class="table-wrap"><table><thead><tr><th>Tag</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_ats_driver_canonical"></tbody></table></div>
+
+      <h2>Tag Types — Totals</h2>
+      <div class="table-wrap"><table><thead><tr><th>Type</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_totals_driver_type"></tbody></table></div>
+
+      <h2>Tag Types — ATS</h2>
+      <div class="table-wrap"><table><thead><tr><th>Type</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_ats_driver_type"></tbody></table></div>
+
+      <h2>Drivers — Totals</h2>
+      <div class="table-wrap"><table><thead><tr><th>Driver</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_totals_driver_single"></tbody></table></div>
+
+      <h2>Drivers — ATS</h2>
+      <div class="table-wrap"><table><thead><tr><th>Driver</th><th>N</th><th>Win%</th><th>ROI/u</th></tr></thead><tbody id="tbl_ats_driver_single"></tbody></table></div>
+
+    </details>
+
+    <details class="card" style="margin-top:14px;">
+      <summary><b>History (Settled Signals)</b> <span class="muted-small">Only included when “Include history rows” is checked.</span></summary>
+      <div class="table-wrap" style="margin-top:10px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th><th>Market</th><th>Game</th><th>Lens</th><th>Side</th><th>Line</th>
+              <th>Edge</th><th>Elapsed</th><th>Remaining</th><th>Result</th><th>Profit</th>
+              <th>Driver</th><th>Driver tags</th>
+            </tr>
+          </thead>
+          <tbody id="tbl_history"></tbody>
+        </table>
+      </div>
+    </details>
+  </div>
+
+  <script>
+    (function(){
+      try{
+        const body=document.body;
+        const saved=localStorage.getItem('theme');
+        if(saved==='light') body.classList.add('light');
+        const t=document.getElementById('themeToggle');
+        if(t){
+          t.addEventListener('click',()=>{
+            body.classList.toggle('light');
+            localStorage.setItem('theme', body.classList.contains('light')?'light':'dark');
+          });
+        }
+      }catch(_){ /* ignore */ }
+    })();
+
+    const API_BASE = (()=>{
+      try{
+        const proto = String(window.location && window.location.protocol || '');
+        const origin = String(window.location && window.location.origin || '');
+        if(proto === 'file:' || origin === 'null' || !origin.startsWith('http')) return 'http://127.0.0.1:5051';
+        return origin;
+      }catch(_){
+        return 'http://127.0.0.1:5051';
+      }
+    })();
+
+    function apiUrl(path){
+      const s = String(path||'');
+      if(!s) return API_BASE;
+      if(/^https?:\/\//i.test(s)) return s;
+      return API_BASE + (s.startsWith('/') ? s : ('/' + s));
+    }
+
+    function esc(s){
+      const str = String(s==null? '' : s);
+      return str.replace(/[&<>"']/g, c=> ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]||c));
+    }
+
+    function fmtNum(x, d){
+      try{ const v=Number(x); if(!Number.isFinite(v)) return '–'; return v.toFixed(Number.isFinite(Number(d))?Number(d):3); }catch(_){ return '–'; }
+    }
+
+    function fmtPct01(x){
+      try{ if(x==null) return '–'; const v=Number(x); return Number.isFinite(v) ? (v*100).toFixed(1)+'%' : '–'; }catch(_){ return '–'; }
+    }
+
+    function setStatus(msg){
+      try{ const el=document.getElementById('status'); if(el) el.textContent=String(msg||''); }catch(_){ /* ignore */ }
+    }
+
+    function renderKpiGrid(containerId, summary){
+      const el = document.getElementById(containerId);
+      if(!el) return;
+      const s = summary || {};
+      const items = [
+        { t: 'Status', v: (s.status || '–') },
+        { t: 'N', v: (s.n_settled != null ? String(s.n_settled) : '–') },
+        { t: 'Win%', v: fmtPct01(s.win_rate) },
+        { t: 'ROI/u', v: fmtNum(s.roi_units_per_bet, 3) },
+      ];
+      el.innerHTML = items.map((it)=>`<div class="kpi"><div class="t">${esc(it.t)}</div><div class="v">${esc(it.v)}</div></div>`).join('');
+    }
+
+    function renderLensSide(tbodyId, rows){
+      const tb = document.getElementById(tbodyId);
+      if(!tb) return;
+      tb.innerHTML = '';
+      (rows || []).forEach((r)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${esc(r.lens ?? '')}</td><td>${esc(r.side ?? '')}</td><td>${esc(r.n ?? '')}</td>`
+          + `<td>${esc(r.wins ?? '')}</td><td>${esc(r.losses ?? '')}</td><td>${esc(r.pushes ?? '')}</td>`
+          + `<td>${esc(fmtPct01(r.win_rate))}</td><td>${esc(fmtNum(r.roi_units_per_bet, 3))}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function renderKeyedStats(tbodyId, rows, keyName){
+      const tb = document.getElementById(tbodyId);
+      if(!tb) return;
+      tb.innerHTML = '';
+      (rows || []).forEach((r)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${esc(r[keyName] ?? '')}</td><td>${esc(r.n ?? '')}</td><td>${esc(fmtPct01(r.win_rate))}</td><td>${esc(fmtNum(r.roi_units_per_bet, 3))}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function renderPerDay(tbodyId, rows){
+      const tb = document.getElementById(tbodyId);
+      if(!tb) return;
+      tb.innerHTML = '';
+      (rows || []).forEach((d)=>{
+        const tot = d.totals || {};
+        const ats = d.ats || {};
+        const status = d.error ? `error: ${String(d.error)}` : 'ok';
+        const tr=document.createElement('tr');
+        tr.innerHTML = `<td>${esc(d.date ?? '')}</td>`
+          + `<td>${esc(tot.n_settled ?? '')}</td><td>${esc(fmtPct01(tot.win_rate))}</td><td>${esc(fmtNum(tot.roi_units_per_bet, 3))}</td>`
+          + `<td>${esc(ats.n_settled ?? '')}</td><td>${esc(fmtPct01(ats.win_rate))}</td><td>${esc(fmtNum(ats.roi_units_per_bet, 3))}</td>`
+          + `<td class="muted-small">${esc(status)}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function renderHistory(tbodyId, history){
+      const tb = document.getElementById(tbodyId);
+      if(!tb) return;
+      tb.innerHTML = '';
+      const rows = (history && history.rows) ? history.rows : [];
+      rows.forEach((r)=>{
+        const tr=document.createElement('tr');
+        const tags = Array.isArray(r.driver_tags) ? r.driver_tags.join(',') : (r.driver_tags ?? '');
+        tr.innerHTML = `<td>${esc(r.date ?? '')}</td><td>${esc(r.market ?? '')}</td><td>${esc(r.game_id ?? '')}</td>`
+          + `<td>${esc(r.lens ?? '')}</td><td>${esc(r.side ?? '')}</td><td>${esc(r.live_line ?? '')}</td>`
+          + `<td>${esc(fmtNum(r.edge, 3))}</td><td>${esc(r.elapsed ?? '')}</td><td>${esc(r.remaining ?? '')}</td>`
+          + `<td>${esc(r.result ?? '')}</td><td>${esc(fmtNum(r.profit_units, 3))}</td>`
+          + `<td>${esc(r.driver ?? '')}</td><td>${esc(tags)}</td>`;
+        tb.appendChild(tr);
+      });
+    }
+
+    function localYMD(){
+      const tz = 'America/New_York';
+      const cutoffHour = 6;
+      try{
+        const now = new Date();
+        const hourStr = new Intl.DateTimeFormat('en-US', { timeZone: tz, hour:'2-digit', hour12:false }).format(now);
+        const hour = Number(hourStr);
+        const base = (Number.isFinite(hour) && hour < cutoffHour)
+          ? new Date(now.getTime() - 24*60*60*1000)
+          : now;
+        return new Intl.DateTimeFormat('en-CA', { timeZone: tz, year:'numeric', month:'2-digit', day:'2-digit' }).format(base);
+      }catch(_){
+        const d=new Date();
+        const base = (d.getHours() < cutoffHour) ? new Date(d.getTime() - 24*60*60*1000) : d;
+        const y=base.getFullYear();
+        const m=String(base.getMonth()+1).padStart(2,'0');
+        const day=String(base.getDate()).padStart(2,'0');
+        return `${y}-${m}-${day}`;
+      }
+    }
+
+    function pickYmdFromQuery(){
+      try{ return new URL(window.location.href).searchParams.get('date'); }catch(_){ return null; }
+    }
+
+    async function refresh(){
+      const btn = document.getElementById('refreshBtn');
+      if(btn) btn.disabled = true;
+      try{
+        const start = String((document.getElementById('start')||{}).value || '').trim();
+        const end = String((document.getElementById('end')||{}).value || '').trim();
+        const days = String((document.getElementById('days')||{}).value || '').trim();
+        const assume_price = String((document.getElementById('assume_price')||{}).value || '').trim();
+        const full_game_only = !!((document.getElementById('full_game_only')||{}).checked);
+        const include_rows = !!((document.getElementById('include_rows')||{}).checked);
+        const max_rows = String((document.getElementById('max_rows')||{}).value || '').trim();
+
+        const qs = new URLSearchParams();
+        if(start && end){
+          qs.set('start', start);
+          qs.set('end', end);
+        } else {
+          qs.set('days', days || '14');
+          if(end) qs.set('end', end);
+        }
+        if(assume_price) qs.set('assume_price', assume_price);
+        if(full_game_only) qs.set('full_game_only', '1');
+        if(include_rows){ qs.set('include_rows', '1'); if(max_rows) qs.set('max_rows', max_rows); }
+
+        const url = `/api/live_game_lens_analytics?${qs.toString()}`;
+        setStatus(`Loading: ${url}`);
+
+        const resp = await fetch(apiUrl(url), { cache: 'no-store' });
+        const data = await resp.json();
+        if(!resp.ok || !data || data.ok !== true){
+          setStatus(`Error: ${(data && data.error) ? data.error : resp.status}`);
+          return;
+        }
+
+        if(data.status === 'empty'){
+          setStatus(data.message || 'Empty');
+          renderKpiGrid('kpiTotals', { status: 'empty', n_settled: 0, win_rate: null, roi_units_per_bet: null });
+          renderKpiGrid('kpiAts', { status: 'empty', n_settled: 0, win_rate: null, roi_units_per_bet: null });
+          renderLensSide('tbl_totals_by_lens_side', []);
+          renderLensSide('tbl_ats_by_lens_side', []);
+          renderPerDay('tbl_per_day', []);
+          renderKeyedStats('tbl_totals_driver', [], 'tag');
+          renderKeyedStats('tbl_ats_driver', [], 'tag');
+          renderKeyedStats('tbl_totals_tagset', [], 'tagset');
+          renderKeyedStats('tbl_ats_tagset', [], 'tagset');
+          renderKeyedStats('tbl_totals_driver_canonical', [], 'tag');
+          renderKeyedStats('tbl_ats_driver_canonical', [], 'tag');
+          renderKeyedStats('tbl_totals_driver_type', [], 'type');
+          renderKeyedStats('tbl_ats_driver_type', [], 'type');
+          renderKeyedStats('tbl_totals_driver_single', [], 'driver');
+          renderKeyedStats('tbl_ats_driver_single', [], 'driver');
+          renderHistory('tbl_history', null);
+          return;
+        }
+
+        const meta = data.meta || {};
+        setStatus(`Loaded ${meta.days} day(s): ${meta.start} → ${meta.end} | full_game_only=${meta.full_game_only ? '1' : '0'} | price=${meta.assume_price}`);
+
+        const overall = data.overall || {};
+        renderKpiGrid('kpiTotals', overall.totals || {});
+        renderKpiGrid('kpiAts', overall.ats || {});
+        renderLensSide('tbl_totals_by_lens_side', (overall.totals && overall.totals.by_lens_side) ? overall.totals.by_lens_side : []);
+        renderLensSide('tbl_ats_by_lens_side', (overall.ats && overall.ats.by_lens_side) ? overall.ats.by_lens_side : []);
+
+        renderKeyedStats('tbl_totals_driver', (overall.totals && (overall.totals.by_driver_tag_full || overall.totals.by_driver_tag)) ? (overall.totals.by_driver_tag_full || overall.totals.by_driver_tag) : [], 'tag');
+        renderKeyedStats('tbl_ats_driver', (overall.ats && (overall.ats.by_driver_tag_full || overall.ats.by_driver_tag)) ? (overall.ats.by_driver_tag_full || overall.ats.by_driver_tag) : [], 'tag');
+
+        renderKeyedStats('tbl_totals_tagset', (overall.totals && (overall.totals.by_driver_tagset_full || overall.totals.by_driver_tagset)) ? (overall.totals.by_driver_tagset_full || overall.totals.by_driver_tagset) : [], 'tagset');
+        renderKeyedStats('tbl_ats_tagset', (overall.ats && (overall.ats.by_driver_tagset_full || overall.ats.by_driver_tagset)) ? (overall.ats.by_driver_tagset_full || overall.ats.by_driver_tagset) : [], 'tagset');
+
+        renderKeyedStats('tbl_totals_driver_canonical', (overall.totals && overall.totals.by_driver_tag_canonical) ? overall.totals.by_driver_tag_canonical : [], 'tag');
+        renderKeyedStats('tbl_ats_driver_canonical', (overall.ats && overall.ats.by_driver_tag_canonical) ? overall.ats.by_driver_tag_canonical : [], 'tag');
+
+        renderKeyedStats('tbl_totals_driver_type', (overall.totals && overall.totals.by_driver_tag_type) ? overall.totals.by_driver_tag_type : [], 'type');
+        renderKeyedStats('tbl_ats_driver_type', (overall.ats && overall.ats.by_driver_tag_type) ? overall.ats.by_driver_tag_type : [], 'type');
+
+        renderKeyedStats('tbl_totals_driver_single', (overall.totals && overall.totals.by_driver) ? overall.totals.by_driver : [], 'driver');
+        renderKeyedStats('tbl_ats_driver_single', (overall.ats && overall.ats.by_driver) ? overall.ats.by_driver : [], 'driver');
+
+        renderPerDay('tbl_per_day', data.per_day || []);
+        renderHistory('tbl_history', data.history || null);
+      } catch (e) {
+        setStatus(`Error: ${String(e && e.message ? e.message : e)}`);
+      } finally {
+        try{ if(btn) btn.disabled = false; }catch(_){ /* ignore */ }
+      }
+    }
+
+    window.addEventListener('DOMContentLoaded', ()=>{
+      try{
+        const qd = pickYmdFromQuery();
+        const d = (qd && /^\d{4}-\d{2}-\d{2}$/.test(qd)) ? qd : localYMD();
+        const end = document.getElementById('end');
+        if(end) end.value = d;
+      }catch(_){ /* ignore */ }
+      const btn = document.getElementById('refreshBtn');
+      if(btn) btn.addEventListener('click', refresh);
+      refresh();
+    });
+  </script>
+</body>
+</html>

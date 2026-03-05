@@ -2566,53 +2566,115 @@ try {
   $env:NBA_LIVE_LENS_DIR = $LiveLensDir
 
   # Optional: fetch recent Live Lens logs from a remote server (e.g., Render) before tuning.
-  # This is OFF by default to preserve local-only behavior.
+  # This is ON by default (safe/no-op when remote is unreachable or artifacts are missing).
+  # Disable via: DAILY_FETCH_REMOTE_LIVE_LENS=0
   $fetchRemote = $env:DAILY_FETCH_REMOTE_LIVE_LENS
+  if ($null -eq $fetchRemote -or $fetchRemote -eq '') { $fetchRemote = '1' }
   if ($null -ne $fetchRemote -and $fetchRemote -match '^(1|true|yes)$') {
     try {
-      $remote = $RemoteBaseUrl
+      # Prefer shared env var used by cron tooling; fall back to script param.
+      $remote = $env:NBA_BETTING_BASE_URL
+      if ($null -eq $remote -or $remote -eq '') { $remote = $RemoteBaseUrl }
       if ($null -ne $remote -and $remote -ne '') {
         $remote = $remote.TrimEnd('/')
 
-        $forceFetch = $env:DAILY_FORCE_FETCH_REMOTE_LIVE_LENS
-        $doForce = ($null -ne $forceFetch -and $forceFetch -match '^(1|true|yes)$')
-
-        $lookbackDays = 14
+        # Fast preflight so we don't hang on per-date timeouts when Render is down.
+        $remoteOk = $true
         try {
-          $lb = $env:DAILY_LIVE_LENS_LOOKBACK_DAYS
-          if ($null -ne $lb -and $lb -ne '') { $lookbackDays = [int]$lb }
-        } catch { $lookbackDays = 14 }
-        if ($lookbackDays -lt 1) { $lookbackDays = 1 }
-        if ($lookbackDays -gt 60) { $lookbackDays = 60 }
+          $healthUrl = "{0}/health" -f $remote
+          $h = Invoke-WebRequest -Uri $healthUrl -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop
+          if ($null -eq $h -or $h.StatusCode -lt 200 -or $h.StatusCode -ge 300) { $remoteOk = $false }
+        } catch {
+          $remoteOk = $false
+        }
 
-        $endD = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
-        $startD = $endD.AddDays(-($lookbackDays - 1))
+        if (-not $remoteOk) {
+          Write-Log ("Live Lens: remote health check failed ({0}); skipping fetch" -f $remote)
+        } else {
+          $forceFetch = $env:DAILY_FORCE_FETCH_REMOTE_LIVE_LENS
+          $doForce = ($null -ne $forceFetch -and $forceFetch -match '^(1|true|yes)$')
 
-        Write-Log ("Live Lens: fetching remote JSONLs {0}..{1} -> {2}" -f $startD.ToString('yyyy-MM-dd'), $endD.ToString('yyyy-MM-dd'), $LiveLensDir)
-
-        for ($d = $startD; $d -le $endD; $d = $d.AddDays(1)) {
-          $ds = $d.ToString('yyyy-MM-dd')
-          $sigOut = Join-Path $LiveLensDir ("live_lens_signals_{0}.jsonl" -f $ds)
-          $projOut = Join-Path $LiveLensDir ("live_lens_projections_{0}.jsonl" -f $ds)
-
+          $lookbackDays = 14
           try {
-            if ($doForce -or -not (Test-Path $sigOut)) {
-              $u1 = "{0}/api/download_live_lens_signals?date={1}" -f $remote, $ds
-              Invoke-WebRequest -Uri $u1 -OutFile $sigOut -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
-              Write-Log ("Live Lens: downloaded signals {0}" -f $ds)
-            }
-          } catch {
-            Write-Log ("Live Lens: signals missing/failed for {0} (non-fatal)" -f $ds)
+            $lb = $env:DAILY_LIVE_LENS_LOOKBACK_DAYS
+            if ($null -ne $lb -and $lb -ne '') { $lookbackDays = [int]$lb }
+          } catch { $lookbackDays = 14 }
+          if ($lookbackDays -lt 1) { $lookbackDays = 1 }
+          if ($lookbackDays -gt 60) { $lookbackDays = 60 }
+
+          $endD = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
+          $startD = $endD.AddDays(-($lookbackDays - 1))
+
+          function Get-RemoteContentLength {
+            param([string]$url)
+            try {
+              $hh = Invoke-WebRequest -Uri $url -Method Head -TimeoutSec 15 -UseBasicParsing -ErrorAction Stop
+              $cl = $hh.Headers['Content-Length']
+              if ($null -ne $cl -and $cl -ne '') { return [int64]$cl }
+            } catch { }
+            return $null
           }
 
-          try {
-            if ($doForce -or -not (Test-Path $projOut)) {
-              $u2 = "{0}/api/download_live_lens_projections?date={1}" -f $remote, $ds
-              Invoke-WebRequest -Uri $u2 -OutFile $projOut -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
-              Write-Log ("Live Lens: downloaded projections {0}" -f $ds)
+          Write-Log ("Live Lens: reconciling remote JSONLs {0}..{1} -> {2} (remote={3})" -f $startD.ToString('yyyy-MM-dd'), $endD.ToString('yyyy-MM-dd'), $LiveLensDir, $remote)
+
+          for ($d = $startD; $d -le $endD; $d = $d.AddDays(1)) {
+            $ds = $d.ToString('yyyy-MM-dd')
+            $sigOut = Join-Path $LiveLensDir ("live_lens_signals_{0}.jsonl" -f $ds)
+            $projOut = Join-Path $LiveLensDir ("live_lens_projections_{0}.jsonl" -f $ds)
+
+            try {
+              $u1 = "{0}/api/download_live_lens_signals?date={1}" -f $remote, $ds
+              $needSig = ($doForce -or -not (Test-Path $sigOut))
+              if (-not $needSig) {
+                try {
+                  $localBytes = (Get-Item $sigOut).Length
+                  $remoteBytes = Get-RemoteContentLength -url $u1
+                  if ($null -ne $remoteBytes -and $remoteBytes -gt [int64]$localBytes) { $needSig = $true }
+                } catch { }
+              }
+
+              if ($needSig) {
+                $tmp = ("{0}.tmp_download" -f $sigOut)
+                try {
+                  Invoke-WebRequest -Uri $u1 -OutFile $tmp -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
+                  if (Test-Path $tmp) {
+                    Move-Item -Path $tmp -Destination $sigOut -Force
+                    Write-Log ("Live Lens: synced signals {0}" -f $ds)
+                  }
+                } finally {
+                  try { if (Test-Path $tmp) { Remove-Item $tmp -Force -ErrorAction SilentlyContinue } } catch { }
+                }
+              }
+            } catch {
+              Write-Log ("Live Lens: signals missing/failed for {0} (non-fatal)" -f $ds)
             }
-          } catch {
-            # Projections are optional; do not log loudly.
+
+            try {
+              $u2 = "{0}/api/download_live_lens_projections?date={1}" -f $remote, $ds
+              $needProj = ($doForce -or -not (Test-Path $projOut))
+              if (-not $needProj) {
+                try {
+                  $localBytesP = (Get-Item $projOut).Length
+                  $remoteBytesP = Get-RemoteContentLength -url $u2
+                  if ($null -ne $remoteBytesP -and $remoteBytesP -gt [int64]$localBytesP) { $needProj = $true }
+                } catch { }
+              }
+
+              if ($needProj) {
+                $tmp2 = ("{0}.tmp_download" -f $projOut)
+                try {
+                  Invoke-WebRequest -Uri $u2 -OutFile $tmp2 -TimeoutSec 30 -UseBasicParsing -ErrorAction Stop | Out-Null
+                  if (Test-Path $tmp2) {
+                    Move-Item -Path $tmp2 -Destination $projOut -Force
+                    Write-Log ("Live Lens: synced projections {0}" -f $ds)
+                  }
+                } finally {
+                  try { if (Test-Path $tmp2) { Remove-Item $tmp2 -Force -ErrorAction SilentlyContinue } } catch { }
+                }
+              }
+            } catch {
+              # Projections are optional; do not log loudly.
+            }
           }
         }
       } else {
