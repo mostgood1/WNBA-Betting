@@ -5702,6 +5702,38 @@ function startLiveLensPolling(root, games, dateStr) {
       }
 
       // ATS
+      const atsCtxForLog = (() => {
+        try {
+          const curMargin = n(live && live.score ? live.score.home_margin : null);
+          const minLeft = n(live && live.time ? live.time.game_min_left : null);
+          const elapsed = (minLeft != null) ? (48 - minLeft) : (lens ? lens.elapsedMinutes : 0);
+          const w = Math.max(0, Math.min(1, (elapsed || 0) / 48.0));
+          const adjMargin = (1 - w) * meta.margin_mean + w * (curMargin ?? 0);
+          const homeEdge = adjMargin + effHomeSpr;
+          const awayEdge = -adjMargin - effHomeSpr;
+          const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
+          return {
+            thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
+            thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
+            spr_home: effHomeSpr,
+            spr_home_raw: homeSpr,
+            pregame_margin_mean: meta.margin_mean,
+            cur_margin_home: curMargin,
+            elapsed_min: elapsed,
+            blend_w: w,
+            adj_margin_home: adjMargin,
+            edge_home: homeEdge,
+            edge_away: awayEdge,
+            pick_home: pickHome ? 1 : 0,
+          };
+        } catch (_) {
+          return {
+            thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
+            thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
+          };
+        }
+      })();
+
       await maybeLog('game_ats', atsClass, {
         ...baseLog,
         klass: atsClass,
@@ -5718,38 +5750,82 @@ function startLiveLensPolling(root, games, dateStr) {
         edge_raw: atsEdge,
         edge_adj: atsEdge,
         strength: (atsEdge != null) ? Math.abs(atsEdge) : null,
-        context: (() => {
-          try {
-            const curMargin = n(live && live.score ? live.score.home_margin : null);
-            const minLeft = n(live && live.time ? live.time.game_min_left : null);
-            const elapsed = (minLeft != null) ? (48 - minLeft) : (lens ? lens.elapsedMinutes : 0);
-            const w = Math.max(0, Math.min(1, (elapsed || 0) / 48.0));
-            const adjMargin = (1 - w) * meta.margin_mean + w * (curMargin ?? 0);
-            const homeEdge = adjMargin + effHomeSpr;
-            const awayEdge = -adjMargin - effHomeSpr;
-            const pickHome = Math.abs(homeEdge) >= Math.abs(awayEdge);
-            return {
-              thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
-              thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
-              spr_home: effHomeSpr,
-              spr_home_raw: homeSpr,
-              pregame_margin_mean: meta.margin_mean,
-              cur_margin_home: curMargin,
-              elapsed_min: elapsed,
-              blend_w: w,
-              adj_margin_home: adjMargin,
-              edge_home: homeEdge,
-              edge_away: awayEdge,
-              pick_home: pickHome ? 1 : 0,
-            };
-          } catch (_) {
-            return {
-              thr_watch: (thr && thr.ats) ? thr.ats.watch : null,
-              thr_bet: (thr && thr.ats) ? thr.ats.bet : null,
-            };
-          }
-        })(),
+        context: atsCtxForLog,
       });
+
+      if (atsEdge != null) {
+        await maybeLogProj('game_ats', atsClass, {
+          ...baseLog,
+          klass: atsClass,
+          horizon: 'game',
+          market: 'ats',
+          proj_key: 'game_ats',
+          elapsed: (curMinLeft != null) ? (48 - curMinLeft) : null,
+          remaining: curMinLeft,
+          total_points: totalPts,
+          line: shouldRound
+            ? roundHalf((atsLinePicked != null) ? atsLinePicked : homeSpr)
+            : ((atsLinePicked != null) ? atsLinePicked : homeSpr),
+          live_line: shouldRound
+            ? roundHalf((atsLinePicked != null) ? atsLinePicked : homeSpr)
+            : ((atsLinePicked != null) ? atsLinePicked : homeSpr),
+          side: (atsClass === 'BET' || atsClass === 'WATCH') ? atsSideKey : null,
+          proj: (atsCtxForLog && atsCtxForLog.adj_margin_home != null) ? atsCtxForLog.adj_margin_home : null,
+          sim_mu: meta.margin_mean,
+          strength: Math.abs(atsEdge),
+          context: atsCtxForLog,
+        });
+      }
+
+      // ML
+      const mlCtxForLog = {
+        thr_watch: (thr && thr.ml) ? thr.ml.watch : null,
+        thr_bet: (thr && thr.ml) ? thr.ml.bet : null,
+        p_home_model: mlPHomeModel,
+        p_home_implied: mlPHomeImplied,
+        p_away_implied: mlPAwayImplied,
+        cur_margin_home: mlCurMargin,
+        game_min_left: mlMinLeft,
+        p_home_score: mlPHomeScore,
+        scale: mlScale,
+      };
+
+      await maybeLog('game_ml', mlClass, {
+        ...baseLog,
+        klass: mlClass,
+        horizon: 'game',
+        market: 'ml',
+        elapsed: (curMinLeft != null) ? (48 - curMinLeft) : null,
+        remaining: curMinLeft,
+        total_points: totalPts,
+        live_line: (mlSide === meta.home) ? effHomeMl : ((mlSide === meta.away) ? effAwayMl : null),
+        side: (mlClass === 'BET' || mlClass === 'WATCH') ? mlSide : null,
+        edge: mlEdge,
+        edge_raw: mlEdge,
+        edge_adj: mlEdge,
+        strength: (mlEdge != null) ? Math.abs(mlEdge) : null,
+        context: mlCtxForLog,
+      });
+
+      if (mlPHomeModel != null) {
+        await maybeLogProj('game_ml', mlClass, {
+          ...baseLog,
+          klass: mlClass,
+          horizon: 'game',
+          market: 'ml',
+          proj_key: 'game_ml',
+          elapsed: (curMinLeft != null) ? (48 - curMinLeft) : null,
+          remaining: curMinLeft,
+          total_points: totalPts,
+          line: (mlSide === meta.home) ? effHomeMl : ((mlSide === meta.away) ? effAwayMl : null),
+          live_line: (mlSide === meta.home) ? effHomeMl : ((mlSide === meta.away) ? effAwayMl : null),
+          side: (mlClass === 'BET' || mlClass === 'WATCH') ? mlSide : null,
+          proj: mlPHomeModel,
+          sim_mu: meta.p_home_win,
+          strength: (mlEdge != null) ? Math.abs(mlEdge) : null,
+          context: mlCtxForLog,
+        });
+      }
     }));
 
     // Live prop callouts: aggregate BET/WATCH player-prop signals across live games.

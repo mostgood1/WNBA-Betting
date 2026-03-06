@@ -28193,14 +28193,16 @@ def api_cron_live_lens_tick():
 
     Writes (under NBA_LIVE_LENS_DIR / LIVE_LENS_DIR):
       - live_lens_signals_<date>.jsonl
-      - live_lens_projections_<date>.jsonl (player props only)
+            - live_lens_projections_<date>.jsonl
 
     Query params:
       - date: YYYY-MM-DD (optional; defaults via _parse_date_param w/ US cutoff)
       - min_interval_sec: throttle window per (game_id, signal_key) (default 60)
       - max_props_per_game: cap logged player props per game (default 8)
       - recent_window_sec: passed to /api/live_player_lens (default 180)
-      - include_total: 1/0 (default 1)
+    - include_total: 1/0 (default 1; covers game + 1H + current quarter totals)
+    - include_ats: 1/0 (default 1)
+    - include_ml: 1/0 (default 1)
       - include_player_props: 1/0 (default 1)
             - first_bet_only: 1/0 (default 1; when enabled, logs at most the first BET per unique idea)
       - ttl: forwarded to live endpoints (default 15)
@@ -28232,6 +28234,8 @@ def api_cron_live_lens_tick():
     first_bet_only = str(request.args.get("first_bet_only") or "1").strip().lower() in {"1", "true", "yes"}
 
     include_total = str(request.args.get("include_total") or "1").strip().lower() in {"1", "true", "yes"}
+    include_ats = str(request.args.get("include_ats") or "1").strip().lower() in {"1", "true", "yes"}
+    include_ml = str(request.args.get("include_ml") or "1").strip().lower() in {"1", "true", "yes"}
     include_player_props = str(request.args.get("include_player_props") or "1").strip().lower() in {"1", "true", "yes"}
     ttl = _parse_ttl_param(request, default=15, lo=1, hi=300)
 
@@ -28281,6 +28285,30 @@ def api_cron_live_lens_tick():
         tot_bet = float(tot_thr.get("bet", 6.0))
     except Exception:
         tot_watch, tot_bet = 3.0, 6.0
+    half_thr = mk.get("half_total") if isinstance(mk.get("half_total"), dict) else {"watch": 3.0, "bet": 6.0}
+    qtr_thr = mk.get("quarter_total") if isinstance(mk.get("quarter_total"), dict) else {"watch": 2.0, "bet": 4.0}
+    ats_thr = mk.get("ats") if isinstance(mk.get("ats"), dict) else {"watch": 2.0, "bet": 4.0}
+    ml_thr = mk.get("ml") if isinstance(mk.get("ml"), dict) else {"watch": 0.03, "bet": 0.06}
+    try:
+        half_watch = float(half_thr.get("watch", 3.0))
+        half_bet = float(half_thr.get("bet", 6.0))
+    except Exception:
+        half_watch, half_bet = 3.0, 6.0
+    try:
+        qtr_watch = float(qtr_thr.get("watch", 2.0))
+        qtr_bet = float(qtr_thr.get("bet", 4.0))
+    except Exception:
+        qtr_watch, qtr_bet = 2.0, 4.0
+    try:
+        ats_watch = float(ats_thr.get("watch", 2.0))
+        ats_bet = float(ats_thr.get("bet", 4.0))
+    except Exception:
+        ats_watch, ats_bet = 2.0, 4.0
+    try:
+        ml_watch = float(ml_thr.get("watch", 0.03))
+        ml_bet = float(ml_thr.get("bet", 0.06))
+    except Exception:
+        ml_watch, ml_bet = 0.03, 0.06
     try:
         pp_watch = float(pp_thr.get("watch", 2.0))
         pp_bet = float(pp_thr.get("bet", 4.0))
@@ -28302,6 +28330,110 @@ def api_cron_live_lens_tick():
         if m == "all":
             return k in {"NONE", "WATCH", "BET"}
         return k == "BET"
+
+    def _poss_avg(home_tri: Any, away_tri: Any, poss_obj: Any) -> float | None:
+        try:
+            if not isinstance(poss_obj, dict):
+                return None
+            htri = str(home_tri or "").upper().strip()
+            atri = str(away_tri or "").upper().strip()
+            hp = poss_obj.get(htri) if htri else None
+            ap = poss_obj.get(atri) if atri else None
+            if not isinstance(hp, dict):
+                hp = poss_obj.get("home") if isinstance(poss_obj.get("home"), dict) else None
+            if not isinstance(ap, dict):
+                ap = poss_obj.get("away") if isinstance(poss_obj.get("away"), dict) else None
+            hpv = _safe_float((hp or {}).get("poss_est")) if isinstance(hp, dict) else None
+            apv = _safe_float((ap or {}).get("poss_est")) if isinstance(ap, dict) else None
+            if hpv is None or apv is None:
+                return None
+            return float((float(hpv) + float(apv)) / 2.0)
+        except Exception:
+            return None
+
+    def _edge_shrink(raw_diff: float | None, poss_live: float | None, elapsed_min: float | None, total_minutes: float) -> dict[str, float | None]:
+        try:
+            if raw_diff is None:
+                return {"diff_shrunk": None, "lambda": None, "lambda_poss": None, "lambda_time": None}
+            tm = float(total_minutes)
+            scale = max(0.15, tm / 48.0) if tm > 0 else 1.0
+            poss_min = 10.0 * scale
+            poss_range = 25.0 * scale
+            time_min = 6.0 * scale
+            time_range = 18.0 * scale
+            if poss_live is None:
+                w_poss = 1.0
+            else:
+                w_poss = max(0.0, min(1.0, (float(poss_live) - poss_min) / max(1e-6, poss_range)))
+            if elapsed_min is None:
+                w_time = 1.0
+            else:
+                w_time = max(0.0, min(1.0, (float(elapsed_min) - time_min) / max(1e-6, time_range)))
+            lam = max(0.0, min(1.0, min(w_poss, w_time)))
+            return {
+                "diff_shrunk": float(raw_diff) * lam,
+                "lambda": lam,
+                "lambda_poss": w_poss,
+                "lambda_time": w_time,
+            }
+        except Exception:
+            return {"diff_shrunk": raw_diff, "lambda": None, "lambda_poss": None, "lambda_time": None}
+
+    def _scope_projection(intervals_obj: Any, *, scope_start_min: float, scope_end_min: float, elapsed_scope_min: float, actual_total: float | None) -> tuple[float | None, float | None, float | None]:
+        try:
+            if actual_total is None or intervals_obj is None:
+                return (None, None, None)
+            start_min = float(scope_start_min)
+            end_min = float(scope_end_min)
+            elapsed_scope = max(0.0, min(float(end_min - start_min), float(elapsed_scope_min)))
+            elapsed_abs = start_min + elapsed_scope
+            sim_start = _live_interp_cum_p50(intervals_obj, elapsed_min=float(start_min), total_minutes=int(round(end_min))) or 0.0
+            sim_at_cum = _live_interp_cum_p50(intervals_obj, elapsed_min=float(elapsed_abs), total_minutes=int(round(end_min)))
+            sim_end_cum = _live_interp_cum_p50(intervals_obj, elapsed_min=float(end_min), total_minutes=int(round(end_min)))
+            if sim_at_cum is None or sim_end_cum is None:
+                return (None, None, None)
+            sim_at = float(sim_at_cum) - float(sim_start)
+            sim_final = float(sim_end_cum) - float(sim_start)
+            proj = max(float(actual_total), float(actual_total) + (float(sim_final) - float(sim_at)))
+            return (float(sim_at), float(sim_final), float(proj))
+        except Exception:
+            return (None, None, None)
+
+    def _scope_pace_context(*, actual_total: float | None, scope_minutes: float, elapsed_scope: float | None, sim_final_scope: float | None, poss_live: float | None, exp_pace: float | None) -> dict[str, Any]:
+        ctx: dict[str, Any] = {
+            "poss_live": poss_live,
+            "poss_expected_so_far": None,
+            "poss_expected_full": None,
+            "exp_ppp": None,
+            "act_ppp": None,
+            "pace_ratio": None,
+        }
+        try:
+            if exp_pace is None or scope_minutes <= 0:
+                return ctx
+            poss_expected_full = float(exp_pace) * (float(scope_minutes) / 48.0)
+            poss_expected_so_far = None
+            if elapsed_scope is not None:
+                poss_expected_so_far = float(exp_pace) * (float(max(0.0, min(float(scope_minutes), float(elapsed_scope)))) / 48.0)
+            exp_ppp = None
+            if sim_final_scope is not None and poss_expected_full > 1e-9:
+                exp_ppp = float(sim_final_scope) / poss_expected_full
+            act_ppp = None
+            if actual_total is not None and poss_live is not None and float(poss_live) > 1e-9:
+                act_ppp = float(actual_total) / float(poss_live)
+            pace_ratio = None
+            if poss_live is not None and poss_expected_so_far is not None and poss_expected_so_far > 1e-9:
+                pace_ratio = float(poss_live) / float(poss_expected_so_far)
+            ctx.update({
+                "poss_expected_so_far": poss_expected_so_far,
+                "poss_expected_full": poss_expected_full,
+                "exp_ppp": exp_ppp,
+                "act_ppp": act_ppp,
+                "pace_ratio": pace_ratio,
+            })
+            return ctx
+        except Exception:
+            return ctx
 
     # Find in-progress games.
     try:
@@ -28333,11 +28465,12 @@ def api_cron_live_lens_tick():
     if include_total:
         try:
             with app.test_client() as c:
-                # Fetch current totals lines for all in-progress games.
+                # Fetch current lines + period totals for all in-progress games.
                 lines_by_eid: dict[str, Any] = {}
+                pbp_by_eid: dict[str, Any] = {}
                 if event_ids:
                     r = c.get(
-                        f"/api/live_lines?ttl={int(ttl)}&date={ds}&event_ids={','.join(event_ids)}&include_period_totals=0"
+                        f"/api/live_lines?ttl={int(ttl)}&date={ds}&event_ids={','.join(event_ids)}&include_period_totals=1"
                     )
                     if r.status_code == 200:
                         j = r.get_json(silent=True)
@@ -28345,6 +28478,15 @@ def api_cron_live_lens_tick():
                             for rec in j.get("games") or []:
                                 if isinstance(rec, dict) and rec.get("event_id") is not None:
                                     lines_by_eid[str(rec.get("event_id"))] = rec
+                    r2 = c.get(
+                        f"/api/live_pbp_stats?ttl={int(ttl)}&date={ds}&event_ids={','.join(event_ids)}&recent_window_sec={int(recent_window_sec)}"
+                    )
+                    if r2.status_code == 200:
+                        j2 = r2.get_json(silent=True)
+                        if isinstance(j2, dict) and isinstance(j2.get("games"), list):
+                            for rec in j2.get("games") or []:
+                                if isinstance(rec, dict) and rec.get("event_id") is not None:
+                                    pbp_by_eid[str(rec.get("event_id"))] = rec
 
                 for g in inprog:
                     try:
@@ -28361,116 +28503,778 @@ def api_cron_live_lens_tick():
                         except Exception:
                             total_pts = None
 
-                        # Live line
-                        live_line = None
-                        try:
-                            rec = lines_by_eid.get(eid) if lines_by_eid else None
-                            if isinstance(rec, dict):
-                                lines = rec.get("lines") if isinstance(rec.get("lines"), dict) else {}
-                                live_line = _safe_float(lines.get("total"))
-                        except Exception:
-                            live_line = None
-                        if live_line is None:
-                            continue
+                        rec = lines_by_eid.get(eid) if lines_by_eid else None
+                        lines = rec.get("lines") if isinstance(rec, dict) and isinstance(rec.get("lines"), dict) else {}
+                        game_total_line = _safe_float(lines.get("total"))
+                        home_spread = _safe_float(lines.get("home_spread"))
+                        home_ml = _safe_float(lines.get("home_ml"))
+                        away_ml = _safe_float(lines.get("away_ml"))
+                        period_totals = lines.get("period_totals") if isinstance(lines.get("period_totals"), dict) else {}
 
-                        # SmartSim baseline
+                        pbp_rec = pbp_by_eid.get(eid) if pbp_by_eid else None
+                        pbp_possessions = pbp_rec.get("pbp_possessions") if isinstance(pbp_rec, dict) and isinstance(pbp_rec.get("pbp_possessions"), dict) else {}
+                        pbp_possessions_periods = pbp_rec.get("pbp_possessions_periods") if isinstance(pbp_rec, dict) and isinstance(pbp_rec.get("pbp_possessions_periods"), dict) else {}
+                        pbp_quarters = pbp_rec.get("pbp_quarters") if isinstance(pbp_rec, dict) and isinstance(pbp_rec.get("pbp_quarters"), dict) else {}
+                        pbp_recent = pbp_rec.get("pbp_recent") if isinstance(pbp_rec, dict) and isinstance(pbp_rec.get("pbp_recent"), dict) else {}
+
+                        home_margin = None
+                        try:
+                            if g.get("home_pts") is not None and g.get("away_pts") is not None:
+                                home_margin = float((_safe_int(g.get("home_pts")) or 0) - (_safe_int(g.get("away_pts")) or 0))
+                        except Exception:
+                            home_margin = None
+
+                        game_min_left = (48.0 - float(elapsed_min)) if elapsed_min is not None else None
+                        half_min_left = None
+                        if period is not None and sec_left_period is not None:
+                            try:
+                                if int(period) <= 2:
+                                    half_min_left = (((2 - int(period)) * 12 * 60) + int(sec_left_period)) / 60.0
+                                elif int(period) > 2:
+                                    half_min_left = 0.0
+                            except Exception:
+                                half_min_left = None
+
                         ss = _live_load_smart_sim_by_game_id(str(ds), str(gid or "")) if gid else None
-                        score = ss.get("score") if isinstance(ss, dict) else None
-                        total_mean = _safe_float((score or {}).get("total_mean")) if isinstance(score, dict) else None
-                        if total_mean is None:
-                            # Without SmartSim, skip total logging (avoid noisy projections).
-                            continue
+                        score = ss.get("score") if isinstance(ss, dict) and isinstance(ss.get("score"), dict) else {}
+                        ctx_obj = ss.get("context") if isinstance(ss, dict) and isinstance(ss.get("context"), dict) else {}
+                        total_mean = _safe_float(score.get("total_mean"))
+                        margin_mean = _safe_float(score.get("margin_mean"))
+                        p_home_win = _safe_float(score.get("p_home_win"))
+                        home_pace = _safe_float(ctx_obj.get("home_pace"))
+                        away_pace = _safe_float(ctx_obj.get("away_pace"))
+                        exp_pace = ((float(home_pace) + float(away_pace)) / 2.0) if (home_pace is not None and away_pace is not None) else None
+
                         intervals = None
                         if isinstance(ss, dict):
                             itv1 = ss.get("intervals_1m") if isinstance(ss.get("intervals_1m"), dict) else None
                             itv3 = ss.get("intervals") if isinstance(ss.get("intervals"), dict) else None
                             intervals = itv1 or itv3
 
-                        exp_cum = None
-                        if elapsed_min is not None and intervals is not None:
-                            exp_cum = _live_interp_cum_p50(intervals, elapsed_min=float(elapsed_min), total_minutes=48)
-                        if exp_cum is None and elapsed_min is not None:
-                            exp_cum = float(total_mean) * float(max(0.0, min(48.0, float(elapsed_min)))) / 48.0
+                        game_poss_live = _poss_avg(home, away, pbp_possessions)
+                        recent_poss_live = _poss_avg(home, away, pbp_recent.get("possessions") if isinstance(pbp_recent, dict) else None)
+                        recent_pts = _safe_float(pbp_recent.get("points_total")) if isinstance(pbp_recent, dict) else None
+                        recent_window_used = _safe_float(pbp_recent.get("window_sec")) if isinstance(pbp_recent, dict) else None
 
-                        if total_pts is None or elapsed_min is None or exp_cum is None:
-                            continue
+                        # Game total
+                        if game_total_line is not None and total_pts is not None and elapsed_min is not None:
+                            sim_at_g, sim_final_g, proj_g = _scope_projection(
+                                intervals,
+                                scope_start_min=0.0,
+                                scope_end_min=48.0,
+                                elapsed_scope_min=float(elapsed_min),
+                                actual_total=float(total_pts),
+                            )
+                            if proj_g is None and total_mean is not None:
+                                sim_at_g = float(total_mean) * float(max(0.0, min(48.0, float(elapsed_min)))) / 48.0
+                                sim_final_g = float(total_mean)
+                                proj_g = max(float(total_pts), float(total_pts) + (float(sim_final_g) - float(sim_at_g)))
+                            if proj_g is not None:
+                                edge_raw_g = float(proj_g) - float(game_total_line)
+                                shrink_g = _edge_shrink(edge_raw_g, game_poss_live, elapsed_min, 48.0)
+                                edge_g = _safe_float(shrink_g.get("diff_shrunk"))
+                                edge_g = edge_raw_g if edge_g is None else float(edge_g)
+                                klass = _klass(abs(edge_g), tot_watch, tot_bet)
+                                if _allow(log_mode, klass):
+                                    if not (first_bet_only and klass != "BET"):
+                                        side = "OVER" if edge_g > 0 else ("UNDER" if edge_g < 0 else None)
+                                        if not (first_bet_only and side is None):
+                                            first_bet_k = None
+                                            if first_bet_only:
+                                                first_bet_k = f"{ds}:{str(gid)}:total:game:{str(side)}"
+                                                with _live_lens_tick_lock:
+                                                    if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                                        skipped_first_bet += 1
+                                                        first_bet_k = None
+                                                    else:
+                                                        _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                                            if (not first_bet_only) or (first_bet_k is not None):
+                                                signal_key = "game_total"
+                                                throttle_k = f"{str(gid)}:{signal_key}"
+                                                with _live_lens_tick_lock:
+                                                    last = _live_lens_tick_last_logged.get(throttle_k)
+                                                    if last == bucket_key:
+                                                        skipped_throttle += 1
+                                                        throttle_ok = False
+                                                    else:
+                                                        _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                        throttle_ok = True
+                                                if throttle_ok:
+                                                    game_ctx = _scope_pace_context(
+                                                        actual_total=float(total_pts),
+                                                        scope_minutes=48.0,
+                                                        elapsed_scope=float(elapsed_min),
+                                                        sim_final_scope=sim_final_g,
+                                                        poss_live=game_poss_live,
+                                                        exp_pace=exp_pace,
+                                                    )
+                                                    body = {
+                                                        "date": ds,
+                                                        "game_id": gid,
+                                                        "event_id": eid,
+                                                        "home": home,
+                                                        "away": away,
+                                                        "period": period,
+                                                        "sec_left_period": sec_left_period,
+                                                        "margin_home": home_margin,
+                                                        "tuning_source": "cron",
+                                                        "schema_version": 2,
+                                                        "klass": klass,
+                                                        "horizon": "game",
+                                                        "market": "total",
+                                                        "signal_key": signal_key,
+                                                        "elapsed": float(elapsed_min),
+                                                        "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                        "total_points": float(total_pts),
+                                                        "live_line": float(game_total_line),
+                                                        "side": side,
+                                                        "edge": float(edge_g),
+                                                        "edge_raw": float(edge_raw_g),
+                                                        "edge_adj": float(edge_g),
+                                                        "pred": float(proj_g),
+                                                        "strength": float(abs(edge_g)),
+                                                        "context": {
+                                                            "thr_watch": float(tot_watch),
+                                                            "thr_bet": float(tot_bet),
+                                                            "edge_shrink_lambda": _safe_float(shrink_g.get("lambda")),
+                                                            "edge_shrink_lambda_poss": _safe_float(shrink_g.get("lambda_poss")),
+                                                            "edge_shrink_lambda_time": _safe_float(shrink_g.get("lambda_time")),
+                                                            "exp_home_pace": home_pace,
+                                                            "exp_away_pace": away_pace,
+                                                            "exp_total_mean": total_mean,
+                                                            "sim_at": sim_at_g,
+                                                            "sim_final": sim_final_g,
+                                                            "recent_window_sec": recent_window_used,
+                                                            "recent_window_poss": recent_poss_live,
+                                                            "recent_window_pts": recent_pts,
+                                                            **game_ctx,
+                                                        },
+                                                        "received_at": now,
+                                                        "tick_bucket": bucket_key,
+                                                    }
+                                                    ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                                                    if ok:
+                                                        wrote_signals += 1
+                                                        if first_bet_only and first_bet_k is not None:
+                                                            with _live_lens_tick_lock:
+                                                                _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
+                                                    else:
+                                                        errors.append(f"total:{eid}:{info}")
+                                                        if first_bet_only and first_bet_k is not None:
+                                                            with _live_lens_tick_lock:
+                                                                _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
 
-                        w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
-                        proj = float(total_mean) + w * float(float(total_pts) - float(exp_cum))
-                        edge = float(proj) - float(live_line)
-                        klass = _klass(abs(edge), tot_watch, tot_bet)
-                        if not _allow(log_mode, klass):
-                            continue
+                                                    throttle_p = f"{str(gid)}:{signal_key}:proj"
+                                                    with _live_lens_tick_lock:
+                                                        lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                                        if lastp != bucket_key:
+                                                            _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+                                                            proj_ok = True
+                                                        else:
+                                                            proj_ok = False
+                                                    if proj_ok:
+                                                        proj_body = {
+                                                            "date": ds,
+                                                            "game_id": gid,
+                                                            "event_id": eid,
+                                                            "home": home,
+                                                            "away": away,
+                                                            "period": period,
+                                                            "sec_left_period": sec_left_period,
+                                                            "klass": klass,
+                                                            "horizon": "game",
+                                                            "market": "total",
+                                                            "proj_key": signal_key,
+                                                            "elapsed": float(elapsed_min),
+                                                            "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                            "total_points": float(total_pts),
+                                                            "line": float(game_total_line),
+                                                            "live_line": float(game_total_line),
+                                                            "side": side,
+                                                            "proj": float(proj_g),
+                                                            "sim_mu": sim_final_g,
+                                                            "strength": float(abs(edge_g)),
+                                                            "context": {
+                                                                "scope_context": {
+                                                                    "pace_final": float(proj_g),
+                                                                    "sim_at": sim_at_g,
+                                                                    "sim_final": sim_final_g,
+                                                                    **game_ctx,
+                                                                }
+                                                            },
+                                                            "received_at": now,
+                                                            "tick_bucket": bucket_key,
+                                                        }
+                                                        okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                                                        if okp:
+                                                            wrote_projections += 1
+                                                        else:
+                                                            errors.append(f"proj_total:{eid}:{infop}")
 
-                        if first_bet_only and klass != "BET":
-                            continue
+                        # 1H total
+                        if total_pts is not None and period is not None and int(period) <= 2 and half_min_left is not None:
+                            h1_line = _safe_float(period_totals.get("h1")) if isinstance(period_totals, dict) else None
+                            if h1_line is not None:
+                                elapsed_h = float(max(0.0, min(24.0, 24.0 - float(half_min_left))))
+                                sim_at_h, sim_final_h, proj_h = _scope_projection(
+                                    intervals,
+                                    scope_start_min=0.0,
+                                    scope_end_min=24.0,
+                                    elapsed_scope_min=elapsed_h,
+                                    actual_total=float(total_pts),
+                                )
+                                if proj_h is not None:
+                                    poss_h = _poss_avg(home, away, pbp_possessions_periods.get("h1") if isinstance(pbp_possessions_periods, dict) else None)
+                                    edge_raw_h = float(proj_h) - float(h1_line)
+                                    shrink_h = _edge_shrink(edge_raw_h, poss_h, elapsed_h, 24.0)
+                                    edge_h = _safe_float(shrink_h.get("diff_shrunk"))
+                                    edge_h = edge_raw_h if edge_h is None else float(edge_h)
+                                    klass_h = _klass(abs(edge_h), half_watch, half_bet)
+                                    if _allow(log_mode, klass_h):
+                                        if not (first_bet_only and klass_h != "BET"):
+                                            side_h = "OVER" if edge_h > 0 else ("UNDER" if edge_h < 0 else None)
+                                            if not (first_bet_only and side_h is None):
+                                                first_bet_k = None
+                                                if first_bet_only:
+                                                    first_bet_k = f"{ds}:{str(gid)}:half_total:h1:{str(side_h)}"
+                                                    with _live_lens_tick_lock:
+                                                        if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                                            skipped_first_bet += 1
+                                                            first_bet_k = None
+                                                        else:
+                                                            _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                                                if (not first_bet_only) or (first_bet_k is not None):
+                                                    signal_key = "h1_total"
+                                                    throttle_k = f"{str(gid)}:{signal_key}"
+                                                    with _live_lens_tick_lock:
+                                                        last = _live_lens_tick_last_logged.get(throttle_k)
+                                                        if last == bucket_key:
+                                                            skipped_throttle += 1
+                                                            throttle_ok = False
+                                                        else:
+                                                            _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                            throttle_ok = True
+                                                    if throttle_ok:
+                                                        half_ctx = _scope_pace_context(
+                                                            actual_total=float(total_pts),
+                                                            scope_minutes=24.0,
+                                                            elapsed_scope=elapsed_h,
+                                                            sim_final_scope=sim_final_h,
+                                                            poss_live=poss_h,
+                                                            exp_pace=exp_pace,
+                                                        )
+                                                        body = {
+                                                            "date": ds,
+                                                            "game_id": gid,
+                                                            "event_id": eid,
+                                                            "home": home,
+                                                            "away": away,
+                                                            "period": period,
+                                                            "sec_left_period": sec_left_period,
+                                                            "margin_home": home_margin,
+                                                            "tuning_source": "cron",
+                                                            "schema_version": 2,
+                                                            "klass": klass_h,
+                                                            "horizon": "h1",
+                                                            "market": "half_total",
+                                                            "signal_key": signal_key,
+                                                            "elapsed": float(elapsed_h),
+                                                            "remaining": float(half_min_left),
+                                                            "total_points": float(total_pts),
+                                                            "live_line": float(h1_line),
+                                                            "side": side_h,
+                                                            "edge": float(edge_h),
+                                                            "edge_raw": float(edge_raw_h),
+                                                            "edge_adj": float(edge_h),
+                                                            "pred": float(proj_h),
+                                                            "strength": float(abs(edge_h)),
+                                                            "context": {
+                                                                "thr_watch": float(half_watch),
+                                                                "thr_bet": float(half_bet),
+                                                                "edge_shrink_lambda": _safe_float(shrink_h.get("lambda")),
+                                                                "edge_shrink_lambda_poss": _safe_float(shrink_h.get("lambda_poss")),
+                                                                "edge_shrink_lambda_time": _safe_float(shrink_h.get("lambda_time")),
+                                                                **half_ctx,
+                                                            },
+                                                            "received_at": now,
+                                                            "tick_bucket": bucket_key,
+                                                        }
+                                                        ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                                                        if ok:
+                                                            wrote_signals += 1
+                                                            if first_bet_only and first_bet_k is not None:
+                                                                with _live_lens_tick_lock:
+                                                                    _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
+                                                        else:
+                                                            errors.append(f"half_total:{eid}:{info}")
+                                                            if first_bet_only and first_bet_k is not None:
+                                                                with _live_lens_tick_lock:
+                                                                    _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
 
-                        side = "OVER" if edge > 0 else ("UNDER" if edge < 0 else None)
-                        if first_bet_only and side is None:
-                            continue
+                                                        throttle_p = f"{str(gid)}:{signal_key}:proj"
+                                                        with _live_lens_tick_lock:
+                                                            lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                                            if lastp != bucket_key:
+                                                                _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+                                                                proj_ok = True
+                                                            else:
+                                                                proj_ok = False
+                                                        if proj_ok:
+                                                            proj_body = {
+                                                                "date": ds,
+                                                                "game_id": gid,
+                                                                "event_id": eid,
+                                                                "home": home,
+                                                                "away": away,
+                                                                "period": period,
+                                                                "sec_left_period": sec_left_period,
+                                                                "klass": klass_h,
+                                                                "horizon": "h1",
+                                                                "market": "half_total",
+                                                                "proj_key": signal_key,
+                                                                "elapsed": float(elapsed_h),
+                                                                "remaining": float(half_min_left),
+                                                                "total_points": float(total_pts),
+                                                                "line": float(h1_line),
+                                                                "live_line": float(h1_line),
+                                                                "side": side_h,
+                                                                "proj": float(proj_h),
+                                                                "sim_mu": sim_final_h,
+                                                                "strength": float(abs(edge_h)),
+                                                                "context": {"scope_context": {"pace_final": float(proj_h), "sim_at": sim_at_h, "sim_final": sim_final_h, **half_ctx}},
+                                                                "received_at": now,
+                                                                "tick_bucket": bucket_key,
+                                                            }
+                                                            okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                                                            if okp:
+                                                                wrote_projections += 1
+                                                            else:
+                                                                errors.append(f"proj_half_total:{eid}:{infop}")
 
-                        first_bet_k = None
-                        if first_bet_only:
-                            first_bet_k = f"{ds}:{str(gid)}:total:game:{str(side)}"
-                            with _live_lens_tick_lock:
-                                if _live_lens_tick_first_bet_logged.get(first_bet_k):
-                                    skipped_first_bet += 1
-                                    continue
-                                _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                        # Current quarter total
+                        q_current = pbp_quarters.get("current") if isinstance(pbp_quarters, dict) and isinstance(pbp_quarters.get("current"), dict) else {}
+                        q_num = _safe_int(q_current.get("period")) if isinstance(q_current, dict) else None
+                        if q_num is None:
+                            q_num = period if (period is not None and 1 <= int(period) <= 4) else None
+                        if q_num is not None and sec_left_period is not None and 1 <= int(q_num) <= 4:
+                            q_key = f"q{int(q_num)}"
+                            q_line = _safe_float(period_totals.get(q_key)) if isinstance(period_totals, dict) else None
+                            q_total_now = _safe_float(q_current.get("q_total")) if isinstance(q_current, dict) else None
+                            if q_total_now is None:
+                                q_totals = pbp_quarters.get("q_totals") if isinstance(pbp_quarters, dict) and isinstance(pbp_quarters.get("q_totals"), dict) else {}
+                                q_total_now = _safe_float(q_totals.get(q_key)) if isinstance(q_totals, dict) else None
+                            if q_line is not None and q_total_now is not None:
+                                elapsed_q = float(max(0.0, min(12.0, 12.0 - (float(sec_left_period) / 60.0))))
+                                q_start = float((int(q_num) - 1) * 12)
+                                q_end = float(int(q_num) * 12)
+                                sim_at_q, sim_final_q, proj_q = _scope_projection(
+                                    intervals,
+                                    scope_start_min=q_start,
+                                    scope_end_min=q_end,
+                                    elapsed_scope_min=elapsed_q,
+                                    actual_total=float(q_total_now),
+                                )
+                                if proj_q is not None:
+                                    poss_q = _poss_avg(home, away, pbp_possessions_periods.get(q_key) if isinstance(pbp_possessions_periods, dict) else None)
+                                    edge_raw_q = float(proj_q) - float(q_line)
+                                    shrink_q = _edge_shrink(edge_raw_q, poss_q, elapsed_q, 12.0)
+                                    edge_q = _safe_float(shrink_q.get("diff_shrunk"))
+                                    edge_q = edge_raw_q if edge_q is None else float(edge_q)
+                                    klass_q = _klass(abs(edge_q), qtr_watch, qtr_bet)
+                                    if _allow(log_mode, klass_q):
+                                        if not (first_bet_only and klass_q != "BET"):
+                                            side_q = "OVER" if edge_q > 0 else ("UNDER" if edge_q < 0 else None)
+                                            if not (first_bet_only and side_q is None):
+                                                first_bet_k = None
+                                                if first_bet_only:
+                                                    first_bet_k = f"{ds}:{str(gid)}:quarter_total:{q_key}:{str(side_q)}"
+                                                    with _live_lens_tick_lock:
+                                                        if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                                            skipped_first_bet += 1
+                                                            first_bet_k = None
+                                                        else:
+                                                            _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                                                if (not first_bet_only) or (first_bet_k is not None):
+                                                    signal_key = "q_total"
+                                                    throttle_k = f"{str(gid)}:{signal_key}:{q_key}"
+                                                    with _live_lens_tick_lock:
+                                                        last = _live_lens_tick_last_logged.get(throttle_k)
+                                                        if last == bucket_key:
+                                                            skipped_throttle += 1
+                                                            throttle_ok = False
+                                                        else:
+                                                            _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                            throttle_ok = True
+                                                    if throttle_ok:
+                                                        quarter_ctx = _scope_pace_context(
+                                                            actual_total=float(q_total_now),
+                                                            scope_minutes=12.0,
+                                                            elapsed_scope=elapsed_q,
+                                                            sim_final_scope=sim_final_q,
+                                                            poss_live=poss_q,
+                                                            exp_pace=exp_pace,
+                                                        )
+                                                        body = {
+                                                            "date": ds,
+                                                            "game_id": gid,
+                                                            "event_id": eid,
+                                                            "home": home,
+                                                            "away": away,
+                                                            "period": period,
+                                                            "sec_left_period": sec_left_period,
+                                                            "margin_home": home_margin,
+                                                            "tuning_source": "cron",
+                                                            "schema_version": 2,
+                                                            "klass": klass_q,
+                                                            "horizon": q_key,
+                                                            "market": "quarter_total",
+                                                            "signal_key": signal_key,
+                                                            "elapsed": float(elapsed_q),
+                                                            "remaining": float(sec_left_period) / 60.0,
+                                                            "total_points": float(q_total_now),
+                                                            "live_line": float(q_line),
+                                                            "side": side_q,
+                                                            "edge": float(edge_q),
+                                                            "edge_raw": float(edge_raw_q),
+                                                            "edge_adj": float(edge_q),
+                                                            "pred": float(proj_q),
+                                                            "strength": float(abs(edge_q)),
+                                                            "context": {
+                                                                "scope_present": 1,
+                                                                "q_num": int(q_num),
+                                                                "thr_watch": float(qtr_watch),
+                                                                "thr_bet": float(qtr_bet),
+                                                                "edge_shrink_lambda": _safe_float(shrink_q.get("lambda")),
+                                                                "edge_shrink_lambda_poss": _safe_float(shrink_q.get("lambda_poss")),
+                                                                "edge_shrink_lambda_time": _safe_float(shrink_q.get("lambda_time")),
+                                                                **quarter_ctx,
+                                                            },
+                                                            "received_at": now,
+                                                            "tick_bucket": bucket_key,
+                                                        }
+                                                        ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                                                        if ok:
+                                                            wrote_signals += 1
+                                                            if first_bet_only and first_bet_k is not None:
+                                                                with _live_lens_tick_lock:
+                                                                    _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
+                                                        else:
+                                                            errors.append(f"quarter_total:{eid}:{info}")
+                                                            if first_bet_only and first_bet_k is not None:
+                                                                with _live_lens_tick_lock:
+                                                                    _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
 
-                        signal_key = "game_total"
-                        throttle_k = f"{str(gid)}:{signal_key}"
-                        with _live_lens_tick_lock:
-                            last = _live_lens_tick_last_logged.get(throttle_k)
-                            if last == bucket_key:
-                                skipped_throttle += 1
-                                continue
-                            _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                        throttle_p = f"{str(gid)}:{signal_key}:proj:{q_key}"
+                                                        with _live_lens_tick_lock:
+                                                            lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                                            if lastp != bucket_key:
+                                                                _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+                                                                proj_ok = True
+                                                            else:
+                                                                proj_ok = False
+                                                        if proj_ok:
+                                                            proj_body = {
+                                                                "date": ds,
+                                                                "game_id": gid,
+                                                                "event_id": eid,
+                                                                "home": home,
+                                                                "away": away,
+                                                                "period": period,
+                                                                "sec_left_period": sec_left_period,
+                                                                "klass": klass_q,
+                                                                "horizon": q_key,
+                                                                "market": "quarter_total",
+                                                                "proj_key": f"{signal_key}:{q_key}",
+                                                                "elapsed": float(elapsed_q),
+                                                                "remaining": float(sec_left_period) / 60.0,
+                                                                "total_points": float(q_total_now),
+                                                                "line": float(q_line),
+                                                                "live_line": float(q_line),
+                                                                "side": side_q,
+                                                                "proj": float(proj_q),
+                                                                "sim_mu": sim_final_q,
+                                                                "strength": float(abs(edge_q)),
+                                                                "context": {"q_num": int(q_num), "scope_context": {"pace_final": float(proj_q), "sim_at": sim_at_q, "sim_final": sim_final_q, **quarter_ctx}},
+                                                                "received_at": now,
+                                                                "tick_bucket": bucket_key,
+                                                            }
+                                                            okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                                                            if okp:
+                                                                wrote_projections += 1
+                                                            else:
+                                                                errors.append(f"proj_quarter_total:{eid}:{infop}")
 
-                        body = {
-                            "date": ds,
-                            "game_id": gid,
-                            "event_id": eid,
-                            "home": home,
-                            "away": away,
-                            "period": period,
-                            "sec_left_period": sec_left_period,
-                            "margin_home": (float((_safe_int(g.get("home_pts")) or 0) - (_safe_int(g.get("away_pts")) or 0)) if (g.get("home_pts") is not None and g.get("away_pts") is not None) else None),
-                            "tuning_source": "cron",
-                            "schema_version": 2,
-                            "klass": klass,
-                            "horizon": "game",
-                            "market": "total",
-                            "signal_key": signal_key,
-                            "elapsed": float(elapsed_min),
-                            "total_points": float(total_pts),
-                            "live_line": float(live_line),
-                            "side": side,
-                            "edge": float(edge),
-                            "edge_raw": float(edge),
-                            "edge_adj": float(edge),
-                            "pred": float(proj),
-                            "strength": float(abs(edge)),
-                            "context": {
-                                "total_mean": float(total_mean),
-                                "exp_cum_p50": float(exp_cum) if exp_cum is not None else None,
-                                "w_blend": float(w),
-                            },
-                            "received_at": now,
-                            "tick_bucket": bucket_key,
-                        }
+                        # ATS
+                        if include_ats and home_spread is not None and margin_mean is not None and home_margin is not None and elapsed_min is not None:
+                            blend_w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
+                            adj_margin_home = (1.0 - blend_w) * float(margin_mean) + blend_w * float(home_margin)
+                            edge_home = adj_margin_home + float(home_spread)
+                            edge_away = -adj_margin_home - float(home_spread)
+                            pick_home = abs(edge_home) >= abs(edge_away)
+                            ats_edge = float(edge_home if pick_home else edge_away)
+                            ats_side = str(home if pick_home else away)
+                            ats_klass = _klass(abs(ats_edge), ats_watch, ats_bet)
+                            if _allow(log_mode, ats_klass):
+                                if not (first_bet_only and ats_klass != "BET"):
+                                    first_bet_k = None
+                                    if first_bet_only:
+                                        first_bet_k = f"{ds}:{str(gid)}:ats:game:{ats_side}"
+                                        with _live_lens_tick_lock:
+                                            if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                                skipped_first_bet += 1
+                                                first_bet_k = None
+                                            else:
+                                                _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                                    if (not first_bet_only) or (first_bet_k is not None):
+                                        signal_key = "game_ats"
+                                        throttle_k = f"{str(gid)}:{signal_key}"
+                                        with _live_lens_tick_lock:
+                                            last = _live_lens_tick_last_logged.get(throttle_k)
+                                            if last == bucket_key:
+                                                skipped_throttle += 1
+                                                throttle_ok = False
+                                            else:
+                                                _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                throttle_ok = True
+                                        if throttle_ok:
+                                            body = {
+                                                "date": ds,
+                                                "game_id": gid,
+                                                "event_id": eid,
+                                                "home": home,
+                                                "away": away,
+                                                "period": period,
+                                                "sec_left_period": sec_left_period,
+                                                "margin_home": home_margin,
+                                                "tuning_source": "cron",
+                                                "schema_version": 2,
+                                                "klass": ats_klass,
+                                                "horizon": "game",
+                                                "market": "ats",
+                                                "signal_key": signal_key,
+                                                "elapsed": float(elapsed_min),
+                                                "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                "total_points": float(total_pts) if total_pts is not None else None,
+                                                "live_line": float(home_spread),
+                                                "side": ats_side,
+                                                "edge": float(ats_edge),
+                                                "edge_raw": float(ats_edge),
+                                                "edge_adj": float(ats_edge),
+                                                "strength": float(abs(ats_edge)),
+                                                "context": {
+                                                    "thr_watch": float(ats_watch),
+                                                    "thr_bet": float(ats_bet),
+                                                    "spr_home": float(home_spread),
+                                                    "pregame_margin_mean": float(margin_mean),
+                                                    "cur_margin_home": float(home_margin),
+                                                    "elapsed_min": float(elapsed_min),
+                                                    "blend_w": float(blend_w),
+                                                    "adj_margin_home": float(adj_margin_home),
+                                                    "edge_home": float(edge_home),
+                                                    "edge_away": float(edge_away),
+                                                    "pick_home": 1 if pick_home else 0,
+                                                },
+                                                "received_at": now,
+                                                "tick_bucket": bucket_key,
+                                            }
+                                            ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                                            if ok:
+                                                wrote_signals += 1
+                                                if first_bet_only and first_bet_k is not None:
+                                                    with _live_lens_tick_lock:
+                                                        _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
+                                            else:
+                                                errors.append(f"ats:{eid}:{info}")
+                                                if first_bet_only and first_bet_k is not None:
+                                                    with _live_lens_tick_lock:
+                                                        _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
 
-                        ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
-                        if ok:
-                            wrote_signals += 1
-                            if first_bet_only and first_bet_k is not None:
-                                with _live_lens_tick_lock:
-                                    _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
-                        else:
-                            errors.append(f"total:{eid}:{info}")
-                            if first_bet_only and first_bet_k is not None:
-                                with _live_lens_tick_lock:
-                                    _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
+                                            throttle_p = f"{str(gid)}:{signal_key}:proj"
+                                            with _live_lens_tick_lock:
+                                                lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                                if lastp != bucket_key:
+                                                    _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+                                                    proj_ok = True
+                                                else:
+                                                    proj_ok = False
+                                            if proj_ok:
+                                                proj_body = {
+                                                    "date": ds,
+                                                    "game_id": gid,
+                                                    "event_id": eid,
+                                                    "home": home,
+                                                    "away": away,
+                                                    "period": period,
+                                                    "sec_left_period": sec_left_period,
+                                                    "klass": ats_klass,
+                                                    "horizon": "game",
+                                                    "market": "ats",
+                                                    "proj_key": signal_key,
+                                                    "elapsed": float(elapsed_min),
+                                                    "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                    "line": float(home_spread),
+                                                    "live_line": float(home_spread),
+                                                    "side": ats_side,
+                                                    "proj": float(adj_margin_home),
+                                                    "sim_mu": float(margin_mean),
+                                                    "strength": float(abs(ats_edge)),
+                                                    "context": {
+                                                        "pick_home": 1 if pick_home else 0,
+                                                        "edge_home": float(edge_home),
+                                                        "edge_away": float(edge_away),
+                                                    },
+                                                    "received_at": now,
+                                                    "tick_bucket": bucket_key,
+                                                }
+                                                okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                                                if okp:
+                                                    wrote_projections += 1
+                                                else:
+                                                    errors.append(f"proj_ats:{eid}:{infop}")
+
+                        # ML
+                        if include_ml and p_home_win is not None and home_ml is not None and away_ml is not None and home_margin is not None and elapsed_min is not None:
+                            p_home_implied = _american_to_implied_prob(home_ml)
+                            p_away_implied = _american_to_implied_prob(away_ml)
+                            if p_home_implied is not None and p_away_implied is not None:
+                                min_left = float(max(0.0, 48.0 - float(elapsed_min)))
+                                scale = 6.0 + (0.35 * min_left)
+                                try:
+                                    poss_exp_so_far = (float(exp_pace) * float(elapsed_min) / 48.0) if (exp_pace is not None and elapsed_min is not None) else None
+                                    if game_poss_live is not None and poss_exp_so_far is not None and poss_exp_so_far > 5.0:
+                                        ratio = float(game_poss_live) / float(poss_exp_so_far)
+                                        ratio_clamped = max(0.6, min(1.6, ratio))
+                                        scale = scale / math.sqrt(ratio_clamped)
+                                except Exception:
+                                    pass
+                                p_home_score = 1.0 / (1.0 + math.exp(-(float(home_margin) / float(scale))))
+                                blend_w = float(max(0.0, min(1.0, float(elapsed_min) / 48.0)))
+                                p_home_model = (1.0 - blend_w) * float(p_home_win) + blend_w * float(p_home_score)
+                                edge_home = float(p_home_model) - float(p_home_implied)
+                                edge_away = float(1.0 - p_home_model) - float(p_away_implied)
+                                pick_home = abs(edge_home) >= abs(edge_away)
+                                ml_edge = float(edge_home if pick_home else edge_away)
+                                ml_side = str(home if pick_home else away)
+                                ml_klass = _klass(abs(ml_edge), ml_watch, ml_bet)
+                                if _allow(log_mode, ml_klass):
+                                    if not (first_bet_only and ml_klass != "BET"):
+                                        first_bet_k = None
+                                        if first_bet_only:
+                                            first_bet_k = f"{ds}:{str(gid)}:ml:game:{ml_side}"
+                                            with _live_lens_tick_lock:
+                                                if _live_lens_tick_first_bet_logged.get(first_bet_k):
+                                                    skipped_first_bet += 1
+                                                    first_bet_k = None
+                                                else:
+                                                    _live_lens_tick_first_bet_logged[first_bet_k] = "pending"
+                                        if (not first_bet_only) or (first_bet_k is not None):
+                                            signal_key = "game_ml"
+                                            throttle_k = f"{str(gid)}:{signal_key}"
+                                            with _live_lens_tick_lock:
+                                                last = _live_lens_tick_last_logged.get(throttle_k)
+                                                if last == bucket_key:
+                                                    skipped_throttle += 1
+                                                    throttle_ok = False
+                                                else:
+                                                    _live_lens_tick_last_logged[throttle_k] = bucket_key
+                                                    throttle_ok = True
+                                            if throttle_ok:
+                                                body = {
+                                                    "date": ds,
+                                                    "game_id": gid,
+                                                    "event_id": eid,
+                                                    "home": home,
+                                                    "away": away,
+                                                    "period": period,
+                                                    "sec_left_period": sec_left_period,
+                                                    "margin_home": home_margin,
+                                                    "tuning_source": "cron",
+                                                    "schema_version": 2,
+                                                    "klass": ml_klass,
+                                                    "horizon": "game",
+                                                    "market": "ml",
+                                                    "signal_key": signal_key,
+                                                    "elapsed": float(elapsed_min),
+                                                    "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                    "total_points": float(total_pts) if total_pts is not None else None,
+                                                    "live_line": float(home_ml if pick_home else away_ml),
+                                                    "side": ml_side,
+                                                    "edge": float(ml_edge),
+                                                    "edge_raw": float(ml_edge),
+                                                    "edge_adj": float(ml_edge),
+                                                    "strength": float(abs(ml_edge)),
+                                                    "context": {
+                                                        "thr_watch": float(ml_watch),
+                                                        "thr_bet": float(ml_bet),
+                                                        "p_home_pregame": float(p_home_win),
+                                                        "p_home_implied": float(p_home_implied),
+                                                        "p_away_implied": float(p_away_implied),
+                                                        "cur_margin_home": float(home_margin),
+                                                        "elapsed_min": float(elapsed_min),
+                                                        "game_min_left": float(min_left),
+                                                        "blend_w": float(blend_w),
+                                                        "p_home_score": float(p_home_score),
+                                                        "p_home_model": float(p_home_model),
+                                                        "scale": float(scale),
+                                                    },
+                                                    "received_at": now,
+                                                    "tick_bucket": bucket_key,
+                                                }
+                                                ok, info = _append_live_lens_signal_jsonl(_to_jsonable(body), ds)
+                                                if ok:
+                                                    wrote_signals += 1
+                                                    if first_bet_only and first_bet_k is not None:
+                                                        with _live_lens_tick_lock:
+                                                            _live_lens_tick_first_bet_logged[first_bet_k] = bucket_key
+                                                else:
+                                                    errors.append(f"ml:{eid}:{info}")
+                                                    if first_bet_only and first_bet_k is not None:
+                                                        with _live_lens_tick_lock:
+                                                            _live_lens_tick_first_bet_logged.pop(first_bet_k, None)
+
+                                                throttle_p = f"{str(gid)}:{signal_key}:proj"
+                                                with _live_lens_tick_lock:
+                                                    lastp = _live_lens_tick_last_proj_logged.get(throttle_p)
+                                                    if lastp != bucket_key:
+                                                        _live_lens_tick_last_proj_logged[throttle_p] = bucket_key
+                                                        proj_ok = True
+                                                    else:
+                                                        proj_ok = False
+                                                if proj_ok:
+                                                    proj_body = {
+                                                        "date": ds,
+                                                        "game_id": gid,
+                                                        "event_id": eid,
+                                                        "home": home,
+                                                        "away": away,
+                                                        "period": period,
+                                                        "sec_left_period": sec_left_period,
+                                                        "klass": ml_klass,
+                                                        "horizon": "game",
+                                                        "market": "ml",
+                                                        "proj_key": signal_key,
+                                                        "elapsed": float(elapsed_min),
+                                                        "remaining": float(game_min_left) if game_min_left is not None else None,
+                                                        "line": float(home_ml if pick_home else away_ml),
+                                                        "live_line": float(home_ml if pick_home else away_ml),
+                                                        "side": ml_side,
+                                                        "proj": float(p_home_model),
+                                                        "sim_mu": float(p_home_win),
+                                                        "strength": float(abs(ml_edge)),
+                                                        "context": {
+                                                            "pick_home": 1 if pick_home else 0,
+                                                            "p_home_score": float(p_home_score),
+                                                            "p_home_implied": float(p_home_implied),
+                                                            "p_away_implied": float(p_away_implied),
+                                                        },
+                                                        "received_at": now,
+                                                        "tick_bucket": bucket_key,
+                                                    }
+                                                    okp, infop = _append_live_lens_projection_jsonl(_to_jsonable(proj_body), ds)
+                                                    if okp:
+                                                        wrote_projections += 1
+                                                    else:
+                                                        errors.append(f"proj_ml:{eid}:{infop}")
                     except Exception as e:
                         errors.append(f"total:{str(e)}")
         except Exception as e:
