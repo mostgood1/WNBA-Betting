@@ -52,7 +52,7 @@ jobs:
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1&sync=1"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
             set +e
@@ -62,72 +62,80 @@ jobs:
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
-              # If the endpoint returns 202 (async), wait for completion via status endpoint.
-              if [ "$http" = "202" ]; then
-                STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=80"
-                echo "Polling $STATUS_URL"
-                python3 -c '
+            python3 -c '
           import json
+          import pathlib
           import sys
-          import time
-          import urllib.error
-          import urllib.request
 
-          status_url = sys.argv[1]
-          token = sys.argv[2]
+          resp_path = pathlib.Path("resp.txt")
+          try:
+            payload = json.loads(resp_path.read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+            print(f"Invalid JSON response: {exc}")
+            try:
+              print(resp_path.read_text(encoding="utf-8", errors="ignore")[:8000])
+            except Exception:
+              pass
+            sys.exit(1)
 
-          def fetch():
-              req = urllib.request.Request(
-                  status_url,
-                  headers={"Authorization": f"Bearer {token}", "Accept": "application/json"},
-              )
-              with urllib.request.urlopen(req, timeout=10) as r:
-                  return json.loads(r.read().decode("utf-8", errors="ignore") or "{}")
+          def as_int(value, default=None):
+            try:
+              if value is None:
+                return default
+              return int(value)
+            except Exception:
+              return default
 
-          deadline = time.time() + 25 * 60  # 25 minutes
-          last = None
-          while time.time() < deadline:
-              try:
-                  st = fetch()
-                  last = st
-                  running = bool(st.get("running"))
-                  if running:
-                      time.sleep(15)
-                      continue
-                  ok = st.get("ok")
-                  if ok is True:
-                      print("Job finished ok")
-                      sys.exit(0)
-                  print("Job finished but not ok")
-                  print(json.dumps(st, indent=2)[:8000])
-                  sys.exit(1)
-              except urllib.error.HTTPError as e:
-                  code = int(getattr(e, "code", 0) or 0)
-                  # During deploy windows, the status endpoint might not exist yet.
-                  # Treat 202 as accepted in that case.
-                  if code == 404:
-                      print("Status endpoint not available (404); treating 202 as accepted")
-                      sys.exit(0)
-                  # Render can briefly return 5xx/429 during restarts or deploys.
-                  if code in (429, 500, 502, 503, 504):
-                      print(f"Status endpoint transient HTTP {code}; retrying")
-                      time.sleep(15)
-                      continue
-                  raise
-              except Exception as e:
-                  print(f"Status poll error: {e}")
-                  time.sleep(10)
+          if payload.get("error"):
+            print("Refresh returned error payload")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(1)
 
-          print("Timed out waiting for job completion")
-          if last is not None:
-              try:
-                  print(json.dumps(last, indent=2)[:8000])
-              except Exception:
-                  pass
-          sys.exit(1)
-          ' "$STATUS_URL" "${NBA_BETTING_CRON_TOKEN}"
-              fi
+          rc_snapshot = as_int(payload.get("rc_snapshot"), 1)
+          rc_edges = as_int(payload.get("rc_edges"), None)
+          rc_export = as_int(payload.get("rc_export"), None)
+          snapshot_rows = as_int(payload.get("snapshot_rows"), 0) or 0
+          edges_rows = as_int(payload.get("edges_rows"), 0)
+          recs_rows = as_int(payload.get("recs_rows"), 0)
 
+          if rc_snapshot != 0:
+            print("Snapshot step failed")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(1)
+
+          if snapshot_rows <= 0:
+            print("No current props snapshot rows for this date; treating as clean no-op")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(0)
+
+          if rc_edges not in (None, 0):
+            print("Edges step failed")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(1)
+
+          if rc_export not in (None, 0):
+            print("Export step failed")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(1)
+
+          if edges_rows is not None and int(edges_rows) <= 0:
+            print("Edges rows are zero after a non-empty snapshot")
+            print(json.dumps(payload, indent=2)[:8000])
+            sys.exit(1)
+
+          if recs_rows is not None and int(recs_rows) <= 0:
+            print("Recommendations rows are zero after export; continuing")
+
+          print("Refresh completed ok")
+          print(json.dumps({
+            "snapshot_rows": snapshot_rows,
+            "edges_rows": edges_rows,
+            "recs_rows": recs_rows,
+            "snapshot_path": payload.get("snapshot_path"),
+            "edges_path": payload.get("edges_path"),
+            "recs_path": payload.get("recs_path"),
+          }, indent=2))
+          '
               exit 0
             fi
             echo "Request attempt $i -> HTTP $http" >&2
