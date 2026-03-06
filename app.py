@@ -22372,7 +22372,7 @@ def api_live_game():
                         sim_at = sim_game_by_min[m]
                         if act is None or sim_at is None:
                             continue
-                        proj_final_total_by_min[m] = float(float(act) + (float(sim_final_g) - float(sim_at)))
+                        proj_final_total_by_min[m] = float(max(float(act), float(act) + (float(sim_final_g) - float(sim_at))))
                     except Exception:
                         continue
 
@@ -22384,7 +22384,7 @@ def api_live_game():
                         sim_at = sim_half_by_min[m]
                         if act is None or sim_at is None:
                             continue
-                        proj_final_half_total_by_min[m] = float(float(act) + (float(sim_final_h) - float(sim_at)))
+                        proj_final_half_total_by_min[m] = float(max(float(act), float(act) + (float(sim_final_h) - float(sim_at))))
                     except Exception:
                         continue
 
@@ -22396,7 +22396,7 @@ def api_live_game():
                 delta_g = None
                 if sim_at_g is not None and sim_final_g is not None:
                     delta_g = float(sim_at_g - float(total_pts))
-                    pace_final_g = float(float(total_pts) + (sim_final_g - sim_at_g))
+                    pace_final_g = float(max(float(total_pts), float(total_pts) + (sim_final_g - sim_at_g)))
                 diff_vs_total = None
                 if pace_final_g is not None and lines and lines.get("total") is not None:
                     try:
@@ -22419,13 +22419,25 @@ def api_live_game():
 
             # 1H lens
             if half_min_left is not None and total_pts is not None:
+                half_total_pts = float(total_pts)
+                try:
+                    if period is not None and int(period) > 2:
+                        q_totals = (pbp_quarters.get("q_totals") if isinstance(pbp_quarters, dict) else None) or {}
+                        q1 = _safe_float(q_totals.get("q1"))
+                        q2 = _safe_float(q_totals.get("q2"))
+                        if q1 is not None and q2 is not None:
+                            half_total_pts = float(q1 + q2)
+                        elif isinstance(act_half_total_by_min, list) and len(act_half_total_by_min) >= 25 and act_half_total_by_min[24] is not None:
+                            half_total_pts = float(act_half_total_by_min[24])
+                except Exception:
+                    half_total_pts = float(total_pts)
                 elapsed_h = float(max(0.0, min(24.0, 24.0 - float(half_min_left))))
                 sim_at_h = _live_interp_cum_p50(intervals, elapsed_min=elapsed_h, total_minutes=24)
                 pace_final_h = None
                 delta_h = None
                 if sim_at_h is not None and sim_final_h is not None:
-                    delta_h = float(sim_at_h - float(total_pts))
-                    pace_final_h = float(float(total_pts) + (sim_final_h - sim_at_h))
+                    delta_h = float(sim_at_h - half_total_pts)
+                    pace_final_h = float(max(half_total_pts, half_total_pts + (sim_final_h - sim_at_h)))
                 lens["half"] = {
                     "elapsed_min": elapsed_h,
                     "min_left": half_min_left,

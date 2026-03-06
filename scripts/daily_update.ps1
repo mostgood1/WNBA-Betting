@@ -1823,39 +1823,12 @@ try {
 $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $Date)
 # Remove any stale file so an empty OddsAPI result doesn't leave prior Bovada content around
 try { if (Test-Path $edgesPath) { Remove-Item $edgesPath -Force } } catch { }
-# 4.9) Explicit props odds snapshot (current) for the day (writes processed diagnostics + raw per-day archive)
+# 4.9) Explicit props odds snapshot (current) for the day.
+# Use the CLI command so we also persist opening + append-only history snapshots.
 try {
-  Write-Log "Fetching current player props odds (OddsAPI) and writing snapshots"
-  $pyProps = @'
-import os, pandas as pd
-from datetime import datetime
-from nba_betting.odds_api import OddsApiConfig, fetch_player_props_current
-from nba_betting.config import paths
-
-date_str = os.environ.get('TARGET_DATE')
-api_key = os.environ.get('ODDS_API_KEY')
-ok = False; why = ''
-if api_key and date_str:
-    d = datetime.strptime(date_str, '%Y-%m-%d')
-    cfg = OddsApiConfig(api_key=api_key)
-    df = fetch_player_props_current(cfg, date=d, markets=None, verbose=True)
-    # fetch_player_props_current already writes processed per-day diagnostics under data/processed
-    # Write a raw per-day archive as well for auditing
-    if df is not None and not df.empty:
-        out_csv = paths.data_raw / f"odds_nba_player_props_{d.date()}.csv"
-        df.to_csv(out_csv, index=False)
-        ok = True
-    else:
-        why = 'no_player_props'
-else:
-    why = 'missing_api_key_or_date'
-print('OK' if ok else f'NO:{why}')
-'@
-  $env:TARGET_DATE = $Date
-  $tmpPy2 = Join-Path $LogPath ("props_odds_snapshot_{0}.py" -f $Stamp)
-  Set-Content -Path $tmpPy2 -Value $pyProps -Encoding UTF8
-  $out2 = & $Python $tmpPy2 2>&1 | Tee-Object -FilePath $LogFile -Append
-  if ($out2 -match 'OK') { Write-Log 'Saved player props odds snapshots (processed + raw per-day)' } else { Write-Log ("Props odds snapshot returned: {0}" -f $out2) }
+  Write-Log "Fetching current player props odds (OddsAPI) and writing snapshots (raw + opening + history)"
+  $rcPropsSnap = Invoke-PyMod -plist @('-m','nba_betting.cli','odds-snapshots-props','--date', $Date)
+  Write-Log ("odds-snapshots-props exit code: {0}" -f $rcPropsSnap)
 } catch { Write-Log ("Props odds snapshot block failed: {0}" -f $_.Exception.Message) }
 
 # Optional: control runtime probability calibration strength in props edge scoring.

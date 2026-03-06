@@ -176,13 +176,48 @@ def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
         _PROPS_OPENING_CACHE[day_str] = out
         return out
 
-    df = df.sort_values(["snapshot_ts_dt"])
+    # Ladder-safe opening selection:
+    # - First pick the earliest snapshot per (event, book, market, player, side)
+    # - Then, within that snapshot (which may include many ladder points), pick a
+    #   canonical "main" line by choosing the row whose implied probability is
+    #   closest to the -110 break-even (implied ~= 0.5238).
     keys = ["event_id", "bookmaker", "market", "name_key", "side"]
-    opening = df.groupby(keys, as_index=False).first()
+    df["price_num"] = pd.to_numeric(df.get("price"), errors="coerce")
+    df["point_num"] = pd.to_numeric(df.get("point"), errors="coerce")
+
+    # Vectorized implied probability from American odds
+    ip = pd.Series(np.nan, index=df.index, dtype="float64")
+    m_pos = df["price_num"] > 0
+    if m_pos.any():
+        ip.loc[m_pos] = 100.0 / (df.loc[m_pos, "price_num"] + 100.0)
+    m_neg = df["price_num"] < 0
+    if m_neg.any():
+        ip.loc[m_neg] = (-df.loc[m_neg, "price_num"]) / ((-df.loc[m_neg, "price_num"]) + 100.0)
+    df["_open_implied"] = ip
+    target_ip = 110.0 / (110.0 + 100.0)  # implied prob for -110
+    df["_open_metric"] = (df["_open_implied"] - float(target_ip)).abs()
+    # Avoid NaNs breaking idxmin
+    df["_open_metric"] = df["_open_metric"].fillna(1e9)
+
+    # Earliest snapshot_ts per group
+    first_ts = df.groupby(keys)["snapshot_ts_dt"].transform("min")
+    df0 = df[df["snapshot_ts_dt"] == first_ts].copy()
+    if df0.empty:
+        out = pd.DataFrame()
+        _PROPS_OPENING_CACHE[day_str] = out
+        return out
+
+    try:
+        idx = df0.groupby(keys)["_open_metric"].idxmin()
+        opening = df0.loc[idx].copy()
+    except Exception:
+        # Conservative fallback: deterministic earliest row per group
+        opening = df0.sort_values(["snapshot_ts_dt"]).groupby(keys, as_index=False).first()
+
     opening = opening.rename(
         columns={
-            "point": "open_line",
-            "price": "open_price",
+            "point_num": "open_line",
+            "price_num": "open_price",
             "snapshot_ts": "open_snapshot_ts",
         }
     )

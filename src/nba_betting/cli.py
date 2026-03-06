@@ -8187,35 +8187,169 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         console.print(f"Failed writing snapshot: {e}", style="yellow")
         return
 
-    # Persist an "opening" snapshot once (first non-empty snapshot we see).
-    # This avoids re-reading the full per-day history during edges computation.
+    # Persist an "opening" snapshot per prop outcome.
+    # IMPORTANT: markets can appear throughout the day; keep this file up-to-date by
+    # adding any newly-seen (event, book, market, player, side) keys while preserving
+    # the earliest snapshot for keys already present.
     try:
         cur = df if isinstance(df, pd.DataFrame) else pd.DataFrame()
         if cur is not None and not cur.empty:
+            import re
+            import unicodedata
+
             open_pq = paths.data_raw / f"odds_nba_player_props_opening_{target_date}.parquet"
             open_csv = paths.data_raw / f"odds_nba_player_props_opening_{target_date}.csv"
-            if (not open_pq.exists()) and (not open_csv.exists()):
-                open_cols = [
-                    "snapshot_ts",
-                    "event_id",
-                    "commence_time",
-                    "bookmaker",
-                    "market",
-                    "outcome_name",
-                    "player_name",
-                    "point",
-                    "price",
-                ]
-                cur_open = cur[[c for c in open_cols if c in cur.columns]].copy()
-                wrote_open = None
+
+            open_cols = [
+                "snapshot_ts",
+                "event_id",
+                "commence_time",
+                "bookmaker",
+                "market",
+                "outcome_name",
+                "player_name",
+                "point",
+                "price",
+            ]
+
+            def _norm_name_key(s: str) -> str:
+                s = (s or "").strip().upper()
                 try:
-                    cur_open.to_parquet(open_pq, index=False)
-                    wrote_open = open_pq
+                    s = unicodedata.normalize("NFKD", s)
+                    s = "".join(ch for ch in s if not unicodedata.combining(ch))
+                    s = s.encode("ascii", "ignore").decode("ascii")
                 except Exception:
-                    cur_open.to_csv(open_csv, index=False)
+                    pass
+                s = s.replace("-", " ")
+                if "(" in s:
+                    s = s.split("(", 1)[0]
+                s = re.sub(r"[^A-Z0-9\s]", "", s)
+                s = re.sub(r"\s+", " ", s).strip()
+                for suf in (" JR", " SR", " II", " III", " IV", " V"):
+                    if s.endswith(suf):
+                        s = s[: -len(suf)].strip()
+                return s
+
+            def _map_side(x: str) -> str | None:
+                u = str(x).upper()
+                if "OVER" in u:
+                    return "OVER"
+                if "UNDER" in u:
+                    return "UNDER"
+                if u in ("YES", "Y"):
+                    return "YES"
+                if u in ("NO", "N"):
+                    return "NO"
+                return None
+
+            def _select_canonical_open(df_in: pd.DataFrame) -> pd.DataFrame:
+                try:
+                    tmp = df_in[[c for c in open_cols if c in df_in.columns]].copy()
+                    if tmp.empty:
+                        return tmp
+                    tmp["_name_key"] = tmp.get("player_name").astype(str).map(_norm_name_key)
+                    tmp["_side"] = tmp.get("outcome_name").astype(str).map(_map_side)
+                    tmp["_price_num"] = pd.to_numeric(tmp.get("price"), errors="coerce")
+                    # Implied probability from American odds
+                    ip = pd.Series(np.nan, index=tmp.index, dtype="float64")
+                    m_pos = tmp["_price_num"] > 0
+                    if m_pos.any():
+                        ip.loc[m_pos] = 100.0 / (tmp.loc[m_pos, "_price_num"] + 100.0)
+                    m_neg = tmp["_price_num"] < 0
+                    if m_neg.any():
+                        ip.loc[m_neg] = (-tmp.loc[m_neg, "_price_num"]) / ((-tmp.loc[m_neg, "_price_num"]) + 100.0)
+                    target_ip = 110.0 / (110.0 + 100.0)  # -110 break-even
+                    tmp["_metric"] = (ip - float(target_ip)).abs().fillna(1e9)
+                    keys = ["event_id", "bookmaker", "market", "_name_key", "_side"]
+                    tmp = tmp[
+                        tmp.get("event_id").notna()
+                        & tmp.get("bookmaker").notna()
+                        & tmp.get("market").notna()
+                        & tmp.get("_name_key").notna()
+                        & tmp.get("_side").notna()
+                    ].copy()
+                    if tmp.empty:
+                        return tmp[[c for c in open_cols if c in tmp.columns]].copy()
+                    try:
+                        idx = tmp.groupby(keys)["_metric"].idxmin()
+                        out = tmp.loc[idx, [c for c in open_cols if c in tmp.columns]].copy()
+                    except Exception:
+                        out = tmp[[c for c in open_cols if c in tmp.columns]].copy()
+                    return out
+                except Exception:
+                    return pd.DataFrame()
+
+            # Canonical open candidates from *this* snapshot
+            cur_open = _select_canonical_open(cur)
+
+            # Load existing opening snapshot (if any) and canonicalize it as well.
+            # Be defensive: if parquet exists but is unreadable (missing engine, partial write, etc.),
+            # fall back to CSV if available so we don't accidentally reset opening state.
+            existing_open = pd.DataFrame()
+            if open_pq.exists():
+                try:
+                    existing_open = pd.read_parquet(open_pq, columns=[c for c in open_cols])
+                except Exception:
+                    existing_open = pd.DataFrame()
+            if (existing_open is None) or (not isinstance(existing_open, pd.DataFrame)) or existing_open.empty:
+                if open_csv.exists():
+                    try:
+                        existing_open = pd.read_csv(open_csv, usecols=[c for c in open_cols])
+                    except Exception:
+                        existing_open = pd.DataFrame()
+            existing_open = _select_canonical_open(existing_open) if isinstance(existing_open, pd.DataFrame) and (not existing_open.empty) else pd.DataFrame(columns=open_cols)
+
+            # Append only newly-seen keys
+            def _key_series(df_k: pd.DataFrame) -> pd.Series:
+                try:
+                    if df_k is None or (not isinstance(df_k, pd.DataFrame)) or df_k.empty:
+                        return pd.Series([], dtype=str)
+                    idx = df_k.index
+                    eid = df_k["event_id"].astype(str) if "event_id" in df_k.columns else pd.Series("", index=idx, dtype=str)
+                    bk = df_k["bookmaker"].astype(str) if "bookmaker" in df_k.columns else pd.Series("", index=idx, dtype=str)
+                    mk = df_k["market"].astype(str) if "market" in df_k.columns else pd.Series("", index=idx, dtype=str)
+                    pn = df_k["player_name"].astype(str) if "player_name" in df_k.columns else pd.Series("", index=idx, dtype=str)
+                    on = df_k["outcome_name"].astype(str) if "outcome_name" in df_k.columns else pd.Series("", index=idx, dtype=str)
+                    nm = pn.map(_norm_name_key)
+                    sd = on.map(_map_side)
+                    return eid + "|" + bk + "|" + mk + "|" + nm.astype(str) + "|" + sd.astype(str)
+                except Exception:
+                    return pd.Series([], dtype=str)
+
+            ex_keys = set(_key_series(existing_open).dropna().astype(str).tolist()) if not existing_open.empty else set()
+            if not cur_open.empty:
+                cur_keys = _key_series(cur_open)
+                add_mask = ~cur_keys.astype(str).isin(ex_keys)
+                add_rows = cur_open.loc[add_mask].copy() if bool(add_mask.any()) else pd.DataFrame(columns=open_cols)
+            else:
+                add_rows = pd.DataFrame(columns=open_cols)
+
+            combined = pd.concat([existing_open, add_rows], ignore_index=True, sort=False)
+            combined = combined[[c for c in open_cols if c in combined.columns]].copy()
+            if not combined.empty:
+                wrote_open = None
+                wrote_pq = False
+                try:
+                    combined.to_parquet(open_pq, index=False)
+                    wrote_open = open_pq
+                    wrote_pq = True
+                except Exception:
+                    combined.to_csv(open_csv, index=False)
                     wrote_open = open_csv
+                    # Ensure we don't leave a stale parquet file that would be preferred at read time
+                    try:
+                        if open_pq.exists():
+                            open_pq.unlink()
+                    except Exception:
+                        pass
+                # Optional: keep CSV around even when parquet works (useful for quick inspection)
+                if wrote_pq:
+                    try:
+                        combined.to_csv(open_csv, index=False)
+                    except Exception:
+                        pass
                 if wrote_open is not None:
-                    console.print({"opening_rows": int(len(cur_open)), "opening_output": str(wrote_open)})
+                    console.print({"opening_rows": int(len(combined)), "opening_output": str(wrote_open)})
     except Exception as e:
         console.print(f"Opening snapshot write skipped: {e}", style="yellow")
 

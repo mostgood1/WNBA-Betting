@@ -532,7 +532,7 @@ function renderIntervalsTable(intervals) {
 
   const rows = segs.map((s) => {
     const q = n(s.quarter);
-    const lab = s.label || (q != null ? `Q${q}` : '');
+  const paceFinal = Math.max(actTot, actTot + (simFinal - simAt));
     const mu = n(s.mu);
     const q10 = n(s.q && s.q.p10);
     const q50 = n(s.q && s.q.p50);
@@ -798,9 +798,13 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
           <span class="chip neutral">${esc(atLabel)}: <span class="fw-700 lens-sim-at">—</span></span>
           <span class="chip neutral">Δ (Sim–Act): <span class="fw-700 lens-delta">—</span></span>
           <span class="chip neutral">${esc(paceLabel)}: <span class="fw-700 lens-pace">—</span></span>
+          <span class="chip neutral">Bet proj: <span class="fw-700 lens-proj-bet">—</span></span>
           <span class="chip neutral">${esc(simFinalLabel)}: <span class="fw-700 lens-sim-final">—</span></span>
           <span class="chip neutral">Driver: <span class="fw-700 lens-driver">—</span></span>
           <span class="chip neutral">Lean: <span class="fw-700 lens-lean">—</span></span>
+          <span class="chip neutral">Rates: <span class="fw-700 lens-rates">—</span></span>
+          <span class="chip neutral">Recent: <span class="fw-700 lens-recent">—</span></span>
+          <span class="chip neutral">Adjust: <span class="fw-700 lens-adjust">—</span></span>
           <span class="chip neutral">Attempts: <span class="fw-700 lens-scope-attempts">—</span></span>
         </div>
       </div>
@@ -1456,21 +1460,32 @@ function attachLiveLensHandlers(root, games) {
       const outSimAt = scopeEl.querySelector('.lens-sim-at');
       const outDelta = scopeEl.querySelector('.lens-delta');
       const outPace = scopeEl.querySelector('.lens-pace');
+      const outProjBet = scopeEl.querySelector('.lens-proj-bet');
       const outSimFinal = scopeEl.querySelector('.lens-sim-final');
       const outDriver = scopeEl.querySelector('.lens-driver');
       const outLean = scopeEl.querySelector('.lens-lean');
+      const outRates = scopeEl.querySelector('.lens-rates');
+      const outRecent = scopeEl.querySelector('.lens-recent');
+      const outAdjust = scopeEl.querySelector('.lens-adjust');
 
       const minRem = clampInt(minEl && minEl.value, 0, totalMinutes, totalMinutes);
       const actTot = n(totEl && totEl.value != null ? totEl.value : null);
       const liveTot = n(liveEl && liveEl.value != null && String(liveEl.value).trim() !== '' ? liveEl.value : null);
+      const recentWindowSecRaw = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentWindowSec : null);
+      const recentPossRaw = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPoss : null);
+      const recentPtsRaw = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPts : null);
 
       if (actTot == null) {
         if (outSimAt) outSimAt.textContent = '—';
         if (outDelta) outDelta.textContent = '—';
         if (outPace) outPace.textContent = '—';
+        if (outProjBet) outProjBet.textContent = '—';
         if (outSimFinal) outSimFinal.textContent = '—';
         if (outDriver) outDriver.textContent = '—';
         if (outLean) outLean.textContent = '—';
+        if (outRates) outRates.textContent = '—';
+        if (outRecent) outRecent.textContent = '—';
+        if (outAdjust) outAdjust.textContent = '—';
         return;
       }
 
@@ -1481,6 +1496,9 @@ function attachLiveLensHandlers(root, games) {
 
       const delta = (simAt == null) ? null : (simAt - actTot); // Sim - Act
       let paceFinal = (simAt != null && simFinal != null) ? (actTot + (simFinal - simAt)) : null;
+
+        // Projection can never be below points already scored in this scope.
+        if (paceFinal != null) paceFinal = Math.max(actTot, paceFinal);
 
       // Optional context for logging/tuning.
       let possCtx = null;
@@ -1513,6 +1531,11 @@ function attachLiveLensHandlers(root, games) {
             exp_ppp: expPpp,
             act_ppp: actPpp0,
             pace_ratio: (possLive != null && possExpectedSoFar != null && possExpectedSoFar > 1e-6) ? (possLive / possExpectedSoFar) : null,
+            pace_points: paceFinal,
+            pace_poss: null,
+            pace_alpha: 0.0,
+            pace_blend_delta: 0.0,
+            pace_final: paceFinal,
             w_pace: 0.0,
           };
         } catch (_) {
@@ -1549,12 +1572,21 @@ function attachLiveLensHandlers(root, games) {
 
               const projPossFull = possExpectedFull * paceRatioShrunk;
               const projPpp = expPpp + effDeltaShrunk;
-              let possBased = projPossFull * projPpp;
+
+              // Possession-based projection anchored on points already scored.
+              // This prevents impossible states like projected final < current points.
+              const pointsBasedBeforePoss = paceFinal;
+              const possRemaining = Math.max(0.0, projPossFull - possLive);
+              let possBased = actTot + (possRemaining * projPpp);
 
               // Guardrails vs SmartSim median for the scope.
               const maxDevCfg = n(adjCfg && adjCfg.max_dev_points);
               const maxDev = (maxDevCfg != null) ? maxDevCfg : (2.0 + (25.0 * (totalMinutes / 48.0)));
-              possBased = Math.max(simFinal - maxDev, Math.min(simFinal + maxDev, possBased));
+              const hi = simFinal + maxDev;
+              if (actTot <= hi) {
+                possBased = Math.max(simFinal - maxDev, Math.min(hi, possBased));
+              }
+              possBased = Math.max(actTot, possBased);
 
               // Blend with points-based ladder output to preserve SmartSim ladder prior.
               const alpha = wPace;
@@ -1562,6 +1594,21 @@ function attachLiveLensHandlers(root, games) {
               const maxDeltaCfg = n(adjCfg && adjCfg.max_delta_points);
               const maxDelta = (maxDeltaCfg != null) ? maxDeltaCfg : (2.0 + (15.0 * (totalMinutes / 48.0)));
               blended = Math.max(paceFinal - maxDelta, Math.min(paceFinal + maxDelta, blended));
+              try {
+                if (possCtx && typeof possCtx === 'object') {
+                  possCtx.pace_points = pointsBasedBeforePoss;
+                  possCtx.pace_poss = possBased;
+                  possCtx.pace_alpha = alpha;
+                  possCtx.pace_blend_delta = blended - pointsBasedBeforePoss;
+                  possCtx.proj_poss_full = projPossFull;
+                  possCtx.proj_ppp = projPpp;
+                  possCtx.eff_delta = effDelta;
+                  possCtx.eff_delta_shrunk = effDeltaShrunk;
+                  possCtx.poss_remaining = possRemaining;
+                }
+              } catch (_) {
+                // ignore
+              }
               paceFinal = blended;
             }
           }
@@ -1572,11 +1619,11 @@ function attachLiveLensHandlers(root, games) {
           const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
           const rwCfg = t && t.recent_window && typeof t.recent_window === 'object' ? t.recent_window : null;
           if (!isFinal && !isFrozen && rwCfg && rwCfg.enabled !== false && paceFinal != null && expPace != null && expPpp != null) {
-            const windowSec = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentWindowSec : null) ?? n(rwCfg.window_sec) ?? 180;
+            const windowSec = recentWindowSecRaw ?? n(rwCfg.window_sec) ?? 180;
             const windowMin = Math.max(0.25, Math.min(10.0, windowSec / 60.0));
 
-            const recentPoss = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPoss : null);
-            const recentPts = n(scopeEl && scopeEl.dataset ? scopeEl.dataset.recentPts : null);
+            const recentPoss = recentPossRaw;
+            const recentPts = recentPtsRaw;
 
             const expPossWindow = expPace * (windowMin / 48.0);
             const expPossRemaining = expPace * (minRem / 48.0);
@@ -1638,10 +1685,16 @@ function attachLiveLensHandlers(root, games) {
         // ignore
       }
 
+      try {
+        if (possCtx && typeof possCtx === 'object') possCtx.pace_final = paceFinal;
+      } catch (_) {
+        // ignore
+      }
+
       let driver = null;
       if (delta != null) {
-        if (delta > 3.0) driver = 'Act ahead';
-        else if (delta < -3.0) driver = 'Act behind';
+        if (delta > 3.0) driver = 'Act behind';
+        else if (delta < -3.0) driver = 'Act ahead';
         else driver = 'On track';
       }
 
@@ -1737,6 +1790,22 @@ function attachLiveLensHandlers(root, games) {
         // ignore
       }
 
+      // Final guardrail: projected finish must be >= points already scored.
+      // When the scope clock is actually 0:00 (end of quarter / halftime), snap to the settled actual.
+      try {
+        if (paceFinal != null) paceFinal = Math.max(actTot, paceFinal);
+        const pNow = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.period) : null;
+        const secLeft = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.secLeftPeriod) : null;
+        const pn = (pNow != null && Number.isFinite(Number(pNow))) ? Math.floor(Number(pNow)) : null;
+        const lp = String(labelPrefix || '').toUpperCase().trim();
+        const scopeEndedNow = (secLeft != null && Number.isFinite(Number(secLeft)) && Number(secLeft) <= 0 && pn != null)
+          ? ((/^Q[1-4]$/.test(lp) && pn === Number(lp.replace('Q', ''))) || (lp === '1H' && pn === 2))
+          : false;
+        if (scopeEndedNow) paceFinal = actTot;
+      } catch (_) {
+        // ignore
+      }
+
       let lean = null;
       if (liveTot != null && paceFinal != null) {
         const diff = paceFinal - liveTot;
@@ -1762,20 +1831,89 @@ function attachLiveLensHandlers(root, games) {
         }
       }
 
+      const fmtSignedVal = (val, digits = 1) => {
+        if (val == null) return '—';
+        return `${val >= 0 ? '+' : ''}${fmt(val, digits)}`;
+      };
+
+      let projBet = null;
+      if (paceFinal != null && liveTot != null) {
+        const diff = paceFinal - liveTot;
+        projBet = `${diff >= 0 ? 'O' : 'U'} ${fmt(paceFinal, 1)} vs ${fmt(liveTot, 1)} (${fmtSignedVal(diff, 1)})`;
+      } else if (paceFinal != null && simFinal != null) {
+        const diff = paceFinal - simFinal;
+        projBet = `${fmt(paceFinal, 1)} vs sim ${fmt(simFinal, 1)} (${fmtSignedVal(diff, 1)})`;
+      }
+
+      let ratesSummary = null;
+      try {
+        if (possCtx && typeof possCtx === 'object' && possCtx.poss_live != null && possCtx.poss_expected_so_far != null) {
+          const possTxt = `Poss ${fmt(possCtx.poss_live, 1)}/${fmt(possCtx.poss_expected_so_far, 1)}`;
+          const pppTxt = (possCtx.act_ppp != null && possCtx.exp_ppp != null)
+            ? `PPP ${fmt(possCtx.act_ppp, 2)}/${fmt(possCtx.exp_ppp, 2)}`
+            : null;
+          const paceTxt = (possCtx.pace_ratio != null) ? `${fmt(possCtx.pace_ratio, 2)}x pace` : null;
+          ratesSummary = [possTxt, pppTxt, paceTxt].filter(Boolean).join(' | ');
+        }
+      } catch (_) {
+        ratesSummary = null;
+      }
+
+      let recentSummary = null;
+      try {
+        if (recentPossRaw != null || recentPtsRaw != null) {
+          const rwObj = (possCtx && possCtx.recent_window && typeof possCtx.recent_window === 'object') ? possCtx.recent_window : null;
+          const rwSec = (rwObj && rwObj.window_sec != null) ? rwObj.window_sec : recentWindowSecRaw;
+          const rwLabel = (rwSec != null)
+            ? ((rwSec >= 60) ? `${fmt(rwSec / 60.0, 1)}m` : `${fmt(rwSec, 0)}s`)
+            : 'recent';
+          const paceTxt = (rwObj && rwObj.pace_ratio_recent != null) ? `${fmt(rwObj.pace_ratio_recent, 2)}x pace` : null;
+          recentSummary = `${rwLabel} ${recentPtsRaw != null ? `${fmt(recentPtsRaw, 0)} pts` : ''}${recentPtsRaw != null && recentPossRaw != null ? ', ' : ''}${recentPossRaw != null ? `${fmt(recentPossRaw, 1)} poss` : ''}${paceTxt ? ` | ${paceTxt}` : ''}`.trim();
+        }
+      } catch (_) {
+        recentSummary = null;
+      }
+
+      let adjustSummary = null;
+      try {
+        const parts = [];
+        if (possCtx && typeof possCtx === 'object') {
+          if (possCtx.pace_blend_delta != null && Math.abs(possCtx.pace_blend_delta) >= 0.05) parts.push(`poss ${fmtSignedVal(possCtx.pace_blend_delta, 1)}`);
+          if (possCtx.recent_window && Math.abs((n(possCtx.recent_window.pace_adj) ?? 0) + (n(possCtx.recent_window.eff_adj) ?? 0)) >= 0.05) {
+            parts.push(`recent ${fmtSignedVal((n(possCtx.recent_window.pace_adj) ?? 0) + (n(possCtx.recent_window.eff_adj) ?? 0), 1)}`);
+          }
+          if (possCtx.interval_drift && possCtx.interval_drift.adj_points != null && Math.abs(possCtx.interval_drift.adj_points) >= 0.05) parts.push(`drift ${fmtSignedVal(possCtx.interval_drift.adj_points, 1)}`);
+          if (possCtx.endgame_foul && possCtx.endgame_foul.adj_points != null && Math.abs(possCtx.endgame_foul.adj_points) >= 0.05) parts.push(`foul ${fmtSignedVal(possCtx.endgame_foul.adj_points, 1)}`);
+          if (!parts.length && possCtx.pace_alpha != null && possCtx.pace_alpha > 0.01) parts.push(`poss α ${fmt(possCtx.pace_alpha, 2)}`);
+        }
+        adjustSummary = parts.length ? parts.join(' | ') : 'No adj';
+      } catch (_) {
+        adjustSummary = null;
+      }
+
       if (outSimAt) outSimAt.textContent = (simAt == null) ? '—' : fmt(simAt, 0);
       if (outDelta) outDelta.textContent = (delta == null) ? '—' : fmt(delta, 1);
       if (outPace) outPace.textContent = (paceFinal == null) ? '—' : fmt(paceFinal, 1);
+      if (outProjBet) outProjBet.textContent = (projBet == null) ? '—' : projBet;
       if (outSimFinal) outSimFinal.textContent = (simFinal == null) ? '—' : fmt(simFinal, 1);
       if (outDriver) outDriver.textContent = (driver == null) ? '—' : driver;
       if (outLean) outLean.textContent = (isFinal || lean == null) ? '—' : lean;
+      if (outRates) outRates.textContent = (ratesSummary == null) ? '—' : ratesSummary;
+      if (outRecent) outRecent.textContent = (recentSummary == null || recentSummary === '') ? '—' : recentSummary;
+      if (outAdjust) outAdjust.textContent = (adjustSummary == null) ? '—' : adjustSummary;
 
       // Persist for polling-driven chips
       try {
         scopeEl.dataset.simAt = (simAt == null) ? '' : String(simAt);
         scopeEl.dataset.simFinal = (simFinal == null) ? '' : String(simFinal);
         scopeEl.dataset.paceFinal = (paceFinal == null) ? '' : String(paceFinal);
+        scopeEl.dataset.pacePoints = (possCtx && possCtx.pace_points != null) ? String(possCtx.pace_points) : '';
+        scopeEl.dataset.pacePoss = (possCtx && possCtx.pace_poss != null) ? String(possCtx.pace_poss) : '';
+        scopeEl.dataset.paceAlpha = (possCtx && possCtx.pace_alpha != null) ? String(possCtx.pace_alpha) : '';
+        scopeEl.dataset.paceBlendDelta = (possCtx && possCtx.pace_blend_delta != null) ? String(possCtx.pace_blend_delta) : '';
         scopeEl.dataset.deltaSimMinusAct = (delta == null) ? '' : String(delta);
         scopeEl.dataset.liveTotal = (liveTot == null) ? '' : String(liveTot);
+        scopeEl.dataset.betProjection = (paceFinal == null) ? '' : String(paceFinal);
 
         // Optional logging context (best-effort)
         scopeEl.dataset.possExpectedSoFar = (possCtx && possCtx.poss_expected_so_far != null) ? String(possCtx.poss_expected_so_far) : '';
@@ -2018,7 +2156,7 @@ function computePaceFinalFromIntervals(intervals, totalMinutes, minRem, actTot) 
   const simAt = cumAtElapsed(elapsed);
   const simFinal = n(segs[finalIdx] && segs[finalIdx].cum_q && segs[finalIdx].cum_q.p50);
   if (simAt == null || simFinal == null || actTot == null) return null;
-  const paceFinal = actTot + (simFinal - simAt);
+  const paceFinal = Math.max(actTot, actTot + (simFinal - simAt));
   return { simAt, simFinal, paceFinal, elapsedMinutes: elapsed };
 }
 
@@ -2134,15 +2272,21 @@ function computePossessionPaceForGame(meta, live, curMinLeft, actTot, pointsBase
 
   const projPossFull = expPace * paceRatioShrunk;
   const projPpp = expPpp + effDeltaShrunk;
-  let possBased = projPossFull * projPpp;
-  out.pace_poss = possBased;
+
+  // Anchor on points already scored; prevent projected final < current points.
+  const possRemaining = Math.max(0.0, projPossFull - possLive);
+  let possBased = actTot + (possRemaining * projPpp);
 
   // Guardrails: keep projection close to SmartSim median when very early / noisy.
   if (simFinal != null) {
     const maxDev = 25.0;
-    possBased = Math.max(simFinal - maxDev, Math.min(simFinal + maxDev, possBased));
-    out.pace_poss = possBased;
+    const hi = simFinal + maxDev;
+    if (actTot <= hi) {
+      possBased = Math.max(simFinal - maxDev, Math.min(hi, possBased));
+    }
+    possBased = Math.max(actTot, possBased);
   }
+  out.pace_poss = possBased;
 
   // Blend with points-based ladder output to preserve SmartSim pacing prior.
   const alpha = wPace;
@@ -2152,6 +2296,7 @@ function computePossessionPaceForGame(meta, live, curMinLeft, actTot, pointsBase
   // Final clamp vs points-based to avoid whipsaw.
   const maxDelta = 15.0;
   blended = Math.max(pb - maxDelta, Math.min(pb + maxDelta, blended));
+  blended = Math.max(actTot, blended);
   out.pace_final = blended;
   return out;
 }
@@ -3404,8 +3549,9 @@ function startLiveLensPolling(root, games, dateStr) {
     return { klass, text: txt, scopeKey, title: whyTitle };
   }
 
-  function updateScoreboardStrip(sbById) {
+  function updateScoreboardStrip(sbById, opts) {
     try {
+      const skipTags = !!(opts && opts.skipTags);
       const strip = root.querySelector('.scoreboard-strip');
       if (!strip) return;
       const items = strip.querySelectorAll('.s-item[data-game-id]');
@@ -3429,17 +3575,19 @@ function startLiveLensPolling(root, games, dateStr) {
         }
 
         const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
-        const tag = pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '' };
+        const tag = skipTags
+          ? { klass: 'NONE', text: '' }
+          : (pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '' });
         const tagEl = item.querySelector('.s-tag');
-        if (tagEl) {
+        if (tagEl && !skipTags) {
           tagEl.textContent = tag.text || '';
           try { tagEl.title = tag.title || ''; } catch (_) { /* ignore */ }
         }
 
         const inProg = !!(s && s.in_progress) || (lensEl && lensEl.dataset.inProgress === '1');
         item.classList.remove('bet', 'watch', 'live', 'neu');
-        if (tag.klass === 'BET') item.classList.add('bet');
-        else if (tag.klass === 'WATCH') item.classList.add('watch');
+        if (!skipTags && tag.klass === 'BET') item.classList.add('bet');
+        else if (!skipTags && tag.klass === 'WATCH') item.classList.add('watch');
         else if (inProg) item.classList.add('live');
         else item.classList.add('neu');
       });
@@ -3448,8 +3596,9 @@ function startLiveLensPolling(root, games, dateStr) {
     }
   }
 
-  function updateCompactCardTags(sbById) {
+  function updateCompactCardTags(sbById, opts) {
     try {
+      const skipTags = !!(opts && opts.skipTags);
       const cards = root.querySelectorAll('.card.card-v2[data-game-id]');
       cards.forEach((card) => {
         try {
@@ -3457,10 +3606,14 @@ function startLiveLensPolling(root, games, dateStr) {
           if (!gid) return;
           const s = sbById ? sbById.get(gid) : null;
           const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
-          const tag = pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '', title: '' };
+          const tag = skipTags
+            ? { klass: 'NONE', text: '', title: '' }
+            : (pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '', title: '' });
           const tagEl = card.querySelector('.lens-card-tag');
           if (!tagEl) return;
           const whyEl = card.querySelector('.lens-why-badges');
+
+          if (skipTags) return;
 
           function _whyBadgesFromTitle(title, klass) {
             try {
@@ -3647,8 +3800,8 @@ function startLiveLensPolling(root, games, dateStr) {
     });
 
     // Keep the top scoreboard strip in sync with basic status/score.
-    updateScoreboardStrip(sbById);
-    updateCompactCardTags(sbById);
+    updateScoreboardStrip(sbById, { skipTags: true });
+    updateCompactCardTags(sbById, { skipTags: true });
 
     const detailIds = [];
     const detailEventIds = [];
@@ -5109,6 +5262,80 @@ function startLiveLensPolling(root, games, dateStr) {
         schema_version: 2,
       };
 
+      function getScopeLogContext(scopeName) {
+        try {
+          const col = el.querySelector(`.lens-col[data-scope="${scopeName}"]`);
+          if (!col || !col.dataset) return null;
+          const totEl = col.querySelector('input.lens-total');
+          const liveEl = col.querySelector('input.lens-live');
+          const minEl = col.querySelector('select.lens-min');
+          return {
+            scope_present: 1,
+            scope: scopeName,
+            scope_total_points: n(totEl && totEl.value != null ? totEl.value : null),
+            scope_live_line: n(liveEl && liveEl.value != null && String(liveEl.value).trim() !== '' ? liveEl.value : null),
+            scope_min_remaining: n(minEl && minEl.value != null ? minEl.value : null),
+            sim_at: n(col.dataset.simAt),
+            sim_final: n(col.dataset.simFinal),
+            pace_final: n(col.dataset.paceFinal),
+            pace_points: n(col.dataset.pacePoints),
+            pace_poss: n(col.dataset.pacePoss),
+            pace_alpha: n(col.dataset.paceAlpha),
+            pace_blend_delta: n(col.dataset.paceBlendDelta),
+            bet_projection: n(col.dataset.betProjection),
+            delta_sim_minus_act: n(col.dataset.deltaSimMinusAct),
+            poss_live: n(col.dataset.possLive),
+            poss_expected_so_far: n(col.dataset.possExpectedSoFar),
+            poss_expected_full: n(col.dataset.possExpectedFull),
+            exp_ppp: n(col.dataset.expPpp),
+            act_ppp: n(col.dataset.actPpp),
+            pace_ratio: n(col.dataset.paceRatio),
+            w_pace: n(col.dataset.wPace),
+            interval_drift_adj: n(col.dataset.intervalDriftAdj),
+            interval_drift_seg_idx: n(col.dataset.intervalDriftSegIdx),
+            interval_drift_bias_points: n(col.dataset.intervalDriftBias),
+            interval_drift_rem_frac: n(col.dataset.intervalDriftRemFrac),
+            recent_window_sec: n(col.dataset.recentWindowSec),
+            recent_window_poss: n(col.dataset.recentWindowPoss),
+            recent_window_pts: n(col.dataset.recentWindowPts),
+            recent_window_pace_ratio: n(col.dataset.recentWindowPaceRatio),
+            recent_window_w: n(col.dataset.recentWindowW),
+            recent_window_pace_adj: n(col.dataset.recentWindowPaceAdj),
+            recent_window_eff_adj: n(col.dataset.recentWindowEffAdj),
+            endgame_foul_adj: n(col.dataset.endgameFoulAdj),
+            endgame_foul_w: n(col.dataset.endgameFoulW),
+            endgame_foul_sec_left: n(col.dataset.endgameFoulSecLeft),
+            endgame_foul_abs_margin: n(col.dataset.endgameFoulAbsMargin),
+          };
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function buildScopeAdjustments(scopeCtx) {
+        if (!scopeCtx || typeof scopeCtx !== 'object') return null;
+        return {
+          interval_drift_adj: scopeCtx.interval_drift_adj,
+          interval_drift_seg_idx: scopeCtx.interval_drift_seg_idx,
+          interval_drift_bias_points: scopeCtx.interval_drift_bias_points,
+          interval_drift_rem_frac: scopeCtx.interval_drift_rem_frac,
+          recent_window_sec: scopeCtx.recent_window_sec,
+          recent_window_poss: scopeCtx.recent_window_poss,
+          recent_window_pts: scopeCtx.recent_window_pts,
+          recent_window_pace_ratio: scopeCtx.recent_window_pace_ratio,
+          recent_window_w: scopeCtx.recent_window_w,
+          recent_window_pace_adj: scopeCtx.recent_window_pace_adj,
+          recent_window_eff_adj: scopeCtx.recent_window_eff_adj,
+          endgame_foul_adj: scopeCtx.endgame_foul_adj,
+          endgame_foul_w: scopeCtx.endgame_foul_w,
+          endgame_foul_sec_left: scopeCtx.endgame_foul_sec_left,
+          endgame_foul_abs_margin: scopeCtx.endgame_foul_abs_margin,
+        };
+      }
+
+      const gameScopeLog = getScopeLogContext('game');
+      const halfScopeLog = getScopeLogContext('half');
+
       // Player props (top edges; throttled)
       try {
         const pr = (livePlayerLens && typeof livePlayerLens === 'object') ? livePlayerLens.rows : null;
@@ -5287,42 +5514,66 @@ function startLiveLensPolling(root, games, dateStr) {
           exp_home_pace: meta.home_pace,
           exp_away_pace: meta.away_pace,
           exp_total_mean: meta.total_mean,
-          scope_adjustments: (() => {
-            try {
-              const totalCol = el.querySelector('.lens-col[data-scope="total"]');
-              if (!totalCol || !totalCol.dataset) return null;
-              return {
-                interval_drift_adj: n(totalCol.dataset.intervalDriftAdj),
-                interval_drift_seg_idx: n(totalCol.dataset.intervalDriftSegIdx),
-                interval_drift_bias_points: n(totalCol.dataset.intervalDriftBias),
-                interval_drift_rem_frac: n(totalCol.dataset.intervalDriftRemFrac),
-                recent_window_sec: n(totalCol.dataset.recentWindowSec),
-                recent_window_poss: n(totalCol.dataset.recentWindowPoss),
-                recent_window_pts: n(totalCol.dataset.recentWindowPts),
-                recent_window_pace_ratio: n(totalCol.dataset.recentWindowPaceRatio),
-                recent_window_w: n(totalCol.dataset.recentWindowW),
-                recent_window_pace_adj: n(totalCol.dataset.recentWindowPaceAdj),
-                recent_window_eff_adj: n(totalCol.dataset.recentWindowEffAdj),
-                endgame_foul_adj: n(totalCol.dataset.endgameFoulAdj),
-                endgame_foul_w: n(totalCol.dataset.endgameFoulW),
-                endgame_foul_sec_left: n(totalCol.dataset.endgameFoulSecLeft),
-                endgame_foul_abs_margin: n(totalCol.dataset.endgameFoulAbsMargin),
-              };
-            } catch (_) {
-              return null;
-            }
-          })(),
+          scope_adjustments: buildScopeAdjustments(gameScopeLog),
+          scope_context: gameScopeLog,
           pace_components: (possInfoForLog && typeof possInfoForLog === 'object') ? {
             pace_final: possInfoForLog.pace_final,
             pace_points: possInfoForLog.pace_points,
             pace_poss: possInfoForLog.pace_poss,
-            alpha: possInfoForLog.alpha,
-            poss_live_total: possInfoForLog.poss_live_total,
-            poss_expected_total: possInfoForLog.poss_expected_total,
-            pace_ratio_poss: possInfoForLog.pace_ratio,
-          } : null,
+            pace_alpha: possInfoForLog.pace_alpha,
+            poss_live: possInfoForLog.poss_live,
+            poss_expected: possInfoForLog.poss_expected,
+            pace_ratio: possInfoForLog.pace_ratio,
+            elapsed_min: possInfoForLog.elapsed_min,
+          } : (gameScopeLog ? {
+            pace_final: gameScopeLog.pace_final,
+            pace_points: gameScopeLog.pace_points,
+            pace_poss: gameScopeLog.pace_poss,
+            pace_alpha: gameScopeLog.pace_alpha,
+            poss_live: gameScopeLog.poss_live,
+            poss_expected: gameScopeLog.poss_expected_so_far,
+            pace_ratio: gameScopeLog.pace_ratio,
+          } : null),
         } : null,
       });
+
+      if (totalPred != null) {
+        await maybeLogProj('game_total', totalClass, {
+          ...baseLog,
+          klass: totalClass,
+          horizon: 'game',
+          market: 'total',
+          proj_key: 'game_total',
+          elapsed: (curMinLeft != null) ? (48 - curMinLeft) : null,
+          remaining: curMinLeft,
+          total_points: totalPts,
+          line: shouldRound ? roundHalf(safeLineTotal) : safeLineTotal,
+          live_line: shouldRound ? roundHalf(safeLineTotal) : safeLineTotal,
+          side: totalSide,
+          proj: totalPred,
+          sim_mu: gameScopeLog ? gameScopeLog.sim_final : null,
+          proj_points: gameScopeLog ? gameScopeLog.pace_points : null,
+          proj_poss: gameScopeLog ? gameScopeLog.pace_poss : null,
+          proj_alpha: gameScopeLog ? gameScopeLog.pace_alpha : null,
+          strength: (totalDiff != null) ? Math.abs(totalDiff) : null,
+          context: {
+            exp_home_pace: meta.home_pace,
+            exp_away_pace: meta.away_pace,
+            exp_total_mean: meta.total_mean,
+            scope_context: gameScopeLog,
+            pace_components: (possInfoForLog && typeof possInfoForLog === 'object') ? {
+              pace_final: possInfoForLog.pace_final,
+              pace_points: possInfoForLog.pace_points,
+              pace_poss: possInfoForLog.pace_poss,
+              pace_alpha: possInfoForLog.pace_alpha,
+              poss_live: possInfoForLog.poss_live,
+              poss_expected: possInfoForLog.poss_expected,
+              pace_ratio: possInfoForLog.pace_ratio,
+              elapsed_min: possInfoForLog.elapsed_min,
+            } : null,
+          },
+        });
+      }
 
       // 1H total (only 1H)
       await maybeLog('h1_total', halfClass, {
@@ -5343,43 +5594,43 @@ function startLiveLensPolling(root, games, dateStr) {
         pred: halfPred,
         strength: (halfDiff != null) ? Math.abs(halfDiff) : null,
         context: (() => {
-          try {
-            const halfCol = el.querySelector('.lens-col[data-scope="half"]');
-            if (!halfCol || !halfCol.dataset) return null;
-            return {
-              thr_watch: (thr && thr.half_total) ? thr.half_total.watch : null,
-              thr_bet: (thr && thr.half_total) ? thr.half_total.bet : null,
-              edge_shrink_lambda: halfShrink ? halfShrink.lambda : null,
-              edge_shrink_lambda_poss: halfShrink ? halfShrink.lambda_poss : null,
-              edge_shrink_lambda_time: halfShrink ? halfShrink.lambda_time : null,
-              poss_live: n(halfCol.dataset.possLive),
-              poss_expected_so_far: n(halfCol.dataset.possExpectedSoFar),
-              poss_expected_full: n(halfCol.dataset.possExpectedFull),
-              exp_ppp: n(halfCol.dataset.expPpp),
-              act_ppp: n(halfCol.dataset.actPpp),
-              pace_ratio: n(halfCol.dataset.paceRatio),
-              w_pace: n(halfCol.dataset.wPace),
-              interval_drift_adj: n(halfCol.dataset.intervalDriftAdj),
-              interval_drift_seg_idx: n(halfCol.dataset.intervalDriftSegIdx),
-              interval_drift_bias_points: n(halfCol.dataset.intervalDriftBias),
-              interval_drift_rem_frac: n(halfCol.dataset.intervalDriftRemFrac),
-              recent_window_sec: n(halfCol.dataset.recentWindowSec),
-              recent_window_poss: n(halfCol.dataset.recentWindowPoss),
-              recent_window_pts: n(halfCol.dataset.recentWindowPts),
-              recent_window_pace_ratio: n(halfCol.dataset.recentWindowPaceRatio),
-              recent_window_w: n(halfCol.dataset.recentWindowW),
-              recent_window_pace_adj: n(halfCol.dataset.recentWindowPaceAdj),
-              recent_window_eff_adj: n(halfCol.dataset.recentWindowEffAdj),
-              endgame_foul_adj: n(halfCol.dataset.endgameFoulAdj),
-              endgame_foul_w: n(halfCol.dataset.endgameFoulW),
-              endgame_foul_sec_left: n(halfCol.dataset.endgameFoulSecLeft),
-              endgame_foul_abs_margin: n(halfCol.dataset.endgameFoulAbsMargin),
-            };
-          } catch (_) {
-            return null;
-          }
+          const base = {
+            thr_watch: (thr && thr.half_total) ? thr.half_total.watch : null,
+            thr_bet: (thr && thr.half_total) ? thr.half_total.bet : null,
+            edge_shrink_lambda: halfShrink ? halfShrink.lambda : null,
+            edge_shrink_lambda_poss: halfShrink ? halfShrink.lambda_poss : null,
+            edge_shrink_lambda_time: halfShrink ? halfShrink.lambda_time : null,
+          };
+          return halfScopeLog ? { ...base, ...halfScopeLog } : base;
         })(),
       });
+
+      if (halfPred != null) {
+        await maybeLogProj('h1_total', halfClass, {
+          ...baseLog,
+          klass: halfClass,
+          horizon: 'h1',
+          market: 'half_total',
+          proj_key: 'h1_total',
+          elapsed: (halfMinLeftRaw != null) ? (24 - Math.max(0, Math.min(24, Math.round(halfMinLeftRaw)))) : null,
+          remaining: (halfMinLeftRaw != null) ? Math.max(0, Math.min(24, Math.round(halfMinLeftRaw))) : null,
+          total_points: halfScopeLog ? halfScopeLog.scope_total_points : null,
+          line: shouldRound
+            ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null))
+            : sanitizeTotalLine(periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null),
+          live_line: shouldRound
+            ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null))
+            : sanitizeTotalLine(periodTotals && periodTotals.h1 != null ? n(periodTotals.h1) : null),
+          side: halfSide,
+          proj: halfPred,
+          sim_mu: halfScopeLog ? halfScopeLog.sim_final : null,
+          proj_points: halfScopeLog ? halfScopeLog.pace_points : null,
+          proj_poss: halfScopeLog ? halfScopeLog.pace_poss : null,
+          proj_alpha: halfScopeLog ? halfScopeLog.pace_alpha : null,
+          strength: (halfDiff != null) ? Math.abs(halfDiff) : null,
+          context: halfScopeLog ? { scope_context: halfScopeLog } : null,
+        });
+      }
 
       // Current quarter total
       try {
@@ -5387,6 +5638,7 @@ function startLiveLensPolling(root, games, dateStr) {
         const qNum = (pNow != null && Number.isFinite(pNow)) ? Math.floor(pNow) : null;
         if (qNum != null && qNum >= 1 && qNum <= 4) {
           const qKey = `q${qNum}`;
+          const qScopeLog = getScopeLogContext(qKey);
           await maybeLog('q_total', qClass, {
             ...baseLog,
             klass: qClass,
@@ -5406,48 +5658,44 @@ function startLiveLensPolling(root, games, dateStr) {
             strength: (qDiff != null) ? Math.abs(qDiff) : null,
             context: (() => {
               const base = {
-                scope_present: 0,
+                scope_present: qScopeLog ? 1 : 0,
                 q_num: qNum,
                 thr_watch: (thr && thr.quarter_total) ? thr.quarter_total.watch : null,
                 thr_bet: (thr && thr.quarter_total) ? thr.quarter_total.bet : null,
+                edge_shrink_lambda: qShrink ? qShrink.lambda : null,
+                edge_shrink_lambda_poss: qShrink ? qShrink.lambda_poss : null,
+                edge_shrink_lambda_time: qShrink ? qShrink.lambda_time : null,
               };
-              try {
-                const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
-                if (!qCol || !qCol.dataset) return base;
-                return {
-                  ...base,
-                  scope_present: 1,
-                  edge_shrink_lambda: qShrink ? qShrink.lambda : null,
-                  edge_shrink_lambda_poss: qShrink ? qShrink.lambda_poss : null,
-                  edge_shrink_lambda_time: qShrink ? qShrink.lambda_time : null,
-                  poss_live: n(qCol.dataset.possLive),
-                  poss_expected_so_far: n(qCol.dataset.possExpectedSoFar),
-                  poss_expected_full: n(qCol.dataset.possExpectedFull),
-                  exp_ppp: n(qCol.dataset.expPpp),
-                  act_ppp: n(qCol.dataset.actPpp),
-                  pace_ratio: n(qCol.dataset.paceRatio),
-                  w_pace: n(qCol.dataset.wPace),
-                  interval_drift_adj: n(qCol.dataset.intervalDriftAdj),
-                  interval_drift_seg_idx: n(qCol.dataset.intervalDriftSegIdx),
-                  interval_drift_bias_points: n(qCol.dataset.intervalDriftBias),
-                  interval_drift_rem_frac: n(qCol.dataset.intervalDriftRemFrac),
-                  recent_window_sec: n(qCol.dataset.recentWindowSec),
-                  recent_window_poss: n(qCol.dataset.recentWindowPoss),
-                  recent_window_pts: n(qCol.dataset.recentWindowPts),
-                  recent_window_pace_ratio: n(qCol.dataset.recentWindowPaceRatio),
-                  recent_window_w: n(qCol.dataset.recentWindowW),
-                  recent_window_pace_adj: n(qCol.dataset.recentWindowPaceAdj),
-                  recent_window_eff_adj: n(qCol.dataset.recentWindowEffAdj),
-                  endgame_foul_adj: n(qCol.dataset.endgameFoulAdj),
-                  endgame_foul_w: n(qCol.dataset.endgameFoulW),
-                  endgame_foul_sec_left: n(qCol.dataset.endgameFoulSecLeft),
-                  endgame_foul_abs_margin: n(qCol.dataset.endgameFoulAbsMargin),
-                };
-              } catch (_) {
-                return base;
-              }
+              return qScopeLog ? { ...base, ...qScopeLog } : base;
             })(),
           });
+
+          if (qPred != null) {
+            await maybeLogProj('q_total', qClass, {
+              ...baseLog,
+              klass: qClass,
+              horizon: qKey,
+              market: 'quarter_total',
+              proj_key: `q_total:${qKey}`,
+              elapsed: (secLeftPeriodRaw != null) ? (12 - Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0))))) : null,
+              remaining: (secLeftPeriodRaw != null) ? Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0)))) : null,
+              total_points: qScopeLog ? qScopeLog.scope_total_points : null,
+              line: shouldRound
+                ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null))
+                : sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null),
+              live_line: shouldRound
+                ? roundHalf(sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null))
+                : sanitizeTotalLine(periodTotals && periodTotals[qKey] != null ? n(periodTotals[qKey]) : null),
+              side: qSide,
+              proj: qPred,
+              sim_mu: qScopeLog ? qScopeLog.sim_final : null,
+              proj_points: qScopeLog ? qScopeLog.pace_points : null,
+              proj_poss: qScopeLog ? qScopeLog.pace_poss : null,
+              proj_alpha: qScopeLog ? qScopeLog.pace_alpha : null,
+              strength: (qDiff != null) ? Math.abs(qDiff) : null,
+              context: qScopeLog ? { q_num: qNum, scope_context: qScopeLog } : { q_num: qNum },
+            });
+          }
         }
       } catch (_) {
         // ignore
