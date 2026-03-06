@@ -1,0 +1,29 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1641709,Ausar,Thompson,A. Thompson,ausar-thompson,F,,,2:06,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,1,1,0,0,-5.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,202699,Tobias,Harris,T. Harris,tobias-harris,F,,,30:45,2,6,0.333,1,3,0.333,6,6,1.0,0,4,4,1,0,0,1,2,11,-12.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1631105,Jalen,Duren,J. Duren,jalen-duren,C,,,12:20,3,7,0.429,0,0,0.0,1,3,0.333,2,5,7,2,0,0,1,5,7,-5.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1629130,Duncan,Robinson,D. Robinson,duncan-robinson,G,,,26:12,4,7,0.571,2,4,0.5,1,2,0.5,1,2,3,1,1,0,0,0,11,-23.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1630595,Cade,Cunningham,C. Cunningham,cade-cunningham,G,,,39:22,10,26,0.385,4,7,0.571,2,2,1.0,0,4,4,8,0,0,4,5,26,-7.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1641842,Ronald,Holland II,R. Holland II,ronald-holland-ii,,,,11:48,4,6,0.667,0,1,0.0,2,2,1.0,4,1,5,0,0,0,0,2,10,-11.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1630191,Isaiah,Stewart,I. Stewart,isaiah-stewart,,,,29:30,4,8,0.5,3,5,0.6,7,8,0.875,3,2,5,2,1,1,1,1,18,-10.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1627747,Caris,LeVert,C. LeVert,caris-levert,,,,20:13,0,5,0.0,0,1,0.0,0,0,0.0,0,3,3,3,0,0,0,1,0,-11.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1642450,Daniss,Jenkins,D. Jenkins,daniss-jenkins,,,,14:46,0,6,0.0,0,2,0.0,0,2,0.0,0,0,0,1,0,0,1,0,0,-15.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1631204,Marcus,Sasser,M. Sasser,marcus-sasser,,,,6:35,0,1,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-3.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1629750,Javonte,Green,J. Green,javonte-green,,,,18:53,2,7,0.286,1,3,0.333,5,5,1.0,1,2,3,0,0,2,0,3,10,12.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1628989,Kevin,Huerter,K. Huerter,kevin-huerter,,,,17:28,3,4,0.75,1,2,0.5,0,0,0.0,0,5,5,2,1,0,0,0,7,15.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1630194,Paul,Reed,P. Reed,paul-reed,,,,8:32,3,4,0.75,0,0,0.0,0,0,0.0,3,1,4,0,1,0,1,4,6,0.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1642404,Chaz,Lanier,C. Lanier,chaz-lanier,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500904
+0022500904,1610612765,Detroit,Pistons,DET,pistons,1641752,Bobi,Klintman,B. Klintman,bobi-klintman,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1630170,Devin,Vassell,D. Vassell,devin-vassell,F,,,30:32,3,7,0.429,1,5,0.2,1,2,0.5,1,2,3,3,0,1,1,2,8,2.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1630577,Julian,Champagnie,J. Champagnie,julian-champagnie,F,,,30:42,4,8,0.5,3,6,0.5,5,7,0.714,0,7,7,1,0,0,0,0,16,19.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1641705,Victor,Wembanyama,V. Wembanyama,victor-wembanyama,C,,,38:51,12,24,0.5,4,10,0.4,10,11,0.909,2,14,16,3,0,5,0,5,38,20.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1628368,De'Aaron,Fox,D. Fox,deaaron-fox,G,,,32:25,12,22,0.545,4,10,0.4,1,2,0.5,1,4,5,3,2,1,1,2,29,17.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1642264,Stephon,Castle,S. Castle,stephon-castle,G,,,34:49,4,8,0.5,0,0,0.0,3,4,0.75,0,1,1,12,2,1,2,4,11,20.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1642844,Dylan,Harper,D. Harper,dylan-harper,,,,20:25,3,5,0.6,1,2,0.5,0,0,0.0,1,1,2,1,1,0,3,2,7,-6.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1629640,Keldon,Johnson,K. Johnson,keldon-johnson,,,,21:56,2,6,0.333,0,2,0.0,4,4,1.0,0,4,4,1,0,0,0,2,8,1.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1642868,Carter,Bryant,C. Bryant,carter-bryant,,,,19:41,1,3,0.333,0,2,0.0,0,0,0.0,2,4,6,0,0,3,1,2,2,7.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1628436,Luke,Kornet,L. Kornet,luke-kornet,,,,8:25,1,1,1.0,0,0,0.0,0,0,0.0,1,0,1,0,0,0,0,1,2,-5.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1629162,Jordan,McLaughlin,J. McLaughlin,jordan-mclaughlin,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,202687,Bismack,Biyombo,B. Biyombo,bismack-biyombo,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,1,1,0,0,0,0,0,0,0.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,1630322,Lindy,Waters III,L. Waters III,lindy-waters-iii,,,,0:45,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500904
+0022500904,1610612759,San Antonio,Spurs,SAS,spurs,203482,Kelly,Olynyk,K. Olynyk,kelly-olynyk,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500904
