@@ -1,0 +1,5 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-07,2026-03-08T01:40:00Z,Oklahoma City Thunder,Golden State Warriors,-617.3684210526311,617.3684210526317,-14.5,14.5,,,220.5,-104.42967884828349,104.42967884828353,1,1,1,1,oddsapi_consensus
+2026-03-07,2026-03-07T20:10:00Z,Minnesota Timberwolves,Orlando Magic,-245.97530736661733,245.97530736661733,-7.5,7.5,,,226.5,-100.0,-100.0,4,4,2,2,oddsapi_consensus
+2026-03-07,2026-03-07T23:10:00Z,Atlanta Hawks,Philadelphia 76ers,-180.05250332086905,180.05250332086914,-5.5,5.5,,,232.5,-104.42967884828349,104.42967884828353,3,3,2,1,oddsapi_consensus
+2026-03-07,2026-03-07T23:10:00Z,Detroit Pistons,Brooklyn Nets,-566.4367816091956,566.4367816091954,-14.0,14.0,,,214.5,-100.0,-100.0,1,1,1,1,oddsapi_consensus
