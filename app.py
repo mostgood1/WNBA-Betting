@@ -583,7 +583,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     # Important: this function does multiple OddsAPI requests (events + markets + odds).
     # We keep event discovery + market discovery on longer TTLs, and only refresh odds
     # more frequently.
-    odds_cache_ttl = _env_int("LIVE_PLAYER_PROPS_ODDS_TTL_SEC", 30, 5, 300)
+    odds_cache_ttl = _env_int("LIVE_PLAYER_PROPS_ODDS_TTL_SEC", 20, 5, 300)
     event_cache_ttl = _env_int("LIVE_PLAYER_PROPS_EVENT_TTL_SEC", 6 * 60 * 60, 300, 48 * 60 * 60)
     markets_cache_ttl = _env_int("LIVE_PLAYER_PROPS_MARKETS_TTL_SEC", 30 * 60, 60, 6 * 60 * 60)
 
@@ -3116,6 +3116,7 @@ def _enforce_minimal_ui_allowlist():
 
         # APIs required by the 4 pages
         allowed_api = {
+            "/api/status/props-refresh",
             "/api/cards",
             "/api/predictions",
             "/api/schedule",
@@ -7896,6 +7897,150 @@ def api_cron_meta():
         return jsonify(_to_jsonable(out))
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+
+def _load_cron_meta_snapshot() -> Dict[str, Any]:
+    try:
+        if CRON_META_PATH.exists():
+            import json as _json
+
+            meta = _json.loads(CRON_META_PATH.read_text(encoding="utf-8", errors="ignore"))
+            if isinstance(meta, dict):
+                return meta
+    except Exception:
+        pass
+    return {}
+
+
+def _parse_utcish_datetime(value: Any) -> Optional[datetime]:
+    try:
+        if value is None:
+            return None
+        ts = pd.to_datetime(value, utc=True, errors="coerce")
+        if ts is None or pd.isna(ts):
+            return None
+        if hasattr(ts, "to_pydatetime"):
+            ts = ts.to_pydatetime()
+        if getattr(ts, "tzinfo", None) is not None:
+            ts = ts.astimezone(timezone.utc).replace(tzinfo=None)
+        return ts
+    except Exception:
+        return None
+
+
+def _artifact_freshness_payload(path: Path, *, now_utc: Optional[datetime] = None) -> Dict[str, Any]:
+    out: Dict[str, Any] = {
+        "path": str(path),
+        "exists": False,
+        "mtime": None,
+        "age_sec": None,
+        "rows": 0,
+    }
+    try:
+        if not path.exists():
+            return out
+        now_dt = now_utc or datetime.utcnow()
+        st = path.stat()
+        mtime = datetime.utcfromtimestamp(st.st_mtime)
+        out["exists"] = True
+        out["mtime"] = mtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+        out["age_sec"] = int(max(0.0, (now_dt - mtime).total_seconds()))
+        if path.suffix.lower() == ".csv":
+            out["rows"] = int(_count_csv_rows_quick(path))
+    except Exception:
+        pass
+    return out
+
+
+@app.route("/api/status/props-refresh")
+def api_status_props_refresh():
+    """Return a compact cadence view for pregame props refreshes vs live props refresh settings."""
+    d = _parse_date_param(request, default_to_today=True)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+
+    now_utc = datetime.utcnow()
+    pregame_target_sec = 20 * 60
+    pregame_grace_sec = 5 * 60
+    live_target_sec = 20
+    live_browser_poll_sec = 20
+    live_cache_ttl_sec = _env_int_clamped("LIVE_PLAYER_PROPS_ODDS_TTL_SEC", 20, 5, 300)
+
+    raw_snapshot = _artifact_freshness_payload(DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv", now_utc=now_utc)
+    edges_snapshot = _artifact_freshness_payload(DATA_PROCESSED_DIR / f"props_edges_{d}.csv", now_utc=now_utc)
+    recs_snapshot = _artifact_freshness_payload(DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv", now_utc=now_utc)
+
+    meta = _load_cron_meta_snapshot()
+    refresh_meta = meta.get("last_refresh_oddsapi_props") if isinstance(meta.get("last_refresh_oddsapi_props"), dict) else {}
+    refresh_at = _parse_utcish_datetime(
+        refresh_meta.get("timestamp")
+        or refresh_meta.get("ended_at")
+        or refresh_meta.get("started_at")
+    )
+    refresh_age_sec = None
+    refresh_source = "cron_meta"
+    refresh_date = str(refresh_meta.get("date") or "").strip()
+    if refresh_at is not None:
+        refresh_age_sec = int(max(0.0, (now_utc - refresh_at).total_seconds()))
+    elif raw_snapshot.get("exists"):
+        refresh_source = "raw_snapshot"
+        refresh_date = d
+        refresh_age_sec = raw_snapshot.get("age_sec")
+        refresh_at = _parse_utcish_datetime(raw_snapshot.get("mtime"))
+
+    pregame_ok = bool(
+        refresh_age_sec is not None
+        and refresh_date == d
+        and int(refresh_age_sec) <= int(pregame_target_sec + pregame_grace_sec)
+    )
+    pregame_status = "ok" if pregame_ok else ("missing" if refresh_age_sec is None else "stale")
+
+    live_ok = bool(
+        int(live_cache_ttl_sec) <= int(live_target_sec)
+        and int(live_browser_poll_sec) <= int(live_target_sec)
+    )
+    live_status = "ok" if live_ok else "misconfigured"
+
+    warnings: list[str] = []
+    if not pregame_ok:
+        if refresh_age_sec is None:
+            warnings.append("Pregame props refresh has no recorded run for the requested date.")
+        elif refresh_date != d:
+            warnings.append(f"Pregame props refresh last ran for {refresh_date or 'unknown'}, not {d}.")
+        else:
+            warnings.append(f"Pregame props refresh is stale ({refresh_age_sec}s old; target <= {pregame_target_sec}s + {pregame_grace_sec}s grace).")
+    if int(live_cache_ttl_sec) > int(live_target_sec):
+        warnings.append(f"Live props OddsAPI cache TTL is {live_cache_ttl_sec}s; target is {live_target_sec}s.")
+
+    payload = {
+        "date": d,
+        "utc": now_utc.strftime("%Y-%m-%dT%H:%M:%SZ"),
+        "ok": bool(pregame_ok and live_ok),
+        "pregame": {
+            "status": pregame_status,
+            "target_interval_sec": int(pregame_target_sec),
+            "grace_sec": int(pregame_grace_sec),
+            "last_refresh_at": (refresh_at.strftime("%Y-%m-%dT%H:%M:%SZ") if refresh_at is not None else None),
+            "last_refresh_age_sec": refresh_age_sec,
+            "last_refresh_date": (refresh_date or None),
+            "source": refresh_source,
+            "meta": refresh_meta,
+            "artifacts": {
+                "raw_snapshot": raw_snapshot,
+                "edges": edges_snapshot,
+                "recommendations": recs_snapshot,
+            },
+        },
+        "live": {
+            "status": live_status,
+            "target_interval_sec": int(live_target_sec),
+            "browser_poll_interval_sec": int(live_browser_poll_sec),
+            "odds_cache_ttl_sec": int(live_cache_ttl_sec),
+            "independent_from_pregame": True,
+        },
+        "warnings": warnings,
+    }
+    return jsonify(_to_jsonable(payload))
 
 
 @app.route("/api/last-updated")

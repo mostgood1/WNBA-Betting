@@ -2626,6 +2626,8 @@ const __liveLensLastLogged = new Map();
 const __liveLensLastProjLogged = new Map();
 let __liveLensTuning = null;
 let __liveLensTuningAt = 0;
+const LIVE_PROPS_POLL_INTERVAL_MS = 20 * 1000;
+const LIVE_PROPS_ENDPOINT_TTL_SEC = 20;
 
 // UI filters (client-side only)
 const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
@@ -3767,7 +3769,7 @@ function startLiveLensPolling(root, games, dateStr) {
 
     let sb;
     try {
-      sb = await fetchJson(`/api/live_state?date=${encodeURIComponent(dateStr)}&ttl=12`);
+      sb = await fetchJson(`/api/live_state?date=${encodeURIComponent(dateStr)}&ttl=${encodeURIComponent(String(LIVE_PROPS_ENDPOINT_TTL_SEC))}`);
     } catch (_) {
       // Back-compat: older servers only have /api/live/scoreboard
       try {
@@ -3775,7 +3777,7 @@ function startLiveLensPolling(root, games, dateStr) {
         const legacyGames = Array.isArray(legacy?.games) ? legacy.games : [];
         sb = {
           date: legacy?.date,
-          ttl: 12,
+          ttl: LIVE_PROPS_ENDPOINT_TTL_SEC,
           source: legacy?.source,
           games: legacyGames.map((g) => ({
             game_id: g?.game_id,
@@ -3877,16 +3879,17 @@ function startLiveLensPolling(root, games, dateStr) {
         const playerIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
 
         const _ts = Date.now();
+        const liveTtlSec = LIVE_PROPS_ENDPOINT_TTL_SEC;
 
         const pbpPromise = fetchJsonWithTimeout(
-          `/api/live_pbp_stats?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}`
+          `/api/live_pbp_stats?ttl=${encodeURIComponent(String(liveTtlSec))}&recent_window_sec=${encodeURIComponent(String(recentWindowSec))}`
           + `&event_ids=${encodeURIComponent(pbpIds.join(','))}`
           + `&date=${encodeURIComponent(dateStr)}`
           + `&_ts=${encodeURIComponent(String(_ts))}`,
           8000,
         );
         const linesPromise = lineEventIds.length
-          ? fetchJsonWithTimeout(`/api/live_lines?ttl=10&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1&_ts=${encodeURIComponent(String(_ts))}`, 8000)
+          ? fetchJsonWithTimeout(`/api/live_lines?ttl=${encodeURIComponent(String(liveTtlSec))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(lineEventIds.join(','))}&include_period_totals=1&_ts=${encodeURIComponent(String(_ts))}`, 8000)
           : Promise.resolve({ games: [] });
         // Keep prop live lens aligned with the same recent-window size used by game live adjustments.
         let recentWindowSec2 = 180;
@@ -3898,7 +3901,7 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=15&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(playerIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=${encodeURIComponent(String(liveTtlSec))}&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(playerIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
         const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
@@ -6020,9 +6023,9 @@ function startLiveLensPolling(root, games, dateStr) {
     updateCompactCardTags(sbById);
   }
 
-  // Kick off immediately, then every 12s (NCAAB parity)
+  // Kick off immediately, then every 20s to match the live props target cadence.
   pollOnce();
-  __liveLensTimer = setInterval(pollOnce, 12 * 1000);
+  __liveLensTimer = setInterval(pollOnce, LIVE_PROPS_POLL_INTERVAL_MS);
 }
 
 function betOutcome(label, odds, actualHome, actualAway) {
