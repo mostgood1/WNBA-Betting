@@ -5,8 +5,9 @@ on:
   schedule:
     # Daily around early morning US/Eastern (UTC time).
     - cron: "5 11 * * *"
-    # Hourly refresh for pregame props snapshots + recommendations (UTC).
-    - cron: "7 * * * *"
+    # Pregame props refresh every 20 minutes during likely NBA windows (UTC).
+    - cron: "7,27,47 15-23 * * *"
+    - cron: "7,27,47 0-3 * * *"
 
 concurrency:
   group: nbabetting-daily-scheduler
@@ -18,7 +19,8 @@ env:
   NBA_BETTING_CRON_TOKEN: ${{ secrets.CRON_TOKEN || secrets.NBA_BETTING_CRON_TOKEN }}
 
 jobs:
-  refresh-oddsapi-props-hourly:
+  refresh-oddsapi-props-pregame:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '7,27,47 15-23 * * *' || github.event.schedule == '7,27,47 0-3 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Preflight (config + cron ping)
@@ -138,6 +140,7 @@ jobs:
           exit 1
 
   assess-oddsapi-daily:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Preflight (config + cron ping)
@@ -191,6 +194,7 @@ jobs:
           exit 1
 
   reconcile-yesterday:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Preflight (config + cron ping)
@@ -244,6 +248,7 @@ jobs:
           exit 1
 
   daily-run-all:
+    if: github.event_name == 'workflow_dispatch' || github.event.schedule == '5 11 * * *'
     runs-on: ubuntu-latest
     steps:
       - name: Preflight (config + cron ping)
