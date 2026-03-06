@@ -1,0 +1,8 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-06,2026-03-07T02:10:00Z,Denver Nuggets,New York Knicks,113.54430437964248,-113.54430437964248,1.5,-1.5,,,229.5,-101.55732331874736,101.55732331874741,11,11,11,6,oddsapi_consensus
+2026-03-06,2026-03-07T02:10:00Z,Phoenix Suns,New Orleans Pelicans,-199.5799128603871,199.5799128603871,-6.0,6.0,,,226.0,-100.42795395215472,100.42795395215474,11,11,9,4,oddsapi_consensus
+2026-03-06,2026-03-07T01:10:00Z,Houston Rockets,Portland Trail Blazers,-202.50607447515964,202.5060744751596,-6.0,6.0,,,219.5,-100.25477707006368,100.25477707006368,11,11,7,5,oddsapi_consensus
+2026-03-06,2026-03-07T03:40:00Z,Los Angeles Lakers,Indiana Pacers,-351.763656620049,351.763656620049,-9.5,9.5,,,235.5,-100.11572734637194,100.11572734637194,11,11,8,11,oddsapi_consensus
+2026-03-06,2026-03-07T00:10:00Z,Boston Celtics,Dallas Mavericks,-693.8506657835602,693.8506657835609,-15.0,15.0,,,224.0,100.62102158049991,-100.62102158049993,11,11,9,7,oddsapi_consensus
+2026-03-06,2026-03-07T02:40:00Z,San Antonio Spurs,Los Angeles Clippers,-243.56555547395948,243.56555547395942,-7.0,7.0,,,222.5,-100.0,-100.0,10,10,6,5,oddsapi_consensus
+2026-03-06,2026-03-07T00:10:00Z,Charlotte Hornets,Miami Heat,-254.964607158928,254.964607158928,-7.5,7.5,,,229.5,-100.0,-100.0,11,11,9,9,oddsapi_consensus
