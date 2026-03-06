@@ -7982,11 +7982,21 @@ def api_status_props_refresh():
     refresh_date = str(refresh_meta.get("date") or "").strip()
     if refresh_at is not None:
         refresh_age_sec = int(max(0.0, (now_utc - refresh_at).total_seconds()))
-    elif raw_snapshot.get("exists"):
+    artifact_refresh_at = _parse_utcish_datetime(raw_snapshot.get("mtime")) if raw_snapshot.get("exists") else None
+    artifact_refresh_age_sec = raw_snapshot.get("age_sec") if raw_snapshot.get("exists") else None
+    use_artifact_refresh = bool(
+        artifact_refresh_at is not None
+        and (
+            refresh_at is None
+            or refresh_date != d
+            or artifact_refresh_at > refresh_at
+        )
+    )
+    if use_artifact_refresh:
         refresh_source = "raw_snapshot"
         refresh_date = d
-        refresh_age_sec = raw_snapshot.get("age_sec")
-        refresh_at = _parse_utcish_datetime(raw_snapshot.get("mtime"))
+        refresh_age_sec = artifact_refresh_age_sec
+        refresh_at = artifact_refresh_at
 
     pregame_ok = bool(
         refresh_age_sec is not None
