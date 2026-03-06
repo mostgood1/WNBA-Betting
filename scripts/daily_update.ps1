@@ -24,7 +24,10 @@ Param(
   [string]$CronTokenParam,
   # Bare -Token should behave like -CronToken (switch); -TokenValue supplies a token string
   [switch]$Token,
-  [string]$TokenValue
+  [string]$TokenValue,
+  # Build future-safe look-ahead artifacts for Render/UI consumption.
+  # -1 = resolve from env DAILY_LOOKAHEAD_DAYS (default 1), 0 = disable.
+  [int]$LookAheadDays = -1
 )
 
 $ErrorActionPreference = 'Stop'
@@ -48,6 +51,16 @@ if (-not $PSBoundParameters.ContainsKey('SkipTotalsCalib')) {
   $stc = $env:DAILY_SKIP_TOTALS_CALIB
   if ($null -ne $stc -and $stc -match '^(1|true|yes)$') { $SkipTotalsCalib = $true } else { $SkipTotalsCalib = $false }
 }
+
+# Default behavior for future-safe look-ahead artifact generation.
+# This powers tomorrow's Render/UI slate when today's date has no prebuilt artifacts yet.
+if (-not $PSBoundParameters.ContainsKey('LookAheadDays') -or $LookAheadDays -lt 0) {
+  $lad = $env:DAILY_LOOKAHEAD_DAYS
+  if ($null -eq $lad -or $lad -eq '') { $lad = '1' }
+  try { $LookAheadDays = [int]$lad } catch { $LookAheadDays = 1 }
+}
+if ($LookAheadDays -lt 0) { $LookAheadDays = 0 }
+if ($LookAheadDays -gt 3) { $LookAheadDays = 3 }
 
 # Resolve paths
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
@@ -395,6 +408,73 @@ function Invoke-ConnectedRealismEval {
   $elapsed = Measure-Command { $rcConn = Invoke-PyMod -plist $plist }
   Write-Log ("evaluate-connected-realism exit code: {0} (elapsed={1:n2}s)" -f $rcConn, $elapsed.TotalSeconds)
   return $rcConn
+}
+
+# Helper: invoke the future-safe daily-update subset already implemented in app.py.
+# This avoids re-running historical reconciliation/actuals logic for Date+N while still
+# producing the Render/UI-facing artifacts (predictions, smart_sim, recommendations, props).
+function Invoke-LookAheadDailyUpdateJob {
+  param([string]$TargetDate)
+
+  try {
+    if ($null -eq $TargetDate -or $TargetDate -eq '') { return $false }
+    Write-Log ("Look-ahead: building future-safe artifacts for {0}" -f $TargetDate)
+
+    $tmpPyLookAhead = Join-Path $LogPath ("lookahead_daily_update_{0}_{1}.py" -f $TargetDate, $Stamp)
+    $pyLookAhead = @"
+import sys
+from pathlib import Path
+
+repo_root = Path(r"{REPO_PLACEHOLDER}")
+if str(repo_root) not in sys.path:
+    sys.path.insert(0, str(repo_root))
+src_dir = repo_root / "src"
+if str(src_dir) not in sys.path:
+    sys.path.insert(0, str(src_dir))
+
+import app
+
+date_str = r"{DATE_PLACEHOLDER}"
+app._daily_update_job(date_str=date_str, mode="lookahead", do_push=False)
+ok = bool(app._job_state.get("ok"))
+print("OK" if ok else "FAIL")
+raise SystemExit(0 if ok else 1)
+"@
+    $pyLookAhead = $pyLookAhead.Replace('{REPO_PLACEHOLDER}', $RepoRoot)
+    $pyLookAhead = $pyLookAhead.Replace('{DATE_PLACEHOLDER}', $TargetDate)
+    Set-Content -Path $tmpPyLookAhead -Value $pyLookAhead -Encoding UTF8
+
+    $null = & $Python $tmpPyLookAhead 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $rcLookAhead = $LASTEXITCODE
+    Write-Log ("Look-ahead pipeline exit code ({0}): {1}" -f $TargetDate, $rcLookAhead)
+    if ($rcLookAhead -ne 0) { return $false }
+
+    $required = @(
+      (Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $TargetDate)),
+      (Join-Path $RepoRoot ("data/processed/props_predictions_{0}.csv" -f $TargetDate)),
+      (Join-Path $RepoRoot ("data/processed/recommendations_{0}.csv" -f $TargetDate)),
+      (Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $TargetDate))
+    )
+    $missing = @($required | Where-Object { -not (Test-Path $_) })
+    $smartSimCount = @(
+      Get-ChildItem (Join-Path $RepoRoot ("data/processed/smart_sim_{0}_*.json" -f $TargetDate)) -ErrorAction SilentlyContinue
+    ).Count
+
+    if ($missing.Count -gt 0) {
+      Write-Log ("Look-ahead artifacts incomplete for {0}; missing: {1}" -f $TargetDate, ($missing -join ', '))
+      return $false
+    }
+    if ($smartSimCount -le 0) {
+      Write-Log ("Look-ahead artifacts incomplete for {0}; no smart_sim files found" -f $TargetDate)
+      return $false
+    }
+
+    Write-Log ("Look-ahead artifacts ready for {0} (smart_sim_files={1})" -f $TargetDate, $smartSimCount)
+    return $true
+  } catch {
+    Write-Log ("Look-ahead pipeline failed for {0}: {1}" -f $TargetDate, $_.Exception.Message)
+    return $false
+  }
 }
 
 # Enforce local-only pipeline; skip any server detection/calls
@@ -2728,6 +2808,29 @@ try {
   Write-Log ("Live Lens tune failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
+# 8.9) Future-safe look-ahead artifacts for Date+N (default N=1)
+# This gives Render/UI a forward slate to use when the requested date has no current-day cards yet.
+$LookAheadDates = @()
+try {
+  if ($LookAheadDays -gt 0) {
+    Write-Log ("Look-ahead enabled: building {0} future day(s)" -f $LookAheadDays)
+    $baseDate = [datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)
+    for ($i = 1; $i -le $LookAheadDays; $i++) {
+      $futureDate = $baseDate.AddDays($i).ToString('yyyy-MM-dd')
+      $okFuture = Invoke-LookAheadDailyUpdateJob -TargetDate $futureDate
+      if ($okFuture) {
+        $LookAheadDates += $futureDate
+      } else {
+        Write-Log ("Look-ahead skipped push/commit for {0} due to incomplete artifacts" -f $futureDate)
+      }
+    }
+  } else {
+    Write-Log 'Look-ahead disabled (LookAheadDays=0)'
+  }
+} catch {
+  Write-Log ("Look-ahead block failed (non-fatal): {0}" -f $_.Exception.Message)
+}
+
 # Simple retention: keep last 21 local_daily_update_* logs
 Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object LastWriteTime -Descending | Select-Object -Skip 21 | ForEach-Object { Remove-Item $_.FullName -ErrorAction SilentlyContinue }
 
@@ -2737,18 +2840,29 @@ if (-not $GitPush) {
 } else {
   # Use standardized commit script to stage and push only date-scoped processed artifacts
   try {
-    Write-Log 'Git: committing processed artifacts via scripts/commit_processed.ps1 (yesterday then today)'
+    Write-Log 'Git: committing processed artifacts via scripts/commit_processed.ps1 (yesterday, today, then look-ahead dates)'
     $commitScript = Join-Path $RepoRoot 'scripts/commit_processed.ps1'
     if (Test-Path $commitScript) {
       Remove-StaleGitLock
       # First, commit yesterday's finals/reconcile outputs without push
-      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson -DryRun | Tee-Object -FilePath $LogFile -Append | Out-Null
       & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $yesterday -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
-      # Then, commit and push today's predictions/edges/odds
+      # Then, commit today's predictions/edges/odds (no push yet)
       Remove-StaleGitLock
-      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $Date -IncludeJson -Push | Tee-Object -FilePath $LogFile -Append | Out-Null
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $Date -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
 
-      # Additionally stage and push yearly PBP metrics CSV if present/changed
+      # Finally, commit any validated look-ahead dates (tomorrow, etc.) so a single git push
+      # can publish both current-day and future-day artifacts together.
+      foreach ($futureDate in ($LookAheadDates | Select-Object -Unique)) {
+        try {
+          Remove-StaleGitLock
+          Write-Log ("Git: committing look-ahead artifacts for {0}" -f $futureDate)
+          & powershell -NoProfile -ExecutionPolicy Bypass -File $commitScript -Date $futureDate -IncludeJson | Tee-Object -FilePath $LogFile -Append | Out-Null
+        } catch {
+          Write-Log ("Git: look-ahead commit failed for {0}: {1}" -f $futureDate, $_.Exception.Message)
+        }
+      }
+
+      # Additionally stage yearly PBP metrics CSV if present/changed.
       try {
         $metricsYear = ($yesterday.Substring(0,4))
         $metricsPath = Join-Path $RepoRoot ("data/processed/pbp_metrics_daily_{0}.csv" -f $metricsYear)
@@ -2759,13 +2873,20 @@ if (-not $GitPush) {
             $msg2 = "data(processed): update pbp metrics daily ($yesterday)"
             Remove-StaleGitLock
             & git commit -m $msg2 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-            & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-            Write-Log 'Git: pushed pbp_metrics_daily update'
+            Write-Log 'Git: committed pbp_metrics_daily update'
           } else {
-            Write-Log 'Git: no changes in pbp_metrics_daily to push'
+            Write-Log 'Git: no changes in pbp_metrics_daily to commit'
           }
         }
-      } catch { Write-Log ("Git: push pbp_metrics_daily failed: {0}" -f $_.Exception.Message) }
+      } catch { Write-Log ("Git: commit pbp_metrics_daily failed: {0}" -f $_.Exception.Message) }
+
+      try {
+        Write-Log 'Git: pushing accumulated daily update commits'
+        Remove-StaleGitLock
+        & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+      } catch {
+        Write-Log ("Git: final push failed: {0}" -f $_.Exception.Message)
+      }
     } else {
       Write-Log 'Commit script missing; falling back to broad staging (data/processed)'
       Remove-StaleGitLock

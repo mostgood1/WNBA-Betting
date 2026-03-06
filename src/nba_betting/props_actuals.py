@@ -19,7 +19,7 @@ def fetch_prop_actuals_via_nba_cdn(date: str) -> pd.DataFrame:
     locate game_ids for the requested date, then pulls:
     https://cdn.nba.com/static/json/liveData/boxscore/boxscore_{gameId}.json
 
-    Returns: DataFrame with columns [date, game_id, player_id, player_name, team_abbr, pts, reb, ast, threes, pra]
+    Returns: DataFrame with columns [date, game_id, player_id, player_name, team_abbr, pts, reb, ast, threes, stl, blk, tov, pra]
     """
     # Validate date
     try:
@@ -72,8 +72,11 @@ def fetch_prop_actuals_via_nba_cdn(date: str) -> pd.DataFrame:
                 reb = st.get("reboundsTotal")
                 ast = st.get("assists")
                 threes = st.get("threePointersMade")
+                stl = st.get("steals")
+                blk = st.get("blocks")
+                tov = st.get("turnovers")
                 # Some players may have no stats (DNP); skip if all null/zero
-                vals = [pts, reb, ast, threes]
+                vals = [pts, reb, ast, threes, stl, blk, tov]
                 if all(v in (None, 0) for v in vals):
                     continue
                 # Coerce to float
@@ -82,7 +85,7 @@ def fetch_prop_actuals_via_nba_cdn(date: str) -> pd.DataFrame:
                         return float(x)
                     except Exception:
                         return None
-                fpts, freb, fast, f3 = map(_f, (pts, reb, ast, threes))
+                fpts, freb, fast, f3, fstl, fblk, ftov = map(_f, (pts, reb, ast, threes, stl, blk, tov))
                 pra = sum(v for v in (fpts or 0.0, freb or 0.0, fast or 0.0))
                 rows.append({
                     "date": date,
@@ -94,20 +97,23 @@ def fetch_prop_actuals_via_nba_cdn(date: str) -> pd.DataFrame:
                     "reb": freb,
                     "ast": fast,
                     "threes": f3,
+                    "stl": fstl,
+                    "blk": fblk,
+                    "tov": ftov,
                     "pra": float(pra),
                 })
     return pd.DataFrame(rows)
 
 
 def fetch_prop_actuals_via_nbaapi(date: str) -> pd.DataFrame:
-    """Fetch player actuals (PTS, REB, AST, 3PM, PRA) for a date using nba_api.
+    """Fetch player actuals (PTS, REB, AST, STL, BLK, TOV, 3PM, PRA) for a date using nba_api.
 
     Tries ScoreboardV2 for the given date, with cross-day tolerance (-1, +1) to
     account for timezone shifts in preseason/intl games. If a recon_games CSV for
     the date exists, restrict results to those teams to avoid picking up nearby slates.
 
     Returns a DataFrame with at least: date, game_id, player_id, player_name, team_abbr,
-    pts, reb, ast, threes, pra
+    pts, reb, ast, threes, stl, blk, tov, pra
     """
     try:
         from nba_api.stats.endpoints import scoreboardv2 as _scoreboardv2  # type: ignore
@@ -193,7 +199,10 @@ def fetch_prop_actuals_via_nbaapi(date: str) -> pd.DataFrame:
                         reb = pd.to_numeric(r.get(pc.get("REB","REB")), errors="coerce")
                         ast = pd.to_numeric(r.get(pc.get("AST","AST")), errors="coerce")
                         threes = pd.to_numeric(r.get(pc.get("FG3M","FG3M")), errors="coerce")
-                        if pd.isna(pts) and pd.isna(reb) and pd.isna(ast) and pd.isna(threes):
+                        stl = pd.to_numeric(r.get(pc.get("STL", pc.get("STEALS", "STL"))), errors="coerce")
+                        blk = pd.to_numeric(r.get(pc.get("BLK", pc.get("BLOCKS", "BLK"))), errors="coerce")
+                        tov = pd.to_numeric(r.get(pc.get("TO", pc.get("TOV", pc.get("TURNOVERS", "TO")))), errors="coerce")
+                        if pd.isna(pts) and pd.isna(reb) and pd.isna(ast) and pd.isna(threes) and pd.isna(stl) and pd.isna(blk) and pd.isna(tov):
                             continue
                         # If we know the slate teams, skip others
                         if slate_teams and tri and str(tri).upper() not in slate_teams:
@@ -209,6 +218,9 @@ def fetch_prop_actuals_via_nbaapi(date: str) -> pd.DataFrame:
                             "reb": None if pd.isna(reb) else float(reb),
                             "ast": None if pd.isna(ast) else float(ast),
                             "threes": None if pd.isna(threes) else float(threes),
+                            "stl": None if pd.isna(stl) else float(stl),
+                            "blk": None if pd.isna(blk) else float(blk),
+                            "tov": None if pd.isna(tov) else float(tov),
                             "pra": float(pra),
                         })
                     except Exception:
@@ -267,6 +279,8 @@ def fetch_prop_actuals_via_nbastatr(date: str | None = None, start: str | None =
     if not Path(tmp_out).exists():
         return pd.DataFrame()
     df = pd.read_csv(tmp_out)
+    if "team_abbr" not in df.columns and "team" in df.columns:
+        df = df.rename(columns={"team": "team_abbr"})
     return df
 
 

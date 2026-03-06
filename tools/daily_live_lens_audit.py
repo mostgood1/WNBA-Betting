@@ -32,7 +32,9 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
-PROCESSED = ROOT / "data" / "processed"
+DATA_ROOT = Path((os.getenv("NBA_BETTING_DATA_ROOT") or "").strip()).expanduser() if (os.getenv("NBA_BETTING_DATA_ROOT") or "").strip() else (ROOT / "data")
+PROCESSED = DATA_ROOT / "processed"
+REPORTS = PROCESSED / "reports"
 LIVE_LENS_DIR = Path((os.getenv("NBA_LIVE_LENS_DIR") or os.getenv("LIVE_LENS_DIR") or "").strip() or str(PROCESSED))
 
 
@@ -198,6 +200,15 @@ def _live_stat_key(x: Any) -> str:
         "3pm": "threes",
         "threes": "threes",
         "threes_made": "threes",
+        "steals": "stl",
+        "steal": "stl",
+        "stl": "stl",
+        "blocks": "blk",
+        "block": "blk",
+        "blk": "blk",
+        "turnovers": "tov",
+        "turnover": "tov",
+        "tov": "tov",
         "pra": "pra",
         "points+rebounds+assists": "pra",
     }
@@ -316,6 +327,9 @@ def _prep_recon_props(df: pd.DataFrame) -> pd.DataFrame:
         out["_name_key"] = out["player_name"].astype(str).map(_norm_player_name)
     else:
         out["_name_key"] = ""
+    for c in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"):
+        if c in out.columns:
+            out[c] = pd.to_numeric(out[c], errors="coerce")
     return out
 
 
@@ -490,6 +504,22 @@ def _parse_tags(obj: dict[str, Any]) -> list[str]:
     return out
 
 
+def _driver_tags_from_tags(tags: Any) -> list[str]:
+    items = tags if isinstance(tags, list) else ([] if tags is None else [str(tags)])
+    out: list[str] = []
+    seen: set[str] = set()
+    for t in items:
+        s = str(t or "").strip().lower()
+        if not s:
+            continue
+        if s.startswith("market:") or s.startswith("horizon:") or s.startswith("klass:") or s.startswith("stat:"):
+            continue
+        if s not in seen:
+            seen.add(s)
+            out.append(s)
+    return out
+
+
 def _derive_tags(
     *,
     obj: dict[str, Any],
@@ -636,6 +666,130 @@ def _derive_tags(
                     _add("support:low")
                 else:
                     _add("support:mid")
+
+            # Market-quality / bettability tags (available in server-side live prop logs).
+            line_source = str(obj.get("line_source") or (ctx.get("line_source") if isinstance(ctx, dict) else "") or "").strip().lower() or None
+            if line_source:
+                _add(f"line_src:{line_source}")
+
+            line_live_age_sec = _nf(obj.get("line_live_age_sec"))
+            if line_live_age_sec is None and isinstance(ctx, dict):
+                line_live_age_sec = _nf(ctx.get("line_live_age_sec"))
+            if line_source == "oddsapi":
+                if line_live_age_sec is None:
+                    _add("line_age:unknown")
+                elif line_live_age_sec < 180:
+                    _add("line_age:fresh")
+                elif line_live_age_sec < 600:
+                    _add("line_age:warm")
+                else:
+                    _add("line_age:stale")
+
+            line_live_span = _nf(obj.get("line_live_span"))
+            if line_live_span is None and isinstance(ctx, dict):
+                line_live_span = _nf(ctx.get("line_live_span"))
+            if line_live_span is not None:
+                if line_live_span < 0.5:
+                    _add("market_span:tight")
+                elif line_live_span < 1.0:
+                    _add("market_span:mid")
+                else:
+                    _add("market_span:wide")
+
+            line_live_n = _nf(obj.get("line_live_n"))
+            if line_live_n is None and isinstance(ctx, dict):
+                line_live_n = _nf(ctx.get("line_live_n"))
+            if line_live_n is not None:
+                if line_live_n <= 1:
+                    _add("books:1")
+                elif line_live_n <= 2:
+                    _add("books:2")
+                else:
+                    _add("books:3+")
+
+            price_hold = _nf(obj.get("price_hold"))
+            if price_hold is None and isinstance(ctx, dict):
+                price_hold = _nf(ctx.get("price_hold"))
+            if price_hold is not None:
+                if price_hold <= 0.04:
+                    _add("hold:low")
+                elif price_hold <= 0.08:
+                    _add("hold:mid")
+                else:
+                    _add("hold:high")
+
+            bettable = obj.get("bettable")
+            if bettable is None and isinstance(ctx, dict):
+                bettable = ctx.get("bettable")
+            if bettable is not None:
+                _add("bettable:yes" if bool(bettable) else "bettable:no")
+
+            bettable_score = _nf(obj.get("bettable_score"))
+            if bettable_score is None and isinstance(ctx, dict):
+                bettable_score = _nf(ctx.get("bettable_score"))
+            if bettable_score is not None:
+                if bettable_score >= 0.75:
+                    _add("bet_score:high")
+                elif bettable_score >= 0.45:
+                    _add("bet_score:mid")
+                else:
+                    _add("bet_score:low")
+
+            edge_sigma = _nf(obj.get("edge_sigma"))
+            if edge_sigma is None and isinstance(ctx, dict):
+                edge_sigma = _nf(ctx.get("edge_sigma"))
+            if edge_sigma is not None:
+                if edge_sigma < 0.5:
+                    _add("edge_sigma:<0.5")
+                elif edge_sigma < 1.0:
+                    _add("edge_sigma:0.5-1.0")
+                else:
+                    _add("edge_sigma:1+")
+
+            bettable_reasons = obj.get("bettable_reasons")
+            if bettable_reasons is None and isinstance(ctx, dict):
+                bettable_reasons = ctx.get("bettable_reasons")
+            if isinstance(bettable_reasons, (list, tuple, set)):
+                for reason in bettable_reasons:
+                    rs = re.sub(r"[^a-z0-9_]+", "_", str(reason or "").strip().lower()).strip("_")
+                    if rs:
+                        _add(f"gate:{rs}")
+
+            pace_mult = _nf((ctx.get("pace_mult") if isinstance(ctx, dict) else None) or obj.get("pace_mult"))
+            if pace_mult is not None:
+                if pace_mult < 0.97:
+                    _add("pace_mult:down")
+                elif pace_mult > 1.03:
+                    _add("pace_mult:up")
+                else:
+                    _add("pace_mult:flat")
+
+            role_mult = _nf((ctx.get("role_mult") if isinstance(ctx, dict) else None) or obj.get("role_mult"))
+            if role_mult is not None:
+                if role_mult < 0.97:
+                    _add("role_mult:down")
+                elif role_mult > 1.03:
+                    _add("role_mult:up")
+                else:
+                    _add("role_mult:flat")
+
+            hot_cold_mult = _nf((ctx.get("hot_cold_mult") if isinstance(ctx, dict) else None) or obj.get("hot_cold_mult"))
+            if hot_cold_mult is not None:
+                if hot_cold_mult < 0.97:
+                    _add("hot:down")
+                elif hot_cold_mult > 1.03:
+                    _add("hot:up")
+                else:
+                    _add("hot:flat")
+
+            foul_mult = _nf((ctx.get("foul_mult") if isinstance(ctx, dict) else None) or obj.get("foul_mult"))
+            if foul_mult is not None:
+                if foul_mult < 0.97:
+                    _add("foul_adj:down")
+                elif foul_mult > 1.03:
+                    _add("foul_adj:up")
+                else:
+                    _add("foul_adj:flat")
     except Exception:
         pass
 
@@ -1203,6 +1357,11 @@ def _score_day(ds: str, *, dedup_policy: str = "none", include_model_lines: bool
 
     if not scored:
         return pd.DataFrame()
+    for row in scored:
+        try:
+            row["driver_tags"] = _driver_tags_from_tags(row.get("tags"))
+        except Exception:
+            row["driver_tags"] = []
     df = pd.DataFrame(scored)
     if str(dedup_policy or "none").strip().lower() in {"first_bet", "first_bets"}:
         return _dedup_first_bets(df)
@@ -1533,11 +1692,16 @@ def _write_markdown(ds: str, df: pd.DataFrame, out_path: Path) -> None:
 
             # Driver-tag breakdown on a decision-level view (avoids tick spam).
             try:
-                if "tags" in b_first_bet.columns and b_first_bet["tags"].notna().any():
+                tag_col = None
+                if "driver_tags" in b_first_bet.columns and b_first_bet["driver_tags"].notna().any():
+                    tag_col = "driver_tags"
+                elif "tags" in b_first_bet.columns and b_first_bet["tags"].notna().any():
+                    tag_col = "tags"
+                if tag_col:
                     tdf = b_first_bet.copy()
                     tdf = tdf[tdf["result"].notna()].copy()
                     if not tdf.empty:
-                        tdf["_tag"] = tdf["tags"].apply(lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else [str(v)]))
+                        tdf["_tag"] = tdf[tag_col].apply(lambda v: v if isinstance(v, list) else ([] if pd.isna(v) else [str(v)]))
                         tdf = tdf.explode("_tag")
                         tdf = tdf[tdf["_tag"].notna()].copy()
                         tdf["_tag"] = tdf["_tag"].astype(str).str.strip()
@@ -1596,7 +1760,7 @@ def main() -> int:
     )
     ap.add_argument(
         "--out-dir",
-        default=str(PROCESSED / "reports"),
+        default=str(REPORTS),
         help="Output directory (default: data/processed/reports)",
     )
     ap.add_argument(

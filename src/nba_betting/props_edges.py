@@ -910,6 +910,7 @@ def compute_props_edges(
     # Merge odds with predictions on name_key
     # Include optional per-player uncertainty columns (from SmartSim) when present.
     extra_cols = [c for c in ("sd_pts","sd_reb","sd_ast","sd_threes","sd_pra","sd_stl","sd_blk","sd_tov") if c in preds.columns]
+    base_pred_cols = [pred_map[k] for k in ("pts", "reb", "ast", "threes", "pra", "stl", "blk", "tov") if pred_map.get(k) in preds.columns]
     # Include light context columns for projection sanity checks when available.
     sanity_cols = [
         c
@@ -925,7 +926,7 @@ def compute_props_edges(
         if c in preds.columns
     ]
     merged = odds.merge(
-        preds[["name_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"], *extra_cols, *sanity_cols]],
+        preds[["name_key", "player_id", "player_name", "team", *base_pred_cols, *extra_cols, *sanity_cols]],
         on="name_key", how="left", suffixes=("", "_pred")
     )
     # Second-pass resolve using short key for any unmatched players
@@ -933,7 +934,7 @@ def compute_props_edges(
     if not unmatched.empty:
         # Merge by short key; manage name collisions with suffixes and prefer prediction player_name
         alt = odds.merge(
-            preds[["short_key", "player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]].rename(columns={"short_key": "short_key_pred"}),
+            preds[["short_key", "player_id", "player_name", "team", *base_pred_cols]].rename(columns={"short_key": "short_key_pred"}),
             left_on="short_key", right_on="short_key_pred", how="left", suffixes=("", "_pred")
         )
         # Consolidate player_name from predictions when available, else keep odds name
@@ -943,7 +944,7 @@ def compute_props_edges(
             alt["player_name_join"] = alt.get("player_name")
         keep = [
             "short_key", "player_id", "player_name_join", "team",
-            pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]
+            *base_pred_cols,
         ]
         keep = [c for c in keep if c in alt.columns]
         alt = alt[keep].copy()
@@ -1026,12 +1027,12 @@ def compute_props_edges(
                     # If we resolved player_id, bring in prediction columns via id join
                     need = merged[merged["player_id"].notna()].index
                     if len(need) > 0:
-                        pred_cols = ["player_id", "player_name", "team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]
+                        pred_cols = ["player_id", "player_name", "team", *base_pred_cols]
                         pred_cols = [c for c in pred_cols if c in preds.columns]
                         by_id = preds[pred_cols].drop_duplicates("player_id")
                         merged = merged.merge(by_id.add_suffix("_pid"), left_on="player_id", right_on="player_id_pid", how="left")
                         # Backfill any missing prediction fields from the _pid columns
-                        for col in ["player_name","team", pred_map["pts"], pred_map["reb"], pred_map["ast"], pred_map["threes"], pred_map["pra"]]:
+                        for col in ["player_name", "team", *base_pred_cols]:
                             base = col
                             aux = f"{col}_pid"
                             if base in merged.columns and aux in merged.columns:

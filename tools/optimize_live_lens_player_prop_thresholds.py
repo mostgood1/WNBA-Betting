@@ -95,6 +95,15 @@ def _live_stat_key(x: Any) -> str:
         "3pm": "threes",
         "threes": "threes",
         "threes_made": "threes",
+        "steals": "stl",
+        "steal": "stl",
+        "stl": "stl",
+        "blocks": "blk",
+        "block": "blk",
+        "blk": "blk",
+        "turnovers": "tov",
+        "turnover": "tov",
+        "tov": "tov",
         "pra": "pra",
         "points+rebounds+assists": "pra",
         "pr": "pr",
@@ -157,7 +166,7 @@ def _prep_recon_props(df: pd.DataFrame) -> pd.DataFrame:
     else:
         out["_name_key"] = ""
 
-    for c in ("pts", "reb", "ast", "threes"):
+    for c in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"):
         if c in out.columns:
             out[c] = pd.to_numeric(out[c], errors="coerce")
 

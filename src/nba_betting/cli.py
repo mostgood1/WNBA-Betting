@@ -3079,7 +3079,7 @@ def backfill_player_props_cmd(date: str, markets: str | None, mode: str, api_key
 @click.option("--start", "start_str", type=str, required=False, help="Start date YYYY-MM-DD")
 @click.option("--end", "end_str", type=str, required=False, help="End date YYYY-MM-DD")
 def fetch_prop_actuals_cmd(date_str: str | None, start_str: str | None, end_str: str | None):
-    """Fetch player prop actuals (PTS, REB, AST, 3PM, PRA) via nbastatR and upsert to processed files.
+    """Fetch player prop actuals (PTS, REB, AST, STL, BLK, TOV, 3PM, PRA) via nbastatR and upsert to processed files.
 
     Requires R and the nbastatR package installed. On Windows, ensure Rscript.exe is on PATH.
     """
@@ -3116,7 +3116,9 @@ def fetch_prop_actuals_cmd(date_str: str | None, start_str: str | None, end_str:
             small = df.copy()
             small["date"] = pd.to_datetime(small["date"]).dt.date
             small = small[small["date"] == dd]
-            keep = [c for c in ["date","game_id","player_id","player_name","team_abbr","pts","reb","ast","threes","pra"] if c in small.columns]
+            if "team_abbr" not in small.columns and "team" in small.columns:
+                small["team_abbr"] = small["team"]
+            keep = [c for c in ["date","game_id","player_id","player_name","team_abbr","pts","reb","ast","threes","stl","blk","tov","pra"] if c in small.columns]
             out_csv = paths.data_processed / f"recon_props_{date_str}.csv"
             small[keep].to_csv(out_csv, index=False)
             console.print({"recon_props": str(out_csv), "rows": int(len(small))})
@@ -5777,13 +5779,22 @@ def evaluate_props_cmd(start: str, end: str, slate_only: bool):
                 dcol = pick(logs, ["GAME_DATE", "GAME_DATE_EST", "dateGame", "GAME_DATE_PT"]) 
                 pid = pick(logs, ["PLAYER_ID", "player_id", "idPlayer"]) 
                 pts = pick(logs, ["PTS","pts"]) ; reb = pick(logs, ["REB","reb","TREB","treb"]) ; ast = pick(logs, ["AST","ast"]) ; fg3m = pick(logs, ["FG3M","fg3m"]) 
+                stl = pick(logs, ["STL", "stl", "steals"]) ; blk = pick(logs, ["BLK", "blk", "blocks"]) ; tov = pick(logs, ["TOV", "TO", "tov", "to", "turnovers"])
                 if not all([dcol, pid, pts, reb, ast, fg3m]):
                     console.print("player_logs missing required columns for actuals.", style="red"); return
                 logs[dcol] = pd.to_datetime(logs[dcol]).dt.date
                 mask = (logs[dcol] >= start_d) & (logs[dcol] <= end_d)
-                part = logs.loc[mask, [dcol, pid, pts, reb, ast, fg3m]].copy()
-                part.rename(columns={dcol: "date", pid: "player_id", pts: "pts", reb: "reb", ast: "ast", fg3m: "threes"}, inplace=True)
-                for ccc in ["pts","reb","ast","threes"]:
+                keep_cols = [dcol, pid, pts, reb, ast, fg3m] + [c for c in [stl, blk, tov] if c]
+                part = logs.loc[mask, keep_cols].copy()
+                rename_map = {dcol: "date", pid: "player_id", pts: "pts", reb: "reb", ast: "ast", fg3m: "threes"}
+                if stl:
+                    rename_map[stl] = "stl"
+                if blk:
+                    rename_map[blk] = "blk"
+                if tov:
+                    rename_map[tov] = "tov"
+                part.rename(columns=rename_map, inplace=True)
+                for ccc in ["pts","reb","ast","threes","stl","blk","tov"]:
                     part[ccc] = pd.to_numeric(part[ccc], errors="coerce")
                 part["pra"] = part[["pts","reb","ast"]].sum(axis=1, skipna=True)
                 actuals = part
@@ -7080,6 +7091,9 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
                     ("pred_reb", "reb"),
                     ("pred_ast", "ast"),
                     ("pred_threes", "threes"),
+                    ("pred_stl", "stl"),
+                    ("pred_blk", "blk"),
+                    ("pred_tov", "tov"),
                     ("pred_pra", "pra"),
                 ]:
                     if col in grp.columns:

@@ -636,6 +636,9 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "ast": ["player_assists", "player_assists_alternate"],
         "threes": ["player_threes"],
         "pra": ["player_points_rebounds_assists", "player_points_rebounds_assists_alternate"],
+        "stl": ["player_steals"],
+        "blk": ["player_blocks"],
+        "tov": ["player_turnovers"],
     }
     market_to_stat: dict[str, str] = {}
     for st, mks in stat_to_markets.items():
@@ -4477,6 +4480,9 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
             "reb": {"reboundsTotal", "REB", "TREB"},
             "ast": {"assists", "AST"},
             "threes": {"threePointersMade", "FG3M"},
+            "stl": {"steals", "STL"},
+            "blk": {"blocks", "BLK"},
+            "tov": {"turnovers", "TO", "TOV"},
         }
         per_game: dict[str, dict[str, dict[str, float]]] = {}
 
@@ -4499,11 +4505,14 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
                 c_reb = _col(needed_cols["reb"])
                 c_ast = _col(needed_cols["ast"])
                 c_3 = _col(needed_cols["threes"])
+                c_stl = _col(needed_cols["stl"])
+                c_blk = _col(needed_cols["blk"])
+                c_tov = _col(needed_cols["tov"])
                 if not gid or not team:
                     continue
-                use_cols = [x for x in [gid, team, c_pts, c_reb, c_ast, c_3] if x]
+                use_cols = [x for x in [gid, team, c_pts, c_reb, c_ast, c_3, c_stl, c_blk, c_tov] if x]
                 tmp = df[use_cols].copy()
-                for c in [c_pts, c_reb, c_ast, c_3]:
+                for c in [c_pts, c_reb, c_ast, c_3, c_stl, c_blk, c_tov]:
                     if c and c in tmp.columns:
                         tmp[c] = pd.to_numeric(tmp[c], errors="coerce")
                 grp = tmp.groupby([gid, team], as_index=False).sum()
@@ -4524,6 +4533,9 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
                             "reb": float(b.get(c_reb, 0.0) or 0.0) if c_reb else np.nan,
                             "ast": float(b.get(c_ast, 0.0) or 0.0) if c_ast else np.nan,
                             "threes": float(b.get(c_3, 0.0) or 0.0) if c_3 else np.nan,
+                            "stl": float(b.get(c_stl, 0.0) or 0.0) if c_stl else np.nan,
+                            "blk": float(b.get(c_blk, 0.0) or 0.0) if c_blk else np.nan,
+                            "tov": float(b.get(c_tov, 0.0) or 0.0) if c_tov else np.nan,
                         }
             except Exception:
                 continue
@@ -4538,11 +4550,14 @@ def _compute_team_allowed_stats(date_str: str, days_back: int = 21) -> tuple[dic
                 "reb": float(vals["reb"].mean()) if "reb" in vals.columns else np.nan,
                 "ast": float(vals["ast"].mean()) if "ast" in vals.columns else np.nan,
                 "threes": float(vals["threes"].mean()) if "threes" in vals.columns else np.nan,
+                "stl": float(vals["stl"].mean()) if "stl" in vals.columns else np.nan,
+                "blk": float(vals["blk"].mean()) if "blk" in vals.columns else np.nan,
+                "tov": float(vals["tov"].mean()) if "tov" in vals.columns else np.nan,
             }
 
         # Build ranks per market: higher allowed => higher rank (favorable for overs)
         ranks: dict[str, dict[str, int]] = {}
-        for mk in ["pts","reb","ast","threes"]:
+        for mk in ["pts","reb","ast","threes","stl","blk","tov"]:
             series = pd.Series({t: (averages.get(t, {}).get(mk, np.nan)) for t in averages.keys()})
             # Drop NaN and rank among available teams
             series = series.dropna()
@@ -7549,8 +7564,11 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
     try:
         date_str = date_str or datetime.utcnow().date().isoformat()
         mode = (mode or "full").strip().lower()
+        is_lookahead = (mode == "lookahead")
 
         _append_log(f"Starting daily update (mode={mode}, date={date_str})...")
+        if is_lookahead:
+            _append_log("Look-ahead mode: reusing local cached inputs and prioritizing fast future-slate generation.")
 
         # Resolve python executable (prefer current interpreter on servers)
         import sys as _sys
@@ -7570,24 +7588,57 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         season_str = _season_str_from_year(season_year)
         season_end_year = season_year + 1
 
+        def _env_int(names: list[str], default: int) -> int:
+            for name in names:
+                try:
+                    raw = os.environ.get(name)
+                except Exception:
+                    raw = None
+                if raw is None:
+                    continue
+                raw_s = str(raw).strip()
+                if not raw_s:
+                    continue
+                try:
+                    return int(raw_s)
+                except Exception:
+                    continue
+            return int(default)
+
+        cpu_count = int(os.cpu_count() or 1)
+        default_lookahead_workers = 1 if cpu_count <= 2 else min(4, max(2, cpu_count // 2))
+        lookahead_smartsim_workers = max(1, _env_int([
+            "DAILY_LOOKAHEAD_SMARTSIM_WORKERS",
+            "DAILY_SMARTSIM_WORKERS",
+            "SMARTSIM_WORKERS",
+            "SMART_SIM_WORKERS",
+        ], default_lookahead_workers))
+        lookahead_smartsim_n_sims = max(1, _env_int([
+            "DAILY_LOOKAHEAD_SMARTSIM_NSIMS",
+            "DAILY_SMARTSIM_NSIMS",
+        ], 2000))
+
         # Build a date-based pipeline aligned with scripts/daily_update.ps1
         steps: list[tuple[str, list[str], bool]] = []
         # (label, cmd, required)
-        steps.append((
-            "fetch-injuries",
-            [str(py), "-m", "nba_betting.cli", "fetch-injuries"],
-            False,
-        ))
-        steps.append((
-            "fetch-rosters",
-            [str(py), "-m", "nba_betting.cli", "fetch-rosters", "--season", str(season_year)],
-            False,
-        ))
-        steps.append((
-            "fetch-player-logs",
-            [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
-            False,
-        ))
+        if not is_lookahead:
+            steps.append((
+                "fetch-injuries",
+                [str(py), "-m", "nba_betting.cli", "fetch-injuries"],
+                False,
+            ))
+            steps.append((
+                "fetch-rosters",
+                [str(py), "-m", "nba_betting.cli", "fetch-rosters", "--season", str(season_year)],
+                False,
+            ))
+            steps.append((
+                "fetch-player-logs",
+                [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
+                False,
+            ))
+        else:
+            _append_log("Look-ahead mode: skipping fetch-injuries, fetch-rosters, and fetch-player-logs (already refreshed by the main daily run).")
         steps.append((
             "build-league-status",
             [str(py), "-m", "nba_betting.cli", "build-league-status", "--date", date_str],
@@ -7617,28 +7668,58 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         # SmartSim distributions for today's slate (writes per-game smart_sim_<date>_<HOME>_<AWAY>.json)
         # Keep consistent with scripts/daily_update.ps1; allow skipping via env.
         skip_smartsim = str(os.environ.get("DAILY_SKIP_SMARTSIM") or "").strip().lower() in {"1", "true", "yes"}
-        if (mode in {"full", "pipeline", "props"}) and not skip_smartsim:
+        if (mode in {"full", "pipeline", "props", "lookahead"}) and not skip_smartsim:
             steps.append((
                 "fetch-advanced-stats",
                 [str(py), "-m", "nba_betting.cli", "fetch-advanced-stats", "--season", str(season_end_year), "--as-of", date_str],
                 False,
             ))
-            n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "2000").strip() or "2000"
-            smartsim_cmd = [str(py), "-m", "nba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
-            max_games = str(os.environ.get("DAILY_SMARTSIM_MAX_GAMES") or "").strip()
-            if max_games:
-                smartsim_cmd += ["--max-games", max_games]
-            steps.append(("smart-sim-date", smartsim_cmd, False))
-        if mode in {"full", "pipeline", "props"}:
+            if not is_lookahead:
+                n_sims = str(os.environ.get("DAILY_SMARTSIM_NSIMS") or "2000").strip() or "2000"
+                smartsim_cmd = [str(py), "-m", "nba_betting.cli", "smart-sim-date", "--date", date_str, "--n-sims", n_sims]
+                max_games = str(os.environ.get("DAILY_SMARTSIM_MAX_GAMES") or "").strip()
+                if max_games:
+                    smartsim_cmd += ["--max-games", max_games]
+                steps.append(("smart-sim-date", smartsim_cmd, False))
+        if mode in {"full", "pipeline", "props", "lookahead"}:
+            predict_props_cmd = [str(py), "-m", "nba_betting.cli", "predict-props", "--date", date_str]
+            if skip_smartsim:
+                predict_props_cmd.append("--no-use-smart-sim")
+            elif is_lookahead:
+                predict_props_cmd += [
+                    "--smart-sim-workers",
+                    str(lookahead_smartsim_workers),
+                    "--smart-sim-n-sims",
+                    str(lookahead_smartsim_n_sims),
+                ]
             steps.append((
                 "predict-props",
-                [str(py), "-m", "nba_betting.cli", "predict-props", "--date", date_str],
+                predict_props_cmd,
+                False,
+            ))
+            steps.append((
+                "odds-snapshots-props",
+                [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str],
                 False,
             ))
             # Prefer auto source to avoid hard dependency on external keys
             steps.append((
                 "props-edges",
-                [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "auto"],
+                [
+                    str(py),
+                    "-m",
+                    "nba_betting.cli",
+                    "props-edges",
+                    "--date",
+                    date_str,
+                    "--source",
+                    "oddsapi",
+                    "--mode",
+                    "current",
+                    "--file-only",
+                    "--calibrate-prob",
+                    "--calibrate-sigma",
+                ],
                 False,
             ))
             steps.append((
@@ -8008,6 +8089,78 @@ def _load_smart_sim_files_for_date(date_str: str, prefix: str | None = None) -> 
         return []
 
 
+def _app_lookahead_days(default: int = 1) -> int:
+    try:
+        raw = os.environ.get("APP_LOOKAHEAD_DAYS")
+        if raw is None or str(raw).strip() == "":
+            raw = os.environ.get("DAILY_LOOKAHEAD_DAYS")
+        if raw is None or str(raw).strip() == "":
+            return max(0, min(7, int(default)))
+        return max(0, min(7, int(str(raw).strip())))
+    except Exception:
+        try:
+            return max(0, min(7, int(default)))
+        except Exception:
+            return 1
+
+
+def _find_next_available_processed_date_file(
+    stem: str,
+    start_date_str: str,
+    max_ahead: int | None = None,
+    suffix: str = ".csv",
+) -> tuple[Optional[str], Optional[Path]]:
+    try:
+        import datetime as _dt
+
+        try:
+            start = _dt.date.fromisoformat(str(start_date_str))
+        except Exception:
+            return None, None
+
+        lookahead = _app_lookahead_days() if max_ahead is None else int(max_ahead)
+        lookahead = max(0, min(7, int(lookahead)))
+        for i in range(1, lookahead + 1):
+            cand = start + _dt.timedelta(days=i)
+            name = f"{stem}_{cand.isoformat()}{suffix}"
+            fp = DATA_PROCESSED_DIR / name
+            if not fp.exists():
+                try:
+                    _maybe_fetch_remote_processed(name)
+                except Exception:
+                    pass
+            if fp.exists():
+                return cand.isoformat(), fp
+    except Exception:
+        pass
+    return None, None
+
+
+def _find_next_available_smart_sim_date(
+    start_date_str: str,
+    max_ahead: int | None = None,
+    prefix: str | None = None,
+) -> tuple[Optional[str], list[Path]]:
+    try:
+        import datetime as _dt
+
+        try:
+            start = _dt.date.fromisoformat(str(start_date_str))
+        except Exception:
+            return None, []
+
+        lookahead = _app_lookahead_days() if max_ahead is None else int(max_ahead)
+        lookahead = max(0, min(7, int(lookahead)))
+        for i in range(1, lookahead + 1):
+            cand = start + _dt.timedelta(days=i)
+            files = _load_smart_sim_files_for_date(cand.isoformat(), prefix=prefix)
+            if files:
+                return cand.isoformat(), files
+    except Exception:
+        pass
+    return None, []
+
+
 def _load_game_odds_map(date_str: str) -> dict[tuple[str, str], dict[str, Any]]:
     out: dict[tuple[str, str], dict[str, Any]] = {}
     try:
@@ -8325,6 +8478,12 @@ def _sim_vs_line_prop_recommendations(
             return _safe_float(p.get("ast_mean")), _safe_float(p.get("ast_sd"))
         if m in {"threes", "3pm", "3ptm", "fg3m"}:
             return _safe_float(p.get("threes_mean")), _safe_float(p.get("threes_sd"))
+        if m in {"stl", "steals", "steal"}:
+            return _safe_float(p.get("stl_mean")), _safe_float(p.get("stl_sd"))
+        if m in {"blk", "blocks", "block"}:
+            return _safe_float(p.get("blk_mean")), _safe_float(p.get("blk_sd"))
+        if m in {"tov", "turnovers", "turnover", "to"}:
+            return _safe_float(p.get("tov_mean")), _safe_float(p.get("tov_sd"))
         if m in {"pra"}:
             return _safe_float(p.get("pra_mean")), _safe_float(p.get("pra_sd"))
 
@@ -8680,6 +8839,14 @@ def api_cards():
     if not d:
         return jsonify({"error": "missing date"}), 400
 
+    requested_date = d
+    smart_sim_files = _load_smart_sim_files_for_date(d)
+    if not smart_sim_files:
+        next_date, next_files = _find_next_available_smart_sim_date(d, max_ahead=_app_lookahead_days())
+        if next_date and next_files:
+            d = next_date
+            smart_sim_files = next_files
+
     odds_map = _load_game_odds_map(d)
     props_map = _load_props_predictions_map(d)
     min_priors = _compute_player_minutes_priors(d, days_back=21)
@@ -8810,7 +8977,7 @@ def api_cards():
         }
 
     games: list[dict[str, Any]] = []
-    for fp in _load_smart_sim_files_for_date(d):
+    for fp in smart_sim_files:
         try:
             obj = json.loads(fp.read_text(encoding="utf-8"))
         except Exception:
@@ -9080,12 +9247,16 @@ def api_cards():
         # Unified prop recommendations: betting lines vs SmartSim aggregates.
         # Cards homepage: ROI-optimized defaults for props shown on each game card.
         try:
-            raw_mkts = (request.args.get("prop_markets") or request.args.get("propMarkets") or "pts,threes")
+            raw_mkts = (
+                request.args.get("prop_markets")
+                or request.args.get("propMarkets")
+                or "pts,reb,ast,threes,stl,blk,tov,pra"
+            )
             allowed_markets = {m.strip().lower() for m in str(raw_mkts).replace(";", ",").split(",") if m.strip()}
         except Exception:
-            allowed_markets = {"pts", "threes"}
+            allowed_markets = {"pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"}
         if not allowed_markets:
-            allowed_markets = {"pts", "threes"}
+            allowed_markets = {"pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"}
         try:
             min_ev_pct = _safe_float(request.args.get("props_min_ev", request.args.get("propsMinEV", "1.0")))
             min_ev_pct = 1.0 if min_ev_pct is None else float(min_ev_pct)
@@ -9175,7 +9346,16 @@ def api_cards():
 
     games.sort(key=_sort_key)
 
-    return jsonify(_to_jsonable({"date": d, "games": games}))
+    return jsonify(
+        _to_jsonable(
+            {
+                "date": d,
+                "requested_date": requested_date,
+                "lookahead_applied": bool(d != requested_date),
+                "games": games,
+            }
+        )
+    )
 
 
 def _recommendations_summary():
@@ -11178,6 +11358,9 @@ def api_evaluate_props():
                     "reb": float(pd.to_numeric(rr.get("reb"), errors="coerce") or 0.0),
                     "ast": float(pd.to_numeric(rr.get("ast"), errors="coerce") or 0.0),
                     "threes": float(pd.to_numeric(rr.get("threes"), errors="coerce") or 0.0),
+                    "stl": float(pd.to_numeric(rr.get("stl"), errors="coerce") or 0.0),
+                    "blk": float(pd.to_numeric(rr.get("blk"), errors="coerce") or 0.0),
+                    "tov": float(pd.to_numeric(rr.get("tov"), errors="coerce") or 0.0),
                     "pra": float(pd.to_numeric(rr.get("pra"), errors="coerce") or 0.0),
                 }
             # Evaluate each card top play
@@ -11520,7 +11703,7 @@ def api_accuracy_market():
             mm = str(mkt or "").strip().lower()
             if not stats:
                 return None
-            if mm in {"pts", "reb", "ast", "threes", "pra"}:
+            if mm in {"pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"}:
                 return stats.get(mm)
             if mm == "pr":
                 return float(stats.get("pts", 0.0) + stats.get("reb", 0.0))
@@ -12020,6 +12203,12 @@ def _ll_driver_from_type(tag_type: str) -> str:
         return "sim"
     if t in {"risk", "support"}:
         return "adjustment"
+    if t in {"line_src", "line_age", "books", "market_span", "hold", "bettable", "bet_score", "gate"}:
+        return "market_quality"
+    if t in {"edge_sigma"}:
+        return "signal_strength"
+    if t in {"pace_mult", "role_mult", "hot", "foul_adj"}:
+        return "player_adjustment"
     if t in {"shrink"}:
         return "shrink"
     if t in {"interval_drift", "interval_drift_mag"}:
@@ -12050,6 +12239,68 @@ def _ll_load_audit_module():
     import daily_live_lens_audit as _audit  # type: ignore
 
     return _audit
+
+
+def _ll_enrich_signal_tags(body: dict[str, Any]) -> dict[str, Any]:
+    if not isinstance(body, dict):
+        return body
+    obj = dict(body)
+    try:
+        audit = _ll_load_audit_module()
+        market = str(obj.get("market") or "").strip().lower()
+        if not market:
+            return obj
+
+        horizon = str(obj.get("horizon") or "").strip().lower() or None
+        klass = str(obj.get("klass") or "").strip().upper() or None
+
+        stat_key = None
+        if market == "player_prop":
+            try:
+                stat_key = str(obj.get("stat") or "").strip().lower() or None
+            except Exception:
+                stat_key = None
+            try:
+                if stat_key:
+                    stat_key = str(audit._live_stat_key(stat_key))
+            except Exception:
+                pass
+
+        interval_on = recent_on = foul_on = None
+        try:
+            interval_on, recent_on, foul_on = audit._flag_adjustments(obj.get("context"))
+        except Exception:
+            interval_on, recent_on, foul_on = None, None, None
+
+        tags = audit._derive_tags(
+            obj=obj,
+            market=market,
+            horizon=horizon,
+            klass=klass,
+            stat_key=stat_key,
+            interval_drift_on=interval_on,
+            recent_window_on=recent_on,
+            endgame_foul_on=foul_on,
+        )
+        tags = tags if isinstance(tags, list) else ([] if tags is None else [str(tags)])
+        tags = [str(t) for t in tags if t is not None and str(t).strip()]
+        if not tags:
+            return obj
+
+        driver_tags = [t for t in tags if not _ll_tag_is_meta(t)]
+        driver_types = sorted({t for t in (_ll_tag_type(x) for x in driver_tags) if t})
+        drivers = sorted({_ll_driver_from_type(t) for t in driver_types if t})
+
+        obj["tags"] = tags
+        obj["driver_tags"] = driver_tags
+        if driver_types:
+            obj["driver_types"] = driver_types
+        if drivers:
+            obj["drivers"] = drivers
+            obj["driver"] = drivers[0]
+    except Exception:
+        return obj
+    return obj
 
 
 def _ll_load_jsonl(path: Path) -> list[dict[str, Any]]:
@@ -12149,7 +12400,7 @@ def _ll_prep_recon_props(df: pd.DataFrame) -> pd.DataFrame:
         out["_name_key"] = ""
 
     # Ensure numeric stat cols
-    for c in ("pts", "reb", "ast", "threes"):
+    for c in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"):
         if c in out.columns:
             out[c] = pd.to_numeric(out[c], errors="coerce")
 
@@ -13065,7 +13316,7 @@ def _recommendations_all():
             prop_stats = set([s.lower() for s in _arg_list("prop_markets")])
         # Default prop markets for curated slate (matches UI defaults)
         if curate and not prop_stats:
-            prop_stats = {"pts", "reb", "ast", "threes"}
+            prop_stats = {"pts", "reb", "ast", "threes", "stl", "blk", "tov"}
 
         # ---- Curated slate (simplified): probability-first “most likely” props ----
         # Returns ONLY:
@@ -13197,9 +13448,45 @@ def _recommendations_all():
                         continue
                 return mt
 
-            slate_fp = proc / f"recommendations_slate_{d}.json"
-            props_fp = proc / f"props_recommendations_{d}.csv"
-            sim_files = sorted(list(proc.glob(f"{sim_prefix}_{d}_*.json")))
+            slate_date_used = d
+            props_fp = proc / f"props_recommendations_{slate_date_used}.csv"
+            if not props_fp.exists():
+                try:
+                    _maybe_fetch_remote_processed(props_fp.name)
+                except Exception:
+                    pass
+            sim_files = _load_smart_sim_files_for_date(slate_date_used, prefix=sim_prefix)
+            lookahead_days = _app_lookahead_days()
+            if lookahead_days > 0 and ((not props_fp.exists()) or (len(sim_files) <= 0)):
+                alt_sim_date, alt_sim_files = _find_next_available_smart_sim_date(
+                    d,
+                    max_ahead=lookahead_days,
+                    prefix=sim_prefix,
+                )
+                if alt_sim_date and alt_sim_files:
+                    alt_props_fp = proc / f"props_recommendations_{alt_sim_date}.csv"
+                    if not alt_props_fp.exists():
+                        try:
+                            _maybe_fetch_remote_processed(alt_props_fp.name)
+                        except Exception:
+                            pass
+                    if alt_props_fp.exists():
+                        slate_date_used = alt_sim_date
+                        props_fp = alt_props_fp
+                        sim_files = alt_sim_files
+                if ((not props_fp.exists()) or (len(sim_files) <= 0)):
+                    alt_props_date, alt_props_path = _find_next_available_processed_date_file(
+                        "props_recommendations",
+                        d,
+                        max_ahead=lookahead_days,
+                    )
+                    if alt_props_date and alt_props_path and alt_props_path.exists():
+                        alt_sim_files = _load_smart_sim_files_for_date(alt_props_date, prefix=sim_prefix)
+                        if alt_sim_files:
+                            slate_date_used = alt_props_date
+                            props_fp = alt_props_path
+                            sim_files = alt_sim_files
+            slate_fp = proc / f"recommendations_slate_{slate_date_used}.json"
             deps = [props_fp] + sim_files
             dep_mtime = _max_mtime(deps)
 
@@ -13229,7 +13516,7 @@ def _recommendations_all():
                         cached_ver = str(cached_policy.get("version") or "").strip()
                         if (
                             isinstance(cached, dict)
-                            and cached.get("date") == d
+                            and cached.get("date") == slate_date_used
                             and isinstance(cached.get("per_game"), list)
                             and isinstance(cached.get("per_market"), dict)
                             and (cached_ver == SLATE_PROB_VERSION)
@@ -13243,7 +13530,7 @@ def _recommendations_all():
             try:
                 import hashlib as _hashlib
                 sig = {
-                    "date": d,
+                    "date": slate_date_used,
                     "n_game": n_game,
                     "n_market": n_market,
                     "sim_prefix": str(sim_prefix),
@@ -13835,7 +14122,7 @@ def _recommendations_all():
                 arr.sort(key=lambda x: float(x.get("score") or float("-inf")), reverse=True)
 
             payload = {
-                "date": d,
+                "date": slate_date_used,
                 "per_game": per_game,
                 "per_market": per_market,
                 "meta": {
@@ -14078,9 +14365,15 @@ def _recommendations_all():
                 _maybe_fetch_remote_processed(games_p.name)
             games_df = _read(games_p)
             _games_date_used = d
-            # Fallback: use previous available date (up to 7 days), then latest
+            # Fallback: prefer next available look-ahead date, then previous available date, then latest.
             if (games_df is None) or games_df.empty:
-                alt_date, alt_path = _find_prev_available_date_file("recommendations", d, max_back=7)
+                alt_date, alt_path = _find_next_available_processed_date_file(
+                    "recommendations",
+                    d,
+                    max_ahead=_app_lookahead_days(),
+                )
+                if not alt_date:
+                    alt_date, alt_path = _find_prev_available_date_file("recommendations", d, max_back=7)
                 if not alt_date:
                     alt_date, alt_path = _find_latest_date_file("recommendations")
                 if alt_date and alt_path and alt_path.exists():
@@ -14103,7 +14396,7 @@ def _recommendations_all():
                     df = games_df.copy()
                     # Attach simulation probabilities/EV if available
                     try:
-                        sim_p = proc / f"games_sim_{d}.csv"
+                        sim_p = proc / f"games_sim_{_games_date_used}.csv"
                         sim_df = pd.read_csv(sim_p) if sim_p.exists() else pd.DataFrame()
                         sim_map = {}
                         sim_map_tri = {}
@@ -14894,6 +15187,17 @@ def _recommendations_all():
         # Props recommendations
         # Optional: load model baselines for props (for explanation and scoring)
         props_pred_df = _read(proc / f"props_predictions_{d}.csv")
+        if (props_pred_df is None) or props_pred_df.empty:
+            alt_pred_date, alt_pred_path = _find_next_available_processed_date_file(
+                "props_predictions",
+                d,
+                max_ahead=_app_lookahead_days(),
+            )
+            if alt_pred_date and alt_pred_path and alt_pred_path.exists():
+                try:
+                    props_pred_df = _read(alt_pred_path)
+                except Exception:
+                    pass
         model_map: dict[tuple[str, str], dict] = {}
         if isinstance(props_pred_df, pd.DataFrame) and not props_pred_df.empty:
             try:
@@ -14970,7 +15274,13 @@ def _recommendations_all():
             props_df = _read(props_p)
             _props_date_used = d
             if (props_df is None) or props_df.empty:
-                alt_date, alt_path = _find_prev_available_date_file("props_recommendations", d, max_back=7)
+                alt_date, alt_path = _find_next_available_processed_date_file(
+                    "props_recommendations",
+                    d,
+                    max_ahead=_app_lookahead_days(),
+                )
+                if not alt_date:
+                    alt_date, alt_path = _find_prev_available_date_file("props_recommendations", d, max_back=7)
                 if not alt_date:
                     alt_date, alt_path = _find_latest_date_file("props_recommendations")
                 if alt_date and alt_path and alt_path.exists():
@@ -15619,7 +15929,13 @@ def _recommendations_all():
             fb_df = _read(fb_p)
             _fb_date_used = d
             if (fb_df is None) or fb_df.empty:
-                alt_date, alt_path = _find_prev_available_date_file("first_basket_recs", d, max_back=7)
+                alt_date, alt_path = _find_next_available_processed_date_file(
+                    "first_basket_recs",
+                    d,
+                    max_ahead=_app_lookahead_days(),
+                )
+                if not alt_date:
+                    alt_date, alt_path = _find_prev_available_date_file("first_basket_recs", d, max_back=7)
                 if not alt_date:
                     alt_date, alt_path = _find_latest_date_file("first_basket_recs")
                 if alt_date and alt_path and alt_path.exists():
@@ -15744,7 +16060,13 @@ def _recommendations_all():
             thr_df = _read(thr_p)
             _thr_date_used = d
             if (thr_df is None) or thr_df.empty:
-                alt_date, alt_path = _find_prev_available_date_file("early_threes", d, max_back=7)
+                alt_date, alt_path = _find_next_available_processed_date_file(
+                    "early_threes",
+                    d,
+                    max_ahead=_app_lookahead_days(),
+                )
+                if not alt_date:
+                    alt_date, alt_path = _find_prev_available_date_file("early_threes", d, max_back=7)
                 if not alt_date:
                     alt_date, alt_path = _find_latest_date_file("early_threes")
                 if alt_date and alt_path and alt_path.exists():
@@ -17929,6 +18251,9 @@ def _recommendations_game_cards():
                     "reb": _as_float(r.get("reb")),
                     "ast": _as_float(r.get("ast")),
                     "threes": _as_float(r.get("threes")),
+                    "stl": _as_float(r.get("stl")),
+                    "blk": _as_float(r.get("blk")),
+                    "tov": _as_float(r.get("tov")),
                     "pra": _as_float(r.get("pra")),
                 }
 
@@ -17943,6 +18268,9 @@ def _recommendations_game_cards():
                     "reb": _as_float(r.get("mean_reb")) if ("mean_reb" in df_pp.columns) else _as_float(r.get("pred_reb")),
                     "ast": _as_float(r.get("mean_ast")) if ("mean_ast" in df_pp.columns) else _as_float(r.get("pred_ast")),
                     "threes": _as_float(r.get("mean_threes")) if ("mean_threes" in df_pp.columns) else _as_float(r.get("pred_threes")),
+                    "stl": _as_float(r.get("mean_stl")) if ("mean_stl" in df_pp.columns) else _as_float(r.get("pred_stl")),
+                    "blk": _as_float(r.get("mean_blk")) if ("mean_blk" in df_pp.columns) else _as_float(r.get("pred_blk")),
+                    "tov": _as_float(r.get("mean_tov")) if ("mean_tov" in df_pp.columns) else _as_float(r.get("pred_tov")),
                     "pra": _as_float(r.get("mean_pra")) if ("mean_pra" in df_pp.columns) else _as_float(r.get("pred_pra")),
                 }
 
@@ -17973,7 +18301,7 @@ def _recommendations_game_cards():
                         p["actual"] = actual_by_player[pid].get(st)
                     # settle only for numeric O/U props
                     try:
-                        if st in {"pts", "reb", "ast", "threes", "pra"}:
+                        if st in {"pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"}:
                             side = (p.get("side") or "").upper()
                             ln = _as_float(p.get("line"))
                             act = _as_float(p.get("actual"))
@@ -19905,7 +20233,7 @@ def api_props_recommendations():
                 # Fallback: if learned pair penalties are empty, derive from numeric correlations
                 try:
                     if not by_market_pairs:
-                        cols_num = ["PTS","REB","AST","THREES","PRA"]
+                        cols_num = ["PTS","REB","AST","THREES","STL","BLK","TOV","PRA"]
                         acc: dict[tuple[str,str], list[float]] = {}
                         for day in days:
                             try:
@@ -20185,11 +20513,21 @@ def api_props_recommendations():
                         try:
                             model_pred = 0.0
                             mk = str(tp.get("market") or "").lower()
-                            if mk in {"pts","reb","ast","threes","pra"}:
+                            if mk in {"pts","reb","ast","threes","stl","blk","tov","pra"}:
                                 model_pred = float((row.get("model") or {}).get(mk) or 0.0)
                             if model_pred and model_pred > 0:
                                 # Scale bump gently by normalized prediction
-                                bump = max(0.0, min(0.05, model_pred / (30.0 if mk == "pts" else 12.0)))
+                                bump_scale = {
+                                    "pts": 30.0,
+                                    "reb": 12.0,
+                                    "ast": 12.0,
+                                    "threes": 5.0,
+                                    "stl": 3.0,
+                                    "blk": 3.0,
+                                    "tov": 4.0,
+                                    "pra": 20.0,
+                                }.get(mk, 12.0)
+                                bump = max(0.0, min(0.05, model_pred / bump_scale))
                                 ms = _clamp01(ms + bump)
                         except Exception:
                             pass
@@ -21113,7 +21451,7 @@ def api_props_recommendations():
                     req_markets = []
                 if not req_markets:
                     # Default full set when per_market is requested.
-                    req_markets = ["pts","reb","ast","threes","blk","stl","pra","pr","pa","ra","dd","td"]
+                    req_markets = ["pts","reb","ast","threes","stl","blk","tov","pra","pr","pa","ra","dd","td"]
                 # Dedup preserve order
                 seen_m = set(); req_markets = [m for m in req_markets if m and (m not in seen_m and not seen_m.add(m))]
 
@@ -21469,7 +21807,7 @@ def api_admin_corr_cache():
                 # Fallback: if learned is empty, derive from numeric correlations
                 if not by_market_pairs:
                     try:
-                        cols_num = ["PTS","REB","AST","THREES","PRA","PR","PA","RA"]
+                        cols_num = ["PTS","REB","AST","THREES","STL","BLK","TOV","PRA","PR","PA","RA"]
                         acc: dict[tuple[str,str], list[float]] = {}
                         for day in days:
                             ds = pd.to_datetime(day).date().isoformat()
@@ -22797,7 +23135,7 @@ def _live_load_props_recommendations_line_index(date_str: str) -> dict[tuple[str
                 for pl in plays:
                     try:
                         stat_key = _live_stat_key(pl.get("market"))
-                        if stat_key not in {"pts", "reb", "ast", "threes", "pra"}:
+                        if stat_key not in {"pts", "reb", "ast", "threes", "pra", "stl", "blk", "tov"}:
                             continue
                         ln = _safe_float(pl.get("line"))
                         if ln is None or not math.isfinite(float(ln)):
@@ -23918,12 +24256,19 @@ def api_live_player_lens():
                 except Exception:
                     injury_flag = False
 
+                stl = _num(p.get("stl"))
+                blk = _num(p.get("blk"))
+                tov = _num(p.get("tov"))
+
                 stat_actuals = {
                     "pts": pts,
                     "reb": reb,
                     "ast": ast,
                     "threes": threes,
                     "pra": pra,
+                    "stl": stl,
+                    "blk": blk,
+                    "tov": tov,
                 }
                 for stat_key, actual in stat_actuals.items():
                     try:
@@ -24108,6 +24453,9 @@ def api_live_player_lens():
                                     "ast": 3.0,
                                     "threes": 1.4,
                                     "pra": 9.0,
+                                    "stl": 1.2,
+                                    "blk": 1.3,
+                                    "tov": 1.5,
                                 }.get(str(stat_key), 6.0)
                                 sim_sd = float(fallback_sd)
                             except Exception:
@@ -24415,6 +24763,9 @@ def api_live_player_lens():
                                         "ast": 1.1,
                                         "threes": 0.7,
                                         "pra": 3.2,
+                                        "stl": 0.6,
+                                        "blk": 0.6,
+                                        "tov": 0.8,
                                         "pa": 2.8,
                                         "pr": 2.8,
                                         "ra": 2.2,
@@ -25236,8 +25587,22 @@ def _append_live_lens_signal_jsonl(body: dict[str, Any], date_str: str) -> tuple
     out_dir.mkdir(parents=True, exist_ok=True)
     out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
     try:
+        payload = dict(body or {})
+        if not payload.get("received_at"):
+            payload["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
+        try:
+            gid = _resolve_live_lens_canon_gid(payload, date_str)
+            if gid and "game_id_canon" not in payload:
+                payload["game_id_canon"] = gid
+        except Exception:
+            pass
+        payload = _ll_enrich_signal_tags(payload)
+        try:
+            payload = _to_jsonable(payload)
+        except Exception:
+            pass
         with open(out_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(body, ensure_ascii=False) + "\n")
+            f.write(json.dumps(payload, ensure_ascii=False) + "\n")
     except Exception as e:
         return False, str(e)
     return True, str(out_path)
@@ -25657,17 +26022,11 @@ def api_live_log():
         body = _to_jsonable(body)
     except Exception:
         pass
-    body["received_at"] = datetime.utcnow().isoformat(timespec="seconds") + "Z"
 
-    out_dir = _live_lens_artifacts_dir()
-    out_dir.mkdir(parents=True, exist_ok=True)
-    out_path = out_dir / f"live_lens_signals_{date_str}.jsonl"
-    try:
-        with open(out_path, "a", encoding="utf-8") as f:
-            f.write(json.dumps(body, ensure_ascii=False) + "\n")
-    except Exception as e:
-        return jsonify({"ok": False, "error": str(e)}), 500
-    return jsonify({"ok": True, "path": str(out_path)})
+    ok, info = _append_live_lens_signal_jsonl(body, date_str)
+    if not ok:
+        return jsonify({"ok": False, "error": info}), 500
+    return jsonify({"ok": True, "path": info})
 
 
 @app.route("/api/schedule")
@@ -27987,6 +28346,178 @@ def api_cron_run_all():
         return jsonify({"error": str(e), **results}), 500
 
 
+@app.route("/api/cron/live-lens-reports", methods=["POST", "GET"])
+def api_cron_live_lens_reports():
+    """Build daily Live Lens audit/ROI reports and a rolling driver-tag rollup.
+
+    Runs on the web service so outputs land on the Render persistent disk.
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    ds = _parse_date_param(request, default_to_today=False)
+    if not ds:
+        ds = (datetime.utcnow().date() - timedelta(days=1)).isoformat()
+    try:
+        end_dt = datetime.strptime(ds, "%Y-%m-%d").date()
+    except Exception:
+        return jsonify({"error": "invalid date"}), 400
+
+    try:
+        rollup_days = int(float(str(request.args.get("rollup_days") or request.args.get("lookback_days") or "30").strip()))
+    except Exception:
+        rollup_days = 30
+    rollup_days = int(max(1, min(365, rollup_days)))
+    start_dt = end_dt - timedelta(days=int(rollup_days) - 1)
+
+    try:
+        min_denom = int(float(str(request.args.get("min_denom") or "20").strip()))
+    except Exception:
+        min_denom = 20
+    min_denom = int(max(1, min(5000, min_denom)))
+
+    include_watch = str(request.args.get("include_watch", "0")).lower() in {"1", "true", "yes"}
+    include_model_lines = str(request.args.get("include_model_lines", "0")).lower() in {"1", "true", "yes"}
+    by_klass = str(request.args.get("by_klass", "1")).lower() in {"1", "true", "yes"}
+    include_base_tags = str(request.args.get("include_base_tags", "0")).lower() in {"1", "true", "yes"}
+    do_push = str(request.args.get("push", "0")).lower() in {"1", "true", "yes"}
+    markets = (request.args.get("markets") or "player_prop,total,half_total,quarter_total,ats").strip()
+    decision_policy = (request.args.get("decision_policy") or "first_bet_else_first").strip().lower() or "first_bet_else_first"
+    if decision_policy not in {"first_bet_else_first", "first_actionable_else_first", "first_signal"}:
+        decision_policy = "first_bet_else_first"
+
+    logs_dir = _ensure_logs_dir()
+    stamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
+    log_file = logs_dir / f"cron_live_lens_reports_{ds}_{stamp}.log"
+
+    try:
+        from nba_betting.config import paths as _paths  # type: ignore
+
+        reports_dir = _paths.data_processed / "reports"
+    except Exception:
+        reports_dir = DATA_PROCESSED_DIR / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+
+    audit_md = reports_dir / f"live_lens_audit_{ds}.md"
+    audit_csv = reports_dir / f"live_lens_scored_{ds}.csv"
+    roi_md = reports_dir / f"live_lens_roi_{ds}.md"
+    roi_csv = reports_dir / f"live_lens_roi_scored_{ds}.csv"
+    rollup_md = reports_dir / "live_lens_driver_tag_rollup.md"
+
+    py = _resolve_python()
+    env = dict(os.environ)
+    env["PYTHONPATH"] = str(SRC_DIR)
+
+    try:
+        audit_cmd = [
+            str(py),
+            str(BASE_DIR / "tools" / "daily_live_lens_audit.py"),
+            "--date",
+            ds,
+            "--out-dir",
+            str(reports_dir),
+        ]
+        if include_model_lines:
+            audit_cmd.append("--include-model-lines")
+        rc_audit = _run_to_file(audit_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        roi_cmd = [str(py), str(BASE_DIR / "tools" / "daily_live_lens_roi.py"), "--date", ds]
+        if include_watch:
+            roi_cmd.append("--include-watch")
+        if include_model_lines:
+            roi_cmd.append("--include-model-lines")
+        rc_roi = _run_to_file(roi_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        rc_rollup = None
+        if list(reports_dir.glob("live_lens_scored_*.csv")):
+            rollup_cmd = [
+                str(py),
+                str(BASE_DIR / "tools" / "rollup_live_lens_driver_tags.py"),
+                "--in-dir",
+                str(reports_dir),
+                "--glob",
+                "live_lens_scored_*.csv",
+                "--out",
+                str(rollup_md),
+                "--min-denom",
+                str(min_denom),
+                "--markets",
+                markets,
+                "--decision-policy",
+                decision_policy,
+                "--start-date",
+                start_dt.isoformat(),
+                "--end-date",
+                end_dt.isoformat(),
+            ]
+            if include_base_tags:
+                rollup_cmd.append("--include-base-tags")
+            if by_klass:
+                rollup_cmd.append("--by-klass")
+            rc_rollup = _run_to_file(rollup_cmd, log_file, cwd=BASE_DIR, env=env)
+
+        pushed = None
+        push_detail = None
+        if do_push:
+            ok, detail = _git_commit_and_push(msg=f"live lens reports {start_dt.isoformat()}..{end_dt.isoformat()}")
+            pushed = bool(ok)
+            push_detail = detail
+
+        try:
+            _cron_meta_update(
+                "live_lens_reports",
+                {
+                    "date": ds,
+                    "start_date": start_dt.isoformat(),
+                    "rollup_days": int(rollup_days),
+                    "audit_md": str(audit_md),
+                    "audit_csv": str(audit_csv),
+                    "roi_md": str(roi_md),
+                    "roi_csv": str(roi_csv),
+                    "rollup_md": str(rollup_md),
+                    "rc_audit": int(rc_audit),
+                    "rc_roi": int(rc_roi),
+                    "rc_rollup": (int(rc_rollup) if rc_rollup is not None else None),
+                },
+            )
+        except Exception:
+            pass
+
+        return jsonify(
+            {
+                "date": ds,
+                "start_date": start_dt.isoformat(),
+                "rollup_days": int(rollup_days),
+                "min_denom": int(min_denom),
+                "markets": markets,
+                "decision_policy": decision_policy,
+                "include_watch": bool(include_watch),
+                "include_model_lines": bool(include_model_lines),
+                "rc_audit": int(rc_audit),
+                "audit_md": str(audit_md),
+                "audit_csv": str(audit_csv),
+                "rc_roi": int(rc_roi),
+                "roi_md": str(roi_md),
+                "roi_csv": str(roi_csv),
+                "rc_rollup": (int(rc_rollup) if rc_rollup is not None else None),
+                "rollup_md": (str(rollup_md) if rc_rollup is not None else None),
+                "log_file": str(log_file),
+                "pushed": pushed,
+                "push_detail": push_detail,
+            }
+        ), 200
+    except Exception as e:
+        return jsonify(
+            {
+                "date": ds,
+                "start_date": start_dt.isoformat(),
+                "rollup_days": int(rollup_days),
+                "error": f"live lens reports failed: {e}",
+                "log_file": str(log_file),
+            }
+        ), 200
+
+
 @app.route("/api/cron/config")
 def api_cron_config():
     """Introspection for cron/admin configuration (safe to expose booleans only)."""
@@ -27998,6 +28529,7 @@ def api_cron_config():
                 "/api/cron/run-all",
                 "/api/cron/daily-update",
                 "/api/cron/live-lens-tick",
+                "/api/cron/live-lens-reports",
                 "/api/cron/refresh-bovada",
                 "/api/cron/refresh-oddsapi-props",
                 "/api/cron/assess-oddsapi",
@@ -28037,7 +28569,7 @@ def api_cron_assess_oddsapi():
     event_id_q = (request.args.get("event_id") or request.args.get("event-id") or "").strip()
     sample_markets_q = (request.args.get("sample_markets") or request.args.get("sample-markets") or "").strip()
     if not sample_markets_q:
-        sample_markets_q = "h2h,spreads,totals,player_points,player_rebounds,player_assists,player_threes"
+        sample_markets_q = "h2h,spreads,totals,player_points,player_rebounds,player_assists,player_threes,player_steals,player_blocks,player_turnovers"
     sample_markets = [m.strip() for m in str(sample_markets_q).split(",") if m.strip()]
 
     try:
@@ -29409,12 +29941,22 @@ def api_cron_live_lens_tick():
                                 "starter": (bool(r0.get("starter")) if ("starter" in r0 and r0.get("starter") is not None) else None),
                                 "actual": _safe_float(r0.get("actual")),
                                 "line": _safe_float(r0.get("line")),
+                                "line_source": (str(r0.get("line_source")) if r0.get("line_source") is not None else None),
+                                "line_live_age_sec": _safe_float(r0.get("line_live_age_sec")),
+                                "line_live_span": _safe_float(r0.get("line_live_span")),
+                                "line_live_n": _safe_int(r0.get("line_live_n")),
                                 "pace_proj": _safe_float(r0.get("pace_proj")),
                                 "sim_mu": _safe_float(r0.get("sim_mu")),
                                 "edge": _safe_float(edge),
                                 "edge_raw": _safe_float(edge),
                                 "edge_adj": _safe_float(edge),
                                 "strength": _safe_float(strength),
+                                "klass_raw": (str(r0.get("klass_raw")) if r0.get("klass_raw") is not None else None),
+                                "bettable": (bool(r0.get("bettable")) if ("bettable" in r0 and r0.get("bettable") is not None) else None),
+                                "bettable_score": _safe_float(r0.get("bettable_score")),
+                                "bettable_reasons": ([str(x).strip() for x in r0.get("bettable_reasons") if str(x).strip()] if isinstance(r0.get("bettable_reasons"), list) else None),
+                                "price_hold": _safe_float(r0.get("price_hold")),
+                                "edge_sigma": _safe_float(r0.get("edge_sigma")),
                                 "context": {
                                     "sim_vs_line": _safe_float(r0.get("sim_vs_line")),
                                     "sim_sd": _safe_float(r0.get("sim_sd")),

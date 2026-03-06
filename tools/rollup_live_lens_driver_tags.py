@@ -19,6 +19,7 @@ from __future__ import annotations
 import argparse
 import ast
 import math
+import os
 import re
 from pathlib import Path
 from typing import Any
@@ -27,6 +28,9 @@ import pandas as pd
 
 
 ROOT = Path(__file__).resolve().parents[1]
+DATA_ROOT = Path((os.getenv("NBA_BETTING_DATA_ROOT") or "").strip()).expanduser() if (os.getenv("NBA_BETTING_DATA_ROOT") or "").strip() else (ROOT / "data")
+PROCESSED = DATA_ROOT / "processed"
+REPORTS = PROCESSED / "reports"
 
 
 def _n(x: Any) -> float | None:
@@ -184,14 +188,15 @@ def _hit_summary(df: pd.DataFrame) -> dict[str, float]:
 
 
 def _rollup_tags(df: pd.DataFrame, *, min_denom: int, include_base_tags: bool) -> pd.DataFrame:
-    if df is None or df.empty or "tags" not in df.columns:
+    tag_col = "driver_tags" if (df is not None and (not df.empty) and ("driver_tags" in df.columns) and df["driver_tags"].notna().any()) else "tags"
+    if df is None or df.empty or tag_col not in df.columns:
         return pd.DataFrame(columns=["tag", "wins", "losses", "pushes", "denom", "hit"])
 
     # Tags that are mostly structural / instrumentation rather than "drivers".
     base_prefixes = ("market:", "horizon:", "klass:", "ctx:")
 
     d = df.copy()
-    d["_tags"] = d["tags"].apply(_parse_tags_cell)
+    d["_tags"] = d[tag_col].apply(_parse_tags_cell)
     d = d.explode("_tags")
     d = d[d["_tags"].notna() & (d["_tags"].astype(str).str.len() > 0)].copy()
     d["tag"] = d["_tags"].astype(str)
@@ -231,7 +236,7 @@ def _write_tag_table(out_md: list[str], tags: pd.DataFrame, *, limit: int = 50) 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in-dir", default=str(ROOT / "data" / "processed" / "reports_v3_multi"))
+    ap.add_argument("--in-dir", default=str(REPORTS))
     ap.add_argument("--glob", default="live_lens_scored_*.csv")
     ap.add_argument("--out", default=None)
     ap.add_argument("--min-denom", type=int, default=50)
@@ -248,6 +253,8 @@ def main() -> int:
         choices=["first_bet_else_first", "first_actionable_else_first", "first_signal"],
         help="How to choose one row per decision key before scoring tag performance",
     )
+    ap.add_argument("--start-date", default=None, help="Optional inclusive start date YYYY-MM-DD")
+    ap.add_argument("--end-date", default=None, help="Optional inclusive end date YYYY-MM-DD")
 
     args = ap.parse_args()
     in_dir = Path(args.in_dir)
@@ -268,6 +275,18 @@ def main() -> int:
         raise SystemExit("No CSVs could be read")
 
     raw = pd.concat(df_list, ignore_index=True)
+
+    if args.start_date or args.end_date:
+        if "date" not in raw.columns:
+            raise SystemExit("Date filtering requested but input CSVs do not contain a date column")
+        raw["_date_obj"] = pd.to_datetime(raw.get("date"), errors="coerce")
+        if args.start_date:
+            raw = raw[raw["_date_obj"] >= pd.to_datetime(str(args.start_date))].copy()
+        if args.end_date:
+            raw = raw[raw["_date_obj"] <= pd.to_datetime(str(args.end_date))].copy()
+        raw = raw.drop(columns=["_date_obj"], errors="ignore")
+        if raw.empty:
+            raise SystemExit("No rows remain after date filtering")
 
     markets_filter = [m.strip().lower() for m in str(args.markets or "").split(",") if m.strip()]
     if markets_filter:
@@ -292,6 +311,8 @@ def main() -> int:
     out_md.append(f"Input: `{in_dir.as_posix()}/{args.glob}`")
     out_md.append(f"Files: {len(files)}")
     out_md.append(f"Decision policy: `{policy}`")
+    if args.start_date or args.end_date:
+        out_md.append(f"Date filter: `{args.start_date or 'min'}` .. `{args.end_date or 'max'}`")
     if dates:
         out_md.append(f"Dates: {dates[0]} .. {dates[-1]} ({len(dates)} unique)")
     out_md.append("")

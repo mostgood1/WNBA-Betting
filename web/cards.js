@@ -397,6 +397,9 @@ function marketLabel(m) {
     reb: 'REB',
     ast: 'AST',
     threes: '3PM',
+    stl: 'STL',
+    blk: 'BLK',
+    tov: 'TOV',
     pra: 'PRA',
     pa: 'P+A',
     pr: 'P+R',
@@ -2908,10 +2911,16 @@ function getPlayerActualForMarket(p, market) {
   const reb = n(p && p.reb);
   const ast = n(p && p.ast);
   const threes = n(p && (p.threes_made != null ? p.threes_made : p.threes));
+  const stl = n(p && (p.stl != null ? p.stl : p.steals));
+  const blk = n(p && (p.blk != null ? p.blk : p.blocks));
+  const tov = n(p && (p.tov != null ? p.tov : (p.turnovers != null ? p.turnovers : p.to)));
   if (mk === 'pts' || mk === 'points') return pts;
   if (mk === 'reb' || mk === 'rebounds') return reb;
   if (mk === 'ast' || mk === 'assists') return ast;
   if (mk === 'threes' || mk === '3pm' || mk === '3pt' || mk === 'threes_made') return threes;
+  if (mk === 'stl' || mk === 'steals' || mk === 'steal') return stl;
+  if (mk === 'blk' || mk === 'blocks' || mk === 'block') return blk;
+  if (mk === 'tov' || mk === 'turnovers' || mk === 'turnover' || mk === 'to') return tov;
   if (mk === 'pra') return (pts != null && reb != null && ast != null) ? (pts + reb + ast) : null;
   if (mk === 'pa') return (pts != null && ast != null) ? (pts + ast) : null;
   if (mk === 'pr') return (pts != null && reb != null) ? (pts + reb) : null;
@@ -3346,7 +3355,7 @@ async function loadPregamePropCallouts(root, games, dateStr) {
     const url = `/api/props/recommendations?date=${encodeURIComponent(ds)}`
       + `&compact=1&use_snapshot=0`
       + `&onlyEV=1&minEV=1.0`
-      + `&markets=pts,reb,ast,threes,pra`;
+      + `&markets=pts,reb,ast,threes,stl,blk,tov,pra`;
 
     const payload = await fetchJsonWithTimeout(url, 8000);
     try {
@@ -6397,6 +6406,9 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="stl" aria-pressed="false">STL</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="blk" aria-pressed="false">BLK</button>
+          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="tov" aria-pressed="false">TOV</button>
           <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
           <span class="chip title" style="margin-left:6px;">Line</span>
           <button type="button" class="chip neutral player-prop-pill" data-kind="line" data-key="live" aria-pressed="false" title="OddsAPI live line exists">Live line exists</button>
@@ -6656,25 +6668,42 @@ async function load(dateStr) {
 
   try {
     const payload = await fetchJson(`/api/cards?date=${encodeURIComponent(dateStr)}`);
+    const resolvedDate = isYmd(payload?.date) ? payload.date : dateStr;
+    const usingLookAhead = resolvedDate !== dateStr;
     const games = Array.isArray(payload?.games) ? payload.games : [];
-    setNote(`Rendering ${games.length} games…`);
+    if (usingLookAhead) {
+      try {
+        setDatePickerYmd(document.getElementById('datePicker'), resolvedDate);
+        setUrlDate(resolvedDate);
+        const q = encodeURIComponent(resolvedDate);
+        const marketAccuracyBtn = document.getElementById('marketAccuracyBtn');
+        const liveGameLensAccuracyBtn = document.getElementById('liveGameLensAccuracyBtn');
+        const livePlayerPropsLensAccuracyBtn = document.getElementById('livePlayerPropsLensAccuracyBtn');
+        if (marketAccuracyBtn) marketAccuracyBtn.setAttribute('href', `/accuracy-market?date=${q}`);
+        if (liveGameLensAccuracyBtn) liveGameLensAccuracyBtn.setAttribute('href', `/live-game-lens-accuracy?date=${q}`);
+        if (livePlayerPropsLensAccuracyBtn) livePlayerPropsLensAccuracyBtn.setAttribute('href', `/live-player-props-lens-accuracy?date=${q}`);
+      } catch (_) {
+        // ignore
+      }
+    }
+    setNote(usingLookAhead ? `Rendering ${games.length} games for ${resolvedDate}…` : `Rendering ${games.length} games…`);
 
     let reconGameRows = [];
     let reconQuarterRows = [];
     let reconPlayerRows = [];
     if (showResults) {
       const [csvG, csvQ, csvP] = await Promise.all([
-        fetchText(`/api/processed/recon_games?date=${encodeURIComponent(dateStr)}`),
-        fetchText(`/api/processed/recon_quarters?date=${encodeURIComponent(dateStr)}`),
-        fetchText(`/api/processed/recon_players?date=${encodeURIComponent(dateStr)}`),
+        fetchText(`/api/processed/recon_games?date=${encodeURIComponent(resolvedDate)}`),
+        fetchText(`/api/processed/recon_quarters?date=${encodeURIComponent(resolvedDate)}`),
+        fetchText(`/api/processed/recon_players?date=${encodeURIComponent(resolvedDate)}`),
       ]);
       reconGameRows = csvG ? csvParse(csvG) : [];
       reconQuarterRows = csvQ ? csvParse(csvQ) : [];
       reconPlayerRows = csvP ? csvParse(csvP) : [];
     }
 
-    renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, dateStr);
-    setNote('');
+    renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, resolvedDate);
+    setNote(usingLookAhead ? `Showing ${resolvedDate} look-ahead slate.` : '');
   } catch (e) {
     setNote(`Failed to load cards: ${String(e && e.message ? e.message : e)}`);
     try {

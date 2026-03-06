@@ -70,21 +70,48 @@ if (is.null(logs) || nrow(logs) == 0) {
   quit(status = 0)
 }
 
-# Normalize columns; nbastatR typical columns: dateGame, idGame, slugTeam, namePlayer, idPlayer, pts, treb, ast, fg3m
+# Normalize columns; nbastatR typical columns: dateGame, idGame, slugTeam, namePlayer, idPlayer, pts, treb, ast, fg3m, stl, blk, tov/to
 # PRA = pts + treb + ast
+if (!"stl" %in% names(logs)) {
+  if ("steals" %in% names(logs)) {
+    logs$stl <- suppressWarnings(as.numeric(logs$steals))
+  } else {
+    logs$stl <- NA_real_
+  }
+}
+if (!"blk" %in% names(logs)) {
+  if ("blocks" %in% names(logs)) {
+    logs$blk <- suppressWarnings(as.numeric(logs$blocks))
+  } else {
+    logs$blk <- NA_real_
+  }
+}
+if (!"tov" %in% names(logs)) {
+  if ("to" %in% names(logs)) {
+    logs$tov <- suppressWarnings(as.numeric(logs$to))
+  } else if ("turnovers" %in% names(logs)) {
+    logs$tov <- suppressWarnings(as.numeric(logs$turnovers))
+  } else {
+    logs$tov <- NA_real_
+  }
+}
+
 logs <- logs %>%
   mutate(date = as.Date(.data$dateGame)) %>%
   filter(.data$date %in% dates) %>%
   transmute(
     date = .data$date,
     game_id = .data$idGame,
-    team = .data$slugTeam,
+    team_abbr = .data$slugTeam,
     player_id = .data$idPlayer,
     player_name = .data$namePlayer,
     pts = as.numeric(.data$pts),
     reb = as.numeric(.data$treb),
     ast = as.numeric(.data$ast),
     threes = as.numeric(.data$fg3m),
+    stl = as.numeric(.data$stl),
+    blk = as.numeric(.data$blk),
+    tov = as.numeric(.data$tov),
     pra = as.numeric(.data$pts) + as.numeric(.data$treb) + as.numeric(.data$ast)
   ) %>% distinct()
 

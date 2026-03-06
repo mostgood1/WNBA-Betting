@@ -113,6 +113,54 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Props: refresh intraday (today)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\run_intraday_props_refresh.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: register intraday props refresh (20m)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_intraday_props_refresh_task.ps1",
+				"-IntervalMinutes",
+				"20",
+				"-StartTime",
+				"10:00",
+				"-EndTime",
+				"23:40"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister intraday props refresh",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_intraday_props_refresh_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Schedule: register daily local updater",
 			"type": "shell",
 			"command": "powershell",
