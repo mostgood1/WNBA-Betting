@@ -28,9 +28,12 @@
   "require_smartsim": true,
   "require_rotations_espn": true,
   "warnings": [
-    "minutes_sanity: team LAL has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: team LAL top10 minutes sum low (162.4) using roll10_min",
+    "minutes_sanity: team LAL has <5 players at 20+ min (found 3) using roll10_min",
+    "minutes_sanity: team MIA top10 minutes sum low (125.8) using roll10_min",
+    "minutes_sanity: team MIA has <5 players at 20+ min (found 4) using roll10_min",
     "minutes_sanity: team NOP has <5 players at 20+ min (found 4) using roll10_min",
-    "minutes_sanity: 11 players have <8 min but >=10 pred_pts (sample: Dalano Banton(BOS), Xavier Tillman(CHA), Isaiah Crawford(HOU), TyTy Washington Jr.(LAC), Nick Smith Jr.(LAL), Jahmir Young(MIA))"
+    "minutes_sanity: 10 players have <8 min but >=10 pred_pts (sample: Dalano Banton(BOS), Xavier Tillman(CHA), Isaiah Crawford(HOU), TyTy Washington Jr.(LAC), Nick Smith Jr.(LAL), Kevin McCullar Jr.(NYK))"
   ],
   "missing": [
     "rotations_espn stints (0/9)"

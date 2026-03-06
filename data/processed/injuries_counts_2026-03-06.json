@@ -3,16 +3,16 @@
   "team_counts": {
     "BOS": 1,
     "DAL": 3,
-    "DEN": 1,
     "HOU": 1,
     "IND": 1,
     "LAC": 1,
+    "LAL": 1,
     "MIA": 1,
     "NOP": 1,
     "NYK": 2,
     "PHX": 1,
     "POR": 2,
-    "SAS": 2
+    "SAS": 3
   },
   "players": [
     {
@@ -31,13 +31,13 @@
       "status": "OUT"
     },
     {
-      "player": "Steven Adams",
-      "team": "HOU",
+      "player": "Mason Plumlee",
+      "team": "SAS",
       "status": "OUT"
     },
     {
-      "player": "Aaron Gordon",
-      "team": "DEN",
+      "player": "Steven Adams",
+      "team": "HOU",
       "status": "OUT"
     },
     {
@@ -53,6 +53,11 @@
     {
       "player": "Marvin Bagley III",
       "team": "DAL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "Deandre Ayton",
+      "team": "LAL",
       "status": "OUT"
     },
     {
@@ -112,19 +117,20 @@
     ],
     "SAS": [
       "Harrison Barnes",
-      "Harrison Ingram"
+      "Harrison Ingram",
+      "Mason Plumlee"
     ],
     "HOU": [
       "Steven Adams"
-    ],
-    "DEN": [
-      "Aaron Gordon"
     ],
     "BOS": [
       "Jayson Tatum"
     ],
     "PHX": [
       "Dillon Brooks"
+    ],
+    "LAL": [
+      "Deandre Ayton"
     ],
     "POR": [
       "Deni Avdija",
@@ -148,6 +154,7 @@
     "DAL": 28.2,
     "SAS": 20.490909090909092,
     "PHX": 28.8,
+    "LAL": 20.57,
     "POR": 35.3,
     "MIA": 13.277777777777779,
     "NYK": 2.3000000000000003,
