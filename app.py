@@ -6841,6 +6841,13 @@ _oddsapi_props_job_state = {
     "rc_snapshot": None,
     "rc_edges": None,
     "rc_export": None,
+    "snapshot_rows": None,
+    "edges_rows": None,
+    "recs_rows": None,
+    "snapshot_path": None,
+    "edges_path": None,
+    "recs_path": None,
+    "duration_s": None,
     "error": None,
 }
 
@@ -6868,6 +6875,13 @@ def _oddsapi_props_refresh_job(
     _oddsapi_props_job_state["rc_snapshot"] = None
     _oddsapi_props_job_state["rc_edges"] = None
     _oddsapi_props_job_state["rc_export"] = None
+    _oddsapi_props_job_state["snapshot_rows"] = None
+    _oddsapi_props_job_state["edges_rows"] = None
+    _oddsapi_props_job_state["recs_rows"] = None
+    _oddsapi_props_job_state["snapshot_path"] = None
+    _oddsapi_props_job_state["edges_path"] = None
+    _oddsapi_props_job_state["recs_path"] = None
+    _oddsapi_props_job_state["duration_s"] = None
     _oddsapi_props_job_state["error"] = None
     _oddsapi_props_job_state["last"] = {
         "date": date_str,
@@ -6920,9 +6934,16 @@ def _oddsapi_props_refresh_job(
         snap_rows = _count_csv_rows_quick(raw_fp)
         edges_rows = _count_csv_rows_quick(edges_fp)
         rec_rows = _count_csv_rows_quick(rec_fp)
+        _oddsapi_props_job_state["snapshot_rows"] = int(snap_rows)
+        _oddsapi_props_job_state["edges_rows"] = int(edges_rows)
+        _oddsapi_props_job_state["recs_rows"] = int(rec_rows)
+        _oddsapi_props_job_state["snapshot_path"] = str(raw_fp)
+        _oddsapi_props_job_state["edges_path"] = str(edges_fp)
+        _oddsapi_props_job_state["recs_path"] = str(rec_fp)
 
         ok = (int(rc_snap) == 0) and (not do_edges or int(rc_edges or 0) == 0) and (not do_export or int(rc_export or 0) == 0)
         ended = time.time()
+        _oddsapi_props_job_state["duration_s"] = float(max(0.0, ended - started))
 
         # Cron meta best-effort
         try:
@@ -6945,7 +6966,7 @@ def _oddsapi_props_refresh_job(
                     "log_file": str(log_file),
                     "started_at": _oddsapi_props_job_state.get("started_at"),
                     "ended_at": datetime.utcnow().isoformat(),
-                    "duration_s": float(max(0.0, ended - started)),
+                    "duration_s": _oddsapi_props_job_state.get("duration_s"),
                 },
             )
         except Exception:

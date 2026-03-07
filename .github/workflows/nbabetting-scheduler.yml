@@ -52,91 +52,61 @@ jobs:
         run: |
           set -euo pipefail
           DATE=$(date -u +%F)
-          URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1&sync=1"
-          echo "GET $URL"
+          export EXPECTED_DATE="$DATE"
+          START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=120"
+          echo "GET $START_URL"
+          started=0
           for i in 1 2 3 4 5 6; do
             set +e
-            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$URL")
+            http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$START_URL")
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
             cat resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
-            python3 -c '
+              set +e
+              python3 - <<'PY'
           import json
+          import os
           import pathlib
           import sys
 
           resp_path = pathlib.Path("resp.txt")
           try:
-            payload = json.loads(resp_path.read_text(encoding="utf-8", errors="ignore") or "{}")
+              payload = json.loads(resp_path.read_text(encoding="utf-8", errors="ignore") or "{}")
           except Exception as exc:
-            print(f"Invalid JSON response: {exc}")
-            try:
-              print(resp_path.read_text(encoding="utf-8", errors="ignore")[:8000])
-            except Exception:
-              pass
-            sys.exit(1)
+              print(f"Invalid JSON response: {exc}")
+              try:
+                  print(resp_path.read_text(encoding="utf-8", errors="ignore")[:8000])
+              except Exception:
+                  pass
+              sys.exit(1)
 
-          def as_int(value, default=None):
-            try:
-              if value is None:
-                return default
-              return int(value)
-            except Exception:
-              return default
+          status = str(payload.get("status") or "").strip().lower()
+          expected_date = os.environ.get("EXPECTED_DATE", "").strip()
+          payload_date = str(payload.get("date") or payload.get("last", {}).get("date") or "").strip()
 
-          if payload.get("error"):
-            print("Refresh returned error payload")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(1)
+          if status not in {"started", "already-running"}:
+              print("Unexpected async start payload")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
 
-          rc_snapshot = as_int(payload.get("rc_snapshot"), 1)
-          rc_edges = as_int(payload.get("rc_edges"), None)
-          rc_export = as_int(payload.get("rc_export"), None)
-          snapshot_rows = as_int(payload.get("snapshot_rows"), 0) or 0
-          edges_rows = as_int(payload.get("edges_rows"), 0)
-          recs_rows = as_int(payload.get("recs_rows"), 0)
+          if expected_date and payload_date and payload_date != expected_date:
+              print(f"Unexpected job date in start payload: {payload_date} != {expected_date}")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
 
-          if rc_snapshot != 0:
-            print("Snapshot step failed")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(1)
-
-          if snapshot_rows <= 0:
-            print("No current props snapshot rows for this date; treating as clean no-op")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(0)
-
-          if rc_edges not in (None, 0):
-            print("Edges step failed")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(1)
-
-          if rc_export not in (None, 0):
-            print("Export step failed")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(1)
-
-          if edges_rows is not None and int(edges_rows) <= 0:
-            print("Edges rows are zero after a non-empty snapshot")
-            print(json.dumps(payload, indent=2)[:8000])
-            sys.exit(1)
-
-          if recs_rows is not None and int(recs_rows) <= 0:
-            print("Recommendations rows are zero after export; continuing")
-
-          print("Refresh completed ok")
-          print(json.dumps({
-            "snapshot_rows": snapshot_rows,
-            "edges_rows": edges_rows,
-            "recs_rows": recs_rows,
-            "snapshot_path": payload.get("snapshot_path"),
-            "edges_path": payload.get("edges_path"),
-            "recs_path": payload.get("recs_path"),
-          }, indent=2))
-          '
-              exit 0
+          print(f"Async job {status} for {payload_date or expected_date}")
+          print(json.dumps(payload, indent=2)[:4000])
+          PY
+              py_rc=$?
+              set -e
+              if [ "$py_rc" -eq 0 ]; then
+                started=1
+                break
+              fi
+              exit "$py_rc"
             fi
             echo "Request attempt $i -> HTTP $http" >&2
             if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
@@ -145,6 +115,153 @@ jobs:
             fi
             exit 1
           done
+          if [ "$started" -ne 1 ]; then
+            exit 1
+          fi
+
+          echo "Polling $STATUS_URL"
+          for i in $(seq 1 180); do
+            if [ "$i" -eq 1 ]; then
+              sleep 5
+            else
+              sleep 20
+            fi
+
+            set +e
+            http=$(curl -sS -o status.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$STATUS_URL")
+            rc=$?
+            set -e
+            if [ "$rc" -ne 0 ]; then http="000"; fi
+
+            if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+              set +e
+              python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          status_path = pathlib.Path("status.txt")
+          try:
+              payload = json.loads(status_path.read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+              print(f"Invalid JSON status response: {exc}")
+              try:
+                  print(status_path.read_text(encoding="utf-8", errors="ignore")[:8000])
+              except Exception:
+                  pass
+              sys.exit(1)
+
+          def as_int(value, default=None):
+              try:
+                  if value is None:
+                      return default
+                  return int(value)
+              except Exception:
+                  return default
+
+          expected_date = os.environ.get("EXPECTED_DATE", "").strip()
+          payload_date = str(payload.get("last", {}).get("date") or "").strip()
+          running = bool(payload.get("running"))
+          ok = payload.get("ok")
+          error = payload.get("error")
+          rc_snapshot = as_int(payload.get("rc_snapshot"), 1)
+          rc_edges = as_int(payload.get("rc_edges"), None)
+          rc_export = as_int(payload.get("rc_export"), None)
+          snapshot_rows = as_int(payload.get("snapshot_rows"), 0) or 0
+          edges_rows = as_int(payload.get("edges_rows"), 0)
+          recs_rows = as_int(payload.get("recs_rows"), 0)
+
+          summary = {
+              "running": running,
+              "ok": ok,
+              "date": payload_date or expected_date,
+              "rc_snapshot": rc_snapshot,
+              "rc_edges": rc_edges,
+              "rc_export": rc_export,
+              "snapshot_rows": snapshot_rows,
+              "edges_rows": edges_rows,
+              "recs_rows": recs_rows,
+              "log_file": payload.get("log_file"),
+              "started_at": payload.get("started_at"),
+              "ended_at": payload.get("ended_at"),
+              "duration_s": payload.get("duration_s"),
+          }
+          print(json.dumps(summary, indent=2))
+
+          if running:
+              sys.exit(10)
+
+          if error:
+              print("Refresh job reported error")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if expected_date and payload_date and payload_date != expected_date:
+              print(f"Unexpected completed job date: {payload_date} != {expected_date}")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if ok is False:
+              print("Refresh job completed with ok=false")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if rc_snapshot != 0:
+              print("Snapshot step failed")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if snapshot_rows <= 0:
+              print("No current props snapshot rows for this date; treating as clean no-op")
+              sys.exit(0)
+
+          if rc_edges not in (None, 0):
+              print("Edges step failed")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if rc_export not in (None, 0):
+              print("Export step failed")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if edges_rows is not None and int(edges_rows) <= 0:
+              print("Edges rows are zero after a non-empty snapshot")
+              print(json.dumps(payload, indent=2)[:8000])
+              sys.exit(1)
+
+          if recs_rows is not None and int(recs_rows) <= 0:
+              print("Recommendations rows are zero after export; continuing")
+
+          log_tail = payload.get("log_tail") or []
+          if log_tail:
+              print("Recent log tail:")
+              for line in log_tail[-40:]:
+                  print(line)
+
+          sys.exit(0)
+          PY
+              py_rc=$?
+              set -e
+              if [ "$py_rc" -eq 0 ]; then
+                exit 0
+              fi
+              if [ "$py_rc" -eq 10 ]; then
+                echo "Poll attempt $i: job still running" >&2
+                continue
+              fi
+              exit "$py_rc"
+            fi
+
+            echo "Status attempt $i -> HTTP $http" >&2
+            if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              continue
+            fi
+            exit 1
+          done
+
+          echo "Timed out waiting for async props refresh job to finish" >&2
           exit 1
 
   assess-oddsapi-daily:
