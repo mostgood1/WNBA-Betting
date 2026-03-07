@@ -2630,9 +2630,11 @@ const LIVE_PROPS_POLL_INTERVAL_MS = 20 * 1000;
 const LIVE_PROPS_ENDPOINT_TTL_SEC = 20;
 
 // UI filters (client-side only)
-const __gamePillsSelected = new Set(); // game_id (canonGameId), empty => all
+const __pregameGamePillsSelected = new Set(); // game_id (canonGameId), empty => all
+const __pregamePropFilters = { stats: new Set(), sides: new Set() }; // empty => all
+const __gamePillsSelected = new Set(); // live game_id (canonGameId), empty => all
 const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string>, liveLineOnly:boolean }
-const __playerLensGlobalFilters = { stats: new Set(), signals: new Set(), liveLineOnly: false }; // empty => all
+const __playerLensGlobalFilters = { stats: new Set(), signals: new Set(), sides: new Set(), liveLineOnly: false }; // empty => all
 
 function chipSetActive(el, active) {
   try {
@@ -2645,13 +2647,63 @@ function chipSetActive(el, active) {
   }
 }
 
+function applyPregamePropFilters(root) {
+  try {
+    if (!root) return;
+    const gameSet = __pregameGamePillsSelected;
+    const statSet = __pregamePropFilters && __pregamePropFilters.stats ? __pregamePropFilters.stats : new Set();
+    const sideSet = __pregamePropFilters && __pregamePropFilters.sides ? __pregamePropFilters.sides : new Set();
+
+    const anyGame = !!(gameSet && gameSet.size);
+    const statsAny = !!(statSet && statSet.size);
+    const sideAny = !!(sideSet && sideSet.size);
+
+    const allGameBtn = root.querySelector('#pregame-game-filter-pills button[data-pregame-game-pill-all]');
+    chipSetActive(allGameBtn, !anyGame);
+    const gameBtns = root.querySelectorAll('#pregame-game-filter-pills button.pregame-game-pill[data-game-id]');
+    gameBtns.forEach((btn) => {
+      const gid = canonGameId(btn.dataset.gameId);
+      chipSetActive(btn, anyGame ? gameSet.has(gid) : false);
+    });
+
+    const allPropBtn = root.querySelector('#pregame-player-prop-filter-pills button[data-pregame-player-prop-pill-all]');
+    chipSetActive(allPropBtn, !(statsAny || sideAny));
+    const statBtns = root.querySelectorAll('#pregame-player-prop-filter-pills button.pregame-player-prop-pill[data-kind="stat"][data-key]');
+    statBtns.forEach((btn) => {
+      const key = String(btn.dataset.key || '').toLowerCase().trim();
+      chipSetActive(btn, statsAny ? statSet.has(key) : false);
+    });
+    const sideBtns = root.querySelectorAll('#pregame-player-prop-filter-pills button.pregame-player-prop-pill[data-kind="side"][data-key]');
+    sideBtns.forEach((btn) => {
+      const key = String(btn.dataset.key || '').toUpperCase().trim();
+      chipSetActive(btn, sideAny ? sideSet.has(key) : false);
+    });
+
+    const items = root.querySelectorAll('#pregame-prop-callouts button.pregame-prop-callout[data-game-id][data-stat]');
+    items.forEach((btn) => {
+      const gid = canonGameId(btn.dataset.gameId);
+      const stat = String(btn.dataset.stat || '').toLowerCase().trim();
+      const side = String(btn.dataset.side || '').toUpperCase().trim();
+      const okGame = anyGame ? gameSet.has(gid) : true;
+      const okStat = statsAny ? statSet.has(stat) : true;
+      const okSide = sideAny ? sideSet.has(side) : true;
+      btn.classList.toggle('hidden', !(okGame && okStat && okSide));
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
 function applyGamePillsFilter(root) {
   try {
     if (!root) return;
     const activeSet = __gamePillsSelected;
     const any = !!(activeSet && activeSet.size);
 
-    const pills = root.querySelectorAll('button.game-pill[data-game-id]');
+    const allBtn = root.querySelector('#live-game-filter-pills button[data-live-game-pill-all]');
+    chipSetActive(allBtn, !any);
+
+    const pills = root.querySelectorAll('#live-game-filter-pills button.live-game-pill[data-game-id]');
     pills.forEach((btn) => {
       const gid = canonGameId(btn.dataset.gameId);
       const on = any ? activeSet.has(gid) : false;
@@ -2660,7 +2712,7 @@ function applyGamePillsFilter(root) {
 
     // Filter player props (not game cards):
     // 1) Live prop callouts list
-    const callouts = root.querySelectorAll('#live-prop-callouts button.prop-callout[data-game-id]');
+    const callouts = root.querySelectorAll('#live-prop-callouts button.live-prop-callout[data-game-id]');
     callouts.forEach((btn) => {
       const gid = canonGameId(btn.dataset.gameId);
       const okGame = any ? activeSet.has(gid) : true;
@@ -2698,22 +2750,32 @@ function applyPlayerLensGlobalPills(root) {
     if (!root) return;
     const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
     const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const sideSel = __playerLensGlobalFilters && __playerLensGlobalFilters.sides ? __playerLensGlobalFilters.sides : new Set();
     const liveLineOnly = !!(__playerLensGlobalFilters && __playerLensGlobalFilters.liveLineOnly);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
+    const sideAny = !!(sideSel && sideSel.size);
 
-    const statBtns = root.querySelectorAll('button.player-prop-pill[data-kind="stat"][data-key]');
+    const allBtn = root.querySelector('#live-player-prop-filter-pills button[data-live-player-prop-pill-all]');
+    chipSetActive(allBtn, !(statsAny || sigAny || sideAny || liveLineOnly));
+
+    const statBtns = root.querySelectorAll('#live-player-prop-filter-pills button.live-player-prop-pill[data-kind="stat"][data-key]');
     statBtns.forEach((b) => {
       const key = String(b.dataset.key || '').toLowerCase().trim();
       chipSetActive(b, statsAny ? statsSel.has(key) : false);
     });
-    const sigBtns = root.querySelectorAll('button.player-prop-pill[data-kind="sig"][data-key]');
+    const sideBtns = root.querySelectorAll('#live-player-prop-filter-pills button.live-player-prop-pill[data-kind="side"][data-key]');
+    sideBtns.forEach((b) => {
+      const key = String(b.dataset.key || '').toUpperCase().trim();
+      chipSetActive(b, sideAny ? sideSel.has(key) : false);
+    });
+    const sigBtns = root.querySelectorAll('#live-player-prop-filter-pills button.live-player-prop-pill[data-kind="sig"][data-key]');
     sigBtns.forEach((b) => {
       const key = String(b.dataset.key || '').toUpperCase().trim();
       chipSetActive(b, sigAny ? sigSel.has(key) : false);
     });
 
-    const lineBtns = root.querySelectorAll('button.player-prop-pill[data-kind="line"][data-key]');
+    const lineBtns = root.querySelectorAll('#live-player-prop-filter-pills button.live-player-prop-pill[data-kind="line"][data-key]');
     lineBtns.forEach((b) => {
       chipSetActive(b, liveLineOnly);
     });
@@ -2726,19 +2788,23 @@ function applyPlayerPropCalloutsFilter(root) {
     if (!root) return;
     const statsSel = __playerLensGlobalFilters && __playerLensGlobalFilters.stats ? __playerLensGlobalFilters.stats : new Set();
     const sigSel = __playerLensGlobalFilters && __playerLensGlobalFilters.signals ? __playerLensGlobalFilters.signals : new Set();
+    const sideSel = __playerLensGlobalFilters && __playerLensGlobalFilters.sides ? __playerLensGlobalFilters.sides : new Set();
     const liveLineOnly = !!(__playerLensGlobalFilters && __playerLensGlobalFilters.liveLineOnly);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
+    const sideAny = !!(sideSel && sideSel.size);
 
     const activeSet = __gamePillsSelected;
     const anyGame = !!(activeSet && activeSet.size);
 
-    const items = root.querySelectorAll('#live-prop-callouts button.prop-callout[data-stat][data-sig]');
+    const items = root.querySelectorAll('#live-prop-callouts button.live-prop-callout[data-stat][data-sig]');
     items.forEach((btn) => {
       const stat = String(btn.dataset.stat || '').toLowerCase().trim();
       const sig = String(btn.dataset.sig || '').toUpperCase().trim();
+      const side = String(btn.dataset.side || '').toUpperCase().trim();
       const okStat = statsAny ? statsSel.has(stat) : true;
       const okSig = sigAny ? sigSel.has(sig) : true;
+      const okSide = sideAny ? sideSel.has(side) : true;
 
       const hasLiveLine = String(btn.dataset.liveLine || '').trim() === '1';
       const okLiveLine = liveLineOnly ? hasLiveLine : true;
@@ -2746,7 +2812,7 @@ function applyPlayerPropCalloutsFilter(root) {
       const gid = canonGameId(btn.dataset.gameId);
       const okGame = anyGame ? activeSet.has(gid) : true;
 
-      btn.classList.toggle('hidden', !(okGame && okStat && okSig && okLiveLine));
+      btn.classList.toggle('hidden', !(okGame && okStat && okSig && okSide && okLiveLine));
     });
   } catch (_) {
     // ignore
@@ -2777,15 +2843,19 @@ function applyPlayerLensFiltersForWrap(wrap) {
     const g = __playerLensGlobalFilters || { stats: new Set(), signals: new Set() };
     const gStatsSel = g.stats || new Set();
     const gSigSel = g.signals || new Set();
+    const gSideSel = g.sides || new Set();
     const gLiveLineOnly = !!g.liveLineOnly;
     const gStatsAny = !!(gStatsSel && gStatsSel.size);
     const gSigAny = !!(gSigSel && gSigSel.size);
+    const gSideAny = !!(gSideSel && gSideSel.size);
 
     const st = getPlayerLensFilterForGid(gid);
     const statsSel = (gStatsAny ? gStatsSel : st.stats);
     const sigSel = (gSigAny ? gSigSel : st.signals);
     const statsAny = !!(statsSel && statsSel.size);
     const sigAny = !!(sigSel && sigSel.size);
+    const sideSel = gSideSel;
+    const sideAny = gSideAny;
 
     const lineOnly = !!(gLiveLineOnly || (st && st.liveLineOnly));
 
@@ -2825,15 +2895,17 @@ function applyPlayerLensFiltersForWrap(wrap) {
     rows.forEach((tr) => {
       const stat = String(tr.dataset.stat || '').toLowerCase().trim();
       const sig = String(tr.dataset.sig || '').toUpperCase().trim();
+      const side = String(tr.dataset.side || '').toUpperCase().trim();
       const okStat = statsAny ? statsSel.has(stat) : true;
       const okSig = sigAny ? sigSel.has(sig) : true;
+      const okSide = sideAny ? sideSel.has(side) : true;
 
       const hasLine = String(tr.dataset.hasLine || '').trim() === '1';
       const hasLiveLine = String(tr.dataset.liveLine || '').trim() === '1';
       const okOnlyLines = onlyLines ? hasLine : true;
       const okLiveLine = lineOnly ? hasLiveLine : true;
 
-      tr.classList.toggle('hidden', !(okStat && okSig && okOnlyLines && okLiveLine));
+      tr.classList.toggle('hidden', !(okStat && okSig && okSide && okOnlyLines && okLiveLine));
     });
   } catch (_) {
     // ignore
@@ -3038,8 +3110,9 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       })();
       const hasLine = (line != null);
       const sigKey = (klass === 'BET' || klass === 'WATCH') ? klass : 'NONE';
+      const sideKey = (side === 'OVER' || side === 'UNDER') ? side : 'NONE';
       return `
-        <tr data-has-line="${hasLine ? '1' : '0'}" data-live-line="${hasLiveLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}">
+        <tr data-has-line="${hasLine ? '1' : '0'}" data-live-line="${hasLiveLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}" data-side="${esc(sideKey)}">
           <td><span class="badge">${esc(teamTri)}</span> ${esc(player)}</td>
           <td>${esc(mk)}</td>
           <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
@@ -3113,7 +3186,7 @@ function renderLivePropCallouts(callouts) {
       const pid = n(x.player_id);
       const photo = String(x.player_photo || '').trim() || ((pid != null) ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${pid}.png` : '');
       const img = photo
-        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
+        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" class="prop-callout-photo" />`
         : '';
       const preLine = n(x.line_pregame);
       const liveLine = n(x.line_live);
@@ -3155,31 +3228,31 @@ function renderLivePropCallouts(callouts) {
       return `
         <button
           type="button"
-          class="chip neutral prop-callout"
+          class="chip neutral prop-callout live-prop-callout"
           data-game-id="${esc(String(x.gid))}"
           data-stat="${esc(String(x.stat || '').toLowerCase().trim())}"
           data-sig="${esc(String(klass || '').toUpperCase().trim())}"
+          data-side="${esc(String(side || '').toUpperCase().trim())}"
           data-live-line="${x && x.is_live_line ? '1' : '0'}"
-          style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
-          <div style="width:100%; display:flex; gap:6px; justify-content:flex-start; align-items:center; flex-wrap:wrap;">
+          <div class="prop-callout-head">
             ${badge}
             ${simFlag}
             ${liveLineBadge}
             <span class="badge">${esc(String(x.team || ''))}</span>
             ${why}
           </div>
-          <div style="width:100%; display:flex; gap:10px; align-items:center;">
+          <div class="prop-callout-body">
             ${img}
-            <div style="min-width:0; flex:1;">
-              <div class="fw-700" style="line-height:1.15;">
+            <div class="prop-callout-copy">
+              <div class="fw-700 prop-callout-title">
                 ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span>
               </div>
-              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+              <div class="subtle prop-callout-line">
                 ${esc(game)} · Act ${esc(actTxt)} · Proj ${esc(projTxt)}
               </div>
-              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+              <div class="subtle prop-callout-line">
                 Pre ${esc(preTxt)} · Live ${esc(liveTxt)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
               </div>
             </div>
@@ -3190,7 +3263,7 @@ function renderLivePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
-      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(3, auto); gap:6px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
+      <div class="row chips prop-callouts-rail">
         ${items}
       </div>
       <div class="subtle" style="margin-top:6px;">
@@ -3234,7 +3307,7 @@ function renderPregamePropCallouts(callouts) {
 
       const photo = String(x.player_photo || '').trim() || String(x.photo || '').trim();
       const img = photo
-        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" style="border-radius:999px; object-fit:cover; flex:0 0 auto;" />`
+        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" class="prop-callout-photo" />`
         : '';
 
       const openLine = n(x.open_line);
@@ -3264,25 +3337,25 @@ function renderPregamePropCallouts(callouts) {
           class="chip neutral prop-callout pregame-prop-callout"
           data-game-id="${esc(String(x.gid))}"
           data-stat="${esc(String(x.stat || '').toLowerCase().trim())}"
-          style="text-align:left; display:inline-flex; flex-direction:column; align-items:stretch; gap:8px; padding:8px 10px; font-size:12px; line-height:1.25; white-space:normal; min-width:300px; max-width:420px;"
+          data-side="${esc(String(side || '').toUpperCase().trim())}"
           aria-label="Jump to ${esc(player)} ${esc(stat)} pregame movement"
         >
-          <div style="width:100%; display:flex; gap:6px; justify-content:flex-start; align-items:center; flex-wrap:wrap;">
+          <div class="prop-callout-head">
             ${badge}
             <span class="badge">${esc(stat)}</span>
             ${team ? `<span class="badge">${esc(team)}</span>` : ''}
             ${evTxt ? `<span class="badge">${esc(evTxt)}</span>` : ''}
           </div>
-          <div style="width:100%; display:flex; gap:10px; align-items:center;">
+          <div class="prop-callout-body">
             ${img}
-            <div style="min-width:0; flex:1;">
-              <div class="fw-700" style="line-height:1.15;">
+            <div class="prop-callout-copy">
+              <div class="fw-700 prop-callout-title">
                 ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(curLineTxt)}</span> <span class="subtle">${esc(curPriceTxt)}</span>
               </div>
-              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+              <div class="subtle prop-callout-line">
                 ${esc(game)}
               </div>
-              <div class="subtle" style="line-height:1.15; margin-top:2px;">
+              <div class="subtle prop-callout-line">
                 Open ${esc(openLineTxt)} ${esc(openPriceTxt)} → Now ${esc(curLineTxt)} ${esc(curPriceTxt)} · ΔLine ${esc(lmTxt)} · ΔImp ${esc(imTxt)}
               </div>
             </div>
@@ -3293,7 +3366,7 @@ function renderPregamePropCallouts(callouts) {
 
     return `
       <div class="subtle" style="margin-top:8px;">Pregame prop movement (Open → Current) — click to jump:</div>
-      <div class="row chips" style="margin-top:6px; overflow-x:auto; overflow-y:hidden; max-width:100%; min-width:0; display:grid; grid-auto-flow:column; grid-template-rows:repeat(3, auto); gap:6px; align-items:start; padding-bottom:2px; box-sizing:border-box;">
+      <div class="row chips prop-callouts-rail">
         ${items}
       </div>
     `;
@@ -3427,9 +3500,11 @@ async function loadPregamePropCallouts(root, games, dateStr) {
     if (html) {
       el.innerHTML = html;
       el.classList.remove('hidden');
+      try { applyPregamePropFilters(root); } catch (_) { /* ignore */ }
     } else {
       el.innerHTML = '';
       el.classList.add('hidden');
+      try { applyPregamePropFilters(root); } catch (_) { /* ignore */ }
     }
   } catch (_) {
     try {
@@ -3440,6 +3515,7 @@ async function loadPregamePropCallouts(root, games, dateStr) {
     try {
       el.innerHTML = '';
       el.classList.add('hidden');
+      try { applyPregamePropFilters(root); } catch (_) { /* ignore */ }
     } catch (_) {
       // ignore
     }
@@ -6375,49 +6451,28 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     `;
   }).join('\n');
 
-  // Game filter pills (multi-select). Empty selection => show all.
-  const gamePillsHtml = (() => {
+  const gamePillItemsHtml = (() => {
     try {
-      const items = games.map((g) => {
+      return games.map((g) => {
         const gid = canonGameId((g && g.sim && g.sim.game_id != null) ? g.sim.game_id : (g && g.game_id != null ? g.game_id : ''))
           || `${String(g.home_tri || '').toUpperCase().trim()}_${String(g.away_tri || '').toUpperCase().trim()}`;
         const homeTri = String(g.home_tri || '').toUpperCase().trim();
         const awayTri = String(g.away_tri || '').toUpperCase().trim();
         const txt = `${awayTri} @ ${homeTri}`.trim();
-        return `<button type="button" class="chip neutral game-pill" data-game-id="${esc(gid)}" aria-pressed="false">${esc(txt)}</button>`;
+        return `<button type="button" class="chip neutral" data-game-id="${esc(gid)}" aria-pressed="false">${esc(txt)}</button>`;
       }).join('');
-      return `
-        <div class="row chips" id="game-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
-          <span class="chip title">Games</span>
-          <button type="button" class="chip neutral" data-game-pill-all="1" aria-pressed="false">ALL</button>
-          ${items}
-        </div>
-      `;
     } catch (_) {
       return '';
     }
   })();
 
-  // Global player prop filters (stat + BET/WATCH). Empty selection => show all.
-  const playerPropPillsHtml = (() => {
+  const pregameGamePillsHtml = (() => {
     try {
       return `
-        <div class="row chips" id="player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
-          <span class="chip title">Player Props</span>
-          <button type="button" class="chip neutral" data-player-prop-pill-all="1" aria-pressed="false">ALL</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="stl" aria-pressed="false">STL</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="blk" aria-pressed="false">BLK</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="tov" aria-pressed="false">TOV</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
-          <span class="chip title" style="margin-left:6px;">Line</span>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="line" data-key="live" aria-pressed="false" title="OddsAPI live line exists">Live line exists</button>
-          <span class="chip title" style="margin-left:6px;">Signal</span>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
-          <button type="button" class="chip neutral player-prop-pill" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
+        <div class="row chips" id="pregame-game-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
+          <span class="chip title">Pregame Games</span>
+          <button type="button" class="chip neutral" data-pregame-game-pill-all="1" aria-pressed="false">ALL</button>
+          ${gamePillItemsHtml.replaceAll('class="chip neutral"', 'class="chip neutral pregame-game-pill"')}
         </div>
       `;
     } catch (_) {
@@ -6425,21 +6480,159 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     }
   })();
 
-  root.innerHTML = `${stripHtml}\n${gamePillsHtml}\n${playerPropPillsHtml}\n<div id="pregame-prop-callouts" class="hidden"></div>\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+  const pregamePlayerPropPillsHtml = (() => {
+    try {
+      return `
+        <div class="row chips" id="pregame-player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
+          <span class="chip title">Pregame Props</span>
+          <button type="button" class="chip neutral" data-pregame-player-prop-pill-all="1" aria-pressed="false">ALL</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="stl" aria-pressed="false">STL</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="blk" aria-pressed="false">BLK</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="tov" aria-pressed="false">TOV</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
+          <span class="chip title" style="margin-left:6px;">Side</span>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="side" data-key="OVER" aria-pressed="false">OVER</button>
+          <button type="button" class="chip neutral pregame-player-prop-pill" data-kind="side" data-key="UNDER" aria-pressed="false">UNDER</button>
+        </div>
+      `;
+    } catch (_) {
+      return '';
+    }
+  })();
 
-  // Game pills click handler
+  const liveGamePillsHtml = (() => {
+    try {
+      return `
+        <div class="row chips" id="live-game-filter-pills" style="margin-top:10px; flex-wrap:wrap;">
+          <span class="chip title">Live Games</span>
+          <button type="button" class="chip neutral" data-live-game-pill-all="1" aria-pressed="false">ALL</button>
+          ${gamePillItemsHtml.replaceAll('class="chip neutral"', 'class="chip neutral live-game-pill"')}
+        </div>
+      `;
+    } catch (_) {
+      return '';
+    }
+  })();
+
+  const livePlayerPropPillsHtml = (() => {
+    try {
+      return `
+        <div class="row chips" id="live-player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
+          <span class="chip title">Live Props</span>
+          <button type="button" class="chip neutral" data-live-player-prop-pill-all="1" aria-pressed="false">ALL</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="pts" aria-pressed="false">PTS</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="reb" aria-pressed="false">REB</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="ast" aria-pressed="false">AST</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="threes" aria-pressed="false">3PM</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="stl" aria-pressed="false">STL</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="blk" aria-pressed="false">BLK</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="tov" aria-pressed="false">TOV</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="stat" data-key="pra" aria-pressed="false">PRA</button>
+          <span class="chip title" style="margin-left:6px;">Side</span>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="side" data-key="OVER" aria-pressed="false">OVER</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="side" data-key="UNDER" aria-pressed="false">UNDER</button>
+          <span class="chip title" style="margin-left:6px;">Line</span>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="line" data-key="live" aria-pressed="false" title="OddsAPI live line exists">Live line exists</button>
+          <span class="chip title" style="margin-left:6px;">Signal</span>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="sig" data-key="BET" aria-pressed="false">BET</button>
+          <button type="button" class="chip neutral live-player-prop-pill" data-kind="sig" data-key="WATCH" aria-pressed="false">WATCH</button>
+        </div>
+      `;
+    } catch (_) {
+      return '';
+    }
+  })();
+
+  root.innerHTML = `${stripHtml}\n${pregameGamePillsHtml}\n${pregamePlayerPropPillsHtml}\n<div id="pregame-prop-callouts" class="hidden"></div>\n${liveGamePillsHtml}\n${livePlayerPropPillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+
+  try {
+    if (root && root.dataset && root.dataset.pregameGamePillsBound !== '1') {
+      root.dataset.pregameGamePillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-game-pill-all]') : null;
+          if (allBtn) {
+            __pregameGamePillsSelected.clear();
+            applyPregamePropFilters(root);
+            return;
+          }
+          const btn = ev.target && ev.target.closest ? ev.target.closest('button.pregame-game-pill[data-game-id]') : null;
+          if (!btn) return;
+          const gid = canonGameId(btn.dataset.gameId);
+          if (!gid) return;
+          if (__pregameGamePillsSelected.has(gid)) __pregameGamePillsSelected.delete(gid);
+          else __pregameGamePillsSelected.add(gid);
+          applyPregamePropFilters(root);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+  } catch (_) {
+    // ignore
+  }
+
+  try {
+    if (root && root.dataset && root.dataset.pregamePropPillsBound !== '1') {
+      root.dataset.pregamePropPillsBound = '1';
+      root.addEventListener('click', (ev) => {
+        try {
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-player-prop-pill-all]') : null;
+          if (allBtn) {
+            try { __pregamePropFilters.stats.clear(); } catch (_) { /* ignore */ }
+            try { __pregamePropFilters.sides.clear(); } catch (_) { /* ignore */ }
+            applyPregamePropFilters(root);
+            return;
+          }
+
+          const btn = ev.target && ev.target.closest
+            ? ev.target.closest('button.pregame-player-prop-pill[data-kind][data-key]')
+            : null;
+          if (!btn) return;
+          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+          const rawKey = String(btn.dataset.key || '').trim();
+          if (!rawKey) return;
+
+          if (kind === 'stat') {
+            const key = rawKey.toLowerCase();
+            if (__pregamePropFilters.stats.has(key)) __pregamePropFilters.stats.delete(key);
+            else __pregamePropFilters.stats.add(key);
+          } else if (kind === 'side') {
+            const key = rawKey.toUpperCase();
+            if (__pregamePropFilters.sides.has(key)) __pregamePropFilters.sides.delete(key);
+            else __pregamePropFilters.sides.add(key);
+          } else {
+            return;
+          }
+
+          applyPregamePropFilters(root);
+        } catch (_) {
+          // ignore
+        }
+      });
+    }
+    applyPregamePropFilters(root);
+  } catch (_) {
+    // ignore
+  }
+
+  // Live game pills click handler
   try {
     if (root && root.dataset && root.dataset.gamePillsBound !== '1') {
       root.dataset.gamePillsBound = '1';
       root.addEventListener('click', (ev) => {
         try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-game-pill-all]') : null;
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-game-pill-all]') : null;
           if (allBtn) {
             __gamePillsSelected.clear();
             applyGamePillsFilter(root);
             return;
           }
-          const btn = ev.target && ev.target.closest ? ev.target.closest('button.game-pill[data-game-id]') : null;
+          const btn = ev.target && ev.target.closest ? ev.target.closest('button.live-game-pill[data-game-id]') : null;
           if (!btn) return;
           const gid = canonGameId(btn.dataset.gameId);
           if (!gid) return;
@@ -6456,23 +6649,24 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     // ignore
   }
 
-  // Global player prop pills click handler
+  // Live player prop pills click handler
   try {
     if (root && root.dataset && root.dataset.playerPropPillsBound !== '1') {
       root.dataset.playerPropPillsBound = '1';
       root.addEventListener('click', (ev) => {
         try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-player-prop-pill-all]') : null;
+          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-player-prop-pill-all]') : null;
           if (allBtn) {
             try { __playerLensGlobalFilters.stats.clear(); } catch (_) { /* ignore */ }
             try { __playerLensGlobalFilters.signals.clear(); } catch (_) { /* ignore */ }
+            try { __playerLensGlobalFilters.sides.clear(); } catch (_) { /* ignore */ }
             try { __playerLensGlobalFilters.liveLineOnly = false; } catch (_) { /* ignore */ }
             applyPlayerLensFiltersAll(root);
             return;
           }
 
           const btn = ev.target && ev.target.closest
-            ? ev.target.closest('button.player-prop-pill[data-kind][data-key]')
+            ? ev.target.closest('button.live-player-prop-pill[data-kind][data-key]')
             : null;
           if (!btn) return;
           const kind = String(btn.dataset.kind || '').toLowerCase().trim();
@@ -6483,6 +6677,10 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
             const key = rawKey.toLowerCase();
             if (__playerLensGlobalFilters.stats.has(key)) __playerLensGlobalFilters.stats.delete(key);
             else __playerLensGlobalFilters.stats.add(key);
+          } else if (kind === 'side') {
+            const key = rawKey.toUpperCase();
+            if (__playerLensGlobalFilters.sides.has(key)) __playerLensGlobalFilters.sides.delete(key);
+            else __playerLensGlobalFilters.sides.add(key);
           } else if (kind === 'sig') {
             const key = rawKey.toUpperCase();
             if (__playerLensGlobalFilters.signals.has(key)) __playerLensGlobalFilters.signals.delete(key);
