@@ -1,0 +1,235 @@
+{
+  "date": "2026-03-08",
+  "team_counts": {
+    "CHA": 1,
+    "CHI": 1,
+    "CLE": 1,
+    "DAL": 1,
+    "DET": 2,
+    "HOU": 1,
+    "IND": 1,
+    "LAL": 2,
+    "MIA": 2,
+    "MIL": 1,
+    "NOP": 1,
+    "NYK": 1,
+    "ORL": 2,
+    "PHX": 2,
+    "SAS": 2,
+    "TOR": 1,
+    "WAS": 5
+  },
+  "players": [
+    {
+      "player": "Anthony Davis",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Harrison Barnes",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Mason Plumlee",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Andrew Wiggins",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "D'Angelo Russell",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Jarrett Allen",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Brooks",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Anfernee Simons",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Deandre Ayton",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Kevin Porter Jr.",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Franz Wagner",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Colin Castleton",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Mark Williams",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Simone Fontecchio",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Tristan Vukcevic",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Tosan Evbuomwan",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Jones",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Kyshawn George",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Bronny James",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jonathan Mogbo",
+      "team": "TOR",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {
+    "WAS": [
+      "Alex Sarr",
+      "Tristan Vukcevic",
+      "Kyshawn George"
+    ],
+    "SAS": [
+      "Harrison Barnes",
+      "Mason Plumlee"
+    ],
+    "HOU": [
+      "Steven Adams"
+    ],
+    "MIA": [
+      "Andrew Wiggins",
+      "Simone Fontecchio"
+    ],
+    "CLE": [
+      "Jarrett Allen"
+    ],
+    "PHX": [
+      "Dillon Brooks",
+      "Mark Williams"
+    ],
+    "CHI": [
+      "Anfernee Simons"
+    ],
+    "LAL": [
+      "Deandre Ayton",
+      "Bronny James"
+    ],
+    "MIL": [
+      "Kevin Porter Jr."
+    ],
+    "ORL": [
+      "Franz Wagner",
+      "Colin Castleton"
+    ],
+    "DET": [
+      "Wendell Moore Jr.",
+      "Isaac Jones"
+    ],
+    "NOP": [
+      "Trey Alexander"
+    ],
+    "DAL": [
+      "Dereck Lively II"
+    ],
+    "CHA": [
+      "Tosan Evbuomwan"
+    ],
+    "NYK": [
+      "Dillon Jones"
+    ],
+    "IND": [
+      "Johnny Furphy"
+    ],
+    "TOR": [
+      "Jonathan Mogbo"
+    ]
+  },
+  "team_impact": {
+    "WAS": 80.75714285714285,
+    "SAS": 15.47777777777778,
+    "MIA": 47.06777777777778,
+    "CLE": 37.554545454545455,
+    "PHX": 47.16388888888889,
+    "CHI": 20.5,
+    "LAL": 28.177777777777777,
+    "MIL": 41.981818181818184,
+    "ORL": 19.2,
+    "DET": 4.2,
+    "NYK": 7.550000000000001,
+    "IND": 14.5,
+    "TOR": 1.7333333333333334
+  }
+}
