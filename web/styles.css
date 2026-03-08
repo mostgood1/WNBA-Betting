@@ -669,6 +669,38 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .players-block { display: grid; gap: 8px; margin-top: 8px; }
 .players-toggle { color: #cfe0ff; -webkit-user-select: none; user-select: none; }
 .player-boxscore th:first-child, .player-boxscore td:first-child { min-width: 160px; }
+.merged-boxscore-body,
+.merged-boxscore-block,
+.merged-boxscore-section { display: grid; gap: 8px; }
+.merged-boxscore-k,
+.merged-boxscore-title {
+	color: #9fb0ff;
+	font-size: 11px;
+	font-weight: 900;
+	letter-spacing: 0.4px;
+	text-transform: uppercase;
+}
+.merged-linescore-table th,
+.merged-linescore-table td,
+.merged-player-boxscore th,
+.merged-player-boxscore td { white-space: nowrap; }
+.merged-linescore-table td.team,
+.merged-player-boxscore td:first-child {
+	font-weight: 700;
+	white-space: normal;
+}
+.merged-player-boxscore td:first-child { min-width: 180px; }
+.merged-linescore-table thead tr:first-child th,
+.merged-player-boxscore thead tr:first-child th {
+	text-align: center;
+	background: #0b1020;
+	color: #cfe0ff;
+}
+.merged-linescore-table tfoot td,
+.merged-player-boxscore tfoot td {
+	background: #111834;
+	font-weight: 800;
+}
 
 .injury-block { background: #0f1530; border: 1px solid #25316a; border-radius: 10px; padding: 8px 10px; }
 .injury-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; margin-bottom: 6px; }

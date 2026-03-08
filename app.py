@@ -1777,6 +1777,34 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
                 in_progress = bool(state == "in")
                 final = bool(completed or state == "post")
                 status_id = 2 if in_progress else (3 if final else 1)
+                periods: list[dict[str, Any]] = []
+                try:
+                    home_ls = home.get("linescores") if isinstance(home, dict) else None
+                    away_ls = away.get("linescores") if isinstance(away, dict) else None
+                    if isinstance(home_ls, list) or isinstance(away_ls, list):
+                        n_periods = max(
+                            len(home_ls) if isinstance(home_ls, list) else 0,
+                            len(away_ls) if isinstance(away_ls, list) else 0,
+                        )
+                        for i in range(n_periods):
+                            try:
+                                hv = None
+                                av = None
+                                if isinstance(home_ls, list) and i < len(home_ls):
+                                    hv = home_ls[i].get("value")
+                                if isinstance(away_ls, list) and i < len(away_ls):
+                                    av = away_ls[i].get("value")
+                                periods.append(
+                                    {
+                                        "period": int(i + 1),
+                                        "home": int(float(hv)) if hv is not None and str(hv).strip() != "" else None,
+                                        "away": int(float(av)) if av is not None and str(av).strip() != "" else None,
+                                    }
+                                )
+                            except Exception:
+                                continue
+                except Exception:
+                    periods = []
 
                 out.append(
                     {
@@ -1791,6 +1819,7 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
                         "clock": clock,
                         "in_progress": in_progress,
                         "final": final,
+                        "periods": periods,
                     }
                 )
             except Exception:
@@ -1874,6 +1903,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                             "clock": eg.get("clock"),
                             "in_progress": bool(eg.get("in_progress")),
                             "final": bool(eg.get("final")),
+                            "periods": eg.get("periods") if isinstance(eg.get("periods"), list) else [],
                             "espn_event_id": eg.get("game_id"),
                             "match": "teams",
                         }
@@ -1892,6 +1922,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                             "clock": None,
                             "in_progress": False,
                             "final": False,
+                            "periods": [],
                             "espn_event_id": None,
                             "match": None,
                         }
@@ -1935,6 +1966,7 @@ def _live_build_scoreboard_games(date_str: str) -> tuple[str, list[dict[str, Any
                         "clock": None,
                         "in_progress": False,
                         "final": False,
+                        "periods": [],
                         "espn_event_id": None,
                         "match": None,
                     }
@@ -9472,6 +9504,13 @@ def api_cards():
         def _is_present(v: Any) -> bool:
             return not _is_blank(v)
 
+        def _exclude_from_sim_output(player_row: dict[str, Any]) -> bool:
+            try:
+                st = str(player_row.get("injury_status") or "").strip().upper()
+            except Exception:
+                st = ""
+            return (st == "OUT") or (player_row.get("playing_today") is False)
+
         for side in ("home", "away"):
             arr = players.get(side) if isinstance(players, dict) else []
             out_arr: list[dict[str, Any]] = []
@@ -9538,6 +9577,9 @@ def api_cards():
                             pr2.pop(k, None)
                 except Exception:
                     pass
+
+                if _exclude_from_sim_output(pr2):
+                    continue
                 out_arr.append(pr2)
             players_out[side] = out_arr
 
@@ -23708,6 +23750,7 @@ def api_live_state():
                 "clock": g.get("clock"),
                 "in_progress": bool(g.get("in_progress")),
                 "final": bool(g.get("final")),
+                "periods": g.get("periods") if isinstance(g.get("periods"), list) else [],
             })
         except Exception:
             continue

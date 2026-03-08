@@ -269,8 +269,14 @@ function bestBets(b) {
   return rows;
 }
 
+function isUnavailableSimPlayer(player) {
+  if (!player || typeof player !== 'object') return false;
+  const st = String(player.injury_status || '').trim().toUpperCase();
+  return st === 'OUT' || player.playing_today === false;
+}
+
 function renderPlayersTable(title, players, reconByPlayerId) {
-  const arr = Array.isArray(players) ? [...players] : [];
+  const arr = Array.isArray(players) ? players.filter((player) => !isUnavailableSimPlayer(player)) : [];
   // Sort by minutes first so the table reflects the expected rotation.
   arr.sort((a, b) => {
     const dm = (n(b?.min_mean) ?? -1e9) - (n(a?.min_mean) ?? -1e9);
@@ -356,6 +362,489 @@ function renderPlayersTable(title, players, reconByPlayerId) {
           ${rows || `<tr><td colspan="${hasRecon ? 14 : 7}" class="subtle">No player projections.</td></tr>`}
         </tbody>
       </table>
+    </div>
+  `;
+}
+
+function normPlayerNameForMerge(s) {
+  const raw = normPlayerName(s);
+  if (!raw) return '';
+  return raw
+    .replace(/\b(jr|sr|ii|iii|iv|v)\b/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function playerMergeKeys(name) {
+  const full = normPlayerNameForMerge(name);
+  if (!full) return { full: '', short: '' };
+  const parts = full.split(' ').filter(Boolean);
+  const short = (parts.length >= 2)
+    ? `${parts[0].charAt(0)} ${parts[parts.length - 1]}`
+    : full;
+  return { full, short };
+}
+
+function simPlayerBoxscoreStats(player) {
+  return {
+    mp: n(player && player.min_mean),
+    pts: n(player && player.pts_mean),
+    reb: n(player && player.reb_mean),
+    ast: n(player && player.ast_mean),
+    threes: n(player && player.threes_mean),
+    pra: n(player && player.pra_mean),
+  };
+}
+
+function livePlayerBoxscoreStats(row) {
+  const pts = n(row && row.pts);
+  const reb = n(row && row.reb);
+  const ast = n(row && row.ast);
+  const threes = n(row && (row.threes_made != null ? row.threes_made : row.threes));
+  return {
+    mp: n(row && row.mp),
+    pts,
+    reb,
+    ast,
+    threes,
+    pra: (pts != null && reb != null && ast != null) ? (pts + reb + ast) : null,
+  };
+}
+
+function reconPlayerBoxscoreStats(row) {
+  const pts = n(row && row.actual_pts);
+  const reb = n(row && row.actual_reb);
+  const ast = n(row && row.actual_ast);
+  const threes = n(row && row.actual_3pm);
+  const pra = n(row && row.actual_pra);
+  return {
+    mp: n(row && row.actual_min),
+    pts,
+    reb,
+    ast,
+    threes,
+    pra: (pra != null)
+      ? pra
+      : ((pts != null && reb != null && ast != null) ? (pts + reb + ast) : null),
+  };
+}
+
+function buildSimNameMaps(players) {
+  const byFull = new Map();
+  const byShort = new Map();
+  for (const player of (Array.isArray(players) ? players : [])) {
+    const keys = playerMergeKeys(player && player.player_name);
+    if (keys.full && !byFull.has(keys.full)) byFull.set(keys.full, player);
+    if (keys.short && !byShort.has(keys.short)) byShort.set(keys.short, player);
+  }
+  return { byFull, byShort };
+}
+
+function buildReconNameMaps(reconByPlayerId) {
+  const byFull = new Map();
+  const byShort = new Map();
+  const rows = Object.values(reconByPlayerId || {});
+  for (const row of rows) {
+    const keys = playerMergeKeys((row && (row.player_name || row.player)) || '');
+    if (keys.full && !byFull.has(keys.full)) byFull.set(keys.full, row);
+    if (keys.short && !byShort.has(keys.short)) byShort.set(keys.short, row);
+  }
+  return { byFull, byShort };
+}
+
+function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
+  const simArr = Array.isArray(simPlayers)
+    ? simPlayers.filter((player) => !isUnavailableSimPlayer(player))
+    : [];
+  const simMaps = buildSimNameMaps(simArr);
+  const seenSim = new Set();
+  const rows = [];
+
+  if (actualMode === 'live') {
+    const liveArr = Array.isArray(actualRows) ? actualRows.slice() : [];
+    liveArr.sort((a, b) => {
+      const dMp = (n(b && b.mp) ?? -1e9) - (n(a && a.mp) ?? -1e9);
+      if (dMp !== 0) return dMp;
+      return (n(b && b.pts) ?? -1e9) - (n(a && a.pts) ?? -1e9);
+    });
+    for (const row of liveArr) {
+      const keys = playerMergeKeys(row && row.player);
+      let simPlayer = null;
+      if (keys.full) simPlayer = simMaps.byFull.get(keys.full) || null;
+      if (!simPlayer && keys.short) simPlayer = simMaps.byShort.get(keys.short) || null;
+      rows.push({
+        name: String((row && row.player) || (simPlayer && simPlayer.player_name) || '').trim() || '—',
+        simPlayer,
+        actual: livePlayerBoxscoreStats(row),
+      });
+      if (simPlayer) seenSim.add(simPlayer);
+    }
+  } else if (actualMode === 'recon') {
+    const reconById = (actualRows && typeof actualRows === 'object') ? actualRows : {};
+    const reconMaps = buildReconNameMaps(reconById);
+    for (const simPlayer of simArr) {
+      const pid = String(simPlayer && simPlayer.player_id != null ? simPlayer.player_id : '').trim();
+      let reconRow = pid ? (reconById[pid] || null) : null;
+      if (!reconRow) {
+        const keys = playerMergeKeys(simPlayer && simPlayer.player_name);
+        if (keys.full) reconRow = reconMaps.byFull.get(keys.full) || null;
+        if (!reconRow && keys.short) reconRow = reconMaps.byShort.get(keys.short) || null;
+      }
+      rows.push({
+        name: String((simPlayer && simPlayer.player_name) || (reconRow && (reconRow.player_name || reconRow.player)) || '').trim() || '—',
+        simPlayer,
+        actual: reconRow ? reconPlayerBoxscoreStats(reconRow) : null,
+      });
+      seenSim.add(simPlayer);
+    }
+  }
+
+  for (const simPlayer of simArr) {
+    if (seenSim.has(simPlayer)) continue;
+    rows.push({
+      name: String((simPlayer && simPlayer.player_name) || '').trim() || '—',
+      simPlayer,
+      actual: null,
+    });
+  }
+
+  rows.sort((a, b) => {
+    const aActualMp = n(a && a.actual && a.actual.mp);
+    const bActualMp = n(b && b.actual && b.actual.mp);
+    if ((bActualMp ?? -1e9) !== (aActualMp ?? -1e9)) return (bActualMp ?? -1e9) - (aActualMp ?? -1e9);
+
+    const aActualPts = n(a && a.actual && a.actual.pts);
+    const bActualPts = n(b && b.actual && b.actual.pts);
+    if ((bActualPts ?? -1e9) !== (aActualPts ?? -1e9)) return (bActualPts ?? -1e9) - (aActualPts ?? -1e9);
+
+    const aSim = simPlayerBoxscoreStats(a && a.simPlayer ? a.simPlayer : null);
+    const bSim = simPlayerBoxscoreStats(b && b.simPlayer ? b.simPlayer : null);
+    if ((bSim.mp ?? -1e9) !== (aSim.mp ?? -1e9)) return (bSim.mp ?? -1e9) - (aSim.mp ?? -1e9);
+    if ((bSim.pts ?? -1e9) !== (aSim.pts ?? -1e9)) return (bSim.pts ?? -1e9) - (aSim.pts ?? -1e9);
+    return String(a && a.name || '').localeCompare(String(b && b.name || ''));
+  });
+
+  return rows.slice(0, 12);
+}
+
+function sumMergedBoxscoreStat(rows, bucket, statKey) {
+  let total = 0;
+  let seen = false;
+  for (const row of (Array.isArray(rows) ? rows : [])) {
+    const stats = (bucket === 'actual')
+      ? (row && row.actual ? row.actual : null)
+      : simPlayerBoxscoreStats(row && row.simPlayer ? row.simPlayer : null);
+    const value = n(stats && stats[statKey]);
+    if (value == null) continue;
+    total += value;
+    seen = true;
+  }
+  return seen ? total : null;
+}
+
+function fmtActualBoxscoreStat(statKey, value) {
+  const v = n(value);
+  if (v == null) return '—';
+  return (statKey === 'mp') ? fmt(v, 1) : fmt(v, 0);
+}
+
+function fmtSimBoxscoreStat(_statKey, value) {
+  const v = n(value);
+  if (v == null) return '—';
+  return fmt(v, 1);
+}
+
+function buildActualLineScoreRows(periods, actualAway, actualHome) {
+  const byQuarter = { 1: {}, 2: {}, 3: {}, 4: {} };
+  for (const row of (Array.isArray(periods) ? periods : [])) {
+    const quarter = Math.floor(n(row && row.period) ?? 0);
+    if (quarter < 1 || quarter > 4) continue;
+    byQuarter[quarter] = {
+      away: n(row && row.away),
+      home: n(row && row.home),
+    };
+  }
+
+  const sumOrNull = (vals) => {
+    const finite = (vals || []).map((v) => n(v)).filter((v) => v != null);
+    return finite.length ? finite.reduce((acc, v) => acc + v, 0) : null;
+  };
+
+  const away = {
+    q1: byQuarter[1].away ?? null,
+    q2: byQuarter[2].away ?? null,
+    q3: byQuarter[3].away ?? null,
+    q4: byQuarter[4].away ?? null,
+    total: n(actualAway),
+  };
+  const home = {
+    q1: byQuarter[1].home ?? null,
+    q2: byQuarter[2].home ?? null,
+    q3: byQuarter[3].home ?? null,
+    q4: byQuarter[4].home ?? null,
+    total: n(actualHome),
+  };
+
+  if (away.total == null) away.total = sumOrNull([away.q1, away.q2, away.q3, away.q4]);
+  if (home.total == null) home.total = sumOrNull([home.q1, home.q2, home.q3, home.q4]);
+
+  const hasAny = [away.q1, away.q2, away.q3, away.q4, away.total, home.q1, home.q2, home.q3, home.q4, home.total]
+    .some((v) => n(v) != null);
+  return { away, home, hasAny };
+}
+
+function buildSimLineScoreRows(meta) {
+  const periods = meta && meta.sim_periods ? meta.sim_periods : {};
+  const away = {
+    q1: n(periods && periods.q1 && periods.q1.away_mean),
+    q2: n(periods && periods.q2 && periods.q2.away_mean),
+    q3: n(periods && periods.q3 && periods.q3.away_mean),
+    q4: n(periods && periods.q4 && periods.q4.away_mean),
+    total: n(meta && meta.sim_score && meta.sim_score.away_mean),
+  };
+  const home = {
+    q1: n(periods && periods.q1 && periods.q1.home_mean),
+    q2: n(periods && periods.q2 && periods.q2.home_mean),
+    q3: n(periods && periods.q3 && periods.q3.home_mean),
+    q4: n(periods && periods.q4 && periods.q4.home_mean),
+    total: n(meta && meta.sim_score && meta.sim_score.home_mean),
+  };
+
+  const sumOrNull = (vals) => {
+    const finite = (vals || []).map((v) => n(v)).filter((v) => v != null);
+    return finite.length ? finite.reduce((acc, v) => acc + v, 0) : null;
+  };
+
+  if (away.total == null) away.total = sumOrNull([away.q1, away.q2, away.q3, away.q4]);
+  if (home.total == null) home.total = sumOrNull([home.q1, home.q2, home.q3, home.q4]);
+  return { away, home };
+}
+
+function fmtActualLineScore(value) {
+  const v = n(value);
+  return v == null ? '—' : fmt(v, 0);
+}
+
+function fmtSimLineScore(value) {
+  const v = n(value);
+  return v == null ? '—' : fmt(v, 1);
+}
+
+function renderLineScoreBlock(meta, actualSource) {
+  const simRows = buildSimLineScoreRows(meta);
+  const actualRows = buildActualLineScoreRows(
+    actualSource && actualSource.periods,
+    actualSource && actualSource.actualAway,
+    actualSource && actualSource.actualHome,
+  );
+  const label = String((actualSource && actualSource.label) || 'Live').trim() || 'Live';
+
+  if (!actualRows.hasAny) {
+    return `
+      <div class="merged-boxscore-section">
+        <div class="merged-boxscore-title">Sim line score</div>
+        <div class="table-wrap">
+          <table class="data-table merged-linescore-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="num">Q1</th>
+                <th class="num">Q2</th>
+                <th class="num">Q3</th>
+                <th class="num">Q4</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="team">${esc(meta && meta.away ? meta.away : 'Away')}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q1)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q2)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q3)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q4)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.total)}</td>
+              </tr>
+              <tr>
+                <td class="team">${esc(meta && meta.home ? meta.home : 'Home')}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q1)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q2)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q3)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q4)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.total)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="merged-boxscore-section">
+      <div class="merged-boxscore-title">${esc(label)} vs Sim line score</div>
+      <div class="table-wrap">
+        <table class="data-table merged-linescore-table">
+          <thead>
+            <tr>
+              <th rowspan="2"></th>
+              <th colspan="5">${esc(label)}</th>
+              <th colspan="5">Sim</th>
+            </tr>
+            <tr>
+              <th class="num">Q1</th>
+              <th class="num">Q2</th>
+              <th class="num">Q3</th>
+              <th class="num">Q4</th>
+              <th class="num">Total</th>
+              <th class="num">Q1</th>
+              <th class="num">Q2</th>
+              <th class="num">Q3</th>
+              <th class="num">Q4</th>
+              <th class="num">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="team">${esc(meta && meta.away ? meta.away : 'Away')}</td>
+              <td class="num">${fmtActualLineScore(actualRows.away.q1)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.away.q2)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.away.q3)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.away.q4)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.away.total)}</td>
+              <td class="num">${fmtSimLineScore(simRows.away.q1)}</td>
+              <td class="num">${fmtSimLineScore(simRows.away.q2)}</td>
+              <td class="num">${fmtSimLineScore(simRows.away.q3)}</td>
+              <td class="num">${fmtSimLineScore(simRows.away.q4)}</td>
+              <td class="num">${fmtSimLineScore(simRows.away.total)}</td>
+            </tr>
+            <tr>
+              <td class="team">${esc(meta && meta.home ? meta.home : 'Home')}</td>
+              <td class="num">${fmtActualLineScore(actualRows.home.q1)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.home.q2)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.home.q3)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.home.q4)}</td>
+              <td class="num">${fmtActualLineScore(actualRows.home.total)}</td>
+              <td class="num">${fmtSimLineScore(simRows.home.q1)}</td>
+              <td class="num">${fmtSimLineScore(simRows.home.q2)}</td>
+              <td class="num">${fmtSimLineScore(simRows.home.q3)}</td>
+              <td class="num">${fmtSimLineScore(simRows.home.q4)}</td>
+              <td class="num">${fmtSimLineScore(simRows.home.total)}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel) {
+  const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode);
+  const body = rows.map((row) => {
+    const sim = simPlayerBoxscoreStats(row && row.simPlayer ? row.simPlayer : null);
+    const actual = row && row.actual ? row.actual : null;
+    return `
+      <tr>
+        <td>${esc(row && row.name ? row.name : '—')}</td>
+        <td class="num">${fmtActualBoxscoreStat('mp', actual && actual.mp)}</td>
+        <td class="num">${fmtActualBoxscoreStat('pts', actual && actual.pts)}</td>
+        <td class="num">${fmtActualBoxscoreStat('reb', actual && actual.reb)}</td>
+        <td class="num">${fmtActualBoxscoreStat('ast', actual && actual.ast)}</td>
+        <td class="num">${fmtActualBoxscoreStat('threes', actual && actual.threes)}</td>
+        <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
+        <td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
+        <td class="num">${fmtSimBoxscoreStat('pts', sim.pts)}</td>
+        <td class="num">${fmtSimBoxscoreStat('reb', sim.reb)}</td>
+        <td class="num">${fmtSimBoxscoreStat('ast', sim.ast)}</td>
+        <td class="num">${fmtSimBoxscoreStat('threes', sim.threes)}</td>
+        <td class="num">${fmtSimBoxscoreStat('pra', sim.pra)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const totalsRow = `
+    <tr>
+      <td>TEAM TOTAL</td>
+      <td class="num">${fmtActualBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'))}</td>
+      <td class="num">${fmtActualBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'))}</td>
+      <td class="num">${fmtActualBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'))}</td>
+      <td class="num">${fmtActualBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'))}</td>
+      <td class="num">${fmtActualBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'))}</td>
+      <td class="num">${fmtActualBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'sim', 'pts'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'sim', 'reb'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'sim', 'ast'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'sim', 'threes'))}</td>
+      <td class="num">${fmtSimBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'sim', 'pra'))}</td>
+    </tr>
+  `;
+
+  return `
+    <div class="merged-boxscore-section">
+      <div class="merged-boxscore-title">${esc(title)}</div>
+      <div class="table-wrap">
+        <table class="data-table merged-player-boxscore">
+          <thead>
+            <tr>
+              <th rowspan="2">Player</th>
+              <th colspan="6">${esc(actualLabel)}</th>
+              <th colspan="6">Sim</th>
+            </tr>
+            <tr>
+              <th class="num">MIN</th>
+              <th class="num">PTS</th>
+              <th class="num">REB</th>
+              <th class="num">AST</th>
+              <th class="num">3PM</th>
+              <th class="num">PRA</th>
+              <th class="num">MIN</th>
+              <th class="num">PTS</th>
+              <th class="num">REB</th>
+              <th class="num">AST</th>
+              <th class="num">3PM</th>
+              <th class="num">PRA</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${body || '<tr><td colspan="13" class="subtle">No player rows.</td></tr>'}
+          </tbody>
+          <tfoot>
+            ${totalsRow}
+          </tfoot>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+function renderMergedBoxscoreSection(meta, actualSource) {
+  const source = (actualSource && typeof actualSource === 'object') ? actualSource : {};
+  const mode = (source.mode === 'live' || source.mode === 'recon') ? source.mode : 'none';
+  const label = String(source.label || (mode === 'recon' ? 'Actual' : 'Live')).trim() || 'Live';
+  const homeRows = source.homeRows || (mode === 'recon' ? {} : []);
+  const awayRows = source.awayRows || (mode === 'recon' ? {} : []);
+  const hasHomeActual = (mode === 'live')
+    ? (Array.isArray(homeRows) && homeRows.length > 0)
+    : (mode === 'recon' && Object.keys(homeRows || {}).length > 0);
+  const hasAwayActual = (mode === 'live')
+    ? (Array.isArray(awayRows) && awayRows.length > 0)
+    : (mode === 'recon' && Object.keys(awayRows || {}).length > 0);
+
+  let note = 'Live and final columns appear here once ESPN summary data is available.';
+  if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
+  if (mode === 'live') note = `${label} columns refresh from ESPN summary data.`;
+
+  return `
+    <div class="merged-boxscore-block">
+      <div class="merged-boxscore-k">${esc(mode === 'none' ? 'Projected boxscore' : `Sim vs ${label}`)}</div>
+      <div class="subtle">${esc(note)}</div>
+      ${renderLineScoreBlock(meta, source)}
+      ${hasAwayActual
+        ? renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label)
+        : renderPlayersTable(`AWAY (${meta && meta.away ? meta.away : 'Away'}) players`, meta && meta.sim_players_away ? meta.sim_players_away : [], null)}
+      ${hasHomeActual
+        ? renderComparePlayerBoxscoreTable(`HOME (${meta && meta.home ? meta.home : 'Home'})`, meta && meta.sim_players_home ? meta.sim_players_home : [], homeRows, mode, label)
+        : renderPlayersTable(`HOME (${meta && meta.home ? meta.home : 'Home'}) players`, meta && meta.sim_players_home ? meta.sim_players_home : [], null)}
     </div>
   `;
 }
@@ -4395,6 +4884,10 @@ function startLiveLensPolling(root, games, dateStr) {
       game_id: gid,
       home: String(g.home_tri || '').toUpperCase().trim(),
       away: String(g.away_tri || '').toUpperCase().trim(),
+      sim_score: score0,
+      sim_periods: (sim0 && sim0.periods) ? sim0.periods : (g && g.periods ? g.periods : null),
+      sim_players_home: (sim0 && sim0.players && Array.isArray(sim0.players.home)) ? sim0.players.home : [],
+      sim_players_away: (sim0 && sim0.players && Array.isArray(sim0.players.away)) ? sim0.players.away : [],
       intervals,
       prop_recommendations: (g && g.prop_recommendations) ? g.prop_recommendations : null,
       margin_mean: marginMean,
@@ -4472,6 +4965,7 @@ function startLiveLensPolling(root, games, dateStr) {
             clock: g?.clock,
             in_progress: !!g?.in_progress,
             final: !!g?.final,
+            periods: Array.isArray(g?.periods) ? g.periods : [],
           })),
         };
       } catch (_) {
@@ -4541,6 +5035,7 @@ function startLiveLensPolling(root, games, dateStr) {
     let pbpMap = new Map();
     let linesMap = new Map();
     let playerLensMap = new Map();
+    let playerBoxscoreMap = new Map();
     if (detailEventIds.length) {
       try {
         // Allow server-driven recent-window size for pbp_recent feature set.
@@ -4554,9 +5049,12 @@ function startLiveLensPolling(root, games, dateStr) {
           // ignore
         }
 
-        // Keep heavier live endpoints limited to in-progress games for latency.
+        // Keep the heavier live endpoints limited to in-progress games for latency.
+        // Final games still need player boxscores for the merged sim-vs-live tables,
+        // so fetch raw boxscores for all detail ids even when live games exist.
         const pbpIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
-        const playerIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+        const playerLensIds = (inProgEventIds && inProgEventIds.length) ? inProgEventIds : detailEventIds;
+        const playerBoxscoreIds = detailEventIds;
 
         const _ts = Date.now();
         const liveTtlSec = LIVE_PROPS_ENDPOINT_TTL_SEC;
@@ -4581,11 +5079,13 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
-        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=${encodeURIComponent(String(liveTtlSec))}&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(playerIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
-        const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise]);
+        const playersPromise = fetchJsonWithTimeout(`/api/live_player_lens?ttl=${encodeURIComponent(String(liveTtlSec))}&recent_window_sec=${encodeURIComponent(String(recentWindowSec2))}&date=${encodeURIComponent(dateStr)}&event_ids=${encodeURIComponent(playerLensIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
+        const boxscorePromise = fetchJsonWithTimeout(`/api/live_player_boxscore?ttl=${encodeURIComponent(String(liveTtlSec))}&event_ids=${encodeURIComponent(playerBoxscoreIds.join(','))}&_ts=${encodeURIComponent(String(_ts))}`, 8000);
+        const settled = await Promise.allSettled([pbpPromise, linesPromise, playersPromise, boxscorePromise]);
         const pbp = (settled[0] && settled[0].status === 'fulfilled') ? settled[0].value : null;
         const lines = (settled[1] && settled[1].status === 'fulfilled') ? settled[1].value : null;
         const players = (settled[2] && settled[2].status === 'fulfilled') ? settled[2].value : null;
+        const playerBoxscores = (settled[3] && settled[3].status === 'fulfilled') ? settled[3].value : null;
 
         const pbpGames = Array.isArray(pbp?.games) ? pbp.games : [];
         pbpGames.forEach((gg) => {
@@ -4604,6 +5104,12 @@ function startLiveLensPolling(root, games, dateStr) {
           if (!eid) return;
           playerLensMap.set(eid, gg);
         });
+        const playerBoxscoreGames = Array.isArray(playerBoxscores?.games) ? playerBoxscores.games : [];
+        playerBoxscoreGames.forEach((gg) => {
+          const eid = String(gg && gg.event_id != null ? gg.event_id : '').trim();
+          if (!eid) return;
+          playerBoxscoreMap.set(eid, gg);
+        });
       } catch (_) {
         // ignore multi-fetch failures; we still show basic state
       }
@@ -4619,6 +5125,7 @@ function startLiveLensPolling(root, games, dateStr) {
       const pbp = eid ? pbpMap.get(eid) : null;
       const ln = eid ? linesMap.get(eid) : null;
       const livePlayerLens = eid ? playerLensMap.get(eid) : null;
+      const livePlayerBox = eid ? playerBoxscoreMap.get(eid) : null;
 
       const isFinal = !!(s && s.final);
       const isInProgress = !!(s && s.in_progress);
@@ -4738,6 +5245,33 @@ function startLiveLensPolling(root, games, dateStr) {
           // ignore
         }
         linesEl.textContent = pieces.length ? pieces.join(' · ') : 'Lines —';
+      }
+
+      try {
+        const mergedBody = root.querySelector(`.merged-boxscore-body[data-game-id="${CSS.escape(gid)}"]`);
+        if (mergedBody) {
+          const currentSource = String(mergedBody.dataset.actualSource || '').trim().toLowerCase();
+          const livePeriods = Array.isArray(s && s.periods) ? s.periods : [];
+          const livePlayersAll = (livePlayerBox && Array.isArray(livePlayerBox.players)) ? livePlayerBox.players : [];
+          const hasLivePlayers = livePlayersAll.length > 0;
+          const hasLivePeriods = livePeriods.length > 0;
+          if (hasLivePlayers || (hasLivePeriods && currentSource !== 'recon')) {
+            const homeRows = livePlayersAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.home);
+            const awayRows = livePlayersAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.away);
+            mergedBody.innerHTML = renderMergedBoxscoreSection(meta, {
+              mode: 'live',
+              label: isFinal ? 'Final' : 'Live',
+              periods: livePeriods,
+              actualHome: homePts,
+              actualAway: awayPts,
+              homeRows,
+              awayRows,
+            });
+            mergedBody.dataset.actualSource = 'live';
+          }
+        }
+      } catch (_) {
+        // ignore
       }
 
       // Player live lens (all players: sim vs line vs live + pacing)
@@ -6964,6 +7498,39 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       awayRecon = null;
     }
 
+    const hasReconActual = !!(
+      (actualHome != null && actualAway != null)
+      || (homeRecon && Object.keys(homeRecon).length)
+      || (awayRecon && Object.keys(awayRecon).length)
+    );
+    const mergedBoxscoreMeta = {
+      home: homeTri,
+      away: awayTri,
+      sim_score: score,
+      sim_periods: periods,
+      sim_players_home: playersHome,
+      sim_players_away: playersAway,
+    };
+    const initialBoxscoreSource = hasReconActual
+      ? {
+          mode: 'recon',
+          label: 'Actual',
+          periods: [],
+          actualHome,
+          actualAway,
+          homeRows: homeRecon || {},
+          awayRows: awayRecon || {},
+        }
+      : {
+          mode: 'none',
+          label: '',
+          periods: [],
+          actualHome,
+          actualAway,
+          homeRows: null,
+          awayRows: null,
+        };
+
     const awayP10 = n(score.away_q && score.away_q.p10);
     const awayP90 = n(score.away_q && score.away_q.p90);
     const homeP10 = n(score.home_q && score.home_q.p10);
@@ -7045,11 +7612,12 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         </div>
 
         <details class="players-block" open>
-          <summary class="players-toggle cursor-pointer">Projected boxscore (aggregated sim means) ${boxscoreReconBadge} ${playerReconBadge}</summary>
-          ${renderPlayersTable(`HOME (${homeTri}) players`, playersHome, homeRecon)}
+          <summary class="players-toggle cursor-pointer">Boxscore (sim vs live/final) ${boxscoreReconBadge} ${playerReconBadge}</summary>
+          <div class="merged-boxscore-body" data-game-id="${esc(gid)}" data-actual-source="${esc(initialBoxscoreSource.mode)}">
+            ${renderMergedBoxscoreSection(mergedBoxscoreMeta, initialBoxscoreSource)}
+          </div>
           ${renderInjurySummary(`HOME (${homeTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.home) ? g.sim.injuries.home : playersHome)}
           <div class="mb-6"></div>
-          ${renderPlayersTable(`AWAY (${awayTri}) players`, playersAway, awayRecon)}
           ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
         </details>
 
