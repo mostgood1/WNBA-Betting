@@ -289,6 +289,71 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 	overflow-wrap: anywhere;
 }
 
+.live-guide-cell {
+	min-width: 240px;
+}
+
+.live-prop-guide {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+}
+
+.live-prop-guide-head {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.live-prop-guide-playto {
+	font-size: 11px;
+	line-height: 1.2;
+}
+
+.live-prop-guide-copy {
+	color: #f3f6ff;
+	font-size: 12px;
+	line-height: 1.3;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.live-prop-guide-meta {
+	font-size: 11px;
+	line-height: 1.25;
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.live-prop-guide-tags {
+	display: flex;
+	gap: 4px;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.live-prop-guide-tag {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	border: 1px solid #30427b;
+	background: #101734;
+	color: #cfdaff;
+	max-width: 100%;
+	white-space: normal;
+	overflow-wrap: anywhere;
+}
+
+@media (max-width: 720px) {
+	.live-guide-cell {
+		min-width: 180px;
+	}
+}
+
 .row.head .venue.lens-card-tag:empty { display: none; }
 .row.head .venue.lens-card-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; font-weight: 900; }
 .row.head .venue.lens-card-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; font-weight: 900; }

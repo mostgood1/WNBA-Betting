@@ -1209,7 +1209,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
 
       <details class="lens-player-details" style="margin-top:8px;">
         <summary class="subtle cursor-pointer">Player live lens (sim vs line vs live)</summary>
-        <div class="subtle" style="margin-top:6px;">Uses pregame prop lines (from recommendations) and live ESPN boxscore totals.</div>
+        <div class="subtle" style="margin-top:6px;">Uses pregame prop lines, live OddsAPI lines when available, and an action guide that weighs line quality, freshness, and minutes risk.</div>
         <label class="subtle" style="display:inline-flex; align-items:center; gap:8px; margin-top:6px;">
           <input type="checkbox" class="lens-player-only-lines" checked />
           Only rows with lines
@@ -2728,6 +2728,208 @@ function adjustPlayerPropSignal(r, strength, thr) {
   }
 }
 
+function livePropPrimaryPrice(r, side) {
+  try {
+    const sd = String(side || '').toUpperCase().trim();
+    if (sd === 'OVER') return n(r && r.price_over);
+    if (sd === 'UNDER') return n(r && r.price_under);
+  } catch (_) {
+    // ignore
+  }
+  return null;
+}
+
+function fmtAgeShort(sec) {
+  const v = n(sec);
+  if (v == null) return '';
+  if (v < 90) return `${Math.round(v)}s old`;
+  if (v < 5400) return `${Math.round(v / 60)}m old`;
+  return `${Math.round(v / 3600)}h old`;
+}
+
+function livePropLineContextText(r) {
+  try {
+    const bits = [];
+    const liveLine = n(r && r.line_live);
+    const preLine = n(r && r.line_pregame);
+    if (liveLine != null && preLine != null) bits.push(`Live ${fmt(liveLine, 1)} vs pre ${fmt(preLine, 1)} (${fmtSigned(liveLine - preLine, 1)})`);
+    else if (liveLine != null) bits.push(`Live ${fmt(liveLine, 1)} line`);
+    else if (preLine != null) bits.push(`Pregame ${fmt(preLine, 1)} fallback`);
+
+    const ageTxt = fmtAgeShort(r && r.line_live_age_sec);
+    if (ageTxt) bits.push(ageTxt);
+
+    const lineN = n(r && r.line_live_n);
+    if (lineN != null) bits.push(`${Math.max(1, Math.round(lineN))} ${lineN >= 2 ? 'books' : 'book'}`);
+
+    const span = n(r && r.line_live_span);
+    if (span != null && span >= 1.0) bits.push(`span ${fmt(span, 1)}`);
+
+    return bits.join(' · ');
+  } catch (_) {
+    return '';
+  }
+}
+
+function buildLivePropGuidance(r, adj, thr) {
+  const safeAdj = (adj && typeof adj === 'object') ? adj : {};
+  const side = String((safeAdj && safeAdj.side) || _playerPropSide(r) || '').toUpperCase().trim();
+  const klass = String((safeAdj && safeAdj.klass) || (r && r.klass) || '').toUpperCase().trim();
+  const stat = String((r && r.stat) || '').toLowerCase().trim();
+  const line = n(r && r.line);
+  const liveLine = n(r && r.line_live);
+  const preLine = n(r && r.line_pregame);
+  const paceProj = n(r && r.pace_proj);
+  const simMu = n(r && r.sim_mu);
+  const dP = n(r && r.pace_vs_line);
+  const dS = n(r && r.sim_vs_line);
+  const lineSource = String((r && r.line_source) || '').toLowerCase().trim();
+  const hasLiveLine = lineSource === 'oddsapi' && liveLine != null;
+  const ageSec = n(r && r.line_live_age_sec);
+  const lineSpan = n(r && r.line_live_span);
+  const lineN = n(r && r.line_live_n);
+  const bettableScore = n(r && r.bettable_score);
+  const bettable = (r && r.bettable != null) ? !!r.bettable : null;
+  const injuryFlag = !!(r && r.injury_flag);
+  const price = livePropPrimaryPrice(r, side);
+  const watchThresh = (thr && thr.watch != null) ? Number(thr.watch) : 2.0;
+
+  let fairLine = null;
+  if (paceProj != null && simMu != null) {
+    const sameSign = (dP != null && dS != null && dP !== 0 && dS !== 0 && (dP * dS) > 0);
+    const oppSign = (dP != null && dS != null && dP !== 0 && dS !== 0 && (dP * dS) < 0);
+    if (sameSign) fairLine = (0.75 * paceProj) + (0.25 * simMu);
+    else if (oppSign) fairLine = (0.60 * paceProj) + (0.40 * simMu);
+    else fairLine = (0.70 * paceProj) + (0.30 * simMu);
+  } else if (paceProj != null) {
+    fairLine = paceProj;
+  } else if (simMu != null) {
+    fairLine = simMu;
+  }
+
+  let haircut = ({ pts: 0.9, pra: 0.9, reb: 0.7, ast: 0.7, threes: 0.55, stl: 0.45, blk: 0.45, tov: 0.5 }[stat] || 0.65);
+  try {
+    const risk = n(safeAdj && safeAdj.risk);
+    const support = n(safeAdj && safeAdj.support);
+    if (risk != null) haircut += Math.max(0, risk) * 0.15;
+    if (support != null && support < 0) haircut += 0.10;
+    else if (support != null && support > 0.75) haircut -= 0.10;
+    if (safeAdj && safeAdj.sim_disagree) haircut += 0.25;
+    else if (safeAdj && safeAdj.sim_agree) haircut -= 0.05;
+  } catch (_) {
+    // ignore
+  }
+  if (!hasLiveLine) haircut += 0.15;
+  if (bettable === false) haircut += 0.15;
+  if (hasLiveLine && ageSec == null) haircut += 0.05;
+  if (ageSec != null && ageSec > 600) haircut += 0.15;
+  if (lineSpan != null && lineSpan >= 1.0) haircut += 0.10;
+  if (lineN != null && lineN <= 1) haircut += 0.10;
+  if (injuryFlag) haircut += 0.20;
+  haircut = clampNum(haircut, 0.35, 2.0);
+
+  let playToLine = null;
+  let withinPlayTo = true;
+  let edgeCushion = null;
+  try {
+    if (fairLine != null && line != null && side) {
+      edgeCushion = (side === 'OVER') ? (fairLine - line) : (line - fairLine);
+      if (edgeCushion > (haircut || 0)) {
+        const target = (side === 'OVER') ? (fairLine - haircut) : (fairLine + haircut);
+        if (side === 'OVER') {
+          playToLine = Math.floor(target * 2.0) / 2.0;
+          withinPlayTo = line <= (playToLine + 1e-9);
+        } else if (side === 'UNDER') {
+          playToLine = Math.ceil(target * 2.0) / 2.0;
+          withinPlayTo = line >= (playToLine - 1e-9);
+        }
+      } else {
+        withinPlayTo = false;
+      }
+    }
+  } catch (_) {
+    playToLine = null;
+    withinPlayTo = true;
+    edgeCushion = null;
+  }
+
+  const freshEnough = !hasLiveLine || ageSec == null || ageSec <= 600;
+  const marketTight = (lineSpan == null || lineSpan < 1.0) && (lineN == null || lineN >= 2);
+  const trusted = (bettable !== false) && (bettableScore == null || bettableScore >= 0.65)
+    && !injuryFlag && !(safeAdj && safeAdj.sim_disagree)
+    && ((n(safeAdj && safeAdj.risk) == null) || (n(safeAdj && safeAdj.risk) < 3));
+
+  let action = 'Shop';
+  if (!side || line == null || fairLine == null) {
+    action = 'Pass';
+  } else if (!withinPlayTo) {
+    action = 'Pass';
+  } else if (klass === 'BET') {
+    if (hasLiveLine && trusted && freshEnough && marketTight) action = 'Bet now';
+    else if (hasLiveLine && (bettableScore == null || bettableScore >= 0.45)) action = 'Shop';
+    else action = 'Wait';
+  } else if (klass === 'WATCH') {
+    if (!hasLiveLine && preLine != null) action = 'Wait';
+    else if (hasLiveLine && (bettableScore == null || bettableScore >= 0.55) && !injuryFlag && !(safeAdj && safeAdj.sim_disagree)) action = 'Shop';
+    else action = 'Wait';
+  } else if (!hasLiveLine && preLine != null && Math.abs(dP || 0) >= (watchThresh * 0.8)) {
+    action = 'Wait';
+  } else {
+    action = 'Pass';
+  }
+
+  if (bettableScore != null && bettableScore < 0.35) action = withinPlayTo ? 'Pass' : action;
+  if (injuryFlag && (n(safeAdj && safeAdj.risk) != null) && n(safeAdj && safeAdj.risk) >= 3) action = 'Pass';
+
+  let summary = 'Live edge is present, but line shopping still matters.';
+  if (action === 'Bet now') {
+    summary = hasLiveLine && freshEnough
+      ? 'Fresh live line and playable edge.'
+      : 'Live edge is still inside the playable range.';
+  } else if (action === 'Shop') {
+    if (!hasLiveLine && preLine != null) summary = 'Signal exists, but this row is still anchored to the pregame line.';
+    else if (lineSpan != null && lineSpan >= 1.0) summary = 'Live market is playable, but books are spread out.';
+    else summary = 'Edge is live, but market quality is mixed.';
+  } else if (action === 'Wait') {
+    if (!hasLiveLine && preLine != null) summary = 'Wait for a real live line before acting.';
+    else if (safeAdj && safeAdj.sim_disagree) summary = 'Wait for live pace and SmartSim to point the same way.';
+    else summary = 'Need a cleaner live number before acting.';
+  } else if (!withinPlayTo) {
+    summary = 'Current line has moved past the playable range.';
+  } else if (injuryFlag) {
+    summary = 'Minutes risk is too high for a live bet.';
+  } else if ((n(safeAdj && safeAdj.risk) != null) && n(safeAdj && safeAdj.risk) >= 3) {
+    summary = 'Risk is too high for a live bet right now.';
+  } else {
+    summary = 'Edge is too fragile right now.';
+  }
+
+  const tags = [];
+  tags.push(hasLiveLine ? 'LIVE line' : (preLine != null ? 'PRE fallback' : 'No line'));
+  if (bettable === true) tags.push('Bettable');
+  if (safeAdj && safeAdj.sim_agree) tags.push('SIM agrees');
+  else if (safeAdj && safeAdj.sim_disagree) tags.push('SIM disagrees');
+  if (injuryFlag) tags.push('INJ risk');
+  if (ageSec != null && ageSec <= 180) tags.push('Fresh line');
+  else if (ageSec != null && ageSec > 600) tags.push('Stale line');
+  if (lineN != null && lineN <= 1) tags.push('1 book');
+  else if (lineN != null && lineN >= 2) tags.push(`${Math.round(lineN)} books`);
+  if (lineSpan != null && lineSpan >= 1.0) tags.push('Wide market');
+  if (bettableScore != null && bettableScore < 0.50) tags.push('Thin quality');
+
+  return normalizePregameGuidance({
+    action,
+    action_code: action.toLowerCase().replace(/\s+/g, '_'),
+    summary,
+    tags,
+    play_to_line: playToLine,
+    within_play_to: !!withinPlayTo,
+    edge_cushion: edgeCushion,
+    market_text: livePropLineContextText(r),
+    price_text: (price != null) ? fmtAmer(price) : '',
+  });
+}
+
 function clampNum(x, lo, hi) {
   const v = n(x);
   if (v == null) return null;
@@ -3291,6 +3493,11 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           const bEdge = Math.abs(n(b && b.pace_vs_line) ?? 0);
           const aAdj = adjustPlayerPropSignal(a, aEdge, thrPp);
           const bAdj = adjustPlayerPropSignal(b, bEdge, thrPp);
+          const aGuide = buildLivePropGuidance(a, aAdj, thrPp);
+          const bGuide = buildLivePropGuidance(b, bAdj, thrPp);
+          const aGuideRank = n(aGuide && aGuide.rank) ?? 0;
+          const bGuideRank = n(bGuide && bGuide.rank) ?? 0;
+          if (aGuideRank !== bGuideRank) return bGuideRank - aGuideRank;
           const aRank = n(aAdj && aAdj.rank) ?? 0;
           const bRank = n(bAdj && bAdj.rank) ?? 0;
           if (aRank !== bRank) return bRank - aRank;
@@ -3338,6 +3545,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const dS = n(r && r.sim_vs_line);
       const strength = Math.abs(dP ?? 0);
       const adj = adjustPlayerPropSignal(r, strength, thrPp);
+      const guidance = buildLivePropGuidance(r, adj, thrPp);
       const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
       const side = String(adj && adj.side != null ? adj.side : '').toUpperCase().trim();
       const showKlass = (klass === 'BET' || klass === 'WATCH');
@@ -3345,6 +3553,20 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const sigBadge = showKlass
         ? `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(sigTxt)}</span>`
         : esc(sigTxt);
+      const playToLine = n(guidance && guidance.play_to_line);
+      const priceTxt = (guidance && guidance.price_text) ? String(guidance.price_text) : '';
+      const playToTxt = (playToLine == null || !side)
+        ? ''
+        : `${side === 'OVER' ? 'Over' : 'Under'} to ${fmt(playToLine, 1)}${priceTxt ? ` @ ${priceTxt}` : ''}`;
+      const guideTags = (guidance && Array.isArray(guidance.tags))
+        ? guidance.tags.slice(0, 4).map((tag) => `<span class="live-prop-guide-tag">${esc(tag)}</span>`).join('')
+        : '';
+      const guideTip = [
+        (n(r && r.bettable_score) != null) ? `bettable ${fmt(n(r && r.bettable_score), 2)}` : '',
+        (n(r && r.price_hold) != null) ? `hold ${fmt(n(r && r.price_hold), 2)}` : '',
+        (n(r && r.edge_sigma) != null) ? `edgeσ ${fmt(n(r && r.edge_sigma), 2)}` : '',
+        (guidance && guidance.market_text) ? guidance.market_text : '',
+      ].filter(Boolean).join(' · ');
 
       const whyCell = (() => {
         try {
@@ -3398,6 +3620,17 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
           <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
           <td>${sigBadge}</td>
+          <td class="live-guide-cell">
+            <div class="live-prop-guide" title="${esc(guideTip)}">
+              <div class="live-prop-guide-head">
+                ${guidance && guidance.action ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>` : ''}
+                ${playToTxt ? `<span class="subtle live-prop-guide-playto">${esc(playToTxt)}</span>` : ''}
+              </div>
+              <div class="live-prop-guide-copy">${esc((guidance && guidance.summary) || '—')}</div>
+              ${guidance && guidance.market_text ? `<div class="subtle live-prop-guide-meta">${esc(guidance.market_text)}</div>` : ''}
+              ${guideTags ? `<div class="live-prop-guide-tags">${guideTags}</div>` : ''}
+            </div>
+          </td>
           <td>${whyCell}</td>
         </tr>
       `;
@@ -3406,7 +3639,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
     const note = isFinal
       ? 'Final (actuals only).'
       : (rows.length
-        ? 'PaceProj uses actual per-minute × expected minutes (from props_predictions roll10_min when available).'
+        ? 'PaceProj uses actual per-minute × expected minutes; the guide blends live pace, line freshness, and minutes risk.'
         : 'No live player rows yet.');
 
     return `
@@ -3426,11 +3659,12 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
               <th class="num">ΔPace-Line</th>
               <th class="num">ΔSim-Line</th>
               <th>Signal</th>
+              <th>Guide</th>
               <th>Why</th>
             </tr>
           </thead>
           <tbody>
-            ${tbl || '<tr><td colspan="11" class="subtle">No player rows.</td></tr>'}
+            ${tbl || '<tr><td colspan="12" class="subtle">No player rows.</td></tr>'}
           </tbody>
         </table>
       </div>
@@ -3443,7 +3677,18 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
 function renderLivePropCallouts(callouts) {
   try {
     const arr0 = Array.isArray(callouts) ? callouts : [];
-    const arr = arr0.filter((x) => x && (x.klass === 'BET' || x.klass === 'WATCH') && x.gid);
+    const arr = arr0.map((x) => {
+      const guidance = normalizePregameGuidance((x && x.guidance) || {
+        action: x && x.action,
+        action_code: x && x.action_code,
+        summary: x && x.summary,
+        tags: x && x.tags,
+        play_to_line: x && x.play_to_line,
+        market_text: x && x.market_text,
+        price_text: x && x.price_text,
+      });
+      return { ...x, guidance };
+    }).filter((x) => x && (x.klass === 'BET' || x.klass === 'WATCH') && x.gid && (!x.guidance || x.guidance.action_code !== 'pass'));
     if (!arr.length) return '';
 
     const items = arr.map((x) => {
@@ -3451,6 +3696,10 @@ function renderLivePropCallouts(callouts) {
       const side = String(x.side || '').toUpperCase().trim();
       const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
       const badge = `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(`${klass} ${sideShort}`.trim())}</span>`;
+      const guidance = x && x.guidance ? x.guidance : null;
+      const actionBadge = (guidance && guidance.action)
+        ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>`
+        : '';
       const liveLineBadge = (x && x.is_live_line)
         ? '<span class="badge good">LIVE</span>'
         : '<span class="badge">PRE</span>';
@@ -3470,6 +3719,8 @@ function renderLivePropCallouts(callouts) {
       const proj = n(x.pace_proj);
       const dp = n(x.dP);
       const ds = n(x.dS);
+      const playToLine = n(guidance && guidance.play_to_line);
+      const priceTxt = (guidance && guidance.price_text) ? String(guidance.price_text) : '';
 
       const lineTxt = (lineUsed == null) ? '—' : fmt(lineUsed, 1);
       const preTxt = (preLine == null) ? '—' : fmt(preLine, 1);
@@ -3478,6 +3729,12 @@ function renderLivePropCallouts(callouts) {
       const projTxt = (proj == null) ? '—' : fmt(proj, 1);
       const dpTxt = (dp == null) ? '—' : fmt(dp, 1);
       const dsTxt = (ds == null) ? '—' : fmt(ds, 1);
+      const playToTxt = (playToLine == null || !side)
+        ? ''
+        : `${side === 'OVER' ? 'Over' : 'Under'} to ${fmt(playToLine, 1)}${priceTxt ? ` @ ${priceTxt}` : ''}`;
+      const guideTags = (guidance && Array.isArray(guidance.tags))
+        ? guidance.tags.slice(0, 3).map((tag) => `<span class="live-prop-guide-tag">${esc(tag)}</span>`).join('')
+        : '';
 
       const why = (() => {
         try {
@@ -3512,6 +3769,7 @@ function renderLivePropCallouts(callouts) {
           aria-label="Jump to ${esc(player)} ${esc(stat)} ${esc(klass)}"
         >
           <div class="prop-callout-head">
+            ${actionBadge}
             ${badge}
             ${simFlag}
             ${liveLineBadge}
@@ -3524,12 +3782,17 @@ function renderLivePropCallouts(callouts) {
               <div class="fw-700 prop-callout-title">
                 ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(lineTxt)}</span>
               </div>
+              <div class="prop-callout-line live-prop-guide-copy">
+                ${esc((guidance && guidance.summary) || 'Live edge is present.')}
+              </div>
+              ${playToTxt ? `<div class="subtle prop-callout-line">${esc(playToTxt)}</div>` : ''}
               <div class="subtle prop-callout-line">
                 ${esc(game)} · Act ${esc(actTxt)} · Proj ${esc(projTxt)}
               </div>
               <div class="subtle prop-callout-line">
-                Pre ${esc(preTxt)} · Live ${esc(liveTxt)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
+                ${esc((guidance && guidance.market_text) || `Pre ${preTxt} · Live ${liveTxt}`)} · ΔP ${esc(dpTxt)} · ΔS ${esc(dsTxt)}
               </div>
+              ${guideTags ? `<div class="live-prop-guide-tags">${guideTags}</div>` : ''}
             </div>
           </div>
         </button>
@@ -3537,12 +3800,15 @@ function renderLivePropCallouts(callouts) {
     }).join('');
 
     return `
-      <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH) — click to jump:</div>
+      <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH with action guidance) — click to jump:</div>
       <div class="row chips prop-callouts-rail">
         ${items}
       </div>
       <div class="subtle" style="margin-top:6px;">
         <span class="fw-700">Notes:</span>
+        <span class="badge good">Bet now</span> fresh line inside the playable range;
+        <span class="badge ok">Shop</span> edge is live, but compare books;
+        <span class="badge">Wait</span> hold for a cleaner live number;
         <span class="badge good">LIVE</span> live line (OddsAPI);
         <span class="badge">PRE</span> pregame line;
         <span class="badge good">SIM✓</span> SmartSim agrees with the pace-vs-line direction;
@@ -6299,8 +6565,10 @@ function startLiveLensPolling(root, games, dateStr) {
                 }
               })();
               const adj = adjustPlayerPropSignal(rForAdj, strength, thrPp);
+              const guidance = buildLivePropGuidance(rForAdj, adj, thrPp);
               const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
               if (klass !== 'BET' && klass !== 'WATCH') continue;
+              if (guidance && guidance.action_code === 'pass') continue;
 
               const player = String(r.player || '').trim();
               const stat = String(r.stat || '').toLowerCase().trim();
@@ -6339,6 +6607,7 @@ function startLiveLensPolling(root, games, dateStr) {
                 side: String(adj && adj.side != null ? adj.side : ''),
                 rank: n(adj && adj.rank) ?? 0,
                 score: n(adj && adj.score) ?? 0,
+                guidance,
                 simDisagree: !!(adj && adj.sim_disagree),
                 simAgree: !!(adj && adj.sim_agree),
                 asof,
@@ -6354,6 +6623,9 @@ function startLiveLensPolling(root, games, dateStr) {
         }
 
         cands.sort((a, b) => {
+          const ag = n(a && a.guidance && a.guidance.rank) ?? 0;
+          const bg = n(b && b.guidance && b.guidance.rank) ?? 0;
+          if (ag !== bg) return bg - ag;
           const ar = n(a.rank) ?? 0;
           const br = n(b.rank) ?? 0;
           if (ar !== br) return br - ar;
