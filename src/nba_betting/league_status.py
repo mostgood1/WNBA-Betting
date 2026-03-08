@@ -1,6 +1,7 @@
 from __future__ import annotations
 import pandas as pd
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional, Dict, List
 from .config import paths
 from .teams import to_tricode
@@ -99,6 +100,54 @@ def _season_for_date(date_str: str) -> str:
         d = _dt.date.today()
     start_year = d.year if d.month >= 7 else d.year - 1
     return f"{start_year}-{str(start_year+1)[-2:]}"
+
+
+def _pick_processed_roster_file(date_str: str | None) -> Path | None:
+    proc = paths.data_processed
+    files = list(proc.glob('rosters_*.csv'))
+    if not files:
+        return None
+
+    def _team_count(path: Path) -> int:
+        try:
+            df = pd.read_csv(path, usecols=['TEAM_ABBREVIATION'])
+            if not isinstance(df, pd.DataFrame) or df.empty:
+                return 0
+            return int(df['TEAM_ABBREVIATION'].dropna().astype(str).str.upper().str.strip().nunique())
+        except Exception:
+            return 0
+
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+
+    def _add(path: Path) -> None:
+        if path.exists() and path not in seen:
+            seen.add(path)
+            candidates.append(path)
+
+    if date_str:
+        try:
+            season = _season_for_date(date_str)
+            _add(proc / f"rosters_{season}.csv")
+            start_year = str(season).split('-', 1)[0].strip()
+            if start_year:
+                _add(proc / f"rosters_{start_year}.csv")
+                for path in sorted(proc.glob(f"rosters_{start_year}*.csv")):
+                    _add(path)
+        except Exception:
+            pass
+
+    if candidates:
+        candidates.sort(key=lambda p: (_team_count(p), p.stat().st_mtime if p.exists() else 0), reverse=True)
+        return candidates[0]
+
+    season_files = [f for f in files if '-' in f.stem]
+    if season_files:
+        season_files.sort(key=lambda p: (_team_count(p), p.stat().st_mtime if p.exists() else 0), reverse=True)
+        return season_files[0]
+
+    files.sort(key=lambda p: (_team_count(p), p.stat().st_mtime if p.exists() else 0), reverse=True)
+    return files[0]
 
 
 def _fetch_league_rosters_via_nba(date_str: str) -> pd.DataFrame:
@@ -293,19 +342,7 @@ def build_league_status(date_str: str) -> pd.DataFrame:
         # Prepare a season-appropriate roster map (used to invalidate stale cache entries)
         roster_pid_to_tri: dict[int, str] = {}
         try:
-            season = _season_for_date(date_str)
-            proc = paths.data_processed
-            rosters_candidate = proc / f"rosters_{season}.csv"
-            roster_file = rosters_candidate if rosters_candidate.exists() else None
-            if roster_file is None:
-                files = list(proc.glob('rosters_*.csv'))
-                season_files = [f for f in files if '-' in f.stem]
-                if season_files:
-                    season_files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                    roster_file = season_files[0]
-                elif files:
-                    files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                    roster_file = files[0]
+            roster_file = _pick_processed_roster_file(date_str)
             if roster_file is not None and roster_file.exists():
                 rdf = pd.read_csv(roster_file)
                 if rdf is not None and not rdf.empty:
@@ -340,7 +377,14 @@ def build_league_status(date_str: str) -> pd.DataFrame:
             except Exception:
                 pass
         def _resolve(pid: int) -> str | None:
-            # Authoritative: last-known team from logs at/before date
+            try:
+                rtri = roster_pid_to_tri.get(int(pid))
+                if rtri:
+                    cache[pid] = rtri
+                    return rtri
+            except Exception:
+                pass
+            # Fall back to last-known team from logs at/before date when roster data is unavailable.
             try:
                 ltri = logs_pid_to_tri.get(int(pid))
                 if ltri:
@@ -402,19 +446,7 @@ def build_league_status(date_str: str) -> pd.DataFrame:
     if rost.empty:
         # fallback: season-appropriate processed roster file
         try:
-            proc = paths.data_processed
-            season = _season_for_date(date_str)
-            target = proc / f"rosters_{season}.csv"
-            roster_file = target if target.exists() else None
-            if roster_file is None:
-                files = list(proc.glob('rosters_*.csv'))
-                season_files = [f for f in files if '-' in f.stem]
-                if season_files:
-                    season_files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                    roster_file = season_files[0]
-                elif files:
-                    files.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                    roster_file = files[0]
+            roster_file = _pick_processed_roster_file(date_str)
             if roster_file is not None and roster_file.exists():
                 df = pd.read_csv(roster_file)
                 c = {c.upper(): c for c in df.columns}
@@ -481,10 +513,13 @@ def build_league_status(date_str: str) -> pd.DataFrame:
                         latest = logs.drop_duplicates(subset=[c['PLAYER_ID']], keep='last')
                     latest = latest[[c['PLAYER_ID'], c['TEAM_ABBREVIATION']]].rename(columns={c['PLAYER_ID']:'player_id', c['TEAM_ABBREVIATION']:'team_logs'})
                     latest['team_logs'] = latest['team_logs'].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
-                    # Merge and override team when available
+                    # Logs are helpful when team is missing, but they can lag trades.
+                    # Do not overwrite a roster-derived team with a stale latest-log team.
                     if not latest.empty and {'player_id','team'}.issubset(rost.columns):
                         tmp = rost.merge(latest, on='player_id', how='left')
-                        tmp['team'] = tmp['team_logs'].where(tmp['team_logs'].astype(str).str.len()>0, tmp['team']).fillna(tmp['team'])
+                        team_missing = tmp['team'].fillna('').astype(str).str.len() == 0
+                        logs_present = tmp['team_logs'].fillna('').astype(str).str.len() > 0
+                        tmp['team'] = tmp['team_logs'].where(team_missing & logs_present, tmp['team']).fillna(tmp['team'])
                         rost = tmp.drop(columns=['team_logs'], errors='ignore')
                         # Deduplicate again if override introduced dups
                         try:
@@ -497,9 +532,8 @@ def build_league_status(date_str: str) -> pd.DataFrame:
     # Authoritative correction: if the processed season roster says a player's current team differs
     # (common on trade days), prefer the roster team for the target date.
     try:
-        season = _season_for_date(date_str)
-        roster_file = paths.data_processed / f"rosters_{season}.csv"
-        if roster_file.exists() and (rost is not None) and (not rost.empty) and ('player_id' in rost.columns):
+        roster_file = _pick_processed_roster_file(date_str)
+        if (roster_file is not None) and roster_file.exists() and (rost is not None) and (not rost.empty) and ('player_id' in rost.columns):
             rdf = pd.read_csv(roster_file)
             c = {c.upper(): c for c in rdf.columns}
             if {'PLAYER_ID','TEAM_ABBREVIATION'}.issubset(c.keys()):

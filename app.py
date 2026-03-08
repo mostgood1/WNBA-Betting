@@ -1129,7 +1129,7 @@ def _live_append_snapshot(kind: str, date_str: str, record: dict[str, Any]) -> N
         enabled = str(os.environ.get("LIVE_LENS_SNAPSHOTS", "0")).strip().lower() in {"1", "true", "yes"}
         if not enabled:
             return
-        ds = str(date_str or "").strip() or datetime.utcnow().date().isoformat()
+        ds = str(date_str or "").strip() or _default_us_slate_date_str()
         kk = str(kind or "").strip() or "snapshot"
         root = _live_lens_artifacts_dir() / "live_snapshots"
         root.mkdir(parents=True, exist_ok=True)
@@ -6526,61 +6526,57 @@ def _resolve_player_id(name: str | None, team: str | None = None) -> Optional[in
         return pid
     return None
 
+def _default_us_slate_date_str() -> str:
+    try:
+        import os
+        from datetime import datetime as _dt, timedelta as _td
+
+        cutoff_hour = 6  # Treat 12:00am–5:59am local as the prior NBA slate day.
+        tz_name = (os.environ.get("APP_TZ") or "America/New_York").strip()
+        try:
+            from zoneinfo import ZoneInfo  # Python 3.9+
+
+            now_local = _dt.now(ZoneInfo(tz_name))
+            if now_local.hour < cutoff_hour:
+                now_local = now_local - _td(days=1)
+            return now_local.date().isoformat()
+        except Exception:
+            tz_map = {
+                "America/New_York": -5,
+                "US/Eastern": -5,
+                "America/Chicago": -6,
+                "US/Central": -6,
+                "America/Denver": -7,
+                "US/Mountain": -7,
+                "America/Los_Angeles": -8,
+                "US/Pacific": -8,
+            }
+            off = tz_map.get(tz_name, None)
+            if off is None:
+                try:
+                    off = int((os.environ.get("APP_TZ_OFFSET_HOURS") or "-5").strip())
+                except Exception:
+                    off = -5
+            now_local = (_dt.utcnow() + _td(hours=off))
+            if now_local.hour < cutoff_hour:
+                now_local = now_local - _td(days=1)
+            return now_local.date().isoformat()
+    except Exception:
+        try:
+            return pd.Timestamp.now().date().isoformat()
+        except Exception:
+            return ""
+
+
 def _parse_date_param(req, default_to_today: bool = True) -> str:
     val = (req.args.get("date") or req.args.get("d") or "").strip()
     if not val and default_to_today:
-        # Respect USA timing for "today" (avoid UTC rollover)
+        dval = _default_us_slate_date_str()
         try:
-            import os
-            from datetime import datetime as _dt, timedelta as _td
-            cutoff_hour = 6  # Treat 12:00am–5:59am local as the prior NBA slate day.
-            # Prefer explicit US timezone over system local time
-            tz_name = (os.environ.get("APP_TZ") or "America/New_York").strip()
-            try:
-                from zoneinfo import ZoneInfo  # Python 3.9+
-                now_local = _dt.now(ZoneInfo(tz_name))
-                if now_local.hour < cutoff_hour:
-                    now_local = now_local - _td(days=1)
-                dval = now_local.date().isoformat()
-                try:
-                    print(f"[_parse_date_param] tz={tz_name} via zoneinfo -> {dval}")
-                except Exception:
-                    pass
-                return dval
-            except Exception:
-                # Fallback: offset mapping for common US zones
-                tz_map = {
-                    "America/New_York": -5,
-                    "US/Eastern": -5,
-                    "America/Chicago": -6,
-                    "US/Central": -6,
-                    "America/Denver": -7,
-                    "US/Mountain": -7,
-                    "America/Los_Angeles": -8,
-                    "US/Pacific": -8,
-                }
-                off = tz_map.get(tz_name, None)
-                if off is None:
-                    # Allow override via APP_TZ_OFFSET_HOURS
-                    try:
-                        off = int((os.environ.get("APP_TZ_OFFSET_HOURS") or "-5").strip())
-                    except Exception:
-                        off = -5
-                now_local = (_dt.utcnow() + _td(hours=off))
-                if now_local.hour < cutoff_hour:
-                    now_local = now_local - _td(days=1)
-                dval = now_local.date().isoformat()
-                try:
-                    print(f"[_parse_date_param] tz={tz_name} via offset {off} -> {dval}")
-                except Exception:
-                    pass
-                return dval
+            print(f"[_parse_date_param] via helper -> {dval}")
         except Exception:
-            try:
-                # Last resort: pandas local time
-                return pd.Timestamp.now().date().isoformat()
-            except Exception:
-                return ""
+            pass
+        return dval
     if not val and not default_to_today:
         return ""
     try:
@@ -7611,7 +7607,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
     log_file = logs_dir / f"web_daily_update_{stamp}.log"
     _job_state["log_file"] = str(log_file)
     try:
-        date_str = date_str or datetime.utcnow().date().isoformat()
+        date_str = date_str or _default_us_slate_date_str()
         mode = (mode or "full").strip().lower()
         is_lookahead = (mode == "lookahead")
 
@@ -8135,7 +8131,7 @@ def api_debug_date():
 def api_data_status():
     """Quick status for a date: counts for predictions, game_odds, props edges, and recon.
 
-    Query: ?date=YYYY-MM-DD (defaults to today UTC)
+    Query: ?date=YYYY-MM-DD (defaults to the current US local slate date)
     """
     d = _parse_date_param(request)
     if not d:
@@ -9808,7 +9804,7 @@ def _recommendations_summary():
 
     Query params:
       - since: YYYY-MM-DD (default: 2025-10-21 opening day)
-      - until: YYYY-MM-DD (default: today UTC)
+    - until: YYYY-MM-DD (default: the current US local slate date)
       - spread_edge: float threshold used to generate ATS picks (for recompute if files missing)
       - total_edge: float threshold used to generate TOTAL picks (for recompute if files missing)
 
@@ -9819,7 +9815,7 @@ def _recommendations_summary():
         from datetime import datetime
         import json as _json
         since = (request.args.get("since") or "2025-10-21").strip()
-        until = (request.args.get("until") or datetime.utcnow().date().isoformat()).strip()
+        until = (request.args.get("until") or _default_us_slate_date_str()).strip()
         th_spread = float(request.args.get("spread_edge", 1.0))
         th_total = float(request.args.get("total_edge", 1.5))
 
@@ -15718,23 +15714,28 @@ def _recommendations_all():
                 _maybe_fetch_remote_processed(props_p.name)
             props_df = _read(props_p)
             _props_date_used = d
+            try:
+                allow_props_date_fallback = str(request.args.get("allow_props_date_fallback", "0") or "0").strip().lower() in {"1", "true", "yes"}
+            except Exception:
+                allow_props_date_fallback = False
             if (props_df is None) or props_df.empty:
-                alt_date, alt_path = _find_next_available_processed_date_file(
-                    "props_recommendations",
-                    d,
-                    max_ahead=_app_lookahead_days(),
-                )
-                if not alt_date:
-                    alt_date, alt_path = _find_prev_available_date_file("props_recommendations", d, max_back=7)
-                if not alt_date:
-                    alt_date, alt_path = _find_latest_date_file("props_recommendations")
-                if alt_date and alt_path and alt_path.exists():
-                    try:
-                        props_df = _read(alt_path)
-                        _props_date_used = alt_date
-                        print(f"[_recommendations_all] props_fallback date={alt_date} path={alt_path} rows={(0 if props_df is None else len(props_df))}")
-                    except Exception:
-                        pass
+                if allow_props_date_fallback:
+                    alt_date, alt_path = _find_next_available_processed_date_file(
+                        "props_recommendations",
+                        d,
+                        max_ahead=_app_lookahead_days(),
+                    )
+                    if not alt_date:
+                        alt_date, alt_path = _find_prev_available_date_file("props_recommendations", d, max_back=7)
+                    if not alt_date:
+                        alt_date, alt_path = _find_latest_date_file("props_recommendations")
+                    if alt_date and alt_path and alt_path.exists():
+                        try:
+                            props_df = _read(alt_path)
+                            _props_date_used = alt_date
+                            print(f"[_recommendations_all] props_fallback date={alt_date} path={alt_path} rows={(0 if props_df is None else len(props_df))}")
+                        except Exception:
+                            pass
             try:
                 print(f"[_recommendations_all] props_path={props_p} exists={props_p.exists()} rows={(0 if props_df is None else len(props_df))}")
             except Exception:
@@ -28019,7 +28020,7 @@ def api_cron_refresh_oddsapi_props():
     """Fetch current OddsAPI player props for a given date and persist under data/raw.
 
     Query params:
-      - date (optional): YYYY-MM-DD (defaults to today UTC)
+    - date (optional): YYYY-MM-DD (defaults to the current US local slate date)
       - regions (optional): OddsAPI regions (default 'us')
       - markets (optional): comma-separated market keys; default uses our full player_* list
       - edges (optional): '1' to run props-edges from OddsAPI after snapshot
@@ -28695,7 +28696,7 @@ def api_finals_export():
             if not since:
                 return jsonify({"error": "missing date or since/until"}), 400
             if not until:
-                until = datetime.utcnow().date().isoformat()
+                until = _default_us_slate_date_str()
             ds = _dt.strptime(since, "%Y-%m-%d").date()
             de = _dt.strptime(until, "%Y-%m-%d").date()
             if de < ds:
@@ -28757,13 +28758,13 @@ def api_cron_run_all():
             return jsonify({"error": "full mode disabled"}), 404
         if _job_state["running"]:
             return jsonify({"status": "already-running", "started_at": _job_state["started_at"]}), 409
-        d = (request.args.get("date") or datetime.utcnow().date().isoformat()).strip()
+        d = (request.args.get("date") or "").strip() or _default_us_slate_date_str()
         push = (str(request.args.get("push", "0")).lower() in {"1", "true", "yes"})
         t = threading.Thread(target=_daily_update_job, args=(push, d, mode), daemon=True)
         t.start()
         return jsonify({"status": "started", "mode": mode, "date": d, "push": push, "started_at": datetime.utcnow().isoformat()}), 202
 
-    today = datetime.utcnow().date()
+    today = datetime.strptime(_default_us_slate_date_str(), "%Y-%m-%d").date()
     yesterday = today - timedelta(days=1)
     d_today = request.args.get("date") or today.isoformat()
     d_yest = request.args.get("yesterday") or yesterday.isoformat()
@@ -29020,7 +29021,7 @@ def api_cron_assess_oddsapi():
     """Assess OddsAPI key capabilities (markets/books + quota headers).
 
     Query params:
-      - date (optional): YYYY-MM-DD (defaults to today UTC)
+    - date (optional): YYYY-MM-DD (defaults to the current US local slate date)
       - regions (optional): OddsAPI regions (default 'us')
       - event_id (optional): assess a specific event id (otherwise first event on date)
       - sample_markets (optional): comma-separated markets to sample via /odds
@@ -30719,7 +30720,7 @@ def api_cron_props_predictions():
     """Precompute player props predictions CSV for a given date via CLI.
 
     Query params:
-      - date (optional): YYYY-MM-DD, defaults to today (UTC)
+    - date (optional): YYYY-MM-DD, defaults to the current US local slate date
       - slate_only (optional): '1' to limit to today's slate (default 1)
       - push (optional): '1' to git commit/push artifacts
 

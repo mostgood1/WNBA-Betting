@@ -146,6 +146,47 @@ def _load_dotenv_key(name: str) -> str | None:
         return None
 
 
+def _us_slate_date() -> _date:
+    """Return the current NBA slate date using US local time, not UTC."""
+    import datetime as _dt
+
+    tz_name = str(os.environ.get("APP_TZ") or "America/New_York").strip() or "America/New_York"
+    cutoff_hour = 6
+    try:
+        from zoneinfo import ZoneInfo
+
+        now_local = _dt.datetime.now(ZoneInfo(tz_name))
+    except Exception:
+        tz_map = {
+            "America/New_York": -5,
+            "US/Eastern": -5,
+            "America/Chicago": -6,
+            "US/Central": -6,
+            "America/Denver": -7,
+            "US/Mountain": -7,
+            "America/Los_Angeles": -8,
+            "US/Pacific": -8,
+        }
+        off = tz_map.get(tz_name)
+        if off is None:
+            try:
+                off = int((os.environ.get("APP_TZ_OFFSET_HOURS") or "-5").strip())
+            except Exception:
+                off = -5
+        now_local = _dt.datetime.utcnow() + _dt.timedelta(hours=off)
+    if now_local.hour < cutoff_hour:
+        now_local = now_local - _dt.timedelta(days=1)
+    return now_local.date()
+
+
+def _resolve_target_date(date_str: str | None) -> _date:
+    import datetime as _dt
+
+    if not date_str:
+        return _us_slate_date()
+    return _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
+
+
 @cli.command("simulate-games")
 @click.option("--date", "date_str", required=True, help="YYYY-MM-DD date to simulate")
 @click.option("--sd-margin", type=float, default=12.0, help="Std dev for final margin (points)")
@@ -7897,7 +7938,7 @@ def export_best_edges_cmd(date_str: str, max_games: int, max_props: int, overwri
 
 
 @cli.command("odds-refresh")
-@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
 @click.option("--min-prop-edge", type=float, default=0.02, show_default=True, help="Minimum edge filter for props edges")
 @click.option("--min-prop-ev", type=float, default=0.0, show_default=True, help="Minimum EV filter for props edges")
@@ -7909,9 +7950,8 @@ def odds_refresh_cmd(date_str: str | None, api_key: str | None, min_prop_edge: f
     - Do not retrain or rebuild predictions beyond what's needed for edges
     """
     console.rule("Odds Refresh (odds + props-edges)")
-    import datetime as _dt
     try:
-        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+        target_date = _resolve_target_date(date_str)
     except Exception:
         console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
 
@@ -7969,7 +8009,7 @@ def odds_refresh_cmd(date_str: str | None, api_key: str | None, min_prop_edge: f
 
 
 @cli.command("odds-snapshots")
-@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
 def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
     """Write standardized OddsAPI snapshots for a given date.
@@ -7983,12 +8023,11 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
     - CSV-first; no parquet dependency
     """
     console.rule("Odds Snapshots (events + consensus lines)")
-    import datetime as _dt
     import requests as _requests
     from .odds_api import ODDS_HOST, NBA_SPORT_KEY, OddsApiConfig, fetch_game_odds_current, consensus_lines_at_close
 
     try:
-        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+        target_date = _resolve_target_date(date_str)
     except Exception:
         console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
 
@@ -8145,7 +8184,7 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
 
 
 @cli.command("odds-snapshots-props")
-@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today (UTC)")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
 @click.option("--regions", type=str, required=False, default="us", show_default=True, help="OddsAPI regions (e.g. us, us2)")
 @click.option(
@@ -8169,11 +8208,10 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
             Append-only raw snapshot history (no in-memory rewrite).
     """
     console.rule("Odds Snapshots (player props)")
-    import datetime as _dt
     from .odds_api import OddsApiConfig, fetch_player_props_current
 
     try:
-        target_date = (_dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date())
+        target_date = _resolve_target_date(date_str)
     except Exception:
         console.print("Invalid --date (YYYY-MM-DD)", style="red")
         return
@@ -8194,6 +8232,26 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         return
 
     out = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
+    existing_snapshot_has_rows = False
+    if out.exists():
+        try:
+            existing_preview = pd.read_csv(out, nrows=1)
+            existing_snapshot_has_rows = bool(isinstance(existing_preview, pd.DataFrame) and not existing_preview.empty)
+        except Exception:
+            existing_snapshot_has_rows = False
+    if df is None or df.empty:
+        if existing_snapshot_has_rows:
+            console.print(
+                {
+                    "warning": "player_props_snapshot_empty",
+                    "preserved_existing_snapshot": str(out),
+                },
+                style="yellow",
+            )
+            return
+        raise click.ClickException(
+            f"No player props fetched for {target_date} and no non-empty same-day snapshot exists to preserve."
+        )
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
         (df if df is not None else pd.DataFrame()).to_csv(out, index=False)
@@ -11759,7 +11817,7 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     return res
 
 @cli.command("daily-update")
-@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--season", type=str, default="2025-26", help="Roster season string (e.g., 2025-26)")
 @click.option("--odds-api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key for fetching current odds")
 @click.option("--git-push/--no-git-push", default=False, show_default=True, help="Commit and push changes to git at end")
@@ -11775,7 +11833,11 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
     import datetime as _dt
     import sys
     import subprocess
-    target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
+    try:
+        target_date = _resolve_target_date(date_str)
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red")
+        return
     
     console.print(f"[NPU] Running enhanced daily update for {target_date}")
     console.print(f"[INFO] NPU Acceleration: {'Enabled' if use_npu else 'Disabled'}")
@@ -12164,13 +12226,16 @@ def daily_update_cmd(date_str: str | None, season: str, odds_api_key: str | None
 
 
 @cli.command("sync-frontend")
-@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to today")
+@click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--cleanup-days", type=int, default=30, show_default=True, help="Clean up files older than N days")
 def sync_frontend_cmd(date_str: str | None, cleanup_days: int):
     """Validate and sync all data files for frontend consumption."""
     console.rule("Frontend Data Sync")
-    import datetime as _dt
-    target_date = _dt.date.today() if not date_str else _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
+    try:
+        target_date = _resolve_target_date(date_str)
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red")
+        return
     
     try:
         from .frontend_sync import validate_and_sync_frontend_data, cleanup_old_files, get_frontend_data_status
@@ -12248,7 +12313,7 @@ def frontend_status_cmd():
 
 
 @cli.command("predict-date")
-@click.option("--date", "date_str", type=str, required=False, help="Slate date YYYY-MM-DD; defaults to today")
+@click.option("--date", "date_str", type=str, required=False, help="Slate date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--merge-odds", "merge_odds_csv", type=click.Path(exists=True), required=False, help="Optional CSV of odds to merge. Columns supported: date,home_team,visitor_team,home_ml,away_ml,home_spread,total as well as period markets: h1_spread,h1_total,h2_spread,h2_total,q1_spread,q1_total,q2_spread,q2_total,q3_spread,q3_total,q4_spread,q4_total")
 @click.option("--out", "out_path", type=click.Path(dir_okay=False), required=False, help="Output CSV path; default predictions_YYYY-MM-DD.csv in repo root")
 def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path: str | None):
@@ -12266,9 +12331,11 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
         })
     except Exception:
         pass
-    import datetime as _dt
-    if not date_str:
-        date_str = _dt.date.today().strftime("%Y-%m-%d")
+    try:
+        date_str = _resolve_target_date(date_str).isoformat()
+    except Exception:
+        console.print("Invalid --date (YYYY-MM-DD)", style="red")
+        return
 
     # Helper: build slate from historical features if NBA API fails
     def _build_slate_from_history(date_str_local: str) -> pd.DataFrame | None:

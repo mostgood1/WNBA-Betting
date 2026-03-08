@@ -146,57 +146,75 @@ def roster_sanity_check(
     mism_examples: list[dict[str, Any]] = []
     mismatches_n = 0
     pp_path = paths.data_processed / f"props_predictions_{date_str}.csv"
+    props_predictions_stale_vs_league_status = False
+    props_predictions_mtime: float | None = None
+    league_status_mtime: float | None = None
+    try:
+        league_status_mtime = float(ls_path.stat().st_mtime)
+    except Exception:
+        league_status_mtime = None
     if pp_path.exists():
         try:
-            pp = pd.read_csv(pp_path)
-            if isinstance(pp, pd.DataFrame) and (not pp.empty):
-                pp_cols = {c.lower(): c for c in pp.columns}
-                pp_pid = pp_cols.get("player_id")
-                pp_team = pp_cols.get("team")
-                pp_name = pp_cols.get("player_name") or pp_cols.get("player")
-                pp_team_on_slate = pp_cols.get("team_on_slate")
-                if pp_pid and pp_team:
-                    use_cols = [pp_pid, pp_team]
-                    if pp_name:
-                        use_cols.append(pp_name)
-                    if pp_team_on_slate:
-                        use_cols.append(pp_team_on_slate)
+            props_predictions_mtime = float(pp_path.stat().st_mtime)
+            if (
+                props_predictions_mtime is not None
+                and league_status_mtime is not None
+                and props_predictions_mtime < league_status_mtime
+            ):
+                props_predictions_stale_vs_league_status = True
+                warnings.append(
+                    "props_predictions older than league_status; skipping props team consistency check until predictions are regenerated"
+                )
+            else:
+                pp = pd.read_csv(pp_path)
+                if isinstance(pp, pd.DataFrame) and (not pp.empty):
+                    pp_cols = {c.lower(): c for c in pp.columns}
+                    pp_pid = pp_cols.get("player_id")
+                    pp_team = pp_cols.get("team")
+                    pp_name = pp_cols.get("player_name") or pp_cols.get("player")
+                    pp_team_on_slate = pp_cols.get("team_on_slate")
+                    if pp_pid and pp_team:
+                        use_cols = [pp_pid, pp_team]
+                        if pp_name:
+                            use_cols.append(pp_name)
+                        if pp_team_on_slate:
+                            use_cols.append(pp_team_on_slate)
 
-                    tmp = pp[use_cols].copy()
-                    # only compare on-slate props rows (most relevant; avoids noise)
-                    if pp_team_on_slate and pp_team_on_slate in tmp.columns:
-                        _mask = tmp[pp_team_on_slate].astype("boolean").fillna(False).astype(bool)
-                        tmp = tmp[_mask].copy()
+                        tmp = pp[use_cols].copy()
+                        # only compare on-slate props rows (most relevant; avoids noise)
+                        if pp_team_on_slate and pp_team_on_slate in tmp.columns:
+                            _mask = tmp[pp_team_on_slate].astype("boolean").fillna(False).astype(bool)
+                            tmp = tmp[_mask].copy()
 
-                    tmp = tmp.rename(columns={pp_pid: "player_id", pp_team: "team_props"})
-                    tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
-                    tmp["team_props"] = tmp["team_props"].map(_norm_team)
+                        tmp = tmp.rename(columns={pp_pid: "player_id", pp_team: "team_props"})
+                        tmp["player_id"] = pd.to_numeric(tmp["player_id"], errors="coerce")
+                        tmp["team_props"] = tmp["team_props"].map(_norm_team)
 
-                    ls_pid_team = ls.dropna(subset=[pid_col])[[pid_col, team_col]].copy()
-                    ls_pid_team = ls_pid_team.rename(columns={pid_col: "player_id", team_col: "team_ls"})
-                    ls_pid_team["player_id"] = pd.to_numeric(ls_pid_team["player_id"], errors="coerce")
-                    ls_pid_team["team_ls"] = ls_pid_team["team_ls"].map(_norm_team)
-                    ls_pid_team = ls_pid_team.dropna(subset=["player_id"])
-                    ls_pid_team = ls_pid_team.drop_duplicates(subset=["player_id"], keep="first")
+                        ls_pid_team = ls.dropna(subset=[pid_col])[[pid_col, team_col]].copy()
+                        ls_pid_team = ls_pid_team.rename(columns={pid_col: "player_id", team_col: "team_ls"})
+                        ls_pid_team["player_id"] = pd.to_numeric(ls_pid_team["player_id"], errors="coerce")
+                        ls_pid_team["team_ls"] = ls_pid_team["team_ls"].map(_norm_team)
+                        ls_pid_team = ls_pid_team.dropna(subset=["player_id"])
+                        ls_pid_team = ls_pid_team.drop_duplicates(subset=["player_id"], keep="first")
 
-                    merged = tmp.merge(ls_pid_team, on="player_id", how="left")
-                    # count only when we have both teams
-                    merged["team_props"] = merged["team_props"].map(_norm_team)
-                    merged["team_ls"] = merged["team_ls"].map(_norm_team)
-                    have = (merged["team_props"].str.len() > 0) & (merged["team_ls"].str.len() > 0)
-                    mism = have & (merged["team_props"] != merged["team_ls"])
-                    mismatches_n = int(mism.sum())
-                    if mismatches_n > 0:
-                        for _, r in merged.loc[mism].head(25).iterrows():
-                            ex = {
-                                "player_id": int(r.get("player_id")) if pd.notna(r.get("player_id")) else None,
-                                "props_team": str(r.get("team_props") or ""),
-                                "league_status_team": str(r.get("team_ls") or ""),
-                            }
-                            if pp_name:
-                                ex["player_name"] = str(r.get(pp_name) or "")
-                            mism_examples.append(ex)
-                        issues.append(f"props_predictions team mismatches vs league_status: {mismatches_n}")
+                        merged = tmp.merge(ls_pid_team, on="player_id", how="left")
+                        # count only when we have both teams
+                        merged["team_props"] = merged["team_props"].map(_norm_team)
+                        merged["team_ls"] = merged["team_ls"].map(_norm_team)
+                        have = (merged["team_props"].str.len() > 0) & (merged["team_ls"].str.len() > 0)
+                        mism = have & (merged["team_props"] != merged["team_ls"])
+                        mismatches_n = int(mism.sum())
+                        if mismatches_n > 0:
+                            for _, r in merged.loc[mism].head(25).iterrows():
+                                ex = {
+                                    "player_id": int(r.get("player_id")) if pd.notna(r.get("player_id")) else None,
+                                    "props_team": str(r.get("team_props") or ""),
+                                    "league_status_team": str(r.get("team_ls") or ""),
+                                }
+                                if pp_name:
+                                    ex["player_name"] = str(r.get(pp_name) or "")
+                                mism_examples.append(ex)
+                            issues.append(f"props_predictions team mismatches vs league_status: {mismatches_n}")
         except Exception as e:
             issues.append(f"failed to load/compare props_predictions for roster sanity: {type(e).__name__}: {e}")
 
@@ -204,8 +222,15 @@ def roster_sanity_check(
         summary["props_team_mismatch_examples"] = mism_examples
     summary["props_team_mismatches"] = int(mismatches_n)
     summary["props_predictions_path"] = str(pp_path) if pp_path.exists() else None
+    summary["props_predictions_stale_vs_league_status"] = bool(props_predictions_stale_vs_league_status)
+    summary["props_predictions_mtime"] = props_predictions_mtime
+    summary["league_status_mtime"] = league_status_mtime
 
-    if max_team_mismatches_in_props is not None and mismatches_n > int(max_team_mismatches_in_props):
+    if (
+        not props_predictions_stale_vs_league_status
+        and max_team_mismatches_in_props is not None
+        and mismatches_n > int(max_team_mismatches_in_props)
+    ):
         issues.append(
             f"too many props team mismatches (max={int(max_team_mismatches_in_props)}): {int(mismatches_n)}"
         )

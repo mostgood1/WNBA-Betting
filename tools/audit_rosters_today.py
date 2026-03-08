@@ -18,12 +18,38 @@ def _season_for_date(date_str: str) -> str:
     return f"{start_year}-{str(start_year + 1)[-2:]}"
 
 
+def _roster_file_team_count(path: Path) -> int:
+    try:
+        df = pd.read_csv(path, usecols=["TEAM_ABBREVIATION"])
+        if not isinstance(df, pd.DataFrame) or df.empty:
+            return 0
+        return int(df["TEAM_ABBREVIATION"].dropna().astype(str).str.upper().str.strip().nunique())
+    except Exception:
+        return 0
+
+
 def _pick_rosters_file(processed: Path, season: str) -> Path | None:
-    preferred = processed / f"rosters_{season}.csv"
-    if preferred.exists():
-        return preferred
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+
+    def _add(path: Path) -> None:
+        if path.exists() and path not in seen:
+            seen.add(path)
+            candidates.append(path)
+
+    _add(processed / f"rosters_{season}.csv")
+    start_year = str(season).split("-", 1)[0].strip()
+    if start_year:
+        _add(processed / f"rosters_{start_year}.csv")
+        for path in sorted(processed.glob(f"rosters_{start_year}*.csv")):
+            _add(path)
+
+    if candidates:
+        candidates.sort(key=lambda p: (_roster_file_team_count(p), p.stat().st_mtime), reverse=True)
+        return candidates[0]
+
     # fallback: any rosters_*.csv, newest
-    files = sorted(processed.glob("rosters_*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)
+    files = sorted(processed.glob("rosters_*.csv"), key=lambda p: (_roster_file_team_count(p), p.stat().st_mtime), reverse=True)
     return files[0] if files else None
 
 
