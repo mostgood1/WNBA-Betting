@@ -2791,6 +2791,7 @@ function buildLivePropGuidance(r, adj, thr) {
   const bettableScore = n(r && r.bettable_score);
   const bettable = (r && r.bettable != null) ? !!r.bettable : null;
   const injuryFlag = !!(r && r.injury_flag);
+  const edgeSigma = n(r && r.edge_sigma);
   const price = livePropPrimaryPrice(r, side);
   const watchThresh = (thr && thr.watch != null) ? Number(thr.watch) : 2.0;
 
@@ -2853,8 +2854,33 @@ function buildLivePropGuidance(r, adj, thr) {
     edgeCushion = null;
   }
 
+  const edgeSurplus = (edgeCushion != null && haircut != null) ? (edgeCushion - haircut) : null;
+  const marketBuffer = (lineSpan != null) ? (lineSpan / 2.0) : 0.0;
+  const strongEdge = (edgeSurplus != null) && (edgeSurplus >= 0.55);
+  const enoughBuffer = (edgeSurplus != null) && (edgeSurplus >= Math.max(0.35, 0.15 * marketBuffer));
+
+  let freshnessScore = 0.0;
+  if (hasLiveLine) {
+    if (ageSec == null) freshnessScore = 0.30;
+    else if (ageSec <= 30) freshnessScore = 1.00;
+    else if (ageSec <= 90) freshnessScore = 0.95;
+    else if (ageSec <= 180) freshnessScore = 0.85;
+    else if (ageSec <= 300) freshnessScore = 0.70;
+    else if (ageSec <= 600) freshnessScore = 0.55;
+    else freshnessScore = 0.25;
+  }
+
+  const supportive = !!(safeAdj && safeAdj.sim_agree)
+    && ((n(safeAdj && safeAdj.support) == null) || (n(safeAdj && safeAdj.support) >= 0.15))
+    && (edgeSigma == null || edgeSigma >= 0.65);
+  const qualityReady = hasLiveLine
+    && freshnessScore >= 0.70
+    && (bettable !== false)
+    && (bettableScore == null || bettableScore >= 0.72)
+    && (lineN == null || lineN >= 3)
+    && ((n(safeAdj && safeAdj.risk) == null) || (n(safeAdj && safeAdj.risk) < 2));
+
   const freshEnough = !hasLiveLine || ageSec == null || ageSec <= 600;
-  const marketTight = (lineSpan == null || lineSpan < 1.0) && (lineN == null || lineN >= 2);
   const trusted = (bettable !== false) && (bettableScore == null || bettableScore >= 0.65)
     && !injuryFlag && !(safeAdj && safeAdj.sim_disagree)
     && ((n(safeAdj && safeAdj.risk) == null) || (n(safeAdj && safeAdj.risk) < 3));
@@ -2865,7 +2891,7 @@ function buildLivePropGuidance(r, adj, thr) {
   } else if (!withinPlayTo) {
     action = 'Pass';
   } else if (klass === 'BET') {
-    if (hasLiveLine && trusted && freshEnough && marketTight) action = 'Bet now';
+    if (qualityReady && strongEdge && enoughBuffer && supportive) action = 'Bet now';
     else if (hasLiveLine && (bettableScore == null || bettableScore >= 0.45)) action = 'Shop';
     else action = 'Wait';
   } else if (klass === 'WATCH') {
@@ -2883,11 +2909,13 @@ function buildLivePropGuidance(r, adj, thr) {
 
   let summary = 'Live edge is present, but line shopping still matters.';
   if (action === 'Bet now') {
-    summary = hasLiveLine && freshEnough
-      ? 'Fresh live line and playable edge.'
-      : 'Live edge is still inside the playable range.';
+    if (lineSpan != null && lineSpan >= 4.0) summary = 'Edge is strong enough to clear the current live market spread.';
+    else if (hasLiveLine && freshEnough) summary = 'Fresh live line and playable edge.';
+    else summary = 'Live edge is still inside the playable range.';
   } else if (action === 'Shop') {
     if (!hasLiveLine && preLine != null) summary = 'Signal exists, but this row is still anchored to the pregame line.';
+    else if (strongEdge && !qualityReady) summary = 'Edge is real, but the live market still needs cleaner confirmation.';
+    else if (strongEdge && !enoughBuffer) summary = 'Edge is there, but not by enough to clear market dispersion yet.';
     else if (lineSpan != null && lineSpan >= 1.0) summary = 'Live market is playable, but books are spread out.';
     else summary = 'Edge is live, but market quality is mixed.';
   } else if (action === 'Wait') {
@@ -2909,6 +2937,8 @@ function buildLivePropGuidance(r, adj, thr) {
   if (bettable === true) tags.push('Bettable');
   if (safeAdj && safeAdj.sim_agree) tags.push('SIM agrees');
   else if (safeAdj && safeAdj.sim_disagree) tags.push('SIM disagrees');
+  if (edgeSurplus != null && edgeSurplus >= 0.55) tags.push('Actionable edge');
+  if ((n(safeAdj && safeAdj.support) != null) && (n(safeAdj && safeAdj.support) >= 0.35)) tags.push('Role support');
   if (injuryFlag) tags.push('INJ risk');
   if (ageSec != null && ageSec <= 180) tags.push('Fresh line');
   else if (ageSec != null && ageSec > 600) tags.push('Stale line');
