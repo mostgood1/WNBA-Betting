@@ -1,5 +1,5 @@
 Param(
-  [string]$Date = (Get-Date -Format 'yyyy-MM-dd'),
+  [string]$Date = '',
   [switch]$Quiet,
   [string]$LogDir = "logs",
   # If set, stage/commit/pull --rebase/push repo changes (data/processed etc.)
@@ -31,6 +31,62 @@ Param(
 )
 
 $ErrorActionPreference = 'Stop'
+
+function Resolve-NbaSlateDate {
+  param(
+    [string]$TimeZoneId = $env:APP_TZ,
+    [int]$CutoffHour = 6
+  )
+
+  if ([string]::IsNullOrWhiteSpace($TimeZoneId)) { $TimeZoneId = 'America/New_York' }
+
+  $tzCandidates = @($TimeZoneId)
+  switch ($TimeZoneId) {
+    'America/New_York' { $tzCandidates += 'Eastern Standard Time' }
+    'US/Eastern' { $tzCandidates += 'Eastern Standard Time' }
+    'America/Chicago' { $tzCandidates += 'Central Standard Time' }
+    'US/Central' { $tzCandidates += 'Central Standard Time' }
+    'America/Denver' { $tzCandidates += 'Mountain Standard Time' }
+    'US/Mountain' { $tzCandidates += 'Mountain Standard Time' }
+    'America/Los_Angeles' { $tzCandidates += 'Pacific Standard Time' }
+    'US/Pacific' { $tzCandidates += 'Pacific Standard Time' }
+  }
+
+  $tzInfo = $null
+  foreach ($tzId in ($tzCandidates | Select-Object -Unique)) {
+    if ([string]::IsNullOrWhiteSpace($tzId)) { continue }
+    try {
+      $tzInfo = [System.TimeZoneInfo]::FindSystemTimeZoneById($tzId)
+      if ($null -ne $tzInfo) { break }
+    } catch { }
+  }
+
+  if ($null -ne $tzInfo) {
+    $nowLocal = [System.TimeZoneInfo]::ConvertTimeFromUtc([DateTime]::UtcNow, $tzInfo)
+  } else {
+    $offsetHours = -5
+    if (-not [string]::IsNullOrWhiteSpace($env:APP_TZ_OFFSET_HOURS)) {
+      try { $offsetHours = [int]$env:APP_TZ_OFFSET_HOURS } catch { $offsetHours = -5 }
+    }
+    $nowLocal = [DateTime]::UtcNow.AddHours($offsetHours)
+  }
+
+  if ($nowLocal.Hour -lt $CutoffHour) {
+    $nowLocal = $nowLocal.AddDays(-1)
+  }
+
+  return $nowLocal.ToString('yyyy-MM-dd')
+}
+
+function Resolve-NbaSeasonString {
+  param([string]$DateValue)
+
+  $dt = [datetime]::ParseExact($DateValue, 'yyyy-MM-dd', $null)
+  $seasonYear = if ($dt.Month -ge 7) { $dt.Year } else { $dt.Year - 1 }
+  return "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
+}
+
+$DateWasImplicit = [string]::IsNullOrWhiteSpace($Date)
 
 # Ignore any token-related parameters to enforce local-only execution
 $CronToken = $false
@@ -166,6 +222,10 @@ function Import-DotEnv {
 $DotEnvPath = Join-Path $RepoRoot '.env'
 Import-DotEnv -Path $DotEnvPath
 
+if ($DateWasImplicit) {
+  $Date = Resolve-NbaSlateDate
+}
+
 # Ensure Python writes UTF-8 to stdout/stderr to avoid UnicodeEncodeError on Windows PowerShell consoles
 $env:PYTHONIOENCODING = 'utf-8'
 
@@ -184,6 +244,9 @@ if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction Sile
 }
 
 Write-Log "Starting NBA local daily update for date=$Date"
+if ($DateWasImplicit) {
+  Write-Log "Date default resolved from US local slate time (APP_TZ or America/New_York, 6am cutoff)"
+}
 Write-Log "Python: $Python"
 
 # Schedule gating: on no-game days, continue but anchor reconciliation to the last slate date.
@@ -273,6 +336,26 @@ function Invoke-PyMod {
   $exitCode = $LASTEXITCODE
   $ErrorActionPreference = 'Stop'
   return $exitCode
+}
+
+function Test-CsvHasDataRows {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) {
+    return $false
+  }
+  try {
+    $lines = Get-Content -Path $Path -TotalCount 2 -ErrorAction Stop
+    if ($null -eq $lines) {
+      return $false
+    }
+    $arr = @($lines)
+    if ($arr.Count -lt 2) {
+      return $false
+    }
+    return (-not [string]::IsNullOrWhiteSpace([string]$arr[1]))
+  } catch {
+    return $false
+  }
 }
 
 # Helper to run a python module with a hard timeout (prevents hangs on network calls)
@@ -515,19 +598,23 @@ try {
   $PreflightTimeoutSeconds = $toInt
 } catch { }
 
+$seasonStr = $null
+$rostersPath = $null
+try {
+  $seasonStr = Resolve-NbaSeasonString -DateValue $Date
+  $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
+} catch {
+  Write-Log ("Season resolution failed for date={0}: {1}" -f $Date, $_.Exception.Message)
+}
+
 # 0) Ensure current season rosters are fetched/updated prior to projections
 try {
-  # Compute NBA season starting year (e.g., 2025 for 2025-26) for CLI that expects an int
-  $dt = [datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)
-  $yr = $dt.Year
-  $mo = $dt.Month
-  if ($mo -ge 7) {
-    $seasonYear = $yr
-  } else {
-    $seasonYear = $yr - 1
+  if ([string]::IsNullOrWhiteSpace($seasonStr)) {
+    throw "season string unavailable for roster refresh"
   }
-  $seasonStr = "{0}-{1}" -f $seasonYear, ("{0:d2}" -f (($seasonYear + 1) % 100))
-  $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
+  if ([string]::IsNullOrWhiteSpace($rostersPath)) {
+    $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
+  }
   $maxAgeH = $env:DAILY_ROSTERS_MAX_AGE_HOURS
   # NBA Stats rosters are relatively stable day-to-day, and the endpoint can be flaky.
   # Default to a wider freshness window to avoid repeated slow fetches.
@@ -545,6 +632,9 @@ try {
 }
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
+  if ([string]::IsNullOrWhiteSpace($seasonStr)) {
+    throw "season string unavailable for player logs"
+  }
   $plCsv = Join-Path $RepoRoot 'data/processed/player_logs.csv'
   $maxAgeH = $env:DAILY_PLAYER_LOGS_MAX_AGE_HOURS
   if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '12' }
@@ -644,6 +734,74 @@ try {
     Write-Log "No roster overrides file found (optional)"
   }
 } catch { }
+
+# 0.66) Roster correctness audit for today (fail before predictions/exports)
+try {
+  $skipRosterAud = $env:DAILY_SKIP_ROSTER_AUDIT
+  if ($null -eq $skipRosterAud -or $skipRosterAud -notmatch '^(1|true|yes)$') {
+    Write-Log ("Auditing rosters/team assignments for {0}" -f $Date)
+
+    $strict = $env:DAILY_STRICT_ROSTERS
+    $isStrict = ($null -ne $strict -and $strict -match '^(1|true|yes)$')
+    $isCi = $false
+    try {
+      $ga = $env:GITHUB_ACTIONS
+      $ci = $env:CI
+      if (($null -ne $ga -and $ga -match '^(1|true|yes)$') -or ($null -ne $ci -and $ci -match '^(1|true|yes)$')) { $isCi = $true }
+    } catch { $isCi = $false }
+    $warnOnly = ($isCi -and -not $isStrict)
+
+    $lsAuditPath = Join-Path $RepoRoot ("data\processed\league_status_{0}.csv" -f $Date)
+    if (-not (Test-Path $lsAuditPath)) {
+      if ($warnOnly) {
+        Write-Log ("WARNING: roster audit prerequisite missing; skipping roster correctness audit on CI: {0}" -f $lsAuditPath)
+      } else {
+        throw ("Roster correctness audit prerequisite missing: {0}" -f $lsAuditPath)
+      }
+    } elseif ([string]::IsNullOrWhiteSpace($rostersPath) -or -not (Test-Path $rostersPath)) {
+      if ($warnOnly) {
+        Write-Log ("WARNING: roster audit roster artifact missing after preflight fetch; skipping extra fetch-rosters call on CI: {0}" -f $rostersPath)
+      } else {
+        throw ("Roster correctness audit prerequisite missing: {0}" -f $rostersPath)
+      }
+    } else {
+      $auditArgs = @('tools/audit_rosters_today.py','--date', $Date, '--max-mismatches', '0')
+      if (-not [string]::IsNullOrWhiteSpace($seasonStr)) {
+        $auditArgs += @('--season', $seasonStr)
+      }
+      if (-not $warnOnly) {
+        $auditArgs += '--fail-if-stale'
+      } else {
+        Write-Log 'CI warn-only mode: running roster correctness audit without stale-roster refresh retries'
+      }
+
+      $rcRoster = Invoke-PyMod -plist $auditArgs
+      Write-Log ("audit_rosters_today exit code: {0}" -f $rcRoster)
+
+      if ($rcRoster -eq 2) {
+        throw "Roster correctness audit found team mismatches (exit=$rcRoster)"
+      } elseif ($rcRoster -eq 4) {
+        if ($warnOnly) {
+          Write-Log 'WARNING: roster correctness audit reports stale rosters; continuing on CI without re-fetching rosters (set DAILY_STRICT_ROSTERS=1 to fail)'
+        } else {
+          throw "Roster correctness audit reports stale rosters (exit=$rcRoster)"
+        }
+      } elseif ($rcRoster -ne 0) {
+        if ($warnOnly) {
+          Write-Log ("WARNING: roster correctness audit failed (exit={0}); continuing on CI without extra roster refreshes (set DAILY_STRICT_ROSTERS=1 to fail)" -f $rcRoster)
+        } else {
+          throw "Roster correctness audit failed (exit=$rcRoster)"
+        }
+      }
+    }
+  } else {
+    Write-Log 'Skipping roster correctness audit (DAILY_SKIP_ROSTER_AUDIT=1)'
+  }
+} catch {
+  Write-Log ("Roster correctness audit failed: {0}" -f $_.Exception.Message)
+  throw
+}
+
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
 # NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
@@ -678,7 +836,10 @@ try {
 # 2) Reconcile yesterday's games (best-effort)
 try {
   $yesterday = (Get-Date ([datetime]::ParseExact($Date, 'yyyy-MM-dd', $null))).AddDays(-1).ToString('yyyy-MM-dd')
-} catch { $yesterday = (Get-Date).AddDays(-1).ToString('yyyy-MM-dd') }
+} catch {
+  $fallbackDate = Resolve-NbaSlateDate
+  $yesterday = ([datetime]::ParseExact($fallbackDate, 'yyyy-MM-dd', $null)).AddDays(-1).ToString('yyyy-MM-dd')
+}
 
 # On no-slate days (e.g., long breaks), reconcile against the most recent slate date.
 if ($NoSlateDay -and $LastSlateDate) {
@@ -1450,132 +1611,6 @@ else:
 
 # 2.6) league_status + injuries were built earlier as a fail-fast availability gate.
 
-# 2.6.1) Roster correctness audit for today (fail loudly)
-try {
-  $skipRosterAud = $env:DAILY_SKIP_ROSTER_AUDIT
-  if ($null -eq $skipRosterAud -or $skipRosterAud -notmatch '^(1|true|yes)$') {
-    Write-Log ("Auditing rosters/team assignments for {0}" -f $Date)
-
-    # In CI runners, transient nba_api/IO issues can cause missing prerequisites.
-    # Default behavior is still "fail loudly" for real mismatches, but we auto-remediate
-    # missing artifacts and (on GitHub Actions) can continue on non-mismatch errors.
-    $strict = $env:DAILY_STRICT_ROSTERS
-    $isStrict = ($null -ne $strict -and $strict -match '^(1|true|yes)$')
-    $isCi = $false
-    try {
-      $ga = $env:GITHUB_ACTIONS
-      $ci = $env:CI
-      if (($null -ne $ga -and $ga -match '^(1|true|yes)$') -or ($null -ne $ci -and $ci -match '^(1|true|yes)$')) { $isCi = $true }
-    } catch { $isCi = $false }
-    $warnOnly = ($isCi -and -not $isStrict)
-
-    $prereqsOk = $true
-    $lsAuditPath = Join-Path $RepoRoot ("data\processed\league_status_{0}.csv" -f $Date)
-    if (-not (Test-Path $lsAuditPath)) {
-      Write-Log ("Roster audit prerequisite missing: {0}" -f $lsAuditPath)
-      $lsTo0 = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds, 120)))
-      Write-Log ("Rebuilding league_status for roster audit (timeout {0}s)" -f $lsTo0)
-      $rcLS0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $lsTo0 -Label 'build_league_status_roster_audit'
-      Write-Log ("build-league-status (roster audit prereq) exit code: {0}" -f $rcLS0)
-      if (-not (Test-Path $lsAuditPath)) { $prereqsOk = $false }
-    }
-
-    $seasonForAudit = $seasonStr
-    if ($null -eq $seasonForAudit -or $seasonForAudit -eq '') {
-      try {
-        $dt2 = [datetime]::ParseExact($Date, 'yyyy-MM-dd', $null)
-        $yr2 = $dt2.Year
-        $mo2 = $dt2.Month
-        $seasonYear2 = if ($mo2 -ge 7) { $yr2 } else { $yr2 - 1 }
-        $seasonForAudit = "{0}-{1}" -f $seasonYear2, ("{0:d2}" -f (($seasonYear2 + 1) % 100))
-      } catch {
-        $seasonForAudit = $seasonStr
-      }
-    }
-    $rostersAuditPath = Join-Path $RepoRoot ("data\processed\rosters_{0}.csv" -f $seasonForAudit)
-    if (-not (Test-Path $rostersAuditPath)) {
-      Write-Log ("Roster audit prerequisite missing: {0}" -f $rostersAuditPath)
-      if ($null -eq $seasonForAudit -or $seasonForAudit -eq '') {
-        Write-Log 'WARNING: seasonStr unavailable; cannot fetch rosters for roster audit'
-        $prereqsOk = $false
-      } else {
-        $rfTo0 = [int]([Math]::Min(1800, [Math]::Max($PreflightTimeoutSeconds * 2, 300)))
-        Write-Log ("Fetching rosters for roster audit (season {0}, timeout {1}s)" -f $seasonForAudit, $rfTo0)
-        $rcRF0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonForAudit) -TimeoutSeconds $rfTo0 -Label 'fetch_rosters_roster_audit'
-        Write-Log ("fetch-rosters (roster audit prereq) exit code: {0}" -f $rcRF0)
-        if (-not (Test-Path $rostersAuditPath)) { $prereqsOk = $false }
-      }
-    }
-
-    if (-not $prereqsOk) {
-      if ($warnOnly) {
-        Write-Log 'WARNING: roster audit prerequisites missing; skipping roster correctness audit (set DAILY_STRICT_ROSTERS=1 to fail)'
-      } else {
-        throw 'Roster correctness audit prerequisites missing (league_status or rosters CSV)'
-      }
-    } else {
-      $rcRoster = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
-      Write-Log ("audit_rosters_today exit code: {0}" -f $rcRoster)
-
-      # Exit=4 means rosters file mtime < date (stale). This can happen if fetch-rosters timed out
-      # earlier (non-fatal) or nba_api was flaky. Auto-remediate: refresh rosters, rebuild league_status,
-      # and retry once before failing.
-      if ($rcRoster -eq 4) {
-        Write-Log "Roster audit reports stale rosters; refreshing rosters + rebuilding league_status and retrying"
-
-        # Refresh rosters with a longer timeout
-        $rfTo = [int]([Math]::Min(1800, [Math]::Max($PreflightTimeoutSeconds * 2, 300)))
-        Write-Log ("Retrying fetch-rosters with timeout {0}s (season {1})" -f $rfTo, $seasonStr)
-        $rcRF = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $rfTo -Label 'fetch_rosters_retry'
-        Write-Log ("fetch-rosters retry exit code: {0}" -f $rcRF)
-
-        if ($rcRF -ne 0) {
-          $strict = $env:DAILY_STRICT_ROSTERS
-          if ($null -ne $strict -and $strict -match '^(1|true|yes)$') {
-            throw "fetch-rosters retry failed during roster remediation (exit=$rcRF)"
-          } else {
-            Write-Log "WARNING: fetch-rosters retry failed; skipping league_status rebuild + audit retry and continuing with existing rosters (set DAILY_STRICT_ROSTERS=1 to fail)"
-          }
-        } else {
-          # Rebuild league_status to reflect refreshed rosters/injuries
-          $lsTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds, 120)))
-          Write-Log ("Rebuilding league_status after roster refresh (timeout {0}s)" -f $lsTo)
-          $rcLS2 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $lsTo -Label 'build_league_status_after_rosters'
-          Write-Log ("build-league-status (post-rosters) exit code: {0}" -f $rcLS2)
-
-          # Retry audit once
-          $rcRoster2 = Invoke-PyMod -plist @('tools/audit_rosters_today.py','--date', $Date, '--fail-if-stale', '--max-mismatches', '0')
-          Write-Log ("audit_rosters_today retry exit code: {0}" -f $rcRoster2)
-
-          if ($rcRoster2 -eq 4) {
-            $strict = $env:DAILY_STRICT_ROSTERS
-            if ($null -ne $strict -and $strict -match '^(1|true|yes)$') {
-              throw "Roster correctness audit still reports stale rosters after refresh (exit=$rcRoster2)"
-            } else {
-              Write-Log "WARNING: roster audit still reports stale rosters after refresh; continuing (set DAILY_STRICT_ROSTERS=1 to fail)"
-            }
-          } elseif ($rcRoster2 -ne 0) {
-            throw "Roster correctness audit failed after refresh (exit=$rcRoster2)"
-          }
-        }
-      } elseif ($rcRoster -eq 2) {
-        throw "Roster correctness audit found team mismatches (exit=$rcRoster)"
-      } elseif ($rcRoster -ne 0) {
-        if ($warnOnly) {
-          Write-Log ("WARNING: roster correctness audit failed (exit={0}); continuing on CI (set DAILY_STRICT_ROSTERS=1 to fail)" -f $rcRoster)
-        } else {
-          throw "Roster correctness audit failed (exit=$rcRoster)"
-        }
-      }
-    }
-  } else {
-    Write-Log 'Skipping roster correctness audit (DAILY_SKIP_ROSTER_AUDIT=1)'
-  }
-} catch {
-  Write-Log ("Roster correctness audit failed: {0}" -f $_.Exception.Message)
-  throw
-}
-
 # 2.6a) Snapshot injuries counts (team-level + excluded players) for explainability caches
 # NOTE: run after league_status so the snapshot can stay consistent with the player pool used downstream.
 try {
@@ -1967,8 +2002,6 @@ try {
 
 # 5) Props edges for today: OddsAPI only (no Bovada fallback)
 $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $Date)
-# Remove any stale file so an empty OddsAPI result doesn't leave prior Bovada content around
-try { if (Test-Path $edgesPath) { Remove-Item $edgesPath -Force } } catch { }
 # 4.9) Explicit props odds snapshot (current) for the day.
 # Use the CLI command so we also persist opening + append-only history snapshots.
 try {
@@ -2056,8 +2089,12 @@ if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
     # already logged above for games
   }
 }
-$rc6 = Invoke-PyMod -plist $exportPropsArgs
-Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
+if (Test-CsvHasDataRows -Path $edgesPath) {
+  $rc6 = Invoke-PyMod -plist $exportPropsArgs
+  Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
+} else {
+  Write-Log "Skipping export-props-recommendations because props_edges is missing or empty; preserving any existing same-day props recommendations."
+}
 
 # 6c.0) Optional: export per-game Top-N props JSON (non-fatal)
 # Uses the Flask endpoint logic in-process (no server required).
@@ -2983,7 +3020,7 @@ try {
 
   $allowNonToday = $env:DAILY_LOG_PREGAME_PROP_SIGNALS_ALLOW_NON_TODAY
   if ($null -eq $allowNonToday -or $allowNonToday -eq '') { $allowNonToday = '0' }
-  $todayLocal = (Get-Date -Format 'yyyy-MM-dd')
+  $todayLocal = Resolve-NbaSlateDate
 
   if ($NoSlateDay) {
     Write-Log ("Pregame signals: no slate for {0}; skipping" -f $Date)
