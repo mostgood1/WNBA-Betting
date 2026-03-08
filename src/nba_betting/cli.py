@@ -32,6 +32,7 @@ from .player_logs import fetch_player_logs
 from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
+from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers
 from .pbp_markets import train_all_pbp_markets, predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
 from .odds_api import fetch_game_odds_current
 from .odds_bovada import fetch_bovada_odds_current
@@ -6671,11 +6672,9 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
                 edges = edges[edges["team"].isin(teams)].copy()
         except Exception:
             pass
-    # Bookmaker filter
-    if bookmakers:
-        keep = [x.strip().lower() for x in bookmakers.split(',') if x.strip()]
-        if keep:
-            edges = edges[edges["bookmaker"].astype(str).str.lower().isin(keep)].copy()
+    # Bookmaker filter defaults to the supported live/pregame card books unless explicitly disabled.
+    bookmaker_keys = resolve_player_prop_bookmakers(bookmakers)
+    edges = filter_player_prop_bookmakers_df(edges, bookmakers)
     # Thresholds and top-N
     edges = edges[(edges["edge"] >= min_edge) & (edges["ev"] >= min_ev)].copy()
     # Prefer sorting by EV within stat for downstream top-N selection
@@ -6687,7 +6686,11 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
         edges = edges.groupby("stat", group_keys=False).head(max(1, top // max(1, edges["stat"].nunique())))
     out = paths.data_processed / f"props_edges_{date_str}.csv"
     edges.to_csv(out, index=False)
-    console.print({"rows": int(len(edges)), "output": str(out)})
+    console.print({
+        "rows": int(len(edges)),
+        "output": str(out),
+        "bookmakers": (list(bookmaker_keys) if bookmaker_keys else "all"),
+    })
 
 
 @cli.command("export-recommendations")
@@ -8187,6 +8190,7 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
 @click.option("--date", "date_str", type=str, required=False, help="Target date YYYY-MM-DD; defaults to the current US local slate date")
 @click.option("--api-key", envvar="ODDS_API_KEY", type=str, required=False, help="OddsAPI key (or set env ODDS_API_KEY)")
 @click.option("--regions", type=str, required=False, default="us", show_default=True, help="OddsAPI regions (e.g. us, us2)")
+@click.option("--bookmakers", type=str, required=False, default=None, help="Comma-separated bookmaker keys to include; defaults to FanDuel, DraftKings, BetMGM, bet365")
 @click.option(
     "--markets",
     type=str,
@@ -8195,7 +8199,7 @@ def odds_snapshots_cmd(date_str: str | None, api_key: str | None):
     show_default=False,
     help="Comma-separated OddsAPI market keys. Defaults to our full supported player_* set.",
 )
-def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions: str, markets: str):
+def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions: str, bookmakers: str | None, markets: str):
     """Write a per-date OddsAPI player props snapshot under data/raw.
 
     Output (used by props-edges when --use-saved):
@@ -8230,6 +8234,10 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
     except Exception as e:
         console.print(f"Player props snapshot failed: {e}", style="yellow")
         return
+
+    bookmaker_keys = resolve_player_prop_bookmakers(bookmakers)
+    if df is not None and not df.empty:
+        df = filter_player_prop_bookmakers_df(df, bookmakers)
 
     out = paths.data_raw / f"odds_nba_player_props_{target_date}.csv"
     existing_snapshot_has_rows = False
@@ -8463,6 +8471,13 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         books_n = int(df["bookmaker"].nunique()) if (df is not None and ("bookmaker" in df.columns)) else 0
     except Exception:
         books_n = 0
+    console.print({
+        "rows": rows,
+        "markets": markets_n,
+        "books": books_n,
+        "bookmakers": (list(bookmaker_keys) if bookmaker_keys else "all"),
+        "output": str(out),
+    })
 
     console.print({
         "date": str(target_date),

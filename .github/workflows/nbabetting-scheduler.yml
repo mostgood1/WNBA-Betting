@@ -53,7 +53,7 @@ jobs:
           set -euo pipefail
           DATE=$(date -u +%F)
           export EXPECTED_DATE="$DATE"
-          START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&edges=1&export=1"
+          START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&bookmakers=fanduel,draftkings,betmgm,bet365&edges=1&export=1"
           STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=120"
           echo "GET $START_URL"
           started=0

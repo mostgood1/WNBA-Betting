@@ -20,6 +20,18 @@ from .teams import normalize_team
 
 ODDS_HOST = "https://api.the-odds-api.com"
 NBA_SPORT_KEY = "basketball_nba"
+DEFAULT_PLAYER_PROP_BOOKMAKERS = ("fanduel", "draftkings", "betmgm", "bet365")
+
+_PLAYER_PROP_BOOKMAKER_ALIASES = {
+    "fanduel": "fanduel",
+    "fd": "fanduel",
+    "draftkings": "draftkings",
+    "dk": "draftkings",
+    "betmgm": "betmgm",
+    "mgm": "betmgm",
+    "bet365": "bet365",
+    "bet365us": "bet365",
+}
 
 
 @dataclass
@@ -28,6 +40,45 @@ class OddsApiConfig:
     regions: str = "us"  # focus on US books
     markets: str = "h2h,spreads,totals"
     odds_format: str = "american"
+
+
+def normalize_bookmaker_key(book: object) -> str:
+    try:
+        raw = str(book or "").strip().lower()
+    except Exception:
+        return ""
+    if not raw:
+        return ""
+    compact = raw.replace(" ", "").replace("-", "").replace("_", "")
+    return _PLAYER_PROP_BOOKMAKER_ALIASES.get(compact, raw)
+
+
+def resolve_player_prop_bookmakers(raw: str | None = None) -> tuple[str, ...]:
+    s = str(raw if raw is not None else (os.environ.get("PLAYER_PROP_BOOKMAKERS") or "")).strip()
+    if not s:
+        return tuple(DEFAULT_PLAYER_PROP_BOOKMAKERS)
+    if s.lower() in {"all", "none", "off", "0", "false", "no"}:
+        return tuple()
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in s.split(","):
+        bk = normalize_bookmaker_key(part)
+        if not bk or bk in seen:
+            continue
+        seen.add(bk)
+        out.append(bk)
+    return tuple(out)
+
+
+def filter_player_prop_bookmakers_df(df: pd.DataFrame, raw: str | None = None) -> pd.DataFrame:
+    if df is None or df.empty or "bookmaker" not in df.columns:
+        return df
+    out = df.copy()
+    out["bookmaker"] = out["bookmaker"].astype(str).map(normalize_bookmaker_key)
+    allowed = set(resolve_player_prop_bookmakers(raw))
+    if not allowed:
+        return out
+    return out[out["bookmaker"].isin(allowed)].copy()
 
 
 def _headers() -> dict:

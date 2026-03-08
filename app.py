@@ -226,6 +226,8 @@ try:
         list_events_current as _oddsapi_list_events_current,
         discover_event_market_keys as _oddsapi_discover_event_market_keys,
         fetch_event_odds_current as _oddsapi_fetch_event_odds_current,
+        normalize_bookmaker_key as _normalize_bookmaker_key,
+        resolve_player_prop_bookmakers as _resolve_player_prop_bookmakers,
     )  # type: ignore
     from nba_betting.teams import to_tricode as _to_tricode  # type: ignore
 except Exception:  # pragma: no cover
@@ -233,7 +235,71 @@ except Exception:  # pragma: no cover
     _oddsapi_list_events_current = None  # type: ignore
     _oddsapi_discover_event_market_keys = None  # type: ignore
     _oddsapi_fetch_event_odds_current = None  # type: ignore
+    _normalize_bookmaker_key = None  # type: ignore
+    _resolve_player_prop_bookmakers = None  # type: ignore
     _to_tricode = None  # type: ignore
+
+
+_APP_DEFAULT_PLAYER_PROP_BOOKMAKERS = ("fanduel", "draftkings", "betmgm", "bet365")
+
+
+def _canonical_bookmaker_key(book: Any) -> str:
+    try:
+        if callable(_normalize_bookmaker_key):
+            bk = str(_normalize_bookmaker_key(book) or "").strip().lower()
+            if bk:
+                return bk
+    except Exception:
+        pass
+    try:
+        raw = str(book or "").strip().lower()
+    except Exception:
+        return ""
+    if not raw:
+        return ""
+    compact = raw.replace(" ", "").replace("-", "").replace("_", "")
+    aliases = {
+        "fd": "fanduel",
+        "fanduel": "fanduel",
+        "dk": "draftkings",
+        "draftkings": "draftkings",
+        "mgm": "betmgm",
+        "betmgm": "betmgm",
+        "bet365": "bet365",
+        "bet365us": "bet365",
+    }
+    return aliases.get(compact, raw)
+
+
+def _player_prop_bookmakers_tuple(raw: str | None = None, *, env_name: str = "PLAYER_PROP_BOOKMAKERS") -> tuple[str, ...]:
+    try:
+        s = raw if raw is not None else os.environ.get(env_name)
+        if callable(_resolve_player_prop_bookmakers):
+            vals = tuple(str(x).strip().lower() for x in _resolve_player_prop_bookmakers(s) if str(x).strip())
+            if vals:
+                return vals
+            if str(s or "").strip().lower() in {"all", "none", "off", "0", "false", "no"}:
+                return tuple()
+    except Exception:
+        pass
+    s = str(raw if raw is not None else os.environ.get(env_name, "")).strip()
+    if not s:
+        return _APP_DEFAULT_PLAYER_PROP_BOOKMAKERS
+    if s.lower() in {"all", "none", "off", "0", "false", "no"}:
+        return tuple()
+    out: list[str] = []
+    seen: set[str] = set()
+    for part in s.split(","):
+        bk = _canonical_bookmaker_key(part)
+        if not bk or bk in seen:
+            continue
+        seen.add(bk)
+        out.append(bk)
+    return tuple(out)
+
+
+def _player_prop_bookmakers_set(raw: str | None = None, *, env_name: str = "PLAYER_PROP_BOOKMAKERS") -> set[str]:
+    return set(_player_prop_bookmakers_tuple(raw, env_name=env_name))
 
 
 def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri: str) -> dict[str, Any]:
@@ -571,6 +637,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     if not h or not a:
         return {}
 
+    allowed_books = _player_prop_bookmakers_set(os.environ.get("LIVE_PLAYER_PROP_BOOKMAKERS"), env_name="PLAYER_PROP_BOOKMAKERS")
+
     def _env_int(name: str, default: int, lo: int, hi: int) -> int:
         try:
             raw = str(os.environ.get(name, str(default))).strip()
@@ -847,6 +915,9 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
 
         for bk in bks:
             if not isinstance(bk, dict):
+                continue
+            bk_key = _canonical_bookmaker_key(bk.get("key") or bk.get("title"))
+            if allowed_books and (not bk_key or bk_key not in allowed_books):
                 continue
             bk_lu = _parse_iso_utc_naive(bk.get("last_update"))
             markets = bk.get("markets") or []
@@ -6884,6 +6955,7 @@ def _prime_oddsapi_props_job_state(
     *,
     date_str: str,
     regions: str,
+    bookmakers: str,
     markets: str,
     do_edges: bool,
     do_export: bool,
@@ -6901,6 +6973,7 @@ def _prime_oddsapi_props_job_state(
     _oddsapi_props_job_state["last"] = {
         "date": date_str,
         "regions": regions,
+        "bookmakers": (bookmakers or None),
         "markets": markets,
         "edges": bool(do_edges),
         "export": bool(do_export),
@@ -6923,6 +6996,7 @@ def _oddsapi_props_refresh_job(
     *,
     date_str: str,
     regions: str,
+    bookmakers: str,
     markets: str,
     do_edges: bool,
     do_export: bool,
@@ -6937,6 +7011,7 @@ def _oddsapi_props_refresh_job(
     _prime_oddsapi_props_job_state(
         date_str=date_str,
         regions=regions,
+        bookmakers=bookmakers,
         markets=markets,
         do_edges=do_edges,
         do_export=do_export,
@@ -6953,6 +7028,8 @@ def _oddsapi_props_refresh_job(
 
         # 1) Snapshot player props to data/raw
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
+        if bookmakers:
+            snap_cmd += ["--bookmakers", bookmakers]
         if markets:
             snap_cmd += ["--markets", markets]
         rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60)
@@ -6962,6 +7039,8 @@ def _oddsapi_props_refresh_job(
         rc_edges = None
         if do_edges:
             edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
+            if bookmakers:
+                edges_cmd += ["--bookmakers", bookmakers]
             rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
             _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
 
@@ -7005,6 +7084,7 @@ def _oddsapi_props_refresh_job(
                 {
                     "date": date_str,
                     "regions": regions,
+                    "bookmakers": (bookmakers or None),
                     "markets": markets,
                     "ok": bool(ok),
                     "rc_snapshot": int(rc_snap),
@@ -7048,6 +7128,7 @@ def _oddsapi_props_refresh_job(
                 {
                     "date": date_str,
                     "regions": regions,
+                    "bookmakers": (bookmakers or None),
                     "markets": markets,
                     "ok": False,
                     "error": f"{type(e).__name__}: {e}",
@@ -8486,9 +8567,11 @@ def _load_props_recommendations_by_team(date_str: str) -> dict[str, list[dict[st
                 if not isinstance(x, dict):
                     return None
                 outp: dict[str, Any] = {}
-                for k in ("market", "side", "book"):
+                for k in ("market", "side"):
                     if k in x and x.get(k) is not None:
                         outp[k] = str(x.get(k)).strip().lower()
+                if "book" in x and x.get("book") is not None:
+                    outp["book"] = _canonical_bookmaker_key(x.get("book")) or None
                 for k in ("line", "price"):
                     if k in x:
                         outp[k] = _safe_float(x.get(k))
@@ -8620,6 +8703,7 @@ def _sim_vs_line_prop_recommendations(
     away_tri: str,
     topn_per_side: int = 6,
     allowed_markets: set[str] | None = None,
+    allowed_books: set[str] | None = None,
     min_ev_pct: float | None = None,
     excluded_books: set[str] | None = None,
 ) -> dict[str, list[dict[str, Any]]]:
@@ -8776,9 +8860,9 @@ def _sim_vs_line_prop_recommendations(
     def _aligned_books_count(plays: list[dict[str, Any]]) -> int:
         try:
             books = {
-                str(p.get("book") or "").strip().lower()
+                _canonical_bookmaker_key(p.get("book"))
                 for p in (plays or [])
-                if isinstance(p, dict) and str(p.get("book") or "").strip()
+                if isinstance(p, dict) and _canonical_bookmaker_key(p.get("book"))
             }
             return int(len(books))
         except Exception:
@@ -8983,7 +9067,7 @@ def _sim_vs_line_prop_recommendations(
             "market": str(market).strip().lower(),
             "side": str(side).strip().upper(),
             "line": float(line),
-            "book": str(source_play.get("book") or "").strip().lower() or None,
+            "book": _canonical_bookmaker_key(source_play.get("book")) or None,
             "price": _safe_float(price) if price is not None else None,
             "sim_mu": float(mu),
             "sim_sd": float(sd),
@@ -9058,10 +9142,9 @@ def _sim_vs_line_prop_recommendations(
                         mk = ""
                     if allowed_markets and mk not in allowed_markets:
                         continue
-                    try:
-                        bk = str(play.get("book") or "").strip().lower()
-                    except Exception:
-                        bk = ""
+                    bk = _canonical_bookmaker_key(play.get("book"))
+                    if allowed_books and bk and (bk not in allowed_books):
+                        continue
                     if excluded_books and bk and (bk in excluded_books):
                         continue
 
@@ -9115,10 +9198,9 @@ def _sim_vs_line_prop_recommendations(
                                 mk = ""
                             if allowed_markets and mk not in allowed_markets:
                                 market = None
-                            try:
-                                bk = str(tp.get("book") or "").strip().lower()
-                            except Exception:
-                                bk = ""
+                            bk = _canonical_bookmaker_key(tp.get("book"))
+                            if allowed_books and bk and (bk not in allowed_books):
+                                market = None
                             if excluded_books and bk and (bk in excluded_books):
                                 market = None
 
@@ -9745,18 +9827,21 @@ def api_cards():
             min_ev_pct = 1.0 if min_ev_pct is None else float(min_ev_pct)
         except Exception:
             min_ev_pct = 1.0
+        allowed_books = _player_prop_bookmakers_set(
+            request.args.get("bookmakers") or request.args.get("books"),
+            env_name="PLAYER_PROP_BOOKMAKERS",
+        )
         try:
             exc_raw = (request.args.get("excludeBooks") or request.args.get("exclude_books"))
-            if exc_raw is None:
-                excluded_books = {"fanduel", "draftkings", "williamhill_us"}
+            s = str(exc_raw or "").strip().lower()
+            if not s or s in {"none", "off", "0", "false", "no"}:
+                excluded_books = set()
             else:
-                s = str(exc_raw or "").strip().lower()
-                if s in {"", "none", "off", "0", "false", "no"}:
-                    excluded_books = set()
-                else:
-                    excluded_books = {x.strip().lower() for x in s.split(",") if x.strip()}
+                excluded_books = {_canonical_bookmaker_key(x) for x in s.split(",") if _canonical_bookmaker_key(x)}
         except Exception:
-            excluded_books = {"fanduel", "draftkings", "williamhill_us"}
+            excluded_books = set()
+        if allowed_books and excluded_books:
+            allowed_books = {bk for bk in allowed_books if bk not in excluded_books}
 
         prop_recommendations = _sim_vs_line_prop_recommendations(
             players_out,
@@ -9765,6 +9850,7 @@ def api_cards():
             away_tri=away_tri,
             topn_per_side=6,
             allowed_markets=allowed_markets,
+            allowed_books=allowed_books,
             min_ev_pct=min_ev_pct,
             excluded_books=excluded_books,
         )
@@ -28065,6 +28151,7 @@ def api_cron_refresh_oddsapi_props():
     Query params:
     - date (optional): YYYY-MM-DD (defaults to the current US local slate date)
       - regions (optional): OddsAPI regions (default 'us')
+            - bookmakers (optional): comma-separated bookmaker ids; default FanDuel,DraftKings,BetMGM,bet365
       - markets (optional): comma-separated market keys; default uses our full player_* list
       - edges (optional): '1' to run props-edges from OddsAPI after snapshot
       - export (optional): '1' to run export-props-recommendations after edges
@@ -28080,6 +28167,7 @@ def api_cron_refresh_oddsapi_props():
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=True)
     regions = (request.args.get("regions") or "us").strip() or "us"
+    bookmakers = ",".join(_player_prop_bookmakers_tuple(request.args.get("bookmakers"), env_name="PLAYER_PROP_BOOKMAKERS"))
     markets = (request.args.get("markets") or "").strip()
     do_edges = (str(request.args.get("edges", "0")).lower() in {"1", "true", "yes"})
     do_export = (str(request.args.get("export", "0")).lower() in {"1", "true", "yes"})
@@ -28103,6 +28191,7 @@ def api_cron_refresh_oddsapi_props():
             return jsonify({
                 "date": d,
                 "regions": regions,
+                "bookmakers": (bookmakers or None),
                 "markets": markets,
                 "skipped": True,
                 "reason": "missing ODDS_API_KEY",
@@ -28124,6 +28213,7 @@ def api_cron_refresh_oddsapi_props():
             _prime_oddsapi_props_job_state(
                 date_str=d,
                 regions=regions,
+                bookmakers=bookmakers,
                 markets=markets,
                 do_edges=bool(do_edges),
                 do_export=bool(do_export),
@@ -28138,6 +28228,7 @@ def api_cron_refresh_oddsapi_props():
                 kwargs={
                     "date_str": d,
                     "regions": regions,
+                    "bookmakers": bookmakers,
                     "markets": markets,
                     "do_edges": bool(do_edges),
                     "do_export": bool(do_export),
@@ -28165,6 +28256,7 @@ def api_cron_refresh_oddsapi_props():
                 "async": True,
                 "date": d,
                 "regions": regions,
+                "bookmakers": (bookmakers or None),
                 "markets": markets,
                 "edges": bool(do_edges),
                 "export": bool(do_export),
@@ -28180,6 +28272,8 @@ def api_cron_refresh_oddsapi_props():
 
         # 1) Snapshot player props to data/raw
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
+        if bookmakers:
+            snap_cmd += ["--bookmakers", bookmakers]
         if markets:
             snap_cmd += ["--markets", markets]
         rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env)
@@ -28188,6 +28282,8 @@ def api_cron_refresh_oddsapi_props():
         rc_edges = None
         if do_edges:
             edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "oddsapi", "--mode", "current"]
+            if bookmakers:
+                edges_cmd += ["--bookmakers", bookmakers]
             rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env)
 
         # 3) Optionally export props recommendations (uses props_edges_<date>.csv)
@@ -28234,6 +28330,7 @@ def api_cron_refresh_oddsapi_props():
                 "refresh_oddsapi_props",
                 {
                     "date": d,
+                    "bookmakers": (bookmakers or None),
                     "snapshot_rows": int(snap_rows),
                     "snapshot": str(raw_fp),
                     "edges_rows": int(edges_rows),
@@ -28255,6 +28352,7 @@ def api_cron_refresh_oddsapi_props():
         return jsonify({
             "date": d,
             "regions": regions,
+            "bookmakers": (bookmakers or None),
             "markets": markets,
             "rc_snapshot": int(rc_snap),
             "snapshot_rows": int(snap_rows),
