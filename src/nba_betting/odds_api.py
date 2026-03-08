@@ -40,6 +40,7 @@ class OddsApiConfig:
     regions: str = "us"  # focus on US books
     markets: str = "h2h,spreads,totals"
     odds_format: str = "american"
+    bookmakers: str | None = None
 
 
 def normalize_bookmaker_key(book: object) -> str:
@@ -79,6 +80,11 @@ def filter_player_prop_bookmakers_df(df: pd.DataFrame, raw: str | None = None) -
     if not allowed:
         return out
     return out[out["bookmaker"].isin(allowed)].copy()
+
+
+def player_prop_bookmakers_csv(raw: str | None = None) -> str | None:
+    vals = resolve_player_prop_bookmakers(raw)
+    return ",".join(vals) if vals else None
 
 
 def _headers() -> dict:
@@ -268,7 +274,10 @@ def discover_event_market_keys(config: OddsApiConfig, event_id: str, verbose: bo
         return set()
     markets_url = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{event_id}/markets"
     try:
-        r = _get(markets_url, {"apiKey": config.api_key, "regions": config.regions})
+        params = {"apiKey": config.api_key, "regions": config.regions}
+        if config.bookmakers:
+            params["bookmakers"] = config.bookmakers
+        r = _get(markets_url, params)
         d = r.json()
         ev_obj = d if isinstance(d, dict) else None
         if not ev_obj:
@@ -297,6 +306,8 @@ def fetch_event_odds_current(config: OddsApiConfig, event_id: str, markets: list
         "markets": ",".join([m for m in markets if m]),
         "oddsFormat": config.odds_format,
     }
+    if config.bookmakers:
+        params["bookmakers"] = config.bookmakers
     try:
         r = _get(odds_url, params)
         d = r.json()
@@ -389,10 +400,14 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
     snap = pd.Timestamp.utcnow().isoformat()
     odds_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/odds"
     markets_url_tpl = f"{ODDS_HOST}/v4/sports/{NBA_SPORT_KEY}/events/{{event_id}}/markets"
+    bookmakers = str(config.bookmakers or "").strip()
 
     def _discover_markets(eid: str) -> list[str]:
         try:
-            r = _get(markets_url_tpl.format(event_id=eid), {"apiKey": config.api_key, "regions": config.regions})
+            params = {"apiKey": config.api_key, "regions": config.regions}
+            if bookmakers:
+                params["bookmakers"] = bookmakers
+            r = _get(markets_url_tpl.format(event_id=eid), params)
             d = r.json()
             ev_obj = d if isinstance(d, dict) else None
             if not ev_obj:
@@ -425,6 +440,8 @@ def fetch_player_props_current(config: OddsApiConfig, date: datetime, markets: l
                 "markets": ",".join(mkts),
                 "oddsFormat": config.odds_format,
             }
+            if bookmakers:
+                params["bookmakers"] = bookmakers
             try:
                 r = _get(odds_url_tpl.format(event_id=eid), params)
                 d = r.json()

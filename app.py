@@ -302,6 +302,11 @@ def _player_prop_bookmakers_set(raw: str | None = None, *, env_name: str = "PLAY
     return set(_player_prop_bookmakers_tuple(raw, env_name=env_name))
 
 
+def _player_prop_bookmakers_csv(raw: str | None = None, *, env_name: str = "PLAYER_PROP_BOOKMAKERS") -> str | None:
+    vals = _player_prop_bookmakers_tuple(raw, env_name=env_name)
+    return ",".join(vals) if vals else None
+
+
 def _live_oddsapi_period_totals_for_game(date_str: str, home_tri: str, away_tri: str) -> dict[str, Any]:
         """Best-effort OddsAPI lines for a matchup (fast path).
 
@@ -638,6 +643,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         return {}
 
     allowed_books = _player_prop_bookmakers_set(os.environ.get("LIVE_PLAYER_PROP_BOOKMAKERS"), env_name="PLAYER_PROP_BOOKMAKERS")
+    bookmakers_csv = _player_prop_bookmakers_csv(os.environ.get("LIVE_PLAYER_PROP_BOOKMAKERS"), env_name="PLAYER_PROP_BOOKMAKERS")
 
     def _env_int(name: str, default: int, lo: int, hi: int) -> int:
         try:
@@ -655,7 +661,11 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     event_cache_ttl = _env_int("LIVE_PLAYER_PROPS_EVENT_TTL_SEC", 6 * 60 * 60, 300, 48 * 60 * 60)
     markets_cache_ttl = _env_int("LIVE_PLAYER_PROPS_MARKETS_TTL_SEC", 30 * 60, 60, 6 * 60 * 60)
 
-    matchup_key = f"{date_str}:{h}:{a}"
+    # Regions: allow expanding beyond "us" if a deployment/book mix requires it.
+    # Example: set LIVE_PLAYER_PROPS_REGIONS="us,us2".
+    regions = str(os.environ.get("LIVE_PLAYER_PROPS_REGIONS", "us") or "us").strip() or "us"
+    books_sig = bookmakers_csv or "all"
+    matchup_key = f"{date_str}:{h}:{a}:{regions}:{books_sig}"
     now = time.time()
 
     ent = _live_oddsapi_player_props_cache.get(matchup_key)
@@ -684,10 +694,6 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             return dt.replace(tzinfo=timezone.utc).isoformat(timespec="seconds").replace("+00:00", "Z")
         except Exception:
             return dt.isoformat(timespec="seconds") + "Z"
-
-    # Regions: allow expanding beyond "us" if a deployment/book mix requires it.
-    # Example: set LIVE_PLAYER_PROPS_REGIONS="us,us2".
-    regions = str(os.environ.get("LIVE_PLAYER_PROPS_REGIONS", "us") or "us").strip() or "us"
 
     want_all_markets = str(os.environ.get("LIVE_PLAYER_PROPS_ALL_MARKETS", "1")).strip().lower() in {"1", "true", "yes"}
     try:
@@ -721,7 +727,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     event_id = None
     swapped = False
 
-    ev_ent = _live_oddsapi_player_props_event_cache.get(matchup_key)
+    ev_matchup_key = matchup_key
+    ev_ent = _live_oddsapi_player_props_event_cache.get(ev_matchup_key)
     if ev_ent and (now - ev_ent[0] < float(event_cache_ttl)):
         try:
             obj0 = ev_ent[1]
@@ -785,7 +792,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         try:
             eid_s = str(event_id or "").strip()
             if eid_s:
-                _live_oddsapi_player_props_event_cache[matchup_key] = (now, {"event_id": eid_s, "swapped": bool(swapped)})
+                _live_oddsapi_player_props_event_cache[ev_matchup_key] = (now, {"event_id": eid_s, "swapped": bool(swapped)})
         except Exception:
             pass
 
@@ -795,7 +802,11 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         return out
 
     # 2) Discover market keys (some books/plans won't expose player markets).
-    mk_cache_key = (f"{str(event_id)}:ALL:{regions}" if want_all_markets else (f"{str(event_id)}:" + ",".join(desired_markets)))
+    mk_cache_key = (
+        f"{str(event_id)}:ALL:{regions}:{books_sig}"
+        if want_all_markets
+        else (f"{str(event_id)}:{','.join(desired_markets)}:{regions}:{books_sig}")
+    )
     req_markets: list[str] = []
     mk_ent = _live_oddsapi_player_props_markets_cache.get(mk_cache_key)
     if mk_ent and (now - mk_ent[0] < float(markets_cache_ttl)):
@@ -807,9 +818,12 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     if not req_markets:
         keys: set[str] = set()
         try:
+            params = {"apiKey": api_key, "regions": regions}
+            if bookmakers_csv:
+                params["bookmakers"] = bookmakers_csv
             r = requests.get(
                 f"{base}/v4/sports/{sport}/events/{event_id}/markets",
-                params={"apiKey": api_key, "regions": regions},
+                params=params,
                 headers=headers,
                 timeout=timeout_s,
             )
@@ -891,14 +905,17 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         if not batch:
             continue
         try:
+            params = {
+                "apiKey": api_key,
+                "regions": regions,
+                "markets": ",".join(batch),
+                "oddsFormat": "american",
+            }
+            if bookmakers_csv:
+                params["bookmakers"] = bookmakers_csv
             r = requests.get(
                 f"{base}/v4/sports/{sport}/events/{event_id}/odds",
-                params={
-                    "apiKey": api_key,
-                    "regions": regions,
-                    "markets": ",".join(batch),
-                    "oddsFormat": "american",
-                },
+                params=params,
                 headers=headers,
                 timeout=timeout_s,
             )

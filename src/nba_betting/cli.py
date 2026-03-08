@@ -32,7 +32,7 @@ from .player_logs import fetch_player_logs
 from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
-from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers
+from .odds_api import filter_player_prop_bookmakers_df, resolve_player_prop_bookmakers, player_prop_bookmakers_csv
 from .pbp_markets import train_all_pbp_markets, predict_tip_for_date, predict_first_basket_for_date, predict_early_threes_for_date
 from .odds_api import fetch_game_odds_current
 from .odds_bovada import fetch_bovada_odds_current
@@ -8227,7 +8227,12 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         return
 
     mkts_list = [m.strip() for m in str(markets or "").split(",") if m.strip()]
-    cfg = OddsApiConfig(api_key=api_key, regions=(regions or "us").strip() or "us")
+    bookmaker_keys = resolve_player_prop_bookmakers(bookmakers)
+    cfg = OddsApiConfig(
+        api_key=api_key,
+        regions=(regions or "us").strip() or "us",
+        bookmakers=player_prop_bookmakers_csv(bookmakers),
+    )
 
     try:
         df = fetch_player_props_current(cfg, pd.to_datetime(str(target_date)), markets=(mkts_list or None), verbose=False)
@@ -8235,7 +8240,6 @@ def odds_snapshots_props_cmd(date_str: str | None, api_key: str | None, regions:
         console.print(f"Player props snapshot failed: {e}", style="yellow")
         return
 
-    bookmaker_keys = resolve_player_prop_bookmakers(bookmakers)
     if df is not None and not df.empty:
         df = filter_player_prop_bookmakers_df(df, bookmakers)
 
