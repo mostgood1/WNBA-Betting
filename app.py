@@ -4693,7 +4693,7 @@ _PLAYER_STAT_PRIORS_CACHE: dict[tuple[str, int], dict[tuple[str, str], dict[str,
 
 def _norm_player_name_for_keys(x: object) -> str:
     try:
-        return " ".join(str(x or "").strip().upper().split())
+        return _norm_player_name(str(x or ""))
     except Exception:
         return ""
 

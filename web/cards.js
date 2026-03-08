@@ -3947,7 +3947,13 @@ function parseClockToSecondsLeft(clock) {
 }
 
 function normPlayerName(s) {
-  return String(s || '')
+  let t = String(s || '');
+  try {
+    t = t.normalize('NFKD').replace(/[\u0300-\u036f]/g, '');
+  } catch (_) {
+    // ignore browsers without unicode normalization support
+  }
+  return t
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, ' ')
     .replace(/\s+/g, ' ')
