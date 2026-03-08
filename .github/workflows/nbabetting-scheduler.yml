@@ -162,12 +162,12 @@ jobs:
                   return default
 
           expected_date = os.environ.get("EXPECTED_DATE", "").strip()
-            last = payload.get("last") if isinstance(payload.get("last"), dict) else {}
-            payload_date = str(last.get("date") or payload.get("date") or "").strip()
+          last = payload.get("last") if isinstance(payload.get("last"), dict) else {}
+          payload_date = str(last.get("date") or payload.get("date") or "").strip()
           running = bool(payload.get("running"))
           ok = payload.get("ok")
           error = payload.get("error")
-            rc_snapshot = as_int(payload.get("rc_snapshot"), None)
+          rc_snapshot = as_int(payload.get("rc_snapshot"), None)
           rc_edges = as_int(payload.get("rc_edges"), None)
           rc_export = as_int(payload.get("rc_export"), None)
           snapshot_rows = as_int(payload.get("snapshot_rows"), 0) or 0
@@ -194,13 +194,13 @@ jobs:
           if running:
               sys.exit(10)
 
-            if (
+          if (
               ok is None
               and not error
               and rc_snapshot is None
               and rc_edges is None
               and rc_export is None
-            ):
+          ):
               print("Async status not populated yet; waiting for the job state to appear")
               sys.exit(10)
 
@@ -219,11 +219,11 @@ jobs:
               print(json.dumps(payload, indent=2)[:8000])
               sys.exit(1)
 
-            if rc_snapshot is None:
+          if rc_snapshot is None:
               print("Refresh job finished without a snapshot exit code; waiting for final state")
               sys.exit(10)
 
-            if rc_snapshot != 0:
+          if rc_snapshot != 0:
               print("Snapshot step failed")
               print(json.dumps(payload, indent=2)[:8000])
               sys.exit(1)
