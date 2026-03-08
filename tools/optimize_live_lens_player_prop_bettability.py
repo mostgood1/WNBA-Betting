@@ -327,6 +327,12 @@ def _iter_bet_rows(ds: str, assumed_juice: float, *, require_logged_bets: bool) 
         if str(obj.get("market") or "").strip().lower() != "player_prop":
             continue
 
+        # Default: tune only live player-prop signals.
+        # Treat missing horizon as live for backward compatibility.
+        hz = str(obj.get("horizon") or "").strip().lower()
+        if hz and hz != "live":
+            continue
+
         klass = str(obj.get("klass") or "").strip().upper()
         if require_logged_bets:
             if klass != "BET":

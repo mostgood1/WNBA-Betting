@@ -2907,3 +2907,102 @@ if (-not $GitPush) {
     Write-Log ("Git push failed: {0}" -f $_.Exception.Message)
   }
 }
+
+# Optional: emit today's pregame prop recommendations into the Live Lens signal stream.
+# This runs AFTER the git push so the remote /api/cards reflects the newly pushed artifacts.
+# Disable via: DAILY_LOG_PREGAME_PROP_SIGNALS=0
+try {
+  $emitPregame = $env:DAILY_LOG_PREGAME_PROP_SIGNALS
+  if ($null -eq $emitPregame -or $emitPregame -eq '') { $emitPregame = '1' }
+
+  $allowNonToday = $env:DAILY_LOG_PREGAME_PROP_SIGNALS_ALLOW_NON_TODAY
+  if ($null -eq $allowNonToday -or $allowNonToday -eq '') { $allowNonToday = '0' }
+  $todayLocal = (Get-Date -Format 'yyyy-MM-dd')
+
+  if ($NoSlateDay) {
+    Write-Log ("Pregame signals: no slate for {0}; skipping" -f $Date)
+  } elseif ($allowNonToday -notmatch '^(1|true|yes)$' -and $Date -ne $todayLocal) {
+    Write-Log ("Pregame signals: Date={0} is not today ({1}); skipping (set DAILY_LOG_PREGAME_PROP_SIGNALS_ALLOW_NON_TODAY=1 to override)" -f $Date, $todayLocal)
+  } elseif ($null -ne $emitPregame -and $emitPregame -match '^(1|true|yes)$') {
+    $remote2 = $env:NBA_BETTING_BASE_URL
+    if ($null -eq $remote2 -or $remote2 -eq '') { $remote2 = $RemoteBaseUrl }
+
+    if ($null -ne $remote2 -and $remote2 -ne '') {
+      $remote2 = $remote2.TrimEnd('/')
+
+      $remoteOk2 = $true
+      try {
+        $healthUrl2 = "{0}/health" -f $remote2
+        $h2 = Invoke-WebRequest -Uri $healthUrl2 -TimeoutSec 10 -UseBasicParsing -ErrorAction Stop
+        if ($null -eq $h2 -or $h2.StatusCode -lt 200 -or $h2.StatusCode -ge 300) { $remoteOk2 = $false }
+      } catch {
+        $remoteOk2 = $false
+      }
+
+      if (-not $remoteOk2) {
+        Write-Log ("Pregame signals: remote health check failed ({0}); skipping" -f $remote2)
+      } else {
+        # If we pushed new artifacts, wait briefly for Render to deploy the new git SHA before calling /api/cards.
+        try {
+          $doWait = $GitPush
+          if ($doWait) {
+            $waitMax = 300
+            try {
+              $w = $env:DAILY_PREGAME_PROP_SIGNALS_WAIT_REMOTE_MAX_SEC
+              if ($null -ne $w -and $w -ne '') { $waitMax = [int]$w }
+            } catch { $waitMax = 300 }
+            if ($waitMax -lt 0) { $waitMax = 0 }
+            if ($waitMax -gt 1800) { $waitMax = 1800 }
+
+            if ($waitMax -gt 0) {
+              $localSha = ''
+              try { $localSha = ((& git rev-parse HEAD 2>$null) | Select-Object -First 1).Trim() } catch { $localSha = '' }
+              if ($localSha) {
+                $deadline = (Get-Date).AddSeconds($waitMax)
+                $matched = $false
+                while ((Get-Date) -lt $deadline) {
+                  try {
+                    $ver = Invoke-RestMethod -Uri ("{0}/api/version" -f $remote2) -TimeoutSec 10 -ErrorAction Stop
+                    $remoteSha = ''
+                    try { $remoteSha = [string]$ver.sha } catch { $remoteSha = '' }
+                    if ($remoteSha -and $remoteSha.Trim() -eq $localSha) { $matched = $true; break }
+                  } catch { }
+                  Start-Sleep -Seconds 20
+                }
+                if (-not $matched) {
+                  Write-Log ("Pregame signals: remote deploy SHA did not match local HEAD after {0}s; skipping emission to avoid stale cards" -f $waitMax)
+                  return
+                }
+                Write-Log 'Pregame signals: remote deploy SHA matched local HEAD'
+              }
+            }
+          }
+        } catch {
+          Write-Log ("Pregame signals: remote deploy wait failed (continuing): {0}" -f $_.Exception.Message)
+        }
+
+        $emitTimeout = 120
+        try {
+          $t = $env:DAILY_PREGAME_PROP_SIGNAL_TIMEOUT_SEC
+          if ($null -ne $t -and $t -ne '') { $emitTimeout = [int]$t }
+        } catch { $emitTimeout = 120 }
+        if ($emitTimeout -lt 30) { $emitTimeout = 30 }
+        if ($emitTimeout -gt 600) { $emitTimeout = 600 }
+
+        Write-Log ("Pregame signals: logging pregame player_prop BETs for {0} (remote={1})" -f $Date, $remote2)
+        $rcEmit = Invoke-PyModWithTimeout -plist @(
+          'tools/log_pregame_prop_signals.py',
+          '--base-url', $remote2,
+          '--date', $Date
+        ) -TimeoutSeconds $emitTimeout -Label 'pregame_prop_signals'
+        Write-Log ("log_pregame_prop_signals exit code: {0}" -f $rcEmit)
+      }
+    } else {
+      Write-Log 'Pregame signals: remote base URL missing; skipping'
+    }
+  } else {
+    Write-Log 'Skipping pregame prop signal emission (DAILY_LOG_PREGAME_PROP_SIGNALS=0)'
+  }
+} catch {
+  Write-Log ("Pregame signals failed (non-fatal): {0}" -f $_.Exception.Message)
+}

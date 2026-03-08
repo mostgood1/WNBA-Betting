@@ -397,7 +397,7 @@ def _dedup_first_bets(df: pd.DataFrame) -> pd.DataFrame:
         reporting we want to grade the *first* actionable BET for a given decision.
 
         Decision keys:
-            - player_prop: (market, game, player, stat, side)
+            - player_prop: (market, horizon, game, player, stat, side)
             - totals/quarters/halves/ats: (market, horizon, game, side)
 
         Notes:
@@ -428,7 +428,7 @@ def _dedup_first_bets(df: pd.DataFrame) -> pd.DataFrame:
         stat_key = bets.get("stat_key", pd.Series([""] * len(bets), index=bets.index)).astype(str).fillna("").str.strip().str.lower()
 
         gid2 = gid.where(gid.str.len() > 0, other=(home + "@" + away))
-        key_player = m + "|" + gid2 + "|" + name_key + "|" + stat_key + "|" + side
+        key_player = m + "|" + horizon + "|" + gid2 + "|" + name_key + "|" + stat_key + "|" + side
         key_other = m + "|" + horizon + "|" + gid2 + "|" + side
         key = key_other.where(m != "player_prop", other=key_player)
         bets["_dedup_key"] = key
@@ -1225,6 +1225,9 @@ def _score_day(ds: str, *, dedup_policy: str = "none", include_model_lines: bool
                 pass
 
             gid = _resolve_gid_for_props(obj, gid_map)
+            horizon = str(obj.get("horizon") or "").strip().lower() or None
+            if horizon is None:
+                horizon = "live"
             stat = str(obj.get("stat") or "").strip()
             stat_key = _live_stat_key(stat)
             player = str(obj.get("player") or "").strip() or None
@@ -1297,7 +1300,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none", include_model_lines: bool
                 {
                     "date": str(obj.get("date") or ds),
                     "market": market,
-                    "horizon": None,
+                    "horizon": horizon,
                     "signal_key": str(obj.get("signal_key") or "") or None,
                     "game_id": gid,
                     "home": _safe_upper(obj.get("home")),
@@ -1322,7 +1325,7 @@ def _score_day(ds: str, *, dedup_policy: str = "none", include_model_lines: bool
                     "tags": _derive_tags(
                         obj=obj,
                         market=market,
-                        horizon=None,
+                        horizon=horizon,
                         klass=str(obj.get("klass") or "") or None,
                         stat_key=stat_key,
                         interval_drift_on=None,

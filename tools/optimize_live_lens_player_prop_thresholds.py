@@ -219,6 +219,12 @@ def _iter_prop_rows(ds: str, assumed_juice: float, include_model_lines: bool) ->
         if str(obj.get("market") or "").strip().lower() != "player_prop":
             continue
 
+        # Default: tune only live player-prop signals.
+        # Treat missing horizon as live for backward compatibility.
+        hz = str(obj.get("horizon") or "").strip().lower()
+        if hz and hz != "live":
+            continue
+
         # Default: exclude model fallback lines (not market-bettable).
         if not include_model_lines:
             try:

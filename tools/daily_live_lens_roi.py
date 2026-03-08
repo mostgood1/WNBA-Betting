@@ -353,12 +353,14 @@ def _dedup_key_for_signal(obj: dict[str, Any]) -> tuple[Any, ...] | None:
         side = str(obj.get("side") or "").strip().upper() or None
 
         if market == "player_prop":
+            if horizon is None:
+                horizon = "live"
             stat_key = _live_stat_key(obj.get("stat"))
             name_key = _norm_player_name(str(obj.get("name_key") or obj.get("player") or ""))
             if not name_key or not stat_key:
                 return None
-            # "Bet idea" key: (game, player, stat, side)
-            return (market, gid, name_key, stat_key, side)
+            # "Bet idea" key: (game, horizon, player, stat, side)
+            return (market, gid, horizon, name_key, stat_key, side)
 
         if market in {"total", "half_total", "quarter_total"}:
             return (market, gid, horizon, side)

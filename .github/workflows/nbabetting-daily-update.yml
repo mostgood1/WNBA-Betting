@@ -1,0 +1,94 @@
+name: "NBA Betting: Daily Update (9AM Central)"
+
+on:
+  workflow_dispatch: {}
+  schedule:
+    # GitHub cron is UTC and does not support timezones.
+    # 9:00 AM US Central is 14:00 UTC during CDT and 15:00 UTC during CST.
+    # We schedule both and gate at runtime using Windows' Central time conversion.
+    - cron: "0 14 * * *"
+    - cron: "0 15 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: nbabetting-daily-update
+  cancel-in-progress: false
+
+jobs:
+  daily-update:
+    runs-on: windows-latest
+    timeout-minutes: 360
+
+    steps:
+      - name: Decide whether to run (9AM Central)
+        id: decide
+        shell: powershell
+        run: |
+          $event = "${{ github.event_name }}"
+          $utcNow = [DateTime]::UtcNow
+          $centralNow = [System.TimeZoneInfo]::ConvertTimeBySystemTimeZoneId($utcNow, 'Central Standard Time')
+
+          $date = $centralNow.ToString('yyyy-MM-dd')
+          $run = 'true'
+          if ($event -eq 'schedule') {
+            $run = if ($centralNow.Hour -eq 9) { 'true' } else { 'false' }
+          }
+
+          Write-Host "event=$event"
+          Write-Host "utc_now=$utcNow"
+          Write-Host "central_now=$centralNow"
+          Write-Host "run=$run date=$date"
+
+          "run=$run" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+          "date=$date" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
+
+      - name: Stop early (not 9AM Central)
+        if: steps.decide.outputs.run != 'true'
+        shell: powershell
+        run: |
+          Write-Host "Skipping run: not 9AM Central for this schedule tick."
+
+      - name: Checkout
+        if: steps.decide.outputs.run == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
+
+      - name: Set up Python
+        if: steps.decide.outputs.run == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: requirements.txt
+
+      - name: Create venv + install deps
+        if: steps.decide.outputs.run == 'true'
+        shell: powershell
+        run: |
+          python -m venv .venv
+          .\.venv\Scripts\python.exe -m pip install --upgrade pip
+          .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+      - name: Configure git identity
+        if: steps.decide.outputs.run == 'true'
+        shell: powershell
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Run daily update (Central date)
+        if: steps.decide.outputs.run == 'true'
+        shell: powershell
+        env:
+          GIT_TERMINAL_PROMPT: "0"
+          # Optional: OddsAPI for odds/props edges. If unset, pipeline should fall back where supported.
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+        run: |
+          $date = "${{ steps.decide.outputs.date }}"
+          if (-not $date) { throw "Missing computed date" }
+          Write-Host "Running scripts/daily_update.ps1 for date=$date"
+          powershell -NoProfile -ExecutionPolicy Bypass -File scripts\daily_update.ps1 -Date $date -GitPush -GitSyncFirst
