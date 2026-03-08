@@ -6837,7 +6837,7 @@ _oddsapi_props_job_state = {
     "ended_at": None,
     "ok": None,
     "log_file": None,
-    "last": None,
+    "last": {},
     "rc_snapshot": None,
     "rc_edges": None,
     "rc_export": None,
@@ -6850,6 +6850,45 @@ _oddsapi_props_job_state = {
     "duration_s": None,
     "error": None,
 }
+
+
+def _prime_oddsapi_props_job_state(
+    *,
+    date_str: str,
+    regions: str,
+    markets: str,
+    do_edges: bool,
+    do_export: bool,
+    do_push: bool,
+    log_file: Path | str,
+    running: bool = True,
+    started_at: str | None = None,
+) -> None:
+    """Initialize the shared async payload for the current props refresh run."""
+    _oddsapi_props_job_state["running"] = bool(running)
+    _oddsapi_props_job_state["started_at"] = started_at or datetime.utcnow().isoformat()
+    _oddsapi_props_job_state["ended_at"] = None
+    _oddsapi_props_job_state["ok"] = None
+    _oddsapi_props_job_state["log_file"] = str(log_file)
+    _oddsapi_props_job_state["last"] = {
+        "date": date_str,
+        "regions": regions,
+        "markets": markets,
+        "edges": bool(do_edges),
+        "export": bool(do_export),
+        "push": bool(do_push),
+    }
+    _oddsapi_props_job_state["rc_snapshot"] = None
+    _oddsapi_props_job_state["rc_edges"] = None
+    _oddsapi_props_job_state["rc_export"] = None
+    _oddsapi_props_job_state["snapshot_rows"] = None
+    _oddsapi_props_job_state["edges_rows"] = None
+    _oddsapi_props_job_state["recs_rows"] = None
+    _oddsapi_props_job_state["snapshot_path"] = None
+    _oddsapi_props_job_state["edges_path"] = None
+    _oddsapi_props_job_state["recs_path"] = None
+    _oddsapi_props_job_state["duration_s"] = None
+    _oddsapi_props_job_state["error"] = None
 
 
 def _oddsapi_props_refresh_job(
@@ -6867,30 +6906,16 @@ def _oddsapi_props_refresh_job(
     Runs the same subprocess steps as the synchronous endpoint, but out-of-band so
     the HTTP request can return quickly (avoid proxy/gunicorn timeouts).
     """
-    _oddsapi_props_job_state["running"] = True
-    _oddsapi_props_job_state["started_at"] = datetime.utcnow().isoformat()
-    _oddsapi_props_job_state["ended_at"] = None
-    _oddsapi_props_job_state["ok"] = None
-    _oddsapi_props_job_state["log_file"] = str(log_file)
-    _oddsapi_props_job_state["rc_snapshot"] = None
-    _oddsapi_props_job_state["rc_edges"] = None
-    _oddsapi_props_job_state["rc_export"] = None
-    _oddsapi_props_job_state["snapshot_rows"] = None
-    _oddsapi_props_job_state["edges_rows"] = None
-    _oddsapi_props_job_state["recs_rows"] = None
-    _oddsapi_props_job_state["snapshot_path"] = None
-    _oddsapi_props_job_state["edges_path"] = None
-    _oddsapi_props_job_state["recs_path"] = None
-    _oddsapi_props_job_state["duration_s"] = None
-    _oddsapi_props_job_state["error"] = None
-    _oddsapi_props_job_state["last"] = {
-        "date": date_str,
-        "regions": regions,
-        "markets": markets,
-        "edges": bool(do_edges),
-        "export": bool(do_export),
-        "push": bool(do_push),
-    }
+    _prime_oddsapi_props_job_state(
+        date_str=date_str,
+        regions=regions,
+        markets=markets,
+        do_edges=do_edges,
+        do_export=do_export,
+        do_push=do_push,
+        log_file=log_file,
+        running=True,
+    )
 
     try:
         started = time.time()
@@ -7390,6 +7415,8 @@ def api_cron_refresh_oddsapi_props_status():
         tail_n = 0
 
     payload = dict(_oddsapi_props_job_state)
+    if not isinstance(payload.get("last"), dict):
+        payload["last"] = {}
     if tail_n > 0:
         try:
             lf = payload.get("log_file")
@@ -27805,6 +27832,19 @@ def api_cron_refresh_oddsapi_props():
                     "note": "A refresh job is already running; skipping new start.",
                 }), 202
 
+            queued_started_at = datetime.utcnow().isoformat()
+            _prime_oddsapi_props_job_state(
+                date_str=d,
+                regions=regions,
+                markets=markets,
+                do_edges=bool(do_edges),
+                do_export=bool(do_export),
+                do_push=bool(do_push),
+                log_file=log_file,
+                running=True,
+                started_at=queued_started_at,
+            )
+
             t = threading.Thread(
                 target=_oddsapi_props_refresh_job,
                 kwargs={
@@ -27818,7 +27858,18 @@ def api_cron_refresh_oddsapi_props():
                 },
                 daemon=True,
             )
-            t.start()
+            try:
+                t.start()
+            except Exception as e:
+                _oddsapi_props_job_state["running"] = False
+                _oddsapi_props_job_state["ok"] = False
+                _oddsapi_props_job_state["error"] = f"ThreadStartError: {e}"
+                _oddsapi_props_job_state["ended_at"] = datetime.utcnow().isoformat()
+                return jsonify({
+                    "error": f"failed to start async refresh job: {e}",
+                    "date": d,
+                    "log_file": str(log_file),
+                }), 500
 
             # Accept quickly so schedulers don't fail due to timeouts.
             return jsonify({
@@ -27830,7 +27881,7 @@ def api_cron_refresh_oddsapi_props():
                 "edges": bool(do_edges),
                 "export": bool(do_export),
                 "push": bool(do_push),
-                "started_at": datetime.utcnow().isoformat(),
+                "started_at": queued_started_at,
                 "log_file": str(log_file),
                 "note": "Running in background to avoid request timeouts; check artifacts/logs later.",
             }), 202
