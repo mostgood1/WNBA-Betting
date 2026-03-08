@@ -398,6 +398,110 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .market-title { color: #9fb0ff; font-size: 11px; font-weight: 900; letter-spacing: 0.4px; }
 .market-main { color: #e8eaf6; font-size: 14px; font-weight: 900; }
 
+.prop-rec-list {
+	list-style: none;
+	margin: 8px 0 0;
+	padding: 0;
+	display: grid;
+	gap: 10px;
+}
+
+.prop-rec-item {
+	background: linear-gradient(180deg, rgba(20, 26, 55, 0.96), rgba(11, 16, 34, 0.96));
+	border: 1px solid #243056;
+	border-radius: 12px;
+	padding: 10px 12px;
+	display: grid;
+	gap: 6px;
+}
+
+.prop-rec-head {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 8px;
+}
+
+.prop-rec-title {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	min-width: 0;
+}
+
+.prop-rec-player {
+	font-size: 14px;
+	font-weight: 900;
+	color: #f4f6ff;
+	letter-spacing: 0.1px;
+	overflow-wrap: anywhere;
+}
+
+.prop-rec-pick {
+	color: #dfe6ff;
+	font-size: 13px;
+	font-weight: 800;
+	letter-spacing: 0.2px;
+}
+
+.prop-rec-meta,
+.prop-rec-guidance,
+.prop-rec-alts,
+.prop-rec-move {
+	overflow-wrap: anywhere;
+	word-break: break-word;
+}
+
+.prop-rec-meta {
+	color: #c9d5ff;
+	font-size: 12px;
+}
+
+.prop-rec-guidance {
+	color: #f3f6ff;
+	font-size: 13px;
+	line-height: 1.35;
+}
+
+.prop-rec-playto {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-wrap: wrap;
+	color: #d8e2ff;
+	font-size: 12px;
+	font-weight: 700;
+}
+
+.prop-rec-tags {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+}
+
+.prop-rec-tag {
+	display: inline-block;
+	padding: 1px 6px;
+	border-radius: 999px;
+	font-size: 10px;
+	font-weight: 700;
+	border: 1px solid #30427b;
+	background: #101734;
+	color: #cfdaff;
+}
+
+.prop-rec-alts {
+	font-size: 12px;
+}
+
+@media (max-width: 720px) {
+	.prop-rec-head {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+}
+
 /* Top tiles: keep content to a single line (avoid wasted vertical space) */
 .market-tile-bets .market-main {
 	display: flex;

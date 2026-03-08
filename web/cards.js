@@ -408,49 +408,324 @@ function marketLabel(m) {
   return map[k] || String(m || '').toUpperCase();
 }
 
+function fmtSigned(x, digits = 1) {
+  const v = n(x);
+  if (v == null) return '—';
+  return `${v >= 0 ? '+' : ''}${v.toFixed(digits)}`;
+}
+
+function prettyBookName(book) {
+  const raw = String(book || '').trim();
+  if (!raw) return '';
+  return raw
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (ch) => ch.toUpperCase());
+}
+
+function pregamePropActionBadgeClass(code) {
+  const key = String(code || '').trim().toLowerCase();
+  if (key === 'bet_now') return 'good';
+  if (key === 'shop') return 'ok';
+  if (key === 'pass') return 'bad';
+  return '';
+}
+
+function pregamePropActionRank(code) {
+  const key = String(code || '').trim().toLowerCase();
+  if (key === 'bet_now') return 4;
+  if (key === 'shop') return 3;
+  if (key === 'wait') return 2;
+  if (key === 'pass') return 1;
+  return 0;
+}
+
+function normalizePregameGuidance(guidance) {
+  if (!guidance || typeof guidance !== 'object') return null;
+  const action = String(guidance.action || '').trim();
+  const actionCode = String(guidance.action_code || action.toLowerCase().replace(/\s+/g, '_')).trim().toLowerCase();
+  return {
+    ...guidance,
+    action,
+    action_code: actionCode,
+    rank: pregamePropActionRank(actionCode),
+    tags: Array.isArray(guidance.tags) ? guidance.tags.filter(Boolean) : [],
+  };
+}
+
+function buildPregameGuidance(pick, opts = {}) {
+  const existing = normalizePregameGuidance(pick && pick.guidance);
+  if (existing) return existing;
+
+  const side = String((pick && pick.side) || opts.side || '').trim().toUpperCase();
+  const line = n(pick && pick.line);
+  const price = n(pick && pick.price);
+  const openLine = n(pick && pick.open_line);
+  const openPrice = n(pick && pick.open_price);
+  let lineMove = n(pick && pick.line_move);
+  if (lineMove == null && openLine != null && line != null) lineMove = line - openLine;
+  const impliedMove = n(pick && pick.implied_move);
+  const modelLine = n(opts.modelLine != null ? opts.modelLine : (pick && pick.sim_mu));
+  let booksCount = n(opts.booksCount);
+  if (booksCount == null) {
+    const consensus = n(opts.consensus);
+    if (consensus != null) booksCount = Math.max(1, Math.round(1 + (consensus * 4.0)));
+  }
+  const reasons = Array.isArray(opts.reasons) ? opts.reasons.map((x) => String(x || '').trim()).filter(Boolean) : [];
+  const bestLine = (opts.bestLine != null)
+    ? !!opts.bestLine
+    : ((n(opts.lineAdv) != null) ? (n(opts.lineAdv) >= 0.99) : reasons.some((x) => /best line/i.test(x)));
+  const bestPrice = (opts.bestPrice != null)
+    ? !!opts.bestPrice
+    : reasons.some((x) => /best price/i.test(x));
+
+  let entryState = 'flat';
+  try {
+    if (line != null && openLine != null && Math.abs(line - openLine) >= 0.24) {
+      if (side === 'OVER') entryState = (line < openLine) ? 'better' : 'worse';
+      else if (side === 'UNDER') entryState = (line > openLine) ? 'better' : 'worse';
+    } else if (price != null && openPrice != null && Math.abs(price - openPrice) >= 10.0) {
+      entryState = (price > openPrice) ? 'better' : 'worse';
+    }
+  } catch (_) {
+    entryState = 'flat';
+  }
+
+  let moveSignal = 0;
+  try {
+    if (lineMove != null && Math.abs(lineMove) >= 0.24) {
+      if (side === 'OVER') moveSignal = (lineMove > 0) ? 1 : -1;
+      else if (side === 'UNDER') moveSignal = (lineMove < 0) ? 1 : -1;
+    } else if (impliedMove != null && Math.abs(impliedMove) >= 0.015) {
+      if (side === 'OVER') moveSignal = (impliedMove > 0) ? 1 : -1;
+      else if (side === 'UNDER') moveSignal = (impliedMove < 0) ? 1 : -1;
+    }
+  } catch (_) {
+    moveSignal = 0;
+  }
+  const marketView = (moveSignal > 0) ? 'agree' : ((moveSignal < 0) ? 'disagree' : 'neutral');
+
+  let fastMove = false;
+  try {
+    fastMove = !!(
+      (lineMove != null && Math.abs(lineMove) >= 1.0)
+      || (impliedMove != null && Math.abs(impliedMove) >= 0.05)
+    );
+  } catch (_) {
+    fastMove = false;
+  }
+
+  let playToLine = null;
+  let withinPlayTo = true;
+  let edgeCushion = null;
+  try {
+    if (modelLine != null && line != null && (side === 'OVER' || side === 'UNDER')) {
+      edgeCushion = (side === 'OVER') ? (modelLine - line) : (line - modelLine);
+      let haircut = 0.35;
+      if (marketView === 'disagree') haircut += 0.15;
+      if (entryState === 'worse') haircut += 0.15;
+      if ((booksCount != null) && booksCount <= 1) haircut += 0.10;
+      if (!bestLine) haircut += 0.10;
+      if (fastMove) haircut += 0.10;
+      if (edgeCushion > haircut) {
+        const target = (side === 'OVER') ? (modelLine - haircut) : (modelLine + haircut);
+        if (side === 'OVER') {
+          playToLine = Math.floor(target * 2.0) / 2.0;
+          withinPlayTo = line <= (playToLine + 1e-9);
+        } else {
+          playToLine = Math.ceil(target * 2.0) / 2.0;
+          withinPlayTo = line >= (playToLine - 1e-9);
+        }
+      } else {
+        withinPlayTo = false;
+      }
+    }
+  } catch (_) {
+    playToLine = null;
+    withinPlayTo = true;
+    edgeCushion = null;
+  }
+
+  let action = 'Shop';
+  if (!withinPlayTo) {
+    action = 'Pass';
+  } else if (marketView === 'agree') {
+    if (entryState === 'better' || entryState === 'flat') action = (bestLine || (bestPrice && (booksCount || 0) >= 2)) ? 'Bet now' : 'Shop';
+    else action = (fastMove && !bestLine) ? 'Pass' : 'Shop';
+  } else if (marketView === 'disagree') {
+    if (entryState === 'better' || entryState === 'flat') action = 'Wait';
+    else action = 'Pass';
+  } else if (entryState === 'better') {
+    action = bestLine ? 'Bet now' : 'Shop';
+  } else if (entryState === 'flat') {
+    action = (bestLine && (bestPrice || (booksCount || 0) >= 2)) ? 'Bet now' : 'Shop';
+  } else {
+    action = (bestLine && !fastMove) ? 'Shop' : 'Pass';
+  }
+
+  let summary = 'Little movement so far; use line shopping.';
+  if (marketView === 'agree' && entryState === 'worse') summary = `Market agreed with the ${side.toLowerCase()}, but this number is worse than the open.`;
+  else if (marketView === 'agree') summary = `Market agreed with the ${side.toLowerCase()} and this entry is still playable.`;
+  else if (marketView === 'disagree' && entryState === 'better') summary = 'This number improved from the open, but the market is leaning the other way.';
+  else if (marketView === 'disagree') summary = `The market is moving against the ${side.toLowerCase()} without giving a better entry.`;
+  else if (entryState === 'better') summary = 'Entry improved from the open, but confirmation is limited.';
+  else if (entryState === 'worse') summary = 'Current entry is worse than the open, so price shopping matters.';
+
+  const tags = [];
+  if (marketView === 'agree') tags.push('Market agrees');
+  else if (marketView === 'disagree') tags.push('Market disagrees');
+  if (entryState === 'better') tags.push('Better than open');
+  else if (entryState === 'worse') tags.push('Worse than open');
+  if ((booksCount || 0) >= 3) tags.push(`${booksCount} books aligned`);
+  else if ((booksCount || 0) >= 2) tags.push(`${booksCount} books posted`);
+  if (bestLine) tags.push('Best line');
+  else if (bestPrice) tags.push('Best price');
+  if (fastMove) tags.push('Fast move');
+
+  return normalizePregameGuidance({
+    action,
+    action_code: action.toLowerCase().replace(/\s+/g, '_'),
+    market_view: marketView,
+    entry_state: entryState,
+    books_count: booksCount,
+    best_line: !!bestLine,
+    best_price: !!bestPrice,
+    fast_move: !!fastMove,
+    play_to_line: playToLine,
+    within_play_to: !!withinPlayTo,
+    edge_cushion: edgeCushion,
+    summary,
+    tags,
+  });
+}
+
+function pregamePropPlayLabel(pick) {
+  if (!pick || typeof pick !== 'object') return '';
+  const mk = marketLabel(pick.market);
+  const side = String(pick.side || '').toUpperCase();
+  const line = n(pick.line);
+  return `${mk} ${side}${line == null ? '' : ` ${fmt(line, 1)}`}`.trim();
+}
+
+function pregamePropMoveText(pick) {
+  if (!pick || typeof pick !== 'object') return '';
+  const openLine = n(pick.open_line);
+  const openPrice = n(pick.open_price);
+  const curLine = n(pick.line);
+  const curPrice = n(pick.price);
+  const lineMove = n(pick.line_move);
+  const impliedMove = n(pick.implied_move);
+  const bits = [];
+
+  if (openLine != null || curLine != null || openPrice != null || curPrice != null) {
+    const openBits = [];
+    const nowBits = [];
+    if (openLine != null) openBits.push(fmt(openLine, 1));
+    if (openPrice != null) openBits.push(fmtAmer(openPrice));
+    if (curLine != null) nowBits.push(fmt(curLine, 1));
+    if (curPrice != null) nowBits.push(fmtAmer(curPrice));
+    if (openBits.length || nowBits.length) bits.push(`Open ${openBits.join(' ')} → Now ${nowBits.join(' ')}`);
+  }
+  if (lineMove != null && Math.abs(lineMove) >= 0.1) bits.push(`ΔLine ${fmtSigned(lineMove, 1)}`);
+  if (impliedMove != null && Math.abs(impliedMove) >= 0.005) bits.push(`ΔImp ${pct(impliedMove, 1)}`);
+  return bits.join(' · ');
+}
+
+function renderPregamePropAltPick(pick) {
+  if (!pick || typeof pick !== 'object') return '';
+  const label = pregamePropPlayLabel(pick);
+  const book = prettyBookName(pick.book);
+  const price = n(pick.price);
+  const evPct = n(pick.ev_pct);
+  return [
+    label,
+    book ? `@ ${book}` : '',
+    price != null ? fmtAmer(price) : '',
+    evPct != null ? `EV ${fmt(evPct, 1)}%` : '',
+  ].filter(Boolean).join(' ');
+}
+
 function renderPropRecommendations(propRecs, homeTri, awayTri) {
   const recs = propRecs && typeof propRecs === 'object' ? propRecs : {};
   const home = Array.isArray(recs.home) ? recs.home : [];
   const away = Array.isArray(recs.away) ? recs.away : [];
 
-  const rows = [...home.map((r) => ({ ...r, side: 'home' })), ...away.map((r) => ({ ...r, side: 'away' }))]
+  const entries = [...home.map((r) => ({ ...r, side: 'home' })), ...away.map((r) => ({ ...r, side: 'away' }))]
     .map((r) => {
       const sideTri = r.side === 'home' ? homeTri : awayTri;
       const player = String(r.player || '').trim();
       const b = (r && r.best && typeof r.best === 'object') ? r.best : null;
       if (!player || !b) return null;
-      const picks = Array.isArray(r.picks) ? r.picks : [b];
-      const pickLines = picks.slice(0, 3).map((pp) => {
-        const mk = marketLabel(pp.market);
-        const side = String(pp.side || '').toUpperCase();
-        const line = pp.line;
-        const book = String(pp.book || '').trim();
-        const price = pp.price;
-        const evPct = n(pp.ev_pct);
-        const pwin = n(pp.p_win);
-        const mu = n(pp.sim_mu);
-        const bits = [
-          `${esc(mk)} ${esc(side)} ${fmt(line, 1)}`,
-          (pwin != null) ? `p≈${pct(pwin, 0)}` : '',
-          (mu != null) ? `(μ ${fmt(mu, 1)})` : '',
-          book ? `@ ${esc(book)}` : '',
-          n(price) != null ? `(${esc(fmtAmer(price))})` : '',
-          // EV is informative but intentionally low priority in the display.
-          (evPct != null && Math.abs(evPct) >= 0.5) ? `EV ${fmt(evPct, 1)}%` : '',
-        ].filter(Boolean).join(' ');
-        return `<div>${bits}</div>`;
-      }).join('');
-
-      return `<li><span class="badge">${esc(sideTri)}</span> ${esc(player)} — <b>${pickLines}</b></li>`;
+      const picks = Array.isArray(r.picks) ? r.picks.filter((pp) => pp && typeof pp === 'object') : [b];
+      const best = picks[0] || b;
+      const guidance = buildPregameGuidance(best, { modelLine: n(best && best.sim_mu) });
+      return { sideTri, player, picks, best, guidance };
     })
-    .filter(Boolean)
-    .slice(0, 18)
+    .filter(Boolean);
+
+  entries.sort((a, b) => {
+    const aRank = (a && a.guidance) ? pregamePropActionRank(a.guidance.action_code) : 0;
+    const bRank = (b && b.guidance) ? pregamePropActionRank(b.guidance.action_code) : 0;
+    if (bRank !== aRank) return bRank - aRank;
+    const aEv = n(a && a.best && a.best.ev_pct) ?? -1e9;
+    const bEv = n(b && b.best && b.best.ev_pct) ?? -1e9;
+    if (bEv !== aEv) return bEv - aEv;
+    return String(a && a.player || '').localeCompare(String(b && b.player || ''));
+  });
+
+  const rows = entries
+    .map(({ sideTri, player, picks, best, guidance }) => {
+      const label = pregamePropPlayLabel(best);
+      const book = prettyBookName(best.book);
+      const price = n(best.price);
+      const evPct = n(best.ev_pct);
+      const pwin = n(best.p_win);
+      const mu = n(best.sim_mu);
+      const metaBits = [
+        (pwin != null) ? `p≈${pct(pwin, 0)}` : '',
+        (mu != null) ? `μ ${fmt(mu, 1)}` : '',
+        (evPct != null) ? `EV ${fmt(evPct, 1)}%` : '',
+        book ? `@ ${book}` : '',
+        (price != null) ? fmtAmer(price) : '',
+      ].filter(Boolean).join(' · ');
+      const moveText = pregamePropMoveText(best);
+      const playToLine = n(guidance && guidance.play_to_line);
+      const side = String(best.side || '').toUpperCase();
+      const playToText = (playToLine == null)
+        ? ''
+        : `${marketLabel(best.market)} ${side} ${fmt(playToLine, 1)} or better`;
+      const action = guidance && guidance.action ? String(guidance.action) : '';
+      const actionCls = pregamePropActionBadgeClass(guidance && guidance.action_code);
+      const tagHtml = guidance && Array.isArray(guidance.tags)
+        ? guidance.tags.slice(0, 4).map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')
+        : '';
+      const altLines = picks.slice(1, 3).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+
+      return `
+        <li class="prop-rec-item">
+          <div class="prop-rec-head">
+            <div class="prop-rec-title">
+              <span class="badge">${esc(sideTri)}</span>
+              <span class="prop-rec-player">${esc(player)}</span>
+            </div>
+            ${action ? `<span class="badge ${actionCls}">${esc(action)}</span>` : ''}
+          </div>
+          <div class="prop-rec-pick">${esc(label)}</div>
+          ${metaBits ? `<div class="prop-rec-meta">${esc(metaBits)}</div>` : ''}
+          ${guidance && guidance.summary ? `<div class="prop-rec-guidance">${esc(guidance.summary)}</div>` : ''}
+          ${playToText ? `<div class="prop-rec-playto"><span class="badge">PLAY TO</span><span>${esc(playToText)}</span></div>` : ''}
+          ${moveText ? `<div class="prop-rec-move subtle">${esc(moveText)}</div>` : ''}
+          ${tagHtml ? `<div class="prop-rec-tags">${tagHtml}</div>` : ''}
+          ${altLines ? `<div class="prop-rec-alts subtle">Other lines: ${esc(altLines)}</div>` : ''}
+        </li>
+      `;
+    })
+    .slice(0, 12)
     .join('');
 
   return `
     <div class="writeup-content">
-      <div class="subtle">Recommendations computed as SmartSim vs betting line (lines/books from processed recommendations).</div>
-      <ul>
+      <div class="subtle">Recommendations are still model-vs-line. Movement is used as execution guidance so you can see whether to bet now, shop, wait, or pass.</div>
+      <ul class="prop-rec-list">
         ${rows || '<li class="subtle">No prop recommendations.</li>'}
       </ul>
     </div>
@@ -3290,6 +3565,13 @@ function renderPregamePropCallouts(callouts) {
     if (!arr.length) return '';
 
     const items = arr.map((x) => {
+      const guidance = buildPregameGuidance(x, {
+        modelLine: x.model_line,
+        booksCount: x.books_count,
+        consensus: x.consensus,
+        lineAdv: x.line_adv,
+        reasons: x.reasons,
+      });
       const tier = String(x.tier || '').trim();
       const tierU = tier.toUpperCase();
       const tierShort = (tierU === 'MEDIUM') ? 'MED' : tierU;
@@ -3299,6 +3581,9 @@ function renderPregamePropCallouts(callouts) {
       const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
       const headTxt = `${tierShort} ${sideShort}`.trim();
       const badge = headTxt ? `<span class="badge ${tierCls}">${esc(headTxt)}</span>` : '';
+      const actionBadge = (guidance && guidance.action)
+        ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>`
+        : '';
 
       const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
@@ -3321,15 +3606,14 @@ function renderPregamePropCallouts(callouts) {
 
       const openLineTxt = (openLine == null) ? '—' : fmt(openLine, 1);
       const curLineTxt = (curLine == null) ? '—' : fmt(curLine, 1);
-      const openPriceTxt = (openPrice == null) ? '—' : fmtAmer(openPrice);
       const curPriceTxt = (curPrice == null) ? '—' : fmtAmer(curPrice);
-
-      const lmTxt = (lineMove == null) ? '—' : `${lineMove >= 0 ? '+' : ''}${lineMove.toFixed(1)}`;
-      const impp = (impliedMove == null) ? null : (impliedMove * 100.0);
-      const imTxt = (impp == null) ? '—' : `${impp >= 0 ? '+' : ''}${impp.toFixed(1)}pp`;
 
       const evp = n(x.ev_pct);
       const evTxt = (evp == null) ? '' : `EV ${evp.toFixed(1)}%`;
+      const playToLine = n(guidance && guidance.play_to_line);
+      const playToText = (playToLine == null) ? '' : `Play to ${fmt(playToLine, 1)}`;
+      const moveText = pregamePropMoveText(x);
+      const tagText = (guidance && Array.isArray(guidance.tags)) ? guidance.tags.slice(0, 2).join(' · ') : '';
 
       return `
         <button
@@ -3341,6 +3625,7 @@ function renderPregamePropCallouts(callouts) {
           aria-label="Jump to ${esc(player)} ${esc(stat)} pregame movement"
         >
           <div class="prop-callout-head">
+            ${actionBadge}
             ${badge}
             <span class="badge">${esc(stat)}</span>
             ${team ? `<span class="badge">${esc(team)}</span>` : ''}
@@ -3353,10 +3638,13 @@ function renderPregamePropCallouts(callouts) {
                 ${esc(player)} <span class="subtle">${esc(stat)}</span> <span class="subtle">L${esc(curLineTxt)}</span> <span class="subtle">${esc(curPriceTxt)}</span>
               </div>
               <div class="subtle prop-callout-line">
-                ${esc(game)}
+                ${esc(game)}${playToText ? ` · ${esc(playToText)}` : ''}
               </div>
               <div class="subtle prop-callout-line">
-                Open ${esc(openLineTxt)} ${esc(openPriceTxt)} → Now ${esc(curLineTxt)} ${esc(curPriceTxt)} · ΔLine ${esc(lmTxt)} · ΔImp ${esc(imTxt)}
+                ${esc((guidance && guidance.summary) || 'Movement context unavailable.')}
+              </div>
+              <div class="subtle prop-callout-line">
+                ${esc(moveText || `Open ${openLineTxt} → Now ${curLineTxt}`)}${tagText ? ` · ${esc(tagText)}` : ''}
               </div>
             </div>
           </div>
@@ -3365,7 +3653,7 @@ function renderPregamePropCallouts(callouts) {
     }).join('');
 
     return `
-      <div class="subtle" style="margin-top:8px;">Pregame prop movement (Open → Current) — click to jump:</div>
+      <div class="subtle" style="margin-top:8px;">Pregame prop movement + action guide — click to jump:</div>
       <div class="row chips prop-callouts-rail">
         ${items}
       </div>
@@ -3481,10 +3769,30 @@ async function loadPregamePropCallouts(root, games, dateStr) {
         line_move: tp.line_move,
         implied_move: tp.implied_move,
         ev_pct: tp.ev_pct,
+        model_line: c.top_play_baseline,
+        books_count: c.top_play_books_count,
+        consensus: c.top_play_consensus,
+        line_adv: c.top_play_line_adv,
+        reasons: Array.isArray(c.top_play_reasons) ? c.top_play_reasons : [],
       });
     }
 
     callouts.sort((a, b) => {
+      const aRank = pregamePropActionRank((buildPregameGuidance(a, {
+        modelLine: a.model_line,
+        booksCount: a.books_count,
+        consensus: a.consensus,
+        lineAdv: a.line_adv,
+        reasons: a.reasons,
+      }) || {}).action_code);
+      const bRank = pregamePropActionRank((buildPregameGuidance(b, {
+        modelLine: b.model_line,
+        booksCount: b.books_count,
+        consensus: b.consensus,
+        lineAdv: b.line_adv,
+        reasons: b.reasons,
+      }) || {}).action_code);
+      if (bRank !== aRank) return bRank - aRank;
       const aLm = Math.abs(n(a.line_move) ?? ((n(a.line) != null && n(a.open_line) != null) ? (n(a.line) - n(a.open_line)) : 0));
       const bLm = Math.abs(n(b.line_move) ?? ((n(b.line) != null && n(b.open_line) != null) ? (n(b.line) - n(b.open_line)) : 0));
       if (bLm !== aLm) return bLm - aLm;

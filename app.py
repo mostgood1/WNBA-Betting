@@ -8731,6 +8731,248 @@ def _sim_vs_line_prop_recommendations(
         except Exception:
             return mu, sd
 
+    def _same_market_side_plays(row: dict[str, Any], market: str, side: str) -> list[dict[str, Any]]:
+        out: list[dict[str, Any]] = []
+        try:
+            for raw in (row.get("plays") or []):
+                if not isinstance(raw, dict):
+                    continue
+                mk = str(raw.get("market") or "").strip().lower()
+                sd = str(raw.get("side") or "").strip().upper()
+                if mk == str(market or "").strip().lower() and sd == str(side or "").strip().upper():
+                    out.append(raw)
+        except Exception:
+            return []
+        return out
+
+    def _aligned_books_count(plays: list[dict[str, Any]]) -> int:
+        try:
+            books = {
+                str(p.get("book") or "").strip().lower()
+                for p in (plays or [])
+                if isinstance(p, dict) and str(p.get("book") or "").strip()
+            }
+            return int(len(books))
+        except Exception:
+            return 0
+
+    def _best_line_available(side: str, plays: list[dict[str, Any]], line: float | None) -> bool:
+        try:
+            cur = _safe_float(line)
+            if cur is None:
+                return False
+            lines = [_safe_float(p.get("line")) for p in (plays or []) if isinstance(p, dict)]
+            lines = [float(v) for v in lines if v is not None]
+            if not lines:
+                return False
+            sd = str(side or "").strip().upper()
+            if sd == "OVER":
+                return bool(float(cur) <= min(lines) + 1e-9)
+            if sd == "UNDER":
+                return bool(float(cur) >= max(lines) - 1e-9)
+        except Exception:
+            return False
+        return False
+
+    def _best_price_available(plays: list[dict[str, Any]], price: float | None) -> bool:
+        try:
+            cur = _safe_float(price)
+            if cur is None:
+                return False
+            prices = [_safe_float(p.get("price")) for p in (plays or []) if isinstance(p, dict)]
+            prices = [float(v) for v in prices if v is not None]
+            return bool(prices and float(cur) >= max(prices) - 1e-9)
+        except Exception:
+            return False
+
+    def _build_pregame_guidance(play: dict[str, Any], same_market_plays: list[dict[str, Any]]) -> dict[str, Any]:
+        side = str(play.get("side") or "").strip().upper()
+        line = _safe_float(play.get("line"))
+        price = _safe_float(play.get("price"))
+        open_line = _safe_float(play.get("open_line"))
+        open_price = _safe_float(play.get("open_price"))
+        line_move = _safe_float(play.get("line_move"))
+        implied_move = _safe_float(play.get("implied_move"))
+        sim_mu = _safe_float(play.get("sim_mu"))
+        books_count = _aligned_books_count(same_market_plays)
+        best_line = _best_line_available(side, same_market_plays, line)
+        best_price = _best_price_available(same_market_plays, price)
+
+        entry_state = "flat"
+        try:
+            if line is not None and open_line is not None and abs(float(line) - float(open_line)) >= 0.24:
+                if side == "OVER":
+                    entry_state = "better" if float(line) < float(open_line) else "worse"
+                elif side == "UNDER":
+                    entry_state = "better" if float(line) > float(open_line) else "worse"
+            elif price is not None and open_price is not None and abs(float(price) - float(open_price)) >= 10.0:
+                entry_state = "better" if float(price) > float(open_price) else "worse"
+        except Exception:
+            entry_state = "flat"
+
+        move_signal = 0
+        try:
+            if line_move is not None and abs(float(line_move)) >= 0.24:
+                if side == "OVER":
+                    move_signal = 1 if float(line_move) > 0 else -1
+                elif side == "UNDER":
+                    move_signal = 1 if float(line_move) < 0 else -1
+            elif implied_move is not None and abs(float(implied_move)) >= 0.015:
+                if side == "OVER":
+                    move_signal = 1 if float(implied_move) > 0 else -1
+                elif side == "UNDER":
+                    move_signal = 1 if float(implied_move) < 0 else -1
+        except Exception:
+            move_signal = 0
+        market_view = "agree" if move_signal > 0 else ("disagree" if move_signal < 0 else "neutral")
+
+        fast_move = False
+        try:
+            fast_move = bool(
+                (line_move is not None and abs(float(line_move)) >= 1.0)
+                or (implied_move is not None and abs(float(implied_move)) >= 0.05)
+            )
+        except Exception:
+            fast_move = False
+
+        play_to_line = None
+        within_play_to = True
+        edge_cushion = None
+        try:
+            if sim_mu is not None and line is not None and side in {"OVER", "UNDER"}:
+                edge_cushion = (float(sim_mu) - float(line)) if side == "OVER" else (float(line) - float(sim_mu))
+                haircut = 0.35
+                if market_view == "disagree":
+                    haircut += 0.15
+                if entry_state == "worse":
+                    haircut += 0.15
+                if books_count <= 1:
+                    haircut += 0.10
+                if not best_line:
+                    haircut += 0.10
+                if fast_move:
+                    haircut += 0.10
+                if edge_cushion is not None and float(edge_cushion) > haircut:
+                    target = (float(sim_mu) - haircut) if side == "OVER" else (float(sim_mu) + haircut)
+                    if side == "OVER":
+                        play_to_line = math.floor(target * 2.0) / 2.0
+                        within_play_to = bool(float(line) <= float(play_to_line) + 1e-9)
+                    else:
+                        play_to_line = math.ceil(target * 2.0) / 2.0
+                        within_play_to = bool(float(line) >= float(play_to_line) - 1e-9)
+                else:
+                    within_play_to = False
+        except Exception:
+            play_to_line = None
+            within_play_to = True
+
+        action = "Shop"
+        if not within_play_to:
+            action = "Pass"
+        elif market_view == "agree":
+            if entry_state in {"better", "flat"}:
+                action = "Bet now" if (best_line or (best_price and books_count >= 2)) else "Shop"
+            else:
+                action = "Pass" if (fast_move and not best_line) else "Shop"
+        elif market_view == "disagree":
+            if entry_state == "better":
+                action = "Wait"
+            elif entry_state == "flat":
+                action = "Wait"
+            else:
+                action = "Pass"
+        else:
+            if entry_state == "better":
+                action = "Bet now" if best_line else "Shop"
+            elif entry_state == "flat":
+                action = "Bet now" if (best_line and (best_price or books_count >= 2)) else "Shop"
+            else:
+                action = "Shop" if (best_line and not fast_move) else "Pass"
+
+        summary = "Little movement so far; use line shopping."
+        if market_view == "agree" and entry_state == "worse":
+            summary = f"Market agreed with the {side.lower()}, but this number is worse than the open."
+        elif market_view == "agree":
+            summary = f"Market agreed with the {side.lower()} and this entry is still playable."
+        elif market_view == "disagree" and entry_state == "better":
+            summary = f"This number improved from the open, but the market is leaning the other way."
+        elif market_view == "disagree":
+            summary = f"The market is moving against the {side.lower()} without giving a better entry."
+        elif entry_state == "better":
+            summary = "Entry improved from the open, but confirmation is limited."
+        elif entry_state == "worse":
+            summary = "Current entry is worse than the open, so price shopping matters."
+
+        tags: list[str] = []
+        if market_view == "agree":
+            tags.append("Market agrees")
+        elif market_view == "disagree":
+            tags.append("Market disagrees")
+        if entry_state == "better":
+            tags.append("Better than open")
+        elif entry_state == "worse":
+            tags.append("Worse than open")
+        if books_count >= 3:
+            tags.append(f"{books_count} books aligned")
+        elif books_count >= 2:
+            tags.append(f"{books_count} books posted")
+        if best_line:
+            tags.append("Best line")
+        elif best_price:
+            tags.append("Best price")
+        if fast_move:
+            tags.append("Fast move")
+
+        return {
+            "action": action,
+            "action_code": str(action).strip().lower().replace(" ", "_"),
+            "market_view": market_view,
+            "entry_state": entry_state,
+            "books_count": books_count,
+            "best_line": bool(best_line),
+            "best_price": bool(best_price),
+            "fast_move": bool(fast_move),
+            "play_to_line": play_to_line,
+            "within_play_to": bool(within_play_to),
+            "edge_cushion": edge_cushion,
+            "summary": summary,
+            "tags": tags,
+        }
+
+    def _build_scored_play(
+        source_play: dict[str, Any],
+        row: dict[str, Any],
+        market: str,
+        side: str,
+        line: float,
+        price: float | None,
+        mu: float,
+        sd: float,
+        pw: float,
+        ev: float,
+    ) -> dict[str, Any]:
+        scored_play: dict[str, Any] = {
+            "market": str(market).strip().lower(),
+            "side": str(side).strip().upper(),
+            "line": float(line),
+            "book": str(source_play.get("book") or "").strip().lower() or None,
+            "price": _safe_float(price) if price is not None else None,
+            "sim_mu": float(mu),
+            "sim_sd": float(sd),
+            "p_win": float(pw),
+            "ev": float(ev),
+            "ev_pct": float(ev) * 100.0,
+        }
+        for key in ("snapshot_ts", "open_snapshot_ts"):
+            if key in source_play:
+                scored_play[key] = source_play.get(key)
+        for key in ("open_line", "open_price", "open_implied_prob", "line_move", "implied_move", "edge"):
+            if key in source_play:
+                scored_play[key] = _safe_float(source_play.get(key))
+        same_market_plays = _same_market_side_plays(row, market, side)
+        scored_play["guidance"] = _build_pregame_guidance(scored_play, same_market_plays)
+        return scored_play
+
     # Build team-scoped lookups from normalized name -> player sim row.
     # This prevents any accidental cross-team name matching.
     lookup_by_team: dict[str, dict[str, dict[str, Any]]] = {
@@ -8814,18 +9056,18 @@ def _sim_vs_line_prop_recommendations(
                         except Exception:
                             pass
                     scored_plays.append(
-                        {
-                            "market": str(market).strip().lower(),
-                            "side": str(side).strip().upper(),
-                            "line": float(line),
-                            "book": str(play.get("book") or "").strip().lower() or None,
-                            "price": _safe_float(price) if price is not None else None,
-                            "sim_mu": float(mu),
-                            "sim_sd": float(sd),
-                            "p_win": float(pw),
-                            "ev": float(ev),
-                            "ev_pct": float(ev) * 100.0,
-                        }
+                        _build_scored_play(
+                            play,
+                            rr,
+                            str(market),
+                            str(side),
+                            float(line),
+                            _safe_float(price) if price is not None else None,
+                            float(mu),
+                            float(sd),
+                            float(pw),
+                            float(ev),
+                        )
                     )
 
                 # If plays were missing/unusable, fall back to top_play
@@ -8868,18 +9110,18 @@ def _sim_vs_line_prop_recommendations(
                                         except Exception:
                                             pass
                                     scored_plays.append(
-                                        {
-                                            "market": str(market).strip().lower(),
-                                            "side": str(side).strip().upper(),
-                                            "line": float(line),
-                                            "book": str(tp.get("book") or "").strip().lower() or None,
-                                            "price": _safe_float(price) if price is not None else None,
-                                            "sim_mu": float(mu),
-                                            "sim_sd": float(sd),
-                                            "p_win": float(pw),
-                                            "ev": float(ev),
-                                            "ev_pct": float(ev) * 100.0,
-                                        }
+                                        _build_scored_play(
+                                            tp,
+                                            rr,
+                                            str(market),
+                                            str(side),
+                                            float(line),
+                                            _safe_float(price) if price is not None else None,
+                                            float(mu),
+                                            float(sd),
+                                            float(pw),
+                                            float(ev),
+                                        )
                                     )
 
                 if not scored_plays:
@@ -21081,6 +21323,8 @@ def api_props_recommendations():
                     "top_play_baseline": c.get("top_play_baseline"),
                     "top_play_reasons": c.get("top_play_reasons"),
                     "top_play_explain": c.get("top_play_explain"),
+                    "top_play_consensus": c.get("top_play_consensus"),
+                    "top_play_line_adv": c.get("top_play_line_adv"),
                     "top_play_books_count": c.get("top_play_books_count"),
                     "score": c.get("score"),
                     # In compact full-list mode, do not attach score_adj unless portfolio_only is used
