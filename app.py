@@ -9234,7 +9234,7 @@ def _sim_vs_line_prop_recommendations(
                     if market is None or side is None or line is None:
                         continue
 
-                    # ROI defaults: restrict markets/books unless caller overrides.
+                    # Restrict markets by default; bookmaker filters are opt-in.
                     try:
                         mk = str(market).strip().lower()
                     except Exception:
@@ -9290,7 +9290,7 @@ def _sim_vs_line_prop_recommendations(
                         line = _safe_float(tp.get("line"))
                         price = tp.get("price")
                         if market is not None and side is not None and line is not None:
-                            # Apply the same ROI defaults to the fallback path.
+                            # Apply the same market defaults and optional book filters to the fallback path.
                             try:
                                 mk = str(market).strip().lower()
                             except Exception:
@@ -9926,9 +9926,13 @@ def api_cards():
             min_ev_pct = 1.0 if min_ev_pct is None else float(min_ev_pct)
         except Exception:
             min_ev_pct = 1.0
-        allowed_books = _player_prop_bookmakers_set(
-            request.args.get("bookmakers") or request.args.get("books"),
-            env_name="PLAYER_PROP_BOOKMAKERS",
+        requested_books = request.args.get("bookmakers")
+        if requested_books is None:
+            requested_books = request.args.get("books")
+        allowed_books = (
+            _player_prop_bookmakers_set(requested_books, env_name="PLAYER_PROP_BOOKMAKERS")
+            if requested_books is not None and str(requested_books).strip()
+            else None
         )
         try:
             exc_raw = (request.args.get("excludeBooks") or request.args.get("exclude_books"))
@@ -19091,7 +19095,7 @@ def api_props_recommendations():
       - onlyEV: 1 to hide plays without EV
       - home_team/away_team: optional filter to a specific game
             - excludeBooks/exclude_books: optional comma-separated list of bookmakers to exclude.
-                Default (when omitted): fanduel,draftkings,williamhill_us. Use 'none' to disable.
+                When omitted, no books are excluded. Use 'none' to keep all books.
         Response:
             { date, rows, games: [{home_team,away_team}], data: [{player,team,home_team,away_team,plays:[...] }]}.
         Sorting:
@@ -19645,16 +19649,15 @@ def api_props_recommendations():
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c], errors="coerce")
 
-        # Default ROI filter: exclude historically bad-performing books unless caller overrides.
+        # Pregame defaults keep all books; callers can still exclude books explicitly.
         try:
             def _nbook(v: object) -> str:
                 return str(v or "").strip().lower()
 
             exc_raw = (request.args.get("excludeBooks") or request.args.get("exclude_books"))
-            default_excluded = {"fanduel", "draftkings", "williamhill_us"}
             excluded_books: set[str] | None = None
             if exc_raw is None:
-                excluded_books = set(default_excluded)
+                excluded_books = set()
             else:
                 s = str(exc_raw or "").strip().lower()
                 if s in {"", "none", "off", "0", "false", "no"}:
