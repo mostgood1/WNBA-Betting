@@ -2677,8 +2677,8 @@ try {
     '--yesterday', $yesterday,
     '--rotations-min-coverage', $env:ROTATIONS_MIN_COVERAGE
     )
-  if ($LASTEXITCODE -ne 0) {
-    Write-Log ("Daily artifact validation failed (exit={0})" -f $LASTEXITCODE)
+  if ($outV -ne 0) {
+    Write-Log ("Daily artifact validation failed (exit={0})" -f $outV)
     if ($fail -match '^(1|true|yes)$') { throw "daily artifacts missing" }
   } else {
     Write-Log 'Daily artifact validation OK'
