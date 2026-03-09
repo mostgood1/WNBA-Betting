@@ -17,7 +17,6 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 _DATA_ROOT_ENV = (os.environ.get("NBA_BETTING_DATA_ROOT") or "").strip()
 DATA_ROOT = Path(_DATA_ROOT_ENV).expanduser().resolve() if _DATA_ROOT_ENV else (BASE_DIR / "data")
 PROC_DIR = DATA_ROOT / "processed"
-RAW_DIR = DATA_ROOT / "raw"
 
 EXCLUDE_STATUSES = {"OUT", "DOUBTFUL", "SUSPENDED", "INACTIVE", "REST"}
 
@@ -55,8 +54,6 @@ def main() -> None:
 
     props_path = PROC_DIR / f"props_predictions_{date_str}.csv"
     inj_excl_path = PROC_DIR / f"injuries_excluded_{date_str}.csv"
-    raw_inj_path = RAW_DIR / "injuries.csv"
-
     if not props_path.exists():
         raise SystemExit(f"missing {props_path}")
 
@@ -80,7 +77,10 @@ def main() -> None:
             if tri and k:
                 allow[tri].add(k)
 
-    # Build exclusions from processed injuries_excluded + raw injuries latest.
+    # Build exclusions from the processed injuries_excluded snapshot only.
+    # This matches the actual filtering step in daily_update.ps1 and avoids
+    # re-introducing raw-feed-only contradictions that are already covered by
+    # injuries_counts / league_status consistency checks elsewhere.
     excl: dict[str, set[str]] = defaultdict(set)
 
     if inj_excl_path.exists():
@@ -104,39 +104,6 @@ def main() -> None:
             for _, r in df[[c for c in [tcol, ncol] if c in df.columns]].dropna().iterrows():
                 tri = str(to_tricode(r.get(tcol)) or r.get(tcol) or "").strip().upper()
                 k = str(_norm_player_key(r.get(ncol)) or "").strip().upper()
-                if tri and k:
-                    excl[tri].add(k)
-
-    if raw_inj_path.exists():
-        df = pd.read_csv(raw_inj_path)
-        if {"team", "player", "status", "date"}.issubset(set(df.columns)):
-            df = df.copy()
-            df["date"] = pd.to_datetime(df["date"], errors="coerce")
-            df = df[df["date"].notna()].copy()
-            cutoff = pd.to_datetime(date_str, errors="coerce")
-            if pd.notna(cutoff):
-                df = df[df["date"] <= cutoff].copy()
-            df = df.sort_values(["date"]).groupby(["player", "team"], as_index=False).tail(1)
-            st = df["status"].astype(str).str.upper().str.strip()
-            season_out = _is_season_exclusion(df["status"])
-
-            # Apply the same recency gating used elsewhere in the pipeline:
-            # don't treat OUT/DOUBTFUL/etc as actionable if the injury row is stale.
-            # This avoids false conflicts when the raw feed isn't updated promptly.
-            try:
-                if pd.notna(cutoff):
-                    days_old = (cutoff - df["date"]).dt.days
-                    stale_excl = st.isin(EXCLUDE_STATUSES) & (~season_out) & (days_old > 3)
-                    df = df[~stale_excl].copy()
-                    st = df["status"].astype(str).str.upper().str.strip()
-                    season_out = _is_season_exclusion(df["status"])
-            except Exception:
-                pass
-
-            df = df[st.isin(EXCLUDE_STATUSES) | season_out].copy()
-            for _, r in df.iterrows():
-                tri = str(to_tricode(r.get("team")) or r.get("team") or "").strip().upper()
-                k = str(_norm_player_key(r.get("player")) or "").strip().upper()
                 if tri and k:
                     excl[tri].add(k)
 
