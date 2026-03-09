@@ -1,13 +1,13 @@
-name: "NBA Betting: Daily Update (9AM Central)"
+name: "NBA Betting: Daily Update (7AM Central)"
 
 on:
   workflow_dispatch: {}
   schedule:
     # GitHub cron is UTC and does not support timezones.
-    # 9:00 AM US Central is 14:00 UTC during CDT and 15:00 UTC during CST.
+    # 7:00 AM US Central is 12:00 UTC during CDT and 13:00 UTC during CST.
     # We schedule both and gate at runtime using Windows' Central time conversion.
-    - cron: "0 14 * * *"
-    - cron: "0 15 * * *"
+    - cron: "0 12 * * *"
+    - cron: "0 13 * * *"
 
 permissions:
   contents: write
@@ -22,7 +22,7 @@ jobs:
     timeout-minutes: 360
 
     steps:
-      - name: Decide whether to run (9AM Central)
+      - name: Decide whether to run (7AM Central)
         id: decide
         shell: powershell
         run: |
@@ -33,7 +33,7 @@ jobs:
           $date = $centralNow.ToString('yyyy-MM-dd')
           $run = 'true'
           if ($event -eq 'schedule') {
-            $run = if ($centralNow.Hour -eq 9) { 'true' } else { 'false' }
+            $run = if ($centralNow.Hour -eq 7) { 'true' } else { 'false' }
           }
 
           Write-Host "event=$event"
@@ -44,11 +44,11 @@ jobs:
           "run=$run" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
           "date=$date" | Out-File -FilePath $env:GITHUB_OUTPUT -Append -Encoding utf8
 
-      - name: Stop early (not 9AM Central)
+      - name: Stop early (not 7AM Central)
         if: steps.decide.outputs.run != 'true'
         shell: powershell
         run: |
-          Write-Host "Skipping run: not 9AM Central for this schedule tick."
+          Write-Host "Skipping run: not 7AM Central for this schedule tick."
 
       - name: Checkout
         if: steps.decide.outputs.run == 'true'
