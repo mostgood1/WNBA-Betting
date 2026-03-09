@@ -6451,8 +6451,7 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
         features_path = paths.data_processed / "features.parquet"
         csv_fallback = paths.data_processed / "features.csv"
         if not features_path.exists() and not csv_fallback.exists():
-            console.print("Features not found. Run build-features first.", style="red")
-            return
+            raise click.ClickException("Features not found. Run build-features first.")
 
         try:
             if features_path.exists():
@@ -6464,11 +6463,9 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
             if csv_fallback.exists():
                 features_df = pd.read_csv(csv_fallback)
             else:
-                console.print(
-                    "Failed to read features.parquet (pyarrow/fastparquet missing) and CSV fallback not found.",
-                    style="red",
+                raise click.ClickException(
+                    "Failed to read features.parquet (pyarrow/fastparquet missing) and CSV fallback not found."
                 )
-                return
 
 
         # Filter to the specific date if provided
@@ -6484,6 +6481,7 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
             try:
                 odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
                 raw_games_csv = paths.data_raw / "games_nba_api.csv"
+                raw_games_parq = paths.data_raw / "games_nba_api.parquet"
                 slate_df = None
 
                 if odds_path.exists():
@@ -6544,8 +6542,16 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                     except Exception:
                         pass
 
-                if slate_df is not None and not slate_df.empty and raw_games_csv.exists():
+                raw_games = None
+                if raw_games_parq.exists():
+                    try:
+                        raw_games = pd.read_parquet(raw_games_parq)
+                    except Exception:
+                        raw_games = None
+                if raw_games is None and raw_games_csv.exists():
                     raw_games = pd.read_csv(raw_games_csv)
+
+                if slate_df is not None and not slate_df.empty and raw_games is not None and not raw_games.empty:
                     # Ensure columns exist
                     for col in ["date","home_team","visitor_team","home_pts","visitor_pts"]:
                         if col not in raw_games.columns:
@@ -6562,20 +6568,25 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                     features_df = feats2[feats2["date"] == target_date]
 
                 if features_df.empty:
-                    console.print(f"No games found for {date_str}", style="yellow")
-                    return
-            except Exception:
-                console.print(f"No games found for {date_str}", style="yellow")
-                return
+                    raise click.ClickException(f"No games found for {date_str}")
+            except click.ClickException:
+                raise
+            except Exception as e:
+                raise click.ClickException(f"No games found for {date_str}: {e}")
         
         from .games_npu import predict_games_npu
         preds = predict_games_npu(features_df, include_periods=periods, calibrate_periods=calibrate_periods)
     except ImportError as e:
-        console.print(f"NPU dependencies not available: {e}", style="red"); return
+        raise click.ClickException(f"NPU dependencies not available: {e}")
     except FileNotFoundError:
-        console.print("NPU game models not found. Run train-games-npu first.", style="red"); return
+        raise click.ClickException("NPU game models not found. Run train-games-npu first.")
+    except click.ClickException:
+        raise
     except Exception as e:
-        console.print(f"Failed to predict games with NPU: {e}", style="red"); return
+        raise click.ClickException(f"Failed to predict games with NPU: {e}")
+
+    if preds is None or preds.empty:
+        raise click.ClickException(f"predict-games-npu produced no rows for {date_str}")
     
     if not out_path:
         out_path = str(paths.data_processed / f"games_predictions_npu_{date_str}.csv")
