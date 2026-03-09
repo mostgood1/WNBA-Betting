@@ -66,6 +66,8 @@ data/processed/**
 !data/processed/period_lines_synthetic.csv
 # Season schedule for UI
 !data/processed/schedule_*.json
+# Season roster seeds for CI and league-status fallback
+!data/processed/rosters_*.csv
 # Additional PBP-derived and diagnostics artifacts we want committed
 !data/processed/pbp_reconcile_*.csv
 !data/processed/tip_winner_probs_*.csv

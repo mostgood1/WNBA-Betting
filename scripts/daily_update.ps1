@@ -615,6 +615,17 @@ try {
   if ([string]::IsNullOrWhiteSpace($rostersPath)) {
     $rostersPath = Join-Path $RepoRoot ("data/processed/rosters_{0}.csv" -f $seasonStr)
   }
+  $isCi = $false
+  try {
+    $ga = $env:GITHUB_ACTIONS
+    $ci = $env:CI
+    if (($null -ne $ga -and $ga -match '^(1|true|yes)$') -or ($null -ne $ci -and $ci -match '^(1|true|yes)$')) { $isCi = $true }
+  } catch { $isCi = $false }
+  $forceRosterPreflight = $false
+  try {
+    $forceRosterPreflight = ($null -ne $env:DAILY_FORCE_ROSTER_PREFLIGHT -and $env:DAILY_FORCE_ROSTER_PREFLIGHT -match '^(1|true|yes)$')
+  } catch { $forceRosterPreflight = $false }
+  $hasRosterSeed = Test-CsvHasDataRows -Path $rostersPath
   $maxAgeH = $env:DAILY_ROSTERS_MAX_AGE_HOURS
   # NBA Stats rosters are relatively stable day-to-day, and the endpoint can be flaky.
   # Default to a wider freshness window to avoid repeated slow fetches.
@@ -622,6 +633,8 @@ try {
   try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
   if (Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) {
     Write-Log ("Rosters already fresh (<= {0}h); skipping fetch-rosters: {1}" -f $maxAgeH, $rostersPath)
+  } elseif ($isCi -and -not $forceRosterPreflight -and -not $hasRosterSeed) {
+    Write-Log ("CI preflight: no seeded roster artifact found at {0}; skipping fetch-rosters to avoid a full NBA Stats crawl. Set DAILY_FORCE_ROSTER_PREFLIGHT=1 to force a refresh." -f $rostersPath)
   } else {
     Write-Log ("Fetching team rosters for season {0}" -f $seasonStr)
     $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'

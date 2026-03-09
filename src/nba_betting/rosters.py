@@ -146,6 +146,16 @@ def fetch_rosters(
     failed: List[dict] = []
     refreshed: list[str] = []
     fetch_successes = 0
+    total_teams = sum(1 for t in team_list if t.get('id'))
+    try:
+        print(
+            f"[fetch_rosters] start season={season} teams={total_teams} "
+            f"seed={None if seed_csv is None else seed_csv.name} "
+            f"seed_teams={len(team_frames)} timeout={request_timeout}s retries={max_retries}",
+            flush=True,
+        )
+    except Exception:
+        pass
     for t in team_list:
         tid = t.get('id'); tri = t.get('abbreviation'); name = t.get('full_name')
         if not tid:
@@ -154,6 +164,10 @@ def fetch_rosters(
         last_err = None
         for attempt in range(int(max_retries)):
             try:
+                print(
+                    f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max_retries)}",
+                    flush=True,
+                )
                 # nba_api uses requests under the hood; explicit per-request timeout prevents hangs.
                 res = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=int(request_timeout))
                 nd = res.get_normalized_dict()
@@ -168,12 +182,24 @@ def fetch_rosters(
                 team_frames[tri] = df
                 refreshed.append(tri)
                 fetch_successes += 1
+                if fetch_successes == 1 or (fetch_successes % 5) == 0 or fetch_successes == total_teams:
+                    print(
+                        f"[fetch_rosters] progress refreshed={fetch_successes}/{total_teams} latest={tri}",
+                        flush=True,
+                    )
                 if persist_every > 0 and (fetch_successes % persist_every) == 0:
                     _persist_roster_frames(team_frames, out_csv, out_parq)
                 last_err = None
                 break
             except Exception as e:
                 last_err = str(e)
+                try:
+                    print(
+                        f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max_retries)} failed: {last_err}",
+                        flush=True,
+                    )
+                except Exception:
+                    pass
                 # NBA Stats API is rate-limited; backoff a bit.
                 try:
                     time.sleep(float(rate_delay) * float(1 + attempt))
