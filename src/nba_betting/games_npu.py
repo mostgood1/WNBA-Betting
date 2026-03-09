@@ -679,6 +679,18 @@ def predict_games_npu(features_df: pd.DataFrame, include_periods: bool = True, c
         except Exception as e:
             print(f"[CAL][WARN] Period calibration skipped: {e}")
 
+    # Add compatibility aliases so downstream tools can consume either artifact style.
+    if "win_prob" in pred_df.columns and "home_win_prob" not in pred_df.columns:
+        pred_df["home_win_prob"] = pred_df["win_prob"]
+    if "win_prob_raw" in pred_df.columns and "home_win_prob_raw" not in pred_df.columns:
+        pred_df["home_win_prob_raw"] = pred_df["win_prob_raw"]
+    if "win_prob_from_spread" in pred_df.columns and "home_win_prob_from_spread" not in pred_df.columns:
+        pred_df["home_win_prob_from_spread"] = pred_df["win_prob_from_spread"]
+    if "spread_margin" in pred_df.columns and "pred_margin" not in pred_df.columns:
+        pred_df["pred_margin"] = pred_df["spread_margin"]
+    if "totals" in pred_df.columns and "pred_total" not in pred_df.columns:
+        pred_df["pred_total"] = pred_df["totals"]
+
     return pred_df
 
 

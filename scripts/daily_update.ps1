@@ -817,6 +817,8 @@ try {
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
 # NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
 $predictionsPath = Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $Date)
+$gamesPredictionsNpuPath = Join-Path $RepoRoot ("data/processed/games_predictions_npu_{0}.csv" -f $Date)
+$usedPredictGamesNpuFallback = $false
 $predictStarted = Get-Date
 $predictionsWriteTimeBefore = $null
 if (Test-Path $predictionsPath) {
@@ -837,16 +839,36 @@ if (Test-Path $predictionsPath) {
   }
 }
 
+if (-not $NoSlateDay -and -not $predictionsRefreshed) {
+  Write-Log ("predict-date did not produce a fresh predictions file; attempting predict-games-npu fallback for {0}" -f $Date)
+  try {
+    $rcPredFallback = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
+    Write-Log ("predict-games-npu fallback exit code: {0}" -f $rcPredFallback)
+    if (($rcPredFallback -eq 0) -and (Test-Path $gamesPredictionsNpuPath)) {
+      Copy-Item -Path $gamesPredictionsNpuPath -Destination $predictionsPath -Force
+      $predictionsRefreshed = $true
+      $usedPredictGamesNpuFallback = $true
+      Write-Log ("predict-date fallback applied from {0} -> {1}" -f $gamesPredictionsNpuPath, $predictionsPath)
+    }
+  } catch {
+    Write-Log ("predict-games-npu fallback failed (non-fatal): {0}" -f $_.Exception.Message)
+  }
+}
+
 if ($rc1 -ne 0) {
   if ($NoSlateDay) {
     Write-Log ("WARNING: predict-date failed on a no-slate day (exit={0}); continuing without requiring refreshed predictions" -f $rc1)
   } elseif (-not $predictionsRefreshed) {
     throw ("predict-date failed and did not refresh predictions file: {0} (exit={1})" -f $predictionsPath, $rc1)
+  } elseif ($usedPredictGamesNpuFallback) {
+    Write-Log ("WARNING: predict-date exited nonzero; continuing with predict-games-npu fallback predictions: {0}" -f $predictionsPath)
   } else {
     Write-Log ("WARNING: predict-date exited nonzero but refreshed predictions file: {0}" -f $predictionsPath)
   }
 } elseif (-not $NoSlateDay -and -not (Test-Path $predictionsPath)) {
   throw ("predict-date reported success but predictions file is missing: {0}" -f $predictionsPath)
+} elseif (-not $NoSlateDay -and -not $predictionsRefreshed) {
+  throw ("predict-date completed without producing a fresh predictions file: {0}" -f $predictionsPath)
 } elseif (-not $predictionsRefreshed) {
   Write-Log ("WARNING: predict-date did not appear to refresh predictions file: {0}" -f $predictionsPath)
 }
@@ -870,9 +892,13 @@ try {
 
 # 1.5) NPU game predictions using enhanced features (CSV-based; no parquet engine required)
 try {
-  Write-Log ("Running NPU game predictions for {0}" -f $Date)
-  $rcNpu = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
-  Write-Log ("predict-games-npu exit code: {0}" -f $rcNpu)
+  if ($usedPredictGamesNpuFallback -and (Test-Path $gamesPredictionsNpuPath)) {
+    Write-Log ("Skipping standalone NPU game predictions for {0}; fallback artifact already exists: {1}" -f $Date, $gamesPredictionsNpuPath)
+  } else {
+    Write-Log ("Running NPU game predictions for {0}" -f $Date)
+    $rcNpu = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-games-npu','--date', $Date)
+    Write-Log ("predict-games-npu exit code: {0}" -f $rcNpu)
+  }
 } catch {
   Write-Log ("predict-games-npu failed (non-fatal): {0}" -f $_.Exception.Message)
 }
