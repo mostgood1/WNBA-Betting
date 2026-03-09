@@ -6573,6 +6573,8 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                 raise
             except Exception as e:
                 raise click.ClickException(f"No games found for {date_str}: {e}")
+
+        _ensure_game_models_available()
         
         from .games_npu import predict_games_npu
         preds = predict_games_npu(features_df, include_periods=periods, calibrate_periods=calibrate_periods)
@@ -11676,6 +11678,54 @@ def predict(input_csv: str):
     console.print(f"Saved predictions to {out}")
 
 
+def _load_prediction_feature_history() -> pd.DataFrame:
+    feats_csv = paths.data_processed / "features.csv"
+    feats_parquet = paths.data_processed / "features.parquet"
+    if feats_csv.exists():
+        return pd.read_csv(feats_csv).sort_values("date")
+    if feats_parquet.exists():
+        return pd.read_parquet(feats_parquet).sort_values("date")
+    raise FileNotFoundError("Features not found. Run build-features first.")
+
+
+def _ensure_game_models_available(hist: pd.DataFrame | None = None) -> bool:
+    required = [
+        paths.models / "feature_columns.joblib",
+        paths.models / "win_prob.joblib",
+        paths.models / "spread_margin.joblib",
+        paths.models / "totals.joblib",
+        paths.models / "halves_models.joblib",
+        paths.models / "quarters_models.joblib",
+    ]
+    missing = [path for path in required if not path.exists()]
+    if not missing:
+        return False
+
+    if hist is None:
+        hist = _load_prediction_feature_history()
+
+    console.print(
+        "Missing game model artifacts; bootstrapping baseline models from committed features.",
+        style="yellow",
+    )
+    console.print({"missing_game_models": [path.name for path in missing]})
+
+    from .train import train_models
+
+    metrics = train_models(hist.copy())
+    remaining = [path for path in required if not path.exists()]
+    if remaining:
+        missing_names = ", ".join(path.name for path in remaining)
+        raise RuntimeError(f"Failed to bootstrap game models; still missing: {missing_names}")
+
+    metric_summary = {
+        key: (round(value, 4) if isinstance(value, float) else value)
+        for key, value in metrics.items()
+    }
+    console.print({"bootstrapped_game_models": True, **metric_summary})
+    return True
+
+
 def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     """Core prediction routine used by predict() and predict-date().
 
@@ -11684,16 +11734,18 @@ def _predict_from_matchups(inp: pd.DataFrame) -> pd.DataFrame:
     """
     # Load features history to bootstrap Elo and recent form
     # Try CSV first (ARM64 compatible), fallback to parquet
-    feats_csv = paths.data_processed / "features.csv"
-    feats_parquet = paths.data_processed / "features.parquet"
-    
-    if feats_csv.exists():
-        hist = pd.read_csv(feats_csv).sort_values("date")
-    elif feats_parquet.exists():
-        hist = pd.read_parquet(feats_parquet).sort_values("date")
-    else:
+    try:
+        hist = _load_prediction_feature_history()
+    except FileNotFoundError:
         console.print("Features not found. Run build-features first.", style="red")
         raise SystemExit(1)
+
+    try:
+        _ensure_game_models_available(hist=hist)
+    except Exception as e:
+        console.print(f"Failed to bootstrap game models: {e}", style="red")
+        raise SystemExit(1)
+
     elo = Elo()
     # Roll through history to update Elo
     for _, row in track(hist.iterrows(), total=len(hist), description="Updating Elo"):
