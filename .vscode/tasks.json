@@ -99,6 +99,50 @@
 			"problemMatcher": []
 		},
 		{
+			"label": "Git: sync local morning artifacts",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\run_morning_sync.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: register morning sync (09:45)",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\register_morning_sync_task.ps1",
+				"-Time",
+				"09:45"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
+			"label": "Schedule: unregister morning sync",
+			"type": "shell",
+			"command": "powershell",
+			"args": [
+				"-NoProfile",
+				"-ExecutionPolicy",
+				"Bypass",
+				"-File",
+				"${workspaceFolder}\\scripts\\unregister_morning_sync_task.ps1"
+			],
+			"isBackground": false,
+			"problemMatcher": []
+		},
+		{
 			"label": "Props: edges (today, auto)",
 			"type": "shell",
 			"command": "powershell",
