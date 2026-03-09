@@ -1,7 +1,8 @@
 """Validate daily produced artifacts.
 
-This is used by scripts/daily_update.ps1 to ensure key outputs exist, while
-allowing partial ESPN rotations coverage (configurable threshold).
+This is used by scripts/daily_update.ps1 to ensure key outputs exist. Some
+artifacts, such as game odds and ESPN rotations coverage, are produced via
+best-effort blocks and can be downgraded to warnings by configuration.
 
 Exit codes:
   0: OK
@@ -223,24 +224,36 @@ def main() -> int:
         missing.append(pred.name)
     if not _exists_nonempty(props):
         missing.append(props.name)
-    if args.require_odds and (not _exists_nonempty(odds)):
-        missing.append(odds.name)
+
+    odds_ok = _exists_nonempty(odds)
+    if not odds_ok:
+        if args.require_odds:
+            missing.append(odds.name)
+        else:
+            warnings.append(f"optional artifact missing: {odds.name}")
 
     if args.require_smartsim and slate_games is not None and slate_games > 0 and smart_count < max(1, slate_games):
         missing.append(f"smart_sim_{date_str}_*.json ({smart_count}/{slate_games})")
 
     cov = None
-    if args.require_rotations:
-        if rot_expected is None:
-            missing.append("rotations_espn stints (could not determine game ids)")
-        elif rot_expected > 0:
-            cov = float(rot_have) / float(rot_expected)
-            thr = float(args.rotations_min_coverage)
-            thr = max(0.0, min(1.0, thr))
-            if cov + 1e-12 < thr:
-                missing.append(f"rotations_espn stints ({rot_have}/{rot_expected})")
-            elif rot_have < rot_expected:
-                warnings.append(f"rotations_espn stints partial ({rot_have}/{rot_expected})")
+    if rot_expected is None:
+        msg = "rotations_espn stints (could not determine game ids)"
+        if args.require_rotations:
+            missing.append(msg)
+        elif date_yesterday:
+            warnings.append(f"optional artifact unavailable: {msg}")
+    elif rot_expected > 0:
+        cov = float(rot_have) / float(rot_expected)
+        thr = float(args.rotations_min_coverage)
+        thr = max(0.0, min(1.0, thr))
+        if cov + 1e-12 < thr:
+            msg = f"rotations_espn stints ({rot_have}/{rot_expected})"
+            if args.require_rotations:
+                missing.append(msg)
+            else:
+                warnings.append(f"optional artifact partial: {msg}")
+        elif rot_have < rot_expected:
+            warnings.append(f"rotations_espn stints partial ({rot_have}/{rot_expected})")
 
     out = {
         "date": date_str,

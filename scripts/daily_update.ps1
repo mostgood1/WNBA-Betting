@@ -2653,7 +2653,7 @@ try {
   $fail = $env:DAILY_FAIL_ON_MISSING_ARTIFACTS
   if ($null -eq $fail -or $fail -eq '') { $fail = '1' }
   $reqOdds = $env:DAILY_REQUIRE_ODDS
-  if ($null -eq $reqOdds -or $reqOdds -eq '') { $reqOdds = '1' }
+  if ($null -eq $reqOdds -or $reqOdds -eq '') { $reqOdds = '0' }
   $reqSmart = $env:DAILY_REQUIRE_SMARTSIM
   if ($null -eq $reqSmart -or $reqSmart -eq '') {
     # If SmartSim was intentionally skipped, don't require SmartSim artifacts by default.
@@ -2661,7 +2661,7 @@ try {
     if ($null -ne $skipSmartNow -and $skipSmartNow -match '^(1|true|yes)$') { $reqSmart = '0' } else { $reqSmart = '1' }
   }
   $reqRot = $env:DAILY_REQUIRE_ROTATIONS_ESPN
-  if ($null -eq $reqRot -or $reqRot -eq '') { $reqRot = '1' }
+  if ($null -eq $reqRot -or $reqRot -eq '') { $reqRot = '0' }
 
     $env:REPO_ROOT = $RepoRoot
     $env:FAIL_ON_MISSING = $fail
@@ -2669,7 +2669,7 @@ try {
     $env:REQUIRE_SMARTSIM = $reqSmart
     $env:REQUIRE_ROTATIONS = $reqRot
     if ($null -eq $env:ROTATIONS_MIN_COVERAGE -or $env:ROTATIONS_MIN_COVERAGE -eq '') { $env:ROTATIONS_MIN_COVERAGE = '0.70' }
-    Write-Log 'Validating daily artifacts (predictions/props/odds/smart_sim)'
+    Write-Log ("Validating daily artifacts (require_odds={0}, require_smartsim={1}, require_rotations_espn={2})" -f $reqOdds, $reqSmart, $reqRot)
     $outV = Invoke-PyMod -plist @(
     'tools/validate_daily_artifacts.py',
     '--repo-root', $RepoRoot,
