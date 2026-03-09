@@ -7033,6 +7033,9 @@ _oddsapi_props_job_state = {
     "running": False,
     "started_at": None,
     "ended_at": None,
+    "phase": None,
+    "phase_started_at": None,
+    "heartbeat_at": None,
     "ok": None,
     "log_file": None,
     "last": {},
@@ -7064,9 +7067,13 @@ def _prime_oddsapi_props_job_state(
     started_at: str | None = None,
 ) -> None:
     """Initialize the shared async payload for the current props refresh run."""
+    started_iso = started_at or datetime.utcnow().isoformat()
     _oddsapi_props_job_state["running"] = bool(running)
-    _oddsapi_props_job_state["started_at"] = started_at or datetime.utcnow().isoformat()
+    _oddsapi_props_job_state["started_at"] = started_iso
     _oddsapi_props_job_state["ended_at"] = None
+    _oddsapi_props_job_state["phase"] = "snapshot"
+    _oddsapi_props_job_state["phase_started_at"] = started_iso
+    _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
     _oddsapi_props_job_state["ok"] = None
     _oddsapi_props_job_state["log_file"] = str(log_file)
     _oddsapi_props_job_state["last"] = {
@@ -7078,12 +7085,12 @@ def _prime_oddsapi_props_job_state(
         "export": bool(do_export),
         "push": bool(do_push),
     }
-    _oddsapi_props_job_state["rc_snapshot"] = None
-    _oddsapi_props_job_state["rc_edges"] = None
-    _oddsapi_props_job_state["rc_export"] = None
-    _oddsapi_props_job_state["snapshot_rows"] = None
-    _oddsapi_props_job_state["edges_rows"] = None
-    _oddsapi_props_job_state["recs_rows"] = None
+    _oddsapi_props_job_state["rc_snapshot"] = -1
+    _oddsapi_props_job_state["rc_edges"] = (-2 if do_edges else None)
+    _oddsapi_props_job_state["rc_export"] = (-2 if do_export else None)
+    _oddsapi_props_job_state["snapshot_rows"] = 0
+    _oddsapi_props_job_state["edges_rows"] = 0
+    _oddsapi_props_job_state["recs_rows"] = 0
     _oddsapi_props_job_state["snapshot_path"] = None
     _oddsapi_props_job_state["edges_path"] = None
     _oddsapi_props_job_state["recs_path"] = None
@@ -7101,6 +7108,7 @@ def _oddsapi_props_refresh_job(
     do_export: bool,
     do_push: bool,
     log_file: Path,
+    started_at: str | None = None,
 ) -> None:
     """Background job for refresh-oddsapi-props.
 
@@ -7117,6 +7125,7 @@ def _oddsapi_props_refresh_job(
         do_push=do_push,
         log_file=log_file,
         running=True,
+        started_at=started_at,
     )
 
     try:
@@ -7125,32 +7134,6 @@ def _oddsapi_props_refresh_job(
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
 
-        # 1) Snapshot player props to data/raw
-        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
-        if bookmakers:
-            snap_cmd += ["--bookmakers", bookmakers]
-        if markets:
-            snap_cmd += ["--markets", markets]
-        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60)
-        _oddsapi_props_job_state["rc_snapshot"] = int(rc_snap)
-
-        # 2) Optionally compute props edges from OddsAPI
-        rc_edges = None
-        if do_edges:
-            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
-            if bookmakers:
-                edges_cmd += ["--bookmakers", bookmakers]
-            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
-            _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
-
-        # 3) Optionally export props recommendations
-        rc_export = None
-        if do_export:
-            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
-            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60)
-            _oddsapi_props_job_state["rc_export"] = int(rc_export)
-
-        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
         try:
             from nba_betting.config import paths as _paths  # type: ignore
 
@@ -7161,6 +7144,106 @@ def _oddsapi_props_refresh_job(
             raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
             edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
             rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+
+        _oddsapi_props_job_state["snapshot_path"] = str(raw_fp)
+        _oddsapi_props_job_state["edges_path"] = str(edges_fp)
+        _oddsapi_props_job_state["recs_path"] = str(rec_fp)
+
+        def _persist_progress(*, running: bool = True, ok: bool | None = None, error: str | None = None) -> None:
+            try:
+                payload = {
+                    "date": date_str,
+                    "regions": regions,
+                    "bookmakers": (bookmakers or None),
+                    "markets": markets,
+                    "run_edges": bool(do_edges),
+                    "run_export": bool(do_export),
+                    "run_push": bool(do_push),
+                    "running": bool(running),
+                    "ok": ok,
+                    "log_file": str(log_file),
+                    "started_at": _oddsapi_props_job_state.get("started_at"),
+                    "ended_at": _oddsapi_props_job_state.get("ended_at"),
+                    "phase": _oddsapi_props_job_state.get("phase"),
+                    "phase_started_at": _oddsapi_props_job_state.get("phase_started_at"),
+                    "heartbeat_at": _oddsapi_props_job_state.get("heartbeat_at"),
+                    "rc_snapshot": _oddsapi_props_job_state.get("rc_snapshot"),
+                    "rc_edges": _oddsapi_props_job_state.get("rc_edges"),
+                    "rc_export": _oddsapi_props_job_state.get("rc_export"),
+                    "snapshot_rows": _oddsapi_props_job_state.get("snapshot_rows"),
+                    "edges_rows": _oddsapi_props_job_state.get("edges_rows"),
+                    "recs_rows": _oddsapi_props_job_state.get("recs_rows"),
+                    "snapshot": _oddsapi_props_job_state.get("snapshot_path"),
+                    "snapshot_path": _oddsapi_props_job_state.get("snapshot_path"),
+                    "edges": _oddsapi_props_job_state.get("edges_path"),
+                    "edges_path": _oddsapi_props_job_state.get("edges_path"),
+                    "recs": _oddsapi_props_job_state.get("recs_path"),
+                    "recs_path": _oddsapi_props_job_state.get("recs_path"),
+                    "duration_s": _oddsapi_props_job_state.get("duration_s"),
+                }
+                if error:
+                    payload["error"] = error
+                elif _oddsapi_props_job_state.get("error"):
+                    payload["error"] = _oddsapi_props_job_state.get("error")
+                _cron_meta_update("refresh_oddsapi_props", payload)
+            except Exception:
+                pass
+
+        _persist_progress(running=True, ok=None)
+
+        # 1) Snapshot player props to data/raw
+        snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str, "--regions", regions]
+        if bookmakers:
+            snap_cmd += ["--bookmakers", bookmakers]
+        if markets:
+            snap_cmd += ["--markets", markets]
+        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60)
+        _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
+        _oddsapi_props_job_state["rc_snapshot"] = int(rc_snap)
+        _oddsapi_props_job_state["snapshot_rows"] = int(_count_csv_rows_quick(raw_fp))
+        if do_edges:
+            _oddsapi_props_job_state["phase"] = "edges"
+            _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+            _oddsapi_props_job_state["rc_edges"] = -1
+        elif do_export:
+            _oddsapi_props_job_state["phase"] = "export"
+            _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+            _oddsapi_props_job_state["rc_export"] = -1
+        else:
+            _oddsapi_props_job_state["phase"] = "finalizing"
+            _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+        _persist_progress(running=True, ok=None)
+
+        # 2) Optionally compute props edges from OddsAPI
+        rc_edges = None
+        if do_edges:
+            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
+            if bookmakers:
+                edges_cmd += ["--bookmakers", bookmakers]
+            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
+            _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
+            _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
+            _oddsapi_props_job_state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
+            if do_export:
+                _oddsapi_props_job_state["phase"] = "export"
+                _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+                _oddsapi_props_job_state["rc_export"] = -1
+            else:
+                _oddsapi_props_job_state["phase"] = "finalizing"
+                _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+            _persist_progress(running=True, ok=None)
+
+        # 3) Optionally export props recommendations
+        rc_export = None
+        if do_export:
+            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
+            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60)
+            _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
+            _oddsapi_props_job_state["rc_export"] = int(rc_export)
+            _oddsapi_props_job_state["recs_rows"] = int(_count_csv_rows_quick(rec_fp))
+            _oddsapi_props_job_state["phase"] = "finalizing"
+            _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+            _persist_progress(running=True, ok=None)
 
         snap_rows = _count_csv_rows_quick(raw_fp)
         edges_rows = _count_csv_rows_quick(edges_fp)
@@ -7174,7 +7257,12 @@ def _oddsapi_props_refresh_job(
 
         ok = (int(rc_snap) == 0) and (not do_edges or int(rc_edges or 0) == 0) and (not do_export or int(rc_export or 0) == 0)
         ended = time.time()
+        _oddsapi_props_job_state["phase"] = "done"
+        _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+        _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["duration_s"] = float(max(0.0, ended - started))
+        _oddsapi_props_job_state["ok"] = bool(ok)
+        _persist_progress(running=False, ok=bool(ok))
 
         # Cron meta best-effort
         try:
@@ -7214,8 +7302,10 @@ def _oddsapi_props_refresh_job(
             except Exception:
                 pass
 
-        _oddsapi_props_job_state["ok"] = bool(ok)
     except Exception as e:
+        _oddsapi_props_job_state["phase"] = "failed"
+        _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+        _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["ok"] = False
         _oddsapi_props_job_state["error"] = f"{type(e).__name__}: {e}"
         tb = traceback.format_exc(limit=25)
@@ -7226,6 +7316,7 @@ def _oddsapi_props_refresh_job(
         except Exception:
             pass
         try:
+            _persist_progress(running=False, ok=False, error=f"{type(e).__name__}: {e}")
             _cron_meta_update(
                 "refresh_oddsapi_props",
                 {
@@ -7671,6 +7762,9 @@ def api_cron_refresh_oddsapi_props_status():
                     "running": bool(refresh_meta.get("running")) if ("running" in refresh_meta) else False,
                     "started_at": refresh_meta.get("started_at"),
                     "ended_at": refresh_meta.get("ended_at"),
+                    "phase": refresh_meta.get("phase"),
+                    "phase_started_at": refresh_meta.get("phase_started_at"),
+                    "heartbeat_at": refresh_meta.get("heartbeat_at"),
                     "ok": refresh_meta.get("ok"),
                     "log_file": refresh_meta.get("log_file"),
                     "rc_snapshot": refresh_meta.get("rc_snapshot"),
@@ -28416,15 +28510,18 @@ def api_cron_refresh_oddsapi_props():
                         "log_file": str(log_file),
                         "started_at": queued_started_at,
                         "ended_at": None,
-                        "rc_snapshot": None,
-                        "rc_edges": None,
-                        "rc_export": None,
-                        "snapshot_rows": None,
-                        "edges_rows": None,
-                        "recs_rows": None,
-                        "snapshot": None,
-                        "edges": None,
-                        "recs": None,
+                        "phase": _oddsapi_props_job_state.get("phase"),
+                        "phase_started_at": _oddsapi_props_job_state.get("phase_started_at"),
+                        "heartbeat_at": _oddsapi_props_job_state.get("heartbeat_at"),
+                        "rc_snapshot": _oddsapi_props_job_state.get("rc_snapshot"),
+                        "rc_edges": _oddsapi_props_job_state.get("rc_edges"),
+                        "rc_export": _oddsapi_props_job_state.get("rc_export"),
+                        "snapshot_rows": _oddsapi_props_job_state.get("snapshot_rows"),
+                        "edges_rows": _oddsapi_props_job_state.get("edges_rows"),
+                        "recs_rows": _oddsapi_props_job_state.get("recs_rows"),
+                        "snapshot": _oddsapi_props_job_state.get("snapshot_path"),
+                        "edges": _oddsapi_props_job_state.get("edges_path"),
+                        "recs": _oddsapi_props_job_state.get("recs_path"),
                         "duration_s": None,
                     },
                 )
@@ -28442,6 +28539,7 @@ def api_cron_refresh_oddsapi_props():
                     "do_export": bool(do_export),
                     "do_push": bool(do_push),
                     "log_file": Path(log_file),
+                    "started_at": queued_started_at,
                 },
                 daemon=True,
             )
