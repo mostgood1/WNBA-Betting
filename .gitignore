@@ -68,6 +68,7 @@ data/processed/**
 !data/processed/schedule_*.json
 # Season roster seeds for CI and league-status fallback
 !data/processed/rosters_*.csv
+data/processed/rosters_[0-9][0-9][0-9][0-9].csv
 # Additional PBP-derived and diagnostics artifacts we want committed
 !data/processed/pbp_reconcile_*.csv
 !data/processed/tip_winner_probs_*.csv
