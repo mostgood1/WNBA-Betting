@@ -1,0 +1,71 @@
+{
+  "date": "2026-03-09",
+  "team_counts": {
+    "CLE": 1,
+    "GSW": 2,
+    "LAC": 1,
+    "MEM": 2,
+    "NYK": 1,
+    "OKC": 1,
+    "UTA": 3
+  },
+  "players": [
+    {
+      "player": "Stephen Curry",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Jarrett Allen",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Vince Williams Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Edey",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Dillon Jones",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Collier",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Branden Carlson",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
