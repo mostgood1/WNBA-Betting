@@ -314,7 +314,6 @@ try {
 } catch { Write-Log ("Schedule gating failed (continuing): {0}" -f $_.Exception.Message) }
 
 # Disable remote server authentication; enforce local-only execution
-$ServerHeaders = @{}
 Write-Log "Server auth: disabled; enforcing local-only run"
 
 # Optionally sync repo to reduce push conflicts
@@ -488,7 +487,9 @@ function Invoke-ConnectedRealismEval {
     # If parsing fails, keep guardrails off.
   }
 
-  $elapsed = Measure-Command { $rcConn = Invoke-PyMod -plist $plist }
+  $connStarted = Get-Date
+  $rcConn = Invoke-PyMod -plist $plist
+  $elapsed = (Get-Date) - $connStarted
   Write-Log ("evaluate-connected-realism exit code: {0} (elapsed={1:n2}s)" -f $rcConn, $elapsed.TotalSeconds)
   return $rcConn
 }
@@ -561,8 +562,6 @@ raise SystemExit(0 if ok else 1)
 }
 
 # Enforce local-only pipeline; skip any server detection/calls
-$BaseUrl = "http://127.0.0.1:5050"
-$UseServer = $false
 Write-Log 'Remote server calls disabled; running everything locally'
 
 # Optional: run ONLY connected-realism evaluation and exit early.
@@ -817,8 +816,40 @@ try {
 
 # 1) Predictions for the target date (writes data/processed/predictions_<date>.csv and may save odds)
 # NOTE: --use-npu flag available but requires sklearn in NPU environment (currently blocked on ARM64 Windows)
+$predictionsPath = Join-Path $RepoRoot ("data/processed/predictions_{0}.csv" -f $Date)
+$predictStarted = Get-Date
+$predictionsWriteTimeBefore = $null
+if (Test-Path $predictionsPath) {
+  try { $predictionsWriteTimeBefore = (Get-Item $predictionsPath).LastWriteTime } catch { $predictionsWriteTimeBefore = $null }
+}
 $rc1 = Invoke-PyMod -plist @('-m','nba_betting.cli','predict-date','--date', $Date)
 Write-Log ("predict-date exit code: {0}" -f $rc1)
+
+$predictionsRefreshed = $false
+if (Test-Path $predictionsPath) {
+  try {
+    $predictionsWriteTimeAfter = (Get-Item $predictionsPath).LastWriteTime
+    if (($null -eq $predictionsWriteTimeBefore) -or ($predictionsWriteTimeAfter -gt $predictionsWriteTimeBefore) -or ($predictionsWriteTimeAfter -ge $predictStarted.AddSeconds(-1))) {
+      $predictionsRefreshed = $true
+    }
+  } catch {
+    $predictionsRefreshed = $true
+  }
+}
+
+if ($rc1 -ne 0) {
+  if ($NoSlateDay) {
+    Write-Log ("WARNING: predict-date failed on a no-slate day (exit={0}); continuing without requiring refreshed predictions" -f $rc1)
+  } elseif (-not $predictionsRefreshed) {
+    throw ("predict-date failed and did not refresh predictions file: {0} (exit={1})" -f $predictionsPath, $rc1)
+  } else {
+    Write-Log ("WARNING: predict-date exited nonzero but refreshed predictions file: {0}" -f $predictionsPath)
+  }
+} elseif (-not $NoSlateDay -and -not (Test-Path $predictionsPath)) {
+  throw ("predict-date reported success but predictions file is missing: {0}" -f $predictionsPath)
+} elseif (-not $predictionsRefreshed) {
+  Write-Log ("WARNING: predict-date did not appear to refresh predictions file: {0}" -f $predictionsPath)
+}
 
 # Always write standardized game odds via CLI (OddsAPI consensus + Bovada fill), including prices
 try {
@@ -887,8 +918,8 @@ try {
     Write-Log ("Calibrating games probs via market blend (30d) -> today {0}" -f $Date)
     $tmpOut = Join-Path $LogPath ("predictions_games_blend_tmp_{0}.csv" -f $Stamp)
     $blendScript = Join-Path $RepoRoot 'tools/games_blend.py'
-    $args = @($blendScript, '--train-days','30','--apply-date', $Date, '--out', $tmpOut)
-    $null = & $Python @args 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $blendArgs = @($blendScript, '--train-days','30','--apply-date', $Date, '--out', $tmpOut)
+    $null = & $Python @blendArgs 2>&1 | Tee-Object -FilePath $LogFile -Append
     # Validate output: ensure home_win_prob_cal exists and within [0,1]
     if (Test-Path $tmpOut) {
       $ok = $false
@@ -954,7 +985,6 @@ try {
 # 1.6b) Reliability curve + HTML (60d) automation
 try {
   $relCsv = Join-Path $RepoRoot 'data/processed/reliability_games.csv'
-  $relHtml = Join-Path $RepoRoot 'data/processed/reliability_games.html'
   Write-Log 'Computing reliability curve (60d)' 
   $null = Invoke-PyMod -plist @('-m','nba_betting.cli','evaluate-reliability','--days','60')
   if (Test-Path $relCsv) {
@@ -1223,7 +1253,7 @@ try {
 
   # recon_players_<date>.csv (SmartSim player means vs actual)
   try {
-    $rc_recon_players = & $Python (Join-Path $RepoRoot 'tools/build_recon_players.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $null = & $Python (Join-Path $RepoRoot 'tools/build_recon_players.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
     Write-Log "build_recon_players completed (non-fatal)"
   } catch {
     Write-Log ("build_recon_players failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -1231,7 +1261,7 @@ try {
 
   # live_player_lens_tuning_<date>.csv (props: sim vs line vs actual)
   try {
-    $rc_lens_tune = & $Python (Join-Path $RepoRoot 'tools/build_live_player_lens_tuning.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
+    $null = & $Python (Join-Path $RepoRoot 'tools/build_live_player_lens_tuning.py') --date $yesterday 2>&1 | Tee-Object -FilePath $LogFile -Append
     Write-Log "build_live_player_lens_tuning completed (non-fatal)"
   } catch {
     Write-Log ("build_live_player_lens_tuning failed (non-fatal): {0}" -f $_.Exception.Message)
@@ -1334,14 +1364,18 @@ try {
   Write-Log ("Reconciling quarters for {0}" -f $yesterday)
   $rc_qrecon = Invoke-PyMod -plist @('-m','nba_betting.cli','reconcile-quarters','--date', $yesterday)
   Write-Log ("reconcile-quarters exit code: {0}" -f $rc_qrecon)
+  $reconQuartersYesterdayPath = Join-Path $RepoRoot ("data/processed/recon_quarters_{0}.csv" -f $yesterday)
+  if (($rc_qrecon -eq 0) -and (-not (Test-Path $reconQuartersYesterdayPath))) {
+    Write-Log ("WARNING: reconcile-quarters reported success but wrote no file: {0}" -f $reconQuartersYesterdayPath)
+  }
 } catch {
   Write-Log ("reconcile-quarters failed (non-fatal): {0}" -f $_.Exception.Message)
 }
 
-# 2.4d.a) Backfill recent recon_quarters (last 7 days) to seed calibration
+# 2.4d.a) Backfill recent recon_quarters before yesterday to seed calibration
 try {
-  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-7)
-  $end = [datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)
+  $start = (Get-Date ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null))).AddDays(-6)
+  $end = ([datetime]::ParseExact($yesterday, 'yyyy-MM-dd', $null)).AddDays(-1)
   $cur = $start
   $missing = @()
   while ($cur -le $end) {
@@ -1351,7 +1385,7 @@ try {
     $cur = $cur.AddDays(1)
   }
   if ($missing.Count -gt 0) {
-    Write-Log ("Recon quarters backfill (last 7d) missing: {0}" -f ($missing -join ', '))
+    Write-Log ("Recon quarters backfill (previous 6d) missing: {0}" -f ($missing -join ', '))
     foreach ($ds in $missing) {
       try {
         Write-Log ("Build recon-quarters for {0}" -f $ds)
@@ -1360,7 +1394,7 @@ try {
       } catch { Write-Log ("reconcile-quarters ({0}) failed: {1}" -f $ds, $_.Exception.Message) }
     }
   } else {
-    Write-Log 'Recon quarters backfill: none missing in last 7 days'
+    Write-Log 'Recon quarters backfill: none missing in previous 6 days'
   }
 } catch { Write-Log ("Recon quarters backfill block failed (non-fatal): {0}" -f $_.Exception.Message) }
 
@@ -1584,15 +1618,32 @@ else:
 
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
-  Write-Log ("Running roster audit for {0}" -f $yesterday)
-  $to = $env:DAILY_ROSTER_AUDIT_TIMEOUT_SEC
-  # Default higher: nba_api boxscore pulls can be slow.
-  if ($null -eq $to -or $to -eq '') { $to = '600' }
-  try { $toInt = [int]$to } catch { $toInt = 600 }
-  if ($toInt -lt 30) { $toInt = 30 }
-  if ($toInt -gt 1800) { $toInt = 1800 }
-  $rc_audit = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
-  Write-Log ("audit-rosters exit code: {0}" -f $rc_audit)
+  $skipYesterdayRosterAudit = $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT
+  $forceYesterdayRosterAudit = $env:DAILY_FORCE_YESTERDAY_ROSTER_AUDIT
+  $strictYesterdayRosterAudit = $env:DAILY_STRICT_ROSTERS
+  $isStrictYesterdayRosterAudit = ($null -ne $strictYesterdayRosterAudit -and $strictYesterdayRosterAudit -match '^(1|true|yes)$')
+  $isCiYesterdayRosterAudit = $false
+  try {
+    $ga = $env:GITHUB_ACTIONS
+    $ci = $env:CI
+    if (($null -ne $ga -and $ga -match '^(1|true|yes)$') -or ($null -ne $ci -and $ci -match '^(1|true|yes)$')) { $isCiYesterdayRosterAudit = $true }
+  } catch { $isCiYesterdayRosterAudit = $false }
+
+  if ($null -ne $skipYesterdayRosterAudit -and $skipYesterdayRosterAudit -match '^(1|true|yes)$') {
+    Write-Log 'Skipping yesterday roster audit (DAILY_SKIP_YESTERDAY_ROSTER_AUDIT=1)'
+  } elseif ($isCiYesterdayRosterAudit -and -not $isStrictYesterdayRosterAudit -and -not ($null -ne $forceYesterdayRosterAudit -and $forceYesterdayRosterAudit -match '^(1|true|yes)$')) {
+    Write-Log 'Skipping yesterday roster audit on CI warn-only mode (set DAILY_FORCE_YESTERDAY_ROSTER_AUDIT=1 or DAILY_STRICT_ROSTERS=1 to enable)'
+  } else {
+    Write-Log ("Running roster audit for {0}" -f $yesterday)
+    $to = $env:DAILY_ROSTER_AUDIT_TIMEOUT_SEC
+    # Default higher: nba_api boxscore pulls can be slow.
+    if ($null -eq $to -or $to -eq '') { $to = '600' }
+    try { $toInt = [int]$to } catch { $toInt = 600 }
+    if ($toInt -lt 30) { $toInt = 30 }
+    if ($toInt -gt 1800) { $toInt = 1800 }
+    $rc_audit = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','audit-rosters','--date', $yesterday) -TimeoutSeconds $toInt -Label 'audit_rosters'
+    Write-Log ("audit-rosters exit code: {0}" -f $rc_audit)
+  }
 } catch {
   Write-Log ("audit-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
@@ -1979,10 +2030,7 @@ print("1" if (mx >= y and y) else "0")
   }
 } catch { Write-Log ("pregame_expected_minutes build failed (non-fatal): {0}" -f $_.Exception.Message) }
 
-# 4) Props actuals upsert for yesterday (CLI)
-$rc3 = Invoke-PyMod -plist @('-m','nba_betting.cli','fetch-prop-actuals','--date', $yesterday)
-Write-Log ("props-actuals exit code: {0}" -f $rc3)
-# Safeguard: ensure a dated props_actuals_<yesterday>.csv snapshot exists; if missing but parquet updated, derive CSV
+# 4) Props actuals snapshot safeguard for yesterday (CLI fetch already ran earlier)
 try {
   $snapPath = Join-Path $RepoRoot ("data/processed/props_actuals_{0}.csv" -f $yesterday)
   if (-not (Test-Path $snapPath)) {
