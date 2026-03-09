@@ -720,6 +720,11 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             mk0 = str(mk or "").strip()
             if mk0:
                 market_to_stat[mk0] = st
+    primary_market_by_stat: dict[str, str] = {
+        st: str(mks[0]).strip()
+        for st, mks in stat_to_markets.items()
+        if isinstance(mks, list) and mks and str(mks[0]).strip()
+    }
     desired_markets = sorted(set(market_to_stat.keys()))
 
     # 1) List events and match by team tricodes; select closest commence_time to now.
@@ -885,21 +890,70 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
 
     # Collect points + prices across books; reduce with median.
     # Core (lens) keys: (name_key, stat_key)
-    pts_by_key: dict[tuple[str, str], list[float]] = {}
-    prices_by_key: dict[tuple[str, str, str], list[float]] = {}
-    last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
+    pts_by_key_primary: dict[tuple[str, str], list[float]] = {}
+    books_by_key_primary: dict[tuple[str, str], set[str]] = {}
+    prices_by_key_primary: dict[tuple[str, str, str], list[float]] = {}
+    last_update_by_key_primary: dict[tuple[str, str], list[datetime]] = {}
+    pts_by_key_alt: dict[tuple[str, str], list[float]] = {}
+    books_by_key_alt: dict[tuple[str, str], set[str]] = {}
+    prices_by_key_alt: dict[tuple[str, str, str], list[float]] = {}
+    last_update_by_key_alt: dict[tuple[str, str], list[datetime]] = {}
 
     # Short-key fallback (LAST+FIRST_INITIAL) for OddsAPI abbreviated names.
     # Only emitted when the short key maps to exactly one full name_key for the event.
-    short_pts_by_key: dict[tuple[str, str], list[float]] = {}
-    short_prices_by_key: dict[tuple[str, str, str], list[float]] = {}
-    short_last_update_by_key: dict[tuple[str, str], list[datetime]] = {}
+    short_pts_by_key_primary: dict[tuple[str, str], list[float]] = {}
+    short_books_by_key_primary: dict[tuple[str, str], set[str]] = {}
+    short_prices_by_key_primary: dict[tuple[str, str, str], list[float]] = {}
+    short_last_update_by_key_primary: dict[tuple[str, str], list[datetime]] = {}
+    short_pts_by_key_alt: dict[tuple[str, str], list[float]] = {}
+    short_books_by_key_alt: dict[tuple[str, str], set[str]] = {}
+    short_prices_by_key_alt: dict[tuple[str, str, str], list[float]] = {}
+    short_last_update_by_key_alt: dict[tuple[str, str], list[datetime]] = {}
     short_owners_by_key: dict[tuple[str, str], set[str]] = {}
 
     # All-markets keys: (name_key, market_key)
     pts_by_mk: dict[tuple[str, str], list[float]] = {}
+    books_by_mk: dict[tuple[str, str], set[str]] = {}
     prices_by_mk: dict[tuple[str, str, str], list[float]] = {}
     last_update_by_mk: dict[tuple[str, str], list[datetime]] = {}
+
+    def _stat_bucket_maps(stat: str, market_key: str) -> tuple[
+        dict[tuple[str, str], list[float]],
+        dict[tuple[str, str], set[str]],
+        dict[tuple[str, str, str], list[float]],
+        dict[tuple[str, str], list[datetime]],
+        dict[tuple[str, str], list[float]],
+        dict[tuple[str, str], set[str]],
+        dict[tuple[str, str, str], list[float]],
+        dict[tuple[str, str], list[datetime]],
+    ]:
+        if primary_market_by_stat.get(stat) == market_key:
+            return (
+                pts_by_key_primary,
+                books_by_key_primary,
+                prices_by_key_primary,
+                last_update_by_key_primary,
+                short_pts_by_key_primary,
+                short_books_by_key_primary,
+                short_prices_by_key_primary,
+                short_last_update_by_key_primary,
+            )
+        return (
+            pts_by_key_alt,
+            books_by_key_alt,
+            prices_by_key_alt,
+            last_update_by_key_alt,
+            short_pts_by_key_alt,
+            short_books_by_key_alt,
+            short_prices_by_key_alt,
+            short_last_update_by_key_alt,
+        )
+
+    def _merged_keys(*maps: dict[Any, Any]) -> set[Any]:
+        out_keys: set[Any] = set()
+        for mp in maps:
+            out_keys.update(mp.keys())
+        return out_keys
 
     for batch in _chunks(list(req_markets), int(markets_batch)):
         if not batch:
@@ -986,20 +1040,36 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                         continue
 
                     pts_by_mk.setdefault((nk, mkey), []).append(float(v))
+                    if bk_key:
+                        books_by_mk.setdefault((nk, mkey), set()).add(bk_key)
                     if lu is not None:
                         last_update_by_mk.setdefault((nk, mkey), []).append(lu)
 
                     if stat:
-                        pts_by_key.setdefault((nk, stat), []).append(float(v))
+                        (
+                            pts_by_key_target,
+                            books_by_key_target,
+                            prices_by_key_target,
+                            last_update_by_key_target,
+                            short_pts_by_key_target,
+                            short_books_by_key_target,
+                            short_prices_by_key_target,
+                            short_last_update_by_key_target,
+                        ) = _stat_bucket_maps(stat, mkey)
+                        pts_by_key_target.setdefault((nk, stat), []).append(float(v))
+                        if bk_key:
+                            books_by_key_target.setdefault((nk, stat), set()).add(bk_key)
                         if lu is not None:
-                            last_update_by_key.setdefault((nk, stat), []).append(lu)
+                            last_update_by_key_target.setdefault((nk, stat), []).append(lu)
 
                         # Short-key aggregation for abbreviated player names.
                         if sk is not None:
                             short_owners_by_key.setdefault((sk, stat), set()).add(nk)
-                            short_pts_by_key.setdefault((sk, stat), []).append(float(v))
+                            short_pts_by_key_target.setdefault((sk, stat), []).append(float(v))
+                            if bk_key:
+                                short_books_by_key_target.setdefault((sk, stat), set()).add(bk_key)
                             if lu is not None:
-                                short_last_update_by_key.setdefault((sk, stat), []).append(lu)
+                                short_last_update_by_key_target.setdefault((sk, stat), []).append(lu)
 
                     # Capture price when available.
                     if side is not None:
@@ -1009,30 +1079,34 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                             if np.isfinite(pv) and abs(pv) <= 20000:
                                 prices_by_mk.setdefault((nk, mkey, side), []).append(float(pv))
                                 if stat:
-                                    prices_by_key.setdefault((nk, stat, side), []).append(float(pv))
+                                    prices_by_key_target.setdefault((nk, stat, side), []).append(float(pv))
                                     if sk is not None:
-                                        short_prices_by_key.setdefault((sk, stat, side), []).append(float(pv))
+                                        short_prices_by_key_target.setdefault((sk, stat, side), []).append(float(pv))
                         except Exception:
                             pass
 
     lines: dict[str, float] = {}
     try:
-        for (nk, stat), pts in pts_by_key.items():
+        for (nk, stat) in _merged_keys(pts_by_key_primary, pts_by_key_alt):
+            pts = pts_by_key_primary.get((nk, stat)) or pts_by_key_alt.get((nk, stat)) or []
             if not pts:
                 continue
             lines[f"{nk}|{stat}"] = float(np.median(np.asarray(pts, dtype=float)))
     except Exception:
         lines = {}
 
-    # Line dispersion / sample size by key (helps downstream bettability and diagnostics).
+    # Line dispersion / distinct-book count by key (helps downstream bettability and diagnostics).
     points_span_by_key: dict[str, float] = {}
     points_n_by_key: dict[str, int] = {}
     try:
-        for (nk, stat), pts in pts_by_key.items():
+        for (nk, stat) in _merged_keys(pts_by_key_primary, pts_by_key_alt):
+            pts = pts_by_key_primary.get((nk, stat)) or pts_by_key_alt.get((nk, stat)) or []
             if not pts:
                 continue
             k = f"{nk}|{stat}"
-            points_n_by_key[k] = int(len(pts))
+            books = books_by_key_primary.get((nk, stat)) or books_by_key_alt.get((nk, stat)) or set()
+            book_count = len({x for x in books if x})
+            points_n_by_key[k] = int(book_count if book_count > 0 else len(pts))
             uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
             if len(uniq) >= 2:
                 points_span_by_key[k] = float(max(uniq) - min(uniq))
@@ -1044,7 +1118,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
 
     prices: dict[str, dict[str, float]] = {}
     try:
-        for (nk, stat, side), prs in prices_by_key.items():
+        for (nk, stat, side) in _merged_keys(prices_by_key_primary, prices_by_key_alt):
+            prs = prices_by_key_primary.get((nk, stat, side)) or prices_by_key_alt.get((nk, stat, side)) or []
             if not prs:
                 continue
             med = float(np.median(np.asarray(prs, dtype=float)))
@@ -1065,7 +1140,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     short_last_update_by_key_out: dict[str, str] = {}
     try:
         # lines + dispersion
-        for (sk, stat), pts in short_pts_by_key.items():
+        for (sk, stat) in _merged_keys(short_pts_by_key_primary, short_pts_by_key_alt):
+            pts = short_pts_by_key_primary.get((sk, stat)) or short_pts_by_key_alt.get((sk, stat)) or []
             owners = short_owners_by_key.get((sk, stat)) or set()
             if len(owners) != 1:
                 continue
@@ -1073,12 +1149,15 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                 continue
             k = f"{sk}|{stat}"
             short_lines[k] = float(np.median(np.asarray(pts, dtype=float)))
-            short_points_n_by_key[k] = int(len(pts))
+            books = short_books_by_key_primary.get((sk, stat)) or short_books_by_key_alt.get((sk, stat)) or set()
+            book_count = len({x for x in books if x})
+            short_points_n_by_key[k] = int(book_count if book_count > 0 else len(pts))
             uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
             short_points_span_by_key[k] = float(max(uniq) - min(uniq)) if len(uniq) >= 2 else 0.0
 
         # prices
-        for (sk, stat, side), prs in short_prices_by_key.items():
+        for (sk, stat, side) in _merged_keys(short_prices_by_key_primary, short_prices_by_key_alt):
+            prs = short_prices_by_key_primary.get((sk, stat, side)) or short_prices_by_key_alt.get((sk, stat, side)) or []
             owners = short_owners_by_key.get((sk, stat)) or set()
             if len(owners) != 1:
                 continue
@@ -1093,7 +1172,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
                 rec["under"] = med
 
         # last_update
-        for (sk, stat), dts in short_last_update_by_key.items():
+        for (sk, stat) in _merged_keys(short_last_update_by_key_primary, short_last_update_by_key_alt):
+            dts = short_last_update_by_key_primary.get((sk, stat)) or short_last_update_by_key_alt.get((sk, stat)) or []
             owners = short_owners_by_key.get((sk, stat)) or set()
             if len(owners) != 1:
                 continue
@@ -1166,7 +1246,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
             if not pts:
                 continue
             k = f"{nk}|{mkey}"
-            n_map[k] = int(len(pts))
+            book_count = len({x for x in (books_by_mk.get((nk, mkey)) or set()) if x})
+            n_map[k] = int(book_count if book_count > 0 else len(pts))
             uniq = sorted({round(float(x), 2) for x in pts if x is not None and np.isfinite(float(x))})
             span_map[k] = float(max(uniq) - min(uniq)) if len(uniq) >= 2 else 0.0
         out["all_points_span_by_key"] = span_map
@@ -1179,7 +1260,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     try:
         dt_all: list[datetime] = []
         lu_map: dict[str, str] = {}
-        for (nk, stat), dts in last_update_by_key.items():
+        for (nk, stat) in _merged_keys(last_update_by_key_primary, last_update_by_key_alt):
+            dts = last_update_by_key_primary.get((nk, stat)) or last_update_by_key_alt.get((nk, stat)) or []
             if not dts:
                 continue
             dt_max = max(dts)
