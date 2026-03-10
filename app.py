@@ -7098,6 +7098,151 @@ def _prime_oddsapi_props_job_state(
     _oddsapi_props_job_state["error"] = None
 
 
+def _reset_oddsapi_props_job_state() -> None:
+    _oddsapi_props_job_state.update({
+        "running": False,
+        "started_at": None,
+        "ended_at": None,
+        "phase": None,
+        "phase_started_at": None,
+        "heartbeat_at": None,
+        "ok": None,
+        "log_file": None,
+        "last": {},
+        "rc_snapshot": None,
+        "rc_edges": None,
+        "rc_export": None,
+        "snapshot_rows": None,
+        "edges_rows": None,
+        "recs_rows": None,
+        "snapshot_path": None,
+        "edges_path": None,
+        "recs_path": None,
+        "duration_s": None,
+        "error": None,
+    })
+
+
+def _refresh_oddsapi_props_payload_from_meta(refresh_meta: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "running": bool(refresh_meta.get("running")) if ("running" in refresh_meta) else False,
+        "started_at": refresh_meta.get("started_at"),
+        "ended_at": refresh_meta.get("ended_at"),
+        "phase": refresh_meta.get("phase"),
+        "phase_started_at": refresh_meta.get("phase_started_at"),
+        "heartbeat_at": refresh_meta.get("heartbeat_at"),
+        "ok": refresh_meta.get("ok"),
+        "log_file": refresh_meta.get("log_file"),
+        "rc_snapshot": refresh_meta.get("rc_snapshot"),
+        "rc_edges": refresh_meta.get("rc_edges"),
+        "rc_export": refresh_meta.get("rc_export"),
+        "snapshot_rows": refresh_meta.get("snapshot_rows"),
+        "edges_rows": refresh_meta.get("edges_rows"),
+        "recs_rows": refresh_meta.get("recs_rows"),
+        "snapshot_path": (refresh_meta.get("snapshot_path") or refresh_meta.get("snapshot")),
+        "edges_path": (refresh_meta.get("edges_path") or refresh_meta.get("edges")),
+        "recs_path": (refresh_meta.get("recs_path") or refresh_meta.get("recs")),
+        "duration_s": refresh_meta.get("duration_s"),
+        "error": refresh_meta.get("error"),
+        "last": {
+            "date": refresh_meta.get("date"),
+            "regions": refresh_meta.get("regions"),
+            "bookmakers": refresh_meta.get("bookmakers"),
+            "markets": refresh_meta.get("markets"),
+            "edges": refresh_meta.get("run_edges"),
+            "export": refresh_meta.get("run_export"),
+            "push": refresh_meta.get("run_push"),
+        },
+    }
+
+
+def _load_refresh_oddsapi_props_meta(*, persist_stale: bool = False) -> dict[str, Any]:
+    try:
+        meta = _load_cron_meta_snapshot()
+        refresh_meta = meta.get("last_refresh_oddsapi_props") if isinstance(meta.get("last_refresh_oddsapi_props"), dict) else {}
+        if not isinstance(refresh_meta, dict):
+            return {}
+        refresh_meta = dict(refresh_meta)
+        if persist_stale and _mark_refresh_oddsapi_props_stale(refresh_meta):
+            try:
+                _cron_meta_update("refresh_oddsapi_props", refresh_meta)
+            except Exception:
+                pass
+        return refresh_meta
+    except Exception:
+        return {}
+
+
+def _run_detached_refresh_oddsapi_props_from_env() -> None:
+    payload_raw = (os.environ.get("NBA_BETTING_ODDSAPI_PROPS_JOB") or "").strip()
+    if not payload_raw:
+        raise RuntimeError("missing NBA_BETTING_ODDSAPI_PROPS_JOB payload")
+    payload = json.loads(payload_raw)
+    _oddsapi_props_refresh_job(
+        date_str=str(payload.get("date_str") or ""),
+        regions=str(payload.get("regions") or "us"),
+        bookmakers=str(payload.get("bookmakers") or ""),
+        markets=str(payload.get("markets") or ""),
+        do_edges=bool(payload.get("do_edges")),
+        do_export=bool(payload.get("do_export")),
+        do_push=bool(payload.get("do_push")),
+        log_file=Path(str(payload.get("log_file") or "")),
+        started_at=str(payload.get("started_at") or ""),
+    )
+
+
+def _launch_refresh_oddsapi_props_detached(
+    *,
+    date_str: str,
+    regions: str,
+    bookmakers: str,
+    markets: str,
+    do_edges: bool,
+    do_export: bool,
+    do_push: bool,
+    log_file: Path,
+    started_at: str,
+) -> tuple[bool, str | None]:
+    try:
+        py = _resolve_python()
+        env = dict(os.environ)
+        env["PYTHONPATH"] = str(SRC_DIR)
+        env["NBA_BETTING_ODDSAPI_PROPS_JOB"] = json.dumps({
+            "date_str": date_str,
+            "regions": regions,
+            "bookmakers": bookmakers,
+            "markets": markets,
+            "do_edges": bool(do_edges),
+            "do_export": bool(do_export),
+            "do_push": bool(do_push),
+            "log_file": str(log_file),
+            "started_at": started_at,
+        })
+        popen_kwargs: dict[str, Any] = {
+            "cwd": str(BASE_DIR),
+            "env": env,
+            "stdin": subprocess.DEVNULL,
+            "stderr": subprocess.STDOUT,
+            "start_new_session": True,
+        }
+        if os.name == "nt":
+            creationflags = int(getattr(subprocess, "DETACHED_PROCESS", 0)) | int(getattr(subprocess, "CREATE_NEW_PROCESS_GROUP", 0))
+            if creationflags:
+                popen_kwargs["creationflags"] = creationflags
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        with log_file.open("a", encoding="utf-8", errors="ignore") as out:
+            out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Launching detached refresh-oddsapi-props process\n")
+            out.flush()
+            popen_kwargs["stdout"] = out
+            subprocess.Popen(
+                [str(py), "-c", "import app as _app; _app._run_detached_refresh_oddsapi_props_from_env()"],
+                **popen_kwargs,
+            )
+        return True, None
+    except Exception as exc:
+        return False, str(exc)
+
+
 def _active_player_logs_paths() -> list[Path]:
     return [
         DATA_PROCESSED_DIR / "player_logs.parquet",
@@ -7953,44 +8098,10 @@ def api_cron_refresh_oddsapi_props_status():
     except Exception:
         has_live_state = False
 
-    if not has_live_state:
-        try:
-            meta = _load_cron_meta_snapshot()
-            refresh_meta = meta.get("last_refresh_oddsapi_props") if isinstance(meta.get("last_refresh_oddsapi_props"), dict) else {}
-            if refresh_meta:
-                payload.update({
-                    "running": bool(refresh_meta.get("running")) if ("running" in refresh_meta) else False,
-                    "started_at": refresh_meta.get("started_at"),
-                    "ended_at": refresh_meta.get("ended_at"),
-                    "phase": refresh_meta.get("phase"),
-                    "phase_started_at": refresh_meta.get("phase_started_at"),
-                    "heartbeat_at": refresh_meta.get("heartbeat_at"),
-                    "ok": refresh_meta.get("ok"),
-                    "log_file": refresh_meta.get("log_file"),
-                    "rc_snapshot": refresh_meta.get("rc_snapshot"),
-                    "rc_edges": refresh_meta.get("rc_edges"),
-                    "rc_export": refresh_meta.get("rc_export"),
-                    "snapshot_rows": refresh_meta.get("snapshot_rows"),
-                    "edges_rows": refresh_meta.get("edges_rows"),
-                    "recs_rows": refresh_meta.get("recs_rows"),
-                    "snapshot_path": (refresh_meta.get("snapshot_path") or refresh_meta.get("snapshot")),
-                    "edges_path": (refresh_meta.get("edges_path") or refresh_meta.get("edges")),
-                    "recs_path": (refresh_meta.get("recs_path") or refresh_meta.get("recs")),
-                    "duration_s": refresh_meta.get("duration_s"),
-                    "error": refresh_meta.get("error"),
-                    "last": {
-                        "date": refresh_meta.get("date"),
-                        "regions": refresh_meta.get("regions"),
-                        "bookmakers": refresh_meta.get("bookmakers"),
-                        "markets": refresh_meta.get("markets"),
-                        "edges": refresh_meta.get("run_edges"),
-                        "export": refresh_meta.get("run_export"),
-                        "push": refresh_meta.get("run_push"),
-                    },
-                    "status_source": "cron_meta",
-                })
-        except Exception:
-            pass
+    refresh_meta = _load_refresh_oddsapi_props_meta(persist_stale=True)
+    if refresh_meta and (bool(refresh_meta.get("running")) or not has_live_state):
+        payload.update(_refresh_oddsapi_props_payload_from_meta(refresh_meta))
+        payload["status_source"] = "cron_meta"
     else:
         payload["status_source"] = "memory"
 
@@ -28672,13 +28783,25 @@ def api_cron_refresh_oddsapi_props():
             }), 200
 
         if use_async:
-            if _oddsapi_props_job_state.get("running"):
+            active_refresh_meta = _load_refresh_oddsapi_props_meta(persist_stale=True)
+            if _oddsapi_props_job_state.get("running") or bool(active_refresh_meta.get("running")):
+                active_started_at = active_refresh_meta.get("started_at") if active_refresh_meta.get("running") else _oddsapi_props_job_state.get("started_at")
+                active_log_file = active_refresh_meta.get("log_file") if active_refresh_meta.get("running") else _oddsapi_props_job_state.get("log_file")
+                active_last = {
+                    "date": active_refresh_meta.get("date"),
+                    "regions": active_refresh_meta.get("regions"),
+                    "bookmakers": active_refresh_meta.get("bookmakers"),
+                    "markets": active_refresh_meta.get("markets"),
+                    "edges": active_refresh_meta.get("run_edges"),
+                    "export": active_refresh_meta.get("run_export"),
+                    "push": active_refresh_meta.get("run_push"),
+                } if active_refresh_meta.get("running") else _oddsapi_props_job_state.get("last")
                 return jsonify({
                     "status": "already-running",
                     "async": True,
-                    "started_at": _oddsapi_props_job_state.get("started_at"),
-                    "log_file": _oddsapi_props_job_state.get("log_file"),
-                    "last": _oddsapi_props_job_state.get("last"),
+                    "started_at": active_started_at,
+                    "log_file": active_log_file,
+                    "last": active_last,
                     "note": "A refresh job is already running; skipping new start.",
                 }), 202
 
@@ -28730,28 +28853,20 @@ def api_cron_refresh_oddsapi_props():
             except Exception:
                 pass
 
-            t = threading.Thread(
-                target=_oddsapi_props_refresh_job,
-                kwargs={
-                    "date_str": d,
-                    "regions": regions,
-                    "bookmakers": bookmakers,
-                    "markets": markets,
-                    "do_edges": bool(do_edges),
-                    "do_export": bool(do_export),
-                    "do_push": bool(do_push),
-                    "log_file": Path(log_file),
-                    "started_at": queued_started_at,
-                },
-                daemon=True,
+            launched, launch_error = _launch_refresh_oddsapi_props_detached(
+                date_str=d,
+                regions=regions,
+                bookmakers=bookmakers,
+                markets=markets,
+                do_edges=bool(do_edges),
+                do_export=bool(do_export),
+                do_push=bool(do_push),
+                log_file=Path(log_file),
+                started_at=queued_started_at,
             )
-            try:
-                t.start()
-            except Exception as e:
-                _oddsapi_props_job_state["running"] = False
-                _oddsapi_props_job_state["ok"] = False
-                _oddsapi_props_job_state["error"] = f"ThreadStartError: {e}"
-                _oddsapi_props_job_state["ended_at"] = datetime.utcnow().isoformat()
+            if not launched:
+                ended_at = datetime.utcnow().isoformat()
+                _reset_oddsapi_props_job_state()
                 try:
                     _cron_meta_update(
                         "refresh_oddsapi_props",
@@ -28765,19 +28880,21 @@ def api_cron_refresh_oddsapi_props():
                             "run_push": bool(do_push),
                             "running": False,
                             "ok": False,
-                            "error": f"ThreadStartError: {e}",
+                            "error": f"DetachedStartError: {launch_error}",
                             "log_file": str(log_file),
                             "started_at": queued_started_at,
-                            "ended_at": _oddsapi_props_job_state.get("ended_at"),
+                            "ended_at": ended_at,
                         },
                     )
                 except Exception:
                     pass
                 return jsonify({
-                    "error": f"failed to start async refresh job: {e}",
+                    "error": f"failed to start async refresh job: {launch_error}",
                     "date": d,
                     "log_file": str(log_file),
                 }), 500
+
+            _reset_oddsapi_props_job_state()
 
             # Accept quickly so schedulers don't fail due to timeouts.
             return jsonify({
