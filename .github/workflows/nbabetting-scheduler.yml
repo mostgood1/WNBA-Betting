@@ -221,6 +221,10 @@ jobs:
               "running": running,
               "ok": ok,
               "date": payload_date or expected_date,
+              "phase": payload.get("phase"),
+              "phase_started_at": payload.get("phase_started_at"),
+              "heartbeat_at": payload.get("heartbeat_at"),
+              "status_source": payload.get("status_source"),
               "rc_snapshot": rc_snapshot,
               "rc_edges": rc_edges,
               "rc_export": rc_export,
@@ -231,6 +235,7 @@ jobs:
               "started_at": payload.get("started_at"),
               "ended_at": payload.get("ended_at"),
               "duration_s": payload.get("duration_s"),
+              "error": error,
           }
           print(json.dumps(summary, indent=2))
 

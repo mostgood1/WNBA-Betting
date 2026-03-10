@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
 import subprocess as _subp
 
 import pandas as pd
@@ -7258,6 +7258,10 @@ def _oddsapi_props_refresh_job(
             except Exception:
                 pass
 
+        def _touch_progress() -> None:
+            _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
+            _persist_progress(running=True, ok=None, error=_oddsapi_props_job_state.get("error"))
+
         _persist_progress(running=True, ok=None)
 
         # 1) Snapshot player props to data/raw
@@ -7266,7 +7270,7 @@ def _oddsapi_props_refresh_job(
             snap_cmd += ["--bookmakers", bookmakers]
         if markets:
             snap_cmd += ["--markets", markets]
-        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60)
+        rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=15 * 60, heartbeat_cb=_touch_progress)
         _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["rc_snapshot"] = int(rc_snap)
         _oddsapi_props_job_state["snapshot_rows"] = int(_count_csv_rows_quick(raw_fp))
@@ -7313,7 +7317,7 @@ def _oddsapi_props_refresh_job(
                 edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
                 if bookmakers:
                     edges_cmd += ["--bookmakers", bookmakers]
-                rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
+                rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60, heartbeat_cb=_touch_progress)
                 _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
                 _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
                 _oddsapi_props_job_state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
@@ -7338,7 +7342,7 @@ def _oddsapi_props_refresh_job(
         rc_export = None
         if run_export:
             export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
-            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60)
+            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60, heartbeat_cb=_touch_progress)
             _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
             _oddsapi_props_job_state["rc_export"] = int(rc_export)
             _oddsapi_props_job_state["recs_rows"] = int(_count_csv_rows_quick(rec_fp))
@@ -7762,6 +7766,8 @@ def _run_to_file(
     cwd: Path | None = None,
     env: dict | None = None,
     timeout_s: int | None = None,
+    heartbeat_cb: Callable[[], None] | None = None,
+    heartbeat_every_s: int = 15,
 ) -> int:
     if isinstance(cmd, list):
         popen_cmd = cmd
@@ -7780,8 +7786,32 @@ def _run_to_file(
             bufsize=1,
             universal_newlines=True,
         )
+        started_wait = time.monotonic()
         try:
-            proc.wait(timeout=timeout_s)
+            while True:
+                try:
+                    if heartbeat_cb:
+                        wait_timeout = float(max(1, int(heartbeat_every_s)))
+                        if timeout_s is not None:
+                            remaining = float(timeout_s) - (time.monotonic() - started_wait)
+                            if remaining <= 0:
+                                raise subprocess.TimeoutExpired(popen_cmd, timeout_s)
+                            wait_timeout = min(wait_timeout, remaining)
+                        proc.wait(timeout=wait_timeout)
+                    elif timeout_s is not None:
+                        proc.wait(timeout=timeout_s)
+                    else:
+                        proc.wait()
+                    break
+                except subprocess.TimeoutExpired:
+                    elapsed = time.monotonic() - started_wait
+                    if heartbeat_cb and (timeout_s is None or elapsed < float(timeout_s)):
+                        try:
+                            heartbeat_cb()
+                        except Exception:
+                            pass
+                        continue
+                    raise
         except subprocess.TimeoutExpired:
             try:
                 out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Timeout after {timeout_s}s; terminating...\n")
@@ -7808,6 +7838,71 @@ def _run_to_file(
         out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Exited with code {proc.returncode}\n")
         out.flush()
         return int(proc.returncode)
+
+
+def _parse_async_job_iso(ts: Any) -> datetime | None:
+    try:
+        text = str(ts or "").strip()
+        if not text:
+            return None
+        if text.endswith("Z"):
+            text = text[:-1] + "+00:00"
+        parsed = datetime.fromisoformat(text)
+        if parsed.tzinfo is not None:
+            parsed = parsed.astimezone(timezone.utc).replace(tzinfo=None)
+        return parsed
+    except Exception:
+        return None
+
+
+def _refresh_oddsapi_props_phase_timeout_s(phase: Any) -> int:
+    name = str(phase or "").strip().lower()
+    if name == "snapshot":
+        return 15 * 60
+    if name == "edges":
+        return 20 * 60
+    if name == "export":
+        return 10 * 60
+    if name == "finalizing":
+        return 5 * 60
+    return 20 * 60
+
+
+def _mark_refresh_oddsapi_props_stale(payload: dict[str, Any]) -> bool:
+    try:
+        if not bool(payload.get("running")):
+            return False
+        phase = str(payload.get("phase") or "").strip().lower()
+        anchor = (
+            _parse_async_job_iso(payload.get("heartbeat_at"))
+            or _parse_async_job_iso(payload.get("phase_started_at"))
+            or _parse_async_job_iso(payload.get("started_at"))
+        )
+        if anchor is None:
+            return False
+        now = datetime.utcnow()
+        age_s = max(0, int((now - anchor).total_seconds()))
+        allowed_s = _refresh_oddsapi_props_phase_timeout_s(phase) + 120
+        if age_s <= allowed_s:
+            return False
+
+        payload["running"] = False
+        payload["ok"] = False
+        payload["ended_at"] = now.isoformat()
+        started_at = _parse_async_job_iso(payload.get("started_at"))
+        if started_at is not None:
+            payload["duration_s"] = int(max(0, (now - started_at).total_seconds()))
+        if phase == "snapshot" and payload.get("rc_snapshot") == -1:
+            payload["rc_snapshot"] = 124
+        elif phase == "edges" and payload.get("rc_edges") == -1:
+            payload["rc_edges"] = 124
+        elif phase == "export" and payload.get("rc_export") == -1:
+            payload["rc_export"] = 124
+        if not payload.get("error"):
+            payload["error"] = f"refresh_oddsapi_props became stale during {phase or 'unknown'} phase after {age_s}s"
+        return True
+    except Exception:
+        return False
 
 
 @app.route("/api/cron/refresh-oddsapi-props/status", methods=["GET"])
@@ -7898,6 +7993,8 @@ def api_cron_refresh_oddsapi_props_status():
             pass
     else:
         payload["status_source"] = "memory"
+
+    _mark_refresh_oddsapi_props_stale(payload)
 
     if tail_n > 0:
         try:
