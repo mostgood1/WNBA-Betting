@@ -7140,6 +7140,16 @@ def _ensure_player_logs_for_props_refresh(
     if _player_logs_ready(max_age_minutes=max_age_minutes):
         return True, None
 
+    # On Render, a full fetch-player-logs run can be expensive enough to destabilize
+    # the web process. If any prior player_logs artifact already exists, accept it even
+    # if it is older than the freshness target.
+    if any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+        return True, None
+
+    allow_fetch_on_miss = (os.environ.get("REFRESH_PLAYER_LOGS_FETCH_ON_MISS") or "0").strip().lower() in {"1", "true", "yes"}
+    if not allow_fetch_on_miss:
+        return False, "player_logs not found; run fetch-player-logs"
+
     season_str = _season_str_from_year(_season_year_for_date(date_str))
     rc_logs = _run_to_file(
         [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],

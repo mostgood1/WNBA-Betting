@@ -53,8 +53,39 @@ jobs:
           set -euo pipefail
           DATE=$(date -u +%F)
           export EXPECTED_DATE="$DATE"
+          PING_URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
           START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&bookmakers=fanduel,draftkings,betmgm,bet365&edges=1&export=1"
           STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=120"
+
+          wait_for_service() {
+            local label="$1"
+            local attempts="${2:-30}"
+            local sleep_s="${3:-10}"
+            local http="000"
+            for j in $(seq 1 "$attempts"); do
+              set +e
+              http=$(curl -sS -o ping.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$PING_URL")
+              rc=$?
+              set -e
+              if [ "$rc" -ne 0 ]; then http="000"; fi
+              if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+                echo "[wait] ${label}: ping healthy on attempt $j"
+                return 0
+              fi
+              echo "[wait] ${label}: ping attempt $j -> HTTP $http" >&2
+              if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+                sleep "$sleep_s"
+                continue
+              fi
+              head -c 2000 ping.txt || true
+              return 1
+            done
+            head -c 2000 ping.txt || true
+            return 1
+          }
+
+          wait_for_service "before async props refresh" 45 10
+
           echo "GET $START_URL"
           started=0
           for i in 1 2 3 4 5 6; do
@@ -63,7 +94,7 @@ jobs:
             rc=$?
             set -e
             if [ "$rc" -ne 0 ]; then http="000"; fi
-            cat resp.txt || true
+            head -c 4000 resp.txt || true
             if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
               set +e
               python3 - <<'PY'
@@ -111,6 +142,7 @@ jobs:
             fi
             echo "Request attempt $i -> HTTP $http" >&2
             if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+              wait_for_service "after start attempt $i" 18 10 || true
               sleep $((i * 5))
               continue
             fi
