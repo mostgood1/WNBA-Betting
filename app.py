@@ -7206,7 +7206,9 @@ def _launch_refresh_oddsapi_props_detached(
     try:
         py = _resolve_python()
         env = dict(os.environ)
-        env["PYTHONPATH"] = str(SRC_DIR)
+        existing_pythonpath = str(env.get("PYTHONPATH") or "").strip()
+        env["PYTHONPATH"] = str(SRC_DIR) if not existing_pythonpath else f"{SRC_DIR}{os.pathsep}{existing_pythonpath}"
+        env.setdefault("PYTHONUNBUFFERED", "1")
         env["NBA_BETTING_ODDSAPI_PROPS_JOB"] = json.dumps({
             "date_str": date_str,
             "regions": regions,
@@ -7235,7 +7237,7 @@ def _launch_refresh_oddsapi_props_detached(
             out.flush()
             popen_kwargs["stdout"] = out
             subprocess.Popen(
-                [str(py), "-c", "import app as _app; _app._run_detached_refresh_oddsapi_props_from_env()"],
+                [str(py), "-m", "nba_betting.refresh_oddsapi_props_job"],
                 **popen_kwargs,
             )
         return True, None
@@ -7638,17 +7640,16 @@ def _append_log(line: str) -> None:
 def _ensure_logs_dir() -> Path:
     """Return a writable logs directory.
 
-    Primary: repo-local logs/ (good for local dev)
-    Fallbacks: persistent data disk (Render) and /tmp.
+    Prefer the persistent data disk when configured (Render), then repo-local
+    logs/ for local development, then /tmp.
     """
     candidates: list[Path] = []
     try:
-        candidates.append(BASE_DIR / "logs")
+        candidates.append(DATA_DIR / "logs")
     except Exception:
         pass
     try:
-        # Prefer mounted disk when configured (Render): NBA_BETTING_DATA_ROOT
-        candidates.append(DATA_DIR / "logs")
+        candidates.append(BASE_DIR / "logs")
     except Exception:
         pass
     try:
