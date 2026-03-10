@@ -51,7 +51,18 @@ jobs:
       - name: Refresh OddsAPI props snapshot + edges + export (today)
         run: |
           set -euo pipefail
-          DATE=$(date -u +%F)
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           export EXPECTED_DATE="$DATE"
           PING_URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
           START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&bookmakers=fanduel,draftkings,betmgm,bet365&edges=1&export=1"
@@ -344,7 +355,18 @@ jobs:
       - name: Assess OddsAPI capabilities (today)
         run: |
           set -euo pipefail
-          DATE=$(date -u +%F)
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           URL="${NBA_BETTING_BASE_URL%/}/api/cron/assess-oddsapi?date=${DATE}&regions=us"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
@@ -475,7 +497,18 @@ jobs:
       - name: Call predict-date (today, async)
         run: |
           set -euo pipefail
-          DATE=$(date -u +%F)
+          SLATE_TZ="${APP_TZ:-America/New_York}"
+          slate_date() {
+            local local_hour
+            local_hour=$(TZ="$SLATE_TZ" date +%H)
+            if [ "$local_hour" -lt 6 ]; then
+              TZ="$SLATE_TZ" date -d 'yesterday' +%F
+            else
+              TZ="$SLATE_TZ" date +%F
+            fi
+          }
+          DATE="$(slate_date)"
+          echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           URL="${NBA_BETTING_BASE_URL%/}/api/cron/predict-date?date=${DATE}&async=1&push=0&skip_if_no_games=1"
           echo "GET $URL"
           for i in 1 2 3 4 5 6; do
