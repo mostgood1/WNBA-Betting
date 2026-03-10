@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import os
 import shlex
+import shutil
 import subprocess
 import sys
 import threading
@@ -111,6 +112,42 @@ def _worker_env() -> dict[str, str]:
     env["PYTHONPATH"] = src_dir if not existing else f"{src_dir}{os.pathsep}{existing}"
     env.setdefault("PYTHONUNBUFFERED", "1")
     return env
+
+
+def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
+    try:
+        allow = str(os.environ.get("ALLOW_REMOTE_ARTIFACTS", "0")).strip().lower() in {"1", "true", "yes"}
+        if not allow:
+            return None
+        if not fname or "/" in fname or ".." in fname:
+            return None
+        out = paths.data_processed / fname
+        if out.exists() and out.stat().st_size > 0:
+            return out
+        repo = os.environ.get("GITHUB_REPOSITORY") or "mostgood1/NBA-Betting"
+        branch = os.environ.get("GIT_BRANCH") or os.environ.get("RENDER_GIT_BRANCH") or "main"
+        url = f"https://raw.githubusercontent.com/{repo}/{branch}/data/processed/{fname}"
+        try:
+            from urllib.request import Request, urlopen
+        except Exception:
+            return None
+        req = Request(
+            url,
+            headers={
+                "User-Agent": "NBA-Betting/props-refresh-worker",
+                "Accept": "text/csv,application/octet-stream,*/*",
+            },
+        )
+        with urlopen(req, timeout=8) as resp:  # noqa: S310
+            content = resp.read()
+        if not content:
+            return None
+        out.parent.mkdir(parents=True, exist_ok=True)
+        with out.open("wb") as handle:
+            handle.write(content)
+        return out if out.exists() and out.stat().st_size > 0 else None
+    except Exception:
+        return None
 
 
 def _run_with_heartbeat(
@@ -273,6 +310,37 @@ def _ensure_player_logs_for_props_refresh(
     return True, None
 
 
+def _ensure_props_predictions_for_refresh(date_str: str, log_file: Path) -> tuple[Path | None, str | None]:
+    pred_path = paths.data_processed / f"props_predictions_{date_str}.csv"
+    try:
+        if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
+            _append_log(log_file, f"Using existing props predictions artifact: {pred_path}")
+            return pred_path, None
+    except Exception:
+        pass
+
+    try:
+        repo_pred_path = paths.repo_data_processed / pred_path.name
+        if repo_pred_path.exists() and repo_pred_path.stat().st_size > 0:
+            pred_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(repo_pred_path, pred_path)
+            if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
+                _append_log(log_file, f"Copied props predictions artifact from repo data: {repo_pred_path}")
+                return pred_path, None
+    except Exception:
+        pass
+
+    fetched_path = _maybe_fetch_remote_processed(pred_path.name)
+    try:
+        if fetched_path and fetched_path.exists() and fetched_path.stat().st_size > 0 and _count_csv_rows_quick(fetched_path) > 0:
+            _append_log(log_file, f"Fetched props predictions artifact from GitHub raw: {fetched_path.name}")
+            return fetched_path, None
+    except Exception:
+        pass
+
+    return None, f"props predictions artifact missing for {date_str}: {pred_path.name}"
+
+
 def _compute_props_edges_direct(
     *,
     date_str: str,
@@ -282,11 +350,18 @@ def _compute_props_edges_direct(
 ) -> tuple[int, int, str | None]:
     _append_log(log_file, f"Computing props edges directly for {date_str}")
     try:
-        import pandas as pd
-        from .odds_api import filter_player_prop_bookmakers_df
-        from .props_edges import SigmaConfig, compute_props_edges
-
         def _work() -> int:
+            _append_log(log_file, f"Preparing props predictions artifact for {date_str}")
+            pred_path, pred_error = _ensure_props_predictions_for_refresh(date_str, log_file)
+            if pred_path is None:
+                raise RuntimeError(pred_error or f"props predictions artifact missing for {date_str}")
+
+            _append_log(log_file, "Importing props edges modules")
+            import pandas as pd
+            from .odds_api import filter_player_prop_bookmakers_df
+            from .props_edges import SigmaConfig, compute_props_edges
+
+            _append_log(log_file, f"Running compute_props_edges with file-only predictions: {pred_path}")
             edges = compute_props_edges(
                 date=date_str,
                 sigma=SigmaConfig(),
@@ -294,8 +369,8 @@ def _compute_props_edges_direct(
                 mode="current",
                 api_key=(os.environ.get("ODDS_API_KEY") or None),
                 source="oddsapi",
-                predictions_path=None,
-                from_file_only=False,
+                predictions_path=str(pred_path),
+                from_file_only=True,
                 calibrate_prob=True,
             )
             if edges is None:
@@ -314,10 +389,12 @@ def _compute_props_edges_direct(
                 out_path = paths.data_processed / f"props_edges_{date_str}.csv"
                 out_path.parent.mkdir(parents=True, exist_ok=True)
                 edges.to_csv(out_path, index=False)
+                _append_log(log_file, f"Wrote props edges to {out_path} (rows={len(edges)})")
                 return int(len(edges))
+            _append_log(log_file, "compute_props_edges returned zero rows")
             return 0
 
-        rows = int(_run_with_heartbeat(_work, heartbeat_cb))
+        rows = int(_run_with_heartbeat(_work, heartbeat_cb, heartbeat_every_s=5.0))
         return 0, rows, None
     except Exception as exc:
         _append_traceback(log_file, exc)
