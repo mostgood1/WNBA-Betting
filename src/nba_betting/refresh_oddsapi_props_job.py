@@ -114,9 +114,32 @@ def _worker_env() -> dict[str, str]:
     return env
 
 
+def _env_bool(name: str, default: bool = False) -> bool:
+    raw = os.environ.get(name)
+    if raw is None:
+        return bool(default)
+    return str(raw).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _env_int(name: str, default: int) -> int:
+    try:
+        return int(float(str(os.environ.get(name, str(default))).strip()))
+    except Exception:
+        return int(default)
+
+
+def _env_timeout_s(name: str, default_s: float) -> float | None:
+    try:
+        raw = str(os.environ.get(name, str(default_s))).strip()
+        value = float(raw)
+    except Exception:
+        value = float(default_s)
+    return None if value <= 0 else float(value)
+
+
 def _maybe_fetch_remote_processed(fname: str) -> Optional[Path]:
     try:
-        allow = str(os.environ.get("ALLOW_REMOTE_ARTIFACTS", "0")).strip().lower() in {"1", "true", "yes"}
+        allow = _env_bool("ALLOW_REMOTE_ARTIFACTS", False)
         if not allow:
             return None
         if not fname or "/" in fname or ".." in fname:
@@ -289,28 +312,82 @@ def _ensure_player_logs_for_props_refresh(
 
     season_str = _season_str_from_year(_season_year_for_date(date_str))
     _append_log(log_file, f"Fetching player logs for {season_str}")
-    try:
-        from .player_logs import fetch_player_logs
-
-        def _fetch() -> Any:
-            return fetch_player_logs([season_str])
-
-        df = _run_with_heartbeat(_fetch, heartbeat_cb)
-    except Exception as exc:
-        _append_traceback(log_file, exc)
-        return False, f"fetch-player-logs failed: {exc}"
-
-    try:
-        if df is None or getattr(df, "empty", True):
-            return False, "player_logs missing after fetch-player-logs"
-    except Exception:
-        return False, "player_logs missing after fetch-player-logs"
+    py = _resolve_python()
+    env = _worker_env()
+    fetch_cmd = [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str]
+    rc = _run_to_file(
+        fetch_cmd,
+        log_file,
+        cwd=paths.root,
+        env=env,
+        timeout_s=_env_timeout_s("REFRESH_PLAYER_LOGS_TIMEOUT_S", 20 * 60),
+        heartbeat_cb=heartbeat_cb,
+        heartbeat_every_s=5.0,
+    )
+    if int(rc) != 0:
+        return False, f"fetch-player-logs failed with exit code {int(rc)}"
     if not any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
         return False, "player_logs missing after fetch-player-logs"
     return True, None
 
 
-def _ensure_props_predictions_for_refresh(date_str: str, log_file: Path) -> tuple[Path | None, str | None]:
+def _predict_props_cli_args(*, date_str: str, out_path: Path) -> list[str]:
+    smart_sim_n_sims = max(1, _env_int("REFRESH_PREDICT_PROPS_SMART_SIM_N_SIMS", 150))
+    smart_sim_workers = max(1, _env_int("REFRESH_PREDICT_PROPS_SMART_SIM_WORKERS", 1))
+    calib_window = max(1, _env_int("REFRESH_PREDICT_PROPS_CALIB_WINDOW", 7))
+    player_calib_window = max(1, _env_int("REFRESH_PREDICT_PROPS_PLAYER_CALIB_WINDOW", 30))
+    player_min_pairs = max(1, _env_int("REFRESH_PREDICT_PROPS_PLAYER_MIN_PAIRS", 6))
+    player_shrink_k = max(1, _env_int("REFRESH_PREDICT_PROPS_PLAYER_SHRINK_K", 8))
+    args = [
+        _resolve_python(),
+        "-m",
+        "nba_betting.cli",
+        "predict-props",
+        "--date",
+        date_str,
+        "--out",
+        str(out_path),
+        "--slate-only",
+        "--calibrate",
+        "--calib-window",
+        str(calib_window),
+        "--use-pure-onnx",
+    ]
+    if _env_bool("REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER", True):
+        args.extend(
+            [
+                "--calibrate-player",
+                "--player-calib-window",
+                str(player_calib_window),
+                "--player-min-pairs",
+                str(player_min_pairs),
+                "--player-shrink-k",
+                str(player_shrink_k),
+            ]
+        )
+    else:
+        args.append("--no-calibrate-player")
+    if _env_bool("REFRESH_PREDICT_PROPS_USE_SMART_SIM", True):
+        args.extend(
+            [
+                "--use-smart-sim",
+                "--smart-sim-n-sims",
+                str(smart_sim_n_sims),
+                "--smart-sim-workers",
+                str(smart_sim_workers),
+            ]
+        )
+        args.append("--smart-sim-pbp" if _env_bool("REFRESH_PREDICT_PROPS_SMART_SIM_PBP", True) else "--no-smart-sim-pbp")
+    else:
+        args.append("--no-use-smart-sim")
+    return args
+
+
+def _ensure_props_predictions_for_refresh(
+    date_str: str,
+    log_file: Path,
+    heartbeat_cb: Callable[[], None],
+) -> tuple[Path | None, str | None]:
     pred_path = paths.data_processed / f"props_predictions_{date_str}.csv"
     try:
         if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
@@ -338,63 +415,78 @@ def _ensure_props_predictions_for_refresh(date_str: str, log_file: Path) -> tupl
     except Exception:
         pass
 
-    return None, f"props predictions artifact missing for {date_str}: {pred_path.name}"
+    player_logs_ok, player_logs_error = _ensure_player_logs_for_props_refresh(
+        date_str=date_str,
+        log_file=log_file,
+        heartbeat_cb=heartbeat_cb,
+    )
+    if not player_logs_ok:
+        return None, player_logs_error or f"player_logs missing before predict-props for {date_str}"
+
+    env = _worker_env()
+    predict_cmd = _predict_props_cli_args(date_str=date_str, out_path=pred_path)
+    _append_log(log_file, f"Generating props predictions locally for {date_str}")
+    rc = _run_to_file(
+        predict_cmd,
+        log_file,
+        cwd=paths.root,
+        env=env,
+        timeout_s=_env_timeout_s("REFRESH_PREDICT_PROPS_TIMEOUT_S", 25 * 60),
+        heartbeat_cb=heartbeat_cb,
+        heartbeat_every_s=5.0,
+    )
+    rows = int(_count_csv_rows_quick(pred_path))
+    if int(rc) != 0:
+        return None, f"predict-props failed with exit code {int(rc)}"
+    if rows <= 0:
+        return None, f"predict-props completed without writing rows to {pred_path.name}"
+    _append_log(log_file, f"Generated props predictions at {pred_path} (rows={rows})")
+    return pred_path, None
 
 
 def _compute_props_edges_direct(
     *,
     date_str: str,
+    predictions_path: Path,
     bookmakers: str,
     log_file: Path,
     heartbeat_cb: Callable[[], None],
 ) -> tuple[int, int, str | None]:
-    _append_log(log_file, f"Computing props edges directly for {date_str}")
+    _append_log(log_file, f"Computing props edges via CLI for {date_str}")
     try:
-        def _work() -> int:
-            _append_log(log_file, f"Preparing props predictions artifact for {date_str}")
-            pred_path, pred_error = _ensure_props_predictions_for_refresh(date_str, log_file)
-            if pred_path is None:
-                raise RuntimeError(pred_error or f"props predictions artifact missing for {date_str}")
-
-            _append_log(log_file, "Importing props edges modules")
-            import pandas as pd
-            from .odds_api import filter_player_prop_bookmakers_df
-            from .props_edges import SigmaConfig, compute_props_edges
-
-            _append_log(log_file, f"Running compute_props_edges with file-only predictions: {pred_path}")
-            edges = compute_props_edges(
-                date=date_str,
-                sigma=SigmaConfig(),
-                use_saved=True,
-                mode="current",
-                api_key=(os.environ.get("ODDS_API_KEY") or None),
-                source="oddsapi",
-                predictions_path=str(pred_path),
-                from_file_only=True,
-                calibrate_prob=True,
-            )
-            if edges is None:
-                edges = pd.DataFrame()
-            if not edges.empty:
-                edges = filter_player_prop_bookmakers_df(edges, bookmakers)
-                edges = edges[(edges["edge"] >= 0.0) & (edges["ev"] >= 0.0)].copy()
-                if "ev" in edges.columns:
-                    edges.sort_values(["stat", "ev"], ascending=[True, False], inplace=True)
-                else:
-                    edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
-                top = 1000
-                if top and len(edges) > top:
-                    per_stat = max(1, top // max(1, edges["stat"].nunique()))
-                    edges = edges.groupby("stat", group_keys=False).head(per_stat)
-                out_path = paths.data_processed / f"props_edges_{date_str}.csv"
-                out_path.parent.mkdir(parents=True, exist_ok=True)
-                edges.to_csv(out_path, index=False)
-                _append_log(log_file, f"Wrote props edges to {out_path} (rows={len(edges)})")
-                return int(len(edges))
-            _append_log(log_file, "compute_props_edges returned zero rows")
-            return 0
-
-        rows = int(_run_with_heartbeat(_work, heartbeat_cb, heartbeat_every_s=5.0))
+        env = _worker_env()
+        edges_cmd = [
+            _resolve_python(),
+            "-m",
+            "nba_betting.cli",
+            "props-edges",
+            "--date",
+            date_str,
+            "--use-saved",
+            "--mode",
+            "current",
+            "--source",
+            "oddsapi",
+            "--predictions-csv",
+            str(predictions_path),
+            "--file-only",
+            "--calibrate-prob",
+        ]
+        if bookmakers:
+            edges_cmd.extend(["--bookmakers", bookmakers])
+        rc = _run_to_file(
+            edges_cmd,
+            log_file,
+            cwd=paths.root,
+            env=env,
+            timeout_s=_env_timeout_s("REFRESH_PROPS_EDGES_TIMEOUT_S", 15 * 60),
+            heartbeat_cb=heartbeat_cb,
+            heartbeat_every_s=5.0,
+        )
+        rows = int(_count_csv_rows_quick(paths.data_processed / f"props_edges_{date_str}.csv"))
+        if int(rc) != 0:
+            return int(rc), rows, f"props-edges failed with exit code {int(rc)}"
+        _append_log(log_file, f"Props edges CLI completed (rows={rows})")
         return 0, rows, None
     except Exception as exc:
         _append_traceback(log_file, exc)
@@ -509,14 +601,30 @@ def _export_props_recommendations_direct(
     log_file: Path,
     heartbeat_cb: Callable[[], None],
 ) -> tuple[int, int, str | None]:
-    _append_log(log_file, f"Exporting props recommendations directly for {date_str}")
+    _append_log(log_file, f"Exporting props recommendations via CLI for {date_str}")
     try:
-        def _work() -> int:
-            rows, output = _export_props_recommendations_cards(date_str, None)
-            _append_log(log_file, f"Wrote props recommendations to {output}")
-            return int(rows)
-
-        rows = int(_run_with_heartbeat(_work, heartbeat_cb))
+        env = _worker_env()
+        export_cmd = [
+            _resolve_python(),
+            "-m",
+            "nba_betting.cli",
+            "export-props-recommendations",
+            "--date",
+            date_str,
+        ]
+        rc = _run_to_file(
+            export_cmd,
+            log_file,
+            cwd=paths.root,
+            env=env,
+            timeout_s=_env_timeout_s("REFRESH_PROPS_EXPORT_TIMEOUT_S", 5 * 60),
+            heartbeat_cb=heartbeat_cb,
+            heartbeat_every_s=5.0,
+        )
+        rows = int(_count_csv_rows_quick(paths.data_processed / f"props_recommendations_{date_str}.csv"))
+        if int(rc) != 0:
+            return int(rc), rows, f"export-props-recommendations failed with exit code {int(rc)}"
+        _append_log(log_file, f"Props recommendations CLI completed (rows={rows})")
         return 0, rows, None
     except Exception as exc:
         _append_traceback(log_file, exc)
@@ -597,6 +705,7 @@ def run_refresh_oddsapi_props_job(
 ) -> None:
     started_iso = started_at or _utcnow_iso()
     raw_fp = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+    pred_fp = paths.data_processed / f"props_predictions_{date_str}.csv"
     edges_fp = paths.data_processed / f"props_edges_{date_str}.csv"
     rec_fp = paths.data_processed / f"props_recommendations_{date_str}.csv"
     state: dict[str, Any] = {
@@ -609,9 +718,11 @@ def run_refresh_oddsapi_props_job(
         "rc_edges": (-2 if do_edges else None),
         "rc_export": (-2 if do_export else None),
         "snapshot_rows": 0,
+        "predictions_rows": 0,
         "edges_rows": 0,
         "recs_rows": 0,
         "snapshot_path": str(raw_fp),
+        "predictions_path": str(pred_fp),
         "edges_path": str(edges_fp),
         "recs_path": str(rec_fp),
         "duration_s": None,
@@ -642,10 +753,13 @@ def run_refresh_oddsapi_props_job(
             "rc_edges": state.get("rc_edges"),
             "rc_export": state.get("rc_export"),
             "snapshot_rows": state.get("snapshot_rows"),
+            "predictions_rows": state.get("predictions_rows"),
             "edges_rows": state.get("edges_rows"),
             "recs_rows": state.get("recs_rows"),
             "snapshot": state.get("snapshot_path"),
             "snapshot_path": state.get("snapshot_path"),
+            "predictions": state.get("predictions_path"),
+            "predictions_path": state.get("predictions_path"),
             "edges": state.get("edges_path"),
             "edges_path": state.get("edges_path"),
             "recs": state.get("recs_path"),
@@ -713,49 +827,70 @@ def run_refresh_oddsapi_props_job(
             state["phase_started_at"] = _utcnow_iso()
         _persist_progress(running=True, ok=None)
 
-        rc_edges: int | None = None
-        if run_edges:
-            player_logs_ok, player_logs_error = _ensure_player_logs_for_props_refresh(
+        pred_path: Path | None = None
+        if run_edges or run_export:
+            state["phase"] = "predictions"
+            state["phase_started_at"] = _utcnow_iso()
+            _persist_progress(running=True, ok=None)
+
+            pred_path, pred_error = _ensure_props_predictions_for_refresh(
                 date_str=date_str,
                 log_file=log_file,
                 heartbeat_cb=_touch_progress,
             )
             state["heartbeat_at"] = _utcnow_iso()
-            if not player_logs_ok:
-                rc_edges = 1
+            state["predictions_rows"] = int(_count_csv_rows_quick(pred_fp))
+            if pred_path is None:
+                if run_edges:
+                    state["rc_edges"] = 1
+                    if do_export:
+                        state["rc_export"] = None
+                elif run_export:
+                    state["rc_export"] = 1
                 run_export = False
-                state["rc_edges"] = int(rc_edges)
-                state["rc_export"] = None if do_export else state.get("rc_export")
-                state["error"] = player_logs_error
+                run_edges = False
+                state["error"] = pred_error
                 state["phase"] = "finalizing"
                 state["phase_started_at"] = _utcnow_iso()
                 _persist_progress(running=True, ok=None)
-            else:
-                rc_edges, edges_rows, edges_error = _compute_props_edges_direct(
-                    date_str=date_str,
-                    bookmakers=bookmakers,
-                    log_file=log_file,
-                    heartbeat_cb=_touch_progress,
-                )
-                state["heartbeat_at"] = _utcnow_iso()
-                state["rc_edges"] = int(rc_edges)
-                state["edges_rows"] = int(_count_csv_rows_quick(edges_fp)) if int(edges_rows) <= 0 else int(edges_rows)
-                if int(rc_edges) != 0:
-                    run_export = False
-                    state["rc_export"] = None if do_export else state.get("rc_export")
-                    state["error"] = edges_error or f"props-edges failed with exit code {int(rc_edges)}"
-                elif int(state["snapshot_rows"] or 0) > 0 and int(state["edges_rows"] or 0) <= 0:
-                    run_export = False
-                    state["rc_export"] = None if do_export else state.get("rc_export")
-                    state["error"] = "props-edges produced zero rows after a non-empty snapshot"
-                if run_export:
-                    state["phase"] = "export"
-                    state["phase_started_at"] = _utcnow_iso()
-                    state["rc_export"] = -1
-                else:
-                    state["phase"] = "finalizing"
-                    state["phase_started_at"] = _utcnow_iso()
+            elif run_export and not run_edges:
+                state["phase"] = "export"
+                state["phase_started_at"] = _utcnow_iso()
+                state["rc_export"] = -1
                 _persist_progress(running=True, ok=None)
+
+        rc_edges: int | None = None
+        if run_edges and pred_path is not None:
+            state["phase"] = "edges"
+            state["phase_started_at"] = _utcnow_iso()
+            state["rc_edges"] = -1
+            _persist_progress(running=True, ok=None)
+            rc_edges, edges_rows, edges_error = _compute_props_edges_direct(
+                date_str=date_str,
+                predictions_path=pred_path,
+                bookmakers=bookmakers,
+                log_file=log_file,
+                heartbeat_cb=_touch_progress,
+            )
+            state["heartbeat_at"] = _utcnow_iso()
+            state["rc_edges"] = int(rc_edges)
+            state["edges_rows"] = int(_count_csv_rows_quick(edges_fp)) if int(edges_rows) <= 0 else int(edges_rows)
+            if int(rc_edges) != 0:
+                run_export = False
+                state["rc_export"] = None if do_export else state.get("rc_export")
+                state["error"] = edges_error or f"props-edges failed with exit code {int(rc_edges)}"
+            elif int(state["snapshot_rows"] or 0) > 0 and int(state["edges_rows"] or 0) <= 0:
+                run_export = False
+                state["rc_export"] = None if do_export else state.get("rc_export")
+                state["error"] = "props-edges produced zero rows after a non-empty snapshot"
+            if run_export:
+                state["phase"] = "export"
+                state["phase_started_at"] = _utcnow_iso()
+                state["rc_export"] = -1
+            else:
+                state["phase"] = "finalizing"
+                state["phase_started_at"] = _utcnow_iso()
+            _persist_progress(running=True, ok=None)
 
         rc_export: int | None = None
         if run_export:
@@ -774,6 +909,7 @@ def run_refresh_oddsapi_props_job(
             _persist_progress(running=True, ok=None)
 
         state["snapshot_rows"] = int(_count_csv_rows_quick(raw_fp))
+        state["predictions_rows"] = int(_count_csv_rows_quick(pred_fp))
         state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
         state["recs_rows"] = int(_count_csv_rows_quick(rec_fp))
         if run_edges and int(state["snapshot_rows"] or 0) > 0 and int(state["edges_rows"] or 0) <= 0 and not state.get("error"):
