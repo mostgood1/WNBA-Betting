@@ -1,0 +1,30 @@
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500935,1610612752,New York,Knicks,NYK,knicks,1628404,Josh,Hart,J. Hart,josh-hart,F,,,36:30,5,7,0.714,1,3,0.333,1,1,1.0,7,6,13,3,0,0,3,4,12,-13.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1628384,OG,Anunoby,O. Anunoby,og-anunoby,F,,,37:20,8,15,0.533,3,8,0.375,3,4,0.75,2,4,6,2,2,0,4,2,22,-3.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1626157,Karl-Anthony,Towns,K. Towns,karl-anthony-towns,C,,,35:36,13,17,0.765,3,4,0.75,6,8,0.75,2,10,12,7,0,1,3,6,35,-12.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1628969,Mikal,Bridges,M. Bridges,mikal-bridges,G,,,26:24,3,8,0.375,1,3,0.333,0,0,0.0,1,6,7,4,2,0,1,2,7,-17.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1628973,Jalen,Brunson,J. Brunson,jalen-brunson,G,,,38:07,12,23,0.522,2,7,0.286,2,3,0.667,0,4,4,8,1,0,3,1,28,1.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1630574,Ariel,Hukporti,A. Hukporti,ariel-hukporti,,,,12:25,0,1,0.0,0,0,0.0,0,0,0.0,2,1,3,1,0,0,0,0,0,4.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1642885,Mohamed,Diawara,M. Diawara,mohamed-diawara,,,,17:39,2,3,0.667,1,1,1.0,0,0,0.0,0,4,4,2,0,0,2,2,5,3.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1629013,Landry,Shamet,L. Shamet,landry-shamet,,,,22:55,3,12,0.25,3,12,0.25,0,0,0.0,0,1,1,0,0,0,2,4,9,6.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1630631,Jose,Alvarado,J. Alvarado,jose-alvarado,,,,7:59,0,4,0.0,0,2,0.0,0,0,0.0,0,1,1,3,0,0,0,1,0,-8.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,203903,Jordan,Clarkson,J. Clarkson,jordan-clarkson,,,,3:13,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,1,1,0,0.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1642278,Tyler,Kolek,T. Kolek,tyler-kolek,,,,1:54,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,1,0,0,0,0,0,-1.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1642359,Pacôme,Dadiet,P. Dadiet,pacôme-dadiet,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1641998,Trey,Jemison III,T. Jemison III,trey-jemison-iii,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1641755,Kevin,McCullar Jr.,K. McCullar Jr.,kevin-mccullar-jr,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612752,New York,Knicks,NYK,knicks,1631110,Jeremy,Sochan,J. Sochan,jeremy-sochan,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,35:04,10,19,0.526,2,5,0.4,7,7,1.0,1,6,7,8,2,0,1,3,29,26.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,33:44,6,14,0.429,4,7,0.571,0,1,0.0,3,4,7,2,3,2,1,2,16,1.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,29:55,5,8,0.625,3,5,0.6,3,3,1.0,1,3,4,3,0,1,0,1,16,23.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,29:10,2,4,0.5,1,3,0.333,0,0,0.0,0,7,7,3,3,0,0,3,5,-2.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,30:21,7,16,0.438,5,9,0.556,4,6,0.667,0,1,1,7,2,0,2,0,23,20.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,36:26,9,20,0.45,2,5,0.4,8,9,0.889,1,6,7,1,1,0,2,1,28,5.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,17:35,1,5,0.2,0,1,0.0,0,0,0.0,0,0,0,1,0,0,1,2,2,-7.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,11:08,1,4,0.25,1,4,0.25,0,0,0.0,0,0,0,0,1,0,0,2,3,-13.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,16:37,2,3,0.667,0,0,0.0,0,0,0.0,3,0,3,0,0,1,1,5,4,-13.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1641807,Norchad,Omier,N. Omier,norchad-omier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1642951,Sean,Pedulla,S. Pedulla,sean-pedulla,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
+0022500935,1610612746,LA,Clippers,LAC,clippers,1642920,Kobe,Sanders,K. Sanders,kobe-sanders,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500935
