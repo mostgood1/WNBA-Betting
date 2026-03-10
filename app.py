@@ -7098,6 +7098,63 @@ def _prime_oddsapi_props_job_state(
     _oddsapi_props_job_state["error"] = None
 
 
+def _active_player_logs_paths() -> list[Path]:
+    return [
+        DATA_PROCESSED_DIR / "player_logs.parquet",
+        DATA_PROCESSED_DIR / "player_logs.csv",
+    ]
+
+
+def _file_is_fresh(path: Path, *, max_age_minutes: int) -> bool:
+    try:
+        if max_age_minutes <= 0:
+            return path.exists() and path.stat().st_size > 0
+        if not path.exists() or path.stat().st_size <= 0:
+            return False
+        age_s = max(0.0, time.time() - float(path.stat().st_mtime))
+        return age_s <= (float(max_age_minutes) * 60.0)
+    except Exception:
+        return False
+
+
+def _player_logs_ready(*, max_age_minutes: int) -> bool:
+    for path in _active_player_logs_paths():
+        if _file_is_fresh(path, max_age_minutes=max_age_minutes):
+            return True
+    return False
+
+
+def _ensure_player_logs_for_props_refresh(
+    *,
+    date_str: str,
+    py: str,
+    env: dict[str, str],
+    log_file: Path,
+) -> tuple[bool, str | None]:
+    raw_max_age = (os.environ.get("REFRESH_PLAYER_LOGS_MAX_AGE_HOURS") or os.environ.get("DAILY_PLAYER_LOGS_MAX_AGE_HOURS") or "12").strip()
+    try:
+        max_age_minutes = int(max(0.0, float(raw_max_age) * 60.0))
+    except Exception:
+        max_age_minutes = 12 * 60
+
+    if _player_logs_ready(max_age_minutes=max_age_minutes):
+        return True, None
+
+    season_str = _season_str_from_year(_season_year_for_date(date_str))
+    rc_logs = _run_to_file(
+        [str(py), "-m", "nba_betting.cli", "fetch-player-logs", "--seasons", season_str],
+        log_file,
+        cwd=BASE_DIR,
+        env=env,
+        timeout_s=15 * 60,
+    )
+    if int(rc_logs) != 0:
+        return False, f"fetch-player-logs failed with exit code {int(rc_logs)}"
+    if not any(path.exists() and path.stat().st_size > 0 for path in _active_player_logs_paths()):
+        return False, "player_logs missing after fetch-player-logs"
+    return True, None
+
+
 def _oddsapi_props_refresh_job(
     *,
     date_str: str,
@@ -7133,6 +7190,8 @@ def _oddsapi_props_refresh_job(
         py = _resolve_python()
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
+        run_edges = bool(do_edges)
+        run_export = bool(do_export)
 
         try:
             from nba_betting.config import paths as _paths  # type: ignore
@@ -7201,11 +7260,18 @@ def _oddsapi_props_refresh_job(
         _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["rc_snapshot"] = int(rc_snap)
         _oddsapi_props_job_state["snapshot_rows"] = int(_count_csv_rows_quick(raw_fp))
-        if do_edges:
+        if int(_oddsapi_props_job_state["snapshot_rows"] or 0) <= 0:
+            run_edges = False
+            run_export = False
+            _oddsapi_props_job_state["rc_edges"] = None if do_edges else _oddsapi_props_job_state.get("rc_edges")
+            _oddsapi_props_job_state["rc_export"] = None if do_export else _oddsapi_props_job_state.get("rc_export")
+            _oddsapi_props_job_state["phase"] = "finalizing"
+            _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+        elif run_edges:
             _oddsapi_props_job_state["phase"] = "edges"
             _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
             _oddsapi_props_job_state["rc_edges"] = -1
-        elif do_export:
+        elif run_export:
             _oddsapi_props_job_state["phase"] = "export"
             _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
             _oddsapi_props_job_state["rc_export"] = -1
@@ -7216,26 +7282,51 @@ def _oddsapi_props_refresh_job(
 
         # 2) Optionally compute props edges from OddsAPI
         rc_edges = None
-        if do_edges:
-            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
-            if bookmakers:
-                edges_cmd += ["--bookmakers", bookmakers]
-            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
+        if run_edges:
+            player_logs_ok, player_logs_error = _ensure_player_logs_for_props_refresh(
+                date_str=date_str,
+                py=str(py),
+                env=env,
+                log_file=log_file,
+            )
             _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
-            _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
-            _oddsapi_props_job_state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
-            if do_export:
-                _oddsapi_props_job_state["phase"] = "export"
-                _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
-                _oddsapi_props_job_state["rc_export"] = -1
-            else:
+            if not player_logs_ok:
+                rc_edges = 1
+                run_export = False
+                _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
+                _oddsapi_props_job_state["rc_export"] = None if do_export else _oddsapi_props_job_state.get("rc_export")
+                _oddsapi_props_job_state["error"] = player_logs_error
                 _oddsapi_props_job_state["phase"] = "finalizing"
                 _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
-            _persist_progress(running=True, ok=None)
+                _persist_progress(running=True, ok=None, error=player_logs_error)
+            else:
+                edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", date_str, "--source", "oddsapi", "--mode", "current"]
+                if bookmakers:
+                    edges_cmd += ["--bookmakers", bookmakers]
+                rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=20 * 60)
+                _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
+                _oddsapi_props_job_state["rc_edges"] = int(rc_edges)
+                _oddsapi_props_job_state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
+                if int(rc_edges) != 0:
+                    run_export = False
+                    _oddsapi_props_job_state["rc_export"] = None if do_export else _oddsapi_props_job_state.get("rc_export")
+                    _oddsapi_props_job_state["error"] = f"props-edges failed with exit code {int(rc_edges)}"
+                elif int(_oddsapi_props_job_state["snapshot_rows"] or 0) > 0 and int(_oddsapi_props_job_state["edges_rows"] or 0) <= 0:
+                    run_export = False
+                    _oddsapi_props_job_state["rc_export"] = None if do_export else _oddsapi_props_job_state.get("rc_export")
+                    _oddsapi_props_job_state["error"] = "props-edges produced zero rows after a non-empty snapshot"
+                if run_export:
+                    _oddsapi_props_job_state["phase"] = "export"
+                    _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+                    _oddsapi_props_job_state["rc_export"] = -1
+                else:
+                    _oddsapi_props_job_state["phase"] = "finalizing"
+                    _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
+                _persist_progress(running=True, ok=None, error=_oddsapi_props_job_state.get("error"))
 
         # 3) Optionally export props recommendations
         rc_export = None
-        if do_export:
+        if run_export:
             export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str]
             rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env, timeout_s=10 * 60)
             _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
@@ -7243,7 +7334,7 @@ def _oddsapi_props_refresh_job(
             _oddsapi_props_job_state["recs_rows"] = int(_count_csv_rows_quick(rec_fp))
             _oddsapi_props_job_state["phase"] = "finalizing"
             _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
-            _persist_progress(running=True, ok=None)
+            _persist_progress(running=True, ok=None, error=_oddsapi_props_job_state.get("error"))
 
         snap_rows = _count_csv_rows_quick(raw_fp)
         edges_rows = _count_csv_rows_quick(edges_fp)
@@ -7255,14 +7346,17 @@ def _oddsapi_props_refresh_job(
         _oddsapi_props_job_state["edges_path"] = str(edges_fp)
         _oddsapi_props_job_state["recs_path"] = str(rec_fp)
 
-        ok = (int(rc_snap) == 0) and (not do_edges or int(rc_edges or 0) == 0) and (not do_export or int(rc_export or 0) == 0)
+        if run_edges and int(snap_rows) > 0 and int(edges_rows) <= 0 and not _oddsapi_props_job_state.get("error"):
+            _oddsapi_props_job_state["error"] = "props-edges produced zero rows after a non-empty snapshot"
+
+        ok = (int(rc_snap) == 0) and (rc_edges in (None, 0)) and (rc_export in (None, 0)) and not bool(_oddsapi_props_job_state.get("error"))
         ended = time.time()
         _oddsapi_props_job_state["phase"] = "done"
         _oddsapi_props_job_state["phase_started_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["heartbeat_at"] = datetime.utcnow().isoformat()
         _oddsapi_props_job_state["duration_s"] = float(max(0.0, ended - started))
         _oddsapi_props_job_state["ok"] = bool(ok)
-        _persist_progress(running=False, ok=bool(ok))
+        _persist_progress(running=False, ok=bool(ok), error=_oddsapi_props_job_state.get("error"))
 
         # Cron meta best-effort
         try:
@@ -7273,8 +7367,8 @@ def _oddsapi_props_refresh_job(
                     "regions": regions,
                     "bookmakers": (bookmakers or None),
                     "markets": markets,
-                    "run_edges": bool(do_edges),
-                    "run_export": bool(do_export),
+                    "run_edges": bool(run_edges),
+                    "run_export": bool(run_export),
                     "run_push": bool(do_push),
                     "running": False,
                     "ok": bool(ok),
@@ -7291,6 +7385,7 @@ def _oddsapi_props_refresh_job(
                     "started_at": _oddsapi_props_job_state.get("started_at"),
                     "ended_at": datetime.utcnow().isoformat(),
                     "duration_s": _oddsapi_props_job_state.get("duration_s"),
+                    "error": _oddsapi_props_job_state.get("error"),
                 },
             )
         except Exception:

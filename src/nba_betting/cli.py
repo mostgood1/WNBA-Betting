@@ -6665,9 +6665,9 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
             calibrate_prob=calibrate_prob,
         )
     except FileNotFoundError as e:
-        console.print(str(e), style="red"); return
+        raise click.ClickException(str(e))
     except Exception as e:
-        console.print(f"Failed to compute edges: {e}", style="red"); return
+        raise click.ClickException(f"Failed to compute edges: {e}")
     if edges is None or edges.empty:
         console.print("No edges computed (missing odds or predictions).", style="yellow"); return
     # Optional slate filter
