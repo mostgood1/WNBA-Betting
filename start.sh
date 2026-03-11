@@ -14,6 +14,11 @@ fi
 python --version || true
 
 export PYTHONUNBUFFERED=1
+export OMP_NUM_THREADS=${OMP_NUM_THREADS:-1}
+export OMP_THREAD_LIMIT=${OMP_THREAD_LIMIT:-1}
+export OPENBLAS_NUM_THREADS=${OPENBLAS_NUM_THREADS:-1}
+export MKL_NUM_THREADS=${MKL_NUM_THREADS:-1}
+export NUMEXPR_NUM_THREADS=${NUMEXPR_NUM_THREADS:-1}
 
 # Default: mild correlated scoring variance (mean-preserving), tuned via eval sweeps.
 export CONNECTED_CORRELATED_SCORING_ALPHA=${CONNECTED_CORRELATED_SCORING_ALPHA:-0.2}

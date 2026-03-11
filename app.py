@@ -8094,22 +8094,40 @@ def _refresh_oddsapi_props_phase_timeout_s(phase: Any) -> int:
     return 20 * 60
 
 
+def _refresh_oddsapi_props_heartbeat_timeout_s() -> int:
+    raw = str(os.environ.get("REFRESH_ODDSAPI_PROPS_HEARTBEAT_STALE_S") or "180").strip()
+    try:
+        return int(max(0.0, float(raw)))
+    except Exception:
+        return 180
+
+
 def _mark_refresh_oddsapi_props_stale(payload: dict[str, Any]) -> bool:
     try:
         if not bool(payload.get("running")):
             return False
         phase = str(payload.get("phase") or "").strip().lower()
-        anchor = (
-            _parse_async_job_iso(payload.get("heartbeat_at"))
-            or _parse_async_job_iso(payload.get("phase_started_at"))
+        heartbeat_at = _parse_async_job_iso(payload.get("heartbeat_at"))
+        phase_anchor = (
+            _parse_async_job_iso(payload.get("phase_started_at"))
             or _parse_async_job_iso(payload.get("started_at"))
         )
-        if anchor is None:
+        if heartbeat_at is None and phase_anchor is None:
             return False
         now = datetime.utcnow()
-        age_s = max(0, int((now - anchor).total_seconds()))
-        allowed_s = _refresh_oddsapi_props_phase_timeout_s(phase) + 120
-        if age_s <= allowed_s:
+        heartbeat_age_s = max(0, int((now - heartbeat_at).total_seconds())) if heartbeat_at is not None else None
+        phase_age_s = max(0, int((now - phase_anchor).total_seconds())) if phase_anchor is not None else None
+
+        stale_error = None
+        heartbeat_allowed_s = _refresh_oddsapi_props_heartbeat_timeout_s()
+        if heartbeat_age_s is not None and heartbeat_allowed_s > 0 and heartbeat_age_s > heartbeat_allowed_s:
+            stale_error = f"refresh_oddsapi_props lost heartbeat during {phase or 'unknown'} phase after {heartbeat_age_s}s"
+
+        phase_allowed_s = _refresh_oddsapi_props_phase_timeout_s(phase) + 120
+        if stale_error is None and phase_age_s is not None and phase_age_s > phase_allowed_s:
+            stale_error = f"refresh_oddsapi_props became stale during {phase or 'unknown'} phase after {phase_age_s}s"
+
+        if stale_error is None:
             return False
 
         payload["running"] = False
@@ -8125,7 +8143,7 @@ def _mark_refresh_oddsapi_props_stale(payload: dict[str, Any]) -> bool:
         elif phase == "export" and payload.get("rc_export") == -1:
             payload["rc_export"] = 124
         if not payload.get("error"):
-            payload["error"] = f"refresh_oddsapi_props became stale during {phase or 'unknown'} phase after {age_s}s"
+            payload["error"] = stale_error
         return True
     except Exception:
         return False

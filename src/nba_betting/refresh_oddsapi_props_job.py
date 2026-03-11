@@ -111,6 +111,11 @@ def _worker_env() -> dict[str, str]:
     existing = str(env.get("PYTHONPATH") or "").strip()
     env["PYTHONPATH"] = src_dir if not existing else f"{src_dir}{os.pathsep}{existing}"
     env.setdefault("PYTHONUNBUFFERED", "1")
+    env.setdefault("OMP_NUM_THREADS", "1")
+    env.setdefault("OMP_THREAD_LIMIT", "1")
+    env.setdefault("OPENBLAS_NUM_THREADS", "1")
+    env.setdefault("MKL_NUM_THREADS", "1")
+    env.setdefault("NUMEXPR_NUM_THREADS", "1")
     return env
 
 
