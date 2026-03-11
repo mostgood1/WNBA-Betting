@@ -65,6 +65,7 @@ jobs:
           START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&bookmakers=fanduel,draftkings,betmgm,bet365&edges=1&export=1"
           STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=120"
           EXPECTED_SHA="${GITHUB_SHA}"
+          export EXPECTED_SHA
 
           wait_for_service() {
             local label="$1"
