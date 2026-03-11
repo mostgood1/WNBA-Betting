@@ -7251,6 +7251,9 @@ def _launch_refresh_oddsapi_props_detached(
 
 
 def _refresh_oddsapi_props_background_mode() -> str:
+    running_on_render = bool(os.getenv("RENDER") or os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_SERVICE_ID"))
+    if running_on_render:
+        return "process"
     raw = str(os.environ.get("ODDSAPI_PROPS_BACKGROUND_MODE") or "auto").strip().lower()
     if raw in {"thread", "process", "detached"}:
         return "thread" if raw == "thread" else "process"
