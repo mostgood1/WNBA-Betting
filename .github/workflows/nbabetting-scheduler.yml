@@ -65,8 +65,10 @@ jobs:
           echo "Using slate date $DATE (tz=$SLATE_TZ, cutoff=6)"
           export EXPECTED_DATE="$DATE"
           PING_URL="${NBA_BETTING_BASE_URL%/}/api/cron/ping"
+          VERSION_URL="${NBA_BETTING_BASE_URL%/}/api/version"
           START_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props?date=${DATE}&regions=us&bookmakers=fanduel,draftkings,betmgm,bet365&edges=1&export=1"
           STATUS_URL="${NBA_BETTING_BASE_URL%/}/api/cron/refresh-oddsapi-props/status?tail=120"
+          EXPECTED_SHA="${GITHUB_SHA}"
 
           wait_for_service() {
             local label="$1"
@@ -95,10 +97,63 @@ jobs:
             return 1
           }
 
+          wait_for_expected_version() {
+            local attempts="${1:-60}"
+            local sleep_s="${2:-10}"
+            local http="000"
+            for j in $(seq 1 "$attempts"); do
+              set +e
+              http=$(curl -sS -o version.txt -w "%{http_code}" "$VERSION_URL")
+              rc=$?
+              set -e
+              if [ "$rc" -ne 0 ]; then http="000"; fi
+              if [ "$http" -ge 200 ] && [ "$http" -lt 300 ]; then
+                set +e
+                python3 - <<'PY'
+          import json
+          import os
+          import pathlib
+          import sys
+
+          expected = str(os.environ.get("EXPECTED_SHA") or "").strip().lower()
+          try:
+              payload = json.loads(pathlib.Path("version.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception as exc:
+              print(f"Invalid version payload: {exc}")
+              sys.exit(2)
+
+          sha = str(payload.get("sha") or "").strip().lower()
+          print(json.dumps({"deployed_sha": sha, "expected_sha": expected}, indent=2))
+          if expected and sha.startswith(expected):
+              sys.exit(0)
+          sys.exit(1)
+          PY
+                py_rc=$?
+                set -e
+                if [ "$py_rc" -eq 0 ]; then
+                  echo "[wait] render deploy matches workflow SHA on attempt $j"
+                  return 0
+                fi
+                echo "[wait] render deploy mismatch on attempt $j" >&2
+              else
+                echo "[wait] version attempt $j -> HTTP $http" >&2
+              fi
+              if [ "$http" = "000" ] || [ "$http" -ge 500 ] || [ "$http" = "429" ]; then
+                sleep "$sleep_s"
+                continue
+              fi
+              sleep "$sleep_s"
+            done
+            echo "Render did not deploy expected SHA ${EXPECTED_SHA} before pregame refresh" >&2
+            return 1
+          }
+
           wait_for_service "before async props refresh" 45 10
+          wait_for_expected_version 60 10
 
           echo "GET $START_URL"
           started=0
+          EXPECTED_LOG_FILE=""
           for i in 1 2 3 4 5 6; do
             set +e
             http=$(curl -sS -o resp.txt -w "%{http_code}" -H "Authorization: Bearer ${NBA_BETTING_CRON_TOKEN}" "$START_URL")
@@ -146,6 +201,18 @@ jobs:
               py_rc=$?
               set -e
               if [ "$py_rc" -eq 0 ]; then
+                EXPECTED_LOG_FILE="$(python3 - <<'PY'
+          import json
+          import pathlib
+
+          try:
+              payload = json.loads(pathlib.Path("resp.txt").read_text(encoding="utf-8", errors="ignore") or "{}")
+          except Exception:
+              payload = {}
+          print(str(payload.get("log_file") or "").strip())
+          PY
+                )"
+                export EXPECTED_LOG_FILE
                 started=1
                 break
               fi
@@ -205,8 +272,10 @@ jobs:
                   return default
 
           expected_date = os.environ.get("EXPECTED_DATE", "").strip()
+          expected_log_file = os.environ.get("EXPECTED_LOG_FILE", "").strip()
           last = payload.get("last") if isinstance(payload.get("last"), dict) else {}
           payload_date = str(last.get("date") or payload.get("date") or "").strip()
+          payload_log_file = str(payload.get("log_file") or "").strip()
           running = bool(payload.get("running"))
           ok = payload.get("ok")
           error = payload.get("error")
@@ -238,6 +307,10 @@ jobs:
               "error": error,
           }
           print(json.dumps(summary, indent=2))
+
+            if expected_log_file and payload_log_file and payload_log_file != expected_log_file:
+              print(f"Status belongs to a different log file: {payload_log_file} != {expected_log_file}")
+              sys.exit(10)
 
           if running:
               sys.exit(10)
