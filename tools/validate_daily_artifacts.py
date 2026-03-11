@@ -12,6 +12,8 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import ast
+import csv
 import json
 import os
 from pathlib import Path
@@ -22,6 +24,56 @@ def _exists_nonempty(path: Path) -> bool:
         return path.exists() and path.stat().st_size > 0
     except Exception:
         return bool(path.exists())
+
+
+def _count_csv_data_rows(path: Path) -> int:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return 0
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.reader(handle)
+            header = next(reader, None)
+            if not header:
+                return 0
+            return sum(1 for _ in reader)
+    except Exception:
+        return 0
+
+
+def _parse_obj(value: object) -> object:
+    if isinstance(value, (list, dict)):
+        return value
+    s = str(value or "").strip()
+    if not s or s.lower() in {"nan", "none", "null"}:
+        return None
+    try:
+        return json.loads(s)
+    except Exception:
+        try:
+            return ast.literal_eval(s)
+        except Exception:
+            return None
+
+
+def _count_props_recommendation_play_rows(path: Path) -> int:
+    try:
+        if not path.exists() or path.stat().st_size <= 0:
+            return 0
+        with path.open("r", encoding="utf-8", newline="") as handle:
+            reader = csv.DictReader(handle)
+            if not reader.fieldnames:
+                return 0
+            plays_col = next((name for name in reader.fieldnames if str(name).strip().lower() == "plays"), None)
+            if not plays_col:
+                return 0
+            rows = 0
+            for row in reader:
+                plays = _parse_obj((row or {}).get(plays_col))
+                if isinstance(plays, list) and plays:
+                    rows += 1
+            return rows
+    except Exception:
+        return 0
 
 
 def _parse_bool(v: object, default: bool = False) -> bool:
@@ -96,6 +148,12 @@ def main() -> int:
     ap.add_argument("--require-odds", action="store_true", default=_parse_bool(os.environ.get("REQUIRE_ODDS"), True))
     ap.add_argument("--require-smartsim", action="store_true", default=_parse_bool(os.environ.get("REQUIRE_SMARTSIM"), True))
     ap.add_argument(
+        "--require-props-lines",
+        action="store_true",
+        default=_parse_bool(os.environ.get("REQUIRE_PROPS_LINES"), False),
+        help="Require props_edges and props_recommendations artifacts when props predictions are present.",
+    )
+    ap.add_argument(
         "--require-rotations",
         action="store_true",
         default=_parse_bool(os.environ.get("REQUIRE_ROTATIONS"), True),
@@ -119,6 +177,15 @@ def main() -> int:
     pred = proc / f"predictions_{date_str}.csv"
     props = proc / f"props_predictions_{date_str}.csv"
     odds = proc / f"game_odds_{date_str}.csv"
+    props_edges = proc / f"props_edges_{date_str}.csv"
+    props_recs = proc / f"props_recommendations_{date_str}.csv"
+    props_snapshot = repo_root / "data" / "raw" / f"odds_nba_player_props_{date_str}.csv"
+
+    pred_rows = _count_csv_data_rows(pred)
+    props_rows = _count_csv_data_rows(props)
+    props_edges_rows = _count_csv_data_rows(props_edges)
+    props_recs_rows = _count_csv_data_rows(props_recs)
+    props_recs_play_rows = _count_props_recommendation_play_rows(props_recs)
 
     slate_games: int | None = None
     try:
@@ -220,10 +287,24 @@ def main() -> int:
         # Best-effort: do not fail daily artifacts validation.
         pass
 
-    if not _exists_nonempty(pred):
+    if pred_rows <= 0:
         missing.append(pred.name)
-    if not _exists_nonempty(props):
+    if props_rows <= 0:
         missing.append(props.name)
+
+    if args.require_props_lines and props_rows > 0:
+        if props_edges_rows <= 0:
+            missing.append(props_edges.name)
+        if props_recs_rows <= 0:
+            missing.append(props_recs.name)
+    elif props_edges_rows > 0 and props_recs_rows <= 0:
+        warnings.append(f"props edges present but recommendations missing: {props_recs.name}")
+
+    if props_recs_rows > 0 and props_recs_play_rows <= 0:
+        if props_edges_rows > 0:
+            warnings.append(f"props_recommendations has zero playable plays: {props_recs.name}")
+        else:
+            warnings.append(f"props_recommendations exists without line-bearing plays while props_edges is missing: {props_recs.name}")
 
     odds_ok = _exists_nonempty(odds)
     if not odds_ok:
@@ -261,6 +342,12 @@ def main() -> int:
         "predictions_ok": _exists_nonempty(pred),
         "props_predictions_ok": _exists_nonempty(props),
         "game_odds_ok": _exists_nonempty(odds),
+        "props_snapshot_ok": _exists_nonempty(props_snapshot),
+        "props_edges_ok": _exists_nonempty(props_edges),
+        "props_edges_rows": props_edges_rows,
+        "props_recommendations_ok": _exists_nonempty(props_recs),
+        "props_recommendations_rows": props_recs_rows,
+        "props_recommendations_play_rows": props_recs_play_rows,
         "slate_games": slate_games,
         "smart_sim_count": smart_count,
         "rotations_dir_exists": bool((proc / "rotations_espn").exists()),
@@ -273,6 +360,7 @@ def main() -> int:
         "rotations_error": rot_error,
         "require_odds": bool(args.require_odds),
         "require_smartsim": bool(args.require_smartsim),
+        "require_props_lines": bool(args.require_props_lines),
         "require_rotations_espn": bool(args.require_rotations),
         "warnings": warnings,
         "missing": missing,

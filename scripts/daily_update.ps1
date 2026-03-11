@@ -357,6 +357,37 @@ function Test-CsvHasDataRows {
   }
 }
 
+function Get-PropsRecommendationsPlayableRowCount {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) {
+    return 0
+  }
+  try {
+    $rows = Import-Csv -Path $Path -ErrorAction Stop
+    if ($null -eq $rows) {
+      return 0
+    }
+    $count = 0
+    foreach ($row in @($rows)) {
+      $plays = [string]$row.plays
+      if ([string]::IsNullOrWhiteSpace($plays)) {
+        continue
+      }
+      $trim = $plays.Trim()
+      if ($trim.ToLower() -in @('nan', 'none', 'null')) {
+        continue
+      }
+      if ($trim -match '^\[\s*\]$') {
+        continue
+      }
+      $count += 1
+    }
+    return $count
+  } catch {
+    return 0
+  }
+}
+
 # Helper to run a python module with a hard timeout (prevents hangs on network calls)
 function Invoke-PyModWithTimeout {
   param(
@@ -2163,6 +2194,7 @@ try {
 }
 # 6c) Props recommendations
 $exportPropsArgs = @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
+$propsRecsPath = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $Date)
 if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
   try {
     $mpo2 = [double]$maxPlusOdds
@@ -2180,7 +2212,20 @@ if (Test-CsvHasDataRows -Path $edgesPath) {
   $rc6 = Invoke-PyMod -plist $exportPropsArgs
   Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
 } else {
-  Write-Log "Skipping export-props-recommendations because props_edges is missing or empty; preserving any existing same-day props recommendations."
+  $playablePropsRows = Get-PropsRecommendationsPlayableRowCount -Path $propsRecsPath
+  if ($playablePropsRows -gt 0) {
+    Write-Log ("Skipping export-props-recommendations because props_edges is missing or empty; preserving existing same-day line-bearing recommendations (playable_rows={0})." -f $playablePropsRows)
+  } else {
+    if (Test-Path $propsRecsPath) {
+      try {
+        Remove-Item $propsRecsPath -Force -ErrorAction Stop
+        Write-Log "Removed same-day props_recommendations because props_edges is missing/empty and the existing artifact only contained model-only cards."
+      } catch {
+        Write-Log ("Failed to remove invalid same-day props_recommendations: {0}" -f $_.Exception.Message)
+      }
+    }
+    Write-Log "Skipping export-props-recommendations because props_edges is missing or empty; no valid same-day line-bearing recommendations remain."
+  }
 }
 
 # 6c.0) Optional: export per-game Top-N props JSON (non-fatal)
@@ -2734,6 +2779,8 @@ try {
     $skipSmartNow = $env:DAILY_SKIP_SMARTSIM
     if ($null -ne $skipSmartNow -and $skipSmartNow -match '^(1|true|yes)$') { $reqSmart = '0' } else { $reqSmart = '1' }
   }
+  $reqPropsLines = $env:DAILY_REQUIRE_PROPS_LINES
+  if ($null -eq $reqPropsLines -or $reqPropsLines -eq '') { $reqPropsLines = '1' }
   $reqRot = $env:DAILY_REQUIRE_ROTATIONS_ESPN
   if ($null -eq $reqRot -or $reqRot -eq '') { $reqRot = '0' }
 
@@ -2741,9 +2788,10 @@ try {
     $env:FAIL_ON_MISSING = $fail
     $env:REQUIRE_ODDS = $reqOdds
     $env:REQUIRE_SMARTSIM = $reqSmart
+    $env:REQUIRE_PROPS_LINES = $reqPropsLines
     $env:REQUIRE_ROTATIONS = $reqRot
     if ($null -eq $env:ROTATIONS_MIN_COVERAGE -or $env:ROTATIONS_MIN_COVERAGE -eq '') { $env:ROTATIONS_MIN_COVERAGE = '0.70' }
-    Write-Log ("Validating daily artifacts (require_odds={0}, require_smartsim={1}, require_rotations_espn={2})" -f $reqOdds, $reqSmart, $reqRot)
+    Write-Log ("Validating daily artifacts (require_odds={0}, require_smartsim={1}, require_props_lines={2}, require_rotations_espn={3})" -f $reqOdds, $reqSmart, $reqPropsLines, $reqRot)
     $outV = Invoke-PyMod -plist @(
     'tools/validate_daily_artifacts.py',
     '--repo-root', $RepoRoot,

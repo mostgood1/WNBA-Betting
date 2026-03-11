@@ -7789,6 +7789,44 @@ def _count_csv_rows_quick(p: Optional[Path]) -> int:
         return 0
 
 
+def _count_props_recommendation_play_rows(p: Optional[Path]) -> int:
+    try:
+        if not p or (not p.exists()) or (not p.is_file()):
+            return 0
+        import ast
+        import csv as _csv
+
+        def _parse_obj(raw: object) -> object:
+            if isinstance(raw, (list, dict)):
+                return raw
+            s = str(raw or "").strip()
+            if not s or s.lower() in {"nan", "none", "null"}:
+                return None
+            try:
+                return json.loads(s)
+            except Exception:
+                try:
+                    return ast.literal_eval(s)
+                except Exception:
+                    return None
+
+        rows = 0
+        with p.open("r", encoding="utf-8", newline="") as handle:
+            reader = _csv.DictReader(handle)
+            if not reader.fieldnames:
+                return 0
+            plays_col = next((name for name in reader.fieldnames if str(name).strip().lower() == "plays"), None)
+            if not plays_col:
+                return 0
+            for row in reader:
+                plays = _parse_obj((row or {}).get(plays_col))
+                if isinstance(plays, list) and plays:
+                    rows += 1
+        return int(rows)
+    except Exception:
+        return 0
+
+
 def _find_fallback_odds_for_date(date_str: str) -> Optional[Path]:
     """Return best available non-Bovada odds file for the given date, if any.
 
@@ -8766,10 +8804,40 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 False,
             ))
 
+        props_preds_fp = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
+        edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
+        rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+
+        def _prune_invalid_props_recommendations() -> None:
+            try:
+                if int(_count_csv_rows_quick(edges_fp) or 0) > 0:
+                    return
+                if int(_count_csv_rows_quick(rec_fp) or 0) <= 0:
+                    return
+                playable_rows = int(_count_props_recommendation_play_rows(rec_fp) or 0)
+                if playable_rows > 0:
+                    _append_log(
+                        f"Preserving existing same-day line-bearing props recommendations despite missing props_edges (playable_rows={playable_rows})."
+                    )
+                    return
+                rec_fp.unlink(missing_ok=True)
+                _append_log(
+                    "Removed same-day props recommendations because props_edges is missing/empty and the artifact only contained model-only cards."
+                )
+            except Exception as exc:
+                _append_log(f"Failed to prune invalid props recommendations artifact: {exc}")
+
         rc_total = 0
         had_required_failure = False
         optional_failures: list[str] = []
         for label, cmd, required in steps:
+            if label == "export-props-recommendations" and not is_lookahead:
+                if int(_count_csv_rows_quick(edges_fp) or 0) <= 0:
+                    _append_log(
+                        "Skipping export-props-recommendations because props_edges is missing or empty; preserving only existing same-day line-bearing recommendations."
+                    )
+                    _prune_invalid_props_recommendations()
+                    continue
             _append_log(f"Running step: {label}")
             _append_log(f"Cmd: {' '.join(cmd)}")
             rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
@@ -8783,6 +8851,26 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 optional_failures.append(label)
 
         ok = not had_required_failure
+        if not is_lookahead and mode in {"full", "pipeline", "props"}:
+            require_props_lines = str(os.environ.get("DAILY_REQUIRE_PROPS_LINES") or "1").strip().lower() in {"1", "true", "yes"}
+            props_pred_rows = int(_count_csv_rows_quick(props_preds_fp) or 0)
+            edges_rows = int(_count_csv_rows_quick(edges_fp) or 0)
+            rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
+
+            if edges_rows <= 0:
+                _prune_invalid_props_recommendations()
+                rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
+
+            if require_props_lines and props_pred_rows > 0:
+                if edges_rows <= 0:
+                    ok = False
+                    optional_failures.append("props-edges-artifact")
+                    _append_log("Marking daily update failed: props_predictions exists but props_edges artifact is missing or empty.")
+                if rec_rows <= 0:
+                    ok = False
+                    optional_failures.append("props-recommendations-artifact")
+                    _append_log("Marking daily update failed: props_predictions exists but props_recommendations artifact is missing or empty.")
+
         if optional_failures:
             _append_log(f"Optional step failures: {', '.join(optional_failures)}")
         _append_log(f"Daily update finished. ok={ok} (rc_total={rc_total})")
@@ -10280,6 +10368,7 @@ def api_cards():
     odds_map = _load_game_odds_map(d)
     props_map = _load_props_predictions_map(d)
     min_priors = _compute_player_minutes_priors(d, days_back=21)
+    props_edges_line_idx = _live_load_props_edges_index(d)
     props_recs_by_team = _load_props_recommendations_by_team(d)
     injury_ctx_map = _load_injury_context_map(d)
     roster_map = _roster_players_for_date(d)
@@ -10606,7 +10695,8 @@ def api_cards():
                 try:
                     tri = home_tri if side == "home" else away_tri
                     player_key = _norm_player_name_for_keys(pr2.get("player_name"))
-                    player_lines = (team_boxscore_prop_candidates.get(str(tri or "").strip().upper()) or {}).get(player_key) or {}
+                    tri_key = str(tri or "").strip().upper()
+                    player_lines = (team_boxscore_prop_candidates.get(tri_key) or {}).get(player_key) or {}
                     prop_lines: dict[str, float] = {}
                     for market_key, mean_key in (
                         ("pts", "pts_mean"),
@@ -10615,7 +10705,9 @@ def api_cards():
                         ("threes", "threes_mean"),
                         ("pra", "pra_mean"),
                     ):
-                        line_val = _choose_boxscore_prop_line(player_lines.get(market_key) or [], pr2.get(mean_key))
+                        line_val = _safe_float(props_edges_line_idx.get((tri_key, player_key, market_key))) if player_key else None
+                        if line_val is None:
+                            line_val = _choose_boxscore_prop_line(player_lines.get(market_key) or [], pr2.get(mean_key))
                         if line_val is not None:
                             prop_lines[market_key] = float(line_val)
                     if prop_lines:
