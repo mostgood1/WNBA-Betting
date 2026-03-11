@@ -6631,9 +6631,12 @@ def benchmark_games_npu_cmd(runs: int, games: int):
 @click.option("--bookmakers", type=str, default=None, help="Comma-separated bookmaker keys to include (e.g., draftkings,fanduel,pinnacle)")
 @click.option("--calibrate-sigma/--no-calibrate-sigma", default=False, show_default=True, help="Estimate sigma per stat from recent residuals")
 @click.option("--calibrate-prob/--no-calibrate-prob", default=True, show_default=True, help="Apply saved probability calibration curve to model prop probabilities when available")
+@click.option("--odds-path", type=click.Path(exists=False, dir_okay=False), required=False, help="Use a specific odds snapshot CSV/parquet path instead of loading or fetching odds")
+@click.option("--attach-opening-snapshot/--no-attach-opening-snapshot", default=True, show_default=True, help="Attach opening-line snapshot data when available")
+@click.option("--resolve-roster/--no-resolve-roster", default=True, show_default=True, help="Use processed roster files to backfill unmatched player ids")
 @click.option("--predictions-csv", type=click.Path(exists=False, dir_okay=False), required=False, help="Use precomputed props_predictions_YYYY-MM-DD.csv from this path; defaults to data/processed")
 @click.option("--file-only/--no-file-only", default=False, show_default=True, help="Do not run props models; require predictions CSV to exist")
-def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool, calibrate_prob: bool, predictions_csv: str | None, file_only: bool):
+def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_key: str | None, sigma_pts: float, sigma_reb: float, sigma_ast: float, sigma_threes: float, sigma_pra: float, slate_only: bool, min_edge: float, min_ev: float, top: int, bookmakers: str | None, calibrate_sigma: bool, calibrate_prob: bool, odds_path: str | None, attach_opening_snapshot: bool, resolve_roster: bool, predictions_csv: str | None, file_only: bool):
     """Compute player props edges (EV) by merging model predictions with OddsAPI lines for a date.
 
     Writes data/processed/props_edges_YYYY-MM-DD.csv
@@ -6663,6 +6666,9 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
             predictions_path=predictions_csv,
             from_file_only=file_only,
             calibrate_prob=calibrate_prob,
+            odds_path=odds_path,
+            attach_opening_snapshot=attach_opening_snapshot,
+            resolve_roster=resolve_roster,
         )
     except FileNotFoundError as e:
         raise click.ClickException(str(e))

@@ -447,6 +447,7 @@ def _ensure_props_predictions_for_refresh(
 def _compute_props_edges_direct(
     *,
     date_str: str,
+    snapshot_path: Path,
     predictions_path: Path,
     bookmakers: str,
     log_file: Path,
@@ -462,15 +463,19 @@ def _compute_props_edges_direct(
             "props-edges",
             "--date",
             date_str,
-            "--use-saved",
+            "--no-use-saved",
             "--mode",
             "current",
             "--source",
             "oddsapi",
+            "--odds-path",
+            str(snapshot_path),
             "--predictions-csv",
             str(predictions_path),
             "--file-only",
             "--calibrate-prob",
+            "--no-slate-only",
+            "--no-attach-opening-snapshot",
         ]
         if bookmakers:
             edges_cmd.extend(["--bookmakers", bookmakers])
@@ -867,6 +872,7 @@ def run_refresh_oddsapi_props_job(
             _persist_progress(running=True, ok=None)
             rc_edges, edges_rows, edges_error = _compute_props_edges_direct(
                 date_str=date_str,
+                snapshot_path=raw_fp,
                 predictions_path=pred_path,
                 bookmakers=bookmakers,
                 log_file=log_file,

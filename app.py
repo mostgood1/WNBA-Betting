@@ -7236,8 +7236,13 @@ def _launch_refresh_oddsapi_props_detached(
             out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Launching detached refresh-oddsapi-props process\n")
             out.flush()
             popen_kwargs["stdout"] = out
+            launcher = (
+                f"import sys; sys.path.insert(0, {str(SRC_DIR)!r}); "
+                "from nba_betting.refresh_oddsapi_props_job import main; "
+                "raise SystemExit(main())"
+            )
             subprocess.Popen(
-                [str(py), "-m", "nba_betting.refresh_oddsapi_props_job"],
+                [str(py), "-c", launcher],
                 **popen_kwargs,
             )
         return True, None
@@ -28917,6 +28922,19 @@ def api_cron_refresh_oddsapi_props():
         env = dict(os.environ)
         env["PYTHONPATH"] = str(SRC_DIR)
 
+        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
+        try:
+            from nba_betting.config import paths as _paths  # type: ignore
+            raw_fp = _paths.data_raw / f"odds_nba_player_props_{d}.csv"
+            pred_fp = _paths.data_processed / f"props_predictions_{d}.csv"
+            edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
+            rec_fp = _paths.data_processed / f"props_recommendations_{d}.csv"
+        except Exception:
+            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv"
+            pred_fp = DATA_PROCESSED_DIR / f"props_predictions_{d}.csv"
+            edges_fp = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
+            rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
+
         # 1) Snapshot player props to data/raw
         snap_cmd = [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", d, "--regions", regions]
         if bookmakers:
@@ -28925,30 +28943,59 @@ def api_cron_refresh_oddsapi_props():
             snap_cmd += ["--markets", markets]
         rc_snap = _run_to_file(snap_cmd, log_file, cwd=BASE_DIR, env=env)
 
-        # 2) Optionally compute props edges from OddsAPI (prefers saved snapshot by default)
+        pipeline_error = None
+
+        # 2) Optionally compute props edges via the same same-day snapshot fast path as the worker.
         rc_edges = None
-        if do_edges:
-            edges_cmd = [str(py), "-m", "nba_betting.cli", "props-edges", "--date", d, "--source", "oddsapi", "--mode", "current"]
-            if bookmakers:
-                edges_cmd += ["--bookmakers", bookmakers]
-            rc_edges = _run_to_file(edges_cmd, log_file, cwd=BASE_DIR, env=env)
-
-        # 3) Optionally export props recommendations (uses props_edges_<date>.csv)
         rc_export = None
-        if do_export:
-            export_cmd = [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", d]
-            rc_export = _run_to_file(export_cmd, log_file, cwd=BASE_DIR, env=env)
+        if do_edges or do_export:
+            try:
+                from nba_betting.refresh_oddsapi_props_job import (
+                    _compute_props_edges_direct as _worker_compute_props_edges_direct,
+                    _ensure_props_predictions_for_refresh as _worker_ensure_props_predictions_for_refresh,
+                    _export_props_recommendations_direct as _worker_export_props_recommendations_direct,
+                )
+            except Exception as exc:
+                pipeline_error = f"failed to import props refresh helpers: {exc}"
+                if do_edges:
+                    rc_edges = 1
+                if do_export and not do_edges:
+                    rc_export = 1
+            else:
+                pred_path, pred_error = _worker_ensure_props_predictions_for_refresh(
+                    date_str=d,
+                    log_file=log_file,
+                    heartbeat_cb=lambda: None,
+                )
+                if pred_path is None:
+                    pipeline_error = pred_error or f"props predictions unavailable for {d}"
+                    if do_edges:
+                        rc_edges = 1
+                    if do_export and not do_edges:
+                        rc_export = 1
+                else:
+                    if do_edges:
+                        rc_edges, _, edges_error = _worker_compute_props_edges_direct(
+                            date_str=d,
+                            snapshot_path=raw_fp,
+                            predictions_path=pred_path,
+                            bookmakers=bookmakers,
+                            log_file=log_file,
+                            heartbeat_cb=lambda: None,
+                        )
+                        if int(rc_edges) != 0:
+                            pipeline_error = edges_error or f"props-edges failed with exit code {int(rc_edges)}"
+                        elif int(_count_csv_rows_quick(raw_fp) or 0) > 0 and int(_count_csv_rows_quick(edges_fp) or 0) <= 0:
+                            pipeline_error = "props-edges produced zero rows after a non-empty snapshot"
 
-        # Report file locations via nba_betting.config.paths (supports NBA_BETTING_DATA_ROOT)
-        try:
-            from nba_betting.config import paths as _paths  # type: ignore
-            raw_fp = _paths.data_raw / f"odds_nba_player_props_{d}.csv"
-            edges_fp = _paths.data_processed / f"props_edges_{d}.csv"
-            rec_fp = _paths.data_processed / f"props_recommendations_{d}.csv"
-        except Exception:
-            raw_fp = DATA_RAW_DIR / f"odds_nba_player_props_{d}.csv"
-            edges_fp = DATA_PROCESSED_DIR / f"props_edges_{d}.csv"
-            rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{d}.csv"
+                    if do_export and (not do_edges or (int(rc_edges or 0) == 0 and int(_count_csv_rows_quick(edges_fp) or 0) > 0)):
+                        rc_export, _, export_error = _worker_export_props_recommendations_direct(
+                            date_str=d,
+                            log_file=log_file,
+                            heartbeat_cb=lambda: None,
+                        )
+                        if int(rc_export) != 0 and not pipeline_error:
+                            pipeline_error = export_error or f"export-props-recommendations failed with exit code {int(rc_export)}"
 
         snap_rows = 0
         try:
@@ -29011,6 +29058,7 @@ def api_cron_refresh_oddsapi_props():
             "recs_rows": int(rec_rows),
             "recs_path": str(rec_fp),
             "log_file": str(log_file),
+            "error": pipeline_error,
             "pushed": pushed,
             "push_detail": push_detail,
         }), 200

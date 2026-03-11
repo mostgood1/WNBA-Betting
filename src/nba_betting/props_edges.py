@@ -536,6 +536,62 @@ class SigmaConfig:
     tov: float = 1.5
 
 
+def _filter_props_odds_to_slate_date(df: pd.DataFrame, date: datetime) -> pd.DataFrame:
+    if df is None or df.empty or "commence_time" not in df.columns:
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    dt_utc = pd.to_datetime(df["commence_time"], errors="coerce", utc=True)
+    try:
+        et_dates = dt_utc.dt.tz_convert("America/New_York").dt.date
+    except Exception:
+        try:
+            et_dates = dt_utc.dt.tz_convert("US/Eastern").dt.date
+        except Exception:
+            et_dates = dt_utc.dt.date
+    return df.loc[et_dates == pd.to_datetime(date).date()].copy()
+
+
+def _load_props_odds_from_path(date: datetime, odds_path: str | Path) -> pd.DataFrame:
+    usecols = [
+        "snapshot_ts",
+        "event_id",
+        "commence_time",
+        "bookmaker",
+        "bookmaker_title",
+        "market",
+        "outcome_name",
+        "player_name",
+        "point",
+        "price",
+        "home_team",
+        "away_team",
+    ]
+    usecols_set = set(usecols)
+
+    p = Path(odds_path)
+    if not p.is_absolute():
+        p = paths.root / p
+    if not p.exists():
+        raise FileNotFoundError(f"Odds snapshot not found: {p}")
+
+    try:
+        if str(p).lower().endswith(".parquet"):
+            try:
+                df = pd.read_parquet(p, columns=usecols)
+            except Exception:
+                df = pd.read_parquet(p)
+        else:
+            try:
+                df = pd.read_csv(p, usecols=lambda c: c in usecols_set)
+            except Exception:
+                df = pd.read_csv(p)
+    except Exception as exc:
+        raise RuntimeError(f"Failed reading odds snapshot: {p}") from exc
+
+    if df is None or df.empty:
+        return pd.DataFrame()
+    return _filter_props_odds_to_slate_date(df, date)
+
+
 def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
     # Load saved odds and filter to commence_time date.
     # Prefer per-date snapshots (created by our daily pipeline) when available.
@@ -602,19 +658,7 @@ def _odds_for_date_from_saved(date: datetime) -> pd.DataFrame:
             df = None
     if df is None or df.empty:
         return pd.DataFrame()
-    # Filter by commence_time date
-    if "commence_time" in df.columns:
-        dt_utc = pd.to_datetime(df["commence_time"], errors="coerce", utc=True)
-        # Convert to US/Eastern date for correct slate filtering (vectorized).
-        try:
-            et_dates = dt_utc.dt.tz_convert("America/New_York").dt.date
-        except Exception:
-            try:
-                et_dates = dt_utc.dt.tz_convert("US/Eastern").dt.date
-            except Exception:
-                et_dates = dt_utc.dt.date
-        df = df.loc[et_dates == pd.to_datetime(date).date()].copy()
-    return df
+    return _filter_props_odds_to_slate_date(df, date)
 
 
 def _fetch_odds_for_date(date: datetime, mode: str, api_key: Optional[str]) -> pd.DataFrame:
@@ -681,6 +725,9 @@ def compute_props_edges(
     from_file_only: bool = False,
     exclude_injured: bool = True,
     calibrate_prob: bool = False,
+    odds_path: Optional[str] = None,
+    attach_opening_snapshot: bool = True,
+    resolve_roster: bool = True,
 ) -> pd.DataFrame:
     """Compute model edges/EV against OddsAPI player props for a given date.
 
@@ -764,24 +811,27 @@ def compute_props_edges(
 
     # Load odds (OddsAPI or Bovada based on source)
     odds = pd.DataFrame()
-    src = (source or "auto").lower()
-    if src == "oddsapi":
-        if use_saved:
-            odds = _odds_for_date_from_saved(target_date)
-        if odds is None or odds.empty:
-            fetched = _fetch_odds_for_date(target_date, mode=mode, api_key=api_key)
-            odds = fetched if fetched is not None else pd.DataFrame()
-    elif src == "bovada":
-        odds = fetch_bovada_player_props_current(target_date)
+    if odds_path:
+        odds = _load_props_odds_from_path(target_date, odds_path)
     else:
-        # auto: try saved/current OddsAPI first, then fall back to Bovada
-        if use_saved:
-            odds = _odds_for_date_from_saved(target_date)
-        if odds is None or odds.empty:
-            fetched = _fetch_odds_for_date(target_date, mode=mode, api_key=api_key)
-            odds = fetched if fetched is not None else pd.DataFrame()
-        if odds is None or odds.empty:
+        src = (source or "auto").lower()
+        if src == "oddsapi":
+            if use_saved:
+                odds = _odds_for_date_from_saved(target_date)
+            if odds is None or odds.empty:
+                fetched = _fetch_odds_for_date(target_date, mode=mode, api_key=api_key)
+                odds = fetched if fetched is not None else pd.DataFrame()
+        elif src == "bovada":
             odds = fetch_bovada_player_props_current(target_date)
+        else:
+            # auto: try saved/current OddsAPI first, then fall back to Bovada
+            if use_saved:
+                odds = _odds_for_date_from_saved(target_date)
+            if odds is None or odds.empty:
+                fetched = _fetch_odds_for_date(target_date, mode=mode, api_key=api_key)
+                odds = fetched if fetched is not None else pd.DataFrame()
+            if odds is None or odds.empty:
+                odds = fetch_bovada_player_props_current(target_date)
     if odds is None or odds.empty:
         return pd.DataFrame()
 
@@ -895,7 +945,7 @@ def compute_props_edges(
     # Attach opening snapshot (sentiment proxy) when we have saved OddsAPI snapshots.
     # This is intentionally conservative: if no opening snapshot is available for a row,
     # we do nothing.
-    if _env_bool("PROPS_SENTIMENT_ENABLE", True):
+    if attach_opening_snapshot and _env_bool("PROPS_SENTIMENT_ENABLE", True):
         try:
             if "event_id" in odds.columns and odds["event_id"].notna().any():
                 opening = _load_opening_props_odds_for_date(target_date)
@@ -962,81 +1012,82 @@ def compute_props_edges(
 
     # Third-pass: roster-assisted resolution by event team context -> join predictions by player_id
     try:
-        still_unmatched = merged[merged["player_id"].isna()].copy()
-        if not still_unmatched.empty:
+        if resolve_roster:
+            still_unmatched = merged[merged["player_id"].isna()].copy()
+            if not still_unmatched.empty:
             # Load latest rosters file from processed
-            roster = pd.DataFrame()
-            try:
-                proc = paths.data_processed
-                # Prefer files like rosters_*.csv; pick most recent by modified time
-                cands = sorted(proc.glob("rosters_*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                if not cands:
-                    cands = sorted(proc.glob("*roster*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                if cands:
-                    roster = pd.read_csv(cands[0])
-            except Exception:
                 roster = pd.DataFrame()
-            if roster is not None and not roster.empty:
-                # Normalize roster columns heuristically
-                def _pick(col_opts):
-                    for c in col_opts:
-                        if c in roster.columns:
-                            return c
-                    return None
-                name_col = _pick(["PLAYER","player","Player","NAME","name"]) or "PLAYER"
-                id_col = _pick(["PLAYER_ID","player_id","PlayerID","id","ID"])
-                team_col = _pick(["TEAM","team","Team","TEAM_ABBREVIATION","TEAM_ABBR","tricode","TRICODE","TEAM_TRICODE"])            
-                cols = {}
-                if name_col and name_col in roster.columns:
-                    cols["player_name"] = roster[name_col].astype(str)
-                if id_col and id_col in roster.columns:
-                    cols["player_id"] = pd.to_numeric(roster[id_col], errors="coerce")
-                if team_col and team_col in roster.columns:
-                    cols["team"] = roster[team_col].astype(str)
-                r = pd.DataFrame(cols)
-                if not r.empty and ("player_name" in r.columns):
-                    r["name_key"] = r["player_name"].astype(str).map(_norm_name)
-                    r["short_key"] = r["player_name"].astype(str).map(_short_key)
-                    # Join by name_key first
-                    enrich = still_unmatched.merge(r[["name_key","player_id","team"]], on="name_key", how="left", suffixes=("","_r"))
-                    # For remaining, try short_key
-                    rem = enrich[enrich["player_id"].isna()].copy()
-                    if not rem.empty:
-                        enrich2 = rem.merge(r[["short_key","player_id","team"]].rename(columns={"short_key":"short_key_r"}), left_on="short_key", right_on="short_key_r", how="left")
-                        for col in ("player_id","team"):
-                            col_r = f"{col}_y"
-                            if col in enrich.columns and col_r in enrich2.columns:
-                                enrich.loc[rem.index, col] = enrich.loc[rem.index, col].fillna(enrich2[col_r])
-                    # Team-tricode alignment: prefer roster match that aligns with event teams
-                    def _to_tri_team(x: str | None) -> str:
-                        try:
-                            return _tri(_norm_team(str(x))) if x is not None else ""
-                        except Exception:
-                            return (str(x).strip().upper() if x else "")
-                    if "home_team" in enrich.columns and "away_team" in enrich.columns:
-                        enrich["home_tri"] = enrich["home_team"].astype(str).map(_to_tri_team)
-                        enrich["away_tri"] = enrich["away_team"].astype(str).map(_to_tri_team)
-                        enrich["team_tri_r"] = enrich.get("team").astype(str).map(_to_tri_team)
-                        # In cases where roster team doesn't match either event team, null it out to avoid mis-join
-                        ok_mask = (enrich["team_tri_r"] == enrich["home_tri"]) | (enrich["team_tri_r"] == enrich["away_tri"]) | (enrich["team_tri_r"] == "")
-                        enrich.loc[~ok_mask, ["player_id","team"]] = np.nan
-                    # Fill merged with roster-assisted ids/teams
-                    for col in ["player_id","team"]:
-                        if col in enrich.columns:
-                            merged[col] = merged[col].fillna(enrich[col])
-                    # If we resolved player_id, bring in prediction columns via id join
-                    need = merged[merged["player_id"].notna()].index
-                    if len(need) > 0:
-                        pred_cols = ["player_id", "player_name", "team", *base_pred_cols]
-                        pred_cols = [c for c in pred_cols if c in preds.columns]
-                        by_id = preds[pred_cols].drop_duplicates("player_id")
-                        merged = merged.merge(by_id.add_suffix("_pid"), left_on="player_id", right_on="player_id_pid", how="left")
-                        # Backfill any missing prediction fields from the _pid columns
-                        for col in ["player_name", "team", *base_pred_cols]:
-                            base = col
-                            aux = f"{col}_pid"
-                            if base in merged.columns and aux in merged.columns:
-                                merged[base] = merged[base].fillna(merged[aux])
+                try:
+                    proc = paths.data_processed
+                    # Prefer files like rosters_*.csv; pick most recent by modified time
+                    cands = sorted(proc.glob("rosters_*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    if not cands:
+                        cands = sorted(proc.glob("*roster*.csv"), key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
+                    if cands:
+                        roster = pd.read_csv(cands[0])
+                except Exception:
+                    roster = pd.DataFrame()
+                if roster is not None and not roster.empty:
+                    # Normalize roster columns heuristically
+                    def _pick(col_opts):
+                        for c in col_opts:
+                            if c in roster.columns:
+                                return c
+                        return None
+                    name_col = _pick(["PLAYER","player","Player","NAME","name"]) or "PLAYER"
+                    id_col = _pick(["PLAYER_ID","player_id","PlayerID","id","ID"])
+                    team_col = _pick(["TEAM","team","Team","TEAM_ABBREVIATION","TEAM_ABBR","tricode","TRICODE","TEAM_TRICODE"])
+                    cols = {}
+                    if name_col and name_col in roster.columns:
+                        cols["player_name"] = roster[name_col].astype(str)
+                    if id_col and id_col in roster.columns:
+                        cols["player_id"] = pd.to_numeric(roster[id_col], errors="coerce")
+                    if team_col and team_col in roster.columns:
+                        cols["team"] = roster[team_col].astype(str)
+                    r = pd.DataFrame(cols)
+                    if not r.empty and ("player_name" in r.columns):
+                        r["name_key"] = r["player_name"].astype(str).map(_norm_name)
+                        r["short_key"] = r["player_name"].astype(str).map(_short_key)
+                        # Join by name_key first
+                        enrich = still_unmatched.merge(r[["name_key","player_id","team"]], on="name_key", how="left", suffixes=("","_r"))
+                        # For remaining, try short_key
+                        rem = enrich[enrich["player_id"].isna()].copy()
+                        if not rem.empty:
+                            enrich2 = rem.merge(r[["short_key","player_id","team"]].rename(columns={"short_key":"short_key_r"}), left_on="short_key", right_on="short_key_r", how="left")
+                            for col in ("player_id","team"):
+                                col_r = f"{col}_y"
+                                if col in enrich.columns and col_r in enrich2.columns:
+                                    enrich.loc[rem.index, col] = enrich.loc[rem.index, col].fillna(enrich2[col_r])
+                        # Team-tricode alignment: prefer roster match that aligns with event teams
+                        def _to_tri_team(x: str | None) -> str:
+                            try:
+                                return _tri(_norm_team(str(x))) if x is not None else ""
+                            except Exception:
+                                return (str(x).strip().upper() if x else "")
+                        if "home_team" in enrich.columns and "away_team" in enrich.columns:
+                            enrich["home_tri"] = enrich["home_team"].astype(str).map(_to_tri_team)
+                            enrich["away_tri"] = enrich["away_team"].astype(str).map(_to_tri_team)
+                            enrich["team_tri_r"] = enrich.get("team").astype(str).map(_to_tri_team)
+                            # In cases where roster team doesn't match either event team, null it out to avoid mis-join
+                            ok_mask = (enrich["team_tri_r"] == enrich["home_tri"]) | (enrich["team_tri_r"] == enrich["away_tri"]) | (enrich["team_tri_r"] == "")
+                            enrich.loc[~ok_mask, ["player_id","team"]] = np.nan
+                        # Fill merged with roster-assisted ids/teams
+                        for col in ["player_id","team"]:
+                            if col in enrich.columns:
+                                merged[col] = merged[col].fillna(enrich[col])
+                        # If we resolved player_id, bring in prediction columns via id join
+                        need = merged[merged["player_id"].notna()].index
+                        if len(need) > 0:
+                            pred_cols = ["player_id", "player_name", "team", *base_pred_cols]
+                            pred_cols = [c for c in pred_cols if c in preds.columns]
+                            by_id = preds[pred_cols].drop_duplicates("player_id")
+                            merged = merged.merge(by_id.add_suffix("_pid"), left_on="player_id", right_on="player_id_pid", how="left")
+                            # Backfill any missing prediction fields from the _pid columns
+                            for col in ["player_name", "team", *base_pred_cols]:
+                                base = col
+                                aux = f"{col}_pid"
+                                if base in merged.columns and aux in merged.columns:
+                                    merged[base] = merged[base].fillna(merged[aux])
     except Exception:
         pass
     # Choose model mean based on stat.
