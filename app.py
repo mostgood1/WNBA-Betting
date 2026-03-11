@@ -7139,6 +7139,10 @@ def _refresh_oddsapi_props_payload_from_meta(refresh_meta: dict[str, Any]) -> di
         "snapshot_rows": refresh_meta.get("snapshot_rows"),
         "edges_rows": refresh_meta.get("edges_rows"),
         "recs_rows": refresh_meta.get("recs_rows"),
+        "movement_rows": refresh_meta.get("movement_rows"),
+        "movement_significant_rows": refresh_meta.get("movement_significant_rows"),
+        "movement_fast_rows": refresh_meta.get("movement_fast_rows"),
+        "movement_signals_path": refresh_meta.get("movement_signals_path"),
         "snapshot_path": (refresh_meta.get("snapshot_path") or refresh_meta.get("snapshot")),
         "edges_path": (refresh_meta.get("edges_path") or refresh_meta.get("edges")),
         "recs_path": (refresh_meta.get("recs_path") or refresh_meta.get("recs")),
@@ -8231,6 +8235,12 @@ def api_cron_upload_props_refresh_artifacts():
       - recommendations: props_recommendations_<date>.csv
     Optional form fields:
       - regions, bookmakers, markets, started_at, ended_at, duration_s
+
+        Side effects on the active data root:
+            - append current snapshot rows to odds_nba_player_props_history_<date>.csv
+            - preserve earliest-seen props in odds_nba_player_props_opening_<date>.*
+            - enrich props_edges_<date>.csv with opening and movement columns
+            - emit props_movement_signals_<date>.csv for significant moves
     """
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
@@ -8311,6 +8321,27 @@ def api_cron_upload_props_refresh_artifacts():
             "edges_rows": edges_rows,
         }), 400
 
+    try:
+        from nba_betting.props_movement import sync_props_movement_artifacts  # type: ignore
+
+        movement_meta = sync_props_movement_artifacts(
+            date_str=date_str,
+            snapshot_path=snapshot_path,
+            edges_path=edges_path,
+            raw_dir=DATA_RAW_DIR,
+            processed_dir=DATA_PROCESSED_DIR,
+        )
+        snapshot_rows = int(_count_csv_rows_quick(snapshot_path))
+        edges_rows = int(_count_csv_rows_quick(edges_path))
+        try:
+            from nba_betting.props_edges import invalidate_opening_props_cache as _invalidate_opening_props_cache  # type: ignore
+
+            _invalidate_opening_props_cache(date_str)
+        except Exception:
+            pass
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"failed to persist props movement tracking: {exc}"}), 500
+
     started_at = str(request.form.get("started_at") or "").strip() or datetime.utcnow().isoformat()
     ended_at = str(request.form.get("ended_at") or "").strip() or datetime.utcnow().isoformat()
     duration_raw = str(request.form.get("duration_s") or "").strip()
@@ -8342,6 +8373,10 @@ def api_cron_upload_props_refresh_artifacts():
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
+        "movement_rows": movement_meta.get("rows_with_opening"),
+        "movement_significant_rows": movement_meta.get("significant_rows"),
+        "movement_fast_rows": movement_meta.get("fast_rows"),
+        "movement_signals_path": movement_meta.get("signals_path"),
         "snapshot_path": str(snapshot_path),
         "predictions_path": str(predictions_path),
         "edges_path": str(edges_path),
@@ -8365,6 +8400,7 @@ def api_cron_upload_props_refresh_artifacts():
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
+        "movement": movement_meta,
         "uploads": upload_bytes,
         "snapshot_path": str(snapshot_path),
         "predictions_path": str(predictions_path),

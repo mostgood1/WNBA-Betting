@@ -55,6 +55,17 @@ def _env_float(name: str, default: float, lo: float | None = None, hi: float | N
 _PROPS_OPENING_CACHE: dict[str, pd.DataFrame] = {}
 
 
+def invalidate_opening_props_cache(date_str: str | None = None) -> None:
+    if date_str is None:
+        _PROPS_OPENING_CACHE.clear()
+        return
+    try:
+        key = str(pd.to_datetime(date_str).date())
+    except Exception:
+        key = str(date_str)
+    _PROPS_OPENING_CACHE.pop(key, None)
+
+
 def _load_opening_props_odds_for_date(date: datetime) -> pd.DataFrame:
     """Return opening (earliest snapshot) prop lines/prices for the slate date.
 
