@@ -11,7 +11,7 @@ on:
 
 concurrency:
   group: nbabetting-daily-scheduler
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   # Prefer repo secrets, but default the base URL to the known Render service.
