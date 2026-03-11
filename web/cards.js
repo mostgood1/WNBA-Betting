@@ -932,8 +932,8 @@ function renderLineScoreBlock(meta, actualSource) {
           <thead>
             <tr>
               <th rowspan="2"></th>
-              <th colspan="5">${esc(label)}</th>
-              <th colspan="5">Sim</th>
+              <th colspan="5" class="boxscore-side-header boxscore-side-header-live">${esc(label)}</th>
+              <th colspan="5" class="boxscore-side-header boxscore-side-header-sim">Sim</th>
             </tr>
             <tr>
               <th class="num">Q1</th>
@@ -941,7 +941,7 @@ function renderLineScoreBlock(meta, actualSource) {
               <th class="num">Q3</th>
               <th class="num">Q4</th>
               <th class="num">Total</th>
-              <th class="num">Q1</th>
+              <th class="num boxscore-divider-start">Q1</th>
               <th class="num">Q2</th>
               <th class="num">Q3</th>
               <th class="num">Q4</th>
@@ -956,7 +956,7 @@ function renderLineScoreBlock(meta, actualSource) {
               <td class="num">${fmtActualLineScore(actualRows.away.q3)}</td>
               <td class="num">${fmtActualLineScore(actualRows.away.q4)}</td>
               <td class="num">${fmtActualLineScore(actualRows.away.total)}</td>
-              <td class="num">${fmtSimLineScore(simRows.away.q1)}</td>
+              <td class="num boxscore-divider-start">${fmtSimLineScore(simRows.away.q1)}</td>
               <td class="num">${fmtSimLineScore(simRows.away.q2)}</td>
               <td class="num">${fmtSimLineScore(simRows.away.q3)}</td>
               <td class="num">${fmtSimLineScore(simRows.away.q4)}</td>
@@ -969,7 +969,7 @@ function renderLineScoreBlock(meta, actualSource) {
               <td class="num">${fmtActualLineScore(actualRows.home.q3)}</td>
               <td class="num">${fmtActualLineScore(actualRows.home.q4)}</td>
               <td class="num">${fmtActualLineScore(actualRows.home.total)}</td>
-              <td class="num">${fmtSimLineScore(simRows.home.q1)}</td>
+              <td class="num boxscore-divider-start">${fmtSimLineScore(simRows.home.q1)}</td>
               <td class="num">${fmtSimLineScore(simRows.home.q2)}</td>
               <td class="num">${fmtSimLineScore(simRows.home.q3)}</td>
               <td class="num">${fmtSimLineScore(simRows.home.q4)}</td>
@@ -987,22 +987,22 @@ function renderActualBoxscoreCells(row, actualMode) {
   const liveLensPlayer = row && row.liveLens ? row.liveLens : null;
   if (actualMode === 'live') {
     return `
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'mp')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pts')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'mp')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pts')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pts')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'reb')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'reb')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'reb')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'ast')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'ast')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'ast')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'threes')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'threes')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'threes')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'stl')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'stl')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'stl')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'blk')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'blk')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'blk')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'tov')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'tov')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'tov')}</td>
-      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pra')}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pra')}</td>
       <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pra')}</td>
     `;
   }
@@ -1023,22 +1023,22 @@ function renderActualBoxscoreCells(row, actualMode) {
 function renderActualBoxscoreTotalsCells(rows, actualMode) {
   if (actualMode === 'live') {
     return `
-      <td class="num">${renderLiveBoxscoreStatValueCell('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'), sumMergedLiveProjectionStat(rows, 'mp'))}</td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'), sumMergedLiveProjectionStat(rows, 'pts'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'), sumMergedLiveProjectionStat(rows, 'mp'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'), sumMergedLiveProjectionStat(rows, 'pts'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'), sumMergedLiveProjectionStat(rows, 'reb'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'), sumMergedLiveProjectionStat(rows, 'reb'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'), sumMergedLiveProjectionStat(rows, 'ast'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'), sumMergedLiveProjectionStat(rows, 'ast'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'), sumMergedLiveProjectionStat(rows, 'threes'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'), sumMergedLiveProjectionStat(rows, 'threes'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'), sumMergedLiveProjectionStat(rows, 'stl'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'), sumMergedLiveProjectionStat(rows, 'stl'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'), sumMergedLiveProjectionStat(rows, 'blk'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'), sumMergedLiveProjectionStat(rows, 'blk'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'), sumMergedLiveProjectionStat(rows, 'tov'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'), sumMergedLiveProjectionStat(rows, 'tov'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${renderLiveBoxscoreStatValueCell('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'), sumMergedLiveProjectionStat(rows, 'pra'))}</td>
+      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'), sumMergedLiveProjectionStat(rows, 'pra'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
     `;
   }
@@ -1067,7 +1067,7 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
       <tr>
         <td>${esc(row && row.name ? row.name : '—')}</td>
         ${renderActualBoxscoreCells(row, actualMode)}
-        <td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
+        <td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pts')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'reb', sim.reb)}</td>
@@ -1092,7 +1092,7 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
     <tr>
       <td>TEAM TOTAL</td>
       ${renderActualBoxscoreTotalsCells(rows, actualMode)}
-      <td class="num">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
+      <td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
       <td class="num">${fmtSimBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'sim', 'pts'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'sim', 'reb'))}</td>
@@ -1120,28 +1120,28 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
           <thead>
             <tr>
               <th rowspan="2">Player</th>
-              <th colspan="${esc(String(actualHeaderCols))}">${esc(actualLabel)}</th>
-              <th colspan="17">Sim</th>
+              <th colspan="${esc(String(actualHeaderCols))}" class="boxscore-side-header boxscore-side-header-live">${esc(actualLabel)}</th>
+              <th colspan="17" class="boxscore-side-header boxscore-side-header-sim">Sim</th>
             </tr>
             <tr>
               ${isLiveMode ? `
                 <th class="num">MIN</th>
                 <th class="num">PTS</th>
-                <th class="num boxscore-line-col">PTS LINE</th>
+                <th class="num boxscore-line-col" title="PTS line">L</th>
                 <th class="num">REB</th>
-                <th class="num boxscore-line-col">REB LINE</th>
+                <th class="num boxscore-line-col" title="REB line">L</th>
                 <th class="num">AST</th>
-                <th class="num boxscore-line-col">AST LINE</th>
+                <th class="num boxscore-line-col" title="AST line">L</th>
                 <th class="num">3PM</th>
-                <th class="num boxscore-line-col">3PM LINE</th>
+                <th class="num boxscore-line-col" title="3PM line">L</th>
                 <th class="num">STL</th>
-                <th class="num boxscore-line-col">STL LINE</th>
+                <th class="num boxscore-line-col" title="STL line">L</th>
                 <th class="num">BLK</th>
-                <th class="num boxscore-line-col">BLK LINE</th>
+                <th class="num boxscore-line-col" title="BLK line">L</th>
                 <th class="num">TOV</th>
-                <th class="num boxscore-line-col">TOV LINE</th>
+                <th class="num boxscore-line-col" title="TOV line">L</th>
                 <th class="num">PRA</th>
-                <th class="num boxscore-line-col">PRA LINE</th>
+                <th class="num boxscore-line-col" title="PRA line">L</th>
               ` : `
                 <th class="num">MIN</th>
                 <th class="num">PTS</th>
@@ -1153,23 +1153,23 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
                 <th class="num">TOV</th>
                 <th class="num">PRA</th>
               `}
-              <th class="num">MIN</th>
+              <th class="num boxscore-divider-start">MIN</th>
               <th class="num">PTS</th>
-              <th class="num boxscore-line-col">PTS LINE</th>
+              <th class="num boxscore-line-col" title="PTS line">L</th>
               <th class="num">REB</th>
-              <th class="num boxscore-line-col">REB LINE</th>
+              <th class="num boxscore-line-col" title="REB line">L</th>
               <th class="num">AST</th>
-              <th class="num boxscore-line-col">AST LINE</th>
+              <th class="num boxscore-line-col" title="AST line">L</th>
               <th class="num">3PM</th>
-              <th class="num boxscore-line-col">3PM LINE</th>
+              <th class="num boxscore-line-col" title="3PM line">L</th>
               <th class="num">STL</th>
-              <th class="num boxscore-line-col">STL LINE</th>
+              <th class="num boxscore-line-col" title="STL line">L</th>
               <th class="num">BLK</th>
-              <th class="num boxscore-line-col">BLK LINE</th>
+              <th class="num boxscore-line-col" title="BLK line">L</th>
               <th class="num">TOV</th>
-              <th class="num boxscore-line-col">TOV LINE</th>
+              <th class="num boxscore-line-col" title="TOV line">L</th>
               <th class="num">PRA</th>
-              <th class="num boxscore-line-col">PRA LINE</th>
+              <th class="num boxscore-line-col" title="PRA line">L</th>
             </tr>
           </thead>
           <tbody>
