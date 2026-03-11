@@ -10417,6 +10417,16 @@ def api_cards():
             "3pm": "threes",
             "3ptm": "threes",
             "fg3m": "threes",
+            "stl": "stl",
+            "steal": "stl",
+            "steals": "stl",
+            "blk": "blk",
+            "block": "blk",
+            "blocks": "blk",
+            "tov": "tov",
+            "to": "tov",
+            "turnover": "tov",
+            "turnovers": "tov",
             "pra": "pra",
         }.get(mk)
 
@@ -10761,6 +10771,9 @@ def api_cards():
                         ("reb", "reb_mean"),
                         ("ast", "ast_mean"),
                         ("threes", "threes_mean"),
+                        ("stl", "stl_mean"),
+                        ("blk", "blk_mean"),
+                        ("tov", "tov_mean"),
                         ("pra", "pra_mean"),
                     ):
                         line_val = _safe_float(props_edges_line_idx.get((tri_key, player_key, market_key))) if player_key else None
@@ -10801,7 +10814,7 @@ def api_cards():
                     continue
                 markets = entry.get("markets") if isinstance(entry.get("markets"), dict) else {}
                 prop_lines: dict[str, float] = {}
-                for market_key in ("pts", "reb", "ast", "threes", "pra"):
+                for market_key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"):
                     line_val = _choose_boxscore_prop_line((markets or {}).get(market_key) or [], None)
                     if line_val is not None:
                         prop_lines[market_key] = float(line_val)

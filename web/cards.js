@@ -300,6 +300,9 @@ function renderPlayersTable(title, players, reconByPlayerId) {
     let actReb = '—';
     let actAst = '—';
     let act3pm = '—';
+    let actStl = '—';
+    let actBlk = '—';
+    let actTov = '—';
     let dPra = '—';
     try {
       if (hasRecon) {
@@ -311,6 +314,9 @@ function renderPlayersTable(title, players, reconByPlayerId) {
           actReb = fmt(rr.actual_reb, 1);
           actAst = fmt(rr.actual_ast, 1);
           act3pm = fmt(rr.actual_3pm, 1);
+          actStl = fmt(rr.actual_stl, 1);
+          actBlk = fmt(rr.actual_blk, 1);
+          actTov = fmt(rr.actual_tov, 1);
           actPra = fmt(rr.actual_pra, 1);
           const ePra = n(rr.err_pra);
           dPra = (ePra == null) ? '—' : fmt(ePra, 1);
@@ -336,6 +342,15 @@ function renderPlayersTable(title, players, reconByPlayerId) {
         <td class="num">${renderSimBoxscoreStatCell(p, 'threes', p.threes_mean)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'threes')}</td>
         ${hasRecon ? `<td class="num">${esc(act3pm)}</td>` : ''}
+        <td class="num">${renderSimBoxscoreStatCell(p, 'stl', p.stl_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'stl')}</td>
+        ${hasRecon ? `<td class="num">${esc(actStl)}</td>` : ''}
+        <td class="num">${renderSimBoxscoreStatCell(p, 'blk', p.blk_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'blk')}</td>
+        ${hasRecon ? `<td class="num">${esc(actBlk)}</td>` : ''}
+        <td class="num">${renderSimBoxscoreStatCell(p, 'tov', p.tov_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'tov')}</td>
+        ${hasRecon ? `<td class="num">${esc(actTov)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'pra', p.pra_mean)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'pra')}</td>
         ${hasRecon ? `<td class="num">${esc(actPra)}</td><td class="num">${esc(dPra)}</td>` : ''}
@@ -363,13 +378,22 @@ function renderPlayersTable(title, players, reconByPlayerId) {
             <th class="num sortable" data-sort="num">3PM</th>
             <th class="num sortable boxscore-line-col" data-sort="num">3PM LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT 3PM</th>' : ''}
+            <th class="num sortable" data-sort="num">STL</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">STL LINE</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT STL</th>' : ''}
+            <th class="num sortable" data-sort="num">BLK</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">BLK LINE</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT BLK</th>' : ''}
+            <th class="num sortable" data-sort="num">TOV</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">TOV LINE</th>
+            ${hasRecon ? '<th class="num sortable" data-sort="num">ACT TOV</th>' : ''}
             <th class="num sortable" data-sort="num">PRA</th>
             <th class="num sortable boxscore-line-col" data-sort="num">PRA LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT PRA</th><th class="num sortable" data-sort="num">ΔPRA</th>' : ''}
           </tr>
         </thead>
         <tbody>
-          ${rows || `<tr><td colspan="${hasRecon ? 19 : 12}" class="subtle">No player projections.</td></tr>`}
+          ${rows || `<tr><td colspan="${hasRecon ? 28 : 18}" class="subtle">No player projections.</td></tr>`}
         </tbody>
       </table>
     </div>
@@ -402,6 +426,9 @@ function simPlayerBoxscoreStats(player) {
     reb: n(player && player.reb_mean),
     ast: n(player && player.ast_mean),
     threes: n(player && player.threes_mean),
+    stl: n(player && player.stl_mean),
+    blk: n(player && player.blk_mean),
+    tov: n(player && player.tov_mean),
     pra: n(player && player.pra_mean),
   };
 }
@@ -411,12 +438,18 @@ function livePlayerBoxscoreStats(row) {
   const reb = n(row && row.reb);
   const ast = n(row && row.ast);
   const threes = n(row && (row.threes_made != null ? row.threes_made : row.threes));
+  const stl = n(row && (row.stl != null ? row.stl : row.steals));
+  const blk = n(row && (row.blk != null ? row.blk : row.blocks));
+  const tov = n(row && (row.tov != null ? row.tov : (row.turnovers != null ? row.turnovers : row.to)));
   return {
     mp: n(row && row.mp),
     pts,
     reb,
     ast,
     threes,
+    stl,
+    blk,
+    tov,
     pra: (pts != null && reb != null && ast != null) ? (pts + reb + ast) : null,
   };
 }
@@ -427,12 +460,18 @@ function reconPlayerBoxscoreStats(row) {
   const ast = n(row && row.actual_ast);
   const threes = n(row && row.actual_3pm);
   const pra = n(row && row.actual_pra);
+  const stl = n(row && row.actual_stl);
+  const blk = n(row && row.actual_blk);
+  const tov = n(row && row.actual_tov);
   return {
     mp: n(row && row.actual_min),
     pts,
     reb,
     ast,
     threes,
+    stl,
+    blk,
+    tov,
     pra: (pra != null)
       ? pra
       : ((pts != null && reb != null && ast != null) ? (pts + reb + ast) : null),
@@ -462,11 +501,144 @@ function buildReconNameMaps(reconByPlayerId) {
   return { byFull, byShort };
 }
 
-function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
+function liveLensStatRow(player, statKey) {
+  try {
+    const stats = player && typeof player === 'object' ? player.stats : null;
+    return (stats && typeof stats === 'object') ? (stats[statKey] || null) : null;
+  } catch (_) {
+    return null;
+  }
+}
+
+function liveLensPrimaryRow(player) {
+  const statKeys = ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra'];
+  for (const statKey of statKeys) {
+    const row = liveLensStatRow(player, statKey);
+    if (row) return row;
+  }
+  try {
+    const stats = player && typeof player === 'object' ? player.stats : null;
+    for (const row of Object.values(stats || {})) {
+      if (row) return row;
+    }
+  } catch (_) {
+    // ignore
+  }
+  return null;
+}
+
+function buildLiveLensNameMaps(rows) {
+  const byFull = new Map();
+  const byShort = new Map();
+  for (const row of (Array.isArray(rows) ? rows : [])) {
+    const playerName = String(row && row.player ? row.player : '').trim();
+    const statKey = String(row && row.stat ? row.stat : '').toLowerCase().trim();
+    if (!playerName || !statKey) continue;
+
+    const keys = playerMergeKeys(playerName);
+    let bucket = null;
+    if (keys.full && byFull.has(keys.full)) bucket = byFull.get(keys.full) || null;
+    if (!bucket && keys.short && byShort.has(keys.short)) bucket = byShort.get(keys.short) || null;
+    if (!bucket) bucket = { player: playerName, stats: {}, projMinFinal: null };
+
+    bucket.stats[statKey] = row;
+    const projMinFinal = n(row && row.proj_min_final);
+    if (projMinFinal != null) bucket.projMinFinal = projMinFinal;
+
+    if (keys.full) byFull.set(keys.full, bucket);
+    if (keys.short) byShort.set(keys.short, bucket);
+  }
+  return { byFull, byShort };
+}
+
+function findLiveLensPlayer(maps, name) {
+  const keys = playerMergeKeys(name);
+  if (keys.full && maps && maps.byFull && maps.byFull.has(keys.full)) return maps.byFull.get(keys.full) || null;
+  if (keys.short && maps && maps.byShort && maps.byShort.has(keys.short)) return maps.byShort.get(keys.short) || null;
+  return null;
+}
+
+function liveLensPlayerActualStats(player) {
+  const minuteRow = liveLensPrimaryRow(player);
+  const pts = n(liveLensStatRow(player, 'pts') && liveLensStatRow(player, 'pts').actual);
+  const reb = n(liveLensStatRow(player, 'reb') && liveLensStatRow(player, 'reb').actual);
+  const ast = n(liveLensStatRow(player, 'ast') && liveLensStatRow(player, 'ast').actual);
+  const threes = n(liveLensStatRow(player, 'threes') && liveLensStatRow(player, 'threes').actual);
+  const stl = n(liveLensStatRow(player, 'stl') && liveLensStatRow(player, 'stl').actual);
+  const blk = n(liveLensStatRow(player, 'blk') && liveLensStatRow(player, 'blk').actual);
+  const tov = n(liveLensStatRow(player, 'tov') && liveLensStatRow(player, 'tov').actual);
+  const pra = n(liveLensStatRow(player, 'pra') && liveLensStatRow(player, 'pra').actual);
+  return {
+    mp: n(minuteRow && minuteRow.mp),
+    pts,
+    reb,
+    ast,
+    threes,
+    stl,
+    blk,
+    tov,
+    pra: (pra != null)
+      ? pra
+      : ((pts != null && reb != null && ast != null) ? (pts + reb + ast) : null),
+  };
+}
+
+function mergeLiveActualStats(boxscoreRow, liveLensPlayer) {
+  const primary = livePlayerBoxscoreStats(boxscoreRow);
+  const fallback = liveLensPlayerActualStats(liveLensPlayer);
+  const pts = (primary.pts != null) ? primary.pts : fallback.pts;
+  const reb = (primary.reb != null) ? primary.reb : fallback.reb;
+  const ast = (primary.ast != null) ? primary.ast : fallback.ast;
+  return {
+    mp: (primary.mp != null) ? primary.mp : fallback.mp,
+    pts,
+    reb,
+    ast,
+    threes: (primary.threes != null) ? primary.threes : fallback.threes,
+    stl: (primary.stl != null) ? primary.stl : fallback.stl,
+    blk: (primary.blk != null) ? primary.blk : fallback.blk,
+    tov: (primary.tov != null) ? primary.tov : fallback.tov,
+    pra: (primary.pra != null)
+      ? primary.pra
+      : ((fallback.pra != null)
+        ? fallback.pra
+        : ((pts != null && reb != null && ast != null) ? (pts + reb + ast) : null)),
+  };
+}
+
+function liveLensProjectionStat(player, statKey) {
+  if (statKey === 'mp') {
+    const primary = liveLensPrimaryRow(player);
+    return n(player && player.projMinFinal != null ? player.projMinFinal : (primary && primary.proj_min_final));
+  }
+  const row = liveLensStatRow(player, statKey);
+  return n(row && row.pace_proj);
+}
+
+function liveLensLineEntry(player, statKey) {
+  const row = liveLensStatRow(player, statKey);
+  if (!row) return { line: null, source: '' };
+
+  const liveLine = n(row && row.line_live);
+  if (liveLine != null) return { line: liveLine, source: 'live' };
+
+  const pregameLine = n(row && row.line_pregame);
+  if (pregameLine != null) return { line: pregameLine, source: 'pregame' };
+
+  const source = String(row && row.line_source ? row.line_source : '').toLowerCase().trim();
+  const line = n(row && row.line);
+  if (line != null && source && source !== 'model') return { line, source };
+  return { line: null, source };
+}
+
+function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows) {
   const simArr = Array.isArray(simPlayers)
     ? simPlayers.filter((player) => !isUnavailableSimPlayer(player))
     : [];
   const simMaps = buildSimNameMaps(simArr);
+  const liveLensMaps = actualMode === 'live'
+    ? buildLiveLensNameMaps(liveLensRows)
+    : { byFull: new Map(), byShort: new Map() };
   const seenSim = new Set();
   const rows = [];
 
@@ -482,10 +654,12 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
       let simPlayer = null;
       if (keys.full) simPlayer = simMaps.byFull.get(keys.full) || null;
       if (!simPlayer && keys.short) simPlayer = simMaps.byShort.get(keys.short) || null;
+      const liveLensPlayer = findLiveLensPlayer(liveLensMaps, row && row.player);
       rows.push({
         name: String((row && row.player) || (simPlayer && simPlayer.player_name) || '').trim() || '—',
         simPlayer,
-        actual: livePlayerBoxscoreStats(row),
+        actual: mergeLiveActualStats(row, liveLensPlayer),
+        liveLens: liveLensPlayer,
       });
       if (simPlayer) seenSim.add(simPlayer);
     }
@@ -504,6 +678,7 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
         name: String((simPlayer && simPlayer.player_name) || (reconRow && (reconRow.player_name || reconRow.player)) || '').trim() || '—',
         simPlayer,
         actual: reconRow ? reconPlayerBoxscoreStats(reconRow) : null,
+        liveLens: null,
       });
       seenSim.add(simPlayer);
     }
@@ -511,10 +686,14 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
 
   for (const simPlayer of simArr) {
     if (seenSim.has(simPlayer)) continue;
+    const liveLensPlayer = actualMode === 'live'
+      ? findLiveLensPlayer(liveLensMaps, simPlayer && simPlayer.player_name)
+      : null;
     rows.push({
       name: String((simPlayer && simPlayer.player_name) || '').trim() || '—',
       simPlayer,
-      actual: null,
+      actual: (actualMode === 'live' && liveLensPlayer) ? liveLensPlayerActualStats(liveLensPlayer) : null,
+      liveLens: liveLensPlayer,
     });
   }
 
@@ -576,7 +755,7 @@ function boxscorePropLineValue(player, statKey) {
 }
 
 function boxscorePlayerHasAnyPropLine(player) {
-  return ['pts', 'reb', 'ast', 'threes', 'pra'].some((statKey) => boxscorePropLineValue(player, statKey) != null);
+  return ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra'].some((statKey) => boxscorePropLineValue(player, statKey) != null);
 }
 
 function selectVisibleBoxscorePlayers(players, baseCount) {
@@ -600,6 +779,25 @@ function renderSimBoxscoreStatCell(player, statKey, value) {
   return esc(fmtSimBoxscoreStat(statKey, value));
 }
 
+function renderLiveBoxscoreStatValueCell(statKey, actualValue, projectionValue) {
+  const actual = n(actualValue);
+  if (actual == null) return '<span class="subtle">—</span>';
+
+  const actualTxt = fmtActualBoxscoreStat(statKey, actual);
+  const projection = n(projectionValue);
+  if (projection == null) return esc(actualTxt);
+
+  return `${esc(actualTxt)} <span class="subtle">(${esc(fmtSimBoxscoreStat(statKey, projection))})</span>`;
+}
+
+function renderLiveBoxscoreStatCell(actualStats, liveLensPlayer, statKey) {
+  return renderLiveBoxscoreStatValueCell(
+    statKey,
+    actualStats && actualStats[statKey],
+    liveLensProjectionStat(liveLensPlayer, statKey),
+  );
+}
+
 function renderBoxscorePropLineCell(player, statKey) {
   const line = boxscorePropLineValue(player, statKey);
   const lean = boxscorePropLean(player, statKey);
@@ -610,6 +808,35 @@ function renderBoxscorePropLineCell(player, statKey) {
     ? `Prop line ${fmt(line, 1)} with sim ${lean === 'O' ? 'over' : 'under'} the market.`
     : `Prop line ${fmt(line, 1)}.`;
   return `<span class="boxscore-prop-pill ${tone}" title="${esc(title)}">${esc(fmt(line, 1))}${lean ? ` ${esc(lean)}` : ''}</span>`;
+}
+
+function renderLiveBoxscorePropLineCell(liveLensPlayer, statKey) {
+  const entry = liveLensLineEntry(liveLensPlayer, statKey);
+  const line = n(entry && entry.line);
+  if (line == null) return '<span class="subtle">—</span>';
+
+  const projection = liveLensProjectionStat(liveLensPlayer, statKey);
+  const lean = projection == null ? '' : (projection >= line ? 'O' : 'U');
+  const tone = lean === 'O' ? 'over' : (lean === 'U' ? 'under' : 'neutral');
+  const sourceText = entry && entry.source === 'live'
+    ? 'Live line'
+    : ((entry && entry.source === 'pregame') ? 'Pregame fallback line' : 'Line');
+  const title = lean
+    ? `${sourceText} ${fmt(line, 1)} with projection ${lean === 'O' ? 'over' : 'under'} the market.`
+    : `${sourceText} ${fmt(line, 1)}.`;
+  return `<span class="boxscore-prop-pill ${tone}" title="${esc(title)}">${esc(fmt(line, 1))}${lean ? ` ${esc(lean)}` : ''}</span>`;
+}
+
+function sumMergedLiveProjectionStat(rows, statKey) {
+  let total = 0;
+  let seen = false;
+  for (const row of (Array.isArray(rows) ? rows : [])) {
+    const value = liveLensProjectionStat(row && row.liveLens ? row.liveLens : null, statKey);
+    if (value == null) continue;
+    total += value;
+    seen = true;
+  }
+  return seen ? total : null;
 }
 
 function buildActualLineScoreRows(periods, actualAway, actualHome) {
@@ -697,46 +924,6 @@ function renderLineScoreBlock(meta, actualSource) {
   );
   const label = String((actualSource && actualSource.label) || 'Live').trim() || 'Live';
 
-  if (!actualRows.hasAny) {
-    return `
-      <div class="merged-boxscore-section">
-        <div class="merged-boxscore-title">Sim line score</div>
-        <div class="table-wrap">
-          <table class="data-table merged-linescore-table">
-            <thead>
-              <tr>
-                <th></th>
-                <th class="num">Q1</th>
-                <th class="num">Q2</th>
-                <th class="num">Q3</th>
-                <th class="num">Q4</th>
-                <th class="num">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="team">${esc(meta && meta.away ? meta.away : 'Away')}</td>
-                <td class="num">${fmtSimLineScore(simRows.away.q1)}</td>
-                <td class="num">${fmtSimLineScore(simRows.away.q2)}</td>
-                <td class="num">${fmtSimLineScore(simRows.away.q3)}</td>
-                <td class="num">${fmtSimLineScore(simRows.away.q4)}</td>
-                <td class="num">${fmtSimLineScore(simRows.away.total)}</td>
-              </tr>
-              <tr>
-                <td class="team">${esc(meta && meta.home ? meta.home : 'Home')}</td>
-                <td class="num">${fmtSimLineScore(simRows.home.q1)}</td>
-                <td class="num">${fmtSimLineScore(simRows.home.q2)}</td>
-                <td class="num">${fmtSimLineScore(simRows.home.q3)}</td>
-                <td class="num">${fmtSimLineScore(simRows.home.q4)}</td>
-                <td class="num">${fmtSimLineScore(simRows.home.total)}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-
   return `
     <div class="merged-boxscore-section">
       <div class="merged-boxscore-title">${esc(label)} vs Sim line score</div>
@@ -795,20 +982,91 @@ function renderLineScoreBlock(meta, actualSource) {
   `;
 }
 
-function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel) {
-  const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode);
+function renderActualBoxscoreCells(row, actualMode) {
+  const actual = row && row.actual ? row.actual : null;
+  const liveLensPlayer = row && row.liveLens ? row.liveLens : null;
+  if (actualMode === 'live') {
+    return `
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'mp')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pts')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pts')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'reb')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'reb')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'ast')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'ast')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'threes')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'threes')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'stl')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'stl')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'blk')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'blk')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'tov')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'tov')}</td>
+      <td class="num">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pra')}</td>
+      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pra')}</td>
+    `;
+  }
+
+  return `
+    <td class="num">${fmtActualBoxscoreStat('mp', actual && actual.mp)}</td>
+    <td class="num">${fmtActualBoxscoreStat('pts', actual && actual.pts)}</td>
+    <td class="num">${fmtActualBoxscoreStat('reb', actual && actual.reb)}</td>
+    <td class="num">${fmtActualBoxscoreStat('ast', actual && actual.ast)}</td>
+    <td class="num">${fmtActualBoxscoreStat('threes', actual && actual.threes)}</td>
+    <td class="num">${fmtActualBoxscoreStat('stl', actual && actual.stl)}</td>
+    <td class="num">${fmtActualBoxscoreStat('blk', actual && actual.blk)}</td>
+    <td class="num">${fmtActualBoxscoreStat('tov', actual && actual.tov)}</td>
+    <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
+  `;
+}
+
+function renderActualBoxscoreTotalsCells(rows, actualMode) {
+  if (actualMode === 'live') {
+    return `
+      <td class="num">${renderLiveBoxscoreStatValueCell('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'), sumMergedLiveProjectionStat(rows, 'mp'))}</td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'), sumMergedLiveProjectionStat(rows, 'pts'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'), sumMergedLiveProjectionStat(rows, 'reb'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'), sumMergedLiveProjectionStat(rows, 'ast'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'), sumMergedLiveProjectionStat(rows, 'threes'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'), sumMergedLiveProjectionStat(rows, 'stl'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'), sumMergedLiveProjectionStat(rows, 'blk'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'), sumMergedLiveProjectionStat(rows, 'tov'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${renderLiveBoxscoreStatValueCell('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'), sumMergedLiveProjectionStat(rows, 'pra'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+    `;
+  }
+
+  return `
+    <td class="num">${fmtActualBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'))}</td>
+    <td class="num">${fmtActualBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'))}</td>
+  `;
+}
+
+function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel, liveLensRows) {
+  const isLiveMode = actualMode === 'live';
+  const actualHeaderCols = isLiveMode ? 17 : 9;
+  const totalCols = 1 + actualHeaderCols + 17;
+  const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows);
   const body = rows.map((row) => {
     const sim = simPlayerBoxscoreStats(row && row.simPlayer ? row.simPlayer : null);
-    const actual = row && row.actual ? row.actual : null;
     return `
       <tr>
         <td>${esc(row && row.name ? row.name : '—')}</td>
-        <td class="num">${fmtActualBoxscoreStat('mp', actual && actual.mp)}</td>
-        <td class="num">${fmtActualBoxscoreStat('pts', actual && actual.pts)}</td>
-        <td class="num">${fmtActualBoxscoreStat('reb', actual && actual.reb)}</td>
-        <td class="num">${fmtActualBoxscoreStat('ast', actual && actual.ast)}</td>
-        <td class="num">${fmtActualBoxscoreStat('threes', actual && actual.threes)}</td>
-        <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
+        ${renderActualBoxscoreCells(row, actualMode)}
         <td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pts')}</td>
@@ -818,6 +1076,12 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'ast')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'threes', sim.threes)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'threes')}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'stl', sim.stl)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'stl')}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'blk', sim.blk)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'blk')}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'tov', sim.tov)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'tov')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pra', sim.pra)}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pra')}</td>
       </tr>
@@ -827,12 +1091,7 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
   const totalsRow = `
     <tr>
       <td>TEAM TOTAL</td>
-      <td class="num">${fmtActualBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'))}</td>
-      <td class="num">${fmtActualBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'))}</td>
-      <td class="num">${fmtActualBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'))}</td>
-      <td class="num">${fmtActualBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'))}</td>
-      <td class="num">${fmtActualBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'))}</td>
-      <td class="num">${fmtActualBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'))}</td>
+      ${renderActualBoxscoreTotalsCells(rows, actualMode)}
       <td class="num">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
       <td class="num">${fmtSimBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'sim', 'pts'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
@@ -841,6 +1100,12 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
       <td class="num">${fmtSimBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'sim', 'ast'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'sim', 'threes'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${fmtSimBoxscoreStat('stl', sumMergedBoxscoreStat(rows, 'sim', 'stl'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${fmtSimBoxscoreStat('blk', sumMergedBoxscoreStat(rows, 'sim', 'blk'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      <td class="num">${fmtSimBoxscoreStat('tov', sumMergedBoxscoreStat(rows, 'sim', 'tov'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'sim', 'pra'))}</td>
       <td class="num boxscore-line-col"><span class="subtle">—</span></td>
@@ -855,16 +1120,39 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
           <thead>
             <tr>
               <th rowspan="2">Player</th>
-              <th colspan="6">${esc(actualLabel)}</th>
-              <th colspan="11">Sim</th>
+              <th colspan="${esc(String(actualHeaderCols))}">${esc(actualLabel)}</th>
+              <th colspan="17">Sim</th>
             </tr>
             <tr>
-              <th class="num">MIN</th>
-              <th class="num">PTS</th>
-              <th class="num">REB</th>
-              <th class="num">AST</th>
-              <th class="num">3PM</th>
-              <th class="num">PRA</th>
+              ${isLiveMode ? `
+                <th class="num">MIN</th>
+                <th class="num">PTS</th>
+                <th class="num boxscore-line-col">PTS LINE</th>
+                <th class="num">REB</th>
+                <th class="num boxscore-line-col">REB LINE</th>
+                <th class="num">AST</th>
+                <th class="num boxscore-line-col">AST LINE</th>
+                <th class="num">3PM</th>
+                <th class="num boxscore-line-col">3PM LINE</th>
+                <th class="num">STL</th>
+                <th class="num boxscore-line-col">STL LINE</th>
+                <th class="num">BLK</th>
+                <th class="num boxscore-line-col">BLK LINE</th>
+                <th class="num">TOV</th>
+                <th class="num boxscore-line-col">TOV LINE</th>
+                <th class="num">PRA</th>
+                <th class="num boxscore-line-col">PRA LINE</th>
+              ` : `
+                <th class="num">MIN</th>
+                <th class="num">PTS</th>
+                <th class="num">REB</th>
+                <th class="num">AST</th>
+                <th class="num">3PM</th>
+                <th class="num">STL</th>
+                <th class="num">BLK</th>
+                <th class="num">TOV</th>
+                <th class="num">PRA</th>
+              `}
               <th class="num">MIN</th>
               <th class="num">PTS</th>
               <th class="num boxscore-line-col">PTS LINE</th>
@@ -874,12 +1162,18 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
               <th class="num boxscore-line-col">AST LINE</th>
               <th class="num">3PM</th>
               <th class="num boxscore-line-col">3PM LINE</th>
+              <th class="num">STL</th>
+              <th class="num boxscore-line-col">STL LINE</th>
+              <th class="num">BLK</th>
+              <th class="num boxscore-line-col">BLK LINE</th>
+              <th class="num">TOV</th>
+              <th class="num boxscore-line-col">TOV LINE</th>
               <th class="num">PRA</th>
               <th class="num boxscore-line-col">PRA LINE</th>
             </tr>
           </thead>
           <tbody>
-            ${body || '<tr><td colspan="18" class="subtle">No player rows.</td></tr>'}
+            ${body || `<tr><td colspan="${totalCols}" class="subtle">No player rows.</td></tr>`}
           </tbody>
           <tfoot>
             ${totalsRow}
@@ -901,6 +1195,9 @@ function renderMissingSimPropPlayersTable(title, players) {
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'reb')}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'ast')}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'threes')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'stl')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'blk')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'tov')}</td>
         <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'pra')}</td>
       </tr>
     `).join('');
@@ -915,6 +1212,9 @@ function renderMissingSimPropPlayersTable(title, players) {
             <th class="num boxscore-line-col">REB LINE</th>
             <th class="num boxscore-line-col">AST LINE</th>
             <th class="num boxscore-line-col">3PM LINE</th>
+            <th class="num boxscore-line-col">STL LINE</th>
+            <th class="num boxscore-line-col">BLK LINE</th>
+            <th class="num boxscore-line-col">TOV LINE</th>
             <th class="num boxscore-line-col">PRA LINE</th>
           </tr>
         </thead>
@@ -943,34 +1243,27 @@ function renderMissingSimPropLineAudit(meta) {
 
 function renderMergedBoxscoreSection(meta, actualSource) {
   const source = (actualSource && typeof actualSource === 'object') ? actualSource : {};
-  const mode = (source.mode === 'live' || source.mode === 'recon') ? source.mode : 'none';
-  const label = String(source.label || (mode === 'recon' ? 'Actual' : 'Live')).trim() || 'Live';
+  const sourceMode = (source.mode === 'live' || source.mode === 'recon') ? source.mode : 'none';
+  const mode = sourceMode === 'recon' ? 'recon' : 'live';
+  const label = String(source.label || (mode === 'recon' ? 'Actual' : 'Live')).trim() || (mode === 'recon' ? 'Actual' : 'Live');
   const homeRows = source.homeRows || (mode === 'recon' ? {} : []);
   const awayRows = source.awayRows || (mode === 'recon' ? {} : []);
-  const hasHomeActual = (mode === 'live')
-    ? (Array.isArray(homeRows) && homeRows.length > 0)
-    : (mode === 'recon' && Object.keys(homeRows || {}).length > 0);
-  const hasAwayActual = (mode === 'live')
-    ? (Array.isArray(awayRows) && awayRows.length > 0)
-    : (mode === 'recon' && Object.keys(awayRows || {}).length > 0);
+  const homeLensRows = Array.isArray(source.homeLensRows) ? source.homeLensRows : [];
+  const awayLensRows = Array.isArray(source.awayLensRows) ? source.awayLensRows : [];
 
-  let note = 'Live and final columns appear here once ESPN summary data is available.';
+  let note = 'Live columns are prebuilt here and fill once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
-  if (mode === 'live') note = `${label} columns refresh from ESPN summary data.`;
+  if (sourceMode === 'live') note = `${label} columns refresh from ESPN summary data.`;
   note += ' Sim columns include dedicated prop-line fields when markets are available.';
 
   return `
     <div class="merged-boxscore-block">
-      <div class="merged-boxscore-k">${esc(mode === 'none' ? 'Projected boxscore' : `Sim vs ${label}`)}</div>
+      <div class="merged-boxscore-k">${esc(`Sim vs ${label}`)}</div>
       <div class="subtle">${esc(note)}</div>
       ${renderMissingSimPropLineAudit(meta)}
       ${renderLineScoreBlock(meta, source)}
-      ${hasAwayActual
-        ? renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label)
-        : renderPlayersTable(`AWAY (${meta && meta.away ? meta.away : 'Away'}) players`, meta && meta.sim_players_away ? meta.sim_players_away : [], null)}
-      ${hasHomeActual
-        ? renderComparePlayerBoxscoreTable(`HOME (${meta && meta.home ? meta.home : 'Home'})`, meta && meta.sim_players_home ? meta.sim_players_home : [], homeRows, mode, label)
-        : renderPlayersTable(`HOME (${meta && meta.home ? meta.home : 'Home'}) players`, meta && meta.sim_players_home ? meta.sim_players_home : [], null)}
+      ${renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label, awayLensRows)}
+      ${renderComparePlayerBoxscoreTable(`HOME (${meta && meta.home ? meta.home : 'Home'})`, meta && meta.sim_players_home ? meta.sim_players_home : [], homeRows, mode, label, homeLensRows)}
     </div>
   `;
 }
@@ -1926,7 +2219,7 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
   addAttr('actual-q3-total', am.q3_total);
 
   return `
-    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" data-player-only-lines="1" ${dAttrs.join(' ')}>
+    <div class="market-tile live-lens" data-lens-id="${esc(id)}" data-game-id="${esc(gid)}" ${dAttrs.join(' ')}>
       <div class="lens-top">
         <div class="market-title">LIVE LENS</div>
         <div class="subtle lens-live-bar">Live: <span class="lens-live-status">—</span> · <span class="lens-live-score">—</span> · <span class="lens-live-lines">Lines —</span> · Updated <span class="lens-live-updated">—</span></div>
@@ -1955,16 +2248,6 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
         ${renderSegmentTile('q3', '3Q', q3SimTotal, renderQuarterCol(3))}
         ${renderSegmentTile('game', 'FULL GAME', gameSimTotal, renderScopeCol('game', 'Full game interval', 48, 'G'))}
       </div>
-
-      <details class="lens-player-details" style="margin-top:8px;">
-        <summary class="subtle cursor-pointer">Player live lens (sim vs line vs live)</summary>
-        <div class="subtle" style="margin-top:6px;">Uses pregame prop lines, live OddsAPI lines when available, and an action guide that weighs line quality, freshness, and minutes risk.</div>
-        <label class="subtle" style="display:inline-flex; align-items:center; gap:8px; margin-top:6px;">
-          <input type="checkbox" class="lens-player-only-lines" checked />
-          Only rows with lines
-        </label>
-        <div class="lens-player-body" style="margin-top:6px;"><div class="subtle">Live player lens not loaded.</div></div>
-      </details>
     </div>
   `;
 }
@@ -1972,87 +2255,6 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
 function attachLiveLensHandlers(root, games) {
   const containers = root.querySelectorAll('.live-lens');
   if (!containers || !containers.length) return;
-
-  // Track manual toggles so auto-open logic can respect user intent.
-  try {
-    containers.forEach((wrap) => {
-      try {
-        const det = wrap && wrap.querySelector ? wrap.querySelector('details.lens-player-details') : null;
-        if (!det) return;
-        if (det.dataset && det.dataset.toggleBound === '1') return;
-        if (det.dataset) det.dataset.toggleBound = '1';
-        det.addEventListener('toggle', () => {
-          try {
-            if (det && det.dataset) det.dataset.userToggled = '1';
-          } catch (_) {
-            // ignore
-          }
-        });
-      } catch (_) {
-        // ignore
-      }
-    });
-  } catch (_) {
-    // ignore
-  }
-
-  // Player lens filtering (client-side; avoids re-render churn)
-  try {
-    if (root && root.dataset && root.dataset.playerLensToggleBound !== '1') {
-      root.dataset.playerLensToggleBound = '1';
-      root.addEventListener('change', (ev) => {
-        try {
-          const t = ev && ev.target ? ev.target : null;
-          if (!t || !t.classList || !t.classList.contains('lens-player-only-lines')) return;
-          const wrap = t.closest ? t.closest('.live-lens') : null;
-          if (!wrap) return;
-          wrap.dataset.playerOnlyLines = t.checked ? '1' : '0';
-          applyPlayerLensFiltersForWrap(wrap);
-        } catch (_) {
-          // ignore
-        }
-      });
-    }
-  } catch (_) {
-    // ignore
-  }
-
-  // Player lens filter pills (e.g., LIVE LINE)
-  try {
-    if (root && root.dataset && root.dataset.playerLensPillsBound !== '1') {
-      root.dataset.playerLensPillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const btn = ev && ev.target && ev.target.closest
-            ? ev.target.closest('button.lens-player-filter-btn[data-kind][data-key]')
-            : null;
-          if (!btn) return;
-
-          const wrap = btn.closest ? btn.closest('.live-lens') : null;
-          if (!wrap) return;
-          const gid = canonGameId(wrap.dataset.gameId);
-          if (!gid) return;
-
-          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
-          const key = String(btn.dataset.key || '').toLowerCase().trim();
-          if (!kind || !key) return;
-
-          const st = getPlayerLensFilterForGid(gid);
-          if (kind === 'line' && key === 'live') {
-            st.liveLineOnly = !st.liveLineOnly;
-          } else {
-            return;
-          }
-
-          applyPlayerLensFiltersForWrap(wrap);
-        } catch (_) {
-          // ignore
-        }
-      });
-    }
-  } catch (_) {
-    // ignore
-  }
 
   // Build intervals lookup by card key (home|away)
   const idx = new Map();
@@ -3889,7 +4091,6 @@ const LIVE_PROPS_ENDPOINT_TTL_SEC = 20;
 const __pregameGamePillsSelected = new Set(); // game_id (canonGameId), empty => all
 const __pregamePropFilters = { stats: new Set(), sides: new Set() }; // empty => all
 const __gamePillsSelected = new Set(); // live game_id (canonGameId), empty => all
-const __playerLensFilters = new Map(); // gid -> { stats:Set<string>, signals:Set<string>, liveLineOnly:boolean }
 const __playerLensGlobalFilters = { stats: new Set(), signals: new Set(), sides: new Set(), liveLineOnly: false }; // empty => all
 
 function chipSetActive(el, active) {
@@ -3975,30 +4176,11 @@ function applyGamePillsFilter(root) {
       btn.classList.toggle('hidden', !okGame);
     });
 
-    // 2) Per-game live player lens details blocks
-    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
-    wraps.forEach((wrap) => {
-      const gid = canonGameId(wrap.dataset.gameId);
-      const okGame = any ? activeSet.has(gid) : true;
-      const det = wrap.querySelector('details.lens-player-details');
-      if (det) det.classList.toggle('hidden', !okGame);
-    });
-
     // Re-apply stat/signal filters after game-level filtering.
     applyPlayerLensFiltersAll(root);
   } catch (_) {
     // ignore
   }
-}
-
-function getPlayerLensFilterForGid(gid) {
-  const k = canonGameId(gid);
-  if (!k) return { stats: new Set(), signals: new Set(), liveLineOnly: false };
-  const cur = __playerLensFilters.get(k);
-  if (cur && cur.stats && cur.signals) return cur;
-  const fresh = { stats: new Set(), signals: new Set(), liveLineOnly: false };
-  __playerLensFilters.set(k, fresh);
-  return fresh;
 }
 
 function applyPlayerLensGlobalPills(root) {
@@ -4080,89 +4262,6 @@ function applyPlayerLensFiltersAll(root) {
     if (!root) return;
     applyPlayerLensGlobalPills(root);
     applyPlayerPropCalloutsFilter(root);
-
-    // Also re-apply global filters to each per-game player lens table.
-    const wraps = root.querySelectorAll('.live-lens[data-game-id]');
-    wraps.forEach((w) => {
-      try { applyPlayerLensFiltersForWrap(w); } catch (_) { /* ignore */ }
-    });
-  } catch (_) {
-    // ignore
-  }
-}
-
-function applyPlayerLensFiltersForWrap(wrap) {
-  try {
-    if (!wrap) return;
-    const gid = canonGameId(wrap.dataset.gameId);
-    if (!gid) return;
-    const g = __playerLensGlobalFilters || { stats: new Set(), signals: new Set() };
-    const gStatsSel = g.stats || new Set();
-    const gSigSel = g.signals || new Set();
-    const gSideSel = g.sides || new Set();
-    const gLiveLineOnly = !!g.liveLineOnly;
-    const gStatsAny = !!(gStatsSel && gStatsSel.size);
-    const gSigAny = !!(gSigSel && gSigSel.size);
-    const gSideAny = !!(gSideSel && gSideSel.size);
-
-    const st = getPlayerLensFilterForGid(gid);
-    const statsSel = (gStatsAny ? gStatsSel : st.stats);
-    const sigSel = (gSigAny ? gSigSel : st.signals);
-    const statsAny = !!(statsSel && statsSel.size);
-    const sigAny = !!(sigSel && sigSel.size);
-    const sideSel = gSideSel;
-    const sideAny = gSideAny;
-
-    const lineOnly = !!(gLiveLineOnly || (st && st.liveLineOnly));
-
-    const statBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="stat"]');
-    statBtns.forEach((b) => {
-      const key = String(b.dataset.key || '').toLowerCase().trim();
-      chipSetActive(b, statsAny ? statsSel.has(key) : false);
-    });
-
-    const sigBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="sig"]');
-    sigBtns.forEach((b) => {
-      const key = String(b.dataset.key || '').toUpperCase().trim();
-      chipSetActive(b, sigAny ? sigSel.has(key) : false);
-    });
-
-    const lineBtns = wrap.querySelectorAll('button.lens-player-filter-btn[data-kind="line"]');
-    lineBtns.forEach((b) => {
-      chipSetActive(b, lineOnly);
-    });
-
-    let onlyLines = true;
-    try {
-      const ds = (wrap.dataset && wrap.dataset.playerOnlyLines != null) ? String(wrap.dataset.playerOnlyLines).trim() : '';
-      if (ds === '0') onlyLines = false;
-      else if (ds === '1') onlyLines = true;
-      else {
-        const cb = wrap.querySelector('input.lens-player-only-lines');
-        if (cb) onlyLines = !!cb.checked;
-      }
-    } catch (_) {
-      onlyLines = true;
-    }
-
-    const body = wrap.querySelector('.lens-player-body');
-    if (!body) return;
-    const rows = body.querySelectorAll('table.player-lens-table tbody tr');
-    rows.forEach((tr) => {
-      const stat = String(tr.dataset.stat || '').toLowerCase().trim();
-      const sig = String(tr.dataset.sig || '').toUpperCase().trim();
-      const side = String(tr.dataset.side || '').toUpperCase().trim();
-      const okStat = statsAny ? statsSel.has(stat) : true;
-      const okSig = sigAny ? sigSel.has(sig) : true;
-      const okSide = sideAny ? sideSel.has(side) : true;
-
-      const hasLine = String(tr.dataset.hasLine || '').trim() === '1';
-      const hasLiveLine = String(tr.dataset.liveLine || '').trim() === '1';
-      const okOnlyLines = onlyLines ? hasLine : true;
-      const okLiveLine = lineOnly ? hasLiveLine : true;
-
-      tr.classList.toggle('hidden', !(okStat && okSig && okSide && okOnlyLines && okLiveLine));
-    });
   } catch (_) {
     // ignore
   }
@@ -4262,211 +4361,6 @@ function getPlayerActualForMarket(p, market) {
   if (mk === 'pr') return (pts != null && reb != null) ? (pts + reb) : null;
   if (mk === 'ra') return (reb != null && ast != null) ? (reb + ast) : null;
   return null;
-}
-
-function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
-  try {
-    const thrAll = getTuningThresholds();
-    const thrPp = thrAll && thrAll.player_prop ? thrAll.player_prop : { watch: 2.0, bet: 4.0 };
-    const rowsIn = liveLensGame && typeof liveLensGame === 'object' ? liveLensGame.rows : null;
-    const rows0 = Array.isArray(rowsIn) ? rowsIn : [];
-    const rows = (() => {
-      try {
-        const arr = rows0.slice();
-        arr.sort((a, b) => {
-          const aEdge = Math.abs(n(a && a.pace_vs_line) ?? 0);
-          const bEdge = Math.abs(n(b && b.pace_vs_line) ?? 0);
-          const aAdj = adjustPlayerPropSignal(a, aEdge, thrPp);
-          const bAdj = adjustPlayerPropSignal(b, bEdge, thrPp);
-          const aGuide = buildLivePropGuidance(a, aAdj, thrPp);
-          const bGuide = buildLivePropGuidance(b, bAdj, thrPp);
-          const aGuideRank = n(aGuide && aGuide.rank) ?? 0;
-          const bGuideRank = n(bGuide && bGuide.rank) ?? 0;
-          if (aGuideRank !== bGuideRank) return bGuideRank - aGuideRank;
-          const aRank = n(aAdj && aAdj.rank) ?? 0;
-          const bRank = n(bAdj && bAdj.rank) ?? 0;
-          if (aRank !== bRank) return bRank - aRank;
-
-          const aScore = n(aAdj && aAdj.score) ?? 0;
-          const bScore = n(bAdj && bAdj.score) ?? 0;
-          if (aScore !== bScore) return bScore - aScore;
-
-          if (aEdge !== bEdge) return bEdge - aEdge;
-
-          const aMp = n(a && a.mp) ?? 0;
-          const bMp = n(b && b.mp) ?? 0;
-          if (aMp !== bMp) return bMp - aMp;
-
-          return 0;
-        });
-        return arr;
-      } catch (_) {
-        return rows0;
-      }
-    })();
-    const tbl = rows.map((r) => {
-      const teamTri = String(r && r.team_tri != null ? r.team_tri : '').toUpperCase().trim();
-      const player = String(r && r.player != null ? r.player : '').trim();
-      const stat = String(r && r.stat != null ? r.stat : '').toLowerCase().trim();
-      const mk = marketLabel(stat);
-      const mp = n(r && r.mp);
-      const act = n(r && r.actual);
-      const mu = n(r && r.sim_mu);
-      const line = n(r && r.line);
-      const lineLive = n(r && r.line_live);
-      const linePregame = n(r && r.line_pregame);
-      const lineSource = String(r && r.line_source != null ? r.line_source : '').toLowerCase().trim();
-      const hasLiveLine = (lineSource === 'oddsapi') && (lineLive != null);
-      const hasPregameLine = (lineSource === 'pregame') && (linePregame != null);
-      const lineBadge = (line != null)
-        ? (hasLiveLine
-          ? renderLivePropLineBadge('LIVE', 'margin-left:6px;')
-          : (hasPregameLine
-            ? renderLivePropLineBadge('PRE', 'margin-left:6px;')
-            : renderLivePropLineBadge('UNK', 'margin-left:6px;')))
-        : '';
-      const pace = n(r && r.pace_proj);
-      const dP = n(r && r.pace_vs_line);
-      const dS = n(r && r.sim_vs_line);
-      const strength = Math.abs(dP ?? 0);
-      const adj = adjustPlayerPropSignal(r, strength, thrPp);
-      const guidance = buildLivePropGuidance(r, adj, thrPp);
-      const klass = String(adj && adj.klass != null ? adj.klass : '').toUpperCase().trim();
-      const side = String(adj && adj.side != null ? adj.side : '').toUpperCase().trim();
-      const showKlass = (klass === 'BET' || klass === 'WATCH');
-      const sigTxt = showKlass ? `${klass} ${side || ''}`.trim() : (side ? side : '—');
-      const sigBadge = showKlass
-        ? renderLivePropSignalBadge(klass, side)
-        : esc(sigTxt);
-      const playToLine = n(guidance && guidance.play_to_line);
-      const priceTxt = (guidance && guidance.price_text) ? String(guidance.price_text) : '';
-      const playToTxt = (playToLine == null || !side)
-        ? ''
-        : `${side === 'OVER' ? 'Over' : 'Under'} to ${fmt(playToLine, 1)}${priceTxt ? ` @ ${priceTxt}` : ''}`;
-      const guideTags = renderLivePropGuideTags(
-        guidance && Array.isArray(guidance.tags)
-          ? guidance.tags.filter((tag) => !['LIVE line', 'PRE fallback', 'No line', 'SIM agrees', 'SIM disagrees'].includes(String(tag || '').trim()))
-          : [],
-        4,
-      );
-      const guideTip = [
-        (n(r && r.bettable_score) != null) ? `bettable ${fmt(n(r && r.bettable_score), 2)}` : '',
-        (n(r && r.price_hold) != null) ? `hold ${fmt(n(r && r.price_hold), 2)}` : '',
-        (n(r && r.edge_sigma) != null) ? `edgeσ ${fmt(n(r && r.edge_sigma), 2)}` : '',
-        (guidance && guidance.market_text) ? guidance.market_text : '',
-      ].filter(Boolean).join(' · ');
-
-      const whyCell = (() => {
-        try {
-          const tags = [];
-          if (r && r.injury_flag) tags.push(renderLivePropWhyBadge('INJ', 'bad'));
-
-          const pf = n(r && r.pf);
-          if (pf != null && pf >= 5) tags.push(renderLivePropWhyBadge('F5+', 'bad'));
-          else if (pf != null && pf >= 4) tags.push(renderLivePropWhyBadge('F4', 'ok'));
-
-          const projMin = n(r && (r.proj_min_final != null ? r.proj_min_final : r.exp_min_eff));
-          const remMin = (mp != null && projMin != null) ? (projMin - mp) : null;
-          if (remMin != null && remMin < 1.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'bad'));
-          else if (remMin != null && remMin < 3.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'ok'));
-
-          const rotOn = (r && r.rot_on_court != null) ? !!r.rot_on_court : null;
-          const offSec = n(r && r.rot_cur_off_sec);
-          const benchLong = (rotOn === false && offSec != null && offSec >= 480);
-          if (benchLong) tags.push(renderLivePropWhyBadge('BENCH', 'ok'));
-
-          if (adj && adj.sim_disagree) tags.push(renderLivePropSimBadge(false, true));
-          else if (adj && adj.sim_agree) tags.push(renderLivePropSimBadge(true, false));
-
-          const risk = (adj && adj.risk != null) ? Number(adj.risk) : null;
-          const support = (adj && adj.support != null) ? Number(adj.support) : null;
-          const tip = [
-            (risk != null ? `risk ${fmt(risk, 2)}` : null),
-            (support != null ? `support ${fmt(support, 2)}` : null),
-            (dP != null ? `ΔP ${fmt(dP, 1)}` : null),
-            (dS != null ? `ΔS ${fmt(dS, 1)}` : null),
-          ].filter(Boolean).join(' · ');
-
-          const inner = tags.length ? tags.join('') : '<span class="subtle">—</span>';
-          return `<span title="${esc(tip)}">${inner}</span>`;
-        } catch (_) {
-          return '<span class="subtle">—</span>';
-        }
-      })();
-      const hasLine = (line != null);
-      const sigKey = (klass === 'BET' || klass === 'WATCH') ? klass : 'NONE';
-      const sideKey = (side === 'OVER' || side === 'UNDER') ? side : 'NONE';
-      return `
-        <tr data-has-line="${hasLine ? '1' : '0'}" data-live-line="${hasLiveLine ? '1' : '0'}" data-stat="${esc(stat)}" data-sig="${esc(sigKey)}" data-side="${esc(sideKey)}">
-          <td><span class="badge">${esc(teamTri)}</span> ${esc(player)}</td>
-          <td>${esc(mk)}</td>
-          <td class="num">${mp == null ? '—' : fmt(mp, 1)}</td>
-          <td class="num">${act == null ? '—' : fmt(act, 1)}</td>
-          <td class="num">${mu == null ? '—' : fmt(mu, 1)}</td>
-          <td class="num">${line == null ? '—' : (fmt(line, 1) + lineBadge)}</td>
-          <td class="num">${pace == null ? '—' : fmt(pace, 1)}</td>
-          <td class="num">${dP == null ? '—' : fmt(dP, 1)}</td>
-          <td class="num">${dS == null ? '—' : fmt(dS, 1)}</td>
-          <td>${sigBadge}</td>
-          <td class="live-guide-cell">
-            <div class="live-prop-guide" title="${esc(guideTip)}">
-              <div class="live-prop-guide-head">
-                ${renderPregameActionBadge(guidance)}
-                ${playToTxt ? `<span class="subtle live-prop-guide-playto">${esc(playToTxt)}</span>` : ''}
-              </div>
-              <div class="live-prop-guide-copy">${esc((guidance && guidance.summary) || '—')}</div>
-              ${guidance && guidance.market_text ? `<div class="subtle live-prop-guide-meta">${esc(guidance.market_text)}</div>` : ''}
-              ${guideTags ? `<div class="live-prop-guide-tags">${guideTags}</div>` : ''}
-            </div>
-          </td>
-          <td>${whyCell}</td>
-        </tr>
-      `;
-    }).join('');
-
-    const note = isFinal
-      ? 'Final (actuals only).'
-      : (rows.length
-        ? 'PaceProj uses actual per-minute × expected minutes; the guide blends live pace, line freshness, and minutes risk.'
-        : 'No live player rows yet.');
-    const liveGuideLegend = renderLivePropGuideLegend();
-    const liveRiskLegend = renderLivePropRiskLegend();
-
-    return `
-      <div class="subtle">${esc(note)}</div>
-      <div class="subtle" style="margin-top:6px;">
-        <span class="fw-700">Live guide:</span>
-        ${liveGuideLegend}
-        ${liveRiskLegend}
-      </div>
-
-      <div class="table-wrap" style="margin-top:6px;">
-        <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
-          <thead>
-            <tr>
-              <th>Player</th>
-              <th>Stat</th>
-              <th class="num">MP</th>
-              <th class="num">Act</th>
-              <th class="num">Sim μ</th>
-              <th class="num">Line</th>
-              <th class="num">PaceProj</th>
-              <th class="num">ΔPace-Line</th>
-              <th class="num">ΔSim-Line</th>
-              <th>Signal</th>
-              <th>Guide</th>
-              <th>Why</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tbl || '<tr><td colspan="12" class="subtle">No player rows.</td></tr>'}
-          </tbody>
-        </table>
-      </div>
-    `;
-  } catch (_) {
-    return '<div class="subtle">Player live lens unavailable.</div>';
-  }
 }
 
 function renderLivePropCallouts(callouts) {
@@ -5531,11 +5425,15 @@ function startLiveLensPolling(root, games, dateStr) {
           const currentSource = String(mergedBody.dataset.actualSource || '').trim().toLowerCase();
           const livePeriods = Array.isArray(s && s.periods) ? s.periods : [];
           const livePlayersAll = (livePlayerBox && Array.isArray(livePlayerBox.players)) ? livePlayerBox.players : [];
+          const liveLensAll = (livePlayerLens && Array.isArray(livePlayerLens.rows)) ? livePlayerLens.rows : [];
           const hasLivePlayers = livePlayersAll.length > 0;
+          const hasLiveLensRows = liveLensAll.length > 0;
           const hasLivePeriods = livePeriods.length > 0;
-          if (hasLivePlayers || (hasLivePeriods && currentSource !== 'recon')) {
+          if (hasLivePlayers || hasLiveLensRows || (hasLivePeriods && currentSource !== 'recon')) {
             const homeRows = livePlayersAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.home);
             const awayRows = livePlayersAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.away);
+            const homeLensRows = liveLensAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.home);
+            const awayLensRows = liveLensAll.filter((row) => String((row && row.team_tri) || '').toUpperCase().trim() === meta.away);
             mergedBody.innerHTML = renderMergedBoxscoreSection(meta, {
               mode: 'live',
               label: isFinal ? 'Final' : 'Live',
@@ -5544,70 +5442,11 @@ function startLiveLensPolling(root, games, dateStr) {
               actualAway: awayPts,
               homeRows,
               awayRows,
+              homeLensRows,
+              awayLensRows,
             });
             mergedBody.dataset.actualSource = 'live';
           }
-        }
-      } catch (_) {
-        // ignore
-      }
-
-      // Player live lens (all players: sim vs line vs live + pacing)
-      try {
-        const body = el.querySelector('.lens-player-body');
-        if (body) {
-          // Preserve scroll position within the player lens table across refreshes.
-          // The polling loop re-renders via innerHTML, which otherwise resets scrollTop.
-          let prev = null;
-          try {
-            const oldWrap = body.querySelector('.table-wrap');
-            if (oldWrap && (oldWrap.scrollHeight > oldWrap.clientHeight + 2 || oldWrap.scrollWidth > oldWrap.clientWidth + 2)) {
-              prev = { kind: 'wrap', top: oldWrap.scrollTop, left: oldWrap.scrollLeft };
-            } else if (body.scrollHeight > body.clientHeight + 2 || body.scrollWidth > body.clientWidth + 2) {
-              prev = { kind: 'body', top: body.scrollTop, left: body.scrollLeft };
-            }
-          } catch (_) {
-            prev = null;
-          }
-
-          body.innerHTML = renderPlayerLiveLens(meta, livePlayerLens, isFinal);
-
-          // Re-apply client-side filters (pills + only-lines) after re-render.
-          applyPlayerLensFiltersForWrap(el);
-
-          try {
-            if (prev && typeof requestAnimationFrame === 'function') {
-              requestAnimationFrame(() => {
-                try {
-                  if (prev.kind === 'wrap') {
-                    const newWrap = body.querySelector('.table-wrap');
-                    if (newWrap) {
-                      newWrap.scrollTop = prev.top;
-                      newWrap.scrollLeft = prev.left;
-                      return;
-                    }
-                  }
-                  body.scrollTop = prev.top;
-                  body.scrollLeft = prev.left;
-                } catch (_) {
-                  // ignore
-                }
-              });
-            }
-          } catch (_) {
-            // ignore
-          }
-        }
-      } catch (_) {
-        // ignore
-      }
-
-      // Auto-expand Player Live Lens when games are live (unless user toggled it).
-      try {
-        const det = el.querySelector('details.lens-player-details');
-        if (det) {
-          const userToggled = det.dataset && det.dataset.userToggled === '1';
-          if (!userToggled && isInProgress && !isFinal) det.open = true;
         }
       } catch (_) {
         // ignore
@@ -8212,7 +8051,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         if (!target) return;
         try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
         try {
-          const det = target.querySelector('details.lens-player-details');
+          const det = target.querySelector('details.players-block');
           if (det) det.open = true;
         } catch (_) {
           // ignore
