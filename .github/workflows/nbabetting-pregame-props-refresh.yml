@@ -305,7 +305,7 @@ jobs:
           }
           print(json.dumps(summary, indent=2))
 
-            if expected_log_file and payload_log_file and payload_log_file != expected_log_file:
+          if expected_log_file and payload_log_file and payload_log_file != expected_log_file:
               print(f"Status belongs to a different log file: {payload_log_file} != {expected_log_file}")
               sys.exit(10)
 
