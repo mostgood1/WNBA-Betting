@@ -66,7 +66,7 @@ jobs:
       - name: Refresh OddsAPI props locally + upload to Render
         env:
           PYTHONPATH: src
-          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || secrets.THE_ODDS_API_KEY }}
           ALLOW_REMOTE_ARTIFACTS: "1"
           REFRESH_PREDICT_PROPS_USE_SMART_SIM: "0"
           REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER: "0"
@@ -177,6 +177,7 @@ jobs:
 
           wait_for_service "before local props refresh" 45 10
           wait_for_expected_version 60 10
+          test -n "${ODDS_API_KEY:-}" || (echo 'Missing ODDS_API_KEY (set ODDS_API_KEY or THE_ODDS_API_KEY secret)' && exit 1)
 
           mkdir -p logs data/raw data/processed
           LOCAL_LOG_FILE="logs/gha_refresh_oddsapi_props_${DATE}.log"
@@ -188,30 +189,11 @@ jobs:
           }
           trap dump_local_log ERR
 
-          STARTED_AT="$(python3 - <<'PY'
-            from datetime import datetime
-
-            print(datetime.utcnow().isoformat())
-            PY
-          )"
+          STARTED_AT="$(python3 -c 'from datetime import datetime; print(datetime.utcnow().isoformat())')"
           export STARTED_AT LOCAL_LOG_FILE
-          export NBA_BETTING_ODDSAPI_PROPS_JOB="$(python3 - <<'PY'
-            import json
-            import os
-
-            payload = {
-              "date_str": os.environ["EXPECTED_DATE"],
-              "regions": "us",
-              "bookmakers": "fanduel,draftkings,betmgm,bet365",
-              "markets": "",
-              "do_edges": True,
-              "do_export": True,
-              "do_push": False,
-              "log_file": os.environ["LOCAL_LOG_FILE"],
-              "started_at": os.environ["STARTED_AT"],
-            }
-            print(json.dumps(payload))
-            PY
+          export NBA_BETTING_ODDSAPI_PROPS_JOB="$(
+            EXPECTED_DATE="$EXPECTED_DATE" LOCAL_LOG_FILE="$LOCAL_LOG_FILE" STARTED_AT="$STARTED_AT" \
+              python3 -c 'import json, os; print(json.dumps({"date_str": os.environ["EXPECTED_DATE"], "regions": "us", "bookmakers": "fanduel,draftkings,betmgm,bet365", "markets": "", "do_edges": True, "do_export": True, "do_push": False, "log_file": os.environ["LOCAL_LOG_FILE"], "started_at": os.environ["STARTED_AT"]}))'
           )"
 
           python3 -m nba_betting.refresh_oddsapi_props_job
