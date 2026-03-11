@@ -8218,6 +8218,161 @@ def api_cron_refresh_oddsapi_props_status():
     return jsonify(payload), 200
 
 
+@app.route("/api/cron/upload-props-refresh-artifacts", methods=["POST"])
+def api_cron_upload_props_refresh_artifacts():
+    """Upload precomputed props refresh artifacts to the live Render disk.
+
+    Auth: CRON_TOKEN or ADMIN_KEY.
+    Multipart form fields:
+      - date: YYYY-MM-DD
+      - snapshot: odds_nba_player_props_<date>.csv
+      - predictions: props_predictions_<date>.csv
+      - edges: props_edges_<date>.csv
+      - recommendations: props_recommendations_<date>.csv
+    Optional form fields:
+      - regions, bookmakers, markets, started_at, ended_at, duration_s
+    """
+    if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
+        return jsonify({"error": "unauthorized"}), 401
+
+    raw_date = str(request.form.get("date") or request.args.get("date") or "").strip()
+    if not raw_date:
+        raw_date = _parse_date_param(request, default_to_today=False) or ""
+    if not raw_date:
+        return jsonify({"error": "missing date"}), 400
+
+    try:
+        date_str = str(pd.to_datetime(raw_date).date())
+    except Exception:
+        return jsonify({"error": f"invalid date: {raw_date}"}), 400
+
+    snapshot_file = request.files.get("snapshot")
+    predictions_file = request.files.get("predictions")
+    edges_file = request.files.get("edges")
+    recommendations_file = request.files.get("recommendations")
+    missing = [
+        name
+        for name, file_obj in (
+            ("snapshot", snapshot_file),
+            ("predictions", predictions_file),
+            ("edges", edges_file),
+            ("recommendations", recommendations_file),
+        )
+        if file_obj is None
+    ]
+    if missing:
+        return jsonify({"error": "missing upload files", "missing": missing}), 400
+
+    snapshot_path = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+    predictions_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
+    edges_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
+    recommendations_path = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+
+    def _write_upload(file_obj, target: Path) -> int:
+        raw = file_obj.read() or b""
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(raw)
+        return int(len(raw))
+
+    try:
+        upload_bytes = {
+            "snapshot": _write_upload(snapshot_file, snapshot_path),
+            "predictions": _write_upload(predictions_file, predictions_path),
+            "edges": _write_upload(edges_file, edges_path),
+            "recommendations": _write_upload(recommendations_file, recommendations_path),
+        }
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"failed to write upload: {exc}"}), 500
+
+    snapshot_rows = int(_count_csv_rows_quick(snapshot_path))
+    predictions_rows = int(_count_csv_rows_quick(predictions_path))
+    edges_rows = int(_count_csv_rows_quick(edges_path))
+    recs_rows = int(_count_csv_rows_quick(recommendations_path))
+
+    if snapshot_rows <= 0:
+        return jsonify({
+            "ok": False,
+            "error": "uploaded snapshot has zero rows",
+            "date": date_str,
+            "snapshot_rows": snapshot_rows,
+        }), 400
+    if predictions_rows <= 0:
+        return jsonify({
+            "ok": False,
+            "error": "uploaded predictions have zero rows",
+            "date": date_str,
+            "predictions_rows": predictions_rows,
+        }), 400
+    if edges_rows <= 0:
+        return jsonify({
+            "ok": False,
+            "error": "uploaded edges have zero rows",
+            "date": date_str,
+            "edges_rows": edges_rows,
+        }), 400
+
+    started_at = str(request.form.get("started_at") or "").strip() or datetime.utcnow().isoformat()
+    ended_at = str(request.form.get("ended_at") or "").strip() or datetime.utcnow().isoformat()
+    duration_raw = str(request.form.get("duration_s") or "").strip()
+    try:
+        duration_s = float(duration_raw) if duration_raw else None
+    except Exception:
+        duration_s = None
+
+    refresh_meta = {
+        "date": date_str,
+        "regions": str(request.form.get("regions") or "us").strip() or "us",
+        "bookmakers": str(request.form.get("bookmakers") or "").strip() or None,
+        "markets": str(request.form.get("markets") or "").strip(),
+        "run_edges": True,
+        "run_export": True,
+        "run_push": False,
+        "running": False,
+        "ok": True,
+        "log_file": None,
+        "started_at": started_at,
+        "ended_at": ended_at,
+        "phase": "done",
+        "phase_started_at": ended_at,
+        "heartbeat_at": ended_at,
+        "rc_snapshot": 0,
+        "rc_edges": 0,
+        "rc_export": 0,
+        "snapshot_rows": snapshot_rows,
+        "predictions_rows": predictions_rows,
+        "edges_rows": edges_rows,
+        "recs_rows": recs_rows,
+        "snapshot_path": str(snapshot_path),
+        "predictions_path": str(predictions_path),
+        "edges_path": str(edges_path),
+        "recs_path": str(recommendations_path),
+        "duration_s": duration_s,
+        "error": None,
+        "source": "github-actions-upload",
+    }
+
+    try:
+        _cron_meta_update("refresh_oddsapi_props", refresh_meta)
+    except Exception as exc:
+        return jsonify({"ok": False, "error": f"failed to update cron meta: {exc}"}), 500
+
+    _oddsapi_props_job_state.update(_refresh_oddsapi_props_payload_from_meta(refresh_meta))
+
+    return jsonify({
+        "ok": True,
+        "date": date_str,
+        "snapshot_rows": snapshot_rows,
+        "predictions_rows": predictions_rows,
+        "edges_rows": edges_rows,
+        "recs_rows": recs_rows,
+        "uploads": upload_bytes,
+        "snapshot_path": str(snapshot_path),
+        "predictions_path": str(predictions_path),
+        "edges_path": str(edges_path),
+        "recs_path": str(recommendations_path),
+    }), 200
+
+
 def _ensure_game_models(log_fp: Path | None = None) -> tuple[bool, dict]:
     """Ensure core game models exist; if missing, build features (if needed) and train.
 
