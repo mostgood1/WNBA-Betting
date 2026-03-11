@@ -453,45 +453,54 @@ def _compute_props_edges_direct(
     log_file: Path,
     heartbeat_cb: Callable[[], None],
 ) -> tuple[int, int, str | None]:
-    _append_log(log_file, f"Computing props edges via CLI for {date_str}")
+    _append_log(log_file, f"Computing props edges in-process for {date_str}")
     try:
-        env = _worker_env()
-        edges_cmd = [
-            _resolve_python(),
-            "-m",
-            "nba_betting.cli",
-            "props-edges",
-            "--date",
-            date_str,
-            "--no-use-saved",
-            "--mode",
-            "current",
-            "--source",
-            "oddsapi",
-            "--odds-path",
-            str(snapshot_path),
-            "--predictions-csv",
-            str(predictions_path),
-            "--file-only",
-            "--calibrate-prob",
-            "--no-slate-only",
-            "--no-attach-opening-snapshot",
-        ]
-        if bookmakers:
-            edges_cmd.extend(["--bookmakers", bookmakers])
-        rc = _run_to_file(
-            edges_cmd,
-            log_file,
-            cwd=paths.root,
-            env=env,
-            timeout_s=_env_timeout_s("REFRESH_PROPS_EDGES_TIMEOUT_S", 15 * 60),
-            heartbeat_cb=heartbeat_cb,
-            heartbeat_every_s=5.0,
+        def _work():
+            import pandas as pd
+
+            from .props_edges import SigmaConfig, compute_props_edges
+
+            edges = compute_props_edges(
+                date=date_str,
+                sigma=SigmaConfig(),
+                use_saved=False,
+                mode="current",
+                api_key=None,
+                source="oddsapi",
+                predictions_path=str(predictions_path),
+                from_file_only=True,
+                calibrate_prob=True,
+                odds_path=str(snapshot_path),
+                attach_opening_snapshot=False,
+            )
+            if edges is None:
+                edges = pd.DataFrame()
+            if not edges.empty:
+                if bookmakers and "bookmaker" in edges.columns:
+                    wanted = {part.strip().lower() for part in str(bookmakers).split(",") if part.strip()}
+                    if wanted:
+                        edges = edges[edges["bookmaker"].astype(str).str.lower().isin(wanted)].copy()
+                if "edge" in edges.columns:
+                    edges = edges[pd.to_numeric(edges["edge"], errors="coerce") >= 0].copy()
+                if "ev" in edges.columns:
+                    edges = edges[pd.to_numeric(edges["ev"], errors="coerce") >= 0].copy()
+                if "ev" in edges.columns:
+                    edges.sort_values(["stat", "ev"], ascending=[True, False], inplace=True)
+                elif "edge" in edges.columns:
+                    edges.sort_values(["stat", "edge"], ascending=[True, False], inplace=True)
+            out_path = paths.data_processed / f"props_edges_{date_str}.csv"
+            out_path.parent.mkdir(parents=True, exist_ok=True)
+            edges.to_csv(out_path, index=False)
+            return int(len(edges))
+
+        rows = int(
+            _run_with_heartbeat(
+                _work,
+                heartbeat_cb,
+                heartbeat_every_s=5.0,
+            )
         )
-        rows = int(_count_csv_rows_quick(paths.data_processed / f"props_edges_{date_str}.csv"))
-        if int(rc) != 0:
-            return int(rc), rows, f"props-edges failed with exit code {int(rc)}"
-        _append_log(log_file, f"Props edges CLI completed (rows={rows})")
+        _append_log(log_file, f"Props edges compute completed (rows={rows})")
         return 0, rows, None
     except Exception as exc:
         _append_traceback(log_file, exc)
