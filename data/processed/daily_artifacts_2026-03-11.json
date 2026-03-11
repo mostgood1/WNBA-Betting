@@ -1,0 +1,29 @@
+{
+  "date": "2026-03-11",
+  "yesterday": "2026-03-10",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "slate_games": 6,
+  "smart_sim_count": 6,
+  "rotations_dir_exists": false,
+  "rotations_expected_games_yesterday": 0,
+  "rotations_have_games_yesterday": 0,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": null,
+  "rotations_missing_game_ids_yesterday": [],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": false,
+  "require_smartsim": true,
+  "require_rotations_espn": false,
+  "warnings": [
+    "minutes_sanity: team CLE top10 minutes sum low (176.2) using roll10_min",
+    "minutes_sanity: team CLE has <5 players at 20+ min (found 4) using roll10_min",
+    "minutes_sanity: team NOP top10 minutes sum low (158.8) using roll10_min",
+    "minutes_sanity: team NOP has <5 players at 20+ min (found 3) using roll10_min",
+    "minutes_sanity: 17 players have <8 min but >=10 pred_pts (sample: Xavier Tillman(CHA), Antonio Reeves(CHA), Chris Livingston(CLE), Riley Minix(CLE), David Roddy(DEN), Jeff Green(HOU))"
+  ],
+  "missing": [],
+  "ok": true
+}
