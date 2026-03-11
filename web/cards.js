@@ -283,7 +283,7 @@ function renderPlayersTable(title, players, reconByPlayerId) {
     if (dm !== 0) return dm;
     return (n(b?.pts_mean) ?? -1e9) - (n(a?.pts_mean) ?? -1e9);
   });
-  const top = arr.slice(0, 10);
+  const top = selectVisibleBoxscorePlayers(arr, 10);
 
   const hasRecon = !!(reconByPlayerId && typeof reconByPlayerId === 'object' && Object.keys(reconByPlayerId).length);
 
@@ -325,14 +325,19 @@ function renderPlayersTable(title, players, reconByPlayerId) {
         <td class="num">${fmt(p.min_mean, 1)}</td>
         ${hasRecon ? `<td class="num">${esc(actMin)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'pts', p.pts_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'pts')}</td>
         ${hasRecon ? `<td class="num">${esc(actPts)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'reb', p.reb_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'reb')}</td>
         ${hasRecon ? `<td class="num">${esc(actReb)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'ast', p.ast_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'ast')}</td>
         ${hasRecon ? `<td class="num">${esc(actAst)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'threes', p.threes_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'threes')}</td>
         ${hasRecon ? `<td class="num">${esc(act3pm)}</td>` : ''}
         <td class="num">${renderSimBoxscoreStatCell(p, 'pra', p.pra_mean)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(p, 'pra')}</td>
         ${hasRecon ? `<td class="num">${esc(actPra)}</td><td class="num">${esc(dPra)}</td>` : ''}
       </tr>
     `;
@@ -347,19 +352,24 @@ function renderPlayersTable(title, players, reconByPlayerId) {
             <th class="num sortable" data-sort="num">MIN</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT MIN</th>' : ''}
             <th class="num sortable" data-sort="num">PTS</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">PTS LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT PTS</th>' : ''}
             <th class="num sortable" data-sort="num">REB</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">REB LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT REB</th>' : ''}
             <th class="num sortable" data-sort="num">AST</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">AST LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT AST</th>' : ''}
             <th class="num sortable" data-sort="num">3PM</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">3PM LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT 3PM</th>' : ''}
             <th class="num sortable" data-sort="num">PRA</th>
+            <th class="num sortable boxscore-line-col" data-sort="num">PRA LINE</th>
             ${hasRecon ? '<th class="num sortable" data-sort="num">ACT PRA</th><th class="num sortable" data-sort="num">ΔPRA</th>' : ''}
           </tr>
         </thead>
         <tbody>
-          ${rows || `<tr><td colspan="${hasRecon ? 14 : 7}" class="subtle">No player projections.</td></tr>`}
+          ${rows || `<tr><td colspan="${hasRecon ? 19 : 12}" class="subtle">No player projections.</td></tr>`}
         </tbody>
       </table>
     </div>
@@ -524,7 +534,9 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode) {
     return String(a && a.name || '').localeCompare(String(b && b.name || ''));
   });
 
-  return rows.slice(0, 12);
+  const top = rows.slice(0, 12);
+  const extras = rows.slice(12).filter((row) => boxscorePlayerHasAnyPropLine(row && row.simPlayer ? row.simPlayer : null));
+  return top.concat(extras);
 }
 
 function sumMergedBoxscoreStat(rows, bucket, statKey) {
@@ -563,6 +575,19 @@ function boxscorePropLineValue(player, statKey) {
   }
 }
 
+function boxscorePlayerHasAnyPropLine(player) {
+  return ['pts', 'reb', 'ast', 'threes', 'pra'].some((statKey) => boxscorePropLineValue(player, statKey) != null);
+}
+
+function selectVisibleBoxscorePlayers(players, baseCount) {
+  const arr = Array.isArray(players) ? players : [];
+  const limit = Math.max(0, Number(baseCount) || 0);
+  if (!limit || arr.length <= limit) return arr;
+  const top = arr.slice(0, limit);
+  const extras = arr.slice(limit).filter((player) => boxscorePlayerHasAnyPropLine(player));
+  return top.concat(extras);
+}
+
 function boxscorePropLean(player, statKey) {
   const line = boxscorePropLineValue(player, statKey);
   const sim = simPlayerBoxscoreStats(player);
@@ -572,18 +597,19 @@ function boxscorePropLean(player, statKey) {
 }
 
 function renderSimBoxscoreStatCell(player, statKey, value) {
-  const main = fmtSimBoxscoreStat(statKey, value);
-  const line = boxscorePropLineValue(player, statKey);
-  if (line == null) return esc(main);
+  return esc(fmtSimBoxscoreStat(statKey, value));
+}
 
+function renderBoxscorePropLineCell(player, statKey) {
+  const line = boxscorePropLineValue(player, statKey);
   const lean = boxscorePropLean(player, statKey);
-  return `
-    <div class="boxscore-stat-main">${esc(main)}</div>
-    <div class="subtle boxscore-prop-line" title="Prop line with O/U based on whether the sim mean sits over or under the market line.">
-      <span>${esc(fmt(line, 1))}</span>
-      ${lean ? `<span class="boxscore-prop-side">${esc(lean)}</span>` : ''}
-    </div>
-  `;
+  if (line == null) return '<span class="subtle">—</span>';
+
+  const tone = lean === 'O' ? 'over' : (lean === 'U' ? 'under' : 'neutral');
+  const title = lean
+    ? `Prop line ${fmt(line, 1)} with sim ${lean === 'O' ? 'over' : 'under'} the market.`
+    : `Prop line ${fmt(line, 1)}.`;
+  return `<span class="boxscore-prop-pill ${tone}" title="${esc(title)}">${esc(fmt(line, 1))}${lean ? ` ${esc(lean)}` : ''}</span>`;
 }
 
 function buildActualLineScoreRows(periods, actualAway, actualHome) {
@@ -785,10 +811,15 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
         <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
         <td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pts')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'reb', sim.reb)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'reb')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'ast', sim.ast)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'ast')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'threes', sim.threes)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'threes')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pra', sim.pra)}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pra')}</td>
       </tr>
     `;
   }).join('');
@@ -804,10 +835,15 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
       <td class="num">${fmtActualBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'))}</td>
       <td class="num">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
       <td class="num">${fmtSimBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'sim', 'pts'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'sim', 'reb'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'sim', 'ast'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'sim', 'threes'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
       <td class="num">${fmtSimBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'sim', 'pra'))}</td>
+      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
     </tr>
   `;
 
@@ -820,7 +856,7 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
             <tr>
               <th rowspan="2">Player</th>
               <th colspan="6">${esc(actualLabel)}</th>
-              <th colspan="6">Sim</th>
+              <th colspan="11">Sim</th>
             </tr>
             <tr>
               <th class="num">MIN</th>
@@ -831,20 +867,76 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
               <th class="num">PRA</th>
               <th class="num">MIN</th>
               <th class="num">PTS</th>
+              <th class="num boxscore-line-col">PTS LINE</th>
               <th class="num">REB</th>
+              <th class="num boxscore-line-col">REB LINE</th>
               <th class="num">AST</th>
+              <th class="num boxscore-line-col">AST LINE</th>
               <th class="num">3PM</th>
+              <th class="num boxscore-line-col">3PM LINE</th>
               <th class="num">PRA</th>
+              <th class="num boxscore-line-col">PRA LINE</th>
             </tr>
           </thead>
           <tbody>
-            ${body || '<tr><td colspan="13" class="subtle">No player rows.</td></tr>'}
+            ${body || '<tr><td colspan="18" class="subtle">No player rows.</td></tr>'}
           </tbody>
           <tfoot>
             ${totalsRow}
           </tfoot>
         </table>
       </div>
+    </div>
+  `;
+}
+
+function renderMissingSimPropPlayersTable(title, players) {
+  const arr = Array.isArray(players) ? players : [];
+  if (!arr.length) return '';
+
+  const body = arr.map((player) => `
+      <tr>
+        <td>${esc(player && player.player_name ? player.player_name : '—')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'pts')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'reb')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'ast')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'threes')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(player, 'pra')}</td>
+      </tr>
+    `).join('');
+
+  return `
+    <div class="table-wrap">
+      <table class="data-table merged-player-boxscore boxscore-missing-table">
+        <thead>
+          <tr>
+            <th>${esc(title)}</th>
+            <th class="num boxscore-line-col">PTS LINE</th>
+            <th class="num boxscore-line-col">REB LINE</th>
+            <th class="num boxscore-line-col">AST LINE</th>
+            <th class="num boxscore-line-col">3PM LINE</th>
+            <th class="num boxscore-line-col">PRA LINE</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${body}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderMissingSimPropLineAudit(meta) {
+  const away = meta && Array.isArray(meta.missing_prop_players_away) ? meta.missing_prop_players_away : [];
+  const home = meta && Array.isArray(meta.missing_prop_players_home) ? meta.missing_prop_players_home : [];
+  if (!away.length && !home.length) return '';
+
+  return `
+    <div class="alert boxscore-missing-audit">
+      <div class="merged-boxscore-title">SmartSim coverage audit</div>
+      <div class="subtle">Players with market lines that are missing from the SmartSim player list. Re-run the sim if these players should be projected.</div>
+      ${away.length ? renderMissingSimPropPlayersTable(`AWAY (${meta && meta.away ? meta.away : 'Away'}) missing from sim`, away) : ''}
+      ${home.length ? renderMissingSimPropPlayersTable(`HOME (${meta && meta.home ? meta.home : 'Home'}) missing from sim`, home) : ''}
     </div>
   `;
 }
@@ -865,12 +957,13 @@ function renderMergedBoxscoreSection(meta, actualSource) {
   let note = 'Live and final columns appear here once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
   if (mode === 'live') note = `${label} columns refresh from ESPN summary data.`;
-  note += ' Sim stat cells show the prop line and O/U lean when available.';
+  note += ' Sim columns include dedicated prop-line fields when markets are available.';
 
   return `
     <div class="merged-boxscore-block">
       <div class="merged-boxscore-k">${esc(mode === 'none' ? 'Projected boxscore' : `Sim vs ${label}`)}</div>
       <div class="subtle">${esc(note)}</div>
+      ${renderMissingSimPropLineAudit(meta)}
       ${renderLineScoreBlock(meta, source)}
       ${hasAwayActual
         ? renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label)
@@ -7695,6 +7788,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       sim_periods: periods,
       sim_players_home: playersHome,
       sim_players_away: playersAway,
+      missing_prop_players_home: (sim && sim.missing_prop_players && Array.isArray(sim.missing_prop_players.home)) ? sim.missing_prop_players.home : [],
+      missing_prop_players_away: (sim && sim.missing_prop_players && Array.isArray(sim.missing_prop_players.away)) ? sim.missing_prop_players.away : [],
     };
     const initialBoxscoreSource = hasReconActual
       ? {

@@ -10401,6 +10401,124 @@ def api_cards():
     except Exception:
         recon_quarters_map = {}
 
+    def _boxscore_prop_market_key(market: Any) -> str | None:
+        try:
+            mk = str(market or "").strip().lower()
+        except Exception:
+            return None
+        return {
+            "pts": "pts",
+            "points": "pts",
+            "reb": "reb",
+            "rebounds": "reb",
+            "ast": "ast",
+            "assists": "ast",
+            "threes": "threes",
+            "3pm": "threes",
+            "3ptm": "threes",
+            "fg3m": "threes",
+            "pra": "pra",
+        }.get(mk)
+
+    def _choose_boxscore_prop_line(lines: list[float], target: Any) -> float | None:
+        clean: list[float] = []
+        for vv in (lines or []):
+            try:
+                fv = float(vv)
+                if np.isfinite(fv):
+                    clean.append(fv)
+            except Exception:
+                continue
+        if not clean:
+            return None
+
+        target_v = _safe_float(target)
+        if target_v is not None:
+            try:
+                return float(min(clean, key=lambda fv: (abs(float(fv) - float(target_v)), abs(float(fv)))))
+            except Exception:
+                pass
+        try:
+            return float(np.median(np.asarray(clean, dtype=float)))
+        except Exception:
+            return float(clean[0])
+
+    def _remember_boxscore_prop_line(
+        out: dict[str, dict[str, dict[str, Any]]],
+        team_tri: Any,
+        player_name: Any,
+        market: Any,
+        line_val: Any,
+    ) -> None:
+        team_key = str(team_tri or "").strip().upper()
+        player_label = str(player_name or "").strip()
+        player_key = _norm_player_name_for_keys(player_label)
+        market_key = _boxscore_prop_market_key(market)
+        line_num = _safe_float(line_val)
+        if not team_key or not player_key or not market_key or line_num is None:
+            return
+        team_map = out.setdefault(team_key, {})
+        entry = team_map.setdefault(player_key, {"player_name": player_label, "markets": {}})
+        if player_label and not str(entry.get("player_name") or "").strip():
+            entry["player_name"] = player_label
+        markets = entry.setdefault("markets", {})
+        if isinstance(markets, dict):
+            markets.setdefault(market_key, []).append(float(line_num))
+
+    def _build_boxscore_prop_line_sources(date_str: str) -> dict[str, dict[str, dict[str, Any]]]:
+        out: dict[str, dict[str, dict[str, Any]]] = {}
+        try:
+            edges_p = _live_find_processed_csv("props_edges", date_str)
+            if edges_p:
+                df = pd.read_csv(edges_p)
+                if df is not None and not df.empty:
+                    cols = {str(c).strip().lower(): str(c) for c in df.columns}
+                    tcol = cols.get("team")
+                    ncol = cols.get("player_name")
+                    scol = cols.get("stat")
+                    lcol = cols.get("line")
+                    if tcol and ncol and scol and lcol:
+                        for _, row in df.iterrows():
+                            _remember_boxscore_prop_line(
+                                out,
+                                row.get(tcol),
+                                row.get(ncol),
+                                row.get(scol),
+                                row.get(lcol),
+                            )
+        except Exception:
+            pass
+
+        try:
+            for team_tri, rows in (props_recs_by_team or {}).items():
+                for rr in (rows or []):
+                    player_name = rr.get("player")
+                    for play in (rr.get("plays") or []):
+                        if not isinstance(play, dict):
+                            continue
+                        _remember_boxscore_prop_line(
+                            out,
+                            team_tri,
+                            player_name,
+                            play.get("market"),
+                            play.get("line"),
+                        )
+        except Exception:
+            pass
+        return out
+
+    def _player_known_unavailable(team_tri: str, player_name: Any) -> bool:
+        try:
+            team_key = str(team_tri or "").strip().upper()
+            name_key = _norm_player_name(str(player_name or ""))
+            ctx = injury_ctx_map.get((team_key, name_key)) if team_key and name_key else None
+            if isinstance(ctx, dict):
+                st = str(ctx.get("injury_status") or "").strip().upper()
+                return (st == "OUT") or (ctx.get("playing_today") is False)
+        except Exception:
+            pass
+        return False
+
     def _canon_nba_game_id(game_id: Any) -> str:
         try:
             raw = str(game_id or "").strip()
@@ -10495,6 +10613,8 @@ def api_cards():
             "diff_away": diff_away,
         }
 
+    all_team_boxscore_prop_sources = _build_boxscore_prop_line_sources(d)
+
     games: list[dict[str, Any]] = []
     for fp in smart_sim_files:
         try:
@@ -10557,72 +10677,9 @@ def api_cards():
                 st = ""
             return (st == "OUT") or (player_row.get("playing_today") is False)
 
-        def _boxscore_prop_market_key(market: Any) -> str | None:
-            try:
-                mk = str(market or "").strip().lower()
-            except Exception:
-                return None
-            return {
-                "pts": "pts",
-                "points": "pts",
-                "reb": "reb",
-                "rebounds": "reb",
-                "ast": "ast",
-                "assists": "ast",
-                "threes": "threes",
-                "3pm": "threes",
-                "3ptm": "threes",
-                "fg3m": "threes",
-                "pra": "pra",
-            }.get(mk)
-
-        def _build_team_boxscore_prop_line_candidates(team_tri: str) -> dict[str, dict[str, list[float]]]:
-            out: dict[str, dict[str, list[float]]] = {}
-            rows = props_recs_by_team.get(str(team_tri or "").strip().upper()) or []
-            for rr in rows:
-                try:
-                    player_key = _norm_player_name_for_keys(rr.get("player"))
-                    if not player_key:
-                        continue
-                    market_map = out.setdefault(player_key, {})
-                    for play in (rr.get("plays") or []):
-                        if not isinstance(play, dict):
-                            continue
-                        market_key = _boxscore_prop_market_key(play.get("market"))
-                        line_val = _safe_float(play.get("line"))
-                        if not market_key or line_val is None:
-                            continue
-                        market_map.setdefault(market_key, []).append(float(line_val))
-                except Exception:
-                    continue
-            return out
-
-        def _choose_boxscore_prop_line(lines: list[float], target: Any) -> float | None:
-            clean: list[float] = []
-            for vv in (lines or []):
-                try:
-                    fv = float(vv)
-                    if np.isfinite(fv):
-                        clean.append(fv)
-                except Exception:
-                    continue
-            if not clean:
-                return None
-
-            target_v = _safe_float(target)
-            if target_v is not None:
-                try:
-                    return float(min(clean, key=lambda fv: (abs(float(fv) - float(target_v)), abs(float(fv)))))
-                except Exception:
-                    pass
-            try:
-                return float(np.median(np.asarray(clean, dtype=float)))
-            except Exception:
-                return float(clean[0])
-
-        team_boxscore_prop_candidates = {
-            home_tri: _build_team_boxscore_prop_line_candidates(home_tri),
-            away_tri: _build_team_boxscore_prop_line_candidates(away_tri),
+        team_boxscore_prop_sources = {
+            home_tri: all_team_boxscore_prop_sources.get(home_tri) or {},
+            away_tri: all_team_boxscore_prop_sources.get(away_tri) or {},
         }
 
         for side in ("home", "away"):
@@ -10696,7 +10753,8 @@ def api_cards():
                     tri = home_tri if side == "home" else away_tri
                     player_key = _norm_player_name_for_keys(pr2.get("player_name"))
                     tri_key = str(tri or "").strip().upper()
-                    player_lines = (team_boxscore_prop_candidates.get(tri_key) or {}).get(player_key) or {}
+                    player_entry = (team_boxscore_prop_sources.get(tri_key) or {}).get(player_key) or {}
+                    player_lines = player_entry.get("markets") if isinstance(player_entry, dict) else {}
                     prop_lines: dict[str, float] = {}
                     for market_key, mean_key in (
                         ("pts", "pts_mean"),
@@ -10719,6 +10777,44 @@ def api_cards():
                     continue
                 out_arr.append(pr2)
             players_out[side] = out_arr
+
+        def _missing_prop_players_for_team(team_tri: str, raw_players: Any) -> list[dict[str, Any]]:
+            team_key = str(team_tri or "").strip().upper()
+            source_map = team_boxscore_prop_sources.get(team_key) or {}
+            if not source_map:
+                return []
+
+            sim_player_keys: set[str] = set()
+            for row in (raw_players or []):
+                if not isinstance(row, dict):
+                    continue
+                nk = _norm_player_name_for_keys(row.get("player_name"))
+                if nk:
+                    sim_player_keys.add(nk)
+
+            out_rows: list[dict[str, Any]] = []
+            for player_key, entry in source_map.items():
+                if player_key in sim_player_keys or not isinstance(entry, dict):
+                    continue
+                player_name = str(entry.get("player_name") or "").strip()
+                if not player_name or _player_known_unavailable(team_key, player_name):
+                    continue
+                markets = entry.get("markets") if isinstance(entry.get("markets"), dict) else {}
+                prop_lines: dict[str, float] = {}
+                for market_key in ("pts", "reb", "ast", "threes", "pra"):
+                    line_val = _choose_boxscore_prop_line((markets or {}).get(market_key) or [], None)
+                    if line_val is not None:
+                        prop_lines[market_key] = float(line_val)
+                if prop_lines:
+                    out_rows.append({"player_name": player_name, "prop_lines": prop_lines})
+
+            out_rows.sort(key=lambda row: str(row.get("player_name") or "").strip().upper())
+            return out_rows
+
+        missing_prop_players = {
+            "home": _missing_prop_players_for_team(home_tri, players.get("home") if isinstance(players, dict) else []),
+            "away": _missing_prop_players_for_team(away_tri, players.get("away") if isinstance(players, dict) else []),
+        }
 
         def _injury_list_for_team(team_tri: str) -> list[dict[str, Any]]:
             tri = str(team_tri or "").strip().upper()
@@ -10828,6 +10924,7 @@ def api_cards():
             "intervals": _itv,
             "intervals_1m": _itv1,
             "players": players_out,
+            "missing_prop_players": missing_prop_players,
             "injuries": injuries_payload,
             "error": sim_error,
         }
@@ -10914,6 +11011,22 @@ def api_cards():
             excluded_books=excluded_books,
         )
 
+        try:
+            missing_bits: list[str] = []
+            for side_key, tri in (("away", away_tri), ("home", home_tri)):
+                rows = missing_prop_players.get(side_key) if isinstance(missing_prop_players, dict) else []
+                rows = rows if isinstance(rows, list) else []
+                if not rows:
+                    continue
+                names = [str(row.get("player_name") or "").strip() for row in rows if str(row.get("player_name") or "").strip()]
+                if not names:
+                    continue
+                preview = ", ".join(names[:5])
+                suffix = "" if len(names) <= 5 else f", +{len(names) - 5} more"
+                missing_bits.append(f"{tri}: {preview}{suffix}")
+        except Exception:
+            missing_bits = []
+
         game = {
             "date": d,
             "home_tri": home_tri,
@@ -10925,6 +11038,9 @@ def api_cards():
             "betting": bet,
             "prop_recommendations": prop_recommendations,
         }
+        if missing_bits:
+            game.setdefault("warnings", [])
+            game["warnings"].append("Players with prop lines missing from SmartSim boxscore: " + " • ".join(missing_bits))
 
         # Boxscore reconciliation (player-sum vs actual final team points, when available).
         try:
@@ -10956,9 +11072,10 @@ def api_cards():
                 # If home is +7, market expects margin about -7.
                 market_margin = -float(market_spread)
                 if abs(sim_margin - market_margin) >= 12.0:
-                    game["warnings"] = [
+                    game.setdefault("warnings", [])
+                    game["warnings"].append(
                         f"Large market-vs-sim disagreement: market margin ~{market_margin:+.1f}, sim margin {sim_margin:+.1f}"
-                    ]
+                    )
         except Exception:
             pass
 

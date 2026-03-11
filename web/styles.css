@@ -691,18 +691,52 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 }
 .merged-player-boxscore td:first-child { min-width: 180px; }
 .boxscore-stat-main { color: inherit; }
-.boxscore-prop-line {
-	display: flex;
-	justify-content: flex-end;
-	align-items: center;
-	gap: 4px;
-	font-size: 10px;
-	line-height: 1.1;
+.player-boxscore th.boxscore-line-col,
+.player-boxscore td.boxscore-line-col,
+.merged-player-boxscore th.boxscore-line-col,
+.merged-player-boxscore td.boxscore-line-col {
+	text-align: center;
+	min-width: 78px;
 }
-.boxscore-prop-side {
+.boxscore-prop-pill {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 58px;
+	padding: 2px 6px;
+	border-radius: 999px;
+	border: 1px solid #2a3a7a;
+	background: #161c3b;
 	color: #d5dbff;
+	font-size: 10px;
 	font-weight: 800;
 	letter-spacing: 0.3px;
+	line-height: 1.1;
+}
+.boxscore-prop-pill.over {
+	background: #0f2d1b;
+	border-color: #1e7a45;
+	color: #a7f3c6;
+}
+.boxscore-prop-pill.under {
+	background: #3a1212;
+	border-color: #7a1e1e;
+	color: #ffb7b7;
+}
+.boxscore-prop-pill.neutral {
+	background: #161c3b;
+	border-color: #2a3a7a;
+	color: #d5dbff;
+}
+.boxscore-missing-audit {
+	margin: 10px 0 12px;
+}
+.boxscore-missing-audit .subtle {
+	display: block;
+	margin-bottom: 8px;
+}
+.boxscore-missing-audit .table-wrap + .table-wrap {
+	margin-top: 8px;
 }
 .merged-linescore-table thead tr:first-child th,
 .merged-player-boxscore thead tr:first-child th {
