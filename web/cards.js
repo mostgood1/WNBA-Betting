@@ -941,6 +941,141 @@ function normalizePregameGuidance(guidance) {
   };
 }
 
+function pregamePropActionBadgeTitle(guidance) {
+  const info = normalizePregameGuidance(guidance);
+  if (!info) return '';
+  const code = String(info.action_code || '').trim().toLowerCase();
+  if (code === 'bet_now') return 'Action: bet now. Current number is still inside the playable range.';
+  if (code === 'shop') return 'Action: shop. Edge is live, but compare books before entering.';
+  if (code === 'wait') {
+    if (info.market_view === 'disagree') return 'Action: wait. The signal is live, but the market is leaning the other way and a better entry may develop.';
+    return 'Action: wait. Hold for a cleaner entry.';
+  }
+  if (code === 'pass') return 'Action: pass. Current number is outside the playable range.';
+  return String(info.summary || '').trim();
+}
+
+function renderPregameActionBadge(guidance) {
+  const info = normalizePregameGuidance(guidance);
+  if (!info || !info.action) return '';
+  const title = pregamePropActionBadgeTitle(info);
+  const titleAttr = title ? ` title="${esc(title)}"` : '';
+  return `<span class="badge ${pregamePropActionBadgeClass(info.action_code)}"${titleAttr}>${esc(info.action)}</span>`;
+}
+
+function renderPregameMarketBadge(guidance) {
+  const info = normalizePregameGuidance(guidance);
+  if (!info) return '';
+  if (info.market_view === 'agree') {
+    return '<span class="badge good" title="Market move is supporting this side.">Market agrees</span>';
+  }
+  if (info.market_view === 'disagree') {
+    return '<span class="badge bad" title="Market move is leaning the other way.">Market disagrees</span>';
+  }
+  return '';
+}
+
+function renderLivePropSignalBadge(klass, side) {
+  const signal = String(klass || '').toUpperCase().trim();
+  const lean = String(side || '').toUpperCase().trim();
+  if (signal !== 'BET' && signal !== 'WATCH') return lean ? esc(lean) : '<span class="subtle">—</span>';
+  const sideShort = (lean === 'OVER') ? 'O' : ((lean === 'UNDER') ? 'U' : '');
+  const label = `${signal} ${sideShort}`.trim();
+  const title = (signal === 'BET')
+    ? `Signal: stronger live ${lean ? lean.toLowerCase() : ''} lean from the player-prop model.`.trim()
+    : `Signal: watchlist live ${lean ? lean.toLowerCase() : ''} lean from the player-prop model.`.trim();
+  return `<span class="badge ${signal === 'BET' ? 'good' : 'ok'}" title="${esc(title)}">${esc(label)}</span>`;
+}
+
+function renderLivePropLineBadge(kind, inlineStyle = '') {
+  const key = String(kind || 'UNK').toUpperCase().trim() || 'UNK';
+  const cls = (key === 'LIVE') ? ' good' : '';
+  const title = (key === 'LIVE')
+    ? 'Using an OddsAPI live line for the current guide.'
+    : ((key === 'PRE')
+      ? 'No live line is available, so this guide is still anchored to the pregame line.'
+      : 'Line source is unknown.');
+  const styleAttr = inlineStyle ? ` style="${esc(inlineStyle)}"` : '';
+  return `<span class="badge${cls}"${styleAttr} title="${esc(title)}">${esc(key)}</span>`;
+}
+
+function renderLivePropSimBadge(simAgree, simDisagree) {
+  if (simDisagree) return '<span class="badge bad" title="SmartSim disagrees with the pace-vs-line direction.">SIM≠</span>';
+  if (simAgree) return '<span class="badge good" title="SmartSim agrees with the pace-vs-line direction.">SIM✓</span>';
+  return '';
+}
+
+function renderLivePropWhyBadge(label, cls = '') {
+  const key = String(label || '').toUpperCase().trim();
+  if (!key) return '';
+  let title = '';
+  if (key === 'INJ') title = 'Injury status raises live minutes or role risk.';
+  else if (key === 'F4') title = 'Four fouls increase rotation and aggression risk.';
+  else if (key === 'F5+') title = 'Five or more fouls create major foul-out risk.';
+  else if (key === 'LOWMIN') title = 'Projected minutes remaining are low for this player.';
+  else if (key === 'BENCH') title = 'Player is in an extended bench stint.';
+  const clsAttr = cls ? ` ${cls}` : '';
+  const titleAttr = title ? ` title="${esc(title)}"` : '';
+  return `<span class="badge${clsAttr}"${titleAttr}>${esc(key)}</span>`;
+}
+
+function livePropGuideTagTitle(tag) {
+  const txt = String(tag || '').trim();
+  if (!txt) return '';
+  if (txt === 'LIVE line') return 'Guide context: using a real live line.';
+  if (txt === 'PRE fallback') return 'Guide context: still using the pregame line because no live line is available.';
+  if (txt === 'No line') return 'Guide context: no market line is attached to this row.';
+  if (txt === 'Bettable') return 'Guide context: the live market passed bettable-quality checks.';
+  if (txt === 'SIM agrees') return 'Guide context: SmartSim agrees with the pace-vs-line direction.';
+  if (txt === 'SIM disagrees') return 'Guide context: SmartSim disagrees with the pace-vs-line direction.';
+  if (txt === 'Actionable edge') return 'Guide context: model edge clears the haircut by a useful margin.';
+  if (txt === 'Role support') return 'Guide context: rotation and role context support the signal.';
+  if (txt === 'Fresh line') return 'Guide context: the live quote is recent enough to trust more.';
+  if (txt === 'Stale line') return 'Guide context: the live quote may be old; confirm before acting.';
+  if (txt === 'Wide market') return 'Guide context: books are spread out, so line shopping matters more.';
+  if (txt === 'Thin quality') return 'Guide context: market quality is thin, so the edge is less trustworthy.';
+  if (/^\d+\s+books?$/i.test(txt)) return 'Guide context: number of books contributing to the current live market snapshot.';
+  if (txt === '1 book') return 'Guide context: only one book is posting this line right now.';
+  return '';
+}
+
+function renderLivePropGuideTags(tags, limit = 4) {
+  const arr = Array.isArray(tags) ? tags.filter(Boolean) : [];
+  if (!arr.length) return '';
+  return arr.slice(0, limit).map((tag) => {
+    const title = livePropGuideTagTitle(tag);
+    const titleAttr = title ? ` title="${esc(title)}"` : '';
+    return `<span class="live-prop-guide-tag"${titleAttr}>${esc(tag)}</span>`;
+  }).join('');
+}
+
+function renderLivePropGuideLegend() {
+  return `
+    signal badges show the lean; action badges say what to do at the current number;
+    ${renderLivePropSignalBadge('BET', 'OVER')}/${renderLivePropSignalBadge('WATCH', 'UNDER')} live signal strength;
+    ${renderPregameActionBadge({ action: 'Bet now', action_code: 'bet_now' })} inside the playable range;
+    ${renderPregameActionBadge({ action: 'Shop', action_code: 'shop' })} edge is live, but compare books;
+    ${renderPregameActionBadge({ action: 'Wait', action_code: 'wait', market_view: 'disagree' })} wait for a cleaner live entry;
+    ${renderLivePropLineBadge('LIVE')} using a live OddsAPI line;
+    ${renderLivePropLineBadge('PRE')} pregame fallback;
+    ${renderLivePropSimBadge(true, false)} SmartSim agrees;
+    ${renderLivePropSimBadge(false, true)} SmartSim disagrees;
+    <span class="live-prop-guide-tag" title="Guide context: the live quote is recent enough to trust more.">Fresh line</span> recent quote;
+    <span class="live-prop-guide-tag" title="Guide context: still using the pregame line because no live line is available.">PRE fallback</span> no live line yet;
+    <span class="live-prop-guide-tag" title="Guide context: market quality is thin, so the edge is less trustworthy.">Thin quality</span> lower-confidence market.
+  `;
+}
+
+function renderLivePropRiskLegend() {
+  return `
+    why badges surface live-specific risk:
+    ${renderLivePropWhyBadge('INJ', 'bad')} injury risk;
+    ${renderLivePropWhyBadge('F4', 'ok')}/${renderLivePropWhyBadge('F5+', 'bad')} foul pressure;
+    ${renderLivePropWhyBadge('LOWMIN', 'ok')} low projected minutes remaining;
+    ${renderLivePropWhyBadge('BENCH', 'ok')} extended bench stint.
+  `;
+}
+
 function buildPregameGuidance(pick, opts = {}) {
   const existing = normalizePregameGuidance(pick && pick.guidance);
   if (existing) return existing;
@@ -1182,8 +1317,7 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
       const playToText = (playToLine == null)
         ? ''
         : `${marketLabel(best.market)} ${side} ${fmt(playToLine, 1)} or better`;
-      const action = guidance && guidance.action ? String(guidance.action) : '';
-      const actionCls = pregamePropActionBadgeClass(guidance && guidance.action_code);
+      const actionBadge = renderPregameActionBadge(guidance);
       const tagHtml = guidance && Array.isArray(guidance.tags)
         ? guidance.tags.slice(0, 4).map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')
         : '';
@@ -1196,7 +1330,7 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
               <span class="badge">${esc(sideTri)}</span>
               <span class="prop-rec-player">${esc(player)}</span>
             </div>
-            ${action ? `<span class="badge ${actionCls}">${esc(action)}</span>` : ''}
+            ${actionBadge}
           </div>
           <div class="prop-rec-pick">${esc(label)}</div>
           ${metaBits ? `<div class="prop-rec-meta">${esc(metaBits)}</div>` : ''}
@@ -4060,10 +4194,10 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const hasPregameLine = (lineSource === 'pregame') && (linePregame != null);
       const lineBadge = (line != null)
         ? (hasLiveLine
-          ? '<span class="badge good" style="margin-left:6px;">LIVE</span>'
+          ? renderLivePropLineBadge('LIVE', 'margin-left:6px;')
           : (hasPregameLine
-            ? '<span class="badge" style="margin-left:6px;">PRE</span>'
-            : '<span class="badge" style="margin-left:6px;">UNK</span>'))
+            ? renderLivePropLineBadge('PRE', 'margin-left:6px;')
+            : renderLivePropLineBadge('UNK', 'margin-left:6px;')))
         : '';
       const pace = n(r && r.pace_proj);
       const dP = n(r && r.pace_vs_line);
@@ -4076,16 +4210,19 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const showKlass = (klass === 'BET' || klass === 'WATCH');
       const sigTxt = showKlass ? `${klass} ${side || ''}`.trim() : (side ? side : '—');
       const sigBadge = showKlass
-        ? `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(sigTxt)}</span>`
+        ? renderLivePropSignalBadge(klass, side)
         : esc(sigTxt);
       const playToLine = n(guidance && guidance.play_to_line);
       const priceTxt = (guidance && guidance.price_text) ? String(guidance.price_text) : '';
       const playToTxt = (playToLine == null || !side)
         ? ''
         : `${side === 'OVER' ? 'Over' : 'Under'} to ${fmt(playToLine, 1)}${priceTxt ? ` @ ${priceTxt}` : ''}`;
-      const guideTags = (guidance && Array.isArray(guidance.tags))
-        ? guidance.tags.slice(0, 4).map((tag) => `<span class="live-prop-guide-tag">${esc(tag)}</span>`).join('')
-        : '';
+      const guideTags = renderLivePropGuideTags(
+        guidance && Array.isArray(guidance.tags)
+          ? guidance.tags.filter((tag) => !['LIVE line', 'PRE fallback', 'No line', 'SIM agrees', 'SIM disagrees'].includes(String(tag || '').trim()))
+          : [],
+        4,
+      );
       const guideTip = [
         (n(r && r.bettable_score) != null) ? `bettable ${fmt(n(r && r.bettable_score), 2)}` : '',
         (n(r && r.price_hold) != null) ? `hold ${fmt(n(r && r.price_hold), 2)}` : '',
@@ -4096,24 +4233,24 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       const whyCell = (() => {
         try {
           const tags = [];
-          if (r && r.injury_flag) tags.push('<span class="badge bad">INJ</span>');
+          if (r && r.injury_flag) tags.push(renderLivePropWhyBadge('INJ', 'bad'));
 
           const pf = n(r && r.pf);
-          if (pf != null && pf >= 5) tags.push('<span class="badge bad">F5+</span>');
-          else if (pf != null && pf >= 4) tags.push('<span class="badge ok">F4</span>');
+          if (pf != null && pf >= 5) tags.push(renderLivePropWhyBadge('F5+', 'bad'));
+          else if (pf != null && pf >= 4) tags.push(renderLivePropWhyBadge('F4', 'ok'));
 
           const projMin = n(r && (r.proj_min_final != null ? r.proj_min_final : r.exp_min_eff));
           const remMin = (mp != null && projMin != null) ? (projMin - mp) : null;
-          if (remMin != null && remMin < 1.5) tags.push('<span class="badge bad">LOWMIN</span>');
-          else if (remMin != null && remMin < 3.5) tags.push('<span class="badge ok">LOWMIN</span>');
+          if (remMin != null && remMin < 1.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'bad'));
+          else if (remMin != null && remMin < 3.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'ok'));
 
           const rotOn = (r && r.rot_on_court != null) ? !!r.rot_on_court : null;
           const offSec = n(r && r.rot_cur_off_sec);
           const benchLong = (rotOn === false && offSec != null && offSec >= 480);
-          if (benchLong) tags.push('<span class="badge ok">BENCH</span>');
+          if (benchLong) tags.push(renderLivePropWhyBadge('BENCH', 'ok'));
 
-          if (adj && adj.sim_disagree) tags.push('<span class="badge bad">SIM≠</span>');
-          else if (adj && adj.sim_agree) tags.push('<span class="badge good">SIM✓</span>');
+          if (adj && adj.sim_disagree) tags.push(renderLivePropSimBadge(false, true));
+          else if (adj && adj.sim_agree) tags.push(renderLivePropSimBadge(true, false));
 
           const risk = (adj && adj.risk != null) ? Number(adj.risk) : null;
           const support = (adj && adj.support != null) ? Number(adj.support) : null;
@@ -4148,7 +4285,7 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
           <td class="live-guide-cell">
             <div class="live-prop-guide" title="${esc(guideTip)}">
               <div class="live-prop-guide-head">
-                ${guidance && guidance.action ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>` : ''}
+                ${renderPregameActionBadge(guidance)}
                 ${playToTxt ? `<span class="subtle live-prop-guide-playto">${esc(playToTxt)}</span>` : ''}
               </div>
               <div class="live-prop-guide-copy">${esc((guidance && guidance.summary) || '—')}</div>
@@ -4166,9 +4303,16 @@ function renderPlayerLiveLens(meta, liveLensGame, isFinal) {
       : (rows.length
         ? 'PaceProj uses actual per-minute × expected minutes; the guide blends live pace, line freshness, and minutes risk.'
         : 'No live player rows yet.');
+    const liveGuideLegend = renderLivePropGuideLegend();
+    const liveRiskLegend = renderLivePropRiskLegend();
 
     return `
       <div class="subtle">${esc(note)}</div>
+      <div class="subtle" style="margin-top:6px;">
+        <span class="fw-700">Live guide:</span>
+        ${liveGuideLegend}
+        ${liveRiskLegend}
+      </div>
 
       <div class="table-wrap" style="margin-top:6px;">
         <table class="data-table boxscore-table player-lens-table" style="font-size:12px;">
@@ -4219,15 +4363,10 @@ function renderLivePropCallouts(callouts) {
     const items = arr.map((x) => {
       const klass = String(x.klass || '').toUpperCase().trim();
       const side = String(x.side || '').toUpperCase().trim();
-      const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
-      const badge = `<span class="badge ${klass === 'BET' ? 'good' : 'ok'}">${esc(`${klass} ${sideShort}`.trim())}</span>`;
+      const badge = renderLivePropSignalBadge(klass, side);
       const guidance = x && x.guidance ? x.guidance : null;
-      const actionBadge = (guidance && guidance.action)
-        ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>`
-        : '';
-      const liveLineBadge = (x && x.is_live_line)
-        ? '<span class="badge good">LIVE</span>'
-        : '<span class="badge">PRE</span>';
+      const actionBadge = renderPregameActionBadge(guidance);
+      const liveLineBadge = renderLivePropLineBadge((x && x.is_live_line) ? 'LIVE' : 'PRE');
 
       const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
@@ -4257,22 +4396,24 @@ function renderLivePropCallouts(callouts) {
       const playToTxt = (playToLine == null || !side)
         ? ''
         : `${side === 'OVER' ? 'Over' : 'Under'} to ${fmt(playToLine, 1)}${priceTxt ? ` @ ${priceTxt}` : ''}`;
-      const guideTags = (guidance && Array.isArray(guidance.tags))
-        ? guidance.tags.slice(0, 3).map((tag) => `<span class="live-prop-guide-tag">${esc(tag)}</span>`).join('')
-        : '';
+      const guideTags = renderLivePropGuideTags(
+        guidance && Array.isArray(guidance.tags)
+          ? guidance.tags.filter((tag) => !['LIVE line', 'PRE fallback', 'No line', 'SIM agrees', 'SIM disagrees'].includes(String(tag || '').trim()))
+          : [],
+        3,
+      );
 
       const why = (() => {
         try {
           const tags = [];
-          if (x.injury_flag) tags.push('<span class="badge bad">INJ</span>');
+          if (x.injury_flag) tags.push(renderLivePropWhyBadge('INJ', 'bad'));
           const pf = n(x.pf);
-          if (pf != null && pf >= 5) tags.push('<span class="badge bad">F5+</span>');
-          else if (pf != null && pf >= 4) tags.push('<span class="badge ok">F4</span>');
+          if (pf != null && pf >= 5) tags.push(renderLivePropWhyBadge('F5+', 'bad'));
+          else if (pf != null && pf >= 4) tags.push(renderLivePropWhyBadge('F4', 'ok'));
           const rem = n(x.rem_min);
-          if (rem != null && rem < 1.5) tags.push('<span class="badge bad">LOWMIN</span>');
-          else if (rem != null && rem < 3.5) tags.push('<span class="badge ok">LOWMIN</span>');
-          if (x.bench_long) tags.push('<span class="badge ok">BENCH</span>');
-          if (x.simDisagree) tags.push('<span class="badge bad">SIM≠</span>');
+          if (rem != null && rem < 1.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'bad'));
+          else if (rem != null && rem < 3.5) tags.push(renderLivePropWhyBadge('LOWMIN', 'ok'));
+          if (x.bench_long) tags.push(renderLivePropWhyBadge('BENCH', 'ok'));
           if (!tags.length) return '';
           return tags.join('');
         } catch (_) {
@@ -4280,7 +4421,7 @@ function renderLivePropCallouts(callouts) {
         }
       })();
 
-      const simFlag = x.simDisagree ? '<span class="badge bad">SIM≠</span>' : (x.simAgree ? '<span class="badge good">SIM✓</span>' : '');
+      const simFlag = renderLivePropSimBadge(x.simAgree, x.simDisagree);
 
       return `
         <button
@@ -4324,24 +4465,18 @@ function renderLivePropCallouts(callouts) {
       `;
     }).join('');
 
+    const liveGuideLegend = renderLivePropGuideLegend();
+    const liveRiskLegend = renderLivePropRiskLegend();
+
     return `
-      <div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH with action guidance) — click to jump:</div>
+      <div class="subtle" style="margin-top:8px;">Live props signal + action guide — click to jump:</div>
       <div class="row chips prop-callouts-rail">
         ${items}
       </div>
       <div class="subtle" style="margin-top:6px;">
         <span class="fw-700">Notes:</span>
-        <span class="badge good">Bet now</span> fresh line inside the playable range;
-        <span class="badge ok">Shop</span> edge is live, but compare books;
-        <span class="badge">Wait</span> hold for a cleaner live number;
-        <span class="badge good">LIVE</span> live line (OddsAPI);
-        <span class="badge">PRE</span> pregame line;
-        <span class="badge good">SIM✓</span> SmartSim agrees with the pace-vs-line direction;
-        <span class="badge bad">SIM≠</span> SmartSim disagrees;
-        <span class="badge bad">INJ</span> injury flag;
-        <span class="badge ok">F4</span>/<span class="badge bad">F5+</span> foul trouble;
-        <span class="badge ok">LOWMIN</span> low projected minutes remaining;
-        <span class="badge ok">BENCH</span> extended bench stint.
+        ${liveGuideLegend}
+        ${liveRiskLegend}
       </div>
     `;
   } catch (_) {
@@ -4370,11 +4505,13 @@ function renderPregamePropCallouts(callouts) {
 
       const side = String(x.side || '').toUpperCase().trim();
       const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
+      const sideWord = (side === 'OVER') ? 'over' : ((side === 'UNDER') ? 'under' : '');
+      const tierWord = (tierU === 'HIGH') ? 'fast movement' : ((tierU === 'MEDIUM') ? 'meaningful movement' : 'movement');
       const headTxt = `${tierShort} ${sideShort}`.trim();
-      const badge = headTxt ? `<span class="badge ${tierCls}">${esc(headTxt)}</span>` : '';
-      const actionBadge = (guidance && guidance.action)
-        ? `<span class="badge ${pregamePropActionBadgeClass(guidance.action_code)}">${esc(guidance.action)}</span>`
-        : '';
+      const badgeTitle = [tierU || 'Movement', sideWord ? `${sideWord} look` : '', tierWord].filter(Boolean).join(' • ');
+      const badge = headTxt ? `<span class="badge ${tierCls}" title="${esc(badgeTitle)}">${esc(headTxt)}</span>` : '';
+      const actionBadge = renderPregameActionBadge(guidance);
+      const marketBadge = renderPregameMarketBadge(guidance);
 
       const game = `${String(x.away || '').toUpperCase().trim()} @ ${String(x.home || '').toUpperCase().trim()}`.trim();
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
@@ -4404,7 +4541,9 @@ function renderPregamePropCallouts(callouts) {
       const playToLine = n(guidance && guidance.play_to_line);
       const playToText = (playToLine == null) ? '' : `Play to ${fmt(playToLine, 1)}`;
       const moveText = pregamePropMoveText(x);
-      const tagText = (guidance && Array.isArray(guidance.tags)) ? guidance.tags.slice(0, 2).join(' · ') : '';
+      const tagText = (guidance && Array.isArray(guidance.tags))
+        ? guidance.tags.filter((tag) => !['Market agrees', 'Market disagrees', 'Better than open', 'Worse than open'].includes(String(tag || '').trim())).slice(0, 2).join(' · ')
+        : '';
 
       return `
         <button
@@ -4417,6 +4556,7 @@ function renderPregamePropCallouts(callouts) {
         >
           <div class="prop-callout-head">
             ${actionBadge}
+            ${marketBadge}
             ${badge}
             <span class="badge">${esc(stat)}</span>
             ${team ? `<span class="badge">${esc(team)}</span>` : ''}
@@ -4444,9 +4584,21 @@ function renderPregamePropCallouts(callouts) {
     }).join('');
 
     return `
-      <div class="subtle" style="margin-top:8px;">Pregame prop movement + action guide — click to jump:</div>
+      <div class="subtle" style="margin-top:8px;">Pregame prop movement signal + action guide — click to jump:</div>
       <div class="row chips prop-callouts-rail">
         ${items}
+      </div>
+      <div class="subtle" style="margin-top:6px;">
+        <span class="fw-700">Notes:</span>
+        Signal badges show movement; action badges show what to do at the current number;
+        <span class="badge good">Market agrees</span> move supports the side;
+        <span class="badge bad">Market disagrees</span> move leans the other way;
+        <span class="badge good">HIGH O</span>/<span class="badge good">HIGH U</span> fast move on the over/under;
+        <span class="badge ok">MED O</span>/<span class="badge ok">MED U</span> meaningful move, but not the fastest tier;
+        <span class="badge good">Bet now</span> still inside the playable range;
+        <span class="badge ok">Shop</span> edge is live, but compare books;
+        <span class="badge">Wait</span> hold for a better entry;
+        <span class="badge bad">Pass</span> current number is no longer playable.
       </div>
     `;
   } catch (_) {
@@ -7225,7 +7377,7 @@ function startLiveLensPolling(root, games, dateStr) {
           } else {
             __calloutsLastHtml = '';
             if (hasAnyLiveGame) {
-              calloutsEl.innerHTML = '<div class="subtle" style="margin-top:8px;">Live props callouts (BET/WATCH): no signals yet (or player props not loaded).</div>';
+              calloutsEl.innerHTML = '<div class="subtle" style="margin-top:8px;">Live props signal + action guide: no signals yet (or player props not loaded).</div>';
               calloutsEl.classList.remove('hidden');
             } else {
               calloutsEl.innerHTML = '';
