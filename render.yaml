@@ -69,7 +69,7 @@ services:
       - key: NBA_BETTING_DATA_ROOT
         value: /opt/render/project/data
       - key: ODDSAPI_PROPS_BACKGROUND_MODE
-        value: "thread"
+        value: "process"
       - key: REFRESH_PREDICT_PROPS_USE_SMART_SIM
         value: "0"
       - key: REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER
