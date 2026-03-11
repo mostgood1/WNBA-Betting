@@ -10468,6 +10468,74 @@ def api_cards():
                 st = ""
             return (st == "OUT") or (player_row.get("playing_today") is False)
 
+        def _boxscore_prop_market_key(market: Any) -> str | None:
+            try:
+                mk = str(market or "").strip().lower()
+            except Exception:
+                return None
+            return {
+                "pts": "pts",
+                "points": "pts",
+                "reb": "reb",
+                "rebounds": "reb",
+                "ast": "ast",
+                "assists": "ast",
+                "threes": "threes",
+                "3pm": "threes",
+                "3ptm": "threes",
+                "fg3m": "threes",
+                "pra": "pra",
+            }.get(mk)
+
+        def _build_team_boxscore_prop_line_candidates(team_tri: str) -> dict[str, dict[str, list[float]]]:
+            out: dict[str, dict[str, list[float]]] = {}
+            rows = props_recs_by_team.get(str(team_tri or "").strip().upper()) or []
+            for rr in rows:
+                try:
+                    player_key = _norm_player_name_for_keys(rr.get("player"))
+                    if not player_key:
+                        continue
+                    market_map = out.setdefault(player_key, {})
+                    for play in (rr.get("plays") or []):
+                        if not isinstance(play, dict):
+                            continue
+                        market_key = _boxscore_prop_market_key(play.get("market"))
+                        line_val = _safe_float(play.get("line"))
+                        if not market_key or line_val is None:
+                            continue
+                        market_map.setdefault(market_key, []).append(float(line_val))
+                except Exception:
+                    continue
+            return out
+
+        def _choose_boxscore_prop_line(lines: list[float], target: Any) -> float | None:
+            clean: list[float] = []
+            for vv in (lines or []):
+                try:
+                    fv = float(vv)
+                    if np.isfinite(fv):
+                        clean.append(fv)
+                except Exception:
+                    continue
+            if not clean:
+                return None
+
+            target_v = _safe_float(target)
+            if target_v is not None:
+                try:
+                    return float(min(clean, key=lambda fv: (abs(float(fv) - float(target_v)), abs(float(fv)))))
+                except Exception:
+                    pass
+            try:
+                return float(np.median(np.asarray(clean, dtype=float)))
+            except Exception:
+                return float(clean[0])
+
+        team_boxscore_prop_candidates = {
+            home_tri: _build_team_boxscore_prop_line_candidates(home_tri),
+            away_tri: _build_team_boxscore_prop_line_candidates(away_tri),
+        }
+
         for side in ("home", "away"):
             arr = players.get(side) if isinstance(players, dict) else []
             out_arr: list[dict[str, Any]] = []
@@ -10532,6 +10600,26 @@ def api_cards():
                     for k in ("injury_status", "injury", "injury_date"):
                         if _is_blank(pr2.get(k)):
                             pr2.pop(k, None)
+                except Exception:
+                    pass
+
+                try:
+                    tri = home_tri if side == "home" else away_tri
+                    player_key = _norm_player_name_for_keys(pr2.get("player_name"))
+                    player_lines = (team_boxscore_prop_candidates.get(str(tri or "").strip().upper()) or {}).get(player_key) or {}
+                    prop_lines: dict[str, float] = {}
+                    for market_key, mean_key in (
+                        ("pts", "pts_mean"),
+                        ("reb", "reb_mean"),
+                        ("ast", "ast_mean"),
+                        ("threes", "threes_mean"),
+                        ("pra", "pra_mean"),
+                    ):
+                        line_val = _choose_boxscore_prop_line(player_lines.get(market_key) or [], pr2.get(mean_key))
+                        if line_val is not None:
+                            prop_lines[market_key] = float(line_val)
+                    if prop_lines:
+                        pr2["prop_lines"] = prop_lines
                 except Exception:
                     pass
 

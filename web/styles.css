@@ -690,6 +690,20 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	white-space: normal;
 }
 .merged-player-boxscore td:first-child { min-width: 180px; }
+.boxscore-stat-main { color: inherit; }
+.boxscore-prop-line {
+	display: flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 4px;
+	font-size: 10px;
+	line-height: 1.1;
+}
+.boxscore-prop-side {
+	color: #d5dbff;
+	font-weight: 800;
+	letter-spacing: 0.3px;
+}
 .merged-linescore-table thead tr:first-child th,
 .merged-player-boxscore thead tr:first-child th {
 	text-align: center;

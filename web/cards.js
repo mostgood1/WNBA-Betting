@@ -324,15 +324,15 @@ function renderPlayersTable(title, players, reconByPlayerId) {
         <td>${esc(nm)}${inj}${play}</td>
         <td class="num">${fmt(p.min_mean, 1)}</td>
         ${hasRecon ? `<td class="num">${esc(actMin)}</td>` : ''}
-        <td class="num">${fmt(p.pts_mean, 1)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(p, 'pts', p.pts_mean)}</td>
         ${hasRecon ? `<td class="num">${esc(actPts)}</td>` : ''}
-        <td class="num">${fmt(p.reb_mean, 1)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(p, 'reb', p.reb_mean)}</td>
         ${hasRecon ? `<td class="num">${esc(actReb)}</td>` : ''}
-        <td class="num">${fmt(p.ast_mean, 1)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(p, 'ast', p.ast_mean)}</td>
         ${hasRecon ? `<td class="num">${esc(actAst)}</td>` : ''}
-        <td class="num">${fmt(p.threes_mean, 1)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(p, 'threes', p.threes_mean)}</td>
         ${hasRecon ? `<td class="num">${esc(act3pm)}</td>` : ''}
-        <td class="num">${fmt(p.pra_mean, 1)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(p, 'pra', p.pra_mean)}</td>
         ${hasRecon ? `<td class="num">${esc(actPra)}</td><td class="num">${esc(dPra)}</td>` : ''}
       </tr>
     `;
@@ -554,6 +554,38 @@ function fmtSimBoxscoreStat(_statKey, value) {
   return fmt(v, 1);
 }
 
+function boxscorePropLineValue(player, statKey) {
+  try {
+    const propLines = player && typeof player.prop_lines === 'object' ? player.prop_lines : null;
+    return n(propLines && propLines[statKey]);
+  } catch (_) {
+    return null;
+  }
+}
+
+function boxscorePropLean(player, statKey) {
+  const line = boxscorePropLineValue(player, statKey);
+  const sim = simPlayerBoxscoreStats(player);
+  const mean = n(sim && sim[statKey]);
+  if (line == null || mean == null) return '';
+  return mean >= line ? 'O' : 'U';
+}
+
+function renderSimBoxscoreStatCell(player, statKey, value) {
+  const main = fmtSimBoxscoreStat(statKey, value);
+  const line = boxscorePropLineValue(player, statKey);
+  if (line == null) return esc(main);
+
+  const lean = boxscorePropLean(player, statKey);
+  return `
+    <div class="boxscore-stat-main">${esc(main)}</div>
+    <div class="subtle boxscore-prop-line" title="Prop line with O/U based on whether the sim mean sits over or under the market line.">
+      <span>${esc(fmt(line, 1))}</span>
+      ${lean ? `<span class="boxscore-prop-side">${esc(lean)}</span>` : ''}
+    </div>
+  `;
+}
+
 function buildActualLineScoreRows(periods, actualAway, actualHome) {
   const byQuarter = { 1: {}, 2: {}, 3: {}, 4: {} };
   for (const row of (Array.isArray(periods) ? periods : [])) {
@@ -752,11 +784,11 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
         <td class="num">${fmtActualBoxscoreStat('threes', actual && actual.threes)}</td>
         <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
         <td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
-        <td class="num">${fmtSimBoxscoreStat('pts', sim.pts)}</td>
-        <td class="num">${fmtSimBoxscoreStat('reb', sim.reb)}</td>
-        <td class="num">${fmtSimBoxscoreStat('ast', sim.ast)}</td>
-        <td class="num">${fmtSimBoxscoreStat('threes', sim.threes)}</td>
-        <td class="num">${fmtSimBoxscoreStat('pra', sim.pra)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'reb', sim.reb)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'ast', sim.ast)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'threes', sim.threes)}</td>
+        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pra', sim.pra)}</td>
       </tr>
     `;
   }).join('');
@@ -833,6 +865,7 @@ function renderMergedBoxscoreSection(meta, actualSource) {
   let note = 'Live and final columns appear here once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
   if (mode === 'live') note = `${label} columns refresh from ESPN summary data.`;
+  note += ' Sim stat cells show the prop line and O/U lean when available.';
 
   return `
     <div class="merged-boxscore-block">
