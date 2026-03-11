@@ -7250,6 +7250,81 @@ def _launch_refresh_oddsapi_props_detached(
         return False, str(exc)
 
 
+def _refresh_oddsapi_props_background_mode() -> str:
+    raw = str(os.environ.get("ODDSAPI_PROPS_BACKGROUND_MODE") or "auto").strip().lower()
+    if raw in {"thread", "process", "detached"}:
+        return "thread" if raw == "thread" else "process"
+    running_on_render = bool(os.getenv("RENDER") or os.getenv("RENDER_EXTERNAL_URL") or os.getenv("RENDER_SERVICE_ID"))
+    return "thread" if running_on_render else "process"
+
+
+def _launch_refresh_oddsapi_props_background(
+    *,
+    date_str: str,
+    regions: str,
+    bookmakers: str,
+    markets: str,
+    do_edges: bool,
+    do_export: bool,
+    do_push: bool,
+    log_file: Path,
+    started_at: str,
+) -> tuple[bool, str | None, str]:
+    mode = _refresh_oddsapi_props_background_mode()
+    if mode == "thread":
+        try:
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            with log_file.open("a", encoding="utf-8", errors="ignore") as out:
+                out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Launching threaded refresh-oddsapi-props worker\n")
+                out.flush()
+
+            def _job() -> None:
+                try:
+                    from nba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job
+
+                    run_refresh_oddsapi_props_job(
+                        date_str=date_str,
+                        regions=regions,
+                        bookmakers=bookmakers,
+                        markets=markets,
+                        do_edges=bool(do_edges),
+                        do_export=bool(do_export),
+                        do_push=bool(do_push),
+                        log_file=log_file,
+                        started_at=started_at or None,
+                    )
+                except Exception as exc:
+                    try:
+                        with log_file.open("a", encoding="utf-8", errors="ignore") as out:
+                            out.write(f"[{datetime.utcnow().isoformat(timespec='seconds')}] Threaded refresh worker failed: {type(exc).__name__}: {exc}\n")
+                            out.write(traceback.format_exc(limit=25) + "\n")
+                    except Exception:
+                        pass
+
+            thread = threading.Thread(
+                target=_job,
+                name=f"refresh-oddsapi-props-{date_str}",
+                daemon=True,
+            )
+            thread.start()
+            return True, None, mode
+        except Exception as exc:
+            return False, str(exc), mode
+
+    launched, launch_error = _launch_refresh_oddsapi_props_detached(
+        date_str=date_str,
+        regions=regions,
+        bookmakers=bookmakers,
+        markets=markets,
+        do_edges=bool(do_edges),
+        do_export=bool(do_export),
+        do_push=bool(do_push),
+        log_file=log_file,
+        started_at=started_at,
+    )
+    return launched, launch_error, mode
+
+
 def _active_player_logs_paths() -> list[Path]:
     return [
         DATA_PROCESSED_DIR / "player_logs.parquet",
@@ -28859,7 +28934,7 @@ def api_cron_refresh_oddsapi_props():
             except Exception:
                 pass
 
-            launched, launch_error = _launch_refresh_oddsapi_props_detached(
+            launched, launch_error, launch_mode = _launch_refresh_oddsapi_props_background(
                 date_str=d,
                 regions=regions,
                 bookmakers=bookmakers,
@@ -28913,6 +28988,7 @@ def api_cron_refresh_oddsapi_props():
                 "edges": bool(do_edges),
                 "export": bool(do_export),
                 "push": bool(do_push),
+                "launch_mode": launch_mode,
                 "started_at": queued_started_at,
                 "log_file": str(log_file),
                 "note": "Running in background to avoid request timeouts; check artifacts/logs later.",

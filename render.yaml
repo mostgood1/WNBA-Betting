@@ -68,6 +68,12 @@ services:
       # Persist data/raw + data/processed (OddsAPI/Bovada snapshots, props edges, recommendations)
       - key: NBA_BETTING_DATA_ROOT
         value: /opt/render/project/data
+      - key: ODDSAPI_PROPS_BACKGROUND_MODE
+        value: "thread"
+      - key: REFRESH_PREDICT_PROPS_USE_SMART_SIM
+        value: "0"
+      - key: REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER
+        value: "0"
       - key: RENDER_PRESTART_REFRESH
         value: "0"  # opt-in prestart refresh/export (can be memory-heavy on small plans)
       - key: RENDER_PUSH_ON_DEPLOY

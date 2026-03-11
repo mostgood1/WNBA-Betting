@@ -615,30 +615,16 @@ def _export_props_recommendations_direct(
     log_file: Path,
     heartbeat_cb: Callable[[], None],
 ) -> tuple[int, int, str | None]:
-    _append_log(log_file, f"Exporting props recommendations via CLI for {date_str}")
+    _append_log(log_file, f"Exporting props recommendations in-process for {date_str}")
     try:
-        env = _worker_env()
-        export_cmd = [
-            _resolve_python(),
-            "-m",
-            "nba_betting.cli",
-            "export-props-recommendations",
-            "--date",
-            date_str,
-        ]
-        rc = _run_to_file(
-            export_cmd,
-            log_file,
-            cwd=paths.root,
-            env=env,
-            timeout_s=_env_timeout_s("REFRESH_PROPS_EXPORT_TIMEOUT_S", 5 * 60),
-            heartbeat_cb=heartbeat_cb,
-            heartbeat_every_s=5.0,
+        rows = int(
+            _run_with_heartbeat(
+                lambda: _export_props_recommendations_cards(date_str, None)[0],
+                heartbeat_cb,
+                heartbeat_every_s=5.0,
+            )
         )
-        rows = int(_count_csv_rows_quick(paths.data_processed / f"props_recommendations_{date_str}.csv"))
-        if int(rc) != 0:
-            return int(rc), rows, f"export-props-recommendations failed with exit code {int(rc)}"
-        _append_log(log_file, f"Props recommendations CLI completed (rows={rows})")
+        _append_log(log_file, f"Props recommendations export completed (rows={rows})")
         return 0, rows, None
     except Exception as exc:
         _append_traceback(log_file, exc)
