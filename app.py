@@ -3334,6 +3334,8 @@ def _enforce_minimal_ui_allowlist():
             "/api/features",
             "/api/props/recommendations",
             "/api/props-recommendations",
+            "/api/props/movement-callouts",
+            "/api/props/pregame-movement",
             "/api/list/processed",
             "/api/processed/recon_games",
             "/api/processed/recon_quarters",
@@ -19855,6 +19857,295 @@ def api_debug_recommendations_status():
         },
         "env": env,
     })
+
+
+def _load_props_movement_callouts(
+    date_str: str,
+    *,
+    markets: set[str] | None = None,
+    min_ev_pct: float | None = None,
+    only_ev: bool = False,
+) -> list[dict[str, Any]]:
+    def _load_processed_csv(filename: str) -> pd.DataFrame:
+        path = DATA_PROCESSED_DIR / filename
+        df_local = _read_csv_if_exists(path)
+        if isinstance(df_local, pd.DataFrame) and not df_local.empty:
+            return df_local
+        try:
+            _maybe_fetch_remote_processed(path.name)
+        except Exception:
+            pass
+        df_local = _read_csv_if_exists(path)
+        if isinstance(df_local, pd.DataFrame) and not df_local.empty:
+            return df_local
+        return pd.DataFrame()
+
+    df = _load_processed_csv(f"props_movement_signals_{date_str}.csv")
+    if df.empty:
+        df = _load_processed_csv(f"props_edges_{date_str}.csv")
+    if df.empty:
+        return []
+
+    df = df.copy()
+    if "player_name" not in df.columns and "player" in df.columns:
+        df["player_name"] = df["player"]
+    if "player" not in df.columns and "player_name" in df.columns:
+        df["player"] = df["player_name"]
+    if "stat" not in df.columns and "market" in df.columns:
+        df["stat"] = df["market"]
+    if "team_tricode" not in df.columns:
+        if "team" in df.columns:
+            df["team_tricode"] = df["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper() or None))
+        else:
+            df["team_tricode"] = None
+
+    for col in ("ev", "ev_pct", "line", "price", "open_line", "open_price", "line_move", "implied_move", "player_id"):
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+    if "ev_pct" not in df.columns:
+        if "ev" in df.columns:
+            df["ev_pct"] = pd.to_numeric(df["ev"], errors="coerce") * 100.0
+        else:
+            df["ev_pct"] = np.nan
+
+    line_move_abs = pd.to_numeric(df.get("line_move", pd.Series(np.nan, index=df.index)), errors="coerce").abs()
+    implied_move_abs = pd.to_numeric(df.get("implied_move", pd.Series(np.nan, index=df.index)), errors="coerce").abs()
+    signal_mask = pd.Series(False, index=df.index, dtype=bool)
+    if "movement_significant" in df.columns:
+        try:
+            signal_mask = df["movement_significant"].fillna(False).astype(bool)
+        except Exception:
+            signal_mask = pd.Series(False, index=df.index, dtype=bool)
+    signal_mask = signal_mask | (line_move_abs >= 0.5) | (implied_move_abs >= 0.02)
+    df = df.loc[signal_mask].copy()
+    if df.empty:
+        return []
+
+    if markets:
+        try:
+            df = df[df["stat"].astype(str).str.strip().str.lower().isin({m.strip().lower() for m in markets if m})]
+        except Exception:
+            pass
+    if df.empty:
+        return []
+
+    if only_ev:
+        df = df[pd.to_numeric(df.get("ev_pct"), errors="coerce").notna()]
+    if min_ev_pct is not None and min_ev_pct > 0:
+        df = df[pd.to_numeric(df.get("ev_pct"), errors="coerce").fillna(-1e9) >= float(min_ev_pct)]
+    if df.empty:
+        return []
+
+    matchup_by_team: dict[str, dict[str, str]] = {}
+    games_df = _load_processed_csv(f"predictions_{date_str}.csv")
+    if isinstance(games_df, pd.DataFrame) and not games_df.empty:
+        try:
+            for _, rr in games_df.iterrows():
+                home_team = str(rr.get("home_team") or "").strip()
+                away_team = str(rr.get("visitor_team") or "").strip()
+                if not home_team or not away_team:
+                    continue
+                home_tri = (_get_tricode(home_team) or home_team.strip().upper())
+                away_tri = (_get_tricode(away_team) or away_team.strip().upper())
+                ctx = {
+                    "home_team": home_team,
+                    "away_team": away_team,
+                    "home_tricode": home_tri,
+                    "away_tricode": away_tri,
+                }
+                for key in {home_team.strip().upper(), away_team.strip().upper(), home_tri.strip().upper(), away_tri.strip().upper()}:
+                    if key:
+                        matchup_by_team[key] = ctx
+            
+        except Exception:
+            matchup_by_team = {}
+
+    model_lookup: dict[tuple[str, str], dict[str, Any]] = {}
+    pp = _load_processed_csv(f"props_predictions_{date_str}.csv")
+    if isinstance(pp, pd.DataFrame) and not pp.empty and {"player_name", "team"}.issubset(set(pp.columns)):
+        try:
+            pp = pp.copy()
+            pp["player_name"] = pp["player_name"].astype(str).str.strip()
+            pp["_player_key"] = pp["player_name"].map(_norm_player_name)
+            pp["_team_tri"] = pp["team"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+            if "player_id" in pp.columns:
+                pp["player_id"] = pd.to_numeric(pp["player_id"], errors="coerce")
+            for (player_key, team_tri), grp in pp.groupby(["_player_key", "_team_tri"], dropna=False):
+                if not player_key or not team_tri:
+                    continue
+                model: dict[str, float] = {}
+                for mean_col, pred_col, stat_key in [
+                    ("mean_pts", "pred_pts", "pts"),
+                    ("mean_reb", "pred_reb", "reb"),
+                    ("mean_ast", "pred_ast", "ast"),
+                    ("mean_threes", "pred_threes", "threes"),
+                    ("mean_pra", "pred_pra", "pra"),
+                ]:
+                    col = mean_col if mean_col in grp.columns else pred_col
+                    if col not in grp.columns:
+                        continue
+                    try:
+                        vals = pd.to_numeric(grp[col], errors="coerce").dropna()
+                        if not vals.empty:
+                            model[stat_key] = float(vals.iloc[0])
+                    except Exception:
+                        continue
+                player_id = None
+                if "player_id" in grp.columns:
+                    try:
+                        vals = pd.to_numeric(grp["player_id"], errors="coerce").dropna()
+                        if not vals.empty:
+                            player_id = int(vals.iloc[0])
+                    except Exception:
+                        player_id = None
+                model_lookup[(str(player_key), str(team_tri).strip().upper())] = {
+                    "model": model,
+                    "player_id": player_id,
+                }
+        except Exception:
+            model_lookup = {}
+
+    df["_player_name"] = df["player_name"].astype(str).str.strip()
+    df["_player_key"] = df["_player_name"].map(_norm_player_name)
+    df["_team_tri"] = df["team_tricode"].astype(str).map(lambda x: (_get_tricode(x) or str(x).strip().upper()))
+    df["_stat"] = df["stat"].astype(str).str.strip().str.lower()
+    df["_tier_rank"] = df.get("movement_tier", pd.Series("", index=df.index)).astype(str).str.strip().str.lower().map(lambda x: 2 if x == "fast" else (1 if x == "significant" else 0))
+    df["_ev_pct_sort"] = pd.to_numeric(df.get("ev_pct"), errors="coerce").fillna(-1e9)
+    df["_abs_line_move"] = line_move_abs.fillna(0.0)
+    df["_abs_implied_move"] = implied_move_abs.fillna(0.0)
+    df = df[
+        df["_player_key"].ne("")
+        & df["_team_tri"].ne("")
+        & df["_stat"].ne("")
+    ].copy()
+    if df.empty:
+        return []
+
+    df = df.sort_values(
+        ["_tier_rank", "_ev_pct_sort", "_abs_line_move", "_abs_implied_move"],
+        ascending=[False, False, False, False],
+        na_position="last",
+    )
+    df = df.drop_duplicates(subset=["_player_key", "_team_tri"], keep="first")
+
+    out: list[dict[str, Any]] = []
+    for _, rr in df.iterrows():
+        try:
+            player = str(rr.get("_player_name") or "").strip()
+            team_tri = str(rr.get("_team_tri") or "").strip().upper()
+            stat_key = str(rr.get("_stat") or "").strip().lower()
+            if not player or not team_tri or not stat_key:
+                continue
+
+            team_name = str(rr.get("team") or team_tri).strip()
+            home_team = str(rr.get("home_team") or "").strip() or None
+            away_team = str(rr.get("away_team") or rr.get("visitor_team") or "").strip() or None
+            home_tricode = str(rr.get("home_tricode") or "").strip().upper() or None
+            away_tricode = str(rr.get("away_tricode") or "").strip().upper() or None
+
+            if not home_tricode or not away_tricode:
+                matchup = matchup_by_team.get(team_tri) or matchup_by_team.get(team_name.strip().upper())
+                if matchup:
+                    home_team = home_team or matchup.get("home_team")
+                    away_team = away_team or matchup.get("away_team")
+                    home_tricode = home_tricode or matchup.get("home_tricode")
+                    away_tricode = away_tricode or matchup.get("away_tricode")
+            if not home_tricode or not away_tricode:
+                continue
+
+            model_info = model_lookup.get((_norm_player_name(player), team_tri), {})
+            model_line = None
+            if isinstance(model_info, dict):
+                try:
+                    model_line = _safe_float((model_info.get("model") or {}).get(stat_key))
+                except Exception:
+                    model_line = None
+
+            player_id = None
+            try:
+                player_id = int(float(rr.get("player_id"))) if rr.get("player_id") is not None and not pd.isna(rr.get("player_id")) else None
+            except Exception:
+                player_id = None
+            if player_id is None and isinstance(model_info, dict):
+                try:
+                    mid = model_info.get("player_id")
+                    player_id = int(mid) if mid is not None else None
+                except Exception:
+                    player_id = None
+
+            photo = str(rr.get("photo") or "").strip() or None
+            if not photo and player_id is not None:
+                photo = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+
+            movement_tier = str(rr.get("movement_tier") or "").strip().lower()
+            tier = "HIGH" if movement_tier == "fast" else "MEDIUM"
+
+            out.append({
+                "player": player,
+                "photo": photo,
+                "team": team_name,
+                "team_tricode": team_tri,
+                "home_team": home_team,
+                "away_team": away_team,
+                "home_tricode": home_tricode,
+                "away_tricode": away_tricode,
+                "market": stat_key,
+                "side": str(rr.get("side") or "").strip().upper() or None,
+                "line": _safe_float(rr.get("line")),
+                "price": _safe_float(rr.get("price")),
+                "open_line": _safe_float(rr.get("open_line")),
+                "open_price": _safe_float(rr.get("open_price")),
+                "line_move": _safe_float(rr.get("line_move")),
+                "implied_move": _safe_float(rr.get("implied_move")),
+                "ev_pct": _safe_float(rr.get("ev_pct")),
+                "model_line": model_line,
+                "movement_tier": movement_tier or None,
+                "tier": tier,
+            })
+        except Exception:
+            continue
+    return out
+
+
+@app.route("/api/props/movement-callouts")
+@app.route("/api/props/pregame-movement")
+def api_props_movement_callouts():
+    d = _parse_date_param(request)
+    if not d:
+        return jsonify({"error": "missing date"}), 400
+
+    mkts_param = (request.args.get("markets") or request.args.get("mkts") or "").strip().lower()
+    market = (request.args.get("market") or "").strip().lower()
+    want_mkts: set[str] = set()
+    if mkts_param:
+        try:
+            want_mkts = {m.strip().lower() for m in mkts_param.split(",") if m.strip()}
+        except Exception:
+            want_mkts = set()
+    if market:
+        want_mkts.add(market)
+
+    try:
+        min_ev_raw = request.args.get("minEV", request.args.get("min_ev", "0"))
+        min_ev_pct = float(str(min_ev_raw or "0"))
+    except Exception:
+        min_ev_pct = 0.0
+    try:
+        only_ev = str(request.args.get("onlyEV", request.args.get("only_ev", "0")) or "0").strip().lower() in {"1", "true", "yes"}
+    except Exception:
+        only_ev = False
+
+    items = _load_props_movement_callouts(
+        d,
+        markets=want_mkts or None,
+        min_ev_pct=(min_ev_pct if min_ev_pct > 0 else None),
+        only_ev=only_ev,
+    )
+    return jsonify(_to_jsonable({
+        "date": d,
+        "rows": int(len(items)),
+        "data": items,
+    }))
 
 
 @app.route("/api/props/recommendations")

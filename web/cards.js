@@ -4505,13 +4505,11 @@ async function loadPregamePropCallouts(root, games, dateStr) {
   }
 
   try {
-    // Keep payload small: compact mode returns top_play per player.
-    const url = `/api/props/recommendations?date=${encodeURIComponent(ds)}`
-      + `&compact=1&use_snapshot=0`
+    const url = `/api/props/movement-callouts?date=${encodeURIComponent(ds)}`
       + `&onlyEV=1&minEV=1.0`
       + `&markets=pts,reb,ast,threes,stl,blk,tov,pra`;
 
-    const payload = await fetchJsonWithTimeout(url, 8000);
+    const payload = await fetchJsonWithTimeout(url, 12000);
     try {
       if (el.dataset.reqId !== reqId) return;
     } catch (_) {
@@ -4523,22 +4521,18 @@ async function loadPregamePropCallouts(root, games, dateStr) {
 
     for (const c of data) {
       if (!c || typeof c !== 'object') continue;
-      const tp = (c.top_play && typeof c.top_play === 'object') ? c.top_play : null;
-      if (!tp) continue;
-
       const home = String(c.home_tricode || '').toUpperCase().trim();
       const away = String(c.away_tricode || '').toUpperCase().trim();
       if (!home || !away) continue;
 
       const gid = gidByMatchup.get(`${home}|${away}`) || `${home}_${away}`;
 
-      const openLine = n(tp.open_line);
-      const curLine = n(tp.line);
-      if (openLine == null || curLine == null) continue;
-      let lineMove = n(tp.line_move);
+      const openLine = n(c.open_line);
+      const curLine = n(c.line);
+      let lineMove = n(c.line_move);
       if (lineMove == null) lineMove = curLine - openLine;
 
-      const impliedMove = n(tp.implied_move);
+      const impliedMove = n(c.implied_move);
       const absLine = (lineMove == null) ? 0 : Math.abs(lineMove);
       const absImp = (impliedMove == null) ? 0 : Math.abs(impliedMove);
       if (!(absLine >= 0.5 || absImp >= 0.02)) continue;
@@ -4551,20 +4545,20 @@ async function loadPregamePropCallouts(root, games, dateStr) {
         player: String(c.player || '').trim(),
         photo: String(c.photo || '').trim(),
         tier: c.tier,
-        stat: String(tp.market || '').toLowerCase().trim(),
-        side: String(tp.side || '').toUpperCase().trim(),
-        open_line: tp.open_line,
-        line: tp.line,
-        open_price: tp.open_price,
-        price: tp.price,
-        line_move: tp.line_move,
-        implied_move: tp.implied_move,
-        ev_pct: tp.ev_pct,
-        model_line: c.top_play_baseline,
-        books_count: c.top_play_books_count,
-        consensus: c.top_play_consensus,
-        line_adv: c.top_play_line_adv,
-        reasons: Array.isArray(c.top_play_reasons) ? c.top_play_reasons : [],
+        stat: String(c.market || c.stat || '').toLowerCase().trim(),
+        side: String(c.side || '').toUpperCase().trim(),
+        open_line: c.open_line,
+        line: c.line,
+        open_price: c.open_price,
+        price: c.price,
+        line_move: c.line_move,
+        implied_move: c.implied_move,
+        ev_pct: c.ev_pct,
+        model_line: c.model_line,
+        books_count: c.books_count,
+        consensus: c.consensus,
+        line_adv: c.line_adv,
+        reasons: Array.isArray(c.reasons) ? c.reasons : [],
       });
     }
 
@@ -4612,8 +4606,8 @@ async function loadPregamePropCallouts(root, games, dateStr) {
       // ignore
     }
     try {
-      el.innerHTML = '';
-      el.classList.add('hidden');
+      el.innerHTML = '<div class="subtle" style="margin-top:8px;">Pregame movement callouts are unavailable right now.</div>';
+      el.classList.remove('hidden');
       try { applyPregamePropFilters(root); } catch (_) { /* ignore */ }
     } catch (_) {
       // ignore
