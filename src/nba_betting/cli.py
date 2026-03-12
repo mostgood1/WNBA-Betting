@@ -6457,6 +6457,23 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
     """Predict game outcomes using NPU-accelerated models for ultra-fast inference."""
     console.rule("Predict Games (NPU)")
     try:
+        def _slate_from_frame(frame: pd.DataFrame | None, home_candidates: tuple[str, ...], away_candidates: tuple[str, ...]) -> pd.DataFrame | None:
+            if frame is None or frame.empty:
+                return None
+            home_col = next((col for col in home_candidates if col in frame.columns), None)
+            away_col = next((col for col in away_candidates if col in frame.columns), None)
+            if not home_col or not away_col:
+                return None
+            return pd.DataFrame(
+                {
+                    "date": pd.to_datetime(date_str),
+                    "home_team": frame[home_col].astype(str),
+                    "visitor_team": frame[away_col].astype(str),
+                    "home_pts": np.nan,
+                    "visitor_pts": np.nan,
+                }
+            )
+
         # Load features for the date (prefer parquet; fallback to CSV to avoid parquet engine dependency)
         features_path = paths.data_processed / "features.parquet"
         csv_fallback = paths.data_processed / "features.csv"
@@ -6487,68 +6504,84 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
         if features_df.empty:
             # Fallbacks to build enhanced slate features even without parquet engine or prewritten odds:
             # 1) If standardized game odds CSV exists, use it to derive slate
-            # 2) Else, fall back to processed season schedule to derive slate (no market lines, but teams/pairs)
+            # 2) Else, try odds events CSV aliases (clean CI may have events without consensus lines)
+            # 3) Else, fall back to processed season schedule to derive slate (no market lines, but teams/pairs)
             try:
+                import json
+
                 odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
+                odds_events_path = paths.data_processed / f"odds_events_{date_str}.csv"
+                oddsapi_events_path = paths.data_processed / f"oddsapi_events_{date_str}.csv"
                 raw_games_csv = paths.data_raw / "games_nba_api.csv"
                 raw_games_parq = paths.data_raw / "games_nba_api.parquet"
                 slate_df = None
 
                 if odds_path.exists():
-                    slate = pd.read_csv(odds_path)
-                    # normalize team columns
-                    home_col = "home_team" if "home_team" in slate.columns else ("home" if "home" in slate.columns else None)
-                    away_col = "visitor_team" if "visitor_team" in slate.columns else ("away" if "away" in slate.columns else None)
-                    if home_col and away_col:
-                        slate_df = pd.DataFrame({
-                            "date": pd.to_datetime(date_str),
-                            "home_team": slate[home_col].astype(str),
-                            "visitor_team": slate[away_col].astype(str),
-                            "home_pts": np.nan,
-                            "visitor_pts": np.nan,
-                        })
+                    slate_df = _slate_from_frame(
+                        pd.read_csv(odds_path),
+                        ("home_team", "home"),
+                        ("visitor_team", "away", "away_team"),
+                    )
+
+                if slate_df is None and odds_events_path.exists():
+                    slate_df = _slate_from_frame(
+                        pd.read_csv(odds_events_path),
+                        ("home_team", "home"),
+                        ("away_team", "visitor_team", "away"),
+                    )
+
+                if slate_df is None and oddsapi_events_path.exists():
+                    slate_df = _slate_from_frame(
+                        pd.read_csv(oddsapi_events_path),
+                        ("home_team", "home"),
+                        ("away_team", "visitor_team", "away"),
+                    )
 
                 # Fallback to schedule if odds are unavailable
                 if slate_df is None:
                     try:
-                        # Infer schedule filename for current season (e.g., schedule_2025_26.csv)
                         d = pd.to_datetime(date_str)
-                        season_end = d.year if d.month >= 7 else d.year  # 2025-26 season still ends in 2026 but filename includes 2025_26
-                        season_str = f"{season_end}_26" if str(season_end).endswith("25") else "2025_26"  # conservative default
-                        sched_path = paths.data_processed / f"schedule_{season_str}.csv"
-                        if not sched_path.exists():
-                            # Try known current schedule file if present
-                            sched_path = paths.data_processed / "schedule_2025_26.csv"
-                        if sched_path.exists():
+                        season_start = d.year if d.month >= 7 else d.year - 1
+                        season_token = f"{season_start}_{str(season_start + 1)[-2:]}"
+                        schedule_candidates = [
+                            paths.data_processed / f"schedule_{season_token}.csv",
+                            paths.data_processed / f"schedule_{season_token}.json",
+                            paths.data_processed / "schedule_2025_26.csv",
+                            paths.data_processed / "schedule_2025_26.json",
+                        ]
+                        sched_path = next((path for path in schedule_candidates if path.exists()), None)
+                        td = pd.to_datetime(date_str).date()
+                        if sched_path is not None and sched_path.suffix.lower() == ".csv":
                             sch = pd.read_csv(sched_path)
-                            # Normalize columns
                             cols = {c.lower(): c for c in sch.columns}
-                            if all(k in cols for k in ["date_utc","home_tricode","away_tricode"]) or all(k in cols for k in ["date_utc","home_team_id","away_team_id"]):
-                                sch[cols.get("date_utc")] = pd.to_datetime(sch[cols.get("date_utc")], errors="coerce").dt.date
-                                td = pd.to_datetime(date_str).date()
-                                day = sch[sch[cols.get("date_utc")] == td].copy()
+                            date_col = cols.get("date_utc") or cols.get("date_est") or cols.get("date")
+                            if date_col:
+                                sch[date_col] = pd.to_datetime(sch[date_col], errors="coerce").dt.date
+                                day = sch[sch[date_col] == td].copy()
                                 if not day.empty:
-                                    # Prefer tricodes if available; otherwise attempt to map IDs later via normalization
-                                    if "home_tricode" in (c.lower() for c in sch.columns) and "away_tricode" in (c.lower() for c in sch.columns):
-                                        # Build from tricodes
-                                        hc = cols.get("home_tricode"); ac = cols.get("away_tricode")
-                                        slate_df = pd.DataFrame({
-                                            "date": pd.to_datetime(date_str),
-                                            "home_team": day[hc].astype(str),
-                                            "visitor_team": day[ac].astype(str),
-                                            "home_pts": np.nan,
-                                            "visitor_pts": np.nan,
-                                        })
-                                    elif all(k in cols for k in ["home_team_id","away_team_id"]):
-                                        # If only IDs present, we will later rely on normalization utilities
-                                        hc = cols.get("home_team_id"); ac = cols.get("away_team_id")
-                                        slate_df = pd.DataFrame({
-                                            "date": pd.to_datetime(date_str),
-                                            "home_team": day[hc].astype(str),
-                                            "visitor_team": day[ac].astype(str),
-                                            "home_pts": np.nan,
-                                            "visitor_pts": np.nan,
-                                        })
+                                    slate_df = _slate_from_frame(day, ("home_tricode", "home_team_id", "home_team"), ("away_tricode", "away_team_id", "visitor_team", "away_team"))
+                        elif sched_path is not None and sched_path.suffix.lower() == ".json":
+                            with sched_path.open("r", encoding="utf-8") as handle:
+                                raw_sched = json.load(handle)
+                            if isinstance(raw_sched, list) and raw_sched:
+                                day_rows: list[dict[str, object]] = []
+                                for row in raw_sched:
+                                    if not isinstance(row, dict):
+                                        continue
+                                    raw_date = row.get("date_utc") or row.get("date_est") or row.get("date")
+                                    try:
+                                        row_date = pd.to_datetime(raw_date, errors="coerce")
+                                    except Exception:
+                                        row_date = pd.NaT
+                                    if pd.isna(row_date) or row_date.date() != td:
+                                        continue
+                                    day_rows.append(row)
+                                if day_rows:
+                                    slate_df = _slate_from_frame(
+                                        pd.DataFrame(day_rows),
+                                        ("home_tricode", "home_team_id", "home_team"),
+                                        ("away_tricode", "away_team_id", "visitor_team", "away_team"),
+                                    )
                     except Exception:
                         pass
 

@@ -25,6 +25,91 @@ def test_predict_props_exits_nonzero_when_feature_build_fails(monkeypatch):
     assert "Failed to build features" in result.output
 
 
+def test_predict_games_npu_uses_odds_events_fallback(tmp_path, monkeypatch):
+    date_str = "2026-03-12"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    raw = data_root / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "date": "2026-03-11",
+                "home_team": "Boston Celtics",
+                "visitor_team": "Los Angeles Lakers",
+                "feature_stub": 1.0,
+            }
+        ]
+    ).to_csv(processed / "features.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Detroit Pistons",
+                "away_team": "Philadelphia 76ers",
+                "commence_time": "2026-03-12T23:10:00Z",
+            }
+        ]
+    ).to_csv(processed / f"odds_events_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "date": "2026-03-11",
+                "home_team": "Boston Celtics",
+                "visitor_team": "Los Angeles Lakers",
+                "home_pts": 110,
+                "visitor_pts": 108,
+            }
+        ]
+    ).to_csv(raw / "games_nba_api.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    import nba_betting.features_enhanced as features_enhanced_module
+    import nba_betting.games_npu as games_npu_module
+
+    def _fake_build_features(games, include_advanced_stats=True, include_injuries=True, season=2025):
+        assert ((games["home_team"] == "Detroit Pistons") & (games["visitor_team"] == "Philadelphia 76ers")).any()
+        return pd.DataFrame(
+            [
+                {
+                    "date": date_str,
+                    "home_team": "Detroit Pistons",
+                    "visitor_team": "Philadelphia 76ers",
+                    "feature_stub": 1.0,
+                }
+            ]
+        )
+
+    def _fake_predict_games_npu(features_df, include_periods=True, calibrate_periods=True):
+        assert not features_df.empty
+        return pd.DataFrame(
+            [
+                {
+                    "date": date_str,
+                    "home_team": "Detroit Pistons",
+                    "visitor_team": "Philadelphia 76ers",
+                    "win_prob": 0.61,
+                }
+            ]
+        )
+
+    monkeypatch.setattr(features_enhanced_module, "build_features_enhanced", _fake_build_features)
+    monkeypatch.setattr(games_npu_module, "predict_games_npu", _fake_predict_games_npu)
+    monkeypatch.setattr(cli_module, "_ensure_game_models_available", lambda: None)
+
+    runner = CliRunner()
+    result = runner.invoke(cli_module.cli, ["predict-games-npu", "--date", date_str])
+
+    assert result.exit_code == 0
+    assert (processed / f"games_predictions_npu_{date_str}.csv").exists()
+
+
 def test_props_edges_file_only_exits_nonzero_when_no_edges(monkeypatch):
     def _empty_edges(**_kwargs):
         return pd.DataFrame()

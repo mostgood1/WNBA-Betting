@@ -270,7 +270,16 @@ if ($IsCiRun) {
   if ($null -eq $env:DAILY_REQUIRE_PROPS_LINES -or $env:DAILY_REQUIRE_PROPS_LINES -eq '') {
     $env:DAILY_REQUIRE_PROPS_LINES = '0'
   }
-  Write-Log ("CI runtime profile: skip_historical_maintenance={0}, smartsim_n_sims={1}, require_props_lines={2}" -f $env:DAILY_SKIP_HISTORICAL_MAINTENANCE, $env:DAILY_SMARTSIM_NSIMS, $env:DAILY_REQUIRE_PROPS_LINES)
+  if ($null -eq $env:DAILY_SKIP_PLAYER_AUDITS -or $env:DAILY_SKIP_PLAYER_AUDITS -eq '') {
+    $env:DAILY_SKIP_PLAYER_AUDITS = '1'
+  }
+  if ($null -eq $env:DAILY_SKIP_ROSTER_AUDIT -or $env:DAILY_SKIP_ROSTER_AUDIT -eq '') {
+    $env:DAILY_SKIP_ROSTER_AUDIT = '1'
+  }
+  if ($null -eq $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT -or $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT -eq '') {
+    $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT = '1'
+  }
+  Write-Log ("CI runtime profile: skip_historical_maintenance={0}, smartsim_n_sims={1}, require_props_lines={2}, skip_player_audits={3}, skip_roster_audit={4}, skip_yesterday_roster_audit={5}" -f $env:DAILY_SKIP_HISTORICAL_MAINTENANCE, $env:DAILY_SMARTSIM_NSIMS, $env:DAILY_REQUIRE_PROPS_LINES, $env:DAILY_SKIP_PLAYER_AUDITS, $env:DAILY_SKIP_ROSTER_AUDIT, $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT)
 }
 
 # Schedule gating: on no-game days, continue but anchor reconciliation to the last slate date.
@@ -367,9 +376,23 @@ function Invoke-PyMod {
   Write-Log ("Run: {0}" -f ($cmd -join ' '))
   # Capture both stdout and stderr, but don't fail on stderr output
   $ErrorActionPreference = 'Continue'
-  & $Python @plist 2>&1 | Write-StreamToLogAndHost
-  $exitCode = $LASTEXITCODE
-  $ErrorActionPreference = 'Stop'
+  $nativePrefSupported = $false
+  $nativePrefPrevious = $null
+  try {
+    $nativePrefVar = Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue
+    if ($null -ne $nativePrefVar) {
+      $nativePrefSupported = $true
+      $nativePrefPrevious = [bool]$nativePrefVar.Value
+      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $false
+    }
+    & $Python @plist 2>&1 | Write-StreamToLogAndHost
+    $exitCode = $LASTEXITCODE
+  } finally {
+    if ($nativePrefSupported) {
+      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $nativePrefPrevious
+    }
+    $ErrorActionPreference = 'Stop'
+  }
   return $exitCode
 }
 

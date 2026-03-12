@@ -90,6 +90,9 @@ jobs:
           DAILY_SKIP_HISTORICAL_MAINTENANCE: "1"
           DAILY_SMARTSIM_NSIMS: "500"
           DAILY_REQUIRE_PROPS_LINES: "0"
+          DAILY_SKIP_PLAYER_AUDITS: "1"
+          DAILY_SKIP_ROSTER_AUDIT: "1"
+          DAILY_SKIP_YESTERDAY_ROSTER_AUDIT: "1"
         run: |
           $date = "${{ steps.decide.outputs.date }}"
           if (-not $date) { throw "Missing computed date" }
