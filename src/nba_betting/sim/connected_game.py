@@ -3,13 +3,12 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
-import unicodedata
-
 import numpy as np
 import pandas as pd
 
 from .quarters import QuarterResult, sample_quarter_scores
 from ..config import paths
+from ..player_names import normalize_player_name_key
 
 
 def _read_processed_any(parquet_path, csv_path) -> pd.DataFrame:
@@ -629,37 +628,7 @@ def _norm_name(x: Any) -> str:
 
 
 def _norm_player_key(x: Any) -> str:
-    """Normalize player name for matching across data sources.
-
-    Must be stable across:
-      - roster lists (often already normalized)
-      - props_df player_name (can contain punctuation/suffixes)
-      - minutes priors keys (uppercased, punctuation stripped)
-    """
-    try:
-        t = str(x or "").strip()
-        if not t:
-            return ""
-        if "(" in t:
-            t = t.split("(", 1)[0]
-        t = t.replace("-", " ")
-        t = t.replace(".", "").replace("'", "").replace(",", " ")
-        t = " ".join(t.split())
-        u = t.upper()
-        for suf in (" JR", " SR", " II", " III", " IV"):
-            if u.endswith(suf):
-                u = u[: -len(suf)].strip()
-                break
-        try:
-            # Convert diacritics (e.g., Vučević -> Vucevic) instead of dropping letters.
-            u = unicodedata.normalize("NFKD", u)
-            u = "".join(ch for ch in u if not unicodedata.combining(ch))
-            u = u.encode("ascii", "ignore").decode("ascii")
-        except Exception:
-            pass
-        return " ".join(u.split())
-    except Exception:
-        return ""
+    return normalize_player_name_key(x, case="upper")
 
 
 def _cap_probs(p: np.ndarray, cap: float = 0.38) -> np.ndarray:

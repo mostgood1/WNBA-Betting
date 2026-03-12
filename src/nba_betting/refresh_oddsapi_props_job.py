@@ -18,6 +18,7 @@ from typing import Any, Callable, Optional
 import pandas as pd
 
 from .config import paths, reconcile_repo_data_to_active
+from .player_names import normalize_player_name_key
 from .teams import to_tricode
 
 
@@ -92,20 +93,7 @@ def _read_csv_safe(path: Optional[Path]) -> pd.DataFrame:
 
 
 def _norm_player_key(value: Any) -> str:
-    text = str(value or "").strip().lower()
-    if not text:
-        return ""
-    try:
-        text = unicodedata.normalize("NFKD", text)
-        text = text.encode("ascii", "ignore").decode("ascii")
-    except Exception:
-        pass
-    text = re.sub(r"[^a-z0-9\s]", " ", text)
-    text = re.sub(r"\s+", " ", text).strip()
-    if not text:
-        return ""
-    tokens = [tok for tok in text.split(" ") if tok not in {"jr", "sr", "ii", "iii", "iv", "v"}]
-    return " ".join(tokens).strip()
+    return normalize_player_name_key(value, case="lower")
 
 
 def _safe_int(value: Any) -> int | None:

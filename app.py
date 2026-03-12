@@ -3378,34 +3378,44 @@ def _enforce_minimal_ui_allowlist():
 
 # --- Lightweight name normalizers to align across odds/preds/injuries ---
 def _norm_player_name(s: str) -> str:
-    if s is None:
-        return ""
-    t = str(s)
-    if "(" in t:
-        t = t.split("(", 1)[0]
-    # normalize punctuation/hyphens and quotes to align with edges matching
-    t = t.replace("-", " ")
-    t = t.replace(".", "").replace("'", "").replace(",", " ").strip()
-    for suf in [" JR", " SR", " II", " III", " IV"]:
-        if t.upper().endswith(suf):
-            t = t[: -len(suf)]
-    # Transliterates diacritics (e.g., Vučević -> Vucevic) instead of dropping letters.
     try:
-        import unicodedata as _ud
-        t = _ud.normalize("NFKD", t)
-        t = t.encode("ascii", "ignore").decode("ascii")
+        from nba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
+
+        return _normalize_player_name_key(s, case="upper")
     except Exception:
-        pass
-    return t.upper().strip()
+        if s is None:
+            return ""
+        t = str(s)
+        if "(" in t:
+            t = t.split("(", 1)[0]
+        t = t.replace("-", " ")
+        t = t.replace(".", "").replace("'", "").replace(",", " ").strip()
+        for suf in [" JR", " SR", " II", " III", " IV"]:
+            if t.upper().endswith(suf):
+                t = t[: -len(suf)]
+        try:
+            import unicodedata as _ud
+
+            t = _ud.normalize("NFKD", t)
+            t = t.encode("ascii", "ignore").decode("ascii")
+        except Exception:
+            pass
+        t = " ".join(t.upper().split())
+        return {"HERB JONES": "HERBERT JONES", "MOE WAGNER": "MORITZ WAGNER"}.get(t, t)
 
 def _short_player_key(s: str) -> str:
-    s2 = _norm_player_name(s)
-    parts = [p for p in s2.replace("-", " ").split() if p]
-    if not parts:
-        return s2
-    last = parts[-1]
-    first_initial = parts[0][0] if parts and parts[0] else ""
-    return f"{last}{first_initial}"
+    try:
+        from nba_betting.player_names import short_player_key as _shared_short_player_key  # type: ignore
+
+        return _shared_short_player_key(s, case="upper")
+    except Exception:
+        s2 = _norm_player_name(s)
+        parts = [p for p in s2.replace("-", " ").split() if p]
+        if not parts:
+            return s2
+        last = parts[-1]
+        first_initial = parts[0][0] if parts and parts[0] else ""
+        return f"{last}{first_initial}"
 
 def _injury_name_sets_for_date(date_str: str) -> tuple[set[str], set[str]]:
     """Return sets of name_key and short_key for players to exclude on a date.
@@ -16964,26 +16974,32 @@ def _recommendations_all():
                     if c not in tmp.columns:
                         tmp[c] = None
 
-                # Normalize player names to improve join robustness (accents/punctuation/spacing)
                 try:
-                    import unicodedata
+                    from nba_betting.player_names import normalize_player_name_key as _normalize_player_name_key  # type: ignore
 
                     def _norm_player_name(v: object) -> str:
-                        s = str(v or "").strip().lower()
-                        if not s:
-                            return ""
-                        try:
-                            s = unicodedata.normalize("NFKD", s)
-                            s = "".join(ch for ch in s if not unicodedata.combining(ch))
-                        except Exception:
-                            pass
-                        # collapse whitespace
-                        s = " ".join(s.split())
-                        return s
+                        return _normalize_player_name_key(v, case="lower")
                 except Exception:
 
                     def _norm_player_name(v: object) -> str:
-                        return " ".join(str(v or "").strip().lower().split())
+                        s = str(v or "").strip()
+                        if not s:
+                            return ""
+                        if "(" in s:
+                            s = s.split("(", 1)[0]
+                        s = s.replace("-", " ")
+                        s = s.replace(".", "").replace("'", "").replace(",", " ")
+                        try:
+                            import unicodedata
+
+                            s = unicodedata.normalize("NFKD", s)
+                            s = "".join(ch for ch in s if not unicodedata.combining(ch))
+                            s = s.encode("ascii", "ignore").decode("ascii")
+                        except Exception:
+                            pass
+                        s = " ".join(s.upper().split())
+                        s = {"HERB JONES": "HERBERT JONES", "MOE WAGNER": "MORITZ WAGNER"}.get(s, s)
+                        return s.lower()
 
                 # Build stat mapping per player/team
                 def _stat_map(row):

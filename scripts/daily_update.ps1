@@ -1874,7 +1874,18 @@ pdf = pd.read_csv(preds_path)
 before = len(pdf)
 name_keys = set(); short_keys = set()
 ban_pairs = set(); ban_short_pairs = set(); ban_names = set(); ban_short_names = set()
+try:
+  from nba_betting.player_names import normalize_player_name_key as _shared_normalize_player_name_key
+  from nba_betting.player_names import short_player_key as _shared_short_player_key
+except Exception:
+  _shared_normalize_player_name_key = None
+  _shared_short_player_key = None
 def _norm_player_name(s: str) -> str:
+  if _shared_normalize_player_name_key is not None:
+    try:
+      return str(_shared_normalize_player_name_key(s, case="upper") or "")
+    except Exception:
+      pass
   if s is None: return ""
   t = str(s)
   if "(" in t:
@@ -1888,8 +1899,14 @@ def _norm_player_name(s: str) -> str:
     t = ud.normalize("NFKD", t)
     t = t.encode("ascii","ignore").decode("ascii")
   except Exception: pass
-  return t.upper().strip()
+  t = " ".join(t.upper().split())
+  return {"HERB JONES": "HERBERT JONES", "MOE WAGNER": "MORITZ WAGNER"}.get(t, t)
 def _short_player_key(s: str) -> str:
+  if _shared_short_player_key is not None:
+    try:
+      return str(_shared_short_player_key(s, case="upper") or "")
+    except Exception:
+      pass
   s2 = _norm_player_name(s)
   parts = [p for p in s2.replace("-"," ").split() if p]
   if not parts: return s2
