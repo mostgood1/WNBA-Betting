@@ -46,3 +46,16 @@ def test_props_edges_file_only_exits_nonzero_when_no_edges(monkeypatch):
 
     assert result.exit_code != 0
     assert "No edges computed for 2026-03-12" in result.output
+
+
+def test_fetch_player_logs_exits_nonzero_when_no_logs(monkeypatch):
+    def _empty_logs(_seasons):
+        return pd.DataFrame()
+
+    monkeypatch.setattr(cli_module, "fetch_player_logs", _empty_logs)
+
+    runner = CliRunner()
+    result = runner.invoke(cli_module.cli, ["fetch-player-logs", "--seasons", "2025-26"])
+
+    assert result.exit_code != 0
+    assert "No player logs returned." in result.output

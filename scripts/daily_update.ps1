@@ -691,6 +691,7 @@ try {
     throw "season string unavailable for player logs"
   }
   $plCsv = Join-Path $RepoRoot 'data/processed/player_logs.csv'
+  $plParquet = Join-Path $RepoRoot 'data/processed/player_logs.parquet'
   $maxAgeH = $env:DAILY_PLAYER_LOGS_MAX_AGE_HOURS
   if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '12' }
   try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
@@ -700,6 +701,19 @@ try {
     Write-Log ("Fetching player logs for season {0}" -f $seasonStr)
     $rcLogs = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-player-logs','--seasons', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_player_logs'
     Write-Log ("fetch-player-logs exit code: {0}" -f $rcLogs)
+    $playerLogsReady = $false
+    if (Test-CsvHasDataRows -Path $plCsv) {
+      $playerLogsReady = $true
+    } elseif (Test-Path $plParquet) {
+      try {
+        $playerLogsReady = ((Get-Item $plParquet).Length -gt 0)
+      } catch {
+        $playerLogsReady = $false
+      }
+    }
+    if (-not $playerLogsReady) {
+      throw ("fetch-player-logs did not produce a usable player_logs artifact (exit={0})" -f $rcLogs)
+    }
   }
 } catch {
   Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)

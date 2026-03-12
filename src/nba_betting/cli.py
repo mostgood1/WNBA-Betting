@@ -2587,9 +2587,14 @@ def fetch_player_logs_cmd(seasons: str):
     """Fetch player game logs for the given seasons and save to processed folder."""
     console.rule("Fetch Player Logs")
     season_list = [s.strip() for s in seasons.split(',') if s.strip()]
-    df = fetch_player_logs(season_list)
+    try:
+        df = fetch_player_logs(season_list)
+    except Exception as e:
+        raise click.ClickException(f"Failed to fetch player logs: {e}") from e
     if df.empty:
-        console.print("No player logs returned.", style="yellow"); return
+        raise click.ClickException("No player logs returned.")
+    if df.attrs.get("source") == "boxscores_history":
+        console.print("Using boxscores history fallback for player logs.", style="yellow")
     console.print({"rows": int(len(df)), "players": int(df['PLAYER_ID'].nunique()), "games": int(df['GAME_ID'].nunique())})
 
 
