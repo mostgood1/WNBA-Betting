@@ -1,0 +1,74 @@
+{
+  "date": "2026-03-12",
+  "team_counts": {
+    "BKN": 1,
+    "DEN": 1,
+    "IND": 1,
+    "LAL": 1,
+    "MIL": 1,
+    "OKC": 1,
+    "ORL": 1,
+    "PHI": 2,
+    "SAS": 1,
+    "WAS": 1
+  },
+  "players": [
+    {
+      "player": "Kelly Oubre Jr.",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaxson Hayes",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Black",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Cam Whitmore",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Adem Bona",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "DaRon Holmes II",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Branden Carlson",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
