@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import date as _date
+from datetime import timedelta
 import time
 from typing import Iterable, List
 
@@ -8,6 +10,7 @@ import pandas as pd
 from nba_api.stats.endpoints import leaguegamelog
 from nba_api.stats.library import http as nba_http
 
+from .boxscores import _boxscore_from_espn, _espn_scoreboard, _espn_to_tri
 from .config import paths
 
 
@@ -46,19 +49,7 @@ def _season_from_game_date(value: object) -> str:
     return f"{season_start}-{(season_start + 1) % 100:02d}"
 
 
-def _fallback_player_logs_from_boxscores_history() -> pd.DataFrame:
-    hist_parquet = paths.data_processed / "boxscores_history.parquet"
-    hist_csv = paths.data_processed / "boxscores_history.csv"
-    try:
-        if hist_parquet.exists():
-            hist = pd.read_parquet(hist_parquet)
-        elif hist_csv.exists():
-            hist = pd.read_csv(hist_csv)
-        else:
-            return pd.DataFrame()
-    except Exception:
-        return pd.DataFrame()
-
+def _player_logs_from_boxscores_frame(hist: pd.DataFrame) -> pd.DataFrame:
     if hist is None or hist.empty:
         return pd.DataFrame()
 
@@ -144,7 +135,92 @@ def _fallback_player_logs_from_boxscores_history() -> pd.DataFrame:
     fallback["PLAYER_ID"] = fallback["PLAYER_ID"].astype(int)
     fallback = fallback.drop_duplicates(subset=["GAME_ID", "PLAYER_ID"], keep="last")
     fallback = fallback.sort_values(["GAME_DATE", "GAME_ID", "PLAYER_ID"], kind="stable").reset_index(drop=True)
-    fallback.attrs["source"] = "boxscores_history"
+    return fallback
+
+
+def _fallback_player_logs_from_boxscores_history() -> pd.DataFrame:
+    hist_parquet = paths.data_processed / "boxscores_history.parquet"
+    hist_csv = paths.data_processed / "boxscores_history.csv"
+    try:
+        if hist_parquet.exists():
+            hist = pd.read_parquet(hist_parquet)
+        elif hist_csv.exists():
+            hist = pd.read_csv(hist_csv)
+        else:
+            return pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+    fallback = _player_logs_from_boxscores_frame(hist)
+    if not fallback.empty:
+        fallback.attrs["source"] = "boxscores_history"
+    return fallback
+
+
+def _current_season_str(today: _date | None = None) -> str:
+    ref = today or _date.today()
+    season_start = ref.year if ref.month >= 7 else (ref.year - 1)
+    return f"{season_start}-{(season_start + 1) % 100:02d}"
+
+
+def _fallback_player_logs_from_recent_espn_boxscores(
+    seasons: Iterable[str],
+    *,
+    lookback_days: int = 35,
+    rate_delay: float = 0.1,
+) -> pd.DataFrame:
+    requested = {str(season or "").strip() for season in seasons if str(season or "").strip()}
+    if not requested or _current_season_str() not in requested:
+        return pd.DataFrame()
+
+    end_date = _date.today() - timedelta(days=1)
+    start_date = end_date - timedelta(days=max(0, int(lookback_days) - 1))
+    frames: List[pd.DataFrame] = []
+    cur = start_date
+    while cur <= end_date:
+        date_str = cur.isoformat()
+        try:
+            scoreboard = _espn_scoreboard(date_str)
+        except Exception:
+            scoreboard = {}
+        events = scoreboard.get("events") if isinstance(scoreboard, dict) else None
+        if isinstance(events, list):
+            for event in events:
+                try:
+                    comps = (event or {}).get("competitions") or []
+                    if not comps:
+                        continue
+                    competitors = (comps[0] or {}).get("competitors") or []
+                    home = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "home"), None)
+                    away = next((team for team in competitors if str((team or {}).get("homeAway") or "").strip().lower() == "away"), None)
+                    if not home or not away:
+                        continue
+
+                    home_tri = _espn_to_tri(str((((home or {}).get("team") or {}).get("abbreviation")) or "").strip())
+                    away_tri = _espn_to_tri(str((((away or {}).get("team") or {}).get("abbreviation")) or "").strip())
+                    if not home_tri or not away_tri:
+                        continue
+
+                    event_id = str((event or {}).get("id") or "").strip()
+                    game_id = f"espn_{event_id}" if event_id else f"espn_{date_str}_{away_tri}_{home_tri}"
+                    df = _boxscore_from_espn(date_str=date_str, game_id=game_id, home_tri=home_tri, away_tri=away_tri)
+                    if df is None or df.empty:
+                        continue
+                    df = df.copy()
+                    df["date"] = date_str
+                    frames.append(df)
+                except Exception:
+                    continue
+                if rate_delay > 0:
+                    time.sleep(rate_delay)
+        cur += timedelta(days=1)
+
+    if not frames:
+        return pd.DataFrame()
+
+    fallback = _player_logs_from_boxscores_frame(pd.concat(frames, ignore_index=True))
+    if not fallback.empty:
+        fallback.attrs["source"] = "espn_recent_boxscores"
     return fallback
 
 
@@ -215,6 +291,10 @@ def fetch_player_logs(seasons: Iterable[str]) -> pd.DataFrame:
         return _write_player_logs(out)
 
     fallback = _fallback_player_logs_from_boxscores_history()
+    if fallback is not None and not fallback.empty:
+        return _write_player_logs(fallback)
+
+    fallback = _fallback_player_logs_from_recent_espn_boxscores(seasons)
     if fallback is not None and not fallback.empty:
         return _write_player_logs(fallback)
 

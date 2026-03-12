@@ -2595,6 +2595,8 @@ def fetch_player_logs_cmd(seasons: str):
         raise click.ClickException("No player logs returned.")
     if df.attrs.get("source") == "boxscores_history":
         console.print("Using boxscores history fallback for player logs.", style="yellow")
+    elif df.attrs.get("source") == "espn_recent_boxscores":
+        console.print("Using recent ESPN boxscore fallback for player logs.", style="yellow")
     console.print({"rows": int(len(df)), "players": int(df['PLAYER_ID'].nunique()), "games": int(df['GAME_ID'].nunique())})
 
 

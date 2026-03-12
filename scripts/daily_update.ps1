@@ -716,7 +716,8 @@ try {
     }
   }
 } catch {
-  Write-Log ("fetch-player-logs error (non-fatal): {0}" -f $_.Exception.Message)
+  Write-Log ("Player logs prerequisite failed: {0}" -f $_.Exception.Message)
+  throw
 }
 
 # 0.6) Trade-deadline hardening: fetch injuries + build league_status + validate expected dressed players
