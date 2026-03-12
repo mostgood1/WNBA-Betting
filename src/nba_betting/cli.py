@@ -4285,11 +4285,11 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                 feats = build_features_for_date(date_str)
             except Exception as e:
                 # Do not fall back to sklearn; fail fast in ONNX-only mode
-                console.print(f"Failed to build features in pure mode: {e}", style="red"); return
+                raise click.ClickException(f"Failed to build features in pure mode: {e}")
         else:
             feats = build_features_for_date(date_str)
     except Exception as e:
-        console.print(f"Failed to build features for {date_str}: {e}", style="red"); return
+        raise click.ClickException(f"Failed to build features for {date_str}: {e}")
     # League-wide team cleanup (before slate filter): fix feats['team'] using latest roster, overrides, NBA API fallback; also integrate league_status
     try:
         import re as _re
@@ -5074,7 +5074,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         preds = predict_props_pure_onnx(feats)
         console.print(f"Pure ONNX predictions generated for {len(preds)} players", style="green")
     except Exception as e:
-        console.print(f"Failed to run pure ONNX predictions: {e}", style="red"); return
+        raise click.ClickException(f"Failed to run pure ONNX predictions: {e}")
 
     # Preserve the base ONNX outputs in pred_* and use mean_* as the downstream-consumed
     # columns (optionally overwritten by SmartSim). This prevents feedback loops where
@@ -5740,6 +5740,9 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
             preds = preds.drop(columns=["_row_score"], errors="ignore")
     except Exception:
         pass
+
+    if preds is None or preds.empty:
+        raise click.ClickException(f"predict-props produced no rows for {date_str}")
 
     preds.to_csv(out_path, index=False)
     console.print(f"Saved props predictions to {out_path} (rows={len(preds)}; calibrated={calibrate})")
@@ -6645,7 +6648,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     try:
         pd.to_datetime(date_str)  # validate
     except Exception:
-        console.print("Invalid --date (YYYY-MM-DD)", style="red"); return
+        raise click.ClickException("Invalid --date (YYYY-MM-DD)")
     if not api_key:
         api_key = _load_dotenv_key("ODDS_API_KEY")
     sigma = SigmaConfig(pts=sigma_pts, reb=sigma_reb, ast=sigma_ast, threes=sigma_threes, pra=sigma_pra)
@@ -6675,6 +6678,8 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
     except Exception as e:
         raise click.ClickException(f"Failed to compute edges: {e}")
     if edges is None or edges.empty:
+        if file_only:
+            raise click.ClickException(f"No edges computed for {date_str} (missing odds or predictions).")
         console.print("No edges computed (missing odds or predictions).", style="yellow"); return
     # Optional slate filter
     if slate_only:

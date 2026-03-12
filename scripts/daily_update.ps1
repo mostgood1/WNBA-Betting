@@ -331,7 +331,7 @@ function Invoke-PyMod {
   Write-Log ("Run: {0}" -f ($cmd -join ' '))
   # Capture both stdout and stderr, but don't fail on stderr output
   $ErrorActionPreference = 'Continue'
-  & $Python @plist 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+  & $Python @plist 2>&1 | Tee-Object -FilePath $LogFile -Append
   $exitCode = $LASTEXITCODE
   $ErrorActionPreference = 'Stop'
   return $exitCode
@@ -439,8 +439,8 @@ function Invoke-PyModWithTimeout {
     }
     Write-Log ("TIMEOUT: killed process tree after {0}s (pid={1})" -f $TimeoutSeconds, $p.Id)
     try {
-      if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
-      if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+      if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Tee-Object -FilePath $LogFile -Append }
+      if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Tee-Object -FilePath $LogFile -Append }
     } catch {}
     try { Remove-Item -Force -ErrorAction SilentlyContinue $outStd, $outErr } catch {}
     return 124
@@ -450,8 +450,8 @@ function Invoke-PyModWithTimeout {
   try { $p.WaitForExit() } catch {}
 
   try {
-    if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
-    if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Out-File -FilePath $LogFile -Append -Encoding UTF8 }
+    if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Tee-Object -FilePath $LogFile -Append }
+    if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Tee-Object -FilePath $LogFile -Append }
   } catch {}
 
   $exitCode = 0
@@ -1822,6 +1822,13 @@ try {
 
 $rc3a = Invoke-PyMod -plist $ppArgs
 Write-Log ("props-predictions exit code: {0}" -f $rc3a)
+if ($rc3a -ne 0) {
+  throw "predict-props failed with exit code $rc3a"
+}
+$propsPredictionsPath = Join-Path $RepoRoot ("data/processed/props_predictions_{0}.csv" -f $Date)
+if (-not (Test-CsvHasDataRows -Path $propsPredictionsPath)) {
+  throw "predict-props completed without writing data rows to $propsPredictionsPath"
+}
 
 # 3.0) Export SmartSim player quarter + scenario distributions for today's slate (non-fatal)
 # Controlled by env DAILY_SKIP_SMARTSIM_PLAYER_SPLITS=1
@@ -2170,6 +2177,12 @@ try {
 # Also calibrate sigma from recent residuals when possible (improves probability realism).
 $rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only','--calibrate-prob','--calibrate-sigma')
 Write-Log ("props-edges (oddsapi, mode=current) exit code: {0}" -f $rc4a)
+if ($rc4a -ne 0) {
+  throw "props-edges failed with exit code $rc4a"
+}
+if ((Test-CsvHasDataRows -Path $propsPredictionsPath) -and (-not (Test-CsvHasDataRows -Path $edgesPath))) {
+  throw "props-edges completed without writing data rows to $edgesPath"
+}
 
 # 6) Export recommendations CSVs for site consumption
 # 6a) Game recommendations from predictions + odds
