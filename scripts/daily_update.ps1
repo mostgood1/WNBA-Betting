@@ -325,13 +325,25 @@ if ($GitSyncFirst) {
 }
 
 # Helper to run a python module and record exit codes
+function Write-StreamToLogAndHost {
+  param(
+    [Parameter(ValueFromPipeline = $true)]
+    [AllowNull()]
+    [object]$InputObject
+  )
+  process {
+    if ($null -eq $InputObject) { return }
+    $InputObject | Tee-Object -FilePath $LogFile -Append | Out-Host
+  }
+}
+
 function Invoke-PyMod {
   param([string[]]$plist)
   $cmd = @($Python) + $plist
   Write-Log ("Run: {0}" -f ($cmd -join ' '))
   # Capture both stdout and stderr, but don't fail on stderr output
   $ErrorActionPreference = 'Continue'
-  & $Python @plist 2>&1 | Tee-Object -FilePath $LogFile -Append
+  & $Python @plist 2>&1 | Write-StreamToLogAndHost
   $exitCode = $LASTEXITCODE
   $ErrorActionPreference = 'Stop'
   return $exitCode
@@ -439,8 +451,8 @@ function Invoke-PyModWithTimeout {
     }
     Write-Log ("TIMEOUT: killed process tree after {0}s (pid={1})" -f $TimeoutSeconds, $p.Id)
     try {
-      if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Tee-Object -FilePath $LogFile -Append }
-      if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Tee-Object -FilePath $LogFile -Append }
+      if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Write-StreamToLogAndHost }
+      if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Write-StreamToLogAndHost }
     } catch {}
     try { Remove-Item -Force -ErrorAction SilentlyContinue $outStd, $outErr } catch {}
     return 124
@@ -450,8 +462,8 @@ function Invoke-PyModWithTimeout {
   try { $p.WaitForExit() } catch {}
 
   try {
-    if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Tee-Object -FilePath $LogFile -Append }
-    if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Tee-Object -FilePath $LogFile -Append }
+    if (Test-Path $outStd) { Get-Content -Path $outStd -Raw | Write-StreamToLogAndHost }
+    if (Test-Path $outErr) { Get-Content -Path $outErr -Raw | Write-StreamToLogAndHost }
   } catch {}
 
   $exitCode = 0
