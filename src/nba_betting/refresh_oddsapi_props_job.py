@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -9,14 +10,34 @@ import sys
 import threading
 import time
 import traceback
+import unicodedata
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Callable, Optional
 
+import pandas as pd
+
 from .config import paths, reconcile_repo_data_to_active
+from .teams import to_tricode
 
 
 CRON_META_PATH = paths.data_processed / ".cron_meta.json"
+
+_MODELED_ODDSAPI_PLAYER_PROP_MARKETS = frozenset(
+    {
+        "player_points",
+        "player_rebounds",
+        "player_assists",
+        "player_points_rebounds_assists",
+        "player_threes",
+        "player_steals",
+        "player_blocks",
+        "player_turnovers",
+        "player_points_rebounds",
+        "player_points_assists",
+        "player_rebounds_assists",
+    }
+)
 
 
 def _utcnow_iso() -> str:
@@ -58,6 +79,263 @@ def _count_csv_rows_quick(path: Optional[Path]) -> int:
         return max(0, newline_count - 1)
     except Exception:
         return 0
+
+
+def _read_csv_safe(path: Optional[Path]) -> pd.DataFrame:
+    try:
+        if not path or not path.exists() or not path.is_file() or path.stat().st_size <= 0:
+            return pd.DataFrame()
+        df = pd.read_csv(path)
+        return df if isinstance(df, pd.DataFrame) else pd.DataFrame()
+    except Exception:
+        return pd.DataFrame()
+
+
+def _norm_player_key(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    if not text:
+        return ""
+    try:
+        text = unicodedata.normalize("NFKD", text)
+        text = text.encode("ascii", "ignore").decode("ascii")
+    except Exception:
+        pass
+    text = re.sub(r"[^a-z0-9\s]", " ", text)
+    text = re.sub(r"\s+", " ", text).strip()
+    if not text:
+        return ""
+    tokens = [tok for tok in text.split(" ") if tok not in {"jr", "sr", "ii", "iii", "iv", "v"}]
+    return " ".join(tokens).strip()
+
+
+def _safe_int(value: Any) -> int | None:
+    try:
+        parsed = pd.to_numeric(pd.Series([value]), errors="coerce").iloc[0]
+        if pd.isna(parsed):
+            return None
+        return int(parsed)
+    except Exception:
+        return None
+
+
+def _prediction_row_key(row: pd.Series, row_index: int) -> str:
+    player_id = _safe_int(row.get("player_id"))
+    if player_id is not None:
+        return f"pid:{player_id}"
+    team = to_tricode(str(row.get("team") or row.get("team_tri") or row.get("TEAM") or "")).strip().upper()
+    player_key = _norm_player_key(row.get("player_name") or row.get("PLAYER_NAME") or row.get("player"))
+    if team and player_key:
+        return f"team:{team}:{player_key}"
+    if player_key:
+        return f"name:{player_key}"
+    return f"row:{row_index}"
+
+
+def _merge_props_prediction_frames(preferred_df: pd.DataFrame, fallback_df: pd.DataFrame) -> tuple[pd.DataFrame, dict[str, int]]:
+    preferred = preferred_df.copy() if isinstance(preferred_df, pd.DataFrame) else pd.DataFrame()
+    fallback = fallback_df.copy() if isinstance(fallback_df, pd.DataFrame) else pd.DataFrame()
+    if preferred.empty and fallback.empty:
+        return pd.DataFrame(), {
+            "preferred_rows": 0,
+            "fallback_rows": 0,
+            "fallback_only_rows": 0,
+            "merged_rows": 0,
+        }
+
+    preferred_cols = list(preferred.columns)
+    fallback_cols = [col for col in fallback.columns if col not in preferred_cols]
+    ordered_cols = preferred_cols + fallback_cols
+
+    preferred = preferred.copy()
+    fallback = fallback.copy()
+    preferred["_merge_source"] = 0
+    fallback["_merge_source"] = 1
+
+    combined = pd.concat([preferred, fallback], ignore_index=True, sort=False)
+    combined["_merge_row_key"] = [
+        _prediction_row_key(combined.iloc[idx], idx) for idx in range(len(combined))
+    ]
+
+    preferred_keys = set(combined.loc[combined["_merge_source"] == 0, "_merge_row_key"].tolist())
+    fallback_only_rows = int(
+        len(
+            combined[
+                (combined["_merge_source"] == 1)
+                & (~combined["_merge_row_key"].isin(preferred_keys))
+            ]
+        )
+    )
+
+    merged = combined.drop_duplicates(subset=["_merge_row_key"], keep="first").copy()
+    merged = merged.drop(columns=["_merge_source", "_merge_row_key"], errors="ignore")
+    if ordered_cols:
+        merged = merged.reindex(columns=ordered_cols)
+
+    return merged, {
+        "preferred_rows": int(len(preferred_df)) if isinstance(preferred_df, pd.DataFrame) else 0,
+        "fallback_rows": int(len(fallback_df)) if isinstance(fallback_df, pd.DataFrame) else 0,
+        "fallback_only_rows": fallback_only_rows,
+        "merged_rows": int(len(merged)),
+    }
+
+
+def _extract_modeled_snapshot_participants(snapshot_df: pd.DataFrame) -> pd.DataFrame:
+    if snapshot_df is None or snapshot_df.empty:
+        return pd.DataFrame(columns=["home_tri", "away_tri", "player_name", "player_key"])
+
+    cols_lower = {str(col).lower(): col for col in snapshot_df.columns}
+    name_col = next((cols_lower.get(name) for name in ("player_name", "player", "name")), None)
+    home_col = next((cols_lower.get(name) for name in ("home_team", "home", "home_tri")), None)
+    away_col = next((cols_lower.get(name) for name in ("away_team", "away", "away_tri")), None)
+    market_col = next((cols_lower.get(name) for name in ("market", "market_key")), None)
+    if not name_col or not home_col or not away_col:
+        return pd.DataFrame(columns=["home_tri", "away_tri", "player_name", "player_key"])
+
+    participants = snapshot_df.copy()
+    if market_col:
+        participants = participants[
+            participants[market_col].astype(str).str.strip().str.lower().isin(_MODELED_ODDSAPI_PLAYER_PROP_MARKETS)
+        ].copy()
+
+    participants["player_name"] = participants[name_col].astype(str).str.strip()
+    participants["player_key"] = participants["player_name"].map(_norm_player_key)
+    participants["home_tri"] = participants[home_col].astype(str).map(lambda value: to_tricode(str(value or ""))).str.upper().str.strip()
+    participants["away_tri"] = participants[away_col].astype(str).map(lambda value: to_tricode(str(value or ""))).str.upper().str.strip()
+    participants = participants[
+        (participants["player_key"] != "")
+        & (participants["home_tri"] != "")
+        & (participants["away_tri"] != "")
+        & (participants["home_tri"] != participants["away_tri"])
+    ].copy()
+    participants = participants[["home_tri", "away_tri", "player_name", "player_key"]].drop_duplicates(
+        subset=["home_tri", "away_tri", "player_key"],
+        keep="first",
+    )
+    return participants.reset_index(drop=True)
+
+
+def _prediction_player_keys_for_matchup(predictions_df: pd.DataFrame, home_tri: str, away_tri: str) -> set[str]:
+    if predictions_df is None or predictions_df.empty or "player_name" not in predictions_df.columns:
+        return set()
+    team_col = "team" if "team" in predictions_df.columns else None
+    if not team_col:
+        return set()
+
+    teams = predictions_df[team_col].astype(str).map(lambda value: to_tricode(str(value or ""))).str.upper().str.strip()
+    mask = teams.isin({home_tri, away_tri})
+    if "opponent" in predictions_df.columns:
+        opponents = predictions_df["opponent"].astype(str).map(lambda value: to_tricode(str(value or ""))).str.upper().str.strip()
+        mask &= opponents.isin({home_tri, away_tri})
+    if not bool(mask.any()):
+        return set()
+    names = predictions_df.loc[mask, "player_name"].astype(str).map(_norm_player_key)
+    return {name for name in names.tolist() if name}
+
+
+def _load_smart_sim_player_keys_by_matchup(date_str: str) -> dict[tuple[str, str], set[str]]:
+    coverage: dict[tuple[str, str], set[str]] = {}
+    for path in sorted(paths.data_processed.glob(f"smart_sim_{date_str}_*.json")):
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            continue
+        if not isinstance(payload, dict):
+            continue
+        stem_parts = path.stem.split("_")
+        fallback_home = stem_parts[-2] if len(stem_parts) >= 5 else ""
+        fallback_away = stem_parts[-1] if len(stem_parts) >= 5 else ""
+        home_tri = to_tricode(str(payload.get("home") or fallback_home or "")).strip().upper()
+        away_tri = to_tricode(str(payload.get("away") or fallback_away or "")).strip().upper()
+        if not home_tri or not away_tri:
+            continue
+        players = payload.get("players") if isinstance(payload.get("players"), dict) else {}
+        matchup_key = (home_tri, away_tri)
+        names = coverage.setdefault(matchup_key, set())
+        for side in ("home", "away"):
+            rows = players.get(side) if isinstance(players, dict) else []
+            if not isinstance(rows, list):
+                continue
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
+                name_key = _norm_player_key(row.get("player_name") or row.get("name"))
+                if name_key:
+                    names.add(name_key)
+    return coverage
+
+
+def _collect_snapshot_coverage_gaps(
+    snapshot_df: pd.DataFrame,
+    predictions_df: pd.DataFrame,
+    smart_sim_players_by_matchup: dict[tuple[str, str], set[str]],
+) -> list[dict[str, Any]]:
+    participants = _extract_modeled_snapshot_participants(snapshot_df)
+    if participants.empty:
+        return []
+
+    prediction_cache: dict[tuple[str, str], set[str]] = {}
+    gaps: list[dict[str, Any]] = []
+    for row in participants.itertuples(index=False):
+        matchup = (str(row.home_tri), str(row.away_tri))
+        if matchup not in prediction_cache:
+            prediction_cache[matchup] = _prediction_player_keys_for_matchup(predictions_df, matchup[0], matchup[1])
+        pred_keys = prediction_cache.get(matchup, set())
+        sim_keys = smart_sim_players_by_matchup.get(matchup, set())
+        missing_prediction = row.player_key not in pred_keys
+        missing_sim = row.player_key not in sim_keys
+        if missing_prediction or missing_sim:
+            gaps.append(
+                {
+                    "home_tri": matchup[0],
+                    "away_tri": matchup[1],
+                    "player_name": str(row.player_name),
+                    "player_key": str(row.player_key),
+                    "missing_prediction": bool(missing_prediction),
+                    "missing_sim": bool(missing_sim),
+                }
+            )
+    return gaps
+
+
+def _smart_sim_output_path(date_str: str, home_tri: str, away_tri: str) -> Path:
+    return paths.data_processed / f"smart_sim_{date_str}_{home_tri}_{away_tri}.json"
+
+
+def _drop_smart_sim_outputs_for_matchups(date_str: str, matchups: set[tuple[str, str]], log_file: Path) -> int:
+    removed = 0
+    for home_tri, away_tri in sorted(matchups):
+        target = _smart_sim_output_path(date_str, home_tri, away_tri)
+        if not target.exists():
+            continue
+        try:
+            target.unlink()
+            removed += 1
+            _append_log(log_file, f"Removed stale SmartSim artifact to force re-sim: {target.name}")
+        except Exception as exc:
+            _append_log(log_file, f"Failed removing SmartSim artifact {target.name}: {exc}")
+    return removed
+
+
+def _write_merged_props_predictions(
+    pred_path: Path,
+    preferred_df: pd.DataFrame,
+    fallback_df: pd.DataFrame,
+    *,
+    fallback_label: str,
+    log_file: Path,
+) -> None:
+    if fallback_df is None or fallback_df.empty or preferred_df is None or preferred_df.empty:
+        return
+    merged_df, merge_stats = _merge_props_prediction_frames(preferred_df, fallback_df)
+    if merge_stats.get("fallback_only_rows", 0) <= 0 and int(len(merged_df)) == int(len(preferred_df)):
+        return
+    pred_path.parent.mkdir(parents=True, exist_ok=True)
+    merged_df.to_csv(pred_path, index=False)
+    _append_log(
+        log_file,
+        "Merged props predictions with "
+        f"{fallback_label} baseline (fallback_only_rows={merge_stats.get('fallback_only_rows', 0)}, merged_rows={merge_stats.get('merged_rows', 0)})",
+    )
 
 
 def _cron_meta_update(kind: str, payload: dict[str, Any]) -> None:
@@ -336,7 +614,7 @@ def _ensure_player_logs_for_props_refresh(
     return True, None
 
 
-def _predict_props_cli_args(*, date_str: str, out_path: Path) -> list[str]:
+def _predict_props_cli_args(*, date_str: str, out_path: Path, force_smart_sim: bool = False) -> list[str]:
     smart_sim_n_sims = max(1, _env_int("REFRESH_PREDICT_PROPS_SMART_SIM_N_SIMS", 150))
     smart_sim_workers = max(1, _env_int("REFRESH_PREDICT_PROPS_SMART_SIM_WORKERS", 1))
     calib_window = max(1, _env_int("REFRESH_PREDICT_PROPS_CALIB_WINDOW", 7))
@@ -372,7 +650,7 @@ def _predict_props_cli_args(*, date_str: str, out_path: Path) -> list[str]:
         )
     else:
         args.append("--no-calibrate-player")
-    if _env_bool("REFRESH_PREDICT_PROPS_USE_SMART_SIM", True):
+    if force_smart_sim or _env_bool("REFRESH_PREDICT_PROPS_USE_SMART_SIM", True):
         args.extend(
             [
                 "--use-smart-sim",
@@ -388,38 +666,14 @@ def _predict_props_cli_args(*, date_str: str, out_path: Path) -> list[str]:
     return args
 
 
-def _ensure_props_predictions_for_refresh(
+def _generate_props_predictions_for_refresh(
+    *,
     date_str: str,
+    pred_path: Path,
     log_file: Path,
     heartbeat_cb: Callable[[], None],
+    force_smart_sim: bool = False,
 ) -> tuple[Path | None, str | None]:
-    pred_path = paths.data_processed / f"props_predictions_{date_str}.csv"
-    try:
-        if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
-            _append_log(log_file, f"Using existing props predictions artifact: {pred_path}")
-            return pred_path, None
-    except Exception:
-        pass
-
-    try:
-        repo_pred_path = paths.repo_data_processed / pred_path.name
-        if repo_pred_path.exists() and repo_pred_path.stat().st_size > 0:
-            pred_path.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(repo_pred_path, pred_path)
-            if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
-                _append_log(log_file, f"Copied props predictions artifact from repo data: {repo_pred_path}")
-                return pred_path, None
-    except Exception:
-        pass
-
-    fetched_path = _maybe_fetch_remote_processed(pred_path.name)
-    try:
-        if fetched_path and fetched_path.exists() and fetched_path.stat().st_size > 0 and _count_csv_rows_quick(fetched_path) > 0:
-            _append_log(log_file, f"Fetched props predictions artifact from GitHub raw: {fetched_path.name}")
-            return fetched_path, None
-    except Exception:
-        pass
-
     player_logs_ok, player_logs_error = _ensure_player_logs_for_props_refresh(
         date_str=date_str,
         log_file=log_file,
@@ -429,8 +683,11 @@ def _ensure_props_predictions_for_refresh(
         return None, player_logs_error or f"player_logs missing before predict-props for {date_str}"
 
     env = _worker_env()
-    predict_cmd = _predict_props_cli_args(date_str=date_str, out_path=pred_path)
-    _append_log(log_file, f"Generating props predictions locally for {date_str}")
+    predict_cmd = _predict_props_cli_args(date_str=date_str, out_path=pred_path, force_smart_sim=force_smart_sim)
+    _append_log(
+        log_file,
+        f"Generating props predictions locally for {date_str}" + (" with forced SmartSim refresh" if force_smart_sim else ""),
+    )
     rc = _run_to_file(
         predict_cmd,
         log_file,
@@ -447,6 +704,114 @@ def _ensure_props_predictions_for_refresh(
         return None, f"predict-props completed without writing rows to {pred_path.name}"
     _append_log(log_file, f"Generated props predictions at {pred_path} (rows={rows})")
     return pred_path, None
+
+
+def _ensure_props_predictions_for_refresh(
+    date_str: str,
+    log_file: Path,
+    heartbeat_cb: Callable[[], None],
+    snapshot_path: Path | None = None,
+) -> tuple[Path | None, str | None]:
+    pred_path = paths.data_processed / f"props_predictions_{date_str}.csv"
+    snapshot_fp = snapshot_path or (paths.data_raw / f"odds_nba_player_props_{date_str}.csv")
+    baseline_df = pd.DataFrame()
+    baseline_label = ""
+
+    try:
+        if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
+            baseline_df = _read_csv_safe(pred_path)
+            baseline_label = "active"
+            _append_log(log_file, f"Using existing props predictions artifact: {pred_path}")
+    except Exception:
+        baseline_df = pd.DataFrame()
+        baseline_label = ""
+
+    if baseline_df.empty:
+        try:
+            repo_pred_path = paths.repo_data_processed / pred_path.name
+            if repo_pred_path.exists() and repo_pred_path.stat().st_size > 0:
+                pred_path.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(repo_pred_path, pred_path)
+                if pred_path.exists() and pred_path.stat().st_size > 0 and _count_csv_rows_quick(pred_path) > 0:
+                    baseline_df = _read_csv_safe(pred_path)
+                    baseline_label = "repo"
+                    _append_log(log_file, f"Copied props predictions artifact from repo data: {repo_pred_path}")
+        except Exception:
+            baseline_df = pd.DataFrame()
+            baseline_label = baseline_label or ""
+
+    if baseline_df.empty:
+        fetched_path = _maybe_fetch_remote_processed(pred_path.name)
+        try:
+            if fetched_path and fetched_path.exists() and fetched_path.stat().st_size > 0 and _count_csv_rows_quick(fetched_path) > 0:
+                baseline_df = _read_csv_safe(fetched_path)
+                baseline_label = "remote"
+                _append_log(log_file, f"Fetched props predictions artifact from GitHub raw: {fetched_path.name}")
+        except Exception:
+            baseline_df = pd.DataFrame()
+            baseline_label = baseline_label or ""
+
+    if not baseline_df.empty:
+        try:
+            snapshot_df = _read_csv_safe(snapshot_fp)
+            smart_sim_players = _load_smart_sim_player_keys_by_matchup(date_str)
+            coverage_gaps = _collect_snapshot_coverage_gaps(snapshot_df, baseline_df, smart_sim_players)
+        except Exception as exc:
+            coverage_gaps = []
+            _append_log(log_file, f"Snapshot coverage-gap audit skipped: {exc}")
+
+        if coverage_gaps and _env_bool("REFRESH_FORCE_RESIM_ON_NEW_PROPS", True):
+            impacted_matchups = {
+                (str(row.get("home_tri") or ""), str(row.get("away_tri") or ""))
+                for row in coverage_gaps
+                if row.get("home_tri") and row.get("away_tri")
+            }
+            preview_names = ", ".join(
+                sorted({str(row.get("player_name") or "") for row in coverage_gaps if row.get("player_name")})[:6]
+            )
+            _append_log(
+                log_file,
+                "Detected line-bearing props lacking current predictions/sim coverage "
+                f"(players={len(coverage_gaps)}, matchups={len(impacted_matchups)}, sample={preview_names or 'n/a'}); "
+                "forcing targeted props rebuild.",
+            )
+            removed = _drop_smart_sim_outputs_for_matchups(date_str, impacted_matchups, log_file)
+            if impacted_matchups and removed <= 0:
+                _append_log(log_file, "No existing SmartSim files needed deletion; predict-props will rebuild missing matchup sims directly.")
+
+            refreshed_path, refresh_error = _generate_props_predictions_for_refresh(
+                date_str=date_str,
+                pred_path=pred_path,
+                log_file=log_file,
+                heartbeat_cb=heartbeat_cb,
+                force_smart_sim=True,
+            )
+            if refreshed_path is not None:
+                refreshed_df = _read_csv_safe(refreshed_path)
+                _write_merged_props_predictions(
+                    pred_path,
+                    refreshed_df,
+                    baseline_df,
+                    fallback_label=baseline_label or "daily-update",
+                    log_file=log_file,
+                )
+                return pred_path, None
+            _append_log(
+                log_file,
+                f"Targeted props rebuild failed; falling back to existing props predictions artifact. error={refresh_error}",
+            )
+        return pred_path, None
+
+    generated_path, generated_error = _generate_props_predictions_for_refresh(
+        date_str=date_str,
+        pred_path=pred_path,
+        log_file=log_file,
+        heartbeat_cb=heartbeat_cb,
+        force_smart_sim=False,
+    )
+    if generated_path is None:
+        return None, generated_error
+    return generated_path, None
 
 
 def _compute_props_edges_direct(
@@ -833,6 +1198,7 @@ def run_refresh_oddsapi_props_job(
                 date_str=date_str,
                 log_file=log_file,
                 heartbeat_cb=_touch_progress,
+                snapshot_path=raw_fp,
             )
             state["heartbeat_at"] = _utcnow_iso()
             state["predictions_rows"] = int(_count_csv_rows_quick(pred_fp))

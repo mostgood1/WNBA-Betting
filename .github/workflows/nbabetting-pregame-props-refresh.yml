@@ -68,6 +68,10 @@ jobs:
           PYTHONPATH: src
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY || secrets.THE_ODDS_API_KEY }}
           ALLOW_REMOTE_ARTIFACTS: "1"
+          # Keep the default refresh lightweight, but allow the worker to force
+          # a targeted SmartSim-backed props rebuild when new lined players are
+          # missing from current predictions / matchup sim coverage.
+          REFRESH_FORCE_RESIM_ON_NEW_PROPS: "1"
           REFRESH_PREDICT_PROPS_USE_SMART_SIM: "0"
           REFRESH_PREDICT_PROPS_CALIBRATE_PLAYER: "0"
           OMP_NUM_THREADS: "1"

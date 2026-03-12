@@ -29854,6 +29854,7 @@ def api_cron_refresh_oddsapi_props():
                     date_str=d,
                     log_file=log_file,
                     heartbeat_cb=lambda: None,
+                    snapshot_path=raw_fp,
                 )
                 if pred_path is None:
                     pipeline_error = pred_error or f"props predictions unavailable for {d}"
