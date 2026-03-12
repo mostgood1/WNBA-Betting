@@ -1,0 +1,3 @@
+date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
+2026-03-13,2026-03-14T02:10:00Z,Golden State Warriors,Minnesota Timberwolves,186.96774193548384,-186.96774193548387,5.5,-5.5,,,224.5,-100.0,-100.0,1,1,1,1,oddsapi_consensus
+2026-03-13,2026-03-13T23:40:00Z,Toronto Raptors,Phoenix Suns,-151.7014925373135,151.7014925373134,-3.5,3.5,,,218.5,101.74703004891684,-101.74703004891684,1,1,1,1,oddsapi_consensus

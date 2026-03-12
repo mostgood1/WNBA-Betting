@@ -1,0 +1,5 @@
+market,side,home,away,date,ev,price,implied_prob,edge,line,pred_margin,market_home_margin,pred_total,tier
+ATS,Golden State Warriors,Golden State Warriors,Minnesota Timberwolves,2026-03-13,0.7138583781241601,-110.0,0.5238095238095238,15.225031115185011,5.5,9.725031115185011,-5.5,,High
+TOTAL,Over,Golden State Warriors,Minnesota Timberwolves,2026-03-13,0.21565041827580078,-100.0,0.5,4.378483769729172,224.5,,,228.87848376972917,High
+ATS,Phoenix Suns,Toronto Raptors,Phoenix Suns,2026-03-13,-0.006362906158770221,-110.0,0.5238095238095238,-0.6161965712013435,3.5,2.8838034287986565,3.5,,Low
+TOTAL,Over,Toronto Raptors,Phoenix Suns,2026-03-13,0.5564366434260329,101.74703004891684,0.49567024593003123,11.899640438813293,218.5,,,230.3996404388133,High
