@@ -4,6 +4,7 @@ import pandas as pd
 from click.testing import CliRunner
 
 from nba_betting import cli as cli_module
+from nba_betting import config as config_module
 from nba_betting import props_onnx_pure as props_onnx_pure_module
 
 
@@ -125,3 +126,49 @@ def test_predict_props_pure_onnx_falls_back_when_model_artifacts_missing(monkeyp
     assert preds.loc[0, "pred_blk"] > 0
     assert preds.loc[0, "pred_tov"] > 0
     assert preds.loc[0, "pred_pra"] == preds.loc[0, "pred_pts"] + preds.loc[0, "pred_reb"] + preds.loc[0, "pred_ast"]
+
+
+def test_export_props_recommendations_excludes_nonpositive_edges(tmp_path, monkeypatch):
+    date_str = "2026-03-12"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player_name": "Jayson Tatum",
+                "team": "BOS",
+                "stat": "pts",
+                "side": "OVER",
+                "line": 29.5,
+                "price": -110,
+                "edge": -0.02,
+                "ev": -0.01,
+                "bookmaker": "draftkings",
+            },
+            {
+                "player_name": "Jaylen Brown",
+                "team": "BOS",
+                "stat": "reb",
+                "side": "OVER",
+                "line": 6.5,
+                "price": -105,
+                "edge": 0.04,
+                "ev": 0.02,
+                "bookmaker": "fanduel",
+            },
+        ]
+    ).to_csv(processed / f"props_edges_{date_str}.csv", index=False)
+
+    monkeypatch.setattr(
+        config_module,
+        "paths",
+        config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root),
+    )
+
+    rows, out = cli_module._export_props_recommendations_cards.callback(date_str, None, 125.0)
+    exported = pd.read_csv(out)
+
+    assert rows == 1
+    assert exported["player"].tolist() == ["Jaylen Brown"]

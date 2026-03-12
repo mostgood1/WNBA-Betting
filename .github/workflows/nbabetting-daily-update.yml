@@ -87,6 +87,9 @@ jobs:
           GIT_TERMINAL_PROMPT: "0"
           # Optional: OddsAPI for odds/props edges. If unset, pipeline should fall back where supported.
           ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          DAILY_SKIP_HISTORICAL_MAINTENANCE: "1"
+          DAILY_SMARTSIM_NSIMS: "500"
+          DAILY_REQUIRE_PROPS_LINES: "0"
         run: |
           $date = "${{ steps.decide.outputs.date }}"
           if (-not $date) { throw "Missing computed date" }

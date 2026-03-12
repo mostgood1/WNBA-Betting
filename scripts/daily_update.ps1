@@ -249,6 +249,30 @@ if ($DateWasImplicit) {
 }
 Write-Log "Python: $Python"
 
+$IsCiRun = $false
+try {
+  $ga = $env:GITHUB_ACTIONS
+  $ci = $env:CI
+  if (($null -ne $ga -and $ga -match '^(1|true|yes)$') -or ($null -ne $ci -and $ci -match '^(1|true|yes)$')) {
+    $IsCiRun = $true
+  }
+} catch {
+  $IsCiRun = $false
+}
+
+if ($IsCiRun) {
+  if ($null -eq $env:DAILY_SKIP_HISTORICAL_MAINTENANCE -or $env:DAILY_SKIP_HISTORICAL_MAINTENANCE -eq '') {
+    $env:DAILY_SKIP_HISTORICAL_MAINTENANCE = '1'
+  }
+  if ($null -eq $env:DAILY_SMARTSIM_NSIMS -or $env:DAILY_SMARTSIM_NSIMS -eq '') {
+    $env:DAILY_SMARTSIM_NSIMS = '500'
+  }
+  if ($null -eq $env:DAILY_REQUIRE_PROPS_LINES -or $env:DAILY_REQUIRE_PROPS_LINES -eq '') {
+    $env:DAILY_REQUIRE_PROPS_LINES = '0'
+  }
+  Write-Log ("CI runtime profile: skip_historical_maintenance={0}, smartsim_n_sims={1}, require_props_lines={2}" -f $env:DAILY_SKIP_HISTORICAL_MAINTENANCE, $env:DAILY_SMARTSIM_NSIMS, $env:DAILY_REQUIRE_PROPS_LINES)
+}
+
 # Schedule gating: on no-game days, continue but anchor reconciliation to the last slate date.
 $NoSlateDay = $false
 $LastSlateDate = $null
@@ -1125,6 +1149,13 @@ try {
   } else { Write-Log 'Skipping interval estimation (DAILY_SKIP_INTERVALS=1)' }
 } catch { Write-Log ("Interval estimation failed (non-fatal): {0}" -f $_.Exception.Message) }
 
+$runHistoricalMaintenance = $true
+$skipHistoricalMaintenance = $env:DAILY_SKIP_HISTORICAL_MAINTENANCE
+if ($null -ne $skipHistoricalMaintenance -and $skipHistoricalMaintenance -match '^(1|true|yes)$') {
+  $runHistoricalMaintenance = $false
+}
+
+if ($runHistoricalMaintenance) {
 # 2.2) Ensure finals CSV for yesterday (best-effort; helps UI backfill and offline environments)
 try {
   Write-Log ("Export finals CSV for {0}" -f $yesterday)
@@ -1700,6 +1731,10 @@ else:
   Write-Log 'Skipping totals calibration (SkipTotalsCalib=true)'
 }
 
+} else {
+  Write-Log 'Skipping historical maintenance block on this run (DAILY_SKIP_HISTORICAL_MAINTENANCE=1); prioritizing same-day artifacts.'
+}
+
 # 2.5) Roster audit for yesterday (requires boxscores); writes roster_audit_<yesterday>.csv
 try {
   $skipYesterdayRosterAudit = $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT
@@ -1782,14 +1817,16 @@ if ($null -eq $SmartSimWorkers -or $SmartSimWorkers -eq '') { $SmartSimWorkers =
 # - DAILY_SMARTSIM_OVERWRITE controls overwrite behavior
 # - DAILY_SKIP_SMARTSIM can skip SmartSim entirely (faster iteration)
 $SmartSimNSims = $env:DAILY_SMARTSIM_NSIMS
-if ($null -eq $SmartSimNSims -or $SmartSimNSims -eq '') { $SmartSimNSims = '2000' }
+if ($null -eq $SmartSimNSims -or $SmartSimNSims -eq '') {
+  if ($IsCiRun) { $SmartSimNSims = '500' } else { $SmartSimNSims = '2000' }
+}
 try {
   $nTmp = [int]$SmartSimNSims
   if ($nTmp -lt 100) { $nTmp = 100 }
   if ($nTmp -gt 20000) { $nTmp = 20000 }
   $SmartSimNSims = [string]$nTmp
 } catch {
-  $SmartSimNSims = '2000'
+  if ($IsCiRun) { $SmartSimNSims = '500' } else { $SmartSimNSims = '2000' }
 }
 
 $SmartSimOverwrite = $env:DAILY_SMARTSIM_OVERWRITE
@@ -2208,7 +2245,7 @@ if ($rc4a -ne 0) {
   throw "props-edges failed with exit code $rc4a"
 }
 if ((Test-CsvHasDataRows -Path $propsPredictionsPath) -and (-not (Test-CsvHasDataRows -Path $edgesPath))) {
-  throw "props-edges completed without writing data rows to $edgesPath"
+  Write-Log ("props-edges wrote no rows after edge/EV filtering for {0}; continuing without line-bearing props exports." -f $Date)
 }
 
 # 6) Export recommendations CSVs for site consumption

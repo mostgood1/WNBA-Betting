@@ -7209,10 +7209,16 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
                     mpo = 1e9
                 if price < -150 or price > mpo:
                     return False
+                edge = pd.to_numeric(row.get("edge"), errors="coerce")
+                ev = pd.to_numeric(row.get("ev"), errors="coerce")
+                if not pd.notna(edge) or float(edge) <= 0.0:
+                    return False
+                if not pd.notna(ev) or float(ev) <= 0.0:
+                    return False
                 # PTS/PRA have recently underperformed; only show them on cards
                 # when the edge is meaningfully strong.
                 if stat in {"pts", "pra"}:
-                    edge_abs = pd.to_numeric(row.get("edge"), errors="coerce")
+                    edge_abs = edge
                     if not pd.notna(edge_abs) or abs(float(edge_abs)) < 0.15:
                         return False
                 line = pd.to_numeric(row.get("line"), errors="coerce")
@@ -7247,11 +7253,12 @@ def _export_props_recommendations_cards(date_str: str, out_path: str | None, max
                         "book": r.get("bookmaker"),
                     }
                 )
-            cards.append({"player": player, "team": team, "plays": plays, "ladders": []})
+            if plays:
+                cards.append({"player": player, "team": team, "plays": plays, "ladders": []})
 
     out = paths.data_processed / f"props_recommendations_{date_str}.csv" if not out_path else Path(out_path)
     out.parent.mkdir(parents=True, exist_ok=True)
-    pd.DataFrame(cards).to_csv(out, index=False)
+    pd.DataFrame(cards, columns=["player", "team", "plays", "ladders", "model"]).to_csv(out, index=False)
     console.print({"rows": int(len(cards)), "output": str(out)})
     return int(len(cards)), out
 
