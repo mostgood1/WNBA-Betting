@@ -267,6 +267,9 @@ if ($IsCiRun) {
   if ($null -eq $env:DAILY_SMARTSIM_NSIMS -or $env:DAILY_SMARTSIM_NSIMS -eq '') {
     $env:DAILY_SMARTSIM_NSIMS = '500'
   }
+  if ($null -eq $env:DAILY_BUILD_LEAGUE_STATUS_TIMEOUT_SEC -or $env:DAILY_BUILD_LEAGUE_STATUS_TIMEOUT_SEC -eq '') {
+    $env:DAILY_BUILD_LEAGUE_STATUS_TIMEOUT_SEC = '900'
+  }
   if ($null -eq $env:DAILY_REQUIRE_PROPS_LINES -or $env:DAILY_REQUIRE_PROPS_LINES -eq '') {
     $env:DAILY_REQUIRE_PROPS_LINES = '0'
   }
@@ -279,7 +282,7 @@ if ($IsCiRun) {
   if ($null -eq $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT -or $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT -eq '') {
     $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT = '1'
   }
-  Write-Log ("CI runtime profile: skip_historical_maintenance={0}, smartsim_n_sims={1}, require_props_lines={2}, skip_player_audits={3}, skip_roster_audit={4}, skip_yesterday_roster_audit={5}" -f $env:DAILY_SKIP_HISTORICAL_MAINTENANCE, $env:DAILY_SMARTSIM_NSIMS, $env:DAILY_REQUIRE_PROPS_LINES, $env:DAILY_SKIP_PLAYER_AUDITS, $env:DAILY_SKIP_ROSTER_AUDIT, $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT)
+  Write-Log ("CI runtime profile: skip_historical_maintenance={0}, smartsim_n_sims={1}, league_status_timeout_sec={2}, require_props_lines={3}, skip_player_audits={4}, skip_roster_audit={5}, skip_yesterday_roster_audit={6}" -f $env:DAILY_SKIP_HISTORICAL_MAINTENANCE, $env:DAILY_SMARTSIM_NSIMS, $env:DAILY_BUILD_LEAGUE_STATUS_TIMEOUT_SEC, $env:DAILY_REQUIRE_PROPS_LINES, $env:DAILY_SKIP_PLAYER_AUDITS, $env:DAILY_SKIP_ROSTER_AUDIT, $env:DAILY_SKIP_YESTERDAY_ROSTER_AUDIT)
 }
 
 # Schedule gating: on no-game days, continue but anchor reconciliation to the last slate date.
@@ -687,6 +690,16 @@ try {
   $PreflightTimeoutSeconds = $toInt
 } catch { }
 
+$LeagueStatusTimeoutSeconds = $PreflightTimeoutSeconds
+try {
+  $lsTo = $env:DAILY_BUILD_LEAGUE_STATUS_TIMEOUT_SEC
+  if ($null -eq $lsTo -or $lsTo -eq '') { $lsTo = [string]$PreflightTimeoutSeconds }
+  try { $lsToInt = [int]$lsTo } catch { $lsToInt = $PreflightTimeoutSeconds }
+  if ($lsToInt -lt 30) { $lsToInt = 30 }
+  if ($lsToInt -gt 900) { $lsToInt = 900 }
+  $LeagueStatusTimeoutSeconds = $lsToInt
+} catch { }
+
 $seasonStr = $null
 $rostersPath = $null
 try {
@@ -792,7 +805,7 @@ try {
     Write-Log ("league_status already fresh (<= {0}m); skipping build-league-status" -f $maxAgeMinInt)
   } else {
     Write-Log "Building league_status for today's slate (availability gate)"
-    $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'build_league_status'
+    $rcLSEarly = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $LeagueStatusTimeoutSeconds -Label 'build_league_status'
     Write-Log ("build-league-status exit code: {0}" -f $rcLSEarly)
   }
 } catch { Write-Log ("build-league-status failed (non-fatal): {0}" -f $_.Exception.Message) }
@@ -803,7 +816,7 @@ try {
   $lsPath = Join-Path $RepoRoot ("data\processed\league_status_{0}.csv" -f $Date)
   if (-not (Test-Path $lsPath)) {
     Write-Log ("league_status missing after build-league-status: {0}" -f $lsPath)
-    $retryTo = [int]([Math]::Min(900, [Math]::Max($PreflightTimeoutSeconds * 2, 120)))
+    $retryTo = [int]([Math]::Min(900, [Math]::Max([Math]::Max($PreflightTimeoutSeconds * 2, $LeagueStatusTimeoutSeconds), 120)))
     Write-Log ("Retrying build-league-status with timeout {0}s" -f $retryTo)
     $rcLSRetry = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','build-league-status','--date', $Date) -TimeoutSeconds $retryTo -Label 'build_league_status_retry'
     Write-Log ("build-league-status retry exit code: {0}" -f $rcLSRetry)

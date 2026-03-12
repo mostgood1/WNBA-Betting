@@ -6464,7 +6464,7 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
             away_col = next((col for col in away_candidates if col in frame.columns), None)
             if not home_col or not away_col:
                 return None
-            return pd.DataFrame(
+            slate_df = pd.DataFrame(
                 {
                     "date": pd.to_datetime(date_str),
                     "home_team": frame[home_col].astype(str),
@@ -6473,6 +6473,20 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                     "visitor_pts": np.nan,
                 }
             )
+            slate_df = slate_df.dropna(subset=["home_team", "visitor_team"]).copy()
+            if slate_df.empty:
+                return None
+            slate_df["home_team"] = slate_df["home_team"].astype(str).str.strip()
+            slate_df["visitor_team"] = slate_df["visitor_team"].astype(str).str.strip()
+            slate_df = slate_df[
+                (slate_df["home_team"] != "")
+                & (slate_df["visitor_team"] != "")
+                & (slate_df["home_team"].str.lower() != "nan")
+                & (slate_df["visitor_team"].str.lower() != "nan")
+            ].drop_duplicates(subset=["home_team", "visitor_team"])
+            if slate_df.empty:
+                return None
+            return slate_df.reset_index(drop=True)
 
         # Load features for the date (prefer parquet; fallback to CSV to avoid parquet engine dependency)
         features_path = paths.data_processed / "features.parquet"
@@ -6512,6 +6526,10 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                 odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
                 odds_events_path = paths.data_processed / f"odds_events_{date_str}.csv"
                 oddsapi_events_path = paths.data_processed / f"oddsapi_events_{date_str}.csv"
+                predictions_candidates = [
+                    paths.data_processed / f"predictions_{date_str}.csv",
+                    paths.root / f"predictions_{date_str}.csv",
+                ]
                 raw_games_csv = paths.data_raw / "games_nba_api.csv"
                 raw_games_parq = paths.data_raw / "games_nba_api.parquet"
                 slate_df = None
@@ -6536,6 +6554,18 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                         ("home_team", "home"),
                         ("away_team", "visitor_team", "away"),
                     )
+
+                if slate_df is None:
+                    for pred_candidate in predictions_candidates:
+                        if not pred_candidate.exists():
+                            continue
+                        slate_df = _slate_from_frame(
+                            pd.read_csv(pred_candidate),
+                            ("home_team", "home"),
+                            ("visitor_team", "away_team", "away"),
+                        )
+                        if slate_df is not None:
+                            break
 
                 # Fallback to schedule if odds are unavailable
                 if slate_df is None:

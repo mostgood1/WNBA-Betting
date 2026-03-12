@@ -22,6 +22,7 @@ import json
 import math
 import os
 import sys
+import time
 from datetime import datetime
 from typing import Any
 from urllib.error import HTTPError, URLError
@@ -84,19 +85,39 @@ def _http_json(method: str, url: str, *, payload: dict[str, Any] | None, timeout
 
     req = Request(url, data=data, method=method.upper(), headers=headers)
     try:
-        with urlopen(req, timeout=float(timeout_sec)) as resp:
-            raw = resp.read() or b""
-        obj = json.loads(raw.decode("utf-8")) if raw else {}
-        return obj if isinstance(obj, dict) else {"_raw": obj}
-    except HTTPError as e:
-        body = ""
+        max_attempts = int(float(os.environ.get("NBA_HTTP_RETRY_ATTEMPTS") or 3))
+    except Exception:
+        max_attempts = 3
+    try:
+        retry_backoff_sec = float(os.environ.get("NBA_HTTP_RETRY_BACKOFF_SEC") or 1.5)
+    except Exception:
+        retry_backoff_sec = 1.5
+    max_attempts = max(1, min(5, max_attempts))
+    retry_backoff_sec = max(0.0, min(10.0, retry_backoff_sec))
+
+    for attempt in range(1, max_attempts + 1):
         try:
-            body = (e.read() or b"").decode("utf-8", errors="replace")
-        except Exception:
+            with urlopen(req, timeout=float(timeout_sec)) as resp:
+                raw = resp.read() or b""
+            obj = json.loads(raw.decode("utf-8")) if raw else {}
+            return obj if isinstance(obj, dict) else {"_raw": obj}
+        except HTTPError as e:
             body = ""
-        raise RuntimeError(f"HTTP {e.code} for {url}: {body[:500]}")
-    except URLError as e:
-        raise RuntimeError(f"URL error for {url}: {e}")
+            try:
+                body = (e.read() or b"").decode("utf-8", errors="replace")
+            except Exception:
+                body = ""
+            if e.code in {502, 503, 504} and attempt < max_attempts:
+                time.sleep(retry_backoff_sec * attempt)
+                continue
+            raise RuntimeError(f"HTTP {e.code} for {url}: {body[:500]}")
+        except URLError as e:
+            if attempt < max_attempts:
+                time.sleep(retry_backoff_sec * attempt)
+                continue
+            raise RuntimeError(f"URL error for {url}: {e}")
+
+    raise RuntimeError(f"HTTP request failed after {max_attempts} attempts for {url}")
 
 
 def _build_signal(*, ds: str, game: dict[str, Any], rec: dict[str, Any]) -> dict[str, Any] | None:

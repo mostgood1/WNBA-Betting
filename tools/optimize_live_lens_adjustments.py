@@ -461,11 +461,11 @@ def main() -> int:
     # Pre-extract arrays for speed
     raw = df["edge_raw"].to_numpy(dtype=float)
     line = df["line_total"].to_numpy(dtype=float)
-    pace_ratio = df["pace_ratio"].to_numpy(dtype=float)
-    eff = df["eff_ppp_delta"].to_numpy(dtype=float)
-    hpace = df["exp_home_pace"].to_numpy(dtype=float)
-    apace = df["exp_away_pace"].to_numpy(dtype=float)
-    elapsed = df["elapsed_min"].to_numpy(dtype=float)
+    pace_ratio = df["pace_ratio"].to_numpy(dtype=float, copy=True)
+    eff = df["eff_ppp_delta"].to_numpy(dtype=float, copy=True)
+    hpace = df["exp_home_pace"].to_numpy(dtype=float, copy=True)
+    apace = df["exp_away_pace"].to_numpy(dtype=float, copy=True)
+    elapsed = df["elapsed_min"].to_numpy(dtype=float, copy=True)
 
     # Treat NaNs as missing
     pace_ratio[~np.isfinite(pace_ratio)] = np.nan
