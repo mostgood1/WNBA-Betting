@@ -59,12 +59,113 @@ except ImportError:
     print("⚠️  onnxruntime not available")
 
 from .config import paths
+from .player_names import normalize_player_name_key
+from .player_priors import compute_player_priors
 from .props_linear import load_linear_props_models, predict_with_linear_models, train_linear_props_models
 
 # Props targets
 PRIMARY_ONNX_TARGETS = ["t_pts", "t_reb", "t_ast", "t_pra", "t_threes"]
 # Additional targets we want predictions for; try ONNX else fall back to sklearn joblib
 EXTRA_TARGETS = ["t_stl", "t_blk", "t_tov"]
+
+
+def _safe_num_series(df: pd.DataFrame, col: str) -> pd.Series:
+    if col not in df.columns:
+        return pd.Series(0.0, index=df.index, dtype=float)
+    return pd.to_numeric(df[col], errors="coerce").fillna(0.0).astype(float)
+
+
+def _blended_signal(df: pd.DataFrame, stat: str) -> pd.Series:
+    parts = []
+    weights = []
+    for col, weight in [
+        (f"lag1_{stat}", 0.15),
+        (f"roll3_{stat}", 0.30),
+        (f"roll5_{stat}", 0.35),
+        (f"roll10_{stat}", 0.20),
+    ]:
+        if col in df.columns:
+            parts.append(_safe_num_series(df, col) * weight)
+            weights.append(weight)
+    if not parts:
+        return pd.Series(0.0, index=df.index, dtype=float)
+    return sum(parts) / max(1e-6, float(sum(weights)))
+
+
+def _predict_props_without_models(features_df: pd.DataFrame) -> pd.DataFrame:
+    if features_df.empty:
+        return features_df.copy()
+
+    out = features_df.copy()
+    date_str = None
+    if "asof_date" in out.columns and not out["asof_date"].empty:
+        date_str = str(out["asof_date"].iloc[0])
+    priors = compute_player_priors(date_str or pd.Timestamp.utcnow().date().isoformat())
+
+    b2b = _safe_num_series(out, "b2b").clip(lower=0.0, upper=1.0)
+    b2b_factor = 1.0 - (0.03 * b2b)
+
+    blended_min = _blended_signal(out, "min").clip(lower=8.0)
+    out["pred_min"] = blended_min.copy()
+
+    core_defaults = {
+        "pts": _blended_signal(out, "pts"),
+        "reb": _blended_signal(out, "reb"),
+        "ast": _blended_signal(out, "ast"),
+        "threes": _blended_signal(out, "threes"),
+    }
+
+    for idx, row in out.iterrows():
+        team = str(row.get("team") or "").strip().upper()
+        player_name = str(row.get("player_name") or "").strip()
+        player_key = normalize_player_name_key(player_name, case="upper") if player_name else ""
+        prior = priors.rate(team, player_name, player_key) if team and player_name else {}
+
+        pred_min = float(blended_min.loc[idx])
+        prior_min = prior.get("min_mu")
+        if prior_min is not None:
+            pred_min = float(max(4.0, (0.65 * pred_min) + (0.35 * float(prior_min))))
+        pred_min = float(max(4.0, pred_min * float(b2b_factor.loc[idx])))
+        out.at[idx, "pred_min"] = pred_min
+
+        for stat in ("pts", "reb", "ast", "threes"):
+            signal = float(core_defaults[stat].loc[idx]) * float(b2b_factor.loc[idx])
+            rate = prior.get(f"{stat}_pm")
+            if rate is None:
+                pred = signal
+            else:
+                pred = (0.60 * float(rate) * pred_min) + (0.40 * signal)
+            out.at[idx, f"pred_{stat}"] = float(max(0.0, pred))
+
+        fallback_rates = {
+            "stl": 0.022,
+            "blk": 0.018,
+            "tov": 0.060,
+        }
+        stat_caps = {
+            "stl": 4.5,
+            "blk": 4.5,
+            "tov": 7.5,
+        }
+        for stat in ("stl", "blk", "tov"):
+            rate = prior.get(f"{stat}_pm")
+            pred = float(pred_min) * float(rate if rate is not None else fallback_rates[stat])
+            out.at[idx, f"pred_{stat}"] = float(min(stat_caps[stat], max(0.0, pred)))
+
+    for col in ("pred_pts", "pred_reb", "pred_ast", "pred_threes", "pred_stl", "pred_blk", "pred_tov", "pred_min"):
+        if col in out.columns:
+            out[col] = pd.to_numeric(out[col], errors="coerce").fillna(0.0).clip(lower=0.0)
+
+    if all(col in out.columns for col in ("pred_pts", "pred_reb", "pred_ast")):
+        out["pred_pra"] = out["pred_pts"] + out["pred_reb"] + out["pred_ast"]
+        out["pred_pr"] = out["pred_pts"] + out["pred_reb"]
+        out["pred_pa"] = out["pred_pts"] + out["pred_ast"]
+        out["pred_ra"] = out["pred_reb"] + out["pred_ast"]
+    if all(col in out.columns for col in ("pred_stl", "pred_blk")):
+        out["pred_stocks"] = out["pred_stl"] + out["pred_blk"]
+
+    print("[WARN] Props model artifacts missing; using priors + rolling-stat fallback predictions")
+    return out
 
 
 class PureONNXPredictor:
@@ -358,8 +459,11 @@ def predict_props_pure_onnx(features_df: pd.DataFrame, models_dir: Path | None =
     Returns:
         DataFrame with predictions added
     """
-    predictor = PureONNXPredictor(models_dir=models_dir)
-    return predictor.predict(features_df)
+    try:
+        predictor = PureONNXPredictor(models_dir=models_dir)
+        return predictor.predict(features_df)
+    except FileNotFoundError:
+        return _predict_props_without_models(features_df)
 
 
 if __name__ == "__main__":
