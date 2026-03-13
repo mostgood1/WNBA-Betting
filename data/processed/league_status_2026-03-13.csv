@@ -93,7 +93,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1627824,Guerschon Yabusele,CHI,,True,True
 1627826,Ivica Zubac,IND,,True,True
 1627827,Dorian Finney-Smith,HOU,,True,True
-1627832,Fred VanVleet,HOU,OUT,True,False
+1627832,Fred VanVleet,HOU,,True,True
 1627884,Derrick Jones Jr.,LAC,,True,True
 1627936,Alex Caruso,OKC,,False,False
 1628366,Lonzo Ball,,,False,False
@@ -210,7 +210,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630180,Saddiq Bey,NOP,,True,True
 1630182,Josh Green,CHA,,False,False
 1630183,Jaden McDaniels,MIN,,True,True
-1630188,Jalen Smith,CHI,QUESTIONABLE,True,True
+1630188,Jalen Smith,CHI,,True,True
 1630191,Isaiah Stewart,,,False,False
 1630192,Zeke Nnaji,DEN,,False,False
 1630193,Immanuel Quickley,TOR,,True,True
@@ -402,7 +402,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641813,Mark Sears,,,False,False
 1641815,Isaiah Stevens,SAC,,False,False
 1641816,Hunter Tyson,,,False,False
-1641824,Matas Buzelis,CHI,PROBABLE,True,True
+1641824,Matas Buzelis,CHI,,True,True
 1641842,Ronald Holland II,,,False,False
 1641854,Craig Porter Jr.,CLE,,True,True
 1641871,Duop Reath,,,False,False

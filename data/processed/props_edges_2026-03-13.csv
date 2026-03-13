@@ -1,1 +1,1 @@
-date,snapshot_ts,player_id,player_name,team,stat,side,line,price,implied_prob,model_prob,model_prob_raw,edge,ev,bookmaker,bookmaker_title,commence_time,home_team,away_team,sentiment_strength,sentiment_w,sentiment_applied
+date,snapshot_ts,open_snapshot_ts,player_id,player_name,team,stat,side,line,price,implied_prob,model_prob,model_prob_raw,edge,ev,bookmaker,bookmaker_title,commence_time,home_team,away_team,open_line,open_price,open_implied_prob,line_move,implied_move,sentiment_strength,sentiment_w,sentiment_applied
