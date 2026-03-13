@@ -574,9 +574,11 @@ function Invoke-PyModWithTimeout {
   } catch {}
 
   $exitCode = 0
+  try { $p.Refresh() } catch {}
   try { $exitCode = $p.ExitCode } catch { $exitCode = 0 }
+  if ($null -eq $exitCode) { $exitCode = 0 }
   try { Remove-Item -Force -ErrorAction SilentlyContinue $outStd, $outErr } catch {}
-  return $exitCode
+  return [int]$exitCode
 }
 
 # Helper: check if a file exists and is "fresh" (recently updated).
