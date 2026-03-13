@@ -1,6 +1,8 @@
 date,commence_time,home_team,visitor_team,home_ml,away_ml,home_spread,away_spread,home_spread_price,away_spread_price,total,total_over_price,total_under_price,books_count,books_h2h,books_spreads,books_totals,bookmaker
-2026-03-13,2026-03-14T00:10:00Z,Houston Rockets,New Orleans Pelicans,-233.51351351351346,233.5135135135136,-7.0,7.0,,,226.5,-100.0,-100.0,1,1,1,1,oddsapi_consensus
-2026-03-13,2026-03-14T02:10:00Z,Golden State Warriors,Minnesota Timberwolves,209.03181735501306,-209.03181735501306,6.5,-6.5,,,228.5,101.74794616325815,-101.74794616325815,2,2,2,2,oddsapi_consensus
-2026-03-13,2026-03-13T23:40:00Z,Toronto Raptors,Phoenix Suns,-151.73309524141683,151.73309524141683,-4.0,4.0,,,218.5,100.86971647243,-100.86971647243,2,2,1,2,oddsapi_consensus
-2026-03-13,2026-03-13T23:40:00Z,Indiana Pacers,New York Knicks,545.9245923597016,-545.9245923597018,11.5,-11.5,,,228.5,-100.0,-100.0,2,2,1,2,oddsapi_consensus
-2026-03-13,2026-03-13T23:40:00Z,Dallas Mavericks,Cleveland Cavaliers,491.3907111472833,-491.39071114728335,12.5,-12.5,,,232.0,-100.0,-100.0,2,2,1,1,oddsapi_consensus
+2026-03-13,2026-03-14T00:10:00Z,Houston Rockets,New Orleans Pelicans,-233.4042849770087,233.4042849770088,-7.0,7.0,,,226.5,100.42498937526562,-100.42498937526562,4,4,2,3,oddsapi_consensus
+2026-03-13,2026-03-14T02:10:00Z,Golden State Warriors,Minnesota Timberwolves,212.09059044014995,-212.09059044014992,6.5,-6.5,,,227.5,-100.0,-100.0,4,4,4,3,oddsapi_consensus
+2026-03-13,2026-03-13T23:40:00Z,Toronto Raptors,Phoenix Suns,-146.6716570781116,146.67165707811154,-3.5,3.5,,,218.5,100.86971647243,-100.86971647243,3,3,3,2,oddsapi_consensus
+2026-03-13,2026-03-13T23:40:00Z,Detroit Pistons,Memphis Grizzlies,-821.7059360291249,821.7059360291249,-15.5,15.5,,,231.5,-100.0,-100.0,4,3,4,2,oddsapi_consensus
+2026-03-13,2026-03-13T23:40:00Z,Indiana Pacers,New York Knicks,555.0097579038126,-555.0097579038126,12.5,-12.5,,,227.5,-100.0,-100.0,3,3,2,3,oddsapi_consensus
+2026-03-13,2026-03-14T02:10:00Z,Portland Trail Blazers,Utah Jazz,-548.7480747479956,548.7480747479956,-12.5,12.5,,,235.5,-100.0,-100.0,6,3,6,2,oddsapi_consensus
+2026-03-13,2026-03-13T23:40:00Z,Dallas Mavericks,Cleveland Cavaliers,487.9215031968578,-487.92150319685777,12.5,-12.5,,,233.5,100.3185727938834,-100.3185727938834,7,4,7,4,oddsapi_consensus
