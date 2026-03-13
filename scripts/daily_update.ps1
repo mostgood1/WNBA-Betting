@@ -356,7 +356,10 @@ Write-Log "Server auth: disabled; enforcing local-only run"
 if ($GitSyncFirst) {
   try {
     Write-Log 'Git: pull --rebase'
-    & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+    $rcGitSync = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('pull', '--rebase')
+    if ($rcGitSync -ne 0) {
+      Write-Log ("Git sync failed (exit={0})" -f $rcGitSync)
+    }
   } catch { Write-Log ("Git sync failed: {0}" -f $_.Exception.Message) }
 }
 
@@ -397,6 +400,60 @@ function Invoke-PyMod {
     $ErrorActionPreference = 'Stop'
   }
   return $exitCode
+}
+
+function Invoke-LoggedNativeCommand {
+  param(
+    [Parameter(Mandatory = $true)]
+    [string]$FilePath,
+    [string[]]$ArgumentList = @()
+  )
+
+  $ErrorActionPreference = 'Continue'
+  $nativePrefSupported = $false
+  $nativePrefPrevious = $null
+  try {
+    $nativePrefVar = Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue
+    if ($null -ne $nativePrefVar) {
+      $nativePrefSupported = $true
+      $nativePrefPrevious = [bool]$nativePrefVar.Value
+      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $false
+    }
+    & $FilePath @ArgumentList 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Host
+    $exitCode = $LASTEXITCODE
+  } finally {
+    if ($nativePrefSupported) {
+      Set-Variable -Name PSNativeCommandUseErrorActionPreference -Scope Local -Value $nativePrefPrevious
+    }
+    $ErrorActionPreference = 'Stop'
+  }
+
+  if ($null -eq $exitCode) {
+    $exitCode = 0
+  }
+
+  return [int]$exitCode
+}
+
+function Format-ExitCodeForLog {
+  param([object]$Value)
+
+  $items = @($Value)
+  if ($items.Count -eq 0) {
+    return 'unknown'
+  }
+
+  $last = $items[-1]
+  if ($null -eq $last) {
+    return 'unknown'
+  }
+
+  $text = [string]$last
+  if ([string]::IsNullOrWhiteSpace($text)) {
+    return 'unknown'
+  }
+
+  return $text.Trim()
 }
 
 function Test-CsvHasDataRows {
@@ -1367,8 +1424,14 @@ try {
           $msgBf = "data(processed): backfill recon games ($seasonStart..$yesterday)"
           Remove-StaleGitLock
           & git commit -m $msgBf 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-          & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-          & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+          $rcReconPull = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('pull', '--rebase')
+          if ($rcReconPull -ne 0) {
+            throw "git pull --rebase failed (exit=$rcReconPull)"
+          }
+          $rcReconPush = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('push')
+          if ($rcReconPush -ne 0) {
+            throw "git push failed (exit=$rcReconPush)"
+          }
           Write-Log 'Git: pushed recon backfill commit'
         } else {
           Write-Log 'Git: no recon backfill changes to push'
@@ -3203,6 +3266,8 @@ try {
 Get-ChildItem -Path $LogPath -Filter 'local_daily_update_*.log' | Sort-Object LastWriteTime -Descending | Select-Object -Skip 21 | ForEach-Object { Remove-Item $_.FullName -ErrorAction SilentlyContinue }
 
 # Ensure push to Git is the final action of the script when enabled
+$FinalGitPushAttempted = $false
+$FinalGitPushSucceeded = $false
 if (-not $GitPush) {
   Write-Log 'Local daily update complete (no Git push requested).'
 } else {
@@ -3251,7 +3316,14 @@ if (-not $GitPush) {
       try {
         Write-Log 'Git: pushing accumulated daily update commits'
         Remove-StaleGitLock
-        & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+        $FinalGitPushAttempted = $true
+        $rcFinalPush = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('push')
+        if ($rcFinalPush -eq 0) {
+          $FinalGitPushSucceeded = $true
+          Write-Log 'Git: final push succeeded'
+        } else {
+          Write-Log ("Git: final push failed (exit={0})" -f $rcFinalPush)
+        }
       } catch {
         Write-Log ("Git: final push failed: {0}" -f $_.Exception.Message)
       }
@@ -3265,8 +3337,18 @@ if (-not $GitPush) {
         $msg = "local daily: $Date (predictions/odds/props)"
         Remove-StaleGitLock
         & git commit -m $msg 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-        & git pull --rebase 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
-        & git push 2>&1 | Tee-Object -FilePath $LogFile -Append | Out-Null
+        $rcFallbackPull = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('pull', '--rebase')
+        if ($rcFallbackPull -ne 0) {
+          throw "git pull --rebase failed (exit=$rcFallbackPull)"
+        }
+        $FinalGitPushAttempted = $true
+        $rcFallbackPush = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('push')
+        if ($rcFallbackPush -eq 0) {
+          $FinalGitPushSucceeded = $true
+          Write-Log 'Git: final push succeeded'
+        } else {
+          throw "git push failed (exit=$rcFallbackPush)"
+        }
       } else {
         Write-Log 'Git: no staged changes; skipping push'
       }
@@ -3298,6 +3380,11 @@ try {
     if ($null -ne $remote2 -and $remote2 -ne '') {
       $remote2 = $remote2.TrimEnd('/')
 
+      if ($GitPush -and $FinalGitPushAttempted -and -not $FinalGitPushSucceeded) {
+        Write-Log 'Pregame signals: skipping because final git push did not succeed'
+        return
+      }
+
       $remoteOk2 = $true
       try {
         $healthUrl2 = "{0}/health" -f $remote2
@@ -3312,7 +3399,7 @@ try {
       } else {
         # If we pushed new artifacts, wait briefly for Render to deploy the new git SHA before calling /api/cards.
         try {
-          $doWait = $GitPush
+          $doWait = $FinalGitPushSucceeded
           if ($doWait) {
             $waitMax = 300
             try {
@@ -3363,7 +3450,8 @@ try {
           '--base-url', $remote2,
           '--date', $Date
         ) -TimeoutSeconds $emitTimeout -Label 'pregame_prop_signals'
-        Write-Log ("log_pregame_prop_signals exit code: {0}" -f $rcEmit)
+        $rcEmitText = Format-ExitCodeForLog -Value $rcEmit
+        Write-Log ("log_pregame_prop_signals exit code: {0}" -f $rcEmitText)
       }
     } else {
       Write-Log 'Pregame signals: remote base URL missing; skipping'
