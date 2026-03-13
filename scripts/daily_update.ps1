@@ -4,7 +4,9 @@ Param(
   [string]$LogDir = "logs",
   # If set, stage/commit/pull --rebase/push repo changes (data/processed etc.)
   [switch]$GitPush,
-  # If set, do a 'git pull --rebase' before running to reduce conflicts
+  # If set, sync from origin/main before running.
+  # Clean main branches fast-forward; dirty/diverged local repos fall back to
+  # restoring managed processed artifacts for yesterday/today/look-ahead dates.
   [switch]$GitSyncFirst,
   # If set, skip applying totals calibration to predictions (safety valve)
   [switch]$SkipTotalsCalib,
@@ -197,6 +199,229 @@ function Write-Log {
   if (-not $Quiet) { Write-Host $line }
 }
 
+function Invoke-GitCapture {
+  param(
+    [string[]]$ArgList,
+    [switch]$SuppressOutputLog
+  )
+
+  $prevEap = $ErrorActionPreference
+  $hasNativePref = $false
+  $prevNativePref = $null
+  try {
+    if (Get-Variable -Name PSNativeCommandUseErrorActionPreference -ErrorAction SilentlyContinue) {
+      $hasNativePref = $true
+      $prevNativePref = $PSNativeCommandUseErrorActionPreference
+      $PSNativeCommandUseErrorActionPreference = $false
+    }
+    $ErrorActionPreference = 'Continue'
+    $output = & git @ArgList 2>&1
+    $rc = $LASTEXITCODE
+  } finally {
+    $ErrorActionPreference = $prevEap
+    if ($hasNativePref) {
+      $PSNativeCommandUseErrorActionPreference = $prevNativePref
+    }
+  }
+
+  if (-not $SuppressOutputLog -and $null -ne $output) {
+    ($output | Out-String).TrimEnd() | Out-File -FilePath $LogFile -Append -Encoding UTF8
+  }
+
+  return [pscustomobject]@{ Output = $output; ExitCode = $rc }
+}
+
+function Test-ManagedProcessedArtifactName {
+  param([string]$Name)
+
+  $allowedPrefixes = @(
+    'predictions_',
+    'recommendations_',
+    'recon_games_',
+    'recon_quarters_',
+    'recon_props_',
+    'recon_players_',
+    'boxscores_',
+    'boxscore_',
+    'pbp_reconcile_',
+    'tip_winner_probs_',
+    'first_basket_probs_',
+    'first_basket_recs_',
+    'early_threes_',
+    'pbp_metrics_daily_',
+    'finals_',
+    'closing_lines_',
+    'market_',
+    'odds_',
+    'game_odds_',
+    'period_lines_',
+    'game_cards_',
+    'games_predictions_npu_',
+    'props_edges_',
+    'props_predictions_',
+    'props_recommendations_',
+    'live_player_lens_tuning_',
+    'smart_sim_',
+    'daily_artifacts_',
+    'injuries_counts_',
+    'league_status_'
+  )
+
+  foreach ($prefix in $allowedPrefixes) {
+    if ($Name.StartsWith($prefix)) {
+      return $true
+    }
+  }
+  return $false
+}
+
+function Get-DailyManagedSyncDates {
+  param(
+    [string]$BaseDate,
+    [int]$FutureDays = 0
+  )
+
+  try {
+    $baseDt = [datetime]::ParseExact($BaseDate, 'yyyy-MM-dd', $null)
+  } catch {
+    return @()
+  }
+
+  $dates = @($baseDt.AddDays(-1).ToString('yyyy-MM-dd'), $baseDt.ToString('yyyy-MM-dd'))
+  for ($i = 1; $i -le $FutureDays; $i++) {
+    $dates += $baseDt.AddDays($i).ToString('yyyy-MM-dd')
+  }
+  return @($dates | Sort-Object -Unique)
+}
+
+function Get-DateScopedManagedLocalArtifacts {
+  param([string]$TargetDate)
+
+  $processedDir = Join-Path $RepoRoot 'data\processed'
+  if (-not (Test-Path $processedDir)) {
+    return @()
+  }
+
+  $patterns = @(
+    "*_$TargetDate.csv",
+    "*_$TargetDate.json",
+    "smart_sim_${TargetDate}_*.json",
+    "daily_artifacts_${TargetDate}.json"
+  )
+
+  $files = @()
+  foreach ($pattern in $patterns) {
+    $files += Get-ChildItem -Path $processedDir -Filter $pattern -File -ErrorAction SilentlyContinue
+  }
+
+  if ($files -and $files.Count -gt 0) {
+    $files = $files | Sort-Object FullName -Unique | Where-Object {
+      Test-ManagedProcessedArtifactName -Name $_.Name
+    }
+  }
+
+  return @($files)
+}
+
+function Get-DateScopedManagedRemoteArtifacts {
+  param(
+    [string]$TargetDate,
+    [string]$RemoteRef
+  )
+
+  $pathspecs = @(
+    "data/processed/*_$TargetDate.csv",
+    "data/processed/*_$TargetDate.json",
+    "data/processed/smart_sim_${TargetDate}_*.json",
+    "data/processed/daily_artifacts_${TargetDate}.json"
+  )
+
+  $ls = Invoke-GitCapture -ArgList (@('ls-tree', '-r', '--name-only', $RemoteRef, '--') + $pathspecs)
+  if ($ls.ExitCode -ne 0) {
+    Write-Log ("Git sync: unable to list remote managed artifacts for {0} from {1} (exit={2})" -f $TargetDate, $RemoteRef, $ls.ExitCode)
+    return @()
+  }
+
+  $paths = @()
+  foreach ($item in @($ls.Output)) {
+    $path = [string]$item
+    if ([string]::IsNullOrWhiteSpace($path)) { continue }
+    $trimmed = $path.Trim()
+    $name = [System.IO.Path]::GetFileName($trimmed)
+    if (Test-ManagedProcessedArtifactName -Name $name) {
+      $paths += $trimmed
+    }
+  }
+
+  return @($paths | Sort-Object -Unique)
+}
+
+function Restore-ManagedArtifactsFromRemote {
+  param(
+    [string[]]$RemotePaths,
+    [string]$RemoteRef
+  )
+
+  foreach ($remotePath in @($RemotePaths)) {
+    if ([string]::IsNullOrWhiteSpace($remotePath)) { continue }
+    $show = Invoke-GitCapture -ArgList @('show', ("{0}:{1}" -f $RemoteRef, $remotePath)) -SuppressOutputLog
+    if ($show.ExitCode -ne 0) {
+      Write-Log ("Git sync: failed to restore {0} from {1} (exit={2})" -f $remotePath, $RemoteRef, $show.ExitCode)
+      continue
+    }
+
+    $dest = Join-Path $RepoRoot ($remotePath -replace '/', '\\')
+    $destDir = Split-Path -Parent $dest
+    if (-not (Test-Path $destDir)) {
+      New-Item -ItemType Directory -Path $destDir -Force | Out-Null
+    }
+
+    $lines = @($show.Output | ForEach-Object { [string]$_ })
+    $content = [string]::Join([Environment]::NewLine, $lines)
+    if ($lines.Count -gt 0) {
+      $content += [Environment]::NewLine
+    }
+    [System.IO.File]::WriteAllText($dest, $content, [System.Text.UTF8Encoding]::new($false))
+  }
+}
+
+function Sync-DateScopedManagedArtifactsFromRemote {
+  param(
+    [string]$TargetDate,
+    [string]$Remote = 'origin',
+    [string]$Branch = 'main'
+  )
+
+  if ([string]::IsNullOrWhiteSpace($TargetDate)) {
+    return
+  }
+
+  $remoteRef = "{0}/{1}" -f $Remote, $Branch
+  $localFiles = @(Get-DateScopedManagedLocalArtifacts -TargetDate $TargetDate)
+  $remotePaths = @(Get-DateScopedManagedRemoteArtifacts -TargetDate $TargetDate -RemoteRef $remoteRef)
+
+  if ($localFiles.Count -eq 0 -and $remotePaths.Count -eq 0) {
+    Write-Log ("Git sync: no managed date-scoped artifacts found locally or remotely for {0}" -f $TargetDate)
+    return
+  }
+
+  foreach ($file in $localFiles) {
+    try {
+      Remove-Item -Path $file.FullName -Force -ErrorAction Stop
+    } catch {
+      Write-Log ("Git sync: failed to remove local artifact {0}: {1}" -f $file.FullName, $_.Exception.Message)
+    }
+  }
+
+  if ($remotePaths.Count -le 0) {
+    Write-Log ("Git sync: cleared local managed artifacts for {0}; none exist on {1}" -f $TargetDate, $remoteRef)
+    return
+  }
+
+  Restore-ManagedArtifactsFromRemote -RemotePaths $remotePaths -RemoteRef $remoteRef
+  Write-Log ("Git sync: restored {0} managed artifacts for {1} from {2}" -f $remotePaths.Count, $TargetDate, $remoteRef)
+}
+
 # Load .env (if present) into the current PowerShell process environment so child Python sees keys (e.g., ODDS_API_KEY)
 function Import-DotEnv {
   param([string]$Path)
@@ -355,10 +580,57 @@ Write-Log "Server auth: disabled; enforcing local-only run"
 # Optionally sync repo to reduce push conflicts
 if ($GitSyncFirst) {
   try {
-    Write-Log 'Git: pull --rebase'
-    $rcGitSync = Invoke-LoggedNativeCommand -FilePath 'git' -ArgumentList @('pull', '--rebase')
-    if ($rcGitSync -ne 0) {
-      Write-Log ("Git sync failed (exit={0})" -f $rcGitSync)
+    $branchInfo = Invoke-GitCapture -ArgList @('branch', '--show-current')
+    $currentBranch = (($branchInfo.Output | Out-String).Trim())
+    if ([string]::IsNullOrWhiteSpace($currentBranch)) { $currentBranch = '(unknown)' }
+
+    $statusInfo = Invoke-GitCapture -ArgList @('status', '--porcelain')
+    $hasLocalChanges = -not [string]::IsNullOrWhiteSpace((($statusInfo.Output | Out-String).Trim()))
+
+    Write-Log 'Git sync: fetch origin main'
+    $fetchInfo = Invoke-GitCapture -ArgList @('fetch', 'origin', 'main')
+    if ($fetchInfo.ExitCode -ne 0) {
+      Write-Log ("Git sync failed during fetch (exit={0})" -f $fetchInfo.ExitCode)
+    } else {
+      $ahead = -1
+      $behind = -1
+      $countsInfo = Invoke-GitCapture -ArgList @('rev-list', '--left-right', '--count', 'HEAD...origin/main')
+      if ($countsInfo.ExitCode -eq 0) {
+        $parts = ((($countsInfo.Output | Out-String).Trim()) -split '\s+')
+        if ($parts.Count -ge 2) {
+          try {
+            $ahead = [int]$parts[0]
+            $behind = [int]$parts[1]
+          } catch {
+            $ahead = -1
+            $behind = -1
+          }
+        }
+      }
+
+      Write-Log ("Git sync: branch={0} ahead={1} behind={2} dirty={3}" -f $currentBranch, $ahead, $behind, $hasLocalChanges)
+      $didFastForwardPull = $false
+      if ($currentBranch -eq 'main' -and -not $hasLocalChanges -and $ahead -eq 0 -and $behind -gt 0) {
+        Write-Log 'Git sync: pull --ff-only origin main'
+        $pullInfo = Invoke-GitCapture -ArgList @('pull', '--ff-only', 'origin', 'main')
+        if ($pullInfo.ExitCode -eq 0) {
+          $didFastForwardPull = $true
+          Write-Log 'Git sync: fast-forward pull succeeded'
+        } else {
+          Write-Log ("Git sync: fast-forward pull failed (exit={0}); falling back to managed artifact restore" -f $pullInfo.ExitCode)
+        }
+      } elseif ($currentBranch -eq 'main' -and -not $hasLocalChanges -and $ahead -eq 0 -and $behind -eq 0) {
+        Write-Log 'Git sync: local repo already matches origin/main'
+      } else {
+        Write-Log 'Git sync: skipping full repo pull; using managed artifact restore fallback'
+      }
+
+      if (-not $didFastForwardPull) {
+        $syncDates = @(Get-DailyManagedSyncDates -BaseDate $Date -FutureDays $LookAheadDays)
+        foreach ($syncDate in $syncDates) {
+          Sync-DateScopedManagedArtifactsFromRemote -TargetDate $syncDate -Remote 'origin' -Branch 'main'
+        }
+      }
     }
   } catch { Write-Log ("Git sync failed: {0}" -f $_.Exception.Message) }
 }

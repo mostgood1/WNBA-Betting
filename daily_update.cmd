@@ -7,8 +7,8 @@ REM   .\daily_update -Date 2025-10-21  -> override date
 setlocal
 set "SCRIPT_DIR=%~dp0"
 
-REM Always push by default; forward any user-provided args (e.g., -Date)
-powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%scripts\daily_update.ps1" -GitPush %*
+REM Always push by default; sync from origin/main first and forward user args (e.g., -Date)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT_DIR%scripts\daily_update.ps1" -GitPush -GitSyncFirst %*
 
 set EXITCODE=%ERRORLEVEL%
 exit /b %EXITCODE%

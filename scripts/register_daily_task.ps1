@@ -16,6 +16,7 @@ if (-not (Test-Path $scriptPath)) { throw "daily_update.ps1 not found at $script
 # Build the action to invoke PowerShell with our script
 $psExe = (Get-Command powershell.exe).Source
 $psArgs = @('-NoProfile','-ExecutionPolicy','Bypass','-File',"`"$scriptPath`"")
+$psArgs += '-GitSyncFirst'
 if ($GitPush) { $psArgs += '-GitPush' }
 $argLine = $psArgs -join ' '
 

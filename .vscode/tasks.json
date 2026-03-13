@@ -93,6 +93,7 @@
 				"Bypass",
 				"-File",
 				"${workspaceFolder}\\scripts\\daily_update.ps1",
+				"-GitSyncFirst",
 				"-GitPush"
 			],
 			"isBackground": false,
