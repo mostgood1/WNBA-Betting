@@ -7837,6 +7837,37 @@ def _count_props_recommendation_play_rows(p: Optional[Path]) -> int:
         return 0
 
 
+def _prune_invalid_props_recommendations_artifact(
+    edges_path: Optional[Path],
+    recommendations_path: Optional[Path],
+    log_cb=None,
+) -> bool:
+    try:
+        if int(_count_csv_rows_quick(edges_path) or 0) > 0:
+            return False
+        if not recommendations_path or (not recommendations_path.exists()) or (not recommendations_path.is_file()):
+            return False
+        if int(_count_csv_rows_quick(recommendations_path) or 0) <= 0:
+            return False
+        playable_rows = int(_count_props_recommendation_play_rows(recommendations_path) or 0)
+        if playable_rows > 0:
+            if callable(log_cb):
+                log_cb(
+                    f"Preserving existing same-day line-bearing props recommendations despite missing props_edges (playable_rows={playable_rows})."
+                )
+            return False
+        recommendations_path.unlink(missing_ok=True)
+        if callable(log_cb):
+            log_cb(
+                "Removed same-day props recommendations because props_edges is missing/empty and the artifact only contained model-only cards."
+            )
+        return True
+    except Exception as exc:
+        if callable(log_cb):
+            log_cb(f"Failed to prune invalid props recommendations artifact: {exc}")
+        return False
+
+
 def _find_fallback_odds_for_date(date_str: str) -> Optional[Path]:
     """Return best available non-Bovada odds file for the given date, if any.
 
@@ -8818,35 +8849,16 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
         rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
 
-        def _prune_invalid_props_recommendations() -> None:
-            try:
-                if int(_count_csv_rows_quick(edges_fp) or 0) > 0:
-                    return
-                if int(_count_csv_rows_quick(rec_fp) or 0) <= 0:
-                    return
-                playable_rows = int(_count_props_recommendation_play_rows(rec_fp) or 0)
-                if playable_rows > 0:
-                    _append_log(
-                        f"Preserving existing same-day line-bearing props recommendations despite missing props_edges (playable_rows={playable_rows})."
-                    )
-                    return
-                rec_fp.unlink(missing_ok=True)
-                _append_log(
-                    "Removed same-day props recommendations because props_edges is missing/empty and the artifact only contained model-only cards."
-                )
-            except Exception as exc:
-                _append_log(f"Failed to prune invalid props recommendations artifact: {exc}")
-
         rc_total = 0
         had_required_failure = False
         optional_failures: list[str] = []
         for label, cmd, required in steps:
-            if label == "export-props-recommendations" and not is_lookahead:
+            if label == "export-props-recommendations":
                 if int(_count_csv_rows_quick(edges_fp) or 0) <= 0:
                     _append_log(
                         "Skipping export-props-recommendations because props_edges is missing or empty; preserving only existing same-day line-bearing recommendations."
                     )
-                    _prune_invalid_props_recommendations()
+                    _prune_invalid_props_recommendations_artifact(edges_fp, rec_fp, log_cb=_append_log)
                     continue
             _append_log(f"Running step: {label}")
             _append_log(f"Cmd: {' '.join(cmd)}")
@@ -8868,7 +8880,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
 
             if edges_rows <= 0:
-                _prune_invalid_props_recommendations()
+                _prune_invalid_props_recommendations_artifact(edges_fp, rec_fp, log_cb=_append_log)
                 rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
 
             if require_props_lines and props_pred_rows > 0:
@@ -11061,7 +11073,7 @@ def api_cards():
             "betting": bet,
             "prop_recommendations": prop_recommendations,
         }
-        if missing_bits:
+        if missing_bits and not sim_error:
             game.setdefault("warnings", [])
             game["warnings"].append("Players with prop lines missing from SmartSim boxscore: " + " • ".join(missing_bits))
 
