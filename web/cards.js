@@ -631,7 +631,7 @@ function liveLensLineEntry(player, statKey) {
   return { line: null, source };
 }
 
-function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows) {
+function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows, lineOnlyPlayers) {
   const simArr = Array.isArray(simPlayers)
     ? simPlayers.filter((player) => !isUnavailableSimPlayer(player))
     : [];
@@ -641,6 +641,19 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
     : { byFull: new Map(), byShort: new Map() };
   const seenSim = new Set();
   const rows = [];
+  const rowByFull = new Map();
+  const rowByShort = new Map();
+
+  const rememberRow = (row) => {
+    const keys = playerMergeKeys(row && row.name);
+    if (keys.full && !rowByFull.has(keys.full)) rowByFull.set(keys.full, row);
+    if (keys.short && !rowByShort.has(keys.short)) rowByShort.set(keys.short, row);
+  };
+
+  const addRow = (row) => {
+    rows.push(row);
+    rememberRow(row);
+  };
 
   if (actualMode === 'live') {
     const liveArr = Array.isArray(actualRows) ? actualRows.slice() : [];
@@ -655,11 +668,13 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
       if (keys.full) simPlayer = simMaps.byFull.get(keys.full) || null;
       if (!simPlayer && keys.short) simPlayer = simMaps.byShort.get(keys.short) || null;
       const liveLensPlayer = findLiveLensPlayer(liveLensMaps, row && row.player);
-      rows.push({
+      addRow({
         name: String((row && row.player) || (simPlayer && simPlayer.player_name) || '').trim() || '—',
         simPlayer,
+        propPlayer: simPlayer,
         actual: mergeLiveActualStats(row, liveLensPlayer),
         liveLens: liveLensPlayer,
+        lineOnly: false,
       });
       if (simPlayer) seenSim.add(simPlayer);
     }
@@ -674,11 +689,13 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
         if (keys.full) reconRow = reconMaps.byFull.get(keys.full) || null;
         if (!reconRow && keys.short) reconRow = reconMaps.byShort.get(keys.short) || null;
       }
-      rows.push({
+      addRow({
         name: String((simPlayer && simPlayer.player_name) || (reconRow && (reconRow.player_name || reconRow.player)) || '').trim() || '—',
         simPlayer,
+        propPlayer: simPlayer,
         actual: reconRow ? reconPlayerBoxscoreStats(reconRow) : null,
         liveLens: null,
+        lineOnly: false,
       });
       seenSim.add(simPlayer);
     }
@@ -689,11 +706,38 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
     const liveLensPlayer = actualMode === 'live'
       ? findLiveLensPlayer(liveLensMaps, simPlayer && simPlayer.player_name)
       : null;
-    rows.push({
+    addRow({
       name: String((simPlayer && simPlayer.player_name) || '').trim() || '—',
       simPlayer,
+      propPlayer: simPlayer,
       actual: (actualMode === 'live' && liveLensPlayer) ? liveLensPlayerActualStats(liveLensPlayer) : null,
       liveLens: liveLensPlayer,
+      lineOnly: false,
+    });
+  }
+
+  for (const player of (Array.isArray(lineOnlyPlayers) ? lineOnlyPlayers : [])) {
+    if (!boxscorePlayerHasAnyPropLine(player)) continue;
+    const keys = playerMergeKeys(player && player.player_name);
+    let existingRow = null;
+    if (keys.full) existingRow = rowByFull.get(keys.full) || null;
+    if (!existingRow && keys.short) existingRow = rowByShort.get(keys.short) || null;
+    if (existingRow) {
+      existingRow.propPlayer = player;
+      if (!existingRow.simPlayer) existingRow.lineOnly = true;
+      continue;
+    }
+
+    const liveLensPlayer = actualMode === 'live'
+      ? findLiveLensPlayer(liveLensMaps, player && player.player_name)
+      : null;
+    addRow({
+      name: String((player && player.player_name) || '').trim() || '—',
+      simPlayer: null,
+      propPlayer: player,
+      actual: (actualMode === 'live' && liveLensPlayer) ? liveLensPlayerActualStats(liveLensPlayer) : null,
+      liveLens: liveLensPlayer,
+      lineOnly: true,
     });
   }
 
@@ -714,7 +758,7 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
   });
 
   const top = rows.slice(0, 12);
-  const extras = rows.slice(12).filter((row) => boxscorePlayerHasAnyPropLine(row && row.simPlayer ? row.simPlayer : null));
+  const extras = rows.slice(12).filter((row) => boxscorePlayerHasAnyPropLine(row && (row.propPlayer || row.simPlayer)));
   return top.concat(extras);
 }
 
@@ -745,8 +789,75 @@ function fmtSimBoxscoreStat(_statKey, value) {
   return fmt(v, 1);
 }
 
+function boxscorePropSimMean(player, statKey) {
+  const sim = simPlayerBoxscoreStats(player);
+  return n(sim && sim[statKey]);
+}
+
+function boxscorePropLeanForLine(player, statKey, line) {
+  const mean = boxscorePropSimMean(player, statKey);
+  if (mean == null || line == null) return '';
+  return mean >= line ? 'O' : 'U';
+}
+
+function boxscorePropLineOptions(player, statKey) {
+  try {
+    const propLineOptions = player && typeof player.prop_line_options === 'object' ? player.prop_line_options : null;
+    const rawOptions = Array.isArray(propLineOptions && propLineOptions[statKey]) ? propLineOptions[statKey] : [];
+    const normalized = rawOptions
+      .map((option) => {
+        const line = n(option && option.line);
+        if (line == null) return null;
+        const sideRaw = String(option && option.side ? option.side : '').trim().toUpperCase();
+        const side = (sideRaw === 'OVER' || sideRaw === 'UNDER') ? sideRaw : '';
+        return {
+          line,
+          side,
+          lean: boxscorePropLeanForLine(player, statKey, line),
+          books: Array.isArray(option && option.books) ? option.books : [],
+          bookCount: Math.max(0, Number(option && option.book_count) || 0),
+          bestPrice: n(option && option.best_price),
+          recommended: !!(option && option.recommended),
+          recommendedPrimary: !!(option && option.recommended_primary),
+          recommendationAction: String(option && option.recommendation_action ? option.recommendation_action : '').trim(),
+          recommendationSummary: String(option && option.recommendation_summary ? option.recommendation_summary : '').trim(),
+          recommendationBook: String(option && option.recommendation_book ? option.recommendation_book : '').trim(),
+          recommendationPrice: n(option && option.recommendation_price),
+          recommendationPlayToLine: n(option && option.recommendation_play_to_line),
+          recommendationEvPct: n(option && option.recommendation_ev_pct),
+        };
+      })
+      .filter(Boolean);
+    if (normalized.length) return normalized;
+  } catch (_) {
+    // Ignore malformed payloads and fall through to the legacy single-line shape.
+  }
+
+  const propLines = player && typeof player.prop_lines === 'object' ? player.prop_lines : null;
+  const line = n(propLines && propLines[statKey]);
+  if (line == null) return [];
+  return [{
+    line,
+    side: '',
+    lean: boxscorePropLeanForLine(player, statKey, line),
+    books: [],
+    bookCount: 0,
+    bestPrice: null,
+    recommended: false,
+    recommendedPrimary: false,
+    recommendationAction: '',
+    recommendationSummary: '',
+    recommendationBook: '',
+    recommendationPrice: null,
+    recommendationPlayToLine: null,
+    recommendationEvPct: null,
+  }];
+}
+
 function boxscorePropLineValue(player, statKey) {
   try {
+    const options = boxscorePropLineOptions(player, statKey);
+    if (options.length) return n(options[0] && options[0].line);
     const propLines = player && typeof player.prop_lines === 'object' ? player.prop_lines : null;
     return n(propLines && propLines[statKey]);
   } catch (_) {
@@ -755,7 +866,7 @@ function boxscorePropLineValue(player, statKey) {
 }
 
 function boxscorePlayerHasAnyPropLine(player) {
-  return ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra'].some((statKey) => boxscorePropLineValue(player, statKey) != null);
+  return ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra'].some((statKey) => boxscorePropLineOptions(player, statKey).length > 0);
 }
 
 function selectVisibleBoxscorePlayers(players, baseCount) {
@@ -769,10 +880,7 @@ function selectVisibleBoxscorePlayers(players, baseCount) {
 
 function boxscorePropLean(player, statKey) {
   const line = boxscorePropLineValue(player, statKey);
-  const sim = simPlayerBoxscoreStats(player);
-  const mean = n(sim && sim[statKey]);
-  if (line == null || mean == null) return '';
-  return mean >= line ? 'O' : 'U';
+  return boxscorePropLeanForLine(player, statKey, line);
 }
 
 function renderSimBoxscoreStatCell(player, statKey, value) {
@@ -799,15 +907,49 @@ function renderLiveBoxscoreStatCell(actualStats, liveLensPlayer, statKey) {
 }
 
 function renderBoxscorePropLineCell(player, statKey) {
-  const line = boxscorePropLineValue(player, statKey);
-  const lean = boxscorePropLean(player, statKey);
-  if (line == null) return '<span class="subtle">—</span>';
+  const options = boxscorePropLineOptions(player, statKey);
+  if (!options.length) return '<span class="subtle">—</span>';
 
-  const tone = lean === 'O' ? 'over' : (lean === 'U' ? 'under' : 'neutral');
-  const title = lean
-    ? `Prop line ${fmt(line, 1)} with sim ${lean === 'O' ? 'over' : 'under'} the market.`
-    : `Prop line ${fmt(line, 1)}.`;
-  return `<span class="boxscore-prop-pill ${tone}" title="${esc(title)}">${esc(fmt(line, 1))}${lean ? ` ${esc(lean)}` : ''}</span>`;
+  return `
+    <div class="boxscore-prop-stack">
+      ${options.map((option) => {
+        const line = n(option && option.line);
+        const lean = String(option && option.lean ? option.lean : '').trim().toUpperCase();
+        const side = String(option && option.side ? option.side : '').trim().toUpperCase();
+        const sideShort = side === 'OVER' ? 'O' : (side === 'UNDER' ? 'U' : '');
+        const tone = lean === 'O' ? 'over' : (lean === 'U' ? 'under' : 'neutral');
+        const label = sideShort
+          ? `${sideShort}${fmt(line, 1)}`
+          : `${fmt(line, 1)}${lean ? ` ${lean}` : ''}`;
+        const bookCount = Math.max(0, Number(option && option.bookCount) || 0);
+        const books = Array.isArray(option && option.books) ? option.books : [];
+        const bookNames = books
+          .map((book) => String(book && (book.book_title || book.book) ? (book.book_title || book.book) : '').trim())
+          .filter(Boolean);
+        const titleBits = [];
+        titleBits.push(sideShort ? `${side === 'OVER' ? 'Over' : 'Under'} ${fmt(line, 1)}` : `Prop line ${fmt(line, 1)}`);
+        if (lean) titleBits.push(`sim leans ${lean === 'O' ? 'over' : 'under'}`);
+        if (bookCount) titleBits.push(bookCount === 1 ? '1 book posted' : `${bookCount} books posted`);
+        if (n(option && option.bestPrice) != null) titleBits.push(`best price ${fmt(Number(option.bestPrice), 0)}`);
+        if (bookNames.length) titleBits.push(`books: ${bookNames.join(', ')}`);
+        if (option && option.recommendedPrimary) titleBits.push('primary recommendation');
+        else if (option && option.recommended) titleBits.push('recommended option');
+        if (option && option.recommendationAction) titleBits.push(`guidance: ${option.recommendationAction}`);
+        if (n(option && option.recommendationPlayToLine) != null) titleBits.push(`play to ${fmt(Number(option.recommendationPlayToLine), 1)}`);
+        if (n(option && option.recommendationPrice) != null) titleBits.push(`recommended price ${fmt(Number(option.recommendationPrice), 0)}`);
+        if (n(option && option.recommendationEvPct) != null) titleBits.push(`EV ${fmt(Number(option.recommendationEvPct), 1)}%`);
+        if (option && option.recommendationSummary) titleBits.push(option.recommendationSummary);
+        const title = titleBits.join('. ');
+        return `
+          <span class="boxscore-prop-pill ${tone}${option && option.recommended ? ' recommended' : ''}${option && option.recommendedPrimary ? ' recommended-primary' : ''}" title="${esc(title)}">
+            <span class="boxscore-prop-pill-main">${esc(label)}</span>
+            ${bookCount > 1 ? `<span class="boxscore-prop-pill-count">${esc(`${bookCount}x`)}</span>` : ''}
+            ${option && option.recommendedPrimary ? '<span class="boxscore-prop-pill-tag">BEST</span>' : (option && option.recommended ? '<span class="boxscore-prop-pill-tag">REC</span>' : '')}
+          </span>
+        `;
+      }).join('')}
+    </div>
+  `;
 }
 
 function renderLiveBoxscorePropLineCell(liveLensPlayer, statKey) {
@@ -1056,34 +1198,35 @@ function renderActualBoxscoreTotalsCells(rows, actualMode) {
   `;
 }
 
-function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel, liveLensRows) {
+function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel, liveLensRows, lineOnlyPlayers) {
   const isLiveMode = actualMode === 'live';
   const actualHeaderCols = isLiveMode ? 17 : 9;
   const totalCols = 1 + actualHeaderCols + 17;
-  const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows);
+  const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows, lineOnlyPlayers);
   const body = rows.map((row) => {
     const sim = simPlayerBoxscoreStats(row && row.simPlayer ? row.simPlayer : null);
+    const propPlayer = row && (row.propPlayer || row.simPlayer) ? (row.propPlayer || row.simPlayer) : null;
     return `
       <tr>
-        <td>${esc(row && row.name ? row.name : '—')}</td>
+        <td>${esc(row && row.name ? row.name : '—')}${row && row.lineOnly ? ' <span class="boxscore-line-only-flag">LINES</span>' : ''}</td>
         ${renderActualBoxscoreCells(row, actualMode)}
         <td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pts')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'pts')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'reb', sim.reb)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'reb')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'reb')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'ast', sim.ast)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'ast')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'ast')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'threes', sim.threes)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'threes')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'threes')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'stl', sim.stl)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'stl')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'stl')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'blk', sim.blk)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'blk')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'blk')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'tov', sim.tov)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'tov')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'tov')}</td>
         <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pra', sim.pra)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(row && row.simPlayer ? row.simPlayer : null, 'pra')}</td>
+        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'pra')}</td>
       </tr>
     `;
   }).join('');
@@ -1231,12 +1374,14 @@ function renderMissingSimPropLineAudit(meta) {
   const home = meta && Array.isArray(meta.missing_prop_players_home) ? meta.missing_prop_players_home : [];
   if (!away.length && !home.length) return '';
 
+  const parts = [];
+  if (away.length) parts.push(`${away.length} away line-only players`);
+  if (home.length) parts.push(`${home.length} home line-only players`);
+
   return `
     <div class="alert boxscore-missing-audit">
       <div class="merged-boxscore-title">SmartSim coverage audit</div>
-      <div class="subtle">Players with market lines that are missing from the SmartSim player list. Re-run the sim if these players should be projected.</div>
-      ${away.length ? renderMissingSimPropPlayersTable(`AWAY (${meta && meta.away ? meta.away : 'Away'}) missing from sim`, away) : ''}
-      ${home.length ? renderMissingSimPropPlayersTable(`HOME (${meta && meta.home ? meta.home : 'Home'}) missing from sim`, home) : ''}
+      <div class="subtle">${esc(parts.join(', '))} are shown directly in the merged player table with blank sim columns. Re-run SmartSim if those players should be projected.</div>
     </div>
   `;
 }
@@ -1254,7 +1399,7 @@ function renderMergedBoxscoreSection(meta, actualSource) {
   let note = 'Live columns are prebuilt here and fill once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
   if (sourceMode === 'live') note = `${label} columns refresh from ESPN summary data.`;
-  note += ' Sim columns include dedicated prop-line fields when markets are available.';
+  note += ' Sim columns include all posted prop-line groups when markets are available, and recommendation-tagged options are marked inline.';
 
   return `
     <div class="merged-boxscore-block">
@@ -1262,8 +1407,8 @@ function renderMergedBoxscoreSection(meta, actualSource) {
       <div class="subtle">${esc(note)}</div>
       ${renderMissingSimPropLineAudit(meta)}
       ${renderLineScoreBlock(meta, source)}
-      ${renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label, awayLensRows)}
-      ${renderComparePlayerBoxscoreTable(`HOME (${meta && meta.home ? meta.home : 'Home'})`, meta && meta.sim_players_home ? meta.sim_players_home : [], homeRows, mode, label, homeLensRows)}
+      ${renderComparePlayerBoxscoreTable(`AWAY (${meta && meta.away ? meta.away : 'Away'})`, meta && meta.sim_players_away ? meta.sim_players_away : [], awayRows, mode, label, awayLensRows, meta && meta.missing_prop_players_away ? meta.missing_prop_players_away : [])}
+      ${renderComparePlayerBoxscoreTable(`HOME (${meta && meta.home ? meta.home : 'Home'})`, meta && meta.sim_players_home ? meta.sim_players_home : [], homeRows, mode, label, homeLensRows, meta && meta.missing_prop_players_home ? meta.missing_prop_players_home : [])}
     </div>
   `;
 }

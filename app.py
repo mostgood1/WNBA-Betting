@@ -10431,32 +10431,94 @@ def api_cards():
         return {
             "pts": "pts",
             "points": "pts",
+            "player_points": "pts",
+            "player_points_alternate": "pts",
             "reb": "reb",
             "rebounds": "reb",
+            "player_rebounds": "reb",
+            "player_rebounds_alternate": "reb",
             "ast": "ast",
             "assists": "ast",
+            "player_assists": "ast",
+            "player_assists_alternate": "ast",
             "threes": "threes",
             "3pm": "threes",
             "3ptm": "threes",
             "fg3m": "threes",
+            "player_threes": "threes",
             "stl": "stl",
             "steal": "stl",
             "steals": "stl",
+            "player_steals": "stl",
             "blk": "blk",
             "block": "blk",
             "blocks": "blk",
+            "player_blocks": "blk",
             "tov": "tov",
             "to": "tov",
             "turnover": "tov",
             "turnovers": "tov",
+            "player_turnovers": "tov",
             "pra": "pra",
+            "player_points_rebounds_assists": "pra",
+            "player_points_rebounds_assists_alternate": "pra",
+            "pa": "pa",
+            "player_points_assists": "pa",
+            "pr": "pr",
+            "player_points_rebounds": "pr",
+            "ra": "ra",
+            "player_rebounds_assists": "ra",
         }.get(mk)
+
+    def _canonical_boxscore_prop_side(side: Any) -> str | None:
+        try:
+            s = str(side or "").strip().lower()
+        except Exception:
+            return None
+        if s in {"over", "o"}:
+            return "OVER"
+        if s in {"under", "u"}:
+            return "UNDER"
+        return None
+
+    def _boxscore_prop_option_sort_key(option: dict[str, Any]) -> tuple[int, float]:
+        side = _canonical_boxscore_prop_side(option.get("side"))
+        line = _safe_float(option.get("line"))
+        line_key = float(line) if line is not None else float("inf")
+        if side == "OVER":
+            return (0, line_key)
+        if side == "UNDER":
+            return (1, -line_key)
+        return (2, line_key)
+
+    def _resolve_boxscore_prop_team_from_snapshot(player_name: Any, home_team: Any, away_team: Any) -> str | None:
+        player_key = _norm_player_name_for_keys(player_name)
+        if not player_key:
+            return None
+
+        home_tri_key = str(_get_tricode(str(home_team or "")) or "").strip().upper()
+        away_tri_key = str(_get_tricode(str(away_team or "")) or "").strip().upper()
+        home_roster = roster_map.get(home_tri_key) or set()
+        away_roster = roster_map.get(away_tri_key) or set()
+
+        if home_tri_key and player_key in home_roster and player_key not in away_roster:
+            return home_tri_key
+        if away_tri_key and player_key in away_roster and player_key not in home_roster:
+            return away_tri_key
+        if home_tri_key and player_key in home_roster:
+            return home_tri_key
+        if away_tri_key and player_key in away_roster:
+            return away_tri_key
+        return None
 
     def _choose_boxscore_prop_line(lines: list[float], target: Any) -> float | None:
         clean: list[float] = []
         for vv in (lines or []):
             try:
-                fv = float(vv)
+                if isinstance(vv, dict):
+                    fv = float(vv.get("line"))
+                else:
+                    fv = float(vv)
                 if np.isfinite(fv):
                     clean.append(fv)
             except Exception:
@@ -10481,6 +10543,20 @@ def api_cards():
         player_name: Any,
         market: Any,
         line_val: Any,
+        side: Any = None,
+        price: Any = None,
+        book: Any = None,
+        book_title: Any = None,
+        source: Any = None,
+        edge: Any = None,
+        ev: Any = None,
+        ev_pct: Any = None,
+        snapshot_ts: Any = None,
+        last_update: Any = None,
+        open_line: Any = None,
+        open_price: Any = None,
+        line_move: Any = None,
+        implied_move: Any = None,
     ) -> None:
         team_key = str(team_tri or "").strip().upper()
         player_label = str(player_name or "").strip()
@@ -10495,10 +10571,294 @@ def api_cards():
             entry["player_name"] = player_label
         markets = entry.setdefault("markets", {})
         if isinstance(markets, dict):
-            markets.setdefault(market_key, []).append(float(line_num))
+            option = {
+                "line": float(line_num),
+                "side": _canonical_boxscore_prop_side(side),
+                "price": _safe_float(price),
+                "book": _canonical_bookmaker_key(book) or None,
+                "book_title": (str(book_title).strip() if str(book_title or "").strip() else None),
+                "source": (str(source).strip().lower() if str(source or "").strip() else None),
+                "edge": _safe_float(edge),
+                "ev": _safe_float(ev),
+                "ev_pct": _safe_float(ev_pct),
+                "snapshot_ts": (str(snapshot_ts).strip() if str(snapshot_ts or "").strip() else None),
+                "last_update": (str(last_update).strip() if str(last_update or "").strip() else None),
+                "open_line": _safe_float(open_line),
+                "open_price": _safe_float(open_price),
+                "line_move": _safe_float(line_move),
+                "implied_move": _safe_float(implied_move),
+            }
+            if option.get("ev_pct") is None and option.get("ev") is not None:
+                try:
+                    option["ev_pct"] = float(option.get("ev")) * 100.0
+                except Exception:
+                    pass
+            markets.setdefault(market_key, []).append(option)
+
+    def _aggregate_boxscore_prop_options(options: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        grouped: dict[tuple[str | None, float], dict[str, Any]] = {}
+        for raw in (options or []):
+            if not isinstance(raw, dict):
+                continue
+            line_val = _safe_float(raw.get("line"))
+            if line_val is None:
+                continue
+            side = _canonical_boxscore_prop_side(raw.get("side"))
+            key = (side, float(line_val))
+            group = grouped.get(key)
+            if group is None:
+                group = {
+                    "side": side,
+                    "line": float(line_val),
+                    "books": [],
+                    "book_count": 0,
+                    "best_price": None,
+                    "edge": None,
+                    "ev": None,
+                    "ev_pct": None,
+                    "sources": [],
+                }
+                grouped[key] = group
+
+            source = str(raw.get("source") or "").strip().lower()
+            if source and source not in group["sources"]:
+                group["sources"].append(source)
+
+            price_val = _safe_float(raw.get("price"))
+            best_price = _safe_float(group.get("best_price"))
+            if price_val is not None and (best_price is None or float(price_val) > float(best_price)):
+                group["best_price"] = float(price_val)
+
+            for metric_key in ("edge", "ev", "ev_pct"):
+                raw_metric = _safe_float(raw.get(metric_key))
+                cur_metric = _safe_float(group.get(metric_key))
+                if raw_metric is None:
+                    continue
+                if cur_metric is None or abs(float(raw_metric)) > abs(float(cur_metric)):
+                    group[metric_key] = float(raw_metric)
+
+            book_key = _canonical_bookmaker_key(raw.get("book")) or None
+            if book_key:
+                matched_book = None
+                for book_row in group["books"]:
+                    if str(book_row.get("book") or "") == book_key:
+                        matched_book = book_row
+                        break
+                if matched_book is None:
+                    matched_book = {
+                        "book": book_key,
+                        "book_title": (str(raw.get("book_title")).strip() if str(raw.get("book_title") or "").strip() else None),
+                        "price": price_val,
+                        "snapshot_ts": (str(raw.get("snapshot_ts")).strip() if str(raw.get("snapshot_ts") or "").strip() else None),
+                        "last_update": (str(raw.get("last_update")).strip() if str(raw.get("last_update") or "").strip() else None),
+                        "open_line": _safe_float(raw.get("open_line")),
+                        "open_price": _safe_float(raw.get("open_price")),
+                        "line_move": _safe_float(raw.get("line_move")),
+                        "implied_move": _safe_float(raw.get("implied_move")),
+                    }
+                    group["books"].append(matched_book)
+                else:
+                    cur_price = _safe_float(matched_book.get("price"))
+                    if price_val is not None and (cur_price is None or float(price_val) > float(cur_price)):
+                        matched_book["price"] = float(price_val)
+                    for meta_key in ("book_title", "snapshot_ts", "last_update"):
+                        if not matched_book.get(meta_key):
+                            meta_val = str(raw.get(meta_key) or "").strip()
+                            if meta_val:
+                                matched_book[meta_key] = meta_val
+                    for meta_key in ("open_line", "open_price", "line_move", "implied_move"):
+                        if _safe_float(matched_book.get(meta_key)) is None:
+                            meta_val = _safe_float(raw.get(meta_key))
+                            if meta_val is not None:
+                                matched_book[meta_key] = float(meta_val)
+
+        out_options: list[dict[str, Any]] = []
+        for group in grouped.values():
+            books = group.get("books") if isinstance(group.get("books"), list) else []
+            books.sort(
+                key=lambda book_row: (
+                    -(_safe_float(book_row.get("price")) if _safe_float(book_row.get("price")) is not None else float("-inf")),
+                    str(book_row.get("book_title") or book_row.get("book") or ""),
+                )
+            )
+            group["book_count"] = len(books)
+            out_options.append(group)
+
+        out_options.sort(key=_boxscore_prop_option_sort_key)
+        return out_options
+
+    def _build_boxscore_player_prop_payload(
+        team_tri: Any,
+        player_name: Any,
+        mean_targets: dict[str, Any] | None = None,
+    ) -> tuple[dict[str, float], dict[str, list[dict[str, Any]]]]:
+        player_key = _norm_player_name_for_keys(player_name)
+        team_key = str(team_tri or "").strip().upper()
+        player_entry = (team_boxscore_prop_sources.get(team_key) or {}).get(player_key) or {}
+        player_markets = player_entry.get("markets") if isinstance(player_entry.get("markets"), dict) else {}
+
+        prop_lines: dict[str, float] = {}
+        prop_line_options: dict[str, list[dict[str, Any]]] = {}
+        target_map = mean_targets if isinstance(mean_targets, dict) else {}
+
+        for market_key, mean_key in (
+            ("pts", "pts_mean"),
+            ("reb", "reb_mean"),
+            ("ast", "ast_mean"),
+            ("threes", "threes_mean"),
+            ("stl", "stl_mean"),
+            ("blk", "blk_mean"),
+            ("tov", "tov_mean"),
+            ("pra", "pra_mean"),
+        ):
+            raw_options = list((player_markets or {}).get(market_key) or [])
+            grouped_options = _aggregate_boxscore_prop_options(raw_options)
+            if grouped_options:
+                prop_line_options[market_key] = grouped_options
+
+            line_val = _safe_float(props_edges_line_idx.get((team_key, player_key, market_key))) if player_key else None
+            if line_val is None:
+                line_val = _choose_boxscore_prop_line(raw_options, target_map.get(mean_key))
+            if line_val is not None:
+                prop_lines[market_key] = float(line_val)
+
+        return prop_lines, prop_line_options
+
+    def _build_boxscore_prop_recommendation_index(prop_recs: dict[str, list[dict[str, Any]]]) -> dict[tuple[str, str, str, str, float], list[dict[str, Any]]]:
+        out: dict[tuple[str, str, str, str, float], list[dict[str, Any]]] = {}
+        for rows in (prop_recs or {}).values():
+            for row in (rows or []):
+                if not isinstance(row, dict):
+                    continue
+                team_key = str(row.get("team") or "").strip().upper()
+                player_key = _norm_player_name_for_keys(row.get("player"))
+                if not team_key or not player_key:
+                    continue
+                picks = row.get("picks") if isinstance(row.get("picks"), list) else []
+                if not picks and isinstance(row.get("best"), dict):
+                    picks = [row.get("best")]
+                for rank, pick in enumerate(picks, start=1):
+                    if not isinstance(pick, dict):
+                        continue
+                    market_key = _boxscore_prop_market_key(pick.get("market"))
+                    side_key = _canonical_boxscore_prop_side(pick.get("side"))
+                    line_val = _safe_float(pick.get("line"))
+                    if not team_key or not player_key or not market_key or not side_key or line_val is None:
+                        continue
+                    guidance = pick.get("guidance") if isinstance(pick.get("guidance"), dict) else {}
+                    out.setdefault((team_key, player_key, market_key, side_key, float(line_val)), []).append(
+                        {
+                            "rank": int(rank),
+                            "primary": bool(rank == 1),
+                            "book": _canonical_bookmaker_key(pick.get("book")) or None,
+                            "price": _safe_float(pick.get("price")),
+                            "ev_pct": _safe_float(pick.get("ev_pct")),
+                            "action": (str(guidance.get("action") or "").strip() if str(guidance.get("action") or "").strip() else None),
+                            "action_code": (str(guidance.get("action_code") or "").strip() if str(guidance.get("action_code") or "").strip() else None),
+                            "play_to_line": _safe_float(guidance.get("play_to_line")),
+                            "summary": (str(guidance.get("summary") or "").strip() if str(guidance.get("summary") or "").strip() else None),
+                        }
+                    )
+        return out
+
+    def _apply_boxscore_prop_recommendation_markers(
+        rows: list[dict[str, Any]],
+        team_tri: str,
+        rec_index: dict[tuple[str, str, str, str, float], list[dict[str, Any]]],
+    ) -> None:
+        team_key = str(team_tri or "").strip().upper()
+        if not team_key:
+            return
+        for row in (rows or []):
+            if not isinstance(row, dict):
+                continue
+            player_key = _norm_player_name_for_keys(row.get("player_name"))
+            if not player_key:
+                continue
+            line_options = row.get("prop_line_options") if isinstance(row.get("prop_line_options"), dict) else {}
+            if not line_options:
+                continue
+            for market_key, options in line_options.items():
+                if not isinstance(options, list):
+                    continue
+                for option in options:
+                    if not isinstance(option, dict):
+                        continue
+                    side_key = _canonical_boxscore_prop_side(option.get("side"))
+                    line_val = _safe_float(option.get("line"))
+                    if not side_key or line_val is None:
+                        continue
+                    matches = rec_index.get((team_key, player_key, str(market_key), side_key, float(line_val))) or []
+                    if not matches:
+                        continue
+                    matches.sort(
+                        key=lambda rr: (
+                            0 if rr.get("primary") else 1,
+                            int(rr.get("rank") or 9999),
+                            -(_safe_float(rr.get("ev_pct")) if _safe_float(rr.get("ev_pct")) is not None else float("-inf")),
+                        )
+                    )
+                    best_match = matches[0]
+                    option["recommended"] = True
+                    option["recommended_primary"] = any(bool(rr.get("primary")) for rr in matches)
+                    option["recommendation_rank"] = min(int(rr.get("rank") or 9999) for rr in matches)
+                    rec_evs = [_safe_float(rr.get("ev_pct")) for rr in matches if _safe_float(rr.get("ev_pct")) is not None]
+                    if rec_evs:
+                        option["recommendation_ev_pct"] = max(float(v) for v in rec_evs)
+                    for meta_key in ("book", "price", "action", "action_code", "play_to_line", "summary"):
+                        meta_val = best_match.get(meta_key)
+                        if meta_val is not None:
+                            option[f"recommendation_{meta_key}"] = meta_val
+                options.sort(
+                    key=lambda opt: (
+                        0 if opt.get("recommended_primary") else (1 if opt.get("recommended") else 2),
+                        *_boxscore_prop_option_sort_key(opt),
+                    )
+                )
 
     def _build_boxscore_prop_line_sources(date_str: str) -> dict[str, dict[str, dict[str, Any]]]:
         out: dict[str, dict[str, dict[str, Any]]] = {}
+        try:
+            raw_p = _live_find_processed_csv("oddsapi_player_props", date_str)
+            if raw_p:
+                df = pd.read_csv(raw_p)
+                if df is not None and not df.empty:
+                    cols = {str(c).strip().lower(): str(c) for c in df.columns}
+                    market_col = cols.get("market")
+                    name_col = cols.get("player_name")
+                    line_col = cols.get("point")
+                    side_col = cols.get("outcome_name")
+                    price_col = cols.get("price")
+                    book_col = cols.get("bookmaker")
+                    book_title_col = cols.get("bookmaker_title")
+                    home_col = cols.get("home_team")
+                    away_col = cols.get("away_team")
+                    snapshot_col = cols.get("snapshot_ts")
+                    last_update_col = cols.get("last_update")
+                    if market_col and name_col and line_col and side_col and home_col and away_col:
+                        for _, row in df.iterrows():
+                            team_tri = _resolve_boxscore_prop_team_from_snapshot(
+                                row.get(name_col),
+                                row.get(home_col),
+                                row.get(away_col),
+                            )
+                            _remember_boxscore_prop_line(
+                                out,
+                                team_tri,
+                                row.get(name_col),
+                                row.get(market_col),
+                                row.get(line_col),
+                                side=row.get(side_col),
+                                price=row.get(price_col) if price_col else None,
+                                book=row.get(book_col) if book_col else None,
+                                book_title=row.get(book_title_col) if book_title_col else None,
+                                source="snapshot",
+                                snapshot_ts=row.get(snapshot_col) if snapshot_col else None,
+                                last_update=row.get(last_update_col) if last_update_col else None,
+                            )
+        except Exception:
+            pass
+
         try:
             edges_p = _live_find_processed_csv("props_edges", date_str)
             if edges_p:
@@ -10509,6 +10869,17 @@ def api_cards():
                     ncol = cols.get("player_name")
                     scol = cols.get("stat")
                     lcol = cols.get("line")
+                    side_col = cols.get("side")
+                    price_col = cols.get("price")
+                    edge_col = cols.get("edge")
+                    ev_col = cols.get("ev")
+                    book_col = cols.get("bookmaker")
+                    book_title_col = cols.get("bookmaker_title")
+                    snapshot_col = cols.get("snapshot_ts")
+                    open_line_col = cols.get("open_line")
+                    open_price_col = cols.get("open_price")
+                    line_move_col = cols.get("line_move")
+                    implied_move_col = cols.get("implied_move")
                     if tcol and ncol and scol and lcol:
                         for _, row in df.iterrows():
                             _remember_boxscore_prop_line(
@@ -10517,6 +10888,18 @@ def api_cards():
                                 row.get(ncol),
                                 row.get(scol),
                                 row.get(lcol),
+                                side=row.get(side_col) if side_col else None,
+                                price=row.get(price_col) if price_col else None,
+                                book=row.get(book_col) if book_col else None,
+                                book_title=row.get(book_title_col) if book_title_col else None,
+                                source="edges",
+                                edge=row.get(edge_col) if edge_col else None,
+                                ev=row.get(ev_col) if ev_col else None,
+                                snapshot_ts=row.get(snapshot_col) if snapshot_col else None,
+                                open_line=row.get(open_line_col) if open_line_col else None,
+                                open_price=row.get(open_price_col) if open_price_col else None,
+                                line_move=row.get(line_move_col) if line_move_col else None,
+                                implied_move=row.get(implied_move_col) if implied_move_col else None,
                             )
         except Exception:
             pass
@@ -10534,6 +10917,13 @@ def api_cards():
                             player_name,
                             play.get("market"),
                             play.get("line"),
+                            side=play.get("side"),
+                            price=play.get("price"),
+                            book=play.get("book"),
+                            source="recommendations",
+                            edge=play.get("edge"),
+                            ev=play.get("ev"),
+                            ev_pct=play.get("ev_pct"),
                         )
         except Exception:
             pass
@@ -10783,28 +11173,12 @@ def api_cards():
 
                 try:
                     tri = home_tri if side == "home" else away_tri
-                    player_key = _norm_player_name_for_keys(pr2.get("player_name"))
                     tri_key = str(tri or "").strip().upper()
-                    player_entry = (team_boxscore_prop_sources.get(tri_key) or {}).get(player_key) or {}
-                    player_lines = player_entry.get("markets") if isinstance(player_entry, dict) else {}
-                    prop_lines: dict[str, float] = {}
-                    for market_key, mean_key in (
-                        ("pts", "pts_mean"),
-                        ("reb", "reb_mean"),
-                        ("ast", "ast_mean"),
-                        ("threes", "threes_mean"),
-                        ("stl", "stl_mean"),
-                        ("blk", "blk_mean"),
-                        ("tov", "tov_mean"),
-                        ("pra", "pra_mean"),
-                    ):
-                        line_val = _safe_float(props_edges_line_idx.get((tri_key, player_key, market_key))) if player_key else None
-                        if line_val is None:
-                            line_val = _choose_boxscore_prop_line(player_lines.get(market_key) or [], pr2.get(mean_key))
-                        if line_val is not None:
-                            prop_lines[market_key] = float(line_val)
+                    prop_lines, prop_line_options = _build_boxscore_player_prop_payload(tri_key, pr2.get("player_name"), pr2)
                     if prop_lines:
                         pr2["prop_lines"] = prop_lines
+                    if prop_line_options:
+                        pr2["prop_line_options"] = prop_line_options
                 except Exception:
                     pass
 
@@ -10834,14 +11208,12 @@ def api_cards():
                 player_name = str(entry.get("player_name") or "").strip()
                 if not player_name or _player_known_unavailable(team_key, player_name):
                     continue
-                markets = entry.get("markets") if isinstance(entry.get("markets"), dict) else {}
-                prop_lines: dict[str, float] = {}
-                for market_key in ("pts", "reb", "ast", "threes", "stl", "blk", "tov", "pra"):
-                    line_val = _choose_boxscore_prop_line((markets or {}).get(market_key) or [], None)
-                    if line_val is not None:
-                        prop_lines[market_key] = float(line_val)
+                prop_lines, prop_line_options = _build_boxscore_player_prop_payload(team_key, player_name, None)
                 if prop_lines:
-                    out_rows.append({"player_name": player_name, "prop_lines": prop_lines})
+                    row_out = {"player_name": player_name, "prop_lines": prop_lines}
+                    if prop_line_options:
+                        row_out["prop_line_options"] = prop_line_options
+                    out_rows.append(row_out)
 
             out_rows.sort(key=lambda row: str(row.get("player_name") or "").strip().upper())
             return out_rows
@@ -11045,6 +11417,15 @@ def api_cards():
             min_ev_pct=min_ev_pct,
             excluded_books=excluded_books,
         )
+
+        try:
+            rec_index = _build_boxscore_prop_recommendation_index(prop_recommendations)
+            _apply_boxscore_prop_recommendation_markers(players_out.get("home") or [], home_tri, rec_index)
+            _apply_boxscore_prop_recommendation_markers(players_out.get("away") or [], away_tri, rec_index)
+            _apply_boxscore_prop_recommendation_markers(missing_prop_players.get("home") or [], home_tri, rec_index)
+            _apply_boxscore_prop_recommendation_markers(missing_prop_players.get("away") or [], away_tri, rec_index)
+        except Exception:
+            pass
 
         try:
             missing_bits: list[str] = []
