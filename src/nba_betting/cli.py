@@ -6488,34 +6488,115 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                 return None
             return slate_df.reset_index(drop=True)
 
+        target_date = pd.to_datetime(date_str).date()
+        predictions_candidates = [
+            paths.data_processed / f"predictions_{date_str}.csv",
+            paths.root / f"predictions_{date_str}.csv",
+        ]
+        debug_predictions_fallback = str(os.environ.get("NBA_DEBUG_PREDICT_GAMES_NPU_FALLBACK") or "").strip().lower() in {
+            "1",
+            "true",
+            "yes",
+            "on",
+        }
+
+        def _load_predictions_output_fallback() -> tuple[pd.DataFrame | None, Path | None]:
+            for pred_candidate in predictions_candidates:
+                if debug_predictions_fallback:
+                    console.print(
+                        f"predict-games-npu debug: candidate={pred_candidate} exists={pred_candidate.exists()}",
+                        style="blue",
+                    )
+                if not pred_candidate.exists():
+                    continue
+                try:
+                    pred_frame = pd.read_csv(pred_candidate)
+                except Exception:
+                    if debug_predictions_fallback:
+                        console.print(
+                            f"predict-games-npu debug: failed to read {pred_candidate}",
+                            style="blue",
+                        )
+                    continue
+                if pred_frame is None or pred_frame.empty:
+                    if debug_predictions_fallback:
+                        console.print(
+                            f"predict-games-npu debug: {pred_candidate} empty",
+                            style="blue",
+                        )
+                    continue
+                pred_frame = pred_frame.copy()
+                if "date" in pred_frame.columns:
+                    pred_frame["date"] = pd.to_datetime(pred_frame["date"], errors="coerce").dt.date
+                    pred_frame = pred_frame[pred_frame["date"] == target_date]
+                if pred_frame.empty:
+                    if debug_predictions_fallback:
+                        console.print(
+                            f"predict-games-npu debug: {pred_candidate} had no rows for {target_date}",
+                            style="blue",
+                        )
+                    continue
+                if not {"home_team", "visitor_team"}.issubset(pred_frame.columns):
+                    if debug_predictions_fallback:
+                        console.print(
+                            f"predict-games-npu debug: {pred_candidate} missing team columns {sorted(pred_frame.columns)}",
+                            style="blue",
+                        )
+                    continue
+                if "home_win_prob" not in pred_frame.columns and "win_prob" not in pred_frame.columns:
+                    if debug_predictions_fallback:
+                        console.print(
+                            f"predict-games-npu debug: {pred_candidate} missing probability column {sorted(pred_frame.columns)}",
+                            style="blue",
+                        )
+                    continue
+                if debug_predictions_fallback:
+                    console.print(
+                        f"predict-games-npu debug: using {pred_candidate} rows={len(pred_frame)}",
+                        style="blue",
+                    )
+                return pred_frame.reset_index(drop=True), pred_candidate
+            return None, None
+
+        preds = None
+        feature_load_error = None
+        features_df = pd.DataFrame()
+
         # Load features for the date (prefer parquet; fallback to CSV to avoid parquet engine dependency)
         features_path = paths.data_processed / "features.parquet"
         csv_fallback = paths.data_processed / "features.csv"
-        if not features_path.exists() and not csv_fallback.exists():
-            raise click.ClickException("Features not found. Run build-features first.")
-
-        try:
-            if features_path.exists():
-                features_df = pd.read_parquet(features_path)
-            else:
-                raise FileNotFoundError
-        except Exception:
-            # Parquet engine likely missing; try CSV fallback
-            if csv_fallback.exists():
-                features_df = pd.read_csv(csv_fallback)
-            else:
-                raise click.ClickException(
-                    "Failed to read features.parquet (pyarrow/fastparquet missing) and CSV fallback not found."
-                )
+        if features_path.exists() or csv_fallback.exists():
+            try:
+                if features_path.exists():
+                    features_df = pd.read_parquet(features_path)
+                else:
+                    raise FileNotFoundError
+            except Exception:
+                # Parquet engine likely missing; try CSV fallback
+                if csv_fallback.exists():
+                    features_df = pd.read_csv(csv_fallback)
+                else:
+                    feature_load_error = (
+                        "Failed to read features.parquet (pyarrow/fastparquet missing) and CSV fallback not found."
+                    )
+        else:
+            feature_load_error = "Features not found. Run build-features first."
 
 
         # Filter to the specific date if provided
         if 'date' in features_df.columns:
             features_df['date'] = pd.to_datetime(features_df['date']).dt.date
-            target_date = pd.to_datetime(date_str).date()
             features_df = features_df[features_df['date'] == target_date]
         
         if features_df.empty:
+            preds, pred_source = _load_predictions_output_fallback()
+            if preds is not None and pred_source is not None:
+                console.print(
+                    f"Using standard predictions fallback from {pred_source}",
+                    style="yellow",
+                )
+
+        if features_df.empty and preds is None:
             # Fallbacks to build enhanced slate features even without parquet engine or prewritten odds:
             # 1) If standardized game odds CSV exists, use it to derive slate
             # 2) Else, try odds events CSV aliases (clean CI may have events without consensus lines)
@@ -6526,10 +6607,6 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                 odds_path = paths.data_processed / f"game_odds_{date_str}.csv"
                 odds_events_path = paths.data_processed / f"odds_events_{date_str}.csv"
                 oddsapi_events_path = paths.data_processed / f"oddsapi_events_{date_str}.csv"
-                predictions_candidates = [
-                    paths.data_processed / f"predictions_{date_str}.csv",
-                    paths.root / f"predictions_{date_str}.csv",
-                ]
                 raw_games_csv = paths.data_raw / "games_nba_api.csv"
                 raw_games_parq = paths.data_raw / "games_nba_api.parquet"
                 slate_df = None
@@ -6641,16 +6718,20 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                     features_df = feats2[feats2["date"] == target_date]
 
                 if features_df.empty:
-                    raise click.ClickException(f"No games found for {date_str}")
+                    if feature_load_error:
+                        raise click.ClickException(feature_load_error)
+                    else:
+                        raise click.ClickException(f"No games found for {date_str}")
             except click.ClickException:
                 raise
             except Exception as e:
                 raise click.ClickException(f"No games found for {date_str}: {e}")
 
-        _ensure_game_models_available()
-        
-        from .games_npu import predict_games_npu
-        preds = predict_games_npu(features_df, include_periods=periods, calibrate_periods=calibrate_periods)
+        if preds is None:
+            _ensure_game_models_available()
+
+            from .games_npu import predict_games_npu
+            preds = predict_games_npu(features_df, include_periods=periods, calibrate_periods=calibrate_periods)
     except ImportError as e:
         raise click.ClickException(f"NPU dependencies not available: {e}")
     except FileNotFoundError:
