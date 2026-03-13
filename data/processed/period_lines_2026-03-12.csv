@@ -1,10 +1,10 @@
-date,home_team,visitor_team,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_total,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_total,q4_spread,q4_away_spread_price,q4_home_spread_price
-2026-03-12,Detroit Pistons,Philadelphia 76ers,114.5,57.0,56.5,-12.5,-115,-115,-9.5,-110,-120,-3.0,-120,-110,,,,,,,,
-2026-03-12,Indiana Pacers,Phoenix Suns,126.0,67.5,56.5,4.5,-120,-110,1.0,-105,-125,3.5,-120,-110,,,,,,,,
-2026-03-12,Orlando Magic,Washington Wizards,120.5,60.5,59.5,-11.0,-115,-115,-8.0,-110,-120,-3.0,-115,-115,,,,,,,,
-2026-03-12,Atlanta Hawks,Brooklyn Nets,118.0,59.5,58.0,-9.5,-105,-115,-5.0,-105,-115,-4.5,-110,-110,55.5,-4.5,-105.0,-115.0,,,,
-2026-03-12,Miami Heat,Milwaukee Bucks,120.0,61.5,59.5,-3.0,-110,-110,-2.0,-105,-115,-1.5,-110,-110,,,,,,,,
-2026-03-12,Memphis Grizzlies,Dallas Mavericks,122.5,61.5,60.5,2.5,-110,-110,1.0,-105,-115,1.5,-115,-105,59.5,1.5,-110.0,-110.0,,,,
-2026-03-12,San Antonio Spurs,Denver Nuggets,116.5,59.0,57.5,-2.5,-110,-110,-1.5,-105,-115,-1.5,-105,-115,63.5,-1.5,,-120.0,59.5,-1.5,-120.0,
-2026-03-12,Oklahoma City Thunder,Boston Celtics,110.5,56.0,54.5,-4.0,-115,-105,-2.5,-105,-115,-2.0,-110,-110,53.5,-2.5,,-120.0,51.0,-1.5,-105.0,-115.0
-2026-03-12,Los Angeles Lakers,Chicago Bulls,117.5,59.5,58.0,-7.0,-110,-110,-3.5,-110,-110,-3.5,-105,-115,62.5,-3.5,,-120.0,59.5,-2.5,-110.0,-110.0
+date,home_team,visitor_team,q4_total,q4_spread,q4_home_spread_price,q4_away_spread_price,q3_total,q3_spread,q3_home_spread_price,q3_away_spread_price,h2_total,h2_spread,h2_away_spread_price,h1_total,q1_total,q2_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price
+2026-03-12,Detroit Pistons,Philadelphia 76ers,53.5,-1.0,-120.0,-110.0,,,,,,,,,,,,,,,,,,,
+2026-03-12,Indiana Pacers,Phoenix Suns,52.0,2.5,-115.0,-115.0,51.0,0.5,-110.0,-120.0,,,,,,,,,,,,,,,
+2026-03-12,Orlando Magic,Washington Wizards,56.0,-2.5,-115.0,-115.0,,,,,,,,,,,,,,,,,,,
+2026-03-12,Atlanta Hawks,Brooklyn Nets,52.5,-4.0,-120.0,-110.0,55.5,1.5,-115.0,-115.0,,,,,,,,,,,,,,,
+2026-03-12,Miami Heat,Milwaukee Bucks,55.0,-0.5,-110.0,-120.0,51.5,-3.5,-115.0,-115.0,,,,,,,,,,,,,,,
+2026-03-12,Memphis Grizzlies,Dallas Mavericks,57.5,0.0,-110.0,-120.0,59.0,-0.5,-115.0,-115.0,117.0,-1.0,-120.0,,,,,,,,,,,,
+2026-03-12,San Antonio Spurs,Denver Nuggets,,,,,,,,,,,,119.0,60.5,58.0,-4.0,-120.0,-110.0,-4.5,-110.0,-120.0,0.0,-110.0,-120.0
+2026-03-12,Oklahoma City Thunder,Boston Celtics,51.0,-1.5,-120.0,,53.5,-2.5,,-120.0,,,,111.0,56.0,55.0,-4.5,-115.0,-105.0,-2.5,-110.0,-110.0,-2.5,-105.0,-115.0
+2026-03-12,Los Angeles Lakers,Chicago Bulls,59.5,-2.5,-115.0,-105.0,62.5,-3.5,,-120.0,,,,117.0,59.5,58.0,-7.0,-105.0,-115.0,-3.5,-110.0,-110.0,-3.5,-105.0,-115.0
