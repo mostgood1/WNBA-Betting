@@ -837,7 +837,7 @@ function Invoke-SharedPropsRefreshWorker {
   $recsRows = Get-CsvDataRowCount -Path $propsRecsPath
 
   Write-Log (
-    "Shared props refresh summary: snapshot_rows={0}, alias_rows={1}, edges_rows={2}, rec_rows={3}, log={4}" -f \
+    "Shared props refresh summary: snapshot_rows={0}, alias_rows={1}, edges_rows={2}, rec_rows={3}, log={4}" -f
       $snapshotRows, $aliasRows, $edgesRows, $recsRows, $workerLog
   )
 
