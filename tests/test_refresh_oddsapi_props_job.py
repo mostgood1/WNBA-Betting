@@ -1,7 +1,12 @@
+from pathlib import Path
+from types import SimpleNamespace
+
 import pandas as pd
 
+import nba_betting.refresh_oddsapi_props_job as refresh_job_module
 from nba_betting.refresh_oddsapi_props_job import (
     _collect_snapshot_coverage_gaps,
+    _materialize_processed_snapshot_alias,
     _merge_props_prediction_frames,
 )
 from nba_betting.player_names import normalize_player_name_key
@@ -166,3 +171,37 @@ def test_collect_snapshot_coverage_gaps_collapses_known_aliases():
     gaps = _collect_snapshot_coverage_gaps(snapshot, predictions, smart_sim)
 
     assert gaps == []
+
+
+def test_materialize_processed_snapshot_alias_copies_raw_snapshot(tmp_path, monkeypatch):
+    data_processed = tmp_path / "data" / "processed"
+    data_processed.mkdir(parents=True)
+    snapshot_path = tmp_path / "data" / "raw" / "odds_nba_player_props_2026-03-14.csv"
+    snapshot_path.parent.mkdir(parents=True)
+    pd.DataFrame(
+        [
+            {
+                "player_name": "Ja Morant",
+                "home_team": "Memphis Grizzlies",
+                "away_team": "Detroit Pistons",
+                "market": "player_points",
+                "point": 24.5,
+                "outcome_name": "Over",
+            }
+        ]
+    ).to_csv(snapshot_path, index=False)
+
+    monkeypatch.setattr(refresh_job_module, "paths", SimpleNamespace(data_processed=data_processed))
+
+    alias_path, alias_rows, alias_error = _materialize_processed_snapshot_alias(
+        date_str="2026-03-14",
+        snapshot_path=snapshot_path,
+    )
+
+    assert alias_error is None
+    assert alias_rows == 1
+    assert alias_path == Path(data_processed / "oddsapi_player_props_2026-03-14.csv")
+    assert alias_path.exists()
+    written = pd.read_csv(alias_path)
+    assert written.shape[0] == 1
+    assert written.iloc[0]["player_name"] == "Ja Morant"

@@ -8355,6 +8355,7 @@ def api_cron_upload_props_refresh_artifacts():
         return jsonify({"error": "missing upload files", "missing": missing}), 400
 
     snapshot_path = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+    snapshot_alias_path = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
     predictions_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
     edges_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
     recommendations_path = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
@@ -8372,10 +8373,30 @@ def api_cron_upload_props_refresh_artifacts():
             "edges": _write_upload(edges_file, edges_path),
             "recommendations": _write_upload(recommendations_file, recommendations_path),
         }
+        try:
+            from nba_betting.refresh_oddsapi_props_job import _materialize_processed_snapshot_alias as _materialize_snapshot_alias  # type: ignore
+
+            snapshot_alias_path, snapshot_alias_rows, snapshot_alias_error = _materialize_snapshot_alias(
+                date_str=date_str,
+                snapshot_path=snapshot_path,
+            )
+            if snapshot_alias_error:
+                return jsonify({
+                    "ok": False,
+                    "error": f"failed to materialize processed snapshot alias: {snapshot_alias_error}",
+                    "date": date_str,
+                }), 500
+        except Exception as exc:
+            return jsonify({
+                "ok": False,
+                "error": f"failed to materialize processed snapshot alias: {exc}",
+                "date": date_str,
+            }), 500
     except Exception as exc:
         return jsonify({"ok": False, "error": f"failed to write upload: {exc}"}), 500
 
     snapshot_rows = int(_count_csv_rows_quick(snapshot_path))
+    snapshot_alias_rows = int(_count_csv_rows_quick(snapshot_alias_path))
     predictions_rows = int(_count_csv_rows_quick(predictions_path))
     edges_rows = int(_count_csv_rows_quick(edges_path))
     recs_rows = int(_count_csv_rows_quick(recommendations_path))
@@ -8451,6 +8472,7 @@ def api_cron_upload_props_refresh_artifacts():
         "rc_edges": 0,
         "rc_export": 0,
         "snapshot_rows": snapshot_rows,
+        "snapshot_alias_rows": snapshot_alias_rows,
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
@@ -8459,6 +8481,7 @@ def api_cron_upload_props_refresh_artifacts():
         "movement_fast_rows": movement_meta.get("fast_rows"),
         "movement_signals_path": movement_meta.get("signals_path"),
         "snapshot_path": str(snapshot_path),
+        "snapshot_alias_path": str(snapshot_alias_path),
         "predictions_path": str(predictions_path),
         "edges_path": str(edges_path),
         "recs_path": str(recommendations_path),
@@ -8478,12 +8501,14 @@ def api_cron_upload_props_refresh_artifacts():
         "ok": True,
         "date": date_str,
         "snapshot_rows": snapshot_rows,
+        "snapshot_alias_rows": snapshot_alias_rows,
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
         "movement": movement_meta,
         "uploads": upload_bytes,
         "snapshot_path": str(snapshot_path),
+        "snapshot_alias_path": str(snapshot_alias_path),
         "predictions_path": str(predictions_path),
         "edges_path": str(edges_path),
         "recs_path": str(recommendations_path),
@@ -8729,6 +8754,63 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             "DAILY_LOOKAHEAD_SMARTSIM_NSIMS",
             "DAILY_SMARTSIM_NSIMS",
         ], 2000))
+        default_props_bookmakers = ",".join(_player_prop_bookmakers_tuple(None, env_name="PLAYER_PROP_BOOKMAKERS"))
+        if not default_props_bookmakers:
+            default_props_bookmakers = "fanduel,draftkings,betmgm,bet365"
+
+        def _run_shared_props_refresh_step() -> tuple[int, dict[str, Any]]:
+            try:
+                from nba_betting.refresh_oddsapi_props_job import run_refresh_oddsapi_props_job as _worker_run_refresh  # type: ignore
+            except Exception as exc:
+                _append_log(f"Failed to import refresh_oddsapi_props_job helpers: {exc}")
+                return 1, {"error": str(exc)}
+
+            worker_log = logs_dir / f"web_refresh_oddsapi_props_{date_str}_{stamp}.log"
+            _append_log(
+                "Using shared OddsAPI props refresh worker "
+                f"(bookmakers={default_props_bookmakers}, log={worker_log})"
+            )
+            state = _worker_run_refresh(
+                date_str=str(date_str),
+                regions="us",
+                bookmakers=default_props_bookmakers,
+                markets="",
+                do_edges=True,
+                do_export=True,
+                do_push=False,
+                log_file=worker_log,
+                started_at=datetime.utcnow().isoformat(),
+            ) or {}
+
+            raw_snapshot_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+            alias_snapshot_fp = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
+            edges_local_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
+            rec_local_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+
+            snapshot_rows = int(_count_csv_rows_quick(raw_snapshot_fp) or 0)
+            alias_rows = int(_count_csv_rows_quick(alias_snapshot_fp) or 0)
+            edges_rows = int(_count_csv_rows_quick(edges_local_fp) or 0)
+            rec_rows = int(_count_csv_rows_quick(rec_local_fp) or 0)
+            rc = 0
+            worker_error = str((state or {}).get("error") or "").strip()
+            if worker_error:
+                rc = 1
+                _append_log(f"Shared props refresh worker error: {worker_error}")
+            elif snapshot_rows > 0 and alias_rows <= 0:
+                rc = 1
+                _append_log("Shared props refresh wrote snapshot rows but no processed oddsapi_player_props alias.")
+            elif snapshot_rows > 0 and edges_rows <= 0:
+                rc = 1
+                _append_log("Shared props refresh wrote snapshot rows but props_edges remained empty.")
+            elif snapshot_rows > 0 and rec_rows <= 0:
+                rc = 1
+                _append_log("Shared props refresh wrote snapshot rows but props_recommendations remained empty.")
+
+            _append_log(
+                "Shared props refresh summary: "
+                f"snapshot_rows={snapshot_rows}, alias_rows={alias_rows}, edges_rows={edges_rows}, rec_rows={rec_rows}"
+            )
+            return rc, dict(state or {})
 
         # Build a date-based pipeline aligned with scripts/daily_update.ps1
         steps: list[tuple[str, list[str], bool]] = []
@@ -8810,28 +8892,8 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 False,
             ))
             steps.append((
-                "odds-snapshots-props",
-                [str(py), "-m", "nba_betting.cli", "odds-snapshots-props", "--date", date_str],
-                False,
-            ))
-            # Prefer auto source to avoid hard dependency on external keys
-            steps.append((
-                "props-edges",
-                [
-                    str(py),
-                    "-m",
-                    "nba_betting.cli",
-                    "props-edges",
-                    "--date",
-                    date_str,
-                    "--source",
-                    "oddsapi",
-                    "--mode",
-                    "current",
-                    "--file-only",
-                    "--calibrate-prob",
-                    "--calibrate-sigma",
-                ],
+                "refresh-oddsapi-props",
+                [],
                 False,
             ))
             steps.append((
@@ -8839,27 +8901,29 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 [str(py), "-m", "nba_betting.cli", "export-recommendations", "--date", date_str],
                 False,
             ))
-            steps.append((
-                "export-props-recommendations",
-                [str(py), "-m", "nba_betting.cli", "export-props-recommendations", "--date", date_str],
-                False,
-            ))
 
         props_preds_fp = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
         edges_fp = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
         rec_fp = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+        props_snapshot_fp = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+        props_snapshot_alias_fp = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
 
         rc_total = 0
         had_required_failure = False
         optional_failures: list[str] = []
         for label, cmd, required in steps:
-            if label == "export-props-recommendations":
-                if int(_count_csv_rows_quick(edges_fp) or 0) <= 0:
-                    _append_log(
-                        "Skipping export-props-recommendations because props_edges is missing or empty; preserving only existing same-day line-bearing recommendations."
-                    )
-                    _prune_invalid_props_recommendations_artifact(edges_fp, rec_fp, log_cb=_append_log)
-                    continue
+            if label == "refresh-oddsapi-props":
+                _append_log(f"Running step: {label}")
+                rc, _state = _run_shared_props_refresh_step()
+                rc_total += int(rc)
+                _append_log(f"Exit code ({label}): {rc}")
+                if rc != 0:
+                    if required:
+                        had_required_failure = True
+                        _append_log(f"Stopping early: required step failed ({label})")
+                        break
+                    optional_failures.append(label)
+                continue
             _append_log(f"Running step: {label}")
             _append_log(f"Cmd: {' '.join(cmd)}")
             rc = _run_to_file(cmd, log_file, cwd=BASE_DIR, env=env)
@@ -8876,6 +8940,8 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
         if not is_lookahead and mode in {"full", "pipeline", "props"}:
             require_props_lines = str(os.environ.get("DAILY_REQUIRE_PROPS_LINES") or "1").strip().lower() in {"1", "true", "yes"}
             props_pred_rows = int(_count_csv_rows_quick(props_preds_fp) or 0)
+            props_snapshot_rows = int(_count_csv_rows_quick(props_snapshot_fp) or 0)
+            props_snapshot_alias_rows = int(_count_csv_rows_quick(props_snapshot_alias_fp) or 0)
             edges_rows = int(_count_csv_rows_quick(edges_fp) or 0)
             rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
 
@@ -8883,7 +8949,11 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
                 _prune_invalid_props_recommendations_artifact(edges_fp, rec_fp, log_cb=_append_log)
                 rec_rows = int(_count_csv_rows_quick(rec_fp) or 0)
 
-            if require_props_lines and props_pred_rows > 0:
+            if require_props_lines and props_pred_rows > 0 and props_snapshot_rows > 0:
+                if props_snapshot_alias_rows <= 0:
+                    ok = False
+                    optional_failures.append("props-snapshot-alias-artifact")
+                    _append_log("Marking daily update failed: raw props snapshot exists but processed oddsapi_player_props alias is missing or empty.")
                 if edges_rows <= 0:
                     ok = False
                     optional_failures.append("props-edges-artifact")
@@ -10491,25 +10561,36 @@ def api_cards():
             return (1, -line_key)
         return (2, line_key)
 
-    def _resolve_boxscore_prop_team_from_snapshot(player_name: Any, home_team: Any, away_team: Any) -> str | None:
+    def _resolve_boxscore_prop_teams_from_snapshot(player_name: Any, home_team: Any, away_team: Any) -> list[str]:
         player_key = _norm_player_name_for_keys(player_name)
-        if not player_key:
-            return None
-
         home_tri_key = str(_get_tricode(str(home_team or "")) or "").strip().upper()
         away_tri_key = str(_get_tricode(str(away_team or "")) or "").strip().upper()
+        fallback_teams: list[str] = []
+        for tri in (home_tri_key, away_tri_key):
+            if tri and tri not in fallback_teams:
+                fallback_teams.append(tri)
+
+        if not player_key:
+            return fallback_teams
+
         home_roster = roster_map.get(home_tri_key) or set()
         away_roster = roster_map.get(away_tri_key) or set()
 
         if home_tri_key and player_key in home_roster and player_key not in away_roster:
-            return home_tri_key
+            return [home_tri_key]
         if away_tri_key and player_key in away_roster and player_key not in home_roster:
-            return away_tri_key
+            return [away_tri_key]
+        matched_teams: list[str] = []
         if home_tri_key and player_key in home_roster:
-            return home_tri_key
-        if away_tri_key and player_key in away_roster:
-            return away_tri_key
-        return None
+            matched_teams.append(home_tri_key)
+        if away_tri_key and player_key in away_roster and away_tri_key not in matched_teams:
+            matched_teams.append(away_tri_key)
+        if matched_teams:
+            return matched_teams
+
+        # Raw snapshots can arrive before roster coverage catches up for same-day moves.
+        # Fall back to the game participants so cards still surface the board by player name.
+        return fallback_teams
 
     def _choose_boxscore_prop_line(lines: list[float], target: Any) -> float | None:
         clean: list[float] = []
@@ -10819,7 +10900,27 @@ def api_cards():
     def _build_boxscore_prop_line_sources(date_str: str) -> dict[str, dict[str, dict[str, Any]]]:
         out: dict[str, dict[str, dict[str, Any]]] = {}
         try:
-            raw_p = _live_find_processed_csv("oddsapi_player_props", date_str)
+            raw_p = None
+            try:
+                raw_p = _live_find_processed_csv("oddsapi_player_props", date_str)
+            except Exception:
+                raw_p = None
+            if raw_p is None:
+                try:
+                    raw_candidate = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
+                    if raw_candidate.exists() and raw_candidate.stat().st_size > 0:
+                        raw_p = raw_candidate
+                except Exception:
+                    raw_p = None
+            if raw_p is None:
+                try:
+                    from nba_betting.config import paths as _paths  # type: ignore
+
+                    raw_candidate = _paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
+                    if raw_candidate.exists() and raw_candidate.stat().st_size > 0:
+                        raw_p = raw_candidate
+                except Exception:
+                    raw_p = None
             if raw_p:
                 df = pd.read_csv(raw_p)
                 if df is not None and not df.empty:
@@ -10837,25 +10938,25 @@ def api_cards():
                     last_update_col = cols.get("last_update")
                     if market_col and name_col and line_col and side_col and home_col and away_col:
                         for _, row in df.iterrows():
-                            team_tri = _resolve_boxscore_prop_team_from_snapshot(
+                            for team_tri in _resolve_boxscore_prop_teams_from_snapshot(
                                 row.get(name_col),
                                 row.get(home_col),
                                 row.get(away_col),
-                            )
-                            _remember_boxscore_prop_line(
-                                out,
-                                team_tri,
-                                row.get(name_col),
-                                row.get(market_col),
-                                row.get(line_col),
-                                side=row.get(side_col),
-                                price=row.get(price_col) if price_col else None,
-                                book=row.get(book_col) if book_col else None,
-                                book_title=row.get(book_title_col) if book_title_col else None,
-                                source="snapshot",
-                                snapshot_ts=row.get(snapshot_col) if snapshot_col else None,
-                                last_update=row.get(last_update_col) if last_update_col else None,
-                            )
+                            ):
+                                _remember_boxscore_prop_line(
+                                    out,
+                                    team_tri,
+                                    row.get(name_col),
+                                    row.get(market_col),
+                                    row.get(line_col),
+                                    side=row.get(side_col),
+                                    price=row.get(price_col) if price_col else None,
+                                    book=row.get(book_col) if book_col else None,
+                                    book_title=row.get(book_title_col) if book_title_col else None,
+                                    source="snapshot",
+                                    snapshot_ts=row.get(snapshot_col) if snapshot_col else None,
+                                    last_update=row.get(last_update_col) if last_update_col else None,
+                                )
         except Exception:
             pass
 

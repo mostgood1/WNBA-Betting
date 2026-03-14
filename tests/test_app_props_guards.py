@@ -86,6 +86,7 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
     monkeypatch.setattr(app_module, "_load_game_odds_map", lambda _date: {("MEM", "DET"): {"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}})
     monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_find_processed_csv", lambda _stem, _date: None)
     monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
     monkeypatch.setattr(
         app_module,
@@ -127,7 +128,9 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
 
 def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
+    raw = tmp_path / "data" / "raw"
     processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
 
     smart_sim_path = processed / "smart_sim_2026-03-13_MEM_DET.json"
     smart_sim_path.write_text(
@@ -266,13 +269,15 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
                 "away_team": "Detroit Pistons",
             },
         ]
-    ).to_csv(processed / "oddsapi_player_props_2026-03-13.csv", index=False)
+    ).to_csv(raw / "odds_nba_player_props_2026-03-13.csv", index=False)
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
     monkeypatch.setattr(app_module, "_load_smart_sim_files_for_date", lambda _date: [smart_sim_path])
     monkeypatch.setattr(app_module, "_load_game_odds_map", lambda _date: {("MEM", "DET"): {"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}})
     monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_find_processed_csv", lambda _stem, _date: None)
     monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
     monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
     monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})

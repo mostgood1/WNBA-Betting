@@ -82,6 +82,28 @@ def _count_csv_rows_quick(path: Optional[Path]) -> int:
         return 0
 
 
+def _materialize_processed_snapshot_alias(
+    *,
+    date_str: str,
+    snapshot_path: Path,
+    log_file: Path | None = None,
+) -> tuple[Path, int, str | None]:
+    alias_path = paths.data_processed / f"oddsapi_player_props_{date_str}.csv"
+    try:
+        if not snapshot_path.exists() or not snapshot_path.is_file() or snapshot_path.stat().st_size <= 0:
+            return alias_path, 0, None
+        alias_path.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(snapshot_path, alias_path)
+        rows = int(_count_csv_rows_quick(alias_path))
+        if log_file is not None:
+            _append_log(log_file, f"Materialized processed OddsAPI props snapshot alias: {alias_path} (rows={rows})")
+        return alias_path, rows, None
+    except Exception as exc:
+        if log_file is not None:
+            _append_log(log_file, f"Failed to materialize processed OddsAPI props snapshot alias: {exc}")
+        return alias_path, 0, str(exc)
+
+
 def _read_csv_safe(path: Optional[Path]) -> pd.DataFrame:
     try:
         if not path or not path.exists() or not path.is_file() or path.stat().st_size <= 0:
@@ -966,9 +988,20 @@ def _export_props_recommendations_direct(
 ) -> tuple[int, int, str | None]:
     _append_log(log_file, f"Exporting props recommendations in-process for {date_str}")
     try:
+        max_plus_odds = 125.0
+        raw_max_plus = (
+            os.environ.get("REFRESH_MAX_PLUS_ODDS")
+            or os.environ.get("DAILY_MAX_PLUS_ODDS")
+            or ""
+        ).strip()
+        if raw_max_plus:
+            try:
+                max_plus_odds = float(raw_max_plus)
+            except Exception:
+                _append_log(log_file, f"Ignoring invalid max-plus-odds override: {raw_max_plus}")
         rows = int(
             _run_with_heartbeat(
-                lambda: _export_props_recommendations_cards(date_str, None)[0],
+                lambda: _export_props_recommendations_cards(date_str, None, max_plus_odds=max_plus_odds)[0],
                 heartbeat_cb,
                 heartbeat_every_s=5.0,
             )
@@ -1051,7 +1084,7 @@ def run_refresh_oddsapi_props_job(
     do_push: bool,
     log_file: Path,
     started_at: str | None = None,
-) -> None:
+) -> dict[str, Any]:
     started_iso = started_at or _utcnow_iso()
     raw_fp = paths.data_raw / f"odds_nba_player_props_{date_str}.csv"
     pred_fp = paths.data_processed / f"props_predictions_{date_str}.csv"
@@ -1074,6 +1107,8 @@ def run_refresh_oddsapi_props_job(
         "predictions_path": str(pred_fp),
         "edges_path": str(edges_fp),
         "recs_path": str(rec_fp),
+        "snapshot_alias_path": str(paths.data_processed / f"oddsapi_player_props_{date_str}.csv"),
+        "snapshot_alias_rows": 0,
         "duration_s": None,
         "error": None,
     }
@@ -1113,6 +1148,9 @@ def run_refresh_oddsapi_props_job(
             "edges_path": state.get("edges_path"),
             "recs": state.get("recs_path"),
             "recs_path": state.get("recs_path"),
+            "snapshot_alias": state.get("snapshot_alias_path"),
+            "snapshot_alias_path": state.get("snapshot_alias_path"),
+            "snapshot_alias_rows": state.get("snapshot_alias_rows"),
             "duration_s": state.get("duration_s"),
         }
         if state.get("error"):
@@ -1155,8 +1193,22 @@ def run_refresh_oddsapi_props_job(
         state["heartbeat_at"] = _utcnow_iso()
         state["rc_snapshot"] = int(rc_snapshot)
         state["snapshot_rows"] = int(_count_csv_rows_quick(raw_fp))
+        alias_path, alias_rows, alias_error = _materialize_processed_snapshot_alias(
+            date_str=date_str,
+            snapshot_path=raw_fp,
+            log_file=log_file,
+        )
+        state["snapshot_alias_path"] = str(alias_path)
+        state["snapshot_alias_rows"] = int(alias_rows)
+        if alias_error and int(state["snapshot_rows"] or 0) > 0:
+            state["error"] = f"snapshot alias write failed: {alias_error}"
 
-        if int(state["snapshot_rows"] or 0) <= 0:
+        if state.get("error"):
+            run_edges = False
+            run_export = False
+            state["phase"] = "finalizing"
+            state["phase_started_at"] = _utcnow_iso()
+        elif int(state["snapshot_rows"] or 0) <= 0:
             run_edges = False
             run_export = False
             state["rc_edges"] = None if do_edges else state.get("rc_edges")
@@ -1263,6 +1315,7 @@ def run_refresh_oddsapi_props_job(
         state["predictions_rows"] = int(_count_csv_rows_quick(pred_fp))
         state["edges_rows"] = int(_count_csv_rows_quick(edges_fp))
         state["recs_rows"] = int(_count_csv_rows_quick(rec_fp))
+        state["snapshot_alias_rows"] = int(_count_csv_rows_quick(Path(str(state.get("snapshot_alias_path") or ""))))
         if run_edges and int(state["snapshot_rows"] or 0) > 0 and int(state["edges_rows"] or 0) <= 0 and not state.get("error"):
             state["error"] = "props-edges produced zero rows after a non-empty snapshot"
 
@@ -1283,6 +1336,7 @@ def run_refresh_oddsapi_props_job(
         if do_push:
             push_ok, push_detail = _git_commit_and_push(msg=f"refresh-oddsapi-props {date_str}")
             _append_log(log_file, f"git push ok={push_ok} detail={push_detail}")
+        return dict(state)
     except Exception as exc:
         state["phase"] = "failed"
         state["phase_started_at"] = _utcnow_iso()
@@ -1292,6 +1346,7 @@ def run_refresh_oddsapi_props_job(
         state["error"] = f"{type(exc).__name__}: {exc}"
         _append_traceback(log_file, exc)
         _persist_progress(running=False, ok=False)
+        return dict(state)
 
 
 def main() -> int:
@@ -1305,7 +1360,7 @@ def main() -> int:
         print(f"invalid NBA_BETTING_ODDSAPI_PROPS_JOB payload: {exc}", file=sys.stderr)
         return 2
     log_file = Path(str(payload.get("log_file") or (paths.data_root / "logs" / f"refresh_oddsapi_props_{int(time.time())}.log")))
-    run_refresh_oddsapi_props_job(
+    state = run_refresh_oddsapi_props_job(
         date_str=str(payload.get("date_str") or ""),
         regions=str(payload.get("regions") or "us"),
         bookmakers=str(payload.get("bookmakers") or ""),
@@ -1316,6 +1371,18 @@ def main() -> int:
         log_file=log_file,
         started_at=str(payload.get("started_at") or "") or None,
     )
+    snapshot_rows = int(state.get("snapshot_rows") or 0)
+    alias_rows = int(state.get("snapshot_alias_rows") or 0)
+    edges_rows = int(state.get("edges_rows") or 0)
+    recs_rows = int(state.get("recs_rows") or 0)
+    if state.get("error"):
+        return 1
+    if snapshot_rows > 0 and alias_rows <= 0:
+        return 1
+    if bool(payload.get("do_edges")) and snapshot_rows > 0 and edges_rows <= 0:
+        return 1
+    if bool(payload.get("do_export")) and snapshot_rows > 0 and recs_rows <= 0:
+        return 1
     return 0
 
 

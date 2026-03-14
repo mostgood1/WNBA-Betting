@@ -183,6 +183,7 @@ def main() -> int:
 
     pred_rows = _count_csv_data_rows(pred)
     props_rows = _count_csv_data_rows(props)
+    props_snapshot_rows = _count_csv_data_rows(props_snapshot)
     props_edges_rows = _count_csv_data_rows(props_edges)
     props_recs_rows = _count_csv_data_rows(props_recs)
     props_recs_play_rows = _count_props_recommendation_play_rows(props_recs)
@@ -292,7 +293,7 @@ def main() -> int:
     if props_rows <= 0:
         missing.append(props.name)
 
-    if args.require_props_lines and props_rows > 0:
+    if args.require_props_lines and props_rows > 0 and props_snapshot_rows > 0:
         if props_edges_rows <= 0:
             missing.append(props_edges.name)
         if props_recs_rows <= 0:
@@ -342,10 +343,11 @@ def main() -> int:
         "predictions_ok": _exists_nonempty(pred),
         "props_predictions_ok": _exists_nonempty(props),
         "game_odds_ok": _exists_nonempty(odds),
-        "props_snapshot_ok": _exists_nonempty(props_snapshot),
-        "props_edges_ok": _exists_nonempty(props_edges),
+        "props_snapshot_ok": props_snapshot_rows > 0,
+        "props_snapshot_rows": props_snapshot_rows,
+        "props_edges_ok": props_edges_rows > 0,
         "props_edges_rows": props_edges_rows,
-        "props_recommendations_ok": _exists_nonempty(props_recs),
+        "props_recommendations_ok": props_recs_rows > 0,
         "props_recommendations_rows": props_recs_rows,
         "props_recommendations_play_rows": props_recs_play_rows,
         "slate_games": slate_games,

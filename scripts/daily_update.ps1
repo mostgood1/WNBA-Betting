@@ -257,6 +257,7 @@ function Test-ManagedProcessedArtifactName {
     'period_lines_',
     'game_cards_',
     'games_predictions_npu_',
+    'oddsapi_player_props_',
     'props_edges_',
     'props_predictions_',
     'props_recommendations_',
@@ -748,6 +749,22 @@ function Test-CsvHasDataRows {
   }
 }
 
+function Get-CsvDataRowCount {
+  param([string]$Path)
+  if (-not (Test-Path $Path)) {
+    return 0
+  }
+  try {
+    $rows = Import-Csv -Path $Path -ErrorAction Stop
+    if ($null -eq $rows) {
+      return 0
+    }
+    return @($rows).Count
+  } catch {
+    return 0
+  }
+}
+
 function Get-PropsRecommendationsPlayableRowCount {
   param([string]$Path)
   if (-not (Test-Path $Path)) {
@@ -777,6 +794,70 @@ function Get-PropsRecommendationsPlayableRowCount {
   } catch {
     return 0
   }
+}
+
+function Invoke-SharedPropsRefreshWorker {
+  param([string]$TargetDate)
+
+  $bookmakers = [string]$env:PLAYER_PROP_BOOKMAKERS
+  if ([string]::IsNullOrWhiteSpace($bookmakers)) {
+    $bookmakers = 'fanduel,draftkings,betmgm,bet365'
+  }
+
+  $workerLog = Join-Path $LogPath ("shared_props_refresh_{0}_{1}.log" -f $TargetDate, $Stamp)
+  $payload = [ordered]@{
+    date_str   = $TargetDate
+    regions    = 'us'
+    bookmakers = $bookmakers
+    markets    = ''
+    do_edges   = $true
+    do_export  = $true
+    do_push    = $false
+    log_file   = $workerLog
+    started_at = [DateTime]::UtcNow.ToString('o')
+  } | ConvertTo-Json -Compress -Depth 5
+
+  $env:NBA_BETTING_ODDSAPI_PROPS_JOB = $payload
+  try {
+    Write-Log ("Running shared OddsAPI props refresh worker for {0} (bookmakers={1})" -f $TargetDate, $bookmakers)
+    $rc = Invoke-PyMod -plist @('-m', 'nba_betting.refresh_oddsapi_props_job')
+    Write-Log ("refresh_oddsapi_props_job exit code: {0}" -f $rc)
+  } finally {
+    Remove-Item Env:NBA_BETTING_ODDSAPI_PROPS_JOB -ErrorAction SilentlyContinue
+  }
+
+  $rawSnapshotPath = Join-Path $RepoRoot ("data/raw/odds_nba_player_props_{0}.csv" -f $TargetDate)
+  $snapshotAliasPath = Join-Path $RepoRoot ("data/processed/oddsapi_player_props_{0}.csv" -f $TargetDate)
+  $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $TargetDate)
+  $propsRecsPath = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $TargetDate)
+
+  $snapshotRows = Get-CsvDataRowCount -Path $rawSnapshotPath
+  $aliasRows = Get-CsvDataRowCount -Path $snapshotAliasPath
+  $edgesRows = Get-CsvDataRowCount -Path $edgesPath
+  $recsRows = Get-CsvDataRowCount -Path $propsRecsPath
+
+  Write-Log (
+    "Shared props refresh summary: snapshot_rows={0}, alias_rows={1}, edges_rows={2}, rec_rows={3}, log={4}" -f \
+      $snapshotRows, $aliasRows, $edgesRows, $recsRows, $workerLog
+  )
+
+  if ($rc -ne 0) {
+    return $rc
+  }
+  if ($snapshotRows -gt 0 -and $aliasRows -le 0) {
+    Write-Log 'Shared props refresh wrote snapshot rows but no processed oddsapi_player_props alias.'
+    return 1
+  }
+  if ($snapshotRows -gt 0 -and $edgesRows -le 0) {
+    Write-Log 'Shared props refresh wrote snapshot rows but props_edges remained empty.'
+    return 1
+  }
+  if ($snapshotRows -gt 0 -and $recsRows -le 0) {
+    Write-Log 'Shared props refresh wrote snapshot rows but props_recommendations remained empty.'
+    return 1
+  }
+
+  return 0
 }
 
 # Helper to run a python module with a hard timeout (prevents hangs on network calls)
@@ -2579,15 +2660,9 @@ try {
   }
 } catch { Write-Log ("Snapshot safeguard error: {0}" -f $_.Exception.Message) }
 
-# 5) Props edges for today: OddsAPI only (no Bovada fallback)
+# 5) Props lines + edges + recommendations for today via the shared OddsAPI refresh worker.
 $edgesPath = Join-Path $RepoRoot ("data/processed/props_edges_{0}.csv" -f $Date)
-# 4.9) Explicit props odds snapshot (current) for the day.
-# Use the CLI command so we also persist opening + append-only history snapshots.
-try {
-  Write-Log "Fetching current player props odds (OddsAPI) and writing snapshots (raw + opening + history)"
-  $rcPropsSnap = Invoke-PyMod -plist @('-m','nba_betting.cli','odds-snapshots-props','--date', $Date)
-  Write-Log ("odds-snapshots-props exit code: {0}" -f $rcPropsSnap)
-} catch { Write-Log ("Props odds snapshot block failed: {0}" -f $_.Exception.Message) }
+$propsRecsPath = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $Date)
 
 # Optional: control runtime probability calibration strength in props edge scoring.
 # - Set DAILY_PROPS_PROB_CALIB_ALPHA to override for this run.
@@ -2609,16 +2684,10 @@ try {
   }
 } catch { Write-Log ("PROPS_PROB_CALIB_ALPHA wiring failed (non-fatal): {0}" -f $_.Exception.Message) }
 
-# 5) Props edges for today: force mode=current to ensure processed per-day odds snapshots are written
-# Apply probability calibration (uses last saved curve; loader validates sanity)
-# Also calibrate sigma from recent residuals when possible (improves probability realism).
-$rc4a = Invoke-PyMod -plist @('-m','nba_betting.cli','props-edges','--date', $Date, '--source','oddsapi','--mode','current','--file-only','--calibrate-prob','--calibrate-sigma')
-Write-Log ("props-edges (oddsapi, mode=current) exit code: {0}" -f $rc4a)
+$rc4a = Invoke-SharedPropsRefreshWorker -TargetDate $Date
+Write-Log ("shared props refresh exit code: {0}" -f $rc4a)
 if ($rc4a -ne 0) {
-  throw "props-edges failed with exit code $rc4a"
-}
-if ((Test-CsvHasDataRows -Path $propsPredictionsPath) -and (-not (Test-CsvHasDataRows -Path $edgesPath))) {
-  Write-Log ("props-edges wrote no rows after edge/EV filtering for {0}; continuing without line-bearing props exports." -f $Date)
+  throw "shared props refresh failed with exit code $rc4a"
 }
 
 # 6) Export recommendations CSVs for site consumption
@@ -2659,41 +2728,7 @@ try {
 } catch {
   Write-Log ("recommend-picks failed (non-fatal): {0}" -f $_.Exception.Message)
 }
-# 6c) Props recommendations
-$exportPropsArgs = @('-m','nba_betting.cli','export-props-recommendations','--date', $Date)
-$propsRecsPath = Join-Path $RepoRoot ("data/processed/props_recommendations_{0}.csv" -f $Date)
-if ($null -ne $maxPlusOdds -and $maxPlusOdds -ne '') {
-  try {
-    $mpo2 = [double]$maxPlusOdds
-    $exportPropsArgs += @('--max-plus-odds', ([string]$mpo2))
-    if ($mpo2 -gt 0) {
-      Write-Log ("Applying odds guard to props exports: max_plus_odds={0}" -f $mpo2)
-    } else {
-      Write-Log ("Disabling odds guard for props exports: max_plus_odds={0}" -f $mpo2)
-    }
-  } catch {
-    # already logged above for games
-  }
-}
-if (Test-CsvHasDataRows -Path $edgesPath) {
-  $rc6 = Invoke-PyMod -plist $exportPropsArgs
-  Write-Log ("export-props-recommendations exit code: {0}" -f $rc6)
-} else {
-  $playablePropsRows = Get-PropsRecommendationsPlayableRowCount -Path $propsRecsPath
-  if ($playablePropsRows -gt 0) {
-    Write-Log ("Skipping export-props-recommendations because props_edges is missing or empty; preserving existing same-day line-bearing recommendations (playable_rows={0})." -f $playablePropsRows)
-  } else {
-    if (Test-Path $propsRecsPath) {
-      try {
-        Remove-Item $propsRecsPath -Force -ErrorAction Stop
-        Write-Log "Removed same-day props_recommendations because props_edges is missing/empty and the existing artifact only contained model-only cards."
-      } catch {
-        Write-Log ("Failed to remove invalid same-day props_recommendations: {0}" -f $_.Exception.Message)
-      }
-    }
-    Write-Log "Skipping export-props-recommendations because props_edges is missing or empty; no valid same-day line-bearing recommendations remain."
-  }
-}
+# 6c) Props recommendations are generated by the shared OddsAPI props refresh worker above.
 
 # 6c.0) Optional: export per-game Top-N props JSON (non-fatal)
 # Uses the Flask endpoint logic in-process (no server required).
