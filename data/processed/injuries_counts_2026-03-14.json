@@ -4,7 +4,7 @@
     "BKN": 1,
     "CHA": 1,
     "DEN": 1,
-    "MIL": 1,
+    "MIL": 2,
     "ORL": 1,
     "PHI": 1,
     "SAC": 1,
@@ -13,6 +13,11 @@
   },
   "players": [
     {
+      "player": "Giannis Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
       "player": "Kelly Oubre Jr.",
       "team": "PHI",
       "status": "OUT"
@@ -20,11 +25,6 @@
     {
       "player": "Michael Porter Jr.",
       "team": "BKN",
-      "status": "DOUBTFUL"
-    },
-    {
-      "player": "Drew Eubanks",
-      "team": "SAC",
       "status": "OUT"
     },
     {
@@ -50,6 +50,11 @@
     {
       "player": "PJ Hall",
       "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Carter",
+      "team": "SAC",
       "status": "OUT"
     },
     {

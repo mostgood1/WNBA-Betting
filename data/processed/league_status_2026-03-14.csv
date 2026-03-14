@@ -25,7 +25,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 202695,Kawhi Leonard,LAC,,True,True
 202696,Nikola Vučević,BOS,,True,True
 202699,Tobias Harris,PHI,,True,True
-202710,Jimmy Butler III,GSW,,False,False
+202710,Jimmy Butler III,GSW,OUT,False,False
 203076,Anthony Davis,WAS,,True,True
 203078,Bradley Beal,LAC,,True,True
 203081,Damian Lillard,POR,,False,False
@@ -41,7 +41,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 203497,Rudy Gobert,MIN,,False,False
 203500,Steven Adams,HOU,,False,False
 203501,Tim Hardaway Jr.,DEN,,True,True
-203507,Giannis Antetokounmpo,MIL,,True,True
+203507,Giannis Antetokounmpo,MIL,OUT,True,False
 203648,Thanasis Antetokounmpo,MIL,,True,True
 203897,Zach LaVine,SAC,,True,True
 203903,Jordan Clarkson,NYK,,False,False
@@ -139,7 +139,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629001,De'Anthony Melton,GSW,,False,False
 1629004,Svi Mykhailiuk,UTA,,False,False
 1629006,Josh Okogie,HOU,,False,False
-1629008,Michael Porter Jr.,BKN,DOUBTFUL,True,False
+1629008,Michael Porter Jr.,BKN,OUT,True,False
 1629011,Mitchell Robinson,NYK,,False,False
 1629012,Collin Sexton,CHI,,False,False
 1629013,Landry Shamet,NYK,,False,False
@@ -159,7 +159,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629130,Duncan Robinson,MIA,,True,True
 1629162,Jordan McLaughlin,SAS,,True,True
 1629216,Gabe Vincent,ATL,,True,True
-1629234,Drew Eubanks,SAC,OUT,True,False
+1629234,Drew Eubanks,SAC,,True,True
 1629312,Haywood Highsmith,,,False,False
 1629599,Amir Coffey,,,False,False
 1629611,Terance Mann,BKN,,True,True
@@ -175,9 +175,9 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629636,Darius Garland,LAC,,True,True
 1629637,Jaxson Hayes,LAL,PROBABLE,True,True
 1629638,Nickeil Alexander-Walker,ATL,,True,True
-1629639,Tyler Herro,MIA,QUESTIONABLE,True,True
+1629639,Tyler Herro,MIA,,True,True
 1629640,Keldon Johnson,SAS,,True,True
-1629645,Kevin Porter Jr.,MIL,QUESTIONABLE,True,True
+1629645,Kevin Porter Jr.,MIL,,True,True
 1629646,Charles Bassey,,,False,False
 1629651,Nic Claxton,BKN,,True,True
 1629652,Luguentz Dort,OKC,,False,False
@@ -238,8 +238,8 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630530,Trey Murphy III,NOP,,False,False
 1630532,Franz Wagner,ORL,,True,True
 1630533,Ziaire Williams,BKN,,True,True
-1630534,Ochai Agbaji,BKN,PROBABLE,True,True
-1630536,Sharife Cooper,WAS,QUESTIONABLE,True,True
+1630534,Ochai Agbaji,BKN,,True,True
+1630536,Sharife Cooper,WAS,,True,True
 1630538,Bones Hyland,MIN,,False,False
 1630540,Miles McBride,NYK,,False,False
 1630541,Moses Moody,GSW,,False,False
@@ -350,7 +350,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631323,Simone Fontecchio,MIA,,True,True
 1631342,Daeqwon Plowden,SAC,,True,True
 1631451,Javonte Cooke,,,False,False
-1641705,Victor Wembanyama,SAS,,True,True
+1641705,Victor Wembanyama,SAS,QUESTIONABLE,True,True
 1641706,Brandon Miller,CHA,,True,True
 1641707,Taylor Hendricks,MEM,,False,False
 1641708,Amen Thompson,HOU,,False,False
@@ -372,7 +372,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641731,Bilal Coulibaly,WAS,,True,True
 1641732,Colby Jones,,,False,False
 1641733,Nick Smith Jr.,LAL,,True,True
-1641737,Adem Bona,PHI,QUESTIONABLE,True,True
+1641737,Adem Bona,PHI,,True,True
 1641738,Kobe Brown,IND,,False,False
 1641739,Toumani Camara,POR,,False,False
 1641740,Jaylen Clark,MIN,,False,False
@@ -421,7 +421,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642266,Ja'Kobe Walter,TOR,,False,False
 1642267,Bub Carrington,WAS,,True,True
 1642268,Isaiah Collier,UTA,,False,False
-1642269,Devin Carter,SAC,,True,True
+1642269,Devin Carter,SAC,OUT,True,False
 1642270,Donovan Clingan,POR,,False,False
 1642271,Kyle Filipowski,UTA,,False,False
 1642272,Jared McCain,OKC,,False,False
@@ -466,7 +466,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642449,Tolu Smith,,,False,False
 1642450,Daniss Jenkins,,,False,False
 1642461,Spencer Jones,DEN,,True,True
-1642484,RayJ Dennis,ATL,QUESTIONABLE,True,True
+1642484,RayJ Dennis,ATL,,True,True
 1642843,Cooper Flagg,DAL,,False,False
 1642844,Dylan Harper,SAS,QUESTIONABLE,True,True
 1642845,VJ Edgecombe,PHI,,True,True
