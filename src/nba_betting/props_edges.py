@@ -52,6 +52,61 @@ def _env_float(name: str, default: float, lo: float | None = None, hi: float | N
         return float(default)
 
 
+def _coerce_optional_bool(value: object) -> bool | None:
+    if value is None:
+        return None
+    try:
+        if pd.isna(value):
+            return None
+    except Exception:
+        pass
+    if isinstance(value, (bool, np.bool_)):
+        return bool(value)
+    if isinstance(value, (int, np.integer)):
+        return bool(int(value))
+    if isinstance(value, (float, np.floating)):
+        try:
+            if np.isnan(float(value)):
+                return None
+        except Exception:
+            return None
+        return bool(value)
+    raw = str(value).strip().lower()
+    if raw in {"", "nan", "none", "null", "nat"}:
+        return None
+    if raw in {"true", "1", "yes", "y", "on"}:
+        return True
+    if raw in {"false", "0", "no", "n", "off"}:
+        return False
+    return None
+
+
+def _filter_explicit_false(df: pd.DataFrame, column: str) -> pd.DataFrame:
+    if column not in df.columns or df.empty:
+        return df
+    flag = df[column].map(_coerce_optional_bool)
+    if not bool(flag.notna().any()):
+        return df
+    return df[flag != False].copy()  # noqa: E712
+
+
+def _team_to_tricode(value: object) -> str:
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+    except Exception:
+        pass
+    raw = str(value).strip()
+    if raw.lower() in {"", "nan", "none", "null", "nat"}:
+        return ""
+    try:
+        return str(_tri(_norm_team(raw)) or "").strip().upper()
+    except Exception:
+        return raw.upper()
+
+
 _PROPS_OPENING_CACHE: dict[str, pd.DataFrame] = {}
 
 
@@ -806,14 +861,12 @@ def compute_props_edges(
 
     preds = preds.copy()
 
-    # If predictions include slate/availability flags, enforce them here.
-    # This prevents stale rows (or players not expected to play) from generating
-    # extreme "auto-under" edges.
+    # If predictions include slate/availability flags, only exclude rows that are
+    # explicitly false. Unknown availability should not wipe out the entire
+    # prediction set when the upstream artifact omitted those fields.
     try:
-        if "team_on_slate" in preds.columns:
-            preds = preds[pd.to_numeric(preds["team_on_slate"], errors="coerce").fillna(0).astype(bool)].copy()
-        if "playing_today" in preds.columns:
-            preds = preds[pd.to_numeric(preds["playing_today"], errors="coerce").fillna(0).astype(bool)].copy()
+        preds = _filter_explicit_false(preds, "team_on_slate")
+        preds = _filter_explicit_false(preds, "playing_today")
     except Exception:
         pass
 
@@ -1070,15 +1123,11 @@ def compute_props_edges(
                                 if col in enrich.columns and col_r in enrich2.columns:
                                     enrich.loc[rem.index, col] = enrich.loc[rem.index, col].fillna(enrich2[col_r])
                         # Team-tricode alignment: prefer roster match that aligns with event teams
-                        def _to_tri_team(x: str | None) -> str:
-                            try:
-                                return _tri(_norm_team(str(x))) if x is not None else ""
-                            except Exception:
-                                return (str(x).strip().upper() if x else "")
                         if "home_team" in enrich.columns and "away_team" in enrich.columns:
-                            enrich["home_tri"] = enrich["home_team"].astype(str).map(_to_tri_team)
-                            enrich["away_tri"] = enrich["away_team"].astype(str).map(_to_tri_team)
-                            enrich["team_tri_r"] = enrich.get("team").astype(str).map(_to_tri_team)
+                            enrich["home_tri"] = enrich["home_team"].map(_team_to_tricode)
+                            enrich["away_tri"] = enrich["away_team"].map(_team_to_tricode)
+                            team_r = enrich["team"] if "team" in enrich.columns else pd.Series("", index=enrich.index)
+                            enrich["team_tri_r"] = team_r.map(_team_to_tricode)
                             # In cases where roster team doesn't match either event team, null it out to avoid mis-join
                             ok_mask = (enrich["team_tri_r"] == enrich["home_tri"]) | (enrich["team_tri_r"] == enrich["away_tri"]) | (enrich["team_tri_r"] == "")
                             enrich.loc[~ok_mask, ["player_id","team"]] = np.nan
@@ -1184,14 +1233,12 @@ def compute_props_edges(
         pass
     # Team-consistency guard: ensure the prediction team matches the event's home or away team (by tricode)
     try:
-        def _to_tri_team(x: str | None) -> str:
-            try:
-                return _tri(_norm_team(str(x))) if x is not None else ""
-            except Exception:
-                return (str(x).strip().upper() if x else "")
-        merged["team_tri"] = merged.get("team").astype(str).map(lambda x: _to_tri_team(x))
-        merged["home_tri"] = merged.get("home_team").astype(str).map(lambda x: _to_tri_team(x))
-        merged["away_tri"] = merged.get("away_team").astype(str).map(lambda x: _to_tri_team(x))
+        team_s = merged["team"] if "team" in merged.columns else pd.Series("", index=merged.index)
+        home_s = merged["home_team"] if "home_team" in merged.columns else pd.Series("", index=merged.index)
+        away_s = merged["away_team"] if "away_team" in merged.columns else pd.Series("", index=merged.index)
+        merged["team_tri"] = team_s.map(_team_to_tricode)
+        merged["home_tri"] = home_s.map(_team_to_tricode)
+        merged["away_tri"] = away_s.map(_team_to_tricode)
         # Only filter when we have a non-empty team_tri
         mask_ok = (merged["team_tri"] == "") | (merged["team_tri"].isna()) | (
             (merged["team_tri"] == merged["home_tri"]) | (merged["team_tri"] == merged["away_tri"]) )
