@@ -701,7 +701,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	table-layout: fixed;
 }
 .merged-boxscore-section .merged-player-boxscore {
-	min-width: 1520px;
+	min-width: 0;
 }
 .merged-linescore-table th,
 .merged-linescore-table td,
@@ -720,8 +720,8 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .merged-player-boxscore th:first-child,
 .merged-player-boxscore td:first-child {
 	min-width: 0;
-	width: 112px;
-	max-width: 112px;
+	width: 120px;
+	max-width: 120px;
 	overflow-wrap: anywhere;
 }
 .merged-linescore-table th.num,
@@ -739,7 +739,33 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	white-space: normal;
 	line-height: 1.0;
 }
-.boxscore-stat-main { color: inherit; }
+.merged-player-boxscore th.boxscore-combo-col,
+.merged-player-boxscore td.boxscore-combo-cell {
+	text-align: center;
+	vertical-align: top;
+	white-space: normal;
+	min-width: 0;
+	padding-top: 6px;
+	padding-bottom: 6px;
+}
+.merged-player-boxscore th.boxscore-combo-col {
+	font-size: 9px;
+}
+.boxscore-stat-stack {
+	display: grid;
+	gap: 4px;
+	min-width: 0;
+}
+.boxscore-stat-main {
+	color: inherit;
+	line-height: 1.1;
+	min-width: 0;
+}
+.boxscore-stat-secondary {
+	display: grid;
+	gap: 3px;
+	min-width: 0;
+}
 .player-boxscore th.boxscore-line-col,
 .player-boxscore td.boxscore-line-col,
 .merged-player-boxscore th.boxscore-line-col,
@@ -752,21 +778,26 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
+.boxscore-missing-table th.boxscore-line-col-sim,
+.boxscore-missing-table td.boxscore-line-col-sim {
+	min-width: 92px;
+	width: 92px;
+}
 .boxscore-prop-stack {
 	display: flex;
 	flex-direction: column;
-	gap: 4px;
+	gap: 3px;
 	align-items: stretch;
-	padding: 0 1px;
+	padding: 0;
 }
 .boxscore-prop-pill {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	gap: 4px;
+	gap: 3px;
 	min-width: 0;
 	width: 100%;
-	padding: 3px 6px;
+	padding: 2px 6px;
 	border-radius: 11px;
 	border: 1px solid #2a3a7a;
 	background: #161c3b;
@@ -774,7 +805,8 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	font-size: 9px;
 	font-weight: 800;
 	letter-spacing: 0.1px;
-	line-height: 1.2;
+	line-height: 1.15;
+	white-space: nowrap;
 }
 .boxscore-prop-pill-main {
 	flex: 1 1 auto;
