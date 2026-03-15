@@ -255,6 +255,19 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 	border-radius: 999px;
 	object-fit: cover;
 	flex: 0 0 38px;
+	overflow: hidden;
+	background: #0f1530;
+}
+
+.prop-callout-photo-fallback {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 1px solid #25316a;
+	color: #d5dbff;
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 0.35px;
 }
 
 .prop-callout-copy {

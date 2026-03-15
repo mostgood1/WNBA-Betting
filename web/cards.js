@@ -142,6 +142,8 @@ function setNote(msg) {
 
     window.addEventListener('error', (e) => {
       try {
+        const target = e && e.target;
+        if (target && typeof target.tagName === 'string' && target.tagName.toUpperCase() === 'IMG') return;
         const msg = e && e.message ? e.message : 'Unknown error';
         setNote(`JS error: ${msg}`);
       } catch (_) { /* ignore */ }
@@ -154,6 +156,68 @@ function setNote(msg) {
         setNote(`JS error: ${msg}`);
       } catch (_) { /* ignore */ }
     });
+  } catch (_) {
+    // ignore
+  }
+})();
+
+function playerHeadshotInitials(name) {
+  const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
+  if (!parts.length) return '?';
+  const initials = parts.slice(0, 2).map((part) => part.charAt(0).toUpperCase()).join('');
+  return initials || '?';
+}
+
+function nbaHeadshotUrl(playerId) {
+  const pid = n(playerId);
+  return (pid == null) ? '' : `https://cdn.nba.com/headshots/nba/latest/1040x760/${pid}.png`;
+}
+
+function renderPlayerHeadshot(name, opts) {
+  const options = (opts && typeof opts === 'object') ? opts : {};
+  const player = String(name || '').trim();
+  const explicitPhoto = [options.playerPhoto, options.photo]
+    .map((value) => String(value || '').trim())
+    .find(Boolean) || '';
+  const inferredPhoto = nbaHeadshotUrl(options.playerId);
+  const src = explicitPhoto || inferredPhoto;
+  const fallbackSrc = (inferredPhoto && inferredPhoto !== src) ? inferredPhoto : '';
+  const initials = playerHeadshotInitials(player);
+
+  if (!src) {
+    return `<span class="prop-callout-photo prop-callout-photo-fallback" aria-hidden="true">${esc(initials)}</span>`;
+  }
+
+  return `<img src="${esc(src)}" alt="${esc(player)}" width="46" height="46" class="prop-callout-photo" data-fallback-src="${esc(fallbackSrc)}" data-fallback-initials="${esc(initials)}" loading="lazy" />`;
+}
+
+(function installHeadshotFallbackHandler() {
+  try {
+    if (window.__cardsHeadshotFallbackInstalled) return;
+    window.__cardsHeadshotFallbackInstalled = true;
+
+    document.addEventListener('error', (event) => {
+      try {
+        const target = event && event.target;
+        if (!(typeof HTMLImageElement !== 'undefined' && target instanceof HTMLImageElement)) return;
+        if (!target.classList.contains('prop-callout-photo')) return;
+
+        const fallbackSrc = String(target.dataset.fallbackSrc || '').trim();
+        if (fallbackSrc) {
+          target.dataset.fallbackSrc = '';
+          target.src = fallbackSrc;
+          return;
+        }
+
+        const fallback = document.createElement('span');
+        fallback.className = 'prop-callout-photo prop-callout-photo-fallback';
+        fallback.setAttribute('aria-hidden', 'true');
+        fallback.textContent = String(target.dataset.fallbackInitials || '?').trim() || '?';
+        target.replaceWith(fallback);
+      } catch (_) {
+        // ignore image fallback failures
+      }
+    }, true);
   } catch (_) {
     // ignore
   }
@@ -717,7 +781,7 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
   }
 
   for (const player of (Array.isArray(lineOnlyPlayers) ? lineOnlyPlayers : [])) {
-    if (!boxscorePlayerHasAnyPropLine(player)) continue;
+    if (!boxscorePlayerHasVisibleMergedPropLine(player)) continue;
     const keys = playerMergeKeys(player && player.player_name);
     let existingRow = null;
     if (keys.full) existingRow = rowByFull.get(keys.full) || null;
@@ -758,7 +822,7 @@ function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveL
   });
 
   const top = rows.slice(0, 12);
-  const extras = rows.slice(12).filter((row) => boxscorePlayerHasAnyPropLine(row && (row.propPlayer || row.simPlayer)));
+  const extras = rows.slice(12).filter((row) => boxscorePlayerHasVisibleMergedPropLine(row && (row.propPlayer || row.simPlayer)));
   return top.concat(extras);
 }
 
@@ -863,6 +927,35 @@ function boxscorePropLineValue(player, statKey) {
   } catch (_) {
     return null;
   }
+}
+
+const MERGED_BOXSCORE_HIDDEN_STAT_KEYS = new Set(['stl', 'blk', 'tov']);
+const MERGED_BOXSCORE_STAT_COLUMNS = [
+  { key: 'pts', label: 'PTS' },
+  { key: 'reb', label: 'REB' },
+  { key: 'ast', label: 'AST' },
+  { key: 'threes', label: '3PM' },
+  { key: 'stl', label: 'STL' },
+  { key: 'blk', label: 'BLK' },
+  { key: 'tov', label: 'TOV' },
+  { key: 'pra', label: 'PRA' },
+];
+
+function mergedBoxscoreStatColumns() {
+  return MERGED_BOXSCORE_STAT_COLUMNS.filter((column) => !MERGED_BOXSCORE_HIDDEN_STAT_KEYS.has(column.key));
+}
+
+function mergedBoxscoreActualColumnCount(actualMode) {
+  const statCount = mergedBoxscoreStatColumns().length;
+  return actualMode === 'live' ? 1 + (statCount * 2) : 1 + statCount;
+}
+
+function mergedBoxscoreSimColumnCount() {
+  return 1 + (mergedBoxscoreStatColumns().length * 2);
+}
+
+function boxscorePlayerHasVisibleMergedPropLine(player) {
+  return mergedBoxscoreStatColumns().some((column) => boxscorePropLineOptions(player, column.key).length > 0);
 }
 
 function boxscorePlayerHasAnyPropLine(player) {
@@ -1127,133 +1220,100 @@ function renderLineScoreBlock(meta, actualSource) {
 function renderActualBoxscoreCells(row, actualMode) {
   const actual = row && row.actual ? row.actual : null;
   const liveLensPlayer = row && row.liveLens ? row.liveLens : null;
+  const statColumns = mergedBoxscoreStatColumns();
   if (actualMode === 'live') {
-    return `
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'mp')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pts')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pts')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'reb')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'reb')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'ast')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'ast')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'threes')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'threes')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'stl')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'stl')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'blk')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'blk')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'tov')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'tov')}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'pra')}</td>
-      <td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, 'pra')}</td>
-    `;
+    const cells = [
+      `<td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, 'mp')}</td>`,
+    ];
+    for (const column of statColumns) {
+      cells.push(`<td class="num boxscore-live-stat">${renderLiveBoxscoreStatCell(actual, liveLensPlayer, column.key)}</td>`);
+      cells.push(`<td class="num boxscore-line-col">${renderLiveBoxscorePropLineCell(liveLensPlayer, column.key)}</td>`);
+    }
+    return cells.join('');
   }
 
-  return `
-    <td class="num">${fmtActualBoxscoreStat('mp', actual && actual.mp)}</td>
-    <td class="num">${fmtActualBoxscoreStat('pts', actual && actual.pts)}</td>
-    <td class="num">${fmtActualBoxscoreStat('reb', actual && actual.reb)}</td>
-    <td class="num">${fmtActualBoxscoreStat('ast', actual && actual.ast)}</td>
-    <td class="num">${fmtActualBoxscoreStat('threes', actual && actual.threes)}</td>
-    <td class="num">${fmtActualBoxscoreStat('stl', actual && actual.stl)}</td>
-    <td class="num">${fmtActualBoxscoreStat('blk', actual && actual.blk)}</td>
-    <td class="num">${fmtActualBoxscoreStat('tov', actual && actual.tov)}</td>
-    <td class="num">${fmtActualBoxscoreStat('pra', actual && actual.pra)}</td>
-  `;
+  const cells = [`<td class="num">${fmtActualBoxscoreStat('mp', actual && actual.mp)}</td>`];
+  for (const column of statColumns) {
+    cells.push(`<td class="num">${fmtActualBoxscoreStat(column.key, actual && actual[column.key])}</td>`);
+  }
+  return cells.join('');
 }
 
 function renderActualBoxscoreTotalsCells(rows, actualMode) {
+  const statColumns = mergedBoxscoreStatColumns();
   if (actualMode === 'live') {
-    return `
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'), sumMergedLiveProjectionStat(rows, 'mp'))}</td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'), sumMergedLiveProjectionStat(rows, 'pts'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'), sumMergedLiveProjectionStat(rows, 'reb'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'), sumMergedLiveProjectionStat(rows, 'ast'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'), sumMergedLiveProjectionStat(rows, 'threes'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'), sumMergedLiveProjectionStat(rows, 'stl'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'), sumMergedLiveProjectionStat(rows, 'blk'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'), sumMergedLiveProjectionStat(rows, 'tov'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'), sumMergedLiveProjectionStat(rows, 'pra'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-    `;
+    const cells = [
+      `<td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'), sumMergedLiveProjectionStat(rows, 'mp'))}</td>`,
+    ];
+    for (const column of statColumns) {
+      cells.push(`<td class="num boxscore-live-stat">${renderLiveBoxscoreStatValueCell(column.key, sumMergedBoxscoreStat(rows, 'actual', column.key), sumMergedLiveProjectionStat(rows, column.key))}</td>`);
+      cells.push('<td class="num boxscore-line-col"><span class="subtle">—</span></td>');
+    }
+    return cells.join('');
   }
 
-  return `
-    <td class="num">${fmtActualBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'actual', 'pts'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'actual', 'reb'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'actual', 'ast'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'actual', 'threes'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('stl', sumMergedBoxscoreStat(rows, 'actual', 'stl'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('blk', sumMergedBoxscoreStat(rows, 'actual', 'blk'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('tov', sumMergedBoxscoreStat(rows, 'actual', 'tov'))}</td>
-    <td class="num">${fmtActualBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'actual', 'pra'))}</td>
-  `;
+  const cells = [`<td class="num">${fmtActualBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'actual', 'mp'))}</td>`];
+  for (const column of statColumns) {
+    cells.push(`<td class="num">${fmtActualBoxscoreStat(column.key, sumMergedBoxscoreStat(rows, 'actual', column.key))}</td>`);
+  }
+  return cells.join('');
 }
 
 function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel, liveLensRows, lineOnlyPlayers) {
   const isLiveMode = actualMode === 'live';
-  const actualHeaderCols = isLiveMode ? 17 : 9;
-  const totalCols = 1 + actualHeaderCols + 17;
+  const statColumns = mergedBoxscoreStatColumns();
+  const actualHeaderCols = mergedBoxscoreActualColumnCount(actualMode);
+  const simHeaderCols = mergedBoxscoreSimColumnCount();
+  const totalCols = 1 + actualHeaderCols + simHeaderCols;
   const rows = buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows, lineOnlyPlayers);
   const body = rows.map((row) => {
     const sim = simPlayerBoxscoreStats(row && row.simPlayer ? row.simPlayer : null);
     const propPlayer = row && (row.propPlayer || row.simPlayer) ? (row.propPlayer || row.simPlayer) : null;
+    const simCells = [`<td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sim.mp)}</td>`];
+    for (const column of statColumns) {
+      simCells.push(`<td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, column.key, sim[column.key])}</td>`);
+      simCells.push(`<td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, column.key)}</td>`);
+    }
     return `
       <tr>
         <td>${esc(row && row.name ? row.name : '—')}${row && row.lineOnly ? ' <span class="boxscore-line-only-flag">LINES</span>' : ''}</td>
         ${renderActualBoxscoreCells(row, actualMode)}
-        <td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sim.mp)}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pts', sim.pts)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'pts')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'reb', sim.reb)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'reb')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'ast', sim.ast)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'ast')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'threes', sim.threes)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'threes')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'stl', sim.stl)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'stl')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'blk', sim.blk)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'blk')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'tov', sim.tov)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'tov')}</td>
-        <td class="num">${renderSimBoxscoreStatCell(row && row.simPlayer ? row.simPlayer : null, 'pra', sim.pra)}</td>
-        <td class="num boxscore-line-col">${renderBoxscorePropLineCell(propPlayer, 'pra')}</td>
+        ${simCells.join('')}
       </tr>
     `;
   }).join('');
+
+  const simTotalsCells = [`<td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>`];
+  for (const column of statColumns) {
+    simTotalsCells.push(`<td class="num">${fmtSimBoxscoreStat(column.key, sumMergedBoxscoreStat(rows, 'sim', column.key))}</td>`);
+    simTotalsCells.push('<td class="num boxscore-line-col"><span class="subtle">—</span></td>');
+  }
 
   const totalsRow = `
     <tr>
       <td>TEAM TOTAL</td>
       ${renderActualBoxscoreTotalsCells(rows, actualMode)}
-      <td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>
-      <td class="num">${fmtSimBoxscoreStat('pts', sumMergedBoxscoreStat(rows, 'sim', 'pts'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('reb', sumMergedBoxscoreStat(rows, 'sim', 'reb'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('ast', sumMergedBoxscoreStat(rows, 'sim', 'ast'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('threes', sumMergedBoxscoreStat(rows, 'sim', 'threes'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('stl', sumMergedBoxscoreStat(rows, 'sim', 'stl'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('blk', sumMergedBoxscoreStat(rows, 'sim', 'blk'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('tov', sumMergedBoxscoreStat(rows, 'sim', 'tov'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
-      <td class="num">${fmtSimBoxscoreStat('pra', sumMergedBoxscoreStat(rows, 'sim', 'pra'))}</td>
-      <td class="num boxscore-line-col"><span class="subtle">—</span></td>
+      ${simTotalsCells.join('')}
     </tr>
   `;
+
+  const actualHeaderRow = isLiveMode
+    ? [`<th class="num">MIN</th>`]
+        .concat(statColumns.flatMap((column) => [
+          `<th class="num">${column.label}</th>`,
+          `<th class="num boxscore-line-col" title="${column.label} line">L</th>`,
+        ]))
+        .join('')
+    : [`<th class="num">MIN</th>`]
+        .concat(statColumns.map((column) => `<th class="num">${column.label}</th>`))
+        .join('');
+
+  const simHeaderRow = [`<th class="num boxscore-divider-start">MIN</th>`]
+    .concat(statColumns.flatMap((column) => [
+      `<th class="num">${column.label}</th>`,
+      `<th class="num boxscore-line-col" title="${column.label} line">L</th>`,
+    ]))
+    .join('');
 
   return `
     <div class="merged-boxscore-section">
@@ -1264,55 +1324,11 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
             <tr>
               <th rowspan="2">Player</th>
               <th colspan="${esc(String(actualHeaderCols))}" class="boxscore-side-header boxscore-side-header-live">${esc(actualLabel)}</th>
-              <th colspan="17" class="boxscore-side-header boxscore-side-header-sim">Sim</th>
+              <th colspan="${esc(String(simHeaderCols))}" class="boxscore-side-header boxscore-side-header-sim">Sim</th>
             </tr>
             <tr>
-              ${isLiveMode ? `
-                <th class="num">MIN</th>
-                <th class="num">PTS</th>
-                <th class="num boxscore-line-col" title="PTS line">L</th>
-                <th class="num">REB</th>
-                <th class="num boxscore-line-col" title="REB line">L</th>
-                <th class="num">AST</th>
-                <th class="num boxscore-line-col" title="AST line">L</th>
-                <th class="num">3PM</th>
-                <th class="num boxscore-line-col" title="3PM line">L</th>
-                <th class="num">STL</th>
-                <th class="num boxscore-line-col" title="STL line">L</th>
-                <th class="num">BLK</th>
-                <th class="num boxscore-line-col" title="BLK line">L</th>
-                <th class="num">TOV</th>
-                <th class="num boxscore-line-col" title="TOV line">L</th>
-                <th class="num">PRA</th>
-                <th class="num boxscore-line-col" title="PRA line">L</th>
-              ` : `
-                <th class="num">MIN</th>
-                <th class="num">PTS</th>
-                <th class="num">REB</th>
-                <th class="num">AST</th>
-                <th class="num">3PM</th>
-                <th class="num">STL</th>
-                <th class="num">BLK</th>
-                <th class="num">TOV</th>
-                <th class="num">PRA</th>
-              `}
-              <th class="num boxscore-divider-start">MIN</th>
-              <th class="num">PTS</th>
-              <th class="num boxscore-line-col" title="PTS line">L</th>
-              <th class="num">REB</th>
-              <th class="num boxscore-line-col" title="REB line">L</th>
-              <th class="num">AST</th>
-              <th class="num boxscore-line-col" title="AST line">L</th>
-              <th class="num">3PM</th>
-              <th class="num boxscore-line-col" title="3PM line">L</th>
-              <th class="num">STL</th>
-              <th class="num boxscore-line-col" title="STL line">L</th>
-              <th class="num">BLK</th>
-              <th class="num boxscore-line-col" title="BLK line">L</th>
-              <th class="num">TOV</th>
-              <th class="num boxscore-line-col" title="TOV line">L</th>
-              <th class="num">PRA</th>
-              <th class="num boxscore-line-col" title="PRA line">L</th>
+              ${actualHeaderRow}
+              ${simHeaderRow}
             </tr>
           </thead>
           <tbody>
@@ -1370,8 +1386,8 @@ function renderMissingSimPropPlayersTable(title, players) {
 }
 
 function renderMissingSimPropLineAudit(meta) {
-  const away = meta && Array.isArray(meta.missing_prop_players_away) ? meta.missing_prop_players_away : [];
-  const home = meta && Array.isArray(meta.missing_prop_players_home) ? meta.missing_prop_players_home : [];
+  const away = (meta && Array.isArray(meta.missing_prop_players_away) ? meta.missing_prop_players_away : []).filter((player) => boxscorePlayerHasVisibleMergedPropLine(player));
+  const home = (meta && Array.isArray(meta.missing_prop_players_home) ? meta.missing_prop_players_home : []).filter((player) => boxscorePlayerHasVisibleMergedPropLine(player));
   if (!away.length && !home.length) return '';
 
   const parts = [];
@@ -1399,7 +1415,7 @@ function renderMergedBoxscoreSection(meta, actualSource) {
   let note = 'Live columns are prebuilt here and fill once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
   if (sourceMode === 'live') note = `${label} columns refresh from ESPN summary data.`;
-  note += ' Sim columns include all posted prop-line groups when markets are available, and recommendation-tagged options are marked inline.';
+  note += ' Sim columns include the core posted prop-line groups when markets are available, and recommendation-tagged options are marked inline.';
 
   return `
     <div class="merged-boxscore-block">
@@ -4537,10 +4553,10 @@ function renderLivePropCallouts(callouts) {
       const stat = marketLabel(String(x.stat || '').toLowerCase().trim());
       const player = String(x.player || '').trim();
       const pid = n(x.player_id);
-      const photo = String(x.player_photo || '').trim() || ((pid != null) ? `https://cdn.nba.com/headshots/nba/latest/1040x760/${pid}.png` : '');
-      const img = photo
-        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" class="prop-callout-photo" />`
-        : '';
+      const img = renderPlayerHeadshot(player, {
+        playerPhoto: x.player_photo,
+        playerId: pid,
+      });
       const preLine = n(x.line_pregame);
       const liveLine = n(x.line_live);
       const lineUsed = n(x.line);
@@ -4683,10 +4699,11 @@ function renderPregamePropCallouts(callouts) {
       const player = String(x.player || '').trim();
       const team = String(x.team || '').toUpperCase().trim();
 
-      const photo = String(x.player_photo || '').trim() || String(x.photo || '').trim();
-      const img = photo
-        ? `<img src="${esc(photo)}" alt="${esc(player)}" width="46" height="46" class="prop-callout-photo" />`
-        : '';
+      const img = renderPlayerHeadshot(player, {
+        playerPhoto: x.player_photo,
+        photo: x.photo,
+        playerId: x.player_id,
+      });
 
       const openLine = n(x.open_line);
       const curLine = n(x.line);
@@ -4860,6 +4877,7 @@ async function loadPregamePropCallouts(root, games, dateStr) {
         away,
         team: String(c.team_tricode || c.team || '').toUpperCase().trim(),
         player: String(c.player || '').trim(),
+        player_id: n(c.player_id),
         photo: String(c.photo || '').trim(),
         tier: c.tier,
         stat: String(c.market || c.stat || '').toLowerCase().trim(),

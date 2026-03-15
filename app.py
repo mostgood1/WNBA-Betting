@@ -20892,6 +20892,11 @@ def _load_props_movement_callouts(
                     player_id = int(mid) if mid is not None else None
                 except Exception:
                     player_id = None
+            if player_id is None:
+                try:
+                    player_id = _resolve_player_id(player, team_tri)
+                except Exception:
+                    player_id = None
 
             photo = str(rr.get("photo") or "").strip() or None
             if not photo and player_id is not None:
@@ -20902,6 +20907,7 @@ def _load_props_movement_callouts(
 
             out.append({
                 "player": player,
+                "player_id": player_id,
                 "photo": photo,
                 "team": team_name,
                 "team_tricode": team_tri,

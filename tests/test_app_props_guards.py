@@ -357,3 +357,63 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
 
     assert "threes" in cam_row["prop_line_options"]
     assert any(option["side"] == "OVER" and option["line"] == 1.5 for option in cam_row["prop_line_options"]["threes"])
+
+
+def test_load_props_movement_callouts_exposes_player_id_photo_fallback(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player": "Jayson Tatum",
+                "team": "Boston Celtics",
+                "team_tricode": "BOS",
+                "market": "pts",
+                "side": "OVER",
+                "line": 28.5,
+                "price": -110,
+                "open_line": 27.5,
+                "open_price": -115,
+                "line_move": 1.0,
+                "implied_move": 0.03,
+                "ev_pct": 2.4,
+                "movement_tier": "fast",
+            }
+        ]
+    ).to_csv(processed / "props_movement_signals_2026-03-15.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Boston Celtics",
+                "visitor_team": "Detroit Pistons",
+            }
+        ]
+    ).to_csv(processed / "predictions_2026-03-15.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "player_name": "Jayson Tatum",
+                "team": "BOS",
+                "player_id": 1628369,
+                "pred_pts": 29.1,
+            }
+        ]
+    ).to_csv(processed / "props_predictions_2026-03-15.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+
+    items = app_module._load_props_movement_callouts(
+        "2026-03-15",
+        markets={"pts"},
+        min_ev_pct=1.0,
+        only_ev=True,
+    )
+
+    assert len(items) == 1
+    assert items[0]["player"] == "Jayson Tatum"
+    assert items[0]["player_id"] == 1628369
+    assert items[0]["photo"] == "https://cdn.nba.com/headshots/nba/latest/1040x760/1628369.png"
