@@ -3,9 +3,11 @@ name: NBA Betting Pregame Props Refresh
 on:
   workflow_dispatch: {}
   schedule:
-    # Pregame props refresh every 20 minutes during likely NBA windows (UTC).
-    - cron: "7,27,47 15-23 * * *"
-    - cron: "7,27,47 0-3 * * *"
+    # Run hourly all day so overnight / early-morning windows do not go dark.
+    - cron: "7 * * * *"
+    # Add extra 20-minute refreshes during likely NBA windows (UTC).
+    - cron: "27,47 15-23 * * *"
+    - cron: "27,47 0-3 * * *"
 
 concurrency:
   group: nbabetting-pregame-props-refresh
