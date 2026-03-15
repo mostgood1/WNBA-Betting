@@ -6740,6 +6740,34 @@ def _resolve_player_id(name: str | None, team: str | None = None) -> Optional[in
         return pid
     return None
 
+
+def _nba_headshot_url(player_id: Any) -> str | None:
+    pid = _safe_int(player_id)
+    if pid is None:
+        return None
+    return f"https://cdn.nba.com/headshots/nba/latest/1040x760/{pid}.png"
+
+
+def _espn_headshot_url(player_id: Any) -> str | None:
+    pid = _safe_int(player_id)
+    if pid is None:
+        return None
+    return f"https://a.espncdn.com/i/headshots/nba/players/full/{pid}.png"
+
+
+def _best_player_headshot_url(*, photo: Any = None, nba_player_id: Any = None, source_player_id: Any = None) -> str | None:
+    photo_url = str(photo or "").strip() or None
+    nba_url = _nba_headshot_url(nba_player_id)
+    source_nba_url = _nba_headshot_url(source_player_id)
+    source_espn_url = _espn_headshot_url(source_player_id)
+
+    if photo_url:
+        if nba_url and source_nba_url and photo_url == source_nba_url and source_nba_url != nba_url:
+            return nba_url
+        return photo_url
+
+    return nba_url or source_espn_url
+
 def _default_us_slate_date_str() -> str:
     try:
         import os
@@ -20881,26 +20909,36 @@ def _load_props_movement_callouts(
                 except Exception:
                     model_line = None
 
-            player_id = None
+            source_player_id = None
             try:
-                player_id = int(float(rr.get("player_id"))) if rr.get("player_id") is not None and not pd.isna(rr.get("player_id")) else None
+                source_player_id = int(float(rr.get("player_id"))) if rr.get("player_id") is not None and not pd.isna(rr.get("player_id")) else None
             except Exception:
-                player_id = None
-            if player_id is None and isinstance(model_info, dict):
+                source_player_id = None
+            if source_player_id is None and isinstance(model_info, dict):
                 try:
                     mid = model_info.get("player_id")
-                    player_id = int(mid) if mid is not None else None
+                    source_player_id = int(mid) if mid is not None else None
                 except Exception:
-                    player_id = None
+                    source_player_id = None
+
+            resolved_player_id = None
+            try:
+                resolved_player_id = _resolve_player_id(player, team_tri)
+            except Exception:
+                resolved_player_id = None
+
+            player_id = resolved_player_id
             if player_id is None:
                 try:
-                    player_id = _resolve_player_id(player, team_tri)
+                    player_id = source_player_id
                 except Exception:
                     player_id = None
 
-            photo = str(rr.get("photo") or "").strip() or None
-            if not photo and player_id is not None:
-                photo = f"https://cdn.nba.com/headshots/nba/latest/1040x760/{player_id}.png"
+            photo = _best_player_headshot_url(
+                photo=rr.get("photo"),
+                nba_player_id=resolved_player_id,
+                source_player_id=source_player_id,
+            )
 
             movement_tier = str(rr.get("movement_tier") or "").strip().lower()
             tier = "HIGH" if movement_tier == "fast" else "MEDIUM"

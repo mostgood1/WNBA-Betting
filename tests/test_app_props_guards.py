@@ -417,3 +417,104 @@ def test_load_props_movement_callouts_exposes_player_id_photo_fallback(tmp_path,
     assert items[0]["player"] == "Jayson Tatum"
     assert items[0]["player_id"] == 1628369
     assert items[0]["photo"] == "https://cdn.nba.com/headshots/nba/latest/1040x760/1628369.png"
+
+
+def test_load_props_movement_callouts_rewrites_source_id_to_resolved_nba_headshot(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player": "Shai Gilgeous-Alexander",
+                "team": "Oklahoma City Thunder",
+                "team_tricode": "OKC",
+                "market": "threes",
+                "side": "UNDER",
+                "line": 1.5,
+                "price": 102,
+                "open_line": 1.5,
+                "open_price": -123,
+                "line_move": 0.0,
+                "implied_move": -0.05,
+                "ev_pct": 4.8,
+                "movement_tier": "fast",
+                "player_id": 4278073,
+                "photo": "https://cdn.nba.com/headshots/nba/latest/1040x760/4278073.png",
+            }
+        ]
+    ).to_csv(processed / "props_movement_signals_2026-03-15.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Oklahoma City Thunder",
+                "visitor_team": "Minnesota Timberwolves",
+            }
+        ]
+    ).to_csv(processed / "predictions_2026-03-15.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+    monkeypatch.setattr(app_module, "_resolve_player_id", lambda player, team=None: 1628983 if player == "Shai Gilgeous-Alexander" else None)
+
+    items = app_module._load_props_movement_callouts(
+        "2026-03-15",
+        markets={"threes"},
+        min_ev_pct=1.0,
+        only_ev=True,
+    )
+
+    assert len(items) == 1
+    assert items[0]["player_id"] == 1628983
+    assert items[0]["photo"] == "https://cdn.nba.com/headshots/nba/latest/1040x760/1628983.png"
+
+
+def test_load_props_movement_callouts_falls_back_to_espn_headshot_for_source_id(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player": "Donovan Clingan",
+                "team": "Portland Trail Blazers",
+                "team_tricode": "POR",
+                "market": "blk",
+                "side": "UNDER",
+                "line": 1.5,
+                "price": 118,
+                "open_line": 1.5,
+                "open_price": -108,
+                "line_move": 0.0,
+                "implied_move": -0.06,
+                "ev_pct": 3.2,
+                "movement_tier": "fast",
+                "player_id": 5105565,
+            }
+        ]
+    ).to_csv(processed / "props_movement_signals_2026-03-15.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "home_team": "Philadelphia 76ers",
+                "visitor_team": "Portland Trail Blazers",
+            }
+        ]
+    ).to_csv(processed / "predictions_2026-03-15.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_maybe_fetch_remote_processed", lambda _name: None)
+    monkeypatch.setattr(app_module, "_resolve_player_id", lambda player, team=None: None)
+
+    items = app_module._load_props_movement_callouts(
+        "2026-03-15",
+        markets={"blk"},
+        min_ev_pct=1.0,
+        only_ev=True,
+    )
+
+    assert len(items) == 1
+    assert items[0]["player_id"] == 5105565
+    assert items[0]["photo"] == "https://a.espncdn.com/i/headshots/nba/players/full/5105565.png"
