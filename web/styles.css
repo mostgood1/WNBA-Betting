@@ -701,7 +701,7 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	table-layout: fixed;
 }
 .merged-boxscore-section .merged-player-boxscore {
-	min-width: 1360px;
+	min-width: 1520px;
 }
 .merged-linescore-table th,
 .merged-linescore-table td,
@@ -745,10 +745,10 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .merged-player-boxscore th.boxscore-line-col,
 .merged-player-boxscore td.boxscore-line-col {
 	text-align: center;
-	min-width: 74px;
-	width: 74px;
-	padding-left: 6px;
-	padding-right: 6px;
+	min-width: 88px;
+	width: 88px;
+	padding-left: 7px;
+	padding-right: 7px;
 	padding-top: 5px;
 	padding-bottom: 5px;
 }
