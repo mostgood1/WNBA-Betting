@@ -28086,6 +28086,9 @@ def api_live_lens_tuning():
                 "eff_weight": 0.25,
                 "pace_cap_points": 3.0,
                 "eff_cap_points": 4.0,
+                # Whole-game totals have stayed too aggressive to the UNDER side.
+                # Keep this mild; late-game close situations get extra handling elsewhere.
+                "under_edge_factor": 0.85,
                 # Optional: systematic bias correction (adds to edge; + => more OVER, - => more UNDER).
                 # Client ramps this in with elapsed time to avoid early-game overreaction.
                 "bias_points": 0.0,
@@ -28145,12 +28148,15 @@ def api_live_lens_tuning():
         # elevated possessions + FT rate; SmartSim ladder tends to understate this.
         "endgame_foul": {
             "enabled": True,
-            "min_sec_left": 150,
-            "min_abs_margin": 4,
+            "min_sec_left": 180,
+            "min_abs_margin": 1,
             "max_abs_margin": 12,
-            "max_abs_points": 4.0,
-            # Typical bump in final 2:30 of a close game.
-            "points_at_full_intensity": 2.0,
+            "max_abs_points": 6.0,
+            # Late close-game scoring inflation is materially larger than our prior bump,
+            # and we also damp exaggerated UNDER edges toward the market.
+            "points_at_full_intensity": 6.0,
+            "under_edge_reversion_frac": 0.50,
+            "under_edge_reversion_cap_points": 4.0,
         },
         "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
     }
@@ -28172,7 +28178,13 @@ def api_live_lens_tuning():
                 payload["markets"] = {**payload["markets"], **om}
             oa = o.get("adjustments")
             if isinstance(oa, dict) and isinstance(payload.get("adjustments"), dict):
-                payload["adjustments"] = {**payload["adjustments"], **oa}
+                merged_adjustments = {**payload["adjustments"], **oa}
+                for adj_key in ["game_total", "scope_total", "half_total", "quarter_total"]:
+                    base_adj = payload["adjustments"].get(adj_key)
+                    override_adj = oa.get(adj_key)
+                    if isinstance(base_adj, dict) and isinstance(override_adj, dict):
+                        merged_adjustments[adj_key] = {**base_adj, **override_adj}
+                payload["adjustments"] = merged_adjustments
 
             oid = o.get("interval_drift")
             if isinstance(oid, dict) and isinstance(payload.get("interval_drift"), dict):

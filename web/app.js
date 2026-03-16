@@ -1983,6 +1983,59 @@ function evClass(ev){
   return 'Low';
 }
 
+function edgeToneClass(score){
+  const v = Number(score);
+  if (!Number.isFinite(v)) return 'neu';
+  if (v >= 0.04) return 'pos';
+  if (v <= -0.01) return 'neg';
+  return 'neu';
+}
+
+function renderCompactMetaPills(items){
+  const parts = [];
+  (Array.isArray(items) ? items : []).forEach((item)=>{
+    if (!item || typeof item !== 'object') return;
+    const label = String(item.label || '').trim();
+    const value = String(item.value || '').trim();
+    if (!label || !value || value === '—') return;
+    const tone = item.tone ? ` ${item.tone}` : '';
+    parts.push(`<span class="edge-mini${tone}">${escapeHtml(label)} ${escapeHtml(value)}</span>`);
+  });
+  return parts.join('');
+}
+
+function renderCompactEdgeCard(edge, rank=null){
+  if (!edge || typeof edge !== 'object') return '';
+
+  const tone = edgeToneClass(edge.ev);
+  const headBits = [`<span class="badge edge-market">${escapeHtml(String(edge.market || 'EDGE').toUpperCase())}</span>`];
+  if (edge.top) headBits.push('<span class="edge-card-flag">Top edge</span>');
+  if (rank != null) headBits.push(`<span class="edge-card-rank">#${escapeHtml(String(rank))}</span>`);
+  if (edge.grade && edge.grade.res && edge.grade.cls) {
+    headBits.push(`<span class="mark ${edge.grade.cls}">${escapeHtml(edge.grade.res)}</span>`);
+  }
+
+  const metaHtml = renderCompactMetaPills(edge.meta);
+  const bookRaw = String(edge.book || '').trim();
+  const book = (bookRaw && bookRaw.toLowerCase() !== 'nan' && bookRaw.toLowerCase() !== 'none')
+    ? bookRaw.toUpperCase()
+    : '';
+
+  return `
+    <div class="edge-card ${tone}">
+      <div class="edge-card-head">${headBits.join('')}</div>
+      <div class="edge-card-main">
+        <div class="edge-card-copy">
+          <div class="edge-card-label">${escapeHtml(edge.label || '—')}</div>
+          ${edge.detail ? `<div class="edge-card-detail">${escapeHtml(edge.detail)}</div>` : ''}
+        </div>
+        ${book ? `<span class="book-badge">${escapeHtml(book)}</span>` : ''}
+      </div>
+      ${metaHtml ? `<div class="edge-card-meta">${metaHtml}</div>` : ''}
+      ${edge.note ? `<div class="edge-card-note subtle">${escapeHtml(edge.note)}</div>` : ''}
+    </div>`;
+}
+
 function tricodeFromName(name){
   // quick lookup by team name into teams list
   const lower = String(name).toLowerCase();
@@ -2807,6 +2860,24 @@ function renderDate(dateStr){
     return (a - b) * 100;
   };
 
+  const fmtSignedPctValue = (n, digits=1)=>{
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '—';
+    return `${v >= 0 ? '+' : ''}${v.toFixed(digits)}%`;
+  };
+
+  const fmtSignedUnitPct = (n, digits=1)=>{
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '—';
+    return `${v >= 0 ? '+' : ''}${(v * 100).toFixed(digits)}%`;
+  };
+
+  const fmtSignedPp = (n, digits=1)=>{
+    const v = Number(n);
+    if (!Number.isFinite(v)) return '—';
+    return `${v >= 0 ? '+' : ''}${v.toFixed(digits)}pp`;
+  };
+
   const tile = (title, main, meta)=>{
     const m = main || '—';
     const sub = meta || '';
@@ -2975,10 +3046,12 @@ function renderDate(dateStr){
 
     // Market tiles (pick best side by EV)
     const candEvs = [];
+    const gameEdgeRows = [];
 
     // ML
     let mlMain = '—';
     let mlMeta = '';
+    let mlGrade = null;
     try{
       if (pHomeCal!=null){
         // Prefer odds snapshot, then prediction base, then game-card market snapshot.
@@ -3013,15 +3086,34 @@ function renderDate(dateStr){
         let gradeTxt = '';
         if (isFinal && actualHome!=null && actualAway!=null){
           const won = (pickTeam === home) ? (Number(actualHome) > Number(actualAway)) : (Number(actualAway) > Number(actualHome));
-          gradeTxt = `<span class="mark ${won?'ok':'bad'}">${won?'W':'L'}</span>`;
+          mlGrade = { res: won ? 'W' : 'L', cls: won ? 'ok' : 'bad' };
+          gradeTxt = `<span class="mark ${mlGrade.cls}">${mlGrade.res}</span>`;
         }
         mlMeta = [evTxt, pTxt, impTxt, edgeTxt, nTxt, gradeTxt].filter(Boolean).join(' · ');
+        gameEdgeRows.push({
+          market: 'ML',
+          label: `${pickTeam}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`.trim(),
+          book: mBook,
+          ev: pickEv,
+          grade: mlGrade,
+          meta: [
+            { label: 'EV', value: fmtSignedUnitPct(pickEv), tone: edgeToneClass(pickEv) },
+            { label: 'P', value: fmtPct(pickP, 1) },
+            { label: 'Imp', value: fmtPct(pickImp, 1) },
+            { label: 'Edge', value: fmtSignedPp(edge, 1), tone: edge == null ? '' : (edge > 0 ? 'pos' : (edge < 0 ? 'neg' : 'neu')) },
+          ],
+          note: [
+            (pickP!=null) ? `Cal ${fmtPct(pickP,1)}` : '',
+            (mlsTile && mlsTile.normalized) ? 'normalized market' : '',
+          ].filter(Boolean).join(' · '),
+        });
       }
     }catch(_){ /* ignore */ }
 
     // ATS
     let atsMain = '—';
     let atsMeta = '';
+    let atsGrade = null;
     try{
       if (predMargin!=null){
         const sigmaMargin = 12.0;
@@ -3069,15 +3161,31 @@ function renderDate(dateStr){
           const adj = tScore + line;
           const res = (Math.abs(adj - oScore) < 1e-9) ? 'P' : (adj > oScore ? 'W' : 'L');
           const cls = (res === 'W') ? 'ok' : (res === 'L') ? 'bad' : 'push';
+          atsGrade = { res, cls };
           gradeTxt = `<span class="mark ${cls}">${res}</span>`;
         }
         atsMeta = [evTxt, pTxt, impTxt, edgeTxt, mTxt, gradeTxt].filter(Boolean).join(' · ');
+        gameEdgeRows.push({
+          market: 'ATS',
+          label: `${pickTeam} ${lineTxt}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`.trim(),
+          book: mBook,
+          ev: pickEv,
+          grade: atsGrade,
+          meta: [
+            { label: 'EV', value: fmtSignedUnitPct(pickEv), tone: edgeToneClass(pickEv) },
+            { label: 'P', value: fmtPct(pickP, 1) },
+            { label: 'Imp', value: fmtPct(pickImp, 1) },
+            { label: 'Edge', value: fmtSignedPp(edge, 1), tone: edge == null ? '' : (edge > 0 ? 'pos' : (edge < 0 ? 'neg' : 'neu')) },
+          ],
+          note: (predMargin!=null) ? `Model margin ${fmtSigned(predMargin,1)}` : '',
+        });
       }
     }catch(_){ /* ignore */ }
 
     // TOTAL
     let totMain = '—';
     let totMeta = '';
+    let totGrade = null;
     try{
       if (predTotal!=null){
         const sigmaTotal = 20.0;
@@ -3116,11 +3224,42 @@ function renderDate(dateStr){
           const ln = Number(tot);
           const res = (Math.abs(act - ln) < 1e-9) ? 'P' : (pickSide.toUpperCase()==='OVER' ? (act > ln ? 'W' : 'L') : (act < ln ? 'W' : 'L'));
           const cls = (res === 'W') ? 'ok' : (res === 'L') ? 'bad' : 'push';
+          totGrade = { res, cls };
           gradeTxt = `<span class="mark ${cls}">${res}</span>`;
         }
         totMeta = [evTxt, pTxt, impTxt, edgeTxt, tTxt, gradeTxt].filter(Boolean).join(' · ');
+        gameEdgeRows.push({
+          market: 'TOTAL',
+          label: `${pickSide} ${totTxt}${hideOdds?'':` ${fmtOddsAmerican(pickOdds)}`}`.trim(),
+          book: mBook,
+          ev: pickEv,
+          grade: totGrade,
+          meta: [
+            { label: 'EV', value: fmtSignedUnitPct(pickEv), tone: edgeToneClass(pickEv) },
+            { label: 'P', value: fmtPct(pickP, 1) },
+            { label: 'Imp', value: fmtPct(pickImp, 1) },
+            { label: 'Edge', value: fmtSignedPp(edge, 1), tone: edge == null ? '' : (edge > 0 ? 'pos' : (edge < 0 ? 'neg' : 'neu')) },
+          ],
+          note: (predTotal!=null) ? `Model total ${Number(predTotal).toFixed(1)}` : '',
+        });
       }
     }catch(_){ /* ignore */ }
+
+    gameEdgeRows.sort((a, b)=>{
+      const av = Number(a && a.ev);
+      const bv = Number(b && b.ev);
+      return (Number.isFinite(bv) ? bv : -1e18) - (Number.isFinite(av) ? av : -1e18);
+    });
+    if (gameEdgeRows.length) gameEdgeRows[0].top = true;
+
+    const gameEdgeBoardHtml = gameEdgeRows.length ? `
+      <div class="edge-board">
+        <div class="edge-board-head">
+          <div class="market-title">EDGE BOARD</div>
+          <div class="subtle">Ranked by EV for this matchup</div>
+        </div>
+        <div class="edge-board-grid">${gameEdgeRows.map((edge, idx)=>renderCompactEdgeCard(edge, idx + 1)).join('')}</div>
+      </div>` : '';
 
     const bestEv = candEvs.length ? candEvs.slice().sort((a,b)=>b-a)[0] : null;
     const tier = tierFromEv(bestEv);
@@ -3294,6 +3433,7 @@ function renderDate(dateStr){
     const bookTxt = book ? ` · ${book}` : '';
 
     // Top props picks table (from props recommendations engine)
+    let propsCompactHtml = '';
     let propsTableHtml = '';
     try{
       const normName = (s)=> String(s||'').trim().toLowerCase().replace(/\s+/g,' ');
@@ -3480,6 +3620,48 @@ function renderDate(dateStr){
 
       picks.sort((x,y)=> (Number(y.evPct)||-1e18) - (Number(x.evPct)||-1e18));
       const top = picks.slice(0, 10);
+      const topCompact = top.slice(0, 4);
+      const propsUsedNoteText = state.propsRecsDate && String(state.propsRecsDate) !== String(dateStr)
+        ? `Using ${String(state.propsRecsDate)}`
+        : '';
+      if (topCompact.length){
+        propsCompactHtml = `
+          <div class="edge-board edge-board-props">
+            <div class="edge-board-head">
+              <div class="market-title">PROP EDGES</div>
+              <div class="subtle">${escapeHtml(propsUsedNoteText || 'Top recommendation cards for this matchup')}</div>
+            </div>
+            <div class="edge-board-grid edge-board-grid-props">${topCompact.map((p, idx)=>{
+              const lineTxt = fmtLine(p.line);
+              const projTxt = fmtNum(p.proj);
+              const impliedEdge = (p.modelProb != null && p.impliedProb != null)
+                ? ((Number(p.modelProb) - Number(p.impliedProb)) * 100.0)
+                : null;
+              const noteBits = [];
+              if (projTxt) noteBits.push(`Proj ${projTxt}`);
+              if (lineTxt && lineTxt !== '—') noteBits.push(`Line ${lineTxt}`);
+              if (p.grade && p.grade.actual != null && Number.isFinite(Number(p.grade.actual))) {
+                noteBits.push(`Actual ${Number(p.grade.actual).toFixed(1)}`);
+              }
+              return renderCompactEdgeCard({
+                market: String(p.market || 'PROP').toUpperCase(),
+                label: p.player || '—',
+                detail: [String(p.market || '').toUpperCase(), String(p.side || '').toUpperCase(), (lineTxt && lineTxt !== '—') ? lineTxt : ''].filter(Boolean).join(' '),
+                book: p.book || '',
+                ev: (p.evPct != null && Number.isFinite(Number(p.evPct))) ? (Number(p.evPct) / 100.0) : null,
+                grade: p.grade || null,
+                top: idx === 0,
+                meta: [
+                  { label: 'EV', value: fmtSignedPctValue(p.evPct), tone: edgeToneClass((p.evPct != null && Number.isFinite(Number(p.evPct))) ? (Number(p.evPct) / 100.0) : null) },
+                  { label: 'P', value: fmtPct(p.modelProb, 1) },
+                  { label: 'Imp', value: fmtPct(p.impliedProb, 1) },
+                  { label: 'Edge', value: fmtSignedPp(impliedEdge, 1), tone: impliedEdge == null ? '' : (impliedEdge > 0 ? 'pos' : (impliedEdge < 0 ? 'neg' : 'neu')) },
+                ],
+                note: noteBits.join(' · '),
+              }, idx + 1);
+            }).join('')}</div>
+          </div>`;
+      }
       const used = state.propsRecsDate && String(state.propsRecsDate) !== String(dateStr)
         ? ` <span class="subtle">(using ${escapeHtml(String(state.propsRecsDate))})</span>`
         : '';
@@ -3519,7 +3701,7 @@ function renderDate(dateStr){
         }).join('');
         propsTableHtml = `
           <div class="details-block">
-            <div class="subtle">Top props picks${used}</div>
+            <div class="subtle">Detailed props picks${used}</div>
             <div class="table-wrap">
               <table class="data-table boxscore-table" style="margin-top:8px;">
                 <thead>
@@ -3547,7 +3729,7 @@ function renderDate(dateStr){
         if (anyTeamRows){
           propsTableHtml = `
             <div class="details-block">
-              <div class="subtle">Top props picks${used}</div>
+              <div class="subtle">Detailed props picks${used}</div>
               <div class="subtle">No standard recommendations found for this matchup.</div>
             </div>`;
         }
@@ -3581,6 +3763,10 @@ function renderDate(dateStr){
         <div class="kv"><div class="k">Model Total</div><div class="v">${predTotal!=null?Number(predTotal).toFixed(1):'—'}</div></div>
       </div>
 
+      ${gameEdgeBoardHtml || ''}
+
+      ${propsCompactHtml || ''}
+
       ${(marketLine || blendLine || recapDetails) ? `
         <div class="details-block">
           ${marketLine?`<div class="subtle">${marketLine}</div>`:''}
@@ -3591,8 +3777,6 @@ function renderDate(dateStr){
 
       ${gameReconHtml || ''}
 
-      ${propsTableHtml || ''}
-
       <div class="market-grid">
         ${tile('ML', mlMain, mlMeta)}
         ${tile('ATS', atsMain, atsMeta)}
@@ -3601,6 +3785,7 @@ function renderDate(dateStr){
 
       ${quartersHtml}
       ${writeupHtml}
+      ${propsTableHtml || ''}
     `;
 
     wrap.appendChild(node);

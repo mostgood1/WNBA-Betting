@@ -2421,6 +2421,13 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
         <span class="chip neutral lens-rec-ml" title="Live Lens ML recommendation">ML: —</span>
       </div>
 
+      <div class="row chips lens-total-explain-row" style="margin-top:4px;">
+        <span class="chip neutral lens-total-explain-main">Signal: —</span>
+        <span class="chip neutral lens-total-explain-build">Build: —</span>
+        <span class="chip neutral lens-total-explain-rates">Rates: —</span>
+        <span class="chip neutral lens-total-explain-adjust">Adjust: —</span>
+      </div>
+
       <div class="lens-columns" style="margin-top:8px;">
         ${renderSegmentTile('q1', '1Q', q1SimTotal, renderQuarterCol(1))}
         ${renderSegmentTile('half', '1H', halfSimTotal, renderScopeCol('half', '1H interval', 24, '1H'))}
@@ -3149,43 +3156,38 @@ function attachLiveLensHandlers(root, games) {
         // ignore
       }
 
-      // Endgame foul-game correction (G + Q4): in close games late, possessions + FT rate
-      // jump; SmartSim ladder often underestimates this.
+      // Endgame close-game correction (G + Q4): late scoring inflation and under-edge
+      // reversion are applied consistently with the main game-total signal path.
       try {
-        const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
-        const ef = t && t.endgame_foul && typeof t.endgame_foul === 'object' ? t.endgame_foul : null;
+        const ef = _liveLensEndgameFoulCfg();
         if (!isFinal && !isFrozen && ef && ef.enabled !== false && paceFinal != null) {
           const pNow = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.period) : null;
           const secLeft = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.secLeftPeriod) : null;
           const marginHome = lensRoot && lensRoot.dataset ? n(lensRoot.dataset.margin) : null;
 
-          const minSec = n(ef.min_sec_left) ?? 150;
-          const minM = n(ef.min_abs_margin) ?? 4;
-          const maxM = n(ef.max_abs_margin) ?? 12;
-          const maxAbs = n(ef.max_abs_points) ?? 4.0;
-          const fullPts = n(ef.points_at_full_intensity) ?? 2.0;
-
           const isQ4 = (pNow != null && Math.floor(pNow) === 4);
-          const close = (marginHome != null) ? Math.abs(marginHome) : null;
 
           const isGame = (totalMinutes === 48 && labelPrefix === 'G');
           const isQ4Scope = (totalMinutes === 12 && /^Q4$/i.test(String(labelPrefix || '')));
 
-          if ((isGame || isQ4Scope) && isQ4 && secLeft != null && close != null) {
-            if (secLeft <= minSec && close >= minM && close <= maxM) {
-              const wTime = Math.max(0, Math.min(1, (minSec - secLeft) / Math.max(1e-6, minSec)));
-              const wClose = Math.max(0, Math.min(1, (maxM - close) / Math.max(1e-6, (maxM - minM))));
-              const w = Math.max(0, Math.min(1, Math.min(wTime, wClose)));
-              let adj = fullPts * w;
-              adj = Math.max(-maxAbs, Math.min(maxAbs, adj));
-              paceFinal = paceFinal + adj;
+          if ((isGame || isQ4Scope) && isQ4 && secLeft != null && marginHome != null) {
+            const liveDiff = (liveTot != null && paceFinal != null) ? (paceFinal - liveTot) : null;
+            const foulCtx = computeEndgameTotalCorrection(ef, {
+              period: pNow,
+              sec_left_period: secLeft,
+              margin_home: marginHome,
+            }, liveDiff);
+            if (foulCtx.applies) {
+              paceFinal = paceFinal + foulCtx.total_adj;
               try {
                 if (possCtx && typeof possCtx === 'object') {
                   possCtx.endgame_foul = {
-                    sec_left: secLeft,
-                    abs_margin: close,
-                    w,
-                    adj_points: adj,
+                    sec_left: foulCtx.sec_left,
+                    abs_margin: foulCtx.abs_margin,
+                    w: foulCtx.w,
+                    base_adj_points: foulCtx.base_adj,
+                    under_adj_points: foulCtx.under_adj,
+                    adj_points: foulCtx.total_adj,
                   };
                 }
               } catch (_) {
@@ -3595,6 +3597,67 @@ function _liveLensScopeTotalAdjCfg(totalMinutes) {
   } catch (_) {
     return null;
   }
+}
+
+function _liveLensEndgameFoulCfg() {
+  try {
+    const t = (__liveLensTuning && typeof __liveLensTuning === 'object') ? __liveLensTuning : null;
+    const ef = t && t.endgame_foul && typeof t.endgame_foul === 'object' ? t.endgame_foul : null;
+    return ef;
+  } catch (_) {
+    return null;
+  }
+}
+
+function computeEndgameTotalCorrection(cfg, gameState, diffValue) {
+  const out = {
+    applies: false,
+    sec_left: null,
+    abs_margin: null,
+    w: 0.0,
+    base_adj: 0.0,
+    under_adj: 0.0,
+    total_adj: 0.0,
+  };
+
+  if (!cfg || cfg.enabled === false) return out;
+
+  const periodNow = n(gameState && gameState.period);
+  const secLeft = n(gameState && gameState.sec_left_period);
+  const marginHome = n(gameState && gameState.margin_home);
+  const absMargin = (marginHome != null) ? Math.abs(marginHome) : null;
+  out.sec_left = secLeft;
+  out.abs_margin = absMargin;
+
+  if (periodNow == null || Math.floor(periodNow) !== 4 || secLeft == null || absMargin == null) return out;
+
+  const minSec = Math.max(1.0, n(cfg.min_sec_left) ?? 180.0);
+  const minM = Math.max(0.0, n(cfg.min_abs_margin) ?? 1.0);
+  const maxM = Math.max(minM, n(cfg.max_abs_margin) ?? 12.0);
+  if (!(secLeft <= minSec) || !(absMargin >= minM) || !(absMargin <= maxM)) return out;
+
+  const wTime = Math.max(0, Math.min(1, (minSec - secLeft) / Math.max(1e-6, minSec)));
+  const wClose = (maxM <= minM)
+    ? 1.0
+    : Math.max(0, Math.min(1, (maxM - absMargin) / Math.max(1e-6, (maxM - minM))));
+  const w = Math.max(0, Math.min(1, Math.min(wTime, wClose)));
+  out.w = w;
+  if (!(w > 0)) return out;
+
+  const fullPts = Math.max(0.0, n(cfg.points_at_full_intensity) ?? 6.0);
+  const maxAbs = Math.max(0.0, n(cfg.max_abs_points) ?? 6.0);
+  out.base_adj = clampNum(fullPts * w, 0, maxAbs) ?? 0.0;
+
+  const diff = n(diffValue);
+  const underFrac = Math.max(0.0, n(cfg.under_edge_reversion_frac) ?? 0.50);
+  const underCap = Math.max(0.0, n(cfg.under_edge_reversion_cap_points) ?? 4.0);
+  if (diff != null && diff < -0.5 && underFrac > 0 && underCap > 0) {
+    out.under_adj = Math.max(0.0, Math.min(underCap, Math.abs(diff) * underFrac * w));
+  }
+
+  out.total_adj = (out.base_adj || 0.0) + (out.under_adj || 0.0);
+  out.applies = out.total_adj > 1e-9;
+  return out;
 }
 
 function _liveLensPossLiveAvg(meta, live) {
@@ -4129,7 +4192,7 @@ function _liveLensEdgeShrink(rawDiff, possLive, elapsedMin, totalMinutes) {
   return { diff_shrunk: rd * lambda, lambda, lambda_poss: wPoss, lambda_time: wTime };
 }
 
-function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLeft) {
+function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLeft, gameState) {
   const out = {
     diff_adj: rawDiff,
     diff_raw: rawDiff,
@@ -4138,6 +4201,14 @@ function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLe
     poss_live: null,
     poss_expected: null,
     elapsed_min: null,
+    under_edge_factor: null,
+    under_edge_reversion_points: 0.0,
+    endgame_foul_adj: 0.0,
+    endgame_foul_base_adj: 0.0,
+    endgame_foul_under_adj: 0.0,
+    endgame_foul_w: 0.0,
+    endgame_foul_sec_left: null,
+    endgame_foul_abs_margin: null,
   };
 
   const rd = n(rawDiff);
@@ -4229,6 +4300,31 @@ function adjustGameTotalDiffWithContext(rawDiff, lineTotal, meta, live, curMinLe
     const boost = Math.max(0.0, -(paceBoost || 0.0));
     const pen = Math.max(0.0, -(effPenalty || 0.0));
     adj = rd - boost + pen;
+  }
+
+  const underEdgeFactorRaw = n(adjCfg && adjCfg.under_edge_factor);
+  const underEdgeFactor = (underEdgeFactorRaw != null && underEdgeFactorRaw > 0 && underEdgeFactorRaw < 1.0)
+    ? underEdgeFactorRaw
+    : 1.0;
+  if (adj < -0.5 && underEdgeFactor < 0.999) {
+    const adjBefore = adj;
+    adj = adj * underEdgeFactor;
+    out.under_edge_factor = underEdgeFactor;
+    out.under_edge_reversion_points = adj - adjBefore;
+  }
+
+  try {
+    const efCfg = _liveLensEndgameFoulCfg();
+    const foulCtx = computeEndgameTotalCorrection(efCfg, gameState, adj);
+    out.endgame_foul_w = foulCtx.w;
+    out.endgame_foul_sec_left = foulCtx.sec_left;
+    out.endgame_foul_abs_margin = foulCtx.abs_margin;
+    out.endgame_foul_base_adj = foulCtx.base_adj;
+    out.endgame_foul_under_adj = foulCtx.under_adj;
+    out.endgame_foul_adj = foulCtx.total_adj;
+    if (foulCtx.applies) adj = adj + foulCtx.total_adj;
+  } catch (_) {
+    // ignore
   }
 
   out.diff_adj = adj;
@@ -6130,13 +6226,21 @@ function startLiveLensPolling(root, games, dateStr) {
           const recQtrEl = el.querySelector('.lens-rec-qtr');
           const recATSEl = el.querySelector('.lens-rec-ats');
           const recMLEl = el.querySelector('.lens-rec-ml');
+          const totalExplainMainEl = el.querySelector('.lens-total-explain-main');
+          const totalExplainBuildEl = el.querySelector('.lens-total-explain-build');
+          const totalExplainRatesEl = el.querySelector('.lens-total-explain-rates');
+          const totalExplainAdjustEl = el.querySelector('.lens-total-explain-adjust');
           if (recTotalEl) recTotalEl.textContent = 'Total: —';
           if (recHalfEl) recHalfEl.textContent = '1H: —';
           if (recQtrEl) recQtrEl.textContent = 'Q: —';
           if (recATSEl) recATSEl.textContent = 'ATS: —';
           if (recMLEl) recMLEl.textContent = 'ML: —';
+          if (totalExplainMainEl) totalExplainMainEl.textContent = 'Signal: —';
+          if (totalExplainBuildEl) totalExplainBuildEl.textContent = 'Build: —';
+          if (totalExplainRatesEl) totalExplainRatesEl.textContent = 'Rates: —';
+          if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = 'Adjust: —';
           try {
-            [recTotalEl, recHalfEl, recQtrEl, recATSEl, recMLEl].forEach((x) => {
+            [recTotalEl, recHalfEl, recQtrEl, recATSEl, recMLEl, totalExplainMainEl].forEach((x) => {
               if (!x) return;
               x.classList.remove('bet', 'watch');
               x.title = '';
@@ -6165,6 +6269,10 @@ function startLiveLensPolling(root, games, dateStr) {
       const recQtrEl = el.querySelector('.lens-rec-qtr');
       const recATSEl = el.querySelector('.lens-rec-ats');
       const recMLEl = el.querySelector('.lens-rec-ml');
+      const totalExplainMainEl = el.querySelector('.lens-total-explain-main');
+      const totalExplainBuildEl = el.querySelector('.lens-total-explain-build');
+      const totalExplainRatesEl = el.querySelector('.lens-total-explain-rates');
+      const totalExplainAdjustEl = el.querySelector('.lens-total-explain-adjust');
       let curMinLeft = (minLeftRaw == null) ? 48 : Math.max(0, Math.min(48, Math.round(minLeftRaw)));
       if (period != null && Number(period) > 4) curMinLeft = 0;
       let lens = computePaceFinalFromIntervals(meta.intervals, 48, curMinLeft, totalPts);
@@ -6183,10 +6291,16 @@ function startLiveLensPolling(root, games, dateStr) {
       let totalPred = null;
       let totalClass = 'NONE';
       let totalSide = null;
+      let totalGateMinElapsed = null;
+      let totalGateActive = false;
 
       if (lens && effLineTotal != null) {
         totalDiffRaw = lens.paceFinal - effLineTotal;
-        totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft);
+        totalCtx = adjustGameTotalDiffWithContext(totalDiffRaw, effLineTotal, meta, live, curMinLeft, {
+          period,
+          sec_left_period: secLeftPeriodRaw,
+          margin_home: (live && live.score) ? n(live.score.home_margin) : null,
+        });
         totalDiff = (totalCtx && totalCtx.diff_adj != null) ? n(totalCtx.diff_adj) : totalDiffRaw;
 
         // Optional bias correction (server-tunable): compensates systematic under/over in the
@@ -6233,8 +6347,10 @@ function startLiveLensPolling(root, games, dateStr) {
           const adjCfg = _liveLensGameTotalAdjCfg();
           const minElapsed = n(adjCfg && adjCfg.min_elapsed_min);
           const elapsedMin = 48.0 - curMinLeft;
+          totalGateMinElapsed = minElapsed;
           if (minElapsed != null && elapsedMin < minElapsed) {
             totalClass = 'NONE';
+            totalGateActive = true;
           } else {
             totalClass = classifyDiff(Math.abs(totalDiff), thr.total.watch, thr.total.bet);
           }
@@ -6269,6 +6385,8 @@ function startLiveLensPolling(root, games, dateStr) {
           if (totalCtx && totalCtx.poss_live != null) why.push(`poss ${fmt(totalCtx.poss_live, 1)}`);
           if (totalCtx && totalCtx.pace_ratio != null) why.push(`pace× ${fmt(totalCtx.pace_ratio, 2)}`);
           if (totalCtx && totalCtx.eff_ppp_delta != null) why.push(`pppΔ ${fmt(totalCtx.eff_ppp_delta, 3)}`);
+          if (totalCtx && totalCtx.under_edge_reversion_points != null && Math.abs(totalCtx.under_edge_reversion_points) > 1e-6) why.push(`uRev ${fmt(totalCtx.under_edge_reversion_points, 1)}`);
+          if (totalCtx && totalCtx.endgame_foul_adj != null && Math.abs(totalCtx.endgame_foul_adj) > 1e-6) why.push(`late ${fmt(totalCtx.endgame_foul_adj, 1)}`);
           why.push(`thr ${fmt(thr.total.watch, 1)}/${fmt(thr.total.bet, 1)}`);
           recTotalEl.title = why.filter(Boolean).join(' · ');
         } catch (_) {
@@ -6283,6 +6401,46 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
+      }
+
+      try {
+        const signalParts = [];
+        if (totalGateActive && totalGateMinElapsed != null) signalParts.push(`Waiting for ${fmt(totalGateMinElapsed, 0)}m gate`);
+        if (totalPred != null && effLineTotal != null) signalParts.push(`Proj ${fmt(totalPred, 1)} vs ${fmt(effLineTotal, 1)}`);
+        if (totalSide && totalSide !== 'No edge' && totalDiff != null) signalParts.push(`${totalSide} ${fmtSigned(totalDiff, 1)}`);
+        else if (totalDiff != null) signalParts.push(`Edge ${fmtSigned(totalDiff, 1)}`);
+
+        const buildParts = [];
+        if (totalDiffRaw != null) buildParts.push(`raw ${fmtSigned(totalDiffRaw, 1)}`);
+        if (totalCtx && totalCtx.diff_adj != null && (totalDiffRaw == null || Math.abs(totalCtx.diff_adj - totalDiffRaw) > 1e-6)) buildParts.push(`ctx ${fmtSigned(totalCtx.diff_adj, 1)}`);
+        if (totalDiff != null && (totalCtx == null || totalCtx.diff_adj == null || Math.abs(totalDiff - totalCtx.diff_adj) > 1e-6)) buildParts.push(`final ${fmtSigned(totalDiff, 1)}`);
+
+        const rateParts = [];
+        if (totalCtx && totalCtx.poss_live != null) rateParts.push(`poss ${fmt(totalCtx.poss_live, 1)}`);
+        if (totalCtx && totalCtx.pace_ratio != null) rateParts.push(`pace× ${fmt(totalCtx.pace_ratio, 2)}`);
+        if (totalCtx && totalCtx.eff_ppp_delta != null) rateParts.push(`pppΔ ${fmt(totalCtx.eff_ppp_delta, 3)}`);
+
+        const adjustParts = [];
+        if (totalCtx && totalCtx.under_edge_reversion_points != null && Math.abs(totalCtx.under_edge_reversion_points) > 1e-6) adjustParts.push(`under ${fmtSigned(totalCtx.under_edge_reversion_points, 1)}`);
+        if (totalCtx && totalCtx.endgame_foul_adj != null && Math.abs(totalCtx.endgame_foul_adj) > 1e-6) adjustParts.push(`late ${fmtSigned(totalCtx.endgame_foul_adj, 1)}`);
+        if (totalCtx && totalCtx.bias_eff != null && Math.abs(totalCtx.bias_eff) > 1e-6) adjustParts.push(`bias ${fmtSigned(totalCtx.bias_eff, 1)}`);
+        if (totalShrink && totalShrink.lambda != null && totalShrink.lambda < 0.999) adjustParts.push(`shrink λ ${fmt(totalShrink.lambda, 2)}`);
+        if (!adjustParts.length && totalGateActive && totalGateMinElapsed != null) adjustParts.push(`gate ${fmt(totalGateMinElapsed, 0)}m`);
+
+        if (totalExplainMainEl) {
+          totalExplainMainEl.textContent = signalParts.length ? `Signal: ${signalParts.join(' · ')}` : 'Signal: —';
+          totalExplainMainEl.classList.remove('bet', 'watch');
+          if (totalClass === 'BET') totalExplainMainEl.classList.add('bet');
+          else if (totalClass === 'WATCH') totalExplainMainEl.classList.add('watch');
+        }
+        if (totalExplainBuildEl) totalExplainBuildEl.textContent = buildParts.length ? `Build: ${buildParts.join(' -> ')}` : 'Build: —';
+        if (totalExplainRatesEl) totalExplainRatesEl.textContent = rateParts.length ? `Rates: ${rateParts.join(' | ')}` : 'Rates: —';
+        if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = adjustParts.length ? `Adjust: ${adjustParts.join(' | ')}` : 'Adjust: none';
+      } catch (_) {
+        if (totalExplainMainEl) totalExplainMainEl.textContent = 'Signal: —';
+        if (totalExplainBuildEl) totalExplainBuildEl.textContent = 'Build: —';
+        if (totalExplainRatesEl) totalExplainRatesEl.textContent = 'Rates: —';
+        if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = 'Adjust: —';
       }
 
       // Half-level signal (vs pregame half baseline) during 1H only
@@ -7028,6 +7186,14 @@ function startLiveLensPolling(root, games, dateStr) {
           poss_live: totalCtx.poss_live,
           poss_expected: totalCtx.poss_expected,
           elapsed_min: totalCtx.elapsed_min,
+          under_edge_factor: totalCtx.under_edge_factor,
+          under_edge_reversion_points: totalCtx.under_edge_reversion_points,
+          endgame_foul_adj: totalCtx.endgame_foul_adj,
+          endgame_foul_base_adj: totalCtx.endgame_foul_base_adj,
+          endgame_foul_under_adj: totalCtx.endgame_foul_under_adj,
+          endgame_foul_w: totalCtx.endgame_foul_w,
+          endgame_foul_sec_left: totalCtx.endgame_foul_sec_left,
+          endgame_foul_abs_margin: totalCtx.endgame_foul_abs_margin,
           bias_points: totalCtx.bias_points,
           bias_eff: totalCtx.bias_eff,
           bias_frac: totalCtx.bias_frac,
