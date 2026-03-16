@@ -1,0 +1,90 @@
+{
+  "date": "2026-03-16",
+  "team_counts": {
+    "BKN": 2,
+    "BOS": 1,
+    "CHI": 1,
+    "HOU": 1,
+    "LAC": 1,
+    "LAL": 1,
+    "MEM": 2,
+    "NOP": 1,
+    "ORL": 1,
+    "SAS": 2,
+    "WAS": 1
+  },
+  "players": [
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Maxi Kleber",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Michael Porter Jr.",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Anthony Black",
+      "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Noah Clowney",
+      "team": "BKN",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Sarr",
+      "team": "WAS",
+      "status": "OUT"
+    },
+    {
+      "player": "David Jones Garcia",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "Dylan Harper",
+      "team": "SAS",
+      "status": "OUT"
+    },
+    {
+      "player": "John Tonje",
+      "team": "BOS",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
