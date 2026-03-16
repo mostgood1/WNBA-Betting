@@ -48,12 +48,37 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .scoreboard-strip .s-top {
 	display: inline-flex;
 	align-items: center;
-	justify-content: space-between;
+	justify-content: flex-start;
 	gap: 8px;
 	color: #cfe0ff;
 }
 .scoreboard-strip .s-status { opacity: 0.95; font-weight: 800; font-size: 11px; }
-.scoreboard-strip .s-tag { color: #9fb0ff; font-weight: 900; white-space: nowrap; font-size: 11px; }
+.scoreboard-strip .s-tags {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 4px;
+}
+
+.scoreboard-strip .s-tag {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 0;
+	padding: 2px 6px;
+	border-radius: 999px;
+	border: 1px solid #30427b;
+	background: #101734;
+	color: #cfdaff;
+	font-weight: 900;
+	font-size: 10px;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.scoreboard-strip .s-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; }
+.scoreboard-strip .s-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; }
+.scoreboard-strip .s-tag.wait { border-color: #2b5cff; background: #111834; color: #cfe0ff; }
 
 .scoreboard-strip .s-rows { display: grid; gap: 2px; }
 .scoreboard-strip .s-row {
@@ -153,7 +178,7 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .card.final-mixed { border-color: #6a5a1f; box-shadow: 0 0 0 1px rgba(106,90,31,0.5), 0 2px 10px rgba(0,0,0,0.35); }
 .card.final-push { border-color: #2a3a7a; box-shadow: 0 0 0 1px rgba(42,58,122,0.5), 0 2px 10px rgba(0,0,0,0.35); }
 .card.final-neutral { border-color: #2a3a7a; }
-.row.head { display: flex; gap: 8px; align-items: center; font-size: 13px; color: #9fb0ff; }
+.row.head { display: flex; gap: 8px; align-items: center; font-size: 13px; color: #9fb0ff; flex-wrap: wrap; }
 .row.head .venue { background: #0f1530; border: 1px solid #25316a; padding: 2px 6px; border-radius: 6px; color: #c9d3ff; }
 .row.head .state { background: #162a11; border: 1px solid #2a6b1e; padding: 2px 6px; border-radius: 6px; color: #b7f3c7; font-weight: 700; }
 .row.head .state.crit { background: #3a1212; border-color: #7a1e1e; color: #ffb7b7; }
@@ -194,6 +219,7 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .chip.negative { background: #2a1620; border-color: #7a1e49; color: #ffd5e6; }
 .chip.bet { background: #0f2d1b; border-color: #1e7a45; color: #a7f3c6; }
 .chip.watch { background: #2a2310; border-color: #6a5a1f; color: #ffeaa7; }
+.chip.wait { background: #111834; border-color: #2b5cff; color: #cfe0ff; }
 
 .prop-callouts-rail {
 	margin-top: 6px;
@@ -367,9 +393,12 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 	}
 }
 
+.row.head .lens-card-tags { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
+.row.head .venue.lens-card-tag { font-size: 11px; font-weight: 800; }
 .row.head .venue.lens-card-tag:empty { display: none; }
 .row.head .venue.lens-card-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; font-weight: 900; }
 .row.head .venue.lens-card-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; font-weight: 900; }
+.row.head .venue.lens-card-tag.wait { border-color: #2b5cff; background: #111834; color: #cfe0ff; font-weight: 900; }
 
 .row.head .lens-why-badges { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .row.head .lens-why-badges:empty { display: none; }

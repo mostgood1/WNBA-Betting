@@ -2414,15 +2414,16 @@ function renderLiveLens(intervals, cardKey, gameId, actualMeta) {
       </div>
 
       <div class="row chips lens-rec-row" style="margin-top:4px;">
-        <span class="chip neutral lens-rec-total" title="Live Lens total recommendation">Total: —</span>
+        <span class="chip neutral lens-rec-q1" title="Live Lens 1Q total recommendation">1Q: —</span>
         <span class="chip neutral lens-rec-half" title="Live Lens 1H total recommendation">1H: —</span>
-        <span class="chip neutral lens-rec-qtr" title="Live Lens quarter total recommendation">Q: —</span>
+        <span class="chip neutral lens-rec-q3" title="Live Lens 3Q total recommendation">3Q: —</span>
+        <span class="chip neutral lens-rec-total" title="Live Lens full-game total recommendation">G: —</span>
         <span class="chip neutral lens-rec-ats" title="Live Lens ATS recommendation">ATS: —</span>
         <span class="chip neutral lens-rec-ml" title="Live Lens ML recommendation">ML: —</span>
       </div>
 
       <div class="row chips lens-total-explain-row" style="margin-top:4px;">
-        <span class="chip neutral lens-total-explain-main">Signal: —</span>
+        <span class="chip neutral lens-total-explain-main">Game total: —</span>
         <span class="chip neutral lens-total-explain-build">Build: —</span>
         <span class="chip neutral lens-total-explain-rates">Rates: —</span>
         <span class="chip neutral lens-total-explain-adjust">Adjust: —</span>
@@ -5076,106 +5077,83 @@ function startLiveLensPolling(root, games, dateStr) {
   let __calloutsLastNonEmptyAt = 0;
   let __calloutsEmptyStreak = 0;
 
-  function pickBestTagFromLensEl(lensEl) {
-    if (!lensEl) return { klass: 'NONE', text: '' };
-    const order = ['.lens-rec-total', '.lens-rec-ats', '.lens-rec-ml', '.lens-rec-half', '.lens-rec-qtr'];
-    let best = { klass: 'NONE', text: '' };
+  const lensTotalScopeDefs = [
+    { scopeKey: 'q1', selector: '.lens-rec-q1', label: '1Q' },
+    { scopeKey: 'half', selector: '.lens-rec-half', label: '1H' },
+    { scopeKey: 'q3', selector: '.lens-rec-q3', label: '3Q' },
+    { scopeKey: 'game', selector: '.lens-rec-total', label: 'G' },
+  ];
 
-    function parseTag(txt) {
-      const s = String(txt || '').trim();
-      if (!s || /:\s*—\s*$/.test(s)) return null;
-      const m = s.match(/\b(BET|WATCH)\b/i);
-      if (!m) return null;
-      const klass = String(m[1] || '').toUpperCase();
-      const text = s.replace(/:\s*/, ' ');
-      return { klass, text };
+  function lensTotalScopeDef(scopeKey) {
+    return lensTotalScopeDefs.find((x) => x.scopeKey === scopeKey) || lensTotalScopeDefs[lensTotalScopeDefs.length - 1];
+  }
+
+  function parseLensRecTag(txt) {
+    const s = String(txt || '').trim();
+    if (!s || /:\s*—\s*$/.test(s)) return null;
+    const m = s.match(/\b(BET|WATCH)\b(?:\s+(Over|Under))?\b/i);
+    if (m) {
+      return {
+        klass: String(m[1] || '').toUpperCase(),
+        side: String(m[2] || '').toUpperCase(),
+      };
     }
+    if (/\bWAIT(?:ING)?\b/i.test(s)) return { klass: 'WAIT', side: '' };
+    return null;
+  }
 
-    for (const sel of order) {
-      const el = lensEl.querySelector(sel);
-      const t = parseTag(el ? el.textContent : '');
-      if (!t) continue;
-      if (t.klass === 'BET') return t;
-      if (t.klass === 'WATCH' && best.klass !== 'WATCH') best = t;
+  function getLensTotalScopeTagFromLensEl(lensEl, scopeKey) {
+    const def = lensTotalScopeDef(scopeKey);
+    const label = def.label;
+    if (!lensEl) return { klass: 'NONE', text: `${label} —`, scopeKey, title: '' };
+
+    const chipEl = lensEl.querySelector(def.selector);
+    const raw = chipEl ? String(chipEl.textContent || '').trim() : '';
+    let title = '';
+    try { title = chipEl && chipEl.title ? String(chipEl.title) : ''; } catch (_) { title = ''; }
+    const parsed = parseLensRecTag(raw);
+    if (!parsed) return { klass: 'NONE', text: `${label} —`, scopeKey, title };
+    if (parsed.klass === 'WAIT') return { klass: 'WAIT', text: `${label} WAIT`, scopeKey, title: title || raw };
+
+    const sideShort = (parsed.side === 'OVER') ? 'O' : ((parsed.side === 'UNDER') ? 'U' : parsed.klass);
+    return {
+      klass: parsed.klass,
+      text: `${label} ${sideShort}`.trim(),
+      scopeKey,
+      title: title || raw,
+    };
+  }
+
+  function getLensTotalScopeTagsFromLensEl(lensEl) {
+    return lensTotalScopeDefs.map((def) => getLensTotalScopeTagFromLensEl(lensEl, def.scopeKey));
+  }
+
+  function pickBestLensTotalScopeTag(lensTagListOrLensEl) {
+    const tags = Array.isArray(lensTagListOrLensEl)
+      ? lensTagListOrLensEl
+      : getLensTotalScopeTagsFromLensEl(lensTagListOrLensEl);
+    let best = { klass: 'NONE', text: '', title: '' };
+    for (const tag of (tags || [])) {
+      if (!tag) continue;
+      if (tag.klass === 'BET') return tag;
+      if (tag.klass === 'WATCH' && best.klass !== 'WATCH') best = tag;
     }
     return best;
   }
 
-  function pickCurrentPeriodTotalTagFromLensEl(lensEl, scoreboardRow) {
-    // Goal: show the *current bettable total scope* for the game.
-    // Mapping (simple, matches existing lens tags available in UI):
-    // - Q1/Q3: quarter total tag
-    // - Q2: 1H total tag
-    // - Q4+: full game total tag
-    if (!lensEl) return { klass: 'NONE', text: '' };
+  function pickBestTagFromLensEl(lensEl) {
+    return pickBestLensTotalScopeTag(lensEl);
+  }
 
-    const p0 = (scoreboardRow && scoreboardRow.period != null && Number.isFinite(Number(scoreboardRow.period)))
-      ? Math.floor(Number(scoreboardRow.period))
-      : null;
-
-    let sel = '.lens-rec-total';
-    let label = 'G';
-    let scopeKey = 'game';
-    if (p0 === 1 || p0 === 3) {
-      sel = '.lens-rec-qtr';
-      label = `Q${p0}`;
-      scopeKey = `q${p0}`;
-    } else if (p0 === 2) {
-      sel = '.lens-rec-half';
-      label = '1H';
-      scopeKey = 'half';
-    } else {
-      sel = '.lens-rec-total';
-      label = 'G';
-      scopeKey = 'game';
-    }
-
-    const el = lensEl.querySelector(sel);
-    const raw = el ? String(el.textContent || '').trim() : '';
-    let whyTitle = '';
-    try { whyTitle = el && el.title ? String(el.title) : ''; } catch (_) { whyTitle = ''; }
-    const t = (() => {
-      const out = (raw ? raw : '');
-      return out ? out : '';
-    })();
-
-    const inProg = !!(scoreboardRow && scoreboardRow.in_progress);
-
-    let proj = null;
-    let line = null;
-    try {
-      // Prefer values from the scope column (always updated by polling auto-fill).
-      const scopeCol = lensEl ? lensEl.querySelector(`.lens-col[data-scope="${CSS.escape(String(scopeKey))}"]`) : null;
-      proj = scopeCol ? n(scopeCol.dataset.paceFinal) : null;
-      line = scopeCol ? n(scopeCol.dataset.liveTotal) : null;
-
-      // Fallback to values attached to the rec element (if present).
-      if (proj == null && el) proj = n(el.dataset.projTotal);
-      if (line == null && el) line = n(el.dataset.lineTotal);
-    } catch (_) {
-      proj = null;
-      line = null;
-    }
-    const extra = (proj != null && line != null)
-      ? `P${fmt(proj, 1)}/${fmt(line, 1)}`
-      : ((proj != null) ? `P${fmt(proj, 1)}` : ((line != null) ? `L${fmt(line, 1)}` : ''));
-
-    // Parse klass + side from the tag text.
-    // Examples:
-    // - "Q3: BET Over (+4.2)"
-    // - "1H: WATCH Under (-2.1)"
-    // - "Total: BET Over (+6.0)"
-    const m = String(t).match(/\b(BET|WATCH)\b(?:\s+(Over|Under))?\b/i);
-    if (!m) {
-      if (inProg && extra) return { klass: 'NONE', text: `${label} ${extra}`.trim(), scopeKey, title: whyTitle };
-      return { klass: 'NONE', text: inProg ? `${label} —` : '', scopeKey, title: whyTitle };
-    }
-    const klass = String(m[1] || '').toUpperCase();
-    const side = String(m[2] || '').toUpperCase();
-    const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
-    // Keep this compact: tile color communicates BET/WATCH.
-    const txt = `${label} ${extra} ${sideShort}`.trim();
-    return { klass, text: txt, scopeKey, title: whyTitle };
+  function applyLensScopeBadge(tagEl, tag, fallbackText) {
+    if (!tagEl) return;
+    const text = (tag && tag.text) ? tag.text : (fallbackText || '');
+    tagEl.textContent = text;
+    tagEl.classList.remove('bet', 'watch', 'wait');
+    if (tag && tag.klass === 'BET') tagEl.classList.add('bet');
+    else if (tag && tag.klass === 'WATCH') tagEl.classList.add('watch');
+    else if (tag && tag.klass === 'WAIT') tagEl.classList.add('wait');
+    try { tagEl.title = (tag && tag.title) ? tag.title : ''; } catch (_) { /* ignore */ }
   }
 
   function updateScoreboardStrip(sbById, opts) {
@@ -5204,19 +5182,22 @@ function startLiveLensPolling(root, games, dateStr) {
         }
 
         const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
-        const tag = skipTags
-          ? { klass: 'NONE', text: '' }
-          : (pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '' });
-        const tagEl = item.querySelector('.s-tag');
-        if (tagEl && !skipTags) {
-          tagEl.textContent = tag.text || '';
-          try { tagEl.title = tag.title || ''; } catch (_) { /* ignore */ }
+        const tags = skipTags ? [] : getLensTotalScopeTagsFromLensEl(lensEl);
+        const bestTag = pickBestLensTotalScopeTag(tags);
+        const tagEls = item.querySelectorAll('.s-tag[data-scope-key]');
+        if (!skipTags) {
+          tagEls.forEach((tagEl) => {
+            const scopeKey = String(tagEl.dataset.scopeKey || '').trim();
+            const def = lensTotalScopeDef(scopeKey);
+            const tag = tags.find((x) => x && x.scopeKey === scopeKey) || { klass: 'NONE', text: `${def.label} —`, title: '' };
+            applyLensScopeBadge(tagEl, tag, `${def.label} —`);
+          });
         }
 
         const inProg = !!(s && s.in_progress) || (lensEl && lensEl.dataset.inProgress === '1');
         item.classList.remove('bet', 'watch', 'live', 'neu');
-        if (!skipTags && tag.klass === 'BET') item.classList.add('bet');
-        else if (!skipTags && tag.klass === 'WATCH') item.classList.add('watch');
+        if (!skipTags && bestTag.klass === 'BET') item.classList.add('bet');
+        else if (!skipTags && bestTag.klass === 'WATCH') item.classList.add('watch');
         else if (inProg) item.classList.add('live');
         else item.classList.add('neu');
       });
@@ -5235,11 +5216,10 @@ function startLiveLensPolling(root, games, dateStr) {
           if (!gid) return;
           const s = sbById ? sbById.get(gid) : null;
           const lensEl = root.querySelector(`.live-lens[data-game-id="${CSS.escape(gid)}"]`);
-          const tag = skipTags
-            ? { klass: 'NONE', text: '', title: '' }
-            : (pickCurrentPeriodTotalTagFromLensEl(lensEl, s) || { klass: 'NONE', text: '', title: '' });
-          const tagEl = card.querySelector('.lens-card-tag');
-          if (!tagEl) return;
+          const tags = skipTags ? [] : getLensTotalScopeTagsFromLensEl(lensEl);
+          const bestTag = pickBestLensTotalScopeTag(tags);
+          const tagEls = card.querySelectorAll('.lens-card-tag[data-scope-key]');
+          if (!tagEls || !tagEls.length) return;
           const whyEl = card.querySelector('.lens-why-badges');
 
           if (skipTags) return;
@@ -5276,18 +5256,20 @@ function startLiveLensPolling(root, games, dateStr) {
             }
           }
 
-          tagEl.textContent = tag.text || '';
-          try { tagEl.title = tag.title || ''; } catch (_) { /* ignore */ }
-          tagEl.classList.remove('bet', 'watch');
-          if (tag.klass === 'BET') tagEl.classList.add('bet');
-          else if (tag.klass === 'WATCH') tagEl.classList.add('watch');
+          tagEls.forEach((tagEl) => {
+            const scopeKey = String(tagEl.dataset.scopeKey || '').trim();
+            const def = lensTotalScopeDef(scopeKey);
+            const tag = tags.find((x) => x && x.scopeKey === scopeKey) || { klass: 'NONE', text: `${def.label} —`, title: '' };
+            applyLensScopeBadge(tagEl, tag, `${def.label} —`);
+          });
 
           try {
             if (whyEl) {
-              whyEl.innerHTML = _whyBadgesFromTitle(tag.title || '', tag.klass || '');
-              whyEl.classList.toggle('bet', tag.klass === 'BET');
-              whyEl.classList.toggle('watch', tag.klass === 'WATCH');
-              try { whyEl.title = tag.title || ''; } catch (_) { /* ignore */ }
+              const whyTitle = (bestTag && (bestTag.klass === 'BET' || bestTag.klass === 'WATCH')) ? (bestTag.title || '') : '';
+              whyEl.innerHTML = _whyBadgesFromTitle(whyTitle, bestTag.klass || '');
+              whyEl.classList.toggle('bet', bestTag.klass === 'BET');
+              whyEl.classList.toggle('watch', bestTag.klass === 'WATCH');
+              try { whyEl.title = whyTitle; } catch (_) { /* ignore */ }
             }
           } catch (_) {
             // ignore
@@ -6217,32 +6199,51 @@ function startLiveLensPolling(root, games, dateStr) {
         // ignore
       }
 
+      function resetLensRecChip(chipEl, text) {
+        if (!chipEl) return;
+        chipEl.textContent = text;
+        try {
+          chipEl.classList.remove('bet', 'watch', 'wait');
+          chipEl.title = '';
+        } catch (_) {
+          // ignore
+        }
+        try {
+          chipEl.removeAttribute('data-proj-total');
+          chipEl.removeAttribute('data-line-total');
+        } catch (_) {
+          // ignore
+        }
+      }
+
       // If game is final: do not show or log any BET/WATCH signals.
       // (Still allow status/score/attempts/lines to render.)
       if (live && live.status && live.status.final) {
         try {
+          const recQ1El = el.querySelector('.lens-rec-q1');
+          const recQ3El = el.querySelector('.lens-rec-q3');
           const recTotalEl = el.querySelector('.lens-rec-total');
           const recHalfEl = el.querySelector('.lens-rec-half');
-          const recQtrEl = el.querySelector('.lens-rec-qtr');
           const recATSEl = el.querySelector('.lens-rec-ats');
           const recMLEl = el.querySelector('.lens-rec-ml');
           const totalExplainMainEl = el.querySelector('.lens-total-explain-main');
           const totalExplainBuildEl = el.querySelector('.lens-total-explain-build');
           const totalExplainRatesEl = el.querySelector('.lens-total-explain-rates');
           const totalExplainAdjustEl = el.querySelector('.lens-total-explain-adjust');
-          if (recTotalEl) recTotalEl.textContent = 'Total: —';
-          if (recHalfEl) recHalfEl.textContent = '1H: —';
-          if (recQtrEl) recQtrEl.textContent = 'Q: —';
-          if (recATSEl) recATSEl.textContent = 'ATS: —';
-          if (recMLEl) recMLEl.textContent = 'ML: —';
-          if (totalExplainMainEl) totalExplainMainEl.textContent = 'Signal: —';
+          resetLensRecChip(recQ1El, '1Q: —');
+          resetLensRecChip(recHalfEl, '1H: —');
+          resetLensRecChip(recQ3El, '3Q: —');
+          resetLensRecChip(recTotalEl, 'G: —');
+          resetLensRecChip(recATSEl, 'ATS: —');
+          resetLensRecChip(recMLEl, 'ML: —');
+          if (totalExplainMainEl) totalExplainMainEl.textContent = 'Game total: —';
           if (totalExplainBuildEl) totalExplainBuildEl.textContent = 'Build: —';
           if (totalExplainRatesEl) totalExplainRatesEl.textContent = 'Rates: —';
           if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = 'Adjust: —';
           try {
-            [recTotalEl, recHalfEl, recQtrEl, recATSEl, recMLEl, totalExplainMainEl].forEach((x) => {
+            [recQ1El, recHalfEl, recQ3El, recTotalEl, recATSEl, recMLEl, totalExplainMainEl].forEach((x) => {
               if (!x) return;
-              x.classList.remove('bet', 'watch');
+              x.classList.remove('bet', 'watch', 'wait');
               x.title = '';
             });
           } catch (_) {
@@ -6264,9 +6265,10 @@ function startLiveLensPolling(root, games, dateStr) {
       }
 
       // Compute tags (Total)
-      const recTotalEl = el.querySelector('.lens-rec-total');
+      const recQ1El = el.querySelector('.lens-rec-q1');
       const recHalfEl = el.querySelector('.lens-rec-half');
-      const recQtrEl = el.querySelector('.lens-rec-qtr');
+      const recQ3El = el.querySelector('.lens-rec-q3');
+      const recTotalEl = el.querySelector('.lens-rec-total');
       const recATSEl = el.querySelector('.lens-rec-ats');
       const recMLEl = el.querySelector('.lens-rec-ml');
       const totalExplainMainEl = el.querySelector('.lens-total-explain-main');
@@ -6368,14 +6370,16 @@ function startLiveLensPolling(root, games, dateStr) {
         }
       }
       if (recTotalEl) {
-        if (totalClass === 'BET') recTotalEl.textContent = `Total: BET ${totalSide} (${fmt(totalDiff, 1)})`;
-        else if (totalClass === 'WATCH') recTotalEl.textContent = `Total: WATCH ${totalSide} (${fmt(totalDiff, 1)})`;
-        else recTotalEl.textContent = 'Total: —';
+        if (totalClass === 'BET') recTotalEl.textContent = `G: BET ${totalSide} (${fmt(totalDiff, 1)})`;
+        else if (totalClass === 'WATCH') recTotalEl.textContent = `G: WATCH ${totalSide} (${fmt(totalDiff, 1)})`;
+        else if (totalGateActive && totalGateMinElapsed != null) recTotalEl.textContent = `G: WAIT ${fmt(totalGateMinElapsed, 0)}m`;
+        else recTotalEl.textContent = 'G: —';
 
         try {
-          recTotalEl.classList.remove('bet', 'watch');
+          recTotalEl.classList.remove('bet', 'watch', 'wait');
           if (totalClass === 'BET') recTotalEl.classList.add('bet');
           else if (totalClass === 'WATCH') recTotalEl.classList.add('watch');
+          else if (totalGateActive && totalGateMinElapsed != null) recTotalEl.classList.add('wait');
 
           const why = [];
           if (totalDiffRaw != null) why.push(`raw ${fmt(totalDiffRaw, 1)}`);
@@ -6387,6 +6391,7 @@ function startLiveLensPolling(root, games, dateStr) {
           if (totalCtx && totalCtx.eff_ppp_delta != null) why.push(`pppΔ ${fmt(totalCtx.eff_ppp_delta, 3)}`);
           if (totalCtx && totalCtx.under_edge_reversion_points != null && Math.abs(totalCtx.under_edge_reversion_points) > 1e-6) why.push(`uRev ${fmt(totalCtx.under_edge_reversion_points, 1)}`);
           if (totalCtx && totalCtx.endgame_foul_adj != null && Math.abs(totalCtx.endgame_foul_adj) > 1e-6) why.push(`late ${fmt(totalCtx.endgame_foul_adj, 1)}`);
+          if (totalGateActive && totalGateMinElapsed != null) why.push(`gate ${fmt(totalGateMinElapsed, 0)}m`);
           why.push(`thr ${fmt(thr.total.watch, 1)}/${fmt(thr.total.bet, 1)}`);
           recTotalEl.title = why.filter(Boolean).join(' · ');
         } catch (_) {
@@ -6406,6 +6411,7 @@ function startLiveLensPolling(root, games, dateStr) {
       try {
         const signalParts = [];
         if (totalGateActive && totalGateMinElapsed != null) signalParts.push(`Waiting for ${fmt(totalGateMinElapsed, 0)}m gate`);
+        if (totalGateActive) signalParts.push('1H/Q can still fire');
         if (totalPred != null && effLineTotal != null) signalParts.push(`Proj ${fmt(totalPred, 1)} vs ${fmt(effLineTotal, 1)}`);
         if (totalSide && totalSide !== 'No edge' && totalDiff != null) signalParts.push(`${totalSide} ${fmtSigned(totalDiff, 1)}`);
         else if (totalDiff != null) signalParts.push(`Edge ${fmtSigned(totalDiff, 1)}`);
@@ -6428,7 +6434,7 @@ function startLiveLensPolling(root, games, dateStr) {
         if (!adjustParts.length && totalGateActive && totalGateMinElapsed != null) adjustParts.push(`gate ${fmt(totalGateMinElapsed, 0)}m`);
 
         if (totalExplainMainEl) {
-          totalExplainMainEl.textContent = signalParts.length ? `Signal: ${signalParts.join(' · ')}` : 'Signal: —';
+          totalExplainMainEl.textContent = signalParts.length ? `Game total: ${signalParts.join(' · ')}` : 'Game total: —';
           totalExplainMainEl.classList.remove('bet', 'watch');
           if (totalClass === 'BET') totalExplainMainEl.classList.add('bet');
           else if (totalClass === 'WATCH') totalExplainMainEl.classList.add('watch');
@@ -6437,7 +6443,7 @@ function startLiveLensPolling(root, games, dateStr) {
         if (totalExplainRatesEl) totalExplainRatesEl.textContent = rateParts.length ? `Rates: ${rateParts.join(' | ')}` : 'Rates: —';
         if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = adjustParts.length ? `Adjust: ${adjustParts.join(' | ')}` : 'Adjust: none';
       } catch (_) {
-        if (totalExplainMainEl) totalExplainMainEl.textContent = 'Signal: —';
+        if (totalExplainMainEl) totalExplainMainEl.textContent = 'Game total: —';
         if (totalExplainBuildEl) totalExplainBuildEl.textContent = 'Build: —';
         if (totalExplainRatesEl) totalExplainRatesEl.textContent = 'Rates: —';
         if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = 'Adjust: —';
@@ -6451,6 +6457,8 @@ function startLiveLensPolling(root, games, dateStr) {
       let halfShrink = null;
       let halfPred = null;
       let halfLine = null;
+      let halfGateMinElapsed = null;
+      let halfGateActive = false;
       try {
         if (recHalfEl && (period == null || Number(period) <= 2)) {
           const halfCol = el.querySelector('.lens-col[data-scope="half"]');
@@ -6465,9 +6473,13 @@ function startLiveLensPolling(root, games, dateStr) {
             const adjCfg = _liveLensScopeTotalAdjCfg(24);
             const minElapsedFull = n(adjCfg && adjCfg.min_elapsed_min);
             const minElapsedHalf = (minElapsedFull != null) ? Math.max(1.0, minElapsedFull * (24.0 / 48.0)) : null;
+            halfGateMinElapsed = minElapsedHalf;
             const rem = (halfMinLeftRaw != null) ? Math.max(0, Math.min(24, Math.round(halfMinLeftRaw))) : null;
             const elapsed = (rem != null) ? (24.0 - rem) : null;
-            if (minElapsedHalf != null && elapsed != null && elapsed < minElapsedHalf) allowHalf = false;
+            if (minElapsedHalf != null && elapsed != null && elapsed < minElapsedHalf) {
+              allowHalf = false;
+              halfGateActive = true;
+            }
           } catch (_) {
             allowHalf = true;
           }
@@ -6516,18 +6528,21 @@ function startLiveLensPolling(root, games, dateStr) {
           }
           if (halfClass === 'BET') recHalfEl.textContent = `1H: BET ${halfSide} (${fmt(halfDiff, 1)})`;
           else if (halfClass === 'WATCH') recHalfEl.textContent = `1H: WATCH ${halfSide} (${fmt(halfDiff, 1)})`;
+          else if (halfGateActive && halfGateMinElapsed != null) recHalfEl.textContent = `1H: WAIT ${fmt(halfGateMinElapsed, 0)}m`;
           else recHalfEl.textContent = '1H: —';
 
           try {
-            recHalfEl.classList.remove('bet', 'watch');
+            recHalfEl.classList.remove('bet', 'watch', 'wait');
             if (halfClass === 'BET') recHalfEl.classList.add('bet');
             else if (halfClass === 'WATCH') recHalfEl.classList.add('watch');
+            else if (halfGateActive && halfGateMinElapsed != null) recHalfEl.classList.add('wait');
 
             const why = [];
             if (halfDiffRaw != null) why.push(`raw ${fmt(halfDiffRaw, 1)}`);
             if (halfDiff != null && halfDiffRaw != null && Math.abs(halfDiff - halfDiffRaw) > 1e-6) why.push(`shrunk ${fmt(halfDiff, 1)}`);
             if (halfShrink && halfShrink.lambda != null) why.push(`λ ${fmt(halfShrink.lambda, 2)}`);
             if (halfLine != null) why.push(`L ${fmt(halfLine, 1)}`);
+            if (halfGateActive && halfGateMinElapsed != null) why.push(`gate ${fmt(halfGateMinElapsed, 0)}m`);
             why.push(`thr ${fmt(thr.half_total.watch, 1)}/${fmt(thr.half_total.bet, 1)}`);
             recHalfEl.title = why.filter(Boolean).join(' · ');
           } catch (_) {
@@ -6544,36 +6559,10 @@ function startLiveLensPolling(root, games, dateStr) {
             // ignore
           }
         } else if (recHalfEl) {
-          recHalfEl.textContent = '1H: —';
-          try {
-            recHalfEl.classList.remove('bet', 'watch');
-            recHalfEl.title = '';
-          } catch (_) {
-            // ignore
-          }
-          try {
-            recHalfEl.removeAttribute('data-proj-total');
-            recHalfEl.removeAttribute('data-line-total');
-          } catch (_) {
-            // ignore
-          }
+          resetLensRecChip(recHalfEl, '1H: —');
         }
       } catch (_) {
-        if (recHalfEl) recHalfEl.textContent = '1H: —';
-        try {
-          if (recHalfEl) {
-            recHalfEl.classList.remove('bet', 'watch');
-            recHalfEl.title = '';
-          }
-        } catch (_) {
-          // ignore
-        }
-        try {
-          recHalfEl.removeAttribute('data-proj-total');
-          recHalfEl.removeAttribute('data-line-total');
-        } catch (_) {
-          // ignore
-        }
+        resetLensRecChip(recHalfEl, '1H: —');
       }
 
       // Quarter-level signal for the current regulation quarter (vs pregame quarter baseline)
@@ -6585,11 +6574,17 @@ function startLiveLensPolling(root, games, dateStr) {
       let qPred = null;
       let qLabel = 'Q';
       let qLine = null;
+      let qGateMinElapsed = null;
+      let qGateActive = false;
       try {
         const pNow = (period == null) ? null : Number(period);
-        if (recQtrEl && pNow != null && Number.isFinite(pNow) && pNow >= 1 && pNow <= 4) {
+        resetLensRecChip(recQ1El, '1Q: —');
+        resetLensRecChip(recQ3El, '3Q: —');
+        if (pNow != null && Number.isFinite(pNow) && pNow >= 1 && pNow <= 4) {
           const qNum = Math.floor(pNow);
           qLabel = `Q${qNum}`;
+          const qDisplayLabel = (qNum === 1) ? '1Q' : ((qNum === 3) ? '3Q' : qLabel);
+          const qRecEl = (qNum === 1) ? recQ1El : ((qNum === 3) ? recQ3El : null);
           const qCol = el.querySelector(`.lens-col[data-scope="q${qNum}"]`);
           const pf = qCol ? n(qCol.dataset.paceFinal) : null;
           const sf = qCol ? n(qCol.dataset.simFinal) : null;
@@ -6602,8 +6597,12 @@ function startLiveLensPolling(root, games, dateStr) {
             const adjCfg = _liveLensScopeTotalAdjCfg(12);
             const minElapsedFull = n(adjCfg && adjCfg.min_elapsed_min);
             const minElapsedQ = (minElapsedFull != null) ? Math.max(0.0, minElapsedFull * (12.0 / 48.0)) : null;
+            qGateMinElapsed = minElapsedQ;
             const elapsed = (secLeftPeriodRaw != null) ? (12.0 - Math.max(0, Math.min(12, Math.round((secLeftPeriodRaw / 60.0))))) : null;
-            if (minElapsedQ != null && elapsed != null && elapsed < minElapsedQ) allowQ = false;
+            if (minElapsedQ != null && elapsed != null && elapsed < minElapsedQ) {
+              allowQ = false;
+              qGateActive = true;
+            }
           } catch (_) {
             allowQ = true;
           }
@@ -6650,66 +6649,44 @@ function startLiveLensPolling(root, games, dateStr) {
             else if (qDiff < -1.0) qSide = 'Under';
             else qSide = 'No edge';
           }
-          if (qClass === 'BET') recQtrEl.textContent = `${qLabel}: BET ${qSide} (${fmt(qDiff, 1)})`;
-          else if (qClass === 'WATCH') recQtrEl.textContent = `${qLabel}: WATCH ${qSide} (${fmt(qDiff, 1)})`;
-          else recQtrEl.textContent = `${qLabel}: —`;
+          if (qRecEl) {
+            if (qClass === 'BET') qRecEl.textContent = `${qDisplayLabel}: BET ${qSide} (${fmt(qDiff, 1)})`;
+            else if (qClass === 'WATCH') qRecEl.textContent = `${qDisplayLabel}: WATCH ${qSide} (${fmt(qDiff, 1)})`;
+            else if (qGateActive && qGateMinElapsed != null) qRecEl.textContent = `${qDisplayLabel}: WAIT ${fmt(qGateMinElapsed, 0)}m`;
+            else qRecEl.textContent = `${qDisplayLabel}: —`;
 
-          try {
-            recQtrEl.classList.remove('bet', 'watch');
-            if (qClass === 'BET') recQtrEl.classList.add('bet');
-            else if (qClass === 'WATCH') recQtrEl.classList.add('watch');
+            try {
+              qRecEl.classList.remove('bet', 'watch', 'wait');
+              if (qClass === 'BET') qRecEl.classList.add('bet');
+              else if (qClass === 'WATCH') qRecEl.classList.add('watch');
+              else if (qGateActive && qGateMinElapsed != null) qRecEl.classList.add('wait');
 
-            const why = [];
-            if (qDiffRaw != null) why.push(`raw ${fmt(qDiffRaw, 1)}`);
-            if (qDiff != null && qDiffRaw != null && Math.abs(qDiff - qDiffRaw) > 1e-6) why.push(`shrunk ${fmt(qDiff, 1)}`);
-            if (qShrink && qShrink.lambda != null) why.push(`λ ${fmt(qShrink.lambda, 2)}`);
-            if (qLine != null) why.push(`L ${fmt(qLine, 1)}`);
-            why.push(`thr ${fmt(thr.quarter_total.watch, 1)}/${fmt(thr.quarter_total.bet, 1)}`);
-            recQtrEl.title = why.filter(Boolean).join(' · ');
-          } catch (_) {
-            // ignore
-          }
+              const why = [];
+              if (qDiffRaw != null) why.push(`raw ${fmt(qDiffRaw, 1)}`);
+              if (qDiff != null && qDiffRaw != null && Math.abs(qDiff - qDiffRaw) > 1e-6) why.push(`shrunk ${fmt(qDiff, 1)}`);
+              if (qShrink && qShrink.lambda != null) why.push(`λ ${fmt(qShrink.lambda, 2)}`);
+              if (qLine != null) why.push(`L ${fmt(qLine, 1)}`);
+              if (qGateActive && qGateMinElapsed != null) why.push(`gate ${fmt(qGateMinElapsed, 0)}m`);
+              why.push(`thr ${fmt(thr.quarter_total.watch, 1)}/${fmt(thr.quarter_total.bet, 1)}`);
+              qRecEl.title = why.filter(Boolean).join(' · ');
+            } catch (_) {
+              // ignore
+            }
 
-          try {
-            const qProjOut = (qLine != null && qDiff != null) ? (qLine + qDiff) : qPred;
-            if (qProjOut != null) recQtrEl.dataset.projTotal = String(qProjOut);
-            else recQtrEl.removeAttribute('data-proj-total');
-            if (qLine != null) recQtrEl.dataset.lineTotal = String(qLine);
-            else recQtrEl.removeAttribute('data-line-total');
-          } catch (_) {
-            // ignore
-          }
-        } else if (recQtrEl) {
-          recQtrEl.textContent = 'Q: —';
-          try {
-            recQtrEl.classList.remove('bet', 'watch');
-            recQtrEl.title = '';
-          } catch (_) {
-            // ignore
-          }
-          try {
-            recQtrEl.removeAttribute('data-proj-total');
-            recQtrEl.removeAttribute('data-line-total');
-          } catch (_) {
-            // ignore
+            try {
+              const qProjOut = (qLine != null && qDiff != null) ? (qLine + qDiff) : qPred;
+              if (qProjOut != null) qRecEl.dataset.projTotal = String(qProjOut);
+              else qRecEl.removeAttribute('data-proj-total');
+              if (qLine != null) qRecEl.dataset.lineTotal = String(qLine);
+              else qRecEl.removeAttribute('data-line-total');
+            } catch (_) {
+              // ignore
+            }
           }
         }
       } catch (_) {
-        if (recQtrEl) recQtrEl.textContent = 'Q: —';
-        try {
-          if (recQtrEl) {
-            recQtrEl.classList.remove('bet', 'watch');
-            recQtrEl.title = '';
-          }
-        } catch (_) {
-          // ignore
-        }
-        try {
-          recQtrEl.removeAttribute('data-proj-total');
-          recQtrEl.removeAttribute('data-line-total');
-        } catch (_) {
-          // ignore
-        }
+        resetLensRecChip(recQ1El, '1Q: —');
+        resetLensRecChip(recQ3El, '3Q: —');
       }
 
       // Compute tags (ATS) using blended margin (pregame -> live)
@@ -7818,7 +7795,12 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         <button type="button" class="s-item neu" data-game-id="${esc(gid)}" aria-label="Jump to ${esc(awayTri)} at ${esc(homeTri)}">
           <span class="s-top">
             <span class="s-status">${esc(statusTxt)}</span>
-            <span class="s-tag"></span>
+          </span>
+          <span class="s-tags" aria-label="Live Lens total scopes">
+            <span class="s-tag" data-scope-key="q1">1Q —</span>
+            <span class="s-tag" data-scope-key="half">1H —</span>
+            <span class="s-tag" data-scope-key="q3">3Q —</span>
+            <span class="s-tag" data-scope-key="game">G —</span>
           </span>
 
           <span class="s-rows">
@@ -8010,8 +7992,13 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         <div class="row head">
           <span class="venue">${esc(timeStr || '')}</span>
           <span class="venue">${esc(odds.bookmaker || odds.bookmaker_odds || 'odds')}</span>
-          <span class="venue lens-card-tag" title="Live Lens (current scope)"></span>
-          <span class="lens-why-badges" title="Live Lens why (current scope)"></span>
+          <span class="lens-card-tags" title="Live Lens total scopes">
+            <span class="venue lens-card-tag" data-scope-key="q1" title="Live Lens 1Q total">1Q —</span>
+            <span class="venue lens-card-tag" data-scope-key="half" title="Live Lens 1H total">1H —</span>
+            <span class="venue lens-card-tag" data-scope-key="q3" title="Live Lens 3Q total">3Q —</span>
+            <span class="venue lens-card-tag" data-scope-key="game" title="Live Lens full-game total">G —</span>
+          </span>
+          <span class="lens-why-badges" title="Live Lens why (strongest total scope)"></span>
           ${showResults && recon ? `<span class="result-badge">${finalLine}</span>` : ''}
         </div>
 
