@@ -5088,6 +5088,40 @@ function startLiveLensPolling(root, games, dateStr) {
     return lensTotalScopeDefs.find((x) => x.scopeKey === scopeKey) || lensTotalScopeDefs[lensTotalScopeDefs.length - 1];
   }
 
+  function lensScopeSnapshotDatasetKey(scopeKey) {
+    const s = String(scopeKey || '').trim();
+    if (!s) return '';
+    return `settled${s.charAt(0).toUpperCase()}${s.slice(1)}Snapshot`;
+  }
+
+  function storeLensScopeSnapshot(lensEl, scopeKey, payload) {
+    try {
+      const k = lensScopeSnapshotDatasetKey(scopeKey);
+      if (!lensEl || !k || !payload || typeof payload !== 'object') return;
+      const next = {};
+      if (payload.proj != null) next.proj = n(payload.proj);
+      if (payload.line != null) next.line = n(payload.line);
+      if (payload.side != null) next.side = String(payload.side).toUpperCase().trim();
+      if (payload.klass != null) next.klass = String(payload.klass).toUpperCase().trim();
+      if (payload.title != null) next.title = String(payload.title);
+      if (!Object.keys(next).length) return;
+      lensEl.dataset[k] = JSON.stringify(next);
+    } catch (_) {
+      // ignore
+    }
+  }
+
+  function getLensScopeSnapshot(lensEl, scopeKey) {
+    try {
+      const k = lensScopeSnapshotDatasetKey(scopeKey);
+      if (!lensEl || !k || !lensEl.dataset || !lensEl.dataset[k]) return null;
+      const parsed = JSON.parse(String(lensEl.dataset[k] || ''));
+      return (parsed && typeof parsed === 'object') ? parsed : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
   function parseLensRecTag(txt) {
     const s = String(txt || '').trim();
     if (!s || /:\s*—\s*$/.test(s)) return null;
@@ -5111,14 +5145,64 @@ function startLiveLensPolling(root, games, dateStr) {
     const raw = chipEl ? String(chipEl.textContent || '').trim() : '';
     let title = '';
     try { title = chipEl && chipEl.title ? String(chipEl.title) : ''; } catch (_) { title = ''; }
+    const settledClass = chipEl && chipEl.classList
+      ? (chipEl.classList.contains('ok') ? 'OK' : (chipEl.classList.contains('bad') ? 'BAD' : (chipEl.classList.contains('push') ? 'PUSH' : '')))
+      : '';
+    let proj = null;
+    let line = null;
+    try {
+      const scopeCol = lensEl.querySelector(`.lens-col[data-scope="${CSS.escape(String(scopeKey))}"]`);
+      const sumEl = lensEl.querySelector(`.lens-summary[data-scope="${CSS.escape(String(scopeKey))}"]`);
+      const simTotEl = sumEl ? sumEl.querySelector('.lens-sum-sim-total') : null;
+      const lineTotEl = sumEl ? sumEl.querySelector('.lens-sum-line-total') : null;
+
+      proj = scopeCol ? n(scopeCol.dataset.paceFinal) : null;
+      if (proj == null && chipEl) proj = n(chipEl.dataset.projTotal);
+      if (proj == null && scopeCol) proj = n(scopeCol.dataset.betProjection);
+      if (proj == null && scopeCol) proj = n(scopeCol.dataset.simFinal);
+      if (proj == null && simTotEl) proj = n(simTotEl.textContent);
+
+      line = scopeCol ? n(scopeCol.dataset.liveTotal) : null;
+      if (line == null && chipEl) line = n(chipEl.dataset.lineTotal);
+      if (line == null && lineTotEl) line = n(lineTotEl.textContent);
+    } catch (_) {
+      proj = null;
+      line = null;
+    }
+
+    const detail = (proj != null && line != null)
+      ? `${fmt(proj, 1)}v${fmt(line, 1)}`
+      : ((proj != null) ? fmt(proj, 1) : ((line != null) ? `Lv${fmt(line, 1)}` : ''));
+    if (settledClass) {
+      return {
+        klass: settledClass,
+        text: raw || (detail ? `${label} ${detail}` : `${label} —`),
+        scopeKey,
+        title: title || raw,
+      };
+    }
     const parsed = parseLensRecTag(raw);
-    if (!parsed) return { klass: 'NONE', text: `${label} —`, scopeKey, title };
-    if (parsed.klass === 'WAIT') return { klass: 'WAIT', text: `${label} WAIT`, scopeKey, title: title || raw };
+    if (!parsed) {
+      return {
+        klass: 'NONE',
+        text: detail ? `${label} ${detail}` : `${label} —`,
+        scopeKey,
+        title,
+      };
+    }
+    if (parsed.klass === 'WAIT') {
+      return {
+        klass: 'WAIT',
+        text: detail ? `${label} ${detail}` : `${label} WAIT`,
+        scopeKey,
+        title: title || raw,
+      };
+    }
 
     const sideShort = (parsed.side === 'OVER') ? 'O' : ((parsed.side === 'UNDER') ? 'U' : parsed.klass);
     return {
       klass: parsed.klass,
-      text: `${label} ${sideShort}`.trim(),
+      text: detail ? `${label} ${detail} ${sideShort}`.trim() : `${label} ${sideShort}`.trim(),
       scopeKey,
       title: title || raw,
     };
@@ -5149,10 +5233,13 @@ function startLiveLensPolling(root, games, dateStr) {
     if (!tagEl) return;
     const text = (tag && tag.text) ? tag.text : (fallbackText || '');
     tagEl.textContent = text;
-    tagEl.classList.remove('bet', 'watch', 'wait');
+    tagEl.classList.remove('bet', 'watch', 'wait', 'ok', 'bad', 'push');
     if (tag && tag.klass === 'BET') tagEl.classList.add('bet');
     else if (tag && tag.klass === 'WATCH') tagEl.classList.add('watch');
     else if (tag && tag.klass === 'WAIT') tagEl.classList.add('wait');
+    else if (tag && tag.klass === 'OK') tagEl.classList.add('ok');
+    else if (tag && tag.klass === 'BAD') tagEl.classList.add('bad');
+    else if (tag && tag.klass === 'PUSH') tagEl.classList.add('push');
     try { tagEl.title = (tag && tag.title) ? tag.title : ''; } catch (_) { /* ignore */ }
   }
 
@@ -6203,7 +6290,7 @@ function startLiveLensPolling(root, games, dateStr) {
         if (!chipEl) return;
         chipEl.textContent = text;
         try {
-          chipEl.classList.remove('bet', 'watch', 'wait');
+          chipEl.classList.remove('bet', 'watch', 'wait', 'ok', 'bad', 'push');
           chipEl.title = '';
         } catch (_) {
           // ignore
@@ -6211,6 +6298,92 @@ function startLiveLensPolling(root, games, dateStr) {
         try {
           chipEl.removeAttribute('data-proj-total');
           chipEl.removeAttribute('data-line-total');
+        } catch (_) {
+          // ignore
+        }
+      }
+
+      function actualTotalForScope(scopeKey) {
+        try {
+          const sumEl = el.querySelector(`.lens-summary[data-scope="${CSS.escape(String(scopeKey))}"]`);
+          const liveTotEl = sumEl ? sumEl.querySelector('.lens-sum-live-total') : null;
+          return liveTotEl ? n(liveTotEl.textContent) : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function lineTotalForScope(scopeKey) {
+        try {
+          const sumEl = el.querySelector(`.lens-summary[data-scope="${CSS.escape(String(scopeKey))}"]`);
+          const lineTotEl = sumEl ? sumEl.querySelector('.lens-sum-line-total') : null;
+          return lineTotEl ? n(lineTotEl.textContent) : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function simTotalForScope(scopeKey) {
+        try {
+          const sumEl = el.querySelector(`.lens-summary[data-scope="${CSS.escape(String(scopeKey))}"]`);
+          const simTotEl = sumEl ? sumEl.querySelector('.lens-sum-sim-total') : null;
+          return simTotEl ? n(simTotEl.textContent) : null;
+        } catch (_) {
+          return null;
+        }
+      }
+
+      function renderSettledLensScopeChip(scopeKey, chipEl) {
+        if (!chipEl) return;
+        const def = lensTotalScopeDef(scopeKey);
+        const snap = getLensScopeSnapshot(el, scopeKey) || {};
+        const proj = (n(snap.proj) != null) ? n(snap.proj) : simTotalForScope(scopeKey);
+        const line = (n(snap.line) != null) ? n(snap.line) : lineTotalForScope(scopeKey);
+        const actual = actualTotalForScope(scopeKey);
+        let side = String(snap.side || '').toUpperCase().trim();
+        if ((side !== 'OVER' && side !== 'UNDER') && proj != null && line != null) {
+          if (proj > line) side = 'OVER';
+          else if (proj < line) side = 'UNDER';
+        }
+        const detail = (proj != null && line != null)
+          ? `${fmt(proj, 1)}v${fmt(line, 1)}`
+          : ((proj != null) ? fmt(proj, 1) : ((line != null) ? `Lv${fmt(line, 1)}` : ''));
+        const sideShort = (side === 'OVER') ? 'O' : ((side === 'UNDER') ? 'U' : '');
+        const text = detail ? `${def.label} ${detail}${sideShort ? ` ${sideShort}` : ''}` : `${def.label} —`;
+
+        let settledKlass = 'NONE';
+        let resultText = '';
+        if (actual != null && line != null) {
+          const actualSide = (actual > line) ? 'OVER' : ((actual < line) ? 'UNDER' : 'PUSH');
+          if (actualSide === 'PUSH') {
+            settledKlass = 'PUSH';
+            resultText = 'Push';
+          } else if (side === 'OVER' || side === 'UNDER') {
+            settledKlass = (actualSide === side) ? 'OK' : 'BAD';
+            resultText = (settledKlass === 'OK') ? 'Correct' : 'Wrong';
+          }
+        }
+
+        chipEl.textContent = text;
+        try {
+          chipEl.classList.remove('bet', 'watch', 'wait', 'ok', 'bad', 'push');
+          if (settledKlass === 'OK') chipEl.classList.add('ok');
+          else if (settledKlass === 'BAD') chipEl.classList.add('bad');
+          else if (settledKlass === 'PUSH') chipEl.classList.add('push');
+          const titleBits = [];
+          if (snap.title) titleBits.push(String(snap.title));
+          if (actual != null) titleBits.push(`Actual ${fmt(actual, 1)}`);
+          if (line != null) titleBits.push(`Line ${fmt(line, 1)}`);
+          if (resultText) titleBits.push(resultText);
+          chipEl.title = titleBits.join(' · ');
+        } catch (_) {
+          // ignore
+        }
+        try {
+          if (proj != null) chipEl.dataset.projTotal = String(proj);
+          else chipEl.removeAttribute('data-proj-total');
+          if (line != null) chipEl.dataset.lineTotal = String(line);
+          else chipEl.removeAttribute('data-line-total');
         } catch (_) {
           // ignore
         }
@@ -6230,10 +6403,10 @@ function startLiveLensPolling(root, games, dateStr) {
           const totalExplainBuildEl = el.querySelector('.lens-total-explain-build');
           const totalExplainRatesEl = el.querySelector('.lens-total-explain-rates');
           const totalExplainAdjustEl = el.querySelector('.lens-total-explain-adjust');
-          resetLensRecChip(recQ1El, '1Q: —');
-          resetLensRecChip(recHalfEl, '1H: —');
-          resetLensRecChip(recQ3El, '3Q: —');
-          resetLensRecChip(recTotalEl, 'G: —');
+          renderSettledLensScopeChip('q1', recQ1El);
+          renderSettledLensScopeChip('half', recHalfEl);
+          renderSettledLensScopeChip('q3', recQ3El);
+          renderSettledLensScopeChip('game', recTotalEl);
           resetLensRecChip(recATSEl, 'ATS: —');
           resetLensRecChip(recMLEl, 'ML: —');
           if (totalExplainMainEl) totalExplainMainEl.textContent = 'Game total: —';
@@ -6241,9 +6414,9 @@ function startLiveLensPolling(root, games, dateStr) {
           if (totalExplainRatesEl) totalExplainRatesEl.textContent = 'Rates: —';
           if (totalExplainAdjustEl) totalExplainAdjustEl.textContent = 'Adjust: —';
           try {
-            [recQ1El, recHalfEl, recQ3El, recTotalEl, recATSEl, recMLEl, totalExplainMainEl].forEach((x) => {
+            [recATSEl, recMLEl, totalExplainMainEl].forEach((x) => {
               if (!x) return;
-              x.classList.remove('bet', 'watch', 'wait');
+              x.classList.remove('bet', 'watch', 'wait', 'ok', 'bad', 'push');
               x.title = '';
             });
           } catch (_) {
@@ -6406,6 +6579,14 @@ function startLiveLensPolling(root, games, dateStr) {
         } catch (_) {
           // ignore
         }
+
+        storeLensScopeSnapshot(el, 'game', {
+          proj: totalPred,
+          line: effLineTotal,
+          side: totalSide,
+          klass: totalGateActive ? 'WAIT' : totalClass,
+          title: recTotalEl.title,
+        });
       }
 
       try {
@@ -6558,6 +6739,14 @@ function startLiveLensPolling(root, games, dateStr) {
           } catch (_) {
             // ignore
           }
+
+          storeLensScopeSnapshot(el, 'half', {
+            proj: (halfLine != null && halfDiff != null) ? (halfLine + halfDiff) : halfPred,
+            line: halfLine,
+            side: halfSide,
+            klass: halfGateActive ? 'WAIT' : halfClass,
+            title: recHalfEl.title,
+          });
         } else if (recHalfEl) {
           resetLensRecChip(recHalfEl, '1H: —');
         }
@@ -6682,6 +6871,14 @@ function startLiveLensPolling(root, games, dateStr) {
             } catch (_) {
               // ignore
             }
+
+            storeLensScopeSnapshot(el, qNum === 1 ? 'q1' : 'q3', {
+              proj: (qLine != null && qDiff != null) ? (qLine + qDiff) : qPred,
+              line: qLine,
+              side: qSide,
+              klass: qGateActive ? 'WAIT' : qClass,
+              title: qRecEl.title,
+            });
           }
         }
       } catch (_) {

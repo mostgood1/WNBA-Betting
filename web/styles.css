@@ -64,21 +64,25 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 	align-items: center;
 	justify-content: center;
 	min-width: 0;
-	padding: 2px 6px;
+	padding: 3px 6px;
 	border-radius: 999px;
 	border: 1px solid #30427b;
 	background: #101734;
 	color: #cfdaff;
 	font-weight: 900;
-	font-size: 10px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	font-size: 9px;
+	white-space: normal;
+	line-height: 1.15;
+	text-align: center;
+	overflow-wrap: anywhere;
 }
 
 .scoreboard-strip .s-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; }
 .scoreboard-strip .s-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; }
 .scoreboard-strip .s-tag.wait { border-color: #2b5cff; background: #111834; color: #cfe0ff; }
+.scoreboard-strip .s-tag.ok { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; }
+.scoreboard-strip .s-tag.bad { border-color: #7a1e1e; background: #3a1212; color: #ffb7b7; }
+.scoreboard-strip .s-tag.push { border-color: #2a3a7a; background: #111834; color: #cfe0ff; }
 
 .scoreboard-strip .s-rows { display: grid; gap: 2px; }
 .scoreboard-strip .s-row {
@@ -220,6 +224,9 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 .chip.bet { background: #0f2d1b; border-color: #1e7a45; color: #a7f3c6; }
 .chip.watch { background: #2a2310; border-color: #6a5a1f; color: #ffeaa7; }
 .chip.wait { background: #111834; border-color: #2b5cff; color: #cfe0ff; }
+.chip.ok { background: #0f2d1b; border-color: #1e7a45; color: #a7f3c6; }
+.chip.bad { background: #3a1212; border-color: #7a1e1e; color: #ffb7b7; }
+.chip.push { background: #111834; border-color: #2a3a7a; color: #cfe0ff; }
 
 .prop-callouts-rail {
 	margin-top: 6px;
@@ -394,11 +401,14 @@ header .last-updated { margin-left: auto; color: #9fb0ff; font-size: 12px; opaci
 }
 
 .row.head .lens-card-tags { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
-.row.head .venue.lens-card-tag { font-size: 11px; font-weight: 800; }
+.row.head .venue.lens-card-tag { font-size: 11px; font-weight: 800; white-space: normal; line-height: 1.15; }
 .row.head .venue.lens-card-tag:empty { display: none; }
 .row.head .venue.lens-card-tag.bet { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; font-weight: 900; }
 .row.head .venue.lens-card-tag.watch { border-color: #6a5a1f; background: #2a2310; color: #ffeaa7; font-weight: 900; }
 .row.head .venue.lens-card-tag.wait { border-color: #2b5cff; background: #111834; color: #cfe0ff; font-weight: 900; }
+.row.head .venue.lens-card-tag.ok { border-color: #1e7a45; background: #0f2d1b; color: #a7f3c6; font-weight: 900; }
+.row.head .venue.lens-card-tag.bad { border-color: #7a1e1e; background: #3a1212; color: #ffb7b7; font-weight: 900; }
+.row.head .venue.lens-card-tag.push { border-color: #2a3a7a; background: #111834; color: #cfe0ff; font-weight: 900; }
 
 .row.head .lens-why-badges { display: inline-flex; align-items: center; gap: 4px; flex-wrap: wrap; }
 .row.head .lens-why-badges:empty { display: none; }
