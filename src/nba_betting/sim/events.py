@@ -103,6 +103,165 @@ def _sample_lineup(
         return [int(i) for i in order[:k_eff]]
 
 
+def _starter_like_scores(players: pd.DataFrame, minutes_weights: np.ndarray) -> np.ndarray:
+    n = int(len(players))
+    if n <= 0:
+        return np.zeros(0, dtype=float)
+
+    scores = np.zeros(n, dtype=float)
+    try:
+        if "starter_prob" in players.columns:
+            starter_prob = _safe_series(players, "starter_prob").to_numpy(dtype=float)
+            starter_prob = np.where(np.isfinite(starter_prob), np.clip(starter_prob, 0.0, 1.0), 0.0)
+            scores = np.maximum(scores, starter_prob)
+    except Exception:
+        pass
+
+    try:
+        if "is_starter" in players.columns:
+            ser = players["is_starter"]
+            txt = ser.astype(str).str.strip().str.lower().isin({"1", "true", "t", "yes", "y"}).to_numpy(dtype=bool)
+            num = pd.to_numeric(ser, errors="coerce").fillna(0.0).to_numpy(dtype=float) > 0.5
+            scores = np.maximum(scores, (txt | num).astype(float))
+    except Exception:
+        pass
+
+    try:
+        if int(np.sum(scores >= 0.55)) < min(5, n):
+            w = np.maximum(0.0, np.asarray(minutes_weights, dtype=float))
+            order = np.argsort(-w)
+            top_n = int(min(5, n))
+            if top_n > 0:
+                ramp = np.linspace(1.0, 0.72, top_n)
+                scores[order[:top_n]] = np.maximum(scores[order[:top_n]], ramp)
+    except Exception:
+        pass
+
+    return np.clip(scores, 0.0, 1.0)
+
+
+def _scoring_like_scores(players: pd.DataFrame) -> np.ndarray:
+    n = int(len(players))
+    if n <= 0:
+        return np.zeros(0, dtype=float)
+
+    pred = np.maximum(0.0, _safe_series(players, "pred_pts").to_numpy(dtype=float))
+    if float(np.sum(pred)) <= 0.0:
+        fga = np.maximum(0.0, _safe_series(players, "_prior_fga_pm").to_numpy(dtype=float))
+        threes = np.maximum(0.0, _safe_series(players, "_prior_threes_att_pm").to_numpy(dtype=float))
+        pred = fga + (0.75 * threes)
+
+    pred = np.log1p(np.maximum(0.0, np.where(np.isfinite(pred), pred, 0.0)))
+    pos = pred[pred > 0.0]
+    if pos.size <= 0:
+        return np.zeros(n, dtype=float)
+
+    try:
+        hi = float(np.quantile(pos, 0.85))
+    except Exception:
+        hi = float(np.max(pos)) if pos.size else 0.0
+    if (not np.isfinite(hi)) or hi <= 0.0:
+        hi = float(np.max(pos)) if pos.size else 0.0
+    if (not np.isfinite(hi)) or hi <= 0.0:
+        return np.zeros(n, dtype=float)
+
+    return np.clip(pred / hi, 0.0, 1.0)
+
+
+def _rotation_windows(q: int, period_seconds: int, q_remaining: int, margin: int) -> Dict[str, bool]:
+    qi = int(q)
+    rem = max(0, int(q_remaining))
+    elapsed = max(0, int(period_seconds) - rem)
+    abs_margin = abs(int(margin))
+    is_reg = 1 <= qi <= 4
+    return {
+        "opening_stint": bool(is_reg and qi in (1, 3) and elapsed < 180),
+        "bench_stint": bool(is_reg and qi in (2, 4) and elapsed < 180),
+        "mid_wave": bool(is_reg and qi in (1, 3) and 180 <= elapsed < 420),
+        "closing_window": bool(is_reg and qi in (2, 4) and rem <= 210 and abs_margin <= 10),
+        "crunch_time": bool(is_reg and qi == 4 and rem <= 180 and abs_margin <= 8),
+        "late_half_push": bool(is_reg and qi == 2 and rem <= 90 and abs_margin <= 12),
+        "late_game_push": bool(is_reg and qi == 4 and rem <= 180 and abs_margin <= 14),
+    }
+
+
+def _contextual_minutes_weights(
+    base_weights: np.ndarray,
+    starter_scores: np.ndarray,
+    scorer_scores: np.ndarray,
+    *,
+    flags: Dict[str, bool],
+    team_is_trailing: bool,
+    team_is_leading: bool,
+    blowout: bool,
+) -> np.ndarray:
+    w = np.maximum(0.0, np.asarray(base_weights, dtype=float))
+    if w.size <= 0:
+        return w
+    if float(np.sum(w)) <= 0.0:
+        w = np.ones_like(w, dtype=float)
+
+    starter = np.clip(np.asarray(starter_scores, dtype=float), 0.0, 1.0)
+    scorer = np.clip(np.asarray(scorer_scores, dtype=float), 0.0, 1.0)
+    if starter.size != w.size:
+        starter = np.zeros_like(w, dtype=float)
+    if scorer.size != w.size:
+        scorer = np.zeros_like(w, dtype=float)
+
+    closer = np.clip(np.maximum(starter, 0.75 * scorer), 0.0, 1.0)
+    bench = 1.0 - starter
+    factor = np.ones_like(w, dtype=float)
+
+    if blowout:
+        factor *= np.clip(0.76 + (0.58 * bench), 0.70, 1.35)
+    else:
+        if flags.get("opening_stint"):
+            factor *= np.clip(0.88 + (0.28 * starter) + (0.06 * closer), 0.80, 1.30)
+        if flags.get("bench_stint"):
+            factor *= np.clip(0.92 + (0.24 * bench), 0.82, 1.28)
+        if flags.get("mid_wave"):
+            factor *= np.clip(0.95 + (0.18 * bench), 0.88, 1.22)
+        if flags.get("closing_window"):
+            factor *= np.clip(0.82 + (0.28 * closer), 0.78, 1.30)
+        if flags.get("crunch_time"):
+            factor *= np.clip(0.88 + (0.18 * closer), 0.84, 1.25)
+        if bool(team_is_trailing) and (flags.get("late_half_push") or flags.get("late_game_push")):
+            factor *= np.clip(0.92 + (0.16 * np.maximum(starter, scorer)), 0.88, 1.25)
+        elif bool(team_is_leading) and flags.get("late_game_push"):
+            factor *= np.clip(0.94 + (0.12 * starter) + (0.04 * bench), 0.90, 1.18)
+
+    w = np.where(np.isfinite(w * factor), w * factor, 0.0)
+    if float(np.sum(w)) <= 0.0:
+        return np.ones_like(w, dtype=float)
+    return np.maximum(1e-6, w)
+
+
+def _contextual_duration_scale(
+    *,
+    flags: Dict[str, bool],
+    team_is_trailing: bool,
+    team_is_leading: bool,
+    blowout: bool,
+) -> float:
+    scale = 1.0
+    if blowout:
+        scale *= 1.08
+    else:
+        if flags.get("opening_stint"):
+            scale *= 0.97
+        if flags.get("bench_stint"):
+            scale *= 1.05
+        if flags.get("mid_wave"):
+            scale *= 1.02
+        if flags.get("closing_window"):
+            scale *= 0.96
+        if bool(team_is_trailing) and (flags.get("late_half_push") or flags.get("late_game_push")):
+            scale *= 0.93
+        elif bool(team_is_leading) and flags.get("late_game_push"):
+            scale *= 1.04
+    return float(np.clip(scale, 0.88, 1.12))
+
+
 def _team_rates_from_priors(players: pd.DataFrame, cfg: EventSimConfig) -> Dict[str, float]:
     """Derive team-level per-possession / per-FGA rates from player per-minute priors."""
     mins = _safe_series(players, "_sim_min").to_numpy(dtype=float)
@@ -304,6 +463,14 @@ def simulate_event_level_boxscore(
     a_3p_pct = _player_pct(away_players, "_prior_threes_pm", "_prior_threes_att_pm", default=0.35, lo=0.20, hi=0.50)
     h_ft_pct = _player_pct(home_players, "_prior_ftm_pm", "_prior_fta_pm", default=0.76, lo=0.45, hi=0.95)
     a_ft_pct = _player_pct(away_players, "_prior_ftm_pm", "_prior_fta_pm", default=0.76, lo=0.45, hi=0.95)
+    h_starter_scores = _starter_like_scores(home_players, h_mins)
+    a_starter_scores = _starter_like_scores(away_players, a_mins)
+    h_scorer_scores = _scoring_like_scores(home_players)
+    a_scorer_scores = _scoring_like_scores(away_players)
+    h_starter_scores = _starter_like_scores(home_players, h_mins)
+    a_starter_scores = _starter_like_scores(away_players, a_mins)
+    h_scorer_scores = _scoring_like_scores(home_players)
+    a_scorer_scores = _scoring_like_scores(away_players)
 
     # Aggregation arrays
     def blank(players: pd.DataFrame) -> Dict[str, np.ndarray]:
@@ -404,27 +571,59 @@ def simulate_event_level_boxscore(
             # Sample on-court lineups
             # When provided, prefer observed lineup pools (stints) to preserve realistic 5-man correlations.
             # In blowouts, fall back to minutes-weighted bench-boost sampling.
+            margin_now = int(home_score - away_score)
+            flags = _rotation_windows(q=int(q), period_seconds=int(period_seconds), q_remaining=int(q_remaining), margin=int(margin_now))
+            home_context_w = _contextual_minutes_weights(
+                h_mins,
+                h_starter_scores,
+                h_scorer_scores,
+                flags=flags,
+                team_is_trailing=bool(margin_now < 0),
+                team_is_leading=bool(margin_now > 0),
+                blowout=bool(blowout),
+            )
+            away_context_w = _contextual_minutes_weights(
+                a_mins,
+                a_starter_scores,
+                a_scorer_scores,
+                flags=flags,
+                team_is_trailing=bool(margin_now > 0),
+                team_is_leading=bool(margin_now < 0),
+                blowout=bool(blowout),
+            )
+
+            use_contextual_lineups = bool(
+                blowout
+                or flags.get("opening_stint")
+                or flags.get("bench_stint")
+                or flags.get("mid_wave")
+                or flags.get("closing_window")
+                or flags.get("crunch_time")
+                or flags.get("late_half_push")
+                or flags.get("late_game_push")
+            )
+
             h_line = None
             a_line = None
-            if not blowout:
+            if (not blowout) and (not use_contextual_lineups):
                 h_line = _pick_lineup_from_pool(home_lineups, home_lineup_weights, n_players=len(home_players))
                 a_line = _pick_lineup_from_pool(away_lineups, away_lineup_weights, n_players=len(away_players))
             if not h_line:
                 h_line = _sample_lineup(
                     rng,
                     home_players,
-                    h_mins,
+                    home_context_w,
                     k=5,
-                    blowout_boost_bench=blowout,
+                    blowout_boost_bench=False,
                     bench_boost=cfg.bench_weight_boost,
                 )
             if not a_line:
                 a_line = _sample_lineup(
                     rng,
                     away_players,
-                    a_mins,
+                    away_context_w,
                     k=5,
-                    blowout_boost_bench=blowout,
+                    blowout_boost_bench=False,
                     bench_boost=cfg.bench_weight_boost,
                 )
 
@@ -910,6 +1109,10 @@ def simulate_pbp_game_boxscore(
     a_3p_pct = _player_pct(away_players, "_prior_threes_pm", "_prior_threes_att_pm", default=0.35, lo=0.20, hi=0.50)
     h_ft_pct = _player_pct(home_players, "_prior_ftm_pm", "_prior_fta_pm", default=0.76, lo=0.45, hi=0.95)
     a_ft_pct = _player_pct(away_players, "_prior_ftm_pm", "_prior_fta_pm", default=0.76, lo=0.45, hi=0.95)
+    h_starter_scores = _starter_like_scores(home_players, h_mins)
+    a_starter_scores = _starter_like_scores(away_players, a_mins)
+    h_scorer_scores = _scoring_like_scores(home_players)
+    a_scorer_scores = _scoring_like_scores(away_players)
 
     def _team_avg(arr: np.ndarray, w: np.ndarray, default: float) -> float:
         try:
@@ -1119,27 +1322,59 @@ def simulate_pbp_game_boxscore(
             else:
                 offense_home = not offense_home if bool(rng.random() < 0.85) else bool(rng.random() < 0.5)
 
+            margin_now = int(home_score - away_score)
+            flags = _rotation_windows(q=int(q), period_seconds=int(period_seconds), q_remaining=int(q_remaining), margin=int(margin_now))
+            home_context_w = _contextual_minutes_weights(
+                h_mins,
+                h_starter_scores,
+                h_scorer_scores,
+                flags=flags,
+                team_is_trailing=bool(margin_now < 0),
+                team_is_leading=bool(margin_now > 0),
+                blowout=bool(blowout),
+            )
+            away_context_w = _contextual_minutes_weights(
+                a_mins,
+                a_starter_scores,
+                a_scorer_scores,
+                flags=flags,
+                team_is_trailing=bool(margin_now > 0),
+                team_is_leading=bool(margin_now < 0),
+                blowout=bool(blowout),
+            )
+
+            use_contextual_lineups = bool(
+                blowout
+                or flags.get("opening_stint")
+                or flags.get("bench_stint")
+                or flags.get("mid_wave")
+                or flags.get("closing_window")
+                or flags.get("crunch_time")
+                or flags.get("late_half_push")
+                or flags.get("late_game_push")
+            )
+
             h_line = None
             a_line = None
-            if not blowout:
+            if (not blowout) and (not use_contextual_lineups):
                 h_line = _pick_lineup_from_pool(home_lineups, home_lineup_weights, n_players=len(home_players))
                 a_line = _pick_lineup_from_pool(away_lineups, away_lineup_weights, n_players=len(away_players))
             if not h_line:
                 h_line = _sample_lineup(
                     rng,
                     home_players,
-                    h_mins,
+                    home_context_w,
                     k=5,
-                    blowout_boost_bench=blowout,
+                    blowout_boost_bench=False,
                     bench_boost=cfg.bench_weight_boost,
                 )
             if not a_line:
                 a_line = _sample_lineup(
                     rng,
                     away_players,
-                    a_mins,
+                    away_context_w,
                     k=5,
-                    blowout_boost_bench=blowout,
+                    blowout_boost_bench=False,
                     bench_boost=cfg.bench_weight_boost,
                 )
 
@@ -1150,9 +1385,19 @@ def simulate_pbp_game_boxscore(
             while True:
                 shot_n += 1
 
+                margin_now = int(home_score - away_score)
+                offense_trailing = bool(margin_now < 0) if offense_home else bool(margin_now > 0)
+                offense_leading = bool(margin_now > 0) if offense_home else bool(margin_now < 0)
+
                 # Approximate attempt duration (seconds). Keeps segment buckets plausible.
                 try:
                     avg_sec = float(period_seconds) / float(max(1, q_poss))
+                    avg_sec *= _contextual_duration_scale(
+                        flags=flags,
+                        team_is_trailing=bool(offense_trailing),
+                        team_is_leading=bool(offense_leading),
+                        blowout=bool(blowout),
+                    )
                     dur = int(np.clip(rng.normal(avg_sec, 4.0), 4.0, 28.0))
                 except Exception:
                     dur = 14
@@ -1177,15 +1422,19 @@ def simulate_pbp_game_boxscore(
                 # Late-clock heuristics: 2-for-1 / trailing-team 3PA uptick.
                 try:
                     is_reg = 1 <= int(q) <= 4
-                    margin_now = int(home_score - away_score)
                     close_game = (not blowout) and (abs(margin_now) <= 8)
-                    trailing_home = bool(margin_now < 0)
-                    offense_trailing = bool(trailing_home) if offense_home else bool(margin_now > 0)
                     is_2for1_window = is_reg and (int(q_remaining) <= 45) and (int(q_remaining) >= 24)
                     is_clutch = is_reg and (int(q_remaining) <= 60) and close_game and (int(q) in (2, 4))
 
                     if is_2for1_window:
                         p3 = float(np.clip(p3 + 0.02, 0.05, 0.70))
+                    if (flags.get("late_half_push") or flags.get("late_game_push")) and offense_trailing:
+                        bump = 0.03 if flags.get("late_half_push") else 0.05
+                        if flags.get("crunch_time"):
+                            bump += 0.02
+                        p3 = float(np.clip(p3 + bump, 0.05, 0.78))
+                    if flags.get("bench_stint") or flags.get("mid_wave"):
+                        p3 = float(np.clip(p3 - 0.01, 0.05, 0.70))
                     if is_clutch and offense_trailing:
                         p3 = float(np.clip(p3 + 0.06, 0.05, 0.75))
                 except Exception:
@@ -1226,14 +1475,17 @@ def simulate_pbp_game_boxscore(
                 nonshoot_pf = float(cfg.base_nonshooting_foul_per_poss)
                 try:
                     is_reg = 1 <= int(q) <= 4
-                    margin_now = int(home_score - away_score)
                     close_game = (not blowout) and (abs(margin_now) <= 6)
                     if is_reg and (int(q) in (2, 4)) and int(q_remaining) <= 45 and close_game:
                         # In close games late in Q2/Q4, the trailing defense is more likely to foul.
-                        offense_leading = bool(margin_now > 0) if offense_home else bool(margin_now < 0)
                         if offense_leading:
                             foul_per_fga = float(np.clip(foul_per_fga * 1.25, 0.0, 0.60))
                             nonshoot_pf = float(np.clip(nonshoot_pf + 0.10, 0.0, 0.60))
+                    if close_game and offense_leading and (flags.get("late_half_push") or flags.get("late_game_push")):
+                        foul_boost = 1.08 if flags.get("late_half_push") else 1.14
+                        pf_boost = 0.04 if flags.get("late_half_push") else 0.06
+                        foul_per_fga = float(np.clip(foul_per_fga * foul_boost, 0.0, 0.60))
+                        nonshoot_pf = float(np.clip(nonshoot_pf + pf_boost, 0.0, 0.60))
                 except Exception:
                     pass
 

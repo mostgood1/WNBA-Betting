@@ -1,28 +1,28 @@
-game_id,TEAM_ABBREVIATION,PLAYER_ID,PLAYER_NAME,STARTER,START_POSITION,MIN,PTS,REB,AST,TOV,STL,BLK,PF,PLUS_MINUS,OREB,DREB,FGM,FGA,FG3M,FG3A,FTM,FTA,DNP,DNP_REASON,gameId,teamTricode,personId,firstName,familyName,position,comment,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,source
-0022500918,LAC,6450,Kawhi Leonard,True,F,28.0,28,5,2,0,2,0,0,12,1,4,8,15,0,3,12,14,False,COACH'S DECISION,0022500918,LAC,6450,Kawhi,Leonard,F,,28,8,15,0.5333333333333333,0,3,0.0,12,14,0.8571428571428571,1,4,5,2,2,0,0,0,28,12.0,espn
-0022500918,LAC,3936099,Derrick Jones Jr.,True,F,30.0,16,4,1,0,1,0,3,15,3,1,7,8,0,0,2,2,False,COACH'S DECISION,0022500918,LAC,3936099,Derrick,Jones Jr.,F,,30,7,8,0.875,0,0,0.0,2,2,1.0,3,1,4,1,1,0,0,3,16,15.0,espn
-0022500918,LAC,3448,Brook Lopez,True,C,12.0,4,1,0,0,0,0,1,-1,0,1,2,4,0,1,0,1,False,COACH'S DECISION,0022500918,LAC,3448,Brook,Lopez,C,,12,2,4,0.5,0,1,0.0,0,1,0.0,0,1,1,0,0,0,0,1,4,-1.0,espn
-0022500918,LAC,2991139,Kris Dunn,True,G,22.0,0,3,3,3,2,0,1,8,1,2,0,2,0,1,0,0,False,COACH'S DECISION,0022500918,LAC,2991139,Kris,Dunn,G,,22,0,2,0.0,0,1,0.0,0,0,0.0,1,2,3,3,2,0,3,1,0,8.0,espn
-0022500918,LAC,4396907,Darius Garland,True,G,26.0,21,4,6,3,0,0,3,10,1,3,8,20,3,8,2,3,False,COACH'S DECISION,0022500918,LAC,4396907,Darius,Garland,G,,26,8,20,0.4,3,8,0.375,2,3,0.6666666666666666,1,3,4,6,0,0,3,3,21,10.0,espn
-0022500918,LAC,3416,Nicolas Batum,False,,5.0,0,0,0,0,0,0,0,-13,0,0,0,0,0,0,0,0,False,COACH'S DECISION,0022500918,LAC,3416,Nicolas,Batum,F,,5,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-13.0,espn
-0022500918,LAC,4432170,Isaiah Jackson,False,,25.0,12,12,0,2,2,1,4,-11,5,7,6,10,0,0,0,2,False,COACH'S DECISION,0022500918,LAC,4432170,Isaiah,Jackson,F,,25,6,10,0.6,0,0,0.0,0,2,0.0,5,7,12,0,2,1,2,4,12,-11.0,espn
-0022500918,LAC,4396818,Jordan Miller,False,,33.0,14,1,2,2,0,0,2,0,0,1,2,5,0,0,10,12,False,COACH'S DECISION,0022500918,LAC,4396818,Jordan,Miller,G,,33,2,5,0.4,0,0,0.0,10,12,0.8333333333333334,0,1,1,2,0,0,2,2,14,0.0,espn
-0022500918,LAC,4683634,Bennedict Mathurin,False,,35.0,21,10,1,2,1,1,2,-2,3,7,6,15,0,3,9,9,False,COACH'S DECISION,0022500918,LAC,4683634,Bennedict,Mathurin,G,,35,6,15,0.4,0,3,0.0,9,9,1.0,3,7,10,1,1,1,2,2,21,-2.0,espn
-0022500918,LAC,4683749,TyTy Washington Jr.,False,,1.0,0,0,0,0,0,0,0,-2,0,0,0,0,0,0,0,0,False,COACH'S DECISION,0022500918,LAC,4683749,TyTy,Washington Jr.,G,,1,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,espn
-0022500918,LAC,4702352,Kobe Sanders,False,,19.0,7,2,0,3,2,0,4,0,1,1,2,2,1,1,2,2,False,COACH'S DECISION,0022500918,LAC,4702352,Kobe,Sanders,G,,19,2,2,1.0,1,1,1.0,2,2,1.0,1,1,2,0,2,0,3,4,7,0.0,espn
-0022500918,LAC,4845363,Cam Christie,False,,2.0,0,2,0,0,0,0,0,-1,1,1,0,1,0,0,0,0,False,COACH'S DECISION,0022500918,LAC,4845363,Cam,Christie,G,,2,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,0,-1.0,espn
-0022500918,LAC,4702134,Norchad Omier,False,,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,COACH'S DECISION,0022500918,LAC,4702134,Norchad,Omier,F,COACH'S DECISION,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,,espn
-0022500918,LAC,3037789,Bogdan Bogdanovic,False,,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,COACH'S DECISION,0022500918,LAC,3037789,Bogdan,Bogdanovic,G,COACH'S DECISION,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,,espn
-0022500918,LAC,4709131,Sean Pedulla,False,,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,COACH'S DECISION,0022500918,LAC,4709131,Sean,Pedulla,G,COACH'S DECISION,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,,espn
-0022500918,MEM,4595400,Olivier-Maxence Prosper,True,F,22.0,11,2,2,1,0,1,3,-7,1,1,4,5,3,4,0,0,False,COACH'S DECISION,0022500918,MEM,4595400,Olivier-Maxence,Prosper,F,,22,4,5,0.8,3,4,0.75,0,0,0.0,1,1,2,2,0,1,1,3,11,-7.0,espn
-0022500918,MEM,5105550,GG Jackson,True,F,22.0,14,7,1,2,1,1,1,-7,2,5,6,12,1,4,1,2,False,COACH'S DECISION,0022500918,MEM,5105550,GG,Jackson,F,,22,6,12,0.5,1,4,0.25,1,2,0.5,2,5,7,1,1,1,2,1,14,-7.0,espn
-0022500918,MEM,5112087,Jaylen Wells,True,F,26.0,8,1,1,1,0,0,4,-7,0,1,2,8,2,8,2,2,False,COACH'S DECISION,0022500918,MEM,5112087,Jaylen,Wells,F,,26,2,8,0.25,2,8,0.25,2,2,1.0,0,1,1,1,0,0,1,4,8,-7.0,espn
-0022500918,MEM,4065733,Ty Jerome,True,G,25.0,23,2,7,1,3,0,5,-6,1,1,7,17,2,5,7,8,False,COACH'S DECISION,0022500918,MEM,4065733,Ty,Jerome,G,,25,7,17,0.4117647058823529,2,5,0.4,7,8,0.875,1,1,2,7,3,0,1,5,23,-6.0,espn
-0022500918,MEM,4431785,Scotty Pippen Jr.,True,G,23.0,11,3,3,2,1,0,4,2,1,2,4,7,1,3,2,3,False,COACH'S DECISION,0022500918,MEM,4431785,Scotty,Pippen Jr.,G,,23,4,7,0.5714285714285714,1,3,0.3333333333333333,2,3,0.6666666666666666,1,2,3,3,1,0,2,4,11,2.0,espn
-0022500918,MEM,4684806,Taylor Hendricks,False,,26.0,18,4,2,1,2,2,3,5,3,1,7,8,3,3,1,1,False,COACH'S DECISION,0022500918,MEM,4684806,Taylor,Hendricks,F,,26,7,8,0.875,3,3,1.0,1,1,1.0,3,1,4,2,2,2,1,3,18,5.0,espn
-0022500918,MEM,4903027,Cedric Coward,False,,22.0,15,7,0,3,0,1,2,4,0,7,5,13,2,8,3,4,False,COACH'S DECISION,0022500918,MEM,4903027,Cedric,Coward,F,,22,5,13,0.38461538461538464,2,8,0.25,3,4,0.75,0,7,7,0,0,1,3,2,15,4.0,espn
-0022500918,MEM,4433083,Cam Spencer,False,,16.0,12,3,4,0,0,0,1,7,3,0,4,6,2,4,2,2,False,COACH'S DECISION,0022500918,MEM,4433083,Cam,Spencer,G,,16,4,6,0.6666666666666666,2,4,0.5,2,2,1.0,3,0,3,4,0,0,0,1,12,7.0,espn
-0022500918,MEM,4683934,Jahmai Mashack,False,,25.0,4,1,0,0,0,0,4,1,0,1,2,5,0,2,0,0,False,COACH'S DECISION,0022500918,MEM,4683934,Jahmai,Mashack,G,,25,2,5,0.4,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,4,4,1.0,espn
-0022500918,MEM,4781746,Javon Small,False,,15.0,2,2,3,0,1,1,1,-14,0,2,0,1,0,1,2,2,False,COACH'S DECISION,0022500918,MEM,4781746,Javon,Small,G,,15,0,1,0.0,0,1,0.0,2,2,1.0,0,2,2,3,1,1,0,1,2,-14.0,espn
-0022500918,MEM,4896372,Walter Clayton Jr.,False,,18.0,2,2,6,4,0,0,1,7,0,2,1,5,0,1,0,0,False,COACH'S DECISION,0022500918,MEM,4896372,Walter,Clayton Jr.,G,,18,1,5,0.2,0,1,0.0,0,0,0.0,0,2,2,6,0,0,4,1,2,7.0,espn
-0022500918,MEM,3906665,Brandon Clarke,False,,0.0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,True,RIGHT CALF STRAIN,0022500918,MEM,3906665,Brandon,Clarke,F,RIGHT CALF STRAIN,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,,espn
+gameId,teamId,teamCity,teamName,teamTricode,teamSlug,personId,firstName,familyName,nameI,playerSlug,position,comment,jerseyNum,minutes,fieldGoalsMade,fieldGoalsAttempted,fieldGoalsPercentage,threePointersMade,threePointersAttempted,threePointersPercentage,freeThrowsMade,freeThrowsAttempted,freeThrowsPercentage,reboundsOffensive,reboundsDefensive,reboundsTotal,assists,steals,blocks,turnovers,foulsPersonal,points,plusMinusPoints,game_id
+0022500918,1610612746,LA,Clippers,LAC,clippers,202695,Kawhi,Leonard,K. Leonard,kawhi-leonard,F,,,27:55,8,15,0.533,0,3,0.0,12,14,0.857,1,4,5,2,2,0,0,0,28,12.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1627884,Derrick,Jones Jr.,D. Jones Jr.,derrick-jones-jr,F,,,30:29,7,8,0.875,0,0,0.0,2,2,1.0,3,1,4,1,1,0,0,3,16,15.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,201572,Brook,Lopez,B. Lopez,brook-lopez,C,,,12:26,2,4,0.5,0,1,0.0,0,1,0.0,0,1,1,0,0,0,0,1,4,-1.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1627739,Kris,Dunn,K. Dunn,kris-dunn,G,,,21:48,0,2,0.0,0,1,0.0,0,0,0.0,1,2,3,3,2,0,3,1,0,8.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1629636,Darius,Garland,D. Garland,darius-garland,G,,,26:17,8,20,0.4,3,8,0.375,2,3,0.667,1,3,4,6,0,0,3,3,21,10.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1631097,Bennedict,Mathurin,B. Mathurin,bennedict-mathurin,,,,34:50,6,15,0.4,0,3,0.0,9,9,1.0,3,7,10,1,1,1,2,2,21,-2.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1641757,Jordan,Miller,J. Miller,jordan-miller,,,,33:14,2,5,0.4,0,0,0.0,10,12,0.833,0,1,1,2,0,0,2,2,14,0.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,201587,Nicolas,Batum,N. Batum,nicolas-batum,,,,5:13,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-13.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1642920,Kobe,Sanders,K. Sanders,kobe-sanders,,,,19:10,2,2,1.0,1,1,1.0,2,2,1.0,1,1,2,0,2,0,3,4,7,0.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1630543,Isaiah,Jackson,I. Jackson,isaiah-jackson,,,,24:55,6,10,0.6,0,0,0.0,0,2,0.0,5,7,12,0,2,1,2,4,12,-11.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1642353,Cam,Christie,C. Christie,cam-christie,,,,2:15,0,1,0.0,0,0,0.0,0,0,0.0,1,1,2,0,0,0,0,0,0,-1.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1631102,TyTy,Washington Jr.,T. Washington Jr.,tyty-washington-jr,,,,1:28,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,-2.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,203992,Bogdan,Bogdanović,B. Bogdanović,bogdan-bogdanović,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1641807,Norchad,Omier,N. Omier,norchad-omier,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500918
+0022500918,1610612746,LA,Clippers,LAC,clippers,1642951,Sean,Pedulla,S. Pedulla,sean-pedulla,,DNP - Coach's Decision,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642377,Jaylen,Wells,J. Wells,jaylen-wells,F,,,26:17,2,8,0.25,2,8,0.25,2,2,1.0,0,1,1,1,0,0,1,4,8,-7.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641713,GG,Jackson,G. Jackson,gg-jackson,F,,,22:06,6,12,0.5,1,4,0.25,1,2,0.5,2,5,7,1,1,1,2,1,14,-7.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641765,Olivier-Maxence,Prosper,O. Prosper,olivier-maxence-prosper,C,,,22:28,4,5,0.8,3,4,0.75,0,0,0.0,1,1,2,2,0,1,1,3,11,-7.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1630590,Scotty,Pippen Jr.,S. Pippen Jr.,scotty-pippen-jr,G,,,23:25,4,7,0.571,1,3,0.333,2,3,0.667,1,2,3,3,1,0,2,4,11,2.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629660,Ty,Jerome,T. Jerome,ty-jerome,G,,,24:30,7,17,0.412,2,5,0.4,7,8,0.875,1,1,2,7,3,0,1,5,23,-6.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1641707,Taylor,Hendricks,T. Hendricks,taylor-hendricks,,,,26:11,7,8,0.875,3,3,1.0,1,1,1.0,3,1,4,2,2,2,1,3,18,5.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642383,Walter,Clayton Jr.,W. Clayton Jr.,walter-clayton-jr,,,,18:11,1,5,0.2,0,1,0.0,0,0,0.0,0,2,2,6,0,0,4,1,2,7.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642942,Jahmai,Mashack,J. Mashack,jahmai-mashack,,,,24:43,2,5,0.4,0,2,0.0,0,0,0.0,0,1,1,0,0,0,0,4,4,1.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642285,Cam,Spencer,C. Spencer,cam-spencer,,,,15:37,4,6,0.667,2,4,0.5,2,2,1.0,3,0,3,4,0,0,0,1,12,7.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642907,Cedric,Coward,C. Coward,cedric-coward,,,,21:45,5,13,0.385,2,8,0.25,3,4,0.75,0,7,7,0,0,1,3,2,15,4.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1642914,Javon,Small,J. Small,javon-small,,,,14:47,0,1,0.0,0,1,0.0,2,2,1.0,0,2,2,3,1,1,0,1,2,-14.0,0022500918
+0022500918,1610612763,Memphis,Grizzlies,MEM,grizzlies,1629634,Brandon,Clarke,B. Clarke,brandon-clarke,,DND - Injury/Illness,,,0,0,0.0,0,0,0.0,0,0,0.0,0,0,0,0,0,0,0,0,0,0.0,0022500918

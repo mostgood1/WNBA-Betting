@@ -4925,8 +4925,8 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
         console.print(f"Injury filter skipped: {_e}", style="yellow")
 
     # Enforce slate participants via OddsAPI player props.
-    # IMPORTANT: this must be a *soft* filter because OddsAPI player-props feeds can be incomplete
-    # (or omit certain markets/players), and a hard filter can wipe out most of the slate.
+    # IMPORTANT: this must remain a *soft* cleanup only. OddsAPI player-props feeds can be incomplete,
+    # so never prune rows that are already protected by league_status / slate membership (or completed boxscores).
     try:
         from .config import paths as _paths
         import pandas as _pd
@@ -4947,7 +4947,50 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     feats = feats.copy()
                     feats["_pkey"] = feats["player_name"].astype(str).map(_norm)
                     before = int(len(feats))
-                    filtered = feats[feats["_pkey"].isin(pset)].drop(columns=["_pkey"], errors="ignore")
+                    odds_match = feats["_pkey"].isin(pset)
+                    keep_mask = odds_match.copy()
+
+                    try:
+                        if "playing_today" in feats.columns:
+                            pt = feats["playing_today"]
+                            pt_keep = pt.astype(str).str.strip().str.lower().isin({"1", "true", "t", "yes", "y"})
+                            try:
+                                pt_num = _pd.to_numeric(pt, errors="coerce")
+                                pt_keep = pt_keep | (pt_num.fillna(0.0).astype(float) > 0.5)
+                            except Exception:
+                                pass
+                            keep_mask = keep_mask | pt_keep.astype(bool)
+                    except Exception:
+                        pass
+
+                    try:
+                        if "team_on_slate" in feats.columns:
+                            tos = feats["team_on_slate"]
+                            tos_keep = tos.astype(str).str.strip().str.lower().isin({"1", "true", "t", "yes", "y"})
+                            try:
+                                tos_num = _pd.to_numeric(tos, errors="coerce")
+                                tos_keep = tos_keep | (tos_num.fillna(0.0).astype(float) > 0.5)
+                            except Exception:
+                                pass
+                            keep_mask = keep_mask | tos_keep.astype(bool)
+                    except Exception:
+                        pass
+
+                    try:
+                        box_p = _paths.data_processed / f"boxscores_{date_str}.csv"
+                        if box_p.exists() and ("player_id" in feats.columns):
+                            bdf = _pd.read_csv(box_p, usecols=lambda c: str(c).strip().upper() in {"PLAYER_ID", "MIN"})
+                            if ("PLAYER_ID" in bdf.columns) and ("MIN" in bdf.columns):
+                                bdf["PLAYER_ID"] = _pd.to_numeric(bdf["PLAYER_ID"], errors="coerce")
+                                bdf["MIN"] = _pd.to_numeric(bdf["MIN"], errors="coerce").fillna(0.0)
+                                played_ids = set(bdf.loc[(bdf["PLAYER_ID"].notna()) & (bdf["MIN"] > 0.0), "PLAYER_ID"].astype(int).tolist())
+                                if played_ids:
+                                    feat_pid = _pd.to_numeric(feats["player_id"], errors="coerce")
+                                    keep_mask = keep_mask | feat_pid.isin(played_ids)
+                    except Exception:
+                        pass
+
+                    filtered = feats[keep_mask].drop(columns=["_pkey"], errors="ignore")
                     kept = int(len(filtered))
                     removed = before - kept
 
@@ -4958,7 +5001,7 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                     # AND
                     # - The filter doesn't remove more than 40% of rows.
                     cov_players = int(len(pset))
-                    cov_ratio = (kept / before) if before > 0 else 0.0
+                    cov_ratio = (int(odds_match.sum()) / before) if before > 0 else 0.0
                     safe_to_apply = (
                         (cov_players >= 80 or cov_ratio >= 0.35)
                         and (removed <= int(0.40 * max(1, before)))
@@ -5479,6 +5522,36 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                 p["_pid"] = pd.to_numeric(p["player_id"], errors="coerce")
                                 on_sim_team = p["_team"].isin(set(sim_team_ids.keys())) & p["_pid"].notna()
                                 if bool(on_sim_team.any()):
+                                    protected = pd.Series(False, index=p.index)
+
+                                    for flag_col in ("playing_today", "team_on_slate"):
+                                        if flag_col not in p.columns:
+                                            continue
+                                        try:
+                                            flag_vals = p[flag_col]
+                                            flag_keep = flag_vals.astype(str).str.strip().str.lower().isin({"1", "true", "t", "yes", "y"})
+                                            try:
+                                                flag_num = pd.to_numeric(flag_vals, errors="coerce")
+                                                flag_keep = flag_keep | (flag_num.fillna(0.0).astype(float) > 0.5)
+                                            except Exception:
+                                                pass
+                                            protected = protected | flag_keep.astype(bool)
+                                        except Exception:
+                                            pass
+
+                                    try:
+                                        box_p = paths.data_processed / f"boxscores_{date_str}.csv"
+                                        if box_p.exists():
+                                            bdf = pd.read_csv(box_p, usecols=lambda c: str(c).strip().upper() in {"PLAYER_ID", "MIN"})
+                                            if ("PLAYER_ID" in bdf.columns) and ("MIN" in bdf.columns):
+                                                bdf["PLAYER_ID"] = pd.to_numeric(bdf["PLAYER_ID"], errors="coerce")
+                                                bdf["MIN"] = pd.to_numeric(bdf["MIN"], errors="coerce").fillna(0.0)
+                                                played_ids = set(bdf.loc[(bdf["PLAYER_ID"].notna()) & (bdf["MIN"] > 0.0), "PLAYER_ID"].astype(int).tolist())
+                                                if played_ids:
+                                                    protected = protected | p["_pid"].isin(played_ids)
+                                    except Exception:
+                                        pass
+
                                     def _in_sim(row) -> bool:
                                         try:
                                             t = str(row.get("_team") or "")
@@ -5489,7 +5562,10 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                                         except Exception:
                                             return True
                                     keep = pd.Series(True, index=p.index)
-                                    keep.loc[on_sim_team] = p.loc[on_sim_team].apply(_in_sim, axis=1).astype(bool)
+                                    keep.loc[on_sim_team] = (
+                                        p.loc[on_sim_team].apply(_in_sim, axis=1).astype(bool)
+                                        | protected.loc[on_sim_team].astype(bool)
+                                    )
                                     dropped = int((~keep).sum())
                                     preds = preds.loc[keep].copy()
                                     merge_report["dropped_not_in_smartsim_team"] = dropped

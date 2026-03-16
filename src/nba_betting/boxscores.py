@@ -542,12 +542,7 @@ def _fetch_boxscore_for_game(game_id: str, rate_delay: float = 0.35) -> pd.DataF
         return pd.DataFrame()
 
 
-def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay: float = 0.35) -> Tuple[pd.DataFrame, List[str]]:
-    """Fetch boxscores for all games on a date and write per-game and combined CSVs.
-
-    Returns (combined_df, game_ids)
-    """
-    # Use CDN scoreboard to map gameId -> (home, away) even if nba_api is down.
+def _expected_game_ids_for_date(date_str: str, only_final: bool = True) -> tuple[List[str], dict[str, tuple[str, str]]]:
     cdn_games = _cdn_games_for_date(date_str)
     gid_to_teams: dict[str, tuple[str, str]] = {}
     for g in cdn_games:
@@ -556,12 +551,19 @@ def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay:
             continue
         gid_to_teams[gid] = (str(g.get("home") or "").upper(), str(g.get("away") or "").upper())
 
-    # If nba_api scoreboard is available, use it to fill in any missing mappings.
     if not gid_to_teams:
         gid_to_teams.update(_nba_gid_to_tricodes(date_str))
 
-    gh = _scoreboard_games(date_str)
     game_ids: List[str] = []
+    seen: set[str] = set()
+
+    def _push_gid(raw_gid: Any) -> None:
+        gid = str(raw_gid or "").strip()
+        if gid and gid not in seen:
+            seen.add(gid)
+            game_ids.append(gid)
+
+    gh = _scoreboard_games(date_str)
     if gh is not None and not gh.empty:
         cols = {c.upper(): c for c in gh.columns}
         gid_col = cols.get("GAME_ID") or cols.get("GAMECODE")
@@ -569,26 +571,20 @@ def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay:
         if gid_col:
             for _, r in gh.iterrows():
                 try:
-                    gid = str(r[gid_col])
-                    if not gid:
-                        continue
+                    gid = r[gid_col]
                     if only_final and status_col is not None:
-                        try:
-                            st = r[status_col]
-                            if str(st).isdigit() and int(st) < 3:
-                                continue
-                            if isinstance(st, str) and st.strip().lower() not in ("final", "final/ot", "final/2ot", "final/3ot"):
-                                continue
-                        except Exception:
-                            pass
-                    game_ids.append(gid)
+                        st = r[status_col]
+                        if str(st).isdigit() and int(st) < 3:
+                            continue
+                        if isinstance(st, str) and st.strip().lower() not in ("final", "final/ot", "final/2ot", "final/3ot"):
+                            continue
+                    _push_gid(gid)
                 except Exception:
                     continue
 
-        # Ensure we have team mappings for any gameIds we discovered via nba_api.
-        if game_ids and (not gid_to_teams or any(gid not in gid_to_teams for gid in game_ids)):
+        if game_ids and any(gid not in gid_to_teams for gid in game_ids):
             gid_to_teams.update(_nba_gid_to_tricodes(date_str))
-    # Fallback if nba_api scoreboard is unavailable.
+
     if not game_ids and cdn_games:
         for g in cdn_games:
             gid = str(g.get("gameId") or "").strip()
@@ -598,7 +594,57 @@ def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay:
                 st = str(g.get("statusText") or "").strip().lower()
                 if st and ("final" not in st):
                     continue
-            game_ids.append(gid)
+            _push_gid(gid)
+
+    return game_ids, gid_to_teams
+
+
+def _cached_boxscore_game_ids(date_str: str) -> set[str]:
+    out_path = paths.data_processed / f"boxscores_{date_str}.csv"
+    if not out_path.exists():
+        return set()
+    try:
+        cached = pd.read_csv(out_path, usecols=lambda c: str(c).strip().lower() in {"game_id", "gameid"})
+    except Exception:
+        try:
+            cached = pd.read_csv(out_path)
+        except Exception:
+            return set()
+    gid_col = "game_id" if "game_id" in cached.columns else ("gameId" if "gameId" in cached.columns else None)
+    if not gid_col:
+        return set()
+    gids = cached[gid_col].astype(str).str.strip()
+    return {gid for gid in gids if gid}
+
+
+def _boxscore_cache_complete(date_str: str, expected_game_ids: List[str]) -> bool:
+    out_path = paths.data_processed / f"boxscores_{date_str}.csv"
+    if not out_path.exists():
+        return False
+
+    cached_game_ids = _cached_boxscore_game_ids(date_str)
+    required_game_ids = {str(gid).strip() for gid in expected_game_ids if str(gid).strip()}
+    if not required_game_ids:
+        required_game_ids = set(cached_game_ids)
+    if not required_game_ids:
+        return False
+    if not required_game_ids.issubset(cached_game_ids):
+        return False
+
+    per_game_dir = paths.data_processed / "boxscores"
+    for gid in required_game_ids:
+        if not (per_game_dir / f"boxscore_{gid}.csv").exists():
+            return False
+    return True
+
+
+def fetch_boxscores_for_date(date_str: str, only_final: bool = True, rate_delay: float = 0.35) -> Tuple[pd.DataFrame, List[str]]:
+    """Fetch boxscores for all games on a date and write per-game and combined CSVs.
+
+    Returns (combined_df, game_ids)
+    """
+    game_ids, gid_to_teams = _expected_game_ids_for_date(date_str, only_final=only_final)
+
     out_dir = paths.data_processed / "boxscores"
     out_dir.mkdir(parents=True, exist_ok=True)
     frames_norm: List[pd.DataFrame] = []
@@ -694,7 +740,11 @@ def update_boxscores_history_for_date(date_str: str, include_live: bool = False,
 
 
 def backfill_boxscores(start_date: str, end_date: str, only_final: bool = True, rate_delay: float = 0.35) -> pd.DataFrame:
-    """Backfill boxscores for a date range [start..end] inclusive. Skips dates already fetched."""
+    """Backfill boxscores for a date range [start..end] inclusive.
+
+    A date is skipped only when the combined date cache contains the expected game ids
+    and the raw per-game boxscore files are also present.
+    """
     import datetime as _dt
     try:
         s = _dt.datetime.strptime(start_date, "%Y-%m-%d").date()
@@ -707,8 +757,8 @@ def backfill_boxscores(start_date: str, end_date: str, only_final: bool = True, 
     cur = s
     while cur <= e:
         d = cur.isoformat()
-        out_path = paths.data_processed / f"boxscores_{d}.csv"
-        if out_path.exists():
+        expected_game_ids, _ = _expected_game_ids_for_date(d, only_final=only_final)
+        if _boxscore_cache_complete(d, expected_game_ids):
             cur += _dt.timedelta(days=1)
             continue
         df, _ = fetch_boxscores_for_date(d, only_final=only_final, rate_delay=rate_delay)

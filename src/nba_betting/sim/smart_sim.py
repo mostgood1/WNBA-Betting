@@ -691,6 +691,273 @@ def _parse_min_to_float(v: Any) -> float:
         return float("nan")
 
 
+_MINUTE_SIGNAL_COLS = ("exp_min_mean", "roll5_min", "roll10_min", "roll3_min", "lag1_min")
+
+
+def _boolish_series(values: Any, index: pd.Index) -> pd.Series:
+    if len(index) == 0:
+        return pd.Series(dtype=bool)
+    try:
+        ser = values if isinstance(values, pd.Series) else pd.Series(values, index=index)
+    except Exception:
+        ser = pd.Series([False] * len(index), index=index, dtype=object)
+    ser = ser.reindex(index)
+    if pd.api.types.is_bool_dtype(ser):
+        return ser.fillna(False).astype(bool)
+    txt = ser.astype(str).str.strip().str.lower()
+    out = txt.isin({"1", "true", "t", "yes", "y"})
+    try:
+        num = pd.to_numeric(ser, errors="coerce")
+        out = out | (num.fillna(0.0).astype(float) > 0.5)
+    except Exception:
+        pass
+    return out.astype(bool)
+
+
+def _first_minutes_signal(team_df: pd.DataFrame) -> pd.Series:
+    if team_df is None or team_df.empty:
+        return pd.Series(dtype=float)
+    mins = pd.Series([np.nan] * len(team_df), index=team_df.index, dtype=float)
+    for c in _MINUTE_SIGNAL_COLS:
+        if c not in team_df.columns:
+            continue
+        alt = pd.to_numeric(team_df[c], errors="coerce").astype(float)
+        alt = alt.where(alt > 0.0, np.nan)
+        mins = mins.where(mins.notna(), other=alt)
+    return mins.fillna(0.0).astype(float)
+
+
+def _starter_signal(team_df: pd.DataFrame) -> pd.Series:
+    if team_df is None or team_df.empty:
+        return pd.Series(dtype=float)
+
+    index = team_df.index
+    scores = _explicit_starter_signal(team_df)
+    if scores is None or scores.empty:
+        scores = pd.Series([0.0] * len(team_df), index=index, dtype=float)
+
+    if int((scores >= 0.55).sum()) < min(5, len(team_df)):
+        seed = _first_minutes_signal(team_df)
+        seed_pos = seed > 0.0
+        if int(seed_pos.sum()) > 0:
+            order = np.argsort(-seed.to_numpy(dtype=float))
+            top_n = min(5, int(seed_pos.sum()), len(order))
+            if top_n > 0:
+                ramp = np.linspace(1.0, 0.72, top_n)
+                for rank, pos in enumerate(order[:top_n]):
+                    idx = index[int(pos)]
+                    scores.loc[idx] = max(float(scores.loc[idx]), float(ramp[rank]))
+
+    return scores.clip(lower=0.0, upper=1.0)
+
+
+def _explicit_starter_signal(team_df: pd.DataFrame) -> pd.Series:
+    if team_df is None or team_df.empty:
+        return pd.Series(dtype=float)
+
+    index = team_df.index
+    scores = pd.Series([0.0] * len(team_df), index=index, dtype=float)
+
+    if "starter_prob" in team_df.columns:
+        try:
+            starter_prob = pd.to_numeric(team_df["starter_prob"], errors="coerce").fillna(0.0).astype(float)
+            scores = pd.Series(
+                np.maximum(scores.to_numpy(dtype=float), starter_prob.clip(lower=0.0, upper=1.0).to_numpy(dtype=float)),
+                index=index,
+                dtype=float,
+            )
+        except Exception:
+            scores = pd.Series([0.0] * len(team_df), index=index, dtype=float)
+
+    if "is_starter" in team_df.columns:
+        try:
+            starter_flags = _boolish_series(team_df["is_starter"], index).astype(float)
+            scores = pd.Series(
+                np.maximum(scores.to_numpy(dtype=float), starter_flags.to_numpy(dtype=float)),
+                index=index,
+                dtype=float,
+            )
+        except Exception:
+            pass
+
+    return scores.clip(lower=0.0, upper=1.0)
+
+
+def _expected_minutes_coverage(team_df: pd.DataFrame) -> float:
+    if team_df is None or team_df.empty or "exp_min_mean" not in team_df.columns:
+        return 0.0
+    try:
+        vals = pd.to_numeric(team_df["exp_min_mean"], errors="coerce").to_numpy(dtype=float)
+        ok = np.isfinite(vals) & (vals > 0.0)
+        return float(np.mean(ok.astype(float))) if ok.size else 0.0
+    except Exception:
+        return 0.0
+
+
+def _recent_minutes_prior_series(
+    team_df: pd.DataFrame,
+    *,
+    date_str: str | None = None,
+    team_tri: str | None = None,
+    lookback_days: int = 21,
+) -> pd.Series:
+    index = getattr(team_df, "index", pd.Index([]))
+    if team_df is None or team_df.empty or not str(date_str or "").strip() or not str(team_tri or "").strip():
+        return pd.Series([np.nan] * len(index), index=index, dtype=float)
+    try:
+        pri = _minutes_priors_from_player_logs(
+            date_str=str(date_str),
+            team_tri=str(team_tri),
+            lookback_days=int(max(1, lookback_days)),
+        )
+        if not pri:
+            return pd.Series([np.nan] * len(index), index=index, dtype=float)
+        names = team_df.get("player_name", pd.Series(["" for _ in range(len(team_df))], index=index))
+        pkeys = names.map(_norm_player_key)
+        vals = pd.to_numeric(pkeys.map(pri), errors="coerce").astype(float)
+        vals = vals.reindex(index).where(vals > 0.0, other=np.nan)
+        return vals.astype(float)
+    except Exception:
+        return pd.Series([np.nan] * len(index), index=index, dtype=float)
+
+
+def _minutes_caps_from_team_df(team_df: pd.DataFrame, base_minutes: Optional[pd.Series] = None) -> pd.Series:
+    if team_df is None or team_df.empty:
+        return pd.Series(dtype=float)
+
+    index = team_df.index
+    if base_minutes is None:
+        base = _first_minutes_signal(team_df)
+    else:
+        try:
+            base = pd.to_numeric(base_minutes, errors="coerce").astype(float)
+        except Exception:
+            base = pd.Series([0.0] * len(team_df), index=index, dtype=float)
+        base = base.reindex(index).fillna(0.0).astype(float)
+
+    raw_signal = _first_minutes_signal(team_df).reindex(index).fillna(0.0).astype(float)
+    evidence = raw_signal.where(raw_signal > 0.0, other=base.clip(lower=0.0))
+    starter = _explicit_starter_signal(team_df).reindex(index).fillna(0.0).astype(float)
+    cap = (30.0 + (10.0 * starter) + (0.18 * evidence.clip(lower=0.0))).clip(lower=26.0, upper=44.0)
+
+    mean = pd.Series([np.nan] * len(team_df), index=index, dtype=float)
+    if "exp_min_mean" in team_df.columns:
+        try:
+            mean = pd.to_numeric(team_df["exp_min_mean"], errors="coerce").reindex(index).astype(float)
+        except Exception:
+            mean = pd.Series([np.nan] * len(team_df), index=index, dtype=float)
+
+    sd = pd.Series([np.nan] * len(team_df), index=index, dtype=float)
+    if "exp_min_sd" in team_df.columns:
+        try:
+            sd = pd.to_numeric(team_df["exp_min_sd"], errors="coerce").reindex(index).astype(float)
+        except Exception:
+            sd = pd.Series([np.nan] * len(team_df), index=index, dtype=float)
+
+    slack = sd.where(sd > 0.0, other=6.0).clip(lower=4.0, upper=10.0)
+    mean_cap = (mean + slack).clip(lower=16.0, upper=44.0)
+
+    if "exp_min_cap" in team_df.columns:
+        try:
+            explicit_cap = pd.to_numeric(team_df["exp_min_cap"], errors="coerce").reindex(index).astype(float)
+            explicit_cap = explicit_cap.where(explicit_cap > 0.0, other=np.nan)
+            explicit_cap = explicit_cap.where(mean.isna(), other=np.maximum(explicit_cap.fillna(0.0), mean.fillna(0.0) + 2.0))
+            cap = cap.where(explicit_cap.isna(), other=explicit_cap)
+        except Exception:
+            pass
+
+    cap = cap.where(mean_cap.isna(), other=mean_cap.where(mean_cap > 0.0, other=cap))
+
+    try:
+        no_exp_nonstarter = ((mean.isna()) | (mean <= 0.0)) & (starter < 0.55)
+        if int(no_exp_nonstarter.sum()) > 0:
+            fallback_cap = (28.0 + (0.18 * evidence.clip(lower=0.0))).clip(lower=24.0, upper=34.5)
+            tightened = pd.Series(
+                np.minimum(cap.to_numpy(dtype=float), fallback_cap.to_numpy(dtype=float)),
+                index=index,
+                dtype=float,
+            )
+            cap = cap.where(~no_exp_nonstarter, other=tightened)
+
+        zero_signal_nonstarter = (starter < 0.55) & (raw_signal <= 0.0)
+        if int(zero_signal_nonstarter.sum()) > 0:
+            fallback_cap = (28.0 + (0.28 * base.clip(lower=0.0))).clip(lower=24.0, upper=38.0)
+            tightened = pd.Series(
+                np.minimum(cap.to_numpy(dtype=float), fallback_cap.to_numpy(dtype=float)),
+                index=index,
+                dtype=float,
+            )
+            cap = cap.where(~zero_signal_nonstarter, other=tightened)
+    except Exception:
+        pass
+
+    return cap.clip(lower=12.0, upper=44.0).astype(float)
+
+
+def _scale_minutes_to_target(mins: pd.Series, total_target: float = 240.0) -> pd.Series:
+    try:
+        out = pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float)
+    except Exception:
+        out = pd.Series(dtype=float)
+    total = float(out.sum()) if len(out) else 0.0
+    if np.isfinite(total) and total > 0.0 and np.isfinite(float(total_target)) and float(total_target) > 0.0:
+        out = out * (float(total_target) / total)
+    return out.astype(float)
+
+
+def _regularize_rotation_minutes(
+    team_df: pd.DataFrame,
+    sim_min: pd.Series,
+    *,
+    date_str: str | None = None,
+    team_tri: str | None = None,
+    mapped_minutes_frac: float | None = None,
+) -> tuple[pd.Series, dict[str, float]]:
+    diag = {"blend": 0.0, "exp_cov": 0.0, "exp_floor_n": 0.0}
+    if team_df is None or team_df.empty:
+        try:
+            return pd.to_numeric(sim_min, errors="coerce").fillna(0.0).astype(float), diag
+        except Exception:
+            return pd.Series(dtype=float), diag
+
+    out = pd.to_numeric(sim_min, errors="coerce").fillna(0.0).astype(float)
+    base = _roll_minutes_unscaled(team_df, date_str=date_str, team_tri=team_tri)
+    total = float(base.sum()) if len(base) else 0.0
+    exp_cov = _expected_minutes_coverage(team_df)
+    diag["exp_cov"] = float(exp_cov)
+    if (not np.isfinite(total)) or total <= 0.0:
+        return out, diag
+
+    base_scaled = _scale_minutes_to_target(base, total_target=240.0)
+    blend = 0.10 + (0.18 * float(exp_cov))
+    try:
+        if mapped_minutes_frac is not None and np.isfinite(float(mapped_minutes_frac)):
+            mf = float(np.clip(float(mapped_minutes_frac), 0.0, 1.0))
+            blend += 0.10 * max(0.0, 0.75 - mf) / 0.75
+    except Exception:
+        pass
+    blend = float(np.clip(blend, 0.08, 0.35))
+    diag["blend"] = blend
+    out = ((1.0 - blend) * out) + (blend * base_scaled)
+
+    if "exp_min_mean" in team_df.columns:
+        try:
+            exp = pd.to_numeric(team_df["exp_min_mean"], errors="coerce").reindex(out.index).astype(float)
+            exp = exp.where(exp > 0.0, other=np.nan)
+            if int(exp.notna().sum()) > 0:
+                starter = _starter_signal(team_df).reindex(out.index).fillna(0.0).astype(float)
+                floor_ratio = (0.75 + (0.12 * starter)).clip(lower=0.75, upper=0.88)
+                exp_floor = exp * floor_ratio
+                use_floor = exp_floor.notna() & (out < (exp * 0.60)) & ((starter >= 0.75) | (exp >= 24.0))
+                if int(use_floor.sum()) > 0:
+                    out = out.where(~use_floor, other=exp_floor)
+                    out = _scale_minutes_to_target(out, total_target=240.0)
+                    diag["exp_floor_n"] = float(int(use_floor.sum()))
+        except Exception:
+            pass
+    return out.astype(float), diag
+
+
 @lru_cache(maxsize=512)
 def _minutes_priors_from_player_logs(*, date_str: str, team_tri: str, lookback_days: int = 21) -> dict[str, float]:
     """Return {PLAYER_KEY -> avg_minutes} from recent games for a team."""
@@ -828,7 +1095,6 @@ def _team_players_from_props(props_df: pd.DataFrame, team_tri: str, opp_tri: str
             out = out[~pt.isin(["false", "0", "no", "n"])].copy()
         except Exception:
             pass
-
     if "player_name" in out.columns:
         out["player_name"] = out["player_name"].astype(str).str.strip()
         out = out[out["player_name"].ne("")].copy()
@@ -1021,7 +1287,7 @@ def _rotation_sim_minutes_from_history(
     mins_df["minutes_scaled"] = mins_df["minutes"] * (240.0 / total_hist)
     id_to_min = dict(zip(mins_df["player_id"].astype(str), mins_df["minutes_scaled"].astype(float)))
 
-    base_w = _roll_minutes_unscaled(tmp)
+    base_w = _roll_minutes_unscaled(tmp, date_str=str(date_str), team_tri=team_u)
     sim_min = pd.Series([0.0] * len(tmp), index=tmp.index, dtype=float)
 
     espn_ids = tmp["_espn_id"].astype(str)
@@ -1064,9 +1330,19 @@ def _rotation_sim_minutes_from_history(
     if np.isfinite(total_sim) and total_sim > 0:
         sim_min = sim_min * (240.0 / total_sim)
 
+    mapped_frac = float(mapped_minutes_sum) / 240.0 if np.isfinite(mapped_minutes_sum) else 0.0
+    sim_min, reg_diag = _regularize_rotation_minutes(
+        tmp,
+        sim_min,
+        date_str=str(date_str),
+        team_tri=team_u,
+        mapped_minutes_frac=mapped_frac,
+    )
+
     # Enforce a regulation-style cap. History-based allocation can otherwise assign
     # unrealistic minutes to a single player (e.g., 45-55) due to noisy mapping/weights.
-    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=44.0, iters=12)
+    caps = _minutes_caps_from_team_df(tmp, base_minutes=sim_min)
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=caps, iters=12)
 
     # Lineup pool from historical stints; keep only full 5-man units mapped to our roster.
     lineup_pool: List[List[int]] = []
@@ -1100,8 +1376,12 @@ def _rotation_sim_minutes_from_history(
     diag["history_rows"] = int(len(st))
     diag["mapped_players"] = int(mapped_players)
     diag["mapped_minutes"] = float(mapped_minutes_sum)
+    diag["expected_minutes_coverage"] = float(reg_diag.get("exp_cov", 0.0))
+    diag["regularization_blend"] = float(reg_diag.get("blend", 0.0))
     diag["leftover_minutes"] = float(max(0.0, leftover))
     diag["lineup_pool_n"] = int(len(lineup_pool))
+    diag["minutes_cap_mean"] = float(np.mean(caps.to_numpy(dtype=float))) if len(caps) else None
+    diag["minutes_cap_max"] = float(np.max(caps.to_numpy(dtype=float))) if len(caps) else None
 
     # Guardrail: if ESPN ID mapping is too sparse, rotation-based minutes become pathological
     # (e.g., assigning ~all minutes/scoring to a single mapped player). In that case, do not apply
@@ -1485,34 +1765,93 @@ def _team_players_from_processed_rosters(
         return pd.DataFrame()
 
 
-def _roll_minutes_unscaled(team_df: pd.DataFrame) -> pd.Series:
+def _roll_minutes_unscaled(team_df: pd.DataFrame, *, date_str: str | None = None, team_tri: str | None = None) -> pd.Series:
     if team_df is None or team_df.empty:
         return pd.Series(dtype=float)
-    min_cols = [c for c in ("exp_min_mean", "roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
-    mins = pd.Series([np.nan] * len(team_df), index=team_df.index, dtype=float)
+    index = team_df.index
+    starter = _starter_signal(team_df).reindex(index).fillna(0.0).astype(float)
+    weighted = pd.Series([0.0] * len(team_df), index=index, dtype=float)
+    weight_total = pd.Series([0.0] * len(team_df), index=index, dtype=float)
 
-    for c in min_cols:
-        alt = pd.to_numeric(team_df[c], errors="coerce").astype(float)
-        alt = alt.where(alt > 0.0, np.nan)
-        mins = mins.where(mins.notna(), other=alt)
-
-    # Avoid collapse to a few rows when roster augmentation introduced missing features.
-    pos_n = int((pd.to_numeric(mins, errors="coerce").fillna(0.0) > 0.0).sum())
-    if len(team_df) >= 8 and pos_n < 8:
+    exp_source = None
+    if "exp_min_source" in team_df.columns:
         try:
-            med = float(pd.to_numeric(mins[mins.notna()], errors="coerce").median())
-            fill_val = med if np.isfinite(med) and med > 0.0 else 18.0
+            exp_source = team_df["exp_min_source"].astype(str).str.strip().str.lower()
         except Exception:
-            fill_val = 18.0
-        mins = mins.where(mins.notna(), other=float(fill_val))
-    mins = mins.fillna(24.0)
-    return pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float).clip(lower=0.0, upper=44.0)
+            exp_source = None
+
+    for col, base_w in (("exp_min_mean", 0.58), ("roll5_min", 0.20), ("roll10_min", 0.12), ("roll3_min", 0.06), ("lag1_min", 0.04)):
+        if col not in team_df.columns:
+            continue
+        vals = pd.to_numeric(team_df[col], errors="coerce").astype(float)
+        vals = vals.where(vals > 0.0, np.nan)
+        if int(vals.notna().sum()) <= 0:
+            continue
+
+        w = pd.Series([float(base_w)] * len(team_df), index=index, dtype=float)
+        if col == "exp_min_mean" and exp_source is not None:
+            w = w.where(~exp_source.str.startswith("baseline:"), other=float(base_w) * 0.55)
+            w = w.where(~exp_source.str.contains("rotations_espn_history", regex=False), other=float(base_w) * 0.75)
+            w = w * (1.0 + (0.08 * starter))
+        elif col in {"roll5_min", "roll3_min"}:
+            w = w * (1.0 + (0.04 * starter))
+
+        use = vals.notna()
+        weighted.loc[use] += vals.loc[use] * w.loc[use]
+        weight_total.loc[use] += w.loc[use]
+
+    mins = weighted / weight_total.replace(0.0, np.nan)
+    mins = mins.where(mins.notna(), other=_first_minutes_signal(team_df))
+
+    try:
+        recent_priors = _recent_minutes_prior_series(team_df, date_str=date_str, team_tri=team_tri)
+        use_recent_priors = recent_priors.notna() & ((mins.isna()) | (mins <= 0.0))
+        if int(use_recent_priors.sum()) > 0:
+            mins = mins.where(~use_recent_priors, other=recent_priors)
+    except Exception:
+        pass
+
+    mins = pd.to_numeric(mins, errors="coerce").fillna(0.0).astype(float)
+
+    positive = mins[mins > 0.0]
+    try:
+        all_med = float(pd.to_numeric(positive, errors="coerce").median()) if not positive.empty else 24.0
+    except Exception:
+        all_med = 24.0
+    if (not np.isfinite(all_med)) or all_med <= 0.0:
+        all_med = 24.0
+
+    starter_mask = starter >= 0.55
+    try:
+        starter_med = float(pd.to_numeric(mins[starter_mask & (mins > 0.0)], errors="coerce").median())
+    except Exception:
+        starter_med = float("nan")
+    if (not np.isfinite(starter_med)) or starter_med <= 0.0:
+        starter_med = max(all_med, 30.0)
+
+    try:
+        bench_med = float(pd.to_numeric(mins[(~starter_mask) & (mins > 0.0)], errors="coerce").median())
+    except Exception:
+        bench_med = float("nan")
+    if (not np.isfinite(bench_med)) or bench_med <= 0.0:
+        bench_med = min(all_med, 20.0) if np.isfinite(all_med) else 18.0
+
+    role_fill = pd.Series(
+        np.where(starter_mask.to_numpy(dtype=bool), float(starter_med), float(bench_med)),
+        index=index,
+        dtype=float,
+    )
+    mins = mins.where(mins > 0.0, other=role_fill)
+    mins = mins.where(mins > 0.0, other=float(max(12.0, min(24.0, all_med))))
+
+    caps = _minutes_caps_from_team_df(team_df, base_minutes=mins)
+    return mins.clip(lower=0.0).where(np.isfinite(mins), other=0.0).clip(upper=caps.astype(float))
 
 
 def _cap_and_redistribute_minutes(
     mins: pd.Series,
     total_target: float = 240.0,
-    cap: float = 44.0,
+    cap: float | pd.Series | np.ndarray = 44.0,
     iters: int = 12,
 ) -> pd.Series:
     """Enforce a per-player minutes cap while preserving team total minutes.
@@ -1526,7 +1865,20 @@ def _cap_and_redistribute_minutes(
     except Exception:
         out = pd.Series([0.0] * int(len(mins)), index=getattr(mins, "index", None), dtype=float)
 
-    out = out.clip(lower=0.0, upper=float(cap))
+    if np.isscalar(cap):
+        cap_ser = pd.Series([float(cap)] * len(out), index=out.index, dtype=float)
+    else:
+        try:
+            cap_ser = pd.Series(cap, index=out.index, dtype=float)
+        except Exception:
+            try:
+                cap_ser = pd.Series(np.asarray(cap, dtype=float), index=out.index, dtype=float)
+            except Exception:
+                cap_ser = pd.Series([44.0] * len(out), index=out.index, dtype=float)
+
+    cap_ser = pd.to_numeric(cap_ser, errors="coerce").fillna(44.0).astype(float).clip(lower=8.0, upper=44.0)
+    out = out.clip(lower=0.0)
+    out = pd.Series(np.minimum(out.to_numpy(dtype=float), cap_ser.to_numpy(dtype=float)), index=out.index, dtype=float)
     base_w = out.copy()
 
     for _ in range(int(iters)):
@@ -1540,10 +1892,11 @@ def _cap_and_redistribute_minutes(
 
         if gap < 0:
             # Too many minutes: scale down then re-clip.
-            out = (out * (float(total_target) / total)).clip(lower=0.0, upper=float(cap))
+            out = out * (float(total_target) / total)
+            out = pd.Series(np.minimum(np.maximum(out.to_numpy(dtype=float), 0.0), cap_ser.to_numpy(dtype=float)), index=out.index, dtype=float)
             continue
 
-        free = out < (float(cap) - 1e-9)
+        free = out < (cap_ser - 1e-9)
         if int(free.sum()) <= 0:
             break
 
@@ -1554,7 +1907,7 @@ def _cap_and_redistribute_minutes(
         else:
             out.loc[free] = out.loc[free] + ((w / ws) * gap)
 
-        out = out.clip(lower=0.0, upper=float(cap))
+        out = pd.Series(np.minimum(np.maximum(out.to_numpy(dtype=float), 0.0), cap_ser.to_numpy(dtype=float)), index=out.index, dtype=float)
 
     return out.astype(float)
 
@@ -1676,7 +2029,7 @@ def _rotation_sim_minutes_for_team(
     diag["rotation_total_minutes"] = float(total_target)
 
     # Assign mapped minutes; handle duplicated ESPN IDs by splitting proportionally.
-    base_w = _roll_minutes_unscaled(tmp)
+    base_w = _roll_minutes_unscaled(tmp, date_str=str(date_str), team_tri=team_u)
     sim_min = pd.Series([0.0] * len(tmp), index=tmp.index, dtype=float)
 
     espn_ids = tmp["_espn_id"].astype(str)
@@ -1726,8 +2079,18 @@ def _rotation_sim_minutes_for_team(
     if np.isfinite(total_target) and total_target > 0 and np.isfinite(total_sim) and total_sim > 0:
         sim_min = sim_min * (total_target / total_sim)
 
+    mapped_frac = float(mapped_minutes_sum) / float(max(1e-6, total_target))
+    sim_min, reg_diag = _regularize_rotation_minutes(
+        tmp,
+        sim_min,
+        date_str=str(date_str),
+        team_tri=team_u,
+        mapped_minutes_frac=mapped_frac,
+    )
+
     # Enforce a regulation-style cap and preserve team minutes.
-    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=44.0, iters=12)
+    caps = _minutes_caps_from_team_df(tmp, base_minutes=sim_min)
+    sim_min = _cap_and_redistribute_minutes(sim_min, total_target=240.0, cap=caps, iters=12)
 
     # Build observed lineup pool from stints (5-man units) mapped to row indices.
     lineup_pool: List[List[int]] = []
@@ -1759,6 +2122,10 @@ def _rotation_sim_minutes_for_team(
         lineup_w = []
 
     diag["lineup_pool_n"] = int(len(lineup_pool))
+    diag["expected_minutes_coverage"] = float(reg_diag.get("exp_cov", 0.0))
+    diag["regularization_blend"] = float(reg_diag.get("blend", 0.0))
+    diag["minutes_cap_mean"] = float(np.mean(caps.to_numpy(dtype=float))) if len(caps) else None
+    diag["minutes_cap_max"] = float(np.max(caps.to_numpy(dtype=float))) if len(caps) else None
 
     # Guardrail: if mapping is too sparse, do not apply rotation minutes.
     try:
@@ -1785,95 +2152,29 @@ def _derive_sim_minutes(team_df: pd.DataFrame, *, date_str: str | None = None, t
     if team_df is None or team_df.empty:
         return pd.Series(dtype=float)
 
-    # Prefer pregame expected minutes when available; otherwise fall back to roll10/roll5 minutes.
-    # NOTE: roster augmentation can introduce rows with missing minute features; if we
-    # leave those at 0, SmartSim will allocate nearly all team stats to the remaining
-    # few players with non-zero minutes.
-    min_cols = [c for c in ("exp_min_mean", "roll10_min", "roll5_min", "roll3_min", "lag1_min") if c in team_df.columns]
-    if not min_cols:
-        mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
-    else:
-        mins = pd.to_numeric(team_df[min_cols[0]], errors="coerce").fillna(0.0).astype(float)
-        # If the preferred column is missing/zero for many rows, try fallbacks.
-        for c in min_cols[1:]:
-            if int((mins > 0.0).sum()) >= 8:
-                break
-            alt = pd.to_numeric(team_df[c], errors="coerce").fillna(0.0).astype(float)
-            mins = mins.where(mins > 0.0, alt)
+    mins = _roll_minutes_unscaled(team_df, date_str=date_str, team_tri=team_tri)
+    seed = _first_minutes_signal(team_df)
 
-        # If minutes are sparse, try to fill from recent actual minutes (player_logs.csv).
-        pos_n = int((mins > 0.0).sum())
-        if len(team_df) >= 8 and pos_n < 8 and date_str and team_tri:
-            pri = _minutes_priors_from_player_logs(date_str=str(date_str), team_tri=str(team_tri), lookback_days=21)
-            if pri:
-                try:
-                    pkeys = team_df.get("player_name", "").map(_norm_player_key)
-                    pri_m = pkeys.map(pri)
-                    pri_m = pd.to_numeric(pri_m, errors="coerce").fillna(0.0).astype(float)
-                    # Only use priors if we matched a reasonable number of players.
-                    if int((pri_m > 0.0).sum()) >= 5:
-                        mins = mins.where(mins > 0.0, other=pri_m)
-                except Exception:
-                    pass
-
-        # If we still have too few players with minutes, assign a conservative
-        # default to the remaining roster so the sim doesn't collapse to 1-3 players.
-        pos_n = int((mins > 0.0).sum())
-        if len(team_df) >= 8 and pos_n < 8:
-            fill_val: float
+    if len(team_df) >= 8 and int((seed > 0.0).sum()) < 8 and date_str and team_tri:
+        pri = _minutes_priors_from_player_logs(date_str=str(date_str), team_tri=str(team_tri), lookback_days=21)
+        if pri:
             try:
-                med = float(pd.to_numeric(mins[mins > 0.0], errors="coerce").median())
-                fill_val = med if np.isfinite(med) and med > 0.0 else 18.0
+                pkeys = team_df.get("player_name", "").map(_norm_player_key)
+                pri_m = pkeys.map(pri)
+                pri_m = pd.to_numeric(pri_m, errors="coerce").fillna(0.0).astype(float)
+                use = (seed <= 0.0) & (pri_m > 0.0)
+                if int(use.sum()) >= 3:
+                    mins = mins.where(~use, other=pri_m)
             except Exception:
-                fill_val = 18.0
-            mins = mins.where(mins > 0.0, other=float(fill_val))
+                pass
 
-    mins = mins.clip(lower=0.0, upper=44.0)
-
-    s = float(mins.sum())
-    if not np.isfinite(s) or s <= 0:
+    if float(mins.sum()) <= 0.0:
         mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
-        s = float(mins.sum())
 
-    # Start with a scaled minutes vector.
-    mins = mins * (240.0 / max(1e-6, s))
-    mins = mins.clip(lower=0.0, upper=44.0)
-
-    # Iteratively redistribute any leftover minutes to players below the cap.
-    # This prevents the final normalization step from breaking the 44-minute cap.
-    base_w = mins.copy()
-    for _ in range(12):
-        total = float(mins.sum())
-        if not np.isfinite(total) or total <= 0:
-            mins = pd.Series([24.0] * len(team_df), index=team_df.index, dtype=float)
-            mins = mins * (240.0 / float(mins.sum()))
-            mins = mins.clip(lower=0.0, upper=44.0)
-            continue
-        gap = 240.0 - total
-        if abs(gap) < 1e-6:
-            break
-        if gap < 0:
-            # Too many minutes: scale down then re-clip.
-            mins = (mins * (240.0 / total)).clip(lower=0.0, upper=44.0)
-            continue
-
-        free = mins < (44.0 - 1e-9)
-        if int(free.sum()) <= 0:
-            break
-        w = base_w.loc[free].astype(float).clip(lower=0.0)
-        ws = float(w.sum())
-        if (not np.isfinite(ws)) or ws <= 0:
-            mins.loc[free] = mins.loc[free] + (gap / float(int(free.sum())))
-        else:
-            mins.loc[free] = mins.loc[free] + (w / ws) * gap
-        mins = mins.clip(lower=0.0, upper=44.0)
-
-    # Final normalization (safe): if we're still off due to caps, only scale down (never up past cap).
-    total = float(mins.sum())
-    if np.isfinite(total) and total > 240.0 + 1e-6:
-        mins = (mins * (240.0 / total)).clip(lower=0.0, upper=44.0)
-
-    return mins
+    mins = _scale_minutes_to_target(mins, total_target=240.0)
+    caps = _minutes_caps_from_team_df(team_df, base_minutes=mins)
+    mins = _cap_and_redistribute_minutes(mins, total_target=240.0, cap=caps, iters=12)
+    return mins.astype(float)
 
 
 def _apply_player_priors(team_df: pd.DataFrame, priors, team_tri: str, sim_minutes: Optional[pd.Series] = None, *, date_str: str | None = None) -> pd.DataFrame:

@@ -28,6 +28,13 @@ def _num(x):
         return None
 
 
+def _first_numeric_series(df: pd.DataFrame, *cols: str) -> pd.Series:
+    for col in cols:
+        if col in df.columns:
+            return pd.to_numeric(df[col], errors="coerce")
+    return pd.Series(np.nan, index=df.index, dtype=float)
+
+
 def _logloss(p: np.ndarray, y: np.ndarray) -> float:
     p = np.asarray(p, dtype=float)
     y = np.asarray(y, dtype=float)
@@ -132,8 +139,8 @@ def evaluate_grid(df: pd.DataFrame, step: float) -> pd.DataFrame:
     actual_margin = (home_pts - away_pts).to_numpy(dtype=float)
     actual_total = (home_pts + away_pts).to_numpy(dtype=float)
 
-    total_line = pd.to_numeric(df["total"], errors="coerce").to_numpy(dtype=float)
-    home_spread = pd.to_numeric(df["home_spread"], errors="coerce").to_numpy(dtype=float)
+    total_line = _first_numeric_series(df, "total", "total_odds", "total_pred").to_numpy(dtype=float)
+    home_spread = _first_numeric_series(df, "home_spread", "home_spread_odds", "home_spread_pred").to_numpy(dtype=float)
 
     y_ml = (actual_margin > 0).astype(float)
     y_cover = (actual_margin + home_spread > 0).astype(float)

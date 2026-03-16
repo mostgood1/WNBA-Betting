@@ -63,7 +63,7 @@ class QuarterSummary:
 
 
 _DEFAULT_BLEND_TOTAL_W = 0.7
-_DEFAULT_BLEND_MARGIN_W = 0.7
+_DEFAULT_BLEND_MARGIN_W = 0.95
 
 
 _QUARTERS_CALIBRATION_CACHE: Optional[Dict[str, Any]] = None
