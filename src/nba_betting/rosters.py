@@ -4,12 +4,12 @@ import os
 import pandas as pd
 from pathlib import Path
 import time
-from typing import List
 
 from nba_api.stats.endpoints import commonteamroster
 from nba_api.stats.static import teams as static_teams
 
 from .config import paths
+from .roster_files import pick_rosters_file
 
 
 def _rosters_output_paths(season: str) -> tuple[Path, Path]:
@@ -19,36 +19,11 @@ def _rosters_output_paths(season: str) -> tuple[Path, Path]:
     return out_dir / f"rosters_{stem}.csv", out_dir / f"rosters_{stem}.parquet"
 
 
-def _roster_file_team_count(path: Path) -> int:
-    try:
-        df = pd.read_csv(path, usecols=["TEAM_ABBREVIATION"])
-        if not isinstance(df, pd.DataFrame) or df.empty:
-            return 0
-        return int(df["TEAM_ABBREVIATION"].dropna().astype(str).str.upper().str.strip().nunique())
-    except Exception:
-        return 0
-
-
 def _pick_seed_roster_file(season: str, preferred_out_csv: Path) -> Path | None:
-    out_dir = preferred_out_csv.parent
-    candidates: list[Path] = []
-    seen: set[Path] = set()
-
-    def _add(path: Path) -> None:
-        if path.exists() and path not in seen:
-            seen.add(path)
-            candidates.append(path)
-
-    _add(preferred_out_csv)
-    start_year = str(season).split("-", 1)[0].strip()
-    if start_year:
-        _add(out_dir / f"rosters_{start_year}.csv")
-        for path in sorted(out_dir.glob(f"rosters_{start_year}*.csv")):
-            _add(path)
-    if not candidates:
+    try:
+        return pick_rosters_file(preferred_out_csv.parent, season=season)
+    except Exception:
         return None
-    candidates.sort(key=lambda p: (_roster_file_team_count(p), p.stat().st_mtime if p.exists() else 0), reverse=True)
-    return candidates[0]
 
 
 def _load_existing_roster_frames(out_csv: Path) -> dict[str, pd.DataFrame]:
@@ -143,10 +118,12 @@ def fetch_rosters(
     out_csv, out_parq = _rosters_output_paths(season)
     seed_csv = _pick_seed_roster_file(season, out_csv)
     team_frames = _load_existing_roster_frames(seed_csv) if seed_csv is not None else {}
-    failed: List[dict] = []
+    failed: dict[str, dict] = {}
     refreshed: list[str] = []
     fetch_successes = 0
-    total_teams = sum(1 for t in team_list if t.get('id'))
+    teams_to_fetch = [t for t in team_list if t.get('id') and str(t.get('abbreviation') or '').strip()]
+    team_lookup = {str(t.get('abbreviation') or '').strip().upper(): t for t in teams_to_fetch}
+    total_teams = len(teams_to_fetch)
     try:
         print(
             f"[fetch_rosters] start season={season} teams={total_teams} "
@@ -156,20 +133,25 @@ def fetch_rosters(
         )
     except Exception:
         pass
-    for t in team_list:
-        tid = t.get('id'); tri = t.get('abbreviation'); name = t.get('full_name')
-        if not tid:
-            continue
-        tri = str(tri or "").strip().upper()
+
+    def _refresh_team(t: dict, attempts: int, timeout_seconds: int) -> bool:
+        nonlocal fetch_successes
+
+        tid = t.get('id')
+        tri = str(t.get('abbreviation') or '').strip().upper()
+        name = t.get('full_name')
+        if not tid or not tri:
+            return False
+
         last_err = None
-        for attempt in range(int(max_retries)):
+        for attempt in range(int(max(1, attempts))):
             try:
                 print(
-                    f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max_retries)}",
+                    f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max(1, attempts))}",
                     flush=True,
                 )
                 # nba_api uses requests under the hood; explicit per-request timeout prevents hangs.
-                res = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=int(request_timeout))
+                res = commonteamroster.CommonTeamRoster(team_id=tid, season=season, timeout=int(timeout_seconds))
                 nd = res.get_normalized_dict()
                 df = pd.DataFrame(nd.get('CommonTeamRoster', []))
                 if df.empty:
@@ -189,13 +171,14 @@ def fetch_rosters(
                     )
                 if persist_every > 0 and (fetch_successes % persist_every) == 0:
                     _persist_roster_frames(team_frames, out_csv, out_parq)
+                failed.pop(tri, None)
                 last_err = None
                 break
             except Exception as e:
                 last_err = str(e)
                 try:
                     print(
-                        f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max_retries)} failed: {last_err}",
+                        f"[fetch_rosters] team={tri or tid} attempt={attempt + 1}/{int(max(1, attempts))} failed: {last_err}",
                         flush=True,
                     )
                 except Exception:
@@ -206,19 +189,38 @@ def fetch_rosters(
                 except Exception:
                     pass
         if last_err is not None:
-            failed.append(
-                {
-                    "TEAM_ID": tid,
-                    "TEAM_ABBREVIATION": tri,
-                    "TEAM_NAME": name,
-                    "error": last_err,
-                    "preserved_existing": bool(tri in team_frames),
-                }
-            )
+            failed[tri] = {
+                "TEAM_ID": tid,
+                "TEAM_ABBREVIATION": tri,
+                "TEAM_NAME": name,
+                "error": last_err,
+                "preserved_existing": bool(tri in team_frames),
+            }
         try:
             time.sleep(float(rate_delay))
         except Exception:
             pass
+        return last_err is None
+
+    for t in teams_to_fetch:
+        _refresh_team(t, attempts=int(max_retries), timeout_seconds=int(request_timeout))
+
+    missing_after_first_pass = sorted(set(team_lookup) - set(team_frames))
+    if missing_after_first_pass:
+        retry_timeout = max(int(request_timeout), 15)
+        retry_attempts = max(int(max_retries), 2)
+        try:
+            print(
+                f"[fetch_rosters] retrying missing teams with timeout={retry_timeout}s: {missing_after_first_pass}",
+                flush=True,
+            )
+        except Exception:
+            pass
+        for tri in missing_after_first_pass:
+            t = team_lookup.get(tri)
+            if t is not None:
+                _refresh_team(t, attempts=retry_attempts, timeout_seconds=retry_timeout)
+
     if not team_frames:
         return pd.DataFrame()
     out = _persist_roster_frames(team_frames, out_csv, out_parq) if fetch_successes > 0 else _combine_roster_frames(team_frames)
@@ -226,7 +228,7 @@ def fetch_rosters(
     # Best-effort diagnostics (kept as prints so fetch_rosters can be used outside CLI).
     try:
         got = sorted(set(out.get('TEAM_ABBREVIATION', pd.Series(dtype=str)).astype(str).str.upper().str.strip().tolist()))
-        expected = sorted([t.get('abbreviation') for t in team_list if t.get('abbreviation')])
+        expected = sorted(team_lookup)
         missing = sorted(set(expected) - set(got))
         if missing:
             print(f"[fetch_rosters] WARNING: missing {len(missing)} teams for season {season}: {missing}")
@@ -236,7 +238,7 @@ def fetch_rosters(
             f"timeout={request_timeout}s retries={max_retries}"
         )
         if failed:
-            print(f"[fetch_rosters] failures: {len(failed)} teams (showing up to 8): {failed[:8]}")
+            print(f"[fetch_rosters] failures: {len(failed)} teams (showing up to 8): {list(failed.values())[:8]}")
     except Exception:
         pass
     return out

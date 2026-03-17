@@ -165,6 +165,7 @@ def main() -> None:
     rosters = rosters.copy()
     rosters[r_pid] = pd.to_numeric(rosters[r_pid], errors="coerce")
     rosters[r_team] = rosters[r_team].astype(str).str.upper().str.strip()
+    roster_teams = {str(v).strip().upper() for v in rosters[r_team].dropna().tolist() if str(v).strip()}
 
     # Focus audit on players whose teams matter for today
     if l_on and l_on in league.columns:
@@ -173,6 +174,8 @@ def main() -> None:
 
     league = league.dropna(subset=[l_pid])
     rosters = rosters.dropna(subset=[r_pid])
+    league_slate_teams = sorted({str(v).strip().upper() for v in league[l_team].dropna().tolist() if str(v).strip()})
+    missing_slate_teams = sorted(set(league_slate_teams) - roster_teams)
 
     # Duplicates by player_id happen (two-way/transactions). Only treat as fatal if the same
     # player_id appears under multiple distinct teams.
@@ -239,7 +242,9 @@ def main() -> None:
         "stale_grace_hours": float(grace_hours),
         "within_stale_grace": within_grace,
         "stale": stale_for_fail,
+        "rosters_team_count": int(len(roster_teams)),
         "on_slate_rows_checked": int(len(league_small)),
+        "missing_slate_teams": missing_slate_teams,
         "mismatches_n": int(len(mism)),
         "duplicate_roster_player_ids": dup_players,
         "multi_team_duplicate_player_ids": multi_team_dups,
@@ -252,6 +257,8 @@ def main() -> None:
     # Multi-team duplicates are common around trades/transactions; report but do not fail.
     if args.fail_if_stale and stale_for_fail:
         raise SystemExit(4)
+    if missing_slate_teams:
+        raise SystemExit(2)
     if int(len(mism)) > int(args.max_mismatches):
         raise SystemExit(2)
 

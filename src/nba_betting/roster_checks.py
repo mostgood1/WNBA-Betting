@@ -7,6 +7,7 @@ from typing import Any, Optional
 import pandas as pd
 
 from .config import paths
+from .roster_files import pick_rosters_file, roster_file_team_set
 
 
 @dataclass
@@ -95,6 +96,28 @@ def roster_sanity_check(
     slate_teams = sorted({t for t in slate_rows[team_col].dropna().astype(str).tolist() if t})
     summary["slate_teams"] = slate_teams
     summary["slate_team_count"] = len(slate_teams)
+
+    roster_path: Path | None = None
+    roster_teams: set[str] = set()
+    try:
+        d = pd.to_datetime(date_str, errors="coerce")
+        season = None
+        if d is not None and not pd.isna(d):
+            start_year = int(d.year) if int(d.month) >= 7 else int(d.year) - 1
+            season = f"{start_year}-{str(start_year + 1)[-2:]}"
+        roster_path = pick_rosters_file(paths.data_processed, season=season)
+        if roster_path is not None:
+            roster_teams = roster_file_team_set(roster_path)
+    except Exception:
+        roster_path = None
+        roster_teams = set()
+
+    missing_slate_roster_teams = sorted(set(slate_teams) - roster_teams)
+    summary["season_roster_path"] = str(roster_path) if roster_path is not None else None
+    summary["season_roster_team_count"] = int(len(roster_teams))
+    summary["season_roster_missing_slate_teams"] = missing_slate_roster_teams
+    if missing_slate_roster_teams:
+        issues.append(f"season rosters missing slate teams: {missing_slate_roster_teams}")
 
     # Per-team counts
     per_team_total: dict[str, int] = {}

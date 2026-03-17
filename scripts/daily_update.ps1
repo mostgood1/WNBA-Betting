@@ -950,6 +950,26 @@ function Test-FreshFile {
   }
 }
 
+function Get-RosterTeamCount {
+  param([string]$Path)
+
+  try {
+    if (-not (Test-Path $Path)) { return 0 }
+    $rows = Import-Csv -Path $Path
+    if ($null -eq $rows) { return 0 }
+    $teams = @(
+      $rows |
+        ForEach-Object { [string]($_.TEAM_ABBREVIATION) } |
+        Where-Object { -not [string]::IsNullOrWhiteSpace($_) } |
+        ForEach-Object { $_.Trim().ToUpperInvariant() } |
+        Sort-Object -Unique
+    )
+    return $teams.Count
+  } catch {
+    return 0
+  }
+}
+
 # Helper to run the connected realism evaluation (used by the full pipeline and an optional "only" mode)
 function Invoke-ConnectedRealismEval {
   $skipConn = $env:DAILY_SKIP_CONNECTED_REALISM
@@ -1140,13 +1160,21 @@ try {
     $forceRosterPreflight = ($null -ne $env:DAILY_FORCE_ROSTER_PREFLIGHT -and $env:DAILY_FORCE_ROSTER_PREFLIGHT -match '^(1|true|yes)$')
   } catch { $forceRosterPreflight = $false }
   $hasRosterSeed = Test-CsvHasDataRows -Path $rostersPath
+  $minRosterTeams = $env:DAILY_ROSTERS_MIN_TEAM_COUNT
+  if ($null -eq $minRosterTeams -or $minRosterTeams -eq '') { $minRosterTeams = '30' }
+  try { $minRosterTeamsInt = [int]$minRosterTeams } catch { $minRosterTeamsInt = 30 }
+  if ($minRosterTeamsInt -lt 1) { $minRosterTeamsInt = 1 }
+  $rosterTeamCount = Get-RosterTeamCount -Path $rostersPath
+  $rosterLooksComplete = ($rosterTeamCount -ge $minRosterTeamsInt)
   $maxAgeH = $env:DAILY_ROSTERS_MAX_AGE_HOURS
   # NBA Stats rosters are relatively stable day-to-day, and the endpoint can be flaky.
   # Default to a wider freshness window to avoid repeated slow fetches.
   if ($null -eq $maxAgeH -or $maxAgeH -eq '') { $maxAgeH = '72' }
   try { $maxAgeMin = [int]([Math]::Max(0, ([double]$maxAgeH) * 60.0)) } catch { $maxAgeMin = 720 }
-  if (Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) {
+  if ((Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) -and $rosterLooksComplete) {
     Write-Log ("Rosters already fresh (<= {0}h); skipping fetch-rosters: {1}" -f $maxAgeH, $rostersPath)
+  } elseif ((Test-FreshFile -Path $rostersPath -MaxAgeMinutes $maxAgeMin) -and -not $rosterLooksComplete) {
+    Write-Log ("Rosters file looks fresh but incomplete ({0}/{1} teams); forcing fetch-rosters: {2}" -f $rosterTeamCount, $minRosterTeamsInt, $rostersPath)
   } elseif ($isCi -and -not $forceRosterPreflight -and -not $hasRosterSeed) {
     Write-Log ("CI preflight: no seeded roster artifact found at {0}; skipping fetch-rosters to avoid a full NBA Stats crawl. Set DAILY_FORCE_ROSTER_PREFLIGHT=1 to force a refresh." -f $rostersPath)
   } else {
@@ -1154,6 +1182,8 @@ try {
     $rc0 = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-rosters','--season', $seasonStr) -TimeoutSeconds $PreflightTimeoutSeconds -Label 'fetch_rosters'
     Write-Log ("fetch-rosters exit code: {0}" -f $rc0)
   }
+  $rosterTeamCountAfter = Get-RosterTeamCount -Path $rostersPath
+  Write-Log ("Rosters team coverage after preflight: {0}/{1}" -f $rosterTeamCountAfter, $minRosterTeamsInt)
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }

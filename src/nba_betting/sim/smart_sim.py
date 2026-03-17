@@ -12,6 +12,7 @@ from .events import EventSimConfig, simulate_event_level_boxscore, simulate_pbp_
 from .quarters import GameInputs, QuarterResult, TeamContext, simulate_quarters
 from ..config import paths
 from ..player_priors import PlayerPriorsConfig, compute_player_priors, _norm_player_key  # type: ignore
+from ..roster_files import pick_rosters_file
 from ..teams import to_tricode
 
 
@@ -1707,26 +1708,19 @@ def _team_players_from_processed_rosters(
 
         proc = paths.data_processed
         # Prefer rosters_<season>.csv matching the slate date.
-        roster_path = None
+        season = None
         try:
             d = pd.to_datetime(str(date_str), errors="coerce")
             if pd.notna(d):
                 start_year = int(d.year) if int(d.month) >= 7 else int(d.year) - 1
                 season = f"{start_year}-{str(start_year + 1)[-2:]}"
-                cand = proc / f"rosters_{season}.csv"
-                if cand.exists():
-                    roster_path = cand
+        except Exception:
+            season = None
+
+        try:
+            roster_path = pick_rosters_file(proc, season=season)
         except Exception:
             roster_path = None
-
-        if roster_path is None:
-            try:
-                cands = list(proc.glob("rosters_*.csv"))
-                if cands:
-                    cands.sort(key=lambda p: p.stat().st_mtime if p.exists() else 0, reverse=True)
-                    roster_path = cands[0]
-            except Exception:
-                roster_path = None
 
         if roster_path is None or (not roster_path.exists()):
             return pd.DataFrame()
