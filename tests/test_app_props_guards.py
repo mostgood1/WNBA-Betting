@@ -359,6 +359,89 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
     assert any(option["side"] == "OVER" and option["line"] == 1.5 for option in cam_row["prop_line_options"]["threes"])
 
 
+def test_live_oddsapi_player_props_maps_alternate_threes_lines(monkeypatch):
+    class _FakeResponse:
+        def __init__(self, payload, ok=True):
+            self._payload = payload
+            self.ok = ok
+
+        def json(self):
+            return self._payload
+
+    def _fake_get(url, params=None, headers=None, timeout=None):
+        if url.endswith("/v4/sports/basketball_nba/events"):
+            return _FakeResponse(
+                [
+                    {
+                        "id": "evt-1",
+                        "home_team": "Houston Rockets",
+                        "away_team": "Los Angeles Lakers",
+                        "commence_time": "2026-03-16T23:00:00Z",
+                    }
+                ]
+            )
+        if url.endswith("/v4/sports/basketball_nba/events/evt-1/markets"):
+            return _FakeResponse(
+                {
+                    "bookmakers": [
+                        {
+                            "key": "draftkings",
+                            "markets": [
+                                {"key": "player_threes_alternate"},
+                            ],
+                        }
+                    ]
+                }
+            )
+        if url.endswith("/v4/sports/basketball_nba/events/evt-1/odds"):
+            return _FakeResponse(
+                {
+                    "bookmakers": [
+                        {
+                            "key": "draftkings",
+                            "last_update": "2026-03-16T23:05:00Z",
+                            "markets": [
+                                {
+                                    "key": "player_threes_alternate",
+                                    "last_update": "2026-03-16T23:05:10Z",
+                                    "outcomes": [
+                                        {
+                                            "name": "Over",
+                                            "description": "Austin Reaves",
+                                            "point": 1.5,
+                                            "price": -120,
+                                        },
+                                        {
+                                            "name": "Under",
+                                            "description": "Austin Reaves",
+                                            "point": 1.5,
+                                            "price": 100,
+                                        },
+                                    ],
+                                }
+                            ],
+                        }
+                    ]
+                }
+            )
+        raise AssertionError(f"unexpected url: {url}")
+
+    monkeypatch.setenv("ODDS_API_KEY", "test-key")
+    monkeypatch.setenv("LIVE_PLAYER_PROPS_ODDSAPI", "1")
+    monkeypatch.setenv("LIVE_PLAYER_PROPS_ALL_MARKETS", "0")
+    monkeypatch.setattr(app_module.requests, "get", _fake_get)
+
+    app_module._live_oddsapi_player_props_cache.clear()
+    app_module._live_oddsapi_player_props_event_cache.clear()
+    app_module._live_oddsapi_player_props_markets_cache.clear()
+
+    meta = app_module._live_oddsapi_player_props_for_game("2026-03-16", "HOU", "LAL")
+
+    assert meta["markets_requested"] == ["player_threes_alternate"]
+    assert meta["lines"]["AUSTIN REAVES|threes"] == 1.5
+    assert meta["prices"]["AUSTIN REAVES|threes"] == {"over": -120.0, "under": 100.0}
+
+
 def test_load_props_movement_callouts_exposes_player_id_photo_fallback(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)

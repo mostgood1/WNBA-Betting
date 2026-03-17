@@ -708,7 +708,7 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
         "pts": ["player_points", "player_points_alternate"],
         "reb": ["player_rebounds", "player_rebounds_alternate"],
         "ast": ["player_assists", "player_assists_alternate"],
-        "threes": ["player_threes"],
+        "threes": ["player_threes", "player_threes_alternate"],
         "pra": ["player_points_rebounds_assists", "player_points_rebounds_assists_alternate"],
         "stl": ["player_steals"],
         "blk": ["player_blocks"],
