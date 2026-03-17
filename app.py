@@ -8339,17 +8339,17 @@ def api_cron_upload_props_refresh_artifacts():
     Multipart form fields:
       - date: YYYY-MM-DD
       - snapshot: odds_nba_player_props_<date>.csv
-      - predictions: props_predictions_<date>.csv
-      - edges: props_edges_<date>.csv
-      - recommendations: props_recommendations_<date>.csv
     Optional form fields:
+            - predictions: props_predictions_<date>.csv
+            - edges: props_edges_<date>.csv
+            - recommendations: props_recommendations_<date>.csv
       - regions, bookmakers, markets, started_at, ended_at, duration_s
 
         Side effects on the active data root:
             - append current snapshot rows to odds_nba_player_props_history_<date>.csv
             - preserve earliest-seen props in odds_nba_player_props_opening_<date>.*
-            - enrich props_edges_<date>.csv with opening and movement columns
-            - emit props_movement_signals_<date>.csv for significant moves
+                        - when edges are present, enrich props_edges_<date>.csv with opening and movement columns
+                        - when edges are present, emit props_movement_signals_<date>.csv for significant moves
     """
     if not (_cron_auth_ok(request) or _admin_auth_ok(request)):
         return jsonify({"error": "unauthorized"}), 401
@@ -8369,24 +8369,20 @@ def api_cron_upload_props_refresh_artifacts():
     predictions_file = request.files.get("predictions")
     edges_file = request.files.get("edges")
     recommendations_file = request.files.get("recommendations")
-    missing = [
-        name
-        for name, file_obj in (
-            ("snapshot", snapshot_file),
-            ("predictions", predictions_file),
-            ("edges", edges_file),
-            ("recommendations", recommendations_file),
-        )
-        if file_obj is None
-    ]
-    if missing:
-        return jsonify({"error": "missing upload files", "missing": missing}), 400
+    if snapshot_file is None:
+        return jsonify({"error": "missing upload files", "missing": ["snapshot"]}), 400
 
     snapshot_path = DATA_RAW_DIR / f"odds_nba_player_props_{date_str}.csv"
     snapshot_alias_path = DATA_PROCESSED_DIR / f"oddsapi_player_props_{date_str}.csv"
     predictions_path = DATA_PROCESSED_DIR / f"props_predictions_{date_str}.csv"
     edges_path = DATA_PROCESSED_DIR / f"props_edges_{date_str}.csv"
     recommendations_path = DATA_PROCESSED_DIR / f"props_recommendations_{date_str}.csv"
+    uploaded_files = {
+        "snapshot": True,
+        "predictions": predictions_file is not None,
+        "edges": edges_file is not None,
+        "recommendations": recommendations_file is not None,
+    }
 
     def _write_upload(file_obj, target: Path) -> int:
         raw = file_obj.read() or b""
@@ -8395,19 +8391,18 @@ def api_cron_upload_props_refresh_artifacts():
         return int(len(raw))
 
     try:
-        upload_bytes = {
-            "snapshot": _write_upload(snapshot_file, snapshot_path),
-            "predictions": _write_upload(predictions_file, predictions_path),
-            "edges": _write_upload(edges_file, edges_path),
-            "recommendations": _write_upload(recommendations_file, recommendations_path),
-        }
+        upload_bytes = {"snapshot": _write_upload(snapshot_file, snapshot_path)}
+        if predictions_file is not None:
+            upload_bytes["predictions"] = _write_upload(predictions_file, predictions_path)
+        if edges_file is not None:
+            upload_bytes["edges"] = _write_upload(edges_file, edges_path)
+        if recommendations_file is not None:
+            upload_bytes["recommendations"] = _write_upload(recommendations_file, recommendations_path)
         try:
-            from nba_betting.refresh_oddsapi_props_job import _materialize_processed_snapshot_alias as _materialize_snapshot_alias  # type: ignore
-
-            snapshot_alias_path, snapshot_alias_rows, snapshot_alias_error = _materialize_snapshot_alias(
-                date_str=date_str,
-                snapshot_path=snapshot_path,
-            )
+            snapshot_alias_path.parent.mkdir(parents=True, exist_ok=True)
+            snapshot_alias_path.write_bytes(snapshot_path.read_bytes())
+            snapshot_alias_rows = int(_count_csv_rows_quick(snapshot_alias_path))
+            snapshot_alias_error = None
             if snapshot_alias_error:
                 return jsonify({
                     "ok": False,
@@ -8436,31 +8431,62 @@ def api_cron_upload_props_refresh_artifacts():
             "date": date_str,
             "snapshot_rows": snapshot_rows,
         }), 400
-    if predictions_rows <= 0:
+    if predictions_file is not None and predictions_rows <= 0:
         return jsonify({
             "ok": False,
             "error": "uploaded predictions have zero rows",
             "date": date_str,
             "predictions_rows": predictions_rows,
         }), 400
-    if edges_rows <= 0:
+    if edges_file is not None and edges_rows <= 0:
         return jsonify({
             "ok": False,
             "error": "uploaded edges have zero rows",
             "date": date_str,
             "edges_rows": edges_rows,
         }), 400
+    if recommendations_file is not None and recs_rows <= 0:
+        return jsonify({
+            "ok": False,
+            "error": "uploaded recommendations have zero rows",
+            "date": date_str,
+            "recs_rows": recs_rows,
+        }), 400
+
+    upload_mode = "snapshot-only"
+    movement_meta: dict[str, Any] = {
+        "opening_rows": 0,
+        "opening_path": None,
+        "history_appended_rows": 0,
+        "history_path": None,
+        "rows_with_opening": 0,
+        "significant_rows": 0,
+        "fast_rows": 0,
+        "signals_rows": 0,
+        "signals_path": None,
+    }
 
     try:
-        from nba_betting.props_movement import sync_props_movement_artifacts  # type: ignore
+        from nba_betting.props_movement import persist_props_snapshot_tracking, sync_props_movement_artifacts  # type: ignore
 
-        movement_meta = sync_props_movement_artifacts(
-            date_str=date_str,
-            snapshot_path=snapshot_path,
-            edges_path=edges_path,
-            raw_dir=DATA_RAW_DIR,
-            processed_dir=DATA_PROCESSED_DIR,
-        )
+        if edges_file is not None or int(edges_rows or 0) > 0:
+            movement_meta = sync_props_movement_artifacts(
+                date_str=date_str,
+                snapshot_path=snapshot_path,
+                edges_path=edges_path,
+                raw_dir=DATA_RAW_DIR,
+                processed_dir=DATA_PROCESSED_DIR,
+            )
+            upload_mode = "full" if (predictions_file is not None and edges_file is not None and recommendations_file is not None) else "partial"
+        else:
+            snapshot_df = _read_csv_if_exists(snapshot_path)
+            movement_meta.update(
+                persist_props_snapshot_tracking(
+                    snapshot_df if isinstance(snapshot_df, pd.DataFrame) else pd.DataFrame(),
+                    date_str,
+                    raw_dir=DATA_RAW_DIR,
+                )
+            )
         snapshot_rows = int(_count_csv_rows_quick(snapshot_path))
         edges_rows = int(_count_csv_rows_quick(edges_path))
         try:
@@ -8485,8 +8511,8 @@ def api_cron_upload_props_refresh_artifacts():
         "regions": str(request.form.get("regions") or "us").strip() or "us",
         "bookmakers": str(request.form.get("bookmakers") or "").strip() or None,
         "markets": str(request.form.get("markets") or "").strip(),
-        "run_edges": True,
-        "run_export": True,
+        "run_edges": bool(uploaded_files["edges"]),
+        "run_export": bool(uploaded_files["recommendations"]),
         "run_push": False,
         "running": False,
         "ok": True,
@@ -8497,13 +8523,17 @@ def api_cron_upload_props_refresh_artifacts():
         "phase_started_at": ended_at,
         "heartbeat_at": ended_at,
         "rc_snapshot": 0,
-        "rc_edges": 0,
-        "rc_export": 0,
+        "rc_edges": 0 if uploaded_files["edges"] else None,
+        "rc_export": 0 if uploaded_files["recommendations"] else None,
         "snapshot_rows": snapshot_rows,
         "snapshot_alias_rows": snapshot_alias_rows,
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
+        "opening_rows": movement_meta.get("opening_rows"),
+        "opening_path": movement_meta.get("opening_path"),
+        "history_appended_rows": movement_meta.get("history_appended_rows"),
+        "history_path": movement_meta.get("history_path"),
         "movement_rows": movement_meta.get("rows_with_opening"),
         "movement_significant_rows": movement_meta.get("significant_rows"),
         "movement_fast_rows": movement_meta.get("fast_rows"),
@@ -8516,6 +8546,8 @@ def api_cron_upload_props_refresh_artifacts():
         "duration_s": duration_s,
         "error": None,
         "source": "github-actions-upload",
+        "upload_mode": upload_mode,
+        "uploaded_files": uploaded_files,
     }
 
     try:
@@ -8528,11 +8560,15 @@ def api_cron_upload_props_refresh_artifacts():
     return jsonify({
         "ok": True,
         "date": date_str,
+        "upload_mode": upload_mode,
+        "uploaded_files": uploaded_files,
         "snapshot_rows": snapshot_rows,
         "snapshot_alias_rows": snapshot_alias_rows,
         "predictions_rows": predictions_rows,
         "edges_rows": edges_rows,
         "recs_rows": recs_rows,
+        "opening_rows": movement_meta.get("opening_rows"),
+        "history_appended_rows": movement_meta.get("history_appended_rows"),
         "movement": movement_meta,
         "uploads": upload_bytes,
         "snapshot_path": str(snapshot_path),

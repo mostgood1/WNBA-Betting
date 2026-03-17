@@ -2,10 +2,6 @@ name: Live Lens Tick
 
 on:
   workflow_dispatch: {}
-  schedule:
-    # GitHub cron minimum granularity is 5 minutes.
-    # This keeps Render's persistent disk populated with live_lens_signals_*.jsonl
-    - cron: "*/5 * * * *"
 
 concurrency:
   group: nbabetting-live-lens-tick

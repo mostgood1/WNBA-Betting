@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 import json
 
 import pandas as pd
@@ -601,3 +602,56 @@ def test_load_props_movement_callouts_falls_back_to_espn_headshot_for_source_id(
     assert len(items) == 1
     assert items[0]["player_id"] == 5105565
     assert items[0]["photo"] == "https://a.espncdn.com/i/headshots/nba/players/full/5105565.png"
+
+
+def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypatch):
+    raw = tmp_path / "data" / "raw"
+    processed = tmp_path / "data" / "processed"
+    raw.mkdir(parents=True)
+    processed.mkdir(parents=True)
+
+    monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "_cron_auth_ok", lambda _req: True)
+    monkeypatch.setattr(app_module, "_admin_auth_ok", lambda _req: True)
+
+    client = app_module.app.test_client()
+    response = client.post(
+        "/api/cron/upload-props-refresh-artifacts",
+        data={
+            "date": "2026-03-18",
+            "snapshot": (
+                io.BytesIO(
+                    (
+                        "snapshot_ts,event_id,commence_time,bookmaker,market,outcome_name,player_name,point,price,home_team,away_team\n"
+                        "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Over,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
+                        "2026-03-18T10:05:00Z,evt-1,2026-03-18T23:00:00Z,fanduel,player_points,Under,Jayson Tatum,27.5,-110,Boston Celtics,Miami Heat\n"
+                    ).encode("utf-8")
+                ),
+                "odds_nba_player_props_2026-03-18.csv",
+            ),
+        },
+        content_type="multipart/form-data",
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+
+    assert payload["ok"] is True
+    assert payload["upload_mode"] == "snapshot-only"
+    assert payload["snapshot_rows"] == 2
+    assert payload["predictions_rows"] == 0
+    assert payload["edges_rows"] == 0
+    assert payload["recs_rows"] == 0
+    assert payload["opening_rows"] == 2
+    assert payload["history_appended_rows"] == 2
+    assert payload["uploaded_files"] == {
+        "snapshot": True,
+        "predictions": False,
+        "edges": False,
+        "recommendations": False,
+    }
+    assert (processed / "oddsapi_player_props_2026-03-18.csv").exists()
+    assert (raw / "odds_nba_player_props_opening_2026-03-18.csv").exists()
+    assert (raw / "odds_nba_player_props_history_2026-03-18.csv").exists()
+    assert not (processed / "props_edges_2026-03-18.csv").exists()
