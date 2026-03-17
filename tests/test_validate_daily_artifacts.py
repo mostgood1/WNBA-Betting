@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import json
 import sys
 from pathlib import Path
 
@@ -82,3 +83,50 @@ def test_validate_daily_artifacts_requires_props_lines_only_when_snapshot_rows_e
         ],
     )
     assert validate_module.main() == 3
+
+
+def test_validate_daily_artifacts_flags_missing_props_slate_team(tmp_path, monkeypatch):
+    repo_root = tmp_path
+    processed = repo_root / "data" / "processed"
+    raw = repo_root / "data" / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    date_str = "2026-03-14"
+    yesterday = "2026-03-13"
+
+    pd.DataFrame(
+        [{"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}]
+    ).to_csv(processed / f"predictions_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [{"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}]
+    ).to_csv(processed / f"game_odds_{date_str}.csv", index=False)
+    pd.DataFrame(
+        [{"player_name": "Ja Morant", "team": "MEM", "pred_pts": 26.2}]
+    ).to_csv(processed / f"props_predictions_{date_str}.csv", index=False)
+
+    validate_module = _load_validate_daily_artifacts_module()
+    monkeypatch.setenv("FAIL_ON_MISSING", "1")
+    monkeypatch.setenv("REQUIRE_ODDS", "0")
+    monkeypatch.setenv("REQUIRE_SMARTSIM", "0")
+    monkeypatch.setenv("REQUIRE_PROPS_LINES", "0")
+    monkeypatch.setenv("REQUIRE_ROTATIONS", "0")
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "validate_daily_artifacts.py",
+            "--repo-root",
+            str(repo_root),
+            "--date",
+            date_str,
+            "--yesterday",
+            yesterday,
+        ],
+    )
+
+    assert validate_module.main() == 3
+
+    report = json.loads((processed / f"daily_artifacts_{date_str}.json").read_text(encoding="utf-8"))
+    assert report["props_missing_teams"] == ["DET"]

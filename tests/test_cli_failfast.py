@@ -25,6 +25,119 @@ def test_predict_props_exits_nonzero_when_feature_build_fails(monkeypatch):
     assert "Failed to build features" in result.output
 
 
+def test_predict_props_keeps_league_status_active_players_despite_stale_injuries(tmp_path, monkeypatch):
+    date_str = "2026-03-17"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    raw = data_root / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "player_id": 1626164,
+                "player_name": "Devin Booker",
+                "team": "PHX",
+                "team_on_slate": True,
+                "playing_today": True,
+            }
+        ]
+    ).to_csv(processed / f"league_status_{date_str}.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "team": "PHI",
+                "player": "Devin Booker",
+                "status": "OUT",
+                "injury": "Out",
+                "date": "2026-02-26",
+            }
+        ]
+    ).to_csv(raw / "injuries.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    import nba_betting.props_features_pure as props_features_pure_module
+
+    monkeypatch.setattr(
+        props_features_pure_module,
+        "build_features_for_date_pure",
+        lambda _date_str: pd.DataFrame(
+            [
+                {
+                    "player_id": 1626164,
+                    "player_name": "Devin Booker",
+                    "team": "PHX",
+                }
+            ]
+        ),
+    )
+    monkeypatch.setattr(
+        cli_module,
+        "build_features_for_date",
+        lambda _date_str: pd.DataFrame(
+            [
+                {
+                    "player_id": 1626164,
+                    "player_name": "Devin Booker",
+                    "team": "PHX",
+                }
+            ]
+        ),
+    )
+
+    monkeypatch.setattr(
+        props_onnx_pure_module,
+        "predict_props_pure_onnx",
+        lambda feats: pd.DataFrame(
+            [
+                {
+                    "player_id": int(feats.iloc[0]["player_id"]),
+                    "player_name": feats.iloc[0]["player_name"],
+                    "team": feats.iloc[0]["team"],
+                    "asof_date": date_str,
+                    "opponent": "MIN",
+                    "home": False,
+                    "pred_pts": 27.5,
+                    "pred_reb": 4.5,
+                    "pred_ast": 6.5,
+                    "pred_pra": 38.5,
+                    "sd_pts": 7.5,
+                    "sd_reb": 3.0,
+                    "sd_ast": 2.5,
+                    "sd_pra": 9.0,
+                }
+            ]
+        ),
+    )
+
+    out_path = processed / f"props_predictions_{date_str}.csv"
+    runner = CliRunner()
+    result = runner.invoke(
+        cli_module.cli,
+        [
+            "predict-props",
+            "--date",
+            date_str,
+            "--out",
+            str(out_path),
+            "--no-slate-only",
+            "--no-calibrate",
+            "--no-use-smart-sim",
+        ],
+    )
+
+    assert result.exit_code == 0
+    written = pd.read_csv(out_path)
+    assert written.shape[0] == 1
+    assert written.iloc[0]["player_name"] == "Devin Booker"
+    assert written.iloc[0]["team"] == "PHX"
+
+
 def test_predict_games_npu_uses_odds_events_fallback(tmp_path, monkeypatch):
     date_str = "2026-03-12"
     data_root = tmp_path / "data"

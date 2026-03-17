@@ -19,6 +19,66 @@ import os
 from pathlib import Path
 
 
+def _props_team_coverage(proc: Path, date_str: str) -> tuple[list[str], list[str], list[str]]:
+    expected: set[str] = set()
+    present: set[str] = set()
+
+    try:
+        import pandas as pd
+        from nba_betting.teams import to_tricode
+
+        odds = proc / f"game_odds_{date_str}.csv"
+        if odds.exists() and odds.stat().st_size > 0:
+            odf = pd.read_csv(odds)
+            if odf is not None and not odf.empty:
+                home_col = "home_team" if "home_team" in odf.columns else None
+                away_col = "visitor_team" if "visitor_team" in odf.columns else ("away_team" if "away_team" in odf.columns else None)
+                if home_col and away_col:
+                    for _, row in odf.iterrows():
+                        home = str(to_tricode(row.get(home_col)) or "").strip().upper()
+                        away = str(to_tricode(row.get(away_col)) or "").strip().upper()
+                        if home:
+                            expected.add(home)
+                        if away:
+                            expected.add(away)
+
+        if not expected:
+            ls = proc / f"league_status_{date_str}.csv"
+            if ls.exists() and ls.stat().st_size > 0:
+                ldf = pd.read_csv(ls)
+                if ldf is not None and not ldf.empty:
+                    team_col = "team" if "team" in ldf.columns else ("team_tri" if "team_tri" in ldf.columns else None)
+                    if team_col:
+                        tmp = ldf.copy()
+                        if "team_on_slate" in tmp.columns:
+                            team_on_slate = tmp["team_on_slate"].astype(str).str.strip().str.lower().isin({"1", "true", "t", "yes", "y"})
+                            try:
+                                team_on_slate = team_on_slate | (pd.to_numeric(tmp["team_on_slate"], errors="coerce").fillna(0.0) > 0.5)
+                            except Exception:
+                                pass
+                            tmp = tmp[team_on_slate].copy()
+                        expected = set(
+                            str(to_tricode(v) or "").strip().upper()
+                            for v in tmp[team_col].tolist()
+                            if str(to_tricode(v) or "").strip().upper()
+                        )
+
+        props = proc / f"props_predictions_{date_str}.csv"
+        if props.exists() and props.stat().st_size > 0:
+            pdf = pd.read_csv(props)
+            if pdf is not None and not pdf.empty and "team" in pdf.columns:
+                present = set(
+                    str(to_tricode(v) or str(v or "").strip().upper()).strip().upper()
+                    for v in pdf["team"].tolist()
+                    if str(to_tricode(v) or str(v or "").strip().upper()).strip().upper()
+                )
+    except Exception:
+        pass
+
+    missing = sorted(expected - present)
+    return sorted(expected), sorted(present), missing
+
+
 def _exists_nonempty(path: Path) -> bool:
     try:
         return path.exists() and path.stat().st_size > 0
@@ -187,6 +247,7 @@ def main() -> int:
     props_edges_rows = _count_csv_data_rows(props_edges)
     props_recs_rows = _count_csv_data_rows(props_recs)
     props_recs_play_rows = _count_props_recommendation_play_rows(props_recs)
+    props_expected_teams, props_present_teams, props_missing_teams = _props_team_coverage(proc, date_str)
 
     slate_games: int | None = None
     try:
@@ -292,6 +353,8 @@ def main() -> int:
         missing.append(pred.name)
     if props_rows <= 0:
         missing.append(props.name)
+    elif props_missing_teams:
+        missing.append(f"props_predictions missing slate teams: {', '.join(props_missing_teams)}")
 
     if args.require_props_lines and props_rows > 0 and props_snapshot_rows > 0:
         if props_edges_rows <= 0:
@@ -350,6 +413,9 @@ def main() -> int:
         "props_recommendations_ok": props_recs_rows > 0,
         "props_recommendations_rows": props_recs_rows,
         "props_recommendations_play_rows": props_recs_play_rows,
+        "props_expected_teams": props_expected_teams,
+        "props_present_teams": props_present_teams,
+        "props_missing_teams": props_missing_teams,
         "slate_games": slate_games,
         "smart_sim_count": smart_count,
         "rotations_dir_exists": bool((proc / "rotations_espn").exists()),

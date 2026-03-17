@@ -29,6 +29,7 @@ from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
 from .roster_checks import roster_sanity_check
 from .player_logs import fetch_player_logs
+from .player_names import normalize_player_name_key
 from .teams import normalize_team, to_tricode
 from .scrape_nba_api import fetch_games_nba_api, enrich_periods_existing, backfill_scoreboard
 from .odds_api import backfill_historical_odds, OddsApiConfig, consensus_lines_at_close, backfill_player_props, fetch_player_props_current
@@ -77,6 +78,137 @@ try:
     reconcile_repo_data_to_active()
 except Exception:
     pass
+
+
+def _truthy_mask(values: pd.Series | Any) -> pd.Series:
+    try:
+        ser = values if isinstance(values, pd.Series) else pd.Series(values)
+    except Exception:
+        return pd.Series(dtype=bool)
+    if len(ser) == 0:
+        return pd.Series(dtype=bool)
+    txt = ser.astype(str).str.strip().str.lower()
+    out = txt.isin({"1", "true", "t", "yes", "y"})
+    try:
+        num = pd.to_numeric(ser, errors="coerce")
+        out = out | ((num > 0.5) & num.notna())
+    except Exception:
+        pass
+    return out.astype(bool)
+
+
+def _falsey_mask(values: pd.Series | Any) -> pd.Series:
+    try:
+        ser = values if isinstance(values, pd.Series) else pd.Series(values)
+    except Exception:
+        return pd.Series(dtype=bool)
+    if len(ser) == 0:
+        return pd.Series(dtype=bool)
+    txt = ser.astype(str).str.strip().str.lower()
+    out = txt.isin({"0", "false", "f", "no", "n"})
+    try:
+        num = pd.to_numeric(ser, errors="coerce")
+        out = out | ((num <= 0.5) & num.notna())
+    except Exception:
+        pass
+    return out.astype(bool)
+
+
+def _league_status_player_maps_for_date(
+    date_str: str,
+    *,
+    allow_build: bool = True,
+) -> tuple[dict[str, str], dict[str, set[str]], dict[str, set[str]]]:
+    roster_name_to_tri: dict[str, str] = {}
+    excluded_by_team: dict[str, set[str]] = {}
+    allowed_by_team: dict[str, set[str]] = {}
+
+    try:
+        ls_path = paths.data_processed / f"league_status_{str(date_str).strip()}.csv"
+        if ls_path.exists():
+            lsdf = pd.read_csv(ls_path)
+        elif allow_build:
+            lsdf = build_league_status(str(date_str))
+        else:
+            lsdf = pd.DataFrame()
+    except Exception:
+        lsdf = pd.DataFrame()
+
+    if lsdf is None or lsdf.empty:
+        return roster_name_to_tri, excluded_by_team, allowed_by_team
+
+    try:
+        cols_upper = {c.upper(): c for c in lsdf.columns}
+        cols_lower = {c.lower(): c for c in lsdf.columns}
+        team_col = (
+            cols_upper.get("TEAM_ABBREVIATION")
+            or cols_upper.get("TEAM")
+            or cols_upper.get("TEAM_TRI")
+            or cols_lower.get("team_abbreviation")
+            or cols_lower.get("team")
+            or cols_lower.get("team_tri")
+        )
+        name_col = (
+            cols_upper.get("PLAYER_NAME")
+            or cols_upper.get("PLAYER")
+            or cols_lower.get("player_name")
+            or cols_lower.get("player")
+        )
+        playing_col = cols_lower.get("playing_today") or cols_upper.get("PLAYING_TODAY")
+        on_slate_col = cols_lower.get("team_on_slate") or cols_upper.get("TEAM_ON_SLATE")
+
+        if not (team_col and name_col):
+            return roster_name_to_tri, excluded_by_team, allowed_by_team
+
+        keep_cols = [team_col, name_col]
+        if playing_col:
+            keep_cols.append(playing_col)
+        if on_slate_col:
+            keep_cols.append(on_slate_col)
+        tmp = lsdf[keep_cols].copy()
+        tmp[team_col] = tmp[team_col].astype(str).map(lambda x: (to_tricode(str(x)) or str(x).strip().upper()))
+        tmp[name_col] = tmp[name_col].astype(str)
+        tmp["_pkey"] = tmp[name_col].map(lambda x: normalize_player_name_key(x, case="upper"))
+        tmp = tmp[tmp[team_col].astype(str).str.len() > 0].copy()
+        tmp = tmp[tmp["_pkey"].astype(str).str.len() > 0].copy()
+        if tmp.empty:
+            return roster_name_to_tri, excluded_by_team, allowed_by_team
+
+        for _, rr in tmp[[team_col, "_pkey"]].dropna().iterrows():
+            tri = str(rr.get(team_col) or "").strip().upper()
+            pkey = str(rr.get("_pkey") or "").strip().upper()
+            if tri and pkey:
+                roster_name_to_tri.setdefault(pkey, tri)
+
+        on_mask = pd.Series(True, index=tmp.index)
+        if on_slate_col and on_slate_col in tmp.columns:
+            on_mask = _truthy_mask(tmp[on_slate_col]).reindex(tmp.index, fill_value=False)
+
+        if playing_col and playing_col in tmp.columns:
+            playing_true = _truthy_mask(tmp[playing_col]).reindex(tmp.index, fill_value=False)
+            playing_false = _falsey_mask(tmp[playing_col]).reindex(tmp.index, fill_value=False)
+        else:
+            playing_true = pd.Series(False, index=tmp.index)
+            playing_false = pd.Series(False, index=tmp.index)
+
+        allow_df = tmp[on_mask & playing_true].copy()
+        exclude_df = tmp[on_mask & playing_false].copy()
+
+        for tri, grp in allow_df.groupby(team_col):
+            key = str(tri or "").strip().upper()
+            vals = set(grp["_pkey"].astype(str).str.upper().str.strip().tolist())
+            if key and vals:
+                allowed_by_team[key] = vals
+
+        for tri, grp in exclude_df.groupby(team_col):
+            key = str(tri or "").strip().upper()
+            vals = set(grp["_pkey"].astype(str).str.upper().str.strip().tolist())
+            if key and vals:
+                excluded_by_team[key] = vals
+    except Exception:
+        return {}, {}, {}
+
+    return roster_name_to_tri, excluded_by_team, allowed_by_team
 
 # --- Calibration config helpers ---
 def _load_player_calib_overrides():
@@ -1012,68 +1144,16 @@ def _smart_sim_run_date(
             fresh_cutoff = None
 
         roster_name_to_tri: dict[str, str] = {}
+        ls_allowed: dict[str, set[str]] = {}
         try:
-            fp = paths.data_processed / f"league_status_{ds_s}.csv"
-            if fp.exists():
-                rdf = pd.read_csv(fp)
-                if rdf is not None and not rdf.empty:
-                    cols = {c.upper(): c for c in rdf.columns}
-                    lcols = {c.lower(): c for c in rdf.columns}
-                    tcol = (
-                        cols.get("TEAM_ABBREVIATION")
-                        or cols.get("TEAM")
-                        or cols.get("TEAM_TRI")
-                        or lcols.get("team_abbreviation")
-                        or lcols.get("team")
-                        or lcols.get("team_tri")
-                    )
-                    ncol = (
-                        cols.get("PLAYER")
-                        or cols.get("PLAYER_NAME")
-                        or lcols.get("player_name")
-                        or lcols.get("player")
-                    )
-                    if tcol and ncol:
-                        tmp = rdf[[tcol, ncol]].dropna().copy()
-                        tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                        tmp[ncol] = tmp[ncol].astype(str)
-                        for _, rr in tmp.iterrows():
-                            nk = str(_norm_player_key(rr.get(ncol)) or "").strip().upper()
-                            if not nk:
-                                continue
-                            tri = str(rr.get(tcol) or "").strip().upper()
-                            if len(tri) != 3:
-                                tri = str(to_tricode(tri) or "").strip().upper()
-                            if tri:
-                                roster_name_to_tri.setdefault(nk, tri)
-
-                    # Also exclude any players explicitly marked playing_today=False in league_status.
-                    # This protects SmartSim from re-introducing OUT players via roster/ESPN fallback pools.
-                    try:
-                        pt_col = lcols.get("playing_today")
-                        on_col = lcols.get("team_on_slate")
-                        if (pt_col is not None) and (tcol is not None) and (ncol is not None):
-                            cols_keep = [tcol, ncol, pt_col] + ([on_col] if on_col is not None else [])
-                            lt = rdf[cols_keep].copy()
-                            lt[tcol] = lt[tcol].astype(str).str.strip().str.upper()
-                            lt[ncol] = lt[ncol].astype(str)
-                            pt = lt[pt_col].astype(str).str.lower().str.strip()
-                            is_false = pt.isin(["false", "0", "no", "n"])
-                            if on_col is not None and on_col in lt.columns:
-                                on = lt[on_col].astype(str).str.lower().str.strip().isin(["true", "1", "yes", "y"])
-                                is_false = is_false & on
-                            bad = lt[is_false].copy()
-                            for _, rr in bad.iterrows():
-                                tri = str(rr.get(tcol) or "").strip().upper()
-                                if len(tri) != 3:
-                                    tri = str(to_tricode(tri) or "").strip().upper()
-                                nm = str(rr.get(ncol) or "").strip()
-                                if tri and nm:
-                                    _add(tri, nm)
-                    except Exception:
-                        pass
+            roster_name_to_tri, ls_excluded, ls_allowed = _league_status_player_maps_for_date(ds_s)
+            for tri, names in ls_excluded.items():
+                for name_key in names:
+                    if tri and name_key:
+                        out.setdefault(str(tri).strip().upper(), set()).add(str(name_key).strip().upper())
         except Exception:
             roster_name_to_tri = {}
+            ls_allowed = {}
 
         if not roster_name_to_tri:
             try:
@@ -1230,6 +1310,17 @@ def _smart_sim_run_date(
                             continue
                         if tri in out and k in out[tri]:
                             out[tri].discard(k)
+        except Exception:
+            pass
+
+        try:
+            for tri, names in (ls_allowed or {}).items():
+                t = str(tri or "").strip().upper()
+                if not t or t not in out:
+                    continue
+                out[t].difference_update(set(str(x or "").strip().upper() for x in names if str(x or "").strip()))
+                if not out[t]:
+                    out.pop(t, None)
         except Exception:
             pass
         return out
@@ -4904,6 +4995,22 @@ def predict_props_cmd(date_str: str, out_path: str | None, slate_only: bool, cal
                         if "team" in day_out.columns:
                             # Keep a simple, consistent team column for downstream consumers.
                             day_out["team"] = day_out["team_tri"].where(day_out["team_tri"].astype(str).str.len() > 0, day_out["team"])
+                except Exception:
+                    pass
+
+                try:
+                    _, _, ls_allowed = _league_status_player_maps_for_date(date_str)
+                    if ls_allowed and not day_out.empty:
+                        day_out = day_out.copy()
+                        day_out["_team_tri"] = day_out.get("team_tri", "").astype(str).str.upper().str.strip()
+                        day_out["_pkey"] = day_out.get("player_key", "").astype(str).str.upper().str.strip()
+                        day_out = day_out[
+                            ~day_out.apply(
+                                lambda r: str(r.get("_pkey") or "") in ls_allowed.get(str(r.get("_team_tri") or ""), set()),
+                                axis=1,
+                            )
+                        ].copy()
+                        day_out = day_out.drop(columns=["_team_tri", "_pkey"], errors="ignore")
                 except Exception:
                     pass
 
