@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NBA Betting – Live</title>
+  <link rel="stylesheet" href="/web/styles.css?v=20260317-7" />
+</head>
+<body data-page-mode="live">
+  <header>
+    <div class="container header-inner">
+      <h1>NBA Betting – Live</h1>
+      <form id="controls" onsubmit="return false;">
+        <label>Date: <input type="date" id="datePicker" /></label>
+        <button type="button" id="applyBtn" class="btn">Apply</button>
+        <button type="button" id="todayBtn" class="btn">Today</button>
+        <label class="control-label">Show results <input type="checkbox" id="resultsToggle" /></label>
+        <label class="control-label">Hide odds <input type="checkbox" id="hideOdds" /></label>
+        <a class="btn" href="/pregame">Pregame</a>
+        <a class="btn" href="/live">Live</a>
+        <a class="btn" href="/recommendations">Recommendations</a>
+        <a class="btn" id="marketAccuracyBtn" href="/accuracy-market">Market Accuracy</a>
+        <a class="btn" id="liveGameLensAccuracyBtn" href="/live-game-lens-accuracy">Live Game Lens Accuracy</a>
+        <a class="btn" id="livePlayerPropsLensAccuracyBtn" href="/live-player-props-lens-accuracy">Live Player Props Lens Accuracy</a>
+      </form>
+    </div>
+  </header>
+  <main>
+    <div class="container">
+      <div id="note" class="alert hidden"></div>
+      <div id="cards" class="cards"></div>
+    </div>
+  </main>
+  <script src="/web/cards.js?v=20260317-8"></script>
+</body>
+</html>

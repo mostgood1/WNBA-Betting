@@ -655,3 +655,25 @@ def test_upload_props_refresh_artifacts_accepts_snapshot_only(tmp_path, monkeypa
     assert (raw / "odds_nba_player_props_opening_2026-03-18.csv").exists()
     assert (raw / "odds_nba_player_props_history_2026-03-18.csv").exists()
     assert not (processed / "props_edges_2026-03-18.csv").exists()
+
+
+def test_cards_shell_routes_use_split_pages():
+    client = app_module.app.test_client()
+
+    root_response = client.get("/")
+    pregame_response = client.get("/pregame")
+    live_response = client.get("/live")
+
+    assert root_response.status_code == 200
+    assert pregame_response.status_code == 200
+    assert live_response.status_code == 200
+
+    root_html = root_response.get_data(as_text=True)
+    pregame_html = pregame_response.get_data(as_text=True)
+    live_html = live_response.get_data(as_text=True)
+
+    assert 'data-page-mode="pregame"' in root_html
+    assert 'data-page-mode="pregame"' in pregame_html
+    assert 'NBA Betting – Pregame' in pregame_html
+    assert 'data-page-mode="live"' in live_html
+    assert 'NBA Betting – Live' in live_html

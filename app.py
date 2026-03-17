@@ -3288,6 +3288,8 @@ def _enforce_minimal_ui_allowlist():
         # Exact pages
         allowed_exact = {
             "/",
+            "/pregame",
+            "/live",
             "/recommendations",
             "/reconciliation",
             "/features",
@@ -5733,9 +5735,7 @@ def api_processed_recon_players():
 
 
 
-@app.route("/")
-def root():
-    # Serve the NBA slate homepage directly at '/'
+def _serve_cards_page(filename: str):
     # Server-render the default date so the page never boots with a blank date input
     # (some browsers can reject programmatic input[type=date] assignment).
     try:
@@ -5754,7 +5754,7 @@ def root():
         base = now - timedelta(days=1) if now.hour < 6 else now
         ymd = base.strftime("%Y-%m-%d")
 
-        html = (WEB_DIR / "index.html").read_text(encoding="utf-8")
+        html = (WEB_DIR / filename).read_text(encoding="utf-8")
         # Only skip injection if the datePicker itself already has a value.
         has_date_value = (
             'id="datePicker" value="' in html
@@ -5762,7 +5762,7 @@ def root():
             or 'id="datePicker" value=' in html
             or "id='datePicker' value=" in html
         )
-        if "id=\"datePicker\"" in html and not has_date_value:
+        if 'id="datePicker"' in html and not has_date_value:
             html = html.replace(
                 '<input type="date" id="datePicker" />',
                 f'<input type="date" id="datePicker" value="{ymd}" />',
@@ -5782,10 +5782,27 @@ def root():
     except Exception:
         try:
             import traceback
-            print("root() HTML injection failed:\n" + traceback.format_exc())
+
+            print(f"serve_cards_page({filename}) HTML injection failed:\n" + traceback.format_exc())
         except Exception:
             pass
-        return send_from_directory(str(WEB_DIR), "index.html")
+        return send_from_directory(str(WEB_DIR), filename)
+
+
+@app.route("/")
+def root():
+    # Serve the pregame slate homepage directly at '/'.
+    return _serve_cards_page("pregame.html")
+
+
+@app.route("/pregame")
+def route_pregame_cards():
+    return _serve_cards_page("pregame.html")
+
+
+@app.route("/live")
+def route_live_cards():
+    return _serve_cards_page("live.html")
 
 
 @app.route("/web/")

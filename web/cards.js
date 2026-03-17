@@ -134,6 +134,23 @@ function setNote(msg) {
   note.classList.remove('hidden');
 }
 
+function getCardsPageMode() {
+  try {
+    const bodyMode = String(document.body && document.body.dataset ? (document.body.dataset.pageMode || '') : '').trim().toLowerCase();
+    if (bodyMode === 'pregame' || bodyMode === 'live') return bodyMode;
+  } catch (_) {
+    // ignore
+  }
+  try {
+    const path = String(window.location && window.location.pathname || '').trim().toLowerCase();
+    if (path === '/live') return 'live';
+    if (path === '/pregame' || path === '/') return 'pregame';
+  } catch (_) {
+    // ignore
+  }
+  return 'pregame';
+}
+
 // Surface JS runtime failures directly in the page so it doesn't look like a "blank" load.
 (function installGlobalErrorTraps() {
   try {
@@ -1180,12 +1197,53 @@ function fmtSimLineScore(value) {
 
 function renderLineScoreBlock(meta, actualSource) {
   const simRows = buildSimLineScoreRows(meta);
+  const mode = String((actualSource && actualSource.mode) || '').trim().toLowerCase();
   const actualRows = buildActualLineScoreRows(
     actualSource && actualSource.periods,
     actualSource && actualSource.actualAway,
     actualSource && actualSource.actualHome,
   );
   const label = String((actualSource && actualSource.label) || 'Live').trim() || 'Live';
+
+  if (mode === 'pregame') {
+    return `
+      <div class="merged-boxscore-section">
+        <div class="merged-boxscore-title">Sim line score</div>
+        <div class="table-wrap">
+          <table class="data-table merged-linescore-table">
+            <thead>
+              <tr>
+                <th></th>
+                <th class="num">Q1</th>
+                <th class="num">Q2</th>
+                <th class="num">Q3</th>
+                <th class="num">Q4</th>
+                <th class="num">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="team">${esc(meta && meta.away ? meta.away : 'Away')}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q1)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q2)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q3)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.q4)}</td>
+                <td class="num">${fmtSimLineScore(simRows.away.total)}</td>
+              </tr>
+              <tr>
+                <td class="team">${esc(meta && meta.home ? meta.home : 'Home')}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q1)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q2)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q3)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.q4)}</td>
+                <td class="num">${fmtSimLineScore(simRows.home.total)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
 
   return `
     <div class="merged-boxscore-section">
@@ -1287,6 +1345,7 @@ function renderActualBoxscoreTotalsCells(rows, actualMode) {
 
 function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualMode, actualLabel, liveLensRows, lineOnlyPlayers) {
   const isLiveMode = actualMode === 'live';
+  const isPregameMode = actualMode === 'pregame';
   const statColumns = mergedBoxscoreStatColumns();
   const actualHeaderCols = mergedBoxscoreActualColumnCount(actualMode);
   const simHeaderCols = mergedBoxscoreSimColumnCount();
@@ -1298,6 +1357,18 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
     const simCells = [`<td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sim.mp)}</td>`];
     for (const column of statColumns) {
       simCells.push(`<td class="num boxscore-combo-cell boxscore-combo-cell-sim">${renderSimMergedBoxscoreCell(propPlayer, column.key, sim[column.key])}</td>`);
+    }
+    if (isPregameMode) {
+      const simOnlyCells = [`<td class="num">${fmtSimBoxscoreStat('mp', sim.mp)}</td>`];
+      for (const column of statColumns) {
+        simOnlyCells.push(`<td class="num boxscore-combo-cell boxscore-combo-cell-sim">${renderSimMergedBoxscoreCell(propPlayer, column.key, sim[column.key])}</td>`);
+      }
+      return `
+        <tr>
+          <td>${esc(row && row.name ? row.name : '—')}${row && row.lineOnly ? ' <span class="boxscore-line-only-flag">LINES</span>' : ''}</td>
+          ${simOnlyCells.join('')}
+        </tr>
+      `;
     }
     return `
       <tr>
@@ -1311,6 +1382,43 @@ function renderComparePlayerBoxscoreTable(title, simPlayers, actualRows, actualM
   const simTotalsCells = [`<td class="num boxscore-divider-start">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>`];
   for (const column of statColumns) {
     simTotalsCells.push(`<td class="num boxscore-combo-cell boxscore-combo-cell-sim">${renderMergedBoxscoreStatCell(fmtSimBoxscoreStat(column.key, sumMergedBoxscoreStat(rows, 'sim', column.key)))}</td>`);
+  }
+
+  if (isPregameMode) {
+    const simOnlyHeaderRow = [`<th class="num">MIN</th>`]
+      .concat(statColumns.map((column) => `<th class="num boxscore-combo-col boxscore-combo-col-sim">${column.label}</th>`))
+      .join('');
+    const simOnlyTotalsCells = [`<td class="num">${fmtSimBoxscoreStat('mp', sumMergedBoxscoreStat(rows, 'sim', 'mp'))}</td>`];
+    for (const column of statColumns) {
+      simOnlyTotalsCells.push(`<td class="num boxscore-combo-cell boxscore-combo-cell-sim">${renderMergedBoxscoreStatCell(fmtSimBoxscoreStat(column.key, sumMergedBoxscoreStat(rows, 'sim', column.key)))}</td>`);
+    }
+    return `
+      <div class="merged-boxscore-section">
+        <div class="merged-boxscore-title">${esc(title)}</div>
+        <div class="table-wrap">
+          <table class="data-table merged-player-boxscore">
+            <thead>
+              <tr>
+                <th rowspan="2">Player</th>
+                <th colspan="${esc(String(simHeaderCols))}" class="boxscore-side-header boxscore-side-header-sim">Sim</th>
+              </tr>
+              <tr>
+                ${simOnlyHeaderRow}
+              </tr>
+            </thead>
+            <tbody>
+              ${body || `<tr><td colspan="${1 + simHeaderCols}" class="subtle">No player rows.</td></tr>`}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>TEAM TOTAL</td>
+                ${simOnlyTotalsCells.join('')}
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    `;
   }
 
   const totalsRow = `
@@ -1422,22 +1530,25 @@ function renderMissingSimPropLineAudit(meta) {
 
 function renderMergedBoxscoreSection(meta, actualSource) {
   const source = (actualSource && typeof actualSource === 'object') ? actualSource : {};
-  const sourceMode = (source.mode === 'live' || source.mode === 'recon') ? source.mode : 'none';
-  const mode = sourceMode === 'recon' ? 'recon' : 'live';
-  const label = String(source.label || (mode === 'recon' ? 'Actual' : 'Live')).trim() || (mode === 'recon' ? 'Actual' : 'Live');
-  const homeRows = source.homeRows || (mode === 'recon' ? {} : []);
-  const awayRows = source.awayRows || (mode === 'recon' ? {} : []);
-  const homeLensRows = Array.isArray(source.homeLensRows) ? source.homeLensRows : [];
-  const awayLensRows = Array.isArray(source.awayLensRows) ? source.awayLensRows : [];
+  const sourceMode = (source.mode === 'live' || source.mode === 'recon' || source.mode === 'pregame') ? source.mode : 'live';
+  const mode = sourceMode;
+  const label = String(source.label || (mode === 'recon' ? 'Actual' : (mode === 'live' ? 'Live' : 'Pregame'))).trim()
+    || (mode === 'recon' ? 'Actual' : (mode === 'live' ? 'Live' : 'Pregame'));
+  const homeRows = source.homeRows || ((mode === 'recon' || mode === 'pregame') ? {} : []);
+  const awayRows = source.awayRows || ((mode === 'recon' || mode === 'pregame') ? {} : []);
+  const homeLensRows = mode === 'live' && Array.isArray(source.homeLensRows) ? source.homeLensRows : [];
+  const awayLensRows = mode === 'live' && Array.isArray(source.awayLensRows) ? source.awayLensRows : [];
 
   let note = 'Live columns are prebuilt here and fill once ESPN summary data is available.';
   if (mode === 'recon') note = 'Actual columns come from saved reconciliation data.';
-  if (sourceMode === 'live') note = `${label} columns refresh from ESPN summary data.`;
-  note += ' Sim columns include the core posted prop-line groups when markets are available, and recommendation-tagged options are marked inline.';
+  if (mode === 'live') note = `${label} columns refresh from ESPN summary data.`;
+  if (mode === 'pregame') note = 'Sim view with pregame prop-line pills inline when market lines are available.';
+
+  const sectionTitle = mode === 'pregame' ? 'Sim boxscore + pregame lines' : `Sim vs ${label}`;
 
   return `
     <div class="merged-boxscore-block">
-      <div class="merged-boxscore-k">${esc(`Sim vs ${label}`)}</div>
+      <div class="merged-boxscore-k">${esc(sectionTitle)}</div>
       <div class="subtle">${esc(note)}</div>
       ${renderMissingSimPropLineAudit(meta)}
       ${renderLineScoreBlock(meta, source)}
@@ -7955,8 +8066,11 @@ function renderPropTargets(propTargets, homeTri, awayTri) {
 function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, showResults, hideOdds, dateStr) {
   const root = document.getElementById('cards');
   if (!root) return;
+  const pageMode = getCardsPageMode();
+  const showPregameUi = pageMode !== 'live';
+  const showLiveUi = pageMode !== 'pregame';
   if (!Array.isArray(games) || games.length === 0) {
-    root.innerHTML = '<div class="card"><div class="subtle">No SmartSim games found for this date.</div></div>';
+    root.innerHTML = `<div class="card"><div class="subtle">${showLiveUi ? 'No games found for this date.' : 'No SmartSim games found for this date.'}</div></div>`;
     return;
   }
 
@@ -7981,24 +8095,34 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
       const recon = showResults ? (reconIndex.get(`${homeTri}|${awayTri}`) || reconIndex.get(`${String(g.home_name || '').trim()}|${String(g.away_name || '').trim()}`)) : null;
       const actualHome = recon ? n(recon.home_pts) : null;
       const actualAway = recon ? n(recon.visitor_pts) : null;
+      const sim0 = (g && g.sim) ? g.sim : g;
+      const score0 = (sim0 && sim0.score) ? sim0.score : (g && g.score ? g.score : null);
+      const projectedHome = n(score0 && score0.home_mean);
+      const projectedAway = n(score0 && score0.away_mean);
 
       const odds = g.odds || {};
       const timeStr = fmtTime(odds.commence_time);
       const statusTxt = (actualHome != null && actualAway != null) ? 'Final' : (timeStr || '—');
-      const awayScoreTxt = (actualHome != null && actualAway != null) ? String(actualAway) : '';
-      const homeScoreTxt = (actualHome != null && actualAway != null) ? String(actualHome) : '';
+      const awayScoreTxt = (actualHome != null && actualAway != null)
+        ? String(actualAway)
+        : (showPregameUi ? fmt(projectedAway, 0) : '');
+      const homeScoreTxt = (actualHome != null && actualAway != null)
+        ? String(actualHome)
+        : (showPregameUi ? fmt(projectedHome, 0) : '');
 
       return `
         <button type="button" class="s-item neu" data-game-id="${esc(gid)}" aria-label="Jump to ${esc(awayTri)} at ${esc(homeTri)}">
           <span class="s-top">
             <span class="s-status">${esc(statusTxt)}</span>
           </span>
+          ${showLiveUi ? `
           <span class="s-tags" aria-label="Live Lens total scopes">
             <span class="s-tag" data-scope-key="q1">1Q —</span>
             <span class="s-tag" data-scope-key="half">1H —</span>
             <span class="s-tag" data-scope-key="q3">3Q —</span>
             <span class="s-tag" data-scope-key="game">G —</span>
           </span>
+          ` : ''}
 
           <span class="s-rows">
             <span class="s-row">
@@ -8093,25 +8217,27 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     if (simErr) warnLines.push(`SmartSim error: ${simErr}`);
     if (Array.isArray(g.warnings) && g.warnings.length) warnLines.push(...g.warnings);
     let boxscoreReconBadge = '';
-    try {
-      const bs = g && g.boxscore_recon ? g.boxscore_recon : null;
-      if (bs && bs.reason === 'missing_boxscore') {
-        // For today's slate, missing boxscores are expected pregame/in-progress.
-        if (!isToday) {
-          warnLines.push(`Boxscore cache missing for game_id ${bs.game_id}`);
-          boxscoreReconBadge = '<span class="badge ok">BOX MISSING</span>';
+    if (showLiveUi) {
+      try {
+        const bs = g && g.boxscore_recon ? g.boxscore_recon : null;
+        if (bs && bs.reason === 'missing_boxscore') {
+          // For today's slate, missing boxscores are expected pregame/in-progress.
+          if (!isToday) {
+            warnLines.push(`Boxscore cache missing for game_id ${bs.game_id}`);
+            boxscoreReconBadge = '<span class="badge ok">BOX MISSING</span>';
+          }
+        } else if (bs && bs.ok === false) {
+          warnLines.push(
+            `Boxscore recon mismatch: ${awayTri} pts(players)=${bs.away_pts_players} vs actual=${bs.away_pts_actual}; ` +
+            `${homeTri} pts(players)=${bs.home_pts_players} vs actual=${bs.home_pts_actual}`
+          );
+          boxscoreReconBadge = '<span class="badge bad">BOX MISMATCH</span>';
+        } else if (bs && bs.ok === true) {
+          boxscoreReconBadge = '<span class="badge good">BOX OK</span>';
         }
-      } else if (bs && bs.ok === false) {
-        warnLines.push(
-          `Boxscore recon mismatch: ${awayTri} pts(players)=${bs.away_pts_players} vs actual=${bs.away_pts_actual}; ` +
-          `${homeTri} pts(players)=${bs.home_pts_players} vs actual=${bs.home_pts_actual}`
-        );
-        boxscoreReconBadge = '<span class="badge bad">BOX MISMATCH</span>';
-      } else if (bs && bs.ok === true) {
-        boxscoreReconBadge = '<span class="badge good">BOX OK</span>';
+      } catch (_) {
+        // ignore
       }
-    } catch (_) {
-      // ignore
     }
     const warn = warnLines.length
       ? `<div class="alert">${warnLines.map((w) => esc(w)).join('<br/>')}</div>`
@@ -8123,25 +8249,27 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     let playerReconBadge = '';
     let homeRecon = null;
     let awayRecon = null;
-    try {
-      if (reconPIndex) {
-        const gid10 = canonNbaGameId10(g && g.sim ? g.sim.game_id : null);
-        const byTeam = gid10 && reconPIndex[gid10] ? reconPIndex[gid10] : null;
-        homeRecon = byTeam && byTeam[homeTri] ? byTeam[homeTri] : null;
-        awayRecon = byTeam && byTeam[awayTri] ? byTeam[awayTri] : null;
-        const hs = homeRecon ? reconTeamSummary(homeRecon) : null;
-        const as = awayRecon ? reconTeamSummary(awayRecon) : null;
-        if (hs || as) {
-          playerReconBadge = `<span class="chip neutral" style="margin-left:8px;">Player recon MAE — HOME PTS ${fmt(hs && hs.maePts, 1)} / PRA ${fmt(hs && hs.maePra, 1)} (miss ${esc(hs && hs.missing)}) • AWAY PTS ${fmt(as && as.maePts, 1)} / PRA ${fmt(as && as.maePra, 1)} (miss ${esc(as && as.missing)})</span>`;
+    if (showLiveUi) {
+      try {
+        if (reconPIndex) {
+          const gid10 = canonNbaGameId10(g && g.sim ? g.sim.game_id : null);
+          const byTeam = gid10 && reconPIndex[gid10] ? reconPIndex[gid10] : null;
+          homeRecon = byTeam && byTeam[homeTri] ? byTeam[homeTri] : null;
+          awayRecon = byTeam && byTeam[awayTri] ? byTeam[awayTri] : null;
+          const hs = homeRecon ? reconTeamSummary(homeRecon) : null;
+          const as = awayRecon ? reconTeamSummary(awayRecon) : null;
+          if (hs || as) {
+            playerReconBadge = `<span class="chip neutral" style="margin-left:8px;">Player recon MAE — HOME PTS ${fmt(hs && hs.maePts, 1)} / PRA ${fmt(hs && hs.maePra, 1)} (miss ${esc(hs && hs.missing)}) • AWAY PTS ${fmt(as && as.maePts, 1)} / PRA ${fmt(as && as.maePra, 1)} (miss ${esc(as && as.missing)})</span>`;
+          }
         }
+      } catch (_) {
+        playerReconBadge = '';
+        homeRecon = null;
+        awayRecon = null;
       }
-    } catch (_) {
-      playerReconBadge = '';
-      homeRecon = null;
-      awayRecon = null;
     }
 
-    const hasReconActual = !!(
+    const hasReconActual = showLiveUi && !!(
       (actualHome != null && actualAway != null)
       || (homeRecon && Object.keys(homeRecon).length)
       || (awayRecon && Object.keys(awayRecon).length)
@@ -8167,8 +8295,8 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           awayRows: awayRecon || {},
         }
       : {
-          mode: 'none',
-          label: '',
+          mode: showLiveUi ? 'live' : 'pregame',
+          label: showLiveUi ? 'Live' : 'Pregame',
           periods: [],
           actualHome,
           actualAway,
@@ -8183,12 +8311,38 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     const quantLine = (awayP10 != null && awayP90 != null && homeP10 != null && homeP90 != null)
       ? `Away p10/p90: ${fmt(awayP10, 0)}/${fmt(awayP90, 0)} • Home p10/p90: ${fmt(homeP10, 0)}/${fmt(homeP90, 0)}`
       : '';
+    const cardModeClass = showLiveUi ? '' : ' pregame-card-compact';
+    const pregameBoxscoreHtml = !showLiveUi ? `
+        <div class="players-block pregame-boxscore-block">
+          <div class="merged-boxscore-body" data-game-id="${esc(gid)}" data-actual-source="pregame">
+            ${renderMergedBoxscoreSection(mergedBoxscoreMeta, {
+              mode: 'pregame',
+              label: 'Pregame',
+              periods: [],
+              actualHome: null,
+              actualAway: null,
+              homeRows: {},
+              awayRows: {},
+            })}
+          </div>
+        </div>
+      ` : '';
+    const pregameAvailabilityHtml = !showLiveUi ? `
+        <div class="writeup-block pregame-availability-block">
+          <div class="merged-boxscore-k">Availability</div>
+          <div class="pregame-availability-grid">
+            ${renderInjurySummary(`HOME (${homeTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.home) ? g.sim.injuries.home : playersHome)}
+            ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
+          </div>
+        </div>
+      ` : '';
 
     return `
-      <section class="card card-v2" id="game-${esc(gid)}" data-game-id="${esc(gid)}">
+      <section class="card card-v2${cardModeClass}" id="game-${esc(gid)}" data-game-id="${esc(gid)}">
         <div class="row head">
           <span class="venue">${esc(timeStr || '')}</span>
           <span class="venue">${esc(odds.bookmaker || odds.bookmaker_odds || 'odds')}</span>
+          ${showLiveUi ? `
           <span class="lens-card-tags" title="Live Lens total scopes">
             <span class="venue lens-card-tag" data-scope-key="q1" title="Live Lens 1Q total">1Q —</span>
             <span class="venue lens-card-tag" data-scope-key="half" title="Live Lens 1H total">1H —</span>
@@ -8196,6 +8350,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
             <span class="venue lens-card-tag" data-scope-key="game" title="Live Lens full-game total">G —</span>
           </span>
           <span class="lens-why-badges" title="Live Lens why (strongest total scope)"></span>
+          ` : ''}
           ${showResults && recon ? `<span class="result-badge">${finalLine}</span>` : ''}
         </div>
 
@@ -8245,6 +8400,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           </div>
         </div>
 
+        ${showLiveUi ? `
         <div class="market-grid">
           ${renderLiveLens(
             intervals,
@@ -8260,7 +8416,9 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
             } : null
           )}
         </div>
+        ` : ''}
 
+        ${showLiveUi ? `
         <details class="players-block" open>
           <summary class="players-toggle cursor-pointer">Boxscore (sim vs live/final) ${boxscoreReconBadge} ${playerReconBadge}</summary>
           <div class="merged-boxscore-body" data-game-id="${esc(gid)}" data-actual-source="${esc(initialBoxscoreSource.mode)}">
@@ -8270,9 +8428,10 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           <div class="mb-6"></div>
           ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
         </details>
+        ` : `${pregameBoxscoreHtml}${pregameAvailabilityHtml}`}
 
         <details class="writeup-block">
-          <summary class="writeup-toggle cursor-pointer">Recommended props (sim vs line)</summary>
+          <summary class="writeup-toggle cursor-pointer">${showLiveUi ? 'Recommended props (sim vs line)' : 'Pregame props (sim vs line)'}</summary>
           ${renderPropRecommendations(g.prop_recommendations, homeTri, awayTri)}
         </details>
       </section>
@@ -8295,6 +8454,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   })();
 
   const pregameGamePillsHtml = (() => {
+    if (!showPregameUi) return '';
     try {
       return `
         <div class="row chips" id="pregame-game-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
@@ -8309,6 +8469,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   })();
 
   const pregamePlayerPropPillsHtml = (() => {
+    if (!showPregameUi) return '';
     try {
       return `
         <div class="row chips" id="pregame-player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
@@ -8333,6 +8494,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   })();
 
   const liveGamePillsHtml = (() => {
+    if (!showLiveUi) return '';
     try {
       return `
         <div class="row chips" id="live-game-filter-pills" style="margin-top:10px; flex-wrap:wrap;">
@@ -8347,6 +8509,7 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   })();
 
   const livePlayerPropPillsHtml = (() => {
+    if (!showLiveUi) return '';
     try {
       return `
         <div class="row chips" id="live-player-prop-filter-pills" style="margin-top:8px; flex-wrap:wrap;">
@@ -8375,159 +8538,165 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
     }
   })();
 
-  root.innerHTML = `${stripHtml}\n${pregameGamePillsHtml}\n${pregamePlayerPropPillsHtml}\n<div id="pregame-prop-callouts" class="hidden"></div>\n${liveGamePillsHtml}\n${livePlayerPropPillsHtml}\n<div id="live-prop-callouts" class="hidden"></div>\n${html}`;
+  root.innerHTML = `${stripHtml}\n${pregameGamePillsHtml}\n${pregamePlayerPropPillsHtml}\n${showPregameUi ? '<div id="pregame-prop-callouts" class="hidden"></div>' : ''}\n${liveGamePillsHtml}\n${livePlayerPropPillsHtml}\n${showLiveUi ? '<div id="live-prop-callouts" class="hidden"></div>' : ''}\n${html}`;
 
-  try {
-    if (root && root.dataset && root.dataset.pregameGamePillsBound !== '1') {
-      root.dataset.pregameGamePillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-game-pill-all]') : null;
-          if (allBtn) {
-            __pregameGamePillsSelected.clear();
+  if (showPregameUi) {
+    try {
+      if (root && root.dataset && root.dataset.pregameGamePillsBound !== '1') {
+        root.dataset.pregameGamePillsBound = '1';
+        root.addEventListener('click', (ev) => {
+          try {
+            const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-game-pill-all]') : null;
+            if (allBtn) {
+              __pregameGamePillsSelected.clear();
+              applyPregamePropFilters(root);
+              return;
+            }
+            const btn = ev.target && ev.target.closest ? ev.target.closest('button.pregame-game-pill[data-game-id]') : null;
+            if (!btn) return;
+            const gid = canonGameId(btn.dataset.gameId);
+            if (!gid) return;
+            if (__pregameGamePillsSelected.has(gid)) __pregameGamePillsSelected.delete(gid);
+            else __pregameGamePillsSelected.add(gid);
             applyPregamePropFilters(root);
-            return;
+          } catch (_) {
+            // ignore
           }
-          const btn = ev.target && ev.target.closest ? ev.target.closest('button.pregame-game-pill[data-game-id]') : null;
-          if (!btn) return;
-          const gid = canonGameId(btn.dataset.gameId);
-          if (!gid) return;
-          if (__pregameGamePillsSelected.has(gid)) __pregameGamePillsSelected.delete(gid);
-          else __pregameGamePillsSelected.add(gid);
-          applyPregamePropFilters(root);
-        } catch (_) {
-          // ignore
-        }
-      });
+        });
+      }
+    } catch (_) {
+      // ignore
     }
-  } catch (_) {
-    // ignore
-  }
 
-  try {
-    if (root && root.dataset && root.dataset.pregamePropPillsBound !== '1') {
-      root.dataset.pregamePropPillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-player-prop-pill-all]') : null;
-          if (allBtn) {
-            try { __pregamePropFilters.stats.clear(); } catch (_) { /* ignore */ }
-            try { __pregamePropFilters.sides.clear(); } catch (_) { /* ignore */ }
+    try {
+      if (root && root.dataset && root.dataset.pregamePropPillsBound !== '1') {
+        root.dataset.pregamePropPillsBound = '1';
+        root.addEventListener('click', (ev) => {
+          try {
+            const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-pregame-player-prop-pill-all]') : null;
+            if (allBtn) {
+              try { __pregamePropFilters.stats.clear(); } catch (_) { /* ignore */ }
+              try { __pregamePropFilters.sides.clear(); } catch (_) { /* ignore */ }
+              applyPregamePropFilters(root);
+              return;
+            }
+
+            const btn = ev.target && ev.target.closest
+              ? ev.target.closest('button.pregame-player-prop-pill[data-kind][data-key]')
+              : null;
+            if (!btn) return;
+            const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+            const rawKey = String(btn.dataset.key || '').trim();
+            if (!rawKey) return;
+
+            if (kind === 'stat') {
+              const key = rawKey.toLowerCase();
+              if (__pregamePropFilters.stats.has(key)) __pregamePropFilters.stats.delete(key);
+              else __pregamePropFilters.stats.add(key);
+            } else if (kind === 'side') {
+              const key = rawKey.toUpperCase();
+              if (__pregamePropFilters.sides.has(key)) __pregamePropFilters.sides.delete(key);
+              else __pregamePropFilters.sides.add(key);
+            } else {
+              return;
+            }
+
             applyPregamePropFilters(root);
-            return;
+          } catch (_) {
+            // ignore
           }
-
-          const btn = ev.target && ev.target.closest
-            ? ev.target.closest('button.pregame-player-prop-pill[data-kind][data-key]')
-            : null;
-          if (!btn) return;
-          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
-          const rawKey = String(btn.dataset.key || '').trim();
-          if (!rawKey) return;
-
-          if (kind === 'stat') {
-            const key = rawKey.toLowerCase();
-            if (__pregamePropFilters.stats.has(key)) __pregamePropFilters.stats.delete(key);
-            else __pregamePropFilters.stats.add(key);
-          } else if (kind === 'side') {
-            const key = rawKey.toUpperCase();
-            if (__pregamePropFilters.sides.has(key)) __pregamePropFilters.sides.delete(key);
-            else __pregamePropFilters.sides.add(key);
-          } else {
-            return;
-          }
-
-          applyPregamePropFilters(root);
-        } catch (_) {
-          // ignore
-        }
-      });
+        });
+      }
+      applyPregamePropFilters(root);
+    } catch (_) {
+      // ignore
     }
-    applyPregamePropFilters(root);
-  } catch (_) {
-    // ignore
   }
 
   // Live game pills click handler
-  try {
-    if (root && root.dataset && root.dataset.gamePillsBound !== '1') {
-      root.dataset.gamePillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-game-pill-all]') : null;
-          if (allBtn) {
-            __gamePillsSelected.clear();
+  if (showLiveUi) {
+    try {
+      if (root && root.dataset && root.dataset.gamePillsBound !== '1') {
+        root.dataset.gamePillsBound = '1';
+        root.addEventListener('click', (ev) => {
+          try {
+            const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-game-pill-all]') : null;
+            if (allBtn) {
+              __gamePillsSelected.clear();
+              applyGamePillsFilter(root);
+              return;
+            }
+            const btn = ev.target && ev.target.closest ? ev.target.closest('button.live-game-pill[data-game-id]') : null;
+            if (!btn) return;
+            const gid = canonGameId(btn.dataset.gameId);
+            if (!gid) return;
+            if (__gamePillsSelected.has(gid)) __gamePillsSelected.delete(gid);
+            else __gamePillsSelected.add(gid);
             applyGamePillsFilter(root);
-            return;
+          } catch (_) {
+            // ignore
           }
-          const btn = ev.target && ev.target.closest ? ev.target.closest('button.live-game-pill[data-game-id]') : null;
-          if (!btn) return;
-          const gid = canonGameId(btn.dataset.gameId);
-          if (!gid) return;
-          if (__gamePillsSelected.has(gid)) __gamePillsSelected.delete(gid);
-          else __gamePillsSelected.add(gid);
-          applyGamePillsFilter(root);
-        } catch (_) {
-          // ignore
-        }
-      });
+        });
+      }
+      applyGamePillsFilter(root);
+    } catch (_) {
+      // ignore
     }
-    applyGamePillsFilter(root);
-  } catch (_) {
-    // ignore
   }
 
   // Live player prop pills click handler
-  try {
-    if (root && root.dataset && root.dataset.playerPropPillsBound !== '1') {
-      root.dataset.playerPropPillsBound = '1';
-      root.addEventListener('click', (ev) => {
-        try {
-          const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-player-prop-pill-all]') : null;
-          if (allBtn) {
-            try { __playerLensGlobalFilters.stats.clear(); } catch (_) { /* ignore */ }
-            try { __playerLensGlobalFilters.signals.clear(); } catch (_) { /* ignore */ }
-            try { __playerLensGlobalFilters.sides.clear(); } catch (_) { /* ignore */ }
-            try { __playerLensGlobalFilters.liveLineOnly = false; } catch (_) { /* ignore */ }
+  if (showLiveUi) {
+    try {
+      if (root && root.dataset && root.dataset.playerPropPillsBound !== '1') {
+        root.dataset.playerPropPillsBound = '1';
+        root.addEventListener('click', (ev) => {
+          try {
+            const allBtn = ev.target && ev.target.closest ? ev.target.closest('button[data-live-player-prop-pill-all]') : null;
+            if (allBtn) {
+              try { __playerLensGlobalFilters.stats.clear(); } catch (_) { /* ignore */ }
+              try { __playerLensGlobalFilters.signals.clear(); } catch (_) { /* ignore */ }
+              try { __playerLensGlobalFilters.sides.clear(); } catch (_) { /* ignore */ }
+              try { __playerLensGlobalFilters.liveLineOnly = false; } catch (_) { /* ignore */ }
+              applyPlayerLensFiltersAll(root);
+              return;
+            }
+
+            const btn = ev.target && ev.target.closest
+              ? ev.target.closest('button.live-player-prop-pill[data-kind][data-key]')
+              : null;
+            if (!btn) return;
+            const kind = String(btn.dataset.kind || '').toLowerCase().trim();
+            const rawKey = String(btn.dataset.key || '').trim();
+            if (!rawKey) return;
+
+            if (kind === 'stat') {
+              const key = rawKey.toLowerCase();
+              if (__playerLensGlobalFilters.stats.has(key)) __playerLensGlobalFilters.stats.delete(key);
+              else __playerLensGlobalFilters.stats.add(key);
+            } else if (kind === 'side') {
+              const key = rawKey.toUpperCase();
+              if (__playerLensGlobalFilters.sides.has(key)) __playerLensGlobalFilters.sides.delete(key);
+              else __playerLensGlobalFilters.sides.add(key);
+            } else if (kind === 'sig') {
+              const key = rawKey.toUpperCase();
+              if (__playerLensGlobalFilters.signals.has(key)) __playerLensGlobalFilters.signals.delete(key);
+              else __playerLensGlobalFilters.signals.add(key);
+            } else if (kind === 'line' && rawKey.toLowerCase() === 'live') {
+              __playerLensGlobalFilters.liveLineOnly = !__playerLensGlobalFilters.liveLineOnly;
+            } else {
+              return;
+            }
+
             applyPlayerLensFiltersAll(root);
-            return;
+          } catch (_) {
+            // ignore
           }
-
-          const btn = ev.target && ev.target.closest
-            ? ev.target.closest('button.live-player-prop-pill[data-kind][data-key]')
-            : null;
-          if (!btn) return;
-          const kind = String(btn.dataset.kind || '').toLowerCase().trim();
-          const rawKey = String(btn.dataset.key || '').trim();
-          if (!rawKey) return;
-
-          if (kind === 'stat') {
-            const key = rawKey.toLowerCase();
-            if (__playerLensGlobalFilters.stats.has(key)) __playerLensGlobalFilters.stats.delete(key);
-            else __playerLensGlobalFilters.stats.add(key);
-          } else if (kind === 'side') {
-            const key = rawKey.toUpperCase();
-            if (__playerLensGlobalFilters.sides.has(key)) __playerLensGlobalFilters.sides.delete(key);
-            else __playerLensGlobalFilters.sides.add(key);
-          } else if (kind === 'sig') {
-            const key = rawKey.toUpperCase();
-            if (__playerLensGlobalFilters.signals.has(key)) __playerLensGlobalFilters.signals.delete(key);
-            else __playerLensGlobalFilters.signals.add(key);
-          } else if (kind === 'line' && rawKey.toLowerCase() === 'live') {
-            __playerLensGlobalFilters.liveLineOnly = !__playerLensGlobalFilters.liveLineOnly;
-          } else {
-            return;
-          }
-
-          applyPlayerLensFiltersAll(root);
-        } catch (_) {
-          // ignore
-        }
-      });
+        });
+      }
+      applyPlayerLensFiltersAll(root);
+    } catch (_) {
+      // ignore
     }
-    applyPlayerLensFiltersAll(root);
-  } catch (_) {
-    // ignore
   }
 
   // Scoreboard strip click-to-scroll
@@ -8550,47 +8719,51 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
   }
 
   // Pregame prop movement callouts click-to-scroll
-  try {
-    const callouts = root.querySelector('#pregame-prop-callouts');
-    if (callouts && !callouts.dataset.bound) {
-      callouts.dataset.bound = '1';
-      callouts.addEventListener('click', (ev) => {
-        const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
-        if (!btn) return;
-        const gid = canonGameId(btn.dataset.gameId);
-        if (!gid) return;
-        const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
-        if (!target) return;
-        try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
-      });
+  if (showPregameUi) {
+    try {
+      const callouts = root.querySelector('#pregame-prop-callouts');
+      if (callouts && !callouts.dataset.bound) {
+        callouts.dataset.bound = '1';
+        callouts.addEventListener('click', (ev) => {
+          const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
+          if (!btn) return;
+          const gid = canonGameId(btn.dataset.gameId);
+          if (!gid) return;
+          const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
+          if (!target) return;
+          try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+        });
+      }
+    } catch (_) {
+      // ignore
     }
-  } catch (_) {
-    // ignore
   }
 
   // Live prop callouts click-to-scroll
-  try {
-    const callouts = root.querySelector('#live-prop-callouts');
-    if (callouts && !callouts.dataset.bound) {
-      callouts.dataset.bound = '1';
-      callouts.addEventListener('click', (ev) => {
-        const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
-        if (!btn) return;
-        const gid = canonGameId(btn.dataset.gameId);
-        if (!gid) return;
-        const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
-        if (!target) return;
-        try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
-        try {
-          const det = target.querySelector('details.players-block');
-          if (det) det.open = true;
-        } catch (_) {
-          // ignore
-        }
-      });
+  if (showLiveUi) {
+    try {
+      const callouts = root.querySelector('#live-prop-callouts');
+      if (callouts && !callouts.dataset.bound) {
+        callouts.dataset.bound = '1';
+        callouts.addEventListener('click', (ev) => {
+          const btn = ev.target && ev.target.closest ? ev.target.closest('.prop-callout[data-game-id]') : null;
+          if (!btn) return;
+          const gid = canonGameId(btn.dataset.gameId);
+          if (!gid) return;
+          const target = root.querySelector(`.card[data-game-id="${CSS.escape(gid)}"]`) || document.getElementById(`game-${gid}`);
+          if (!target) return;
+          try { target.scrollIntoView({ behavior: 'smooth', block: 'start' }); } catch (_) { target.scrollIntoView(); }
+          try {
+            const det = target.querySelector('details.players-block');
+            if (det) det.open = true;
+          } catch (_) {
+            // ignore
+          }
+        });
+      }
+    } catch (_) {
+      // ignore
     }
-  } catch (_) {
-    // ignore
   }
 
   // Enable click-to-sort on projected boxscore tables.
@@ -8602,21 +8775,21 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
 
   // Attach live lens handlers (uses game intervals ladder)
   try {
-    attachLiveLensHandlers(root, games);
+    if (showLiveUi) attachLiveLensHandlers(root, games);
   } catch (_) {
     // ignore
   }
 
   // Pregame movement callouts (one-shot load)
   try {
-    Promise.resolve(loadPregamePropCallouts(root, games, dateStr)).catch(() => { /* ignore */ });
+    if (showPregameUi) Promise.resolve(loadPregamePropCallouts(root, games, dateStr)).catch(() => { /* ignore */ });
   } catch (_) {
     // ignore
   }
 
   // Automated live polling (60s) for Live Lens
   try {
-    startLiveLensPolling(root, games, dateStr);
+    if (showLiveUi) startLiveLensPolling(root, games, dateStr);
   } catch (_) {
     // ignore
   }
