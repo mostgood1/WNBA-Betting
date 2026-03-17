@@ -1,0 +1,42 @@
+{
+  "date": "2026-03-17",
+  "yesterday": "2026-03-16",
+  "predictions_ok": true,
+  "props_predictions_ok": true,
+  "game_odds_ok": true,
+  "props_snapshot_ok": true,
+  "props_snapshot_rows": 3709,
+  "props_edges_ok": true,
+  "props_edges_rows": 787,
+  "props_recommendations_ok": true,
+  "props_recommendations_rows": 83,
+  "props_recommendations_play_rows": 76,
+  "slate_games": 8,
+  "smart_sim_count": 8,
+  "rotations_dir_exists": false,
+  "rotations_expected_games_yesterday": 8,
+  "rotations_have_games_yesterday": 0,
+  "rotations_min_coverage": 0.7,
+  "rotations_coverage_yesterday": 0.0,
+  "rotations_missing_game_ids_yesterday": [
+    "0022500983",
+    "0022500984",
+    "0022500985",
+    "0022500986",
+    "0022500987",
+    "0022500988",
+    "0022500989",
+    "0022500990"
+  ],
+  "rotations_excused_no_event_game_ids_yesterday": [],
+  "rotations_error": null,
+  "require_odds": false,
+  "require_smartsim": true,
+  "require_props_lines": true,
+  "require_rotations_espn": false,
+  "warnings": [
+    "optional artifact partial: rotations_espn stints (0/8)"
+  ],
+  "missing": [],
+  "ok": true
+}

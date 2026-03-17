@@ -1,0 +1,90 @@
+{
+  "date": "2026-03-17",
+  "team_counts": {
+    "CHA": 1,
+    "CLE": 2,
+    "DEN": 1,
+    "DET": 2,
+    "IND": 1,
+    "MIL": 1,
+    "MIN": 1,
+    "NYK": 1,
+    "OKC": 1,
+    "PHI": 2,
+    "SAC": 1
+  },
+  "players": [
+    {
+      "player": "Kelly Oubre Jr.",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Jarrett Allen",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Alex Antetokounmpo",
+      "team": "MIL",
+      "status": "OUT"
+    },
+    {
+      "player": "Wendell Moore Jr.",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "DaRon Holmes II",
+      "team": "DEN",
+      "status": "OUT"
+    },
+    {
+      "player": "Johni Broome",
+      "team": "PHI",
+      "status": "OUT"
+    },
+    {
+      "player": "PJ Hall",
+      "team": "CHA",
+      "status": "OUT"
+    },
+    {
+      "player": "Craig Porter Jr.",
+      "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Jemison III",
+      "team": "NYK",
+      "status": "OUT"
+    },
+    {
+      "player": "Devin Carter",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Johnny Furphy",
+      "team": "IND",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Jones",
+      "team": "DET",
+      "status": "OUT"
+    },
+    {
+      "player": "Joan Beringer",
+      "team": "MIN",
+      "status": "OUT"
+    },
+    {
+      "player": "Brooks Barnhizer",
+      "team": "OKC",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
