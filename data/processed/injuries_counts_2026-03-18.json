@@ -1,0 +1,91 @@
+{
+  "date": "2026-03-18",
+  "team_counts": {
+    "ATL": 1,
+    "BOS": 1,
+    "CHI": 1,
+    "DAL": 2,
+    "GSW": 1,
+    "HOU": 1,
+    "LAC": 1,
+    "LAL": 1,
+    "MEM": 2,
+    "NOP": 1,
+    "TOR": 1,
+    "UTA": 1
+  },
+  "players": [
+    {
+      "player": "Kyrie Irving",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jimmy Butler III",
+      "team": "GSW",
+      "status": "OUT"
+    },
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
+    {
+      "player": "Steven Adams",
+      "team": "HOU",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
+      "status": "OUT"
+    },
+    {
+      "player": "Maxi Kleber",
+      "team": "LAL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Santi Aldama",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Scotty Pippen Jr.",
+      "team": "MEM",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
+      "status": "OUT"
+    },
+    {
+      "player": "Dereck Lively II",
+      "team": "DAL",
+      "status": "OUT"
+    },
+    {
+      "player": "RayJ Dennis",
+      "team": "ATL",
+      "status": "DOUBTFUL"
+    },
+    {
+      "player": "John Tonje",
+      "team": "BOS",
+      "status": "OUT"
+    },
+    {
+      "player": "Chucky Hepburn",
+      "team": "TOR",
+      "status": "OUT"
+    }
+  ],
+  "team_key_outs": {},
+  "team_impact": {}
+}
