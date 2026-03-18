@@ -5,12 +5,12 @@
   "props_predictions_ok": true,
   "game_odds_ok": true,
   "props_snapshot_ok": true,
-  "props_snapshot_rows": 3277,
+  "props_snapshot_rows": 4616,
   "props_edges_ok": true,
-  "props_edges_rows": 871,
+  "props_edges_rows": 865,
   "props_recommendations_ok": true,
-  "props_recommendations_rows": 91,
-  "props_recommendations_play_rows": 84,
+  "props_recommendations_rows": 98,
+  "props_recommendations_play_rows": 76,
   "props_expected_teams": [
     "ATL",
     "BKN",
@@ -46,7 +46,6 @@
     "MEM",
     "MIN",
     "NOP",
-    "NYK",
     "OKC",
     "POR",
     "TOR",
@@ -67,10 +66,7 @@
   "require_smartsim": true,
   "require_props_lines": true,
   "require_rotations_espn": false,
-  "warnings": [
-    "minutes_sanity: team NYK top10 minutes sum low (0.0) using pred_min",
-    "minutes_sanity: team NYK has <5 players at 20+ min (found 0) using pred_min"
-  ],
+  "warnings": [],
   "missing": [],
   "ok": true
 }
