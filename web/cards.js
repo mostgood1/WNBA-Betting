@@ -1977,7 +1977,19 @@ function renderPregamePropAltPick(pick) {
   ].filter(Boolean).join(' ');
 }
 
-function renderPropRecommendations(propRecs, homeTri, awayTri) {
+function canonicalPregamePropStatKey(market) {
+  const k = String(market || '').toLowerCase().trim();
+  if (k === 'points') return 'pts';
+  if (k === 'rebounds') return 'reb';
+  if (k === 'assists') return 'ast';
+  if (k === '3pm' || k === '3pt' || k === 'threes_made') return 'threes';
+  if (k === 'steals' || k === 'steal') return 'stl';
+  if (k === 'blocks' || k === 'block') return 'blk';
+  if (k === 'turnovers' || k === 'turnover' || k === 'to') return 'tov';
+  return k;
+}
+
+function buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri) {
   const recs = propRecs && typeof propRecs === 'object' ? propRecs : {};
   const home = Array.isArray(recs.home) ? recs.home : [];
   const away = Array.isArray(recs.away) ? recs.away : [];
@@ -1988,10 +2000,41 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
       const player = String(r.player || '').trim();
       const b = (r && r.best && typeof r.best === 'object') ? r.best : null;
       if (!player || !b) return null;
-      const picks = Array.isArray(r.picks) ? r.picks.filter((pp) => pp && typeof pp === 'object') : [b];
+      const picks = (Array.isArray(r.picks) ? r.picks.filter((pp) => pp && typeof pp === 'object') : [b])
+        .slice()
+        .sort((aPick, bPick) => {
+          const aEv = n(aPick && aPick.ev_pct) ?? ((n(aPick && aPick.ev) != null) ? (n(aPick && aPick.ev) * 100.0) : -1e9);
+          const bEv = n(bPick && bPick.ev_pct) ?? ((n(bPick && bPick.ev) != null) ? (n(bPick && bPick.ev) * 100.0) : -1e9);
+          if (bEv !== aEv) return bEv - aEv;
+          return String(aPick && aPick.side || '').localeCompare(String(bPick && bPick.side || ''));
+        });
       const best = picks[0] || b;
       const guidance = buildPregameGuidance(best, { modelLine: n(best && best.sim_mu) });
-      return { sideTri, player, picks, best, guidance };
+      const playerId = n(r.player_id) ?? n(best && best.player_id) ?? (() => {
+        for (const pick of picks) {
+          const pid = n(pick && pick.player_id);
+          if (pid != null) return pid;
+        }
+        return null;
+      })();
+      const playerPhoto = [
+        r.player_photo,
+        r.photo,
+        best && best.player_photo,
+        best && best.photo,
+        ...picks.map((pick) => pick && (pick.player_photo || pick.photo)),
+      ].map((value) => String(value || '').trim()).find(Boolean) || '';
+      return {
+        sideTri,
+        player,
+        picks,
+        best,
+        guidance,
+        statKey: canonicalPregamePropStatKey(best && best.market),
+        sideKey: String(best && best.side || '').toUpperCase().trim(),
+        playerId,
+        playerPhoto,
+      };
     })
     .filter(Boolean);
 
@@ -2004,6 +2047,12 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
     if (bEv !== aEv) return bEv - aEv;
     return String(a && a.player || '').localeCompare(String(b && b.player || ''));
   });
+
+  return entries;
+}
+
+function renderPropRecommendations(propRecs, homeTri, awayTri) {
+  const entries = buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri);
 
   const rows = entries
     .map(({ sideTri, player, picks, best, guidance }) => {
@@ -2060,6 +2109,130 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
       <ul class="prop-rec-list">
         ${rows || '<li class="subtle">No prop recommendations.</li>'}
       </ul>
+    </div>
+  `;
+}
+
+function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
+  const entries = buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri).slice(0, 12);
+  if (!entries.length) {
+    return `
+      <div class="pregame-props-panel pregame-props-panel-empty" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="" data-active-side="">
+        <div class="pregame-props-header">
+          <div class="market-title">Player pregame props</div>
+          <div class="subtle">No model-vs-line player props cleared the recommendation threshold for this matchup.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  const statOrder = ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra', 'pa', 'pr', 'ra'];
+  const statsPresent = statOrder.filter((key) => entries.some((entry) => entry.statKey === key));
+  const sidesPresent = ['OVER', 'UNDER'].filter((key) => entries.some((entry) => entry.sideKey === key));
+
+  const statButtons = statsPresent.map((key) => `
+    <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="${esc(key)}" aria-pressed="false">${esc(marketLabel(key))}</button>
+  `).join('');
+  const sideButtons = sidesPresent.map((key) => `
+    <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="${esc(key)}" aria-pressed="false">${esc(key)}</button>
+  `).join('');
+
+  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto }) => {
+    const label = pregamePropPlayLabel(best);
+    const statLabel = marketLabel(statKey || best.market);
+    const book = prettyBookName(best.book);
+    const price = n(best.price);
+    const evPct = n(best.ev_pct);
+    const pwin = n(best.p_win);
+    const mu = n(best.sim_mu);
+    const line = n(best.line);
+    const actionBadge = renderPregameActionBadge(guidance);
+    const marketBadge = renderPregameMarketBadge(guidance);
+    const img = renderPlayerHeadshot(player, {
+      playerPhoto,
+      photo: playerPhoto,
+      playerId,
+    });
+    const moveText = pregamePropMoveText(best);
+    const playToLine = n(guidance && guidance.play_to_line);
+    const playToText = (playToLine == null)
+      ? ''
+      : `${statLabel} ${sideKey} ${fmt(playToLine, 1)} or better${book ? ` at ${book}` : ''}`;
+    const pricingText = [book || '', (price != null) ? fmtAmer(price) : ''].filter(Boolean).join(' ');
+    const modelLogic = [
+      (mu != null && line != null) ? `Model μ ${fmt(mu, 1)} vs line ${fmt(line, 1)}` : '',
+      (pwin != null) ? `win ${pct(pwin, 0)}` : '',
+      (evPct != null) ? `EV ${fmt(evPct, 1)}%` : '',
+    ].filter(Boolean).join(' · ');
+    const marketLogic = moveText || [
+      (line != null) ? `Current line ${fmt(line, 1)}` : '',
+      pricingText,
+    ].filter(Boolean).join(' · ');
+    const matchupText = `${String(awayTri || '').toUpperCase().trim()} @ ${String(homeTri || '').toUpperCase().trim()}`.trim();
+    const tags = Array.from(new Set([
+      ...((guidance && Array.isArray(guidance.tags)) ? guidance.tags : []),
+      ...(Array.isArray(best.reasons) ? best.reasons : []),
+    ].map((tag) => String(tag || '').trim()).filter(Boolean))).slice(0, 4);
+    const tagHtml = tags.length
+      ? `<div class="pregame-prop-card-tags">${tags.map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')}</div>`
+      : '';
+    const altLines = picks.slice(1, 4).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+    const titleBits = [
+      `<span class="subtle">${esc(statLabel)}</span>`,
+      (line != null && sideKey) ? `<span class="subtle">${esc(`${sideKey} ${fmt(line, 1)}`)}</span>` : '',
+      pricingText ? `<span class="subtle">${esc(pricingText)}</span>` : '',
+    ].filter(Boolean).join(' ');
+
+    return `
+      <article class="chip neutral prop-callout pregame-prop-grid-card" data-stat="${esc(statKey)}" data-side="${esc(sideKey)}">
+        <div class="prop-callout-head">
+          ${actionBadge}
+          ${marketBadge}
+          <span class="badge">${esc(statLabel)}</span>
+          ${sideTri ? `<span class="badge">${esc(sideTri)}</span>` : ''}
+          ${evPct != null ? `<span class="badge ${evPct >= 5 ? 'good' : 'ok'}">${esc(`EV ${fmt(evPct, 1)}%`)}</span>` : ''}
+        </div>
+        <div class="prop-callout-body">
+          ${img}
+          <div class="prop-callout-copy">
+            <div class="fw-700 prop-callout-title">
+              ${esc(player)} ${titleBits}
+            </div>
+            ${guidance && guidance.summary ? `<div class="prop-callout-line">${esc(guidance.summary)}</div>` : ''}
+            ${matchupText ? `<div class="subtle prop-callout-line">${esc(matchupText)}${sideTri ? ` · ${esc(sideTri)}` : ''}</div>` : ''}
+            ${modelLogic ? `<div class="subtle prop-callout-line">${esc(modelLogic)}</div>` : ''}
+            ${marketLogic ? `<div class="subtle prop-callout-line">${esc(marketLogic)}</div>` : ''}
+            ${playToText ? `<div class="subtle prop-callout-line">${esc(playToText)}</div>` : ''}
+            ${tagHtml}
+            ${altLines ? `<div class="subtle prop-callout-line">Other playable lines: ${esc(altLines)}</div>` : ''}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  return `
+    <div class="pregame-props-panel" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="" data-active-side="">
+      <div class="pregame-props-header">
+        <div class="market-title">Player pregame props</div>
+        <div class="subtle">Model-vs-line cards with execution guidance. Use the stat and side selectors to narrow the board.</div>
+      </div>
+      <div class="pregame-props-toolbar">
+        <div class="pregame-props-toolbar-row">
+          <span class="chip title">Props</span>
+          <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="" aria-pressed="true">ALL</button>
+          ${statButtons}
+        </div>
+        <div class="pregame-props-toolbar-row">
+          <span class="chip title">Side</span>
+          <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="" aria-pressed="true">ALL</button>
+          ${sideButtons}
+        </div>
+      </div>
+      <div class="pregame-prop-card-grid">
+        ${cards}
+      </div>
+      <div class="subtle pregame-props-empty hidden">No prop cards match the selected filters for this matchup.</div>
     </div>
   `;
 }
@@ -4532,6 +4705,42 @@ function applyPregamePropFilters(root) {
       const okStat = statsAny ? statSet.has(stat) : true;
       const okSide = sideAny ? sideSet.has(side) : true;
       btn.classList.toggle('hidden', !(okGame && okStat && okSide));
+    });
+  } catch (_) {
+    // ignore
+  }
+}
+
+function applyPregamePropCardFilters(root) {
+  try {
+    if (!root) return;
+    const panels = root.querySelectorAll('.pregame-props-panel[data-pregame-props-panel="1"]');
+    panels.forEach((panel) => {
+      const activeStat = String(panel.dataset.activeStat || '').toLowerCase().trim();
+      const activeSide = String(panel.dataset.activeSide || '').toUpperCase().trim();
+
+      const buttons = panel.querySelectorAll('button.pregame-prop-card-filter[data-scope][data-key]');
+      buttons.forEach((btn) => {
+        const scope = String(btn.dataset.scope || '').toLowerCase().trim();
+        const key = String(btn.dataset.key || '').trim();
+        const active = (scope === 'stat')
+          ? ((activeStat && key.toLowerCase() === activeStat) || (!activeStat && key === ''))
+          : ((activeSide && key.toUpperCase() === activeSide) || (!activeSide && key === ''));
+        chipSetActive(btn, active);
+      });
+
+      let visibleCount = 0;
+      const cards = panel.querySelectorAll('.pregame-prop-grid-card[data-stat][data-side]');
+      cards.forEach((card) => {
+        const stat = String(card.dataset.stat || '').toLowerCase().trim();
+        const side = String(card.dataset.side || '').toUpperCase().trim();
+        const visible = (!activeStat || stat === activeStat) && (!activeSide || side === activeSide);
+        card.classList.toggle('hidden', !visible);
+        if (visible) visibleCount += 1;
+      });
+
+      const emptyState = panel.querySelector('.pregame-props-empty');
+      if (emptyState) emptyState.classList.toggle('hidden', visibleCount !== 0);
     });
   } catch (_) {
     // ignore
@@ -8429,11 +8638,16 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
           ${renderInjurySummary(`AWAY (${awayTri})`, (g && g.sim && g.sim.injuries && g.sim.injuries.away) ? g.sim.injuries.away : playersAway)}
         </details>
         ` : `${pregameBoxscoreHtml}${pregameAvailabilityHtml}`}
-
+        ${showLiveUi ? `
         <details class="writeup-block">
-          <summary class="writeup-toggle cursor-pointer">${showLiveUi ? 'Recommended props (sim vs line)' : 'Pregame props (sim vs line)'}</summary>
+          <summary class="writeup-toggle cursor-pointer">Recommended props (sim vs line)</summary>
           ${renderPropRecommendations(g.prop_recommendations, homeTri, awayTri)}
         </details>
+        ` : `
+        <div class="writeup-block pregame-props-block">
+          ${renderPregamePropCards(g.prop_recommendations, homeTri, awayTri, gid)}
+        </div>
+        `}
       </section>
     `;
   }).join('\n');
@@ -8608,6 +8822,36 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         });
       }
       applyPregamePropFilters(root);
+    } catch (_) {
+      // ignore
+    }
+
+    try {
+      if (root && root.dataset && root.dataset.pregamePropCardsBound !== '1') {
+        root.dataset.pregamePropCardsBound = '1';
+        root.addEventListener('click', (ev) => {
+          try {
+            const btn = ev.target && ev.target.closest
+              ? ev.target.closest('button.pregame-prop-card-filter[data-scope][data-key]')
+              : null;
+            if (!btn) return;
+
+            const panel = btn.closest('.pregame-props-panel[data-pregame-props-panel="1"]');
+            if (!panel) return;
+
+            const scope = String(btn.dataset.scope || '').toLowerCase().trim();
+            const key = String(btn.dataset.key || '').trim();
+            if (scope === 'stat') panel.dataset.activeStat = key.toLowerCase();
+            else if (scope === 'side') panel.dataset.activeSide = key.toUpperCase();
+            else return;
+
+            applyPregamePropCardFilters(root);
+          } catch (_) {
+            // ignore
+          }
+        });
+      }
+      applyPregamePropCardFilters(root);
     } catch (_) {
       // ignore
     }

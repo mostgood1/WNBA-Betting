@@ -10490,9 +10490,27 @@ def _sim_vs_line_prop_recommendations(
                 if not isinstance(best_play, dict):
                     continue
 
+                sim_player_id = _safe_int(p.get("player_id")) if isinstance(p, dict) else None
+                source_player_id = _safe_int(rr.get("player_id")) if isinstance(rr, dict) else None
+                resolved_player_id = sim_player_id if sim_player_id is not None else source_player_id
+                if resolved_player_id is None:
+                    try:
+                        resolved_player_id = _resolve_player_id(player_name, team_tri)
+                    except Exception:
+                        resolved_player_id = None
+
+                photo = _best_player_headshot_url(
+                    photo=((rr.get("photo") or rr.get("player_photo")) if isinstance(rr, dict) else None),
+                    nba_player_id=resolved_player_id,
+                    source_player_id=(source_player_id if source_player_id is not None else sim_player_id),
+                )
+
                 scored.append(
                     {
                         "player": player_name,
+                        "player_id": resolved_player_id,
+                        "photo": photo,
+                        "player_photo": photo,
                         "team": str(team_tri or "").strip().upper(),
                         "best": best_play,
                         "picks": picks,
