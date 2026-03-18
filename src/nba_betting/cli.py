@@ -320,6 +320,54 @@ def _resolve_target_date(date_str: str | None) -> _date:
     return _dt.datetime.strptime(date_str, "%Y-%m-%d").date()
 
 
+def _load_schedule_day(date_str: str) -> pd.DataFrame:
+    target = pd.to_datetime(date_str, errors="coerce")
+    if pd.isna(target):
+        return pd.DataFrame()
+    target_date = target.date()
+
+    def _filter_day(frame: pd.DataFrame | None) -> pd.DataFrame:
+        if frame is None or not isinstance(frame, pd.DataFrame) or frame.empty:
+            return pd.DataFrame()
+        day_col = next((col for col in ("date_est", "date_utc", "date") if col in frame.columns), None)
+        if not day_col:
+            return pd.DataFrame()
+        day_frame = frame.copy()
+        day_frame[day_col] = pd.to_datetime(day_frame[day_col], errors="coerce").dt.date
+        day_frame = day_frame[day_frame[day_col] == target_date].copy()
+        return day_frame.reset_index(drop=True) if not day_frame.empty else pd.DataFrame()
+
+    try:
+        live_day = _filter_day(fetch_schedule_2025_26())
+        if not live_day.empty:
+            return live_day
+    except Exception:
+        pass
+
+    season_start = target_date.year if target_date.month >= 7 else target_date.year - 1
+    season_token = f"{season_start}_{str(season_start + 1)[-2:]}"
+    schedule_candidates = [
+        paths.data_processed / f"schedule_{season_token}.csv",
+        paths.data_processed / f"schedule_{season_token}.json",
+        paths.data_processed / "schedule_2025_26.csv",
+        paths.data_processed / "schedule_2025_26.json",
+    ]
+    for sched_path in schedule_candidates:
+        if not sched_path.exists():
+            continue
+        try:
+            if sched_path.suffix.lower() == ".json":
+                day = _filter_day(pd.read_json(sched_path))
+            else:
+                day = _filter_day(pd.read_csv(sched_path))
+            if not day.empty:
+                return day
+        except Exception:
+            continue
+
+    return pd.DataFrame()
+
+
 @cli.command("simulate-games")
 @click.option("--date", "date_str", required=True, help="YYYY-MM-DD date to simulate")
 @click.option("--sd-margin", type=float, default=12.0, help="Std dev for final margin (points)")
@@ -6827,51 +6875,16 @@ def predict_games_npu_cmd(date_str: str, out_path: str | None, periods: bool, ca
                         if slate_df is not None:
                             break
 
-                # Fallback to schedule if odds are unavailable
+                # Fallback to live schedule data, then local schedule artifacts, if odds are unavailable
                 if slate_df is None:
                     try:
-                        d = pd.to_datetime(date_str)
-                        season_start = d.year if d.month >= 7 else d.year - 1
-                        season_token = f"{season_start}_{str(season_start + 1)[-2:]}"
-                        schedule_candidates = [
-                            paths.data_processed / f"schedule_{season_token}.csv",
-                            paths.data_processed / f"schedule_{season_token}.json",
-                            paths.data_processed / "schedule_2025_26.csv",
-                            paths.data_processed / "schedule_2025_26.json",
-                        ]
-                        sched_path = next((path for path in schedule_candidates if path.exists()), None)
-                        td = pd.to_datetime(date_str).date()
-                        if sched_path is not None and sched_path.suffix.lower() == ".csv":
-                            sch = pd.read_csv(sched_path)
-                            cols = {c.lower(): c for c in sch.columns}
-                            date_col = cols.get("date_utc") or cols.get("date_est") or cols.get("date")
-                            if date_col:
-                                sch[date_col] = pd.to_datetime(sch[date_col], errors="coerce").dt.date
-                                day = sch[sch[date_col] == td].copy()
-                                if not day.empty:
-                                    slate_df = _slate_from_frame(day, ("home_tricode", "home_team_id", "home_team"), ("away_tricode", "away_team_id", "visitor_team", "away_team"))
-                        elif sched_path is not None and sched_path.suffix.lower() == ".json":
-                            with sched_path.open("r", encoding="utf-8") as handle:
-                                raw_sched = json.load(handle)
-                            if isinstance(raw_sched, list) and raw_sched:
-                                day_rows: list[dict[str, object]] = []
-                                for row in raw_sched:
-                                    if not isinstance(row, dict):
-                                        continue
-                                    raw_date = row.get("date_utc") or row.get("date_est") or row.get("date")
-                                    try:
-                                        row_date = pd.to_datetime(raw_date, errors="coerce")
-                                    except Exception:
-                                        row_date = pd.NaT
-                                    if pd.isna(row_date) or row_date.date() != td:
-                                        continue
-                                    day_rows.append(row)
-                                if day_rows:
-                                    slate_df = _slate_from_frame(
-                                        pd.DataFrame(day_rows),
-                                        ("home_tricode", "home_team_id", "home_team"),
-                                        ("away_tricode", "away_team_id", "visitor_team", "away_team"),
-                                    )
+                        day = _load_schedule_day(date_str)
+                        if not day.empty:
+                            slate_df = _slate_from_frame(
+                                day,
+                                ("home_tricode", "home_team", "home_team_id"),
+                                ("away_tricode", "visitor_team", "away_team", "away_team_id"),
+                            )
                     except Exception:
                         pass
 
@@ -12796,20 +12809,13 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
         return part if not part.empty else None
 
     slate = None
-    # Fallback: build slate from processed schedule JSON (preseason/regular) when API/history fail
+    # Fallback: build slate from live schedule data, then local schedule artifacts, when API/history fail
     def _build_slate_from_schedule(date_str_local: str) -> pd.DataFrame | None:
         try:
-            sched_path = paths.data_processed / "schedule_2025_26.json"
-            if not sched_path.exists():
-                return None
-            sdf = pd.read_json(sched_path)
-            # Normalize date to YYYY-MM-DD
-            if "date_utc" in sdf.columns:
-                sdf["date_utc"] = pd.to_datetime(sdf["date_utc"], errors="coerce").dt.date
-            target_d = pd.to_datetime(date_str_local).date()
-            day = sdf[sdf["date_utc"] == target_d].copy()
+            day = _load_schedule_day(date_str_local)
             if day.empty:
                 return None
+            abbr_to_full = {str(t["abbreviation"] or "").upper(): str(t["full_name"] or "") for t in static_teams.get_teams()}
             # Build full team names from City + Name to feed normalize_team
             def full_name(city, name):
                 city_s = str(city or "").strip()
@@ -12817,12 +12823,12 @@ def predict_date_cmd(date_str: str | None, merge_odds_csv: str | None, out_path:
                 return f"{city_s} {name_s}".strip()
             rows = []
             for _, g in day.iterrows():
-                home_full = full_name(g.get("home_city"), g.get("home_name"))
-                away_full = full_name(g.get("away_city"), g.get("away_name"))
+                home_full = full_name(g.get("home_city"), g.get("home_name")) or abbr_to_full.get(str(g.get("home_tricode") or "").strip().upper(), str(g.get("home_tricode") or "").strip())
+                away_full = full_name(g.get("away_city"), g.get("away_name")) or abbr_to_full.get(str(g.get("away_tricode") or "").strip().upper(), str(g.get("away_tricode") or "").strip())
                 home = normalize_team(home_full)
                 away = normalize_team(away_full)
                 rows.append({
-                    "date": target_d,
+                    "date": pd.to_datetime(date_str_local).date(),
                     "home_team": home,
                     "visitor_team": away,
                 })

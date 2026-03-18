@@ -1187,6 +1187,18 @@ try {
 } catch {
   Write-Log ("fetch-rosters error (non-fatal): {0}" -f $_.Exception.Message)
 }
+# 0.25) Refresh the season schedule artifact before predictions/league-status.
+try {
+  if ([string]::IsNullOrWhiteSpace($seasonStr)) {
+    throw "season string unavailable for schedule refresh"
+  }
+  $scheduleTimeoutSeconds = [int]([Math]::Min(300, [Math]::Max(60, $PreflightTimeoutSeconds)))
+  Write-Log ("Refreshing season schedule for {0}" -f $seasonStr)
+  $rcSchedule = Invoke-PyModWithTimeout -plist @('-m','nba_betting.cli','fetch-schedule','--season', $seasonStr) -TimeoutSeconds $scheduleTimeoutSeconds -Label 'fetch_schedule'
+  Write-Log ("fetch-schedule exit code: {0}" -f $rcSchedule)
+} catch {
+  Write-Log ("fetch-schedule error (non-fatal): {0}" -f $_.Exception.Message)
+}
 # 0.5) Fetch current-season player logs (used for roster sanity checks and calibration)
 try {
   if ([string]::IsNullOrWhiteSpace($seasonStr)) {

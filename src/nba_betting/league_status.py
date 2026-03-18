@@ -20,8 +20,8 @@ class PlayerStatus:
 
 
 def _today_slate_team_tricodes(date_str: str) -> set[str]:
-    # Use standardized OddsAPI game_odds_<date>.csv when available,
-    # but always try to union with NBA Scoreboard (odds snapshots can be incomplete).
+    # Prefer live slate sources (OddsAPI snapshots + NBA Scoreboard).
+    # Only fall back to the season schedule when live sources are unavailable.
     odds_tris: set[str] = set()
     go = paths.data_processed / f"game_odds_{date_str}.csv"
     if go.exists():
@@ -55,8 +55,34 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
     except Exception:
         sb_tris = set()
 
-    # Deterministic fallback: processed season schedule (local, stable).
+    if odds_tris or sb_tris:
+        return odds_tris | sb_tris
+
+    # Deterministic fallback: live schedule helper, then processed season schedule.
     sched_tris: set[str] = set()
+    try:
+        from .schedule import fetch_schedule_2025_26
+
+        df = fetch_schedule_2025_26()
+        if df is not None and not df.empty:
+            day_col = 'date_est' if 'date_est' in df.columns else ('date_utc' if 'date_utc' in df.columns else None)
+            if day_col:
+                day = df.copy()
+                day[day_col] = pd.to_datetime(day[day_col], errors='coerce').dt.date
+                day = day[day[day_col] == pd.to_datetime(date_str).date()].copy()
+                for _, g in day.iterrows():
+                    ht = str(g.get('home_tricode') or '').strip().upper()
+                    at = str(g.get('away_tricode') or '').strip().upper()
+                    if ht:
+                        sched_tris.add(ht)
+                    if at:
+                        sched_tris.add(at)
+    except Exception:
+        sched_tris = set()
+
+    if sched_tris:
+        return sched_tris
+
     try:
         season = _season_for_date(date_str)
         season_str = season.replace('-', '_')
@@ -90,7 +116,7 @@ def _today_slate_team_tricodes(date_str: str) -> set[str]:
     except Exception:
         sched_tris = set()
 
-    return odds_tris | sb_tris | sched_tris
+    return sched_tris
 
 
 def _season_for_date(date_str: str) -> str:

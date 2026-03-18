@@ -223,6 +223,110 @@ def test_predict_games_npu_uses_odds_events_fallback(tmp_path, monkeypatch):
     assert (processed / f"games_predictions_npu_{date_str}.csv").exists()
 
 
+def test_predict_games_npu_prefers_live_schedule_over_stale_processed_schedule(tmp_path, monkeypatch):
+    date_str = "2026-03-18"
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    raw = data_root / "raw"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+
+    pd.DataFrame(
+        [
+            {
+                "game_id": "0022501003",
+                "date_est": date_str,
+                "date_utc": date_str,
+                "home_tricode": "MEM",
+                "away_tricode": "NYK",
+                "home_city": "Memphis",
+                "home_name": "Grizzlies",
+                "away_city": "New York",
+                "away_name": "Knicks",
+            }
+        ]
+    ).to_json(processed / "schedule_2025_26.json", orient="records")
+
+    pd.DataFrame(
+        [
+            {
+                "date": "2026-03-17",
+                "home_team": "Boston Celtics",
+                "visitor_team": "Los Angeles Lakers",
+                "home_pts": 110,
+                "visitor_pts": 108,
+            }
+        ]
+    ).to_csv(raw / "games_nba_api.csv", index=False)
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    monkeypatch.setattr(
+        cli_module,
+        "fetch_schedule_2025_26",
+        lambda: pd.DataFrame(
+            [
+                {
+                    "game_id": "0022500651",
+                    "date_est": date_str,
+                    "date_utc": date_str,
+                    "home_tricode": "MEM",
+                    "away_tricode": "DEN",
+                    "home_city": "Memphis",
+                    "home_name": "Grizzlies",
+                    "away_city": "Denver",
+                    "away_name": "Nuggets",
+                }
+            ]
+        ),
+    )
+
+    import nba_betting.features_enhanced as features_enhanced_module
+    import nba_betting.games_npu as games_npu_module
+
+    def _fake_build_features(games, include_advanced_stats=True, include_injuries=True, season=2025):
+        day = games[pd.to_datetime(games["date"], errors="coerce").dt.date == pd.to_datetime(date_str).date()].copy()
+        assert ((day["home_team"].astype(str) == "MEM") & (day["visitor_team"].astype(str) == "DEN")).any()
+        assert not ((day["home_team"].astype(str) == "MEM") & (day["visitor_team"].astype(str) == "NYK")).any()
+        return pd.DataFrame(
+            [
+                {
+                    "date": date_str,
+                    "home_team": "MEM",
+                    "visitor_team": "DEN",
+                    "feature_stub": 1.0,
+                }
+            ]
+        )
+
+    def _fake_predict_games_npu(features_df, include_periods=True, calibrate_periods=True):
+        assert ((features_df["home_team"] == "MEM") & (features_df["visitor_team"] == "DEN")).any()
+        return pd.DataFrame(
+            [
+                {
+                    "date": date_str,
+                    "home_team": "MEM",
+                    "visitor_team": "DEN",
+                    "win_prob": 0.61,
+                }
+            ]
+        )
+
+    monkeypatch.setattr(features_enhanced_module, "build_features_enhanced", _fake_build_features)
+    monkeypatch.setattr(games_npu_module, "predict_games_npu", _fake_predict_games_npu)
+    monkeypatch.setattr(cli_module, "_ensure_game_models_available", lambda: None)
+
+    runner = CliRunner()
+    result = runner.invoke(cli_module.cli, ["predict-games-npu", "--date", date_str])
+
+    assert result.exit_code == 0
+    written = pd.read_csv(processed / f"games_predictions_npu_{date_str}.csv")
+    assert written.iloc[0]["home_team"] == "MEM"
+    assert written.iloc[0]["visitor_team"] == "DEN"
+
+
 def test_predict_games_npu_uses_predictions_fallback(tmp_path, monkeypatch):
     date_str = "2026-03-12"
     data_root = tmp_path / "data"
