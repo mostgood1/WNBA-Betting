@@ -1117,6 +1117,33 @@ def _smart_sim_worker_run(job: dict) -> dict:
         return {"status": "failed", "home": home_tri, "away": away_tri, "out_path": out_path_s, "error": str(e)}
 
 
+def _prune_stale_smart_sim_outputs(
+    date_str: str,
+    expected_matchups: set[tuple[str, str]],
+    out_prefix: str = "smart_sim",
+    remove_all: bool = False,
+) -> int:
+    removed = 0
+    try:
+        out_prefix_s = str(out_prefix or "smart_sim").strip() or "smart_sim"
+        expected = {
+            f"{out_prefix_s}_{date_str}_{str(home_tri or '').strip().upper()}_{str(away_tri or '').strip().upper()}.json"
+            for home_tri, away_tri in (expected_matchups or set())
+            if str(home_tri or "").strip() and str(away_tri or "").strip()
+        }
+        for fp in paths.data_processed.glob(f"{out_prefix_s}_{date_str}_*.json"):
+            if (not remove_all) and fp.name in expected:
+                continue
+            try:
+                fp.unlink()
+                removed += 1
+            except Exception:
+                continue
+    except Exception:
+        return removed
+    return removed
+
+
 def _smart_sim_run_date(
     date_str: str,
     n_sims: int,
@@ -1566,30 +1593,23 @@ def _smart_sim_run_date(
     if not out_prefix_s:
         out_prefix_s = "smart_sim"
 
-    # If overwriting, clean up old SmartSim outputs.
-    # - When running the full slate, only remove stale matchup files.
-    # - When using --max-games, remove ALL files for the date to avoid mixing stale/new outputs.
-    if overwrite:
-        try:
-            if max_games is not None:
-                for fp in paths.data_processed.glob(f"{out_prefix_s}_{date_str}_*.json"):
-                    try:
-                        fp.unlink()
-                    except Exception:
-                        pass
-            else:
-                expected = set(
-                    f"{out_prefix_s}_{date_str}_{str(r.get('home_tri') or '').strip().upper()}_{str(r.get('away_tri') or '').strip().upper()}.json"
-                    for _, r in pdf.iterrows()
-                )
-                for fp in paths.data_processed.glob(f"{out_prefix_s}_{date_str}_*.json"):
-                    if fp.name not in expected:
-                        try:
-                            fp.unlink()
-                        except Exception:
-                            pass
-        except Exception:
-            pass
+    expected_matchups = {
+        (str(r.get("home_tri") or "").strip().upper(), str(r.get("away_tri") or "").strip().upper())
+        for _, r in pdf.iterrows()
+        if str(r.get("home_tri") or "").strip() and str(r.get("away_tri") or "").strip()
+    }
+
+    # Always remove stale extra matchup files so phantom games cannot survive a slate correction.
+    # When using --overwrite with --max-games, clear all same-date outputs to avoid mixing partial reruns.
+    try:
+        _prune_stale_smart_sim_outputs(
+            date_str,
+            expected_matchups,
+            out_prefix=out_prefix_s,
+            remove_all=bool(overwrite and max_games is not None),
+        )
+    except Exception:
+        pass
 
     if max_games is not None:
         try:

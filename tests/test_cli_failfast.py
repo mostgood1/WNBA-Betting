@@ -327,6 +327,31 @@ def test_predict_games_npu_prefers_live_schedule_over_stale_processed_schedule(t
     assert written.iloc[0]["visitor_team"] == "DEN"
 
 
+def test_prune_stale_smart_sim_outputs_removes_matchups_not_in_current_slate(tmp_path, monkeypatch):
+    data_root = tmp_path / "data"
+    processed = data_root / "processed"
+    processed.mkdir(parents=True)
+
+    keep_path = processed / "smart_sim_2026-03-18_MEM_DEN.json"
+    stale_path = processed / "smart_sim_2026-03-18_MEM_NYK.json"
+    keep_path.write_text("{}", encoding="utf-8")
+    stale_path.write_text("{}", encoding="utf-8")
+
+    test_paths = config_module.Paths(root=tmp_path, repo_data_root=data_root, data_root=data_root)
+    monkeypatch.setattr(config_module, "paths", test_paths)
+    monkeypatch.setattr(cli_module, "paths", test_paths)
+
+    removed = cli_module._prune_stale_smart_sim_outputs(
+        "2026-03-18",
+        {("MEM", "DEN")},
+        out_prefix="smart_sim",
+    )
+
+    assert removed == 1
+    assert keep_path.exists()
+    assert not stale_path.exists()
+
+
 def test_predict_games_npu_uses_predictions_fallback(tmp_path, monkeypatch):
     date_str = "2026-03-12"
     data_root = tmp_path / "data"

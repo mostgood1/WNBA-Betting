@@ -1396,7 +1396,7 @@ def _live_load_smart_sim_by_game_id(date_str: str, game_id: str) -> dict[str, An
         if ent and (now - ent[0] < 60):
             return ent[1]
 
-        for fp in _load_smart_sim_files_for_date(date_str):
+        for fp in _load_smart_sim_files_for_authoritative_slate(date_str):
             try:
                 raw = fp.read_text(encoding="utf-8")
                 obj = json.loads(raw)
@@ -2002,7 +2002,7 @@ def _live_extract_espn_games(jd: dict[str, Any]) -> list[dict[str, Any]]:
 def _live_sim_matchups_for_date(date_str: str) -> list[dict[str, Any]]:
     """Return SmartSim games for a date as minimal matchup records."""
     out: list[dict[str, Any]] = []
-    for fp in _load_smart_sim_files_for_date(date_str):
+    for fp in _load_smart_sim_files_for_authoritative_slate(date_str):
         try:
             obj = json.loads(fp.read_text(encoding="utf-8"))
         except Exception:
@@ -9537,6 +9537,94 @@ def _load_smart_sim_files_for_date(date_str: str, prefix: str | None = None) -> 
         return []
 
 
+def _smart_sim_matchup_from_path(date_str: str, path: Path, prefix: str | None = None) -> tuple[str, str] | None:
+    try:
+        pref = str(prefix or os.environ.get("SMART_SIM_PREFIX") or "smart_sim").strip() or "smart_sim"
+        stem = str(path.stem or "")
+        marker = f"{pref}_{date_str}_"
+        if not stem.startswith(marker):
+            return None
+        tail = stem[len(marker):]
+        parts = tail.split("_")
+        if len(parts) < 2:
+            return None
+        home_tri = str(parts[0] or "").strip().upper()
+        away_tri = str(parts[1] or "").strip().upper()
+        if len(home_tri) != 3 or len(away_tri) != 3:
+            return None
+        return home_tri, away_tri
+    except Exception:
+        return None
+
+
+def _smart_sim_authoritative_matchups_for_date(date_str: str) -> set[tuple[str, str]]:
+    out: set[tuple[str, str]] = set()
+
+    try:
+        odds_map = _load_game_odds_map(date_str)
+        out = {
+            (str(home_tri or "").strip().upper(), str(away_tri or "").strip().upper())
+            for home_tri, away_tri in odds_map.keys()
+            if str(home_tri or "").strip() and str(away_tri or "").strip()
+        }
+    except Exception:
+        out = set()
+
+    if out:
+        return out
+
+    pred_path = DATA_PROCESSED_DIR / f"predictions_{date_str}.csv"
+    if not pred_path.exists():
+        try:
+            _maybe_fetch_remote_processed(pred_path.name)
+        except Exception:
+            pass
+
+    try:
+        df = _read_csv_if_exists(pred_path)
+        if df is None or not isinstance(df, pd.DataFrame) or df.empty:
+            return out
+
+        def _tri(raw: Any) -> str:
+            val = str(raw or "").strip()
+            if not val:
+                return ""
+            tri = _get_tricode(val)
+            return str(tri or val).strip().upper()
+
+        for home_col, away_col in (("home_team", "visitor_team"), ("home", "away")):
+            if home_col not in df.columns or away_col not in df.columns:
+                continue
+            for _, row in df.iterrows():
+                home_tri = _tri(row.get(home_col))
+                away_tri = _tri(row.get(away_col))
+                if home_tri and away_tri:
+                    out.add((home_tri, away_tri))
+            if out:
+                break
+    except Exception:
+        return out
+
+    return out
+
+
+def _load_smart_sim_files_for_authoritative_slate(date_str: str, prefix: str | None = None) -> list[Path]:
+    files = _load_smart_sim_files_for_date(date_str, prefix=prefix)
+    if not files:
+        return files
+
+    allowed_matchups = _smart_sim_authoritative_matchups_for_date(date_str)
+    if not allowed_matchups:
+        return files
+
+    filtered: list[Path] = []
+    for fp in files:
+        matchup = _smart_sim_matchup_from_path(date_str, fp, prefix=prefix)
+        if matchup is None or matchup in allowed_matchups:
+            filtered.append(fp)
+    return filtered
+
+
 def _app_lookahead_days(default: int = 1) -> int:
     try:
         raw = os.environ.get("APP_LOOKAHEAD_DAYS")
@@ -9601,7 +9689,7 @@ def _find_next_available_smart_sim_date(
         lookahead = max(0, min(7, int(lookahead)))
         for i in range(1, lookahead + 1):
             cand = start + _dt.timedelta(days=i)
-            files = _load_smart_sim_files_for_date(cand.isoformat(), prefix=prefix)
+            files = _load_smart_sim_files_for_authoritative_slate(cand.isoformat(), prefix=prefix)
             if files:
                 return cand.isoformat(), files
     except Exception:
@@ -10531,7 +10619,7 @@ def api_cards():
         return jsonify({"error": "missing date"}), 400
 
     requested_date = d
-    smart_sim_files = _load_smart_sim_files_for_date(d)
+    smart_sim_files = _load_smart_sim_files_for_authoritative_slate(d)
     if not smart_sim_files:
         next_date, next_files = _find_next_available_smart_sim_date(d, max_ahead=_app_lookahead_days())
         if next_date and next_files:
@@ -15798,7 +15886,7 @@ def _recommendations_all():
                     _maybe_fetch_remote_processed(props_fp.name)
                 except Exception:
                     pass
-            sim_files = _load_smart_sim_files_for_date(slate_date_used, prefix=sim_prefix)
+            sim_files = _load_smart_sim_files_for_authoritative_slate(slate_date_used, prefix=sim_prefix)
             lookahead_days = _app_lookahead_days()
             if lookahead_days > 0 and ((not props_fp.exists()) or (len(sim_files) <= 0)):
                 alt_sim_date, alt_sim_files = _find_next_available_smart_sim_date(
@@ -15824,7 +15912,7 @@ def _recommendations_all():
                         max_ahead=lookahead_days,
                     )
                     if alt_props_date and alt_props_path and alt_props_path.exists():
-                        alt_sim_files = _load_smart_sim_files_for_date(alt_props_date, prefix=sim_prefix)
+                        alt_sim_files = _load_smart_sim_files_for_authoritative_slate(alt_props_date, prefix=sim_prefix)
                         if alt_sim_files:
                             slate_date_used = alt_props_date
                             props_fp = alt_props_path

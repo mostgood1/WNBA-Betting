@@ -127,6 +127,45 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
     assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
 
 
+def test_api_cards_filters_stale_smartsim_matchups_not_in_authoritative_slate(tmp_path, monkeypatch):
+    processed = tmp_path / "data" / "processed"
+    processed.mkdir(parents=True)
+
+    (processed / "smart_sim_2026-03-18_MEM_DEN.json").write_text(
+        json.dumps({"home": "MEM", "away": "DEN", "score": {}, "players": {"home": [], "away": []}}),
+        encoding="utf-8",
+    )
+    (processed / "smart_sim_2026-03-18_MEM_NYK.json").write_text(
+        json.dumps({"home": "MEM", "away": "NYK", "score": {}, "players": {"home": [], "away": []}}),
+        encoding="utf-8",
+    )
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {("MEM", "DEN"): {"home_team": "Memphis Grizzlies", "visitor_team": "Denver Nuggets"}},
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_find_processed_csv", lambda _stem, _date: None)
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_roster_players_for_date", lambda _date: {})
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-18"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    games = payload["games"]
+
+    assert len(games) == 1
+    assert games[0]["home_tri"] == "MEM"
+    assert games[0]["away_tri"] == "DEN"
+
+
 def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     raw = tmp_path / "data" / "raw"
@@ -274,7 +313,7 @@ def test_api_cards_surfaces_snapshot_prop_line_options_and_marks_recommendations
 
     monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
     monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
-    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_date", lambda _date: [smart_sim_path])
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_date", lambda _date, prefix=None: [smart_sim_path])
     monkeypatch.setattr(app_module, "_load_game_odds_map", lambda _date: {("MEM", "DET"): {"home_team": "Memphis Grizzlies", "visitor_team": "Detroit Pistons"}})
     monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
     monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
