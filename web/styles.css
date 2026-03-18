@@ -798,6 +798,11 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 	gap: 10px;
 }
 
+.live-recommended-props-block {
+	display: grid;
+	gap: 10px;
+}
+
 .pregame-props-panel {
 	display: grid;
 	gap: 10px;
@@ -855,6 +860,11 @@ footer { background: transparent; border-top: 1px solid #25316a; margin-top: 8px
 .pregame-prop-grid-card .prop-callout-line {
 	font-size: 11px;
 	line-height: 1.24;
+}
+
+.live-recommended-prop-card .live-recommended-prop-line {
+	color: #f3f6ff;
+	font-weight: 700;
 }
 
 .pregame-prop-grid-card .prop-rec-tags {

@@ -639,6 +639,24 @@ function findLiveLensPlayer(maps, name) {
   return null;
 }
 
+function buildLiveBoxscoreNameMaps(rows) {
+  const byFull = new Map();
+  const byShort = new Map();
+  for (const row of (Array.isArray(rows) ? rows : [])) {
+    const keys = playerMergeKeys((row && row.player) || '');
+    if (keys.full && !byFull.has(keys.full)) byFull.set(keys.full, row);
+    if (keys.short && !byShort.has(keys.short)) byShort.set(keys.short, row);
+  }
+  return { byFull, byShort };
+}
+
+function findLiveBoxscoreRow(maps, name) {
+  const keys = playerMergeKeys(name);
+  if (keys.full && maps && maps.byFull && maps.byFull.has(keys.full)) return maps.byFull.get(keys.full) || null;
+  if (keys.short && maps && maps.byShort && maps.byShort.has(keys.short)) return maps.byShort.get(keys.short) || null;
+  return null;
+}
+
 function liveLensPlayerActualStats(player) {
   const minuteRow = liveLensPrimaryRow(player);
   const pts = n(liveLensStatRow(player, 'pts') && liveLensStatRow(player, 'pts').actual);
@@ -710,6 +728,79 @@ function liveLensLineEntry(player, statKey) {
   const line = n(row && row.line);
   if (line != null && source && source !== 'model') return { line, source };
   return { line: null, source };
+}
+
+function livePropProjectionValue(player, statKey) {
+  const direct = liveLensProjectionStat(player, statKey);
+  if (direct != null) return direct;
+
+  const pts = liveLensProjectionStat(player, 'pts');
+  const reb = liveLensProjectionStat(player, 'reb');
+  const ast = liveLensProjectionStat(player, 'ast');
+  if (statKey === 'pa') return (pts != null && ast != null) ? (pts + ast) : null;
+  if (statKey === 'pr') return (pts != null && reb != null) ? (pts + reb) : null;
+  if (statKey === 'ra') return (reb != null && ast != null) ? (reb + ast) : null;
+  if (statKey === 'pra') return (pts != null && reb != null && ast != null) ? (pts + reb + ast) : null;
+  return null;
+}
+
+function livePropActualValue(actualStats, statKey) {
+  const pts = n(actualStats && actualStats.pts);
+  const reb = n(actualStats && actualStats.reb);
+  const ast = n(actualStats && actualStats.ast);
+  const threes = n(actualStats && actualStats.threes);
+  const stl = n(actualStats && actualStats.stl);
+  const blk = n(actualStats && actualStats.blk);
+  const tov = n(actualStats && actualStats.tov);
+  if (statKey === 'mp') return n(actualStats && actualStats.mp);
+  if (statKey === 'pts') return pts;
+  if (statKey === 'reb') return reb;
+  if (statKey === 'ast') return ast;
+  if (statKey === 'threes') return threes;
+  if (statKey === 'stl') return stl;
+  if (statKey === 'blk') return blk;
+  if (statKey === 'tov') return tov;
+  if (statKey === 'pa') return (pts != null && ast != null) ? (pts + ast) : null;
+  if (statKey === 'pr') return (pts != null && reb != null) ? (pts + reb) : null;
+  if (statKey === 'ra') return (reb != null && ast != null) ? (reb + ast) : null;
+  if (statKey === 'pra') {
+    const pra = n(actualStats && actualStats.pra);
+    return (pra != null) ? pra : ((pts != null && reb != null && ast != null) ? (pts + reb + ast) : null);
+  }
+  return null;
+}
+
+function livePropLineDetails(player, statKey, fallbackLine) {
+  const row = liveLensStatRow(player, statKey);
+  const liveLine = n(row && row.line_live);
+  const pregameLine = n(row && row.line_pregame);
+  const rawLine = n(row && row.line);
+  const rawSource = String(row && row.line_source ? row.line_source : '').toLowerCase().trim();
+
+  const lineUsed = (liveLine != null)
+    ? liveLine
+    : ((pregameLine != null)
+      ? pregameLine
+      : ((rawLine != null)
+        ? rawLine
+        : fallbackLine));
+
+  let source = '';
+  if (liveLine != null) source = 'live';
+  else if (pregameLine != null) source = 'pregame';
+  else if (rawLine != null) {
+    if (rawSource === 'oddsapi' || rawSource === 'live') source = 'live';
+    else if (rawSource && rawSource !== 'model') source = 'pregame';
+  } else if (fallbackLine != null) {
+    source = 'pregame';
+  }
+
+  return {
+    liveLine,
+    pregameLine: (pregameLine != null) ? pregameLine : fallbackLine,
+    lineUsed,
+    source,
+  };
 }
 
 function buildMergedPlayerBoxscoreRows(simPlayers, actualRows, actualMode, liveLensRows, lineOnlyPlayers) {
@@ -2226,6 +2317,167 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
         <div class="pregame-props-toolbar-row">
           <span class="chip title">Side</span>
           <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="" aria-pressed="true">ALL</button>
+          ${sideButtons}
+        </div>
+      </div>
+      <div class="pregame-prop-card-grid">
+        ${cards}
+      </div>
+      <div class="subtle pregame-props-empty hidden">No prop cards match the selected filters for this matchup.</div>
+    </div>
+  `;
+}
+
+function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, liveCtx = null, filterState = null) {
+  const entries = buildPregamePropRecommendationEntries(propRecs, homeTri, awayTri).slice(0, 12);
+  const activeStat = String(filterState && filterState.activeStat ? filterState.activeStat : '').toLowerCase().trim();
+  const activeSide = String(filterState && filterState.activeSide ? filterState.activeSide : '').toUpperCase().trim();
+  const isInProgress = !!(liveCtx && liveCtx.isInProgress);
+  const isFinal = !!(liveCtx && liveCtx.isFinal);
+  const isTrackedLive = isInProgress || isFinal;
+  const liveStatus = String(liveCtx && liveCtx.status ? liveCtx.status : '').trim();
+  const liveLensRows = Array.isArray(liveCtx && liveCtx.liveLensRows) ? liveCtx.liveLensRows : [];
+  const liveBoxRows = Array.isArray(liveCtx && liveCtx.liveBoxRows) ? liveCtx.liveBoxRows : [];
+  const liveLensMaps = buildLiveLensNameMaps(liveLensRows);
+  const liveBoxMaps = buildLiveBoxscoreNameMaps(liveBoxRows);
+
+  if (!entries.length) {
+    return `
+      <div class="pregame-props-panel live-recommended-props-panel pregame-props-panel-empty" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="${esc(activeStat)}" data-active-side="${esc(activeSide)}">
+        <div class="pregame-props-header">
+          <div class="market-title">Recommended props (sim vs line)</div>
+          <div class="subtle">No model-vs-line player props cleared the recommendation threshold for this matchup.</div>
+        </div>
+      </div>
+    `;
+  }
+
+  const statOrder = ['pts', 'reb', 'ast', 'threes', 'stl', 'blk', 'tov', 'pra', 'pa', 'pr', 'ra'];
+  const statsPresent = statOrder.filter((key) => entries.some((entry) => entry.statKey === key));
+  const sidesPresent = ['OVER', 'UNDER'].filter((key) => entries.some((entry) => entry.sideKey === key));
+  const summaryText = isFinal
+    ? 'Final view keeps each recommended prop as a player card with the final actual and the last live projection when available.'
+    : isInProgress
+      ? 'Live view adds current actuals and pace projections for each recommended player prop.'
+      : 'These recommended props convert into live player cards with actuals and pace projections after tip.';
+
+  const statButtons = statsPresent.map((key) => `
+    <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="${esc(key)}" aria-pressed="${key === activeStat ? 'true' : 'false'}">${esc(marketLabel(key))}</button>
+  `).join('');
+  const sideButtons = sidesPresent.map((key) => `
+    <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="${esc(key)}" aria-pressed="${key === activeSide ? 'true' : 'false'}">${esc(key)}</button>
+  `).join('');
+
+  const cards = entries.map(({ sideTri, player, picks, best, guidance, statKey, sideKey, playerId, playerPhoto }) => {
+    const statLabel = marketLabel(statKey || best.market);
+    const book = prettyBookName(best.book);
+    const price = n(best.price);
+    const evPct = n(best.ev_pct);
+    const pwin = n(best.p_win);
+    const mu = n(best.sim_mu);
+    const line = n(best.line);
+    const liveLensPlayer = isTrackedLive ? findLiveLensPlayer(liveLensMaps, player) : null;
+    const liveBoxRow = isTrackedLive ? findLiveBoxscoreRow(liveBoxMaps, player) : null;
+    const actualStats = isTrackedLive ? mergeLiveActualStats(liveBoxRow, liveLensPlayer) : null;
+    const actual = livePropActualValue(actualStats, statKey);
+    const projection = livePropProjectionValue(liveLensPlayer, statKey);
+    const lineInfo = livePropLineDetails(liveLensPlayer, statKey, line);
+    const currentLine = (lineInfo && lineInfo.lineUsed != null) ? lineInfo.lineUsed : line;
+    const currentEdge = (projection != null && currentLine != null) ? (projection - currentLine) : null;
+    const actionBadge = renderPregameActionBadge(guidance);
+    const lineBadge = renderLivePropLineBadge((lineInfo && lineInfo.source === 'live') ? 'LIVE' : 'PRE');
+    const img = renderPlayerHeadshot(player, {
+      playerPhoto,
+      photo: playerPhoto,
+      playerId,
+    });
+    const playToLine = n(guidance && guidance.play_to_line);
+    const playToText = (playToLine == null)
+      ? ''
+      : `${statLabel} ${sideKey} ${fmt(playToLine, 1)} or better${book ? ` at ${book}` : ''}`;
+    const matchupText = `${String(awayTri || '').toUpperCase().trim()} @ ${String(homeTri || '').toUpperCase().trim()}`.trim();
+    const tags = Array.from(new Set([
+      ...((guidance && Array.isArray(guidance.tags)) ? guidance.tags : []),
+      ...(Array.isArray(best.reasons) ? best.reasons : []),
+    ].map((tag) => String(tag || '').trim()).filter(Boolean))).slice(0, 4);
+    const tagHtml = tags.length
+      ? `<div class="pregame-prop-card-tags">${tags.map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')}</div>`
+      : '';
+    const altLines = picks.slice(1, 4).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+    const titleBits = [
+      `<span class="subtle">${esc(statLabel)}</span>`,
+      (currentLine != null && sideKey) ? `<span class="subtle">${esc(`${sideKey} ${fmt(currentLine, 1)}`)}</span>` : '',
+      (evPct != null) ? `<span class="subtle">${esc(`EV ${fmt(evPct, 1)}%`)}</span>` : '',
+    ].filter(Boolean).join(' ');
+    const liveBits = [];
+    if (isTrackedLive) {
+      liveBits.push(`Act ${actual != null ? fmt(actual, 1) : '—'}`);
+      liveBits.push(`Proj ${projection != null ? fmt(projection, 1) : '—'}`);
+      if (currentEdge != null) liveBits.push(`Edge ${fmtSigned(currentEdge, 1)}`);
+    }
+    const liveLineBits = [];
+    if (currentLine != null) liveLineBits.push(`Current ${fmt(currentLine, 1)}`);
+    if (lineInfo && lineInfo.liveLine != null && (currentLine == null || Math.abs(lineInfo.liveLine - currentLine) > 1e-6)) liveLineBits.push(`Live ${fmt(lineInfo.liveLine, 1)}`);
+    if (lineInfo && lineInfo.pregameLine != null && (currentLine == null || Math.abs(lineInfo.pregameLine - currentLine) > 1e-6)) liveLineBits.push(`Pre ${fmt(lineInfo.pregameLine, 1)}`);
+    if (book) liveLineBits.push(book);
+    if (price != null) liveLineBits.push(fmtAmer(price));
+    if (isTrackedLive && lineInfo && lineInfo.source === 'live') liveLineBits.push('live line');
+    else if (isTrackedLive && currentLine != null) liveLineBits.push('pregame fallback');
+    const liveStatusText = [liveStatus || (isFinal ? 'Final' : (isInProgress ? 'Live' : 'Pregame')), matchupText, sideTri || '']
+      .filter(Boolean)
+      .join(' · ');
+    const pregameLogic = [
+      (mu != null && line != null) ? `Pregame μ ${fmt(mu, 1)} vs ${fmt(line, 1)}` : '',
+      (pwin != null) ? `win ${pct(pwin, 0)}` : '',
+      (evPct != null) ? `EV ${fmt(evPct, 1)}%` : '',
+    ].filter(Boolean).join(' · ');
+
+    return `
+      <article class="chip neutral prop-callout pregame-prop-grid-card live-recommended-prop-card" data-stat="${esc(statKey)}" data-side="${esc(sideKey)}">
+        <div class="prop-callout-head">
+          ${actionBadge}
+          ${lineBadge}
+          <span class="badge">${esc(statLabel)}</span>
+          ${sideTri ? `<span class="badge">${esc(sideTri)}</span>` : ''}
+          ${evPct != null ? `<span class="badge ${evPct >= 5 ? 'good' : 'ok'}">${esc(`EV ${fmt(evPct, 1)}%`)}</span>` : ''}
+        </div>
+        <div class="prop-callout-body">
+          ${img}
+          <div class="prop-callout-copy">
+            <div class="fw-700 prop-callout-title">
+              ${esc(player)} ${titleBits}
+            </div>
+            ${guidance && guidance.summary ? `<div class="prop-callout-line">${esc(guidance.summary)}</div>` : ''}
+            ${isTrackedLive
+              ? `<div class="prop-callout-line live-recommended-prop-line">${esc(liveBits.length ? liveBits.join(' · ') : 'Live actual / projection pending.')}</div>`
+              : '<div class="prop-callout-line live-recommended-prop-line">Live actuals and pace projections populate after tip.</div>'}
+            ${liveStatusText ? `<div class="subtle prop-callout-line">${esc(liveStatusText)}</div>` : ''}
+            ${liveLineBits.length ? `<div class="subtle prop-callout-line">${esc(liveLineBits.join(' · '))}</div>` : ''}
+            ${pregameLogic ? `<div class="subtle prop-callout-line">${esc(pregameLogic)}</div>` : ''}
+            ${playToText ? `<div class="subtle prop-callout-line">${esc(playToText)}</div>` : ''}
+            ${tagHtml}
+            ${altLines ? `<div class="subtle prop-callout-line">Other playable lines: ${esc(altLines)}</div>` : ''}
+          </div>
+        </div>
+      </article>
+    `;
+  }).join('');
+
+  return `
+    <div class="pregame-props-panel live-recommended-props-panel" data-pregame-props-panel="1" data-game-id="${esc(String(gameId || ''))}" data-active-stat="${esc(activeStat)}" data-active-side="${esc(activeSide)}">
+      <div class="pregame-props-header">
+        <div class="market-title">Recommended props (sim vs line)</div>
+        <div class="subtle">${esc(summaryText)}</div>
+      </div>
+      <div class="pregame-props-toolbar">
+        <div class="pregame-props-toolbar-row">
+          <span class="chip title">Props</span>
+          <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="" aria-pressed="${activeStat ? 'false' : 'true'}">ALL</button>
+          ${statButtons}
+        </div>
+        <div class="pregame-props-toolbar-row">
+          <span class="chip title">Side</span>
+          <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="side" data-key="" aria-pressed="${activeSide ? 'false' : 'true'}">ALL</button>
           ${sideButtons}
         </div>
       </div>
@@ -6118,6 +6370,28 @@ function startLiveLensPolling(root, games, dateStr) {
         // ignore
       }
 
+      try {
+        const liveRecommendedPropsBlock = root.querySelector(`.live-recommended-props-block[data-live-recommended-props-block="1"][data-game-id="${CSS.escape(gid)}"]`);
+        if (liveRecommendedPropsBlock) {
+          const panel = liveRecommendedPropsBlock.querySelector('.pregame-props-panel[data-pregame-props-panel="1"]');
+          const activeStat = String(panel && panel.dataset ? panel.dataset.activeStat || '' : '').toLowerCase().trim();
+          const activeSide = String(panel && panel.dataset ? panel.dataset.activeSide || '' : '').toUpperCase().trim();
+          liveRecommendedPropsBlock.innerHTML = renderLiveRecommendedPropCards(meta.prop_recommendations, meta.home, meta.away, gid, {
+            isInProgress,
+            isFinal,
+            status: (s && s.status) ? String(s.status) : '',
+            liveLensRows: (livePlayerLens && Array.isArray(livePlayerLens.rows)) ? livePlayerLens.rows : [],
+            liveBoxRows: (livePlayerBox && Array.isArray(livePlayerBox.players)) ? livePlayerBox.players : [],
+          }, {
+            activeStat,
+            activeSide,
+          });
+          applyPregamePropCardFilters(root);
+        }
+      } catch (_) {
+        // ignore
+      }
+
       // MARKET chips (NCAAB-style strip)
       try {
         const mlChip = el.querySelector('.lens-market-ml');
@@ -8639,10 +8913,9 @@ function renderCards(games, reconGameRows, reconQuarterRows, reconPlayerRows, sh
         </details>
         ` : `${pregameBoxscoreHtml}${pregameAvailabilityHtml}`}
         ${showLiveUi ? `
-        <details class="writeup-block">
-          <summary class="writeup-toggle cursor-pointer">Recommended props (sim vs line)</summary>
-          ${renderPropRecommendations(g.prop_recommendations, homeTri, awayTri)}
-        </details>
+        <div class="writeup-block live-recommended-props-block" data-live-recommended-props-block="1" data-game-id="${esc(gid)}">
+          ${renderLiveRecommendedPropCards(g.prop_recommendations, homeTri, awayTri, gid)}
+        </div>
         ` : `
         <div class="writeup-block pregame-props-block">
           ${renderPregamePropCards(g.prop_recommendations, homeTri, awayTri, gid)}
