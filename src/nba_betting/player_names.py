@@ -7,6 +7,7 @@ import unicodedata
 
 _SUFFIX_TOKENS = frozenset({"JR", "SR", "II", "III", "IV", "V"})
 _CANONICAL_PLAYER_NAME_ALIASES = {
+    "CARLTON CARRINGTON": "BUB CARRINGTON",
     "HERB JONES": "HERBERT JONES",
     "MOE WAGNER": "MORITZ WAGNER",
 }
