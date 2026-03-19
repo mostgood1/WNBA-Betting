@@ -2,23 +2,44 @@
   "date": "2026-03-19",
   "team_counts": {
     "CHA": 1,
+    "CHI": 2,
     "CLE": 2,
     "DET": 2,
+    "LAC": 1,
+    "MIA": 1,
     "MIL": 1,
+    "NOP": 1,
     "ORL": 2,
     "PHI": 2,
+    "PHX": 1,
     "SAC": 1,
-    "SAS": 2
+    "SAS": 2,
+    "UTA": 3
   },
   "players": [
+    {
+      "player": "Bradley Beal",
+      "team": "LAC",
+      "status": "OUT"
+    },
     {
       "player": "Kelly Oubre Jr.",
       "team": "PHI",
       "status": "OUT"
     },
     {
-      "player": "Domantas Sabonis",
-      "team": "SAC",
+      "player": "Royce O'Neale",
+      "team": "PHX",
+      "status": "OUT"
+    },
+    {
+      "player": "Lauri Markkanen",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Zach Collins",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -27,8 +48,18 @@
       "status": "OUT"
     },
     {
-      "player": "Franz Wagner",
+      "player": "Wendell Carter Jr.",
       "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Jaren Jackson Jr.",
+      "team": "UTA",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaac Okoro",
+      "team": "CHI",
       "status": "OUT"
     },
     {
@@ -42,6 +73,11 @@
       "status": "OUT"
     },
     {
+      "player": "Keegan Murray",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
       "player": "Wendell Moore Jr.",
       "team": "DET",
       "status": "OUT"
@@ -52,8 +88,18 @@
       "status": "OUT"
     },
     {
+      "player": "Jaime Jaquez Jr.",
+      "team": "MIA",
+      "status": "OUT"
+    },
+    {
       "player": "Anthony Black",
       "team": "ORL",
+      "status": "OUT"
+    },
+    {
+      "player": "Trey Alexander",
+      "team": "NOP",
       "status": "OUT"
     },
     {
@@ -69,6 +115,11 @@
     {
       "player": "Craig Porter Jr.",
       "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Isaiah Collier",
+      "team": "UTA",
       "status": "OUT"
     },
     {

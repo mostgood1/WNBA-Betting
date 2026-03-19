@@ -1,9 +1,9 @@
-date,home_team,visitor_team,h1_total,q1_total,q2_total,q3_total,q4_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_spread,q4_home_spread_price,q4_away_spread_price
-2026-03-19,Washington Wizards,Detroit Pistons,119.5,60.0,59.0,57.5,55.5,9.0,-115,-105,4.5,-110,-110,4.5,-115,-105,3.5,-115.0,-105.0,,,
-2026-03-19,Charlotte Hornets,Orlando Magic,115.5,58.0,57.5,56.5,53.5,-3.0,-105,-115,-1.5,-110,-110,-1.5,-110,-110,-1.5,-110.0,-110.0,-1.5,105.0,-125.0
-2026-03-19,Chicago Bulls,Cleveland Cavaliers,116.5,59.0,57.5,,,7.5,-105,-115,4.0,-105,-115,3.5,-105,-115,,,,,,
-2026-03-19,New Orleans Pelicans,Los Angeles Clippers,113.0,57.0,56.0,,,-0.5,-115,-105,-0.5,-105,-115,-0.5,-105,-115,,,,,,
-2026-03-19,Miami Heat,Los Angeles Lakers,124.0,62.5,61.5,,,-2.0,-105,-115,-1.0,-110,-110,-1.0,-110,-110,,,,,,
-2026-03-19,San Antonio Spurs,Phoenix Suns,117.5,59.5,58.0,,,-5.5,-105,-115,-3.0,-110,-110,-2.5,-115,-105,,,,,,
-2026-03-19,Utah Jazz,Milwaukee Bucks,117.5,59.5,58.5,,,3.0,-115,-105,1.5,-110,-110,1.5,-115,-105,,,,,,
-2026-03-19,Sacramento Kings,Philadelphia 76ers,116.5,59.0,57.5,,,1.5,-110,-110,1.0,-115,-105,1.0,-115,-105,,,,,,
+date,home_team,visitor_team,h1_total,q1_total,q2_total,q3_total,h1_spread,h1_home_spread_price,h1_away_spread_price,q1_spread,q1_home_spread_price,q1_away_spread_price,q2_spread,q2_home_spread_price,q2_away_spread_price,q3_spread,q3_home_spread_price,q3_away_spread_price,q4_total,q4_spread,q4_home_spread_price,q4_away_spread_price
+2026-03-19,Washington Wizards,Detroit Pistons,120.0,60.5,59.5,57.5,8.5,-105,-115,4.5,-110,-110,4.5,-115,-105,3.5,-115.0,-105,,,,
+2026-03-19,Charlotte Hornets,Orlando Magic,117.0,59.0,58.0,56.5,-3.0,-110,-110,-1.5,-110,-110,-1.5,-110,-110,-1.5,-110.0,-110,53.5,-1.5,105.0,-125.0
+2026-03-19,Chicago Bulls,Cleveland Cavaliers,115.5,58.0,57.0,62.5,6.5,-110,-110,3.5,-105,-115,3.0,-105,-115,2.5,-105.0,-115,59.5,,,
+2026-03-19,New Orleans Pelicans,Los Angeles Clippers,111.5,56.0,55.0,60.5,-1.0,-115,-105,-0.5,-105,-115,-1.0,-105,-115,-1.5,120.0,-140,57.5,-1.5,120.0,-140.0
+2026-03-19,Miami Heat,Los Angeles Lakers,123.5,62.5,61.0,59.5,-3.0,-110,-110,-2.0,-110,-110,-2.0,-110,-110,-1.5,,-120,57.5,-1.5,,-120.0
+2026-03-19,San Antonio Spurs,Phoenix Suns,118.0,58.5,58.0,56.5,-5.5,-110,-110,-2.5,-110,-110,-2.0,-115,-105,-2.5,-110.0,-110,53.5,-2.5,-110.0,-110.0
+2026-03-19,Utah Jazz,Milwaukee Bucks,118.0,59.5,58.5,55.5,2.5,-105,-115,1.5,-110,-110,1.5,-115,-105,1.5,-110.0,-110,,,,
+2026-03-19,Sacramento Kings,Philadelphia 76ers,117.5,59.5,58.0,55.5,1.5,-110,-110,1.0,-115,-105,1.0,-115,-105,1.5,-130.0,110,52.5,,,

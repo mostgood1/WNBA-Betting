@@ -25,9 +25,9 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 202695,Kawhi Leonard,LAC,,True,True
 202696,Nikola Vučević,BOS,,False,False
 202699,Tobias Harris,DET,,True,True
-202710,Jimmy Butler III,GSW,,False,False
+202710,Jimmy Butler III,GSW,OUT,False,False
 203076,Anthony Davis,WAS,,True,True
-203078,Bradley Beal,LAC,,True,True
+203078,Bradley Beal,LAC,OUT,True,False
 203081,Damian Lillard,POR,,False,False
 203083,Andre Drummond,PHI,,True,True
 203084,Harrison Barnes,SAS,,True,True
@@ -39,7 +39,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 203484,Kentavious Caldwell-Pope,MEM,,False,False
 203486,Mason Plumlee,SAS,,True,True
 203497,Rudy Gobert,MIN,,False,False
-203500,Steven Adams,HOU,,False,False
+203500,Steven Adams,HOU,OUT,False,False
 203501,Tim Hardaway Jr.,DEN,,False,False
 203507,Giannis Antetokounmpo,MIL,,True,True
 203648,Thanasis Antetokounmpo,MIL,,True,True
@@ -76,8 +76,8 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1626181,Norman Powell,MIA,,True,True
 1626192,Pat Connaughton,CHA,,True,True
 1626204,Larry Nance Jr.,CLE,,True,True
-1626220,Royce O'Neale,PHX,,True,True
-1627734,Domantas Sabonis,SAC,OUT,True,False
+1626220,Royce O'Neale,PHX,OUT,True,False
+1627734,Domantas Sabonis,SAC,,True,True
 1627739,Kris Dunn,LAC,,True,True
 1627741,Buddy Hield,ATL,,False,False
 1627742,Brandon Ingram,TOR,,False,False
@@ -101,14 +101,14 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1628369,Jayson Tatum,BOS,,False,False
 1628370,Malik Monk,SAC,,True,True
 1628371,Jonathan Isaac,ORL,,True,True
-1628374,Lauri Markkanen,UTA,,True,True
+1628374,Lauri Markkanen,UTA,OUT,True,False
 1628378,Donovan Mitchell,CLE,,True,True
 1628379,Luke Kennard,LAL,,True,True
-1628380,Zach Collins,CHI,,True,True
+1628380,Zach Collins,CHI,OUT,True,False
 1628381,John Collins,LAC,,True,True
 1628384,OG Anunoby,NYK,,False,False
 1628386,Jarrett Allen,CLE,OUT,True,False
-1628389,Bam Adebayo,MIA,PROBABLE,True,True
+1628389,Bam Adebayo,MIA,,True,True
 1628392,Isaiah Hartenstein,OKC,,False,False
 1628396,Tony Bradley,,,False,False
 1628398,Kyle Kuzma,MIL,,True,True
@@ -128,18 +128,18 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1628971,Bruce Brown,DEN,,False,False
 1628973,Jalen Brunson,NYK,,False,False
 1628975,Jevon Carter,ORL,,True,True
-1628976,Wendell Carter Jr.,ORL,,True,True
+1628976,Wendell Carter Jr.,ORL,OUT,True,False
 1628978,Donte DiVincenzo,MIN,,False,False
 1628983,Shai Gilgeous-Alexander,OKC,,False,False
 1628988,Aaron Holiday,HOU,,False,False
 1628989,Kevin Huerter,DET,,True,True
-1628991,Jaren Jackson Jr.,UTA,,True,True
+1628991,Jaren Jackson Jr.,UTA,OUT,True,False
 1628997,Caleb Martin,DAL,,False,False
 1628998,Cody Martin,,,False,False
 1629001,De'Anthony Melton,GSW,,False,False
 1629004,Svi Mykhailiuk,UTA,,True,True
 1629006,Josh Okogie,HOU,,False,False
-1629008,Michael Porter Jr.,BKN,,False,False
+1629008,Michael Porter Jr.,BKN,OUT,False,False
 1629011,Mitchell Robinson,NYK,,False,False
 1629012,Collin Sexton,CHI,,True,True
 1629013,Landry Shamet,NYK,,False,False
@@ -187,13 +187,13 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1629661,Cameron Johnson,DEN,,False,False
 1629673,Jordan Poole,NOP,,True,True
 1629674,Neemias Queta,BOS,,False,False
-1629675,Naz Reid,MIN,,False,False
+1629675,Naz Reid,MIN,QUESTIONABLE,False,False
 1629680,Matisse Thybulle,POR,,False,False
 1629684,Grant Williams,CHA,,True,True
 1629723,John Konchar,UTA,,True,True
 1629731,Dean Wade,CLE,,True,True
 1629750,Javonte Green,DET,,True,True
-1630162,Anthony Edwards,MIN,,False,False
+1630162,Anthony Edwards,MIN,OUT,False,False
 1630163,LaMelo Ball,CHA,,True,True
 1630164,James Wiseman,,,False,False
 1630166,Deni Avdija,POR,,False,False
@@ -201,7 +201,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630168,Onyeka Okongwu,ATL,,False,False
 1630169,Tyrese Haliburton,IND,,False,False
 1630170,Devin Vassell,SAS,,True,True
-1630171,Isaac Okoro,CHI,,True,True
+1630171,Isaac Okoro,CHI,OUT,True,False
 1630172,Patrick Williams,CHI,,True,True
 1630173,Precious Achiuwa,SAC,,True,True
 1630174,Aaron Nesmith,IND,,False,False
@@ -236,7 +236,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630526,Jeremiah Robinson-Earl,,,False,False
 1630529,Herbert Jones,NOP,,True,True
 1630530,Trey Murphy III,NOP,,True,True
-1630532,Franz Wagner,ORL,OUT,True,False
+1630532,Franz Wagner,ORL,,True,True
 1630533,Ziaire Williams,BKN,,False,False
 1630534,Ochai Agbaji,BKN,,False,False
 1630536,Sharife Cooper,WAS,,True,True
@@ -294,7 +294,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631095,Jabari Smith Jr.,HOU,,False,False
 1631096,Chet Holmgren,OKC,,False,False
 1631097,Bennedict Mathurin,LAC,,True,True
-1631099,Keegan Murray,SAC,,True,True
+1631099,Keegan Murray,SAC,OUT,True,False
 1631101,Shaedon Sharpe,POR,,False,False
 1631103,Malaki Branham,,,False,False
 1631104,Blake Wesley,POR,,False,False
@@ -322,7 +322,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1631159,Leonard Miller,CHI,,True,True
 1631165,Keon Ellis,CLE,,True,True
 1631169,Josh Minott,BKN,,False,False
-1631170,Jaime Jaquez Jr.,MIA,QUESTIONABLE,True,True
+1631170,Jaime Jaquez Jr.,MIA,OUT,True,False
 1631172,Ousmane Dieng,MIL,,True,True
 1631199,Ron Harper Jr.,BOS,,False,False
 1631200,Kris Murray,POR,,False,False
@@ -365,10 +365,10 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641718,Keyonte George,UTA,,True,True
 1641722,Jordan Hawkins,NOP,,True,True
 1641724,Jett Howard,ORL,,True,True
-1641725,Trey Alexander,NOP,,True,True
+1641725,Trey Alexander,NOP,OUT,True,False
 1641726,Dereck Lively II,DAL,,False,False
 1641729,Brice Sensabaugh,UTA,,True,True
-1641730,Noah Clowney,BKN,,False,False
+1641730,Noah Clowney,BKN,OUT,False,False
 1641731,Bilal Coulibaly,WAS,,True,True
 1641732,Colby Jones,,,False,False
 1641733,Nick Smith Jr.,LAL,,True,True
@@ -382,7 +382,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641750,Ryan Kalkbrenner,CHA,,True,True
 1641752,Bobi Klintman,DET,,True,True
 1641753,Chris Livingston,,,False,False
-1641755,Kevin McCullar Jr.,NYK,,False,False
+1641755,Kevin McCullar Jr.,NYK,QUESTIONABLE,False,False
 1641757,Jordan Miller,LAC,,True,True
 1641763,Julian Phillips,MIN,,False,False
 1641764,Brandin Podziemski,GSW,,False,False
@@ -407,11 +407,11 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641854,Craig Porter Jr.,CLE,OUT,True,False
 1641871,Duop Reath,,,False,False
 1641989,Elijah Harkless,UTA,,True,True
-1641998,Trey Jemison III,NYK,,False,False
+1641998,Trey Jemison III,NYK,QUESTIONABLE,False,False
 1642050,Jackson Rowe,,,False,False
 1642066,Myron Gardner,MIA,,True,True
 1642258,Zaccharie Risacher,ATL,,False,False
-1642259,Alex Sarr,WAS,QUESTIONABLE,True,True
+1642259,Alex Sarr,WAS,,True,True
 1642260,Nikola Topić,OKC,,False,False
 1642261,Dalton Knecht,LAL,,True,True
 1642262,Cody Williams,UTA,,True,True
@@ -420,7 +420,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642265,Rob Dillingham,CHI,,True,True
 1642266,Ja'Kobe Walter,TOR,,False,False
 1642267,Bub Carrington,WAS,,True,True
-1642268,Isaiah Collier,UTA,,True,True
+1642268,Isaiah Collier,UTA,OUT,True,False
 1642269,Devin Carter,SAC,,True,True
 1642270,Donovan Clingan,POR,,False,False
 1642271,Kyle Filipowski,UTA,,True,True
@@ -514,7 +514,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1642920,Kobe Sanders,LAC,,True,True
 1642926,Tamar Bates,,,False,False
 1642928,Dylan Cardwell,SAC,,True,True
-1642935,Chucky Hepburn,TOR,,False,False
+1642935,Chucky Hepburn,TOR,OUT,False,False
 1642938,Curtis Jones,DEN,,False,False
 1642939,Miles Kelly,,,False,False
 1642947,Eli John Ndiaye,,,False,False
