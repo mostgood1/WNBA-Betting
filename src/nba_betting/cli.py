@@ -28,6 +28,7 @@ from .league_status import build_league_status
 from .availability import build_and_check_dressed_players
 from .roster_audit import audit_roster_for_date
 from .roster_checks import roster_sanity_check
+from .roster_files import pick_rosters_file
 from .player_logs import fetch_player_logs
 from .player_names import normalize_player_name_key
 from .teams import normalize_team, to_tricode
@@ -137,6 +138,45 @@ def _league_status_player_maps_for_date(
     if lsdf is None or lsdf.empty:
         return roster_name_to_tri, excluded_by_team, allowed_by_team
 
+    def _backfill_missing_roster_names() -> None:
+        try:
+            dts = pd.to_datetime(date_str, errors="coerce")
+            season_start = None
+            if not pd.isna(dts):
+                season_start = int(dts.year) if int(dts.month) >= 7 else int(dts.year) - 1
+            season_label = None
+            if season_start is not None:
+                season_label = f"{int(season_start)}-{str(int(season_start) + 1)[-2:]}"
+
+            fp = pick_rosters_file(paths.data_processed, season=season_label)
+            if fp is None or not fp.exists():
+                return
+
+            rdf = pd.read_csv(fp)
+            if rdf is None or rdf.empty:
+                return
+
+            cols = {c.upper(): c for c in rdf.columns}
+            tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM") or cols.get("TEAM_TRI")
+            ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+            if not (tcol and ncol):
+                return
+
+            tmp = rdf[[tcol, ncol]].dropna().copy()
+            tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
+            tmp[ncol] = tmp[ncol].astype(str)
+            for _, rr in tmp.iterrows():
+                pkey = str(normalize_player_name_key(rr.get(ncol), case="upper") or "").strip().upper()
+                if not pkey or pkey in roster_name_to_tri:
+                    continue
+                tri = str(rr.get(tcol) or "").strip().upper()
+                if len(tri) != 3:
+                    tri = str(to_tricode(tri) or "").strip().upper()
+                if tri:
+                    roster_name_to_tri[pkey] = tri
+        except Exception:
+            return
+
     try:
         cols_upper = {c.upper(): c for c in lsdf.columns}
         cols_lower = {c.lower(): c for c in lsdf.columns}
@@ -179,6 +219,8 @@ def _league_status_player_maps_for_date(
             pkey = str(rr.get("_pkey") or "").strip().upper()
             if tri and pkey:
                 roster_name_to_tri.setdefault(pkey, tri)
+
+        _backfill_missing_roster_names()
 
         on_mask = pd.Series(True, index=tmp.index)
         if on_slate_col and on_slate_col in tmp.columns:

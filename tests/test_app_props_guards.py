@@ -147,6 +147,126 @@ def test_api_cards_skips_missing_prop_players_warning_when_smartsim_errors(tmp_p
     assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
 
 
+def test_api_cards_normalizes_snapshot_names_and_backfills_roster_coverage(tmp_path, monkeypatch):
+    data_dir = tmp_path / "data"
+    processed = data_dir / "processed"
+    raw = data_dir / "raw"
+    overrides = data_dir / "overrides"
+    processed.mkdir(parents=True)
+    raw.mkdir(parents=True)
+    overrides.mkdir(parents=True)
+
+    det_was = processed / "smart_sim_2026-03-19_WAS_DET.json"
+    det_was.write_text(
+        json.dumps(
+            {
+                "home": "WAS",
+                "away": "DET",
+                "score": {},
+                "players": {
+                    "home": [{"player_name": "Bub Carrington", "player_id": 1, "pts_mean": 10.0}],
+                    "away": [{"player_name": "Ronald Holland II", "player_id": 2, "pts_mean": 11.0}],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+    sac_phi = processed / "smart_sim_2026-03-19_SAC_PHI.json"
+    sac_phi.write_text(
+        json.dumps(
+            {
+                "home": "SAC",
+                "away": "PHI",
+                "score": {},
+                "players": {
+                    "home": [{"player_name": "Keegan Murray", "player_id": 3, "pts_mean": 16.0}],
+                    "away": [{"player_name": "Cameron Payne", "player_id": 4, "pts_mean": 8.0}],
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    pd.DataFrame(
+        [
+            {"TEAM_ABBREVIATION": "DET", "PLAYER": "Ronald Holland II"},
+            {"TEAM_ABBREVIATION": "WAS", "PLAYER": "Bub Carrington"},
+            {"TEAM_ABBREVIATION": "SAC", "PLAYER": "Keegan Murray"},
+        ]
+    ).to_csv(processed / "league_status_2026-03-19.csv", index=False)
+    pd.DataFrame(
+        [
+            {"TEAM_ABBREVIATION": "DET", "PLAYER": "Ronald Holland II", "PLAYER_ID": 2},
+            {"TEAM_ABBREVIATION": "PHI", "PLAYER": "Cameron Payne", "PLAYER_ID": 4},
+            {"TEAM_ABBREVIATION": "SAC", "PLAYER": "Keegan Murray", "PLAYER_ID": 3},
+            {"TEAM_ABBREVIATION": "WAS", "PLAYER": "Bub Carrington", "PLAYER_ID": 1},
+        ]
+    ).to_csv(processed / "rosters_2025-26.csv", index=False)
+
+    pd.DataFrame(
+        [
+            {
+                "snapshot_ts": "2026-03-19T16:00:00Z",
+                "event_id": "evt-det-was",
+                "commence_time": "2026-03-19T23:00:00Z",
+                "bookmaker": "fanduel",
+                "bookmaker_title": "FanDuel",
+                "market": "player_points",
+                "outcome_name": "Over",
+                "player_name": "Ron Holland",
+                "point": 10.5,
+                "price": -110,
+                "last_update": "2026-03-19T16:01:00Z",
+                "home_team": "Washington Wizards",
+                "away_team": "Detroit Pistons",
+            },
+            {
+                "snapshot_ts": "2026-03-19T16:00:00Z",
+                "event_id": "evt-sac-phi",
+                "commence_time": "2026-03-20T02:00:00Z",
+                "bookmaker": "fanduel",
+                "bookmaker_title": "FanDuel",
+                "market": "player_points",
+                "outcome_name": "Over",
+                "player_name": "Cameron Payne",
+                "point": 7.5,
+                "price": -108,
+                "last_update": "2026-03-19T16:01:00Z",
+                "home_team": "Sacramento Kings",
+                "away_team": "Philadelphia 76ers",
+            },
+        ]
+    ).to_csv(raw / "odds_nba_player_props_2026-03-19.csv", index=False)
+
+    monkeypatch.setattr(app_module, "DATA_PROCESSED_DIR", processed)
+    monkeypatch.setattr(app_module, "DATA_RAW_DIR", raw)
+    monkeypatch.setattr(app_module, "DATA_OVERRIDES_DIR", overrides)
+    monkeypatch.setattr(app_module, "_load_smart_sim_files_for_authoritative_slate", lambda _date: [det_was, sac_phi])
+    monkeypatch.setattr(
+        app_module,
+        "_load_game_odds_map",
+        lambda _date: {
+            ("WAS", "DET"): {"home_team": "Washington Wizards", "visitor_team": "Detroit Pistons"},
+            ("SAC", "PHI"): {"home_team": "Sacramento Kings", "visitor_team": "Philadelphia 76ers"},
+        },
+    )
+    monkeypatch.setattr(app_module, "_load_props_predictions_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_compute_player_minutes_priors", lambda _date, days_back=21: {})
+    monkeypatch.setattr(app_module, "_live_find_processed_csv", lambda _stem, _date: None)
+    monkeypatch.setattr(app_module, "_live_load_props_edges_index", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_props_recommendations_by_team", lambda _date: {})
+    monkeypatch.setattr(app_module, "_load_injury_context_map", lambda _date: {})
+    monkeypatch.setattr(app_module, "_matchup_writeup", lambda _game: "")
+
+    with app_module.app.test_request_context("/api/cards?date=2026-03-19"):
+        response = app_module.api_cards()
+
+    payload = response.get_json()
+    warnings = [warning for game in payload["games"] for warning in (game.get("warnings") or [])]
+
+    assert all("Players with prop lines missing from SmartSim boxscore" not in warning for warning in warnings)
+
+
 def test_api_cards_filters_stale_smartsim_matchups_not_in_authoritative_slate(tmp_path, monkeypatch):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)

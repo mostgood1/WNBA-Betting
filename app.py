@@ -5192,9 +5192,37 @@ def _team_injury_identity(date_str: str) -> tuple[dict[str, list[str]], dict[str
 def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
     """Return map of team tricode -> set of normalized player names for the date.
 
-    Prefers data/processed/league_status_<date>.csv; falls back to overrides/team_roster_<date>.csv.
+    Prefers same-day league_status_<date>.csv and backfills missing players from the
+    current-season processed rosters plus optional team_roster_<date>.csv overrides.
     """
     out: dict[str, set[str]] = {}
+    seen_names: set[str] = set()
+
+    def _merge_names(df: pd.DataFrame, team_col: str | None, name_col: str | None, *, only_missing: bool) -> None:
+        if not (team_col and name_col):
+            return
+        try:
+            tmp = df[[team_col, name_col]].copy()
+        except Exception:
+            return
+        try:
+            tmp[team_col] = tmp[team_col].astype(str).str.strip().str.upper()
+            tmp[name_col] = tmp[name_col].astype(str)
+            tmp["_name_key"] = tmp[name_col].map(_norm_player_name)
+            tmp = tmp[tmp[team_col].astype(str).str.len() > 0].copy()
+            tmp = tmp[tmp["_name_key"].astype(str).str.len() > 0].copy()
+        except Exception:
+            return
+        for _, row in tmp[[team_col, "_name_key"]].dropna().iterrows():
+            tri = str(row.get(team_col) or "").strip().upper()
+            name_key = str(row.get("_name_key") or "").strip().upper()
+            if not tri or not name_key:
+                continue
+            if only_missing and name_key in seen_names:
+                continue
+            out.setdefault(tri, set()).add(name_key)
+            seen_names.add(name_key)
+
     try:
         proc = DATA_PROCESSED_DIR
         fp = proc / f"league_status_{date_str}.csv"
@@ -5203,28 +5231,27 @@ def _roster_players_for_date(date_str: str) -> dict[str, set[str]]:
             cols = {c.upper(): c for c in df.columns}
             tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
             ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
-            if tcol and ncol:
-                tmp = df[[tcol, ncol]].copy()
-                tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                tmp[ncol] = tmp[ncol].astype(str)
-                tmp["_name_key"] = tmp[ncol].map(_norm_player_name)
-                for tri, sg in tmp.groupby(tcol):
-                    out[str(tri).strip().upper()] = set(sg["_name_key"].dropna().astype(str).tolist())
-        else:
-            # fallback to overrides
-            ov = DATA_OVERRIDES_DIR / f"team_roster_{date_str}.csv"
-            if ov.exists():
-                df = pd.read_csv(ov)
-                cols = {c.upper(): c for c in df.columns}
-                tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
-                ncol = cols.get("PLAYER")
-                if tcol and ncol:
-                    tmp = df[[tcol, ncol]].copy()
-                    tmp[tcol] = tmp[tcol].astype(str).str.strip().str.upper()
-                    tmp[ncol] = tmp[ncol].astype(str)
-                    tmp["_name_key"] = tmp[ncol].map(_norm_player_name)
-                    for tri, sg in tmp.groupby(tcol):
-                        out[str(tri).strip().upper()] = set(sg["_name_key"].dropna().astype(str).tolist())
+            _merge_names(df, tcol, ncol, only_missing=False)
+
+        # Same-day league_status can miss active players after recent moves.
+        # Backfill only names that are absent from league_status entirely so we avoid
+        # overriding any team assignment that league_status already resolved.
+        try:
+            rosters_df = _load_latest_rosters(date_str)
+            roster_cols = {c.upper(): c for c in rosters_df.columns}
+            roster_tcol = roster_cols.get("TEAM_ABBREVIATION") or roster_cols.get("TEAM")
+            roster_ncol = roster_cols.get("PLAYER") or roster_cols.get("PLAYER_NAME")
+            _merge_names(rosters_df, roster_tcol, roster_ncol, only_missing=bool(seen_names))
+        except Exception:
+            pass
+
+        ov = DATA_OVERRIDES_DIR / f"team_roster_{date_str}.csv"
+        if ov.exists():
+            df = pd.read_csv(ov)
+            cols = {c.upper(): c for c in df.columns}
+            tcol = cols.get("TEAM_ABBREVIATION") or cols.get("TEAM")
+            ncol = cols.get("PLAYER") or cols.get("PLAYER_NAME")
+            _merge_names(df, tcol, ncol, only_missing=bool(seen_names))
     except Exception:
         pass
     return out

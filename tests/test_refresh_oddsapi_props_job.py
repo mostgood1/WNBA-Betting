@@ -102,10 +102,14 @@ def test_collect_snapshot_coverage_gaps_flags_missing_prediction_and_sim():
 def test_normalize_player_name_key_collapses_known_aliases():
     assert normalize_player_name_key("Carlton Carrington") == "BUB CARRINGTON"
     assert normalize_player_name_key("Bub Carrington") == "BUB CARRINGTON"
+    assert normalize_player_name_key("Cam Payne") == "CAMERON PAYNE"
+    assert normalize_player_name_key("Cameron Payne") == "CAMERON PAYNE"
     assert normalize_player_name_key("Herb Jones") == "HERBERT JONES"
     assert normalize_player_name_key("Herbert Jones") == "HERBERT JONES"
     assert normalize_player_name_key("Moe Wagner") == "MORITZ WAGNER"
     assert normalize_player_name_key("Moritz Wagner") == "MORITZ WAGNER"
+    assert normalize_player_name_key("Ron Holland") == "RONALD HOLLAND"
+    assert normalize_player_name_key("Ronald Holland II") == "RONALD HOLLAND"
 
 
 def test_resolve_player_prop_bookmakers_defaults_to_all_us_books(monkeypatch):
