@@ -2068,6 +2068,26 @@ function renderPregamePropAltPick(pick) {
   ].filter(Boolean).join(' ');
 }
 
+function pregamePropAlternativePicks(picks, best, limit = 3) {
+  const bestMarket = canonicalPregamePropStatKey(best && best.market);
+  const bestSide = String(best && best.side || '').toUpperCase().trim();
+  const bestLine = n(best && best.line);
+  const bestBook = String(best && best.book || '').trim().toLowerCase();
+  const bestPrice = n(best && best.price);
+
+  return (Array.isArray(picks) ? picks : [])
+    .filter((pick) => pick && typeof pick === 'object')
+    .filter((pick) => canonicalPregamePropStatKey(pick.market) === bestMarket)
+    .filter((pick) => String(pick.side || '').toUpperCase().trim() === bestSide)
+    .filter((pick) => {
+      const line = n(pick.line);
+      const price = n(pick.price);
+      const book = String(pick.book || '').trim().toLowerCase();
+      return !(line === bestLine && price === bestPrice && book === bestBook);
+    })
+    .slice(0, limit);
+}
+
 function canonicalPregamePropStatKey(market) {
   const k = String(market || '').toLowerCase().trim();
   if (k === 'points') return 'pts';
@@ -2170,7 +2190,7 @@ function renderPropRecommendations(propRecs, homeTri, awayTri) {
       const tagHtml = guidance && Array.isArray(guidance.tags)
         ? guidance.tags.slice(0, 4).map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')
         : '';
-      const altLines = picks.slice(1, 3).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+      const altLines = pregamePropAlternativePicks(picks.slice(1), best, 2).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
 
       return `
         <li class="prop-rec-item">
@@ -2267,7 +2287,7 @@ function renderPregamePropCards(propRecs, homeTri, awayTri, gameId) {
     const tagHtml = tags.length
       ? `<div class="pregame-prop-card-tags">${tags.map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')}</div>`
       : '';
-    const altLines = picks.slice(1, 4).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+    const altLines = pregamePropAlternativePicks(picks.slice(1), best, 3).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
     const titleBits = [
       `<span class="subtle">${esc(statLabel)}</span>`,
       (line != null && sideKey) ? `<span class="subtle">${esc(`${sideKey} ${fmt(line, 1)}`)}</span>` : '',
@@ -2356,10 +2376,10 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
   const statsPresent = statOrder.filter((key) => entries.some((entry) => entry.statKey === key));
   const sidesPresent = ['OVER', 'UNDER'].filter((key) => entries.some((entry) => entry.sideKey === key));
   const summaryText = isFinal
-    ? 'Final view keeps each recommended prop as a player card with the final actual and the last live projection when available.'
+    ? 'Final view keeps the original pregame recommendation and shows where the final actual finished against that pregame projection.'
     : isInProgress
-      ? 'Live view adds current actuals and pace projections for each recommended player prop.'
-      : 'These recommended props convert into live player cards with actuals and pace projections after tip.';
+      ? 'Live view keeps the original pregame recommendation and adds the current actual so you can track it against the pregame projection.'
+      : 'These recommended props keep their original pregame model context and add actual tracking after tip.';
 
   const statButtons = statsPresent.map((key) => `
     <button type="button" class="chip neutral pregame-prop-card-filter" data-scope="stat" data-key="${esc(key)}" aria-pressed="${key === activeStat ? 'true' : 'false'}">${esc(marketLabel(key))}</button>
@@ -2380,12 +2400,8 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
     const liveBoxRow = isTrackedLive ? findLiveBoxscoreRow(liveBoxMaps, player) : null;
     const actualStats = isTrackedLive ? mergeLiveActualStats(liveBoxRow, liveLensPlayer) : null;
     const actual = livePropActualValue(actualStats, statKey);
-    const projection = livePropProjectionValue(liveLensPlayer, statKey);
-    const lineInfo = livePropLineDetails(liveLensPlayer, statKey, line);
-    const currentLine = (lineInfo && lineInfo.lineUsed != null) ? lineInfo.lineUsed : line;
-    const currentEdge = (projection != null && currentLine != null) ? (projection - currentLine) : null;
     const actionBadge = renderPregameActionBadge(guidance);
-    const lineBadge = renderLivePropLineBadge((lineInfo && lineInfo.source === 'live') ? 'LIVE' : 'PRE');
+    const lineBadge = renderLivePropLineBadge('PRE');
     const img = renderPlayerHeadshot(player, {
       playerPhoto,
       photo: playerPhoto,
@@ -2403,26 +2419,22 @@ function renderLiveRecommendedPropCards(propRecs, homeTri, awayTri, gameId, live
     const tagHtml = tags.length
       ? `<div class="pregame-prop-card-tags">${tags.map((tag) => `<span class="prop-rec-tag">${esc(tag)}</span>`).join('')}</div>`
       : '';
-    const altLines = picks.slice(1, 4).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
+    const altLines = pregamePropAlternativePicks(picks.slice(1), best, 3).map(renderPregamePropAltPick).filter(Boolean).join(' • ');
     const titleBits = [
       `<span class="subtle">${esc(statLabel)}</span>`,
-      (currentLine != null && sideKey) ? `<span class="subtle">${esc(`${sideKey} ${fmt(currentLine, 1)}`)}</span>` : '',
+      (line != null && sideKey) ? `<span class="subtle">${esc(`${sideKey} ${fmt(line, 1)}`)}</span>` : '',
       (evPct != null) ? `<span class="subtle">${esc(`EV ${fmt(evPct, 1)}%`)}</span>` : '',
     ].filter(Boolean).join(' ');
     const liveBits = [];
     if (isTrackedLive) {
       liveBits.push(`Act ${actual != null ? fmt(actual, 1) : '—'}`);
-      liveBits.push(`Proj ${projection != null ? fmt(projection, 1) : '—'}`);
-      if (currentEdge != null) liveBits.push(`Edge ${fmtSigned(currentEdge, 1)}`);
+      liveBits.push(`Pregame proj ${mu != null ? fmt(mu, 1) : '—'}`);
     }
     const liveLineBits = [];
-    if (currentLine != null) liveLineBits.push(`Current ${fmt(currentLine, 1)}`);
-    if (lineInfo && lineInfo.liveLine != null && (currentLine == null || Math.abs(lineInfo.liveLine - currentLine) > 1e-6)) liveLineBits.push(`Live ${fmt(lineInfo.liveLine, 1)}`);
-    if (lineInfo && lineInfo.pregameLine != null && (currentLine == null || Math.abs(lineInfo.pregameLine - currentLine) > 1e-6)) liveLineBits.push(`Pre ${fmt(lineInfo.pregameLine, 1)}`);
+    if (line != null) liveLineBits.push(`Recommended ${fmt(line, 1)}`);
     if (book) liveLineBits.push(book);
     if (price != null) liveLineBits.push(fmtAmer(price));
-    if (isTrackedLive && lineInfo && lineInfo.source === 'live') liveLineBits.push('live line');
-    else if (isTrackedLive && currentLine != null) liveLineBits.push('pregame fallback');
+    liveLineBits.push('pregame model');
     const liveStatusText = [liveStatus || (isFinal ? 'Final' : (isInProgress ? 'Live' : 'Pregame')), matchupText, sideTri || '']
       .filter(Boolean)
       .join(' · ');
