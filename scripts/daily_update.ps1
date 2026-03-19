@@ -800,9 +800,7 @@ function Invoke-SharedPropsRefreshWorker {
   param([string]$TargetDate)
 
   $bookmakers = [string]$env:PLAYER_PROP_BOOKMAKERS
-  if ([string]::IsNullOrWhiteSpace($bookmakers)) {
-    $bookmakers = 'fanduel,draftkings,betmgm,bet365'
-  }
+  $bookmakersDisplay = if ([string]::IsNullOrWhiteSpace($bookmakers)) { 'all-us-region-books' } else { $bookmakers }
 
   $workerLog = Join-Path $LogPath ("shared_props_refresh_{0}_{1}.log" -f $TargetDate, $Stamp)
   $payload = [ordered]@{
@@ -819,7 +817,7 @@ function Invoke-SharedPropsRefreshWorker {
 
   $env:NBA_BETTING_ODDSAPI_PROPS_JOB = $payload
   try {
-    Write-Log ("Running shared OddsAPI props refresh worker for {0} (bookmakers={1})" -f $TargetDate, $bookmakers)
+    Write-Log ("Running shared OddsAPI props refresh worker for {0} (bookmakers={1})" -f $TargetDate, $bookmakersDisplay)
     $rc = Invoke-PyMod -plist @('-m', 'nba_betting.refresh_oddsapi_props_job')
     Write-Log ("refresh_oddsapi_props_job exit code: {0}" -f $rc)
   } finally {

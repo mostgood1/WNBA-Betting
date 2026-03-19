@@ -8,6 +8,26 @@ import pandas as pd
 import app as app_module
 
 
+def test_player_prop_bookmakers_default_to_all_us_books_for_pregame(monkeypatch):
+    monkeypatch.delenv("PLAYER_PROP_BOOKMAKERS", raising=False)
+
+    assert app_module._player_prop_bookmakers_tuple(env_name="PLAYER_PROP_BOOKMAKERS") == ()
+    assert app_module._player_prop_bookmakers_csv(env_name="PLAYER_PROP_BOOKMAKERS") is None
+
+
+def test_player_prop_bookmakers_default_to_four_books_for_live(monkeypatch):
+    monkeypatch.delenv("PLAYER_PROP_BOOKMAKERS", raising=False)
+    monkeypatch.delenv("LIVE_PLAYER_PROP_BOOKMAKERS", raising=False)
+
+    assert app_module._player_prop_bookmakers_tuple(env_name="LIVE_PLAYER_PROP_BOOKMAKERS") == (
+        "fanduel",
+        "draftkings",
+        "betmgm",
+        "bet365",
+    )
+    assert app_module._player_prop_bookmakers_csv(env_name="LIVE_PLAYER_PROP_BOOKMAKERS") == "fanduel,draftkings,betmgm,bet365"
+
+
 def test_prune_invalid_props_recommendations_artifact_removes_model_only_cards(tmp_path):
     processed = tmp_path / "data" / "processed"
     processed.mkdir(parents=True)

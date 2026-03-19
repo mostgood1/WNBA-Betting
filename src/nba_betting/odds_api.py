@@ -20,7 +20,8 @@ from .teams import normalize_team
 
 ODDS_HOST = "https://api.the-odds-api.com"
 NBA_SPORT_KEY = "basketball_nba"
-DEFAULT_PLAYER_PROP_BOOKMAKERS = ("fanduel", "draftkings", "betmgm", "bet365")
+# Empty means no bookmaker allowlist. With regions='us', this keeps the full US book set.
+DEFAULT_PLAYER_PROP_BOOKMAKERS: tuple[str, ...] = tuple()
 
 _PLAYER_PROP_BOOKMAKER_ALIASES = {
     "fanduel": "fanduel",

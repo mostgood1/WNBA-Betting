@@ -7063,7 +7063,7 @@ def props_edges_cmd(date_str: str, use_saved: bool, mode: str, source: str, api_
                 edges = edges[edges["team"].isin(teams)].copy()
         except Exception:
             pass
-    # Bookmaker filter defaults to the supported live/pregame card books unless explicitly disabled.
+    # By default, keep all books returned for the configured region unless --bookmakers narrows it.
     bookmaker_keys = resolve_player_prop_bookmakers(bookmakers)
     edges = filter_player_prop_bookmakers_df(edges, bookmakers)
     # Thresholds and top-N

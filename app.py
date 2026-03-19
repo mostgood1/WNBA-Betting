@@ -240,7 +240,8 @@ except Exception:  # pragma: no cover
     _to_tricode = None  # type: ignore
 
 
-_APP_DEFAULT_PLAYER_PROP_BOOKMAKERS = ("fanduel", "draftkings", "betmgm", "bet365")
+_APP_DEFAULT_PLAYER_PROP_BOOKMAKERS: tuple[str, ...] = tuple()
+_APP_DEFAULT_LIVE_PLAYER_PROP_BOOKMAKERS = ("fanduel", "draftkings", "betmgm", "bet365")
 
 
 def _canonical_bookmaker_key(book: Any) -> str:
@@ -272,8 +273,15 @@ def _canonical_bookmaker_key(book: Any) -> str:
 
 
 def _player_prop_bookmakers_tuple(raw: str | None = None, *, env_name: str = "PLAYER_PROP_BOOKMAKERS") -> tuple[str, ...]:
+    default_vals = (
+        _APP_DEFAULT_LIVE_PLAYER_PROP_BOOKMAKERS
+        if env_name == "LIVE_PLAYER_PROP_BOOKMAKERS"
+        else _APP_DEFAULT_PLAYER_PROP_BOOKMAKERS
+    )
+    s = str(raw if raw is not None else os.environ.get(env_name, "")).strip()
+    if not s:
+        return default_vals
     try:
-        s = raw if raw is not None else os.environ.get(env_name)
         if callable(_resolve_player_prop_bookmakers):
             vals = tuple(str(x).strip().lower() for x in _resolve_player_prop_bookmakers(s) if str(x).strip())
             if vals:
@@ -282,9 +290,6 @@ def _player_prop_bookmakers_tuple(raw: str | None = None, *, env_name: str = "PL
                 return tuple()
     except Exception:
         pass
-    s = str(raw if raw is not None else os.environ.get(env_name, "")).strip()
-    if not s:
-        return _APP_DEFAULT_PLAYER_PROP_BOOKMAKERS
     if s.lower() in {"all", "none", "off", "0", "false", "no"}:
         return tuple()
     out: list[str] = []
@@ -642,8 +647,8 @@ def _live_oddsapi_player_props_for_game(date_str: str, home_tri: str, away_tri: 
     if not h or not a:
         return {}
 
-    allowed_books = _player_prop_bookmakers_set(os.environ.get("LIVE_PLAYER_PROP_BOOKMAKERS"), env_name="PLAYER_PROP_BOOKMAKERS")
-    bookmakers_csv = _player_prop_bookmakers_csv(os.environ.get("LIVE_PLAYER_PROP_BOOKMAKERS"), env_name="PLAYER_PROP_BOOKMAKERS")
+    allowed_books = _player_prop_bookmakers_set(env_name="LIVE_PLAYER_PROP_BOOKMAKERS")
+    bookmakers_csv = _player_prop_bookmakers_csv(env_name="LIVE_PLAYER_PROP_BOOKMAKERS")
 
     def _env_int(name: str, default: int, lo: int, hi: int) -> int:
         try:
@@ -8835,9 +8840,8 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             "DAILY_LOOKAHEAD_SMARTSIM_NSIMS",
             "DAILY_SMARTSIM_NSIMS",
         ], 2000))
-        default_props_bookmakers = ",".join(_player_prop_bookmakers_tuple(None, env_name="PLAYER_PROP_BOOKMAKERS"))
-        if not default_props_bookmakers:
-            default_props_bookmakers = "fanduel,draftkings,betmgm,bet365"
+        default_props_bookmakers = _player_prop_bookmakers_csv(None, env_name="PLAYER_PROP_BOOKMAKERS") or ""
+        default_props_bookmakers_label = default_props_bookmakers or "all-us-region-books"
 
         def _run_shared_props_refresh_step() -> tuple[int, dict[str, Any]]:
             try:
@@ -8849,7 +8853,7 @@ def _daily_update_job(do_push: bool, date_str: str | None = None, mode: str = "f
             worker_log = logs_dir / f"web_refresh_oddsapi_props_{date_str}_{stamp}.log"
             _append_log(
                 "Using shared OddsAPI props refresh worker "
-                f"(bookmakers={default_props_bookmakers}, log={worker_log})"
+                f"(bookmakers={default_props_bookmakers_label}, log={worker_log})"
             )
             state = _worker_run_refresh(
                 date_str=str(date_str),
@@ -30354,7 +30358,7 @@ def api_cron_refresh_oddsapi_props():
     Query params:
     - date (optional): YYYY-MM-DD (defaults to the current US local slate date)
       - regions (optional): OddsAPI regions (default 'us')
-            - bookmakers (optional): comma-separated bookmaker ids; default FanDuel,DraftKings,BetMGM,bet365
+            - bookmakers (optional): comma-separated bookmaker ids; default all books in the requested regions
       - markets (optional): comma-separated market keys; default uses our full player_* list
       - edges (optional): '1' to run props-edges from OddsAPI after snapshot
       - export (optional): '1' to run export-props-recommendations after edges
@@ -30370,7 +30374,7 @@ def api_cron_refresh_oddsapi_props():
         return jsonify({"error": "unauthorized"}), 401
     d = _parse_date_param(request, default_to_today=True)
     regions = (request.args.get("regions") or "us").strip() or "us"
-    bookmakers = ",".join(_player_prop_bookmakers_tuple(request.args.get("bookmakers"), env_name="PLAYER_PROP_BOOKMAKERS"))
+    bookmakers = _player_prop_bookmakers_csv(request.args.get("bookmakers"), env_name="PLAYER_PROP_BOOKMAKERS") or ""
     markets = (request.args.get("markets") or "").strip()
     do_edges = (str(request.args.get("edges", "0")).lower() in {"1", "true", "yes"})
     do_export = (str(request.args.get("export", "0")).lower() in {"1", "true", "yes"})

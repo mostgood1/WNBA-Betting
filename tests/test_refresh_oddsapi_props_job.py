@@ -9,6 +9,7 @@ from nba_betting.refresh_oddsapi_props_job import (
     _materialize_processed_snapshot_alias,
     _merge_props_prediction_frames,
 )
+from nba_betting.odds_api import resolve_player_prop_bookmakers
 from nba_betting.player_names import normalize_player_name_key
 
 
@@ -105,6 +106,12 @@ def test_normalize_player_name_key_collapses_known_aliases():
     assert normalize_player_name_key("Herbert Jones") == "HERBERT JONES"
     assert normalize_player_name_key("Moe Wagner") == "MORITZ WAGNER"
     assert normalize_player_name_key("Moritz Wagner") == "MORITZ WAGNER"
+
+
+def test_resolve_player_prop_bookmakers_defaults_to_all_us_books(monkeypatch):
+    monkeypatch.delenv("PLAYER_PROP_BOOKMAKERS", raising=False)
+
+    assert resolve_player_prop_bookmakers() == ()
 
 
 def test_merge_props_prediction_frames_treats_known_aliases_as_same_player():
