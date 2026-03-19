@@ -5,8 +5,9 @@
     "CLE": 2,
     "DET": 2,
     "MIL": 1,
-    "ORL": 1,
+    "ORL": 2,
     "PHI": 2,
+    "SAC": 1,
     "SAS": 2
   },
   "players": [
@@ -16,8 +17,18 @@
       "status": "OUT"
     },
     {
+      "player": "Domantas Sabonis",
+      "team": "SAC",
+      "status": "OUT"
+    },
+    {
       "player": "Jarrett Allen",
       "team": "CLE",
+      "status": "OUT"
+    },
+    {
+      "player": "Franz Wagner",
+      "team": "ORL",
       "status": "OUT"
     },
     {

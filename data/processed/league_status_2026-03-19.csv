@@ -55,7 +55,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 203944,Julius Randle,MIN,,False,False
 203952,Andrew Wiggins,MIA,,True,True
 203954,Joel Embiid,PHI,,True,True
-203957,Danté Exum,DAL,,False,False
+203957,Danté Exum,,,False,False
 203967,Dario Šarić,,,False,False
 203991,Clint Capela,HOU,,False,False
 203992,Bogdan Bogdanović,LAC,,True,True
@@ -69,7 +69,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1626157,Karl-Anthony Towns,NYK,,False,False
 1626162,Kelly Oubre Jr.,PHI,OUT,True,False
 1626164,Devin Booker,PHX,,True,True
-1626167,Myles Turner,MIL,QUESTIONABLE,True,True
+1626167,Myles Turner,MIL,,True,True
 1626171,Bobby Portis,MIL,,True,True
 1626172,Kevon Looney,NOP,,True,True
 1626179,Terry Rozier,MIA,,True,True
@@ -77,7 +77,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1626192,Pat Connaughton,CHA,,True,True
 1626204,Larry Nance Jr.,CLE,,True,True
 1626220,Royce O'Neale,PHX,,True,True
-1627734,Domantas Sabonis,SAC,,True,True
+1627734,Domantas Sabonis,SAC,OUT,True,False
 1627739,Kris Dunn,LAC,,True,True
 1627741,Buddy Hield,ATL,,False,False
 1627742,Brandon Ingram,TOR,,False,False
@@ -87,7 +87,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1627751,Jakob Poeltl,TOR,,False,False
 1627752,Taurean Prince,MIL,,True,True
 1627759,Jaylen Brown,BOS,,False,False
-1627777,Georges Niang,ATL,,False,False
+1627777,Georges Niang,,,False,False
 1627780,Gary Payton II,GSW,,False,False
 1627783,Pascal Siakam,IND,,False,False
 1627824,Guerschon Yabusele,CHI,,True,True
@@ -229,14 +229,14 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1630249,Vít Krejčí,POR,,False,False
 1630256,Jae'Sean Tate,HOU,,False,False
 1630264,Anthony Gill,WAS,,True,True
-1630284,Kevon Harris,ORL,,True,True
+1630284,Kevon Harris,,,False,False
 1630311,Pat Spencer,GSW,,False,False
 1630314,Brandon Williams,DAL,,False,False
 1630322,Lindy Waters III,SAS,,True,True
 1630526,Jeremiah Robinson-Earl,,,False,False
 1630529,Herbert Jones,NOP,,True,True
 1630530,Trey Murphy III,NOP,,True,True
-1630532,Franz Wagner,ORL,,True,True
+1630532,Franz Wagner,ORL,OUT,True,False
 1630533,Ziaire Williams,BKN,,False,False
 1630534,Ochai Agbaji,BKN,,False,False
 1630536,Sharife Cooper,WAS,,True,True
@@ -408,7 +408,7 @@ player_id,player_name,team,injury_status,team_on_slate,playing_today
 1641871,Duop Reath,,,False,False
 1641989,Elijah Harkless,UTA,,True,True
 1641998,Trey Jemison III,NYK,,False,False
-1642050,Jackson Rowe,GSW,,False,False
+1642050,Jackson Rowe,,,False,False
 1642066,Myron Gardner,MIA,,True,True
 1642258,Zaccharie Risacher,ATL,,False,False
 1642259,Alex Sarr,WAS,QUESTIONABLE,True,True

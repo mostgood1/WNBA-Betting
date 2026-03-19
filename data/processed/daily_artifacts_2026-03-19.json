@@ -5,12 +5,12 @@
   "props_predictions_ok": true,
   "game_odds_ok": true,
   "props_snapshot_ok": true,
-  "props_snapshot_rows": 3593,
+  "props_snapshot_rows": 11485,
   "props_edges_ok": true,
-  "props_edges_rows": 794,
+  "props_edges_rows": 827,
   "props_recommendations_ok": true,
   "props_recommendations_rows": 88,
-  "props_recommendations_play_rows": 79,
+  "props_recommendations_play_rows": 61,
   "props_expected_teams": [
     "CHA",
     "CHI",
@@ -51,21 +51,11 @@
   "slate_games": 8,
   "smart_sim_count": 8,
   "rotations_dir_exists": false,
-  "rotations_expected_games_yesterday": 9,
+  "rotations_expected_games_yesterday": 0,
   "rotations_have_games_yesterday": 0,
   "rotations_min_coverage": 0.7,
-  "rotations_coverage_yesterday": 0.0,
-  "rotations_missing_game_ids_yesterday": [
-    "0022500651",
-    "0022500999",
-    "0022501000",
-    "0022501001",
-    "0022501002",
-    "0022501004",
-    "0022501005",
-    "0022501006",
-    "0022501007"
-  ],
+  "rotations_coverage_yesterday": null,
+  "rotations_missing_game_ids_yesterday": [],
   "rotations_excused_no_event_game_ids_yesterday": [],
   "rotations_error": null,
   "require_odds": false,
@@ -74,8 +64,7 @@
   "require_rotations_espn": false,
   "warnings": [
     "minutes_sanity: team PHX top10 minutes sum low (0.0) using pred_min",
-    "minutes_sanity: team PHX has <5 players at 20+ min (found 0) using pred_min",
-    "optional artifact partial: rotations_espn stints (0/9)"
+    "minutes_sanity: team PHX has <5 players at 20+ min (found 0) using pred_min"
   ],
   "missing": [],
   "ok": true
